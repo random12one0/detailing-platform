@@ -17747,6 +17747,20 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   other row moved.** The message says the red is the sabotage working, so it
   cannot be mistaken for a real finding.
 
+  **AND THE SABOTAGE THAT MATTERS MORE, BECAUSE A CODE FLIP ONLY PROVES THE
+  COMPARISON: THE DOCUMENT'S OWN TABLE WAS EDITED.** The row set is **read from**
+  `docs/open-items-read-as-a-stranger-2026-09-25.md` rather than carried here —
+  **one list, not two that can drift.** So row 8 was deleted from the `READY NOW`
+  table and the suite re-run.
+  **Caught, and it followed the document rather than itself:** *"parsed 11 rows
+  from docs/open-items-read-as-a-stranger-2026-09-25.md READY NOW, declared
+  12"* — **11 passed / 2 failed.** Reverted with `git checkout`, the document
+  confirmed **clean** by `git status --porcelain`, and the suite back to **14
+  passed / 0 failed**. **A check that reads a file it cannot prove it parsed
+  correctly is the population fault**, not the verdict fault, and the population
+  fault is the one that reads as all-clear — 14.28's floor argument in a second
+  place.
+
   **Green today: 14 passed / 0 failed**, 12 rows, 9 commands run, 2 unverifiable
   named, 1 done. Credential-free except 14.26's row, which **names the credential
   and where it lives and is reported by name when it is missing** rather than

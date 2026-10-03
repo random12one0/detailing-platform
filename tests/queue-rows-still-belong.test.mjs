@@ -1,112 +1,150 @@
-// THE WORK QUEUE RE-PROVES ITSELF, ROW BY ROW.
+// THE WORK QUEUE RE-PROVES ITSELF, ROW BY ROW, AGAINST THE DOCUMENT THAT HOLDS IT.
 //
 // Run: node --test tests/queue-rows-still-belong.test.mjs
 //      Credential-free except row 14.26, which says so and is reported by name
 //      rather than skipped.
 //
 // ---------------------------------------------------------------------------
-// WHY THIS EXISTS — a derived list rots, and this one rotted in ninety minutes
+// IT CAUGHT A FAULT IN ITSELF ON ITS FIRST RUN, AND THAT LEADS THIS FILE
+// BECAUSE IT IS THE WHOLE ARGUMENT FOR THE CONVENTION
 // ---------------------------------------------------------------------------
-// `docs/open-items-read-as-a-stranger-2026-09-25.md` carries a work queue: the
-// open roadmap items ready to hand to the build lane, cheapest first. **Derived
-// lists rot in this repo** — 12.2 and 7.8 both described a product that had
-// changed under them, and both were caught by running a command rather than by
-// re-reading.
+// Row 2.12's command runs `node --test`, and **a nested runner inherits
+// `NODE_TEST_CONTEXT` from its parent**, so the child reported through the
+// parent's channel and exited 1 **while the suite behaved exactly as the row
+// expects**. Measured both ways on the same command: **inherited env exit 1,
+// stripped env exit 0.** It produced one false *"HAS MOVED"* — a check reporting
+// a stale row that was not stale, **in the file written to prevent exactly
+// that.** `run()` strips it now, with the measurement in a comment above it.
 //
-// **The queue rotted faster than either.** Row 1 was 9.11's first clause:
-// *"nothing to build — the receipt still reads `"status": "fail"` over a
-// `git_sha` that is an ANCESTOR of the fix."* **Ninety minutes after it was
-// written the other lane re-ran the sweep**, so the receipt carried
-// `git_sha 50767da` (that hour's HEAD) and the clause was met. The manager was
-// about to hand the row out.
+// **THE HONEST TALLY: one wrong command in ten, plus one wrong harness, and both
+// were found by RUNNING rather than by reading.** Row 3.4c's first command
+// probed `2026-10-12` — the ISO date the entry proposes as the *fix* — instead
+// of `"12 October 2026"`, the literal actually in `scripts/render-emails.mjs`,
+// and would have retired a live row. **That rate is on commands written by
+// somebody who knew exactly what each one meant.**
+//
+// ---------------------------------------------------------------------------
+// WHY IT EXISTS — a derived list rots, and this one rotted in ninety minutes
+// ---------------------------------------------------------------------------
+// Row 1 was 9.11's first clause: nothing to build, because the receipt still
+// read `"status": "fail"` over a `git_sha` that was an ANCESTOR of the fix.
+// Ninety minutes later the other lane re-ran the sweep, the receipt carried that
+// hour's HEAD, and the clause was met. **The manager was about to hand it out.**
 //
 // **AND THE PART A READING COULD NEVER HAVE CAUGHT: the receipt said `fail`
 // before and says `fail` now, and they are different fails.** A stale red over
 // an ancestor sha became a **live** red with two real findings — `guide ·
-// calendar 5` at 1920, *"the whole page can be dragged sideways, +51px"*. **Same
-// word, opposite meaning.** That is why the clause was written about the **sha**
-// and not about the **status**, and it is why this file exists: a command can
-// tell those apart and a sentence cannot.
+// calendar 5` at 1920, the whole page draggable sideways by 51px. **Same word,
+// opposite meaning**, which is why the clause was written about the sha and not
+// the status.
+//
+// ---------------------------------------------------------------------------
+// ONE LIST, NOT TWO — the row set is READ from the pass file
+// ---------------------------------------------------------------------------
+// **Two lists describing one queue is the derived-list fault one level down.**
+// The prose table and this file would drift, and the check would pass over a
+// queue it no longer described. So:
+//
+//   * the **IDENTITY** of the queue — which items, in what order — is parsed
+//     from the `READY NOW` table in
+//     `docs/open-items-read-as-a-stranger-2026-09-25.md`;
+//   * only the **COMMANDS** live here, keyed by item id;
+//   * **a row the document names and this file has no command for is a red**,
+//     and so is a command here for a row the document no longer lists.
+//
+// **If the parse finds fewer rows than EXPECTED_ROWS it FAILS rather than
+// quietly checking fewer** — 14.28's discovery-floor argument in a second place.
+// **A check that reads a file it cannot prove it parsed correctly is the
+// population fault**, not the verdict fault, and that is the one that reads as
+// all-clear.
 //
 // ---------------------------------------------------------------------------
 // THE CONVENTION, which needs no interpreting
 // ---------------------------------------------------------------------------
-// Each row declares a command. **`exit 0` means the row STILL BELONGS in the
-// queue. Non-zero means it has MOVED** — done, changed, or overtaken — **and the
-// queue must be updated before anybody is handed that row.**
-//
-// Several commands are deliberately inverted (`! grep …`) so that *the fault
-// still being present* is the success case. That reads oddly on purpose: **what
-// is being re-proved is the ROW'S MEMBERSHIP, not the product's health.**
+// **exit 0 means the row STILL BELONGS. Non-zero means it has MOVED** — done,
+// changed or overtaken — **and the queue must be updated before anybody is
+// handed that row.** Several commands are inverted (`! grep …`) so that *the
+// fault still being present* is the success case: **what is re-proved is the
+// row's membership, not the product's health.**
 //
 // ---------------------------------------------------------------------------
 // THREE THINGS IT MUST DO, OR IT IS FURNITURE
 // ---------------------------------------------------------------------------
-// 1. **Report PER ROW.** One red hiding nine greens tells nobody which row to
-//    look at, so every row is its own subtest named by item.
-// 2. **Declare the row count and fail if it finds fewer** (`EXPECTED_ROWS`).
-//    **A table that stops being parsed must not read as all-clear** — this
-//    repo's most repeated fault, and the reason `OPEN_FLOOR` exists in
-//    `every-open-item-is-citable`.
-// 3. **The rows with no command print as UNVERIFIABLE by name**, never silently
-//    skipped and never counted as passing. Two rows are in that state and both
-//    say why.
+// 1. **Report PER ROW** — one red hiding nine greens names nothing.
+// 2. **Declare the row count and fail if it finds fewer.**
+// 3. **Rows with no command print as UNVERIFIABLE by name**, never skipped and
+//    never counted as passing.
 //
 // ---------------------------------------------------------------------------
-// EVERY COMMAND WAS EXECUTED BEFORE IT WAS WRITTEN DOWN, AND ONE OF TEN FAILED
-// THAT TEST
+// BROKEN ON PURPOSE, TWO WAYS — 2026-10-03, both run. ROADMAP 14.29.
 // ---------------------------------------------------------------------------
-// Row 3.4c's first command probed `2026-10-12` — the ISO date the entry proposes
-// as the **fix** — rather than `"12 October 2026"`, the literal that is actually
-// in `scripts/render-emails.mjs`. **It exited 1 and would have retired a live
-// row.** It was caught because the commands were run, not reasoned.
-//
-// **One in ten wrong, written by somebody who knew exactly what each one meant.**
-// That rate is the argument for the rule.
-//
-// ---------------------------------------------------------------------------
-// BROKEN ON PURPOSE — 2026-10-03
-// ---------------------------------------------------------------------------
-// `QUEUE_FLIP=<id>` inverts that one row's expectation, so a row that currently
-// belongs is asserted to have moved. **The run must go red and name that row and
-// no other.** What was flipped and what it printed is in ROADMAP 14.29.
+//   * `QUEUE_FLIP=<id>` inverts one row's expectation in code.
+//   * **The document's own table was edited** — a row taken out of `READY NOW` —
+//     and the check followed and named the mismatch. **That is the sabotage that
+//     proves it reads the document rather than itself.**
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
-// Declared, not derived. 12 rows in the queue on 2026-10-03; row 1 is done.
+const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
+
+// Declared, not derived. 12 rows on 2026-10-03.
 const EXPECTED_ROWS = 12;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
-/** The queue, as data. `cmd` exits 0 while the row still belongs. */
-const ROWS = [
-  { n: 1, id: "9.11", done: "2026-10-03 02:01 — the other lane re-ran the sweep; receipt git_sha 50767da. Clause 2 is Andrew's." },
-  { n: 2, id: "14.22", cmd: `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -qv '^t('` },
-  { n: 3, id: "14.21", cmd: `! grep -qE 'SIGTERM|SIGINT' scripts/admin-contrast.mjs` },
-  { n: 4, id: "14.26", needsEnv: "SUPABASE_SECRET_KEY",
-    cmd: `test "$(curl -s "$SUPABASE_URL/rest/v1/bookings?address_source=eq.picked&select=id" -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY")" = "[]"` },
-  { n: 5, id: "3.4c", cmd: `grep -q '"12 October 2026"' scripts/render-emails.mjs` },
-  { n: 6, id: "7.18", cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
-  { n: 7, id: "4.6", cmd: `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` },
-  { n: 8, id: "14.23", cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
-  { n: 9, id: "8.10c", cmd: `! grep -q role_table_grants scripts/migration-drift.mjs` },
-  { n: 10, id: "2.12", cmd: `! node --test tests/spanish.test.mjs` },
-  { n: 11, id: "9.2", unverifiable:
-      "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening AdminPage.jsx's STUCK array, which is also the first step of the work." },
-  { n: 12, id: "7.9", unverifiable:
-      "membership is 'is anything at opacity 0 after first paint under reduced motion?' — that needs a rendered page, which is why the item is on the list at all. Greping for data-rv would re-prove the wrong thing: presence is not visibility (7.12)." },
-];
+const ROW_RE = /^\| \*\*(\d+)\*\* \| \*\*([^*]+)\*\*/;
 
-// **THE CHILD MUST NOT INHERIT THE TEST RUNNER'S OWN ENVIRONMENT.** Row 2.12's
-// command invokes `node --test`, and a nested runner inherits `NODE_TEST_CONTEXT`
-// from its parent, which makes it report through the parent's channel and exit 1
-// even when the suite behaves exactly as the row expects. **Measured: inherited
-// env gave exit 1, stripped gave exit 0, on the same command.** It cost one
-// false "HAS MOVED" on 2.12 before it was found — a check reporting a stale row
-// that was not stale, which is the fault this file exists to prevent, in the
-// file itself.
+/** The queue's identity, read from the document that holds it. */
+function rowsFromDoc() {
+  const lines = readFileSync(QUEUE_DOC, "utf8").split(/\r?\n/);
+  const start = lines.findIndex((l) => l.trim() === "### READY NOW");
+  if (start < 0) return [];
+  const out = [];
+  for (let j = start + 1; j < lines.length; j++) {
+    if (/^#{2,3} /.test(lines[j])) break; // the next section ends the table
+    const m = lines[j].match(ROW_RE);
+    if (m) {
+      out.push({
+        n: Number(m[1]),
+        id: m[2].replace(/'s fix$/, "").replace(/,.*$/, "").trim(),
+      });
+    }
+  }
+  return out;
+}
+
+/** Commands, keyed by item id. Membership and order come from the document. */
+const CMD = {
+  "9.11": { done: "2026-10-03 02:01 — the other lane re-ran the sweep; receipt git_sha 50767da. Clause 2 is Andrew's." },
+  "14.22": { cmd: `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -qv '^t('` },
+  "14.21": { cmd: `! grep -qE 'SIGTERM|SIGINT' scripts/admin-contrast.mjs` },
+  "14.26": {
+    needsEnv: "SUPABASE_SECRET_KEY",
+    cmd: `test "$(curl -s "$SUPABASE_URL/rest/v1/bookings?address_source=eq.picked&select=id" -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY")" = "[]"`,
+  },
+  "3.4c": { cmd: `grep -q '"12 October 2026"' scripts/render-emails.mjs` },
+  "7.18": { cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
+  "4.6": { cmd: `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` },
+  "14.23": { cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
+  "8.10c": { cmd: `! grep -q role_table_grants scripts/migration-drift.mjs` },
+  "2.12": { cmd: `! node --test tests/spanish.test.mjs` },
+  "9.2": {
+    unverifiable:
+      "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening AdminPage.jsx's STUCK array, which is also the first step of the work.",
+  },
+  "7.9": {
+    unverifiable:
+      "membership is 'is anything at opacity 0 after first paint under reduced motion?' — that needs a rendered page, which is why the item is on the list at all. Grepping for data-rv would re-prove the wrong thing: presence is not visibility (7.12).",
+  },
+};
+
+// **THE CHILD MUST NOT INHERIT THE TEST RUNNER'S OWN ENVIRONMENT.** See the
+// header: a nested `node --test` inherits `NODE_TEST_CONTEXT` and exits 1 even
+// when the suite behaves as the row expects. Measured: inherited exit 1,
+// stripped exit 0, same command.
 function run(cmd) {
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
@@ -120,60 +158,70 @@ function run(cmd) {
 }
 
 test("every ready row in the work queue still belongs", async (t) => {
-  await t.test("0 · the table has the declared number of rows", () => {
-    assert.equal(
-      ROWS.length, EXPECTED_ROWS,
-      `found ${ROWS.length} rows, declared ${EXPECTED_ROWS}. A table that stops `
-      + "being parsed must not read as all-clear. If the queue genuinely grew or "
-      + "shrank, move EXPECTED_ROWS in the same edit as the row.",
-    );
+  const rows = rowsFromDoc();
+
+  await t.test("0 · the document's table parsed, and carries the declared rows", () => {
     assert.ok(
-      ROWS.filter((r) => r.cmd).length >= 7,
-      "fewer than seven runnable commands means the table is being emptied "
-      + "rather than maintained",
+      rows.length >= EXPECTED_ROWS,
+      `parsed ${rows.length} rows from ${QUEUE_DOC} READY NOW, declared `
+      + `${EXPECTED_ROWS}. Fewer means the TABLE STOPPED PARSING, not that the `
+      + "queue shrank — and a parser that stops matching must never read as "
+      + "all-clear. Check the row shape before touching this number; if the queue "
+      + "genuinely changed, move EXPECTED_ROWS in the same edit as the table.",
+    );
+    const missing = rows.filter((r) => !CMD[r.id]).map((r) => `${r.n} · ${r.id}`);
+    assert.deepEqual(
+      missing, [],
+      "the document names rows this file has no command for. One list, not two: "
+      + "add the command here, or take the row out of the table.",
+    );
+    const orphans = Object.keys(CMD).filter((id) => !rows.some((r) => r.id === id));
+    assert.deepEqual(
+      orphans, [],
+      "this file carries commands for rows the document no longer lists. The "
+      + "document is the queue; delete the orphan command.",
     );
   });
 
-  for (const r of ROWS) {
-    if (r.done) {
+  for (const r of rows) {
+    const spec = CMD[r.id] || {};
+
+    if (spec.done) {
       await t.test(`${r.n} · ${r.id} — DONE, not a live row`, () => {
-        assert.ok(r.done.length > 10, "a done row must carry its evidence");
+        assert.ok(spec.done.length > 10, "a done row must carry its evidence");
       });
       continue;
     }
 
-    if (r.unverifiable) {
-      // Named, never skipped, never counted as passing.
+    if (spec.unverifiable) {
       await t.test(`${r.n} · ${r.id} — UNVERIFIABLE BY COMMAND (read it instead)`, () => {
-        assert.ok(r.unverifiable.length > 40,
+        assert.ok(spec.unverifiable.length > 40,
           "an unverifiable row must say WHY, or it is a silent skip");
-        assert.ok(!r.cmd,
-          "a row cannot be both unverifiable and carry a command");
+        assert.ok(!spec.cmd, "a row cannot be both unverifiable and carry a command");
       });
       continue;
     }
 
     const flipped = FLIP === r.id;
     await t.test(`${r.n} · ${r.id} — re-prove${flipped ? " [FLIPPED]" : ""}`, () => {
-      if (r.needsEnv && !process.env[r.needsEnv]) {
+      if (spec.needsEnv && !process.env[spec.needsEnv]) {
         assert.fail(
-          `${r.id} needs ${r.needsEnv}, which is NOT set. It lives in the `
+          `${r.id} needs ${spec.needsEnv}, which is NOT set. It lives in the `
           + "repo-root `.env` — load it with `set -a; . ./.env; set +a` and run "
           + "again. Reported rather than skipped, because a skipped row reads "
           + "exactly like a passing one.",
         );
       }
-      const code = run(r.cmd);
+      const code = run(spec.cmd);
       const belongs = code === 0;
-      const want = flipped ? false : true;
       assert.equal(
-        belongs, want,
+        belongs, flipped ? false : true,
         flipped
-          ? `${r.id} was FLIPPED by QUEUE_FLIP and behaved as it should — this `
-            + "red is the sabotage working."
+          ? `${r.id} was FLIPPED by QUEUE_FLIP and behaved as it should — this red `
+            + "is the sabotage working, not a finding."
           : `${r.id} HAS MOVED (exit ${code}). It is done, changed or overtaken. `
-            + "Update the queue in docs/open-items-read-as-a-stranger-2026-09-25.md "
-            + `before handing this row to anybody. Command: ${r.cmd}`,
+            + `Update the READY NOW table in ${QUEUE_DOC} before handing this row `
+            + `to anybody. Command: ${spec.cmd}`,
       );
     });
   }
