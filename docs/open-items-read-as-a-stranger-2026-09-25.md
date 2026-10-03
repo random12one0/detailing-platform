@@ -1486,3 +1486,90 @@ the script creates before running it, and announce the write — `CLAUDE.md` say
 *"say what you are about to write before you write it"* for this database, and I
 ran a schema-creating script without doing either. **The criterion did not warn
 me and that is a real gap in the entry; it is also not an excuse.**
+
+---
+
+## THE PRESENT-TENSE SWEEP — 252 asserted strings checked against git, 4 expired
+
+**2026-10-03, on the manager's instruction after 12.2.** *A criterion in the
+present tense expires without anyone touching it, and reading cannot catch that —
+only running `git log -S` against the thing it claims can.*
+
+### THE METHOD, so it can be repeated or disbelieved
+
+1. **Every open item's text** scanned for **double-quoted phrases** of 10–70
+   characters containing a space — the shape of a quoted UI string. Paths, code
+   and single tokens filtered out. **350 candidates across 64 open items.**
+2. Each tested against **one in-memory blob of every tracked file under
+   `app/src`**. **98 are present today** — those claims are live and need nothing.
+3. The remaining **252** got `git log --oneline -S"<string>" -- app/src`. **A
+   string with commits behind it and no presence today is a claim that WAS true
+   of the product and is not now.** That is the whole test.
+
+| | |
+|---|---|
+| quoted strings found in open items | **350** |
+| present in `app/src` today — claim live | **98** |
+| **checked with `git log -S`** | **252** |
+| **expired — once in `app/src`, gone now** | **4** |
+| of those, already known | **1** (12.2) |
+| **genuinely new findings** | **1** (7.8) |
+| false positives on inspection | **2** |
+
+### THE ONE NEW FINDING — 7.8, and it is 12.2's mechanism exactly
+
+**`git log -S"name, email address and booking details" -- app/src`** →
+**`2942f6f`, 2026-09-21, *"7.8: the privacy page now names all four, and the
+conditional ones say so"*** — `legal.js`, +32/−2. **The commit names the item.**
+
+7.8's entry carries a four-point audit of what the privacy page fails to say.
+**All four were fixed twelve days ago.** `legal.js` now carries *"Geoapify a
+second time, per distinct address"*, the weather service and its name, and a
+line recording what the Resend sentence used to say. **A reader working that
+list would redo finished work.**
+
+**IT IS NOT A CLOSED-IN-FACT ITEM AND I CHECKED THAT BEFORE SAYING SO.** 7.8's
+criterion has two clauses, and clause **(b)** — *a check that fails by name when
+the code's host list and `/privacy`'s list disagree* — **does not exist.** The
+page was reconciled **by hand, once**, which is the exact thing that criterion's
+own *What failing looks like* warns about. **The copy half is done; the mechanism
+half is the item.** So this is a **stale-audit** finding, a third category beside
+closed-in-fact and a bad criterion.
+
+### THE TWO FALSE POSITIVES, named so the yield is honest
+
+* **9.7 — *"on my way,"***. Left `app/src` in a copy pass (`2fff045`). But the
+  entry quotes it as **an example of what a template token fills**, inside an
+  aside explaining why the client card cannot reuse `BookingDetail`'s picker.
+  **The claim is about the picker, which still exists.** The phrase changing is
+  not the claim expiring.
+* **The `withinLimits` item — *"four fixed"***. Prose, not a UI string; it
+  matched `45eaf85` by coincidence of wording.
+
+**Two of four is a 50% false-positive rate on the expired set**, which is the
+honest number and is why each of the four was opened rather than reported from
+the list. **The list is a lead; the entry is the verdict** — the same rule the
+ticked-item audit arrived at four scans in.
+
+### WHAT THE SWEEP IS GOOD FOR, AND WHAT IT CANNOT SEE
+
+**It is cheap and it works: 252 git calls, one real finding, and the finding is
+the kind nothing else catches** — an entry describing a past state in the
+present tense, which reads as perfectly current and is checkable only against
+history.
+
+**Three things it cannot see, stated so the next person does not over-trust
+it:**
+1. **A claim with no quoted string.** *"the page promises a driveway card
+   payment"* with no quote attached has nothing to search for. **12.2 was
+   catchable only because somebody had quoted the exact words.**
+2. **A claim about behaviour rather than text** — *"Continue stays disabled"*,
+   *"the count includes fixtures"*. No string, no `git log -S`.
+3. **A string that changed in a file outside `app/src`** — a migration, an edge
+   function, a script. The sweep was scoped to `app/src` because that is where
+   screen copy lives; **a claim about an edge function's wording would be
+   missed.**
+
+**So: 4 of 252, 1 real, and the method's ceiling is quoted screen text.** Worth
+re-running whenever an item is picked up, and **not** worth treating as a clean
+bill for the entries it passed over.
