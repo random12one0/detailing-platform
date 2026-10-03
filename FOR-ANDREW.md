@@ -866,6 +866,14 @@ still knows them.
   `node scripts/client-fixtures.mjs` keeps passing either way, printing
   `column_live: true` afterwards instead of `false`.
 
+  **AND IT FINISHES TWO THINGS ON THE LIST RATHER THAN ONE — found 2026-10-03.**
+  The screen that hides the test rows **is already written**. It was built, and
+  then it quietly stopped working, because the tick box it looks for was never
+  added — so it looks at every customer, finds no tick, and shows them all.
+  **Running this one command is the whole of what is missing**, and it closes
+  **both** of the two jobs on our list about test rows in your lists (0.3 and
+  1.3). **Nothing else is needed for either of them.**
+
   **Nothing breaks while this waits** — the screen simply goes on showing all
   sixteen, exactly as it does today.
 

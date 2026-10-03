@@ -494,6 +494,23 @@ and how the wait ends.
   **The back-office half is already live and can be pointed at rather than
   rebuilt:** the admin drawer reads *"Everyone 16, Real detailers 1"*.
 
+  ***AND THE CLIENT-LIST HALF IS BUILT TOO — THIS ENTRY UNDERSTATES ITSELF.
+  Found 2026-10-03 by executing rather than reading.*** `Clients.jsx:233` and
+  `:405` already filter `!c.is_test` into the default view, `:231` counts the
+  fixtures, and a `showTest` toggle is there for looking at them. **The entry
+  says this half is NOT built. It is.**
+
+  **AND IT CANNOT WORK, WHICH IS WHY NOBODY NOTICED.** `customers.is_test` does
+  **not exist** — the endpoint answers `42703`, measured three times. So
+  `c.is_test` is `undefined`, `!undefined` is `true`, **and every fixture passes
+  the filter.** Built, correct, inert.
+
+  **SO THIS ITEM IS BLOCKED, NOT UNBUILT, AND IT SHARES ITS BLOCKER WITH 1.3** —
+  whose entry already says *"the SCREEN is proved and the COLUMN is not"*. **One
+  migration closes both.** The action is the one-command row in `FOR-ANDREW.md`
+  § *"Waiting on you"*. **An entry that understates what is built costs as much
+  as one that overstates it, because nobody goes looking.**
+
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
   them, are not lawyer-reviewed, and are in his personal name. He asked whether
@@ -1053,6 +1070,19 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   it becomes a no-op the day the column lands. **So the SCREEN is proved and
   the COLUMN is not** — `migration-drift.mjs` is the instrument for that half
   and names it absent today.
+
+  **ONE MIGRATION CLOSES THIS ITEM AND 0.3 TOGETHER, AND NEITHER ENTRY SAID SO
+  UNTIL 2026-10-03.** `customers.is_test` is the only thing either is waiting
+  for. **0.3's client-list half turns out to be BUILT** — `Clients.jsx:233` and
+  `:405` already drop `c.is_test` from the default view, `:231` counts the
+  fixtures, and a `showTest` toggle exists — **and it is inert**, because
+  `c.is_test` is `undefined` on every row, `!undefined` is `true`, and every
+  fixture passes the filter. **Both items are one column away from closing.**
+  **The action is on Andrew's list** — `FOR-ANDREW.md` § *"Waiting on you"*, the
+  one-command row whose *how you will know* line is `migration-drift.mjs`
+  reporting `customers.is_test` absent and then stopping. **Three places
+  described one action and none knew about the other two; they point at each
+  other now.**
 
   **Two things found on the way, both fixed in the same commit.**
   `migration-drift.mjs` named the wrong file for an absent column — the file
@@ -17783,6 +17813,46 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   named, 1 done. Credential-free except 14.26's row, which **names the credential
   and where it lives and is reported by name when it is missing** rather than
   skipped.
+
+### 14.30 — `bk-bar-clearance` cannot tell an accepted exception from a new failure, so it is red either way
+
+- [ ] **Found 2026-10-03 while executing 2.15a's criterion, which could not pass
+  because of this.** The sweep is built and correct — five widths, the ceiling
+  read off the element's own `maxLength`, a receipt. **It reports `fail` with 7
+  failures and all seven are the SAME accepted hold:** the 320 day cells at 37px,
+  which Andrew ruled on (`FOR-ANDREW.md:857`) and whose red **stays on purpose**.
+
+  **SO THE RED CARRIES NO INFORMATION.** A seventh genuine failure arriving
+  tomorrow would make it `fail` with 8, and **nobody reads the difference between
+  7 and 8 on a check that has been red for days.** `2.15a` asked for green on
+  every step and was therefore unsatisfiable; it has been amended to exempt the
+  hold, **which moves the problem here rather than solving it.**
+
+  **THE SHAPE, AND IT IS NOT AN ALLOWLIST.** An allowlist that swallows these
+  seven makes the check green and **hides a real violation inside a passing
+  check** — the exact thing the hold's own wording forbids. **What is wanted is a
+  SECOND number: expected failures, declared, separate from unexpected ones.**
+  `receipt.mjs` already refuses a pass over unexplained skips; this is that idea
+  one step along.
+
+  **Done when:** `receipts/bk-bar-clearance.json` carries a declared
+  `expected_failures` list — **the seven 320 day-cell findings, by target name** —
+  and a separate count of failures that are **not** on it; **the run's verdict is
+  decided by the second number only**; the receipt **still reports `fail`** so the
+  hold stays visible; and it is **proved by planting an eighth failure of a
+  different kind and watching the unexpected count go 0 → 1 while the expected
+  seven stay where they are.** Then remove the plant and watch it go back to 0.
+
+  **What failing looks like:** the seven moved into an allowlist and the check
+  turning green — **a genuine 37px violation hidden inside a pass** — or the
+  expected list written as a COUNT rather than as target names, so a day cell
+  getting better and a new control getting worse cancel out and the number does
+  not move. **Names, not a tally.**
+
+  **Why it is its own item rather than part of 2.15a:** every graded check in this
+  repo with a permanent accepted exception has the same problem, and
+  `bk-bar-clearance` is simply the first one where it was measured. **Fixing it
+  inside 2.15a would hide a general fault inside a specific item.**
 
 ### Still unanswered after steps 1–4
 
