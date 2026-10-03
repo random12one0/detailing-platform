@@ -90,9 +90,9 @@ import { readFileSync } from "node:fs";
 
 const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
 
-// Declared, not derived. 14 rows on 2026-10-03 — moved in the SAME edit as the
+// Declared, not derived. 16 rows on 2026-10-03 — moved in the SAME edit as the
 // two rows added to the document's table, which is the only way this stays true.
-const EXPECTED_ROWS = 14;
+const EXPECTED_ROWS = 16;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
@@ -132,6 +132,8 @@ const CMD = {
   "14.23": { cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
   "8.10c": { cmd: `! grep -q role_table_grants scripts/migration-drift.mjs` },
   "2.12": { cmd: `! node --test tests/spanish.test.mjs` },
+  "3.1": { cmd: `! grep -q 'email_sends' app/src/admin/AdminPage.jsx` },
+  "4.3": { cmd: `! grep -rqE 'support_mode|is_support' supabase/functions/` },
   "9.2": {
     unverifiable:
       "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening AdminPage.jsx's STUCK array, which is also the first step of the work.",

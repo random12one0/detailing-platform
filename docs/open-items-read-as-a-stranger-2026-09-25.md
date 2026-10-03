@@ -1885,6 +1885,8 @@ dependency on something unbuilt**. The first step is the literal next action.
 | **12** | **7.9** | `app/src` | **Load the home page under `prefers-reduced-motion: reduce` and `?lite=1`** and list every element at opacity 0 or absent from layout after first paint. The list must be empty; 7.12's `data-rv` bug is the known offender. |
 | **13** | **2.15a** | `scripts/` | **Make `receipts/bk-bar-clearance.json` tell the accepted 320 day-cell exception apart from a real failure.** The sweep is already built and reads the ceiling off the element's own `maxLength`; it is `fail` with 7 findings and **all seven are the hold Andrew ruled on**. Six expected, so a seventh is visible. |
 | **14** | **0.11** | `supabase/` + `app/src` | **READY BUT LARGE — the only row here that is not a short job.** Uploads through the presigned R2 door, `photo_total_gb` to 10 **in the same change**, the cap refusing with a message that names what is used, and `job_photos.bytes` equal to **the size R2 reports** rather than the client's claim. The tenant guard is already built and green (`tests/photo-key-isolation.test.mjs`). |
+| **15** | **3.1** | `app/src` | **Render the `email_sends` list in `AdminPage.jsx`** the way `BookingDetail.jsx` already does. **192 rows exist**, the client record shows them, and the back office has **zero** references. The booking link is a declared exclusion — the relay is never told which booking it is sending about. |
+| **16** | **4.3** | `supabase/functions` | **Make the mutation block server-side.** Today it is `lib/supabase.js` wrapping writes in a preview tab, and `lib/preview.js:19` says in terms that it *"stops a stray click, not an attacker"*; **no `support_mode` or equivalent exists anywhere under `supabase/functions`.** Done on disk is the deliverable — the publish is the switch, not a blocker. |
 
 ### BLOCKED, AND ON WHAT
 
@@ -2197,3 +2199,59 @@ row when the credential is missing* — would have printed **green over an
 unmeasured row**, on a run I would have believed, in a file whose whole purpose is
 telling a stale row from a live one. **`docs/silences.md`'s oldest rule, met by
 accident.**
+
+---
+
+## EXECUTING, ROUND THREE — four criteria: two promoted, one closed in fact, one blocked
+
+| # | criterion | outcome | what the command said |
+|---|---|---|---|
+| 23 | **3.1** back-office delivery list | **PROMOTED — row 15** | **192** rows in `email_sends`; `Clients.jsx` and `BookingDetail.jsx` carry **2 references each**; `AdminPage.jsx` carries **0**. The entry is exactly right |
+| 24 | **4.3** server-side refusal | **PROMOTED — row 16** | `grep -rE 'support_mode\|is_support' supabase/functions/` → **nothing**. The block is client-side only, as `lib/preview.js:19` says of itself |
+| 25 | **6.2** health monitor | **CLOSED IN FACT** | its own text says the only thing left is *"6.2a, the display"* — **and 6.2a is ticked at `ROADMAP.md:8584`** |
+| 26 | **2.1b** day-only surcharge | **BLOCKED — the publish** | the fix was built under 2.1 on 2026-09-22; `calculate-booking` is still in `deployed-inventory`'s **differing** list |
+
+### 6.2 IS CLOSED IN FACT — the fourth, and this one demonstrates its own criterion in full
+
+**Its `Done when`:** *a controlled failure raises an alert, appears in incident
+history, names the affected path, and clears only after a successful check.*
+
+**All four, at `ROADMAP.md:8398–8412`**, in the entry's own words: the second
+consecutive failing cycle pinged **`/fail`** with `{"failing":["homepage"]}`,
+healthchecks.io went **up → down**, **an incident row was written naming the path
+and the reason**, the assertion was restored, the next cycle pinged **ok**, and it
+went **down → up**.
+
+**And its only stated remainder is gone.** Line 8578: *"Still open for 6.2: 6.2a,
+the display."* **`6.2a` is `- [x]` at line 8584** — six lines below the sentence
+that calls it the blocker. **The two sentences sit on the same screen and
+disagree**, which is why a reading never caught it: nothing looks wrong about
+either one alone.
+
+**RECOMMEND THE TICK. NOT TAKEN HERE.** Closures are the manager's, and the once
+this session recommended one on a partial read — 11.3 — it was wrong. **What a
+ruling needs:** the criterion is demonstrated in the entry, the remainder is
+ticked, and the only thing left in the entry is a **stated limitation** rather
+than open work — *the prober runs inside Supabase, so it cannot report that
+Supabase itself is down*, which is a property of the design and is written down as
+one.
+
+### AND 2.1b IS THE PUBLISHING DEFERRAL, NOT UNBUILT
+
+Its criterion is *either the surcharge appears on picking the day, or
+`calculate-booking`'s header no longer claims it does.* **The fix was built under
+2.1 on 2026-09-22, exactly as this entry had written it down a day earlier** — and
+`calculate-booking` is **still undeployed**, confirmed against the receipt. So it
+is **done on disk and switched off until launch**, which is a deferral Andrew
+chose rather than a blocker anybody is failing to clear.
+
+**Worth one line because of how it reads otherwise:** 2.1b looks like an open item
+with an unmet criterion. It is an item whose criterion is met on disk and cannot
+be observed by a customer. **Those are different states and only one of them is
+work.**
+
+### THE QUEUE IS 16 ROWS
+
+**`EXPECTED_ROWS` moved to 16 in the same edit as the table**, and the check is
+**18 passed / 0 failed**. Rows 15 and 16 are both `app/src`/`supabase` builds with
+re-prove commands that pass today.
