@@ -142,7 +142,7 @@ The audit's own "Smoke TPMOY" rows are gone; what is there instead is **three
 rows three sessions left behind**, two of them 2.8's own kept evidence.
 
 **WHY THAT IS A DECAYING PRECONDITION AND NOT A NITPICK.** Those three rows are
-**exactly the population the open item at `ROADMAP.md:3514` says a reseed eats**
+**exactly the population the open item at `ROADMAP.md:3514` (**now 14.26**) says a reseed eats**
 — *"A reseed eats the evidence an open item depends on, and nothing notices"* —
 and 2.8 states in terms that its replacement row *"will go the same way at the
 next reseed unless something changes."* **So the tenant this criterion points at
@@ -230,7 +230,7 @@ the only pass available, and the run that produces it looks completely normal.
 | `Done when` half-executable | **1** (1.3) |
 | **running total** | **20 of 59** |
 
-**The ten:** 1.3, 2.1, 2.1b, the reseed item (`:3514`), the stale-blocker item
+**The ten:** 1.3, 2.1, 2.1b, the reseed item (**14.26**), the stale-blocker item
 (`:3551`), 2.12, 2.15, 2.15a, the 320 calendar item (`:4770`), 3.1.
 
 **Three claims were re-measured live rather than read, and all three held:**
@@ -269,7 +269,7 @@ removing."*
 The box is still `[ ]`.**
 
 **AND THE ITEM THAT SAYS NOBODY WOULD NOTICE THIS IS SIX HUNDRED LINES ABOVE
-IT.** `ROADMAP.md:3551` — *"Nothing notices when a blocker goes stale, so an
+IT.** `ROADMAP.md:3551` (**now 14.27**) — *"Nothing notices when a blocker goes stale, so an
 item can sit closed-in-fact and open-on-paper"* — is open, unbuilt, and was
 written after 2.8 sat two days in exactly this state. **This is its second
 confirmed instance, found the same way as the first: by holding two documents
@@ -354,7 +354,7 @@ answer**, not by looking for it.
   claim was checked and holds.**
 * **2.1b** — superseded 2026-09-22 in place, with Andrew's earlier "not a fault"
   ruling kept above it. Criterion is a two-branch either/or, executable.
-* **`:3514` (a reseed eats the evidence)** — four numbered shapes,
+* **`:3514` (a reseed eats the evidence — **now 14.26**)** — four numbered shapes,
   *"deliberately not decided"*, and a criterion that can fail: *"either a
   flagged row survives a reseed, or no open item depends on one surviving."*
   **Batch 8's finding 2 is this item happening again**, to 0.3's criterion.
@@ -863,7 +863,7 @@ observable clauses. **So there is nothing left in 11.3 and the box is open.**
 
 **Recommend the tick. Not taken here** — the audit does not move boxes on its own
 and the calendar item only moved on an explicit ruling. **It is the second
-confirmed instance of the fault `ROADMAP.md`'s own stale-blocker item says
+confirmed instance of the fault `ROADMAP.md`'s own stale-blocker item (**now 14.27**) says
 nothing notices**, and both were found the same way: two documents held next to
 each other.
 

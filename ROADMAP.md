@@ -3527,6 +3527,14 @@ the wrong service, and never book a job we cannot reach.
   a duplicate you made yourself an hour ago, having recorded what it said, is
   not the act 0.3 was written to prevent; leaving four of them to skew
   somebody else's baseline would have been a different kind of carelessness.
+  ***AND IT IS GONE — 2026-10-03.*** Both kept rows were queried by id and both
+  return empty; `address_source=eq.picked` matches **zero rows anywhere in the
+  database**; `demo-detail` has been recreated under a new `business_id`. **This
+  tick rests on a measurement nobody can re-take.** The measurement was real and
+  is recorded above in full, which is the only reason the item still stands —
+  **but a stranger who tries to verify it will find nothing.** 14.26 predicted
+  exactly this, in writing, and was open the whole time. **Not unticked here:
+  closures and reversals are the manager's.**
 
   **AND THE STANDING CHECK THE FIRST TICK DID NOT HAVE —
   `tests/address-source.test.mjs`, added 2026-09-23.** The six-case press was
@@ -3551,9 +3559,14 @@ the wrong service, and never book a job we cannot reach.
 
   Restored after each; `git diff app/src` clean, 6/6 green.
 
-- [ ] **A reseed eats the evidence an open item depends on, and nothing
+- [ ] **14.26 — A reseed eats the evidence an open item depends on, and nothing
   notices. Found 2026-09-23 inside 2.8; given its own item because it is
   bigger than 2.8.**
+  ***NUMBERED 14.26 ON 2026-10-03.*** It had no number for ten days and was
+  therefore invisible to every sweep here, all of which key on the number; other
+  entries cited it as *"the reseed item"*. **Being uncitable is how an item stops
+  being counted** — it was missing from one enumeration already (`docs/gotchas.md`
+  89).
 
   **THE MEASUREMENT.** ROADMAP 0.3 says to flag test data and never delete it.
   2.8's evidence row — booking `c4c1f0c8-b2d1-41d6-ad93-e01d89500593`,
@@ -3573,6 +3586,25 @@ the wrong service, and never book a job we cannot reach.
   `16c75c74-b6ef-4e58-81cf-3fdfd0079619` — **will go the same way at the next
   reseed unless something changes.** Writing that down is not a fix.
 
+  ***THE PREDICTION CAME TRUE. MEASURED 2026-10-03, EIGHT DAYS LATER.*** Both
+  rows are gone — `16c75c74…` **and** `3259be4f…`, queried by id against
+  `kguqylyzgyzfktkfnhjb`: **two empty arrays.** And `demo-detail`'s own
+  `business_id` has changed from `bfaf7b77…` to `080fa036…`, so **the tenant was
+  recreated, not merely re-rowed** — it carries 32 bookings today and none of
+  them is either of these.
+
+  **THE WORST OF IT, AND IT IS ONE QUERY:** `bookings?address_source=eq.picked`
+  returns **zero rows in the entire database.** 2.8 kept `3259be4f…` because it
+  was *"the ONLY row anywhere in this database whose `address_source` reads
+  `picked`"* — the single piece of evidence that the column reflects a customer's
+  choice rather than a hard-wired default. **It is not there any more and nothing
+  reported it.**
+
+  **So this item is no longer an argument; it is a demonstration.** It said in
+  writing that the replacement row would go the same way, and it did, **to the
+  row the previous session had specifically identified as irreplaceable.** Option
+  3 in the list above — *something notices* — would have caught it on the day.
+
   **SHAPES, NOT A CHOICE — deliberately not decided and not built tonight:**
   1. **The seed preserves flagged rows.** A column or a name convention
      `seed-demo.mjs` checks before it clears, so the rule lives where the
@@ -3588,9 +3620,15 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** either a flagged row survives a reseed, or no open item
   depends on one surviving.
 
-- [ ] **Nothing notices when a blocker goes stale, so an item can sit
+- [ ] **14.27 — Nothing notices when a blocker goes stale, so an item can sit
   closed-in-fact and open-on-paper. Found 2026-09-23; Andrew asked for it in
   its own right.**
+  ***NUMBERED 14.27 ON 2026-10-03, AND THE REASON IS THIS ITEM'S OWN SUBJECT.***
+  It had no number for ten days, so **every instrument in this repo was blind to
+  it** — the commit-grep sweep, the present-tense sweep and the batch audits all
+  key on the item number, and other entries cited it as *"the stale-blocker
+  item"*. **An item that nothing can grep for is an item nothing can notice has
+  gone stale**, which is precisely what it is about.
 
   **THE MEASUREMENT.** 2.8 and 2.1 carried the same sentence — *the fix is
   written, it is not live, the only thing left is a publish.* For 2.8 that
