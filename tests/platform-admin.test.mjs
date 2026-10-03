@@ -1300,7 +1300,9 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // live platform project, added it to `platform_admins` and left it there —
   // in a PUBLIC repository. CLAUDE.md already had the sentence and it had only
   // ever been applied to the demo detailer: *"making demo@… an admin would put
-  // every detailer's data behind demo123."*
+  // every detailer's data behind one short shared password."*
+  // (The password itself is NOT quoted here — `docs/platform-admins.md` says
+  // where that login lives. CLAUDE.md: say where a login lives, never what it is.)
   // **THE SUBJECT LIST IS "WHAT INSERTS A ROW", NEVER "WHAT MENTIONS THE
   // TABLE".** The first version of this check read the word `platform_admins`
   // and swept in `adversary-probe.mjs`, which names the table precisely
