@@ -169,7 +169,7 @@ work them as open questions.** They are not. They are decided.
 
 - **Two-factor login on Supabase and Netlify: NO, permanently.** Not
   deferred, not "later" — **decided, and not to be raised again.** It is
-  currently `FOR-ANDREW.md:243` (*"DO · Turn on two-factor login…"*) and
+  currently `FOR-ANDREW.md` § *"Turn on two-factor login"* (*"DO · Turn on two-factor login…"*) and
   appears again in `ROADMAP.md:4101` and `:4177` as part of a fix list, and
   in `docs/audits/comprehensive-audit-2026-09.md:122` as a required change.
   **An audit recommending it is not the same as an open question**, and the

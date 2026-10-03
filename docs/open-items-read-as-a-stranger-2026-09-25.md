@@ -2208,7 +2208,7 @@ accident.**
 |---|---|---|---|
 | 23 | **3.1** back-office delivery list | **PROMOTED — row 15** | **192** rows in `email_sends`; `Clients.jsx` and `BookingDetail.jsx` carry **2 references each**; `AdminPage.jsx` carries **0**. The entry is exactly right |
 | 24 | **4.3** server-side refusal | **PROMOTED — row 16** | `grep -rE 'support_mode\|is_support' supabase/functions/` → **nothing**. The block is client-side only, as `lib/preview.js:19` says of itself |
-| 25 | **6.2** health monitor | **CLOSED IN FACT** | its own text says the only thing left is *"6.2a, the display"* — **and 6.2a is ticked at `ROADMAP.md:8584`** |
+| 25 | **6.2** health monitor | **CLOSED IN FACT** | its own text says the only thing left is *"6.2a, the display"* — **and 6.2a is ticked in the very next item** |
 | 26 | **2.1b** day-only surcharge | **BLOCKED — the publish** | the fix was built under 2.1 on 2026-09-22; `calculate-booking` is still in `deployed-inventory`'s **differing** list |
 
 ### 6.2 IS CLOSED IN FACT — the fourth, and this one demonstrates its own criterion in full
@@ -2223,7 +2223,7 @@ and the reason**, the assertion was restored, the next cycle pinged **ok**, and 
 went **down → up**.
 
 **And its only stated remainder is gone.** Line 8578: *"Still open for 6.2: 6.2a,
-the display."* **`6.2a` is `- [x]` at line 8584** — six lines below the sentence
+the display."* **`6.2a` is `- [x]` in the very next item** — a few lines below the sentence
 that calls it the blocker. **The two sentences sit on the same screen and
 disagree**, which is why a reading never caught it: nothing looks wrong about
 either one alone.
@@ -2273,7 +2273,7 @@ rests on 6.2a's tick.**
 seconds later. **One command re-takes it**, and it is in the note.
 
 **THE CHAIN IS NAMED.** Line 8578 says *"Still open for 6.2: 6.2a, the display"*;
-**6.2a is ticked six lines below at 8584.** So 6.2a's tick is **load-bearing** —
+**6.2a is ticked a few lines below it, in the next item.** So 6.2a's tick is **load-bearing** —
 **if it is ever reversed, 6.2 reopens with it**, and the note is where that link
 lives rather than something the next person discovers.
 

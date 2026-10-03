@@ -3828,3 +3828,74 @@ issues it.** Before grepping a repo for an item number, ask **how many documents
 in it issue item numbers.** Here it is two, and nothing warns you; both files are
 called some version of "roadmap" and `CLAUDE.md`'s own table lists them one row
 apart.
+
+## 92. A NOTE THAT CITES LINE NUMBERS IN THE FILE IT IS BEING INSERTED INTO INVALIDATES ITS OWN CITATIONS AS IT LANDS — by exactly its own length
+
+**2026-10-03. A seventy-line note added to `ROADMAP.md` cited four line numbers
+in `ROADMAP.md`. Every one was wrong by exactly seventy.**
+
+`8578` became `8648`. `8411` became `8481`. **The note pushed its own targets
+down by its own size**, and the arithmetic is not a coincidence — it is the
+mechanism.
+
+**WHY IT IS WORSE THAN POINTING AT NOTHING.** The numbers still point at **real
+lines**. A reader who trusts them lands on unrelated text that parses perfectly,
+and nothing anywhere says the pointer moved. **It passes any reader who does not
+go to the line**, and fails silently for the one who does. The manager caught it
+by going to the line.
+
+**THE RULE:** **never cite a line number without enough quoted text to re-find the
+thing without it.** A quoted sentence and an item id are findable forever; a
+number is findable for about a minute in a file two sessions append to.
+
+```
+WRONG   Line 8578 reads "Still open for 6.2: 6.2a, the display."
+RIGHT   This entry's closing paragraph reads "Still open for 6.2: 6.2a, the display"
+WORKS   `FOR-ANDREW.md:857` — *"DECIDED · The day squares stay as they are"*
+```
+
+**The third form is fine**: the number is a convenience and the quote is the
+address. **If the number rots, the quote still lands.**
+
+### AND IT WAS ALREADY WRITTEN DOWN IN THIS REPO, TWELVE DAYS EARLIER
+
+`ROADMAP.md`'s silences entry, 2026-09-20, in these words: ***"a line number into
+a file two sessions append to is a pointer with a shelf life, and the heading is
+the durable address."*** **The session that committed this fault had that sentence
+in the file it was editing.** Same shape as 14.21 repeating 3.4's typed-count
+fault four hours after diagnosing it: **writing a lesson down does not install
+it.**
+
+### THE POPULATION, MEASURED RATHER THAN ESTIMATED
+
+Across every tracked `.md`, pointers of the form `FILE.md:1234` into the long
+shared documents:
+
+| | |
+|---|---|
+| pointers | **58** |
+| **self** — a file pointing into itself | **3** |
+| cross-file | **55** |
+| **carrying a quote beside the number, so staleness is checkable** | **3** |
+| **of those 3, stale** | **3** |
+
+**THE FINDING IS NOT THAT POINTERS GO STALE. It is that 55 of 58 carry no way to
+tell.** They are unverifiable by construction: no quote, so nothing to compare the
+line against, so no instrument — including this one — can say whether they are
+right. **Three of three checkable ones were wrong**, which is the only rate
+available and is not encouraging.
+
+**SO THE FIX IS THE RULE AND NOT A PASS.** Rewriting 58 pointers blind would
+replace 58 unverifiable claims with 58 differently-unverifiable claims. **What
+makes a pointer durable is the quote, and the quote has to be added where somebody
+knows what was meant** — which is when the line is written, not later by a
+stranger with a grep.
+
+### THE MATCHER FOR THIS ENTRY WAS WRONG TWICE, WHICH IS WORTH ONE LINE
+
+A first script reported **12 self-citations** — nine were `line 1324`-style
+references to **other** files, counted because the pattern did not ask which file.
+A second reported **0 pointers** where `grep` found **58**: a false negative,
+**the worst kind**, caught only by running `grep` beside it. **Two instruments, two
+wrong answers, and the plain `grep` was right both times.** Same family as #89 and
+#91 — the population, not the verdict.

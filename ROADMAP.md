@@ -4940,7 +4940,7 @@ the wrong service, and never book a job we cannot reach.
   CHECK IT NAMES.*** It asks for `legal` green **on every step**, and
   `receipts/bk-bar-clearance.json` is **`fail` with 7 failures, every one of them
   the 320 day cells at 37px** — which is the **accepted hold** Andrew ruled on
-  (`FOR-ANDREW.md:857`, *"the day squares stay as they are"*) and whose check
+  (`FOR-ANDREW.md` § *"DECIDED · The day squares stay as they are"*, *"the day squares stay as they are"*) and whose check
   **stays red on purpose**. So the instrument is built, the five widths are
   swept, the ceiling is read off the element's own `maxLength` — **and the
   criterion is unsatisfiable while a deliberate exception exists.** A criterion
@@ -5181,7 +5181,7 @@ the wrong service, and never book a job we cannot reach.
   THE BOX HAD BEEN OPEN FOR EIGHT DAYS.** The `Done when` below asks for one of
   two things: every day cell reaching 44px at 320, or **the reason it cannot
   recorded as a hold with Andrew's decision on it.** The second exists —
-  `FOR-ANDREW.md:857`, *"DECIDED · The day squares stay as they are. 2026-09-24
+  `FOR-ANDREW.md` § *"DECIDED · The day squares stay as they are"*, *"DECIDED · The day squares stay as they are. 2026-09-24
   — nothing needed from you."* It carries the reason, a reopen condition, and
   the choice to keep the check red.
 
@@ -5292,7 +5292,7 @@ the wrong service, and never book a job we cannot reach.
   **Done when:** Andrew answers the row — either every day cell reaches 44px
   of hit area at 320, or the reason it cannot is recorded as a hold with his
   decision on it.
-  **MET 2026-10-02 by the second branch** — `FOR-ANDREW.md:857`, his standing
+  **MET 2026-10-02 by the second branch** — `FOR-ANDREW.md` § *"DECIDED · The day squares stay as they are"*, his standing
   ruling applied rather than a fresh answer. The check stays red by design; see
   the top of this entry.
 
@@ -8361,8 +8361,8 @@ most corroborated finding in the set.
   |---|---|
   | raises an alert | `id 1`, `state: "down"`, and the entry records healthchecks.io going **up → down** with the email to Andrew firing |
   | appears in incident history | **the rows ARE the history** — two of them, 22 seconds apart |
-  | names the affected path | `probe_key: "homepage"`, and `detail:` *"status 200, expected 200, body did not contain 'THIS-BUILD-MARKER-CANNOT-EXIST'"* — **the exact string this entry quotes at line 8411** |
-  | clears only after a successful check | `id 2`, `state: "up"`, `detail:` *"recovered after 3 consecutive failures"*, and **one failure pinged `ok`** — line 8404, the clause a monitor usually gets wrong |
+  | names the affected path | `probe_key: "homepage"`, and `detail:` *"status 200, expected 200, body did not contain 'THIS-BUILD-MARKER-CANNOT-EXIST'"* — **the exact string this entry quotes in its own "THE CONTROLLED FAILURE, WHICH IS THE DONE-WHEN" paragraph** |
+  | clears only after a successful check | `id 2`, `state: "up"`, `detail:` *"recovered after 3 consecutive failures"*, and the same paragraph's first bullet records that **one failure pinged `ok` and healthchecks.io stayed up** — *"One failure says nothing"* — the clause a monitor usually gets wrong |
 
   **This is the opposite of 2.8's position**, which is worth saying because both
   ticks were examined on the same night: 2.8's cited rows are gone and its tick
@@ -8382,13 +8382,23 @@ most corroborated finding in the set.
     a different system from the one that exists.
 
   **AND THIS TICK RESTS ON ANOTHER ITEM'S TICK, WHICH IS A CHAIN AND IS SAID HERE
-  RATHER THAN LEFT TO BE DISCOVERED.** Line 8578 reads *"Still open for 6.2: 6.2a,
-  the display."* **6.2a is `- [x]` at line 8584 — six lines below.** So **6.2a's
+  RATHER THAN LEFT TO BE DISCOVERED.** This entry's own closing paragraph reads
+  *"Still open for 6.2: 6.2a, the display"* — **and `6.2a` is ticked a few lines
+  below it, in the very next item.** So **6.2a's
   tick is load-bearing for this one**: if 6.2a is ever reversed, **6.2 reopens with
   it** and this note is where that link is written down. 6.2a's own evidence is
   `receipts/health-line-honest.json` (`status: pass`, 11 targets, 43 assertions)
   and 17 screenshots in `artifacts/health-line-honest/`.
 
+  ***THE CITATIONS IN THIS NOTE WERE LINE NUMBERS UNTIL 2026-10-03 AND EVERY ONE
+  OF THEM WAS WRONG BY EXACTLY SEVENTY — the length of this note.*** Inserting it
+  pushed everything below it down, so `8578` became `8648` and `8411` became
+  `8481`. **The numbers still pointed at real lines, which is worse than pointing
+  at nothing**: a reader who trusts them lands on unrelated text that parses.
+  **A note that cites line numbers in the file it is being inserted into
+  invalidates its own citations as it lands, to the exact extent of its own
+  size.** `docs/gotchas.md` 92. Cited by quoted string and item id now, which
+  survive the next insertion.
   **WHY IT SAT OPEN.** The sentence calling 6.2a the blocker and 6.2a's own tick
   **are six lines apart on one screen and disagree.** Nothing looks wrong about
   either alone, which is why three sweeps and two readings missed it and executing
@@ -17890,7 +17900,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   because of this.** The sweep is built and correct — five widths, the ceiling
   read off the element's own `maxLength`, a receipt. **It reports `fail` with 7
   failures and all seven are the SAME accepted hold:** the 320 day cells at 37px,
-  which Andrew ruled on (`FOR-ANDREW.md:857`) and whose red **stays on purpose**.
+  which Andrew ruled on (`FOR-ANDREW.md` § *"DECIDED · The day squares stay as they are"*) and whose red **stays on purpose**.
 
   **SO THE RED CARRIES NO INFORMATION.** A seventh genuine failure arriving
   tomorrow would make it `fail` with 8, and **nobody reads the difference between
