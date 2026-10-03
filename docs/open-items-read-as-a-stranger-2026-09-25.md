@@ -1573,3 +1573,109 @@ it:**
 **So: 4 of 252, 1 real, and the method's ceiling is quoted screen text.** Worth
 re-running whenever an item is picked up, and **not** worth treating as a clean
 bill for the entries it passed over.
+
+---
+
+## THE THREE CATEGORIES — the taxonomy, because a later reader needs to know which question they are answering
+
+**Three different faults have been found in this pass and conflating them is how
+a half-finished item gets ticked. Different evidence, different fix, different
+owner.**
+
+| | **CLOSED IN FACT** | **STALE AUDIT** | **BAD CRITERION** |
+|---|---|---|---|
+| **what is wrong** | the work is done and the box never moved | the findings the entry LISTS were fixed; the list still reads as outstanding | the test cannot tell a pass from a fail |
+| **what is still true** | nothing — it is finished | the item is open for a *different*, real reason | the item may be wholly unstarted |
+| **how it is found** | `git log --grep`/`-S`, or two documents side by side | same | reading, or executing the criterion |
+| **the fix** | tick it | rewrite the entry's findings list | rewrite the criterion |
+| **whose** | the manager's — closures are not a session's call | whoever owns the entry | whoever owns the entry |
+| **the example** | the 320 calendar item; **12.2** | **7.8** | 8.10c, 7.3, 4.1, 4.3 |
+
+**7.8 IS WHY THE TAXONOMY EXISTS.** Its four listed findings were fixed on
+2026-09-21 by a commit naming 7.8 — **and it is not closed in fact**, because its
+criterion's clause (b), a check that fails by name, does not exist. **Treating a
+stale audit as a closed-in-fact item would have ticked an item whose mechanism
+half was never built.**
+
+---
+
+## THE COMMIT-GREP SWEEP — what the repo says was done, against what the entries say is true
+
+**2026-10-03.** The string sweep asked *is this quoted text still on screen* and
+found 1 real in 252, because its ceiling is quoted copy in `app/src`. **This asks
+the other direction: did a commit name an open item and claim to finish it.** No
+dependence on quotes, on screen text, or on `app/src`.
+
+### THE NUMBERS
+
+| | |
+|---|---|
+| open items | **64** — 62 numbered, **2 with no number at all and therefore ungreppable** |
+| **items whose number appears in a commit message** | **62 of 62** |
+| commits naming an open item | **534** |
+| of those, **completion-shaped** subjects (done/fixed/closed/built/lands/no longer/stops…) | **146** |
+| minus this audit's own reporting commits | **101** |
+| minus commits predating the current `ROADMAP.md` | **80**, across **36 items** |
+| **items whose own number LEADS a claimed-fix commit** — the hand-opened set | **19** |
+| **closed in fact** | **1** (12.2, found earlier by the string sweep; this sweep re-found it independently) |
+| **stale audit** | **2** — 7.8, and **9.2** |
+| **partial fix that named the item and did not finish it** | **9** |
+
+**THE THIRD BUCKET IS THE BIGGEST, AS PREDICTED, AND IT IS NOT A FAULT.** Nine
+items have a commit that names them, does real work, and stops — **and in seven
+of the nine the commit SAYS SO in its own subject line.** *"4.3: the history half
+is built and pressed; the entry stays open for the other half."* *"8.5 measured
+and split proposed, nothing built."* *"14.9 is open on one thing."* **That is not
+a gap in the record; it is the record working.** The bucket needs a name so it
+stops being mistaken for the other two, and the name is **declared partial**.
+
+### THE ONE THAT WAS NOT DECLARED — 9.2, and it is mine
+
+`git log --grep "9\.2"` names **`5202586`, 2026-09-21, *"9.2(b): the row stops
+claiming the page works, because it never checked"***. **The sentence is gone
+from `AdminPage.jsx`** — replaced by *"Ask how they are telling their own
+customers about their booking page"*, under eighteen lines of comment asking the
+next person not to put a lead fact back.
+
+**My rewritten criterion, written 2026-10-02, quotes that sentence in the present
+tense.** I rewrote it from the entry's own diagnosis **without checking the
+code** — **12.2's fault, committed by the session that had found 12.2 the day
+before, in the criterion it wrote to fix a different fault in the same item.**
+Corrected; `first` is marked done and must not be re-fixed.
+
+### THE METHOD'S OWN TRAP, WHICH COST 21 FALSE POSITIVES BEFORE IT WAS CAUGHT
+
+**`ROADMAP.md` and `docs/roadmap.md` REUSE ITEM NUMBERS.** `docs/roadmap.md:71`
+carries its own **1.3** — *"DONE 2026-08-29 — direction 5 built and APPROVED"* —
+and `git log --grep` happily returned `ad8eb43`, *"1.3 done: bottom-of-page
+reveal bug fixed"*, dated **2026-08-29**, touching
+`docs/design-directions/5-the-thread.html`. **A different roadmap, a different
+item, the same number.**
+
+**The fix is a date floor.** The current `ROADMAP.md` begins at `425d720`,
+**2026-09-12**. Commits older than that cite the old numbering. **21 of the 101
+claimed fixes fell away on that one line**, including every hit for 0.4, 3.1 and
+6.2 that had looked alarming.
+
+**It is `docs/gotchas.md` 89's family again — a population fault, not a verdict
+fault** — and the identifier collision is the same shape as `"1.3 —"` matching
+`"11.3 —"`, one level up: **not two strings that overlap, but two numbering
+schemes that do.**
+
+### WHY EVERY SURVIVING HIT WAS OPENED BY HAND
+
+**The string sweep's false-positive rate on its hit set was 50%** — two of four.
+**This sweep's was worse before the date floor**: 21 of 101. **A list of commit
+subjects is a lead and never a verdict**, and both numbers are here so nobody
+quotes the headline without the caveat.
+
+### WHAT THIS SWEEP CANNOT SEE
+
+* **The two unnumbered open items** — the reseed item and the stale-blocker item
+  — **have no number to grep.** They are structurally invisible to this method
+  and to any method keyed on identifiers. **Two of sixty-four, permanently.**
+* **A fix whose commit message never named the item.** The whole method assumes
+  the discipline of citing the number, which this repo mostly has and does not
+  enforce.
+* **A fix that landed in a commit about something else** — the subject names item
+  A, the diff also closes item B.
