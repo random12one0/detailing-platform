@@ -4203,3 +4203,123 @@ enforcement, and the measured gap between them is two failures in one sitting.
 **It carries a declared bare count (192) rather than demanding zero**, because
 most figures in those documents are judgements and a check that is red for ever
 is one everybody walks past. Its job is to stop 193.
+
+
+## 95. A CANARY IS AIMED AT ONE ASSERTION, AND WHEN THAT ASSERTION CHANGES SHAPE THE CANARY KEEPS PASSING WHILE TESTING NOTHING
+
+**2026-10-02. The run went GREEN, 7 of 7, with a deliberate defect switched on
+inside it.** Caught by re-running the canary rather than by reasoning about the
+change.
+
+### THE CASE, EXACTLY AS IT HAPPENED
+
+`tests/sweep-methods-are-pinned.test.mjs` declared `commitsNamingAnItem: 339` as
+an **equality**, and carried `PIN_CANARY=scope` — a sabotage that widens the
+item-matching regex from *bounded by non-digit-non-dot* to *unbounded*, so `1.3`
+starts matching inside `11.3`. Under sabotage the count went **339 → 452** and
+the equality failed. **The canary worked.**
+
+Within the hour the figure was **340**, because the commit that landed the file
+mentions an item number. **A figure that increments every time anybody commits is
+red by default**, which is the *red forever* fault this repo rejects by name. So
+the equality became a **monotonic floor**: commits only accumulate, therefore only
+a DROP is a fault.
+
+**That fix was correct, and it silently disarmed the canary.**
+
+| | |
+|---|---|
+| what the sabotage does to the count | moves it **UP** (339 → 452) |
+| what a floor can detect | a move **DOWN** |
+| result | `PIN_CANARY=scope` → **7 passed, 0 failed**, sabotage active |
+
+**Nothing in the run said the canary had stopped working.** It printed the
+inflated figure in its own report — 453 instead of 340 — and still called the run
+green, because no assertion was looking in that direction any more.
+
+### WHY THIS IS WORSE THAN AN ORDINARY BROKEN CHECK
+
+**A canary's entire job is to prove the check can still fail.** When the canary
+goes quiet you do not merely lose a test — **you lose the ability to notice that
+you have lost detection.** Every other entry in this file is a measurement lying
+about the product. This one is **the instrument that watches the instrument**
+lying, and it leaves nothing behind that looks wrong.
+
+**And the sabotage is still there, still named in the header, still documented as
+proven.** A later reader finds a file that says *"broken on purpose, both caught"*
+and a canary that returns green. **The documentation of the sabotage outlives the
+sabotage working.**
+
+### THE SHAPE CHANGES THAT DO THIS
+
+Any relaxation of an assertion can orphan a canary aimed at it:
+
+| from | to | what stops being visible |
+|---|---|---|
+| **equality** | **floor / minimum** | every movement in the permitted direction |
+| **exact value** | **range** | anything inside the range |
+| **count** | **presence** (*"at least one"*) | all quantities above one |
+| **deep equality** | **subset / contains** | extra or changed members |
+| **a value** | **a proportion** | the population changing underneath it |
+
+**The relaxation is usually right.** The fault is never the relaxation; it is
+relaxing it without re-aiming the canary.
+
+### THE TELL
+
+> **A canary that goes quiet in the same commit that relaxed an assertion.**
+
+It is findable in one step, and only if somebody looks: **run the canary after
+changing the assertion, not before.** A green canary run is the only evidence
+that the sabotage still reaches something.
+
+### THE RULE
+
+> **When you change the shape of an assertion, re-run every canary aimed at it in
+> the SAME EDIT, and say in the commit that you did.**
+
+**And the second half, which is where this one actually got fixed: a canary must
+be aimed at PRODUCTION CODE, never at a copy of it.** The boundary rule lived
+*inside* `commitScope`, and the test asserting it had its own inline copy of the
+regex:
+
+```
+WRONG   const re = /(^|[^0-9.])1\.3([^0-9.]|$)/;    // a copy; the canary cannot reach it
+RIGHT   const re = bound("1.3");                     // the function the sweep calls
+```
+
+Lifting `bound()` out so the assertion exercises the real function is what made
+`PIN_CANARY=scope` bite again. **While the rule was inline, the test was green
+under sabotage AND the sabotage was genuinely active — two correct-looking facts
+that could not both have been true of a single piece of code.**
+
+### HOW IT WAS FOUND, BECAUSE THE METHOD IS THE TRANSFERABLE PART
+
+**Not by reading the diff.** The change was one line, obviously local, and
+reasoning about it gave the right answer about drift and no answer at all about
+the canary. **It was found by running both canaries after the change, for no
+better reason than that the change touched an assertion a canary was aimed at.**
+Same discipline as #88's *go to the line and read it*: the cost is one command and
+the alternative is a green run with a defect in it.
+
+## 96. A BACKGROUND TASK KILLED AT ITS CAP CAN STOP A COMMIT BETWEEN THE TREE AND THE REF, SO "RUNNING" IN A TASK LIST IS NOT EVIDENCE THE COMMIT HAPPENED
+
+**2026-10-02, from DP Cowork. Filed beside #95 rather than inside it, because
+#95 is a CHECK lying and this is the TASK LIST lying — and both look exactly like
+progress.**
+
+**DP Cowork's words, verbatim:**
+
+> A background task that reaches its thirty-minute cap is killed mid-flight, and
+> a git commit inside one can be stopped between writing the tree and updating
+> the ref — so a task list showing Running is not evidence the commit happened.
+> Confirm with `git log --oneline -1` against the message you expected.
+
+**The pairing is the useful part.** #95 is an instrument reporting green over a
+defect; this is a status display reporting progress over work that was cut in
+half. **Neither leaves anything behind that looks wrong**, and in both cases the
+one-command check is cheaper than the reasoning that would replace it:
+
+```bash
+git log --oneline -1          # against the message you expected, not against a feeling
+```

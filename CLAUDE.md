@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is NINETY-FOUR specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is NINETY-SIX specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -237,6 +237,11 @@ broken to make the two agree. Nine sittings unbroken.
 **93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
 number with no command and no revision beside it is a memory. Ten sittings
 unbroken.
+**94 → 96 on 2026-10-02, same edit, two entries** — **95**, a canary aimed at an
+assertion that changed shape keeps passing while testing nothing, and the run goes
+green with the sabotage switched on; **96**, a background task killed at its cap
+can stop a commit between the tree and the ref, so *Running* is not evidence the
+commit happened. Eleven sittings unbroken.
 
 ## Hard rules
 
@@ -471,6 +476,26 @@ unbroken.
   **unrepeatable by construction** (a measurement of a FIRST reading, which a
   re-run destroys rather than repeats). That last one is an honest property, not
   a defect, and must not be counted as one.
+
+- **WHEN YOU CHANGE THE SHAPE OF AN ASSERTION, RE-RUN EVERY CANARY AIMED AT IT
+  IN THE SAME EDIT, AND SAY IN THE COMMIT THAT YOU DID.** `docs/gotchas.md` 95.
+  **Measured, not feared:** a declared equality was relaxed to a monotonic floor
+  — the right fix, because the figure moved on every commit — and that silently
+  disarmed the sabotage aimed at it, because the sabotage moves the count UP and
+  a floor only sees DOWN. **The sabotaged run reported 7 passed, 0 failed with
+  the defect switched on**, and printed the inflated figure in its own report
+  while calling itself green. Equality→floor, exact→range, count→presence and
+  deep-equal→subset all do this.
+
+  **A canary must also be aimed at PRODUCTION CODE, never a copy.** The rule
+  under test lived inside its caller and the assertion had its own inline copy of
+  the regex, so the sabotage could not reach it. Lifting the function out is what
+  made it bite again.
+
+- **A BACKGROUND TASK SHOWING `Running` IS NOT EVIDENCE ITS COMMIT HAPPENED.**
+  `docs/gotchas.md` 96. A task killed at its thirty-minute cap can be stopped
+  between writing the tree and updating the ref. **Confirm with
+  `git log --oneline -1` against the message you expected.**
 
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token

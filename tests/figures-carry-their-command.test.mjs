@@ -32,12 +32,30 @@
 // measured at two failures per sitting.
 //
 // ---------------------------------------------------------------------------
+// THE SHARPEST THING THIS SCAN FOUND, AND IT IS NOT IN THE PASS DOCUMENTS
+// ---------------------------------------------------------------------------
+// **`docs/silences.md` carries 31 figures and 31 of them are bare. One hundred
+// per cent.** That document's entire subject is *which checks can tell a pass
+// from a did-not-run* — **and not one of its own numbers carries the command or
+// the revision that would let a reader tell the same thing about it.**
+//
+// It is not a classifier artifact, which was checked before it was claimed: the
+// command pattern was widened from four command names to thirteen and the figure
+// **did not move**, because of 29 figure-bearing rows exactly **1 carries a
+// command, 2 carry a revision (both resolve), and NO ROW CARRIES BOTH.**
+//
+// `PROJECT-STATE.md` is also 17 of 17, and `docs/ticked-without-proof` is 69 of
+// 69. **The two documents this check was built for are its best-behaved subjects**
+// — because they were annotated by hand earlier the same night, which is the
+// measure of how little of this repo's recorded numbers were ever re-takeable.
+
+// ---------------------------------------------------------------------------
 // WHAT IT ASKS, AND IT IS *ACCOUNTED FOR* RATHER THAN *COMMANDED*
 // ---------------------------------------------------------------------------
 // 94 says plainly that some numbers cannot be re-taken: a judgement is not a
 // count, an instrument can be gone, and a measurement of a FIRST reading is
-// unrepeatable by construction. **Demanding a command for all 218 figures in
-// these two documents would demand the impossible and stand red for ever**,
+// unrepeatable by construction. **Demanding a command for every figure in these
+// five documents would demand the impossible and stand red for ever**,
 // which is the failure `every-open-item-is-citable` rejected by name: *a check
 // that is red forever is a check everybody learns to walk past.*
 //
@@ -99,6 +117,14 @@
 //      byte-identical, and the clean run returned 7/7.
 //   3. **A genuine fabricated revision in the same file** — `@ \`deadbeefcafe1\``.
 //      Section 3 named it and went red. Removed with the above.
+//   4. **RE-RUN AFTER SECTION 4 CHANGED SHAPE — `docs/gotchas.md` 95.** Widening
+//      the scan turned the bare assertion from ONE TOTAL into a PER-DOCUMENT
+//      comparison, which is exactly the relaxation that orphans a canary. So the
+//      real sabotage was run again against the new shape: a bare row added to
+//      `docs/silences.md` moved it **31 -> 32** and section 4 went red **naming
+//      that document**. Reverted, 7/7 returned. **Re-run in the same edit as the
+//      shape change, per 95's rule, because the last time that rule was skipped
+//      the sabotaged run went green 7/0.**
 //
 // **What 2 and 3 prove that a flag could not: the scan reads the DOCUMENTS, not
 // its own fixtures.** Same discipline as the queue check, whose sabotage was
@@ -109,19 +135,49 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
+// ---------------------------------------------------------------------------
+// PER-DOCUMENT DECLARATIONS, AND THE REASON THEY ARE NOT ONE TOTAL
+// ---------------------------------------------------------------------------
+// **A single total lets a rise in one file hide behind a fall in another** —
+// pin six figures in one document, let seven go bare in another, and the total
+// improves while the repo gets worse. That is the population fault one level up
+// from the one this file catches, so every document declares its own floor and
+// its own bare count and is asserted separately.
+//
+// `floor` guards THAT document's parser. A shared floor across five documents is
+// meaningless: four could stop parsing entirely and the fifth would carry it.
+//
+// Measured 2026-10-02 at commit 9901b16.
+//
+// **THE FIRST VERSION OF THIS TABLE SPLIT THE OLD 192 TOTAL INTO GUESSED PARTS —
+// 173 and 19 — AND THE MEASURED SPLIT IS 122 AND 69.** Corrected before it was
+// committed, by running the per-document report rather than reasoning about it.
+// **That is the same fault one level down: a total is not evidence about its
+// parts, and splitting one by eye manufactures two wrong numbers out of one right
+// one.** It is also exactly why the manager asked for per-file declarations.
 const DOCS = [
-  "docs/open-items-read-as-a-stranger-2026-09-25.md",
-  "docs/ticked-without-proof-2026-09-25.md",
-];
+  // doc, discovery floor, declared bare
+  { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 120, bare: 122 },
+  { path: "docs/ticked-without-proof-2026-09-25.md", floor: 30, bare: 69 },
 
-// Measured 2026-10-02 at commit 2674ba6. Move these in the SAME EDIT as the
-// change that moved them, with a sentence saying why.
-const FIGURE_FLOOR = 150;   // guards the PARSER: 219 found when written
-// Inherited debt, set to the EXACT measured value. It was first written as 196
-// from a looser prototype, which left four figures of slack — and slack in a
-// declared baseline is the allowlist-by-instalments hole this file is supposed
-// to close. Lower it by pinning figures; never raise it without a sentence.
-const DECLARED_BARE = 192;
+  // **docs/silences.md: 31 figures, 31 bare, ONE HUNDRED PER CENT** — and this is
+  // the sharpest finding of the night rather than one more red. **The document
+  // whose entire subject is which checks can tell a pass from a did-not-run does
+  // not carry a command or a revision for a single one of its own numbers.**
+  // Not a classifier artifact: the command pattern was widened to thirteen command
+  // names and the figure did not move, because of 29 figure-bearing rows exactly
+  // **1 carries a command and 2 carry a revision, and NO ROW CARRIES BOTH.**
+  { path: "docs/silences.md", floor: 20, bare: 31 },
+
+  { path: "PROJECT-STATE.md", floor: 10, bare: 17 },
+
+  // **FOR-ANDREW.md declares 0 and that is NOT a clean bill.** This scanner reads
+  // TABLE ROWS, and FOR-ANDREW.md states its figures in prose, so they are
+  // invisible to it. A zero here means "nothing in scope", never "nothing wrong" —
+  // which is the distinction `docs/silences.md` exists to make, turned on this
+  // file. Widening to prose would need a different parser and is not pretended at.
+  { path: "FOR-ANDREW.md", floor: 0, bare: 0 },
+];
 
 const CANARY_ON = process.env.FIG_CANARY !== "off";
 const CANARY_ROW = "| CANARY — a figure with no command and no revision | **999999** |";
@@ -149,12 +205,17 @@ const FILE_IN_CMD = /\b((?:app|docs|scripts|tests|supabase|receipts)\/[A-Za-z0-9
 function scan(extraRows = []) {
   const rows = [];
   for (const d of DOCS) {
-    const lines = readFileSync(d, "utf8").replace(/\r\n/g, "\n").split("\n");
-    lines.forEach((line, i) => { if (/^\|/.test(line)) rows.push({ doc: d, line: i + 1, text: line }); });
+    const lines = readFileSync(d.path, "utf8").replace(/\r\n/g, "\n").split("\n");
+    lines.forEach((line, i) => { if (/^\|/.test(line)) rows.push({ doc: d.path, line: i + 1, text: line }); });
   }
   for (const t of extraRows) rows.push({ doc: "(canary)", line: 0, text: t });
 
   const out = { verified: [], pinned: [], accounted: [], bare: [], unjudgeable: [], badRev: [], total: 0 };
+  // halfPinned is a REPORT, not a pass bucket: a row with a revision but no
+  // command (or the reverse) is still bare by gotchas 94, which requires both.
+  // It is counted because the missing half is cheap to add and a reader deserves
+  // to know which bare figures are one edit from being pinned.
+  out.halfPinned = [];
 
   for (const r of rows) {
     FIG.lastIndex = 0;
@@ -208,6 +269,10 @@ function scan(extraRows = []) {
         continue;
       }
       out.bare.push({ ...r, f });
+      // still bare, but say which are one edit away
+      if (cmds.length || revOk) {
+        out.halfPinned.push(`${r.doc.replace("docs/", "")}:${r.line} **${f}** has ${cmds.length ? "a command but no revision" : "a revision but no command"}`);
+      }
     }
   }
   return out;
@@ -216,29 +281,44 @@ function scan(extraRows = []) {
 test("every recorded figure carries its command or names why it cannot", async (t) => {
   const res = scan(CANARY_ON ? [CANARY_ROW] : []);
 
-  await t.test("1 · the scanner found figures (discovery floor)", () => {
-    assert.ok(
-      res.total >= FIGURE_FLOOR,
-      `found ${res.total} figures across ${DOCS.length} documents, floor ${FIGURE_FLOOR}. `
-      + "FEW OR ZERO IS A BROKEN PARSER, NEVER A CLEAN BILL — if the table shape "
-      + "changes, this scan reports zero bare figures and reads as all-clear, "
-      + "which is the population fault this repo has more of than any other. "
-      + "Check the `| ... |` row shape and the `**123**` figure shape before "
-      + "touching this floor.",
+  const per = (p) => ({
+    total: res.verified.concat(res.pinned, res.accounted, res.bare).filter((x) => x.doc === p).length,
+    bare: res.bare.filter((x) => x.doc === p).length,
+  });
+
+  await t.test("1 · EVERY document cleared its OWN discovery floor", () => {
+    const short = DOCS
+      .map((d) => ({ d, got: per(d.path).total }))
+      .filter((x) => x.got < x.d.floor)
+      .map((x) => `${x.d.path}: found ${x.got}, floor ${x.d.floor}`);
+    assert.deepEqual(
+      short, [],
+      "a document is below its own discovery floor. FEW OR ZERO IS A BROKEN PARSER, "
+      + "NEVER A CLEAN BILL — that document then reports zero bare figures and reads "
+      + "as all-clear. **The floor is per document on purpose: one shared floor "
+      + "across five means four could stop parsing entirely and the fifth would "
+      + "carry them.** Check the `| ... |` row shape and the `**123**` figure shape "
+      + "before touching a floor.",
     );
   });
 
   await t.test("2 · REPORT — the five buckets, and UNJUDGEABLE is never folded into pass", () => {
-    console.log(`\n   FIGURES ACCOUNTED FOR — ${DOCS.length} documents`);
-    console.log(`     total figures      ${String(res.total).padStart(4)}`);
-    console.log(`     VERIFIED           ${String(res.verified.length).padStart(4)}  command ran, output equals the figure`);
-    console.log(`     PINNED             ${String(res.pinned.length).padStart(4)}  command + a revision that resolves (NOT verified)`);
-    console.log(`     ACCOUNTED          ${String(res.accounted.length).padStart(4)}  names why it cannot be re-taken`);
-    console.log(`     BARE               ${String(res.bare.length).padStart(4)}  declared ${DECLARED_BARE}`);
-    console.log(`     UNJUDGEABLE        ${String(res.unjudgeable.length).padStart(4)}  reported, never passed`);
-    console.log(`     bad revisions      ${String(res.badRev.length).padStart(4)}`);
+    console.log(`\n   FIGURES ACCOUNTED FOR — ${DOCS.length} documents, each declared separately`);
+    console.log(`     VERIFIED      ${String(res.verified.length).padStart(4)}  command ran, output equals the figure`);
+    console.log(`     PINNED        ${String(res.pinned.length).padStart(4)}  command + a revision that resolves (NOT verified)`);
+    console.log(`     ACCOUNTED     ${String(res.accounted.length).padStart(4)}  names why it cannot be re-taken`);
+    console.log(`     BARE          ${String(res.bare.length).padStart(4)}`);
+    console.log(`     UNJUDGEABLE   ${String(res.unjudgeable.length).padStart(4)}  reported, never passed`);
+    console.log(`     bad revisions ${String(res.badRev.length).padStart(4)}`);
+    console.log(`     half-pinned   ${String(res.halfPinned.length).padStart(4)}  still BARE; one edit from pinned`);
     console.log(`     (canary: ${CANARY_ON ? "on" : "OFF"})`);
-    for (const v of res.verified) console.log(`       VERIFIED ${v.doc.replace("docs/", "")}:${v.line} **${v.f}** <- ${v.cmd.slice(0, 70)}`);
+    console.log(`\n     per document            found/floor      bare/declared`);
+    for (const d of DOCS) {
+      const p = per(d.path);
+      const pct = p.total ? Math.round((p.bare / p.total) * 100) : 0;
+      console.log(`       ${d.path.replace("docs/", "").slice(0, 38).padEnd(40)} ${String(p.total).padStart(4)}/${String(d.floor).padEnd(5)} ${String(p.bare).padStart(4)}/${String(d.bare).padEnd(5)} ${pct}% bare`);
+    }
+    for (const v of res.verified) console.log(`       VERIFIED ${v.doc.replace("docs/", "")}:${v.line} **${v.f}** <- ${v.cmd.slice(0, 66)}`);
     assert.ok(true);
   });
 
@@ -250,16 +330,21 @@ test("every recorded figure carries its command or names why it cannot", async (
     );
   });
 
-  await t.test("4 · the bare count has not grown", () => {
-    const real = res.bare.filter((b) => b.doc !== "(canary)").length;
-    assert.ok(
-      real <= DECLARED_BARE,
-      `${real} bare figures, declared ${DECLARED_BARE}. A figure with no command, `
-      + "no revision and no stated reason is a memory (gotchas 94). This number is "
-      + "inherited debt and the check's job is to stop it growing: pin the new one "
-      + "or state why it cannot be re-taken. Raising DECLARED_BARE needs a sentence "
-      + "saying why, in the same edit.\n  NEW: "
-      + res.bare.filter((b) => b.doc !== "(canary)").slice(-5).map((b) => `${b.doc.replace("docs/", "")}:${b.line} **${b.f}**`).join(", "),
+  await t.test("4 · NO document's bare count has grown — asserted per document, never as a total", () => {
+    const grown = DOCS
+      .map((d) => ({ d, got: per(d.path).bare }))
+      .filter((x) => x.got > x.d.bare)
+      .map((x) => `${x.d.path}: ${x.got} bare, declared ${x.d.bare} (+${x.got - x.d.bare})`);
+    assert.deepEqual(
+      grown, [],
+      "a document's bare count grew. A figure with no command, no revision and no "
+      + "stated reason is a memory (gotchas 94). These are inherited debt and the "
+      + "check's job is to stop one more: pin the new figure, or state why it cannot "
+      + "be re-taken. Raising a declared number needs a sentence saying why, in the "
+      + "same edit.\n  **Asserted PER DOCUMENT rather than as a total, because a "
+      + "single total lets a rise in one file hide behind a fall in another** — pin "
+      + "six here, let seven go bare there, and the total improves while the repo "
+      + "gets worse.",
     );
   });
 

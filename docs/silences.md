@@ -15,6 +15,67 @@ would make it say which?**
 
 ---
 
+---
+
+## THIS DOCUMENT CANNOT TELL A PASS FROM A DID-NOT-RUN ABOUT ITS OWN NUMBERS — 31 of 31 bare
+
+**Every figure in the table below carries the command that produced it and the
+revision it was taken at, which is the one thing nothing else in this file does.**
+
+| | measured 2026-10-02 @ `9901b16` | re-take |
+|---|---|---|
+| figures in this file's tables | **31** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| carrying a command **and** a revision | **0** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| **bare** | **31 — one hundred per cent** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| figure-bearing rows | **29** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| of those, carrying a command | **1** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| of those, carrying a revision | **2** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+| carrying **both** | **0** | `node --test tests/figures-carry-their-command.test.mjs` @ `9901b16` |
+
+`docs/gotchas.md` **94** is the rule: *a recorded number carries the command that
+produced it and the revision it was taken at, or it is not a measurement, it is a
+memory.* **This file holds the repo's census of which checks can report honestly
+about their own silence. Not one of its own 31 figures can.**
+
+> **The document that exists to catch a check which cannot distinguish a pass
+> from a did-not-run is itself a set of numbers nobody can distinguish from
+> memories.**
+
+### IT WAS CHECKED BEFORE IT WAS CLAIMED, because the obvious way to be wrong here is a scanner that misses the commands actually present
+
+The first pass reported 100% bare while row 76 plainly carries `ls scripts/*.mjs`.
+**So the command pattern was widened from four names to thirteen** — `git`,
+`grep`, `node`, `sed`, `ls`, `wc`, `awk`, `find`, `cat`, `curl`, `npm`, `test`,
+`rg` — **and the figure did not move**, because 94 requires BOTH halves and no row
+here has both. **A finding that survives having its own instrument widened is a
+finding; one that does not is a bug in the instrument**, which is the distinction
+that cost this repo a correct measurement earlier the same night (`gotchas.md` 93).
+
+The two rows with a revision are the timeline rows at `c024f89` and `f2dc0fc`.
+**Both resolve to real commits** — checked, because a fabricated sha is the
+cheapest fake annotation — and they are the best rows in the file: half-pinned,
+one edit from pinned.
+
+### AND THE CHECK CAUGHT THIS SECTION'S OWN TABLE, WHICH IS THE SHORTEST PROOF IT WORKS
+
+The table above was first written with the revision in its HEADER row and the
+command in each data row. **The scan classified every one of its figures as bare**,
+and it was right: the rule is per figure, and a figure whose revision lives in a
+different row does not carry one. The revision was added to each row, and the
+figures moved from bare to pinned in the same edit.
+
+**A paragraph about pinning figures, whose own figures were not pinned, corrected
+by the check it was describing.** That is the whole case for mechanising the rule
+rather than trusting a reader to hold it — including the reader writing it down.
+
+### NOTHING BELOW IS RETRACTED AND NO FIGURE IN IT HAS BEEN EDITED
+
+**Every number in the census was true when taken.** What is missing is the half
+that makes it re-takeable. **Lowering the 31 is the work, one row at a time**, and
+the check declares 31 per document — not as part of a single total, because a
+total lets a rise in one file hide behind a fall in another — **so that a
+thirty-second cannot arrive quietly.**
+
 ## The two sentences to take away, if you read nothing else here
 
 **1. A general fault count wearing a specific sentence.** `failing` in
