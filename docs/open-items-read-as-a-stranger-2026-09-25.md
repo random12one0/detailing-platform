@@ -1316,3 +1316,92 @@ work in flight.
   the criterion and stronger than reading it.
 * **The 14.22 repair has not itself been cold-read by anyone else.** By this
   file's own measured rate, expect a hole in it.
+
+### THE 11.3 PATTERN, RULED AND RECORDED — a criterion whose first clause reads as the whole test
+
+**The manager verified this off the files rather than off my reply: 11.3 STAYS
+OPEN, and I was wrong to recommend the tick.**
+
+Its `Done when` has **two clauses that read as one**. The first — *"this item
+closes as superseded by 9.10"* — is self-contained. The second, further down —
+*"What closing it looks like: 9.10 is built and pressed"* — is the actual
+condition. **9.10 is unticked and is not built.** The ticked `FOR-ANDREW.md` row
+settles the open **question**, not the **build**, and the entry says both things
+in the same breath: *"So there is no open question here to wait for"* sits beside
+*"9.10 is built and pressed."* **I read the first clause and stopped, which is the
+fault I have spent two days documenting.**
+
+> **THE LESSON, WHICH IS THE DELIVERABLE AND NOT THE RULING:** a `Done when`
+> whose **first clause looks sufficient on its own will be read that way**, and
+> the rest will not be reached. **So the closing condition goes first, or the two
+> clauses merge into one sentence.**
+
+**AND THE MANAGER'S SHARPER VERSION, WHICH IS THE PART THAT GENERALISES:** **an
+item whose criterion says it closes as superseded by another item has no owner —
+because the superseding item does not know it is supposed to close anything.**
+9.10's criterion says nothing about 11.3. **So 11.3 waits on an event nobody will
+report.** That is a structural orphan, not a wording problem, and the two
+closed-in-fact candidates found so far are both this family: the calendar item
+waited on a `FOR-ANDREW.md` row nobody re-read, and 11.3 waits on a sibling
+item's completion nobody will announce.
+
+**WHAT WAS DONE ABOUT IT, mechanically rather than by re-reading.** For every
+open item: does a **requirement** sit after its *"What failing looks like"* line,
+where a reader takes it for commentary? **Ten hits, eight false positives** —
+prose tails, and one from the scan leaking past an item boundary into the next
+section, which is `docs/gotchas.md` 89's own bug in the tool written to find 89's
+cousin. **Two were real and both were mine, both created yesterday by the
+cold-read repairs while I was fixing something else:**
+
+* **3.4** — the shared-cost clause and the unsendable-template clause sat below
+  the failing line. **A stranger stopping there would have sent sixteen real
+  emails to a charged domain and folded two unsendable templates into "sixteen of
+  sixteen".**
+* **7.8** — clauses **(c)** and **(d)** sat below the failing line, continuing an
+  (a)/(b) list that ended above it. **Worse than a missing clause, because the
+  numbering implies nothing is missing.**
+
+Both moved above the failing line, each with a note saying where it used to be.
+
+### FIVE MORE EXECUTIONS, AND TWO CRITERIA HAVE A HALF ALREADY MET
+
+| # | criterion | command | result |
+|---|---|---|---|
+| 12 | **7.6** arithmetic | `rpc/photo_total_bytes`, `rpc/photo_tenant_share` | **1073741824** and **100** — so the criterion's arithmetic is **1 GB / 100 = 10.24 MB**, and both functions answer |
+| 12a | **7.6** first clause | `grep -rin unlimited … \| grep -i photo` over `app/src` | **nothing.** No surface pairs "unlimited" with photos |
+| 12b | **7.6** second clause | `grep -rn capBytes\|cap_bytes\|roomFor` | the figure comes from `photo_store_state()` / `photo_budget.cap_bytes`, **computed, not typed** |
+| 13 | **12.2** branch two | `grep -ric "in person\|driveway\|card on the spot"` on `LandingPage.jsx` | **2** — so branch two has something real to remove; the precondition holds |
+
+**7.6's FIRST CLAUSE IS ALREADY MET AND THE ENTRY DOES NOT SAY SO.** `/pricing`'s
+"unlimited" list now reads *"Unlimited services, bookings and staff logins"* —
+photos are out — and `LandingPage.jsx:1098` carries a comment recording that
+*"photos" removed 2026-09-21*. **That is the second criterion in this log with a
+half already satisfied, after 7.17.** A reader sees two open conditions and there
+is one.
+
+**AND IT IS NOT A CLOSED-IN-FACT ITEM, WHICH I CHECKED BEFORE SAYING SO**, having
+just been caught doing the opposite on 11.3. **7.6's entry holds it deliberately:**
+0.11 raises the allowance from 1 GB to 10 GB *in the same change as the upload
+switch*, so *"this item closes inside that change, not before it — changing the
+words now to describe 1 GB means changing them again a week later."* **The second
+clause also cannot be settled from this lane**: the back office's own printed
+per-tenant figure needs the screen, and `AdminPage.jsx`'s comments warn that
+`photo_store_state()` returns the **platform** row while `cap_bytes` belongs to
+`photo_budget` — two different numbers one grep apart.
+
+> **ONE LINE FOR WHOEVER HAS THE BROWSER:** *open the back office's photo
+> figure and confirm the per-business number it prints equals
+> `photo_total_bytes() ÷ photo_tenant_share()` — 10.24 MB today — and that it is
+> the `photo_budget` figure rather than the platform total.*
+
+### TWO CRITERIA DELIBERATELY NOT EXECUTED, WITH THE REASON
+
+**14.15** (*"the body of any 429 read rather than its status"*) and **14.18**
+(*"one rate-limited public function called from outside with `x-forwarded-for`
+absent, and again forged"*) are both executable in this lane — no browser, no dev
+server. **Neither was run.** They spend the **address budget** and write to
+**`rate_hits`**, both named on `docs/shared-resources.md`, and **DP Cowork is live
+right now.** 14.16 exists because exactly this collision put a wrong reason into
+`ROADMAP.md` once already. **Executing a criterion is not worth corrupting
+somebody else's measurement**, and the criteria themselves are unchanged and
+ready for a quiet moment.
