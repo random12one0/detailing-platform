@@ -2372,11 +2372,25 @@ staleness from *unverifiable* into *decidable* for the whole population.
 | `docs/gotchas.md` → `FOR-ANDREW.md:857` | **still-good** | **wrong, and always was** |
 | `docs/open-items…` → `FOR-ANDREW.md:857` | **changed-below-only** | **wrong, and always was** |
 
-***THE TABLE IS A SNAPSHOT AND ALL FIVE ROWS NO LONGER EXIST AS WRITTEN.***
-Every pointer it grades — both `818`s and all three `857`s — was corrected to **914**
-on 2026-10-02. **Kept as the population the tool was actually fed**, because a
-grade rewritten to match today's repo grades nothing — and because the rows being
-corrected by this very write-up is the observer effect recorded below.
+> **TAKEN 2026-10-02 against commit `23199db`. ALL FIVE ROWS WERE CORRECTED TO
+> `914` BY THIS SAME WRITE-UP, so none of them describes a pointer in the repo
+> today.** Kept as the population the tool was actually fed — a grade rewritten to
+> match today's tree grades nothing.
+>
+> **“Flagged as a snapshot” is what every stale number in this repo says about
+> itself after the fact, so here is the way to get it again instead:**
+>
+> ```bash
+> git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' 23199db -- '*.md'   # the 58-pointer population, reproducible for ever
+> sed -n '914p' FOR-ANDREW.md                              # the hold, to re-check the verdict column
+> ```
+>
+> **AND THE HONEST GAP: the BUCKET column cannot be re-taken, because the tool
+> that produced it was never committed** — it ran out of a scratch directory and is
+> gone. The population and the verdict are re-takeable above; *still-good vs
+> suspect* is not. **ROADMAP 14.31 is that gap**, and until it is built this
+> column is a claim rather than a measurement, which is the distinction this whole
+> section is about.
 **The canary passed: both `818` pointers came back suspect, which is what the
 grade demanded.** But the third column was added on 2026-10-02 and it exposes the
 limitation that actually matters.
@@ -2442,11 +2456,32 @@ reported again, and the answer is that the five never went anywhere.** There was
 no population of 58 that shrank to 53. **There were two instruments, run at two
 moments, and I treated them as one series.**
 
-| figure | what it actually counted | when |
+***THE FIRST VERSION OF THIS TABLE BLAMED THE WRONG CAUSE. CORRECTED
+2026-10-02.*** It said 58 was `git grep` tracked-only against *tonight's* tree,
+which made the gap look like a choice of command. **The command accounts for one
+of the five.** The other four are time, and the thing that moved in that time was
+this write-up. **I closed the gap with a command that happens to return 58, which
+is numerology rather than measurement** — and the manager refused it on exactly
+that ground before this correction was taken.
+
+| figure | the instrument | the tree it was taken against |
 |---|---|---|
-| **53** | `grep -rn` over every `.md`, untracked included, written to the tool's input file — **the tool's real population** | earlier in this sitting |
-| **58** | **`git grep`** — tracked files only | tonight |
-| **59** | `grep -rn`, untracked included | tonight |
+| **53** | `grep -rn` over every `.md`, **untracked included** — the staleness tool's actual input file | the **working tree, mid-write-up**, before this section's own text existed |
+| **58** | `git grep`, **tracked only** — `gotchas.md` 92's population table | commit **`23199db`**, 2026-10-02 20:05, which **contains** the write-up |
+| **59** | `grep -rn`, untracked included | the working tree after the write-up |
+| **64** | the same, later the same sitting | after gotcha 93 and the DECISIONS entry |
+
+**THE FINGERPRINT, so this is reproducible and not a story.** 92's table reports
+**58 pointers, 3 self, 55 cross**. Pinned at that revision the same pattern
+returns all three exactly:
+
+```bash
+git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' 23199db -- '*.md' | wc -l    # 58
+```
+
+**Its parent, two minutes earlier, returns 52.** So the 58 is not a different
+question asked of the repo — it is the *same* question asked two minutes later,
+after six pointers had been committed into it.
 
 **THE PARSE IS LOSSLESS, WHICH IS WHERE I EXPECTED THE GAP TO BE AND IT IS NOT.**
 Instrumented line by line against the same input file: **53 lines in, 53 pointers
@@ -2460,14 +2495,44 @@ pointer — **the same file that is the tool's entire `unknown` bucket**, becaus
 blame has nothing to say about a file git has never seen. One cause, two symptoms,
 and it reads as two unrelated oddities.
 
-**53 TO 59 IS ACCOUNTED FOR LINE BY LINE: seven added, one moved.** And this is
-the part worth keeping:
+### THE FIVE, BY FILE AND LINE — counted, not inferred
 
-> **SIX OF THE SEVEN NEW POINTERS WERE WRITTEN BY THE WRITE-UP ABOUT POINTERS.**
-> Five of them are rows of its own grade table. **The instrument's report
-> enlarged the population the instrument measures** — and because four of those
-> rows assert `857`, it injected four *wrong* pointers into the very set it was
-> built to triage.
+**53 → 58 is +5, and the manager's guess that the five were the grade table was
+right.** The ledger, `comm` against the pointer set at `23199db`:
+
+| | pointer | what it is |
+|---|---|---|
+| **+1** | `docs/open-items…:2353` | grade table row — `gotchas.md` → `:818` |
+| **+2** | `docs/open-items…:2354` | grade table row — `open-items` → `:818` |
+| **+3** | `docs/open-items…:2355` | grade table row — `DECISIONS.md` → `:857` |
+| **+4** | `docs/open-items…:2356` | grade table row — `gotchas.md` → `:857` |
+| **+5** | `docs/open-items…:2357` | grade table row — `open-items` → `:857` |
+| **+6** | `docs/open-items…:2314` | the narrative line *"The hold is at **857**"* |
+| **−1** | `docs/MANAGER-2026-09-22-evening.md:54` | **untracked**, so `git grep` cannot see it |
+| ±0 | `DECISIONS.md:17593` → `:17622` | the same pointer, pushed down by an entry appended above it |
+
+**53 + 6 − 1 = 58.** Not one of them was *fixed*, not one of them *was never a
+pointer*, and the patterns were **not** different in kind — the two measurements
+ask the same question of two different trees, and **five of the six new pointers
+are rows of the grade table this write-up printed.**
+
+**THE HONEST FINDING IS WORSE THAN FIVE MISSING ROWS, AND IT IS NOT THE ONE THE
+MANAGER OFFERED EITHER.** A pattern difference is a *static* mistake: two commands
+sit side by side and anybody can see they disagree. **Here the commands are
+identical and the repository moved between them, because the act of reporting the
+population is what enlarged it.** Nothing in either number records which tree it
+was taken against, so **no amount of re-reading the two commands can find this
+— only pinning the revision can.** That is why the table above now names a commit
+and not an evening.
+
+And this is the part worth keeping:
+
+> **ALL SIX NEW POINTERS WERE WRITTEN BY THE WRITE-UP ABOUT POINTERS, AND FIVE OF
+> THE SIX ARE ROWS OF ITS OWN GRADE TABLE.** The instrument's report **enlarged
+> the population the instrument measures** — and because four of those rows
+> assert `857`, it injected four *wrong* pointers into the very set it was built
+> to triage. **A measurement that is changed by being published has no stable
+> value, only a value and a timestamp.**
 
 The one that moved is `DECISIONS.md:17593`, now `:17622`, shifted down by the
 entry appended above it — **a pointer that rotted inside this sitting, in the
@@ -2475,16 +2540,20 @@ file documenting pointer rot, while nothing pointed at it.**
 
 ### THE RULE THAT COMES OUT OF IT
 
-> **A count carries its instrument and its moment, or it is not a measurement.**
-> `git grep` and `grep -rn` answer different questions about the same repo, and a
-> figure written down without which one produced it cannot be compared to
-> anything later — including by the person who wrote it.
+> **A count carries its instrument AND THE TREE IT WAS TAKEN AGAINST, or it is not
+> a measurement.** The instrument half is the easy half — `git grep` and `grep -rn`
+> ask different questions and anybody can see them disagree. **The tree is the half
+> that cost tonight: the same command, two minutes apart, 52 then 58, because what
+> changed in between was the report.** A figure with no revision beside it cannot
+> be compared to anything later, including by the person who wrote it — and cannot
+> be defended by re-reading the command, because the command is innocent.
 
-**The 58 in my own sentence had no instrument recorded beside it and could not be
-reproduced from anything on disk**, which is why reconciling it took measuring
-three greps rather than reading one. Same family as 0.6's drift count and 3.4's
-typed test tally: **a number that was true when typed, with nothing attached
-saying what made it true.**
+**The 58 in my own sentence had no tree recorded beside it**, which is why
+reconciling it took pinning five revisions rather than reading one command — and
+why the first attempt reached for a command that returns 58 today and called that
+the answer. **It is reproducible now, for ever, because the revision is written
+next to it.** Same family as 0.6's drift count and 3.4's typed test tally: **a
+number that was true when typed, with nothing attached saying what made it true.**
 
 ---
 ## THE BLOCKER SWEEP — eight re-tested against tonight, eight still real, none expired

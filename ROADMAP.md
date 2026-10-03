@@ -17894,6 +17894,40 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and where it lives and is reported by name when it is missing** rather than
   skipped.
 
+### 14.31 — The pointer-staleness tool is not in the repo, so every grade it produced is unrepeatable
+
+- [ ] **14.31 — A measurement nobody can re-take is a claim. The git-delta
+  pointer tool decided 53 pointers into four buckets on 2026-10-02, caught the
+  one wrong citation it was graded against, and **ran out of a scratch directory
+  that no longer exists.**
+
+  So `docs/open-items-read-as-a-stranger-2026-09-25.md`'s grade table has a
+  population a reader can reproduce (the pinned `git grep` is written beside it)
+  and a **bucket column they cannot** — *still-good*, *changed-below-only*,
+  *suspect* came from code that is gone. **That is the difference between a
+  snapshot with a re-take command and a snapshot with an apology**, and it is the
+  fault `docs/gotchas.md` 92 asks every number in this repo to avoid.
+
+  **The method is written down and was proved twice**, so this is transcription
+  rather than design: date each pointer with `git blame -L<n>,<n> --porcelain`,
+  ask whether the target moved with `git log <sha>..HEAD -- <target>`, and sum
+  `git diff --unified=0` hunk length changes where the hunk's old start is at or
+  before the cited line. **It must also carry the thing the original could not:**
+  a pointer that was wrong on the day it was typed into a target that has not
+  moved comes back *still-good* **for ever** — all three `857` rows were exactly
+  that — so the receipt states that `still-good` means *has not drifted*, never
+  *is correct*.
+
+  **Done when** `node scripts/pointer-age.mjs` writes a graded receipt naming
+  every pointer, its bucket and the commit it was dated from; `--break=` sabotage
+  makes it report a known-good pointer as suspect and the run goes red; and
+  re-running it at `23199db` reproduces **58 pointers, 3 self, 55 cross**, which
+  is the fingerprint `gotchas.md` 92 records. **A run that cannot reproduce 92's
+  own numbers at 92's own revision has not been verified, whatever it prints.**
+
+  *Lane:* `scripts/`. *Found 2026-10-02 by the manager refusing a reconciliation
+  that closed a five-pointer gap with a command which happens to return 58 today;
+  `docs/gotchas.md` 93 is the write-up.*
 ### 14.30 — `bk-bar-clearance` cannot tell an accepted exception from a new failure, so it is red either way
 
 - [ ] **Found 2026-10-03 while executing 2.15a's criterion, which could not pass

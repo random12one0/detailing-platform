@@ -3839,7 +3839,7 @@ in it issue item numbers.** Here it is two, and nothing warns you; both files ar
 called some version of "roadmap" and `CLAUDE.md`'s own table lists them one row
 apart.
 
-## 92. A NOTE THAT CITES LINE NUMBERS IN THE FILE IT IS BEING INSERTED INTO INVALIDATES ITS OWN CITATIONS AS IT LANDS — by exactly its own length
+## 92. ANY ADDRESS MEASURED FROM WHERE THE NEW TEXT IS GOING IS WRONG BY THE LENGTH OF THE NEW TEXT, THE MOMENT IT LANDS — in any file type, absolute or relative
 
 **2026-10-03. A seventy-line note added to `ROADMAP.md` cited four line numbers
 in `ROADMAP.md`. Every one was wrong by exactly seventy.**
@@ -3867,6 +3867,39 @@ WORKS   `FOR-ANDREW.md:914` — *"DECIDED · The day squares stay as they are"*
 **The third form is fine**: the number is a convenience and the quote is the
 address. **If the number rots, the quote still lands.**
 
+### IT HAPPENED AGAIN THE SAME NIGHT, IN A `.jsx` COMMENT, WITH A RELATIVE ROW COUNT — which is how we know what this entry is actually about
+
+**One instance is an anecdote. Two in two file types in one night is a law, and
+the second one is why this entry's title changed.**
+
+DP Cowork wrapped `Clients.jsx:709` for ROADMAP 14.22 and wrote a comment above
+the sibling row saying the same two words already go through `t()`
+***"thirty-three rows above this"***. **Measured off disk: the target is 709 and
+the code the comment sits above was at 742 — thirty-three, correct at the moment
+it was counted. The comment was six lines long, so it pushed that code to 748 and
+made the true distance thirty-nine, as it saved.**
+
+| | first instance | second instance |
+|---|---|---|
+| file type | `ROADMAP.md` — markdown | `Clients.jsx` — JSX comment |
+| address kind | **absolute** line numbers | a **relative** row count |
+| wrong by | exactly 70, the note's length | exactly 6, the comment's length |
+| detected by | the manager going to the line | the manager counting off disk |
+
+**SO THIS IS NOT ABOUT MARKDOWN AND NOT ABOUT LINE NUMBERS.** It is about **any
+address measured from where the new text is going** — and a relative count is no
+safer than an absolute one, because what moves is the thing doing the pointing.
+**The first version of this entry was written an hour before the second instance
+landed, and its scope ("a note", "line numbers", markdown) would have excluded
+it.** An entry narrow enough to exclude its own next instance is a note, not a law.
+
+**The fix is the same one and DP Cowork took it unprompted:** the comment now
+reads `grep c-total-lbl`, **quoting the class instead of counting rows.** A class
+name is findable for ever; a row count is wrong the next time anybody edits the
+file, with nothing anywhere to announce it. **Same fix as making the quote the
+address — do not ask the reader to trust the number, give them the way to get it
+again.**
+
 ### AND IT WAS ALREADY WRITTEN DOWN IN THIS REPO, TWELVE DAYS EARLIER
 
 `ROADMAP.md`'s silences entry, 2026-09-20, in these words: ***"a line number into
@@ -3879,9 +3912,20 @@ it.**
 ### THE POPULATION, MEASURED RATHER THAN ESTIMATED
 
 Across every tracked `.md`, pointers of the form `FILE.md:1234` into the long
-shared documents:
+shared documents. **TAKEN 2026-10-02 at commit `23199db`, and re-takeable:**
 
-| | |
+```bash
+git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' -- '*.md' | wc -l          # today
+git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' 23199db -- '*.md' | wc -l   # reproduces 58
+```
+
+**THIS TABLE IS A SNAPSHOT AND THE NUMBER HAS ALREADY MOVED** — 64 by the end of
+the same sitting, because writing *about* these pointers creates more of them.
+**Do not trust the figure; run the command.** The revision is pinned above so the
+58 is reproducible for ever rather than merely asserted — which is this entry's
+own rule applied to this entry's own number.
+
+| | measured 2026-10-02 @ `23199db` |
 |---|---|
 | pointers | **58** |
 | **self** — a file pointing into itself | **3** |
@@ -3905,10 +3949,19 @@ stranger with a grep.
 
 A first script reported **12 self-citations** — nine were `line 1324`-style
 references to **other** files, counted because the pattern did not ask which file.
-A second reported **0 pointers** where `grep` found **53**: a false negative,
+A second reported **0 pointers** where `grep` found **58**: a false negative,
 **the worst kind**, caught only by running `grep` beside it. **Two instruments, two
 wrong answers, and the plain `grep` was right both times.** Same family as #89 and
 #91 — the population, not the verdict.
+
+***AND A THIRD WRONG ANSWER ABOUT THE SAME NUMBER, ADDED AND THEN REVERTED ON
+2026-10-02: THIS PARAGRAPH SAID 58, A SESSION CHANGED IT TO 53, AND 58 WAS
+RIGHT.*** The session was reconciling two counts, believed the smaller one was the
+true population, and **edited this number to agree with that belief without
+re-running the command in the paragraph above it.** `git grep` pinned at `23199db`
+returns **58 — 3 self, 55 cross**, matching every figure in this entry exactly.
+**That is #93 committed inside the sitting that wrote #93**, on a number that had
+a reproducing command sitting four lines away.
 
 
 ## 93. A CORRECT MEASUREMENT WAS DISCARDED BECAUSE THE OPERATOR ASSERTED A DIFFERENT NUMBER, AND THE WRITE-UP RECORDED THE TOOL AS BROKEN TO MAKE THE TWO AGREE
@@ -3975,6 +4028,37 @@ right about the bucket and wrong about the number is exactly the kind that gets
 over-trusted."* **Specific, measured, self-critical in tone, and wrong in its
 conclusion.** Prose that performs good epistemic practice is not evidence of it,
 and this file's whole subject is the difference.
+
+### SECOND INSTANCE, INSIDE THE SITTING THAT WROTE THIS ENTRY — which makes it a law
+
+**One instance is an anecdote. This one got its second within the hour, from the
+same session, on a number that had a reproducing command four lines away from it.**
+
+#92's population paragraph said `grep` found **58** pointers. While reconciling
+58 against a later count of 53, this session decided 53 was the true population
+and **edited 92's number from 58 to 53 to agree** — without re-running the
+command in the paragraph above it. **58 was right.** Pinned at the revision 92 was
+written against, `git grep` returns **58 — 3 self, 55 cross**, matching every
+other figure in that entry.
+
+| | first instance | second instance |
+|---|---|---|
+| the tool said | **914** | **58** |
+| the belief said | 857 (the manager's) | 53 (my own) |
+| what was edited | the tool's grade, into a “limitation” | the *recorded measurement itself* |
+| re-measurement available | `grep -n` — one command | the command was **in the same paragraph** |
+| re-measurement taken | no | no |
+
+**THE SECOND IS WORSE ON TWO COUNTS.** The authority being deferred to was **my
+own conclusion**, so there was no rank to hide behind — and what got rewritten was
+not an interpretation but **the measurement on the page**, destroying the record
+rather than misreading it. **A wrong interpretation beside a right number can be
+re-derived by the next reader. A number edited to fit cannot.**
+
+**So the tell generalises past authority:** it is not *distrust the write-up that
+defers to a person*. It is **distrust any edit that makes two numbers agree
+without re-running the thing that produced either.** Both instances had the
+command to hand. Neither ran it.
 
 ### THE FIX COSTS ONE COMMAND
 
