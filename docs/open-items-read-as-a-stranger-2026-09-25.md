@@ -1885,3 +1885,104 @@ against 18 files, 2.12's 71/6, 9.2's `5202586`.
 **What it does not tell you:** how long any of them takes. **Cheapest-first here
 means fewest unknowns, not fewest minutes** — #1 is one command and #12 could be
 an afternoon.
+
+---
+
+## A SMALL RULE, EARNED THREE TIMES TODAY — match by containment, confirm by opening
+
+**A prefix match is a guess about FORMATTING; containment is a guess about
+MEANING; opening it is the answer.** Three times on 2026-10-03 a prefix died on
+something harmless: `"1.3 —"` against `"11.3 —"` (gotcha 89), an exclusion list
+against an item number, and a citation matcher against
+`"PROPOSAL · FOUR THINGS THIS PRODUCT DOES SILENTLY…"` — **where the only fault
+was the word `PROPOSAL` in front.** Containment would have survived all three.
+**And containment still produced two more false positives in the same sweep, so
+the second half of the rule is not optional: open every hit before calling it
+one.**
+
+---
+
+## RE-PROVING THE QUEUE — one command per row, and it caught a stale row on its first run
+
+**The queue is a derived list and derived lists rot here: 12.2 and 7.8 both
+went stale inside a fortnight.** So every ready row now carries **one command
+that re-proves it still belongs.**
+
+### THE CONVENTION, so no reader has to interpret anything
+
+> **Run it. `exit 0` means the row still belongs. Any non-zero exit means the
+> row has MOVED — go and look before handing it to anybody.**
+
+**No output needs reading.** Several commands are deliberately inverted (`!
+grep …`) so that *the fault still being present* is the success case. That looks
+odd and it is the point: **the thing being re-proved is the row's membership,
+not the product's health.**
+
+### IT CAUGHT ONE IMMEDIATELY, WHICH IS THE WHOLE ARGUMENT
+
+**Row #1 — 9.11's first clause — was stale within ninety minutes of being
+written.** The queue said *"nothing to build: the receipt still reads
+`"status": "fail"` over a `git_sha` that is an ancestor of the fix."*
+
+**Measured:** `receipts/sweep-widths-1920-1440-392-360-320.json` carries
+`started_at 2026-10-03T01:52:40Z`, `finished_at 02:01:56Z`, and
+`git_sha 50767da` — **this session's own commit from twenty minutes earlier.**
+**DP Cowork re-ran it.** The clause asked for the sweep to be re-run against the
+fixed tree, **and it has been.**
+
+**The receipt still says `fail`, and that is now an HONEST fail** — 2 findings,
+the first being `guide · calendar 5` at **1920**, *"the whole page can be dragged
+sideways, +51px"*. **A stale red became a live red while the queue was being
+written**, and only a command could tell the two apart, because **both print the
+word `fail`.**
+
+> **ROW #1 IS DONE. Do not hand it to anybody.** What is left of 9.11 is its
+> second clause — the press at a width Andrew's browser cannot reach — and that
+> is blocked on him, not on the build lane.
+
+### THE COMMANDS, EVERY ONE RUN BEFORE IT WAS WRITTEN DOWN
+
+**Credential-free unless the row says otherwise.**
+
+| # | item | re-prove command — `exit 0` = still belongs |
+|---|---|---|
+| ~~1~~ | ~~9.11~~ | **DONE 2026-10-03 02:01 — see above.** |
+| **2** | 14.22 | `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx \| grep -qv '^t('` |
+| **3** | 14.21 | `! grep -qE 'SIGTERM\|SIGINT' scripts/admin-contrast.mjs` |
+| **4** | 14.26 fix | `test "$(curl -s "$SUPABASE_URL/rest/v1/bookings?address_source=eq.picked&select=id" -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY")" = "[]"` — **needs the service key; it is in the repo-root `.env` as `SUPABASE_SECRET_KEY`, loaded with `set -a; . ./.env; set +a`. Never printed.** |
+| **5** | 3.4c | `grep -q '"12 October 2026"' scripts/render-emails.mjs` |
+| **6** | 7.18 | `! grep -qE 'navmenu\|burger' app/src/landing/LegalPage.jsx` |
+| **7** | 4.6 | `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` |
+| **8** | 14.23 | `! grep -qi details scripts/lib/tapProbe.mjs` |
+| **9** | 8.10c | `! grep -q role_table_grants scripts/migration-drift.mjs` |
+| **10** | 2.12 | `! node --test tests/spanish.test.mjs` — inverted: the suite failing **is** the row's membership |
+| **11** | 9.2 | **NO COMMAND — see below** |
+| **12** | 7.9 | **NO COMMAND — see below** |
+
+**Every command in that table was executed before it was written here**, and #5
+was **wrong on the first attempt** — it probed `2026-10-12`, the ISO date the
+entry proposes as the *fix*, rather than `"12 October 2026"`, the literal that is
+actually in the file. **It exited 1 and would have retired a live row.** Caught
+because the commands were run rather than reasoned, which is the same lesson one
+more time.
+
+### THE TWO THAT CANNOT BE RE-PROVED BY A COMMAND, said rather than invented
+
+**An honest unverifiable row beats a check that cannot go red.**
+
+* **9.2** — its membership is *"do the other four `STUCK` rows state facts they
+  did not compute?"* **That is a reading of five advice strings against five
+  predicates, and no grep expresses it.** A command could only confirm the file
+  still exists. **Re-prove it by opening `AdminPage.jsx`'s `STUCK` array and
+  reading the four, which is also the first step of the work.**
+* **7.9** — its membership is *"is anything at opacity 0 after first paint under
+  reduced motion?"* **That needs a rendered page**, which is the browser, which
+  is why the item is on the list at all. **No command in this lane can answer
+  it**, and inventing one that greps for `data-rv` would re-prove the wrong
+  thing — presence is not visibility, which is 7.12's whole finding.
+
+### AND THE CAVEAT STAYS AT THE TOP OF THE QUEUE, IN THESE WORDS
+
+> **Cheapest-first means fewest unknowns, not fewest minutes.** Number one was a
+> single command; number twelve could be an afternoon. **A reader who takes
+> *cheapest* to mean *quickest* will pick wrong.**

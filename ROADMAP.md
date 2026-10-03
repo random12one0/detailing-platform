@@ -13921,6 +13921,15 @@ the dashboard or back office at phone width at all.
      disk stops reading `"status": "fail"` over a `git_sha` that is an ANCESTOR of
      the fix. **Nobody has run it since the fix existed**, so that file reads as a
      live failure to anyone who does not check its sha against `HEAD`.
+     ***CLAUSE 1 IS MET — 2026-10-03 02:01. Measured, not assumed.***
+     `receipts/sweep-widths-1920-1440-392-360-320.json` now carries
+     `started_at 2026-10-03T01:52:40Z`, `finished_at 02:01:56Z` and
+     `git_sha 50767da` — **today's HEAD.** The other lane re-ran it. **The
+     receipt still says `fail` and that is now an HONEST fail:** 2 findings,
+     the first `guide · calendar 5` at **1920**, *"the whole page can be
+     dragged sideways, +51px"*. **A stale red became a live red**, and the two
+     print the same word — which is why the clause asked for the sha and not
+     for the status. **What is left of 9.11 is clause 2, and that is Andrew's.**
   2. **Either** Andrew presses it below 520px and confirms the three-column wrap,
      **or** this item closes on the record already written — his 1440 press, this
      session's measured 320 run and the sweep's re-run — **with the limitation
