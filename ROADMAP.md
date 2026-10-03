@@ -3536,6 +3536,38 @@ the wrong service, and never book a job we cannot reach.
   exactly this, in writing, and was open the whole time. **Not unticked here:
   closures and reversals are the manager's.**
 
+  **RULED 2026-10-03: THE TICK STANDS, AND THE GAP IS WRITTEN HERE RATHER THAN
+  RESOLVED BY MOVING THE BOX.** The measurement was real, it was taken by
+  somebody who looked, and it is recorded above in full. **Unticking it would
+  destroy a true record because the world moved underneath it**, which is a worse
+  failure than the one it would fix. **But a tick whose evidence a stranger
+  cannot re-take is only honest while it says so**, so:
+
+  | | |
+  |---|---|
+  | the two cited rows | **gone** — both return empty by id |
+  | `demo-detail`'s `business_id` | **changed**, `bfaf7b77…` → `080fa036…`: the tenant was recreated |
+  | `address_source = 'picked'` | **zero rows in the entire database** |
+
+  **WHAT A STRANGER DOES INSTEAD, and it is a command rather than a hope:**
+
+  ```bash
+  node --test tests/address-source.test.mjs     # 6 passed / 0 failed today
+  ```
+
+  **That is the standing guard this item gained on 2026-09-23 and it is
+  credential-free** — three filesystem reads, no browser, no database. It proves
+  the half the lost rows proved: that `AddressField` writes both values, that
+  there are exactly two, that **`picked` is reachable only from the handler that
+  takes a returned suggestion**, and that the step and `core.js` carry it to the
+  server. **It does not prove a row was ever written with it** — that is what the
+  rows did, and it is why 14.26's fix below makes the seed produce one.
+
+  > **AND THE ONE LINE FOR WHOEVER HAS THE BROWSER, to re-take the row half:**
+  > *on `demo-detail`, book with a real address, press **Find**, click a returned
+  > suggestion rather than typing on, submit, then read the booking back and
+  > confirm `address_source` is `picked`. One Geoapify credit. Keep the row.*
+
   **AND THE STANDING CHECK THE FIRST TICK DID NOT HAVE —
   `tests/address-source.test.mjs`, added 2026-09-23.** The six-case press was
   true once and nothing would have noticed it stopping being true, which is
@@ -3604,6 +3636,28 @@ the wrong service, and never book a job we cannot reach.
   writing that the replacement row would go the same way, and it did, **to the
   row the previous session had specifically identified as irreplaceable.** Option
   3 in the list above — *something notices* — would have caught it on the day.
+
+  ### THE FIX — the seed produces the evidence, so it stops surviving by luck
+
+  **Queued for whoever owns `scripts/`, 2026-10-03, with the measurement above
+  attached.** `seed-demo.mjs` should **create one booking with
+  `address_source = 'picked'` on every run.** Then the proof 2.8 rests on is
+  **regenerated rather than preserved**, and a reseed stops being the thing that
+  destroys it. **Shape 2 in the list below, chosen because it is the only one
+  that makes the evidence cheaper to have than to protect.**
+
+  **THIS ITEM IS NO LONGER AN ARGUMENT AND THE ENTRY SHOULD SAY SO.** It wrote
+  down, on 2026-09-23, that the replacement row *"will go the same way at the
+  next reseed unless something changes"*. **Nothing changed. It went. Nothing
+  noticed.** Eight days, a named prediction, a confirmed loss, and the lost row
+  was the one a previous session had identified in writing as irreplaceable.
+  **An item that predicted its own fault and was proved right by the clock is
+  the strongest thing on this board**, and it is still open.
+
+  **AND THE REASON NOBODY SAW IT COMING IS 14.27's SUBJECT, ONE ITEM DOWN.**
+  Nothing watches. The loss had no error, no red check and no receipt — the
+  evidence simply was not there the next time somebody looked, which happened to
+  be eight days later and by accident.
 
   **SHAPES, NOT A CHOICE — deliberately not decided and not built tonight:**
   1. **The seed preserves flagged rows.** A column or a name convention
