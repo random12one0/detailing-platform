@@ -556,6 +556,65 @@ const NAMED_TEXT = (english) => {
   return new RegExp(`(?:${rx(english)}|${rx(es)})`);
 };
 
+/* ══ HOLD THE DRIFTING GROUND STILL FOR THE LENGTH OF A CLICK ═════════════
+   **THE INTERMITTENT 1920 ABORT, ATTRIBUTED 2026-10-03 BY CENSUS RATHER THAN
+   BY WAITING FOR IT TO HAPPEN AGAIN.** The abort was Playwright failing
+   `stable` on `.tabbar button[data-tour="today"]` - an element it had already
+   resolved, already `class="active"`, already enabled. Not covered, not
+   missing: MOVING.
+
+   The census of every live animation on the signed-in shell at 1920 found two
+   infinite ones, and exactly one of them matters:
+
+     ground-drift  54s alternate, on DIV.app-shell, animating TRANSFORM,
+                   and `app-shell` CONTAINS the tab bar.  <-- this one
+     app-dots      26s linear, on DIV.app-dots, transform, NOT an ancestor
+                   of the bar, so it cannot move the bar's box.
+
+   `theme.css:1060` - the deliberate drifting ground. A transform on an
+   ancestor moves every descendant's `getBoundingClientRect()`, so the tab
+   bar's box is in continuous motion by design. **That is why it is
+   intermittent rather than constant**: the drift is slow and alternating, so
+   on most frames the delta rounds below the threshold - measured stable at
+   the instant of the census - and occasionally, mid-cycle where the easing is
+   fastest, it does not.
+
+   **WHICH SIDE IT IS ON: the sweep's.** The app is doing what it was built to
+   do and the control is genuinely operable; the script was requiring
+   stillness from a page that is never still. So the fix is here, and it is
+   the same discipline `say()` already applies to FINITE animations before it
+   measures - pause, act, resume. `say()` skips infinite ones because
+   `finish()` on one throws; pausing works on both.
+
+   **IT DOES NOT BYPASS ACTIONABILITY.** `{ force: true }` would have made the
+   abort go away by not looking, which is this repo's subject. Visibility,
+   enabled-ness and pointer-interception are all still checked - the tourblock
+   overlay would still be caught. Only the stability race is removed, and only
+   for the length of one click. */
+const clickOnStillGround = async (page, loc) => {
+  const paused = await page.evaluate(() => {
+    const held = [];
+    for (const a of document.getAnimations()) {
+      const t = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
+      if (a.playState !== "running" || Number.isFinite(t.endTime)) continue;
+      try { a.pause(); held.push(a.animationName || "(js)"); } catch { /* not pausable */ }
+    }
+    return held;
+  }).catch(() => []);
+  try {
+    await loc.click();
+  } finally {
+    // ALWAYS resumed, including when the click failed, so a later surface is
+    // never measured against a frozen ground it did not ask for.
+    await page.evaluate(() => {
+      for (const a of document.getAnimations()) {
+        if (a.playState === "paused") { try { a.play(); } catch { /* gone */ } }
+      }
+    }).catch(() => {});
+  }
+  return paused;
+};
+
 const appear = async (loc, ms = 6000) => {
   try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
   catch { return false; }
@@ -636,6 +695,7 @@ import { writeReceipt } from "./receipt.mjs";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { demoOwner } from "./lib/demoOwner.mjs";
+import { ordinal } from "./lib/ordinal.mjs";
 
 const STARTED = new Date().toISOString();
 
@@ -3085,7 +3145,7 @@ for (const w of SIZES) {
          button, prints it, and rethrows so the width still aborts. The next
          occurrence arrives as evidence instead of as a timeout. */
       try {
-        await btn.click();
+        await clickOnStillGround(page, btn);
       } catch (clickErr) {
         const why = await page.evaluate(() => {
           const b = document.querySelector('.tabbar button[data-tour="today"]');
@@ -3182,9 +3242,9 @@ for (const w of SIZES) {
     const lastDone = CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? "nothing";
     console.log(ATTEMPTING
       ? `
-WIDTH ABORTED at ${w}px MEASURING «${ATTEMPTING}» — the ${done + 1}th — ${why}`
+WIDTH ABORTED at ${w}px MEASURING «${ATTEMPTING}» — the ${ordinal(done + 1)} — ${why}`
       : `
-WIDTH ABORTED at ${w}px BETWEEN SURFACES, after «${lastDone}» completed (the ${done}th). `
+WIDTH ABORTED at ${w}px BETWEEN SURFACES, after «${lastDone}» completed (the ${ordinal(done)}). `
         + `It was navigating, not measuring — ${why}`);
     console.log(`  The other widths carry on. Everything ${w}px did not reach is unmeasured, not clean.`);
   } finally {

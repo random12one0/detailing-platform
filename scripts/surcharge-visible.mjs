@@ -101,6 +101,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { ordinal } from "./lib/ordinal.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -640,7 +641,7 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
     // ── THE TIME ──────────────────────────────────────────────────────────
     const chips = page.locator(".bk-slots .bk-chip");
     const count = await chips.count();
-    if (!count) throw new Error(`the ${day}th had no time chips`);
+    if (!count) throw new Error(`the ${ordinal(day)} had no time chips`);
     await quoted(page, () => chips.nth(pick === "last" ? count - 1 : 0).click());
 
     out.late.bar = await barMoney(page);

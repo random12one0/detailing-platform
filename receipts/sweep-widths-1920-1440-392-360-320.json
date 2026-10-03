@@ -1,9 +1,9 @@
 {
-  "git_sha": "2674ba6c0e6f0e5b9934d80e802b623fc5dc69bf",
-  "git_sha_started": "3398470d99e8ffdf18e581ba3a80dce2c59485f3",
+  "git_sha": "51a660418473cde61fcb39e6ef7e87e3573d2d4c",
+  "git_sha_started": "9901b16b78ba94c5f6ce51c1b6d2ae5f9ed229e2",
   "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-03T04:11:16.409Z",
+  "finished_at": "2026-10-03T04:27:07.760Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -25,13 +25,13 @@
     ]
   },
   "check_id": "sweep-widths-1920-1440-392-360-320",
-  "started_at": "2026-10-03T04:01:00.852Z",
+  "started_at": "2026-10-03T04:16:54.714Z",
   "status": "pass",
-  "expected_targets": 430,
-  "discovered_targets": 430,
-  "attempted_targets": 430,
-  "completed_targets": 430,
-  "skipped_targets": 11,
+  "expected_targets": 429,
+  "discovered_targets": 429,
+  "attempted_targets": 429,
+  "completed_targets": 429,
+  "skipped_targets": 12,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
@@ -83,8 +83,13 @@
       },
       {
         "width": 320,
+        "label": "tour · step 35",
+        "reason": "the tour walked 34 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 320,
         "label": "tour · step 36",
-        "reason": "the tour walked 35 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+        "reason": "the tour walked 34 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
       },
       {
         "width": 320,
@@ -93,8 +98,8 @@
       }
     ]
   },
-  "assertions_executed": 191049,
-  "min_assertions": 1720,
+  "assertions_executed": 190536,
+  "min_assertions": 1716,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,
