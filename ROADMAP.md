@@ -5320,10 +5320,6 @@ requested.
   file at the time of the pass, never typed into this line — **and each one has
   left a delivery row**, so a template that reached nobody cannot be reported as
   reaching somebody.
-  **What failing looks like:** a pass claimed from RENDERING rather than sending,
-  which is the front half this item already has and explicitly does not count;
-  and **a seventeenth template added after the pass**, which a typed number
-  cannot notice and a count read off the file can.
   **TWO THINGS A COLD READ ADDED, 2026-10-02, because a stranger would have been
   stopped by both:**
   **THE COST IS NAMED AND IT IS A SHARED ONE.** Sixteen real sends is sixteen of
@@ -5339,6 +5335,13 @@ requested.
   quietly counted as covered, and never made sendable by softening a gate that
   exists on purpose. **"Sixteen of sixteen" with two unsendable ones folded in is
   the lie this clause exists to prevent.**
+  *(The cost clause and the unsendable-template clause were appended BELOW this
+  failing-looks-like line on 2026-10-02 and moved above it on 2026-10-03, because a requirement
+  below the failing line is read as commentary — the 11.3 shape, created here while
+  fixing something else.)*
+  which is the front half this item already has and explicitly does not count;
+  and **a seventeenth template added after the pass**, which a typed number
+  cannot notice and a count read off the file can.
   *old roadmap § A*
 
   ---
@@ -9625,10 +9628,6 @@ rather than wording went to Andrew.
   — both lists derived from the code rather than from memory; and **(b)** a check
   **fails by name** when those two lists disagree, so adding a processor reddens a
   run instead of relying on somebody remembering the policy exists.
-  **What failing looks like:** the two lists reconciled once, by hand, on the day
-  somebody looked — which is this item's current state and is why it is still
-  open. **A reconciliation is not a mechanism**, and the next processor arrives
-  without one.
   **TWO CLAUSES ADDED BY A COLD READ, 2026-10-02, because a stranger would have
   had to ask both:** **(c)** *"external host"* means **a host the product sends
   customer data to or fetches customer-specific data from** — so Geoapify and
@@ -9640,6 +9639,13 @@ rather than wording went to Andrew.
   greppable, and **an undeclared blind spot is how a list check reports a clean
   match over a processor nobody enumerated.** Same discipline 8.10c now carries
   for its UNJUDGEABLE bucket.
+  *(Clauses (c) and (d) were appended BELOW this failing-looks-like line when a cold
+  read added them on 2026-10-02, and were moved above it on 2026-10-03, because a requirement
+  below the failing line is read as commentary — the 11.3 shape, created here while
+  fixing something else.)*
+  somebody looked — which is this item's current state and is why it is still
+  open. **A reconciliation is not a mechanism**, and the next processor arrives
+  without one.
   *A1 P0-05, P3-10*
 
   **AUDITED 2026-09-21, FROM THE CODE. Nothing on the privacy page was
