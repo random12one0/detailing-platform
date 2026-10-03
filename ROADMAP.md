@@ -4888,6 +4888,24 @@ the wrong service, and never book a job we cannot reach.
   and 320x844, console read at each, with `legal`, `reachable`, `bar-clear`,
   `pressed`, `reserve-tracks` and `nothing-at-rest` green on every step; and it
   goes RED when any one of the three is lengthened past what its screen can
+
+  ***THIS CRITERION CANNOT PASS AS WRITTEN — FOUND 2026-10-03 BY RUNNING THE
+  CHECK IT NAMES.*** It asks for `legal` green **on every step**, and
+  `receipts/bk-bar-clearance.json` is **`fail` with 7 failures, every one of them
+  the 320 day cells at 37px** — which is the **accepted hold** Andrew ruled on
+  (`FOR-ANDREW.md:857`, *"the day squares stay as they are"*) and whose check
+  **stays red on purpose**. So the instrument is built, the five widths are
+  swept, the ceiling is read off the element's own `maxLength` — **and the
+  criterion is unsatisfiable while a deliberate exception exists.** A criterion
+  that can never go green is the mirror of one that can never go red: both stop
+  being read.
+  **Done when, amended:** all six questions green on every step **except the
+  declared 320 day-cell exception**, which must **stay red and stay named** —
+  **not allowlisted into silence**, because *"a genuine violation hidden inside a
+  passing check"* is the thing that hold was written to avoid. **The work is
+  making the receipt tell the accepted exception apart from a real failure**, so
+  that a seventh failure arriving tomorrow is visible against six that are
+  expected.
   hold. **The ceiling is READ FROM THE `maxLength` ON THE INPUT THAT WRITES
   EACH ONE, never typed into the check** — so the day somebody adds a limit the
   check tests the new one without being edited, which is the handover's own
