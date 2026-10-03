@@ -17148,10 +17148,32 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   duplicated. If the keys are there, this is one line.
 
   **Done when:** **no bare `"visit"`/`"visits"` string literal remains in
-  `app/src/screens/Clients.jsx`** — `grep -n '"visits\?"' app/src/screens/Clients.jsx`
-  returns only occurrences inside a `t(` call — **and the client record card is
-  opened on the demo tenant with the language set to Spanish and reads
-  `visita` or `visitas`**, read off the screen, not off the catalogue.
+  `app/src/screens/Clients.jsx`**, proved by a command whose OUTPUT decides:
+
+  ```bash
+  grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -v '^t('   # must print NOTHING
+  ```
+
+  **— and the client record card is opened on the demo tenant with the language
+  set to Spanish and reads `visita` or `visitas`**, read off the screen, not off
+  the catalogue.
+
+  ***THE COMMAND CHANGED ON 2026-10-03 BECAUSE THE OLD ONE WAS RUN AND COULD NOT
+  TELL A PASS FROM A FAIL.*** It was `grep -n '"visits?"' …` *"returns only
+  occurrences inside a `t(` call"*. **Executed against today's file it prints
+  lines 709 and 742. Executed against a copy with 742 fixed it prints lines 709
+  and 742.** Byte-identical two-line output either side of the fix, because
+  `grep -n` prints LINES and the question is about OCCURRENCES — and one line can
+  hold a wrapped and an unwrapped one. **The reader had to eyeball, so it was a
+  prompt to look rather than a gate.** The replacement prints the two characters
+  before each occurrence and drops the ones that are `t(`: **today it prints
+  `? "visit"` and `: "visits"`; against the fixed copy it prints nothing.** Both
+  halves measured, not reasoned — the fixed copy was made in a scratch directory
+  and `app/src` was not touched.
+  **AND THIS IS THE FIRST FAULT IN THIS AUDIT THAT ONLY EXECUTION FOUND.** A read
+  graded this criterion a PASS in batch 13: it names a file, a command and a
+  screen, which is everything a read checks for. **Running it took four minutes
+  and showed the command was decorative.**
 
   **What failing looks like:** the grep comes back clean because somebody
   deleted the word instead of translating it, and the record card now shows a
