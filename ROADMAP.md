@@ -9752,6 +9752,7 @@ rather than wording went to Andrew.
   It names Supabase, Netlify, Resend, Stripe and Google. The booking address
   search visibly credits **Geoapify** and **OpenStreetMap**, so typed addresses
   go somewhere the policy does not mention.
+  ***STALE SINCE 2026-09-21 — `2942f6f` made the page name all four, including the forecast lookup; see the correction below. The original wording is kept and marked rather than rewritten.***
   **Fix:** inventory every data processor and what each receives — address,
   weather, maps, analytics, error reporting, email, hosting, storage, support.
   Separate active processors from planned ones; a future Google Business
@@ -12447,6 +12448,7 @@ the dashboard or back office at phone width at all.
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,
   never-booked and no-website at once.
+  ***STALE SINCE 2026-09-21 — the "page works" sentence was removed by `5202586`; see the correction below the `Done when`. Left in place because it is the audit's original wording, marked because a reader stops at the opening paragraph.***
   **Fix:** stages — Created → Configured → Bookable → First booking → Active.
   One furthest stage per account, separate warnings, one primary blocking
   reason.
@@ -14238,6 +14240,7 @@ their age is not Andrew's problem.
 - [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
   "Card" into the notes, while the home page promises "Take a card payment on
   the driveway." **Until this ships, 10.1 must change the home page wording** —
+  ***STALE SINCE 2026-09-20 — the page says "Log a card payment" now, `6097a7e`; see the correction below. Branch two of this item's own criterion is met.***
   a claim the product cannot keep is a copy bug, not a missing feature. *A2 4.6*
   **Done when** (written 2026-09-25; this item had none): **either** a real card
   is taken in person, the booking's payment state is set **by that transaction**

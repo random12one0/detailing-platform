@@ -1694,3 +1694,99 @@ quotes the headline without the caveat.
   enforce.
 * **A fix that landed in a commit about something else** — the subject names item
   A, the diff also closes item B.
+
+---
+
+## AN ITEM WITH NO IDENTIFIER IS NOT HARD TO FIND — IT IS UNCHECKABLE
+
+**Put here, near the top of the file, because it is the sentence a stranger most
+needs and it cost two weeks to learn.**
+
+**14.26 and 14.27 had no numbers for ten days.** Every instrument in this repo
+keys on the item number — the commit-grep sweep, the present-tense sweep, the
+batch audits, `git log --grep`. **So neither item was ever checked by any of
+them, and nothing said so**, because an instrument that enumerates by identifier
+cannot report an item it never enumerated. Other entries cited them as *"the
+reseed item"* and *"the stale-blocker item"*, **which is itself the evidence they
+needed numbers**: a thing referred to by description is a thing nothing can
+index.
+
+**THE MOMENT THEY WERE NUMBERED, ONE OF THEM TURNED OUT TO BE THE SHARPEST
+FINDING OF THE NIGHT.** 14.26 had predicted its own fault in writing on
+2026-09-23 — that the replacement evidence row *"will go the same way at the
+next reseed"* — and **it had already happened**: both rows gone, the tenant
+recreated under a new `business_id`, and **zero rows anywhere in the database
+with `address_source = 'picked'`**, which was the single piece of evidence 2.8's
+tick rested on.
+
+> **An item with no identifier is not merely hard to find. It is uncheckable,
+> and the cost is invisible until somebody looks.**
+
+**The cheapest guard is the one this file now has: count the open items with no
+number, and expect zero.** It was 2 for ten days and nothing noticed.
+
+---
+
+## THE 9.2 RULE, APPLIED TO EVERY CRITERION THAT QUOTES A STRING — a clean sweep
+
+**2026-10-03.** *A criterion that quotes the product must be written FROM the
+product, never from the entry describing it.* **Here is that rule run as a
+check.**
+
+### THE METHOD AND THE NUMBERS
+
+1. For every open item, take the **criterion zone** — first `Done when` to the
+   end of the entry — and collect **quoted fragments** of 8–70 characters
+   containing a space, where the zone also **names a file**.
+2. Test each against one blob of every tracked file in **`app/src`,
+   `supabase/functions`, `scripts` and `tests`**.
+3. For every miss, run **`git log -S`** over `app/src` and
+   `supabase/functions`. **A fragment that was once in the source and is not now
+   is the 9.2 shape.** Everything else is prose.
+
+| | |
+|---|---|
+| open items whose criterion quotes a string **and** names a file | **36** |
+| quoted fragments in those criteria | **247** |
+| **still present in the source** | **125** |
+| not found | **122** |
+| of those, **once in the source and now gone** | **4** |
+| **new misses** | **0** |
+
+**ZERO NEW MISSES, AND THAT IS THE RESULT.** All four hits were already found
+and recorded: **7.8**, **9.2**, **12.2**, and the known prose false positive
+*"four fixed"*. **A clean sweep after 9.2 is worth saying plainly** — the rule
+was written from one instance and the instance turned out not to be a pattern in
+the criteria.
+
+### BUT IT WAS A PATTERN SOMEWHERE ELSE, AND THE SWEEP FOUND IT BY ACCIDENT
+
+**The three real hits are not in the criteria. They are in the items' OPENING
+PARAGRAPHS.** I had corrected all three criteria over the last two days and left
+the headline framing untouched, so:
+
+* **9.2's** first paragraph still read *Growth says a page "cannot take a
+  booking" and also "the page works and nobody has used it"* — **removed
+  2026-09-21.**
+* **7.8's** still read *"It names Supabase, Netlify, Resend, Stripe and Google…
+  so typed addresses go somewhere the policy does not mention"* — **fixed
+  2026-09-21.**
+* **12.2's** still read *the home page promises "Take a card payment on the
+  driveway"* — **changed 2026-09-20.**
+
+**That is 11.3's lesson in a second place: a reader stops at the opening
+paragraph, and three items opened with a false present tense while their
+corrections sat forty to a hundred lines below.** Each now carries a one-line
+`***STALE SINCE …***` marker naming the commit and pointing down. **The original
+audit wording is kept rather than rewritten** — it is what the auditors saw, and
+the reversal is the load-bearing part.
+
+### WHAT THIS SWEEP CANNOT SEE
+
+* **A criterion that paraphrases the product instead of quoting it.** No quote,
+  no fragment, no check. **This is the big one**, and it is unbounded.
+* **A quote that still matches the source but means something different now** —
+  the string survives, the surrounding logic changed.
+* **Prose quotes are indistinguishable from product quotes** at 122 misses, so
+  the `git log -S` step is doing all the discrimination; without it the sweep
+  would report 122 findings and be useless.
