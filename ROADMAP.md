@@ -9141,6 +9141,9 @@ rather than wording went to Andrew.
   site-builder will not meet.**
   **Done when:** no example site states a figure whose producing field or
   endpoint cannot be named, and the rule is in the tenant-site brief.
+  **SECOND CLAUSE ALREADY MET — EXECUTED 2026-10-03.** `grep -ic "number the
+  product cannot" docs/tenant-site-kit.md` returns **1**: the rule is in the
+  brief. **One open clause here, not two.**
 
   ---
 
@@ -9434,6 +9437,14 @@ rather than wording went to Andrew.
   (`docs/the-photo-allowance.md` § 2). **So this item closes inside that change,
   not before it** — changing the words now to describe 1 GB means changing them
   again a week later.
+  **FIRST CLAUSE ALREADY MET — EXECUTED 2026-10-03, not read.** `grep -rin
+  unlimited app/src | grep -i photo` returns **nothing**: `/pricing`'s list now
+  reads *"Unlimited services, bookings and staff logins"* and
+  `LandingPage.jsx:1098` carries the comment *"photos" removed 2026-09-21*. **So
+  this criterion has one open clause, not two** — said here because a reader
+  counting two will size the item wrong. **The item still does not close**: it is
+  held on purpose until 0.11 raises the allowance in the same change, and the
+  second clause needs the back-office screen.
 
 - [x] **7.7 — DONE 2026-09-21. Both halves of "your customers … and your
   photos are yours" are now built and pressed.** ~~Three public pages promise
