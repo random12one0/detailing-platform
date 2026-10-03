@@ -1591,6 +1591,21 @@ owner.**
 | **whose** | the manager's — closures are not a session's call | whoever owns the entry | whoever owns the entry |
 | **the example** | the 320 calendar item; **12.2** | **7.8** | 8.10c, 7.3, 4.1, 4.3 |
 
+> **THE RULE 9.2 GIVES, AND IT APPLIES TO EVERY CRITERION ANYBODY WRITES HERE
+> FROM NOW ON: a criterion that quotes the product must be written FROM the
+> product, never from the entry describing it.** 9.2's rewritten criterion quoted
+> a sentence removed from `AdminPage.jsx` eleven days earlier. It was written from
+> the entry's diagnosis, by the session that had found 12.2 doing exactly that the
+> day before. **An entry is a description of the product at a moment; the product
+> is the product.** One `grep` of the file would have cost ten seconds.
+
+**DECLARED PARTIAL IS A HEALTHY STATE, NOT A FINDING.** Nine items have a commit
+that names them, does real work and stops, and **seven of the nine say so in
+their own subject line.** *"4.3: the history half is built and pressed; the entry
+stays open for the other half."* **That is the record working exactly as it
+should.** It is listed here so it has a name and stops being mistaken for the
+other two — **nine is not nine problems**, and a later reader who counts it as a
+backlog has misread the taxonomy.
 **7.8 IS WHY THE TAXONOMY EXISTS.** Its four listed findings were fixed on
 2026-09-21 by a commit naming 7.8 — **and it is not closed in fact**, because its
 criterion's clause (b), a check that fails by name, does not exist. **Treating a

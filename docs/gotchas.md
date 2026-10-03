@@ -3778,3 +3778,53 @@ cannot be fixed inside a `try`.**
 14.21's lesson, had committed it that afternoon, and still reached for `timeout`
 without asking what the script created. **The teardown it defeated was in the one
 place that session had just finished recommending.**
+
+## 91. TWO ROADMAPS IN THIS REPO REUSE THE SAME ITEM NUMBERS, so `git log --grep "1.3"` answers confidently about the wrong document
+
+**2026-10-03. A commit-grep sweep over all 62 numbered open items returned 534
+commits, and 21 of the 101 that looked like fixes were about a completely
+different roadmap's items.**
+
+**THE COLLISION, in two lines.** `ROADMAP.md` is the live fix queue, built from
+the September 2026 audits. **`docs/roadmap.md` is the long build history, and it
+has its own 1.3, 3.1, 6.2 and more.** `docs/roadmap.md:71`:
+
+> `- [x] 1.3 **DONE 2026-08-29 — direction 5 built and APPROVED.**`
+
+So `git log --grep "1.3"` cheerfully returns **`ad8eb43`, 2026-08-29, *"1.3
+done: bottom-of-page reveal bug fixed"***, touching
+`docs/design-directions/5-the-thread.html`. **Current 1.3 is *"Test accounts
+appear in production lists and counts"*.** Different item, different year's
+work, same number, and **the commit message is phrased exactly like a fix for
+the one you are actually asking about.**
+
+**WHY IT IS DANGEROUS RATHER THAN MERELY NOISY.** The false positive does not
+look like noise — **it looks like the answer you were hoping for.** The sweep was
+run to find *items that were fixed while the box stayed open*, and
+`"1.3 done: … fixed"` is precisely that sentence. **A session skimming the hits
+would have reported three or four items as closed-in-fact that were nothing of
+the kind**, and the evidence it quoted would have been real commits with real
+diffs.
+
+**THE FIX IS ONE LINE: A DATE FLOOR.** The current `ROADMAP.md` begins at
+**`425d720`, 2026-09-12**. Anything older cites the old numbering.
+
+```bash
+git log --oneline --since=2026-09-12 -E --grep='(^|[^0-9.])2\.15($|[^0-9a-z.])'
+```
+
+**That removed 21 of 101 hits in one pass**, including every alarming hit for
+0.4, 3.1 and 6.2.
+
+**AND ANCHOR THE NUMBER WHILE YOU ARE THERE** — `--grep "2.1"` matches `2.15`,
+`2.1a` and `11.2.1`. The bracketed expression above is the anchored form, and
+**it is `docs/gotchas.md` 89's lesson in a second tool**: 89 was `"1.3 —"`
+matching `"11.3 —"` inside one document; **this is two documents that overlap in
+their whole numbering scheme.** Same family — **a population that is not the one
+you think you are asking about** — one level up.
+
+**THE GENERAL FORM:** **an identifier is only unique inside the document that
+issues it.** Before grepping a repo for an item number, ask **how many documents
+in it issue item numbers.** Here it is two, and nothing warns you; both files are
+called some version of "roadmap" and `CLAUDE.md`'s own table lists them one row
+apart.
