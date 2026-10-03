@@ -4980,6 +4980,40 @@ the wrong service, and never book a job we cannot reach.
   **DO NOT RAISE THE 15-SECOND TIMEOUT** — that hides the cause rather than
   finding it.
 
+
+  ### THE RUN COMPLETES — 2026-10-03, commit `7a2c84e`
+
+  **ALL FIVE WIDTHS, 0 ABORTS.** 418 surfaces against 153; 105,485 elements
+  probed against 36,601; 185,157 questions against 63,842.
+
+  **THE CAUSE WAS THE LEAD RATHER THAN A GUESS.** The Calendar day panel's
+  close button is clicked with no `.tourblock` guard — **the guide loop fifty
+  lines below it has carried that guard since 2026-09-10 and this section never
+  got it** — and the button may not exist at all when the day is empty, which
+  all three editors above it had already reported as *"no such editor on this
+  day"*. A `.first().click()` on a locator matching nothing is a guaranteed
+  15-second abort rather than a finding. Both are handled; the timeout was NOT
+  raised.
+
+  **THE ABORT MESSAGE KEEPS THE LINES THAT TELL THE CAUSES APART.** It used to
+  take `.split("
+")[0]`, which is `locator.click: Timeout 15000ms exceeded`
+  whether the target was missing, invisible, or under an overlay — the same
+  sentence, printed by four widths, four runs running.
+
+  **`SWEEP_ABORT_CANARY=1` IS THE NEGATIVE CONTROL** and it proves the two
+  changes 9.11b landed before this one: *"WIDTH ABORTED at 1440px ON SURFACE
+  «Calendar · history» — the 32th; the last one to complete was «Calendar · day,
+  How this day works»"*, carrying `<div class="tourblock"> intercepts pointer
+  events`; **31 measurements dropped from the verdict**; receipt refuses on
+  **461 expected against 377 discovered**. RED rather than short.
+
+  **STILL OPEN, AND NOT WHAT TONIGHT FIXED: 1440px measured 41 of 155 and 392px
+  measured 39 of 154.** They COMPLETE and come up SHORT, which is a different
+  fault with a different cause, and the ledger has rated both **broken
+  instruments for five runs**. The expected-count gate catches it and names it.
+  Completing was this item; the shortfall is the next one.
+
 - [x] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
   2026-09-23 by `bk-bar-clearance.mjs` on its first run, while answering 2.15;
