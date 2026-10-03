@@ -1999,6 +1999,30 @@ for (const w of SIZES) {
       await cell.click();
       await settle(page, 1600);
       await say("Calendar · a day");
+      /* **THE PANEL HAS TO BE OPEN BEFORE ITS EDITORS CAN BE MISSING, AND
+         NOBODY WAS ASKING.** All three editors printed "no such editor on this
+         day" at EVERY width, at every run - a sentence about the DEMO DATA.
+         Measured 2026-10-03 at 320: every one of the first twelve calendar
+         cells opens a panel carrying all three editors. They were reachable
+         the whole time. What was not happening was the panel opening, which
+         the walk never checked, so a failure of this script to click was
+         reported for ten days as a property of the tenant’s calendar.
+         `say()` above measures whatever is on screen and is happy either way.
+         So: wait for the panel, and if it does not come, say THAT. */
+      const dayPanel = page.locator(".daypanel");
+      await dayPanel.first().waitFor({ state: "visible", timeout: 6000 }).catch(() => {});
+      if (!(await dayPanel.count())) {
+        await cell.click();
+        await settle(page, 1600);
+        await dayPanel.first().waitFor({ state: "visible", timeout: 6000 }).catch(() => {});
+      }
+      const panelOpen = (await dayPanel.count()) > 0;
+      if (!panelOpen) {
+        console.log("Calendar · day".padEnd(24)
+          + "NOT MEASURED — `.daypanel` never appeared after two clicks on the cell. "
+          + "That is THIS SCRIPT failing to open the day, not the day being empty.");
+        found++;
+      }
       // The three state cards are the day's own editors and each expands in
       // place (W1). An unopened editor is a check that never reached it.
       for (const label of ["Block this day", "Hours", "How this day works"]) {
@@ -2007,7 +2031,7 @@ for (const w of SIZES) {
         // the `continue` below made that look exactly like a clean run.
         const card = page.locator(".daypanel .card", { hasText: NAMED_TEXT(label) });
         if (!(await card.count())) {
-          console.log(`Calendar · day, ${label}`.padEnd(24) + "NOT MEASURED — no such editor on this day");
+          console.log(`Calendar · day, ${label}`.padEnd(24) + (panelOpen ? "NOT MEASURED — the panel is open and carries no such editor" : "NOT MEASURED — the panel never opened, so nothing can be said about this editor"));
           found++; continue;
         }
         await card.first().click();

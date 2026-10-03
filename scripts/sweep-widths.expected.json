@@ -1,6 +1,6 @@
 {
   "note": "Every surface a full sweep must measure, per width. Regenerate with `node scripts/sweep-widths.mjs <widths> --write-expected`, which ADDS what the run found and KEEPS what it did not reach. READ THE DIFF: a label that disappears from this file is a screen that stopped being checked, and only --drop-missing removes one.",
-  "written_at": "2026-10-03T03:11:11.043Z",
+  "written_at": "2026-10-03T03:36:19.895Z",
   "widths": {
     "320": [
       "book · step 1",
@@ -590,7 +590,46 @@
       "guide · business 3",
       "guide · business 4",
       "guide · business 5",
-      "guide · business 6"
+      "guide · business 6",
+      "Calendar · day, Block this day",
+      "Calendar · day, Hours",
+      "Calendar · day, How this day works",
+      "tour · step 1",
+      "tour · step 2",
+      "tour · step 3",
+      "tour · step 4",
+      "tour · step 5",
+      "tour · step 6",
+      "tour · step 7",
+      "tour · step 8",
+      "tour · step 9",
+      "tour · step 10",
+      "tour · step 11",
+      "tour · step 12",
+      "tour · step 13",
+      "tour · step 14",
+      "tour · step 15",
+      "tour · step 16",
+      "tour · step 17",
+      "tour · step 18",
+      "tour · step 19",
+      "tour · step 20",
+      "tour · step 21",
+      "tour · step 22",
+      "tour · step 23",
+      "tour · step 24",
+      "tour · step 25",
+      "tour · step 26",
+      "tour · step 27",
+      "tour · step 28",
+      "tour · step 29",
+      "tour · step 30",
+      "tour · step 31",
+      "tour · step 32",
+      "tour · step 33",
+      "tour · step 34",
+      "tour · step 35",
+      "tour · step 36"
     ]
   },
   "widths_core": {
@@ -633,7 +672,10 @@
       "Clients · writing to them",
       "Clients · one client",
       "Clients · a job from the history",
-      "Clients · a client whose email bounced"
+      "Clients · a client whose email bounced",
+      "Calendar · day, Block this day",
+      "Calendar · day, Hours",
+      "Calendar · day, How this day works"
     ],
     "392": [
       "book · step 1",
@@ -674,7 +716,10 @@
       "Clients · writing to them",
       "Clients · one client",
       "Clients · a job from the history",
-      "Clients · a client whose email bounced"
+      "Clients · a client whose email bounced",
+      "Calendar · day, Block this day",
+      "Calendar · day, Hours",
+      "Calendar · day, How this day works"
     ],
     "1440": [
       "book · step 1",
