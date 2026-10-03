@@ -2384,3 +2384,44 @@ re-findable by a person, and the manager's own widening search is the proof that
 person can recover without it only at cost. **But "unverifiable" was wrong**: nine
 of 53 are decided by git with no prose at all, and the other 43 are *triaged*
 rather than *unknown*. **A list of 43 to look at beats a shrug about 55.**
+
+---
+
+## THE BLOCKER SWEEP — eight re-tested against tonight, eight still real, none expired
+
+**2026-10-03. The last sweep of this kind found ten of twenty-three expired, and
+6.2's own blocker had been false for two days while three sessions stepped around
+it. So these were re-tested rather than re-read.**
+
+| blocker | verdict | measured tonight | what would clear it |
+|---|---|---|---|
+| **7.6** — held until 0.11 raises the allowance | **STILL REAL** | `photo_total_bytes()` = **1073741824** — still 1 GB | 0.11's change, which raises it to 10 GB **in the same commit as the upload switch**. Fixing 7.6's words first means fixing them twice |
+| **0.3 + 1.3** — the `is_test` migration | **STILL REAL** | `customers?select=is_test` → **`42703`, column does not exist** | one command on Andrew's list. **It closes both items**, and the screen half of each is already built |
+| **2.1 / 2.1b** — `calculate-booking` undeployed | **STILL REAL, and not a blocker anybody here can clear** | **24 of 39** functions differ; `calculate-booking` is one | Andrew publishing. **A deferral he chose** — done and correct on disk |
+| **6.1** — no restore point | **STILL REAL** | Management API: **`pitr_enabled: false`, backups listed: 0** | a paid plan, or accepting the export-and-restore drill as the answer. **Neither is a session's call** |
+| **12.4** — before the first real signup | **STILL REAL** | **one** non-demo business, `counter-signup-test-detail` — itself a test | a real detailer signing up. **Removing the demo logins now breaks ~60 checks** |
+| **0.12** — Zoho refuses the domain | **STILL REAL** | **no `ZEPTOMAIL_TOKEN` in `.env`** — and there is none until a domain verifies | Zoho support answering. Falsifiable by a stranger: the domain verifies or it does not |
+| **3.3** — waits on 0.13, which waits on 0.14 | **STILL REAL** | **no SMS/Telnyx function deployed at all** — zero matches across all 39 | 0.14's six-digit code, then 0.13's send path. **A chain of three, and the first link is Andrew's** |
+| **9.1** — needs the live site | **STILL REAL** | 24 functions differ from this checkout, so **a claim about the live site cannot be tested from here** | the publish. Same deferral as 2.1 |
+
+### EIGHT OF EIGHT STILL REAL, AND THAT IS A RESULT WORTH STATING PLAINLY
+
+**The last sweep found ten of twenty-three expired. This one found none**, and the
+difference is not luck: **those were a fortnight old and these are hours old.** The
+blockers I classified tonight were measured tonight, so the surprise would have
+been finding one already gone.
+
+**WHAT THAT MEANS FOR THE NEXT SWEEP: age is the signal, not count.** A blocker
+written in the last few hours is almost certainly still true; one written a week
+ago is a coin flip; **6.2's was false after two days.** **Sweep by age rather than
+sweeping everything** — and the cheapest version is to re-run this table, because
+every row above is a command rather than a sentence.
+
+### AND THE SHAPE OF THESE EIGHT IS WORTH ONE LINE
+
+**Not one of the eight is a thing a session can clear.** Three are Andrew's (two
+publishes, one migration), two are third parties (Zoho, and Telnyx behind a code),
+one is a paid plan, one is an event (a real signup), and one is another item by
+design (7.6 inside 0.11). **So the open queue's blocked half is genuinely blocked
+rather than neglected** — which is the opposite of what the stale-blocker pass
+found a fortnight ago, and it is the better state.
