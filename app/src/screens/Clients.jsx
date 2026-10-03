@@ -739,12 +739,25 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <div className={`ledger ${owner ? "two" : "one"}`}>
               <div>
                 <span className="figure">{facts.visits}</span>
-                {/* **WRAPPED 2026-10-03, ROADMAP 14.22.** Thirty-three rows above this, the
-                    same two words go through `t()` - so a Spanish customer saw
-                    "visitas" in one place on this screen and "visits" in the other.
-                    `appEs.js` already carries both keys (`visita`, `visitas`), so
-                    nothing new was added: the strings existed and this one line was
-                    not asking for them. */}
+                {/* **WRAPPED 2026-10-03, ROADMAP 14.22.** The same two words already go
+                    through `t()` in the `c-total-lbl` row above - the one reading
+                    `owner ? t("lifetime") : ...` - so a Spanish customer saw "visitas"
+                    in one place on this screen and "visits" in the other. `appEs.js`
+                    already carries both keys (`visita`, `visitas`), so nothing new was
+                    added: the strings existed and this one line was not asking for them.
+
+                    **THE FIRST VERSION OF THIS COMMENT SAID "thirty-three rows above
+                    this" AND WAS WRONG THE INSTANT IT WAS SAVED.** Thirty-three was true
+                    until the sentence saying thirty-three existed: the comment is six
+                    lines long and pushed the thing it points at six rows further away,
+                    making it thirty-nine. `docs/gotchas.md` 92 is this, written an hour
+                    earlier about markdown and ABSOLUTE line numbers; it reproduced here
+                    in a `.jsx` comment using a RELATIVE row count, which is how we know
+                    92 is not about markdown and not about line numbers but about **any
+                    address measured from where the new text is going.** So this quotes
+                    the class instead of counting: `grep c-total-lbl` finds it for ever,
+                    and a row count is wrong the next time anybody edits this file, with
+                    nothing anywhere to announce it. */}
                 <span className="lbl">{facts.visits === 1 ? t("visit") : t("visits")}</span>
               </div>
               {owner && (
