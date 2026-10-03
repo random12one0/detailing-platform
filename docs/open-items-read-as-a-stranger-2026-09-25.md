@@ -1790,3 +1790,98 @@ the reversal is the load-bearing part.
 * **Prose quotes are indistinguishable from product quotes** at 122 misses, so
   the `git log -S` step is doing all the discrimination; without it the sweep
   would report 122 findings and be useless.
+
+---
+
+## THE OTHER DOCUMENTS THAT ISSUE IDENTIFIERS — asked, answered, and NOT built
+
+**2026-10-03. The question before the build: do `FOUND.md` and
+`docs/VERIFIED.md` issue identifiers, does anything cite them, and is the
+citation unambiguous.**
+
+| | **FOUND.md** | **docs/VERIFIED.md** |
+|---|---|---|
+| issues identifiers? | **No numbers at all** — 114 headings, all prose sentences | **Yes**, `## 14.1`-style sections |
+| cited? | **Yes, 14 times**, by heading text | **Yes, 18 times**, by section number |
+| **dangling citations today** | **0** | **0** |
+
+### THE ANSWER IS ZERO AND NOTHING GETS BUILT
+
+**Every one of the 32 citations into those two files resolves.** `FOUND.md` has
+no id scheme, so nothing cites it by id — it is cited by heading, and **every
+heading cited still exists.**
+
+**AND THE STRONGER REASON NOT TO BUILD IT: my own matcher produced three false
+positives and zero true positives across two attempts.**
+
+* Attempt 1 flagged `ROADMAP.md § "Four things this product does silently"`. The
+  heading is `FOUND.md:3827` — ***"PROPOSAL · FOUR THINGS THIS PRODUCT DOES
+  SILENTLY, AND WHAT IT WOULD COST TO SAY THEM"***. My prefix match failed on
+  the word *PROPOSAL*.
+* Attempt 2, with containment instead, flagged two more. Both resolve —
+  `FOUND.md:397` and `:991` — and failed only because the citation text runs
+  **past** the heading into the sentence around it.
+
+**So a text-matching citation check would be noisier than the problem it
+watches.** Three false alarms against zero real ones, on a population of 32.
+**A check with no reader is the same waste as a sentence nobody reads, and a
+check that cries wolf three times out of three is worse** — it trains the next
+person to skip it. **Not built, and this paragraph is the record of why**, so
+the next session does not build it on the strength of the idea alone.
+
+**WHAT WOULD CHANGE THE ANSWER:** `FOUND.md` adopting numbered entries, or a
+heading being reworded and a citation rotting for real. **The second is worth
+re-measuring whenever somebody renames a `FOUND.md` heading** — the command is
+in this section's own method and takes seconds.
+
+---
+
+## THE WORK QUEUE — open items ready to be handed to the build lane, cheapest first
+
+**2026-10-03. Not a summary of the roadmap: a list to hand over item by item
+without re-reading anything.** Every item below has a **criterion executable
+from its own entry**, **no decision of Andrew's in the way**, and **no
+dependency on something unbuilt**. The first step is the literal next action.
+
+### READY NOW
+
+| # | item | lane | first step |
+|---|---|---|---|
+| **1** | **9.11**, first clause | `scripts/` | **Re-run `sweep-widths.mjs` against the fixed tree.** Nothing to build — the receipt on disk still reads `"status": "fail"` over a `git_sha` that is an **ancestor** of the fix, so it reads as a live failure to anyone who does not check the sha. One run. |
+| **2** | **14.22** | `app/src` | **Wrap `Clients.jsx:742` in `t()`**, matching line 709 thirty-three rows above. Then `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx \| grep -v '^t('` must print nothing, and the record card must read `visita`/`visitas` in Spanish. |
+| **3** | **14.21** | `scripts/` | **Put `admin-contrast.mjs`'s teardown in a `finally` AND add a SIGINT/SIGTERM handler**, then prove all three exits — clean, `--crash-after-signin`, SIGTERM — each leaving `platform_admins` unchanged. A `finally` alone is not enough; `gotchas` 90 is why. |
+| **4** | **14.26's fix** | `scripts/` | **Make `seed-demo.mjs` create one booking with `address_source = 'picked'` every run.** There are **zero** such rows in the database today and 2.8's tick depends on one existing. |
+| **5** | **3.4c** | `supabase/` + fixture | **Put both hard-coded literals through `formatDateLong`**, make the 1-day fixture carry a date one day out, render a Spanish maintenance email, and **break it on purpose** — put an English literal back and the run must say so, which today it does not. |
+| **6** | **7.18** | `scripts/` | **Write the `.ld` nav check and run it ONCE, unmodified, before patching anything** — it must name `/terms` and `/privacy`. Verified 2026-10-03: `grep -c "navmenu\|burger" app/src/landing/LegalPage.jsx` is **0**, so that expected output is correct. |
+| **7** | **4.6** | `scripts/` | **Make a default run of `sweep-tap-targets.mjs` write a receipt for the dashboard/settings sections**, not only `/admin`. `writeReceipt` appears **2** times today against an entry claiming 1 — reconcile that while you are in the file. |
+| **8** | **14.23** | `scripts/` | **Walk the settings doors twice in one run** — folds closed, then opened — and report both discovered-control counts per screen. `scripts/sweep-tap-targets.mjs` and `lib/tapProbe.mjs` contain the string `details` **zero** times against **18** files that use one. |
+| **9** | **8.10c** | `scripts/` | **Add GRANTS to `migration-drift.mjs`** from `information_schema.role_table_grants`, with an UNJUDGEABLE bucket by file name. **The sabotage is repo-side or synthetic — never revoke a live grant.** |
+| **10** | **2.12** | `app/src` | **Fix the six failures in `tests/spanish.test.mjs`**, all of which are 2.12's own subject. It is **71 passed / 6 failed** today, so the gate is already pointing at the work. |
+| **11** | **9.2** | `app/src` | **Audit the other four `STUCK` rows** in `AdminPage.jsx` for advice that states a fact the row never computed. The `first` row **is already fixed** (`5202586`) and must not be re-fixed. |
+| **12** | **7.9** | `app/src` | **Load the home page under `prefers-reduced-motion: reduce` and `?lite=1`** and list every element at opacity 0 or absent from layout after first paint. The list must be empty; 7.12's `data-rv` bug is the known offender. |
+
+### BLOCKED, AND ON WHAT
+
+| item | blocked on |
+|---|---|
+| **0.12** | **Zoho** — it refuses the domain; no API token exists until one verifies |
+| **0.13**, **0.14**, **0.15** | **third parties** — a number, a six-digit code, a Google review |
+| **0.4**, **0.7**, **12.3** | **Andrew** — two factual questions, `what-we-send.md` Question 3, the deposit design. All three have a `FOR-ANDREW.md` row with a recommendation |
+| **1.3**, **2.1**, **2.8**'s live half | **a publish or a migration** — Andrew's, and a deferral he chose |
+| **6.1** | **the platform** — point-in-time recovery is OFF and 0 backups are listed on the free plan |
+| **7.6** | **0.11** by design — the allowance moves 1 GB → 10 GB in the same change; fixing the words now means fixing them twice |
+| **8.2**, **9.4**, **9.7**, **9.10**, **9.15** | **Andrew's own eyes** — a phone he owns, a screen he presses |
+| **14.15**, **14.18** | **parked by the manager** — they spend the address budget and `rate_hits` while the other lane is live |
+| **restore_drill** cleanup | already queued for the build lane; **not an item** |
+
+### HOW THIS LIST WAS BUILT, SO IT CAN BE DISBELIEVED
+
+**Every "ready" row rests on something measured in this file**, not on a reading
+of the entry: 9.11's stale receipt sha, 14.22's grep proved both ways, 14.21's
+SIGTERM leak measured on `restore-drill`, 14.26's zero `picked` rows,
+7.18's zero nav matches, 4.6's `writeReceipt` count of 2, 14.23's zero `details`
+against 18 files, 2.12's 71/6, 9.2's `5202586`.
+
+**What it does not tell you:** how long any of them takes. **Cheapest-first here
+means fewest unknowns, not fewest minutes** — #1 is one command and #12 could be
+an afternoon.
