@@ -17160,16 +17160,41 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   `health-line-honest.mjs` already uses, and delete the inline close-then-drop
   on the early exit path so there is one teardown rather than two.
 
-  **Done when:** running
-  `node scripts/admin-contrast.mjs --crash-after-signin` — a flag that has to be
-  added, throwing at the same point the two real crashes threw, **after the
-  sign-in and before the screenshots** — leaves `public.platform_admins` with
-  **the same rows after as before** — the table read **immediately before the run
-  and immediately after it**, both readings printed by the run — **and**
+  **A `finally` IS NECESSARY AND NOT SUFFICIENT — CORRECTED 2026-10-03, and the
+  correction is worth more than the item.** The fix above says *put the teardown
+  in a `finally`*, and that is right as far as it goes. **It does not go far
+  enough: a `finally` does not run on a SIGNAL.** `timeout` sends SIGTERM, Node's
+  default handler exits, and the block is skipped exactly as `process.exit()`
+  skips it. **Measured the hard way the same night this item was written:**
+  `scripts/restore-drill.mjs` has its teardown in a textbook `finally`
+  (`:430`), was run under `timeout 110`, and **left a 51-table `restore_drill`
+  schema in `kguqylyzgyzfktkfnhjb`.** `docs/gotchas.md` 90. **So this item's own
+  original criterion would have passed a script that still leaks on the most
+  ordinary way a session stops one.**
+
+  **Done when — THREE exits, not one, and the signal is the one that was
+  missing:**
+  1. **Clean exit** — a normal run leaves `public.platform_admins` with the same
+     rows it started with.
+  2. **Crash** — `node scripts/admin-contrast.mjs --crash-after-signin`, a flag
+     that has to be added, throwing at the same point the two real crashes threw,
+     **after the sign-in and before the screenshots**, leaves the same rows.
+  3. **SIGNAL** — the same run interrupted with **SIGTERM** (`timeout 20 node
+     scripts/admin-contrast.mjs`, or `kill` on its pid) **also** leaves the same
+     rows. **This is the clause a `finally` alone does not satisfy**, and closing
+     it needs an explicit `process.on("SIGINT"|"SIGTERM")` teardown, not a
+     bigger `try`.
+
+  In every one of the three the table is read **immediately before the run and
+  immediately after it, both readings printed by the run**, and
   `node --test tests/platform-admins-declared.test.mjs` **passes with zero
-  failures** immediately afterwards, with no edit to
-  `docs/platform-admins.md`. **Its assertion count is read off the run, not
-  quoted here.**
+  failures** afterwards with no edit to `docs/platform-admins.md`. **Its
+  assertion count is read off the run, not quoted here.**
+  **What failing looks like:** two of three green and the third never attempted,
+  because **the signal case is the only one nobody reaches by accident** — a
+  crash happens to you, a clean exit is the happy path, and a SIGTERM arrives
+  only when somebody gets impatient, which is precisely when nobody is reading
+  the output.
   ***COLD READ 2026-10-02, ON THIS ENTRY'S OWN CRITERION, WRITTEN HOURS EARLIER
   BY THE SAME SESSION.*** Two faults. It said **"18 passed / 0 failed"** — **a
   typed count of the thing being measured**, so adding one assertion to that test
