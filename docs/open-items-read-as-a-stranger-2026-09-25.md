@@ -1606,6 +1606,30 @@ stays open for the other half."* **That is the record working exactly as it
 should.** It is listed here so it has a name and stops being mistaken for the
 other two — **nine is not nine problems**, and a later reader who counts it as a
 backlog has misread the taxonomy.
+### A FOURTH CATEGORY, ADDED 2026-10-03 — **BUILT AND INERT**
+
+| | **BUILT AND INERT** |
+|---|---|
+| **what is wrong** | the work is **done in the code** and does nothing, because something it depends on is missing |
+| **what is still true** | the item is genuinely open — but **not for the reason its entry gives** |
+| **how it is found** | **only by executing.** The code reads correctly; the entry reads correctly; the two agree. **What is missing is outside both** |
+| **the fix** | **the dependency, not the code** — and the entry, which understates itself |
+| **whose** | whoever owns the dependency. Here: one migration, on Andrew's list |
+| **the example** | **0.3** — `Clients.jsx` filters `!c.is_test` and `customers.is_test` does not exist, so `!undefined` is `true` and every fixture passes |
+
+**IT IS THE MIRROR OF STALE AUDIT AND COSTS THE SAME.** A stale audit lists work
+that is done as outstanding; **built-and-inert lists work that is done as not
+started.** Both send somebody to do finished work, and **the second is worse in
+one way: nobody ever goes looking.** An entry that overstates gets caught the
+moment somebody tries to use the feature. An entry that understates is simply
+believed.
+
+**AND IT IS INVISIBLE TO EVERY INSTRUMENT IN THIS FILE.** The commit-grep sweep
+would need a commit saying the work was done — there is one, but it was for 1.3.
+The present-tense sweep needs a quoted string that moved — nothing moved. **The
+only thing that finds it is running the code's own precondition**, which is why
+it turned up on the day the executing started and not in any of the three sweeps
+before it.
 **7.8 IS WHY THE TAXONOMY EXISTS.** Its four listed findings were fixed on
 2026-09-21 by a commit naming 7.8 — **and it is not closed in fact**, because its
 criterion's clause (b), a check that fails by name, does not exist. **Treating a
@@ -2142,3 +2166,34 @@ from a real failure; six are expected, so a seventh is visible.
 **14 · 0.11** — **READY BUT LARGE, and labelled so**: the only row here that is
 not a short job. **Cheapest-first is about unknowns, not minutes**, and this row
 is the proof — it has no unknowns left and will still take a day.
+
+---
+
+## THE CHECK WAS PROVED BY A REAL MISTAKE, WHICH IS BETTER EVIDENCE THAN A CANARY
+
+**2026-10-03, said plainly because it is the design working and it was not
+arranged.**
+
+I sourced `.env` **without `set -a`**. The variables became **shell locals rather
+than exports**, so the child process never saw them. Row 4 of
+`queue-rows-still-belong` then failed with:
+
+> *"14.26 needs `SUPABASE_SECRET_KEY`, which is NOT set. It lives in the
+> repo-root `.env` — load it with `set -a; . ./.env; set +a` and run again.
+> Reported rather than skipped, because a skipped row reads exactly like a
+> passing one."*
+
+**By name. Not skipped. Not quietly green.** The row named the variable, named
+the file, and named the command that fixes it — and the run went red.
+
+**A CANARY PROVES A CHECK CAN FAIL WHEN YOU ASK IT TO. A REAL MISTAKE PROVES IT
+FAILS WHEN YOU DO NOT.** The second is stronger evidence and cannot be
+manufactured: the sabotage is written by somebody who knows the answer, and this
+was written by somebody who had got it wrong. **Every credential-needing check in
+this repo should be judged on whether it would have done that.**
+
+**AND THE NEAR MISS IS WORTH NAMING.** The honest alternative design — *skip the
+row when the credential is missing* — would have printed **green over an
+unmeasured row**, on a run I would have believed, in a file whose whole purpose is
+telling a stale row from a live one. **`docs/silences.md`'s oldest rule, met by
+accident.**
