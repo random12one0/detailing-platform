@@ -9756,6 +9756,24 @@ rather than wording went to Andrew.
      address is inside "booking details" and this item's whole subject is
      addresses.
 
+  **← ALL FOUR OF THOSE FINDINGS WERE FIXED ON 2026-09-21 AND THIS LIST HAS READ
+  AS OUTSTANDING FOR TWELVE DAYS. Found 2026-10-03 by the present-tense sweep,
+  not by reading.** `git log -S"name, email address and booking details" --
+  app/src` names **`2942f6f`, 2026-09-21, *"7.8: the privacy page now names all
+  four, and the conditional ones say so"*** — `legal.js`, +32/−2. **The commit
+  names this item.** `legal.js` today carries *"Geoapify a second time, per
+  distinct address"*, the weather service and its name, and a line recording
+  that the **Resend line said "booking details"** before. **A reader working
+  this list would redo finished work.**
+
+  **AND THE ITEM IS STILL OPEN FOR A DIFFERENT AND REAL REASON**, which is why
+  this is a stale-audit finding and **not** a closed-in-fact one: the criterion's
+  clause **(b)** — *a check that fails by name when the code's host list and
+  `/privacy`'s processor list disagree* — **does not exist.** The page was
+  reconciled by hand once, which is exactly what the criterion's *What failing
+  looks like* already warns about. **The copy half is done; the mechanism half
+  is the item.**
+
   **AND A CLEAN NEGATIVE, worth as much as the gaps: there is no analytics,
   no error reporting, no tag manager and no session recording anywhere in
   this product.** Searched by name across `app/src`, `supabase/functions` and
