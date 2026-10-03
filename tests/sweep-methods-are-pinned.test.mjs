@@ -91,15 +91,24 @@ function openItems(text) {
 // by something that is not a digit and not a dot — so `9.11` does not match
 // inside `9.110`, and `1.3` does not match inside `11.3` (`gotchas.md` 89).
 // Each commit is counted ONCE however many items it names.
+// THE BOUNDARY RULE, lifted out of `commitScope` so section 4 exercises THE SAME
+// CODE the sweep uses. It was inline, and `PIN_CANARY=scope` therefore never
+// reached the boundary assertion: the sabotage moves the commit count UPWARD, the
+// only count assertion is a monotonic floor, and the whole run went GREEN under
+// sabotage. **Found by re-running both canaries after changing the floor, not by
+// reading** — a canary stops biting silently when the assertion it was aimed at
+// moves out from under it.
+const bound = (id) =>
+  CANARY === "scope"
+    ? new RegExp(id.replace(".", "\\."))                            // SABOTAGE: unbounded
+    : new RegExp(`(^|[^0-9.])${id.replace(".", "\\.")}([^0-9.]|$)`);
+
 function commitScope(ids) {
   const raw = sh(`git log --format=%H%x1f%s%x1f%b%x1e`);
   const commits = raw.split("\x1e").map((c) => c.trim()).filter(Boolean).map((c) => {
     const [sha, subj, body] = c.split("\x1f");
     return { sha, subj: subj || "", msg: `${subj || ""}\n${body || ""}` };
   });
-  const bound = CANARY === "scope"
-    ? (id) => new RegExp(id.replace(".", "\\."))            // SABOTAGE: unbounded
-    : (id) => new RegExp(`(^|[^0-9.])${id.replace(".", "\\.")}([^0-9.]|$)`);
   const naming = [];
   for (const c of commits) {
     const hit = ids.filter((id) => bound(id).test(c.msg));
@@ -153,11 +162,6 @@ function quoteSweep(roadmapText) {
 const TAKEN_AT = "3398470";          // the commit these were measured at
 const DECLARED = {
   numberedOpenItems: 66,
-  // 339 under THIS scope. The prose sweep recorded 534, which is unreproducible
-  // — 434 unique / 853 summed at its own revision. 339 is not a correction of
-  // 534: it is a DIFFERENT, pinned question (digit/dot-bounded, counted once
-  // per commit, no date floor). Both figures stand with their own dates.
-  commitsNamingAnItem: 339,
   itemsWithACommit: 66,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
@@ -168,6 +172,21 @@ const DECLARED = {
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
 const COMMIT_FLOOR = 100;
+
+// `commitsNamingAnItem` IS NOT A DECLARED EQUALITY, AND THE FIRST VERSION OF THIS
+// FILE HAD IT AS ONE — which was wrong, and running the check is what showed it.
+// It was declared at 339 and was 340 within the hour, because the very commit
+// that landed this file mentions an item number. **A figure that increments every
+// time anybody commits is red by default, which is the "red forever" fault
+// `every-open-item-is-citable` rejects by name.**
+//
+// Commits only accumulate, so the honest assertion is MONOTONIC: it must never
+// DECREASE. A drop means history was rewritten or the scope regex broke — both
+// worth a red — while ordinary work moves it up and says nothing.
+//
+// The pinned VALUE still matters and is reported every run; what changed is that
+// its drift is no longer a failure. 339 was the first take, 2026-10-02 @ 3398470.
+const COMMITS_NAMING_FLOOR = 339;
 
 test("the two sweep methods are pinned, not described", async (t) => {
   const roadmap = readFileSync("ROADMAP.md", "utf8");
@@ -197,7 +216,6 @@ test("the two sweep methods are pinned, not described", async (t) => {
   await t.test("2 · REPORT — the pinned figures, re-takeable by running this file", () => {
     const got = {
       numberedOpenItems: ids.length,
-      commitsNamingAnItem: scope.naming.length,
       itemsWithACommit: new Set(scope.naming.flatMap((c) => c.items)).size,
       quoteCriteria: qs.criteria,
       quoteFragments: qs.fragments,
@@ -207,14 +225,24 @@ test("the two sweep methods are pinned, not described", async (t) => {
       const flag = got[k] === DECLARED[k] ? "" : `   <-- MOVED from ${DECLARED[k]}`;
       console.log(`     ${k.padEnd(22)} ${String(got[k]).padStart(5)}${flag}`);
     }
+    console.log(`     commitsNamingAnItem    ${String(scope.naming.length).padStart(5)}   (floor ${COMMITS_NAMING_FLOOR}, monotonic — not an equality)`);
     console.log(`     (canary: ${CANARY || "off"})`);
     assert.ok(true);
+  });
+
+  await t.test("3a · commits naming an item never DECREASES", () => {
+    assert.ok(
+      scope.naming.length >= COMMITS_NAMING_FLOOR,
+      `${scope.naming.length} commits name an open item, floor ${COMMITS_NAMING_FLOOR}. `
+      + "Commits only accumulate, so a DROP means history was rewritten or the "
+      + "boundary regex stopped matching. Ordinary work moves this up and is not a "
+      + "failure — which is why it is a floor and not an equality.",
+    );
   });
 
   await t.test("3 · the declared figures still hold", () => {
     const got = {
       numberedOpenItems: ids.length,
-      commitsNamingAnItem: scope.naming.length,
       itemsWithACommit: new Set(scope.naming.flatMap((c) => c.items)).size,
       quoteCriteria: qs.criteria,
       quoteFragments: qs.fragments,
@@ -229,9 +257,17 @@ test("the two sweep methods are pinned, not described", async (t) => {
     );
   });
 
-  await t.test("4 · every id is matched with digit/dot boundaries, so 1.3 is not 11.3", () => {
-    const re = /(^|[^0-9.])1\.3([^0-9.]|$)/;
-    assert.equal(re.test("11.3 — something"), false, "1.3 must not match inside 11.3");
+  await t.test("4 · the PRODUCTION boundary rule keeps 1.3 out of 11.3", () => {
+    const re = bound("1.3");   // the same function the sweep calls, not a copy
+    assert.equal(
+      re.test("11.3 — something"), false,
+      "1.3 must not match inside 11.3 (gotchas 89). **Under PIN_CANARY=scope this "
+      + "is the assertion that must fail**: the sabotage widens the commit count "
+      + "UPWARD, which a monotonic floor cannot see, so the boundary rule is the "
+      + "only place that sabotage can be caught. It was caught here only after the "
+      + "rule was lifted out of commitScope — while it was inline, this test "
+      + "exercised a copy and the sabotaged run passed 7/0.",
+    );
     assert.equal(re.test("fixes 1.3 today"), true, "1.3 must match as its own token");
     assert.equal(re.test("1.30 is different"), false, "1.3 must not match inside 1.30");
   });

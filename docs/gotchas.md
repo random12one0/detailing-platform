@@ -4182,3 +4182,24 @@ that tallies unre-takeable numbers will otherwise pick it up, and somebody will
 try to make it repeatable — **which would destroy the only thing it measures.**
 Mark it *unrepeatable by construction*, in those words, with its date, and leave
 it alone.
+
+### THIS RULE IS ENFORCED BY A CHECK, AND THE REASON IS THE TWO FAILURES ABOVE
+
+`tests/figures-carry-their-command.test.mjs` scans both pass documents and puts
+every figure in one of five buckets: **VERIFIED** (its command was executed and
+its output equals the figure), **PINNED** (a command plus a revision that
+resolves — weaker, and never called verified), **ACCOUNTED** (names why it cannot
+be re-taken), **BARE** (the finding), and **UNJUDGEABLE**, which is reported by
+name and never folded into a pass.
+
+**It exists because the two people who knew this rule best broke it within an
+hour of writing it** — #93 was written about not editing a number to make two
+agree, and then this file's own recorded `58` was edited to `53` to make two
+agree. **That is the argument for why the rule had to leave prose and become
+code, and it is why the check is not redundant with this entry.** Do not delete
+one as covered by the other: this entry is the reason, the check is the
+enforcement, and the measured gap between them is two failures in one sitting.
+
+**It carries a declared bare count (192) rather than demanding zero**, because
+most figures in those documents are judgements and a check that is red for ever
+is one everybody walks past. Its job is to stop 193.
