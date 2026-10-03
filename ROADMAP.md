@@ -17702,6 +17702,50 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   today: **6 passed / 0 failed**, 64 open items discovered, 0 without an
   identifier, 0 duplicates, overlap exactly 19.
 
+### 14.29 — The work queue re-proves itself row by row — BUILT 2026-10-03
+
+- [x] **`tests/queue-rows-still-belong.test.mjs`. A derived list rots, and this
+  one rotted in ninety minutes — the check exists because its own first run
+  retired a row the manager was about to hand out.**
+
+  **WHAT IT GUARDS.** The work queue in
+  `docs/open-items-read-as-a-stranger-2026-09-25.md` — the open items ready for
+  the build lane. **Row 1 was 9.11's first clause**, and ninety minutes after it
+  was written the other lane re-ran the sweep, so the clause was met and the row
+  was dead. **Caught by running a command, not by re-reading.**
+
+  **THE CONVENTION:** each row declares a command; **`exit 0` means the row still
+  belongs, non-zero means it has MOVED.** Several are inverted (`! grep …`) so
+  that *the fault still being present* is the success case — **what is re-proved
+  is the row's membership, not the product's health.**
+
+  **THE THREE THINGS IT HAD TO DO.** Reports **per row**, each its own named
+  subtest, because one red hiding nine greens names nothing. Declares
+  `EXPECTED_ROWS = 12` and **fails if it finds fewer**, so a table that stops
+  being parsed cannot read as all-clear. And the two rows with no command print
+  as **UNVERIFIABLE BY COMMAND** by name — 9.2 (five advice strings against five
+  predicates) and 7.9 (needs a rendered page) — **never skipped, never counted as
+  passing.**
+
+  **BROKEN ON PURPOSE: `QUEUE_FLIP=14.23`** inverts that one row's expectation.
+  **Caught — `✖ 8 · 14.23 — re-prove [FLIPPED]`, 12 passed / 2 failed, and no
+  other row moved.** The message says the red is the sabotage working, so it
+  cannot be mistaken for a real finding.
+
+  **AND IT CAUGHT A FAULT IN ITSELF BEFORE IT WAS TRUSTED.** Row 2.12's command
+  runs `node --test`, and **a nested runner inherits `NODE_TEST_CONTEXT` from its
+  parent**, so the child reported through the parent's channel and exited 1 while
+  the suite behaved exactly as the row expects. **Measured: inherited env exit 1,
+  stripped env exit 0, same command.** It produced one false *"HAS MOVED"* — **a
+  check reporting a stale row that was not stale, in the file written to prevent
+  exactly that.** `run()` now strips `NODE_TEST_CONTEXT` and `NODE_OPTIONS`, with
+  the measurement in a comment above it.
+
+  **Green today: 14 passed / 0 failed**, 12 rows, 9 commands run, 2 unverifiable
+  named, 1 done. Credential-free except 14.26's row, which **names the credential
+  and where it lives and is reported by name when it is missing** rather than
+  skipped.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,

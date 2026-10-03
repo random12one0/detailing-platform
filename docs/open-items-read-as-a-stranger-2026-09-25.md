@@ -1908,6 +1908,42 @@ one.**
 went stale inside a fortnight.** So every ready row now carries **one command
 that re-proves it still belongs.**
 
+### THE WORKED EXAMPLE FOR THE WHOLE CONVENTION — same word, opposite meaning
+
+**9.11's receipt said `fail` before and says `fail` now, and they are different
+fails.** This is the cleanest case in the repo of **a verdict that is honest and
+a reading that is not.**
+
+| | before | after |
+|---|---|---|
+| `status` | **`fail`** | **`fail`** |
+| `git_sha` | an **ancestor** of the fix | **`50767da`** — that hour's HEAD |
+| run time | days earlier | `started_at 01:52:40Z` → `finished_at 02:01:56Z` |
+| what it means | **a stale red** — nobody had re-run it since the fix | **a live red** — 2 real findings, the first `guide · calendar 5` at 1920, *"the whole page can be dragged sideways, +51px"* |
+| what to do | re-run it; the row is free work | **hand it to nobody**; the clause is met and the remaining findings are new |
+
+**A reader comparing the two sees the same word and concludes nothing changed.**
+The only thing that separates them is the **sha and the timestamp**, which is why
+9.11's clause was written about the sha and not about the status — **and why a
+command can tell them apart when a sentence cannot.** The manager was ninety
+minutes from handing out finished work.
+
+**AND THE SECOND HALF OF THE ARGUMENT IS THE ERROR RATE.** **Every one of the ten
+commands was executed before it was written down, and one of the ten was wrong.**
+Row 3.4c's first version probed `2026-10-12` — the ISO date the entry proposes as
+the **fix** — instead of `"12 October 2026"`, the literal actually in
+`scripts/render-emails.mjs`. **It exited 1 and would have retired a live row.**
+
+**One in ten, written by somebody who knew exactly what each command meant.**
+That is the rate on a good day with full context, and it is the reason the rule
+is *run it before you write it down* rather than *write it carefully*.
+
+**A THIRD ONE, FOUND BY THE SCRIPT ITSELF:** row 2.12's command runs
+`node --test`, and a **nested runner inherits `NODE_TEST_CONTEXT`**, so it exited
+1 while the suite behaved exactly as the row expects — **a false "HAS MOVED" in
+the file written to prevent false "HAS MOVED"**. Inherited env exit 1, stripped
+env exit 0, same command. `run()` strips it now. **So the honest count is one
+wrong command in ten, plus one wrong HARNESS, and both were found by running.**
 ### THE CONVENTION, so no reader has to interpret anything
 
 > **Run it. `exit 0` means the row still belongs. Any non-zero exit means the
