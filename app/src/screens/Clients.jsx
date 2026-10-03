@@ -739,7 +739,13 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <div className={`ledger ${owner ? "two" : "one"}`}>
               <div>
                 <span className="figure">{facts.visits}</span>
-                <span className="lbl">{facts.visits === 1 ? "visit" : "visits"}</span>
+                {/* **WRAPPED 2026-10-03, ROADMAP 14.22.** Thirty-three rows above this, the
+                    same two words go through `t()` - so a Spanish customer saw
+                    "visitas" in one place on this screen and "visits" in the other.
+                    `appEs.js` already carries both keys (`visita`, `visitas`), so
+                    nothing new was added: the strings existed and this one line was
+                    not asking for them. */}
+                <span className="lbl">{facts.visits === 1 ? t("visit") : t("visits")}</span>
               </div>
               {owner && (
                 <div>
