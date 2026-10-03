@@ -1180,3 +1180,139 @@ measured rate, expect holes in them.** The three loop-breakers are named in the
 cold-test section above, and the strong one is the cheap one: **execute the
 criterion once. Every one of the twelve failures was a question nobody asks until
 they try.**
+
+---
+
+## EXECUTING THE CRITERIA INSTEAD OF READING THEM — the per-criterion log
+
+**2026-10-03. The pass file's own conclusion was that reading cannot tell whether
+a criterion is executable, and that executing it is the loop-breaker available
+without a second person. This section is that, done.** Eleven criteria run in
+this lane. Three columns per criterion: **could it be executed from the entry
+alone**, **what question did the entry not answer**, and **what one clause would
+have saved me.**
+
+### THE ANSWER TO THE QUESTION THE MANAGER ASKED, FIRST, BECAUSE IT IS NOT WHAT I EXPECTED
+
+**Executing found one fault that reading had missed. Reading had found one fault
+that executing cannot catch. Neither instrument dominates, and my own conclusion
+does not flip — it narrows.**
+
+* **14.22** was graded a **PASS on a read** in batch 13. **Run, its command cannot
+  tell a pass from a fail.** Only execution found that.
+* **14.21** had its criterion repaired *by reading* because it typed `"18 passed /
+  0 failed"`. **Executed today it reports exactly 18 passed / 0 failed** — the
+  typed number is correct right now, **so running it proves nothing is wrong, and
+  running it next week after somebody adds an assertion is the only way execution
+  ever catches it.** That fault is visible to reading and invisible to running.
+
+**So the honest form of the conclusion is narrower than "execute, don't read":
+execution catches a criterion that does not WORK; reading catches a criterion
+that will not KEEP working.** Nine of the ten earlier failures were the first
+kind, which is why executing looked like the whole answer.
+
+### THE LOG
+
+| # | criterion | executable from the entry alone? | the question the entry did not answer | the one clause that would have saved me |
+|---|---|---|---|---|
+| 1 | **14.22** grep half | **No** | *How do I tell a pass from a fail, when the command prints the same two lines either way?* | a command whose **output** decides — `grep -oE '.{2}"visits?"' … \| grep -v '^t('`, must print nothing |
+| 2 | **3.4** count clause | **Yes** | — | — |
+| 3 | **7.17** second half | **Yes**, and it is **already met** | *Is this half open or closed?* The entry reads as two open things; the rule **is** in `docs/tenant-site-kit.md` | one line saying which half is already done |
+| 4 | **7.18** expected output | **Yes** — and its expected answer **verified** | — | — |
+| 5 | **2.12** clause 1 | **Yes** | — | — |
+| 6 | **14.21** second half | **Yes** | — *but see above: running it cannot see the fault reading found* | — |
+| 7 | **14.14** receipt-fields | **Yes** | — | — |
+| 8 | **0.6** receipt clause | **Yes** | — | — |
+| 9 | **1.3** column clause | **Yes** | — | — |
+| 10 | **8.10c** grants | **Yes** (as a precondition read) | — | — |
+| 11 | **4.6** receipt scope | **Yes** (as a precondition read) | — | — |
+
+### WHAT EACH RUN ACTUALLY RETURNED, so none of the above is a claim
+
+| criterion | command | result |
+|---|---|---|
+| **14.22** | `grep -n '"visits\?"' app/src/screens/Clients.jsx` | **709 and 742** — and **709 and 742** again against a fixed copy. See below |
+| **3.4** | `grep -cE '^export (const\|function) [a-zA-Z]+Email' …/emailTemplates.ts` | **16** — the criterion's own count mechanism works |
+| **7.17** | `grep -ic "number the product cannot" docs/tenant-site-kit.md` | **1** — the rule is in the brief; **that half is closed** |
+| **7.18** | `grep -c "navmenu\|burger" app/src/landing/LegalPage.jsx` | **0** — so the check's expected output (*it must name `/terms` and `/privacy`*) is **correct**, confirmed without building the check |
+| **2.12** | `node --test tests/spanish.test.mjs` | **71 passed, 6 failed** — clause 1 correctly does not pass |
+| **14.21** | `node --test tests/platform-admins-declared.test.mjs` | **18 passed, 0 failed** |
+| **14.14** | `node --test tests/receipt-fields.test.mjs` | **56 passed, 0 failed, 56 assertions** |
+| **0.6** | `node scripts/deployed-inventory.mjs` then read the receipt | **status fail · matching 15 · differing 24** — the generated figure works |
+| **1.3** | `select is_test from customers limit 1` | **`42703` — column does not exist.** The entry's *"the SCREEN is proved and the COLUMN is not"* holds |
+| **8.10c** | `grep -c "role_table_grants\|has_table_privilege" scripts/migration-drift.mjs` | **0** — grants genuinely uncompared, so the rewritten criterion has real work behind it |
+| **4.6** | `grep -c "writeReceipt" scripts/sweep-tap-targets.mjs` | **2** — the entry says *"called exactly once, inside the admin section alone"*. **It is 2 now.** See below |
+
+### THE ONE FAULT EXECUTION FOUND, IN FULL — 14.22
+
+**The criterion said:** *no bare `"visit"`/`"visits"` literal remains —
+`grep -n '"visits\?"' app/src/screens/Clients.jsx` returns only occurrences
+inside a `t(` call.*
+
+**Executed against today's file:** prints **709** and **742**.
+**Executed against a copy with 742 fixed** (`sed` in a scratch directory;
+`app/src` untouched): prints **709** and **742**.
+
+**Byte-identical output either side of the fix.** `grep -n` prints **lines**; the
+question is about **occurrences**; and **one line can hold a wrapped and an
+unwrapped one**. So the command is a prompt to look, not a gate — and a stranger
+scripting the criterion gets a pass in both states.
+
+**The replacement, proved both ways before it was written into the entry:**
+
+```bash
+grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -v '^t('   # must print NOTHING
+```
+
+**Today:** prints `? "visit"` and `: "visits"`. **Fixed copy:** prints nothing.
+
+**And the part that matters for the experiment: a read graded this criterion a
+PASS in batch 13.** It names a file, a command and a screen — everything a read
+checks for. **Four minutes of running showed the command was decorative.**
+
+### A SECOND THING EXECUTION TURNED UP, WHICH IS NOT A CRITERION FAULT
+
+**4.6's entry says `writeReceipt` is *"called exactly once in the whole file,
+inside the admin section alone — checked by grep, not assumed."*** **It is 2
+today.** Measured just now. So either the second call site arrived after that
+sentence was written, or the original count is wrong. **4.6's criterion is
+unaffected** — it asks for a receipt covering the dashboard/settings sections,
+which is a different question from how many times the function is called — **but
+the entry now contains a stale measured number, and the next person to grep will
+hit a 2 beside a sentence saying 1.** Recorded here rather than edited into 4.6,
+because `scripts/` is not this lane and the explanation might be DP Cowork's
+work in flight.
+
+### THE CRITERIA THAT NEED THE BROWSER OR THE DEV SERVER — one line each, not reached
+
+**Written for whoever has them, and deliberately not attempted here.**
+
+* **7.3** clause (c) — *with the pricing page open, read the computed `font-size`
+  and `font-weight` of `.ld .fine`, of `.ld .rungfig .fig`, and of the saving
+  figure, and confirm the saving matches the first and neither matches the
+  second.*
+* **7.9** — *load the home page twice, once under `prefers-reduced-motion:
+  reduce` and once with `?lite=1`, and after the first paint settles list every
+  element whose computed opacity is 0 or which is absent from the layout; the
+  list must be empty, and the DOM order must match the motion-on order.*
+* **14.23** — *run `sweep-tap-targets.mjs` over the settings doors twice in one
+  invocation, once without opening closed `<details>` and once with, and report
+  both discovered-control counts per screen; the difference is the answer.*
+* **9.11** first part — *re-run `sweep-widths.mjs` against the fixed tree so
+  `receipts/sweep-widths-1920-1440-392-360-320.json` stops reading
+  `"status": "fail"` over a `git_sha` that is an ancestor of the fix.*
+* **9.4 / 9.7 / 9.10 / 9.15 / 12.1 / 8.2 / 8.5 / 3.4's send half** — all need a
+  browser, a dev server, Stripe sandbox or a real phone. Their criteria already
+  name what to do; none was reached.
+
+### WHAT THIS LOG COULD BE WRONG ABOUT
+
+* **Eleven of sixty-two, and they are the cheap end on purpose.** Every criterion
+  that needs a browser is untested, and **those are the ones most likely to be
+  wrong**, because they are the ones nobody can check in a minute.
+* **Four of the eleven were executed as a *precondition read* rather than as the
+  criterion itself** — 7.18, 8.10c, 4.6, and 7.17's second half. That tests
+  whether the criterion's expected answer is right, which is weaker than running
+  the criterion and stronger than reading it.
+* **The 14.22 repair has not itself been cold-read by anyone else.** By this
+  file's own measured rate, expect a hole in it.
