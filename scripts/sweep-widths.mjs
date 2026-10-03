@@ -788,6 +788,27 @@ const LOUD = [];
   };
 }
 const EXPECTED_PATH = new URL("./sweep-widths.expected.json", import.meta.url);
+/* ══ THE EXPECTATION IS KEYED BY MODE, AND UNTIL 2026-10-03 IT WAS NOT ═════
+   `FULL_WIDTHS` is {1920, 320}: every other width runs CORE ONLY unless
+   `--all` is passed, and says so in its own section header. The expectation
+   file recorded 154-155 surfaces per width with **no record of which mode
+   that number came from**, so a 41-surface core run at 1440 was graded
+   against a 155-surface DEEP expectation and reported as a 114-surface
+   shortfall in the product.
+
+   **NOTHING WAS SKIPPING. A NUMBER WRITTEN IN ONE MODE WAS BEING ENFORCED IN
+   ANOTHER** - the same failure as a stale count in prose, one file along.
+   Measured rather than argued: `--all` at 1440 takes it from 41 to 122.
+
+   `widths` keeps its meaning - the DEEP walk - so every number already in the
+   file stays true and nothing has to be re-blessed. `widths_core` is the new
+   sibling. Each is written only by a run in its own mode, so the union and
+   `--drop-missing` discipline above applies per mode rather than across the
+   two, which is the only way a core run can never narrow a deep baseline. */
+const EXPECTED_KEY = () => (ALL ? "widths" : "widths_core");
+const MODE_NAME = () => (ALL ? "deep" : "core");
+/** The expectation map for the mode a given width actually ran in. */
+const expectedMap = (doc, w) => (RAN_DEEP.get(w) ? (doc.widths || {}) : (doc.widths_core || doc.widths || {}));
 const WRITE_EXPECTED = process.argv.includes("--write-expected");
 
 // **THE LEDGER — WHETHER A WIDTH IS FLAKY IS ARITHMETIC, NOT A MEMORY.**
@@ -3250,9 +3271,9 @@ if (process.argv.includes("--dump-fingerprints")) {
   // visible, and writing it off as a shorter plan is exactly the nudge the
   // ruling forbids.
   if (WALKS.length && !ONLY && !WRITE_EXPECTED && existsSync(EXPECTED_PATH)) {
-    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    const doc = JSON.parse(readFileSync(EXPECTED_PATH, "utf8"));
     for (const k of WALKS) {
-      const owedLabels = (want[String(k.width)] || []).filter((l) => l.startsWith(k.prefix));
+      const owedLabels = (expectedMap(doc, k.width)[String(k.width)] || []).filter((l) => l.startsWith(k.prefix));
       const got = (perWidth[k.width] || []).filter((l) => l.startsWith(k.prefix));
       const short = owedLabels.filter((l) => !got.includes(l));
       const head = `${k.prefix.trim()} @${k.width}`.padEnd(24);
@@ -3445,8 +3466,22 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
     // one, because deleting a line from this file is how a screen stops being
     // checked for ever.
     const DROP_MISSING = process.argv.includes("--drop-missing");
+    // **THE PRIOR AND THE OUTPUT ARE BOTH THE KEY FOR THE MODE THIS RUN IS
+    //   IN**, so a core run can never narrow a deep baseline and a deep run
+    //   can never inflate a core one. The union and `--drop-missing` rules
+    //   above are unchanged; they now apply per mode rather than across both.
+    const priorDoc = existsSync(EXPECTED_PATH)
+      ? JSON.parse(readFileSync(EXPECTED_PATH, "utf8")) : {};
     const prior = existsSync(EXPECTED_PATH)
-      ? (JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {})
+      // **PER WIDTH, LIKE THE OUTPUT.** Reading `prior` from the global mode key
+      // while writing per width NARROWED the deep baseline: 320 walks deep even
+      // in a default run, its prior was looked up in the empty `widths_core`,
+      // and the union came out as this run alone - 154 surfaces became 149.
+      // A baseline silently losing five screens is the file's own stated
+      // nightmare, produced by the fix for a different version of it. Caught by
+      // reading the regenerated file instead of the success message.
+      ? Object.fromEntries(SIZES.map((w2) => [String(w2),
+        ((RAN_DEEP.get(w2) ? priorDoc.widths : priorDoc.widths_core) || {})[String(w2)] || []]))
       : {};
     const merged = {};
     let addedN = 0, keptN = 0, droppedN = 0;
@@ -3484,9 +3519,26 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
         + "found and KEEPS what it did not reach. READ THE DIFF: a label that disappears from "
         + "this file is a screen that stopped being checked, and only --drop-missing removes one.",
       written_at: new Date().toISOString(),
-      widths: merged,
+      // Both keys are always written: the one this run owns, rebuilt, and the
+      // other carried through untouched. Dropping the sibling would delete a
+      // whole mode's baseline, which is this file's own warning one level up.
+      /* **KEYED PER WIDTH BY THE MODE THAT WIDTH ACTUALLY RAN IN, not by the
+         global `--all`.** `FULL_WIDTHS` is {1920, 320}, so those two walk DEEP
+         even in a default run - and the first version of this filed their deep
+         numbers under `widths_core` because the FLAG was off. Nothing read
+         them, since `expectedMap` sends a deep width to `widths`, so it was a
+         baseline that looked authoritative and was never consulted: a number
+         recorded under the wrong name, which is the fault this whole change
+         exists to remove, reappearing inside the fix for it. Caught by reading
+         the diff, which is what the file's own note asks for. */
+      widths: Object.fromEntries(Object.entries(merged)
+        .filter(([w2]) => RAN_DEEP.get(Number(w2)))
+        .concat(Object.entries(priorDoc.widths || {}).filter(([w2]) => !(w2 in merged) || !RAN_DEEP.get(Number(w2))))),
+      widths_core: Object.fromEntries(Object.entries(merged)
+        .filter(([w2]) => RAN_DEEP.get(Number(w2)) === false)
+        .concat(Object.entries(priorDoc.widths_core || {}).filter(([w2]) => !(w2 in merged) || RAN_DEEP.get(Number(w2)) !== false))),
     }, null, 2) + "\n");
-    console.log(`\nEXPECTATION REWRITTEN: ${addedN} added, ${keptN} kept that this run did not reach, ${droppedN} dropped.`);
+    console.log(`\nEXPECTATION REWRITTEN in ${MODE_NAME()} mode (key ${EXPECTED_KEY()}): ${addedN} added, ${keptN} kept that this run did not reach, ${droppedN} dropped.`);
     console.log(`This run was NOT graded against it - read the diff before committing.`);
     // **AND WIDEN ONLY WHERE BOTH LANGUAGES AGREE — 2026-09-20, Andrew's
     // manager, after a Spanish run and an English run disagreed by four
@@ -3513,9 +3565,9 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
       + "run measured against the surfaces it should have measured. Create it with --write-expected.");
     found++;
   } else {
-    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    const doc = JSON.parse(readFileSync(EXPECTED_PATH, "utf8"));
     for (const w of SIZES) {
-      const expected = want[String(w)];
+      const expected = expectedMap(doc, w)[String(w)];
       const got = perWidth[w] || [];
       if (!expected) {
         console.log(`\nEXPECTED-COUNT GATE: ${w}px has no expectation recorded — it was swept ungraded.`);
@@ -3544,18 +3596,19 @@ CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${
           + `The ${expected.length - died.measured} it never reached are unmeasured, not clean.`);
         continue;
       }
-      /* **A CORE RUN IS NOT GRADED AGAINST A DEEP EXPECTATION.** The two
-         measure different things on purpose and the expectation file carries
-         no mode, so the only honest verdict for a core run against a deep
-         number is REFUSED - not passed, and not failed either, because the
-         surfaces it did not visit were never offered to it. The width is
-         dropped from the verdict exactly as an aborted one is. */
-      if (!RAN_DEEP.get(w) && !ALL) {
+      /* **A CORE RUN IS GRADED AGAINST THE CORE BASELINE NOW.** Until
+         2026-10-03 there was only one baseline, written from a DEEP walk, and
+         a core run of 41 surfaces was held to it and reported as a
+         114-surface shortfall. The two modes have their own keys, so the only
+         thing left to refuse is a mode with NO baseline recorded - which is
+         ungraded rather than failed, and names the command that fixes it. */
+      if (!expected.length) {
         UNJUDGED_W.add(w);
-        console.log(`\nEXPECTED-COUNT ${w}px: NOT GRADED - this width ran CORE ONLY and the`
-          + ` expectation records ${expected.length} surfaces from a DEEP walk. Run`
-          + ` \`node scripts/sweep-widths.mjs ${w} --all\` to grade it. Its ${got.length}`
-          + " measurement(s) are dropped from the verdict rather than counted as a shortfall.");
+        console.log(`
+EXPECTED-COUNT ${w}px: NOT GRADED - no ${RAN_DEEP.get(w) ? "deep" : "core"}`
+          + ` baseline is recorded for this width. Write one with \`node scripts/sweep-widths.mjs`
+          + ` ${w}${RAN_DEEP.get(w) ? " --all" : ""} --write-expected\`, then READ THE DIFF. Its`
+          + ` ${got.length} measurement(s) are out of the verdict rather than counted as a shortfall.`);
         continue;
       }
       const skippedHere = new Set(SKIPPED.filter((k) => k.width === w).map((k) => k.label));
@@ -3656,13 +3709,15 @@ if (!ONLY && !WRITE_EXPECTED) {
   const measuredBy = {};
   for (const c of CERT) measuredBy[c.width] = (measuredBy[c.width] || 0) + 1;
   const want = existsSync(EXPECTED_PATH)
-    ? (JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {}) : {};
+    ? JSON.parse(readFileSync(EXPECTED_PATH, "utf8")) : {};
   const rows = existsSync(LEDGER_PATH)
     ? (JSON.parse(readFileSync(LEDGER_PATH, "utf8")).runs || []) : [];
   const sha = (process.env.GIT_SHA || "").slice(0, 8);
   for (const w of SIZES) {
     const died = ABORTED.find((a) => a.width === w);
-    const expected = (want[String(w)] || []).length;
+    // Mode-matched, like the gate: the ledger decides `short` against the
+    // number for the mode this width actually ran in, never the other one.
+    const expected = (expectedMap(want, w)[String(w)] || []).length;
     const measured = measuredBy[w] || 0;
     const declared = SKIPPED.filter((k) => k.width === w).length;
     // **THREE OUTCOMES AND NO FOURTH.** `short` is the quiet one and the
@@ -3765,8 +3820,8 @@ ${figures}
 {
   const expectedTotal = (() => {
     if (ONLY || WRITE_EXPECTED || !existsSync(EXPECTED_PATH)) return CERT.length;
-    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
-    return SIZES.reduce((n, w) => n + (want[String(w)]?.length ?? 0), 0);
+    const doc = JSON.parse(readFileSync(EXPECTED_PATH, "utf8"));
+    return SIZES.reduce((n, w) => n + (expectedMap(doc, w)[String(w)]?.length ?? 0), 0);
   })();
   // **THE FOUR COUNTS STILL HAVE TO AGREE — ROADMAP 8.1b.** `receipt.mjs`
   // refuses a receipt where expected, discovered, attempted and completed are
@@ -3793,9 +3848,9 @@ ${figures}
   // They are still reported in `skipped_targets` and still carry their reason.
   const owed = (() => {
     if (ONLY || WRITE_EXPECTED || !existsSync(EXPECTED_PATH)) return new Set();
-    const want = JSON.parse(readFileSync(EXPECTED_PATH, "utf8")).widths || {};
+    const doc = JSON.parse(readFileSync(EXPECTED_PATH, "utf8"));
     const set = new Set();
-    for (const w of SIZES) for (const l of want[String(w)] || []) set.add(`${w}|${l}`);
+    for (const w of SIZES) for (const l of expectedMap(doc, w)[String(w)] || []) set.add(`${w}|${l}`);
     return set;
   })();
   const countedSkips = SKIPPED.filter((k) => owed.has(`${k.width}|${k.label}`)).length;
