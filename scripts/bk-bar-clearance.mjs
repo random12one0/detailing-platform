@@ -786,6 +786,55 @@ const EMAILS = [
 const MAIL_DIR = join(REPO, "artifacts", "tenant-strings", "email-long");
 
 /** scrollWidth vs clientWidth on whatever actually holds the string. */
+/* ══ IS ANY FIXED FURNITURE ACTUALLY COVERING A ROW? ══════════════════════
+   **THIS EXISTS BECAUSE I SAVED A PICTURE OF A FAULT THAT WAS NOT THERE AND
+   NEVER OPENED IT — 2026-10-03.** `screen-info-1440.png` showed the left
+   navigation rail sitting on top of six rows of the settings list. A person
+   opened the frame I had written and I had not.
+
+   **It was the capture, not the product.** `fullPage: true` paints a
+   `position: fixed` element at the wrong place: measured the same second, at
+   1440, the rail's box is at x 24..96 in the DOM and at x ~445 in the
+   fullPage PNG — a 420px shift onto the list — while the viewport capture of
+   the same instant has it at the far left, clear of everything. Live
+   `elementFromPoint` agreed with the viewport: **0 rows covered.**
+
+   So two things changed. The screens are captured at viewport size now, and
+   **this question is asked of the DOM on every run**, because the honest
+   answer to "is the furniture covering the list" is a hit-test and never an
+   image. A picture nobody opens is not evidence, and a picture that lies is
+   worse than none. */
+const FURNITURE = async (page) => page.evaluate(() => {
+  const fixed = [...document.querySelectorAll("body *")].filter((e) => {
+    const cs = getComputedStyle(e);
+    if (cs.position !== "fixed") return false;
+    const r = e.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  });
+  if (!fixed.length) return { fixedCount: 0, covered: 0, sample: [], rowsSeen: 0 };
+  const covered = [];
+  let rowsSeen = 0;
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.children.length) continue;
+    const t = (el.textContent || "").trim();
+    if (!t) continue;
+    if (fixed.some((f) => f.contains(el))) continue;        // the furniture's own labels
+    if (typeof el.checkVisibility === "function"
+      && !el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) continue;
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) continue;
+    if (r.bottom < 0 || r.top > innerHeight) continue;       // off screen, not covered
+    rowsSeen++;
+    const x = Math.round(r.left + Math.min(8, r.width / 2));
+    const y = Math.round(r.top + r.height / 2);
+    const hit = document.elementFromPoint(x, y);
+    if (hit && fixed.some((f) => f === hit || f.contains(hit))) {
+      covered.push({ t: t.slice(0, 26), x, y });
+    }
+  }
+  return { fixedCount: fixed.length, covered: covered.length, sample: covered.slice(0, 4), rowsSeen };
+});
+
 const OVERFLOW = async (page, needles) => page.evaluate((needles) => {
   const root = document.documentElement;
   const seen = [], bad = [], truncated = [];
@@ -820,7 +869,22 @@ const OVERFLOW = async (page, needles) => page.evaluate((needles) => {
         break;
       }
       const over = node.scrollWidth - node.clientWidth;
-      if (over > 1) { bad.push({ t: t.slice(0, 26), over, tag: node.tagName }); break; }
+      /* **THE LEAF HAS TO BE THE ONE OVERFLOWING, AND THE FIRST VERSION DID
+         NOT ASK THAT.** It walked up to four ancestors and reported the first
+         box whose `scrollWidth` exceeded its `clientWidth` - which on a flex
+         row is routinely 5px of rounding with nothing cut. That is exactly
+         what it found on the settings screen at 1440 and 1920: "1 element
+         escaping by 5px", while the 56-character name was rendering in FULL
+         in the topbar, in the subtitle and in the field, with nothing
+         truncated and no horizontal scroll. A number with no consequence,
+         reported as a fault for two sittings. Measured 2026-10-03 by opening
+         the frame instead of the receipt.
+
+         An ancestor only counts now if the TEXT ITSELF does not fit its own
+         box - which is the thing a reader would actually lose. */
+      if (over > 1 && el.scrollWidth - el.clientWidth > 1) {
+        bad.push({ t: t.slice(0, 26), over, tag: node.tagName }); break;
+      }
       node = node.parentElement;
     }
     if (clipped) truncated.push(t.slice(0, 26));
@@ -1045,6 +1109,7 @@ try {
       await appPage.waitForTimeout(2500);
       await settle(appPage, 2000);
       const o = await OVERFLOW(appPage, SCREEN_NEEDLES);
+      const furn = await FURNITURE(appPage);
       /* **THE BOOKING PAGE'S SELECTORS MATCH NOTHING ON A SETTINGS SCREEN**,
          and the first version passed them here: `PRESS` found no control,
          returned early, and the failure printed "pressing <<undefined>> at
@@ -1053,7 +1118,11 @@ try {
          `.choice`; the bar filter is harmless here because there is no bar. */
       const press = await PRESS(appPage, ".btn, .choice, button.card, .row button");
       discovered += 1;
-      await appPage.screenshot({ path: ART + `screen-${key}-${size.w}.png`, fullPage: true });
+      // **VIEWPORT, NOT `fullPage`** — see the note beside `FURNITURE`. A
+      // fullPage capture of this shell paints the fixed rail 420px to the
+      // right of where it is, straight across the settings list, and the frame
+      // it leaves behind is a photograph of a fault that does not exist.
+      await appPage.screenshot({ path: ART + `screen-${key}-${size.w}.png` });
       artifacts.push(`artifacts/bk-bar-clearance/screen-${key}-${size.w}.png`);
       check(id, "screen/landed", o.landed,
         "the capped name is nowhere on this screen, so the two questions below were asked of "
@@ -1062,12 +1131,20 @@ try {
         `${o.badCount} element(s) wider than the box holding them`
         + (o.bad.length ? ": " + o.bad.map((b) => `<${b.tag}> «${b.t}» by ${b.over}px`).join("; ") : "")
         + `, and the document overflows its window by ${o.docOver}px`);
+      check(id, "screen/furniture-clear", furn.covered === 0 && furn.rowsSeen > 0,
+        furn.rowsSeen === 0
+          ? "no text was on screen to test, so this question was asked of nothing"
+          : `${furn.covered} row(s) are underneath one of the ${furn.fixedCount} fixed element(s) on `
+          + "this screen, by hit-test: "
+          + furn.sample.map((c) => `\u00ab${c.t}\u00bb at (${c.x}, ${c.y})`).join("; "));
+
       check(id, "screen/pressed", !!(press && press.ok),
         press ? (press.why || `pressing «${press.text}» at (${press.x}, ${press.y}) landed on ${press.who}`)
           : "no press was attempted on this screen");
       observed.push(`${id}: ${o.seenCount} capped name(s) on screen, ${o.badCount} escaping their box, `
         + `${o.truncatedCount} truncated (reported, not graded), document over by ${o.docOver}px, `
-        + `press ${press && press.ok ? "landed" : "LOST to " + (press && press.who)}`);
+        + `press ${press && press.ok ? "landed" : "LOST to " + (press && press.who)}`
+        + `, ${furn.fixedCount} fixed element(s) covering ${furn.covered} of ${furn.rowsSeen} rows`);
       completed += 1;
     }
   }
@@ -1099,7 +1176,7 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 7 * (SIZES.length * STEPS * PASSES_N + 2) + CEILINGS.length
-    + SIZES.length * STEPS + MAIL_TARGETS * 2 + SCREEN_TARGETS * 3,
+    + SIZES.length * STEPS + MAIL_TARGETS * 2 + SCREEN_TARGETS * 4,
   assertion_floor:
     "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, "
     + `nothing-at-rest) x (5 widths x 7 steps x ${PASSES_N} sweeps + 2 canary walks) + `

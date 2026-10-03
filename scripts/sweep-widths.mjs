@@ -1102,6 +1102,16 @@ for (const w of SIZES) {
     // symptom, never the thing it died on, so four widths printed an identical
     // sentence and nobody could tell whether they died in the same place.
     ATTEMPTING = label;
+    /* **--break=abort : THE NEGATIVE CONTROL ON THE TWO CHANGES ABOVE.**
+       With no abort left in the run, nothing proves that an aborting width
+       is excluded from the verdict or that its surface gets named - a guard
+       whose trigger never fires is a decoration. This throws on one surface
+       at one width - the shape a real abort had - and the run must
+       then go RED rather than short. ROADMAP 9.11b. */
+    if (process.env.SWEEP_ABORT_CANARY && w === 1440 && /history/i.test(label)) {
+      throw new Error("locator.click: Timeout 15000ms exceeded."
+        + "\nCall log:" + "\n  - <div class=\"tourblock\"> intercepts pointer events");
+    }
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
     const broken = await target.evaluate(() => /That didn't load/.test(document.body.innerText));
     if (broken) {
@@ -1965,8 +1975,27 @@ for (const w of SIZES) {
         await card.first().click();
         await settle(page, 500);
       }
-      await page.locator(".daypanel .x").first().click();
-      await settle(page, 600);
+      /* **NOTHING IS CLICKABLE WHILE A GUIDE IS UP** - the same sentence the
+         guide loop below already carries, and this section did not. A tab press
+         starts a guide on a 900ms timer, this close button is the first thing
+         under it, and the click waits the full 15 seconds and aborts the whole
+         width. Measured 2026-10-02: four of five widths died on the surface
+         after `Calendar - day, How this day works`, which is this line.
+         **AND THE CLOSE BUTTON MAY SIMPLY NOT BE THERE.** All three editors
+         above report "no such editor on this day" when the day is empty, so a
+         `.first().click()` on a locator matching nothing is a guaranteed
+         15-second abort rather than a finding. */
+      if (await page.locator(".tourblock").count()) {
+        await page.keyboard.press("Escape");
+        await settle(page, 400);
+      }
+      const dayClose = page.locator(".daypanel .x");
+      if (await dayClose.count()) {
+        await dayClose.first().click();
+        await settle(page, 600);
+      } else {
+        console.log("Calendar · day, close".padEnd(24) + "NOT MEASURED — the day panel was not open");
+      }
     }
   }
   await page.getByRole("button", { name: NAMED("History"), exact: true }).first().click();
@@ -3015,7 +3044,17 @@ for (const w of SIZES) {
     // how far it got, because "it crashed" and "it crashed after four
     // surfaces" are different problems.
     const done = CERT.filter((c) => c.width === w).length;
-    const why = String((e && e.message) || e).split("\n")[0];
+    /* **THE FIRST LINE OF A PLAYWRIGHT TIMEOUT IS THE LEAST USEFUL LINE IN IT.**
+       `locator.click: Timeout 15000ms exceeded` is the same sentence whether the
+       target never existed, was invisible, or was sitting under an overlay - and
+       the line that tells them apart is further down the call log:
+       `<div class="tourblock"> intercepts pointer events`. Four widths printed
+       the useless line four runs running. The interesting lines are kept. */
+    const rawErr = String((e && e.message) || e);
+    const why = rawErr.split("\n")
+      .filter((l) => /Timeout|intercepts pointer|waiting for|not visible|resolved to/.test(l))
+      .slice(0, 4).map((l) => l.replace(/\u001b\[[0-9]+m/g, "").trim()).join(" | ")
+      || rawErr.split("\n")[0];
     ABORTED.push({ width: w, measured: done, error: why, surface: ATTEMPTING, after: CERT.filter((c) => c.width === w).slice(-1)[0]?.label ?? null });
     found++;
     console.log(`\nWIDTH ABORTED at ${w}px ON SURFACE «${ATTEMPTING ?? "(none attempted)"}»`
