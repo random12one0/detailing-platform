@@ -3714,3 +3714,67 @@ said 21, `grep -c '^- \[ \]'` minus the judged list said 22 — because **a
 derived tally and the thing it was derived from go stale independently, and the
 tally is the one that gets quoted.** Same lesson as the `docs/gotchas.md` count
 this very file's own pointer has been corrected over four times.
+
+## 90. A `finally` DOES NOT RUN ON SIGTERM, SO WRAPPING A SCRIPT IN `timeout` DEFEATS THE TEARDOWN IT WAS GIVEN
+
+**2026-10-03. `node scripts/restore-drill.mjs` was run under `timeout 110` as a
+courtesy to the session's own patience, and it left a 51-table schema behind in
+the live database.**
+
+**THE SCRIPT IS NOT AT FAULT AND THAT IS THE POINT.** Its teardown is correct and
+deliberate — `scripts/restore-drill.mjs:430`:
+
+```js
+} finally {
+  if (schemaMade && !KEEP) {
+    await sql(`drop schema if exists ${SCHEMA} cascade`)…
+  }
+}
+```
+
+It even carries a comment recording an earlier fix in the same place: a crash
+*"used to leave no receipt at all"*, so a `catch` was added beside the `finally`.
+**Both run on a thrown exception. Neither runs on a signal.** `timeout` sends
+**SIGTERM**, Node's default handler exits the process, and `finally` blocks are
+never reached — the same way they are skipped by `process.exit()`, which this
+repo already has an entry about.
+
+**WHAT IT COST, measured:** `select nspname from pg_namespace where nspname =
+'restore_drill'` returned a row. The schema held **51 tables** copied from
+`public`'s 55. `public` itself was untouched, confirmed at 55 before and after.
+
+**AND IT IS THE EXACT FAULT ROADMAP 14.21 WAS WRITTEN ABOUT, HOURS EARLIER, BY
+THE SESSION THAT THEN COMMITTED IT.** 14.21 is *"a teardown written AFTER
+`browser.close()` instead of inside a `finally` leaves a full platform admin
+behind on a crash"*, and its repair was *"put it in a `finally`"*. **Here the
+teardown WAS in a `finally` and still did not run** — so 14.21's own fix is
+necessary and not sufficient, and the sufficient version has to survive a signal
+too.
+
+**THE RULE, and it is about the caller rather than the script:** **do not wrap a
+script that creates server-side state in `timeout`.** If it is too slow to wait
+for, run it in the background and let it finish, or pass whatever flag it offers
+to skip the expensive part. **A timeout is not a safe way to shorten a script; it
+is a way to stop it between its two halves.**
+
+**FOR WHOEVER OWNS THE SCRIPT**, and it is one line rather than a redesign:
+
+```js
+for (const s of ["SIGINT", "SIGTERM"]) process.on(s, () => { throw new Error(s); });
+```
+
+…or an explicit teardown on those signals. **Any script that creates a schema, a
+row, an admin or a file outside its own directory needs it**, and in this repo
+that is `restore-drill.mjs`, `shoot-admin.mjs`, `health-line-honest.mjs` and
+`admin-contrast.mjs` at least.
+
+**THE FAMILY.** Same shape as `process.exit()` racing a closing `fetch` (already
+in this file), and as 14.21. All three are **a cleanup that is attached to the
+wrong event**: to the end of the happy path, to a thrown exception, or to a
+process that is being asked to stop rather than choosing to. **Only the third one
+cannot be fixed inside a `try`.**
+
+**AND THE HONEST ADMISSION, because it is the useful part:** the session knew
+14.21's lesson, had committed it that afternoon, and still reached for `timeout`
+without asking what the script created. **The teardown it defeated was in the one
+place that session had just finished recommending.**
