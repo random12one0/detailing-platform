@@ -17637,6 +17637,62 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   working credential doing its job. **`git ls-files` is the right spine; only its
   pattern is wrong.**
 
+### 14.28 — Every open item is citable, and a check now says so — BUILT 2026-10-03
+
+- [x] **An open item with no identifier is UNCHECKABLE, and two sat in this file
+  for ten days. `tests/every-open-item-is-citable.test.mjs` is the guard, and it
+  would have fired on day one.**
+
+  **WHY IT EXISTS.** 14.26 and 14.27 had no numbers. **Every instrument here keys
+  on the item number** — the commit-grep sweep, the present-tense sweep, the batch
+  audits, every cross-reference — so **neither was ever checked by any of them and
+  nothing said so**, because a tool that enumerates by identifier cannot report an
+  item it never enumerated. Other entries cited them as *"the reseed item"* and
+  *"the stale-blocker item"*, which is itself the evidence. **They were numbered
+  on 2026-10-03 and within the hour 14.26 turned out to be the sharpest finding of
+  the night** — a loss it had predicted in writing eight days earlier, already
+  happened, noticed by nobody. **That was sitting there the whole time and no
+  sweep could reach it.**
+
+  **WHAT IT ASSERTS, in four sections:** every open item has an identifier; no two
+  share one; **the discovery floor** (`OPEN_FLOOR = 40` against 64 today) so a
+  broken parser cannot pass green; and the **declared cross-file overlap**.
+
+  **THE CITABILITY DECISION, RECORDED SO IT IS NOT RE-DERIVED.** `docs/gotchas.md`
+  91 says `ROADMAP.md` and `docs/roadmap.md` reuse numbers, so **a bare number is
+  not an unambiguous citation**. Three options; the choice and the rejects:
+  1. **Global uniqueness across both files — REJECTED.** **19 of the 64 open items
+     collide today** (0.3, 0.4, 1.3, 2.1, 2.12, 2.15, 3.1, 3.3, 3.4, 4.1, 4.3, 6.1
+     and more). It would mean renumbering a live queue or rewriting a history
+     nobody works from, and **the check would stand red for weeks over something
+     nobody intends to fix** — which is how a check becomes furniture.
+  2. **Ignore it — REJECTED.** It is real and it cost **21 false positives** in one
+     sweep.
+  3. **CHOSEN: uniqueness WITHIN `ROADMAP.md`, which is actionable, and the
+     cross-file overlap DECLARED as a constant** so a twentieth collision reddens
+     the run and somebody decides on purpose. **Same shape as
+     `platform-admins-declared`:** a declaration states the intention and the check
+     compares reality against it, never the reverse.
+
+  **BROKEN ON PURPOSE TWICE, BOTH RUN, BOTH CAUGHT.**
+  - **A REAL unnumbered item written into `ROADMAP.md`** — not a flag, an actual
+    `- [ ]` line with no number. **Caught, and it named the line:**
+    `ROADMAP.md:17640 — SABOTAGE — a deliberately unnumbered open item`. Reverted
+    with `git checkout ROADMAP.md`; **`git status --porcelain` clean afterwards and
+    `grep -c` for the sabotage text returns 0**, both checked rather than assumed.
+  - **`CITABLE_CANARY=1`**, which injects a synthetic unnumbered item without
+    touching the file. **Caught — section 1 red, section 4 red by design**, so the
+    red is reproducible on any checkout with nothing to clean up.
+
+  **The canary exists because the file sabotage edits a document two sessions
+  append to**, and a crash between the edit and the revert leaves `ROADMAP.md`
+  dirty — `docs/gotchas.md` 90, a teardown that does not run. **The canary is the
+  one to reach for; the file edit is what proves the canary is not lying.**
+
+  **Credential-free, two filesystem reads, no network and no database.** Green
+  today: **6 passed / 0 failed**, 64 open items discovered, 0 without an
+  identifier, 0 duplicates, overlap exactly 19.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
