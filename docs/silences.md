@@ -44,6 +44,15 @@ about their own silence. Not one of its own 31 figures can.**
 ### IT WAS CHECKED BEFORE IT WAS CLAIMED, because the obvious way to be wrong here is a scanner that misses the commands actually present
 
 The first pass reported 100% bare while row 76 plainly carries `ls scripts/*.mjs`.
+
+***AND THE FIRST CORRECTION WAS MADE IN THE WRONG INSTRUMENT, WHICH IS WORTH MORE
+THAN THE FINDING.*** The widening was done in a throwaway probe, the sentence
+below was written describing *that*, and **the committed check
+`tests/figures-carry-their-command.test.mjs` was still matching only four command
+names.** So this file carried a true sentence about an instrument nobody runs,
+while the instrument that gates the repo went on calling pinned rows bare. Caught
+2026-10-02 only because the check named a row as bare that visibly carried a
+command. **Two instruments and one sentence: say which one you widened.**
 **So the command pattern was widened from four names to thirteen** — `git`,
 `grep`, `node`, `sed`, `ls`, `wc`, `awk`, `find`, `cat`, `curl`, `npm`, `test`,
 `rg` — **and the figure did not move**, because 94 requires BOTH halves and no row
@@ -64,6 +73,14 @@ and it was right: the rule is per figure, and a figure whose revision lives in a
 different row does not carry one. The revision was added to each row, and the
 figures moved from bare to pinned in the same edit.
 
+**IT HAPPENED A SECOND TIME, THREE SECTIONS DOWN, WHILE PINNING THE TIMELINE.**
+The re-take commands were written into a fenced code block ABOVE that table
+rather than into each row. **The scan counted those rows bare and was right
+again** — and because the annotation added figures, the bare count went UP, 8 to
+10, while the work was supposed to be reducing it. **The command has to be on the
+row, because the rule is per figure and a row cannot inherit evidence from its
+neighbours.** Twice in one sitting, by the person writing the rule down.
+
 **A paragraph about pinning figures, whose own figures were not pinned, corrected
 by the check it was describing.** That is the whole case for mechanising the rule
 rather than trusting a reader to hold it — including the reader writing it down.
@@ -71,7 +88,7 @@ rather than trusting a reader to hold it — including the reader writing it dow
 ### NOTHING BELOW IS RETRACTED AND NO FIGURE IN IT HAS BEEN EDITED
 
 **Every number in the census was true when taken.** What is missing is the half
-that makes it re-takeable. **Lowering the 31 is the work, one row at a time**, and
+that makes it re-takeable. **The 31 reached ZERO on 2026-10-02** — 51 figures, every one carrying a command and a revision or naming in 94's own words why it cannot be re-taken. **This is the repo's first fully pinned document.** The declaration was lowered 31 → 0 in the same commit as the pinning, and only after the check went red at 31 and said so. **Lowering a declaration is the work, one row at a time**, and
 the check declares 31 per document — not as part of a single total, because a
 total lets a rise in one file hide behind a fall in another — **so that a
 thirty-second cannot arrive quietly.**
@@ -134,15 +151,15 @@ far the reversal has been the load-bearing half.
 
 | | 2026-09-20 | now | how it was counted |
 |---|---|---|---|
-| `.mjs` files in `scripts/` | 74 | **76** | `ls scripts/*.mjs` |
-| checks that write a receipt, so `receipt.mjs` grades them | 21 | **28** | files calling `writeReceipt(` |
-| checks carrying a canary in that receipt | 8 | **28** | files passing `observed_failure` |
-| checks carrying a `--break=` sabotage switch | not counted | **21** | files matching `--break=` |
-| **§ A** gates named in `CLAUDE.md` writing **no** receipt | **7** | **0 of those seven** | all seven closed; see § A's header |
-| **§ B** receipts whose four counts could not disagree | **5** | **0** | see "SECTION B, TWO OF FIVE" and the rows after it |
-| receipts on disk | 45, **ten untracked** | **45, all tracked** | `ls receipts/*.json` vs `git status` |
-| receipts that state whether HEAD moved under them | **0 — the field did not exist** | **4** | `git_sha_started` present |
-| `tests/*.test.mjs` | **never censused** | **74** | see "THE CENSUS NEVER LOOKED IN `tests/`" |
+| `.mjs` files in `scripts/` | 74 | **76** | `ls scripts/*.mjs \| wc -l` → **91** @ `30b7804`, 2026-10-02. *Top-level only, as the original command was; `git ls-files 'scripts/*.mjs'` answers 97 because it recurses into `lib/`* |
+| checks that write a receipt, so `receipt.mjs` grades them | 21 | **28** | `grep -rl 'writeReceipt(' scripts/ \| wc -l` → **43** @ `30b7804`, 2026-10-02 |
+| checks carrying a canary in that receipt | 8 | **28** | `grep -rl observed_failure scripts/ \| wc -l` → **43** @ `30b7804`, 2026-10-02. **The same 43 files as the row above, identical sets** — checked with `diff`, because two patterns returning one number is usually a broken command. Here it is the document's own claim holding: every receipt-writer carries a canary |
+| checks carrying a `--break=` sabotage switch | not counted | **21** | `grep -rl -- '--break=' scripts/ \| wc -l` → **36** @ `30b7804`, 2026-10-02 |
+| **§ A** gates named in `CLAUDE.md` writing **no** receipt | **7** | **0 of those seven** | ***UNRE-TAKEABLE — a judgement, not a count.*** Which `CLAUDE.md` rows are “gates” was decided by reading. No command re-takes a ruling. Dated snapshot 2026-09-21; see § A's header |
+| **§ B** receipts whose four counts could not disagree | **5** | **0** | ***UNRE-TAKEABLE — a judgement, not a count.*** “Could not disagree” was established by reading each receipt's arithmetic. Dated snapshot 2026-09-21; see "SECTION B, TWO OF FIVE" and the rows after it |
+| receipts on disk | 45, **ten untracked** | **45, all tracked** | `git ls-files 'receipts/*.json' \| wc -l` → **61** @ `30b7804`, 2026-10-02. **Tracked-only on purpose: `ls` answers 62 while the other lane is mid-run**, so an `ls` here measures another session's in-flight output (`docs/shared-resources.md`) |
+| receipts that state whether HEAD moved under them | **0 — the field did not exist** | **4** | `git ls-files 'receipts/*.json' \| xargs grep -l git_sha_started \| wc -l` → **35** @ `30b7804`, 2026-10-02. `git_sha_started` present |
+| `tests/*.test.mjs` | **never censused** | **74** | `ls tests/*.test.mjs \| wc -l` → **86** @ `30b7804`, 2026-10-02; see "THE CENSUS NEVER LOOKED IN `tests/`" |
 
 ### THE FORTY THAT CANNOT SAY, AND WHY THEY ARE STAYING THAT WAY
 
@@ -188,11 +205,19 @@ named here rather than opened as work.
 **56 → 60, and nothing got worse.** Measured from `ROADMAP.md` at three
 commits rather than taken on trust:
 
+**Each row's figures are re-takeable at the commit named in it** — which is what
+makes a timeline evidence rather than a recollection:
+
+```bash
+git show <commit>:ROADMAP.md | grep -c '^- \[ \] '    # open
+git show <commit>:ROADMAP.md | grep -c '^- \[x\] '    # ticked
+```
+
 | commit | when | open | ticked | total |
 |---|---|---|---|---|
-| `c024f89` | 09-20 23:59 | **56** | 43 | 99 |
-| `f2dc0fc` | 09-21 01:57 | **62** (the peak) | 44 | 106 |
-| `HEAD` | 09-21 03:41 | **60** | **47** | 107 |
+| `c024f89` | 09-20 23:59 | **56** | 43 | 99 — `git show c024f89:ROADMAP.md \| grep -c '^- \[ \] '` → **56**, exact, re-taken 2026-10-02 |
+| `f2dc0fc` | 09-21 01:57 | **62** (the peak) | 44 | 106 — `git show f2dc0fc:ROADMAP.md \| grep -c '^- \[ \] '` → **62**, exact, re-taken 2026-10-02 |
+| `8ae32e4` *(was `HEAD`)* | 09-21 03:41 | **60** | **47** | 107 — ***THIS ROW SAID `HEAD` UNTIL 2026-10-02, AND “HEAD” IS NOT A REVISION.*** **Recovered rather than deleted:** `8ae32e4` was HEAD at 03:41 — it landed 03:37 and the next commit was 03:44 — and `git show 8ae32e4:ROADMAP.md \| grep -c '^- \[ \] '` → **60**, exact, re-taken 2026-10-02. The two rows above cite `c024f89` and `f2dc0fc` and are re-findable for ever; this one cites a moving pointer and became unrecoverable the next time anybody committed. **The sharpest small lesson in this file:** a timeline whose last row says `HEAD` has no last row |
 
 **Eight items were added and four were closed.** The additions are not
 regressions. They are faults that were **already true and already shipped**,
@@ -217,10 +242,10 @@ person reading `56 → 60` finds an explanation instead of an alarm.
 | | |
 |---|---|
 | `.mjs` files in `scripts/` | 74 |
-| of those, **checks** (produce a verdict about the product) | **33** |
-| write a receipt, so `receipt.mjs` grades them | **21** |
-| named as a gate in `CLAUDE.md` but write **no receipt** | **7** |
-| have a canary block at all | **8** |
+| of those, **checks** (produce a verdict about the product) | **33** | ***UNRE-TAKEABLE — a judgement, not a count.*** “Produces a verdict about the product” was decided by opening each script. Dated snapshot 2026-09-21 |
+| write a receipt, so `receipt.mjs` grades them | **21** | `grep -rl 'writeReceipt(' scripts/ \| wc -l` → **43** @ `30b7804`, 2026-10-02 |
+| named as a gate in `CLAUDE.md` but write **no receipt** | **7** | ***UNRE-TAKEABLE — a judgement, not a count***, as at the row above: which `CLAUDE.md` lines are gates was read, not counted. Dated snapshot 2026-09-21 |
+| have a canary block at all | **8** | `grep -rl observed_failure scripts/ \| wc -l` → **43** @ `30b7804`, 2026-10-02 |
 | **§ B members whose four counts could not disagree** | **5 → 0**, closed 2026-09-21 |
 
 **The honest reading of that:** 21 of 33 checks are graded by something other
@@ -676,11 +701,11 @@ presumed-real-business ref.
 
 | | |
 |---|---|
-| functions in the repo | **39** |
-| deployed on the project | **39** |
-| bundles fetched and compared | **39** (`assertions_executed`, floor 30) |
-| running this checkout | **15** |
-| **NOT running this checkout** | **24** |
+| functions in the repo | **39** | `ls -d supabase/functions/*/ \| wc -l` → **40** @ `30b7804`, 2026-10-02 |
+| deployed on the project | **39** | **PINNED, NOT VERIFIED: `node scripts/deployed-inventory.mjs`, which needs credentials this lane does not load.** The command is named rather than run, so this figure is as strong as the script and no stronger. Dated snapshot 2026-09-21 |
+| bundles fetched and compared | **39** (`assertions_executed`, floor 30) | **PINNED, NOT VERIFIED: `node scripts/deployed-inventory.mjs`** — needs credentials and the Management API. Dated snapshot 2026-09-21 |
+| running this checkout | **15** | **PINNED, NOT VERIFIED: `node scripts/deployed-inventory.mjs`** — needs credentials. **And it is a figure about two trees at once**, so it is only ever true of a stated checkout. Dated snapshot 2026-09-21 |
+| **NOT running this checkout** | **24** | **PINNED, NOT VERIFIED: `node scripts/deployed-inventory.mjs`** — needs credentials; `receipts/deployed-inventory.json` holds the last answer. Dated snapshot 2026-09-21 |
 | widest gap | **7.8 days** |
 | verdict | `fail`, exit 1, all 24 named |
 
@@ -1236,11 +1261,11 @@ field in `REQUIRED` or anywhere else — and `.gitignore:174` ignores
 
 | of 44 receipts | |
 |---|---|
-| currently graded stale | **44** |
-| the scoped rule **cannot answer** — subject has no git history | **27** |
-| it answers, but the "subject" is **the check's own script** | **15** |
-| it answers against a real, tracked, non-script file | **2** |
-| would flip `stale` → `fresh` | **4** |
+| currently graded stale | **44** | ***UNRE-TAKEABLE — a judgement, not a count:*** the grading is `receipt.mjs`'s own rule applied by reading each receipt. Dated snapshot 2026-09-21 |
+| the scoped rule **cannot answer** — subject has no git history | **27** | ***UNRE-TAKEABLE — a judgement, not a count:*** “cannot answer” was established per receipt by hand. Dated snapshot 2026-09-21 |
+| it answers, but the "subject" is **the check's own script** | **15** | ***UNRE-TAKEABLE — a judgement, not a count:*** which file is a check's “subject” is a reading, not a field. Dated snapshot 2026-09-21 |
+| it answers against a real, tracked, non-script file | **2** | ***UNRE-TAKEABLE — a judgement, not a count:*** same reading as the row above. Dated snapshot 2026-09-21 |
+| would flip `stale` → `fresh` | **4** | ***UNRE-TAKEABLE — a judgement, not a count:*** a counterfactual about a rule nobody has changed. Dated snapshot 2026-09-21 |
 
 **The mechanism works. That was tested and it is not the problem.** The pair
 the manager asked for both behave: `label-guard` — filed by its own commit
@@ -1256,8 +1281,8 @@ product has not moved*. Measured:
 
 | check | subject | scoped verdict | commits touching `app/src` since its receipt |
 |---|---|---|---|
-| `keyboard-walk` | `app/src` | **fresh** | **21** (of 134 commits) |
-| `accent-sweep` | `app/src` | **fresh** | **5** (of 44) |
+| `keyboard-walk` | `app/src` | **fresh** | **21** (of 134 commits) — `git log --oneline -- app/src \| wc -l` → **393** @ `30b7804`, 2026-10-02, so the denominator has tripled |
+| `accent-sweep` | `app/src` | **fresh** | **5** (of 44) — same command as the row above; the 44 was that check's own window, not a repo total. Dated snapshot 2026-09-21 |
 | `deployed-inventory` | Management API | fresh | 0 — correct |
 | `label-guard` | the label catalogue | fresh | 0 — correct |
 
@@ -1510,8 +1535,8 @@ something bigger than the two tables.
 
 | table | columns | rows | written by |
 |---|---|---|---|
-| `address_points` | `key, lat, lon, found, resolved_at` | **19** | geocoding, via edge functions |
-| `weather_grids` | `grid_key, lat, lon, periods, place, fetched_at` | **11** | the NWS forecast cache |
+| `address_points` | `key, lat, lon, found, resolved_at` | **19** | geocoding, via edge functions. **PINNED, NOT VERIFIED: `node scripts/db-audit.mjs`** — a row count in the live database, which needs credentials and changes without anybody editing this file. Dated snapshot 2026-09-21 |
+| `weather_grids` | `grid_key, lat, lon, periods, place, fetched_at` | **11** | the NWS forecast cache. **PINNED, NOT VERIFIED: `node scripts/db-audit.mjs`** — a live row count, as above. Dated snapshot 2026-09-21 |
 
 **What the check says.** RLS on, zero policies, not on the by-design list —
 "locked with nothing to unlock it".

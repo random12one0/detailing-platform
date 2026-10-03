@@ -4183,6 +4183,27 @@ try to make it repeatable — **which would destroy the only thing it measures.*
 Mark it *unrepeatable by construction*, in those words, with its date, and leave
 it alone.
 
+### THE CLEANEST ILLUSTRATION THIS REPO WILL EVER GET
+
+**`docs/silences.md` carries 31 figures and 31 of them were bare. One hundred
+per cent.** That document's entire subject is which checks can tell a pass from a
+did-not-run.
+
+> **The document that exists to tell a pass from a did-not-run could not tell you
+> where its own numbers came from.**
+
+And then the same thing one level in, which is the part to read twice. The note
+written INTO that file to report the finding put its revision in the table's
+header row instead of in each figure row, so the scan classified every one of its
+own figures as bare — and was right, because the rule is per figure.
+
+> **A paragraph about pinning figures, whose own figures were not pinned, caught
+> by the check it was describing.**
+
+**That is why the rule had to become code.** Not because anybody disagreed with
+it, and not because the author had forgotten it — the author was writing it down
+at the time. **Agreement and attention are not the mechanism. The check is.**
+
 ### THIS RULE IS ENFORCED BY A CHECK, AND THE REASON IS THE TWO FAILURES ABOVE
 
 `tests/figures-carry-their-command.test.mjs` scans both pass documents and puts
@@ -4323,3 +4344,70 @@ one-command check is cheaper than the reasoning that would replace it:
 ```bash
 git log --oneline -1          # against the message you expected, not against a feeling
 ```
+
+
+## 97. A REVERT THAT WAS SAFE TWICE IS DESTRUCTIVE THE THIRD TIME, AND THE TWO SAFE USES ARE WHAT MAKE IT FEEL SAFE
+
+**2026-10-02. `git checkout HEAD -- docs/silences.md` destroyed about an hour of
+uncommitted work, run by a session that had used the same command on the same file
+twice in the same sitting with no harm at all.**
+
+### WHAT HAPPENED, AND WHY THE FIRST TWO TIMES MATTER
+
+The sabotage discipline here is *break it on purpose, in the real file, then put
+the file back*. Twice that worked perfectly:
+
+| | the file's state | the revert | outcome |
+|---|---|---|---|
+| sabotage 1 | **committed, clean** | `git checkout HEAD -- <file>` | byte-identical, correct |
+| sabotage 2 | **committed, clean** | same command | byte-identical, correct |
+| sabotage 3 | **carrying an hour of uncommitted pinning** | same command | **all of it gone** |
+
+**The command never changed. The file's state did.** `git checkout HEAD -- <path>`
+does not revert *your sabotage*; it reverts *the path to HEAD*, and everything
+between HEAD and the working tree goes with it. On the first two runs there was
+nothing between them.
+
+### WHY THIS IS THE DANGEROUS SHAPE RATHER THAN AN ORDINARY SLIP
+
+**Two clean uses are stronger evidence than any warning**, and they are evidence
+about the wrong thing: they prove the command is right for a clean file, and get
+read as proving the command is safe. **The habit forms on the safe case and fires
+on the unsafe one**, with nothing in between to mark the transition — no prompt,
+no confirmation, no diff to read. It is the same shape as #92's relaxed assertion:
+*the thing that changed is not the thing being looked at.*
+
+**And it leaves no trace that looks wrong.** The file parses, the sabotage is
+gone as intended, the check goes green again — **which is exactly what success
+looks like.** The loss was found only because the next run reported
+`silences.md  37/20  31/0  84% bare` where the previous run had said `51/20  0/0`,
+i.e. **the instrument noticed, and a person reading the file would not have.**
+
+### WHAT IT COST, WHICH WAS MINUTES, AND WHY
+
+**Nothing was lost, and the reason is worth more than the warning.** Every edit
+had been applied by a **script saved in the scratchpad** — `pin1.mjs` through
+`pin4.mjs` — rather than typed into the file by hand. Re-running four scripts
+restored an hour of work in one command.
+
+> **The rule: when a change to a shared document is more than a line, make it
+> with a saved script rather than by hand.** Not for elegance — because it is the
+> difference between a destructive mistake costing minutes and costing the
+> sitting. **A hand-edited document has no undo once the working tree is gone.**
+
+### THE RULE FOR THE REVERT ITSELF
+
+> **Before `git checkout HEAD -- <path>`, run `git status --porcelain <path>` and
+> require it to be the sabotage AND NOTHING ELSE.** If the path was dirty before
+> you sabotaged it, do not use this command: remove the sabotage by the same means
+> you added it.
+
+```bash
+git status --porcelain docs/silences.md   # BEFORE the sabotage: must be empty
+# ... sabotage, run, observe the red ...
+git checkout HEAD -- docs/silences.md     # only ever valid if the above was empty
+```
+
+**The check it was running had its own answer and nobody asked it.** The before-
+state was printed at the top of the first two sabotages — *"clean before: []"* —
+and simply not printed on the third.

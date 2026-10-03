@@ -167,7 +167,17 @@ const DOCS = [
   // Not a classifier artifact: the command pattern was widened to thirteen command
   // names and the figure did not move, because of 29 figure-bearing rows exactly
   // **1 carries a command and 2 carry a revision, and NO ROW CARRIES BOTH.**
-  { path: "docs/silences.md", floor: 20, bare: 31 },
+  // **ZERO. 51 figures, every one accounted for — the first fully pinned document
+  // in this repo.** Lowered 31 -> 0 on 2026-10-02 in the same commit as the pinning,
+  // in the fenced order: the rows were pinned first, section 4a then went RED at the
+  // old declaration of 31 reporting "LOWER IT TO 0", and only then was this number
+  // moved. **If 4a had not gone red, nothing had been pinned and this number would
+  // not have moved** — which is the whole difference between this edit and the one
+  // that put 53 into gotcha 92.
+  //
+  // **It may only ever go DOWN.** A number needing to go up is a new bare figure
+  // somebody introduced, and section 4 is the red for that.
+  { path: "docs/silences.md", floor: 20, bare: 0 },
 
   { path: "PROJECT-STATE.md", floor: 10, bare: 17 },
 
@@ -196,7 +206,15 @@ const RUNNABLE = (c) =>
   && /\S{6}/.test(c);
 
 const FIG = /\*\*([0-9][0-9,]*)\*\*/g;
-const CMD = /`((?:git|grep|node|sed)\b[^`]{4,300})`/g;
+// THIRTEEN COMMAND NAMES, NOT FOUR. The first version recognised only
+// git/grep/node/sed, so a row pinned with `ls scripts/*.mjs | wc -l` read as
+// carrying NO command and was counted bare. **Found while pinning
+// `docs/silences.md`: the row plainly carried a command and the check called it
+// bare.** Worse, the widening had been done in a throwaway probe and the claim
+// "widened from four names to thirteen" was written into the document about the
+// PROBE while the committed instrument was still narrow — **two instruments, one
+// sentence, and the sentence described the one nobody runs.**
+const CMD = /`((?:git|grep|node|sed|ls|wc|awk|find|cat|curl|npm|test|rg)\b[^`]{4,300})`/g;
 const SHA = /`([0-9a-f]{7,40})`/g;
 const REASON = /UNRE-TAKEABLE|unre-takeable|unrepeatable by construction|dated snapshot|judgement, not a count|tool is gone|instrument is gone|no tree|self-invalidating/i;
 const DATE = /20\d\d-\d\d-\d\d/;
@@ -319,6 +337,13 @@ test("every recorded figure carries its command or names why it cannot", async (
       console.log(`       ${d.path.replace("docs/", "").slice(0, 38).padEnd(40)} ${String(p.total).padStart(4)}/${String(d.floor).padEnd(5)} ${String(p.bare).padStart(4)}/${String(d.bare).padEnd(5)} ${pct}% bare`);
     }
     for (const v of res.verified) console.log(`       VERIFIED ${v.doc.replace("docs/", "")}:${v.line} **${v.f}** <- ${v.cmd.slice(0, 66)}`);
+    // name the bare rows per document: a count nobody can act on is half a report
+    for (const d of DOCS) {
+      const rows = res.bare.filter((x) => x.doc === d.path);
+      if (!rows.length || rows.length > 12) continue;
+      console.log(`     BARE in ${d.path.replace("docs/", "")}:`);
+      for (const r of rows) console.log(`       ${r.line} **${r.f}**  ${r.text.trim().slice(0, 80)}`);
+    }
     assert.ok(true);
   });
 
@@ -345,6 +370,27 @@ test("every recorded figure carries its command or names why it cannot", async (
       + "single total lets a rise in one file hide behind a fall in another** — pin "
       + "six here, let seven go bare there, and the total improves while the repo "
       + "gets worse.",
+    );
+  });
+
+  await t.test("4a · no declaration carries SLACK — it must equal reality, not merely cap it", () => {
+    const slack = DOCS
+      .map((d) => ({ d, got: per(d.path).bare }))
+      .filter((x) => x.got < x.d.bare)
+      .map((x) => `${x.d.path}: declared ${x.d.bare}, actually ${x.got} — LOWER IT TO ${x.got} (slack ${x.d.bare - x.got})`);
+    assert.deepEqual(
+      slack, [],
+      "a declared bare count is HIGHER than reality. **Slack in a declared baseline "
+      + "is the allowlist-by-instalments hole this file exists to close**: every "
+      + "figure of slack is one new bare figure that could arrive without reddening "
+      + "anything. **This red is also the PROOF STEP for pinning work.** The order "
+      + "is: pin the rows, run and see this go red at the old declaration, then lower "
+      + "the declaration to the number reported here in the SAME COMMIT. **If this "
+      + "does not go red, nothing was pinned and the declaration must not move** — "
+      + "which is the difference between honest work and editing a constant so it "
+      + "agrees with a run (gotchas 93). **It can only ever force the number "
+      + "DOWN.** A number needing to go UP is a new bare figure somebody introduced, "
+      + "and section 4 is the red for that.",
     );
   });
 

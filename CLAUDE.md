@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is NINETY-SIX specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is NINETY-SEVEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -234,6 +234,10 @@ sittings unbroken.
 **92 → 93 on 2026-10-02, same edit** — a correct measurement discarded because
 the operator asserted a different number, and the write-up recorded the TOOL as
 broken to make the two agree. Nine sittings unbroken.
+**96 → 97 on 2026-10-02, same edit** — `git checkout HEAD -- <path>` destroyed an
+hour of uncommitted work, after the same command on the same file had been safe
+twice in the same sitting. **The two safe uses are what make it feel safe.**
+Twelve sittings unbroken.
 **93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
 number with no command and no revision beside it is a memory. Ten sittings
 unbroken.
@@ -496,6 +500,20 @@ commit happened. Eleven sittings unbroken.
   `docs/gotchas.md` 96. A task killed at its thirty-minute cap can be stopped
   between writing the tree and updating the ref. **Confirm with
   `git log --oneline -1` against the message you expected.**
+
+- **BEFORE `git checkout HEAD -- <path>`, RUN `git status --porcelain <path>` AND
+  REQUIRE IT TO BE EMPTY (or to be only the thing you are undoing).**
+  `docs/gotchas.md` 97. **It destroyed an hour of uncommitted work on 2026-10-02**,
+  having been used safely on the same file twice earlier in the same sitting — the
+  command reverts the PATH to HEAD, not your last change, and on the safe runs
+  there was nothing else between them. **The loss leaves nothing that looks
+  wrong**: the file parses and the check goes green, which is what success looks
+  like.
+
+  **And the mitigation that made it cost minutes instead of the sitting: make any
+  multi-line change to a shared document with a SAVED SCRIPT rather than by
+  hand.** Re-running four scratchpad scripts restored everything. A hand-edited
+  document has no undo once the working tree is gone.
 
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token
