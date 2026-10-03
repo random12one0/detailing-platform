@@ -86,6 +86,8 @@ set -a; . ./.env; set +a
 |---|---|
 | **Anything, before you finish** | The four credential-free suites: `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs`. **They are test SUITES, not scripts** — run as `node scripts/<name>.mjs` they print `MODULE_NOT_FOUND` and read as a broken repo |
 | **Anything, before you finish — and especially any markdown you wrote** | `node --test tests/no-credentials-in-markdown.test.mjs`. Credential-free, one `git` call. **The hard rule below — no password in a markdown file — was being broken in 8 files and 25 occurrences on 2026-09-25, some of it for weeks, because NOTHING HAD EVER CHECKED.** It matches SHAPES rather than the values somebody happens to know: the first cleanup was keyed on three known passwords and missed a fourth account's. It names the file, the line and the rule, never the value. Its blind spot is written in its own header — read that before trusting a green |
+| **Anything, before you finish** | `node --test tests/every-open-item-is-citable.test.mjs`. Credential-free, two filesystem reads, **0.25s**. **An open item with no number is UNCHECKABLE** — every sweep here keys on the identifier, so nothing will ever report on it and nothing will say so. Two items sat unnumbered for ten days and one of them turned out to be the sharpest finding of the night the hour it got a number. It carries a discovery floor, because a parser that stops matching would otherwise read as all-clear |
+| **Before handing anybody a row off the work queue** | `node --test tests/queue-rows-still-belong.test.mjs`. **2.87s**, credential-free except one row which names its credential. **A derived list rots: this one rotted in ninety minutes** and the manager was about to hand out finished work. Reports per row, declares its row count, and prints the two unverifiable rows by name rather than skipping them. ROADMAP 14.29 |
 | **Any copy change — a rename, a re-wording, a condensation** | `node scripts/label-guard.mjs`. Credential-free, one filesystem read. **45 controls are addressed by the WORDS on them, so a rename silently blinds a check** — the matcher falls back to bare English, matches nothing, and the screen goes unmeasured while every other line reads normally. The two that happened are in the script's header |
 | **Anything, before you finish — and this one needs credentials** | `node scripts/deployed-inventory.mjs`. **It exits 1 and names every function that is not running this checkout.** See below; do not deploy to clear it |
 | **Anything a person reads, before you finish** | `node scripts/american-english.mjs` (dev server, no credentials). **A word spelled correctly but wrong for the audience passes every other gate here.** It reads the FINISHED page, not the source — a source scan printed clean over "Aluminium tanks". The 36 that reached visitors are in the script's header |
@@ -515,7 +517,14 @@ It outranks any inference about his taste written anywhere else.
 
 ## Where the knowledge lives
 
-This repo holds **1,105,000 words of markdown** — measured 2026-09-21,
+This repo holds **1,297,000 words of markdown** — measured 2026-10-03,
+`git ls-files '*.md' | xargs cat | wc -w`, which answers in one command. **This
+line said 1,105,000 and before that 930,000**; the real figure was **1,297,037**
+when it was last run, so it had drifted ~192,000 words — about 17% — in twelve
+days. **Both corrections are kept because the pattern is the point: this is a
+derived tally written into prose, which `docs/gotchas.md` 91 is about, and it
+goes stale every time anybody writes anything.** Run the command rather than
+trusting the number. Nobody
 `git ls-files '*.md' | xargs cat | wc -w`. **This line said 930,000.** Nobody
 reads it end to end.
 Open a long file only when the work touches its subject.

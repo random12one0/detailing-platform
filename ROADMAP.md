@@ -17708,6 +17708,21 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   one rotted in ninety minutes — the check exists because its own first run
   retired a row the manager was about to hand out.**
 
+  **IT CAUGHT A FAULT IN ITSELF ON ITS FIRST RUN, AND THAT LEADS THIS ENTRY BECAUSE IT IS THE WHOLE ARGUMENT FOR THE CONVENTION.** Row 2.12's command
+  runs `node --test`, and **a nested runner inherits `NODE_TEST_CONTEXT` from its
+  parent**, so the child reported through the parent's channel and exited 1 while
+  the suite behaved exactly as the row expects. **Measured: inherited env exit 1,
+  stripped env exit 0, same command.** It produced one false *"HAS MOVED"* — **a
+  check reporting a stale row that was not stale, in the file written to prevent
+  exactly that.** `run()` now strips `NODE_TEST_CONTEXT` and `NODE_OPTIONS`, with
+  the measurement in a comment above it.
+  **THE HONEST TALLY: one wrong command in ten, plus one wrong harness, and both
+  were found by RUNNING rather than by reading.** Row 3.4c's first command probed
+  `2026-10-12` — the ISO date this entry proposes as the *fix* — instead of
+  `"12 October 2026"`, the literal in the file, and would have retired a live
+  row. **That rate is on commands written by somebody who knew exactly what each
+  one meant.**
+
   **WHAT IT GUARDS.** The work queue in
   `docs/open-items-read-as-a-stranger-2026-09-25.md` — the open items ready for
   the build lane. **Row 1 was 9.11's first clause**, and ninety minutes after it
@@ -17731,15 +17746,6 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   **Caught — `✖ 8 · 14.23 — re-prove [FLIPPED]`, 12 passed / 2 failed, and no
   other row moved.** The message says the red is the sabotage working, so it
   cannot be mistaken for a real finding.
-
-  **AND IT CAUGHT A FAULT IN ITSELF BEFORE IT WAS TRUSTED.** Row 2.12's command
-  runs `node --test`, and **a nested runner inherits `NODE_TEST_CONTEXT` from its
-  parent**, so the child reported through the parent's channel and exited 1 while
-  the suite behaved exactly as the row expects. **Measured: inherited env exit 1,
-  stripped env exit 0, same command.** It produced one false *"HAS MOVED"* — **a
-  check reporting a stale row that was not stale, in the file written to prevent
-  exactly that.** `run()` now strips `NODE_TEST_CONTEXT` and `NODE_OPTIONS`, with
-  the measurement in a comment above it.
 
   **Green today: 14 passed / 0 failed**, 12 rows, 9 commands run, 2 unverifiable
   named, 1 done. Credential-free except 14.26's row, which **names the credential

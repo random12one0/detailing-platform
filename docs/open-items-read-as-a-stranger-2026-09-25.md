@@ -2022,3 +2022,60 @@ more time.
 > **Cheapest-first means fewest unknowns, not fewest minutes.** Number one was a
 > single command; number twelve could be an afternoon. **A reader who takes
 > *cheapest* to mean *quickest* will pick wrong.**
+
+---
+
+## I TIMED THE BEFORE-YOU-FINISH SET BEFORE ADDING TO IT — 5.27 SECONDS, SO IT GETS ADDED
+
+**2026-10-03. The question was the right one: a list that takes too long to run
+is a list people quietly stop running, at which point every gate on it becomes
+decoration including the good ones. So it was measured rather than assumed.**
+
+| check | wall clock | exit |
+|---|---|---|
+| the four credential-free suites | **1.01s** | 0 |
+| `no-credentials-in-markdown` | **0.58s** | 0 |
+| `label-guard` | **0.41s** | 0 |
+| `var-scope-guard` | **0.14s** | 0 |
+| `every-open-item-is-citable` | **0.25s** | 0 |
+| `queue-rows-still-belong` | **2.87s** | 0 |
+| **WALL-CLOCK TOTAL** | **5.27s** | |
+
+### THE DECISION: ADD BOTH, DO NOT SPLIT THE TABLE
+
+**Five and a quarter seconds for the whole set.** The habit is not under threat
+and splitting the table would buy nothing while costing the thing that makes it
+work — **one list, run every time, no judgement call about which half applies.**
+
+**AND THE STRUCTURE TURNS OUT TO BE RIGHT ALREADY**, which is worth saying
+because the worry was reasonable. `CLAUDE.md`'s table has two kinds of row and
+they are already separated: the **unconditional** ones are all the fast,
+filesystem-only checks above, and everything expensive — `american-english`,
+`contrast-insitu`, `sweep-widths`, `surcharge-visible`, the tap-target sweeps —
+is **already conditional**, written as *"after changing X"* and needing a dev
+server or a browser. **The long table is long because of rows nobody runs unless
+they touched the thing**, and the part that runs every time is five seconds.
+
+**ONE ROW DOMINATES AND IT IS WORTH KNOWING: `queue-rows-still-belong` is 2.87s,
+more than half the total**, and most of that is a single row — 2.12's command
+runs `tests/spanish.test.mjs`, about 1.6s on its own. **Acceptable at this size
+and the first thing to look at if the total ever climbs.**
+
+**WHAT WOULD CHANGE THE DECISION:** the unconditional set passing roughly thirty
+seconds. **Then split it** — *every time* versus *when you touched the thing it
+guards* — and put the number beside the split so the next person can re-measure
+instead of re-arguing. **The command is in this section; it takes five seconds.**
+
+### AND TWO DERIVED NUMBERS IN `CLAUDE.md`, CHECKED RATHER THAN ESTIMATED
+
+| figure | claimed | measured | verdict |
+|---|---|---|---|
+| gotchas entries | NINETY-ONE | **91** (`grep -c "^## "`) | **correct** |
+| words of markdown | 1,105,000 | **1,297,037** (`git ls-files '*.md' | xargs cat | wc -w`) | **drifted ~192,000, about 17%, in twelve days** |
+
+**The word figure is corrected to 1,297,000 with the date and the command beside
+it, and both previous values are kept** — it has now been wrong twice (930,000,
+then 1,105,000). **That is `docs/gotchas.md` 91's own shape: a derived tally
+written into prose goes stale every time anybody writes anything**, and in a repo
+whose whole output is markdown, this one goes stale on every commit. **The
+instruction beside it is now to run the command rather than trust the number.**
