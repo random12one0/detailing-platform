@@ -12363,17 +12363,30 @@ the dashboard or back office at phone width at all.
   nobody can press, and "the counts reconcile" aims at the wrong thing — this
   entry's own diagnosis says the counts were never the fault.** `STUCK`
   (`app/src/admin/AdminPage.jsx:689`) is five rows of predicate + computed
-  headline + **a constant string of advice**, and row `first` asserts *"The page
-  works and nobody has used it"* while row `open` has just computed that the page
-  cannot take a booking. **One of the two rows has no calculation.**
+  headline + **a constant string of advice**, and the `first` row's advice used to
+  assert *"The page works and nobody has used it"* while the `open` row four
+  lines up had just computed that the page cannot take a booking. **One of the
+  two rows had no calculation.**
+
+  ***THAT WAS WRITTEN IN THE PRESENT TENSE ON 2026-10-02 AND THE SENTENCE HAD
+  BEEN GONE SINCE 2026-09-21. CORRECTED 2026-10-03 by the commit-grep sweep.***
+  `5202586`, *"9.2(b): the row stops claiming the page works, because it never
+  checked"* — the advice now reads *"Ask how they are telling their own
+  customers about their booking page"*, with eighteen lines of comment above it
+  asking the next person not to put a lead fact back. **I rewrote this criterion
+  from the entry's own diagnosis without checking the code**, which is 12.2's
+  fault committed by the session that had found 12.2 the day before. **The grep
+  direction caught it; reading it twice had not.**
+
   **Done when:** **no row states a fact it did not compute** — each row's advice
   is derived from the same predicate that produced its headline, or it says
   nothing — **and the one live non-demo business cannot produce two rows that
   contradict each other**, read off the screen and off the rows together.
+  **`first` is already done and must not be re-fixed**; the criterion is about
+  the other four and about the two further things this entry names below.
   **What failing looks like:** the counts reconciling while the sentences still
-  disagree, which is **exactly today's state and looks completely normal** — one
-  non-demo business, `Counter Signup Test Detail`, 0 services and 0 bookings,
-  firing both rows at once. **A criterion about counts would already be met.**
+  disagree. **A criterion about counts would already be met** — which is why
+  this one is not about counts.
   *A1 P1-02, P3-04, A2 5.1*
 
   **DIAGNOSED 2026-09-21. THERE ARE THREE DIFFERENT THINGS IN HERE AND ONLY
