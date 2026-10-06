@@ -74,6 +74,13 @@ export const es: Record<string, string> = {
   "Travel": "Traslado",
   "Travel · {zone}": "Traslado · {zone}",
   "{percent}% sale": "{percent}% de oferta",
+  // ROADMAP 3.4 — the extra-car and plan lines in a Spanish email, spelled from
+  // the line's `parts` (pricing.ts, 2.1c). Same words as the booking page's
+  // app/src/lib/strings/es.js, so the page and the email agree.
+  "{ord} vehicle": "{ord} vehículo",
+  "plan rate": "precio del plan",
+  "included": "incluido",
+  "{percent}% off": "{percent}% de descuento",
   "Sale": "Oferta",
   "Promo {code}": "Promoción {code}",
   "{name} (add-on)": "{name} (extra)",

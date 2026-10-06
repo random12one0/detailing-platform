@@ -35,6 +35,8 @@
 //     spam-filter defect until 2026-09-03.
 
 import { mkdir, writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { es as ES_CATALOGUE } from "../supabase/functions/_shared/strings/es.ts";
 import { writeReceipt } from "./receipt.mjs";
 import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
 import { brandFrom, D, htmlToText, L, money } from "../supabase/functions/_shared/emailKit.ts";
@@ -566,6 +568,36 @@ function daysOut(n) {
 const ENGLISH_DATE = /\b(January|February|March|April|May|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/;
 let spanishCustomerChecked = 0;
 
+// ROADMAP 3.4 FAULT 5, THE SENTENCE HALF — A SPANISH RUN MUST NOTICE AN ENGLISH
+// SENTENCE. `T()` returns the English key when the Spanish entry is missing and
+// throws nothing, so a deleted `es.ts` key rendered "You're booked in · jueves…"
+// and the run exited 0. The English is knowable: it is every literal the email
+// code hands the translator. Each becomes a pattern ({holes} match anything) and
+// a Spanish CUSTOMER email containing one fails. Skipped, so it cannot fire on
+// everything: literals with fewer than two real words outside their holes, and
+// literals whose Spanish is the same text. Not seen: English built OUTSIDE these
+// two files and handed in as data. pricing.ts's "2nd vehicle" / "plan rate"
+// were exactly that and sat in two Spanish confirmations unseen until a person
+// read them (2026-10-06); they now go through `tt()` in `adjustmentText`, so
+// they are in the list. Reading the renders is still part of the job.
+// ponytail: regex over source text, not a parser; a literal using \` or ' quotes is missed.
+function englishSentencePatterns() {
+  const src = ["emailTemplates.ts", "emailKit.ts"]
+    .map((f) => readFileSync(new URL(`../supabase/functions/_shared/${f}`, import.meta.url), "utf8"))
+    .join("\n");
+  const literals = new Set();
+  for (const m of src.matchAll(/(?:\btt|\bT\([^()]*\))\(\s*"((?:[^"\\]|\\.)*)"/g)) {
+    literals.add(JSON.parse(`"${m[1]}"`));
+  }
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return [...literals]
+    .filter((en) => ES_CATALOGUE[en] !== en)
+    .filter((en) => (en.replace(/\{[a-zA-Z]+\}/g, " ").match(/[A-Za-z]{2,}/g) ?? []).length >= 2)
+    .map((en) => ({ en, re: new RegExp(en.split(/\{[a-zA-Z]+\}/).map(esc).join(".+?")) }));
+}
+const ENGLISH_SENTENCES = LANG === "es" ? englishSentencePatterns() : [];
+const englishSentenceIn = (s) => ENGLISH_SENTENCES.find(({ re }) => re.test(s));
+
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];
 
 await mkdir(OUT, { recursive: true });
@@ -636,6 +668,11 @@ for (const [file, label, render] of EMAILS) {
     const hit = (subject + "\n" + (text ?? "")).match(ENGLISH_DATE);
     if (hit) {
       console.error(`  FAIL  ${label}: English date word "${hit[0]}" in a Spanish customer email`);
+      bad++;
+    }
+    const sentence = englishSentenceIn(subject + "\n" + (text ?? ""));
+    if (sentence) {
+      console.error(`  FAIL  ${label}: untranslated English "${sentence.en}" in a Spanish customer email`);
       bad++;
     }
   }
@@ -829,6 +866,14 @@ if (LANG === "es") {
   console.log(`spanish ${spanishCustomerChecked} customer email(s) checked for an English date; detector ${fires ? "fires on an English date and not on a Spanish one" : "BROKEN"}`);
   if (!spanishCustomerChecked) failures.push("SPANISH RUN CHECKED NO CUSTOMER EMAIL for an English date");
   if (!fires) failures.push("the English-date detector cannot tell an English date from a Spanish one");
+  // The sentence detector, proved on a real catalogue sentence and its real Spanish.
+  const probe = ENGLISH_SENTENCES.find(({ en }) => !/\{/.test(en) && ES_CATALOGUE[en]);
+  const sentenceFires = Boolean(probe) && Boolean(englishSentenceIn(`Hola Dana. ${probe.en}`))
+    && !englishSentenceIn(`Hola Dana. ${ES_CATALOGUE[probe.en]}`);
+  console.log(`spanish ${ENGLISH_SENTENCES.length} English template sentence(s) searched for; detector ${sentenceFires ? `fires on "${probe.en}" and not on its Spanish` : "BROKEN"}`);
+  // A discovery floor, not a declaration (docs/gotchas.md 98): fewer means the extractor stopped matching.
+  if (ENGLISH_SENTENCES.length < 50) failures.push(`only ${ENGLISH_SENTENCES.length} English template sentences found — the extractor has stopped matching`);
+  if (!sentenceFires) failures.push("the untranslated-sentence detector cannot tell English from Spanish");
 }
 if (EMAILS.length === 0) {
   failures.push("ZERO EMAILS WERE RENDERED. Nothing was checked for rot, plain text or contrast, "

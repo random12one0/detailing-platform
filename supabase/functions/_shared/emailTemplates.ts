@@ -56,7 +56,7 @@ import {
   shell,
 } from "./emailKit.ts";
 import { type PaymentHandle, paymentHandles, type PaymentSettings } from "./payments.ts";
-import { T } from "./i18n.ts";
+import { langOf, T } from "./i18n.ts";
 
 export { formatDateLong, formatTime12hr, money };
 export { paymentHandles };
@@ -194,7 +194,7 @@ export interface BookingEmailData {
   // and "Subtotal $105" with $40 unexplained between them.
   travelFee?: number;
   travelZone?: string | null;
-  adjustments?: { label: string; amount: number }[];
+  adjustments?: { label: string; amount: number; parts?: Record<string, unknown> }[];
   subtotal: number;
   siteDiscount: number;
   siteDiscountPercent: number;
@@ -426,6 +426,37 @@ function keepLink(bookUrl: string, lang?: unknown): string {
  * the order the engine applies them: the site sale against the base, the promo
  * against what is left.
  */
+/**
+ * ROADMAP 3.4 — ONE ADJUSTMENT'S NAME, IN THE READER'S LANGUAGE WHERE IT IS OURS.
+ *
+ * `pricing.ts` builds the extra-car and plan labels in English ("2nd vehicle",
+ * "plan rate") and, since 2.1c, also hands over `parts` so a caller can spell
+ * them. The booking page did (`app/src/book/adjustmentLabel.js`); the emails
+ * printed `label`, so a Spanish confirmation said "2nd vehicle". English keeps
+ * the stored label untouched, byte for byte. A line with no `parts` — a
+ * detailer's own rule ("Heavy soiling surcharge"), or a booking stored before
+ * 2.1c — is their text or our old text and is printed as written.
+ */
+function adjustmentText(a: { label: string; parts?: Record<string, unknown> }, lang?: unknown): string {
+  const p = a?.parts as
+    | { of: "vehicle"; ordinal: number; size: string; model?: string }
+    | { of: "plan"; planName: string; benefit: string; percent?: number }
+    | undefined;
+  if (!p || langOf(lang) !== "es") return String(a.label);
+  const tt = T(lang);
+  if (p.of === "vehicle") {
+    // Masculine indicator because the noun is `vehículo` — the page's rule too.
+    return [tt("{ord} vehicle", { ord: `${p.ordinal}.º` }), p.size, p.model].filter(Boolean).join(" · ");
+  }
+  if (p.of === "plan") {
+    const what = p.benefit === "percent_off"
+      ? tt("{percent}% off", { percent: p.percent ?? "" })
+      : p.benefit === "plan_rate" ? tt("plan rate") : tt("included");
+    return [p.planName, what].filter(Boolean).join(" · ");
+  }
+  return String(a.label);
+}
+
 function quoteLines(b: BookingEmailData, lang?: unknown): MoneyLine[] {
   // THE LABELS ARE OURS AND THE SERVICE NAMES ARE THE DETAILER'S. Only the
   // handful of words this file invents — Service, Travel, Sale, Promo — are
@@ -480,13 +511,23 @@ function quoteLines(b: BookingEmailData, lang?: unknown): MoneyLine[] {
   // every adjustment reaches the page.
   for (const a of adjustments) {
     const amount = Number(a.amount) || 0;
+    const label = adjustmentText(a, lang);
     lines.push(amount < 0
-      ? { label: String(a.label), amount: -amount, kind: "discount" }
-      : { label: String(a.label), amount });
+      ? { label, amount: -amount, kind: "discount" }
+      : { label, amount });
   }
   if (Number(b.siteDiscount) > 0) {
+    // ROADMAP 3.4 — A LABEL THAT STATES A PERCENTAGE MAKES A CLAIM THE FIGURE
+    // HAS TO KEEP. The engine rounds the sale to whole dollars, so "5% sale
+    // −$20" sat over a $405 job (5% is $20.25). The booking page already
+    // follows this rule (scripts/discount-label.mjs); the email now does too:
+    // the percentage is stated only when it is exact to the cent, else "Sale".
+    // `subtotal` is after the sale, so the sale's own base is subtotal + sale.
+    const gross = Number(b.subtotal) + Number(b.siteDiscount);
+    const exact = b.siteDiscountPercent > 0
+      && Math.round(gross * b.siteDiscountPercent) === Math.round(Number(b.siteDiscount) * 100);
     lines.push({
-      label: b.siteDiscountPercent
+      label: exact
         ? tt("{percent}% sale", { percent: b.siteDiscountPercent })
         : tt("Sale"),
       amount: Number(b.siteDiscount), kind: "discount",

@@ -17852,6 +17852,11 @@ instead of weeks; and a Spanish run now fails on an English month or weekday
 name in any customer email, reports how many it checked, and self-tests the
 detector. Still an existing file, still no new one.
 
+**A third edit, same file, ROADMAP 3.4 (the brief named this item).** A Spanish
+run now also fails on any English sentence the email code hands the translator,
+found word for word in a customer email (FAULT 5's sentence half), with a
+discovery floor and a self-test. Still an existing file.
+
 **How to reverse it.** If Andrew rules the email transactional (no footer
 needed): drop the `legal` option and the throw in `maintenanceDueEmail`, delete
 the `no_mailing_address` branch in `maintenanceVerdict` and the skip block in

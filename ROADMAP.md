@@ -5728,7 +5728,9 @@ requested.
   mail**. A criterion that silently spends a shared budget is how two sessions
   collide with no guard and no report (14.16).
   **AND NOT EVERY TEMPLATE CAN BE SENT TODAY, WHICH THE FIRST DRAFT DID NOT
-  ALLOW FOR.** `maintenanceDueEmail` is deliberately gated off (0.7) and
+  ALLOW FOR.** `maintenanceDueEmail` is deliberately gated off (0.7) *(**corrected
+  2026-10-06:** since 0.7's build it CAN be sent — when a business's switch is on
+  and it has a mailing address; the switch is off for every business today)* and
   `send-email` answers 401 to anything without the service key. **A template that
   cannot be sent is recorded as NOT SENT, by name, with the reason** — never
   quietly counted as covered, and never made sendable by softening a gate that
@@ -5742,6 +5744,52 @@ requested.
   and **a seventeenth template added after the pass**, which a typed number
   cannot notice and a count read off the file can.
   *old roadmap § A*
+
+  ---
+
+  ### STATUS 2026-10-06 (DP Cowork2) — READ THIS FIRST. WHAT IS STILL OPEN, IN TWO LINES:
+  1. **Andrew's:** every exported template (16 at `51edf5d`, by the Done-when's own
+     grep) sent to a real inbox, read, and leaving a delivery row. No session can do it.
+  2. **Not a session's call:** FAULT 4 — whether a detailer whose dashboard is in
+     Spanish gets Spanish email. All 14 detailer/staff/platform renders are English.
+
+  **DONE THIS SITTING, everything open that lives outside `app/src`:**
+  - **FAULT 5, the sentence half.** A Spanish run of `scripts/render-emails.mjs`
+    now searches every customer email for any English sentence the email code
+    hands the translator (107 at this commit; skipped: fewer than two real words,
+    or Spanish identical to English) and fails naming it. FAULT 5's own sabotage —
+    the `"You're booked in · {date}"` key deleted from `_shared/strings/es.ts` — now
+    gives *FAIL Customer · request accepted: untranslated English "You're booked
+    in"*, exit 1; `"Book it in"` deleted gives 2 FAILs. Restored: exit 0. Its blind
+    spot is written in the script: English built in another file and handed in as
+    data. The date half was closed under 3.4c.
+  - **FOUND BY READING ALL 32 SPANISH RENDERS, and the new check had missed it —
+    exactly that blind spot.** Spanish confirmations said *"2nd vehicle · …"* and
+    *"Bi-weekly maintenance · plan rate"*: `pricing.ts` builds those in English and,
+    since 2.1c, also hands over `parts`; the booking page spelled them, the emails
+    printed the English label. Fixed in `_shared/emailTemplates.ts`
+    (`adjustmentText`) plus four `es.ts` keys worded as the booking page words them.
+    Now *«2.º vehículo · Large / SUV · 2021 Ford F-150»*, *«Bi-weekly maintenance ·
+    precio del plan»*. English byte-identical: all 64 English files compared with
+    `cmp` against the pre-change render, 0 differ. `tests/email-adjustment-spanish.test.mjs`
+    3/3; red with the `plan rate` key removed (and the render run red too, naming it)
+    and red with the email printing the English label again.
+  - **THE MONEY QUESTION THE RENDERING HALF LEFT "NOT VERIFIED" — answered.**
+    *"5% sale −$20"* over a $405 job (5% is $20.25). The engine rounds the sale to
+    whole dollars, which is fine; the LABEL was the fault, and the booking page
+    already keeps the rule (`discount-label.mjs`, `honest` + `form`). The email now
+    states the percentage only when it is exact to the cent, else *"Sale"* /
+    *«Oferta»*. **This changes English on purpose:** every rendered confirmation
+    now reads *"Sale −$20"*, because none of the fixtures' sales is exact.
+    `tests/email-sale-label.test.mjs` 2/2 — red with the percentage always stated,
+    red with it never stated.
+  - **Looked at:** all 32 Spanish renders read in full as text; 16 of the 18
+    customer emails also looked at as pages (the receipt and the reschedule were
+    clipped at the sheet's edge and were read as text only).
+  - **A question, not a fault:** the detailer's paid-cancellation email says *"Was
+    worth $345"* then *"Refund $360"*. The $360 is what was actually paid,
+    including a $30 tip, so it is defensible — but it may make a detailer stop.
+  - **Lane A:** nothing new from the emails. The Spanish items are 14.35's.
 
   ---
 
