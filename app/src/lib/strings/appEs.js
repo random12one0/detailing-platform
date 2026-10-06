@@ -3066,6 +3066,12 @@ export const appEs = {
   "You're offline. Today's jobs have not loaded yet.": "Sin conexión. Los trabajos de hoy aún no se han cargado.",
   "Print tomorrow": "Imprimir mañana",
   "Print {day}": "Imprimir {day}",
+  // ROADMAP 6.4a — the page the dashboard shows when it starts with no signal.
+  "No connection": "Sin conexión",
+  "Retry": "Reintentar",
+  "You're offline, and this device has no saved jobs yet. Open the app once with a connection and your jobs will be here next time.":
+    "Estás sin conexión y este dispositivo aún no tiene trabajos guardados. Abre la app una vez con conexión y tus trabajos estarán aquí la próxima vez.",
+  "Nothing booked in the days saved.": "No hay nada agendado en los días guardados.",
   "Schedule": "Agenda",
   "Tomorrow's schedule": "Agenda de mañana",
   "Print or save as PDF": "Imprimir o guardar como PDF",

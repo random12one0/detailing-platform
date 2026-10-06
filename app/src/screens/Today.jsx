@@ -48,7 +48,8 @@ import { arrange, summarise } from "../lib/client-list.js";
 import { fetchBooking, useBookings, usePendingRequests } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
-import { addDays, localTime, money, time12, todayLocal } from "../lib/format.js";
+import { addDays, money, time12, todayLocal } from "../lib/format.js";
+import { asOfLabel } from "../lib/offlineJobs.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
@@ -193,7 +194,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // carrying weather and a week carrying none — which is the honest picture of
   // what is known. Past that a list is a calendar, and the Calendar is a tab.
   const horizon = addDays(today, 14);
-  const { bookings, loading, refreshing, error, offline, updatedAt, reload } = useBookings(today, horizon);
+  const { bookings, loading, refreshing, error, offline, updatedAt, reload } = useBookings(today, horizon, { remember: true });
   // WEATHER PER BOOKING — Andrew, 2026-09-13. ONE call for the whole day's
   // work, handed to each row as a prop; `useJobWeather` is what must never be
   // reached for from inside a row.
@@ -581,7 +582,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           <div className="warn-box" role="status" data-offline="">
             <WifiOff size={18} strokeWidth={2} aria-hidden="true" />
             <span style={{ flex: "1 1 0", minWidth: 0 }}>{updatedAt
-              ? t("You're offline. Showing your jobs as of {time}.", { time: time12(localTime(updatedAt.toISOString(), business.timezone)) })
+              ? t("You're offline. Showing your jobs as of {time}.", { time: asOfLabel(updatedAt.toISOString(), business.timezone, today) })
               : t("You're offline. Today's jobs have not loaded yet.")}</span>
           </div>
         )

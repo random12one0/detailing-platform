@@ -51,6 +51,13 @@ import { Navigate } from "react-router-dom";
   mq?.addEventListener("change", apply);
 }
 
+// ROADMAP 6.4a — the worker that keeps the dashboard's shell, registered only
+// where the dashboard lives. Push already registers the same file lazily (and
+// the browser treats the two as one registration).
+if ("serviceWorker" in navigator && /^\/app(\/|$)/.test(window.location.pathname)) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("/sw.js").catch(() => {}); });
+}
+
 // Inert unless this is the booking page inside the settings screen's preview
 // frame (`?pv=1` and framed); see lib/embedHeight.js.
 installEmbedHeight();

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { localDate, localTime } from "../lib/format.js";
+import { isNetworkFailure, readJobs, saveJobs } from "../lib/offlineJobs.js";
 
 export const BOOKING_SELECT =
   "*, services:booking_services(name_at_booking, price_at_booking), booking_add_ons(add_on:add_ons(id, name, price)), "
@@ -51,9 +52,6 @@ export async function fetchBooking(id, businessId, tz) {
   return data ? withLocal(data, tz) : null;
 }
 
-// What fetch() says when there is no network: Chrome, Firefox, Safari.
-const NETWORK_FAILURE = /failed to fetch|networkerror|load failed|network request failed/i;
-
 // Bookings whose LOCAL date falls in [fromDate, toDate] (inclusive).
 // LOADING IS THE FIRST PAINT ONLY. `loading` used to go true on every read,
 // and all three screens that use this hook answer it by replacing themselves
@@ -69,22 +67,31 @@ const NETWORK_FAILURE = /failed to fetch|networkerror|load failed|network reques
 // changing. So the flag splits in two, HERE rather than in each screen —
 // three callers writing their own version of this is how one gets fixed and
 // its neighbours do not.
-export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) {
+export function useBookings(fromDate, toDate, { includeCancelled = true, remember = false } = {}) {
   const { business } = useBusiness();
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // ROADMAP 6.4a. `remember` is Today's: it keeps the last good list on the
+  // device (lib/offlineJobs.js) and, when a read FAILS before anything has been
+  // drawn, falls back to it. With the browser already offline the stored list is
+  // the first paint, so leaving Today and coming back does not wait out the
+  // retries for a spinner.
+  const stored = (b) => (remember && b ? readJobs(b.id) : null);
+  const inRange = (list) => list.filter((b) => b.booking_date >= fromDate && b.booking_date <= toDate);
+  const seed = useRef(undefined);
+  if (seed.current === undefined) seed.current = navigator.onLine === false ? stored(business) : null;
+  const [bookings, setBookings] = useState(() => (seed.current ? inRange(seed.current.bookings) : []));
+  const [loading, setLoading] = useState(!seed.current);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   // ROADMAP 6.4 (a). WHEN THE LIST ON SCREEN WAS LAST READ, and whether the
   // read that just failed was the network rather than the server. The list
   // already survives a failed read (below); what was missing was telling the
   // detailer that it is the last good one, and from when.
-  const [updatedAt, setUpdatedAt] = useState(null);
+  const [updatedAt, setUpdatedAt] = useState(() => (seed.current ? new Date(seed.current.at) : null));
   const [failedRead, setFailedRead] = useState(false);
   const [netUp, setNetUp] = useState(() => navigator.onLine !== false);
   // A ref, not state: it must survive fromDate/toDate changing (Calendar
   // walking to another month is not a first paint either).
-  const painted = useRef(false);
+  const painted = useRef(!!seed.current);
 
   const reload = useCallback(async () => {
     if (!business || !fromDate || !toDate) return;
@@ -112,15 +119,21 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
     // (docs/dashboard-screen-designs-2026-08-31.md §1a, §4 States).
     if (e) {
       setError(e.message || "Could not load bookings.");
-      setFailedRead(NETWORK_FAILURE.test(e.message || ""));
+      setFailedRead(isNetworkFailure(e.message));
+      const kept = !painted.current && stored(business);
+      if (kept) {
+        setBookings(inRange(kept.bookings));
+        setUpdatedAt(new Date(kept.at));
+        painted.current = true;
+      }
     } else {
       setError("");
       setFailedRead(false);
       setNetUp(true);
       setUpdatedAt(new Date());
-      setBookings((data ?? [])
-        .map((b) => withLocal(b, tz))
-        .filter((b) => b.booking_date >= fromDate && b.booking_date <= toDate));
+      const fresh = inRange((data ?? []).map((b) => withLocal(b, tz)));
+      setBookings(fresh);
+      if (remember) saveJobs(business, fresh);
       painted.current = true;
     }
     setLoading(false);

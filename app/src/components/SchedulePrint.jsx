@@ -53,7 +53,7 @@ function Table({ jobs }) {
   );
 }
 
-export default function SchedulePrint({ jobs, title, dateLabel, onClose }) {
+export default function SchedulePrint({ jobs, title, dateLabel, businessName, onClose }) {
   useAppLocale();
   const { business } = useBusiness();
   const [stamp] = useState(() => new Date().toLocaleString());
@@ -81,7 +81,7 @@ export default function SchedulePrint({ jobs, title, dateLabel, onClose }) {
       </Sheet>
       {createPortal(
         <div className="sched-print">
-          <h1>{business.name} · {dateLabel}</h1>
+          <h1>{businessName ?? business?.name} · {dateLabel}</h1>
           <p className="sched-stamp">{t("Printed {when}", { when: stamp })}</p>
           <Table jobs={jobs} />
         </div>,

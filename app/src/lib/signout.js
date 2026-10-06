@@ -24,6 +24,7 @@
 import { supabase, supabaseAnonKey, supabaseUrl } from "./supabase.js";
 import { endParkedSessions } from "./accounts.js";
 import { endImpersonation } from "./impersonation.js";
+import { forgetJobs } from "./offlineJobs.js";
 
 /**
  * Sign out of everything this browser holds: the impersonation breadcrumb, the
@@ -34,6 +35,9 @@ export async function signOutEverything() {
   // and the ordinary Sign out is the exit somebody actually takes when they
   // have forgotten they are impersonating.
   endImpersonation();
+  // ROADMAP 6.4a — the offline copy of the day's jobs belongs to the session
+  // too: customers' names and phones must not outlive the sign-out.
+  forgetJobs();
   await endParkedSessions(supabaseUrl, supabaseAnonKey);
   return supabase.auth.signOut();
 }

@@ -11,6 +11,7 @@ import {
   endParkedSessions, endSessionLocally, forget, listAccounts, parkCurrent, takeAccount,
 } from "../lib/accounts.js";
 import { signOutEverything } from "../lib/signout.js";
+import { isNetworkFailure } from "../lib/offlineJobs.js";
 
 // WHICH BUSINESS THIS BROWSER LAST CHOSE. localStorage rather than the
 // database: it is a fact about this DEVICE, not about the account — the same
@@ -46,6 +47,10 @@ export function BusinessProvider({ children }) {
   const [label, setLabel] = useState(null);
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  // ROADMAP 6.4a — the membership read FAILED because there is no network.
+  // That is not "this account has no business": reading it that way cleared the
+  // tenant and sent a detailer to *Create your business* from a driveway.
+  const [offlineBoot, setOfflineBoot] = useState(false);
   const [firstName, setFirstName] = useState(null);
   // EVERY MEMBERSHIP, NOT JUST THE FIRST — roadmap 2.11 step 6, stage 6.
   // `memberships?.[0]` with a comment saying "multi-business switching comes
@@ -107,13 +112,31 @@ export function BusinessProvider({ children }) {
       setLoading(false);
       return;
     }
+    // ROADMAP 6.4a — the browser already knows there is no network, so do not
+    // wait out the client's retries (seconds of spinner) to be told the same.
+    if (navigator.onLine === false) {
+      setOfflineBoot(true);
+      setLoading(false);
+      return;
+    }
     if (loadedFor.current !== session.user.id) setLoading(true);
-    const { data: memberships } = await supabase
+    // A weak signal is not "offline" to the browser, and the client retries a
+    // dead request for several seconds. Past four, show the offline page; if the
+    // read does answer, the line below puts the dashboard straight back.
+    const slow = setTimeout(() => { setOfflineBoot(true); setLoading(false); }, 4000);
+    const { data: memberships, error: memberErr } = await supabase
       .from("business_users")
       // `businesses(name)` joins in the NAME so the picker has something to
       // print without a second read. Harmless for the one-membership case.
       .select("business_id, role, label, permissions, first_name, businesses(name)")
       .eq("user_id", session.user.id);
+    clearTimeout(slow);
+    if (memberErr && isNetworkFailure(memberErr.message)) {
+      setOfflineBoot(true);
+      setLoading(false);
+      return;
+    }
+    setOfflineBoot(false);
     const list = memberships ?? [];
     setMemberships(list);
     // The one they last chose, if they still belong to it. Anything else —
@@ -296,6 +319,7 @@ export function BusinessProvider({ children }) {
       return null;
     },
     loading: session === undefined || loading,
+    offlineBoot,
     reload,
     // **EVERY SIGN-OUT DROPS THE IMPERSONATION NOTE, not just the two the
     // back office draws.** Roadmap 8.2: the note is a fact about the session

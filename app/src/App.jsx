@@ -22,6 +22,7 @@ import { planChoice } from "./lib/planChoice.js";
 // booking page's. See `lib/appI18n.js` for why they are two keys.
 import { t } from "./lib/appI18n.js";
 import { useAppLocale } from "./hooks/useAppLocale.js";
+import NoConnection from "./screens/NoConnection.jsx";
 
 // THE FIVE NAMES THE DASHBOARD ANSWERS TO, exported for the router.
 //
@@ -89,7 +90,7 @@ const noteToursDismissed = (userId) => {
 
 export default function App() {
   const { session, business, settings, role, can, loading, signOut, reload,
-    subscription, siteIntake } = useBusiness();
+    subscription, siteIntake, offlineBoot } = useBusiness();
 
   // The whole shell repaints when the language changes. Every screen calls
   // this for itself too — see the hook's header on why once at the root is
@@ -403,6 +404,9 @@ export default function App() {
       </div>
     );
   }
+  // ROADMAP 6.4a — started with no signal: neither the sign-in form nor *Create
+  // your business* is true of this person, and a blank screen is worse.
+  if ((offlineBoot && !business) || (!session && navigator.onLine === false)) return <NoConnection />;
   if (!session) return <Auth />;
   // Signed in with no business: a brand new account (or a Google sign-in)
   // belongs in business creation, not at a dead end.
