@@ -4345,7 +4345,88 @@ the wrong service, and never book a job we cannot reach.
   promo row that was last before it, so it predates the change.
   *A2 2.9*
 
-- [ ] **2.12 — Spanish is half-translated.**
+- [x] **2.12 — DONE 2026-10-06. Spanish is finished on the dashboard and the booking page; what is left in English is the detailer's own typed text, and the home and pricing pages by ruling.** *(was: "Spanish is half-translated.")*
+
+  **CLOSING NOTE, 2026-10-06. All three done-when clauses below, run rather than read.**
+  Commits `1473f61`, `a45def8`, `78738ae` (all `app/src`); starting state `db03134`.
+
+  1. **`node --test tests/spanish.test.mjs`: 79 passed, 0 failed before and after.**
+     **The "71 passed / 6 failed" in the 2026-09-25 rewrite below was already stale
+     when this session began** — the six failures had been cleared by earlier
+     passes, and nothing had re-run the suite to say so. Its call-site check
+     (9a) went from **1632 to 1663** checked sites; **0 missing at both ends**.
+  2. **A Spanish walk, recorded.** `scripts/spanish-dom.mjs` over every dashboard
+     screen and both settings sets at 1440x900 and 320x844 (39 screens at each,
+     screenshots read): **12 pieces of English before, 6 after, and all six are
+     the demo tenant's own typed rows** — add-ons "Pet hair removal" and
+     "Headlight restoration", promo code "SUMMER10", price-rule label "Short
+     notice" (`scripts/seed-demo.mjs`), which the item's own rule says stay as
+     typed. **The booking page, all seven steps at 320 and 1440: nothing
+     system-written in English.** What English shows is the business tagline,
+     the two plan descriptions and the service names, all typed by the tenant.
+  3. **`node scripts/i18n-survey.mjs`, evidence only: 128 candidates in 30 files
+     before, 71 in 18 after** (`db03134` → `78738ae`). **A count going down is not
+     a pass, and this one's drop is the least of what happened** — see next.
+
+  **THE SURVEY UNDER-REPORTS AND ITS FIX LIST WAS NOT WHERE THE ENGLISH WAS.**
+  Many of the 128 are code (CSS borders, `Bearer` headers, `sms:` links,
+  filenames, thrown errors nobody draws). **The English a Spanish detailer
+  actually sees came from WALKING records, not from the list:** most of the
+  sites fixed in the second and third commits were never in it, because the survey cannot see a string held in a
+  constant and drawn raw, or a ternary of two literals. The ones worth
+  knowing, because each had a key that never ran:
+  - **`PagePreview.jsx` imported the booking page's translator**, so "What
+    customers see" was English on every Spanish Business screen, with its key
+    present. One import line.
+  - **The job record's text sheet still showed English template names**, the
+    exact defect item 2 of the 2026-09-19 list "fixed" on 2026-09-20 — the
+    fix was in `MessageTemplates.jsx` and this was a second sheet drawing the
+    stored column. `templateLabel` now lives in `lib/templates.js` and both use it.
+  - The payment pill (Unpaid), photo kinds (Before/After/Damage), vehicle
+    condition, "{n} vehicles", the edit-form warning, the **Send a quote** and
+    **Send $165** buttons, "+2 more" on the calendar, the three reasons the
+    email log prints, four modal buttons (Saving / Save job / Save expense /
+    Yes, send it), the invite-acceptance screen, the account switcher's errors,
+    Catalog's two help lines, the campaign send sheet's counts, weather warnings,
+    the accent-colour description, the photo-storage warning, weekday letters
+    on "Your week", and the site form's "what the answer will say" lines.
+
+  **THE 128, WHAT WAS NOT WIRED AND WHY, SO NOBODY RE-OPENS THEM:**
+  - **Home and pricing: none of the 128.** The survey already excludes
+    `landing/`; the ruling stands, nothing there was touched.
+  - **Documents that leave the building, left in English like
+    `accountant-export.js`:** the customer CSV's headers and "Opted out",
+    the photo manifest's headers, the zip's `could-not-download.txt`. A
+    spreadsheet header is a contract with whatever loads it next.
+  - **`SiteIntake.jsx` `Mini`/`SAMPLE` page: deliberate**, documented in that
+    file (the site's own language is question G8 on the form). The five
+    example-site names are Andrew's own business names.
+  - **The preview-tab strip in `App.jsx` and `LOOKING_ONLY`**: shown only to
+    the owner inside a back-office preview, and the back office stays English.
+  - **"English" in the language picker** is a language's own name, correct as
+    is. **`sourceName()`'s referrer names** are never drawn anywhere.
+    **`duration()`** is already bilingual by argument. **NWS forecast words**
+    ("Sunny") are the government's, kept English on purpose (`JobWeather.jsx`).
+
+  **BROKEN ON PURPOSE (appEs.js put back byte for byte afterwards):**
+  dropping the Spanish for a call-site sentence (`Saved as {name}`) turned 9a red,
+  *"1 of 1663 — Saved as {name}"*. **Dropping `Unpaid`, a word held in a
+  constant and drawn through `t()` in a pill, left it at 79 passed, 0 failed.**
+  The gate is blind to that whole shape, and a Spanish walk of a job record is
+  what found it. That is **2.12a**.
+
+  **LEFT OPEN ON PURPOSE, TWO DECISIONS THAT ARE ANDREW'S, NOT A SESSION'S:**
+  (a) the five text templates' **bodies** are stored in whatever language the
+  business was seeded in, so a business seeded in English and then switched
+  reads English bodies in the text sheet. Names are fixed; bodies are the
+  detailer's own words once saved, and an English body may be right for English
+  customers. Recommendation: leave it. (b) `dp.lang` is still one browser-wide
+  key once a customer presses the picker (§ 10d), so a customer who chose
+  Spanish on one detailer's page sees Spanish on the next. A link's `?lang=`
+  no longer leaks (§ 10c). Recommendation: leave it, it is the customer's own
+  preference.
+
+  **Original entry, kept:**
   "Weekend rate", "Member rate · 10% off", "Member rate aplicado" and "That
   code isn't one of ours" stay English. Service and add-on names stay English.
   The language choice also leaked across to a different booking link.
@@ -4685,6 +4766,19 @@ the wrong service, and never book a job we cannot reach.
   files.** `lib/setup.js` dropped off the list entirely; the count otherwise
   stands. Still `app/src` work, still not this pass's to finish in full.
   *A1 P2-10, A2 2.8*
+
+- [ ] **2.12a — `tests/spanish.test.mjs` cannot see a Spanish key that is missing for a string held in a constant.**
+  Found 2026-10-06 closing 2.12. Section 9a reads literal `t("…")` call sites, so
+  anything like `PAY_LABELS = { pending: "Unpaid" }` drawn later as
+  `t(PAY_LABELS[x])` is outside it. **Proved:** with the Spanish for `Unpaid`
+  removed, the suite stayed 79 passed, 0 failed, and the job record showed
+  English. §§ 10e–f already walk `core.js`'s tier constant for the same reason;
+  this is that, for the rest. **Fix:** import each constant that holds display
+  words (`PAY_LABELS`, `STATUS_LABELS`, `CONDITION_LABELS`, `MAIL_STATE`,
+  `KINDS`, `WEATHER_KINDS`, `SAYS`) or export a list of them, and check every
+  value against `appEs.js`. **Done when:** deleting the Spanish for `Unpaid`
+  turns the suite red, and putting it back turns it green. Outside `app/src`,
+  so not a lane-A change. *2.12*
 
 - [x] **2.13 — DONE 2026-09-20. Each category now says "optional, choose one", which is what the rule actually is.**
   ~~**Fix:** "Optional — choose one" per category, or state the real rule once

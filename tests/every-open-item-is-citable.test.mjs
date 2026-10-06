@@ -118,7 +118,10 @@ const OPEN_FLOOR = 40;
 //
 // **18 → 17 on 2026-10-06, same cause:** 7.3 (pricing page) was ticked and
 // took its collision with old-roadmap 7.3 with it.
-const CROSS_FILE_OVERLAP = 17;
+//
+// **17 → 16 on 2026-10-06, same cause:** 2.12 (Spanish) was ticked and took its
+// collision with old-roadmap 2.12 with it. The new open item 2.12a has no twin.
+const CROSS_FILE_OVERLAP = 16;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 
