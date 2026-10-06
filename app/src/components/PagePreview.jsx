@@ -42,7 +42,8 @@
 // browser, so what a detailer sees here is what the layout actually does.
 
 import { useEffect, useId, useRef, useState } from "react";
-import { t } from "../lib/i18n.js";
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 import { PV_HEIGHT } from "../lib/embedHeight.js";
 
 /**
@@ -70,6 +71,7 @@ export function missingLine(counts) {
 }
 
 export default function PagePreview({ slug, origin, counts, refreshKey = 0 }) {
+  useAppLocale();
   const titleId = useId();
   const frameRef = useRef(null);
   const [height, setHeight] = useState(null);

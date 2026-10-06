@@ -728,7 +728,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 same as correcting one. At most ONE accent fill is ever on this
                 screen: Mark completed only exists while the job is not
                 completed, and Finalize payment only once it is. */}
-            <h3 className="section-title">{waiting ? "Your answer" : "What happened"}</h3>
+            <h3 className="section-title">{waiting ? t("Your answer") : t("What happened")}</h3>
             <div className="stack" style={{ gap: 8 }}>
               {waiting ? (
                 /* Three weights, and the same order as the card on Today so

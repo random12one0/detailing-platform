@@ -289,7 +289,7 @@ export default function BusinessInfo() {
             "2019" sat in a 690px box. The same mistake was under Phone. */}
         <Setting label={t("Detailing since")}>
           <label className="field w-year">
-            <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
+            <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder={t("e.g. 2016")}
               onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} />
           </label>
         </Setting>

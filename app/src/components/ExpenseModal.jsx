@@ -203,7 +203,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
         {error && <div className="error-box">{error}</div>}
         <button className="btn primary" style={{ marginTop: 12 }}
           disabled={busy || !Number(amount) || !category} onClick={save}>
-          {busy ? "Saving" : "Save expense"}
+          {busy ? t("Saving") : t("Save expense")}
         </button>
     </Sheet>
   );

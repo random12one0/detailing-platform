@@ -192,7 +192,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
               {t("Go back")}
             </button>
             <button className="btn primary inline" disabled={busy} onClick={send}>
-              {busy ? "Sending…" : "Yes, send it"}
+              {busy ? t("Sending…") : t("Yes, send it")}
             </button>
           </div>
         </div>

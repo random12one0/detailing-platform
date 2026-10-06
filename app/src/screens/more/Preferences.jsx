@@ -51,7 +51,7 @@ export default function Preferences() {
 
       <Group
         title={t("Adding a job to your calendar")}
-        blurb="Used by “Add to calendar” on a booking."
+        blurb={t("Used by “Add to calendar” on a booking.")}
       >
         <Setting label={t("Calendar")} stacked>
           <Segmented
@@ -87,7 +87,7 @@ export default function Preferences() {
 
       <Group
         title={t("Saving a customer to your phone")}
-        blurb="Used by “Add to contacts” on a job."
+        blurb={t("Used by “Add to contacts” on a job.")}
       >
         <Setting
           label={t("Contacts")}
@@ -105,8 +105,8 @@ export default function Preferences() {
             type="button"
             className="btn inline"
             onClick={() => saveContact({
-              name: "Sample Customer", phone: "555-0100",
-              email: "sample@example.com", org: "Saved from your dashboard",
+              name: t("Sample Customer"), phone: "555-0100",
+              email: "sample@example.com", org: t("Saved from your dashboard"),
             })}
           >
             {t("Test")}

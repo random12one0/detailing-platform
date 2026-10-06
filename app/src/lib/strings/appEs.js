@@ -3167,4 +3167,6 @@ export const appEs = {
   "there": "cliente",
   "your detail": "tu detallado",
   "your car": "tu carro",
+  "e.g. 2016": "ej. 2016",
+  "Saved from your dashboard": "Guardado desde tu panel",
 };

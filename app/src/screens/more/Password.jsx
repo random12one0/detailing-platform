@@ -84,7 +84,7 @@ export default function Password() {
     // listener settles the new session for the same user and the screen does
     // not move.
     const wrong = await reauthenticate(email, current);
-    if (wrong) { setBusy(false); setMsg({ ok: false, text: wrong }); return; }
+    if (wrong) { setBusy(false); setMsg({ ok: false, text: t(wrong) }); return; }
 
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);

@@ -164,7 +164,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
       {error && <div className="error-box">{error}</div>}
       <button className="btn primary" style={{ marginTop: 12 }}
         disabled={busy || !ready} onClick={save}>
-        {busy ? "Saving" : "Save job"}
+        {busy ? t("Saving") : t("Save job")}
       </button>
     </Sheet>
   );

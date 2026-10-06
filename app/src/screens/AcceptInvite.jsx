@@ -82,7 +82,7 @@ export default function AcceptInvite() {
       <div className="center" style={{ minHeight: "100dvh", padding: 16 }}>
         <div className="card" style={{ width: "100%", maxWidth: 380 }}>
           <h1 style={{ marginBottom: 8 }}>{t("Invite unavailable")}</h1>
-          <p className="muted">{info.error}</p>
+          <p className="muted">{t(info.error)}</p>
           <p className="muted" style={{ marginTop: 8 }}>
             {t("Ask whoever invited you to send a new link.")}
           </p>
@@ -104,8 +104,8 @@ export default function AcceptInvite() {
           <PasswordInput value={password} minLength={MIN_PASSWORD} required autoComplete="new-password"
             onChange={(e) => setPassword(e.target.value)} />
         </label>
-        {error && <div className="error-box">{error}</div>}
-        <button className="btn primary" disabled={busy}>{busy ? "Setting up" : "Set up my account"}</button>
+        {error && <div className="error-box">{t(error)}</div>}
+        <button className="btn primary" disabled={busy}>{busy ? t("Setting up") : t("Set up my account")}</button>
       </form>
     </div>
   );

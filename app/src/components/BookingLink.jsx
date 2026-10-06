@@ -143,7 +143,7 @@ export default function BookingLink({
 
   const share = async () => {
     try {
-      await navigator.share({ title: shareTitle, url });
+      await navigator.share({ title: t(shareTitle), url });
     } catch { /* the person dismissed the sheet */ }
   };
 
@@ -317,7 +317,7 @@ export default function BookingLink({
           </div>
         )}
 
-        <p className="quiet" style={{ marginTop: 10 }}>{footnote}</p>
+        <p className="quiet" style={{ marginTop: 10 }}>{t(footnote)}</p>
       </div>
     </div>
   );

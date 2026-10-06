@@ -196,7 +196,7 @@ export default function Maintenance() {
                       which the label above usually implies anyway. */}
                   <span className="sub">
                     {saySoon(d, new Date(), t, appIntlLocale())}
-                    {" · "}{d.customers?.name ?? "a customer"}
+                    {" · "}{d.customers?.name ?? t("a customer")}
                     {d.vehicle ? ` · ${d.vehicle}` : ""}
                   </span>
                 </span>

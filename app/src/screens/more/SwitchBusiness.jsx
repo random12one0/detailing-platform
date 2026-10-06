@@ -43,7 +43,7 @@ export default function SwitchBusiness() {
             onClick={() => go(m.business_id)} disabled={!!busy}>
             <span className="ico">{here && <Check size={19} strokeWidth={2} />}</span>
             <span className="txt">
-              <span className="name">{m.businesses?.name ?? "This business"}</span>
+              <span className="name">{m.businesses?.name ?? t("This business")}</span>
               {/* The row answers itself, like every row on Business does: which
                   one you are in, and what you are in it AS. Owner and staff see
                   different screens, so which hat you wear here is the fact that

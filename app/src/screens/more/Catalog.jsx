@@ -841,8 +841,8 @@ export default function Catalog() {
 
                   <Setting label={t("Days you offer it")}
                     help={editing.form.weekdays === null
-                      ? "Any day you're open."
-                      : "Only the days you've picked. Other days close on your booking page."}
+                      ? t("Any day you're open.")
+                      : t("Only the days you've picked. Other days close on your booking page.")}
                     stacked>
                     <div className="row wrap" style={{ gap: 6 }}>
                       {DOW.map(([label, n], i) => {
