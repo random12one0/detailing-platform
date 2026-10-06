@@ -14135,6 +14135,19 @@ the dashboard or back office at phone width at all.
   that owner needs an auth user and a membership row, which this sitting was not
   permitted.
 
+  **SUPERSEDED 2026-10-06, kept rather than deleted because the reversal is the
+  useful part.** The interception is gone: the thin run signs in as the REAL owner
+  of `final-pass-fixture` (dev project, `is_demo`, `fixture.test` sink; login in
+  the gitignored `.env`). **Its first sabotage passed**: a thin run signed in as
+  the wrong business went green, because `thin-not-blank` accepted any
+  missing-line. It now requires the frame to be the thin business's own page.
+  Three more follow-ups the same day: the frame is as tall as the page it shows
+  (the booking page posts its height only with `?pv=1` inside a frame;
+  `frame-fits` measures the page two ways because a page stretched to its frame
+  agrees with itself), both React Router v7 flags are on (128 warnings to 0 over
+  64 route loads, no route changed), and `scripts/page-preview.mjs` is a recorded
+  exception to the `scripts/` freeze (DECISIONS.md). 33 assertions now.
+
   **`scripts/page-preview.mjs`** — 5 targets, 27 assertions, two canaries, both
   caught. **AND IT CAUGHT TWO FAULTS IN ITSELF FIRST.** `on-save` passed without
   testing anything: it stamped the frame, opened a panel, typed, and asserted the
