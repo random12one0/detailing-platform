@@ -112,6 +112,43 @@ tells a running session, and you have to know to look.
 `.test`, `.invalid`). `send-email` checks for those **above** the claim, so
 they cost nothing. `delivered@resend.dev` is a real domain and costs one.
 
+**IT IS SHARED WITH ANDREW'S REAL BUSINESS — measured 2026-10-06.** The Resend
+account the platform sends through also holds `andrewsdetail.com`: its domain
+list shows both `email.detailingplatform.com` and `andrewsdetail.com`, verified
+and sending (Resend connector, `list-domains`). Resend's daily cap is per
+ACCOUNT (`get-usage`: "Emails (daily): 8 / 100"), so every test send is one his
+real customers' confirmations, reminders and invoices cannot have that day.
+**The product's own counter cannot see his business's sends**:
+`platform_email_days` counts only what `send-email` claimed, so its "80 for
+tenants" can be spent in full on a day his own site has already sent, and the
+provider — not the product — is what refuses the next one, on either side.
+
+**THE COLLISION, 2026-10-06.** DP Cowork2 ran `tests/email-sends.test.mjs`
+**twice** in one sitting (once inside a batch of suites, once again to read its
+failures), at 20:34:41 and 20:35:08 UTC. Each run sent 4 to Resend's sandbox
+addresses (2 to `delivered@resend.dev`, 2 to `bounced@resend.dev`), **8 in
+all**. Both counters agree it was the whole day's spend: Resend
+`get-usage` 8 / 100, and `select * from platform_email_days where
+day='2026-10-06'` → sent 8, claimed 8, refused 0. Nothing from
+`andrewsdetail.com` had gone out that day, so nothing of his was refused. The
+session first reported it as "run once"; that was wrong and is corrected here.
+The suite also re-points a demo booking's address while it runs; it was checked
+back to its exact original afterwards — the seeded customer has **no** address
+on purpose, and both the customer and the booking read empty, bounce flag clear.
+
+**THE FIX: real mail is now opt-in, per run.** `realMail()` in
+`tests/_mail.mjs` — the helper every real-mail suite and script already has to
+call — **throws unless `ALLOW_REAL_MAIL=1`** is set. `email-sends` refuses
+before it touches the booking, prints `NOT RUN … REFUSED TO SEND REAL MAIL`, and
+**exits 1**, because a refusal that exits 0 reads as a pass (proved: with the
+failure line removed it exits 0). `dead-mans-switch` takes its existing
+NOT MEASURED path instead. Measured: run without the flag, the day's counter
+stayed 8 → 8.
+
+```bash
+ALLOW_REAL_MAIL=1 node tests/email-sends.test.mjs   # spends 4, on purpose
+```
+
 ### 4 · The demo tenant's rows
 
 **What:** `demo-detail` — the seeded business most suites and every browser

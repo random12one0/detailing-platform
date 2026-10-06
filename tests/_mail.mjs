@@ -64,6 +64,26 @@ export function sink(tag) {
  */
 export function realMail(address, reason) {
   if (!reason) throw new Error("realMail(address, reason) - a real send must say why");
+  if (!realMailAllowed()) throw new Error(REFUSED);
   console.log(`   REAL MAIL: ${address} — ${reason}`);
   return address;
 }
+
+/**
+ * **REAL MAIL IS OPT-IN, PER RUN — 2026-10-06.** The daily allowance is ONE
+ * Resend account's, and that account also sends for `andrewsdetail.com`,
+ * Andrew's real business (measured: both domains are on it; see
+ * docs/shared-resources.md § 3). A suite that spends it casually spends his
+ * customers' confirmations. `tests/email-sends.test.mjs` was run twice in one
+ * sitting by a session reading failures, and spent 8.
+ *
+ *   ALLOW_REAL_MAIL=1 node tests/email-sends.test.mjs
+ *
+ * Without it `realMail` THROWS, so nothing is sent; a caller that wants to
+ * carry on without the provider leg asks `realMailAllowed()` first and must
+ * print that the leg was NOT MEASURED.
+ */
+export const realMailAllowed = () => process.env.ALLOW_REAL_MAIL === "1";
+export const REFUSED = "REFUSED TO SEND REAL MAIL: this run would spend the daily email allowance "
+  + "Andrew's real business shares (docs/shared-resources.md § 3). Nothing was sent. "
+  + "To spend it on purpose: ALLOW_REAL_MAIL=1";

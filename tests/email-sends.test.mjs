@@ -50,7 +50,7 @@
 // `RESEND_WEBHOOK_SECRET`, and says so rather than quietly passing.
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
-import { realMail } from "./_mail.mjs";  // a real send must say so out loud
+import { realMail, realMailAllowed, REFUSED, sink } from "./_mail.mjs";  // a real send must say so out loud
 
 import { createHmac, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -182,9 +182,24 @@ if (!URL_ || !SERVICE) {
   check("that owner has a finalised booking with a customer to invoice",
     !!booking, "nothing to send, so a clean result would prove nothing");
 
-  if (booking && jwt) {
+  // **REAL MAIL IS OPT-IN — 2026-10-06.** §§ 2–4 send to Resend's sandbox, and
+  // that allowance is shared with Andrew's real business. Refused here, BEFORE
+  // the booking is touched, and recorded as a FAILURE rather than a skip: a
+  // refusal that exits 0 reads exactly like a pass.
+  if (booking && jwt && !realMailAllowed()) {
+    console.error("\n  " + "!".repeat(72));
+    console.error(`  NOT RUN  §§ 2–4. ${REFUSED}`);
+    console.error("  " + "!".repeat(72));
+    failures.push(`NOT RUN — §§ 2–4 refused: ${REFUSED}`);
+  }
+  if (booking && jwt && realMailAllowed()) {
     ranLive = true;
+    // BOTH originals, separately. The restore used to write the BOOKING's copy
+    // into the customer row too, which is only right when the two agreed. The
+    // demo booking this picks (Owen Brady) has no address at all on purpose.
     const ORIGINAL = booking.customer_email;
+    const [custBefore] = await svc(`/rest/v1/customers?id=eq.${booking.customer_id}&select=email`);
+    const ORIGINAL_CUSTOMER = custBefore?.email ?? null;
     const today = new Date().toISOString().slice(0, 10);
 
     const counter = async () => {
@@ -194,12 +209,13 @@ if (!URL_ || !SERVICE) {
     const rowsSince = async (iso) => await svc(
       "/rest/v1/email_sends?select=id,to_email,subject,status,detail,provider_id,business_id,customer_id,sent_at"
       + `&sent_at=gt.${iso}&order=sent_at.asc`);
-    const point = async (addr) => {
+    const point = async (addr, customerAddr = addr) => {
       await svc(`/rest/v1/customers?id=eq.${booking.customer_id}`,
-        { method: "PATCH", body: JSON.stringify({ email: addr }) });
+        { method: "PATCH", body: JSON.stringify({ email: customerAddr }) });
       await svc(`/rest/v1/bookings?id=eq.${booking.id}`,
         { method: "PATCH", body: JSON.stringify({ customer_email: addr }) });
     };
+    const restore = () => point(ORIGINAL, ORIGINAL_CUSTOMER);
     const invoice = async () => (await fetch(`${URL_}/functions/v1/send-invoice`, {
       method: "POST",
       headers: { apikey: ANON, Authorization: `Bearer ${jwt}`, "Content-Type": "application/json" },
@@ -221,15 +237,17 @@ if (!URL_ || !SERVICE) {
       check("invoicing an address that will bounce also succeeds at send time",
         await invoice() === 200, "a bounce is asynchronous; the send itself is fine");
       // A RESERVED DOMAIN. Never sendable, never attempted, and until 14.3 the
-      // only trace was a `console.warn`.
-      await point(ORIGINAL);
+      // only trace was a `console.warn`. A sink, not ORIGINAL: the demo booking
+      // this picks has NO address, so "the original" was never a reserved
+      // domain and this step tested an empty recipient instead.
+      await point(sink("email-sends"));
       check("invoicing a reserved domain still answers success to the caller",
         await invoice() === 200, "a booking must never fail because an email could not go");
     } finally {
       // THE ADDRESS GOES BACK EVEN IF THE RUN DIED. A check that leaves the
       // demo tenant pointed at a sandbox address has broken the fixture every
       // later suite reads.
-      await point(ORIGINAL);
+      await restore();
     }
 
     await new Promise((r) => setTimeout(r, 2500));
@@ -362,7 +380,7 @@ if (!URL_ || !SERVICE) {
         // flag on would show a permanent false warning on a demo record.
         await svc(`/rest/v1/customers?id=eq.${booking.customer_id}`, {
           method: "PATCH",
-          body: JSON.stringify({ email: ORIGINAL, email_failed_at: null, email_failed_reason: null }),
+          body: JSON.stringify({ email: ORIGINAL_CUSTOMER, email_failed_at: null, email_failed_reason: null }),
         });
 
         dims.webhook_events_posted = 6;

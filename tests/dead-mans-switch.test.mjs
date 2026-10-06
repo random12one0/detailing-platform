@@ -35,7 +35,7 @@
 //   node tests/dead-mans-switch.test.mjs      (§ 1 and § 3 are credential-free)
 
 import "./_env.mjs";           // root .env -> process.env, before anything reads it
-import { sink, realMail } from "./_mail.mjs";
+import { sink, realMail, realMailAllowed } from "./_mail.mjs";
 import { readFileSync } from "node:fs";
 
 const URL_ = process.env.SUPABASE_URL;
@@ -299,12 +299,17 @@ if (!URL_ || !SERVICE) {
     .then((r) => r.json()))[0];
   const cap = settingsBefore?.email_daily_cap ?? 100;
   const spent = (spentRow?.claimed ?? 0) + 1 > cap;
-  const ALERT_TO = spent
+  // Real mail is opt-in (tests/_mail.mjs). Not opted in takes the same branch
+  // as a spent allowance, and says which of the two it was.
+  const ALERT_TO = spent || !realMailAllowed()
     ? sink("watchdog")
     : realMail("delivered@resend.dev", "§ 2 proves the watchdog's PROVIDER leg, not just the relay");
   if (spent) {
     console.log(`  NOT MEASURED  the provider leg — ${spentRow?.claimed} of ${cap} claimed today`
       + ` (${spentRow?.sent} of them sent). The relay is exercised, Resend is not.`);
+  } else if (!realMailAllowed()) {
+    console.log("  NOT MEASURED  the provider leg — real mail not opted in (ALLOW_REAL_MAIL=1)."
+      + " The relay is exercised, Resend is not.");
   }
   const setSettings = (patch) =>
     rest("platform_settings?id=eq.true", { method: "PATCH", body: JSON.stringify(patch) });
