@@ -225,6 +225,24 @@ export async function sendTenantEmail(opts: {
    * merely shares an address with the detailer's own contact email.
    */
   senderName?: string;
+  /**
+   * ROADMAP 3.1 — WHICH BOOKING THIS EMAIL IS ABOUT.
+   *
+   * 3.1 wants the delivery list linked to booking as well as to detailer and
+   * recipient, and its own entry names the obstacle: *"the relay is never told
+   * which booking it is sending about."* This is that gap, closed at the one
+   * boundary every tenant email crosses.
+   *
+   * **OMITTED IS A REAL ANSWER, not a forgotten one** — an invite, a campaign,
+   * a plan link and the platform's own mail are about no booking, and a null
+   * `email_sends.booking_id` is correct for all four. Which is exactly why a
+   * missing argument cannot be detected here and
+   * `tests/email-row-knows-its-booking.test.mjs` discovers the call sites from
+   * the source instead: `extraVehiclesFor` above carries the same warning, and
+   * that one is there because a hand-written caller list in this repo was
+   * already short by one.
+   */
+  bookingId?: string | null;
 }): Promise<boolean> {
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
@@ -241,6 +259,8 @@ export async function sendTenantEmail(opts: {
         text: opts.text,
         attachments: opts.attachments,
         sender_name: opts.senderName,
+        // ROADMAP 3.1 — the one hop where the booking used to be dropped.
+        booking_id: opts.bookingId,
       }),
     });
     if (!res.ok) console.error("send-email relay failed:", await res.text());

@@ -132,7 +132,7 @@ async function sendCustomerReminder(b: BookingRow, second = false) {
   const brand = await buildBrand(business, settings);
   const msg = customerReminderEmail(brand, await emailDataFor(business, b), second);
   mustSend(
-    await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text }),
+    await sendTenantEmail({ bookingId: b.id, businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text }),
     second ? "second customer reminder" : "customer reminder",
   );
   return true;
@@ -149,7 +149,7 @@ async function sendOwnerReminder(b: BookingRow) {
   if (settings.email_owner_reminder) {
     for (const to of ownerRecipients(business, settings)) {
       mustSend(
-        await sendTenantEmail({
+        await sendTenantEmail({ bookingId: b.id,
           businessId: business.id,
           to,
           subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
@@ -338,7 +338,7 @@ Deno.serve(async (req) => {
         const msg = staleRequestEmail(brand, await emailDataFor(business, b), waited);
         for (const to of ownerRecipients(business, settings)) {
           mustSend(
-            await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text }),
+            await sendTenantEmail({ bookingId: b.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text }),
             "stale request nudge",
           );
         }

@@ -5501,6 +5501,96 @@ requested.
   about). `delivery_delayed` and `suppressed` are deliberately not modelled;
   `supabase/functions/resend-webhook/index.ts` says why.
 
+  ***SERVER HALF BUILT 2026-10-06 — THE BOOKING ID NOW REACHES THE ROW, AND
+  NOTHING IS DEPLOYED OR APPLIED.*** Both of those are Andrew's and both are
+  switches in `FOR-ANDREW.md`.
+
+  **What was wrong, in one sentence:** every booking sender had the booking in
+  hand while it composed the mail, and threw the id away at the relay boundary
+  because `sendTenantEmail` had nowhere to put it.
+
+  **The three hops, each of which could drop it with no symptom at all:**
+
+  | hop | file | what it now does |
+  |---|---|---|
+  | 1 | `supabase/functions/_shared/email.ts` | `sendTenantEmail` takes `bookingId` and forwards it as `booking_id` |
+  | 2 | `supabase/functions/send-email/index.ts` | reads `booking_id` off the request into one `SendContext`, built once |
+  | 3 | the same file's `record()` | writes `booking_id` on the `email_sends` row |
+  | — | `supabase/migrations/20261006010000_an_email_row_knows_its_booking.sql` | adds the column, `on delete set null`, with a partial index for the back-office query |
+
+  **15 of the 28 `sendTenantEmail` call sites now pass a booking id; the other
+  13 are about no booking and a null is correct for them** — an invite, a
+  campaign to a whole list, a plan link, platform billing, the dead man's
+  switch, and `send-owner-reminders`' maintenance nudge, which is about a due
+  date on a vehicle rather than an appointment.
+
+  **`tests/email-row-knows-its-booking.test.mjs` is the guard, and it
+  DISCOVERS the senders rather than listing them** — `_shared/email.ts` carries
+  that same warning about `extraVehiclesFor` because a hand-written caller list
+  here was already short by one. The no-booking senders are declared BY NAME,
+  so one leaving is ordinary work and **one arriving uninvited is the finding**.
+  Broken on purpose three ways, each caught by the section aimed at it: the
+  insert line removed (hop 3), the relay forward removed (hop 1), and the
+  argument removed at one real call site (section 5 named the file and line).
+
+  ---
+
+  ### THE `app/src` HALF — what Lane A renders, so it can start without asking
+
+  **The data is there after the migration runs. Nothing below needs another
+  server change**, and if something seems to, say so rather than adding one.
+
+  **WHERE.** The back office — `app/src/admin/AdminPage.jsx` is the screen 3.1
+  names (*"the same list in the back office rather than only on the client
+  record"*). The client-record list already exists and is NOT this; do not
+  rebuild it.
+
+  **WHAT ONE ROW SHOWS.** `email_sends` columns, all already readable by a
+  detailer's session through the existing `for select` policy:
+
+  | column | how it draws |
+  |---|---|
+  | `subject` | the handle a person recognises the message by — this is the label, not a `kind` lookup |
+  | `to_email` | the recipient, under the subject |
+  | `status` | the seven states, and **`sent` and `delivered` must look different** — that is 3.1's own Done-when. The existing words are *"On its way"* and *"Delivered"* with a tick, and `bounced` is red with `detail` beneath it. **Reuse those exact words**; a second vocabulary for the same column is how two screens disagree |
+  | `detail` | the provider's own reason, one line, only on a bad outcome. It is null for `delivered` on purpose |
+  | `sent_at` | when it was handed over, newest first |
+  | **`booking_id`** | **the new one — links to the job record at `/admin/job/:id`** |
+
+  **THE THREE LINKS 3.1 ASKS FOR, and the third is the new one:**
+  **recipient** → the customer record via `customer_id`; **detailer** → the
+  business, which in the back office is the row you are already inside;
+  **booking** → `/admin/job/<booking_id>`, the same path
+  `send-owner-reminders` already uses.
+
+  **A NULL `booking_id` IS NOT AN ERROR AND MUST NOT RENDER AS ONE.** Campaign
+  mail, invites, plan links and platform mail are correctly null. Draw no link
+  and no placeholder — **not a greyed-out "no booking" chip**, which invites a
+  detailer to wonder what went wrong. The absence is the answer.
+
+  **THE ALERT 3.1 ASKS FOR IS ALREADY BUILT AND MUST NOT BE BUILT TWICE.**
+  *"Alert on permanent failure"* is `customers.email_failed_at`, which the
+  webhook stamps and `Clients.jsx` already draws as *"This address bounced"*.
+  The back-office list needs no second alerting mechanism — it needs the bounced
+  rows to be **findable**, which is a filter or a sort, not a notification.
+
+  **WHAT FAILING LOOKS LIKE, so it is not reported as done:** a list that shows
+  `sent` and `delivered` with the same words (3.1's Done-when fails on exactly
+  that), a booking link drawn for a null id, or a list that reads the client
+  record's query and is therefore scoped to one customer — the whole point is
+  the business-wide view.
+
+  **ONE THING LANE A SHOULD NOT DO:** do not add a `kind` column or a template
+  name to the row. 14.3's migration header rejects it — `subject` is already
+  written for a person to read, and a `kind` enum would have to be kept in step
+  with sixteen templates for no gain a reader can see.
+
+  **AND IT CANNOT BE SEEN UNTIL THE MIGRATION RUNS.** Until Andrew applies it,
+  `booking_id` does not exist in the live database and every row reads null, so
+  a screen built against it looks correct and empty. `node
+  scripts/migration-drift.mjs` is what says whether it has been applied; it
+  names the column today.
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.
@@ -17953,6 +18043,37 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   named, 1 done. Credential-free except 14.26's row, which **names the credential
   and where it lives and is reported by name when it is missing** rather than
   skipped.
+
+### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
+
+- [ ] **14.33 — `docs/ticked-without-proof-2026-09-25.md` is 69 of 69 bare and
+  the work to pin it is PARKED, not abandoned.** `docs/gotchas.md` 94 is the
+  rule (a recorded number carries the command that produced it and the revision
+  it was taken at) and `tests/figures-carry-their-command.test.mjs` is the
+  enforcement, which declares that document at **69**.
+
+  **Two of the four documents are finished and the method is proven on both:**
+  `docs/silences.md` went 31 → 0 and `PROJECT-STATE.md` 12 → 0, each in the
+  fenced order — pin the rows, watch the check go RED at the old declaration,
+  then lower the declaration in the same commit. **The order is not optional and
+  it is not a style preference:** lowering a declared number so it agrees with a
+  run, without the red first, is the fault `docs/gotchas.md` 93 records.
+
+  **Why it stops here rather than being half-done:** the declaration still reads
+  69, which is true. Nothing is mid-flight, no number has been moved ahead of
+  the work, and `tests/figures-carry-their-command.test.mjs` is green. **A
+  parked item that left a declaration lowered would be worse than not starting.**
+
+  **Done when** that document's figures each carry a command and a revision or
+  name in 94's own vocabulary why they cannot be re-taken, the check goes red at
+  69 before the number moves, and the declaration is lowered in the same commit
+  as the pinning. **Its figures are mostly one shape** — per-batch tallies of
+  items read and judged — so expect many to be *a judgement, not a count*, which
+  is an honest answer rather than a shortcut.
+
+  *Lane:* `docs/`, `tests/`. *Parked by the manager 2026-10-06 to take ROADMAP
+  3.1; raised here because a queue is the only place a parked item is visible,
+  and "I will come back to it" in a chat window is how 14.26 lost ten days.*
 
 ### 14.32 — The figures in `FOR-ANDREW.md` are UNMEASURED, and the checker reports 0 because it cannot see them
 

@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
       booking.payment_notes,
       cardReady,
     );
-    const sent = await sendTenantEmail({
+    const sent = await sendTenantEmail({ bookingId: booking.id,
       businessId: business.id,
       to: booking.customer_email,
       subject: invoice.subject,
@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
       // word on a job somebody booked in Spanish; switching to English for it
       // is the seam a customer notices.
       const followup = followupEmail(brand, firstName, booking.lang);
-      thankYouSent = await sendTenantEmail({
+      thankYouSent = await sendTenantEmail({ bookingId: booking.id,
         businessId: business.id,
         to: booking.customer_email,
         subject: followup.subject,

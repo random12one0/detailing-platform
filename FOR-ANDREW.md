@@ -714,6 +714,68 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **SWITCH · Two things are built and waiting for you to turn them on —
+  the emails can tell you which booking they were about. Neither is urgent and
+  nothing is broken while they wait.**
+
+  **What this is, in plain words.** When this product sends a customer an
+  email, it already writes down that it sent it and what happened to it —
+  delivered, bounced, marked as spam. What it could not write down was **which
+  job the email was about**. So a list of emails existed with no way to get
+  from one of them back to the appointment it concerned. That is now wired up,
+  and it needs two switches that are yours and not mine.
+
+  **SWITCH ONE — the database needs one new column.**
+
+  ```bash
+  node scripts/migration-drift.mjs   # says it has not been applied yet
+  ```
+
+  The file is
+  `supabase/migrations/20261006010000_an_email_row_knows_its_booking.sql`. It
+  **adds** one column and one index and **changes and removes nothing** — it
+  cannot lose data, because the only thing it does is make room for something
+  new. **Applying it is a change to the live database and that is yours**, so I
+  have written it and left it. Until it runs, the new column does not exist and
+  every email row reads blank.
+
+  **SWITCH TWO — nine of the email functions need publishing.**
+
+  ```bash
+  node scripts/deployed-inventory.mjs   # names every function not yet live
+  ```
+
+  The change touches nine of them, and **all nine are currently running an
+  older copy** — along with seventeen others that were already behind before
+  today, 26 of 39 in total. **Publishing is yours** (ROADMAP 0.6), so I have not
+  done it. The shipping order is the one already on this list.
+
+  **WHICH ORDER, AND IT MATTERS A LITTLE.** **The column first, the functions
+  second.** If the functions go live before the column exists, every email still
+  sends perfectly and the bookkeeping row is simply written without the new
+  field — so nothing breaks either way, but doing it in that order means you
+  never have to come back and wonder why the field is empty.
+
+  **WHAT YOU GET WHEN BOTH ARE ON.** Every email about a job carries the job's
+  identity, so the back-office list can show *this email, about this
+  appointment, to this customer, and here is what became of it*. **The screen
+  itself is not built yet** — that is the other half of the same item and it is
+  written up in `ROADMAP.md` under 3.1 so whoever builds it does not have to
+  ask. There is nothing for you to decide about the screen.
+
+  **WHAT IS ALREADY TRUE WITHOUT EITHER SWITCH.** You can already see whether a
+  customer's email was delivered or bounced on their client record, and a
+  bounced address already raises a banner. **These two switches add the link to
+  the job, not the delivery tracking** — that part has been working since
+  September.
+
+  **NOTHING FOR YOU TO READ IN THE CODE.** If you want one sentence to check it
+  against: 15 of the 28 places this product sends email now carry the job's
+  identity, and the other 13 are emails that genuinely are not about a job — an
+  invitation, a campaign to a whole customer list, a billing notice. A blank
+  there is correct, not missing.
+
+
 - [ ] **DECIDE · Do you want a deposit at booking, and if so, four things only
   you can settle. Nothing is built and nothing is waiting on code.**
 

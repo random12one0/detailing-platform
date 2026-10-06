@@ -7,9 +7,19 @@
 // contact address, so replies reach the right detailer and never another
 // business.
 //
-// Input: { business_id, to, subject, body, text?, attachments?, sender_name? }
+// Input: { business_id, to, subject, body, text?, attachments?, sender_name?,
+//          booking_id? }
 // `business_id` is required for every tenant email and optional for the two
 // kinds the PLATFORM sends in its own name (roadmap 2.20 stage 2 and 8.12).
+//
+// ROADMAP 3.1 — `booking_id` IS CARRIED, NEVER LOOKED UP. It is recorded on the
+// row and used for nothing else: this function does not read the booking, does
+// not validate it, and does not branch on it. Looking it up here would add a
+// query to every send to re-derive something the caller already had in hand,
+// and a relay that validates its own bookkeeping argument is a relay that can
+// fail a customer's confirmation over a stale id. A bad id is refused by the
+// foreign key at insert time, inside the best-effort `record()`, where the
+// worst case is a missing history row rather than a missing email.
 //
 // ROADMAP 14.3 — AND EVERY ONE OF THEM NOW LEAVES A ROW IN `email_sends`.
 // There are five ways out of this function and until 14.3 three of them were
@@ -97,14 +107,36 @@ async function markAddress(
  * call is a single awaited fetch inside a try; if this function ever grows a
  * second await after the send, write the row first instead.
  */
+/**
+ * ROADMAP 3.1 — WHAT ONE SEND IS A FACT ABOUT, built once per request.
+ *
+ * This replaced a `business_id, to, subject` triple repeated at all six
+ * `record()` call sites. The triple was already bundled in one place — the
+ * `failedFor` object the catch uses — so there were two shapes for one thing,
+ * and 3.1 needed a fourth field added to both.
+ *
+ * **It is an object rather than a seventh positional argument, and that is the
+ * whole point.** A seventh argument forgotten at one of six call sites writes a
+ * null booking id and nothing anywhere reports it — the invisible shape
+ * `_shared/email.ts` warns about over `extraVehiclesFor`, and the shape this
+ * repo has paid for repeatedly. One object, assembled once, cannot be
+ * half-passed.
+ */
+interface SendContext {
+  business_id: string | null;
+  to: string;
+  subject: string;
+  /** NULL is correct for every email that is not about one booking. */
+  booking_id: string | null;
+}
+
 async function record(
-  businessId: string | null,
-  to: string,
-  subject: string,
+  ctx: SendContext,
   status: string,
   detail?: unknown,
   providerId?: string | null,
 ): Promise<void> {
+  const { business_id: businessId, to, subject, booking_id: bookingId } = ctx;
   try {
     let customerId: string | null = null;
     if (businessId) {
@@ -123,6 +155,8 @@ async function record(
       subject,
       status,
       provider_id: providerId ?? null,
+      // ROADMAP 3.1 — carried from the sender, never derived here.
+      booking_id: bookingId,
       // The provider's own words, capped at the same 200 the customer flag uses.
       detail: detail === undefined || detail === null
         ? null
@@ -150,11 +184,22 @@ Deno.serve(async (req) => {
   // HELD OUTSIDE THE TRY so the catch below can still say WHICH email died.
   // `req.clone()` cannot do this job: a clone has to be taken before the body
   // is read, and by the time the catch runs it has been.
-  let failedFor: { business_id: string | null; to: string; subject: string } | null = null;
+  // ROADMAP 3.1 — ONE CONTEXT, ASSIGNED UNCONDITIONALLY, so the five exits
+  // inside the try and the sixth in the catch all file against the same object.
+  // It used to be set only `if (to && subject)`, which left the in-try sites
+  // reading three separate locals instead; the catch now tests the fields it
+  // actually needs rather than the object being null.
+  let ctx: SendContext = { business_id: null, to: "", subject: "", booking_id: null };
 
   try {
-    const { business_id, to, subject, body, text, attachments, sender_name } = await req.json();
-    if (to && subject) failedFor = { business_id: business_id ?? null, to, subject };
+    const { business_id, to, subject, body, text, attachments, sender_name, booking_id } = await req.json();
+    ctx = {
+      business_id: business_id ?? null,
+      to: typeof to === "string" ? to : "",
+      subject: typeof subject === "string" ? subject : "",
+      // Carried, not validated — see the input note at the top of this file.
+      booking_id: typeof booking_id === "string" && booking_id ? booking_id : null,
+    };
     // ROADMAP 2.20 STAGE 2. Set only by platform billing mail, and it changes
     // two things: who the email says it is from, and whether the send result
     // is recorded against a CUSTOMER. A billing email goes to the detailer, so
@@ -188,7 +233,7 @@ Deno.serve(async (req) => {
     if (/(^|\.)(test|invalid|localhost|example)$/.test(domain) || /^example\.(com|net|org)$/.test(domain)) {
       console.warn("undeliverable domain - email not sent:", { to, subject });
       // 14.3 — a `console.warn` was the WHOLE record of this until now.
-      await record(business_id ?? null, to, subject, "skipped",
+      await record(ctx, "skipped",
         "that address cannot receive email");
       return json({ success: true, skipped: "undeliverable_domain" });
     }
@@ -231,7 +276,7 @@ Deno.serve(async (req) => {
       // No provider key configured (e.g. a fresh environment): log instead of
       // failing the calling flow — bookings must never depend on email.
       console.warn("RESEND_API_KEY not set — email not sent:", { to, subject });
-      await record(business_id ?? null, to, subject, "skipped",
+      await record(ctx, "skipped",
         "email is not switched on for this deployment");
       return json({ success: true, skipped: "no_provider_key" });
     }
@@ -304,7 +349,7 @@ Deno.serve(async (req) => {
       // 14.3 — `refused`, NOT `failed`. The provider never saw this one, and a
       // detailer reading the row needs to know the difference: a failure is
       // something about the address, a refusal is something about us.
-      await record(business_id ?? null, to, subject, "refused",
+      await record(ctx, "refused",
         "the day's email allowance was already spent");
       return json({
         error: "Failed to send email",
@@ -358,7 +403,7 @@ Deno.serve(async (req) => {
       // cap — which is precisely the morning the owner needs to be told
       // BEFORE, not after.
       await note(false);
-      await record(business_id ?? null, to, subject, "failed", data);
+      await record(ctx, "failed", data);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
     // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a
@@ -368,15 +413,15 @@ Deno.serve(async (req) => {
     await note(true);
     // THE PROVIDER ID IS WHAT THE WEBHOOK LATER FINDS THIS ROW BY. Until 14.3
     // it was returned to the caller and dropped on the floor.
-    await record(business_id ?? null, to, subject, "sent", null, data.id);
+    await record(ctx, "sent", null, data.id);
     return json({ success: true, id: data.id });
   } catch (err) {
     // 14.3 — THE SIXTH EXIT, and the only one that is not a decision this
     // function made: the fetch to the provider threw. Nothing is recorded when
     // the request body itself was unreadable, because then there is no
     // recipient to file it against and an unparseable body is not a send.
-    if (failedFor) {
-      await record(failedFor.business_id, failedFor.to, failedFor.subject, "failed", err);
+    if (ctx.to && ctx.subject) {
+      await record(ctx, "failed", err);
     }
     return json({ error: (err as Error).message }, 500);
   }

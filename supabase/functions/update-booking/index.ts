@@ -269,7 +269,7 @@ Deno.serve(async (req) => {
       // Best-effort by construction: `sendTenantEmail` catches its own errors
       // and returns a boolean, so a dead relay can never fail a write that has
       // already happened.
-      await sendTenantEmail({
+      await sendTenantEmail({ bookingId: bookingId,
         businessId: business.id,
         to: data.customer_email,
         subject: msg.subject,

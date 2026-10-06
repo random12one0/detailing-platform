@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
 
     if (booking.customer_email && settings.email_customer_confirmation) {
       const msg = customerConfirmationEmail(brand, emailData);
-      await sendTenantEmail({
+      await sendTenantEmail({ bookingId: booking.id,
         businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text,
       });
     }
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
     // The push below is what carries the word "quote".
     const ownerMsg = ownerNewBookingEmail(brand, emailData);
     for (const to of ownerRecipients(business, settings)) {
-      await sendTenantEmail({
+      await sendTenantEmail({ bookingId: booking.id,
         businessId: business.id, to, subject: ownerMsg.subject, html: ownerMsg.html, text: ownerMsg.text,
       });
     }

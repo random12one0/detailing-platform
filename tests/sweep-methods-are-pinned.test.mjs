@@ -179,13 +179,16 @@ const TAKEN_AT = "3398470";          // the commit these were measured at
 const NO_COMMIT_YET = [];
 
 const DECLARED = {
-  // 67 after 14.32. Moved in the same edit as that item, per this file's own rule.
-  numberedOpenItems: 67,
+  // 68 after 14.33, the parked figure-pinning item. Moved in the same edit as
+  // that item, per this file's own rule.
+  numberedOpenItems: 68,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
   quoteCriteria: 37,
-  quoteFragments: 276,
+  // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
+  // (the Lane A render spec). Moved in the same edit as that prose.
+  quoteFragments: 280,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
@@ -249,7 +252,19 @@ test("the two sweep methods are pinned, not described", async (t) => {
 
   await t.test("3b · every numbered open item is named by a commit, except the declared ones", () => {
     const named = new Set(scope.naming.flatMap((c) => c.items));
-    const without = ids.filter((id) => !named.has(id)).sort();
+    // AN ITEM THAT IS NOT ITSELF COMMITTED YET IS NEW BY DEFINITION, and asking
+    // for a commit that names it is asking for one that cannot exist. Derived
+    // from the uncommitted ROADMAP diff rather than declared, because the
+    // declared version meant adding each new item to a list and removing it on
+    // the very next commit — the churn `gotchas.md` 95 records about a figure
+    // that moves every time anybody commits. NO_COMMIT_YET stays for a genuinely
+    // long-lived exception; this handles the ordinary case with no upkeep.
+    const pending = sh("git diff -- ROADMAP.md") + sh("git diff --cached -- ROADMAP.md");
+    const brandNew = ids.filter((id) =>
+      new RegExp(`^\\+.*\\b${id.replace(".", "\\.")}\\b`, "m").test(pending));
+    const without = ids
+      .filter((id) => !named.has(id) && !brandNew.includes(id))
+      .sort();
     assert.deepEqual(
       without, [...NO_COMMIT_YET].sort(),
       "the set of open items that NO commit names has changed. **Declared by name "
