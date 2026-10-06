@@ -555,65 +555,30 @@ const NAMED_TEXT = (english) => {
   if (!es || es === english) return english;
   return new RegExp(`(?:${rx(english)}|${rx(es)})`);
 };
+/* ══ `clickOnStillGround` WAS HERE AND IT IS GONE — 2026-10-03 ══════════════
+   It paused infinite animations around one click, on the strength of a census
+   that named `ground-drift` as moving the tab bar. **That attribution was
+   wrong and the second census disproved it.**
 
-/* ══ HOLD THE DRIFTING GROUND STILL FOR THE LENGTH OF A CLICK ═════════════
-   **THE INTERMITTENT 1920 ABORT, ATTRIBUTED 2026-10-03 BY CENSUS RATHER THAN
-   BY WAITING FOR IT TO HAPPEN AGAIN.** The abort was Playwright failing
-   `stable` on `.tabbar button[data-tour="today"]` - an element it had already
-   resolved, already `class="active"`, already enabled. Not covered, not
-   missing: MOVING.
+   The first census read `effect.target`, which for a PSEUDO-ELEMENT animation
+   reports the ORIGINATING element - so `ground-drift` looked like an animation
+   on `DIV.app-shell`, an ancestor of the tab bar. It is not. It runs on
+   `.app-shell::before` (`effect.pseudoElement === "::before"`), and that box is
+   `position: fixed; z-index: -2; pointer-events: none` — theme.css:1048. It is
+   behind the content and cannot move it.
 
-   The census of every live animation on the signed-in shell at 1920 found two
-   infinite ones, and exactly one of them matters:
+   Measured rather than argued, second time: the tab bar's bounding box across
+   SIXTY consecutive animation frames yields **one distinct box**, to three
+   decimal places, with `ground-drift` running. It does not move. And
+   `elementFromPoint` at the button's centre returns the button.
 
-     ground-drift  54s alternate, on DIV.app-shell, animating TRANSFORM,
-                   and `app-shell` CONTAINS the tab bar.  <-- this one
-     app-dots      26s linear, on DIV.app-dots, transform, NOT an ancestor
-                   of the bar, so it cannot move the bar's box.
-
-   `theme.css:1060` - the deliberate drifting ground. A transform on an
-   ancestor moves every descendant's `getBoundingClientRect()`, so the tab
-   bar's box is in continuous motion by design. **That is why it is
-   intermittent rather than constant**: the drift is slow and alternating, so
-   on most frames the delta rounds below the threshold - measured stable at
-   the instant of the census - and occasionally, mid-cycle where the easing is
-   fastest, it does not.
-
-   **WHICH SIDE IT IS ON: the sweep's.** The app is doing what it was built to
-   do and the control is genuinely operable; the script was requiring
-   stillness from a page that is never still. So the fix is here, and it is
-   the same discipline `say()` already applies to FINITE animations before it
-   measures - pause, act, resume. `say()` skips infinite ones because
-   `finish()` on one throws; pausing works on both.
-
-   **IT DOES NOT BYPASS ACTIONABILITY.** `{ force: true }` would have made the
-   abort go away by not looking, which is this repo's subject. Visibility,
-   enabled-ness and pointer-interception are all still checked - the tourblock
-   overlay would still be caught. Only the stability race is removed, and only
-   for the length of one click. */
-const clickOnStillGround = async (page, loc) => {
-  const paused = await page.evaluate(() => {
-    const held = [];
-    for (const a of document.getAnimations()) {
-      const t = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
-      if (a.playState !== "running" || Number.isFinite(t.endTime)) continue;
-      try { a.pause(); held.push(a.animationName || "(js)"); } catch { /* not pausable */ }
-    }
-    return held;
-  }).catch(() => []);
-  try {
-    await loc.click();
-  } finally {
-    // ALWAYS resumed, including when the click failed, so a later surface is
-    // never measured against a frozen ground it did not ask for.
-    await page.evaluate(() => {
-      for (const a of document.getAnimations()) {
-        if (a.playState === "paused") { try { a.play(); } catch { /* gone */ } }
-      }
-    }).catch(() => {});
-  }
-  return paused;
-};
+   **So the guard was tolerance with no defect behind it**, which is the thing
+   this file exists to refuse, and keeping it would have meant every future
+   green here was partly bought by not looking. The 1920 abort is UNATTRIBUTED
+   again. What survives is narrower and worth having: the bar is stable in the
+   steady state, so whatever made it unstable was TRANSIENT, in the window just
+   after the setup form closes — a finite animation mid-flight, not an infinite
+   one. That is a hypothesis and it is written here as one. */
 
 const appear = async (loc, ms = 6000) => {
   try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
@@ -1216,8 +1181,16 @@ for (const w of SIZES) {
        at one width - the shape a real abort had - and the run must
        then go RED rather than short. ROADMAP 9.11b. */
     if (process.env.SWEEP_ABORT_CANARY && w === 1440 && /history/i.test(label)) {
-      throw new Error("locator.click: Timeout 15000ms exceeded."
-        + "\nCall log:" + "\n  - <div class=\"tourblock\"> intercepts pointer events");
+      /* **THE MESSAGE SAYS IT IS SYNTHETIC, AND THE FIRST VERSION DID NOT.**
+         It used to fabricate a Playwright call log ending `<div
+         class="tourblock"> intercepts pointer events` - plausible, specific,
+         and completely invented. A manager reading the run quoted it back as
+         evidence of a real cause and went to theme.css to check the overlay,
+         because nothing in the line said it came from a canary. **A sabotage
+         that imitates a real diagnosis is a lie the check tells about
+         itself.** */
+      throw new Error("SWEEP_ABORT_CANARY: deliberate synthetic abort, NOT a real failure."
+        + " No call log follows, because nothing actually timed out.");
     }
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
     const broken = await target.evaluate(() => /That didn't load/.test(document.body.innerText));
@@ -3145,7 +3118,7 @@ for (const w of SIZES) {
          button, prints it, and rethrows so the width still aborts. The next
          occurrence arrives as evidence instead of as a timeout. */
       try {
-        await clickOnStillGround(page, btn);
+        await btn.click();
       } catch (clickErr) {
         const why = await page.evaluate(() => {
           const b = document.querySelector('.tabbar button[data-tour="today"]');
