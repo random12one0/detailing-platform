@@ -713,6 +713,51 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · When you publish the back end, the public programs that carry the
+  hammering limits go up with it — and one of them changed tonight. Added
+  2026-10-06.**
+
+  **What this is.** Eighteen of the programs a customer or a payment company can
+  reach carry a limit on how often one address may call them. **The live copies
+  of three of them — cancelling, rescheduling and accepting a quote — have no
+  limit at all today** (checked tonight: the running copy does not contain the
+  limiter). Tonight the limiter also got stricter in one way: someone who
+  arrives with **no address** used to be counted as nobody, so they had no limit;
+  they are now counted together, with a generous cap. Nothing a real customer
+  does comes anywhere near it.
+
+  **What you do.** Nothing today. On launch day these go up with everything
+  else in the one publish. The eighteen: accept-invite, accept-quote,
+  address-suggest, available-slots, booking-ics, calculate-booking,
+  cancel-booking, create-booking, get-booking-receipt, pay-booking, plan-link,
+  platform-billing, reschedule-booking, resend-webhook, stripe-webhook,
+  track-visit, unsubscribe, validate-promo-code. **No database change goes with
+  this one**, so there is nothing to apply first.
+
+  **What proves it worked.** We ran the real code against the real database with
+  our own made-up address, 610 times at each of the three: exactly 600 were
+  answered and 10 were refused, and the same with no address at all (3,000
+  answered, 10 refused). **That was the code on this computer, not the live
+  site** — so the refusal has still never been seen live. *(Roadmap 14.9, 14.18.)*
+
+- [ ] **DECIDE · After you publish, may a session make a few test calls at your
+  live public address? Added 2026-10-06.**
+
+  **What it is.** Two questions about the live site cannot be answered from this
+  computer: does it really refuse a hammering caller, and can a stranger reach
+  the site without the address header the limits depend on. Answering them means
+  calling the real public programs from outside — the first with a loop of about
+  610 calls at each of the three, the second with two single calls.
+
+  **If yes:** one session does it right after the publish, from this computer,
+  deletes the counter rows it made, and tells you what came back. The only side
+  effect is that this computer's address is refused by those three for the
+  rest of that hour. **If no:** both stay open and the limits are trusted from
+  the tests alone.
+
+  **My recommendation: yes, once, right after you publish** — and not before,
+  because today the live copies have no limit and the calls would prove nothing.
+  *(Roadmap 14.9, 14.18.)*
 
 - [ ] **DECIDE · Pay for Supabase backups, when you are ready to put real
   customers on it (ROADMAP 6.1).** Added 2026-10-06.

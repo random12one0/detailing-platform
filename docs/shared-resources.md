@@ -80,8 +80,12 @@ in the other session's pane.
 **Since 2026-09-23 something else is on them too:** the `probe-live-site` cron
 job calls `available-slots` and the tenant-profile RPC **every five minutes,
 for ever** (ROADMAP 6.2). It is read-only, spends no Geoapify credit and no
-email, and — measured — leaves no row in `rate_hits`, so it neither exhausts
-your bucket nor can be throttled by you. Worth knowing it is there when you
+email, and — measured 2026-09-23 — leaves no row in `rate_hits`, so it neither
+exhausts your bucket nor can be throttled by you. **That changes the day ROADMAP
+14.18's fix is published:** a caller with no address is then counted, so the
+probe will leave one row, `(available-slots:no-address, all)`, at about 12 hits
+an hour against a ceiling of 3,000. It still cannot exhaust a session's bucket;
+a flood of header-less calls could in principle now refuse it. Worth knowing it is there when you
 are reading traffic.
 
 ### 2 · The Geoapify address budget
@@ -172,6 +176,13 @@ run **destroys the floor another session is measuring from**, with no trace.
 **`scripts/tabbar-clearance.mjs` deletes every `address%` bucket** and says so
 in its own header; `bk-bar-clearance.mjs` deliberately does not.
 **Does anything report it:** **no.** `docs/gotchas.md` 78 has the near-miss.
+**Two key shapes to know when reading it:** `(<bucket>:no-address, all)` is the
+one shared counter for callers who arrive with no address (ROADMAP 14.18, once
+published), and `198.51.100.14` is a documentation address only
+`tests/rate-limit-loops.test.mjs` uses — it writes one row each to
+`cancel-booking`, `reschedule-booking` and `accept-quote` and
+`cancel-booking:no-address`, and deletes them by exact bucket and key. **It
+aborts rather than deletes if the shared no-address row already holds anything.**
 
 ### 6 · Andrew's browser window
 

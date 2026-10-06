@@ -16083,6 +16083,49 @@ event id.
   > assuming it happened. **The row that makes that happen rather than being
   > quietly assumed is on `FOR-ANDREW.md`.**
 
+  > ## 2026-10-06 — THE LOOP WAS RUN, ON THIS CHECKOUT'S REAL HANDLERS. THE LIVE
+  > REFUSAL IS STILL UNOBSERVED, AND THE TWO ARE KEPT APART HERE ON PURPOSE.
+  >
+  > **DP Cowork2.** `node tests/rate-limit-loops.test.mjs` (new; at `5345551`
+  > plus the uncommitted `rateLimit.ts` change this commit lands) runs the real
+  > `cancel-booking`, `reschedule-booking` and `accept-quote` through
+  > `scripts/lib/edgeLocal.mjs` — Node, no deploy — against the real database,
+  > through the real `withinLimits` and the real `rate_take`, from one fixture
+  > address (`198.51.100.14`, an RFC 5737 documentation address no caller has).
+  > Every request names a booking id that does not exist, so nothing is written
+  > to `bookings` and nothing is sent. **610 calls to each:**
+  >
+  > | function | answered by the handler (404) | refused (429) | `rate_hits` rows before → after | hits |
+  > |---|---|---|---|---|
+  > | `cancel-booking` | 600 | 10 | 0 → 1 | 610 |
+  > | `reschedule-booking` | 600 | 10 | 0 → 1 | 610 |
+  > | `accept-quote` | 600 | 10 | 0 → 1 | 610 |
+  >
+  > **Exactly 600 allowed and the 601st refused** — the ceiling is `LIMITS.publicCeiling`
+  > and the refused calls are counted, which is what makes a loop pointless rather
+  > than slow. Rows deleted by exact (bucket, key) afterwards and re-counted at 0;
+  > the table total read 133 before and 133 after the whole run (informational —
+  > other writers share it). Full run: **33 passed, 0 failed**.
+  >
+  > **BROKEN ON PURPOSE with real edits on disk, then restored and md5-checked
+  > against the pre-edit file.** `cancel-booking`'s guard replaced with
+  > `if (false)`: its own four loop assertions went red (610 x 404, no 429, no
+  > row) while the other two functions' stayed green — **26 passed, 7 failed,
+  > exit 1**. The sabotage cannot be inside the test (`docs/gotchas.md` 95).
+  >
+  > **WHAT THIS IS NOT.** `node scripts/deployed-inventory.mjs` the same day:
+  > the **deployed** copies of all three are `DIFFERS`, and for each of them
+  > `_shared/rateLimit.ts` is **90 of 93 comment lines missing from the running
+  > bundle** — there is no limiter in what is live at all. A loop against the
+  > public site today would measure the absence of one. **So the source behaves
+  > as designed and the world has not been shown it.** This item's own banner
+  > above says it stays open on the live refusal, and this entry does not
+  > overturn it; the manager's brief for the same day wrote the Done-when as
+  > "a loop against each is refused, proved by running the loop", which the
+  > table satisfies for the source. **Two documents, two readings — not ticked,
+  > and the choice is the manager's.** `FOR-ANDREW.md` has the publish row and
+  > the after-publish check.
+
   **RECOUNTED 2026-09-23, NOT TRUSTED — AND THE LIST WAS ALREADY STALE BY
   ONE BEFORE TODAY.** `grep -rl withinLimits supabase/functions/*/index.ts`
   is the ground truth, every run: `booking-ics` was in this item's own "do
@@ -17770,6 +17813,68 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   session that found this was told not to hammer public endpoints. **Two calls,
   not a loop** — it needs somebody holding permission to touch a public endpoint,
   not a load test.
+
+  > ## 2026-10-06 — FIX BUILT AND LOOP-PROVED IN SOURCE. NOT DEPLOYED, AND THE
+  > ITEM'S OWN DONE-WHEN (THE TWO OUTSIDE CALLS) IS STILL UNANSWERED.
+  >
+  > **DP Cowork2. The change is one file, `supabase/functions/_shared/rateLimit.ts`,
+  > and no migration.** `ipOf` used to answer a blank string when neither header
+  > was there, and the blank was skipped **twice** — by `withinLimits`
+  > (`if (!l.key) continue`) and again by `rate_take`'s first branch. Now:
+  >
+  > - `ipOf` never answers blank. With no header it answers `NO_ADDRESS`
+  >   (`"no-address"`, not an IP and not mistakable for one).
+  > - `withinLimits` sends every limit keyed on `NO_ADDRESS` to **one shared
+  >   counter per bucket**, `<bucket>:no-address` / key `all`, with
+  >   `LIMITS.noAddress` = **3,000 an hour** instead of the per-IP number.
+  > - **A blank key that is not an address (a phone, an email nobody gave) is
+  >   still skipped** — there is nothing to count. `rate_take`'s blank branch is
+  >   untouched, because the migration is append-only and it still serves those.
+  >
+  > **All 18 callers pick it up with no edit** — every use is
+  > `key: ipOf(req)` (`grep -rn "ipOf(req)" supabase/functions`); the one that
+  > assigns it to a variable, `address-suggest`, only passes it into limit keys.
+  >
+  > **WHY THIS SHAPE, WHEN THE BRIEF SUGGESTED A SEPARATE SHARED BUCKET WITH A
+  > GENEROUS CEILING AND THAT IS WHAT IT IS.** Two cheaper-looking options lose:
+  > (1) *return a constant from `ipOf` and stop* — then every header-less caller
+  > shares the per-IP numbers, which are sized for one person (`plan-link`: 6 an
+  > hour, `create-booking`: 25), so one script locks out the next real customer.
+  > (2) *make `rate_take` count blank keys* — needs a migration Andrew applies,
+  > and counts blank phones and emails too, which are not callers. **Why 3,000:**
+  > it is one row for everybody who arrives this way, so it has to cover the
+  > sum, not a person; the only traffic known to arrive without an address is the
+  > five-minute `probe-live-site` job (`*/5 * * * *` in
+  > `20260923040000_outside_checks.sql`: 12 an hour, `available-slots` only), so
+  > it is about 250 times that; and the worst a script gets is 3,000 invocations
+  > an hour per function, which is cents. **What it does not claim:** if an
+  > outsider CAN arrive header-less, they can pin that one counter and the probe
+  > behind it would be refused. That is the next half and it is not measured.
+  >
+  > **PROVED BY RUNNING IT** — `node tests/rate-limit-loops.test.mjs`, section 3,
+  > the real `cancel-booking` handler, no header of either kind, **3,010 calls**:
+  > **3,000 answered, 10 refused, one row** `(cancel-booking:no-address, all)`,
+  > hits 3,010, nothing under the placeholder or a blank key in the per-address
+  > bucket; row deleted by exact key and re-counted at 0. Section 1 (credential-free)
+  > checks `ipOf` and the remap with a recording stand-in for the database.
+  > **BROKEN ON PURPOSE:** `ipOf` put back to answering blank — 3,010 calls, all
+  > 404, no row, no refusal; **28 passed, 5 failed, exit 1**; restored and
+  > md5-checked. Neighbours still green: `spam-filter`, `rate-limit-coverage`
+  > (16/16, canary 5/5) and the four credential-free suites.
+  >
+  > **NOT DEPLOYED, and publishing is Andrew's.** `_shared/rateLimit.ts` is
+  > bundled into the 18 functions that import it, so the fix reaches nobody until
+  > those are published. `deployed-inventory.mjs` shows them `DIFFERS`.
+  >
+  > **THE DONE-WHEN IS NOT MET AND THIS ENTRY DOES NOT CLAIM IT.** The item asks
+  > for two calls from outside — header absent, then forged — with `rate_hits`
+  > read after each. That probes the live gateway, this entry's own text says it
+  > needs somebody holding permission, and the brief for this work said to prove
+  > against a fixture. **Nobody has asked the gateway whether an outsider can
+  > arrive header-less.** What the code now guarantees is that it no longer
+  > matters much: if they can, they are counted. **Also stated, so a sweep does
+  > not "find" it:** once published, the probe leaves a row every five minutes in
+  > `(available-slots:no-address, all)` where it used to leave none.
 
 ### 14.19 — A two-car booking's stored `subtotal` counts the second car twice, and nobody has ever been in a position to notice
 

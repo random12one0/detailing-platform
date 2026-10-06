@@ -48,8 +48,19 @@ type Db = any;
 export function ipOf(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for") ?? "";
   // The left-most entry is the client; everything after it is a proxy.
-  return (fwd.split(",")[0] ?? "").trim() || (req.headers.get("cf-connecting-ip") ?? "").trim();
+  return (fwd.split(",")[0] ?? "").trim() || (req.headers.get("cf-connecting-ip") ?? "").trim()
+    // ROADMAP 14.18 — NEVER BLANK. A blank key was skipped by `withinLimits`
+    // and again by `rate_take`, so a caller who arrived with neither header was
+    // not counted at all and had no ceiling. This stands in for the address
+    // instead, and `withinLimits` sends it to a shared bucket of its own.
+    || NO_ADDRESS;
 }
+
+/**
+ * What `ipOf` answers when the request names no caller at all. It is not an IP
+ * and cannot be mistaken for one, so it never lands in a real caller's row.
+ */
+export const NO_ADDRESS = "no-address";
 
 export interface Limit {
   bucket: string;
@@ -63,9 +74,21 @@ export interface Limit {
  * caller who is over one limit does not have the others counted against them
  * as well — being over twice is not worse than being over once, and it would
  * make the row for a shared address grow on somebody else's abuse.
+ *
+ * **A CALLER WITH NO ADDRESS IS COUNTED, AGAINST A BUCKET OF THEIR OWN (14.18).**
+ * Every limit keyed on `NO_ADDRESS` is replaced by one shared counter per
+ * bucket with a generous ceiling (`LIMITS.noAddress`), instead of the per-IP
+ * number: the per-IP numbers are sized for one person, and this row is shared by
+ * everybody who arrives without a header. It is still a ceiling and not a lock —
+ * the point is that a missing header must not lock out a real customer, and
+ * must not mean no limit either. A blank key that is NOT an address (a phone, an
+ * email nobody gave) is still skipped: there is nothing to count against.
  */
 export async function withinLimits(db: Db, limits: Limit[]): Promise<boolean> {
-  for (const l of limits) {
+  for (const asked of limits) {
+    const l: Limit = asked.key === NO_ADDRESS
+      ? { bucket: `${asked.bucket}:no-address`, key: "all", ...LIMITS.noAddress }
+      : asked;
     if (!l.key) continue;
     try {
       const { data, error } = await db.rpc("rate_take", {
@@ -116,6 +139,15 @@ export const LIMITS = {
   // project's function invocations. Generous on purpose: it is not trying to
   // catch anybody, only to stop a bill.
   publicCeiling: { windowSeconds: 3600, limit: 600 },
+  // ROADMAP 14.18 — WHAT EVERYONE WHO ARRIVES WITH NO ADDRESS SHARES, per
+  // bucket. Five times the per-IP ceiling because it is one row for all of them
+  // rather than one each. Measured traffic that arrives this way today is the
+  // five-minute `probe-live-site` job: 12 an hour, on `available-slots` only
+  // (`pg_net` sets neither header; the gateway sets one for everybody else), so
+  // this is 250 times what is known to use it. It costs a script at most 3,000
+  // invocations an hour per function, which is a few cents a day, and it cannot
+  // refuse a person who is behaving like one.
+  noAddress: { windowSeconds: 3600, limit: 3000 },
   // ADDRESS AUTOCOMPLETE, AND THESE TWO ARE A BUDGET RATHER THAN A SPAM RULE
   // — ROADMAP.md § 6, 2026-09-13. Geoapify's free plan is 3,000 credits a DAY
   // shared by every tenant, and one keystroke is one credit.
