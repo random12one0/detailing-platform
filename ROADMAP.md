@@ -14989,6 +14989,21 @@ their age is not Andrew's problem.
   **What a ruling needs:** branch two is *"the home page stops promising it"*,
   and it has. Branch one (a real card taken in person) remains unbuilt and
   unneeded — the criterion says **either** branch closes the item.
+
+  **NOT TICKED, 2026-10-06 — THE REAL HOME PAGE STILL MAKES THE PROMISE.** The
+  tick was handed over as "verified on the real home page". It was checked
+  again before writing it, and **the page at `https://detailingplatform.com/`
+  reads `Take a card payment · on the driveway`** — read off the rendered page
+  (the `.figrow` text, `innerText`), bundle `index-CfUTS91_.js`, and the bundle
+  itself contains `Take a card payment` once and `Log a card payment` zero
+  times. **Why:** `6097a7e` is in this checkout and **not on `origin/main`**
+  (`git branch -r --contains 6097a7e` prints nothing; `origin/main` is
+  `f7fed00`, 2026-09-14, and `git rev-list --count origin/main..main` was 591).
+  **The wording is fixed in the repo and has never been published.** Whoever
+  "verified" it read `localhost`, or the source. **Branch two closes on the day
+  a publish carries `6097a7e`** — re-run the same check then: open the live
+  page and search its text for `card payment`. Publishing is Andrew's
+  (`FOR-ANDREW.md`, shipping order); nothing is blocked on code.
 - [ ] **12.3 Optional deposit at booking. NEEDS ANDREW — and it is the only open
   item in this file with no acceptance criterion, deliberately.** *A2 Part 8 item 2*
 
