@@ -840,12 +840,29 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   // TRANSLATE, so it is the only tier wording that needs an entry. Walking the
   // constant rather than the call sites is the point: `t(s.label)` is a lookup
   // on a VARIABLE, and check 1b reads literal call sites and cannot see it.
-  const core = readFileSync(path.join(BOOK, "core.js"), "utf8");
-  const defaults = [...core.matchAll(/\{ key: "(\w+)", label: "([^"]+)", examples: "([^"]+)" \}/g)];
-  check("10e · the check has subjects — the default tiers were found", defaults.length === 3,
-    `${defaults.length} found`);
-  const noTier = defaults.flatMap((m) => [m[2], m[3]]).filter((w) => !es[w]);
-  check("10f · every default tier word has Spanish", noTier.length === 0, noTier.join(" · "));
+  //
+  // **IT READ core.js AS TEXT WITH A REGEX UNTIL 2026-10-06, AND THE REGEX WALKED
+  // OFF ITS SUBJECT.** `09e8b8c` gave each tier a second line (`bodyTypes`), so
+  // `{ key, label, examples }` on one line stopped matching the three tiers and
+  // started matching VEHICLE_BODY_TYPES' fourteen — a DASHBOARD list the booking
+  // page never shows. 10e read "14 found" against a declared 3, and 10f demanded
+  // booking-page Spanish for 28 dashboard words. `core.js` has no imports, so the
+  // constant itself is imported: it IS the figure, and there is nothing to declare.
+  const { DEFAULT_VEHICLE_SIZES: tiers } = await import("../app/src/book/core.js");
+  const tierWordsWithoutSpanish = (list, cat) =>
+    list.flatMap((t) => [t.label, t.examples]).filter((w) => !cat[w]);
+  check("10e · the check has subjects — the default tiers were read from core.js",
+    Array.isArray(tiers) && tiers.length > 0 && tiers.every((t) => t.label && t.examples),
+    `${tiers?.length ?? 0} tier(s) in DEFAULT_VEHICLE_SIZES`);
+  const noTier = tierWordsWithoutSpanish(tiers, es);
+  check(`10f · every default tier word has Spanish (${tiers.length} tiers, ${tiers.length * 2} words)`,
+    noTier.length === 0, noTier.join(" · "));
+  // The canary is aimed at the function 10f uses, with one real tier's Spanish taken away.
+  // (With no tiers there is nothing to take away; 10e has already failed.)
+  const first = tiers?.[0]?.label;
+  const { [first]: _gone, ...lessOne } = es;
+  check("10f-canary · a tier word with no Spanish is caught",
+    Boolean(first) && tierWordsWithoutSpanish(tiers, lessOne).includes(first));
 
   // 10g — AND A RENAMED TIER IS NEVER LOOKED UP. A text check, because the
   // guard is a two-line helper not worth exporting; what it pins is the RULE,

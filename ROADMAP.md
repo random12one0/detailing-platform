@@ -18303,23 +18303,21 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   | **1c** | 4 Spanish entries for English that no longer exists: "See the plan", "from {price}", "Plan from {price}", "Plans from {price}" | `app/src/lib/strings/es.js` | A | the plan moved in `bf14517` (2026-09-13) |
   | **9f** | **6 keys appear twice in the dashboard catalogue, and two of them DISAGREE** — "What do you charge for?" is «¿Por qué cobras?» at line 865 and «¿Qué cobras?» at 1596. A JS object keeps the LAST one, so one translation silently wins. Also "{count} people", "When are you open?", "Where does the work happen?", "What color is yours?", "Running a discount?" | `app/src/lib/strings/appEs.js` | A | the second copies arrived with `50b9948` (2026-09-20) |
   | **9a** | 10 of 1,618 dashboard strings have no Spanish, the one named being "All 14 vehicle types are assigned to a size…" | `app/src/screens/more/Catalog.jsx` → `appEs.js` | A | `09e8b8c` |
-  | **10e** | the test declares **3** default vehicle tiers and the code now has **14** — the 14-type checklist replaced the three tiers. **The number is stale, not the product** | `tests/spanish.test.mjs:845` | **B** | `09e8b8c` |
-  | **10f** | the 14 tier names and their examples ("Coupe (2-door)", "e.g. Honda Civic coupe, Toyota Camry coupe", …) have no entry in the BOOKING catalogue. Some exist in the dashboard's `appEs.js`, which the booking page does not read | `app/src/book/core.js` → `app/src/lib/strings/es.js` | A | `09e8b8c` |
+  | ~~**10e**~~ | ~~the test declares **3** default vehicle tiers and the code now has **14**~~ **CORRECTED AND FIXED 2026-10-06 (DP Cowork2).** The product still has 3 default tiers. The test read `core.js` as text, and when `09e8b8c` gave each tier a second line its regex stopped matching the tiers and matched the 14 dashboard body types instead. It now imports `DEFAULT_VEHICLE_SIZES` and checks those — no declared number at all | `tests/spanish.test.mjs` | B | **fixed** |
+  | ~~**10f**~~ | ~~the 14 tier names… have no entry in the BOOKING catalogue~~ **WRONG AS WRITTEN — the same regex drift, not a missing translation.** The 14 body types are shown only on the dashboard (`Catalog.jsx`) and never on the booking page. The 3 tiers' 6 words all have booking Spanish. Green since 10e's fix. **What IS real underneath it, for Lane A:** of the body types' 28 words (14 labels, 14 examples) the dashboard catalogue `appEs.js` has 14 — see whether `Catalog.jsx:697` shows `examples` and whether they reach `t()` | `app/src/screens/more/Catalog.jsx:697`, `app/src/lib/strings/appEs.js:2105` | A (the real half) | **fixed (the check)** |
 
   **The sharpest of the six is 9f**: it is not a missing translation, it is two
   translations of the same sentence where the file order decides which a detailer
   sees, and nothing says so.
 
   **Done when** `node tests/spanish.test.mjs` shows no FAIL; 9f is resolved by
-  choosing ONE Spanish wording per key (not by deleting whichever is first); 10e's
-  declaration is moved to 14 **in the same commit as a run showing it red at 3**
-  (`docs/gotchas.md` 93 — never lower or move a declared number without the red
-  first); and a Spanish booking page is opened at the vehicle step and read.
-  **What failing looks like:** 10e "fixed" by changing 3 to 14 while 10f stays red
-  — the count agreeing while the 28 words it counts are still English.
+  choosing ONE Spanish wording per key (not by deleting whichever is first); and a
+  Spanish booking page is opened at the vehicle step and read. ~~10e's declaration
+  is moved to 14~~ — **struck 2026-10-06: moving it to 14 would have made the test
+  agree with the wrong list.** 10e and 10f are fixed by reading the constant (above);
+  **four remain: 1b, 1c, 9a, 9f, all Lane A.**
 
-  *Lane:* A for 1b, 1c, 9a, 9f, 10f (`app/src`); B for 10e (`tests/`). 10e is
-  small enough to go with 10f's commit so the number and the words move together.
+  *Lane:* A for 1b, 1c, 9a, 9f (`app/src`).
 
 ### 14.34 — Twelve push notifications deep-link to a route that does not exist, and the tap lands on Not Found
 
