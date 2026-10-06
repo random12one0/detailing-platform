@@ -1141,9 +1141,21 @@ A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
 - [ ] **2.1 — The total rises after the customer has picked the time.**
-  **THE FIX IS WRITTEN AND IT IS NOT LIVE. Nothing a customer sees has changed.
-  The only thing standing between here and a customer being shown the right
-  price is Andrew pressing publish on `calculate-booking`.**
+  **THE FIX IS WRITTEN AND IT IS NOT LIVE (measured 2026-10-06). Nothing a
+  customer sees has changed. The only thing standing between here and a
+  customer being shown the right price is Andrew pressing publish on
+  `calculate-booking`.**
+
+  **RE-MEASURED 2026-10-06 AND IT STILL HOLDS — PRESSED, NOT READ.** The
+  deployed `calculate-booking`, asked for `demo-detail`'s Express Wash on
+  Saturday 2026-10-10 **with a date and no time**, returned `adjustments: []` and
+  a total of **$80**. Asked with the date **and** `start_time: "10:00"`, the same
+  function returned `Weekend rate +30` and **$110**. So the day surcharge is
+  live when a time is present and absent when only the day is — which is exactly
+  the fault, and the fix (a day-only `whenContextFor` branch) is not in the
+  running copy. Command: a POST to `/functions/v1/calculate-booking` with the
+  two bodies above; `node scripts/deployed-inventory.mjs` also lists the function
+  among those differing from the checkout.
 
   **What a customer sees TODAY.** They choose Saturday the 26th or Sunday the
   27th, the page lists the times available that day, and the running total
@@ -1158,7 +1170,7 @@ the wrong service, and never book a job we cannot reach.
   price does not move again when they pick a time. A weekday is unaffected and
   stays at $65 throughout.
 
-  **Why it is not live, in one sentence:** the sum is worked out by a program
+  **Why it is not live (as of 2026-10-06), in one sentence:** the sum is worked out by a program
   that runs on Supabase rather than in the browser, and that program has to be
   published to start running the new version.
 
@@ -1488,8 +1500,8 @@ the wrong service, and never book a job we cannot reach.
 
   **AND THE SENTENCE TO READ IF YOU READ NOTHING ELSE HERE, because "blocked
   on deployment" is not something anybody reconstructs six weeks later:**
-  **the work is done and a customer cannot see any of it.** Today they are
-  shown $65 on a Sunday and charged $95. After Andrew publishes
+  **the work is done and a customer cannot see any of it.** Today (measured
+  2026-10-06) they are shown $65 on a Sunday and charged $95. After Andrew publishes
   `calculate-booking` they are shown $95 on the Sunday, with the reason
   written next to it, before they choose anything else. Nothing else is
   needed and nothing else is waiting.
@@ -3789,7 +3801,7 @@ the wrong service, and never book a job we cannot reach.
   `queue-rows-still-belong.test.mjs` row 14.26 now reads DONE: its old probe
   (*zero* picked rows anywhere) is false by design.
 
-- [ ] **14.27 — Nothing notices when a blocker goes stale, so an item can sit
+- [x] **DONE 2026-10-06 — 14.27 — Nothing notices when a blocker goes stale, so an item can sit
   closed-in-fact and open-on-paper. Found 2026-09-23; Andrew asked for it in
   its own right.**
   ***NUMBERED 14.27 ON 2026-10-03, AND THE REASON IS THIS ITEM'S OWN SUBJECT.***
@@ -3846,6 +3858,48 @@ the wrong service, and never book a job we cannot reach.
   both directions, while every entry opened by hand turned out well-evidenced.
   **Kept whole in one file rather than dispersed through this one**, because the
   procedure is worth more than the findings.
+
+  **CLOSED 2026-10-06 — SHAPES 1 AND 3 TOGETHER, AS A CHECK RATHER THAN A
+  CONVENTION.** `tests/blocker-claims-are-dated.test.mjs` (credential-free, one
+  file read) reads every OPEN item and requires that a paragraph stating live
+  state — *not live, not deployed, not published, unpublished, not running,
+  still the old one, waiting on Andrew, needs a publish, Andrew publishing* —
+  carries an ISO date. Struck-through text is not read, because this file
+  corrects by striking. It also **reports each claim's age** and names those
+  past 7 days as UNPROVEN, without failing on age, so the battery does not go red
+  on the calendar.
+
+  **IT FOUND A STALE BLOCKER ON ITS FIRST RUN, IN THE ITEM THAT HOLDS THE
+  SENTENCE IT WAS WRITTEN TO CATCH.** 5 undated claim paragraphs, in 2 items.
+  **2.1's three were re-measured and HOLD** — pressed, not read, against the
+  deployed `calculate-booking` (date only: no surcharge, $80; date and time:
+  `Weekend rate +30`, $110) — and are now dated. **3.4's two were WRONG:** the
+  deployed `send-owner-reminders` contains the maintenance-due gate, so the
+  "NOT LIVE" paragraphs were struck and corrected above. **That item's blocker
+  had expired on 2026-09-21 and the item body said otherwise for fifteen days**,
+  one of the 23 blockers the 2026-09-24 hand pass counted and recorded as expired
+  without the paragraph ever being fixed. `docs/gotchas.md` is not extended: the
+  lesson is this item's own.
+
+  **Proved by running it.** Test 3 was red on 9 undated paragraphs before any
+  edit — the 5 above plus 4 in this item's own text, which stop counting once it
+  is ticked — and green after the 5 were dated or struck and this item ticked.
+  The first run reported 16 dated claims in open items, 10 of them older than 7
+  days (UNPROVEN, not false).
+  `BLOCKER_BREAK=undate` removes every date from the document before the check
+  and the suite goes red. A canary runs every time against the same production
+  function the real read uses: an undated claim is flagged, a dated one passes, a
+  struck one and a ticked item are ignored.
+
+  **WHAT IT CANNOT SEE, AND IT IS WRITTEN IN THE TEST'S OWN HEADER TOO.** It reads
+  phrasings. The 2026-09-24 hand pass counted 23 genuine blockers by a broader
+  keyword scan and noted that a scan cannot tell a blocker from the word for one;
+  this check uses a narrower list on purpose, and **a blocker worded some other
+  way is invisible to it** — the list in the file is the one place to extend. A
+  date beside a claim makes its age readable; it does not prove the claim was
+  re-measured that day. Shape 2, a check that re-asks the world, is NOT built: it
+  needs a credential per claim, and this item's done-when asks for a reader to be
+  able to see the age, which this does.
 
   ---
 
@@ -6232,11 +6286,13 @@ requested.
   Flag off → ordinary reminders still fire. Flag on → the maintenance email is
   produced. **No email left the machine in any run** — the relay was
   unreachable by construction throughout.
-  **WHAT REMAINS BETWEEN THIS AND THE RULING BEING IN FORCE IS ONE STEP AND IT
+  ~~**WHAT REMAINS BETWEEN THIS AND THE RULING BEING IN FORCE IS ONE STEP AND IT
   IS NOT A SESSION'S:** the deployed `send-owner-reminders` is still the old
   copy and the cron is still firing it every fifteen minutes. **Andrew
   publishing that one function is the whole of it**, and it is already on his
-  list. Nothing here should be deployed to bring it forward.
+  list. Nothing here should be deployed to bring it forward.~~
+  **STRUCK 2026-10-06 — NO LONGER TRUE; SEE THE CORRECTION AT THE END OF THIS
+  SECTION.**
   **A measurement trap worth recording:** the sweep's HTTP response is a
   SUMMARY (`{success, count, summary:{maintenance_failed:1}}`) and carries no
   `results` array. Reading `results` off the response gives `[]` for every run
@@ -6253,11 +6309,27 @@ requested.
   **What that test cannot do is prove an email does not send.** Only a press
   can, and it is queued.
 
-  **NOT LIVE. The deployed function is still the old one and the cron is still
+  ~~**NOT LIVE. The deployed function is still the old one and the cron is still
   firing it every fifteen minutes.** This changes nothing for a real customer
   until Andrew publishes. `deployed-inventory.mjs` now has a second function
   differing for this reason — `send-owner-reminders` — which is correct and
-  expected; nothing was deployed and nothing should be deployed to clear it.
+  expected; nothing was deployed and nothing should be deployed to clear it.~~
+
+  **CORRECTED 2026-10-06 — THE TWO "NOT LIVE" PARAGRAPHS ABOVE WERE STALE, AND
+  ONE OF THEM HAD BEEN FOR FIFTEEN DAYS.** The deployed `send-owner-reminders`
+  bundle was fetched from the Management API
+  (`GET /v1/projects/<ref>/functions/send-owner-reminders/body`) and it contains
+  `if (!settings.email_customer_maintenance_due) continue;` — **the gate is in
+  the running function.** The checkout's own line is at
+  `supabase/functions/send-owner-reminders/index.ts:426`. This agrees with the
+  hand pass in 14.27 (2026-09-24), which had already recorded that the function
+  went out in the 2026-09-21 publish; **the item body was never corrected, so
+  for two weeks a reader of 3.4 was told Andrew still had a publish to do that
+  he had already done.** That is 14.27's subject, found in the item by 14.27's
+  own check on its first run. `deployed-inventory.mjs` still names the function
+  as differing (it lists 31 of 39 on 2026-10-06) — a difference in the bundle is
+  not the same as the gate being absent, and this is the second time that has
+  mattered. Nothing was deployed.
 
   ---
 
