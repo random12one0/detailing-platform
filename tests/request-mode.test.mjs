@@ -227,8 +227,15 @@ console.log("\ntest 5: accepting");
   check("the booking is confirmed", row?.status === "confirmed", String(row?.status));
   check("the price is untouched", near(row?.total_price, 200), String(row?.total_price));
 
+  // ROADMAP 6.4 — THIS WAS "→ 409" AND THAT WAS THE DEFECT. The second press
+  // is a detailer in a driveway whose first answer was lost; telling them
+  // "not waiting to be accepted" about the request they just accepted reads
+  // as failure. It is now answered as done, and changes nothing.
   const again = await fn("respond-to-booking", { business_id: R.id, booking_id: id, action: "accept" }, owner.jwt);
-  check("accepting a confirmed booking → 409", again.status === 409, `${again.status}`);
+  const after = await rowOf(id);
+  check("accepting it again is answered as done, and changes nothing",
+    again.status === 200 && again.data?.duplicate === true && after?.updated_at === row?.updated_at,
+    `${again.status} ${JSON.stringify(again.data).slice(0, 80)}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -307,8 +314,14 @@ console.log("\ntest 8: the customer accepts, and the receipt still adds up");
   check("the subtotal adds up to what is charged", near(row?.subtotal, row?.total_price),
     `subtotal ${row?.subtotal} vs total ${row?.total_price}`);
 
+  // ROADMAP 6.4 — was "→ 409". The customer pressing Accept again after it
+  // landed is told it is done; the price line is NOT added a second time.
   const again = await fn("accept-quote", { booking_id: quotedId });
-  check("accepting a quote that is no longer there → 409", again.status === 409, `${again.status}`);
+  const after = await rowOf(quotedId);
+  check("accepting the quote again is answered as done, and adds no second price line",
+    again.status === 200 && again.data?.duplicate === true
+      && (after?.price_adjustments ?? []).length === (row?.price_adjustments ?? []).length,
+    `${again.status} ${JSON.stringify(after?.price_adjustments)}`);
 }
 
 // ---------------------------------------------------------------------------

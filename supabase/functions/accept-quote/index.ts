@@ -65,6 +65,12 @@ Deno.serve(async (req) => {
       .is("deleted_at", null)
       .maybeSingle();
     if (!booking) return json({ error: "not_found" }, 404);
+    // ROADMAP 6.4 — the customer pressed Accept again after it landed. The
+    // quote is cleared on acceptance, so without this the retry was told
+    // "there is no quote waiting" about the quote they had just accepted.
+    if (booking.status === "confirmed" && booking.quoted_at === null) {
+      return json({ success: true, duplicate: true, booking: { id: booking.id, status: booking.status, total_price: booking.total_price } });
+    }
     if (booking.quoted_at === null || booking.quoted_amount === null) {
       return json({ error: "There is no quote waiting on this booking." }, 409);
     }
@@ -94,9 +100,16 @@ Deno.serve(async (req) => {
       })
       .eq("id", booking.id)
       .eq("business_id", booking.business_id)
+      // Only the quote that was read: of two concurrent presses one accepts
+      // and emails, the other finds the quote already taken.
+      .eq("status", "pending")
+      .eq("quoted_at", booking.quoted_at)
       .select()
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!updated) {
+      return json({ success: true, duplicate: true, booking: { id: booking.id, status: "confirmed" } });
+    }
 
     // --- Notifications. The customer gets the ordinary confirmation, because
     // that is now exactly what this is: a confirmed booking at an agreed

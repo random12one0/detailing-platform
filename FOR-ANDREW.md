@@ -714,6 +714,30 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **SWITCH · Publish six booking functions, so a press repeated on a bad
+  connection does not send a customer two emails or refuse their own booking
+  (ROADMAP 6.4).** Added 2026-10-06.
+
+  **What this is.** Measured on the live functions today: when the same button
+  is pressed twice at once (a detailer in a driveway, a customer on a phone),
+  the customer gets **two** cancellation, move or confirmation emails. And a
+  customer whose first booking went through, but whose screen never heard back,
+  is told the time is taken **by their own booking**. Fixed and checked in the
+  code (30 of 30); the live site still has the old behavior until these are
+  published.
+
+  ```bash
+  node scripts/deploy-functions.mjs create-booking update-booking cancel-booking reschedule-booking respond-to-booking accept-quote
+  RETRY_TARGET=deployed node tests/retry-safety.test.mjs   # should read 30 passed
+  ```
+
+  **Two older checks expect the old behavior until this goes out** — the
+  "accepting it again" checks in `tests/request-mode.test.mjs` read red against
+  the live site now and turn green once these are published.
+
+  **Nothing to decide.**
+
+
 - [ ] **NEEDS ANDREW · Put the Stripe TEST secret key into `.env`, so the
   billing walk can run renewals and failed payments (ROADMAP 12.1).** Added
   2026-10-06.

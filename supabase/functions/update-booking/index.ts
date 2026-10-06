@@ -160,18 +160,39 @@ Deno.serve(async (req) => {
       updateData.end_at = check.endAt!.toISOString();
     }
 
-    const { data, error } = await supabase
+    // ROADMAP 6.4 — A STATUS CHANGE OR A MOVE IS WRITTEN ONLY FROM THE STATE
+    // IT WAS READ IN. Two presses of Cancel on a bad connection both read
+    // `confirmed`; without this both wrote, both counted as "just cancelled"
+    // and the customer got two cancellation emails. Every other field is a
+    // plain value and repeats harmlessly, so it is not fenced.
+    let write = supabase
       .from("bookings")
       .update(updateData)
       .eq("id", bookingId)
-      .eq("business_id", member.businessId)
-      .select()
-      .single();
+      .eq("business_id", member.businessId);
+    if (updateData.status !== undefined && updateData.status !== current.status) {
+      write = write.eq("status", current.status);
+    }
+    const moving = updateData.start_at !== undefined
+      && new Date(updateData.start_at as string).getTime() !== new Date(current.start_at).getTime();
+    if (moving) write = write.eq("start_at", current.start_at);
+    const { data, error } = await write.select().maybeSingle();
     if (error) {
       if (error.code === "23P01") {
         return json({ error: "That time overlaps another booking." }, 409);
       }
       throw error;
+    }
+    if (!data) {
+      // The other press got there first. If it left the booking where this
+      // one asked for, this one has nothing left to do and says so.
+      const { data: now } = await supabase.from("bookings").select("*").eq("id", bookingId).maybeSingle();
+      const same = now
+        && (updateData.status === undefined || now.status === updateData.status)
+        && (updateData.start_at === undefined
+          || new Date(now.start_at).getTime() === new Date(updateData.start_at as string).getTime());
+      if (same) return json({ success: true, duplicate: true, booking: now, message: "Booking updated successfully" });
+      return json({ error: "This booking was just changed on another device. Reload it and try again." }, 409);
     }
 
     // Replace add-ons when a new set is provided.

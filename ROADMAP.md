@@ -9375,6 +9375,91 @@ most corroborated finding in the set.
   one of the four that costs a customer something**, and the only one no screen can
   show you.
 
+  **(b) AND (c), SERVER HALF — BUILT AND MEASURED ON THE ROWS, 2026-10-06. NOT
+  LIVE: NEEDS ANDREW to publish six functions** (`FOR-ANDREW.md` § "Waiting on
+  you"). `tests/retry-safety.test.mjs` fires every request twice CONCURRENTLY and
+  then once more, against its own `retry-<tag>` business (`is_demo`, deleted at
+  the end), and counts `bookings`, `booking_line_items` and `email_sends` (one row
+  per email the relay handled, recipients on the `fixture.test` sink, so nothing
+  is spent). Run at `266f8b9` plus this change, uncommitted, then committed with
+  this note.
+  * **Live today (`RETRY_TARGET=deployed`): 10 of 30 checks fail.** A booking
+    submitted again after the first press landed is REFUSED — *"That time is too
+    close to another booking"* — about the customer's own booking (F-022 only
+    ever caught two presses racing into the insert; the slot gate refused the
+    commoner case first). And **every status change pressed twice at once sends
+    the customer two emails**: customer cancel, detailer cancel, detailer move,
+    customer reschedule (three, counting the later press), accept a request,
+    accept a quote. Accept and accept-quote also answered a repeat with a 409
+    about the action they had just done.
+  * **This checkout (`node tests/retry-safety.test.mjs`): 30 of 30.** No
+    deploy needed to prove it: `scripts/lib/edgeLocal.mjs` runs the functions
+    from this checkout in Node against the real database (no Deno, no Docker on
+    this machine).
+  * **THE MECHANISM, smallest that works — no migration, no new header:**
+    * `create-booking`: the natural key it already had (business, start, phone —
+      **now also name**, because the answer is the whole row and its id opens the
+      manage page; phone and time alone are things a stranger can know) is asked
+      **before** the slot gate as well as after a 23P01.
+    * `cancel-booking`, `reschedule-booking`, `respond-to-booking`, `accept-quote`,
+      `update-booking`: **compare-and-set.** A status change or a move is written
+      only from the state that was read (`.eq("status", …)` / `.eq("start_at", …)`
+      / the quote's `quoted_at`). The press that loses gets 200 with
+      `duplicate: true` and the booking as it now stands, and sends nothing. A
+      repeat after the first landed answers the same way instead of a 409.
+    * `pay-booking` was already safe (Stripe idempotency key on booking + amount).
+  * **Broken on purpose:** with the `cancel-booking` fence removed, 2a reads two
+    emails and goes red; `--break=no-client-id` writes the finalize lines without
+    ids and 3b reads **6 lines, not 2**. The deployed run is the third control —
+    the old code, and the same counter sees its duplicates.
+  * Pinned old behavior updated in the same edit: `request-mode` tests 5 and the
+    quote test asserted the **409 on a repeat** (they now assert "answered as done,
+    nothing changed", and **go red against the live functions until the publish**);
+    `booking-engine` 18a follows the lookup into `sameBooking`, with 18a-ii for the
+    early check (broken on purpose: removing it reddens 18a-ii); `spam-filter`'s
+    "before the insert" was matching the first MENTION of `bookings`, which is now a
+    read — it looks for the insert itself (sabotaged: an insert above the limits
+    reddens it). **`booking-engine` and `request-mode` were NOT run** — both delete
+    every `booking%` row in `rate_hits` at start, which is shared (§ 5 of
+    `docs/shared-resources.md`) while DP Cowork sweeps; their changed regexes were
+    checked against the source directly.
+
+  **LANE A — WHAT `app/src` MUST SEND, exactly.** The five functions above need
+  **nothing new from the client**; a repeat already answers 200. Two writes go
+  straight from the browser to the table and **are the remaining duplicates**,
+  both measured above:
+  1. **`FinalizeModal.jsx` — the extra lines.** It inserts `booking_line_items`
+     and THEN calls `update-booking`; a lost answer and a second press adds every
+     line again (a $20 tip twice on the invoice). **Send an `id` on each line,
+     made with `crypto.randomUUID()` in `addItem` when the line is added — kept in
+     `items` state, so a retry resends the SAME id — and write with
+     `.upsert(rows, { onConflict: "id", ignoreDuplicates: true })`.** No
+     migration: `id` is already the primary key. Proven as the owner would run it:
+     `retry-safety` 3a–3b.
+  2. **`BulkJobModal.jsx` — the logged bulk job.** Same: an `id` made once when
+     the sheet opens, same upsert. `retry-safety` 3e.
+  Treat `duplicate: true` as success — it already is (200), so no change unless a
+  screen shows the field.
+
+  **STILL OPEN, and what each needs:**
+  * **(a) today's jobs readable with the network cut — Lane A, unmeasured.**
+    Load Today and a job, cut the network in the browser
+    (`context.setOffline(true)`), wait out a refetch, and read the jobs off the
+    page. The question is whether a failed refetch in `useBookings` keeps the last
+    list or blanks it.
+  * **(d) a next-day schedule with customer contacts, printed or saved while
+    offline — Lane A, not built.** A global `@media print` rule exists
+    (`theme.css`); no screen lays out tomorrow's jobs with phone and address for
+    paper, and nothing makes it available offline.
+  * **`send-invoice` resends the email on a repeat.** It writes no row, so (b)
+    and (c) do not cover it, but it is a duplicate action. A natural key cannot
+    tell a retry from a deliberate "send again"; it needs a key from the client
+    (or Resend's own `Idempotency-Key`, carried through `send-email`). Not built.
+  * **`update-booking`'s `add_ons` list is deleted and re-inserted**, which two
+    concurrent presses would double. **No screen sends it today** (checked:
+    every `updateBooking` caller), so no constraint was added; if one ever does,
+    it needs a unique index on `booking_add_ons (booking_id, add_on_id)`.
+
 ---
 
 ## Wave 7 — Sales proof

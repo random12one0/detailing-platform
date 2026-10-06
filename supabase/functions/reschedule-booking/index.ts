@@ -88,6 +88,18 @@ Deno.serve(async (req) => {
     });
     if (!check.ok) return json({ error: check.error }, check.status ?? 409);
 
+    // ROADMAP 6.4 — A RETRY OF A MOVE THAT ALREADY LANDED. The second press
+    // finds the booking already at the time it asks for; it answers as the
+    // first did and does not email "moved from 10:00 to 10:00".
+    if (new Date(booking.start_at).getTime() === check.startAt!.getTime()) {
+      return json({ success: true, duplicate: true, booking: {
+        id: booking.id,
+        booking_date: dateStrIn(tz, new Date(booking.start_at)),
+        start_time: timeStrIn(tz, new Date(booking.start_at)),
+        end_time: timeStrIn(tz, new Date(booking.end_at)),
+      } });
+    }
+
     const oldDateStr = dateStrIn(tz, new Date(booking.start_at));
     const oldStartTime = timeStrIn(tz, new Date(booking.start_at));
 
@@ -96,13 +108,29 @@ Deno.serve(async (req) => {
       .update({ start_at: check.startAt!.toISOString(), end_at: check.endAt!.toISOString() })
       .eq("id", booking.id)
       .eq("business_id", business.id)
+      // Only from the time the checks above read, so of two concurrent
+      // presses exactly one moves it and sends the notices.
+      .eq("start_at", booking.start_at)
       .select()
-      .single();
+      .maybeSingle();
     if (error) {
       if (error.code === "23P01") {
         return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
       }
       throw error;
+    }
+    if (!moved) {
+      const { data: now } = await supabase.from("bookings").select("id, start_at, end_at")
+        .eq("id", booking.id).maybeSingle();
+      if (now && new Date(now.start_at).getTime() === check.startAt!.getTime()) {
+        return json({ success: true, duplicate: true, booking: {
+          id: now.id,
+          booking_date: dateStrIn(tz, new Date(now.start_at)),
+          start_time: timeStrIn(tz, new Date(now.start_at)),
+          end_time: timeStrIn(tz, new Date(now.end_at)),
+        } });
+      }
+      return json({ error: "This booking was just changed. Please reload and try again." }, 409);
     }
 
     // Notifications — best-effort.

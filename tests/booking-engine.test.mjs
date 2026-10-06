@@ -907,9 +907,15 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
   // just made and told them a stranger had taken the slot. They then book a
   // second time (a double booking and a wasted morning) or abandon a job that
   // is on the calendar and will be waited for.
+  // ROADMAP 6.4 moved the lookup into `sameBooking`, because it is now asked
+  // TWICE — before the slot gate (a retry after the first press landed) and
+  // here (two presses racing into the insert). The regex follows the helper.
   check("18a · a 23P01 checks whether the clash is the caller's own booking",
-    /insertErr\.code === "23P01"[\s\S]{0,2400}?\.eq\("customer_phone", String\(body\.customer_phone\)\.trim\(\)\)/.test(cb),
+    /insertErr\.code === "23P01"[\s\S]{0,2400}?sameBooking\(business\.id, check\.startAt!\.toISOString\(\), body\)/.test(cb)
+      && /const sameBooking[\s\S]{0,700}?\.eq\("customer_phone", String\(body\.customer_phone\)\.trim\(\)\)/.test(cb),
     "same business, same instant, same phone, not cancelled");
+  check("18a-ii · and asks the same question BEFORE the slot gate, so a retry after a lost answer is not refused",
+    /sameBooking\(business\.id, asked\.toISOString\(\), body\)[\s\S]{0,400}?const check = await validateSlot\(/.test(cb));
   check("18b · and returns it as a booking rather than a conflict",
     /if \(mine\) \{[\s\S]{0,400}?return json\(\{ booking: mine/.test(cb));
   // The retry must be INDISTINGUISHABLE from the first press — same key, so

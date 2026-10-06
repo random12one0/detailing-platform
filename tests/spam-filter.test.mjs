@@ -99,9 +99,13 @@ console.log("\n2. before anything is written");
   check("and the booking limits are at the last moment",
     at("LIMITS.bookingPerIp") > at("await validateSlot"),
     "counting a refusal punishes a caller for a slot they never took");
+  // THE INSERT, NOT THE FIRST MENTION OF THE TABLE. This read `.from("bookings")`
+  // until ROADMAP 6.4 put a READ of bookings above the limits (`sameBooking`,
+  // a retry finding the booking it already made) and the needle landed on it.
+  const insertAt = flow.search(/\.from\("bookings"\)\s*\.insert\(/);
   check("and before the insert",
-    at("withinLimits(") > -1 && at("withinLimits(") < at('.from("bookings")'),
-    `${at("withinLimits(")} vs ${at('.from("bookings")')}`);
+    at("withinLimits(") > -1 && insertAt > -1 && at("withinLimits(") < insertAt,
+    `${at("withinLimits(")} vs ${insertAt}`);
 
   // A DETAILER TYPING IN THE MORNING'S PHONE BOOKINGS is the one caller who
   // legitimately looks like a script, and they are already verified against

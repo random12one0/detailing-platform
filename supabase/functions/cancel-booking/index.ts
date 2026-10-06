@@ -89,9 +89,14 @@ Deno.serve(async (req) => {
       .update({ status: "cancelled" })
       .eq("id", booking.id)
       .eq("business_id", business.id)
+      // ROADMAP 6.4 — ONLY FROM THE STATE THE CHECKS ABOVE READ. Two presses
+      // on a bad connection both pass those checks; this is what lets only
+      // one of them cancel, and only that one send the two emails and the push.
+      .eq("status", booking.status)
       .select()
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!cancelled) return json({ success: true, message: "Already cancelled." });
 
     // Notifications — best-effort.
     const tz = business.timezone;

@@ -41,6 +41,26 @@ import { vcardAttachment } from "../_shared/vcard.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { localDateTimeToInstant, timeStrIn, weekdayOf } from "../_shared/tz.ts";
 
+/**
+ * ROADMAP 6.4 / F-022 — is this request a booking that already exists?
+ *
+ * Same business, same instant, same phone AND same name, not cancelled. The
+ * name is there because the answer is the whole row, id included, and the id
+ * is the key to the manage page: phone and time alone are things a stranger
+ * can know. A retry sends the identical name, so it costs a real retry nothing.
+ */
+const sameBooking = (businessId: string, startIso: string, body: Record<string, unknown>) =>
+  supabase
+    .from("bookings")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("start_at", startIso)
+    .eq("customer_phone", String(body.customer_phone).trim())
+    .eq("customer_name", String(body.customer_name).trim())
+    .neq("status", "cancelled")
+    .is("deleted_at", null)
+    .maybeSingle();
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -212,6 +232,20 @@ Deno.serve(async (req) => {
       extraVehicles,
       extraVehicleMinutesSaved: Number(settings.extra_vehicle_minutes_saved) || 0,
     });
+
+    // ROADMAP 6.4 (c) — THE SAME BOOKING, ARRIVING AGAIN AFTER THE FIRST
+    // LANDED. F-022 below catches two presses racing into the insert. It
+    // never saw the commoner case: the first press SUCCEEDED, its answer was
+    // lost on the way back, and the second press reached the slot gate, which
+    // refused the customer's OWN booking as "too close to another booking" —
+    // sending them off to book a second time. Measured, not reasoned:
+    // tests/retry-safety.test.mjs 1a. Same natural key as F-022, asked before
+    // the gate and before any limit is spent, so a retry costs nothing.
+    const asked = localDateTimeToInstant(business.timezone, String(body.booking_date), String(body.start_time).slice(0, 5));
+    if (!Number.isNaN(asked.getTime())) {
+      const { data: mine } = await sameBooking(business.id, asked.toISOString(), body);
+      if (mine) return json({ booking: mine, duplicate: true });
+    }
 
     // --- The authoritative slot gate ---------------------------------------
     const check = await validateSlot({
@@ -531,15 +565,7 @@ Deno.serve(async (req) => {
         // arriving twice, and the honest answer is the row itself. Phone
         // rather than email because `create-booking` already requires a phone
         // and already scopes the customer upsert by it; email is optional.
-        const { data: mine } = await supabase
-          .from("bookings")
-          .select("*")
-          .eq("business_id", business.id)
-          .eq("start_at", check.startAt!.toISOString())
-          .eq("customer_phone", String(body.customer_phone).trim())
-          .neq("status", "cancelled")
-          .is("deleted_at", null)
-          .maybeSingle();
+        const { data: mine } = await sameBooking(business.id, check.startAt!.toISOString(), body);
         if (mine) {
           // The SAME shape a fresh booking returns, so the confirmation page
           // and the emails behave identically — a retry must be
