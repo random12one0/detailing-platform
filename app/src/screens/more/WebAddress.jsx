@@ -78,7 +78,7 @@ export default function WebAddress() {
     // worth translating: "duplicate key" tells a detailer nothing.
     if (err) {
       setNote({ ok: false, text: /duplicate|unique/i.test(err.message)
-        ? `${domain} is already set up on an account.`
+        ? t("{domain} is already set up on an account.", { domain })
         : err.message });
       return;
     }

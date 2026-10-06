@@ -32,8 +32,9 @@
 import { useState } from "react";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { listAccounts } from "../lib/accounts.js";
+import { t } from "../lib/appI18n.js";
 
-export default function ParkedAccounts({ label = "Already signed in here" }) {
+export default function ParkedAccounts({ label = t("Already signed in here") }) {
   const { useAccount } = useBusiness();
   // Its own copy of the list, because a switch that FAILS drops that account
   // and has to redraw — and the provider does not re-render for a state
@@ -77,7 +78,7 @@ export default function ParkedAccounts({ label = "Already signed in here" }) {
             // there is deliberately nothing to do here.
           }}
         >
-          {a.email || "Another account"}
+          {a.email || t("Another account")}
         </button>
       ))}
     </div>

@@ -489,7 +489,7 @@ export default function Plans() {
     return (
       <Tag key={p.id} className="row-item" style={{ opacity: p.is_active ? 1 : 0.5 }}
         onClick={maySetPlans ? () => { setPlanForm(planToForm(p)); setEditPlan(p.id); } : undefined}
-        aria-label={`${p.name}, ${cadenceWords(p, lang)}, ${priceWords(p.price_kind, p.price_amount, money, lang)}, ${memberCount(p.id)} members`}>
+        aria-label={`${p.name}, ${cadenceWords(p, lang)}, ${priceWords(p.price_kind, p.price_amount, money, lang)}, ${t(memberCount(p.id) === 1 ? "{count} member" : "{count} members", { count: memberCount(p.id) })}`}>
         {/* AN OFFER, NOT A PERSON. The two lists on this screen share a row
             grammar on purpose, which is what made them read alike — one mark
             in the name cell is enough to tell them apart at a glance without

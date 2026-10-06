@@ -344,7 +344,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
                     // this, so there is deliberately nothing to do here.
                   }}
                 >
-                  <Users strokeWidth={2} /> {a.email || "Another account"}
+                  <Users strokeWidth={2} /> {a.email || t("Another account")}
                 </button>
               ))}
             </div>

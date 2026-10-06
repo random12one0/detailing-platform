@@ -166,7 +166,7 @@ export default function Reviews() {
                 onClick={() => { setEditing(r.id); setForm({ author: r.author, quote: r.quote, rating: r.rating, source: r.source || "" }); }}>
                 <span className="nm">
                   {r.author}
-                  <span className="stars" aria-label={`${r.rating} of 5`}>
+                  <span className="stars" aria-label={t("{rating} of 5", { rating: r.rating })}>
                     {Array.from({ length: r.rating }, (_, i) => (
                       <Star key={i} size={12} strokeWidth={0} fill="currentColor" aria-hidden="true" />
                     ))}

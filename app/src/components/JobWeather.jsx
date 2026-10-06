@@ -91,6 +91,9 @@ function conditionIcon(period) {
   return day ? Sun : Moon;
 }
 
+// OUR shipped wording is translated; a detailer's own typed words are not (2.12).
+const warnText = (w) => (w.shipped ? t(w.template, { temp: w.temp }) : w.text);
+
 export default function JobWeather({ period, prefs, full = false, busy = false }) {
   // ---------------------------------------------------------------------------
   // **THE ONE EXCEPTION TO "NO WE-DON'T-KNOW STATE", AND IT IS NARROW ON
@@ -126,7 +129,7 @@ export default function JobWeather({ period, prefs, full = false, busy = false }
 
   if (!full) {
     return (
-      <span className={`jw${warned ? " warned" : ""}`} title={first ? first.text : period.shortForecast}>
+      <span className={`jw${warned ? " warned" : ""}`} title={first ? warnText(first) : period.shortForecast}>
         {/* THE GLYPH IS ITS OWN BOX so a warned chip can invert it into a
             filled disc — shape as well as colour, which is what makes a
             warning findable while scrolling rather than findable while
@@ -139,7 +142,7 @@ export default function JobWeather({ period, prefs, full = false, busy = false }
             thought gets one word beside it. Two warnings on one job still show
             one word — the most serious, which `weatherWarnings` orders first —
             because the record is where the rest of them belong. */}
-        {first && <span className="jw-w">{first.label}</span>}
+        {first && <span className="jw-w">{t(first.label)}</span>}
       </span>
     );
   }
@@ -167,7 +170,7 @@ export default function JobWeather({ period, prefs, full = false, busy = false }
         <p className="muted">{t("{pct}% chance of rain", { pct: period.precipChance })}</p>
       )}
       {warnings.map((w) => (
-        <p className="jw-warn" key={w.key}>{w.text}</p>
+        <p className="jw-warn" key={w.key}>{warnText(w)}</p>
       ))}
     </div>
   );

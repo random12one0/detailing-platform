@@ -96,7 +96,7 @@ export default function JobPhotos({ booking }) {
   // ADD control is not "nothing in it", it is the whole point on a job that has
   // no photos yet. So the heading is always here and only the groups are
   // conditional.
-  const warn = budgetWords(budget);
+  const warn = budgetWords(budget, t);
 
   return (
     <>

@@ -173,7 +173,7 @@ export function fillTemplate(body, {
   booking, business, timeLabel, dateLabel, address, total, service, vehicle, bookingLink,
 }) {
   const map = {
-    "{{customer_name}}": String(booking?.customer_name || "").split(" ")[0] || "there",
+    "{{customer_name}}": String(booking?.customer_name || "").split(" ")[0] || t("there"),
     "{{business_name}}": business?.name ?? "",
     "{{date}}": dateLabel ?? "",
     "{{time}}": timeLabel ?? "",
@@ -182,8 +182,8 @@ export function fillTemplate(body, {
     // THE FOUR ADDED 2026-09-11. Each falls back to a word rather than to an
     // empty string: a text reading "See you for your on Thursday" is the
     // failure a detailer only finds out about from the customer.
-    "{{service}}": service || "your detail",
-    "{{vehicle}}": vehicle || "your car",
+    "{{service}}": service || t("your detail"),
+    "{{vehicle}}": vehicle || t("your car"),
     "{{business_phone}}": business?.contact_phone ?? business?.phone ?? "",
     "{{booking_link}}": bookingLink ?? "",
   };

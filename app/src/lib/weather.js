@@ -132,7 +132,11 @@ export function weatherWarnings(period, prefs) {
   const say = (key, vars) => {
     const kind = WEATHER_KINDS.find((k) => k.key === key);
     const raw = p.text[key] || kind.text;
-    return { key, label: kind.label, text: raw.replace("{temp}", vars?.temp ?? "") };
+    // `shipped` + `template` let the dashboard put OUR wording through `t()`; a
+    // detailer's own words are shown as typed. This file imports nothing, so it
+    // cannot translate for itself.
+    return { key, label: kind.label, text: raw.replace("{temp}", vars?.temp ?? ""),
+      shipped: !p.text[key], template: kind.text, temp: vars?.temp ?? "" };
   };
 
   const snow = SNOW.test(words);

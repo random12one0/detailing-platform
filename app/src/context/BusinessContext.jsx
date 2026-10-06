@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase.js";
 import { can as canDo } from "../lib/permissions.js";
 import { applyDashboardAccent } from "../lib/theme.js";
 import { endImpersonation } from "../lib/impersonation.js";
+import { t } from "../lib/appI18n.js";
 import {
   endParkedSessions, endSessionLocally, forget, listAccounts, parkCurrent, takeAccount,
 } from "../lib/accounts.js";
@@ -292,7 +293,7 @@ export function BusinessProvider({ children }) {
     // list that cannot be pressed.
     useAccount: async (userId) => {
       const parked = takeAccount(userId);
-      if (!parked) return "That account is no longer signed in on this device.";
+      if (!parked) return t("That account is no longer signed in on this device.");
       const { data } = await supabase.auth.getSession();
       parkCurrent(data.session, readPreferred());
       endImpersonation();
@@ -301,7 +302,7 @@ export function BusinessProvider({ children }) {
         refresh_token: parked.refresh_token,
       });
       if (error) {
-        return `${parked.email || "That account"} has to sign in again.`;
+        return t("{who} has to sign in again.", { who: parked.email || t("That account") });
       }
       // THE ACCOUNT THAT IS NOW LIVE MUST NOT ALSO BE IN THE PARK. It cannot
       // be by this path, but it can by others — a tab closed halfway through

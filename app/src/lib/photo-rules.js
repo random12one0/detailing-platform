@@ -81,10 +81,11 @@ export function budgetState(b) {
 
 // Null when there is nothing worth saying. An empty section is not drawn
 // (screen designs §1a), and "you have used 3% of your photos" is noise.
-export function budgetWords(b) {
+// `tr` is the caller's translator; the default fills placeholders in English.
+export function budgetWords(b, tr = (s, v) => (v ? s.replace("{percent}", v.percent) : s)) {
   const { state, share } = budgetState(b);
-  if (state === "full") return "Photo storage is full. Remove some photos to add more.";
-  if (state === "near") return `Photo storage is ${Math.round(share * 100)}% full.`;
+  if (state === "full") return tr("Photo storage is full. Remove some photos to add more.");
+  if (state === "near") return tr("Photo storage is {percent}% full.", { percent: Math.round(share * 100) });
   return null;
 }
 

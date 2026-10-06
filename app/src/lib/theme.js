@@ -304,14 +304,18 @@ export function hueFamily(hex) {
 // Measured against DASHBOARD_ACCENT_BG on purpose — it is the lightest ground
 // in the product, so it is the one a colour has to be lightened MOST to clear.
 // "It was not moved" is then true of every surface, not just the easy one.
-export function describeAccent(hex, bg = DASHBOARD_ACCENT_BG) {
-  const { family, label } = hueFamily(hex);
+// `tr` is the caller's translator (the dashboard passes `t`); this file imports
+// nothing, so the default just fills the placeholders in English.
+const fill = (s, v) => Object.entries(v).reduce((o, [k, x]) => o.split(`{${k}}`).join(x), s);
+export function describeAccent(hex, bg = DASHBOARD_ACCENT_BG, tr = fill) {
+  const { family, label: english } = hueFamily(hex);
+  const label = tr(english, {});
   const moved = correctAccent(hex, bg).toLowerCase() !== hex.toLowerCase();
-  if (!moved) return `That reads as ${label}, and it is light enough to use exactly as you picked it.`;
+  if (!moved) return tr("That reads as {label}, and it is light enough to use exactly as you picked it.", { label });
   if (family === "neutral") {
-    return `That reads as ${label}. It is too close to the dark background to be seen, so it is lightened to a gray wherever it marks a button or a highlight.`;
+    return tr("That reads as {label}. It is too close to the dark background to be seen, so it is lightened to a gray wherever it marks a button or a highlight.", { label });
   }
-  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable. That is why it looks brighter than the color you picked.`;
+  return tr("That reads as {label}. It is dark enough to disappear against the background, so it is lightened until it stays readable. That is why it looks brighter than the color you picked.", { label });
 }
 
 // Text color for anything drawn ON the accent: black or white, whichever

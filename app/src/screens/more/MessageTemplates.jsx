@@ -139,7 +139,7 @@ export default function MessageTemplates() {
     const { error } = await supabase
       .from("message_templates").update({ body })
       .eq("id", row.id).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: `“${templateLabel(row)}” saved.` });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("“{name}” saved.", { name: templateLabel(row) }) });
     if (!error) await load();
     return { ok: !error };
   };

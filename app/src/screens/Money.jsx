@@ -467,7 +467,7 @@ export default function Money({ onGo }) {
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
     // A download on a desk is invisible — this says where it went, which is a
     // fact the button does not carry.
-    setSent(`Saved as ${name}`);
+    setSent(t("Saved as {name}", { name }));
   };
 
   // THE PERIOD CONTROL IS LIFTED OUT OF THE SCREEN'S BODY — roadmap 8.9.

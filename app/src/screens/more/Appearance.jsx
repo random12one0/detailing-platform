@@ -150,7 +150,7 @@ export default function Appearance() {
           actual colour cannot go stale that way, and it is the only place a
           detailer whose brand is a deep navy finds out why their swatch came
           back brighter than their van. */}
-      <p className="quiet">{describeAccent(current || custom)}</p>
+      <p className="quiet">{describeAccent(current || custom, undefined, t)}</p>
     </div>
   );
 }

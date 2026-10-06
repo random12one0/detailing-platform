@@ -290,7 +290,7 @@ export default function BookingLink({
                 The canvas is ~1,230px and is drawn small; what SAVES is the
                 full-size one. */}
             <div className="qr-plate">
-              <canvas ref={canvas} aria-label={`QR code for ${pretty}`} role="img" />
+              <canvas ref={canvas} aria-label={t("QR code for {address}", { address: pretty })} role="img" />
             </div>
             <div className="btnrow">
               <button className="btn primary" onClick={saveQr}>

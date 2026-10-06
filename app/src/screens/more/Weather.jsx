@@ -146,7 +146,7 @@ export default function Weather() {
         {WEATHER_KINDS.map(({ key, label, text }) => (
           <label className="field" key={key}>
             <span>{t(label)}</span>
-            <input type="text" maxLength={120} placeholder={text}
+            <input type="text" maxLength={120} placeholder={t(text)}
               value={form.text[key] ?? ""} onChange={(e) => word(key, e.target.value)} />
           </label>
         ))}

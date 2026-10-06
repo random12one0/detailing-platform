@@ -102,16 +102,15 @@ export default function CampaignModal({ people, onClose, onSent }) {
   if (result) {
     return (
       <Sheet onClose={onClose} title={t("Sent")}
-        subtitle={`${result.sent} ${result.sent === 1 ? "person" : "people"} will get it`}>
+        subtitle={t(result.sent === 1 ? "{count} person will get it" : "{count} people will get it", { count: result.sent })}>
         {result.failed > 0 && (
           <div className="error-box">
-            {result.failed} did not go out. Try those again in a few minutes.
+            {t("{count} did not go out. Try those again in a few minutes.", { count: result.failed })}
           </div>
         )}
         {result.capped > 0 && (
           <p className="body">
-            {result.capped} more were left out — {result.cap} is the most that can go at once.
-            Send the rest tomorrow.
+            {t("{count} more were left out — {cap} is the most that can go at once. Send the rest tomorrow.", { count: result.capped, cap: result.cap })}
           </p>
         )}
         <p className="quiet">
@@ -124,7 +123,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
 
   return (
     <Sheet onClose={onClose} title={t("Email your customers")}
-      subtitle={`${chosen.length} ${chosen.length === 1 ? "person" : "people"}`}>
+      subtitle={t(chosen.length === 1 ? "{count} person" : "{count} people", { count: chosen.length })}>
 
       {/* THE LAW'S REQUIREMENT, STATED WHERE IT CAN BE ACTED ON. The server
           refuses this send without a postal address; finding that out after
@@ -170,13 +169,13 @@ export default function CampaignModal({ people, onClose, onSent }) {
       {(noEmail > 0 || optedOut > 0 || bounced > 0) && (
         <p className="quiet">
           {[
-            noEmail > 0 ? `${noEmail} of them ${noEmail === 1 ? "has" : "have"} no email address` : null,
-            optedOut > 0 ? `${optedOut} asked not to get these` : null,
+            noEmail > 0 ? t(noEmail === 1 ? "{count} of them has no email address" : "{count} of them have no email address", { count: noEmail }) : null,
+            optedOut > 0 ? t("{count} asked not to get these", { count: optedOut }) : null,
             // NOT "asked not to" — nobody asked. Said as something to fix,
             // because it usually is a typo and the detailer can correct it.
-            bounced > 0 ? `${bounced} ${bounced === 1 ? "address" : "addresses"} bounced last time` : null,
+            bounced > 0 ? t(bounced === 1 ? "{count} address bounced last time" : "{count} addresses bounced last time", { count: bounced }) : null,
           ].filter(Boolean).join(" · ")}
-          {noEmail > 0 || bounced > 0 ? ". Text those ones instead." : "."}
+          {noEmail > 0 || bounced > 0 ? `. ${t("Text those ones instead.")}` : "."}
         </p>
       )}
 

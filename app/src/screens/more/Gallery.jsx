@@ -50,7 +50,7 @@ export default function Gallery() {
         });
         if (error) throw new Error(error.message);
       }
-      setMsg({ ok: true, text: `${files.length} photo${files.length > 1 ? "s" : ""} added.` });
+      setMsg({ ok: true, text: t(files.length === 1 ? "{count} photo added." : "{count} photos added.", { count: files.length }) });
     } catch (err) {
       setMsg({ ok: false, text: err.message });
     }
