@@ -13978,7 +13978,7 @@ the dashboard or back office at phone width at all.
   of in the same session. That screenshot is now the last picture of that
   bug.
 
-- [ ] **9.10 — Business settings waste the right half of the screen.**
+- [x] **9.10 — Business settings waste the right half of the screen.**
   Put a live customer-page preview there; stack below on phones.
   **Same item as 11.3's concrete half — this is the number that owns it.**
   11.3 is the vaguer "make settings feel like a product" framing and stays
@@ -14018,6 +14018,51 @@ the dashboard or back office at phone width at all.
   **What failing looks like:** a preview that redraws as somebody types — showing
   half-typed nonsense to the person judging their own page — or a blank right half
   on the thin business, which is the exact complaint this item came from.
+
+  ### BUILT AND PRESSED 2026-10-06, commit `54e08bd`
+
+  **THE COMPLAINT HAD A NUMBER BEFORE IT HAD A FIX**, measured first: the
+  resting column held a **252px link card over about 570px of nothing** at 1440.
+
+  `app/src/components/PagePreview.jsx`, rendered in `Business.jsx` at both
+  widths. All three judgement calls built as decided, none re-opened.
+
+  | | |
+  |---|---|
+  | 320, complete | 282x506 frame, `/book/demo-detail`, **stacked below** the link card |
+  | 320, thin | 282x506, `/book/final-pass-fixture`, the real refusal page under *"Nobody can book this page yet — it has no services on it."* |
+  | 1440, complete | 729x648 in the resting column |
+  | 1440, thin | 729x648, same line, same real page |
+  | 1440, `?lite=1` | 729x648 |
+  | console at each | two React Router future-flag warnings, forgiven by name |
+
+  **THE REFRESH IS A NUMBER, NOT A DEBOUNCE.** The iframe is keyed on
+  `previewKey`, bumped in exactly one place — `onClose`, the moment a panel is
+  dismissed after a save. **Nothing typed can reach it by construction**, which
+  is a stronger answer than a timing window somebody has to keep correct.
+
+  **ONE CALL 9.10 DID NOT MAKE, MADE IN THE OPEN: the frame is inert.** A live
+  booking page on the detailer's own settings screen is a job they can book by
+  accident on their own business, and a stray booking is a real row. The
+  component carries the paragraph naming where to argue with that.
+
+  **THE THIN BUSINESS IS REAL AND THE COMPOSITE IS DECLARED.**
+  `final-pass-fixture` has genuinely zero services and the frame loads its REAL
+  public page. What is intercepted is the signed-in session's own count queries,
+  so the screen computes thin and the sentence matches the page rather than
+  contradicting it. **Nothing was written to the database**; a real sign-in as
+  that owner needs an auth user and a membership row, which this sitting was not
+  permitted.
+
+  **`scripts/page-preview.mjs`** — 5 targets, 27 assertions, two canaries, both
+  caught. **AND IT CAUGHT TWO FAULTS IN ITSELF FIRST.** `on-save` passed without
+  testing anything: it stamped the frame, opened a panel, typed, and asserted the
+  stamp survived — which it did at every width, because `SettingsHost` renders
+  the resting column only when nothing is open, so the preview was never mounted
+  and `no-frame` read as ok. Split into `absent-while-typing` and
+  `returns-on-close`. And the canary was `observed_failure: true` **as a
+  literal** — declared rather than run, which would have called this check sound
+  on the day it stopped working.
 
 - [ ] **9.11 — Booking-rule conflict needs a one-click fix. RE-OPENED
   2026-09-20 — see the correction below; do not re-tick without reading it.**
@@ -14468,7 +14513,7 @@ this wave as untouched.
   attribution gap the way Geoapify has one), wired into
   `book/steps/StepVehicle.jsx`, and covered by `tests/booking-core.test.mjs`.
   *old roadmap § B*
-- [ ] **11.3 — The editing screens phase** — make settings feel like a product.
+- [x] **11.3 — The editing screens phase** — ~~make settings feel like a product~~ **CLOSED AS SUPERSEDED BY 9.10, 2026-10-06.**
   **Ruled on rather than picked up, 2026-09-20, so it does not get re-opened
   by the next person who reads it as an open item.** Andrew: *"'Make settings
   feel like a product' is not a named fault, it is a feeling, and the
@@ -14498,6 +14543,13 @@ this wave as untouched.
   its own.
   **What closing it looks like:** 9.10 is built and pressed, and this entry is
   struck through pointing at it.
+
+  **CLOSED 2026-10-06.** 9.10 is built and pressed at `54e08bd` — the real
+  booking page in the resting column, refreshing on save, the thin business
+  getting the page as it is today plus one line naming what is missing, and
+  stacking below on a phone. **No settings redesign was built from the
+  sentence this item is named after**, which is what Andrew's 2026-09-20
+  ruling exists to prevent.
   **What failing looks like:** this item picked up as live work and a settings
   redesign built from the sentence *"make settings feel like a product"* — which
   Andrew's 2026-09-20 ruling exists to prevent, and which **a stale pointer to an
