@@ -151,7 +151,7 @@ const CMD = {
   "7.18": { cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
   "4.6": { cmd: `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` },
   "14.23": { cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
-  "8.10c": { cmd: `! grep -q role_table_grants scripts/migration-drift.mjs` },
+  "8.10c": { done: "2026-10-06 — migration-drift.mjs compares grants and indexes; the old probe (no role_table_grants in the script) would have kept saying the row belonged after grants were built another way." },
   "2.12": { cmd: `! node --test tests/spanish.test.mjs` },
   "3.1": { cmd: `! grep -q 'email_sends' app/src/admin/AdminPage.jsx` },
   "4.3": { cmd: `! grep -rqE 'support_mode|is_support' supabase/functions/` },

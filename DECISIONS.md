@@ -308,6 +308,8 @@ were made more than once.
 
 - **ROADMAP 6.1 — the restore drill brings back logins as accounts and files as bytes; no password hash or token ever leaves the database** — DP Cowork2, 2026-10-06, on the manager's instruction, amended the same hour by Andrew: no hash or token, not even outside git. A recorded `scripts/restore-drill.mjs` exception. Accounts come back by id, email and created date; people get back in by a reset email. Why, what it costs, and how to reverse it are inside.
 
+- **ROADMAP 8.10c — migration-drift sees grants and indexes; the sabotage is a scratch copy of the migrations, never a live grant** — DP Cowork2, 2026-10-06, on the manager's instruction, edited `scripts/migration-drift.mjs` (one existing file, no precedent). It now compares every grant, revoke and index the migrations declare against `kguqylyzgyzfktkfnhjb`, read-only, and names each difference with the file that declares it. **A role "holds" a privilege if its own entry or PUBLIC's does** — judged on what the role can do, not on one ACL row. **Indexes are compared by name, table and uniqueness, not by column list** — said in the receipt rather than guessed at. **The sabotage is `--migrations=<scratch copy>`, because revoking a live grant is a schema change and a crash leaves it revoked.** First run found a real fault no earlier check could see: `authenticated` can still write `bookings.weather` and `weather_at` — the column revoke in the weather migration never took effect.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18026,3 +18028,61 @@ ruling is that nothing that unlocks an account leaves the database.
 **How to reverse it.** `git revert` the commit that carries this entry; the
 drill returns to `public` only. Delete `~/detailing-platform-recovery/` by hand
 — it is outside git, so a revert does not touch it.
+
+## ROADMAP 8.10c — migration-drift sees grants and indexes; the sabotage is a scratch copy of the migrations, never a live grant
+
+*2026-10-06. Built by DP Cowork2 (Lane B).*
+
+**Who decided.** The manager asked for `migration-drift.mjs` to compare grants
+and indexes (ROADMAP 8.10c), allowing an edit to that script and asking for it
+to be recorded here like the other `scripts/` exceptions.
+
+**The exception.** One existing file edited, `scripts/migration-drift.mjs`. No
+file added to `scripts/`. It is not a precedent for editing others. One test
+row in `tests/queue-rows-still-belong.test.mjs` was re-pointed (below).
+
+**What it does.** It replays every `grant`, `revoke` and `create index` in
+`supabase/migrations/`, last statement wins, drops included, and reads the live
+ACLs and `pg_indexes` of the platform's own database. Read only. It never
+applies anything. Each difference is named with the file that declares it, and
+a claim about an object that is not in the database at all is a difference too:
+that is how the unapplied `platform_costs` revoke, `set_my_lang` grant,
+`recipient_lang` revoke and the two new indexes are named.
+
+**Three judgment calls, so nobody has to rediscover them.**
+
+1. *A role holds a privilege if its own ACL entry or PUBLIC's does.* "Revoked
+   from anon" is only true when PUBLIC lost it as well. That is the fact a
+   caller experiences, and it is why a revoke naming only `anon` is reported.
+2. *A column claim is judged on the table-level privilege OR the column-level
+   one, and a later table-level statement clears earlier column claims.* This
+   is the rule `20260907003000_column_revokes_actually_apply.sql` is about.
+3. *Indexes are compared by name, table and uniqueness, not by column list.*
+   Comparing column lists means normalising expressions and operator classes,
+   the kind of comparator that produced four false positives in this file
+   before. The receipt names it as unseen.
+
+**How it is proved, per the 8.10c cold read.** The sabotage is on the repo side:
+`--migrations=<dir>` reads a copy. Five scratch copies, each with one defect (a
+fake index; a real grant line flipped; a unique index declared non-unique; every
+grant statement made unparseable; one statement left without its semicolon),
+each turned the run red by name, and `--break=blindgrant` /
+`--break=blindindex` turn the canaries NOT CAUGHT. The grant claims and the
+index claims also carry canaries built from things the database really holds, so
+a lookup that answers "fine" to everything cannot pass. **Nothing was ever
+revoked, created or dropped in the live database.** The discovery floor counts
+statements JUDGED, not found, and an independent line-start scan must equal
+judged plus named-unjudgeable exactly.
+
+**What it found on its first run.** `authenticated` holds UPDATE on
+`bookings.weather` and `bookings.weather_at`. The weather migration revokes it
+at column level, which does nothing while the table-level UPDATE is held (the
+fault `20260907003000` fixed for `businesses` and `business_domains` and did
+not reach `bookings`). Confirmed with `has_column_privilege`, not only by the
+script. It is reported as ROADMAP 8.10d. It is not fixed here: the fix is a
+migration, and applying one is Andrew's.
+
+**How to reverse it.** `git revert` the commit that carries this entry; the
+script returns to functions, tables, columns and policies. The queue-row command
+in `tests/queue-rows-still-belong.test.mjs` goes back to the `role_table_grants`
+probe with it.

@@ -2064,7 +2064,7 @@ word `fail`.**
 | **6** | 7.18 | `! grep -qE 'navmenu\|burger' app/src/landing/LegalPage.jsx` |
 | **7** | 4.6 | `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` |
 | **8** | 14.23 | `! grep -qi details scripts/lib/tapProbe.mjs` |
-| **9** | 8.10c | `! grep -q role_table_grants scripts/migration-drift.mjs` |
+| ~~9~~ | ~~8.10c~~ | **DONE 2026-10-06 — see ROADMAP 8.10c.** |
 | **10** | 2.12 | `! node --test tests/spanish.test.mjs` — inverted: the suite failing **is** the row's membership |
 | **11** | 9.2 | **NO COMMAND — see below** |
 | **12** | 7.9 | **NO COMMAND — see below** |

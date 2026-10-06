@@ -64,16 +64,18 @@
 //
 // ---------------------------------------------------------------------------
 // WHAT IT CANNOT TELL YOU — UPDATED 2026-09-21 WHEN TABLES AND COLUMNS LANDED,
-// UPDATED AGAIN 2026-09-23 WHEN POLICIES LANDED (ROADMAP 8.10b)
+// UPDATED AGAIN 2026-09-23 WHEN POLICIES LANDED (ROADMAP 8.10b), AND 2026-10-06
+// WHEN GRANTS AND INDEXES LANDED (ROADMAP 8.10c)
 // ---------------------------------------------------------------------------
 // **The limit is kept and narrowed rather than deleted, because the limit is
 // the part that stops somebody trusting a green it did not earn.**
 //
 // It NOW sees: functions (by body), tables (by existence), columns (by name
-// and type family), and policies (by existence, on the `public` and
-// `storage` schemas — RLS is where this repo has already been burnt once,
-// the realtime-channel finding, and it is the one of the three CLAUDE.md
-// named that a session is most likely to actually need next).
+// and type family), policies (by existence, on the `public` and `storage`
+// schemas), GRANTS and REVOKES on public tables, columns and functions (what
+// each named role can actually do, PUBLIC folded in) and INDEXES on public (by
+// name, table and uniqueness). The last two are sections 1d/1e and 3d/3e below,
+// and their comments carry the reasoning.
 //
 // It STILL cannot see:
 //   * **a column's DEFAULT or NULLABILITY.** The TYPE is compared as of
@@ -88,12 +90,17 @@
 //     same conservative choice tables made first — a general SQL boolean
 //     expression normaliser is exactly the kind of guesser that produced the
 //     four false positives above, and nobody has built or proved one here.
-//   * **grants and RLS enable/force state.** `db-audit.mjs` asks some of
-//     those; this does not ask any of them. ROADMAP 8.10c.
-//   * **indexes, constraints, triggers, views, enum types, extensions.**
-//     ROADMAP 8.10c.
-//   * **a migration whose whole content is a `grant`, an `update`, or a data
-//     backfill.** Nothing about it is visible in the schema afterwards.
+//   * **RLS enable/force state.** `db-audit.mjs` asks that; this does not.
+//   * **an index's column list.** Name, table and uniqueness are compared;
+//     the columns are not, because that means normalising expressions and
+//     operator classes against `pg_indexes.indexdef`.
+//   * **constraints, triggers, views, enum types, extensions.**
+//   * **default privileges** (`alter default privileges`, a rule about FUTURE
+//     objects), **grants on schemas or sequences or other schemas' objects**,
+//     and **a grant inside a dollar-quoted block**. All three are counted and
+//     named UNJUDGEABLE in the receipt rather than guessed at.
+//   * **a migration whose whole content is an `update` or a data backfill.**
+//     Nothing about it is visible in the schema afterwards.
 //   * **a dynamically-named policy.** Five migrations generate policies in a
 //     loop (`execute format($p$ create policy %I on public.%I …`) — the
 //     literal source text is `%I`, not a real name, and resolving the loop
@@ -112,7 +119,12 @@ import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const MIGRATIONS = path.join(ROOT, "supabase", "migrations");
+// `--migrations=<dir>` reads a COPY of the migrations instead of the repo's own:
+// the sabotage for grants and indexes is made on the repo side, in a scratch
+// copy, because breaking the live database is Andrew's and a run that dies
+// between breaking and restoring leaves it broken (ROADMAP 8.10c, cold read).
+const MIGRATIONS_ARG = (process.argv.find((a) => a.startsWith("--migrations=")) || "").slice("--migrations=".length);
+const MIGRATIONS = MIGRATIONS_ARG ? path.resolve(MIGRATIONS_ARG) : path.join(ROOT, "supabase", "migrations");
 const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 
@@ -404,6 +416,223 @@ for (const f of files) {
   }
 }
 
+// --- 1d · replay the repo's GRANTS and REVOKES — 2026-10-06, ROADMAP 8.10c --
+// **WHAT IS DECLARED IS A SET OF CLAIMS ABOUT WHO CAN DO WHAT, AND THE LAST
+// STATEMENT ABOUT EACH CLAIM WINS.** A claim is one (object, role, privilege)
+// triple at one of three levels: a table's own privilege, a single column's
+// privilege, or a function's EXECUTE. `revoke all on t from anon,
+// authenticated` is fourteen claims (two roles x seven table privileges), all
+// "does not hold". The replay walks every file in order and every statement in
+// the order it appears; a later statement about the same triple replaces an
+// earlier one.
+//
+// THE COMPARISON IS AGAINST WHAT A ROLE CAN ACTUALLY DO, NOT AGAINST ONE ACL
+// ROW. A role holds a privilege if its own entry has it OR `PUBLIC`'s entry
+// does, so "revoked from anon" is only true when PUBLIC lost it too. That is
+// the security fact, and it is why the repo's function revokes all say `from
+// public, anon, ...` — a revoke that names only `anon` leaves the door open and
+// this reports it. For a claim about `public` itself the PUBLIC entry alone is
+// read.
+//
+// **COLUMN PRIVILEGES FOLLOW THE RULE 20260907003000_column_revokes_actually_
+// apply.sql IS ABOUT.** `revoke update (col)` does nothing while the table-level
+// UPDATE is held, so a column claim is judged on table level OR column level,
+// and a LATER table-level statement about the same role and privilege clears
+// every earlier column claim (Postgres does exactly that). Without both halves
+// this would either invent failures out of the correct database or call the
+// original, broken column revoke a success.
+//
+// WHAT IS REPLAYED AWAY: dropping a table drops every claim on it and on its
+// columns, dropping a function drops its claims (a re-created function is born
+// with default grants, so nothing earlier about it still holds), and dropping a
+// column drops that column's claims. `create or replace function` keeps the ACL
+// and so keeps the claims.
+//
+// WHAT IS NAMED UNJUDGEABLE, BY FILE, RATHER THAN GUESSED AT: any grant or
+// revoke whose shape is not `<privileges> on [table|function] <public object>
+// to|from <roles>` — `all tables in schema`, schemas, sequences, another
+// schema's objects, `alter default privileges` — and any statement sitting
+// inside a dollar-quoted block, where it may run conditionally or in a loop.
+// **THE DISCOVERY FLOOR AND THE RECONCILIATION:** an independent line-start
+// scan counts every statement that begins `grant` or `revoke`, and what the
+// parser judged plus what it named unjudgeable must equal that count — a
+// statement cannot vanish between the two. A floor on the number JUDGED stops
+// the other failure: a parser that stops matching and sends the whole repo to
+// the unjudgeable bucket would otherwise read as all-clear.
+const stripComments = (s) => s
+  .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+  .replace(/--[^\n]*/g, (m) => " ".repeat(m.length));
+const splitTop = (s) => {
+  const out = []; let depth = 0, part = "";
+  for (const ch of s) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { out.push(part); part = ""; continue; }
+    part += ch;
+  }
+  out.push(part);
+  return out.map((x) => x.trim()).filter(Boolean);
+};
+const dollarRanges = (s) => [...s.matchAll(/\$([a-zA-Z_]*)\$[\s\S]*?\$\1\$/g)].map((m) => [m.index, m.index + m[0].length]);
+const normSig = (name, args) =>
+  `${name.toLowerCase()}(${splitTop(args).map((a) => a.replace(/\s+/g, " ").toLowerCase()).join(", ")})`;
+const TABLE_PRIVS = ["select", "insert", "update", "delete", "truncate", "references", "trigger"];
+const GRANT_STMT = /^[ \t]*(grant|revoke)\b([^;]*);/gim;
+const GRANT_NAIVE = /^[ \t]*(grant|revoke)\b/gim;
+const isPublicSchema = (s) => !s || s.toLowerCase() === "public";
+
+/** -> { ops:[{level,obj,priv,roles,granted}] } or { why } */
+function parseGrant(verb, rest) {
+  const m = rest.match(/^\s*([\s\S]+?)\s+on\s+([\s\S]+?)\s+(to|from)\s+([\s\S]+?)\s*(?:with\s+grant\s+option|cascade|restrict)?\s*$/i);
+  if (!m) return { why: "no `<privileges> on <object> to|from <roles>` shape" };
+  const roles = splitTop(m[4]).map((r) => r.replace(/"/g, "").toLowerCase());
+  if (roles.some((r) => /^(group|current_user|session_user|current_role)$/.test(r))) return { why: "a role that is not a fixed name" };
+  const granted = verb.toLowerCase() === "grant";
+  const tgt = m[2].trim();
+  const fm = tgt.match(/^function\s+(?:([a-z_0-9]+)\.)?([a-z_0-9]+)\s*\(([\s\S]*)\)$/i);
+  const tm = tgt.match(/^(?:table\s+)?(?:([a-z_0-9]+)\.)?("?)([a-z_][a-z_0-9]*)\2$/i);
+  const items = splitTop(m[1]).map((i) => i.match(/^(select|insert|update|delete|truncate|references|trigger|execute|usage|all(?:\s+privileges)?)\s*(?:\(([\s\S]*)\))?$/i));
+  if (items.some((i) => !i)) return { why: "a privilege list this does not recognise" };
+  if (fm) {
+    if (!isPublicSchema(fm[1])) return { why: `a function in schema ${fm[1]}` };
+    if (items.some((i) => !/^(execute|all)/i.test(i[1]) || i[2])) return { why: "a non-EXECUTE privilege on a function" };
+    return { ops: [{ level: "f", obj: normSig(fm[2], fm[3]), priv: "execute", roles, granted }] };
+  }
+  if (tm) {
+    if (!isPublicSchema(tm[1])) return { why: `an object in schema ${tm[1]}` };
+    const obj = tm[3].toLowerCase();
+    const ops = [];
+    for (const i of items) {
+      const priv = i[1].toLowerCase().replace(/\s+privileges$/, "");
+      if (priv === "execute" || priv === "usage") return { why: `${priv} on a table` };
+      const privs = priv === "all" ? TABLE_PRIVS : [priv];
+      if (i[2]) {
+        for (const col of splitTop(i[2]).map((c) => c.replace(/"/g, "").toLowerCase())) {
+          for (const p of privs) ops.push({ level: "c", obj: `${obj}.${col}`, priv: p, roles, granted });
+        }
+      } else for (const p of privs) ops.push({ level: "t", obj, priv: p, roles, granted });
+    }
+    return { ops };
+  }
+  return { why: `a target that is not a single table or function (${tgt.slice(0, 40).replace(/\s+/g, " ")})` };
+}
+
+/** `${level}|${obj}|${role}|${priv}` -> { granted, file } */
+const intendedGrants = new Map();
+const unjudgeableGrants = []; // "file: statement — why"
+let grantStmtsNaive = 0, grantStmtsJudged = 0, grantStmtsUnjudged = 0;
+for (const f of files) {
+  const src = stripComments(readFileSync(path.join(MIGRATIONS, f), "utf8"));
+  const inDollar = dollarRanges(src);
+  const inBlock = (i) => inDollar.some(([s, e]) => i >= s && i < e);
+  const events = [];
+  grantStmtsNaive += [...src.matchAll(GRANT_NAIVE)].length;
+  for (const m of src.matchAll(GRANT_STMT)) {
+    const at = m.index + m[0].search(/\S/);
+    const text = `${m[1].toLowerCase()}${m[2]}`.replace(/\s+/g, " ").slice(0, 80);
+    if (inBlock(at)) { grantStmtsUnjudged++; unjudgeableGrants.push(`${f}: \`${text}\` — inside a dollar-quoted block, may run conditionally`); continue; }
+    const p = parseGrant(m[1], m[2]);
+    if (!p.ops) { grantStmtsUnjudged++; unjudgeableGrants.push(`${f}: \`${text}\` — ${p.why}`); continue; }
+    grantStmtsJudged++;
+    events.push({ at, kind: "grant", ops: p.ops });
+  }
+  for (const m of src.matchAll(/alter\s+default\s+privileges/gi)) {
+    unjudgeableGrants.push(`${f}: \`alter default privileges\` — a rule about FUTURE objects, not a claim about a present one`);
+  }
+  for (const m of src.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_0-9]+)/gi)) {
+    events.push({ at: m.index, kind: "droptable", name: m[1].toLowerCase() });
+  }
+  for (const m of src.matchAll(/drop\s+function\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_0-9]+)\s*\(([^)]*)\)/gi)) {
+    events.push({ at: m.index, kind: "dropfn", name: m[1].toLowerCase(), sig: normSig(m[1], m[2]) });
+  }
+  for (const stmt of src.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?(?:public\.)?([a-z_0-9]+)([\s\S]*?);/gi)) {
+    for (const c of stmt[2].matchAll(/drop\s+column\s+(?:if\s+exists\s+)?("?)([a-z_][a-z_0-9]*)\1/gi)) {
+      events.push({ at: stmt.index + c.index, kind: "dropcol", name: stmt[1].toLowerCase(), col: c[2].toLowerCase() });
+    }
+  }
+  events.sort((a, b) => a.at - b.at);
+  for (const e of events) {
+    if (e.kind === "droptable") {
+      for (const k of [...intendedGrants.keys()]) if (k.startsWith(`t|${e.name}|`) || k.startsWith(`c|${e.name}.`)) intendedGrants.delete(k);
+      continue;
+    }
+    if (e.kind === "dropcol") {
+      for (const k of [...intendedGrants.keys()]) if (k.startsWith(`c|${e.name}.${e.col}|`)) intendedGrants.delete(k);
+      continue;
+    }
+    if (e.kind === "dropfn") {
+      const exact = [...intendedGrants.keys()].filter((k) => k.startsWith(`f|${e.sig}|`));
+      const hit = exact.length ? exact : [...intendedGrants.keys()].filter((k) => k.startsWith(`f|${e.name}(`));
+      for (const k of hit) intendedGrants.delete(k);
+      continue;
+    }
+    for (const op of e.ops) for (const role of op.roles) {
+      if (op.level === "t") {
+        // A table-level statement supersedes every earlier column claim for the
+        // same role and privilege.
+        for (const k of [...intendedGrants.keys()]) {
+          if (k.startsWith(`c|${op.obj}.`) && k.endsWith(`|${role}|${op.priv}`)) intendedGrants.delete(k);
+        }
+      }
+      intendedGrants.set(`${op.level}|${op.obj}|${role}|${op.priv}`, { granted: op.granted, file: f });
+    }
+  }
+}
+
+// --- 1e · replay the repo's INDEXES — 2026-10-06, ROADMAP 8.10c -------------
+// Name, table and UNIQUENESS. Not the column list: an index with the wrong
+// columns is a real fault, but comparing column lists means normalising
+// expressions, operator classes and `desc`/`nulls` against `pg_indexes.indexdef`
+// — the kind of comparator that produced four false positives in this file
+// before. It is named in the receipt as unseen rather than guessed at.
+// `drop index` removes one, dropping a table drops its indexes, dropping a
+// column drops any index whose column list mentions it, and `create index if
+// not exists` over a name already present is a no-op in Postgres, so the first
+// declaration stands. The same reconciliation as grants: an independent count of
+// every `create [unique] index` must equal judged + unjudgeable.
+const intendedIndexes = new Map(); // name -> { table, unique, file, cols }
+const unjudgeableIndexes = [];
+let indexStmtsNaive = 0, indexStmtsJudged = 0, indexStmtsUnjudged = 0;
+const INDEX_STMT = /create\s+(unique\s+)?index\s+(?:concurrently\s+)?(if\s+not\s+exists\s+)?("?)([a-z_][a-z_0-9]*)\3\s+on\s+(?:only\s+)?(?:([a-z_0-9]+)\.)?("?)([a-z_][a-z_0-9]*)\6([^;]*);/gi;
+for (const f of files) {
+  const src = stripComments(readFileSync(path.join(MIGRATIONS, f), "utf8"));
+  const events = [];
+  indexStmtsNaive += [...src.matchAll(/\bcreate\s+(?:unique\s+)?index\b/gi)].length;
+  for (const m of src.matchAll(INDEX_STMT)) {
+    if (!isPublicSchema(m[5])) { indexStmtsUnjudged++; unjudgeableIndexes.push(`${f}: index ${m[4]} on ${m[5]}.${m[7]} — another schema`); continue; }
+    indexStmtsJudged++;
+    events.push({ at: m.index, kind: "create", name: m[4].toLowerCase(), table: m[7].toLowerCase(), unique: !!m[1],
+      ifNotExists: !!m[2], cols: m[8] });
+  }
+  for (const m of src.matchAll(/drop\s+index\s+(?:concurrently\s+)?(?:if\s+exists\s+)?([^;]*);/gi)) {
+    for (const n of splitTop(m[1])) events.push({ at: m.index, kind: "drop", name: n.replace(/^public\./i, "").replace(/"/g, "").toLowerCase() });
+  }
+  for (const m of src.matchAll(/drop\s+table\s+(?:if\s+exists\s+)?(?:public\.)?([a-z_0-9]+)/gi)) {
+    events.push({ at: m.index, kind: "droptable", name: m[1].toLowerCase() });
+  }
+  for (const stmt of src.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?(?:public\.)?([a-z_0-9]+)([\s\S]*?);/gi)) {
+    for (const c of stmt[2].matchAll(/drop\s+column\s+(?:if\s+exists\s+)?("?)([a-z_][a-z_0-9]*)\1/gi)) {
+      events.push({ at: stmt.index + c.index, kind: "dropcol", name: stmt[1].toLowerCase(), col: c[2].toLowerCase() });
+    }
+  }
+  events.sort((a, b) => a.at - b.at);
+  for (const e of events) {
+    if (e.kind === "drop") { intendedIndexes.delete(e.name); continue; }
+    if (e.kind === "droptable") {
+      for (const [n, w] of [...intendedIndexes]) if (w.table === e.name) intendedIndexes.delete(n);
+      continue;
+    }
+    if (e.kind === "dropcol") {
+      for (const [n, w] of [...intendedIndexes]) {
+        if (w.table === e.name && new RegExp(`\\b${e.col}\\b`, "i").test(w.cols)) intendedIndexes.delete(n);
+      }
+      continue;
+    }
+    if (e.ifNotExists && intendedIndexes.has(e.name)) continue;
+    intendedIndexes.set(e.name, { table: e.table, unique: e.unique, file: f, cols: e.cols });
+  }
+}
+
 // --- 2 · what the database actually holds ----------------------------------
 const liveRows = await q(`select p.proname as name, pg_get_functiondef(p.oid) as def
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -685,6 +914,171 @@ console.log(`canary  a policy no migration could have created -> `
     ? "caught: reported absent, so a MISSING POLICY is a verdict this comparison can reach"
     : "NOT CAUGHT — a policy that cannot exist was not reported absent, so every policy line above is void"));
 
+// --- 3d · compare the grants — 2026-10-06, ROADMAP 8.10c --------------------
+// Read from the ACL columns themselves (`pg_class.relacl`, `pg_attribute.attacl`,
+// `pg_proc.proacl`, exploded with `aclexplode`, a NULL ACL read as the owner's
+// default) rather than from `has_table_privilege`, because that function
+// answers for ONE role at a time and silently folds PUBLIC in, which is the
+// distinction a claim about `public` needs. Nothing here writes.
+const roleOf = "case when a.grantee = 0 then 'public' else pg_get_userbyid(a.grantee) end";
+const liveTableAcl = new Set();
+for (const r of await q(`select c.relname as obj, ${roleOf} as role, lower(a.privilege_type) as priv
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace,
+         lateral aclexplode(coalesce(c.relacl, acldefault('r', c.relowner))) a
+   where n.nspname = 'public' and c.relkind in ('r','p','v','m','f')`)) {
+  liveTableAcl.add(`${r.obj.toLowerCase()}|${r.role.toLowerCase()}|${r.priv}`);
+}
+const liveColAcl = new Set();
+for (const r of await q(`select c.relname as obj, att.attname as col, ${roleOf} as role, lower(a.privilege_type) as priv
+    from pg_attribute att join pg_class c on c.oid = att.attrelid
+         join pg_namespace n on n.oid = c.relnamespace,
+         lateral aclexplode(att.attacl) a
+   where n.nspname = 'public' and att.attacl is not null and att.attnum > 0 and not att.attisdropped`)) {
+  liveColAcl.add(`${r.obj.toLowerCase()}.${r.col.toLowerCase()}|${r.role.toLowerCase()}|${r.priv}`);
+}
+// Functions are addressed by SIGNATURE, and Postgres is asked to parse the
+// signature (`to_regprocedure`) rather than this file guessing that `int` is
+// `integer` and `timestamptz` is `timestamp with time zone`.
+const fnSigs = [...new Set([...intendedGrants.keys()].filter((k) => k[0] === "f").map((k) => k.split("|")[1]))];
+const liveFn = new Map(); // sig -> { found, acl:Set("role|execute"), bad? }
+const fnSql = (sigs) => `select s.sig, (p.oid is not null) as found, ${roleOf} as role, lower(a.privilege_type) as priv
+    from unnest(array[${sigs.map((s) => `'${s.replace(/'/g, "''")}'`).join(",")}]::text[]) as s(sig)
+    left join pg_proc p on p.oid = to_regprocedure('public.' || s.sig)
+    left join lateral aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a on true`;
+const readFn = (rows) => {
+  for (const r of rows) {
+    if (!liveFn.has(r.sig)) liveFn.set(r.sig, { found: r.found, acl: new Set() });
+    if (r.role) liveFn.get(r.sig).acl.add(`${r.role.toLowerCase()}|${r.priv}`);
+  }
+};
+try { if (fnSigs.length) readFn(await q(fnSql(fnSigs))); } catch {
+  // One signature Postgres cannot parse must not take the other ninety down with
+  // it. Fall back to one at a time and name the one that fails.
+  for (const s of fnSigs) {
+    try { readFn(await q(fnSql([s]))); } catch {
+      liveFn.set(s, { found: false, acl: new Set(), bad: true });
+      unjudgeableGrants.push(`signature \`${s}\` — Postgres could not parse it as a function signature`);
+    }
+  }
+}
+const grantable = (sig) => liveFn.get(sig) && !liveFn.get(sig).bad;
+const holdsTable = (t, role, priv) =>
+  liveTableAcl.has(`${t}|${role}|${priv}`) || (role !== "public" && liveTableAcl.has(`${t}|public|${priv}`));
+const holds = (level, obj, role, priv) => {
+  if (level === "t") return holdsTable(obj, role, priv);
+  if (level === "c") {
+    return holdsTable(obj.split(".")[0], role, priv) || liveColAcl.has(`${obj}|${role}|${priv}`)
+      || (role !== "public" && liveColAcl.has(`${obj}|public|${priv}`));
+  }
+  const a = liveFn.get(obj)?.acl;
+  return !!a && (a.has(`${role}|execute`) || (role !== "public" && a.has("public|execute")));
+};
+// ONE judging function for real claims and canaries alike, so a canary can only
+// pass through the code a real claim goes through. `--break=blindgrant` makes it
+// agree with everything, which is the defect the canaries exist to catch.
+const judgeClaim = (level, obj, role, priv, granted) =>
+  BREAK === "blindgrant" ? true : holds(level, obj, role, priv) === granted;
+
+const grantsByTarget = new Map(); // "level|obj" -> [{role,priv,granted,file,ok,absent}]
+for (const [key, want] of intendedGrants) {
+  const [level, obj, role, priv] = key.split("|");
+  const tgt = `${level}|${obj}`;
+  const absent = level === "f" ? (grantable(obj) && !liveFn.get(obj).found)
+    : !liveTable.has(obj.split(".")[0]);
+  if (level === "f" && !grantable(obj)) continue; // already named unjudgeable above
+  assertions++;
+  const ok = !absent && judgeClaim(level, obj, role, priv, want.granted);
+  if (!grantsByTarget.has(tgt)) grantsByTarget.set(tgt, []);
+  grantsByTarget.get(tgt).push({ role, priv, granted: want.granted, file: want.file, ok, absent });
+}
+const grantLabel = (tgt) => {
+  const [level, ...rest] = tgt.split("|");
+  return `public.${rest.join("|")}`;
+};
+const grantsAbsent = [];
+const badGrantTargets = new Set();
+for (const [tgt, rows] of grantsByTarget) {
+  const bad = rows.filter((r) => !r.ok);
+  const files_ = [...new Set(rows.map((r) => r.file))];
+  if (!bad.length) {
+    console.log(`${grantLabel(tgt).padEnd(60)} grants match ${files_.join(", ")} (${rows.length} claim(s))`);
+    continue;
+  }
+  badGrantTargets.add(tgt);
+  const groups = new Map();
+  for (const r of bad) {
+    const k = `${r.role}|${r.granted}|${r.file}|${r.absent}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r.priv);
+  }
+  for (const [k, privs] of groups) {
+    const [role, granted, file, absent] = k.split("|");
+    const what = privs.length === TABLE_PRIVS.length && privs.every((p) => TABLE_PRIVS.includes(p))
+      ? "any table privilege" : privs.join("/");
+    const line = `${grantLabel(tgt)} — ${role} should ${granted === "true" ? "HOLD" : "NOT HOLD"} ${what} `
+      + `(declared by ${file})${absent === "true" ? " — the object itself is not in the database" : ""}`;
+    grantsAbsent.push(line);
+    console.log(`${grantLabel(tgt).padEnd(60)} GRANT ABSENT — ${role} should ${granted === "true" ? "hold" : "not hold"} ${what}; declared by ${file}${absent === "true" ? " (object not in database)" : ""}`);
+  }
+}
+// Canaries, one per level and direction, all through `judgeClaim`. Each is built
+// from something the database really holds so it cannot be satisfied by a
+// lookup that returns nothing. A canary that cannot be built is NOT CAUGHT.
+const anyTable = [...grantsByTarget.keys()].find((k) => k[0] === "t" && liveTable.has(k.split("|")[1]));
+const heldRow = [...liveTableAcl].map((k) => k.split("|")).find(([t, r]) => r !== "public" && liveTable.has(t));
+const heldFn = [...liveFn].find(([, v]) => v.found && [...v.acl].some((x) => !x.startsWith("public|")));
+const CANARY_ROLE = "migration_drift_canary_role_never_created";
+const grantCanaries = {
+  "table-grant": anyTable ? !judgeClaim("t", anyTable.split("|")[1], CANARY_ROLE, "select", true) : false,
+  "table-revoke": heldRow ? !judgeClaim("t", heldRow[0], heldRow[1], heldRow[2], false) : false,
+  "column-revoke": heldRow ? !judgeClaim("c", `${heldRow[0]}.migration_drift_canary_col`, heldRow[1], heldRow[2], false) : false,
+  "function-revoke": heldFn ? !judgeClaim("f", heldFn[0], [...heldFn[1].acl].find((x) => !x.startsWith("public|")).split("|")[0], "execute", false) : false,
+};
+assertions += Object.keys(grantCanaries).length;
+console.log("");
+for (const [n, c] of Object.entries(grantCanaries)) {
+  console.log(`canary  a ${n} claim the database contradicts -> `
+    + (c ? "caught: judged wrong, so a GRANT MISMATCH is a verdict this comparison can reach"
+      : "NOT CAUGHT — a claim the database contradicts was judged right, so every grant line above is void"));
+}
+
+// --- 3e · compare the indexes -----------------------------------------------
+const liveIdx = new Map();
+for (const r of await q(`select tablename, indexname, indexdef from pg_indexes where schemaname = 'public'`)) {
+  liveIdx.set(r.indexname.toLowerCase(), { table: r.tablename.toLowerCase(), unique: /^create\s+unique\s+index/i.test(r.indexdef) });
+}
+const judgeIndex = (name, want) => {
+  if (BREAK === "blindindex") return [];
+  const have = liveIdx.get(name);
+  if (!have) return ["not in the database"];
+  const p = [];
+  if (have.table !== want.table) p.push(`the database has it on ${have.table}, the repo declares it on ${want.table}`);
+  if (have.unique !== want.unique) p.push(`the repo declares it ${want.unique ? "UNIQUE" : "non-unique"}, the database holds it ${have.unique ? "UNIQUE" : "non-unique"}`);
+  return p;
+};
+const indexesAbsent = [];
+const badIndexes = new Set();
+for (const [name, want] of intendedIndexes) {
+  assertions++;
+  const problems = judgeIndex(name, want);
+  if (!problems.length) { console.log(`${name.padEnd(60)} index matches ${want.file}`); continue; }
+  badIndexes.add(name);
+  indexesAbsent.push(`${name} on ${want.table} — ${problems.join("; ")} (declared by ${want.file})`);
+  console.log(`${name.padEnd(60)} INDEX ABSENT — ${problems.join("; ")}; declared by ${want.file}`);
+}
+const idxReal = [...intendedIndexes].find(([n]) => liveIdx.has(n));
+const indexCanaries = {
+  "absent": idxReal ? judgeIndex("migration_drift_canary_index_never_created", { table: idxReal[1].table, unique: false }).length > 0 : false,
+  "uniqueness": idxReal ? judgeIndex(idxReal[0], { ...idxReal[1], unique: !idxReal[1].unique }).length > 0 : false,
+};
+assertions += Object.keys(indexCanaries).length;
+console.log("");
+for (const [n, c] of Object.entries(indexCanaries)) {
+  console.log(`canary  an index ${n === "absent" ? "no migration could have created" : "declared with the wrong uniqueness"} -> `
+    + (c ? "caught: reported, so an INDEX MISMATCH is a verdict this comparison can reach"
+      : "NOT CAUGHT — a wrong index claim was judged right, so every index line above is void"));
+}
+
 // --- 4 · the receipt -------------------------------------------------------
 const failures = [];
 if (files.length === 0) {
@@ -738,7 +1132,38 @@ if (policiesAbsent.length) {
     + `the migration creating each one has never run: ${policiesAbsent.join(", ")}`);
 }
 
-const allCanariesCaught = canaryCaught && bodyCanaryCaught && colCanaryCaught && policyCanaryCaught;
+// --- grants and indexes (8.10c) ---------------------------------------------
+// DISCOVERY FLOORS stay floors: finding more is not a fault. They count what was
+// JUDGED, not what was found, so a parser that stops matching and sends every
+// statement to the unjudgeable bucket cannot read as all-clear.
+const GRANT_JUDGED_FLOOR = 100;  // 2026-10-06: see the receipt for the figure at HEAD
+const INDEX_JUDGED_FLOOR = 50;
+// A declaration of how many statements exist is an EQUALITY: judged + named
+// unjudgeable must be exactly what an independent line-start scan counted.
+if (grantStmtsJudged + grantStmtsUnjudged !== grantStmtsNaive) {
+  failures.push(`GRANT RECONCILIATION: a line-start scan counted ${grantStmtsNaive} grant/revoke statement(s), the parser judged ${grantStmtsJudged} and named ${grantStmtsUnjudged} unjudgeable, so ${Math.abs(grantStmtsNaive - grantStmtsJudged - grantStmtsUnjudged)} went missing between the two.`);
+}
+if (indexStmtsJudged + indexStmtsUnjudged !== indexStmtsNaive) {
+  failures.push(`INDEX RECONCILIATION: a scan counted ${indexStmtsNaive} create-index statement(s), the parser judged ${indexStmtsJudged} and named ${indexStmtsUnjudged} unjudgeable.`);
+}
+if (grantStmtsJudged < GRANT_JUDGED_FLOOR || intendedGrants.size === 0) {
+  failures.push(`ONLY ${grantStmtsJudged} GRANT STATEMENT(S) WERE JUDGED against a floor of ${GRANT_JUDGED_FLOOR} (${grantStmtsUnjudged} named unjudgeable). Either the migrations are unreadable or the grant parser stopped matching; a pass over this few judged grants proves nothing.`);
+}
+if (indexStmtsJudged < INDEX_JUDGED_FLOOR || intendedIndexes.size === 0) {
+  failures.push(`ONLY ${indexStmtsJudged} INDEX STATEMENT(S) WERE JUDGED against a floor of ${INDEX_JUDGED_FLOOR}. Either the migrations are unreadable or the index parser stopped matching.`);
+}
+if (grantsAbsent.length) {
+  failures.push(`${grantsAbsent.length} grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): ${grantsAbsent.join("; ")}`);
+}
+if (indexesAbsent.length) {
+  failures.push(`${indexesAbsent.length} index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: ${indexesAbsent.join("; ")}`);
+}
+const grantTargets = grantsByTarget.size;
+const grantCanariesCaught = Object.values(grantCanaries).every(Boolean);
+const indexCanariesCaught = Object.values(indexCanaries).every(Boolean);
+
+const allCanariesCaught = canaryCaught && bodyCanaryCaught && colCanaryCaught && policyCanaryCaught
+  && grantCanariesCaught && indexCanariesCaught;
 const { path: receiptPath } = writeReceipt({
   check_id: "migration-drift",
   started_at,
@@ -747,12 +1172,15 @@ const { path: receiptPath } = writeReceipt({
   // The repo is what the database is supposed to match, so the repo declares.
   // The canary itself is excluded from every count below — it is not a real
   // migration and was never expected to exist.
-  expected_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1),
+  expected_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1)
+    + grantTargets + intendedIndexes.size,
   discovered_targets: [...intended.keys()].filter((n) => live.has(n)).length
     + [...intendedTables.keys()].filter((t) => liveTable.has(t)).length
-    + policiesCompared - policiesAbsent.length,
-  attempted_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1),
-  completed_targets: compared + tablesCompared + policiesCompared,
+    + policiesCompared - policiesAbsent.length
+    + (grantTargets - badGrantTargets.size) + (intendedIndexes.size - badIndexes.size),
+  attempted_targets: intended.size + intendedTables.size + (intendedPolicies.size - 1)
+    + grantTargets + intendedIndexes.size,
+  completed_targets: compared + tablesCompared + policiesCompared + grantTargets + intendedIndexes.size,
   skipped_targets: 0,
   assertions_executed: assertions,
   // 51 functions make ~102 assertions. A floor just under it means losing the
@@ -762,8 +1190,11 @@ const { path: receiptPath } = writeReceipt({
   artifacts: ["scripts/migration-drift.mjs"],
   warnings: [
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
+    ...(MIGRATIONS_ARG ? [`run with --migrations=${MIGRATIONS_ARG}, a copy of the migrations; this receipt is a sabotage, not a result`] : []),
     ...unjudgeable.map((u) => `UNJUDGEABLE ${u}`),
     ...unjudgeablePolicies,
+    ...unjudgeableGrants.map((u) => `UNJUDGEABLE grant: ${u}`),
+    ...unjudgeableIndexes.map((u) => `UNJUDGEABLE index: ${u}`),
     // CORRECTED 2026-09-23 — this line said "FUNCTIONS ONLY" for two days
     // after tables and columns were already covered, which is the exact
     // failure this repo keeps finding in ROADMAP.md one level up, now found
@@ -771,11 +1202,16 @@ const { path: receiptPath } = writeReceipt({
     // what still is not, so the next reader does not have to read the code
     // to find out.
     "SEES functions (by body), tables (by existence), columns (by name and "
-    + "type family), policies (by existence, on public and storage schemas). "
-    + "STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum "
-    + "types, extensions, RLS enable/force state, a policy's own USING/WITH "
-    + "CHECK expression, a column's DEFAULT or NULLABILITY, or a migration "
-    + "whose whole content is a grant/update/backfill with no schema trace. "
+    + "type family), policies (by existence, on public and storage schemas), "
+    + "GRANTS and REVOKES on public tables, columns and functions (what each named "
+    + "role can actually do, PUBLIC folded in) and INDEXES on public (by name, "
+    + "table and uniqueness). "
+    + "STILL CANNOT SEE: an index's column list, constraints, triggers, views, "
+    + "enum types, extensions, RLS enable/force state, a policy's own USING/WITH "
+    + "CHECK expression, a column's DEFAULT or NULLABILITY, default privileges "
+    + "(rules about future objects), grants on schemas or sequences or other "
+    + "schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), "
+    + "or a migration whose whole content is an update/backfill with no schema trace. "
     + "There is no applied-migrations ledger in this project to compare "
     + "against: supabase_migrations.schema_migrations does not exist.",
     // MOVED HERE FROM `dimensions` 2026-09-23, ANDREW'S OWN CORRECTION: a
@@ -797,6 +1233,13 @@ const { path: receiptPath } = writeReceipt({
     policies_declared: intendedPolicies.size - 1,
     policies_absent: policiesAbsent,
     policies_unjudgeable: unjudgeablePolicies.length,
+    grant_claims_declared: intendedGrants.size,
+    grant_targets: grantTargets,
+    grant_statements: { naive: grantStmtsNaive, judged: grantStmtsJudged, unjudgeable: grantStmtsUnjudged },
+    grants_absent: grantsAbsent,
+    indexes_declared: intendedIndexes.size,
+    index_statements: { naive: indexStmtsNaive, judged: indexStmtsJudged, unjudgeable: indexStmtsUnjudged },
+    indexes_absent: indexesAbsent,
     method: "replay create/drop function/table/policy in file and statement order; "
       + "compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
     absent,
@@ -804,25 +1247,30 @@ const { path: receiptPath } = writeReceipt({
   },
   canary: {
     id: "a function name, a column and a policy name no migration could have "
-      + "created must each be reported ABSENT",
+      + "created must each be reported ABSENT; a grant claim and an index claim the "
+      + "database contradicts must each be reported",
     observed_failure: allCanariesCaught,
     caught_by: [
       ...(canaryCaught ? ["function-absent"] : []), ...(bodyCanaryCaught ? ["function-drifted"] : []),
       ...(colCanaryCaught ? ["column-absent"] : []), ...(policyCanaryCaught ? ["policy-absent"] : []),
+      ...Object.entries(grantCanaries).filter(([, c]) => c).map(([n]) => `grant-${n}`),
+      ...Object.entries(indexCanaries).filter(([, c]) => c).map(([n]) => `index-${n}`),
     ],
     findings: [
       canaryCaught ? "[function] caught" : "[function] NOT CAUGHT",
       bodyCanaryCaught ? "[drift] caught" : "[drift] NOT CAUGHT",
       colCanaryCaught ? "[column] caught" : "[column] NOT CAUGHT",
       policyCanaryCaught ? "[policy] caught" : "[policy] NOT CAUGHT",
+      ...Object.entries(grantCanaries).map(([n, c]) => `[grant ${n}] ${c ? "caught" : "NOT CAUGHT"}`),
+      ...Object.entries(indexCanaries).map(([n, c]) => `[index ${n}] ${c ? "caught" : "NOT CAUGHT"}`),
     ],
   },
 });
 
 console.log("");
 if (failures.length === 0 && allCanariesCaught) {
-  console.log(`PASS — ${compared} function(s), ${tablesCompared} table(s) and ${policiesCompared} `
-    + `polic(y/ies) compared, every one matches the repo.`);
+  console.log(`PASS — ${compared} function(s), ${tablesCompared} table(s), ${policiesCompared} `
+    + `polic(y/ies), ${grantTargets} grant target(s) and ${intendedIndexes.size} index(es) compared, every one matches the repo.`);
   console.log(`Receipt ${receiptPath}`);
   process.exit(0);
 }
@@ -832,6 +1280,8 @@ if (!canaryCaught) console.log("FAIL — the ABSENT canary was not caught, so th
 if (!bodyCanaryCaught) console.log("FAIL — the DRIFTED canary was not caught: the body comparison matches anything.");
 if (!colCanaryCaught) console.log("FAIL — the COLUMN canary was not caught: the column comparison matches anything.");
 if (!policyCanaryCaught) console.log("FAIL — the POLICY canary was not caught: the policy comparison matches anything.");
+if (!grantCanariesCaught) console.log("FAIL — a GRANT canary was not caught: the grant comparison agrees with claims the database contradicts.");
+if (!indexCanariesCaught) console.log("FAIL — an INDEX canary was not caught: the index comparison agrees with claims the database contradicts.");
 console.log("");
 console.log("Applying a migration is a schema change and it is Andrew's to authorise.");
 console.log(`This check reports and never applies. Receipt ${receiptPath}`);

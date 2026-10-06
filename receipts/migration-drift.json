@@ -1,55 +1,111 @@
 {
-  "git_sha": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
-  "git_sha_started": "b82b021336ab6c7bcec3b8d2bbe7682eb15eb70b",
+  "git_sha": "f9c579584d78069cc9e97f934f5525564ad4f523",
+  "git_sha_started": "f9c579584d78069cc9e97f934f5525564ad4f523",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-23T02:14:05.641Z",
-  "failures": [],
+  "finished_at": "2026-10-06T22:49:28.848Z",
+  "failures": [
+    "2 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
+    "1 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)",
+    "3 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_users.lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), customers.is_test (declared by 20260924010000_a_fixture_is_not_a_customer.sql), email_sends.booking_id (declared by 20261006010000_an_email_row_knows_its_booking.sql)",
+    "10 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.bookings.weather — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql); public.bookings.weather_at — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql); public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+    "2 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: email_sends_booking_idx on email_sends — not in the database (declared by 20261006010000_an_email_row_knows_its_booking.sql); platform_costs_period_idx on platform_costs — not in the database (declared by 20261006020000_hand_entered_platform_costs.sql)"
+  ],
   "warnings": [
-    "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas). STILL CANNOT SEE: grants, indexes, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, or a migration whose whole content is a grant/update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
-    "116 of 592 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 476, not 592."
+    "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
+    "122 of 622 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 500, not 622."
   ],
   "artifacts": [
     "scripts/migration-drift.mjs"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 95,
-    "tables_declared": 52,
-    "tables_absent": [],
-    "columns_absent": [],
+    "migration_files": 104,
+    "tables_declared": 56,
+    "tables_absent": [
+      "platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)"
+    ],
+    "columns_absent": [
+      "business_users.lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
+      "customers.is_test (declared by 20260924010000_a_fixture_is_not_a_customer.sql)",
+      "email_sends.booking_id (declared by 20261006010000_an_email_row_knows_its_booking.sql)"
+    ],
     "type_mismatch": [],
     "policies_declared": 85,
     "policies_absent": [],
     "policies_unjudgeable": 0,
+    "grant_claims_declared": 483,
+    "grant_targets": 96,
+    "grant_statements": {
+      "naive": 161,
+      "judged": 161,
+      "unjudgeable": 0
+    },
+    "grants_absent": [
+      "public.bookings.weather — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql)",
+      "public.bookings.weather_at — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql)",
+      "public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
+      "public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
+      "public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database"
+    ],
+    "indexes_declared": 64,
+    "index_statements": {
+      "naive": 66,
+      "judged": 66,
+      "unjudgeable": 0
+    },
+    "indexes_absent": [
+      "email_sends_booking_idx on email_sends — not in the database (declared by 20261006010000_an_email_row_knows_its_booking.sql)",
+      "platform_costs_period_idx on platform_costs — not in the database (declared by 20261006020000_hand_entered_platform_costs.sql)"
+    ],
     "method": "replay create/drop function/table/policy in file and statement order; compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
-    "absent": [],
+    "absent": [
+      "recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
+      "set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)"
+    ],
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-09-23T02:14:02.489Z",
-  "status": "pass",
-  "expected_targets": 186,
-  "discovered_targets": 186,
-  "attempted_targets": 186,
-  "completed_targets": 186,
+  "started_at": "2026-10-06T22:49:22.444Z",
+  "status": "fail",
+  "expected_targets": 354,
+  "discovered_targets": 344,
+  "attempted_targets": 354,
+  "completed_targets": 354,
   "skipped_targets": 0,
-  "assertions_executed": 1307,
+  "assertions_executed": 1927,
   "min_assertions": 1000,
   "canary": {
-    "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT",
+    "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
     "observed_failure": true,
     "caught_by": [
       "function-absent",
       "function-drifted",
       "column-absent",
-      "policy-absent"
+      "policy-absent",
+      "grant-table-grant",
+      "grant-table-revoke",
+      "grant-column-revoke",
+      "grant-function-revoke",
+      "index-absent",
+      "index-uniqueness"
     ],
     "findings": [
       "[function] caught",
       "[drift] caught",
       "[column] caught",
-      "[policy] caught"
+      "[policy] caught",
+      "[grant table-grant] caught",
+      "[grant table-revoke] caught",
+      "[grant column-revoke] caught",
+      "[grant function-revoke] caught",
+      "[index absent] caught",
+      "[index uniqueness] caught"
     ]
   }
 }

@@ -11766,7 +11766,7 @@ rather than wording went to Andrew.
   CANNOT SEE" line names — see 8.10c.**
   *Found pressing 2.1a, 2026-09-21. Not from either audit.*
 
-- [ ] **8.10c — `migration-drift.mjs` still cannot see grants, indexes, or
+- [x] **8.10c — DONE 2026-10-06 (the grants and the indexes; the rest of the list below is still unseen and is named in the receipt). `migration-drift.mjs` could not see grants, indexes, or
   five other kinds of schema object CLAUDE.md never named individually.**
   **Split out of 8.10b, 2026-09-23, on Andrew's own instruction: a check
   that reports clean over a blindness is worse than one that says what it
@@ -11823,6 +11823,72 @@ rather than wording went to Andrew.
   did not, and an UNJUDGEABLE bucket quietly holding every grant in the repo — a
   pass over zero judged targets, which `receipt.mjs` already refuses elsewhere and
   must refuse here.
+  **DONE 2026-10-06, DP Cowork2.** `scripts/migration-drift.mjs` now compares every
+  grant, revoke and `create index` the migrations declare against
+  `kguqylyzgyzfktkfnhjb` (the ref in `.env`, checked), read-only. Recorded in
+  DECISIONS as a `scripts/` exception, with its index line.
+  - **Grants:** each claim is one (object, role, privilege), last statement wins,
+    drops replayed. A role holds a privilege if its own entry **or PUBLIC's** does,
+    so a revoke naming only `anon` is reported. Column claims follow the
+    table-level rule `20260907003000` is about. Functions are addressed by
+    signature and Postgres parses the signature, so `int` and `integer` cannot
+    disagree.
+  - **Indexes:** by name, table and uniqueness. **Not the column list**, and the
+    receipt says so.
+  - **Each difference names the file that declares it,** and a claim about an object
+    not in the database is a difference too.
+  - **The unapplied four are named for their grant and index parts**, not only
+    their tables: the two new indexes (`email_sends_booking_idx`,
+    `platform_costs_period_idx`), the `platform_costs` revoke, and the
+    `recipient_lang` and `set_my_lang` revokes and grant. `customers.is_test` has
+    no grant or index in its migration, and the run says nothing about it there
+    because there is nothing to say.
+  - **UNJUDGEABLE, by file, never skipped:** schemas, sequences, `all tables in
+    schema`, other schemas' objects, `alter default privileges`, and a statement
+    inside a dollar-quoted block. `receipts/migration-drift.json` carries the list.
+  - **Discovery floors, and they count what was JUDGED:** a parser that stops
+    matching sends everything to the unjudgeable bucket and would otherwise read
+    clean, so the run fails below a floor of judged statements. An independent
+    line-start scan must also equal judged plus unjudgeable **exactly**.
+  - **Proved on the repo side, never on the live grant** (this entry's own cold
+    read). `--migrations=<dir>` reads a scratch copy. Five copies, one defect each,
+    each run red **by name**: a fake index on `bookings`; a real grant line flipped
+    (`claim_founding_spot`, service_role); `plan_visits_one_grant_per_due` declared
+    non-unique; every grant statement made unparseable (the floor fired: 0 judged);
+    one statement with no semicolon (the reconciliation fired: 162 counted, 161
+    judged). `--break=blindgrant` and `--break=blindindex` turn the new canaries
+    NOT CAUGHT. Four grant canaries (table grant, table revoke, column revoke,
+    function revoke) and two index canaries are built from things the database
+    really holds. **Nothing was revoked, created or dropped in the live database.**
+  - **Measured at the working tree on top of f9c5795, `node scripts/migration-drift.mjs`:**
+    161 of 161 grant/revoke statements judged, 66 of 66 `create index` statements
+    judged, 0 unjudgeable. **The run is red, correctly,** for the four unapplied
+    migrations and for **8.10d, the first thing this found.**
+
+- [ ] **8.10d — `authenticated` can write `bookings.weather` and `bookings.weather_at`;
+  the column revoke in the weather migration never took effect.**
+  *Found 2026-10-06 by 8.10c's first run against the live database.*
+  `20260913010000_weather_cache.sql:87` runs `revoke update (weather, weather_at)
+  on public.bookings from authenticated`. **A column-level revoke does nothing
+  while the role holds the table-level UPDATE**, which `authenticated` does on
+  `bookings`: the same fault `20260907003000_column_revokes_actually_apply.sql`
+  fixed for `businesses` and `business_domains` and did not reach.
+  **Measured, not read off the script:** against `kguqylyzgyzfktkfnhjb`,
+  `has_column_privilege('authenticated','public.bookings','weather','UPDATE')` and
+  the same for `weather_at` both return true, and so does the table-level
+  `has_table_privilege`.
+  **Why it matters:** the migration's own comment says RLS chooses rows and not
+  columns, so a detailer's browser could write any temperature onto its own
+  bookings. Own rows only, a display field, no money. It is the guarantee the
+  migration says it made, and it does not hold.
+  **Not fixed here.** The fix is a new migration (append-only), and applying one
+  is Andrew's. The shape `20260907003000` used (revoke the table-level privilege,
+  grant back the writable columns) needs the list of `bookings` columns the
+  browser writes, which is `app/src` knowledge; the alternative is a trigger that
+  refuses a change to those two columns from a non-service role. **Not sized.**
+  **Done when:** `node scripts/migration-drift.mjs` names no `bookings.weather`
+  line, **and** an authenticated browser-client write to `weather` on a demo
+  booking is refused while a write to an ordinary field on the same row succeeds.
   Not started.
 
 - [ ] **7.18 — There is no check that every `.ld` marketing page carries the
