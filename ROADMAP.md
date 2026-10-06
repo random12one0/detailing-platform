@@ -9504,6 +9504,64 @@ most corroborated finding in the set.
     every `updateBooking` caller), so no constraint was added; if one ever does,
     it needs a unique index on `booking_add_ons (booking_id, add_on_id)`.
 
+  **LANE A HALF BUILT, 2026-10-06 — commits `67ae38d` and `a9caf9f`. NOT TICKED:
+  (b) and (c) still need Andrew to publish the six functions, and
+  `send-invoice` is untouched.**
+  * **(b)(c) client side, counted off the rows on a fixture business** with the
+    first answer of each write dropped after it reached the server, then pressed
+    again: the Finalize lines are **2 rows** (the old code, same run: **4**) and
+    a logged fleet job is **1 row** (old code: **2**). Each line gets an id when
+    it is added and the sheet's bulk job gets one when it opens; the write
+    ignores an id it already has.
+  * **(a) built.** Today says *"You're offline. Showing your jobs as of 3:37
+    PM."* (Spanish too) from the browser's offline event or a failed read, and
+    clears only when a read succeeds. Measured with the context set offline at
+    320, 768 and 1440: all five jobs stay drawn, no sideways scroll. The failed
+    refetch itself was forced and **keeps the list**.
+  * **(d) built.** *Print tomorrow* on Today opens name, phone, address,
+    service, vehicle and notes for the next day that has jobs (*Print Thu, Oct
+    8* when tomorrow is empty), built from what is already in memory, so it
+    makes no request. Paper rule checked with print media emulated and the
+    network cut.
+  * **Broken on purpose:** old save (4 and 2 rows), blank the list on a failed
+    read (list went empty), remove the print rule (the app stayed on the page),
+    tomorrow-only condition (button count 0 on a fixture whose jobs start the
+    day after).
+  * **NOT COVERED, and filed as 6.4a:** reloading the page while offline, and
+    leaving Today and coming back while offline.
+
+- [ ] **6.4a — Today is readable offline only while the screen that loaded it
+  stays open. Reload it, or leave and come back, and it is blank.**
+  Found 2026-10-06 by DP Cowork while building 6.4(a); said in that commit
+  rather than hidden. **6.4(a)'s done-when says "on a screen that had already
+  loaded" and is met; this is the next thing a detailer in a driveway does.**
+  A detailer who switches to Calendar and back, or whose phone reloads the tab
+  after it slept, finds an empty Today with a raw network error.
+
+  **Why:** the day's jobs live in the screen's own state (`useBookings`), so
+  unmounting Today throws them away. And `app/public/sw.js` is deliberately
+  *not* a caching worker (its own header: *"a worker that starts serving stale
+  HTML is a far worse bug than the one it was added to fix"*), so a cold load
+  with no signal gets no app at all.
+
+  **Two halves, and the second is Andrew's call:**
+  1. *Leave and return.* Keep the last good list for the session outside the
+     screen, so coming back offline shows it with the same *as of* line.
+  2. *Cold reload.* Either an app-shell cache (reverses a stated worker rule,
+     and puts customer names and phones on the device) or a plain "no
+     connection" page that says the print sheet is the fallback. **A decision,
+     not a default; recommendation: leave-and-return now, and for cold reload
+     the plain page, because the printed schedule already covers the outage.**
+
+  **Done when:** with the network cut, **(1)** opening Calendar and returning
+  to Today shows today's jobs and the *as of* line, and **(2)** a hard reload of
+  `/app` shows either the jobs with the line, or the plain no-connection page
+  if Andrew chooses that — never a blank screen or a raw *Failed to fetch*. If
+  anything is kept on the device, **signing out clears it**, shown by signing
+  out and reading it back. **Red proof:** drop the keeping step and (1) goes
+  blank.
+  *Lane:* A (`app/src`, plus `sw.js` if the cache is chosen).
+
 ---
 
 ## Wave 7 — Sales proof
@@ -10677,7 +10735,7 @@ rather than wording went to Andrew.
   answer, confirmed rather than repeated. Status unchanged: **open on
   Andrew's wording only.**
 
-- [ ] **7.9 — The home page animation delays the point.**
+- [x] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
   areas; the page is about 13 screens tall; the headline types letter by letter;
   the hero product shot is too small and dim to judge.
@@ -10704,6 +10762,13 @@ rather than wording went to Andrew.
   the right order, and invisible. **Opacity has to be read, not assumed from
   presence.**
   *A1 P2-03, P2-04, A2 7.4*
+
+  **TICKED 2026-10-06.** The manager verified it on the real page, with
+  `?lite=1`: **0 drawn elements invisible on the home page and on pricing, and
+  no sideways scroll**, at commits `66b02b2` (nothing waits on motion; headline
+  whole on landing) and `114b646` (sent back once for a wall caption at opacity 0
+  and a strip that leaves its row by design, then fixed). Ticked by DP Cowork
+  from the manager's report, not re-measured here.
 
 - [ ] **7.10 — Example site defects. Re-measured 2026-09-20; two fixed, two
   still open, one is a disagreement.**
@@ -18757,6 +18822,30 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   is moved to 14~~ — **struck 2026-10-06: moving it to 14 would have made the test
   agree with the wrong list.** 10e and 10f are fixed by reading the constant (above);
   **four remain: 1b, 1c, 9a, 9f, all Lane A.**
+
+  **ALL FOUR FIXED 2026-10-06, commit `a9caf9f` (DP Cowork, Lane A):
+  `node tests/spanish.test.mjs` 75 passed / 4 failed → 79 / 0.** Not ticked:
+  the done-when also asks for a Spanish booking page opened at the vehicle step
+  and read, and one string on it was not seen.
+  * **1b.** The four strings have Spanish. The year placeholder is *ej. 2019*,
+    not *por ejemplo, 2019*, which was cut to *por ejempl* in the 80px year box
+    (measured en/es at 320 and 1440, text 59px in 80px).
+  * **1c.** The stale entries are gone — five, not four: *See the plans* was
+    hidden behind the check's four-name preview.
+  * **9f.** **Eight keys were duplicated, not six**, for the same reason (the
+    message shows six). One wording each, the live winner kept, so no
+    detailer's screen changed; *¿Por qué cobras?* (*why* do you charge) is gone
+    and *¿Qué cobras?* stays. *Nothing* and *Who are you?* were the two the
+    report never named.
+  * **9a.** Ten dashboard strings translated, including *Coming up* on Today.
+  * **Broken on purpose:** one duplicate key put back → 9f red, removed → green.
+  * **Read on the real booking page** (Spanish, demo's public page, vehicle
+    step, 320 and 1440): both placeholders and the estimate line in Spanish, no
+    English left. ***Not right?* was not seen** — it appears only when a body
+    type is matched to a size, and the demo has none assigned.
+  * `scripts/i18n-survey.mjs` before and after: **identical** (128 candidate
+    strings in 30 files). It looks for text that never reaches `t()`; it cannot
+    see missing or duplicate Spanish keys, so it could not show this fix.
 
   *Lane:* A for 1b, 1c, 9a, 9f (`app/src`).
 
