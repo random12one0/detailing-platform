@@ -52,7 +52,7 @@
 //   * **a row the document names and this file has no command for is a red**,
 //     and so is a command here for a row the document no longer lists.
 //
-// **If the parse finds fewer rows than EXPECTED_ROWS it FAILS rather than
+// **If the parse finds fewer rows than PARSE_FLOOR it FAILS rather than
 // quietly checking fewer** — 14.28's discovery-floor argument in a second place.
 // **A check that reads a file it cannot prove it parsed correctly is the
 // population fault**, not the verdict fault, and that is the one that reads as
@@ -90,9 +90,30 @@ import { readFileSync } from "node:fs";
 
 const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
 
-// Declared, not derived. 16 rows on 2026-10-03 — moved in the SAME edit as the
-// two rows added to the document's table, which is the only way this stays true.
-const EXPECTED_ROWS = 16;
+// ---------------------------------------------------------------------------
+// ONE CONSTANT WAS DOING TWO JOBS, AND NO SINGLE COMPARISON COULD BE RIGHT
+// ---------------------------------------------------------------------------
+// `EXPECTED_ROWS = 16` was asserted with `>=` and answered two different
+// questions at once:
+//
+//   1. **did the table still PARSE?** Fewer rows than expected means the row
+//      shape changed and the scan is reading nothing. A **floor** is correct
+//      here: finding more rows is not a fault.
+//   2. **is the declared row count still TRUE?** A floor is wrong here: the
+//      queue can grow to twenty and the declaration stays 16, silently.
+//
+// **Whichever comparison you pick, you are half wrong** — which makes this a
+// constant that cannot be compared correctly rather than a comparison that was
+// chosen badly. Split 2026-10-02 into a floor named as a parser guard and an
+// equality named as a declaration, each with a message saying which question it
+// answers. Found by the inequality sweep over `tests/`; `docs/gotchas.md` 98.
+//
+// PARSER GUARD. Deliberately well below the real count: closing queue rows must
+// never redden this, and a parser that matches nothing must.
+const PARSE_FLOOR = 8;
+// THE DECLARATION. Exact. 16 rows on 2026-10-03, re-measured 2026-10-02.
+// Move it in the SAME EDIT as the table, with a sentence saying why.
+const DECLARED_ROWS = 16;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
@@ -168,14 +189,29 @@ function run(cmd) {
 test("every ready row in the work queue still belongs", async (t) => {
   const rows = rowsFromDoc();
 
-  await t.test("0 · the document's table parsed, and carries the declared rows", () => {
+  await t.test("0 · PARSER GUARD — the table still parses at all", () => {
     assert.ok(
-      rows.length >= EXPECTED_ROWS,
-      `parsed ${rows.length} rows from ${QUEUE_DOC} READY NOW, declared `
-      + `${EXPECTED_ROWS}. Fewer means the TABLE STOPPED PARSING, not that the `
-      + "queue shrank — and a parser that stops matching must never read as "
-      + "all-clear. Check the row shape before touching this number; if the queue "
-      + "genuinely changed, move EXPECTED_ROWS in the same edit as the table.",
+      rows.length >= PARSE_FLOOR,
+      `parsed ${rows.length} rows from ${QUEUE_DOC} READY NOW, parser floor `
+      + `${PARSE_FLOOR}. **This asks only one question: did the table parse?** `
+      + "Fewer means the ROW SHAPE CHANGED and the scan is reading nothing, never "
+      + "that the queue shrank — a parser that matches nothing must not read as "
+      + "all-clear. It is a FLOOR on purpose: closing real queue rows must never "
+      + "redden it. Check the `| **n** | **id** |` row shape before touching it.",
+    );
+  });
+
+  await t.test("0a · DECLARATION — the row count is still the one declared", () => {
+    assert.equal(
+      rows.length, DECLARED_ROWS,
+      `the table carries ${rows.length} rows and this file declares `
+      + `${DECLARED_ROWS}. **This asks the other question: is the declared count `
+      + "still TRUE?** It is an EQUALITY on purpose — the floor above cannot see "
+      + "the count GROW, so a row added to the document would leave the "
+      + "declaration quietly wrong. If the queue genuinely changed, move "
+      + "DECLARED_ROWS in the same edit as the table and say why. **These were one "
+      + "constant compared with `>=` until 2026-10-02, which was correct for the "
+      + "parser and wrong for the declaration; see gotchas 98.**",
     );
     const missing = rows.filter((r) => !CMD[r.id]).map((r) => `${r.n} · ${r.id}`);
     assert.deepEqual(

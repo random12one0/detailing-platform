@@ -185,8 +185,19 @@ for (const [want, sample] of CANARIES) {
 check("2b a redacted line is NOT a finding",
   allowed("`demo@example.test` / `[redacted: docs/platform-admins.md]`"));
 check("2c an env var NAME is not a value", allowed("SUPABASE_SERVICE_ROLE_KEY"));
-check("2d the allowlist is short enough to still be a check", ALLOWED.length <= 12,
-  `${ALLOWED.length} patterns — a broad allowlist is how a check stops checking`);
+// WAS `ALLOWED.length <= 12` WITH 11 PATTERNS UNTIL 2026-10-02 — one unit of
+// slack, in the one check whose subject is credentials. A ceiling with room in it
+// means the next pattern lands without reddening anything, and the sentence this
+// assertion already carried says why that is wrong: a broad allowlist is how a
+// check stops checking. **An exact count cannot be grown by instalments.**
+// Found by the inequality sweep over `tests/`; `docs/gotchas.md` 98.
+const DECLARED_ALLOW_PATTERNS = 11;
+check("2d the allowlist is EXACTLY the declared size, not merely under a cap",
+  ALLOWED.length === DECLARED_ALLOW_PATTERNS,
+  `${ALLOWED.length} patterns, declared ${DECLARED_ALLOW_PATTERNS} — a broad `
+  + "allowlist is how a check stops checking, so this is an equality and not a "
+  + "ceiling. Adding a pattern means moving this number in the same edit and "
+  + "saying which real finding it was suppressing.");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 3 · THE VERDICT

@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is NINETY-SEVEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is NINETY-EIGHT specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -238,6 +238,9 @@ broken to make the two agree. Nine sittings unbroken.
 hour of uncommitted work, after the same command on the same file had been safe
 twice in the same sitting. **The two safe uses are what make it feel safe.**
 Twelve sittings unbroken.
+**97 → 98 on 2026-10-02, same edit** — a declaration compared with an inequality
+carries slack; 10 found in `tests/`, 8 correctly floors, 1 converted, 1 split
+because it was answering two questions. Thirteen sittings unbroken.
 **93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
 number with no command and no revision beside it is a memory. Ten sittings
 unbroken.
@@ -514,6 +517,18 @@ commit happened. Eleven sittings unbroken.
   multi-line change to a shared document with a SAVED SCRIPT rather than by
   hand.** Re-running four scratchpad scripts restored everything. A hand-edited
   document has no undo once the working tree is gone.
+
+- **A DECLARATION OF HOW MUCH DEBT EXISTS IS ASSERTED WITH AN EQUALITY, NEVER AN
+  INEQUALITY.** `docs/gotchas.md` 98. A bare count, an allowlist size, a
+  known-skip tally — **a ceiling with room in it means the next one lands with
+  nothing going red**, which is how 196 came to sit over an actual 192. **A
+  DISCOVERY FLOOR is the opposite and must stay a floor**: finding more surfaces
+  than expected is not a fault, and converting one reddens the run every time the
+  repo grows.
+
+  **And if a constant is doing both jobs, split it rather than choosing.**
+  `EXPECTED_ROWS` guarded a parser *and* declared a row count; a floor was right
+  for the first and wrong for the second, so either choice was half wrong.
 
 - **Migrations are append-only.** Never edit an existing one.
 - **Never commit `app/.env.production` or any credential.** No password, token

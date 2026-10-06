@@ -160,9 +160,20 @@ function quoteSweep(roadmapText) {
 // Move these in the SAME EDIT as whatever really changed, and say why.
 // ===========================================================================
 const TAKEN_AT = "3398470";          // the commit these were measured at
+
+// ITEMS WITH NO COMMIT NAMING THEM, DECLARED BY NAME RATHER THAN COUNTED.
+// This was `itemsWithACommit: 66` — a bare count — and it broke the moment 14.32
+// was written, because a brand-new item legitimately has no commit until its
+// first one lands. **A count there churns on every commit, which is the
+// red-by-default fault `gotchas.md` 95 records about `commitsNamingAnItem`.**
+// A NAMED list cannot drift silently and says which item, not how many:
+// `DECISIONS.md`'s declared-expected-failures pattern. An item leaving this list
+// is ordinary progress; one arriving uninvited is the finding.
+const NO_COMMIT_YET = ["14.32"];
+
 const DECLARED = {
-  numberedOpenItems: 66,
-  itemsWithACommit: 66,
+  // 67 after 14.32. Moved in the same edit as that item, per this file's own rule.
+  numberedOpenItems: 67,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -216,7 +227,6 @@ test("the two sweep methods are pinned, not described", async (t) => {
   await t.test("2 · REPORT — the pinned figures, re-takeable by running this file", () => {
     const got = {
       numberedOpenItems: ids.length,
-      itemsWithACommit: new Set(scope.naming.flatMap((c) => c.items)).size,
       quoteCriteria: qs.criteria,
       quoteFragments: qs.fragments,
     };
@@ -228,6 +238,20 @@ test("the two sweep methods are pinned, not described", async (t) => {
     console.log(`     commitsNamingAnItem    ${String(scope.naming.length).padStart(5)}   (floor ${COMMITS_NAMING_FLOOR}, monotonic — not an equality)`);
     console.log(`     (canary: ${CANARY || "off"})`);
     assert.ok(true);
+  });
+
+  await t.test("3b · every numbered open item is named by a commit, except the declared ones", () => {
+    const named = new Set(scope.naming.flatMap((c) => c.items));
+    const without = ids.filter((id) => !named.has(id)).sort();
+    assert.deepEqual(
+      without, [...NO_COMMIT_YET].sort(),
+      "the set of open items that NO commit names has changed. **Declared by name "
+      + "rather than counted**, because a count churns on every commit: an item "
+      + "written this minute legitimately has no commit until its first one lands, "
+      + "and that is not a fault. An item LEAVING this list is ordinary progress — "
+      + "take it out of NO_COMMIT_YET. An item ARRIVING uninvited means something is "
+      + "in the backlog that no commit has ever mentioned, which is what this asks.",
+    );
   });
 
   await t.test("3a · commits naming an item never DECREASES", () => {
@@ -243,7 +267,6 @@ test("the two sweep methods are pinned, not described", async (t) => {
   await t.test("3 · the declared figures still hold", () => {
     const got = {
       numberedOpenItems: ids.length,
-      itemsWithACommit: new Set(scope.naming.flatMap((c) => c.items)).size,
       quoteCriteria: qs.criteria,
       quoteFragments: qs.fragments,
     };

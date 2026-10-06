@@ -17954,6 +17954,53 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and where it lives and is reported by name when it is missing** rather than
   skipped.
 
+### 14.32 — The figures in `FOR-ANDREW.md` are UNMEASURED, and the checker reports 0 because it cannot see them
+
+- [ ] **14.32 — `tests/figures-carry-their-command.test.mjs` declares `bare: 0`
+  for `FOR-ANDREW.md`, and that zero means NOTHING IN SCOPE, never nothing
+  wrong.** The scanner reads **table rows**; `FOR-ANDREW.md` states its figures
+  in **prose**. So the one document Andrew actually opens is the one whose
+  numbers no instrument has ever looked at, and it currently reports the
+  cleanest result of the five.
+
+  **The honest count is UNKNOWN, not zero**, and that distinction is the whole
+  item. What is measurable bounds it: the file has **15** table rows yielding
+  **0** bolded figures, while prose carries **411** numerals once dates are
+  excluded, plus spelled-out quantities (*two* appears 44 times, *four* 25,
+  *three* 16). **Most of those are not claims** — they are addresses, prices
+  Andrew typed, step numbers. **Some are measurements.** Nothing separates them,
+  which is why the number is unknown rather than large.
+
+  ```bash
+  grep -cE '^\|' FOR-ANDREW.md                           # 15 table rows
+  grep -oE '\*\*[0-9][0-9,]*\*\*' FOR-ANDREW.md | wc -l  # 3 bolded figures
+  grep -oE '\b[0-9][0-9,]*\b' FOR-ANDREW.md | grep -vE '^(19|20)[0-9][0-9]$' | wc -l   # 411
+  ```
+
+  **Why this is written down rather than left as a comment:** it WAS a code
+  comment inside the blind check — the honest sentence, in the one place
+  guaranteed not to be read by anybody looking at the document it describes.
+  **A reader of the report sees a clean `0` against Andrew's own list.** An
+  unknown written down where the queue is read is worth more than a zero that is
+  technically true. `docs/gotchas.md` 94 is the rule it fails.
+
+  **Done when** the scanner classifies prose figures in `FOR-ANDREW.md` and
+  declares a real count, **or** this item is closed with a recorded decision
+  that prose figures are out of scope and the check prints
+  `FOR-ANDREW.md: out of scope (prose)` instead of `0`. **Either outcome is
+  acceptable; a silent 0 is not.** The second is cheap and honest and may well
+  be the right answer — but it is a decision, not a default.
+
+  **The hard part, said so nobody starts by underestimating it:** separating a
+  measurement from an address or a price needs more than a number-shaped regex,
+  and a prose scanner that flagged all 411 would be noisier than the problem —
+  `docs/gotchas.md` 92's citation matcher cried wolf three times out of three and
+  was not built, for exactly that reason.
+
+  *Lane:* `tests/`. *Found 2026-10-02 by the per-document widening; the manager
+  named it as the blind spot documented only inside the instrument that cannot
+  see it.*
+
 ### 14.31 — The pointer-staleness tool is not in the repo, so every grade it produced is unrepeatable
 
 - [ ] **14.31 — A measurement nobody can re-take is a claim. The git-delta

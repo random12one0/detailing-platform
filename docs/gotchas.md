@@ -4146,6 +4146,18 @@ RIGHT   58 pointers, 3 self, 55 cross — 2026-10-02 @ 23199db:
         git grep -nE '(ROADMAP|FOR-ANDREW|DECISIONS|gotchas|VERIFIED|silences)\.md:[0-9]+' 23199db -- '*.md' | wc -l
 ```
 
+**AND A REVISION MUST BE A REVISION.** A figure pinned to `HEAD` is pinned to
+nothing: `HEAD` moves, and the row stops meaning anything the next time anybody
+commits.
+
+> **A timeline whose last row says `HEAD` has no last row.**
+
+The case: `docs/silences.md`'s open-count timeline cited `c024f89`, `f2dc0fc` and
+then `HEAD`. **Recovered rather than deleted** — `8ae32e4` was HEAD at the stated
+03:41, having landed 03:37 with the next commit at 03:44, and
+`git show 8ae32e4:ROADMAP.md | grep -c '^- \[ \] '` gives **60**, exactly as the
+row claims.
+
 **A proportion is the second-best form** — *62 of 62*, *all seven*, *zero of
 them* — because it survives the population changing underneath it. **Prefer a
 command with a revision; fall back to a proportion; never publish a bare count.**
@@ -4348,6 +4360,22 @@ git log --oneline -1          # against the message you expected, not against a 
 
 ## 97. A REVERT THAT WAS SAFE TWICE IS DESTRUCTIVE THE THIRD TIME, AND THE TWO SAFE USES ARE WHAT MAKE IT FEEL SAFE
 
+**THE ACTIONABLE HALF FIRST, BECAUSE IT IS THE ONLY PART ANYBODY CAN DO IN
+ADVANCE: make any multi-line change to a shared document with a SAVED SCRIPT,
+never by hand.**
+
+> **A hand-edited document has no undo once the working tree is gone. A scripted
+> edit does.**
+
+An hour of work was destroyed here and cost **minutes**, for exactly one reason:
+every edit had been applied by `pin1.mjs` through `pin4.mjs` in the scratchpad
+rather than typed into the file. **Four re-runs rebuilt all of it.** Had the same
+edits been made by hand, the sitting would have been gone — and the warning below
+would not have helped, because the mistake happens after the editing is done.
+
+**That is why this half leads.** The rest of this entry tells you how the loss
+happens; this paragraph is what makes the loss survivable.
+
 **2026-10-02. `git checkout HEAD -- docs/silences.md` destroyed about an hour of
 uncommitted work, run by a session that had used the same command on the same file
 twice in the same sitting with no harm at all.**
@@ -4411,3 +4439,92 @@ git checkout HEAD -- docs/silences.md     # only ever valid if the above was emp
 **The check it was running had its own answer and nobody asked it.** The before-
 state was printed at the top of the first two sabotages — *"clean before: []"* —
 and simply not printed on the third.
+
+
+## 98. A DECLARATION COMPARED WITH AN INEQUALITY CARRIES SLACK, AND EVERY UNIT OF SLACK IS ONE MORE FAULT THAT CAN ARRIVE WITHOUT REDDENING ANYTHING
+
+**2026-10-02. Swept `tests/` after a declared bare count of 196 was found sitting
+over an actual 192 — four units of slack nobody had looked for.**
+
+### THE FOUR NUMBERS, WITH THE COMMAND FOR EACH
+
+Measured at commit `2ed434c`.
+
+| | | re-take |
+|---|---|---|
+| inequality comparisons against a declaration | **10** | the ten are named below; the constant half is `git grep -nE '>=\s*[A-Z][A-Z0-9_]{2,}' 2ed434c -- 'tests/*.test.mjs' \| wc -l` → **7** |
+| **correctly floors, left alone** | **8** | named below |
+| **declarations converted to equality** | **1** | `git grep -n 'DECLARED_ALLOW_PATTERNS' -- 'tests/*.test.mjs'` |
+| **split into two assertions** | **1** | `git grep -n 'PARSE_FLOOR\|DECLARED_ROWS' -- 'tests/*.test.mjs'` |
+
+### THE SHARPEST ONE: A CONSTANT THAT COULD NOT BE COMPARED CORRECTLY AT ALL
+
+`EXPECTED_ROWS = 16` in `tests/queue-rows-still-belong.test.mjs` was asserted with
+`>=` and **answered two different questions at once**:
+
+| the question | the right comparison |
+|---|---|
+| did the table still **PARSE**? Fewer rows means the row shape changed and the scan reads nothing | a **FLOOR** — finding more rows is not a fault |
+| is the declared row count still **TRUE**? | an **EQUALITY** — the queue can grow to twenty and the declaration stays 16, silently |
+
+**Whichever comparison you pick you are half wrong.** That is not a badly chosen
+operator; it is **one constant doing two jobs**. Split into `PARSE_FLOOR = 8`
+(named as a parser guard) and `DECLARED_ROWS = 16` (named as a declaration), each
+with a message saying which question it answers.
+
+**Proved by sabotage, not by argument: a seventeenth row was written into the
+queue document, the FLOOR passed (17 ≥ 8) and the EQUALITY failed (17 ≠ 16).** The
+single `>=` would have waved it through.
+
+### THE ONE CONVERTED, AND WHERE IT WAS
+
+`ALLOWED.length <= 12` with **11** patterns — one unit of slack **in the check
+whose subject is credentials in markdown**. The assertion already carried the
+sentence that condemns it: *a broad allowlist is how a check stops checking.* A
+ceiling with room in it means the next pattern lands with nothing going red. Now
+`=== DECLARED_ALLOW_PATTERNS` at 11, and **a twelfth pattern was added on purpose
+and reddened it.**
+
+### THE EIGHT LEFT ALONE, AND WHY EACH IS CORRECTLY AN INEQUALITY
+
+**A discovery floor is supposed to be a floor** — finding more surfaces than
+expected is not a fault, and converting one would redden the run every time the
+repo grew.
+
+| | why |
+|---|---|
+| `OPEN_FLOOR = 40` | discovery floor; 66 open items today |
+| `EXPECTED_MIN_FILES = 120` | discovery floor on files scanned |
+| `ITEM_FLOOR = 40` | discovery floor |
+| `COMMIT_FLOOR = 100` | discovery floor on `git log` size |
+| `COMMITS_NAMING_FLOOR = 339` | **monotonic by design** — commits only accumulate; #95 is why |
+| `CEILING = 0` | **a ceiling of zero has no slack by construction.** `<= 0` on a non-negative count *is* equality |
+| `files.length < 50` (em-dash) | discovery floor; fewer means the walk is not reaching the tree |
+| `cols.length < 5` (platform-admin) | a parser guard that prints *"the column list was not parsed"* |
+
+### AND THE PART THAT IS WORTH MORE THAN THE TEN — THE POPULATION IS NOT THE COUNT
+
+**Said in the form it was said in, because the next person will otherwise read ten
+as a census:**
+
+> **Four constants my first matcher called “no comparison found” were false
+> negatives using bare `===` inside `check(...)`, and `ALLOWED.length <= 12` is
+> not a declared constant at all but an inline literal, which a const-only sweep
+> cannot see and which I only found by searching separately for `.length <=`. So
+> the real population is DECLARATIONS COMPARED WITH AN INEQUALITY, not CONSTANTS,
+> and I cannot claim my twelve is the whole of it.**
+
+**And the counting itself proves the point three ways over.** Asked at one
+revision, `2ed434c`, how many declared numeric constants `tests/` holds:
+
+| command | answer |
+|---|---|
+| `git grep -hE '^const [A-Z][A-Z0-9_]{2,} = [0-9]+;'` | **11** |
+| the sweep's own parser (allows indentation) | **12** |
+| `git grep -hE '^\s*const [A-Z][A-Z0-9_]{2,}\s*=\s*[0-9]+'` | **15** |
+
+The four the strict form misses are `const CEILING = 0;` (indented, so not at
+column zero) and three whose values are **expressions rather than literals** —
+`250 * 1024 * 1024`, `1_757_000_000`, `3600_000`. **One revision, three commands,
+three populations.** The number is a fact about the pattern, not about the repo,
+and #89 is the same lesson from the other direction.
