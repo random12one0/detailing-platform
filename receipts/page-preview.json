@@ -1,0 +1,52 @@
+{
+  "git_sha": "3dfd8dd0261f589b45dd778e17f4a5dd8cf37ca1",
+  "git_sha_started": "3dfd8dd0261f589b45dd778e17f4a5dd8cf37ca1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-06T19:08:22.248Z",
+  "failures": [],
+  "warnings": [
+    "The THIN business is real: `final-pass-fixture` has genuinely zero services and the frame loads its REAL public page. What is intercepted is the signed-in session's own count queries, so the screen computes `counts` as thin and the sentence matches the page. Nothing is written to the database.",
+    "A real sign-in as a thin business's owner would need an auth user and a membership row - a write to the live project, which this sitting is not permitted. Said rather than implied.",
+    "`on-save` proves the frame is NOT remounted by typing. It does not prove a save DOES refresh it; that is `refreshKey` bumping in `onClose`, which is one line and is read rather than pressed here."
+  ],
+  "artifacts": [
+    "artifacts/page-preview/320-complete.png",
+    "artifacts/page-preview/320-thin.png",
+    "artifacts/page-preview/1440-complete.png",
+    "artifacts/page-preview/1440-thin.png",
+    "artifacts/page-preview/1440-lite.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "1440x900"
+    ],
+    "thin_slug": "final-pass-fixture",
+    "observed": [
+      "320px complete: src=http://localhost:5173/book/demo-detail 282x506 inCol2=false missing=\"This page works. It has no photos on it yet.\" stamp-after-typing=unmounted-while-open",
+      "320px thin: src=http://localhost:5173/book/final-pass-fixture 282x506 inCol2=false missing=\"Nobody can book this page yet — it has no services on it.\" stamp-after-typing=unmounted-while-open",
+      "1440px complete: src=http://localhost:5173/book/demo-detail 729x648 inCol2=true missing=\"This page works. It has no photos on it yet.\" stamp-after-typing=unmounted-while-open",
+      "1440px thin: src=http://localhost:5173/book/final-pass-fixture 729x648 inCol2=true missing=\"Nobody can book this page yet — it has no services on it.\" stamp-after-typing=unmounted-while-open",
+      "1440px lite: src=http://localhost:5173/book/demo-detail 729x648",
+      "console: 2 React Router future-flag warning(s) FORGIVEN BY NAME"
+    ],
+    "sabotage": null
+  },
+  "check_id": "page-preview",
+  "started_at": "2026-10-06T19:07:24.485Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 27,
+  "min_assertions": 27,
+  "assertion_floor": "6 questions (real-page, thin-not-blank, stacks, tabbar-clear, on-save/absent-while-typing, on-save/returns-on-close) x 2 businesses x 2 widths + 1 lite real-page + 2 canaries = 27. Structural: fixed by the question list, never by what the run finds - a width whose screen never renders books its six as failures rather than dropping out, so the count cannot fall.",
+  "canary": {
+    "id": "the-blank-thin-half",
+    "observed_failure": true,
+    "problems": []
+  }
+}

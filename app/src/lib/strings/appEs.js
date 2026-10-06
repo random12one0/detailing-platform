@@ -509,6 +509,19 @@ export const appEs = {
   // retired headings stay keyed: nothing renders them today, but a key nobody
   // asks for costs nothing and a MISSING one shows English with no error.
   "What customers see": "Lo que ven los clientes",
+  // ROADMAP 9.10 - the one line naming what is missing from a thin page.
+  // The em dash is the SENTENCE dash and stays an em dash in both languages;
+  // docs/gotchas.md carries the three shapes.
+  "Nobody can book this page yet — it has no services on it.":
+    "Nadie puede reservar en esta página todavía — no tiene servicios.",
+  "Nobody can book this page yet — no days are open.":
+    "Nadie puede reservar en esta página todavía — no hay días abiertos.",
+  "This page works. It has no photos and no reviews on it yet.":
+    "Esta página funciona. Todavía no tiene fotos ni reseñas.",
+  "This page works. It has no photos on it yet.":
+    "Esta página funciona. Todavía no tiene fotos.",
+  "This page works. It has no reviews on it yet.":
+    "Esta página funciona. Todavía no tiene reseñas.",
   "What you charge for": "Lo que cobras",
   "Where customers come from": "De dónde vienen los clientes",
   "Your page": "Tu página",

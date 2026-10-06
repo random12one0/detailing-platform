@@ -54,6 +54,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { useWide } from "../hooks/useWide.js";
 import SettingsHost from "../components/SettingsHost.jsx";
 import BookingLink from "../components/BookingLink.jsx";
+import PagePreview from "../components/PagePreview.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
 import { whereFrom } from "../lib/moneyAdvanced.js";
@@ -170,6 +171,16 @@ export default function Business({ onSetup, initial = null }) {
   // it loses the connection with nothing on screen saying so.
   const [open, setOpen] = useState(initial);
   const [counts, setCounts] = useState(null);
+  /* ROADMAP 9.10 · THE WHOLE REFRESH MECHANISM, AND IT IS A NUMBER.
+     The preview is an iframe keyed on this; React remounts it when the key
+     changes, which reloads the page. It is bumped in ONE place - `onClose`,
+     below, which is the moment a settings panel is dismissed after a save.
+     **Nothing a detailer types can reach it**, which is 9.10's second
+     judgement call satisfied by construction rather than by a debounce
+     somebody has to keep correct. Closing a panel WITHOUT saving bumps it
+     too, and that is harmless: it reloads the same unchanged page, which is
+     still the honest current state. */
+  const [previewKey, setPreviewKey] = useState(0);
 
   // One round trip for every summary line on the screen.
   const load = useCallback(async () => {
@@ -496,6 +507,13 @@ export default function Business({ onSetup, initial = null }) {
           this tab TO USE outranks a temporary thing they are being reminded
           about, and the nag is one flick down rather than gone. */}
       {!wide && <BookingLink slug={business.slug} origin={siteOrigin} />}
+      {/* STACKS BELOW THE LINK ON A PHONE - 9.10's fourth clause. The wide
+          copy lives in `empty` below; `SettingsHost` renders that column
+          only above --wrap, so exactly one of the two is ever on screen. */}
+      {!wide && (
+        <PagePreview slug={business.slug} origin={siteOrigin}
+          counts={counts} refreshKey={previewKey} />
+      )}
 
       {/* WHAT IS LEFT, AND WHICH ONE IS NEXT — his second note on this screen,
           2026-09-13: *"'Finish setting up · 3 of 11 done' should make the next
@@ -587,8 +605,14 @@ export default function Business({ onSetup, initial = null }) {
       // The summaries are read from the same tables the screen just wrote to,
       // so closing one re-reads them — that is what makes a row answer itself
       // correctly the moment you come back out of it.
-      onClose={() => { setOpen(null); load(); reloadTenant(); }}
-      empty={<BookingLink slug={business.slug} origin={siteOrigin} />}
+      onClose={() => { setOpen(null); load(); reloadTenant(); setPreviewKey((n) => n + 1); }}
+      empty={(
+        <>
+          <BookingLink slug={business.slug} origin={siteOrigin} />
+          <PagePreview slug={business.slug} origin={siteOrigin}
+            counts={counts} refreshKey={previewKey} />
+        </>
+      )}
     >
       {index}
     </SettingsHost>

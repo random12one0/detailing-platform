@@ -5740,3 +5740,41 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
   line-height: 1.4; white-space: normal;
 }
 .btn.linkdoor .linkdoor-go { color: var(--text-muted); flex-shrink: 0; }
+
+/* ── ROADMAP 9.10 · THE REAL BOOKING PAGE ON THE BUSINESS SCREEN ──────────
+   The resting column held a 252px link card over about 570px of nothing at
+   1440, measured before this was built. This fills it with the page itself.
+
+   THE FRAME IS GIVEN A HEIGHT RATHER THAN ASKED FOR ONE. A cross-document
+   iframe cannot size itself to its content, and the usual answer — postMessage
+   the height back out — would put a measuring script into the public booking
+   page to serve a settings screen, which is the booking page paying for this
+   feature. `min(72vh, 900px)` is tall enough to show the services a customer
+   chooses from and short enough to leave the link card above it on screen. */
+.pagepv { display: block; margin-top: 18px; }
+.pagepv .lab { margin-bottom: 8px; }
+.pagepv-missing {
+  margin: 0 0 10px; color: var(--text-muted); font-size: var(--t-meta); line-height: 1.45;
+}
+.pagepv-frame {
+  position: relative; border: 1px solid var(--line); border-radius: var(--r-card);
+  overflow: hidden; background: var(--ink-0);
+  /* INERT, and the reason is in `PagePreview.jsx`: a live booking page on the
+     detailer's own settings screen is a job they can book by accident on their
+     own business. The "Open it" button directly above goes to the real thing. */
+  pointer-events: none;
+}
+.pagepv-frame iframe {
+  display: block; width: 100%; height: min(72vh, 900px); border: 0;
+  /* A scrollbar inside a frame nobody can scroll is furniture that lies about
+     what the control does. */
+  overflow: hidden;
+}
+/* BELOW --wrap IT STACKS, which is 9.10's fourth clause and costs nothing here:
+   the preview is rendered inside the page by `Business.jsx` at narrow widths
+   and inside the resting column at wide ones, so the stacking is the ordinary
+   document flow rather than a second layout. Shorter, because on a phone this
+   sits under the whole index and a full-height frame would bury the rows. */
+@media (max-width: 1179px) {
+  .pagepv-frame iframe { height: min(60vh, 560px); }
+}
