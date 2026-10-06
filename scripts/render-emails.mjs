@@ -497,8 +497,8 @@ const EMAILS = [
   // emails: the first is a note two months out and the last is the day
   // before. Rendering only one would leave the half that actually matters
   // unlooked-at, which is this script's whole reason for existing.
-  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong("2026-10-12", LANG), daysLeft: 60, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
-  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong("2026-10-12", LANG), daysLeft: 1, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
+  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(60), LANG), daysLeft: 60, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
+  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(1), LANG), daysLeft: 1, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
   ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
   // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
   // human composes — so it is the only one whose footer carries a postal
@@ -549,6 +549,22 @@ const EMAILS = [
     },
   )],
 ];
+
+// ROADMAP 3.4c — A FIXTURE DATE AGREES WITH ITS OWN daysLeft. The 1-day
+// maintenance sample said "Tomorrow is the last day" beside a date weeks out,
+// because the date was a literal. Counted from today instead, as YYYY-MM-DD in
+// local time, and passed through formatDateLong like the real sender does.
+function daysOut(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toLocaleDateString("en-CA"); // en-CA is YYYY-MM-DD
+}
+
+// ROADMAP 3.4c / 3.4 FAULT 5 — A SPANISH RUN MUST NOTICE AN ENGLISH DATE. A
+// literal "October 12, 2026" in a Spanish customer email rendered and exited 0.
+// Customer emails only: emails to the detailer are English by design.
+const ENGLISH_DATE = /\b(January|February|March|April|May|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/;
+let spanishCustomerChecked = 0;
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];
 
@@ -612,6 +628,14 @@ for (const [file, label, render] of EMAILS) {
   for (const [name, re] of ROT) {
     if (re.test(html) || re.test(subject) || re.test(text ?? "")) {
       console.error(`  FAIL  ${label}: rendered "${name}"`);
+      bad++;
+    }
+  }
+  if (LANG === "es" && file.startsWith("customer-")) {
+    spanishCustomerChecked++;
+    const hit = (subject + "\n" + (text ?? "")).match(ENGLISH_DATE);
+    if (hit) {
+      console.error(`  FAIL  ${label}: English date word "${hit[0]}" in a Spanish customer email`);
       bad++;
     }
   }
@@ -799,6 +823,13 @@ console.log(`canary  a body containing NaN / Invalid Date / undefined -> `
     : `NOT CAUGHT by any of ${ROT.length} pattern(s) - every "ok" above is a test that cannot fail`));
 
 const failures = [];
+if (LANG === "es") {
+  const fires = ENGLISH_DATE.test("vence el Monday, October 12, 2026")
+    && !ENGLISH_DATE.test("vence el lunes, 12 de octubre de 2026");
+  console.log(`spanish ${spanishCustomerChecked} customer email(s) checked for an English date; detector ${fires ? "fires on an English date and not on a Spanish one" : "BROKEN"}`);
+  if (!spanishCustomerChecked) failures.push("SPANISH RUN CHECKED NO CUSTOMER EMAIL for an English date");
+  if (!fires) failures.push("the English-date detector cannot tell an English date from a Spanish one");
+}
 if (EMAILS.length === 0) {
   failures.push("ZERO EMAILS WERE RENDERED. Nothing was checked for rot, plain text or contrast, "
     + "so this run proves nothing. This is NOT a clean render.");

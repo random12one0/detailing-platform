@@ -17845,6 +17845,13 @@ date is formatted per language instead of typed in English. An existing file,
 not a new one — recorded here because the 9.10 entry above asks that anything in
 `scripts/` be said out loud.
 
+**A second edit to the same file, same day, for ROADMAP 3.4c (manager's
+permission given in the brief).** The two maintenance samples now compute their
+date from today (`daysOut(60)`, `daysOut(1)`), so the 1-day sample is one day out
+instead of weeks; and a Spanish run now fails on an English month or weekday
+name in any customer email, reports how many it checked, and self-tests the
+detector. Still an existing file, still no new one.
+
 **How to reverse it.** If Andrew rules the email transactional (no footer
 needed): drop the `legal` option and the throw in `maintenanceDueEmail`, delete
 the `no_mailing_address` branch in `maintenanceVerdict` and the skip block in

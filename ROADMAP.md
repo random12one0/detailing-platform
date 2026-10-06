@@ -6765,7 +6765,7 @@ requested.
   **NOT DEPLOYED.** `cancel-booking` and `update-booking` both carry this
   change in source only, same freeze as everything else tonight.
 
-- [ ] **3.4c — The maintenance email's date is wrong in the FIXTURE, and the
+- [x] **3.4c — The maintenance email's date is wrong in the FIXTURE, and the
   product is innocent. The evidence is broken, not the email.**
   *Found 2026-09-24 in 3.4's rendering pass. Split out on the manager's
   instruction rather than fixed quietly, and NOT fixed by this session because
@@ -6821,6 +6821,29 @@ requested.
   carries a date one day out, and a rendered Spanish maintenance email shows a
   Spanish date. **It must be broken on purpose**: put an English literal back and
   the run must say so — which today it does not, and that is `3.4`'s FAULT 5.
+
+  ***CLOSED 2026-10-06 by DP Cowork2, against the Done-when above, clause by clause:***
+  - **Both pass through `formatDateLong`:** `T.formatDateLong(daysOut(60), LANG)`
+    and `T.formatDateLong(daysOut(1), LANG)` in `scripts/render-emails.mjs`.
+    `daysOut(n)` counts from today, so each date agrees with its own `daysLeft`
+    on any day the script is run (the 60-day one was also wrong — October 12 was
+    6 days out, not 60).
+  - **The 1-day fixture is one day out:** run 2026-10-06, it reads *"Tomorrow is
+    the last day … due by Wednesday, October 7, 2026"*.
+  - **Spanish shows a Spanish date:** *«Mañana es el último día … vence el
+    miércoles, 7 de octubre de 2026»*.
+  - **Broken on purpose, and the run says so.** A Spanish run now checks every
+    customer email's subject and text for an English month or weekday name
+    (emails to the detailer are English by design and are not checked), prints
+    how many it checked, fails if that is zero, and proves its detector fires
+    on an English date and not on a Spanish one every run. With
+    `dueOn: "October 12, 2026"` put back in the 1-day fixture: *FAIL Customer ·
+    maintenance due (tomorrow): English date word "October" in a Spanish
+    customer email*, exit 1, receipt `fail`. Restored: exit 0.
+  - **What it does NOT close:** 3.4's FAULT 5 in full. This catches an English
+    DATE; an untranslated SENTENCE (FAULT 5's own sabotage, a deleted `es.ts`
+    key) still renders and exits 0. FAULT 5's "declared count of templates that
+    must differ from English" remains open under 3.4.
 
 ---
 
@@ -18247,6 +18270,56 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   named, 1 done. Credential-free except 14.26's row, which **names the credential
   and where it lives and is reported by name when it is missing** rather than
   skipped.
+
+### 14.36 — An email template hardcoded a dark-theme grey on a light background
+
+- [x] **14.36 — `ownerWhereRow`'s two notes ("Typed by hand…", "Doesn't mention the
+  travel area…") were drawn in a literal `#8A8F98`.** Closed 2026-10-06 by DP Cowork2.
+  `tests/email-brand.test.mjs` "no template hardcodes a colour" had been red on it
+  since `397dd12` (ROADMAP 2.3) — confirmed red at `4d61b06` on an untouched
+  worktree before anything here changed.
+
+  **It was a readability fault, not only a style one:** `#8A8F98` measures
+  **2.57:1** on the email's light panel (`contrastRatio`, `_shared/brandColor.js`),
+  under the 4.5:1 floor. Now `class="c-fog2" style="color:${G.fog2}"` — the token
+  the palette names for 11–13px text. Measured in the rendered
+  `owner-new-booking-typed` email: light **4.89:1** (`#5E6870` on `#EFEEE7`), dark
+  **5.16:1** (`#7B858A` on `#0B0D0E`, via the class).
+
+  **Red/green:** the hex put back → *FAIL no template hardcodes a colour — 1:
+  #8A8F98*; restored → *226 checks pass*.
+
+### 14.35 — Six Spanish-translation checks are red, all in app/src, and one of them is two translations fighting
+
+- [ ] **14.35 — `tests/spanish.test.mjs` fails 6 checks, and every one is already
+  red at `4d61b06` (checked on an untouched worktree, 2026-10-06), so none came
+  from 0.7, 9.14 or 14.34.** Found by DP Cowork2 while running it for 0.7.
+  **Read-only: nothing below was changed.** Five belong to Lane A (`app/src`); one
+  is a stale number in the test itself.
+
+  | check | what is wrong | file | lane | came from |
+  |---|---|---|---|---|
+  | **1b** | 4 strings the booking page asks for have no Spanish: "e.g. Honda Civic", "Not right?", "e.g. 2019", "An estimate is fine — it does not have to be exact." A Spanish customer sees them in English. (es.js has "e.g. 2019 Honda Civic"; the page now asks for "e.g. 2019" alone) | `app/src/book/steps/StepVehicle.jsx`, `app/src/book/core.js` → `app/src/lib/strings/es.js` | A | `ae9dc33`, `09e8b8c` (2026-09-14) |
+  | **1c** | 4 Spanish entries for English that no longer exists: "See the plan", "from {price}", "Plan from {price}", "Plans from {price}" | `app/src/lib/strings/es.js` | A | the plan moved in `bf14517` (2026-09-13) |
+  | **9f** | **6 keys appear twice in the dashboard catalogue, and two of them DISAGREE** — "What do you charge for?" is «¿Por qué cobras?» at line 865 and «¿Qué cobras?» at 1596. A JS object keeps the LAST one, so one translation silently wins. Also "{count} people", "When are you open?", "Where does the work happen?", "What color is yours?", "Running a discount?" | `app/src/lib/strings/appEs.js` | A | the second copies arrived with `50b9948` (2026-09-20) |
+  | **9a** | 10 of 1,618 dashboard strings have no Spanish, the one named being "All 14 vehicle types are assigned to a size…" | `app/src/screens/more/Catalog.jsx` → `appEs.js` | A | `09e8b8c` |
+  | **10e** | the test declares **3** default vehicle tiers and the code now has **14** — the 14-type checklist replaced the three tiers. **The number is stale, not the product** | `tests/spanish.test.mjs:845` | **B** | `09e8b8c` |
+  | **10f** | the 14 tier names and their examples ("Coupe (2-door)", "e.g. Honda Civic coupe, Toyota Camry coupe", …) have no entry in the BOOKING catalogue. Some exist in the dashboard's `appEs.js`, which the booking page does not read | `app/src/book/core.js` → `app/src/lib/strings/es.js` | A | `09e8b8c` |
+
+  **The sharpest of the six is 9f**: it is not a missing translation, it is two
+  translations of the same sentence where the file order decides which a detailer
+  sees, and nothing says so.
+
+  **Done when** `node tests/spanish.test.mjs` shows no FAIL; 9f is resolved by
+  choosing ONE Spanish wording per key (not by deleting whichever is first); 10e's
+  declaration is moved to 14 **in the same commit as a run showing it red at 3**
+  (`docs/gotchas.md` 93 — never lower or move a declared number without the red
+  first); and a Spanish booking page is opened at the vehicle step and read.
+  **What failing looks like:** 10e "fixed" by changing 3 to 14 while 10f stays red
+  — the count agreeing while the 28 words it counts are still English.
+
+  *Lane:* A for 1b, 1c, 9a, 9f, 10f (`app/src`); B for 10e (`tests/`). 10e is
+  small enough to go with 10f's commit so the number and the words move together.
 
 ### 14.34 — Twelve push notifications deep-link to a route that does not exist, and the tap lands on Not Found
 

@@ -314,7 +314,7 @@ export function ownerWhereRow(
   // does and does not catch.
   const zoneMismatch = b.serviceType === "mobile" && b.travelZoneAddressMismatch === true;
   const note = (text: string) =>
-    `<br><span style="color:#8A8F98; font-size:13px;">${text}</span>`;
+    `<br><span class="c-fog2" style="color:${G.fog2}; font-size:13px;">${text}</span>`;
   return [
     "Where",
     esc(jobAddress(brand, b))
