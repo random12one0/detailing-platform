@@ -714,6 +714,46 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **NEEDS ANDREW · Put the Stripe TEST secret key into `.env`, so the
+  billing walk can run renewals and failed payments (ROADMAP 12.1).** Added
+  2026-10-06.
+
+  **What this is.** The check that walks a pretend detailer through paying,
+  renewing, a card failing, the page going offline and coming back is built.
+  Half of it ran today. The other half fast-forwards time on Stripe's
+  practice account so a month passes in a minute, and that needs the practice
+  account's secret key on this computer. Today the key only lives inside
+  Supabase, where a session cannot read it.
+
+  **What to do, about a minute.** Stripe dashboard, switch on **Test mode**,
+  Developers, API keys, copy the **Secret key** (it starts `sk_test_`). Open
+  `.env` in this folder in Notepad and add one line: `STRIPE_SECRET_KEY=`
+  followed by the key. Save. **Never the live key** — the script refuses
+  anything that does not start `sk_test_`, and `.env` is never committed.
+  Then tell a session to run `node scripts/billing-walk.mjs`.
+
+  **Nothing breaks while this waits.** No real money moves either way.
+
+
+- [ ] **SWITCH · Publish `platform-billing`, so a detailer whose page went
+  offline for not paying gets it back when they pay (ROADMAP 12.1).** Added
+  2026-10-06.
+
+  **What this is.** Measured on the real booking page today: a detailer whose
+  page was switched off for non-payment pays to restart, the billing record
+  says "active", and the public page **still says "Page not found"** — for
+  good. The restart was wiping the one note the payment step looks for before
+  switching the page back on. Fixed in the code; the live function still has
+  the old behavior until it is published.
+
+  ```bash
+  node scripts/deploy-functions.mjs platform-billing
+  node scripts/billing-walk.mjs   # steps 6d and 6e should turn to ok
+  ```
+
+  **Nobody is affected today** — there are no paying detailers yet. It matters
+  the first time a real card fails.
+
 - [ ] **SWITCH · One database change, then the email functions, so a detailer
   who uses the dashboard in Spanish gets their own alerts in Spanish.**
 

@@ -1,0 +1,46 @@
+{
+  "git_sha": "05b6f0a85a3c1c45a8e1fa75f8e6633821ecd6ad",
+  "git_sha_started": "05b6f0a85a3c1c45a8e1fa75f8e6633821ecd6ad",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-06T21:10:14.685Z",
+  "failures": [
+    "6d · ROW: the business is active again — businesses.status paused",
+    "6e · PAGE: the public booking page is reachable again once paid — page read: Page not found / This booking link doesn’t match a business.",
+    "NOT MEASURED: 3 · renew — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+    "NOT MEASURED: 4 · failed payment retries — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+    "NOT MEASURED: 5 · page offline after the retries run out — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock"
+  ],
+  "warnings": [
+    "step 6 started from a suspension this script WROTE (no test clock without a secret key); steps 6a onward are the deployed product"
+  ],
+  "artifacts": [
+    "artifacts/billing-walk/0-canary-nobody.png",
+    "artifacts/billing-walk/2e-paid.png",
+    "artifacts/billing-walk/6a-staged-offline.png",
+    "artifacts/billing-walk/6e-paid-again.png"
+  ],
+  "dimensions": {
+    "stripe_secret_key": "absent",
+    "book_origin": "https://detailingplatform.com",
+    "slug": "billing-walk-pp54ti"
+  },
+  "check_id": "billing-walk",
+  "started_at": "2026-10-06T21:09:02.222Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 3,
+  "skip_allowlist": {
+    "reason": "renew, retries and the real suspension need a test clock, and a test clock needs the sandbox STRIPE_SECRET_KEY in the shell (FOR-ANDREW.md)",
+    "expires": "2026-10-20"
+  },
+  "assertions_executed": 18,
+  "min_assertions": 15,
+  "canary": {
+    "id": "nonexistent-slug-reads-down",
+    "observed_failure": true
+  }
+}

@@ -689,7 +689,11 @@ async function subscribe(
     term_ends_on: termEndDate(now, snapshot.term_months),
     cancel_at_period_end: false,
     canceled_at: null,
-    suspended_at: null,
+    // `suspended_at` IS NOT CLEARED HERE — ROADMAP 12.1, measured. It is the
+    // only thing `invoicePaid` reads before switching a paused page back on,
+    // so clearing it at restart left a detailer who had just paid with a row
+    // reading `active` and a public page reading "Page not found"
+    // (scripts/billing-walk.mjs, 6d/6e). The webhook clears it once paid.
     exit_fee_charged_cents: null,
     dunning_attempts: 0,
     last_failure_at: null,

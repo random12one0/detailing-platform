@@ -14947,6 +14947,41 @@ their age is not Andrew's problem.
   with the state read off the page rather than off the subscription record.
   **What failing looks like:** every Stripe event arriving correctly while the
   booking page never changes state, which is the half only the page can answer.
+
+  **WALKED 2026-10-06 — HALF OF IT, AND THE HALF THAT RAN FOUND THE EXACT
+  FAILURE THIS ENTRY DESCRIBES.** `node scripts/billing-walk.mjs`, run at
+  `05b6f0a` (this script then uncommitted, committed with this note) against the DEPLOYED `platform-billing` and `stripe-webhook`, its own
+  throwaway `billing-walk-<tag>` business (`is_demo`, deleted at the end), and the
+  live page `https://detailingplatform.com/book/<slug>` read in a headless
+  browser. Receipt `receipts/billing-walk.json`; screenshots in
+  `artifacts/billing-walk/`.
+  * **Sandbox, proved without the secret:** the checkout hands back a `pk_test_`
+    publishable key, and the script refuses to confirm a card otherwise. The
+    secret key exists only as a Supabase function secret (`STRIPE_SECRET_KEY`,
+    set 2026-09-05); it is not in `.env`.
+  * **Sign-up → pay: met, rows and page.** Owner signs in, subscribes through
+    the deployed checkout, pays with Stripe's `tok_visa`; the row reads `active`,
+    a paid invoice is mirrored, and the public page shows the business by name.
+  * **Back when paid: FAILS.** From a suspension the script wrote (labelled
+    STAGED — without a test clock nothing else can produce one), the owner pays to
+    restart: **the row reads `active` and `suspended_at` is cleared, and the
+    business stays `paused` — the public page still reads "Page not found".**
+    Cause: `subscribe` nulled `suspended_at` on restart, and `invoicePaid` only
+    un-pauses a business when it finds `suspended_at` set. `tests/platform-
+    billing.test.mjs` was *requiring* that line. **Fixed in this checkout** (the
+    line removed, the test inverted and broken on purpose — red with the line
+    restored), **not yet live: NEEDS ANDREW to publish `platform-billing`.**
+  * **Renew, failed-payment retries, the real suspension: NOT MEASURED.** They
+    need a Stripe test clock, which needs the sandbox secret key in the shell.
+    **NEEDS ANDREW** — `FOR-ANDREW.md` § "Waiting on you", first row. The script
+    already walks them (steps 3–5) the moment the key is there.
+  * **Broken on purpose:** `--break=page-stays-up` puts the business back to
+    `active` behind the webhook's back while the row says suspended; the
+    page-offline check went red, as it must. A built-in canary reads a booking
+    link for no business every run and must read it as down.
+  **Nothing was left suspended:** every run deletes its business in `finally`
+  and on SIGINT/SIGTERM, sweeps any `billing-walk-*` a killed run left, and
+  after the runs no business in the database was `paused`.
 - [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
   "Card" into the notes, while the home page promises "Take a card payment on
   the driveway." **Until this ships, 10.1 must change the home page wording** —

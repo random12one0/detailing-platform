@@ -861,9 +861,15 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   check("re-subscribing clears the previous cycle",
     fn.includes("stripe_subscription_id: String(subscription.id),")
       && fn.includes("exit_fee_charged_cents: null,")
-      && fn.includes("suspended_at: null,")
       && fn.includes("canceled_at: null,")
       && fn.includes("dunning_attempts: 0,"));
+  // EXCEPT THE SUSPENSION, which this check used to REQUIRE be cleared — and
+  // that was the bug. `invoicePaid` un-pauses the page only when it finds
+  // `suspended_at` set, so a restart that nulled it left a paid detailer's
+  // page dark for good. ROADMAP 12.1, caught by scripts/billing-walk.mjs
+  // reading the real page, not by reading this file.
+  check("re-subscribing KEEPS the suspension, so the payment can lift it",
+    !/suspended_at:\s*null/.test(strip(fn)));
 
   // MONEY THAT HAS LEFT A CARD IS RECORDED BEFORE ANYTHING THAT CAN THROW.
   check("the exit fee is recorded the moment it is taken",
