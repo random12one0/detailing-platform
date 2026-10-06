@@ -1711,7 +1711,7 @@ Judgment calls are DECISIONS.md → "Roadmap 2.11, step 6, stage 1".
 | `.app-main` content column, 1920 and 1440 | 724px at every width | **1,144px** |
 | Today's document height, 1440x900 | 1,810px | **1,006px** — required ≤1,200 |
 | Today's document height, 392x844 | ~2,500px (3.4 screens) | **1,103px** |
-| `.dayrail` elements on Today | 3 | **1** |
+| `.dayrail` elements on Today | 3 | **1** | ***RE-TAKEABLE ONLY IN A BROWSER — it counts RENDERED elements, not source.*** `node scripts/sweep-widths.mjs` (dev server + seed) is what opens that screen. **A source count answers a different question and would be worse than none: `grep -ro dayrail app/src` returns 29.** Dated snapshot 2026-09; see `docs/gotchas.md` 94 |
 | A finished job's node | the hollow "still ahead" ring | solid `--accent` |
 | A paid job's node | `#0ea5e9`, the tenant's accent | `--ac` `#38E08B` |
 | Today's ledger at 392 / 320 | a 112px sunken panel | **75px / 98px**, bare figures |
@@ -1996,8 +1996,8 @@ the owner.**
 | The legend | five entries, always | **only the marks on the month shown** — three at 392, one at 1440 |
 | The day | a full-height sheet OVER the month | **an inline panel UNDER the grid**, at every width |
 | `.cal-cell.selected` | dead CSS since roadmap 2.6 | drawn |
-| `BookingCard` callers | 4 | **2** (`Today`, `Clients` — and 1 after stage 5) |
-| Screens `sweep-widths.mjs` opens on this tab | 1 | **7** (month, day, its three editors, history, a history job) |
+| `BookingCard` callers | 4 | **2** (`Today`, `Clients` — and 1 after stage 5) — `grep -ro '<BookingCard' app/src \| wc -l` → **1** @ `d3a9170`, 2026-10-02, **and the only file is `app/src/screens/Today.jsx`**. ***BOTH FIGURES STAND WITH THEIR DATES AND NEITHER WAS EDITED*** (`gotchas.md` 93): the 2 was true when written, the 1 is true now, and the newer wins only because it is newer. **`Clients` no longer renders it, which nothing anywhere had recorded** — found by pinning this row, not by looking for it |
+| Screens `sweep-widths.mjs` opens on this tab | 1 | **7** (month, day, its three editors, history, a history job) | **PINNED, NOT VERIFIED: `node scripts/sweep-widths.mjs` (dev server + seed + credentials), which needs a browser this lane does not have.** The command is named rather than run, so this figure is as strong as that script and no stronger. **A grep of the script's internals was considered and rejected** — `scripts/` is another session's lane and the enumeration moves, so the count would answer a question about today's source rather than about the calendar tab. Dated snapshot 2026-09 |
 
 **WHAT SHIPPED.** The desk writes the month out — up to three `time · name`
 lines per cell and a `+N more`, so *Booked*, *Done* and *No-show* become words
@@ -2141,7 +2141,7 @@ the owner** — the one thing he might want to revisit is named at the bottom.
 | Expenses past twelve | silently cut | **"+3 more in September 2026", which expands** |
 | The accountant export (feature row 40) | did not exist | a flat CSV whose total **equals the screen's Net** |
 | Calendar, 1440x900, a day open | 1,284px — the panel began **20px below the fold** | **900px, the day beside the month** |
-| Screens `sweep-widths.mjs` opens on Money | 1 | **6** (the tab, three period kinds, an unpaid job, the expense form) |
+| Screens `sweep-widths.mjs` opens on Money | 1 | **6** (the tab, three period kinds, an unpaid job, the expense form) | **PINNED, NOT VERIFIED: `node scripts/sweep-widths.mjs` (dev server + seed + credentials), which needs a browser this lane does not have.** The command is named rather than run, so this figure is as strong as that script and no stronger. **A grep of the script's internals was considered and rejected** — `scripts/` is another session's lane and the enumeration moves, so the count would answer a question about today's source rather than about Money. Dated snapshot 2026-09 |
 
 **WHAT SHIPPED ON MONEY.** A signed chart on a zero rule; a segmented period
 control with the stepper at the far end of the same line; the export directly
@@ -2321,7 +2321,7 @@ tenant's colour in the ground. Judgment calls are DECISIONS.md → "Roadmap
 | Money's period control at 392 | 3 + 2, cells of **110px and 168px** | **five equal 67.2px cells on one line**, 55.2px tall → 39.6 |
 | The export button | "Export for my accountant", its own row | **"Export"**, on the period line; at 768 the whole head is one line |
 | The ground's two lights | fixed near-whites | **carry the tenant's colour**, same alphas |
-| Clients screens `sweep-widths.mjs` opens | 1 | **6** |
+| Clients screens `sweep-widths.mjs` opens | 1 | **6** | **PINNED, NOT VERIFIED: `node scripts/sweep-widths.mjs` (dev server + seed + credentials), which needs a browser this lane does not have.** The command is named rather than run, so this figure is as strong as that script and no stronger. **A grep of the script's internals was considered and rejected** — `scripts/` is another session's lane and the enumeration moves, so the count would answer a question about today's source rather than about Clients. Dated snapshot 2026-09 |
 
 **WHAT SHIPPED ON CLIENTS.** A masthead and a search field; a segmented sort
 of three that is absent below three rows; one chip, *Not seen in 3 months*,
@@ -2570,11 +2570,11 @@ form becomes a wizard, which is the thing people abandon.
 | The progress rule | designed, ~31px a segment at 320 | **built; 37.14px measured**, from 284px of usable width rather than the 244 the design assumed |
 | Where "N of 7" comes from | designed as a stored count | **derived from the database for five of the seven**, stored only for what nothing else can answer |
 | The tour | — | **a spotlight over the live dashboard**, one element and a 9999px shadow |
-| Its step count | designed as "six or seven" | **planned before the first step is drawn**: 7 for an owner with jobs, **6** on an empty dashboard, **4** for staff |
+| Its step count | designed as "six or seven" | **planned before the first step is drawn**: 7 for an owner with jobs, **6** on an empty dashboard, **4** for staff | ***UNRE-TAKEABLE — these are a DESIGN DECISION, not a count.*** The row says so itself: *planned before the first step is drawn*. No command re-takes an intention, and a later count of the steps that got built would be a different claim with the same shape, which is the confusion worth avoiding. Dated snapshot 2026-09 |
 | Its keyboard | — | Escape, a visible *Skip the tour*, and **a focus trap** |
 | Staff | got neither | **get the tour and not the form** — they are not setting up a business |
 | Re-running the tour | — | *Show me around* behind the gear |
-| `sweep-widths.mjs` screens | 40 | **54** — the form's seven steps and the tour's seven |
+| `sweep-widths.mjs` screens | 40 | **54** — the form's seven steps and the tour's seven | **PINNED, NOT VERIFIED: `node scripts/sweep-widths.mjs`** — the screen list is that script's own and it is being edited in another lane, so only a run answers it. Dated snapshot 2026-09 |
 | Roadmap 2.11 | seven stages, six built | **closed** |
 
 **WHAT SHIPPED.** `components/SetupForm.jsx` (the form) and
@@ -2839,7 +2839,7 @@ and the answer to his question is yes: it is the stage not yet reached.
 | `sweep-booking-steps.mjs` | every step fits at all four sizes; step 1 still 10px spare at 1440x900, unchanged |
 | `request-mode` | 45 checks pass; test 8's tie-out baselined by deleting the `price_adjustments` line, which fails it by exactly the quote |
 | `booking-engine` · `timezone-and-slots` · `tenant-isolation` · `staff-roles` · `owner-writes` · `ics-and-notifications` · `booking-page-isolation` | all pass (86 / 34 / 40 / 35 / 62 / 32 / 62) |
-| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` (**138**) · `client-list` · `setup-progress` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` (**138** when written; `node --test tests/email-brand.test.mjs` → **226 checks** @ `d3a9170`, 2026-10-02, **and the suite currently FAILS** — both figures stand with their dates, neither edited, and the red is reported rather than quietly left out of this list) · `client-list` · `setup-progress` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
 | The four new emails | rendered and LOOKED AT, which is how the contrast defect above was found |
 | End to end, real browser | a customer booked through `/book/demo-detail` in request mode and got *"We're holding your time"*; the row came back `pending`; the two test bookings were deleted afterwards |
 
@@ -3343,7 +3343,7 @@ own documentation gets deleted rather than fixed.**
 | | |
 |---|---|
 | `render-emails.mjs` | exit 0 on the house green, on **crimson**, and with `--logo`. Seventeen emails, HTML and text. |
-| Money | Confirmation 360 + 25 + 20 − 20 − 40 = **345**; receipt 285 + 35 + 40 + 25 + 20 + 30 − 40 − 20 = **375**. Asserted on the RENDERED output, not the inputs. |
+| Money | Confirmation 360 + 25 + 20 − 20 − 40 = **345**; receipt 285 + 35 + 40 + 25 + 20 + 30 − 40 − 20 = **375**. Asserted on the RENDERED output, not the inputs. | **VERIFIED BY ARITHMETIC ON THE ROW ITSELF, 2026-10-02 — both sums check exactly.** `node -e 'console.log(360+25+20-20-40, 285+35+40+25+20+30-40-20)'` → `345 375`. **This is the one figure shape that needs no revision**: the row carries its own operands, so it is true or false on its face and cannot go stale. The *rendering* of those totals still needs a browser; the arithmetic does not |
 | `email-brand` | 186 pass; the two new source checks baselined failing. |
 | `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `client-list` · `setup-progress` · `decisions-index` · `accent-sweep` | all pass |
 
@@ -4935,7 +4935,7 @@ and Phase 4.3 is closed into it.**
 | `app/src/book/PlansPage.jsx` | `/book/:slug/plans` — a ruled list, one row per plan, the row IS the button |
 | `app/src/book/PlanMemberPage.jsx` | `/plan/:memberId` — what they are on, visits waiting, next due, cancel, book |
 | `planLineFor` in `_shared/pricing.ts` | the ONLY thing that knows what a plan does to a price |
-| `planLinkEmail` / `planCancelledEmail` | two templates; `render-emails.mjs` now writes **20** — the twentieth is a booking WITH A PLAN, which exists only so the money tie-out can reach a NEGATIVE line |
+| `planLinkEmail` / `planCancelledEmail` | two templates; `render-emails.mjs` now writes **20** (**PINNED, NOT VERIFIED: `node scripts/render-emails.mjs`**, which this lane does not run; `grep -cE '^export (const|function) [a-zA-Z]+Email' supabase/functions/_shared/emailTemplates.ts` answers **16** and is a DIFFERENT question — exported templates, not emails rendered. Dated snapshot 2026-09) — the twentieth is a booking WITH A PLAN, which exists only so the money tie-out can reach a NEGATIVE line |
 | `keepLink()` in `_shared/emailTemplates.ts` | *"here's your link, don't lose it"* on the confirmation, the acceptance and the reminder |
 | `scripts/demo-refs.json` | written by the seed, gitignored — how a script with no session reaches a member's page |
 

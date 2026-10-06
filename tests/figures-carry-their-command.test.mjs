@@ -189,10 +189,19 @@ const DOCS = [
   // somebody introduced, and section 4 is the red for that.
   { path: "docs/silences.md", floor: 20, bare: 0 },
 
-  // 17 -> 12 on 2026-10-02, **also a POPULATION CORRECTION rather than pinning**:
-  // five of the seventeen were section pointers in a `| §| |` contents table.
-  // The twelve that remain are real and not yet pinned.
-  { path: "PROJECT-STATE.md", floor: 8, bare: 12 },
+  // **ZERO, and the two reductions that got here are DIFFERENT and labelled so.**
+  // 17 -> 12 was a POPULATION CORRECTION: five of the seventeen were section
+  // pointers in a `| §| |` contents table and were never measurements.
+  // 12 -> 0 is PINNING WORK, done in the fenced order — the rows were pinned, 4a
+  // then went RED at the declaration of 12 reporting "LOWER IT TO 0", and only
+  // then was this number moved, in the same commit.
+  //
+  // **The second document to reach zero.** Of its 14 figures: 2 verified by
+  // arithmetic on their own row, 1 re-run against the source and found DRIFTED
+  // (both figures kept), 1 re-run against a suite and found drifted AND failing,
+  // 9 PINNED NOT VERIFIED because they need a browser or another lane's script,
+  // and 1 named a design decision rather than a count.
+  { path: "PROJECT-STATE.md", floor: 8, bare: 0 },
 
   // **FOR-ANDREW.md declares 0 and that is NOT a clean bill.** This scanner reads
   // TABLE ROWS, and FOR-ANDREW.md states its figures in prose, so they are

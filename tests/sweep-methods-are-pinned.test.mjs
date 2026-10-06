@@ -169,7 +169,14 @@ const TAKEN_AT = "3398470";          // the commit these were measured at
 // A NAMED list cannot drift silently and says which item, not how many:
 // `DECISIONS.md`'s declared-expected-failures pattern. An item leaving this list
 // is ordinary progress; one arriving uninvited is the finding.
-const NO_COMMIT_YET = ["14.32"];
+// Empty as of 2026-10-02: **every numbered open item is now named by at least one
+// commit.** It held `14.32` for the minutes between writing that item and
+// committing it, and emptied the moment the commit message mentioned the number —
+// which is the list behaving as intended rather than a figure needing a nudge.
+// **An item arriving here uninvited is the finding**: something in the backlog
+// that no commit has ever mentioned, and therefore invisible to every sweep that
+// keys on the item number (`tests/every-open-item-is-citable.test.mjs`).
+const NO_COMMIT_YET = [];
 
 const DECLARED = {
   // 67 after 14.32. Moved in the same edit as that item, per this file's own rule.
