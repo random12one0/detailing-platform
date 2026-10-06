@@ -28,7 +28,7 @@
 //     whole list; `inFlight` means ten rows sharing one address make one call
 //     even when they ask at the same instant.
 //
-// The address lookup is metered — Geoapify's free plan is 3,000 credits a day
+// The address lookup is metered — the address provider's free plan is 3,000 credits a day
 // SHARED BY EVERY TENANT (`_shared/rateLimit.ts`), which is why the permanent
 // cache is not an optimisation here but the thing that makes the feature
 // affordable at all.
@@ -51,7 +51,7 @@
 // is a column of noise.
 //
 // EVERY FAILURE IS SILENCE, for the same reason. A dropped connection, a 503,
-// an address Geoapify has never heard of, a detailer outside the United States
+// an address the provider has never heard of, a detailer outside the United States
 // — all of them are an absent entry. This is a courtesy line about the
 // weather; an error box about it would be louder than the thing itself.
 //

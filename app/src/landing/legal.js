@@ -172,8 +172,8 @@ export const PRIVACY = {
     // ROADMAP 7.8, 2026-09-21 — TWO SENTENCES HERE WERE HALF TRUE AND THE
     // HALF THAT WAS MISSING IS THE ONE THIS SECTION EXISTS FOR.
     //
-    // **The Geoapify line covered the typing and stopped.** A SAVED address
-    // is sent back to Geoapify a second time, per distinct address, to be
+    // **The address-provider line covered the typing and stopped.** A SAVED address
+    // is sent back to that provider a second time, per distinct address, to be
     // turned into coordinates for the forecast — `lib/jobWeather.js`
     // `pointFor()` and `refresh-weather/index.ts`, which reads
     // `bookings.customer_address` straight out of the table. A customer who
