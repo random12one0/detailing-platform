@@ -112,7 +112,7 @@ this login at the first real signup anyway, which retires the question.
 
 **What was in scope and IS done:** the value is out of every tracked markdown
 file in the repo — 8 files, 25 occurrences, 0 left, enforced from now on by
-`tests/no-credentials-in-markdown.test.mjs`. **A database column is a different
+`tests/no-credentials-in-tracked-text.test.mjs`. **A database column is a different
 surface with a different owner, and conflating the two is how a session talks
 itself into a write nobody sanctioned.**
 

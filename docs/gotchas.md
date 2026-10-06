@@ -3583,7 +3583,7 @@ described the sweep, not the repo.** A report that counts its own work reads
 exactly like a report that counts the problem.
 
 **THE FIX IS TO MATCH A SHAPE AND THEN STATE THE SHAPE'S BLIND SPOT.**
-`tests/no-credentials-in-markdown.test.mjs` knows no secret: it matches a
+`tests/no-credentials-in-tracked-text.test.mjs` knows no secret: it matches a
 credential *pair*, an assignment with a cue, a provider key prefix, a JWT, long
 hex, and the `<word><digits>` family this project keeps choosing. **On its first
 run against the supposedly-clean repo it found the fourth credential in two more

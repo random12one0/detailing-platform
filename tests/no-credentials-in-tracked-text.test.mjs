@@ -1,6 +1,14 @@
-// NO TRACKED MARKDOWN FILE CONTAINS A CREDENTIAL IN PLAIN TEXT.
+// NO TRACKED TEXT FILE CONTAINS A CREDENTIAL IN PLAIN TEXT.
 //
-// Run: node tests/no-credentials-in-markdown.test.mjs   (credential-free, one git call)
+// Run: node tests/no-credentials-in-tracked-text.test.mjs   (credential-free, one git call)
+//
+// **WAS `no-credentials-in-markdown.test.mjs` UNTIL 2026-10-06 (ROADMAP 14.25).** Its
+// net was `git ls-files *.md`, so a password sitting in a `.mjs` comment passed every
+// green run. The six rules are unchanged; only the POPULATION widened, to every
+// tracked file that is not binary (markdown, code, JSON, SQL, HTML, CSS, YAML,
+// config, text). Renamed because a check called *-in-markdown invites exactly the
+// assumption that let it through. `--break=md-only` restores the old population so
+// the plants in § 2 can be watched going red.
 //
 // ---------------------------------------------------------------------------
 // WHY THIS EXISTS: THE REPO BROKE ITS OWN HARD RULE TWENTY-TWO TIMES, FOR WEEKS
@@ -43,14 +51,26 @@
 //   * **whether a matched token is LIVE or long dead.** It flags the shape; a
 //     person decides. That is deliberate — a superseded password in a file is
 //     still a rule violation and still misleads a reader.
-//   * **anything outside tracked markdown.** Not code, not JSON, not an
-//     untracked file, not a commit message, not a database column — and that
+//   * **anything git does not track.** Not an untracked or ignored file (`.env`
+//     is OUT on purpose: it is a working credential doing its job), not a commit
+//     message, not a database column — and that
 //     last one is not hypothetical: `platform_admins.note` holds a password in
 //     plain text today, which this check would never see. ROADMAP's
 //     `platform_admins` entry carries it.
+//   * **a password in CODE with no digit in it.** `password: "somewordhere"`
+//     matches no rule, because the three loose rules need a digit (that is what
+//     keeps prose out). Measured at 1a03cdd (2026-10-06): 22 lines come back from
+//       git grep -nEi -I "(password|passwd|pwd|secret|api_?key|service_?role|access_?token)w*[\"']?s*[:=]s*[\"'`][^\"'`[:space:]${}]{6,}[\"'`]" 1a03cdd -- . ':!*.md'
+//     (the working tree adds this header's own example, so run it against the
+//     commit). 5 are the declared fixtures below, the rest are test fixtures or UI
+//     keys, and **none of the ones read matches a value in `.env`** (boolean
+//     comparison, nothing printed). Not built into a rule: 22 findings to argue with
+//     for little gain, and 14.25 said to keep the six rules as they are.
+//   * **base64 or otherwise encoded values**, and anything over a line break.
 //
 // **So its honest claim is narrow: the shapes this project has actually used are
-// gone from tracked markdown, and it will catch the next one of those.** It is
+// gone from tracked text files, except the declared exceptions in § 3, and it will
+// catch the next one of those.** It is
 // not proof that no secret is written down anywhere.
 //
 // ---------------------------------------------------------------------------
@@ -66,7 +86,9 @@
 // declared floor and the both-directions sabotage.
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 let pass = 0, fail = 0;
 const check = (name, ok, detail = "") => {
@@ -125,6 +147,53 @@ const ALLOWED = [
 const allowed = (hit) => ALLOWED.some((re) => re.test(hit));
 
 // ═══════════════════════════════════════════════════════════════════════════
+// THE SCANNER — one set of functions, used by the real tree AND by the plants
+// ═══════════════════════════════════════════════════════════════════════════
+// The plants in § 2 run through THESE functions, not a copy of them
+// (`docs/gotchas.md` 95: a canary aimed at a copy can never bite the real thing).
+
+// Binary by extension. Anything else is read and judged by a NUL byte, so a new
+// file type is scanned by default rather than skipped by default.
+const BINARY = /\.(jpe?g|png|webp|gif|ico|woff2?|ttf|otf|pdf|mp4|webm|zip)$/i;
+
+// `--break=md-only` puts the OLD population back (markdown and nothing else).
+// It exists so the plants can be shown biting: with it on, § 2's plants vanish
+// from the net and the run goes red.
+const BREAK_MD_ONLY = process.argv.includes("--break=md-only");
+
+/** Which of `paths` get read. Returns the text files plus anything unreadable. */
+function population(paths) {
+  const files = [], unreadable = [];
+  for (const f of paths) {
+    if (BREAK_MD_ONLY && !f.endsWith(".md")) continue;
+    if (BINARY.test(f)) continue;
+    let buf;
+    try { buf = readFileSync(f); } catch { unreadable.push(f); continue; }
+    if (buf.includes(0)) continue;
+    files.push(f);
+  }
+  return { files, unreadable };
+}
+
+/** Findings for one file: `{ file, line, rule, len }`. Never carries the value. */
+function scanFile(f) {
+  const out = [];
+  readFileSync(f, "utf8").split(/\r?\n/).forEach((line, i) => {
+    for (const [rule, re, needsCue] of RULES) {
+      if (needsCue && !CUE.test(line)) continue;
+      const m = re.exec(line);
+      if (!m) continue;
+      const hit = m[1] ?? m[0];
+      if (allowed(line) || allowed(hit)) continue;
+      out.push({ file: f, line: i + 1, rule, len: hit.length });
+    }
+  });
+  return out;
+}
+
+const place = (x) => `${x.file}:${x.line}  [${x.rule}]  ${x.len} chars`;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // 1 · THE FILE LIST, DECLARED
 // ═══════════════════════════════════════════════════════════════════════════
 console.log("1. the scan has subjects");
@@ -133,32 +202,35 @@ console.log("1. the scan has subjects");
 // so ordinary churn does not fail the run, and far above zero so a git call that
 // returns nothing does.
 const EXPECTED_MIN_FILES = 120;
+// Declared 2026-10-06 when the net widened from markdown to every tracked TEXT
+// file (ROADMAP 14.25). Discovery floors, so they stay floors (gotchas 98).
+const EXPECTED_MIN_TEXT_FILES = 600;
+// Every extension 14.25 names must actually be in the population, or a pattern
+// that stopped matching would read as a clean tree.
+const MUST_COVER = [".md", ".mjs", ".js", ".jsx", ".ts", ".json", ".yml", ".sql", ".html", ".css", ".txt"];
 
-const files = execFileSync("git", ["ls-files", "*.md"], { encoding: "utf8" })
+const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 })
   .split(/\r?\n/).filter(Boolean);
+const { files, unreadable } = population(tracked);
+const mdFiles = files.filter((f) => f.endsWith(".md"));
 
 check(`1a it found at least ${EXPECTED_MIN_FILES} tracked markdown files`,
-  files.length >= EXPECTED_MIN_FILES,
-  `${files.length} files — a scan that reads nothing prints the same word as a clean repo`);
+  mdFiles.length >= EXPECTED_MIN_FILES,
+  `${mdFiles.length} files — a scan that reads nothing prints the same word as a clean repo`);
+check(`1a2 it found at least ${EXPECTED_MIN_TEXT_FILES} tracked text files in all`,
+  files.length >= EXPECTED_MIN_TEXT_FILES,
+  `${files.length} files — markdown alone was the old net`);
+const missingExt = MUST_COVER.filter((e) => !files.some((f) => f.endsWith(e)));
+check("1a3 every extension 14.25 names is in the population",
+  missingExt.length === 0, "none scanned: " + missingExt.join(" "));
+check("1a4 no tracked file was unreadable (a skipped file reads as a clean one)",
+  unreadable.length === 0, unreadable.join(", "));
 
 let lines = 0;
 const findings = [];
 for (const f of files) {
-  let text;
-  try { text = readFileSync(f, "utf8"); } catch { continue; }
-  text.split(/\r?\n/).forEach((line, i) => {
-    lines++;
-    for (const [rule, re, needsCue] of RULES) {
-      if (needsCue && !CUE.test(line)) continue;
-      const m = re.exec(line);
-      if (!m) continue;
-      const hit = m[1] ?? m[0];
-      if (allowed(line) || allowed(hit)) continue;
-      // The finding names the place and the RULE. It does not print the value:
-      // a check that echoes a secret into a log has moved it somewhere new.
-      findings.push(`${f}:${i + 1}  [${rule}]  ${hit.length} chars`);
-    }
-  });
+  lines += readFileSync(f, "utf8").split(/\r?\n/).length;
+  findings.push(...scanFile(f));
 }
 check("1b it read a plausible number of lines", lines >= 20000, `${lines} lines`);
 
@@ -166,16 +238,19 @@ check("1b it read a plausible number of lines", lines >= 20000, `${lines} lines`
 // 2 · THE RULES CAN FIRE — proved on invented strings, every run
 // ═══════════════════════════════════════════════════════════════════════════
 // None of these is a real credential. They exist so that a rule which stops
-// matching cannot hide behind a clean repo.
+// matching cannot hide behind a clean repo. **Each sample is built from two
+// pieces on purpose:** written whole, it would be a finding on this very file
+// and the scanner would have to exempt itself — which is the blind spot a
+// self-exemption always becomes.
 console.log("\n2. every rule still fires on an invented example");
 
 const CANARIES = [
-  ["pair", "sign in as `nobody@invented.test` / `zqxwcv99`"],
-  ["assignment", "the password is `nevermind77xz`"],
-  ["prefix", "key sk_live_AAAAAAAAAAAAAAAAAAAA is set"],
-  ["jwt", "token eyJAAAAAAAAAA.BBBBBBBBBB.CCCCCCCCCC"],
-  ["longhex", "the api key 0123456789abcdef0123456789abcdef"],
-  ["worddigits", "sign in with `zzqqwwx42`"],
+  ["pair", "sign in as `nobody@invented.test` / `" + "zqxwcv99`"],
+  ["assignment", "the password is `" + "nevermind77xz`"],
+  ["prefix", "key sk_live_" + "AAAAAAAAAAAAAAAAAAAA is set"],
+  ["jwt", "token eyJ" + "AAAAAAAAAA.BBBBBBBBBB.CCCCCCCCCC"],
+  ["longhex", "the api key " + "0123456789abcdef" + "0123456789abcdef"],
+  ["worddigits", "sign in with `" + "zzqqwwx42`"],
 ];
 for (const [want, sample] of CANARIES) {
   const [, re, needsCue] = RULES.find(([n]) => n === want);
@@ -199,19 +274,86 @@ check("2d the allowlist is EXACTLY the declared size, not merely under a cap",
   + "ceiling. Adding a pattern means moving this number in the same edit and "
   + "saying which real finding it was suppressing.");
 
+// ── THE PLANTS (ROADMAP 14.25) ─────────────────────────────────────────────
+// The rules above were proved on strings. **This proves the NET**: a credential
+// -shaped literal is written into a `.mjs`, a `.json` and a `.yml`, the real
+// `population()` and `scanFile()` are run over them, and each must come back
+// naming its own file and line. The planted values are throwaways that exist
+// nowhere else. `--break=md-only` turns this section red, which is the proof it
+// bites.
+const scratch = mkdtempSync(join(tmpdir(), "cred-plants-"));
+const PLANTS = [
+  ["plant.mjs", "// padding\nconst note = 'sign in with `" + "zzqqwwx42` to look';\n", 2],
+  ["plant.json", '{\n  "a": 1,\n  "note": "the password is `' + 'nevermind77xz`"\n}\n', 3],
+  ["plant.yml", "a: 1\nb: 2\nc: 3\nnote: sk_live_" + "AAAAAAAAAAAAAAAAAAAA\n", 4],
+];
+try {
+  const paths = PLANTS.map(([name, body]) => {
+    const p = join(scratch, name);
+    writeFileSync(p, body);
+    return p;
+  });
+  const planted = population([...tracked.slice(0, 5), ...paths]);
+  for (const [i, [name, , wantLine]] of PLANTS.entries()) {
+    const got = planted.files.includes(paths[i]) ? scanFile(paths[i]) : [];
+    check(`2e plant in ${name} goes RED and names its line`,
+      got.length >= 1 && got.every((x) => x.file === paths[i]) && got.some((x) => x.line === wantLine),
+      got.length ? got.map(place).join("; ") : "the plant was not even in the population");
+  }
+  // Removed, then green: the same population with the plants gone.
+  for (const p of paths) rmSync(p);
+  const after = population(paths.filter((p) => existsSync(p)));
+  check("2f plants removed: nothing left to find", after.files.length === 0);
+} finally { rmSync(scratch, { recursive: true, force: true }); }
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 3 · THE VERDICT
 // ═══════════════════════════════════════════════════════════════════════════
-console.log("\n3. no tracked markdown file carries a credential");
+// Two classes of known hit, each an EXACT count keyed by file and rule, so a
+// new hit in the same file still reddens, and a hit that goes away reddens too
+// until its line here is removed (gotchas 98: declared debt is an equality).
+// The value is never written here and is never printed.
+//
+//  FIXTURE — an account the test creates for itself, on the fake database, in a
+//  business it deletes again. Checked 2026-10-06 against every value in `.env`
+//  (boolean only, nothing printed): **none matches**, so none opens a real login.
+//  Moving them to env would break `ensureUser`, which signs back in with the
+//  same password after a 422 "already exists".
+//
+//  OPEN — a real login, in a file, waiting on a ruling. Printed on every run
+//  so a green cannot be read as a clean tree.
+const DECLARED = [
+  ["tests/booking-engine.test.mjs", "assignment", 1, "FIXTURE"],
+  ["tests/tenant-isolation.test.mjs", "assignment", 1, "FIXTURE"],
+  ["tests/staff-roles.test.mjs", "assignment", 3, "FIXTURE"],
+  ["app/public/map.html", "pair", 1, "OPEN"],
+];
+console.log("\n3. no tracked text file carries a credential");
 
-check("3a no findings", findings.length === 0,
-  findings.length
-    ? `${findings.length}:\n       ${findings.join("\n       ")}\n       `
+const rest = [];
+const used = new Map();
+for (const x of findings) {
+  const k = `${x.file}\t${x.rule}`;
+  const d = DECLARED.find(([f, r]) => `${f}\t${r}` === k);
+  if (d) used.set(k, (used.get(k) ?? 0) + 1); else rest.push(x);
+}
+const stale = DECLARED.filter(([f, r, n]) => (used.get(`${f}\t${r}`) ?? 0) !== n)
+  .map(([f, r, n]) => `${f} [${r}] declared ${n}, found ${used.get(`${f}\t${r}`) ?? 0}`);
+
+check("3a no undeclared findings", rest.length === 0,
+  rest.length
+    ? `${rest.length}:\n       ${rest.map(place).join("\n       ")}\n       `
       + "Say where the login lives, never what it is — CLAUDE.md, Hard rules. "
       + "`docs/platform-admins.md` is the pattern."
     : "");
+check("3b every declared exception still holds EXACTLY (remove a line when its hit is fixed)",
+  stale.length === 0, stale.join("; "));
+for (const [f, r, n] of DECLARED.filter(([, , , k]) => k === "OPEN")) {
+  console.log(`  OPEN ${f} [${r}] x${n} — a real login in a tracked file; FOR-ANDREW.md has the row`);
+}
 
-console.log(`\n   ${files.length} files · ${lines} lines · ${RULES.length} rules · `
-  + `${findings.length} finding(s)`);
+console.log(`\n   ${files.length} files (${mdFiles.length} markdown) · ${lines} lines · `
+  + `${RULES.length} rules · ${findings.length} finding(s) · `
+  + `${findings.length - rest.length} declared`);
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exitCode = fail ? 1 : 0;

@@ -713,6 +713,34 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · The demo owner's login is written on a page the site serves
+  (`app/public/map.html`, line 303). Found 2026-10-06 by the credential check
+  once it was allowed to read more than markdown.**
+
+  **What this is.** The review map page shows "sign in first" and, beside it,
+  the demo owner's email and password. Checked tonight by comparing it with the
+  value in your `.env` (a yes or no, nothing printed): **it is the same
+  password.** That page is under `app/public`, so it ships with the site. This
+  is the login you made short on purpose on 2026-08-30 so you could type it on a
+  phone, and it opens only the demo business, which is fake data. So the worst
+  case is a stranger scribbling on the demo, not a breach.
+
+  **What happens either way.** Leave it, and the page keeps working as a
+  cheat sheet for you, and the credential check keeps printing one OPEN line on
+  every run. Take it off the page, and you lose the cheat sheet (the login stays
+  in your `.env`), and that OPEN line goes away. **Changing the password helps
+  only if the demo business ever holds anything you care about; today it does
+  not.**
+
+  **My recommendation.** Take it off the page and leave the password alone. The
+  seed script rewrites that page (it refreshes the example links), so whoever
+  edits it should check the seed does not put the line back. I did not touch
+  the page: it is front-end, and publishing is yours.
+
+  **Nothing to rotate in any other file.** Everything else the widened check
+  found is a test creating its own throwaway account; none matches a value in
+  your `.env`.
+
 - [ ] **DO · When you publish the back end, the public programs that carry the
   hammering limits go up with it — and one of them changed tonight. Added
   2026-10-06.**

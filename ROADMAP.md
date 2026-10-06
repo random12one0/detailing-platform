@@ -18775,9 +18775,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   walk** — human-only checks no script substitutes for.
   `docs/testing/phones-we-do-not-own.md` is where that family is written down.
 
-### 14.25 — The credential scanner's population is markdown only, so the file types that actually held a password were never in its net
+### 14.25 — The credential scanner's population is markdown only, so the file types that actually held a password were never in its net — BUILT 2026-10-06
 
-- [ ] **Found 2026-10-03, by a password sitting in a `.mjs` comment that no check
+- [x] **Found 2026-10-03, by a password sitting in a `.mjs` comment that no check
   in this repo was ever going to see. Not a verdict fault — a POPULATION fault,
   which is `docs/gotchas.md` 89's exact shape one level out.**
 
@@ -18836,6 +18836,50 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   committed, and widening to untracked files would make the check fail on a
   working credential doing its job. **`git ls-files` is the right spine; only its
   pattern is wrong.**
+
+  **BUILT 2026-10-06 (DP Cowork2).** The check is now
+  `tests/no-credentials-in-tracked-text.test.mjs` (renamed with `git mv`; the
+  live pointers in CLAUDE.md, `docs/gotchas.md` and `docs/platform-admins.md` follow it,
+  the two dated write-ups that quote the old name are left as history). The six
+  rules are untouched. The net is `git ls-files` minus binary-by-extension minus
+  anything with a NUL byte, so a new file type is scanned by default.
+
+  **What it prints now:** `1002 files (165 markdown) · 398189 lines · 6 rules · 6 finding(s)
+  · 6 declared`, taken at `1a03cdd` plus this commit's working tree by
+  `node tests/no-credentials-in-tracked-text.test.mjs`. It had printed 165 files and
+  0 findings.
+
+  **The done-when, with the plants.** § 2e writes a credential-shaped throwaway
+  into a `.mjs` (line 2), a `.json` (line 3) and a `.yml` (line 4), runs the REAL
+  `population()` and `scanFile()` over them, and requires each to come back naming
+  its own file and line; § 2f removes them and requires an empty population.
+  **Run every time, so the three reds and three removals are permanent, not a
+  one-off.** The plants run through the production functions, not a copy.
+  **Broken on purpose, three ways, all run:** `--break=md-only` (the old net)
+  went 6 failed (the three plants "not even in the population", the text-file
+  floor, the extension list, and the declared exceptions); deleting the map.html
+  declaration from a copy named `app/public/map.html:303 [pair]`; declaring 2 where
+  3 exist named `tests/staff-roles.test.mjs [assignment] declared 2, found 3`.
+
+  **WHAT IT FOUND, and it is the thing the item was for.** Six lines, no value
+  printed anywhere. **One is real:** `app/public/map.html:303`, the demo owner's
+  login beside the words "sign in first", on a page that ships with the site, and
+  the same value as the one in `.env` (compared as a yes or no). It reaches the demo
+  business only. **FOR-ANDREW.md has the DECIDE row**; it is declared in the test
+  as OPEN and printed on every run, so a green cannot be read as a clean tree.
+  The other five (`tests/booking-engine.test.mjs`, `tests/tenant-isolation.test.mjs`,
+  `tests/staff-roles.test.mjs` x3) are accounts those tests create for themselves and
+  match no value in `.env`; declared FIXTURE by exact count per file and rule
+  (gotchas 98), so a new hit in the same file still goes red and a fixed one goes
+  red until its line is removed. They cannot simply move to env: `ensureUser`
+  signs back in with the same password after a 422.
+
+  **Two cuts, said plainly.** The widened net scanned the check's own canary lines
+  and found them, so the canaries are now built from two pieces rather than the
+  scanner exempting itself. **And a password in code with no digit in it is still
+  invisible** (`password: "someword"`); the header carries the measurement and
+  the command (22 candidate lines at `1a03cdd`, none matching `.env`) and says why it
+  is not a seventh rule: the item said keep the six.
 
 ### 14.28 — Every open item is citable, and a check now says so — BUILT 2026-10-03
 
