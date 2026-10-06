@@ -1,13 +1,10 @@
 {
-  "git_sha": "25e135cf602b79e75e63b6ba128ca95525b1252d",
-  "git_sha_started": "25e135cf602b79e75e63b6ba128ca95525b1252d",
+  "git_sha": "f02f855cc54325346e2a845d6d066bddcf222dc5",
+  "git_sha_started": "f02f855cc54325346e2a845d6d066bddcf222dc5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-06T20:06:03.188Z",
-  "failures": [
-    "console — warning: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in ear @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=973a0087",
-    "console — warning: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more i @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=973a0087"
-  ],
+  "finished_at": "2026-10-06T20:07:25.448Z",
+  "failures": [],
   "warnings": [
     "The THIN run is a real sign-in as the owner of `final-pass-fixture` (dev project, is_demo, fixture.test sink) and nothing is intercepted. Its login is FIXTURE_OWNER_PW in the gitignored `.env`.",
     "That business keeps its five weekday hours rows, so the thin sentence is about what it genuinely lacks (services, add-ons, photos, reviews), not an all-zero rewrite.",
@@ -42,8 +39,8 @@
     "sabotage": null
   },
   "check_id": "page-preview",
-  "started_at": "2026-10-06T20:05:03.240Z",
-  "status": "fail",
+  "started_at": "2026-10-06T20:06:26.246Z",
+  "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,
   "attempted_targets": 5,
