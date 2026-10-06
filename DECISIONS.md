@@ -304,6 +304,8 @@ were made more than once.
 
 - **ROADMAP 3.4 FAULT 4 — detailer, staff and platform emails follow the language that person chose for the dashboard, English when unknown** — the manager's call on 2026-10-06, made on Andrew's standing instruction to decide what a session can decide. Never the customer's booking language. The choice moves from the browser to `business_users.lang` (migration written, not applied). How to reverse it is inside.
 
+- **ROADMAP 3.4d — car sizes in emails are named the way the booking page names them; English changes too** — DP Cowork2, 2026-10-06, on the manager's instruction to fix 3.4d. Seeded sizes (and an older booking's bare key) print as Small / Medium / Large, in the reader's language; a renamed size prints as typed. "Large / SUV" and "Small car" are gone from English emails. Two recorded `scripts/render-emails.mjs` edits. How to reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17924,3 +17926,35 @@ English again, byte for byte — the English renders were compared file by file
 before and after and did not change. The column can stay (it is harmless
 NULL) or go in a new migration. Restore `tests/spanish.test.mjs` 6g-ii to
 "none of the detailer's own mail is translated" in the same commit.
+
+## ROADMAP 3.4d — car sizes in emails are named the way the booking page names them; English changes too
+
+**2026-10-06, DP Cowork2, fixing 3.4d on the manager's instruction.** The
+manager's words: platform-default size names render in the email's language
+while sizes a detailer renamed stay as typed.
+
+**The judgement call, and why it is not only Spanish.** 3.4d's Done-when said
+the English render should not change. Reading the code showed the English was
+itself wrong in three ways: the email rewrote the seeded names ("Large" →
+"Large / SUV", "Small" → "Small car"), printed an older booking's bare key as a
+lowercase "medium", and rewrote a detailer's OWN size names when they happened
+to match the map ("XL" → "Extra large"), which breaks "renamed stays as typed"
+in English too. So one rule now covers both languages: a seeded name, or the
+bare key, is said exactly as the booking page says it (Small / Medium / Large,
+Pequeño / Mediano / Grande); everything else is the detailer's and is printed
+as typed. **Every business on the seeded sizes will see "Large" where its
+emails said "Large / SUV".** That is the visible English change.
+
+**Recorded `scripts/` edits (the 9.10 rule), both in
+`scripts/render-emails.mjs`, an existing file:** the payment-failed sample now
+carries Stripe's decline code (`insufficient_funds`), for the decline-reason fix
+the manager asked for in the same brief; and the three-car sample's two extra
+cars now carry the seeded labels instead of "Large / SUV" / "Small car", plus a
+Spanish-run check for a seeded size left in English.
+
+**How to reverse it.** Restore the old `sizeDisplay` map in
+`_shared/emailTemplates.ts` and call it from `vehicleFact`, and pass `p.size`
+straight through in `adjustmentText`; drop the three size keys from
+`_shared/strings/es.ts` and the seeded-size check from the render script in the
+same commit. To keep Spanish but restore the old English only, make `sizeName`
+return the old map's words when the language is English.

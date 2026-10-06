@@ -62,6 +62,12 @@ export const es: Record<string, string> = {
   "At our unit": "En nuestro local",
   "Vehicle": "Vehículo",
   "Vehicles ({count})": "Vehículos ({count})",
+  // ROADMAP 3.4d — the three size names every business starts with. The same
+  // words the booking page uses (app/src/lib/strings/es.js), so the page and
+  // the email name a car the same way. A size the detailer renamed is theirs.
+  "Small": "Pequeño",
+  "Medium": "Mediano",
+  "Large": "Grande",
   "Service": "Servicio",
   "Mobile": "A domicilio",
   "How to pay": "Cómo pagar",

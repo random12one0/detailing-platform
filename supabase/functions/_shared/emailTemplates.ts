@@ -245,11 +245,32 @@ export function buildAddressing(brand: TenantBrand, platformFromAddress: string)
   };
 }
 
-const sizeDisplay = (s: string) =>
-  ({
-    small: "Small car", compact: "Compact", mid: "Mid-size", midsize: "Mid-size",
-    large: "Large / SUV", suv: "SUV", truck: "Truck", xl: "Extra large",
-  } as Record<string, string>)[String(s).toLowerCase()] ?? s;
+/**
+ * ROADMAP 3.4d — A SIZE NAME IS OURS ONLY WHEN IT IS ONE WE SEEDED.
+ *
+ * Every business starts on Small / Medium / Large (`DEFAULT_VEHICLE_SIZES` in
+ * `app/src/book/core.js`), and the booking page translates exactly those
+ * (`isPlatformSizeText`). The email printed them in English in a Spanish email,
+ * and before that rewrote them through a map — "Small car", "Large / SUV" —
+ * which also turned a detailer's OWN "XL" into "Extra large". Now: a seeded
+ * name, or the bare key an older booking with no stored label falls back to
+ * (measured 2026-10-06: 39 of 56 booking rows have no label), is said the way
+ * the booking page says it, in the reader's language; anything else is the
+ * detailer's and is printed as typed.
+ *
+ * ponytail: a STRING test, the page's own written limit — a detailer who
+ * deliberately typed "Large" gets it translated. Closing that needs an
+ * `edited` flag on the size (FOUND.md has the argument).
+ */
+const sizeName = (s: string, lang?: unknown): string => {
+  const tt = T(lang);
+  switch (String(s)) {
+    case "Small": case "small": return tt("Small");
+    case "Medium": case "medium": return tt("Medium");
+    case "Large": case "large": return tt("Large");
+    default: return String(s);
+  }
+};
 
 // ROADMAP 8.10 — THE ONE PLACE THREE FACT TABLES ASK "WHICH CAR". All three
 // used to name exactly one, which is right for every booking this product had
@@ -261,7 +282,7 @@ const sizeDisplay = (s: string) =>
 const vehicleFact = (b: BookingEmailData, lang?: unknown): [string, string] => {
   const tt = T(lang);
   const one = (size: string, model?: string | null) =>
-    `${esc(sizeDisplay(size))}${model ? ` &middot; ${esc(model)}` : ""}`;
+    `${esc(sizeName(size, lang))}${model ? ` &middot; ${esc(model)}` : ""}`;
   const extras = b.extraVehicles ?? [];
   if (!extras.length) return [tt("Vehicle"), one(b.vehicleSize, b.vehicleModel)];
   return [
@@ -448,7 +469,7 @@ function adjustmentText(a: { label: string; parts?: Record<string, unknown> }, l
   const tt = T(lang);
   if (p.of === "vehicle") {
     // Masculine indicator because the noun is `vehículo` — the page's rule too.
-    return [tt("{ord} vehicle", { ord: `${p.ordinal}.º` }), p.size, p.model].filter(Boolean).join(" · ");
+    return [tt("{ord} vehicle", { ord: `${p.ordinal}.º` }), sizeName(p.size, lang), p.model].filter(Boolean).join(" · ");
   }
   if (p.of === "plan") {
     const what = p.benefit === "percent_off"

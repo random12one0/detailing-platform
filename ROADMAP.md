@@ -6954,7 +6954,7 @@ requested.
     key) still renders and exits 0. FAULT 5's "declared count of templates that
     must differ from English" remains open under 3.4.
 
-- [ ] **3.4d — A business that never renamed its car sizes shows OUR English size
+- [x] **3.4d — DONE 2026-10-06 (DP Cowork2). A business that never renamed its car sizes shows OUR English size
   words in a Spanish email.** *Found 2026-10-06 reading the 3.4 FAULT 4 renders.*
   Every email prints the booking's stored `vehicle_size_label`, and for a business
   on the seeded sizes that is "Small" / "Medium" / "Large" — our words, which the
@@ -6969,6 +6969,47 @@ requested.
   extra-car line (`adjustmentText`) has to agree with whichever. **Done when** a
   Spanish render with seeded sizes shows the booking page's Spanish word in the
   vehicle row and the extra-car line, and the English render is unchanged.
+
+  **CLOSED, and the Done-when's last clause was wrong and is overruled here, out
+  loud.** "English unchanged" assumed the English was right. It was not: the old
+  map turned the seeded "Large" into "Large / SUV" and "Small" into "Small car",
+  printed an older booking's bare key as lowercase "medium", and rewrote a
+  detailer's own "XL" into "Extra large". Now (`sizeName` in
+  `_shared/emailTemplates.ts`): a seeded name, or the bare key an older booking
+  falls back to, is said the way the booking page says it in the reader's
+  language — Small / Medium / Large, Pequeño / Mediano / Grande — and anything
+  else is printed exactly as typed. English changes for every seeded business,
+  on purpose: "Large / SUV" → "Large". Recorded in DECISIONS.md.
+  - **Measured on the live data first** (`kguqylyzgyzfktkfnhjb`, read-only,
+    `select vehicle_size, vehicle_size_label` from `bookings` and
+    `booking_vehicles`, 2026-10-06): every stored label is Small, Medium or
+    Large, and 39 of 56 booking rows have no label at all (the key is used).
+  - **Renders** (`node scripts/render-emails.mjs --lang=es|en`, at the commit
+    carrying this entry): the three-car sample now uses the seeded names (it
+    carried "Large / SUV" and "Small car", the old map's output typed back in as
+    data, which no booking ever stored). Per language exactly 4 files changed —
+    the two three-car emails, HTML and text — and the other 30 emails are `cmp`
+    identical. Spanish reads *«Grande · 2021 Ford F-150»*, *«2.º vehículo · Grande
+    · 2021 Ford F-150»*, *«3.º vehículo · Pequeño»*; the renamed "Mid-size SUV" and
+    "Heavy soiling surcharge" stay as typed. Read in full.
+  - **A new check in the Spanish run:** a seeded size left in English, matched
+    only as a whole segment of a vehicle line so "Large / SUV" does not fire;
+    self-tested both ways and requires at least one Spanish email to name a
+    seeded size. **Broken on purpose:** the Spanish for "Large" deleted → 2
+    FAILs; the email printing the stored size raw → 2 FAILs. Both restored.
+  - **The no-label path is not in the samples**, so it was probed directly:
+    key "medium" → "Medium" / "Mediano", "large" → "Grande"; "XL" and
+    "Compact SUV" unchanged.
+  - **Same written limit as the booking page** (`isPlatformSizeText`): a
+    detailer who deliberately types "Large" gets it translated.
+  - **Also this sitting, under 3.4:** the payment-failed email now says the
+    common Stripe decline reasons in its reader's language (`declineText`,
+    `tests/billing-decline.test.mjs`), quoting Stripe's English only for an
+    unknown code; and real mail in tests is now opt-in (`ALLOW_REAL_MAIL=1`),
+    after this session spent 8 of the shared 100 — `docs/shared-resources.md` § 3.
+    **Not deployed:** `stripe-webhook` and every function that sends a booking
+    email now differ from what is live; FOR-ANDREW.md's switch for 3.4 FAULT 4
+    covers the same list.
 
 ---
 

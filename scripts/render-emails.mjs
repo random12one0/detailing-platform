@@ -335,9 +335,15 @@ const planBooking = { ...booking, ...moneyFrom(planQuote) };
 // ONE LIST, TWO SHAPES. The engine wants `{ key, label, model }` and the email
 // wants `{ size, model }`; built from the same row so the pictures and the
 // prices cannot name different cars.
+// ROADMAP 3.4d — THE SEEDED NAMES, which is what real bookings store (measured
+// 2026-10-06: every stored label is Small, Medium or Large). The labels these
+// two used to carry, "Large / SUV" and "Small car", were the old email map's
+// own output typed back in as data — no booking ever stored them, so the path
+// a real business takes was never drawn. The first car keeps "Mid-size SUV",
+// which plays a size the detailer RENAMED and must stay as typed.
 const carloadCars = [
-  { key: "large", label: "Large / SUV", model: "2021 Ford F-150" },
-  { key: "small", label: "Small car", model: null },
+  { key: "large", label: "Large", model: "2021 Ford F-150" },
+  { key: "small", label: "Small", model: null },
 ];
 const carloadQuote = fixtureQuote({
   extraVehicles: carloadCars,
@@ -605,6 +611,13 @@ function englishSentencePatterns() {
     .map((en) => ({ en, re: new RegExp(en.split(/\{[a-zA-Z]+\}/).map(esc).join(".+?")) }));
 }
 const ENGLISH_SENTENCES = LANG === "es" ? englishSentencePatterns() : [];
+// ROADMAP 3.4d — A SEEDED SIZE NAME LEFT IN ENGLISH. One word each, so the
+// sentence check above (two words or more) cannot see them. Matched only as a
+// WHOLE segment of a vehicle line — "Large · 2021 Ford F-150", "| Small" — so a
+// detailer's own "Large / SUV" or a service name containing the word does not
+// fire. ponytail: segment regex over the plain text, not the HTML.
+const SEEDED_SIZE_EN = /(?:^|\n|\| | · )(Small|Medium|Large)(?= · | \||\n|$)/;
+let seededSizeSeen = 0;
 const englishSentenceIn = (s) => ENGLISH_SENTENCES.find(({ re }) => re.test(s));
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];
@@ -685,6 +698,12 @@ for (const [file, label, render] of EMAILS) {
       console.error(`  FAIL  ${label}: untranslated English "${sentence.en}" in a Spanish email`);
       bad++;
     }
+    const size = (text ?? "").match(SEEDED_SIZE_EN);
+    if (size) {
+      console.error(`  FAIL  ${label}: seeded size name "${size[1]}" in English in a Spanish email`);
+      bad++;
+    }
+    if (/\b(Pequeño|Mediano|Grande)\b/.test(text ?? "")) seededSizeSeen++;
     // A template that never handed `lang` to `shell` declares itself English
     // and gets an English footer, whatever its body says.
     if (!/<html lang="es"/.test(html)) {
@@ -885,6 +904,14 @@ if (LANG === "es") {
   // EMAILS is one or the other, so the two must add up to the run.
   console.log(`spanish ${spanishOtherChecked} detailer / staff / platform email(s) checked the same way`);
   if (!spanishOtherChecked) failures.push("SPANISH RUN CHECKED NO DETAILER, STAFF OR PLATFORM EMAIL");
+  // 3.4d: the seeded-size check needs a seeded size to look at, and it has to
+  // be able to tell the two languages apart.
+  const sizeFires = SEEDED_SIZE_EN.test("Vehículos (3) | Mid-size SUV · 2021 Subaru Outback\nLarge · 2021 Ford F-150")
+    && !SEEDED_SIZE_EN.test("Vehículos (3) | Mid-size SUV · 2021 Subaru Outback\nGrande · 2021 Ford F-150")
+    && !SEEDED_SIZE_EN.test("2.º vehículo · Large / SUV · 2021 Ford F-150");
+  console.log(`spanish ${seededSizeSeen} email(s) name a seeded size in Spanish; detector ${sizeFires ? "fires on an English seeded size and not on Spanish or a renamed one" : "BROKEN"}`);
+  if (!seededSizeSeen) failures.push("no Spanish email named a seeded car size, so the seeded-size check looked at nothing");
+  if (!sizeFires) failures.push("the seeded-size detector cannot tell English from Spanish, or fires on a renamed size");
   if (spanishCustomerChecked + spanishOtherChecked !== EMAILS.length) {
     failures.push(`only ${spanishCustomerChecked + spanishOtherChecked} of ${EMAILS.length} emails went through the Spanish checks`);
   }
