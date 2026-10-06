@@ -51,6 +51,9 @@ export async function fetchBooking(id, businessId, tz) {
   return data ? withLocal(data, tz) : null;
 }
 
+// What fetch() says when there is no network: Chrome, Firefox, Safari.
+const NETWORK_FAILURE = /failed to fetch|networkerror|load failed|network request failed/i;
+
 // Bookings whose LOCAL date falls in [fromDate, toDate] (inclusive).
 // LOADING IS THE FIRST PAINT ONLY. `loading` used to go true on every read,
 // and all three screens that use this hook answer it by replacing themselves
@@ -72,6 +75,13 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  // ROADMAP 6.4 (a). WHEN THE LIST ON SCREEN WAS LAST READ, and whether the
+  // read that just failed was the network rather than the server. The list
+  // already survives a failed read (below); what was missing was telling the
+  // detailer that it is the last good one, and from when.
+  const [updatedAt, setUpdatedAt] = useState(null);
+  const [failedRead, setFailedRead] = useState(false);
+  const [netUp, setNetUp] = useState(() => navigator.onLine !== false);
   // A ref, not state: it must survive fromDate/toDate changing (Calendar
   // walking to another month is not a first paint either).
   const painted = useRef(false);
@@ -102,8 +112,12 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
     // (docs/dashboard-screen-designs-2026-08-31.md §1a, §4 States).
     if (e) {
       setError(e.message || "Could not load bookings.");
+      setFailedRead(NETWORK_FAILURE.test(e.message || ""));
     } else {
       setError("");
+      setFailedRead(false);
+      setNetUp(true);
+      setUpdatedAt(new Date());
       setBookings((data ?? [])
         .map((b) => withLocal(b, tz))
         .filter((b) => b.booking_date >= fromDate && b.booking_date <= toDate));
@@ -117,7 +131,21 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
     reload();
   }, [reload]);
 
-  return { bookings, loading, refreshing, error, reload };
+  // THE LIST DOES NOT REFETCH ITSELF, so a dropped signal would leave an old
+  // list looking live. The browser's own offline event says so at once; a WEAK
+  // signal (still "online", every read failing) is caught by the read itself.
+  // Signal back: read again without waiting to be asked.
+  useEffect(() => {
+    const down = () => setNetUp(false);
+    // Not setNetUp(true) here: "online" is the browser's guess, and the line
+    // should clear when a read actually SUCCEEDS, not when it hopes.
+    const up = () => reload();
+    window.addEventListener("offline", down);
+    window.addEventListener("online", up);
+    return () => { window.removeEventListener("offline", down); window.removeEventListener("online", up); };
+  }, [reload]);
+
+  return { bookings, loading, refreshing, error, offline: !netUp || failedRead, updatedAt, reload };
 }
 
 // ROADMAP 2.12 — REQUESTS WAITING TO BE ACCEPTED, AND WHY THEY ARE NOT PART OF

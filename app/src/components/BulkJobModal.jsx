@@ -59,6 +59,10 @@ export default function BulkJobModal({ onClose, onSaved }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const firstRef = useRef(null);
+  // ROADMAP 6.4 (c). Made once when the sheet opens: a press whose answer was
+  // lost and is pressed again writes the SAME booking id, and the table keeps
+  // the first row instead of adding a second dealership job.
+  const [jobId] = useState(() => crypto.randomUUID());
 
   useEffect(() => { firstRef.current?.focus(); }, []);
 
@@ -77,7 +81,8 @@ export default function BulkJobModal({ onClose, onSaved }) {
     const startAt = localDateTimeToInstant(business.timezone, date, "08:00");
     const endAt = localDateTimeToInstant(business.timezone, date, "17:00");
     const n = Math.round(Number(cars));
-    const { error: err } = await supabase.from("bookings").insert({
+    const { error: err } = await supabase.from("bookings").upsert({
+      id: jobId,
       business_id: business.id,
       customer_name: company.trim(),
       // A dealership deal is a company, not a person, and asking for a mobile
@@ -104,7 +109,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
       payment_status: "paid",
       finalized_at: new Date().toISOString(),
       admin_notes: notes.trim() || null,
-    });
+    }, { onConflict: "id", ignoreDuplicates: true });
     if (err) {
       setError(err.message);
       setBusy(false);

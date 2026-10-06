@@ -66,7 +66,11 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
 
   const addItem = () => {
     if (!draft.label.trim() || !Number(draft.amount)) return;
-    setItems([...items, { ...draft, amount: Number(draft.amount) }]);
+    // ROADMAP 6.4 (b)(c). The id is made HERE, once, and lives in `items`, so a
+    // press that lost its answer and is pressed again sends the same ids and
+    // the table ignores them. An insert without ids is how a $20 tip landed on
+    // the invoice twice.
+    setItems([...items, { ...draft, id: crypto.randomUUID(), amount: Number(draft.amount) }]);
     setDraft({ category: "custom", label: "", amount: "" });
   };
 
@@ -75,14 +79,16 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
     setError("");
     try {
       if (items.length) {
-        const { error: liErr } = await supabase.from("booking_line_items").insert(
+        const { error: liErr } = await supabase.from("booking_line_items").upsert(
           items.map((it) => ({
+            id: it.id,
             business_id: business.id,
             booking_id: booking.id,
             category: it.category,
             label: it.label.trim(),
             amount: it.category === "discount" ? -Math.abs(Number(it.amount)) : Number(it.amount),
           })),
+          { onConflict: "id", ignoreDuplicates: true },
         );
         if (liErr) throw new Error(liErr.message);
       }
@@ -180,7 +186,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
           {items.length > 0 && (
             <div className="rows">
               {items.map((it, i) => (
-                <div className="row-item" key={i} style={{ cursor: "default" }}>
+                <div className="row-item" key={it.id} style={{ cursor: "default" }}>
                   <span className="txt">
                     <span className="nm">{it.label}</span>
                     <span className="sub">{t(CATEGORIES.find(([k]) => k === it.category)?.[1] ?? "")}</span>

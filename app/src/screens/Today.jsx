@@ -37,7 +37,7 @@
 // thing lit" a matter of FORM rather than colour.
 
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { ChevronRight, ListChecks, TriangleAlert } from "lucide-react";
+import { ChevronRight, ListChecks, Printer, TriangleAlert, WifiOff } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
@@ -48,12 +48,13 @@ import { arrange, summarise } from "../lib/client-list.js";
 import { fetchBooking, useBookings, usePendingRequests } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
-import { addDays, money, time12, todayLocal } from "../lib/format.js";
+import { addDays, localTime, money, time12, todayLocal } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { useJobWeather } from "../hooks/useJobWeather.js";
 import FinalizeModal from "../components/FinalizeModal.jsx";
+import SchedulePrint from "../components/SchedulePrint.jsx";
 import JobRow from "../components/JobRow.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import QuoteModal from "../components/QuoteModal.jsx";
@@ -192,7 +193,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   // carrying weather and a week carrying none — which is the honest picture of
   // what is known. Past that a list is a calendar, and the Calendar is a tab.
   const horizon = addDays(today, 14);
-  const { bookings, loading, refreshing, error, reload } = useBookings(today, horizon);
+  const { bookings, loading, refreshing, error, offline, updatedAt, reload } = useBookings(today, horizon);
   // WEATHER PER BOOKING — Andrew, 2026-09-13. ONE call for the whole day's
   // work, handed to each row as a prop; `useJobWeather` is what must never be
   // reached for from inside a row.
@@ -206,6 +207,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const wide = useWide(1180);   // the future takes a column of its own
   const [selected, setSelected] = useState(null);
   const [finalizing, setFinalizing] = useState(null);
+  const [printing, setPrinting] = useState(false);
   const [creating, setCreating] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [slots, setSlots] = useState(null);
@@ -492,7 +494,16 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               "Coming up" is that eyebrow, and a second one per day would be
               five more on one screen. This is the date in prose at meta size,
               the same weight the sub-line under a name takes. */}
-          <p className="jw-day">{date === tomorrow ? t("Tomorrow") : shortDate(date)}</p>
+          {date === tomorrow ? (
+            <div className="jw-dayrow">
+              <p className="jw-day">{t("Tomorrow")}</p>
+              {/* ROADMAP 6.4 (d) — the outage fallback. Reads what is already
+                  on screen, so it works with no signal. */}
+              <button className="btn ghost inline" onClick={() => setPrinting(true)}>
+                <Printer size={16} strokeWidth={2} /> {t("Print tomorrow")}
+              </button>
+            </div>
+          ) : <p className="jw-day">{shortDate(date)}</p>}
           {jobs.map((b) => (
             <JobRow key={b.id} booking={b} weather={weather.get(b.id)}
               weatherRules={weatherRules} onClick={() => setSelected(b)} />
@@ -558,7 +569,19 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           The arrival's beats follow it one level down. */}
       <div className="group col-1">
       {/* Above the day, and the last good day stays drawn. */}
-      {error && <div className="error-box">{error}</div>}
+      {/* ROADMAP 6.4 (a). A dropped signal is not an error to the person in the
+          driveway, it is a fact about the list: say so in words, and say how old
+          the list is. The raw "Failed to fetch" is for everything else. */}
+      {(offline || error) && (offline
+        ? (
+          <div className="warn-box" role="status" data-offline="">
+            <WifiOff size={18} strokeWidth={2} aria-hidden="true" />
+            <span style={{ flex: "1 1 0", minWidth: 0 }}>{updatedAt
+              ? t("You're offline. Showing your jobs as of {time}.", { time: time12(localTime(updatedAt.toISOString(), business.timezone)) })
+              : t("You're offline. Today's jobs have not loaded yet.")}</span>
+          </div>
+        )
+        : <div className="error-box">{error}</div>)}
       {/* The day is the headline. */}
       {/* data-tour — the walkthrough's first target, and it is the MASTHEAD
           rather than the rail on purpose: the rail is absent on the empty
@@ -692,7 +715,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
         </div>
       )}
 
-      {reqError && <div className="error-box">{reqError}</div>}
+      {reqError && !offline && <div className="error-box">{reqError}</div>}
 
       {/* A strip of zeroes states nothing, so an empty day has no ledger. */}
       {!empty && (desk
@@ -947,6 +970,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
             onChanged={() => { reload(); fetchBooking(selected.id, business.id, business.timezone).then(setSelected); }} />
         </RecordHost>
+      )}
+      {printing && (
+        <SchedulePrint
+          jobs={bookings.filter((b) => b.booking_date === tomorrow && b.status !== "cancelled")}
+          dateLabel={new Date(`${tomorrow}T12:00:00`).toLocaleDateString(appIntlLocale(), { weekday: "long", month: "long", day: "numeric" })}
+          onClose={() => setPrinting(false)} />
       )}
       {finalizing && (
         <FinalizeModal booking={finalizing} onClose={() => setFinalizing(null)}

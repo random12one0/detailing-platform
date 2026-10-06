@@ -5780,3 +5780,39 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
 @media (max-width: 1179px) {
   .pagepv-frame iframe { height: min(60vh, 560px); }
 }
+
+/* ══ TOMORROW ON PAPER (components/SchedulePrint.jsx) ══════════════════════
+   ROADMAP 6.4 (d). Two renderings of one table. On the SCREEN, inside the
+   sheet, a row is a stacked block — five columns do not fit 320px and a
+   sideways scroll in a sheet is a table nobody reads. On PAPER it is the
+   table it is. The print copy is a portal on <body>, hidden everywhere except
+   when the button sets `body.printing-schedule`, at which point the whole app
+   (#root) is hidden instead: the global print block above restyles the app for
+   paper, and this one replaces it with a page that is not the app at all. */
+.jw-dayrow { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.sched-print { display: none; }
+.sched-table { width: 100%; border-collapse: collapse; }
+.sheet .sched-table thead { display: none; }
+.sheet .sched-table, .sheet .sched-table tbody { display: block; }
+.sheet .sched-table tr {
+  display: block; padding: var(--sp-3) 0; border-bottom: 1px solid var(--line);
+}
+.sheet .sched-table td { display: block; padding: 1px 0; overflow-wrap: anywhere; }
+.sheet .sched-table td:first-child { font-family: var(--font-figure, inherit); color: var(--fog); }
+.sched-note { color: var(--fog); font-size: var(--t-meta); margin-top: 2px; }
+.sheet .sched-table + .btn { margin-top: var(--sp-4); }
+@media print {
+  body.printing-schedule #root { display: none !important; }
+  body.printing-schedule .sched-print { display: block !important; color: #101010; background: #ffffff; }
+  .sched-print h1 { font-size: 20pt; margin: 0 0 2pt; }
+  .sched-stamp { margin: 0 0 12pt; font-size: 9pt; color: #4a4a4a; }
+  .sched-print .sched-table { font-size: 11pt; }
+  .sched-print .sched-table th {
+    text-align: left; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em;
+    color: #4a4a4a; border-bottom: 1.5pt solid #101010; padding: 4pt 6pt;
+  }
+  .sched-print .sched-table td { padding: 6pt; border-bottom: 0.5pt solid #c9c9c9; vertical-align: top; }
+  .sched-print .sched-table tr { break-inside: avoid; }
+  .sched-print .sched-table { break-inside: auto; }
+  .sched-print .sched-note { color: #4a4a4a; font-size: 9pt; }
+}

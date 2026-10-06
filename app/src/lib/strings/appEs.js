@@ -3050,4 +3050,13 @@ export const appEs = {
   "Plans": "Planes",
   "Messages you send": "Mensajes que envías",
   "Messages": "Mensajes",
+  // ROADMAP 6.4 — offline line on Today, and tomorrow's printable schedule.
+  "You're offline. Showing your jobs as of {time}.": "Sin conexión. Mostrando tus trabajos de las {time}.",
+  "You're offline. Today's jobs have not loaded yet.": "Sin conexión. Los trabajos de hoy aún no se han cargado.",
+  "Print tomorrow": "Imprimir mañana",
+  "Tomorrow's schedule": "Agenda de mañana",
+  "Print or save as PDF": "Imprimir o guardar como PDF",
+  "Printed {when}": "Impreso {when}",
+  "Time": "Hora",
+  "Job": "Trabajo",
 };
