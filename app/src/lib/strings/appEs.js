@@ -578,7 +578,6 @@ export const appEs = {
   // deleted: a key nobody reads costs nothing, and a missing one falls back
   // to English with no error anywhere.
   "{count} person": "{count} persona",
-  "{count} people": "{count} personas",
   "{links} · {people} so far": "{links} · {people} hasta ahora",
   "{links} · not opened yet": "{links} · sin aperturas todavía",
   "{count} service": "{count} servicio",
@@ -862,17 +861,17 @@ export const appEs = {
   "a gray": "un gris",
 
   // The seven first-run questions, and the name each step goes by afterwards.
-  "What do you charge for?": "¿Por qué cobras?",
+  // The first-run question headings ("What do you charge for?", "Running a
+  // discount?", "When are you open?", "Where does the work happen?", "What color
+  // is yours?") live ONCE, with the setup wizard's own strings further down.
+  // They were here as well, and the two copies disagreed (ROADMAP 14.35, 9f):
+  // "¿Por qué cobras?" is "why do you charge", not "what do you charge for".
   "Your services": "Tus servicios",
-  "Running a discount?": "¿Tienes un descuento?",
   "Promo code": "Código promocional",
-  "When are you open?": "¿Cuándo estás abierto?",
   "Your hours": "Tu horario",
-  "Where does the work happen?": "¿Dónde se hace el trabajo?",
   "Where you work": "Dónde trabajas",
   "How does a customer reach you?": "¿Cómo te contacta un cliente?",
   "Your details": "Tus datos",
-  "What color is yours?": "¿Cuál es tu color?",
   "Step {n} of {total} · {name}": "Paso {n} de {total} · {name}",
   "Full detail": "Detallado completo",
   "Pet hair removal": "Quitar pelo de mascota",
@@ -1751,7 +1750,6 @@ export const appEs = {
   "You have one vehicle size, so one price. Add sizes on this screen to charge more for bigger vehicles.":
     "Tienes un solo tamaño de vehículo, así que un solo precio. Añade tamaños en esta pantalla para cobrar más por vehículos más grandes.",
   "Nothing to send yet.": "Aún no hay nada que mandar.",
-  "Nothing": "Nada",
   "Nudge you before a job starts": "Avisarte antes de que empiece un trabajo",
   "Of that, the build": "De eso, la construcción",
   "Off keeps what you have written, and just hides the section.":
@@ -3043,17 +3041,32 @@ export const appEs = {
     "Deja uno en blanco y el sitio no dice nada al respecto.",
   "These go on the site as your policy. One site in fifty-two has a rain policy. It is free to be the one that does.":
     "Esto va en el sitio como tu política. Un sitio de cada cincuenta y dos tiene política de lluvia. No cuesta nada ser ese.",
-  "Who are you?": "¿Quién eres?",
   "What people say about you": "Lo que dice la gente de ti",
   "Questions customers ask": "Preguntas que hacen los clientes",
   "Getting paid": "Cobrar",
   "Plans": "Planes",
   "Messages you send": "Mensajes que envías",
   "Messages": "Mensajes",
+  // ROADMAP 14.35, check 9a — ten dashboard strings that had no Spanish.
+  "All 14 vehicle types are assigned to a size. Your booking page can work out most customers' size from what they type.":
+    "Los 14 tipos de vehículo están asignados a un tamaño. Tu página de citas puede deducir el tamaño de la mayoría de los clientes a partir de lo que escriben.",
+  "{done} of 14 vehicle types are assigned to a size.": "{done} de 14 tipos de vehículo están asignados a un tamaño.",
+  "For the rest, a customer just picks their own size the regular way — the same question your booking page always asked. Missing: {list}. Open a size below and tick the ones that belong in it.":
+    "Con el resto, el cliente elige su propio tamaño como siempre, con la misma pregunta que tu página de citas siempre ha hecho. Faltan: {list}. Abre un tamaño más abajo y marca los que le corresponden.",
+  "Vehicle types in this size": "Tipos de vehículo en este tamaño",
+  "currently in {size}": "ahora en {size}",
+  "Customers can't book you until you set your hours.": "Los clientes no pueden reservar contigo hasta que definas tu horario.",
+  "Customers can't book you until you add at least one service.": "Los clientes no pueden reservar contigo hasta que agregues al menos un servicio.",
+  "Customers have no way to reach you — add a phone number or email.": "Los clientes no tienen cómo contactarte: agrega un teléfono o un correo.",
+  "Coming up": "Próximos",
+  "You've told us which vehicle types belong in each of your sizes. Any type you haven't assigned yet just means a customer with that kind of vehicle picks their own size the regular way, instead of it being worked out for them.":
+    "Nos dijiste qué tipos de vehículo corresponden a cada uno de tus tamaños. Un tipo sin asignar solo significa que un cliente con ese tipo de vehículo elige su propio tamaño como siempre, en lugar de que se lo calculemos.",
   // ROADMAP 6.4 — offline line on Today, and tomorrow's printable schedule.
   "You're offline. Showing your jobs as of {time}.": "Sin conexión. Mostrando tus trabajos de las {time}.",
   "You're offline. Today's jobs have not loaded yet.": "Sin conexión. Los trabajos de hoy aún no se han cargado.",
   "Print tomorrow": "Imprimir mañana",
+  "Print {day}": "Imprimir {day}",
+  "Schedule": "Agenda",
   "Tomorrow's schedule": "Agenda de mañana",
   "Print or save as PDF": "Imprimir o guardar como PDF",
   "Printed {when}": "Impreso {when}",

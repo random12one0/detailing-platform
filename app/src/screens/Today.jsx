@@ -494,13 +494,17 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               "Coming up" is that eyebrow, and a second one per day would be
               five more on one screen. This is the date in prose at meta size,
               the same weight the sub-line under a name takes. */}
-          {date === tomorrow ? (
+          {date === upcomingDays[0][0] ? (
             <div className="jw-dayrow">
-              <p className="jw-day">{t("Tomorrow")}</p>
+              <p className="jw-day">{date === tomorrow ? t("Tomorrow") : shortDate(date)}</p>
               {/* ROADMAP 6.4 (d) — the outage fallback. Reads what is already
-                  on screen, so it works with no signal. */}
+                  on screen, so it works with no signal. It hangs on the NEXT
+                  day that has jobs, which is tomorrow unless tomorrow is quiet:
+                  a detailer with a free tomorrow still needs the paper for
+                  Thursday. */}
               <button className="btn ghost inline" onClick={() => setPrinting(true)}>
-                <Printer size={16} strokeWidth={2} /> {t("Print tomorrow")}
+                <Printer size={16} strokeWidth={2} />{" "}
+                {date === tomorrow ? t("Print tomorrow") : t("Print {day}", { day: shortDate(date) })}
               </button>
             </div>
           ) : <p className="jw-day">{shortDate(date)}</p>}
@@ -973,8 +977,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       )}
       {printing && (
         <SchedulePrint
-          jobs={bookings.filter((b) => b.booking_date === tomorrow && b.status !== "cancelled")}
-          dateLabel={new Date(`${tomorrow}T12:00:00`).toLocaleDateString(appIntlLocale(), { weekday: "long", month: "long", day: "numeric" })}
+          jobs={upcomingDays[0]?.[1] ?? []}
+          title={upcomingDays[0]?.[0] === tomorrow ? t("Tomorrow's schedule") : t("Schedule")}
+          dateLabel={new Date(`${upcomingDays[0]?.[0] ?? tomorrow}T12:00:00`).toLocaleDateString(appIntlLocale(), { weekday: "long", month: "long", day: "numeric" })}
           onClose={() => setPrinting(false)} />
       )}
       {finalizing && (

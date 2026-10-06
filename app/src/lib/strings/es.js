@@ -90,7 +90,6 @@ export const es = {
   "Request this time": "Solicitar esta hora",
   "Booking…": "Reservando…",
   "Confirm booking": "Confirmar la reserva",
-  "See the plan": "Ver el plan",
   // ROADMAP 2.11 — what pressing the last button does. "Apartar" is holding
   // something back for somebody; "reservar" is the booking itself — the same
   // distinction the English makes between held and booked, and the whole point
@@ -103,23 +102,16 @@ export const es = {
     "Puedes cambiarla o cancelarla hasta {hours}h antes de la cita.",
   "You can change or cancel it yourself any time before the appointment.":
     "Puedes cambiarla o cancelarla en cualquier momento antes de la cita.",
-  // The step-1 door became a filled chip carrying the cheapest price
-  // (2026-09-11). "Plan"/"Plans" is the chip's own word; the price is
-  // built by `priceParts`, which already speaks both languages.
-  // NO "Plan" ENTRY: the word is identical in Spanish, and the catalogue check
-  // cannot tell a cognate from a lazy copy — so an entry that says nothing is an
-  // entry that fails the check for being right. `t()` returns an unknown string
-  // unchanged, which gives "Plan" either way.
-  "from {price}": "desde {price}",
-  "Plan from {price}": "Plan desde {price}",
-  "Plans from {price}": "Planes desde {price}",
+  // The plan chip's price is built by `priceParts` (lib/plans.js), which speaks
+  // both languages itself; the "from {price}" / "Plan from {price}" /
+  // "Plans from {price}" entries that stood here described English the page
+  // stopped asking for (ROADMAP 14.35, check 1c) and are gone.
   // The plans page AND the add-ons step: one per row, and the words that say
   // the row acts. **"On this plan" is the picked state**, which only the
   // booking flow can reach — on the plans page a row is a link away, here it
   // is a choice you can press again to come off.
   "Choose this": "Elegir este",
   "On this plan": "En este plan",
-  "See the plans": "Ver los planes",
   // ── THE PITCH UNDER THE ADD-ONS — Andrew, 2026-09-13 ───────────────────
   "Or make it a monthly plan": "O conviértelo en un plan mensual",
   "Regular visits at a set price. Pick one and it applies to this booking.":
@@ -195,8 +187,13 @@ export const es = {
   "One price for every vehicle.": "Un solo precio para cualquier vehículo.",
   "What are you bringing? (optional)": "¿Qué vehículo traes? (opcional)",
   "Year or estimate (optional)": "Año o aproximado (opcional)",
-  "e.g. 2019 Honda Civic": "por ejemplo, Honda Civic 2019",
+  // The page asks for the make and model and the year in two boxes now
+  // (ROADMAP 14.35, check 1b), so the one-box "e.g. 2019 Honda Civic" is gone.
+  "e.g. Honda Civic": "por ejemplo, Honda Civic",
+  "e.g. 2019": "ej. 2019",
+  "An estimate is fine — it does not have to be exact.": "Un año aproximado está bien; no tiene que ser exacto.",
   "{vehicle} · set to {size}": "{vehicle} · lo pusimos en {size}",
+  "Not right?": "¿No es correcto?",
   "How dirty is the inside?": "¿Qué tan sucio está por dentro?",
   "It doesn’t change your price. It tells us what to bring.":
     "No cambia tu precio. Nos dice qué llevar.",

@@ -53,7 +53,7 @@ function Table({ jobs }) {
   );
 }
 
-export default function SchedulePrint({ jobs, dateLabel, onClose }) {
+export default function SchedulePrint({ jobs, title, dateLabel, onClose }) {
   useAppLocale();
   const { business } = useBusiness();
   const [stamp] = useState(() => new Date().toLocaleString());
@@ -73,7 +73,7 @@ export default function SchedulePrint({ jobs, dateLabel, onClose }) {
 
   return (
     <>
-      <Sheet onClose={onClose} title={t("Tomorrow's schedule")} subtitle={dateLabel} peek={78}>
+      <Sheet onClose={onClose} title={title} subtitle={dateLabel} peek={78}>
         <Table jobs={jobs} />
         <button className="btn primary" onClick={print}>
           <Printer size={18} strokeWidth={2} /> {t("Print or save as PDF")}
