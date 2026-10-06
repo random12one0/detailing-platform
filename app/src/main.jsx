@@ -63,7 +63,12 @@ installEmbedHeight();
 // carry their own BookingBusinessProvider, hydrated from the URL slug.
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    {/* The two React Router v7 future flags, on, so the console is clean on every
+        navigation. `v7_relativeSplatPath` changes how a RELATIVE link under a
+        `*` route resolves; the only splat route is NotFound, which links with
+        plain `<a href>`, and nothing here uses a relative `to`. `v7_startTransition`
+        wraps router state updates in React.startTransition. */}
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary>
       <Routes>
         {/* --- Public. No session. ------------------------------------- */}

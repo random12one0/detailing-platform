@@ -400,11 +400,12 @@ async function run() {
 
   await browser.close();
 
-  // Forgiven BY NAME, each with its reason. The 404 is the platform-admin function
+  // Forgiven BY NAME, with its reason. (The React Router future-flag warnings were forgiven
+  // here until the two flags were turned on in main.jsx; they are failures again.) The 404 is the platform-admin function
   // answering a NON-admin: GearMenu asks `whoami` and the function deliberately
   // answers every non-admin with 404 so it never confirms itself. The demo owner is
   // a platform admin, so it never shows there; the real thin owner is not.
-  const FORGIVEN = /React Router Future Flag Warning|status of 404.*functions[/]v1[/]platform-admin/;
+  const FORGIVEN = /status of 404.*functions[/]v1[/]platform-admin/;
   const uniq = [...new Set(consoleBad)];
   for (const c of uniq.filter((c) => !FORGIVEN.test(c))) failures.push(`console — ${c}`);
   const forgiven = uniq.filter((c) => FORGIVEN.test(c));
