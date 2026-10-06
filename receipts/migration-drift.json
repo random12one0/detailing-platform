@@ -1,14 +1,14 @@
 {
-  "git_sha": "f9c579584d78069cc9e97f934f5525564ad4f523",
-  "git_sha_started": "f9c579584d78069cc9e97f934f5525564ad4f523",
+  "git_sha": "6cd863622fcd3edee07ff7f427adb0721e190e54",
+  "git_sha_started": "6cd863622fcd3edee07ff7f427adb0721e190e54",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-06T22:49:28.848Z",
+  "finished_at": "2026-10-06T23:04:08.619Z",
   "failures": [
     "2 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
     "1 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)",
     "3 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_users.lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), customers.is_test (declared by 20260924010000_a_fixture_is_not_a_customer.sql), email_sends.booking_id (declared by 20261006010000_an_email_row_knows_its_booking.sql)",
-    "10 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.bookings.weather — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql); public.bookings.weather_at — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql); public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+    "10 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.bookings — authenticated should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql); public.bookings — anon should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql)",
     "2 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: email_sends_booking_idx on email_sends — not in the database (declared by 20261006010000_an_email_row_knows_its_booking.sql); platform_costs_period_idx on platform_costs — not in the database (declared by 20261006020000_hand_entered_platform_costs.sql)"
   ],
   "warnings": [
@@ -20,7 +20,7 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 104,
+    "migration_files": 105,
     "tables_declared": 56,
     "tables_absent": [
       "platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)"
@@ -35,15 +35,13 @@
     "policies_absent": [],
     "policies_unjudgeable": 0,
     "grant_claims_declared": 483,
-    "grant_targets": 96,
+    "grant_targets": 95,
     "grant_statements": {
-      "naive": 161,
-      "judged": 161,
+      "naive": 162,
+      "judged": 162,
       "unjudgeable": 0
     },
     "grants_absent": [
-      "public.bookings.weather — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql)",
-      "public.bookings.weather_at — authenticated should NOT HOLD update (declared by 20260913010000_weather_cache.sql)",
       "public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
       "public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
       "public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
@@ -51,7 +49,9 @@
       "public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
       "public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
       "public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database"
+      "public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
+      "public.bookings — authenticated should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql)",
+      "public.bookings — anon should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql)"
     ],
     "indexes_declared": 64,
     "index_statements": {
@@ -71,12 +71,12 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-06T22:49:22.444Z",
+  "started_at": "2026-10-06T23:04:01.661Z",
   "status": "fail",
-  "expected_targets": 354,
+  "expected_targets": 353,
   "discovered_targets": 344,
-  "attempted_targets": 354,
-  "completed_targets": 354,
+  "attempted_targets": 353,
+  "completed_targets": 353,
   "skipped_targets": 0,
   "assertions_executed": 1927,
   "min_assertions": 1000,

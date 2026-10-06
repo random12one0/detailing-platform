@@ -222,12 +222,21 @@ console.log("test 4: bookings and their child rows");
     });
     check("booking_line_items: owner can INSERT", li.status === 201, `${li.status} ${JSON.stringify(li.data).slice(0, 160)}`);
 
-    const up = await as("PATCH", `/rest/v1/bookings?id=eq.${bk.id}`, { admin_notes: "owner note", payment_status: "paid" });
-    check("bookings: owner can UPDATE", (up.data ?? []).length === 1 && up.data[0].admin_notes === "owner note",
-      `${up.status} ${JSON.stringify(up.data).slice(0, 160)}`);
-
-    const sd = await as("PATCH", `/rest/v1/bookings?id=eq.${bk.id}`, { deleted_at: new Date().toISOString(), status: "cancelled" });
-    check("bookings: owner can SOFT DELETE", (sd.data ?? []).length === 1 && !!sd.data[0].deleted_at, `${sd.status}`);
+    // ROADMAP 8.10d — REVERSED, AND ON PURPOSE. These two checks used to say
+    // "owner can UPDATE" and "owner can SOFT DELETE" straight through PostgREST.
+    // The dashboard stopped doing either: every booking edit, soft delete
+    // included, goes through the `update-booking` edge function under the
+    // service role (BookingDetail.jsx's header). The direct path they proved
+    // was the hole — it also let the browser write `weather`. Migration
+    // 20261006040000 takes table-level UPDATE away from `authenticated`, so
+    // the positive case for bookings is now INSERT alone, above.
+    // **Red until that migration is applied** — the red is the live hole.
+    const up = await as("PATCH", `/rest/v1/bookings?id=eq.${bk.id}`,
+      { admin_notes: "owner note", weather: { t: 99 }, weather_at: new Date().toISOString() });
+    const after = (await svc.get(`/rest/v1/bookings?id=eq.${bk.id}&select=admin_notes,weather,weather_at`)).data[0];
+    check("bookings: a direct owner UPDATE is refused (edits go through update-booking)",
+      up.status >= 400 && after.admin_notes === null && after.weather === null && after.weather_at === null,
+      `${up.status} → ${JSON.stringify(after)}`);
   }
 }
 

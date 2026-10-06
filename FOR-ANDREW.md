@@ -817,6 +817,42 @@ still knows them.
   **Nobody is affected today** — there are no paying detailers yet. It matters
   the first time a real card fails.
 
+- [ ] **SWITCH · One database change, so a detailer's browser can no longer
+  rewrite its own bookings behind the dashboard's back (ROADMAP 8.10d).**
+  Added 2026-10-06.
+
+  **What this is.** A detailer's signed-in browser could change any field on
+  its own bookings directly — the weather shown on a job, and everything else
+  too — without going through the dashboard's own checks. The dashboard never
+  does this: every booking edit already goes through the server. The door was
+  just left open. Proved today on the live database: a test owner's browser
+  wrote a made-up temperature onto its own booking and it stuck. Own bookings
+  only, nobody else's, no money moved.
+
+  **The fix shuts that door and changes nothing anybody uses.** It was tried on
+  a throwaway copy of the bookings table that was thrown away straight after:
+  the browser is refused the weather and every other field; logging a fleet job
+  (the one thing the browser does write directly) still works, retries
+  included; the dashboard still reads bookings; the server still updates the
+  weather.
+
+  ```bash
+  set -a; . ./.env; set +a
+  node scripts/apply-migrations.mjs 20261006040000_bookings_browser_updates_nothing.sql
+  node tests/owner-writes.test.mjs      # red today on one line; green after
+  node scripts/migration-drift.mjs      # stops naming public.bookings
+  ```
+
+  **No functions to publish.** It **changes one permission and adds nothing.**
+
+  **If something breaks after:** the symptom would be a "permission denied"
+  message when saving something on a booking. Nothing in today's dashboard
+  should do that; if it does, tell the next session — the fix is to let the
+  browser change exactly that one field, never to reopen the whole table.
+
+  **Nothing to decide.**
+
+
 - [ ] **SWITCH · One database change, then the email functions, so a detailer
   who uses the dashboard in Spanish gets their own alerts in Spanish.**
 

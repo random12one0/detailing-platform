@@ -11954,7 +11954,49 @@ rather than wording went to Andrew.
   **Done when:** `node scripts/migration-drift.mjs` names no `bookings.weather`
   line, **and** an authenticated browser-client write to `weather` on a demo
   booking is refused while a write to an ordinary field on the same row succeeds.
-  Not started.
+
+  **BUILT 2026-10-06, NOT APPLIED — applying is Andrew's (FOR-ANDREW row
+  "One database change, so a detailer's browser can no longer rewrite its own
+  bookings").** `supabase/migrations/20261006040000_bookings_browser_updates_nothing.sql`
+  revokes table-level UPDATE on `bookings` from `authenticated` and `anon` and
+  **grants no column back**, because the browser updates none:
+  * **The discovered list is EMPTY.** At 751d371 every `from("bookings")` in
+    `app/src` is a read except `BulkJobModal.jsx`'s fleet job, an `upsert`
+    with `ignoreDuplicates` — `INSERT … ON CONFLICT DO NOTHING`, which needs
+    INSERT only. Every edit goes through `update-booking`; every edge function
+    writes as the service role (`_shared/db.ts`); the one database function
+    that updates `bookings` (`forget_customer`) is SECURITY DEFINER. Searched
+    by `git log -G` too: the last direct browser write was this same insert.
+  * **THE DONE-WHEN ABOVE IS AMENDED, NOT SILENTLY DROPPED.** Its second half
+    — *"a write to an ordinary field on the same row succeeds"* — assumed the
+    browser legitimately updates some field. It updates none, so that write is
+    now REFUSED by design. Ordinary edits succeed through `update-booking`,
+    which the grant cannot reach (the drill proves `service_role` still writes).
+  * **Proved on a rolled-back copy, never the live table:**
+    `node scripts/bookings-grant-drill.mjs` — 10 of 10 held at this commit
+    (hole reproduces before; `authenticated`/`anon` refused `weather`,
+    `weather_at` and `admin_notes` after; holds UPDATE on 0 columns; fleet
+    insert and its retry still work; reads work; `service_role` writes
+    weather). `--break=regrant` exits 1 with 6 of 10. The schema is created
+    and raised away in one statement; `scratch_810d` count 0 afterwards.
+  * **Reproduced live through the real browser path:**
+    `node tests/owner-writes.test.mjs` — its two "owner can UPDATE / SOFT
+    DELETE bookings" checks were testing the hole and are reversed; the new
+    check is the one red line today (an owner JWT wrote `weather` `{"t":99}`
+    and it stuck) and goes green once the migration is applied.
+  * **The reopening guard:** `node --test tests/bookings-update-grant.test.mjs`,
+    credential-free, replays every migration's grants on `bookings` and fails if
+    `anon`, `authenticated` or PUBLIC can update either column. Seven canaries
+    run every time against the same replay (the repo minus this migration, a
+    table-wide grant, `grant all`, `all tables in schema public`, a column grant
+    of `weather`, a PUBLIC grant, a grant inside a DO block) plus two controls.
+    Three sabotages of the replay were each caught. `migration-drift.mjs` is
+    the live half: it now names `public.bookings` UPDATE as not holding until
+    the migration runs.
+  * **Seen, not fixed — the same default on other privileges:** `anon` and
+    `authenticated` still hold INSERT and DELETE on `bookings` (RLS limits rows;
+    nothing limits columns on INSERT, so a browser could insert its own booking
+    with a made-up `weather`). Not sized; INSERT has a real browser caller.
 
 - [ ] **7.18 — There is no check that every `.ld` marketing page carries the
   same required nav elements, and three separate items today needed a person

@@ -1,0 +1,50 @@
+-- ROADMAP 8.10d. THE WEATHER REVOKE NEVER TOOK EFFECT, AND THE BROWSER COULD
+-- CHANGE EVERY COLUMN OF ITS OWN BOOKINGS, NOT ONLY THOSE TWO.
+--
+-- `20260913010000_weather_cache.sql` runs
+-- `revoke update (weather, weather_at) on public.bookings from authenticated`.
+-- **A column-level revoke does nothing while the role holds table-level
+-- UPDATE**, and Supabase grants `anon` and `authenticated` full table
+-- privileges on everything in `public`. The same fault
+-- `20260907003000_column_revokes_actually_apply.sql` fixed for `businesses`
+-- and `business_domains`; it did not reach `bookings`. Found by 8.10c's first
+-- run of `scripts/migration-drift.mjs` against the live database.
+--
+-- ---------------------------------------------------------------------------
+-- THE COLUMNS THE BROWSER UPDATES ON `bookings`: NONE. DISCOVERED, NOT GUESSED.
+-- ---------------------------------------------------------------------------
+-- 20260907003000's shape is "take the table grant away, grant the writable
+-- columns back". The list to grant back here is EMPTY, measured 2026-10-06:
+--
+--   · Every `from("bookings")` in `app/src` at 751d371 is a read except one:
+--     `BulkJobModal.jsx`'s fleet job, an `upsert` with
+--     `ignoreDuplicates: true` — PostgREST sends `INSERT … ON CONFLICT (id)
+--     DO NOTHING`, which needs INSERT and never UPDATE. INSERT is untouched.
+--   · Every edit — status, notes, payment, soft delete — goes through the
+--     `update-booking` edge function (BookingDetail.jsx's header says so), and
+--     every edge function writes under the service role
+--     (`supabase/functions/_shared/db.ts`), which this does not touch.
+--   · The one database function that updates `bookings`, `forget_customer`,
+--     is SECURITY DEFINER and runs with its owner's rights.
+--   · The two triggers that fire on a `bookings` update change NEW in place,
+--     which needs no column privilege.
+--
+-- So nothing is granted back. **A future browser screen that updates a
+-- booking directly will get "permission denied" on its first save** — loud,
+-- immediate, and the fix is a column grant in a new migration naming exactly
+-- what that screen writes. `weather` and `weather_at` never belong in it:
+-- `tests/bookings-update-grant.test.mjs` replays every migration's grants and
+-- goes red if anything leaves either column writable by the browser.
+--
+-- **RLS IS UNCHANGED.** `bookings_tenant_all` still chooses which rows a
+-- member reaches for SELECT, INSERT and DELETE. Grants choose what may be
+-- done; this only takes UPDATE away.
+--
+-- **`anon` LOSES IT TOO**, as in 20260907003000. No policy lets anon through
+-- today, so nothing changes now — but a policy written tomorrow would inherit
+-- a full-table write nobody meant to give it.
+--
+-- Revoking the table privilege also revokes every column privilege for it, so
+-- the 20260913010000 column revoke is now true as written.
+
+revoke update on public.bookings from authenticated, anon;
