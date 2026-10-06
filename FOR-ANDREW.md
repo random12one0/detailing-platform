@@ -713,9 +713,17 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
-- [ ] **DECIDE · The demo owner's login is written on a page the site serves
-  (`app/public/map.html`, line 303). Found 2026-10-06 by the credential check
-  once it was allowed to read more than markdown.**
+- [x] **DECIDED · The demo owner's login comes off the page the site serves
+  (`app/public/map.html`, line 303); the password is left alone. 2026-10-06 —
+  nothing needed from you.** The manager took my recommendation below. **The page
+  change is the front-end session's and is not made yet**, so the credential
+  check keeps printing its OPEN line until that edit lands; whoever makes it
+  should confirm the seed script does not write the line back. The password in
+  `.env` is untouched.
+
+  *The question as it was asked, kept so the answer has its context:* The demo
+  owner's login is written on a page the site serves. Found 2026-10-06 by the
+  credential check once it was allowed to read more than markdown.
 
   **What this is.** The review map page shows "sign in first" and, beside it,
   the demo owner's email and password. Checked tonight by comparing it with the
