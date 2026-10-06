@@ -157,7 +157,17 @@ import { readFileSync } from "node:fs";
 // one.** It is also exactly why the manager asked for per-file declarations.
 const DOCS = [
   // doc, discovery floor, declared bare
-  { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 120, bare: 122 },
+  // 122 -> 98 and the floor 120 -> 90 on 2026-10-02. **THIS REDUCTION IS A
+  // POPULATION CORRECTION, NOT PINNING WORK, and the two must not be confused:**
+  // 27 row ordinals in this file — the values 1 to 16 in its `| # | item | … |`
+  // tables, measured, not estimated — stopped being counted as figures, because an
+  // ordinal is not a measurement. The found count moves 146 -> 121 rather than by
+  // the full 27, because two of them sat on rows classified UNJUDGEABLE, which
+  // `found` does not include. **Nothing was pinned here.**
+  // The floor moves with it — it was set when the population was 146 and would
+  // otherwise sit at 99% of a 121-figure population, where a parser guard is
+  // supposed to sit well below reality so ordinary change never fires it.
+  { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 90, bare: 98 },
   { path: "docs/ticked-without-proof-2026-09-25.md", floor: 30, bare: 69 },
 
   // **docs/silences.md: 31 figures, 31 bare, ONE HUNDRED PER CENT** — and this is
@@ -179,7 +189,10 @@ const DOCS = [
   // somebody introduced, and section 4 is the red for that.
   { path: "docs/silences.md", floor: 20, bare: 0 },
 
-  { path: "PROJECT-STATE.md", floor: 10, bare: 17 },
+  // 17 -> 12 on 2026-10-02, **also a POPULATION CORRECTION rather than pinning**:
+  // five of the seventeen were section pointers in a `| §| |` contents table.
+  // The twelve that remain are real and not yet pinned.
+  { path: "PROJECT-STATE.md", floor: 8, bare: 12 },
 
   // **FOR-ANDREW.md declares 0 and that is NOT a clean bill.** This scanner reads
   // TABLE ROWS, and FOR-ANDREW.md states its figures in prose, so they are
@@ -218,13 +231,35 @@ const CMD = /`((?:git|grep|node|sed|ls|wc|awk|find|cat|curl|npm|test|rg)\b[^`]{4
 const SHA = /`([0-9a-f]{7,40})`/g;
 const REASON = /UNRE-TAKEABLE|unre-takeable|unrepeatable by construction|dated snapshot|judgement, not a count|tool is gone|instrument is gone|no tree|self-invalidating/i;
 const DATE = /20\d\d-\d\d-\d\d/;
+// AN ORDINAL IS NOT A MEASUREMENT. A bolded number that is the WHOLE of a row's
+// first cell, in a table whose first column header is `#`, `No`, `No.` or `§`, is
+// a row number or a section pointer — `| **1** | **9.11** | ... |` in a queue, or
+// `| **6** | The seven gaps ... |` in a contents list. **32 of these were being
+// counted as figures and demanded commands**, which would have meant pinning a
+// table of contents.
+//
+// **The HEADER is what decides it, and a blanket first-cell rule would have been
+// wrong**: the same shape in the population table — header `| figure | … |` —
+// holds **53**, **58**, **59** and **64**, which are real measurements. Checked
+// before the rule was written, which is why it reads the header and not the
+// position. `docs/gotchas.md` 89 is the same lesson: the population, not the
+// verdict.
+const ORDINAL_HEADER = /^\|\s*(#|No\.?|§)\s*\|/i;
+
 const FILE_IN_CMD = /\b((?:app|docs|scripts|tests|supabase|receipts)\/[A-Za-z0-9_.\/-]+)/;
 
 function scan(extraRows = []) {
   const rows = [];
   for (const d of DOCS) {
     const lines = readFileSync(d.path, "utf8").replace(/\r\n/g, "\n").split("\n");
-    lines.forEach((line, i) => { if (/^\|/.test(line)) rows.push({ doc: d.path, line: i + 1, text: line }); });
+    // remember, per line, whether it sits in a table with an ordinal first column
+    let ordinalTable = false;
+    lines.forEach((line, i) => {
+      if (!/^\|/.test(line)) { ordinalTable = false; return; }
+      if (/^\|[\s|-]*$/.test(line) && line.includes("-")) return;   // the |---| separator
+      if (ORDINAL_HEADER.test(line)) { ordinalTable = true; return; }
+      rows.push({ doc: d.path, line: i + 1, text: line, ordinalTable });
+    });
   }
   for (const t of extraRows) rows.push({ doc: "(canary)", line: 0, text: t });
 
@@ -239,7 +274,12 @@ function scan(extraRows = []) {
     FIG.lastIndex = 0;
     const figs = [];
     let m;
-    while ((m = FIG.exec(r.text))) if (!/^20\d\d$/.test(m[1])) figs.push(m[1].replace(/,/g, ""));
+    while ((m = FIG.exec(r.text))) {
+      if (/^20\d\d$/.test(m[1])) continue;
+      // the row's own ordinal: the figure is the entire first cell of an ordinal table
+      if (r.ordinalTable && new RegExp(`^\\|\\s*\\*\\*${m[1]}\\*\\*\\s*\\|`).test(r.text)) continue;
+      figs.push(m[1].replace(/,/g, ""));
+    }
     if (!figs.length) continue;
 
     CMD.lastIndex = 0;
