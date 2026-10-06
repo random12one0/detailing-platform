@@ -286,12 +286,14 @@ export const appEs = {
   "Remove filter: {label}": "Quitar filtro: {label}",
   "Nothing matches that.": "Nada coincide con eso.",
   "No bookings in {range}.": "No hay citas en {range}.",
-  // The filter chips.
+  // Status names, singular: they label ONE job (card and record pills). The filter chips share them, so they read "Todos · Confirmada" rather than a plural.
   "All": "Todos",
-  "Confirmed": "Confirmadas",
-  "Completed": "Terminadas",
-  "Cancelled": "Canceladas",
+  "Confirmed": "Confirmada",
+  "Completed": "Terminada",
+  "Cancelled": "Cancelada",
   "No show": "No se presentó",
+  // The job record's own spelling of the key above (`BookingDetail.jsx`); without it the Spanish record printed English.
+  "No-show": "No se presentó",
   "Waiting": "Esperando",
   "Last 30 days": "Últimos 30 días",
   "Last 90 days": "Últimos 90 días",
