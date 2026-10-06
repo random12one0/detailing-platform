@@ -437,6 +437,10 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
   .bk-exits { flex-direction: column; }
   .bk-exits .bk-btn { flex: none; }
 }
+/* Inside the settings screen's preview frame (lib/embedHeight.js) the page is
+   as tall as its content, never as tall as the frame, or the frame could only
+   ever grow. Nothing else sets `.pv-embed`. */
+.pv-embed .bk, .pv-embed .bk-center { min-height: 0; }
 .bk-center {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-height: 70dvh; gap: var(--bk-sp-3); padding: var(--bk-sp-4); text-align: center;

@@ -5745,12 +5745,14 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
    The resting column held a 252px link card over about 570px of nothing at
    1440, measured before this was built. This fills it with the page itself.
 
-   THE FRAME IS GIVEN A HEIGHT RATHER THAN ASKED FOR ONE. A cross-document
-   iframe cannot size itself to its content, and the usual answer — postMessage
-   the height back out — would put a measuring script into the public booking
-   page to serve a settings screen, which is the booking page paying for this
-   feature. `min(72vh, 900px)` is tall enough to show the services a customer
-   chooses from and short enough to leave the link card above it on screen. */
+   THE HEIGHT BELOW IS THE STAND-IN, NOT THE ANSWER. The booking page posts
+   its real height, and `PagePreview` sets it inline, but only for a page
+   loaded with `?pv=1` inside a frame (lib/embedHeight.js), so the public page
+   pays nothing for it. This is what shows until the first message, or if none
+   comes: `min(72vh, 900px)`, tall enough for the services a customer chooses
+   from and short enough to leave the link card above it on screen. This
+   comment used to argue the opposite (no measuring script in the public page);
+   the double gate is what changed that. */
 .pagepv { display: block; margin-top: 18px; }
 .pagepv .lab { margin-bottom: 8px; }
 .pagepv-missing {

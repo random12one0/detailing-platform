@@ -14,6 +14,7 @@ import PlanMemberPage from "./book/PlanMemberPage.jsx";
 import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 import { isPlatformHost } from "./lib/host.js";
+import { installEmbedHeight } from "./lib/embedHeight.js";
 import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
@@ -49,6 +50,10 @@ import { Navigate } from "react-router-dom";
   apply();
   mq?.addEventListener("change", apply);
 }
+
+// Inert unless this is the booking page inside the settings screen's preview
+// frame (`?pv=1` and framed); see lib/embedHeight.js.
+installEmbedHeight();
 
 // The router is outermost so the PUBLIC routes sit outside BusinessProvider.
 // A customer arriving from a text message has no session, no membership and

@@ -31,12 +31,19 @@
 // the wrong call it is a one-line change — `inert` and `pointer-events` — and
 // this paragraph is where to argue with it.
 //
+// THE FRAME IS AS TALL AS THE PAGE IT SHOWS. The booking page posts its own
+// height, but only when it is loaded with `?pv=1` inside a frame
+// (`lib/embedHeight.js`), so a customer's page carries nothing for this. Until
+// the first message arrives the CSS height stands in. The sender is checked
+// against this very frame, so no other window can resize it.
+//
 // It is NOT scaled down. A preview shrunk to fit is a picture of a page rather
 // than the page, and the column is already about the width of a narrow
 // browser, so what a detailer sees here is what the layout actually does.
 
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { t } from "../lib/i18n.js";
+import { PV_HEIGHT } from "../lib/embedHeight.js";
 
 /**
  * One line naming what is missing, or null when nothing is.
@@ -64,6 +71,18 @@ export function missingLine(counts) {
 
 export default function PagePreview({ slug, origin, counts, refreshKey = 0 }) {
   const titleId = useId();
+  const frameRef = useRef(null);
+  const [height, setHeight] = useState(null);
+  useEffect(() => {
+    const onMessage = (e) => {
+      const d = e.data;
+      if (!d || d.type !== PV_HEIGHT || e.source !== frameRef.current?.contentWindow) return;
+      const h = Number(d.height);
+      if (h > 0 && h < 20000) setHeight(h);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
   /* **`origin` IS ROUTINELY EMPTY AND THAT IS NOT A REASON TO RENDER NOTHING.**
      `siteOrigin` carries a tenant's own domain when they have one and is ""
      when they do not, which is every business on localhost - so the first
@@ -88,7 +107,9 @@ export default function PagePreview({ slug, origin, counts, refreshKey = 0 }) {
              remounts the element when the key changes, which reloads the page;
              nothing else in this component can cause that. */
           key={refreshKey}
-          src={`${base}/book/${slug}`}
+          ref={frameRef}
+          src={`${base}/book/${slug}?pv=1`}
+          style={height ? { height } : undefined}
           title={t("Your booking page")}
           /* Inert: no pointer, no tab stop, no accidental booking on their own
              business. `tabIndex={-1}` on the frame keeps the keyboard walk out

@@ -76,6 +76,10 @@ const FIXTURE_OWNER = (() => {
 // "stacks below rather than beside" is the whole question.
 const SIZES = [{ w: 320, h: 844 }, { w: 1440, h: 900 }];
 const THIN_SLUG = "final-pass-fixture";
+// "Not collapsed". The frame is as tall as its page now, and the shortest REAL page
+// (the thin business's refusal) is 88px at a desk; a canary collapses it to 0.
+const MIN_FRAME = 40;
+const EMPTY_FLOOR_MAX = 40;  // measured 12-16px at all four runs (page padding); a stand-in frame is hundreds
 
 const failures = [], observed = [], consoleBad = [];
 let assertions = 0;
@@ -160,7 +164,7 @@ async function run() {
       const p = await readPreview(page);
       await page.screenshot({ path: join(ART, `${size.w}-${thin ? "thin" : "complete"}.png`), fullPage: false });
 
-      check(id, "real-page", !!(p.present && p.src && /\/book\//.test(p.src) && p.frameH > 100 && p.painted),
+      check(id, "real-page", !!(p.present && p.src && /\/book\//.test(p.src) && p.frameH > MIN_FRAME && p.painted),
         `the preview is ${p.present ? `present, src=${p.src}, ${p.frameW}x${p.frameH}, painted=${p.painted}` : "ABSENT"}`
         + " — 9.10 asks for the real /book/<slug>, rendered, not a mock-up");
 
@@ -169,10 +173,56 @@ async function run() {
         ? true
         // ...and it must BE the thin business: a signed-in demo owner also has a missing-line
         // ("no photos yet"), which is how --break=wrongowner passed this the first time
-        : !!(p.present && p.frameH > 100 && p.missing.length > 0 && String(p.src).endsWith(`/book/${THIN_SLUG}`)),
+        : !!(p.present && p.frameH > MIN_FRAME && p.missing.length > 0 && String(p.src).includes(`/book/${THIN_SLUG}`)),
         thin
           ? `thin business: frame ${p.frameH}px tall, missing-line ${p.missing ? `"${p.missing}"` : "ABSENT"}`
           : "n/a");
+
+      /* **AS TALL AS THE PAGE IT SHOWS.** The frame's height against the booking
+         page's own content height read from INSIDE the frame (same origin on
+         localhost). A frame that keeps its stand-in height reads as a number
+         that is not the page's. */
+      // THE PAGE'S OWN HEIGHT, MEASURED TWO WAYS. `.bk`'s box is one: but that box
+      // can be stretched to the frame by a viewport-relative min-height, and then
+      // frame and page agree because one made the other. The other is the lowest
+      // bottom edge of any leaf element, which a stretched wrapper cannot move.
+      // The gap between them is empty floor under the content: a bar's clearance
+      // and padding are fine, a frame of stand-in height around a short page is not.
+      const measure = () => page.frames().find((f) => f.url().includes("/book/"))
+        ?.evaluate(() => {
+          const bk = document.querySelector(".bk");
+          let leaf = 0;
+          for (const el of bk ? bk.querySelectorAll("*") : []) {
+            if (el.children.length) continue;
+            const r = el.getBoundingClientRect();
+            if (!(r.height > 0 && r.width > 0)) continue;
+            // a leaf inside a collapsed panel is still "there" but nobody can see
+            // it: skip anything an overflow-clipping ancestor ends above
+            let clipped = false;
+            for (let up = el.parentElement; up && up !== bk && !clipped; up = up.parentElement) {
+              if (getComputedStyle(up).overflowY !== "visible" && r.top >= up.getBoundingClientRect().bottom - 0.5) clipped = true;
+            }
+            if (!clipped) leaf = Math.max(leaf, r.bottom);
+          }
+          return { box: Math.ceil(bk?.getBoundingClientRect().height || 0), leaf: Math.ceil(leaf) };
+        }).catch(() => null);
+
+      // let it SETTLE: the first load on a cold dev server can outlast the wait
+      // above. Up to 5s for frame and page to agree; a message that never comes
+      // still ends red once the time is up.
+      let probe = { box: 0, leaf: 0 }, pf = p;
+      for (let i = 0; i < 10; i++) {
+        probe = (await measure()) ?? { box: 0, leaf: 0 };
+        pf = await readPreview(page);
+        if (probe.box > 0 && Math.abs(pf.frameH - probe.box) <= 2) break;
+        await page.waitForTimeout(500);
+      }
+      const empty = pf.frameH - probe.leaf;
+      check(id, "frame-fits", probe.box > 0 && Math.abs(pf.frameH - probe.box) <= 2 && empty >= -2 && empty <= EMPTY_FLOOR_MAX,
+        `the frame is ${pf.frameH}px, the page's box ${probe.box}px, its lowest content ${probe.leaf}px,`
+        + ` so ${empty}px of empty floor (allowed up to ${EMPTY_FLOOR_MAX})`
+        + " - a box mismatch is a stand-in height or a message that never arrived; too much floor is a page stretched to its frame");
+      observed.push(`${id}: frame ${pf.frameH}, box ${probe.box}, lowest content ${probe.leaf}, empty floor ${empty}`);
 
       check(id, "stacks", size.w >= 1180
         ? p.inCol2 === true
@@ -240,7 +290,7 @@ async function run() {
         + " mounted; a frame on screen here is the one that could redraw per keystroke");
       await openBusiness(page);
       const after = await readPreview(page);
-      check(id, "on-save/returns-on-close", !!(after.present && after.src && after.frameH > 100),
+      check(id, "on-save/returns-on-close", !!(after.present && after.src && after.frameH > MIN_FRAME),
         `after closing the panel the preview is ${after.present ? `back, ${after.frameH}px` : "STILL ABSENT"}`
         + " - if it never comes back, the refresh never happens at all");
       const stamp = whileOpen === 0 ? "unmounted-while-open" : "MOUNTED-WHILE-OPEN";
@@ -261,9 +311,35 @@ async function run() {
     await page.waitForTimeout(2500);
     const p = await readPreview(page);
     await page.screenshot({ path: join(ART, "1440-lite.png") });
-    check("1440px lite", "real-page", !!(p.present && p.src && p.frameH > 100 && p.painted),
+    check("1440px lite", "real-page", !!(p.present && p.src && p.frameH > MIN_FRAME && p.painted),
       `?lite=1: present=${p.present} src=${p.src} ${p.frameW}x${p.frameH} painted=${p.painted}`);
     observed.push(`1440px lite: src=${p.src} ${p.frameW}x${p.frameH}`);
+    await ctx.close();
+  }
+
+  /* ══ THE PUBLIC PAGE STAYS SILENT ═════════════════════════════════════
+     The height message exists for the settings screen. A customer's page, framed
+     or not, must send nothing and carry no class. A positive control proves the
+     listener CAN hear: the same page with `?pv=1` must be heard. */
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1000, height: 800 } });
+    const page = await ctx.newPage();
+    await page.setContent(`<script>window.__m={plain:0,pv:0};addEventListener("message",function(e){
+      if(e.data&&e.data.type==="dp.pv.height")window.__m[e.source===document.getElementById("a").contentWindow?"plain":"pv"]++})</script>
+      <iframe id="a" src="${BASE}/book/demo-detail" width="390" height="800"></iframe>
+      <iframe id="b" src="${BASE}/book/demo-detail?pv=1" width="390" height="800"></iframe>`);
+    await page.waitForTimeout(3500);
+    const heard = await page.evaluate(() => window.__m);
+    const plainClass = await page.frames().find((f) => f.url().endsWith("/book/demo-detail"))
+      ?.evaluate(() => document.documentElement.classList.contains("pv-embed")).catch(() => null);
+    check("public page", "public-silent", heard.plain === 0 && heard.pv >= 1 && plainClass === false,
+      `framed WITHOUT ?pv=1: ${heard.plain} message(s), pv-embed class ${plainClass}; framed WITH it: ${heard.pv} message(s) (control, must be >= 1)`);
+    await page.goto(`${BASE}/book/demo-detail?pv=1`, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(1500);
+    const topClass = await page.evaluate(() => document.documentElement.classList.contains("pv-embed"));
+    check("public page", "pv-needs-a-frame", topClass === false,
+      `opened on its own with ?pv=1, pv-embed class is ${topClass}; it must stay off outside a frame`);
+    observed.push(`public page: framed without ?pv=1 sent ${heard.plain}, with it ${heard.pv}; unframed ?pv=1 class=${topClass}`);
     await ctx.close();
   }
 
@@ -287,7 +363,7 @@ async function run() {
     const broken = await readPreview(page);
     await page.screenshot({ path: join(ART, "canary-blank-thin.png") });
     assertions++;
-    const caught = !(broken.present && broken.frameH > 100 && broken.missing.length > 0);
+    const caught = !(broken.present && broken.frameH > MIN_FRAME && broken.missing.length > 0);
     if (!caught) {
       canaryProblems.push("CANARY MISSED: the-blank-thin-half - the missing line was deleted and"
         + " the frame collapsed to 0px, and `thin-not-blank` still passed.");
@@ -345,12 +421,12 @@ async function run() {
     completed_targets: targets,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: SIZES.length * 2 * 6 + 1 + 2,
+    min_assertions: SIZES.length * 2 * 7 + 1 + 2 + 2,
     assertion_floor:
-      "6 questions (real-page, thin-not-blank, stacks, tabbar-clear, "
+      "7 questions (real-page, thin-not-blank, frame-fits, stacks, tabbar-clear, "
       + "on-save/absent-while-typing, on-save/returns-on-close) x 2 businesses x 2 widths "
-      + "+ 1 lite real-page + 2 canaries = 27. Structural: fixed by the question list, never "
-      + "by what the run finds - a width whose screen never renders books its six as failures "
+      + "+ 1 lite real-page + 2 public-page + 2 canaries = 33. Structural: fixed by the question list, never "
+      + "by what the run finds - a width whose screen never renders books its seven as failures "
       + "rather than dropping out, so the count cannot fall.",
     failures: [...failures, ...canaryProblems],
     warnings: [
