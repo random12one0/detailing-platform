@@ -5540,10 +5540,41 @@ requested.
   **The data is there after the migration runs. Nothing below needs another
   server change**, and if something seems to, say so rather than adding one.
 
-  **WHERE.** The back office — `app/src/admin/AdminPage.jsx` is the screen 3.1
-  names (*"the same list in the back office rather than only on the client
-  record"*). The client-record list already exists and is NOT this; do not
-  rebuild it.
+  ***THE “WHERE” BELOW WAS WRONG AND IS CORRECTED, 2026-10-06, BEFORE LANE A
+  BUILT IT.*** The first version named `AdminPage.jsx` AND said a detailer's
+  session reads the rows through the `for select` policy AND linked to
+  `/admin/job/:id`. **Those three cannot all be true**, the manager caught it,
+  and the routes settle it:
+
+  | | the screen | the route | how it reads the rows |
+  |---|---|---|---|
+  | **a DETAILER** | their own job record and client record | `/job/:id`, `/app/:tab` | their session, through `email_sends`' existing `for select` policy scoped by `current_business_ids()` |
+  | **ANDREW** | the platform back office | `/admin` | **the `platform-admin` edge function under the service role** |
+
+  **`/admin` IS ANDREW'S ALONE AND NO DETAILER SEES IT** — 9.12 describes it as
+  a list OF detailers (*“detailer, status, setup, last booking, earned,
+  customers”*), `main.jsx:126` comments that its whole point is being outside
+  the tree a detailer opens, and `AdminPage.jsx:22` says **every byte still
+  comes from the `platform-admin` edge function**.
+
+  **SO THE DATA PATH DEPENDS ON WHICH SCREEN, AND GETTING IT WRONG RETURNS AN
+  EMPTY LIST THAT LOOKS CORRECT.** `email_sends`' policy scopes to
+  `current_business_ids()`, and **Andrew is not a member of each detailer's
+  business** — so a browser query from `/admin` returns zero rows with no
+  error. It must be a new action on `platform-admin`, the way every other
+  figure on that screen already is.
+
+  **WHICH ONE DOES 3.1 ASK FOR? ANDREW'S.** Its Fix says the list is linked to
+  *“message, booking, detailer and recipient”* — **a detailer does not need a
+  link to themselves**, so the reader is one level up. And its half-done note
+  asks for *“the same list in the back office rather than only on the client
+  record”*: the client record is the detailer's and already exists.
+
+  **WHAT LANE A SHOULD BUILD, THEN:** the list on `/admin`, fed by a new
+  `platform-admin` action. **The detailer-side view is already built and is not
+  this item.** If the detailer's own business-wide list is wanted later, that is
+  a separate item and a separate data path.
+
 
   **WHAT ONE ROW SHOWS.** `email_sends` columns, all already readable by a
   detailer's session through the existing `for select` policy:
@@ -14328,6 +14359,77 @@ the dashboard or back office at phone width at all.
   list, which would overstate the platform's profit by the whole of its costs and
   look completely normal on screen.
 
+  ***SERVER HALF BUILT 2026-10-06. NOTHING APPLIED, NOTHING DEPLOYED*** — both
+  are Andrew's and both are rows in `FOR-ANDREW.md`.
+
+  | piece | file | what it is |
+  |---|---|---|
+  | the storage | `supabase/migrations/20261006020000_hand_entered_platform_costs.sql` | `platform_costs`: one row per bill per month. `amount_cents` integer, `period_month` pinned to the first of the month by a check constraint, category in hosting/database/email/domain/other, `note`, `entered_by` |
+  | the lock | the same file | RLS **enabled and forced with zero policies** PLUS `revoke all … from anon, authenticated`. Both halves — `20260921000000_revoke_locked_table_grants.sql` records what having only the first costs |
+  | the arithmetic | `supabase/functions/_shared/platformNet.js` | a pure `.js` module, no client and no clock. **This is where the one rule lives** |
+  | the read | `platform-admin`, action `platform_net` | two queries, then the module. Behind the existing `platform_admins` gate |
+  | the test | `tests/platform-net.test.mjs` | **imports the module and runs it**, 10/10 |
+
+  **THE ONE RULE, AND IT IS STRONGER THAN A FLAG:** when no costs were entered
+  for the period, **`net_cents` is `null` and `cost_cents` is `null`** — not
+  zero, not the revenue. 9.14's failing-looks-like is a confident net figure
+  from an empty cost list, and **a flag can be ignored by one careless render
+  while a screen cannot print a number it was never given.** `costs_entered:
+  false` is returned as well, for the words.
+
+  **REVENUE IS INVOICED MONEY, NOT MRR, and that was a real choice.**
+  `totals.mrr_cents` is a snapshot of what recurs NOW; using it as a past
+  period's revenue is wrong for every month but the current one, **and wrong in
+  the direction that flatters**. `platform_invoices` carries `amount_cents`,
+  `status` and `paid_at`, so a period's revenue is the money that actually
+  arrived in it. The test asserts `mrr_cents` does not appear in that block.
+
+  **WHAT THE READ RETURNS:** `{ period_month, revenue_cents, cost_cents,
+  net_cents, costs_entered, cost_count, by_category }`. A period with no costs
+  returns `cost_cents: null`, `net_cents: null`, `costs_entered: false`,
+  `by_category: null`.
+
+  ---
+
+  ### THE `app/src` HALF — what Lane A renders, so it can start without asking
+
+  **WHERE: `/admin` only.** This is the platform owner's own figure — what the
+  PLATFORM earned and spent — and no detailer ever sees it. 9.12 and
+  `main.jsx:126` are why. **Read it through the `platform_net` action on
+  `platform-admin`**, like every other number on that screen; `platform_costs`
+  has no RLS policy at all, so a browser query returns nothing.
+
+  **THE THREE STATES, AND THE THIRD IS THE ITEM:**
+
+  | state | what the screen says |
+  |---|---|
+  | `costs_entered: true` | revenue, costs, and the net. A **negative** net is shown as a loss — never clamped, never hidden; a month that cost more than it earned is the most important thing this screen can say |
+  | `costs_entered: true`, `cost_cents: 0` | a real zero, because a person asserted it. Show the net |
+  | **`costs_entered: false`** | **“Costs not entered for this month” and NO net figure at all.** Not “—” beside a profit, not a greyed number, not the revenue with a warning. **The field is null; render nothing numeric** |
+
+  **THE CONTROL IT NEEDS:** a way to type a cost — month, category, amount,
+  note. **Amounts are entered as dollars and stored as cents**; `MoneyField`
+  in `app/src/components/controls.jsx` already exists for exactly this and must
+  be reached for before writing an input (CLAUDE.md § Conventions).
+  **The write action does not exist yet** — it is one more `platform-admin`
+  action and it is the only server work left on this item. Ask for it rather
+  than writing to the table from the browser, which cannot work.
+
+  **FOUR CATEGORIES PLUS `other`, as a segmented control and not a `<select>`**
+  — five mutually exclusive choices is what `Segmented` is for, per the same
+  convention.
+
+  **WHAT FAILING LOOKS LIKE:** a net figure on a month nobody has entered costs
+  for (the item's own words), a loss displayed as zero or as a positive, or the
+  cost list read directly from the browser — which returns an empty array with
+  no error and looks exactly like a month with no costs.
+
+  **AND IT CANNOT BE SEEN UNTIL THE MIGRATION RUNS.** `platform_costs` does not
+  exist in the live database; `node scripts/migration-drift.mjs` names it today.
+  Until then the action's cost query errors rather than returning empty — which
+  is deliberate (a failed read must not read as “costs not entered”), so the
+  screen will show an error and not a confident zero.
+
 - [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*
@@ -18095,6 +18197,59 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   named, 1 done. Credential-free except 14.26's row, which **names the credential
   and where it lives and is reported by name when it is missing** rather than
   skipped.
+
+### 14.34 — Twelve push notifications deep-link to a route that does not exist, and the tap lands on Not Found
+
+- [ ] **14.34 — Every owner push notification this product sends points at
+  `/admin/job/<id>`, and there is no such route.** Found 2026-10-06 while
+  resolving which screen 3.1's list belongs on — not by looking for it.
+
+  **MEASURED, in four steps, because each one alone would be a guess:**
+  1. **12 call sites** emit `url: \`/admin/job/${...}\`` — `accept-quote`,
+     `cancel-booking`, `create-booking`, `reschedule-booking`, `send-invoice`,
+     `send-owner-reminders` (×6), `update-booking`. `grep -rn '/admin/job'
+     supabase/ app/src` is the whole list.
+  2. **`main.jsx` has `path="/admin"` with no wildcard and no nested routes**,
+     and `AdminPage.jsx` parses no sub-path — it reads `pathname` nowhere.
+  3. **`app/public/sw.js` uses the value verbatim**: `event.notification.data
+     ?.url || "/app"`, then `c.navigate(url)` / `openWindow(url)`. Nothing
+     rewrites it.
+  4. **The correct destination exists and says so in its own first line.**
+     `app/src/screens/JobPage.jsx` opens: *“Single-booking page — what a
+     push-notification tap opens”*, routed at **`/job/:id`**.
+
+  **SO A DETAILER WHO TAPS A JOB NOTIFICATION GETS `NotFound`.** The path falls
+  through to `*` in `main.jsx`.
+
+  **WHY IT HAS SURVIVED: IT RETURNS 200.** `_redirects` sends every unmatched
+  path to `index.html` (CLAUDE.md § Publishing says so in those words), so
+  there is no 404 in any log, no console error, and nothing for a link checker
+  to catch. **The failure is a rendered page, not a status code.**
+
+  **AND IT IS WORSE THAN A DEAD LINK, because of what `/admin` is.** 9.12 and
+  `main.jsx:126` make `/admin` the platform owner's own tool, deliberately
+  outside the detailer's context tree. So these notifications send a DETAILER
+  at Andrew's back office. They land on Not Found today; **the day anybody adds
+  a nested `/admin/*` route, they would land somewhere they must not be.**
+  The gate is server-side (`platform_admins`, read by the edge function) so
+  there is no data exposure today — but the link is aimed at the wrong tool.
+
+  **Done when** `grep -rn '/admin/job' supabase/ app/src` returns **nothing**,
+  every one of the 12 emits `/job/<id>`, and **a real push is tapped and opens
+  the job record** — not merely a route table that looks right. `JobPage.jsx`'s
+  own header records the last time this exact page was fixed by pressing the
+  control rather than reading it: every way out of it went to `/`, the
+  marketing site, and *“it surfaced because nothing had ever exercised the way
+  out”*.
+
+  **Red proof:** point one call site at a route that does not exist, tap it,
+  and show the check catching it — a grep for `/admin/job` is the cheap half,
+  and it cannot tell a dead route from a live one, which is the whole lesson
+  above. **The route table must be the thing asserted against, not the string.**
+
+  *Lane:* `supabase/` for the 12 strings; the press is a browser. *Found
+  2026-10-06 by DP Cowork2 while the manager was checking a contradiction in
+  3.1's spec — the contradiction was real and this was underneath it.*
 
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 

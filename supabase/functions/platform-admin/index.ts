@@ -36,6 +36,10 @@ import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
 import { inviteEmail } from "../_shared/emailTemplates.ts";
+// ROADMAP 9.14 — a plain .js module so the one figure that must never be wrong
+// is runnable by node from tests/. See its header; brandColor.js is the
+// precedent for a .js file in _shared imported by a Deno function.
+import { monthStart, nextMonthStart, platformNet } from "../_shared/platformNet.js";
 
 interface Admin { id: string; email: string }
 
@@ -98,6 +102,57 @@ Deno.serve(async (req) => {
     //
     // No table reads: the gate has already done the only query that matters.
     if (action === "whoami") return json({ admin: true, email: admin.email ?? null });
+
+    // --- ROADMAP 9.14: did the platform make money in this period? ---------
+    //
+    // ONE read, returning revenue, costs, and whether costs were entered at
+    // all. The arithmetic lives in `_shared/platformNet.js` rather than here,
+    // because **nothing in `supabase/` is type-checked or runnable on this
+    // machine** (`_shared/email.ts` records a shipped type error that proves
+    // it), and the one rule that must hold — no costs entered means
+    // `net_cents` is NULL and not zero — is worth a module that
+    // `tests/platform-net.test.mjs` can execute for real.
+    //
+    // **REVENUE IS INVOICED MONEY, NOT MRR.** `totals.mrr_cents` further down
+    // is a snapshot of what is recurring NOW; using it as "revenue for March"
+    // would be wrong for every month except the current one, and wrong in the
+    // direction that flatters. `platform_invoices` carries `amount_cents`,
+    // `status` and `paid_at`, so a period's revenue is the money that actually
+    // arrived in it.
+    if (action === "platform_net") {
+      // Default to the month we are in, so the screen has something to show
+      // before anybody picks a period.
+      const period = monthStart(typeof body?.period === "string" && body.period ? body.period : new Date());
+      // The boundary arithmetic is in the testable module too — a December
+      // rollover is the off-by-one this would otherwise hide.
+      const nextMonth = nextMonthStart(period);
+
+      const [inv, costs] = await Promise.all([
+        supabase
+          .from("platform_invoices")
+          .select("amount_cents")
+          .eq("status", "paid")
+          .gte("paid_at", period)
+          .lt("paid_at", nextMonth),
+        supabase
+          .from("platform_costs")
+          .select("amount_cents, category, note")
+          .eq("period_month", period),
+      ]);
+
+      // A FAILED READ IS NOT AN EMPTY PERIOD. Swallowing either error would
+      // turn "the database did not answer" into "costs not entered", which is
+      // a different sentence on the screen and the wrong one — FOUND.md § 85,
+      // READS DISCARDED THEIR ERROR, is the class.
+      if (inv.error) return json({ error: "could not read platform invoices" }, 500);
+      if (costs.error) return json({ error: "could not read platform costs" }, 500);
+
+      return json(platformNet({
+        invoiceRows: inv.data ?? [],
+        costRows: costs.data ?? [],
+        periodMonth: period,
+      }));
+    }
 
 
     // --- JOB 1: who are my customers and what state are they in? ----------

@@ -714,6 +714,61 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **SWITCH · Two more, same shape as the pair below: somewhere to type what
+  the platform costs you, so the back office can show what it actually made.**
+
+  **What this is.** The back office already shows what detailers pay you. It
+  has never shown what the platform costs you — hosting, the database, email,
+  the domain — so there has never been a figure for what you actually keep.
+  There is now a place to type those bills in, one line per bill per month, and
+  one read that does the subtraction.
+
+  **THE ONE THING I WANT YOU TO KNOW ABOUT IT, because it is the whole reason
+  the item was written that way.** If nobody has typed in a month's costs, the
+  screen will say **“costs not entered”** and show **no profit figure at all**.
+  It will not show your revenue as profit. That sounds obvious and it is
+  exactly the mistake this kind of screen usually makes: with an empty cost
+  list, subtraction gives you back the whole of your income and labels it
+  profit, and it looks completely normal. So there is deliberately no number to
+  look at until you have entered something.
+
+  **SWITCH ONE — the database needs one new table.**
+
+  ```bash
+  node scripts/migration-drift.mjs   # names it as not yet applied
+  ```
+
+  `supabase/migrations/20261006020000_hand_entered_platform_costs.sql`. It
+  **adds** one table and one index and **changes and removes nothing.** Only
+  you can read or write it — no detailer's browser can reach it at all, by two
+  separate locks rather than one.
+
+  **SWITCH TWO — one function needs publishing: `platform-admin`.**
+
+  ```bash
+  node scripts/deployed-inventory.mjs   # names every function not yet live
+  ```
+
+  **The same order as the pair below: the table first, the function second.**
+  If the function goes live first it will show an error on that one figure
+  rather than a wrong number — which is deliberate, because a failed read must
+  never be mistaken for “no costs this month”.
+
+  **WHAT IS NOT BUILT YET, so you are not waiting on me for it.** The screen
+  itself, and the little form for typing a bill in. Both are written up in
+  `ROADMAP.md` under 9.14 for whoever builds the front end. **Nothing for you to
+  decide there either** — I have already picked the categories (hosting,
+  database, email, domain, and “other” so a real bill is never turned away).
+
+  **ONE THING THAT IS YOURS TO DECIDE, AND IT CAN WAIT.** Revenue is counted as
+  money that actually arrived — paid invoices in that month — rather than what
+  subscriptions *should* bring in. That is the honest figure but it means a
+  month where somebody paid late looks worse and the next month looks better.
+  **My recommendation is to leave it as paid-money**, because the alternative
+  flatters every month and you would stop trusting it. Say so if you would
+  rather see it the other way.
+
+
 - [ ] **SWITCH · Two things are built and waiting for you to turn them on —
   the emails can tell you which booking they were about. Neither is urgent and
   nothing is broken while they wait.**

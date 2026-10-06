@@ -62,7 +62,7 @@ by the person whose screen it was.
 
 ---
 
-## The six
+## The seven
 
 ### 1 · The booking page's public endpoints
 
@@ -152,6 +152,58 @@ to disk instead of resizing anything he can see.** If a check must resize, it
 resizes a window he is not looking at.
 
 ---
+
+### 7 · The receipt files in `receipts/`
+
+**What:** one JSON file per check, at a fixed path. `receipts/` holds 61
+tracked files; `receipt.mjs` grades them and several ROADMAP items read a
+verdict straight out of one.
+**Who spends it:** **every session that runs a graded check.** The path is the
+check's name, not the session's, so two sessions running
+`deployed-inventory.mjs` write the same file.
+**When somebody clears it:** they do not clear it — **they overwrite it, which
+is worse**, because the file still exists, still parses, and still looks like a
+receipt. The only thing that changed is whose run it describes.
+**Does anything report it:** **no.** No lock, no warning, no field saying which
+session wrote it.
+
+**THE COLLISION, MEASURED 2026-10-06 RATHER THAN IMAGINED.**
+`receipts/deployed-inventory.json` and `receipts/migration-drift.json` were
+already modified in the working tree by the other lane. This session then ran
+both scripts for ROADMAP 3.1 and **overwrote both with its own results.** The
+other lane's numbers were gone, with nothing anywhere to say so — the files
+were dirty before and dirty after, the same two paths, the same shape.
+
+**AND THE RECEIPT RECORDS A COMMIT, WHICH IS WHAT MAKES IT DANGEROUS RATHER
+THAN MERELY UNTIDY.** Each one carries `git_sha` and `git_sha_started`. A
+session that reads a receipt it did not write gets a verdict stamped with a
+commit, and will reasonably treat that as provenance — `docs/gotchas.md` 94 is
+the rule that a number carrying its revision is trustworthy. **Here the
+revision is real and the run is somebody else's.**
+
+**THE RULE, and it costs one command:**
+
+> **Before running a graded check, `git status --porcelain receipts/` and look
+> for the receipt you are about to write. If it is already modified, the other
+> lane has an unreviewed result there: say so and leave it, or take the
+> overwrite deliberately and tell them you did. Never overwrite it silently.**
+
+**And if you have already overwritten one, do not quietly commit it.** The
+other lane's result cannot be recovered from the working tree, but
+`git checkout HEAD -- receipts/<name>.json` restores the last COMMITTED
+version, which is at least a known state rather than a mixture. **Leaving it
+dirty and naming it in the handoff is better than committing somebody else's
+half-overwritten verdict under your own message** — which is what this session
+did on 2026-10-06, and it is why these two files were deliberately left out of
+commit `3dfd8dd`.
+
+**WHY A LANE STATEMENT DOES NOT COVER THIS.** A lane statement names the
+directories a session will WRITE and the budgets it will SPEND. `receipts/` is
+neither: it is written as a side effect of running a check that the lane
+statement does not mention, because the check is about `supabase/` or `docs/`.
+**The two sessions were correctly separated by directory and collided anyway**,
+which is the amendment `docs/gotchas.md` 78 and 79 already forced once — this is
+the same shape in a third place.
 
 ## The honest column
 
