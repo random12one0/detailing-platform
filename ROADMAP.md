@@ -18251,6 +18251,31 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   2026-10-06 by DP Cowork2 while the manager was checking a contradiction in
   3.1's spec — the contradiction was real and this was underneath it.*
 
+  ***SOURCE HALF FIXED 2026-10-06. NOTHING DEPLOYED*** — publishing is Andrew's
+  and is a row in `FOR-ANDREW.md`. Not ticked, because the done-when asks for a
+  real push tapped, and the live functions still send the old link until the
+  seven are published.
+
+  - **All 12 now emit `/job/<id>`.** `grep -rn '/admin/job' supabase/ app/src
+    app/public` returns nothing (run after the edit, at the commit that carries
+    this line).
+  - **`tests/push-urls-are-routes.test.mjs` asserts against the ROUTE TABLE,
+    not the string.** It finds every `sendOwnerPush(` call under
+    `supabase/functions`, brace-matches its payload, reads `url`, and fails on
+    any path `main.jsx` (plus App.jsx's `TAB_PATHS`) does not define. A call
+    with no literal url fails as UNJUDGEABLE by name. Discovery floor 12, a
+    canary aimed at the same matcher every run, and `sw.js`'s `"/app"`
+    fallback checked too. Credential-free.
+  - **Red proof:** `cancel-booking` put back to `/admin/job/` → the run went
+    3 pass / 1 fail naming `cancel-booking/index.ts:143 → /admin/job/X`;
+    restored → 4 / 0.
+  - **The destination, pressed in a browser:** signed in as the demo owner on
+    the dev server, `/job/02297cf3-…` opened Marcus Webb's job record (the
+    time, the money, Accept / Send a new quote / Decline), console clean;
+    `/admin/job/` + the same id showed the 404 page.
+  - **Still open for the tick:** publish the seven, then tap a real
+    notification on a subscribed device and see the record open.
+
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 
 - [ ] **14.33 — `docs/ticked-without-proof-2026-09-25.md` is 69 of 69 bare and

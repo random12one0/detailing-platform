@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
       await sendOwnerPush(business.id, {
         title: "Booking cancelled",
         body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime}`,
-        url: `/admin/job/${booking.id}`,
+        url: `/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });
     } catch (pushErr) {

@@ -714,6 +714,29 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **SWITCH · Seven functions to publish so that tapping a job
+  notification opens the job instead of a "page does not exist" screen.**
+
+  **What this is.** When a booking comes in, is cancelled, moved, accepted or
+  invoiced, or a reminder fires, your phone gets a notification. Tapping it was
+  sending you to an address that does not exist, so you landed on the 404
+  page. Every one of those twelve notifications now points at the job's own
+  page. It is fixed in the code; your live site still sends the old link until
+  these are published.
+
+  **The seven:** `accept-quote`, `cancel-booking`, `create-booking`,
+  `reschedule-booking`, `send-invoice`, `send-owner-reminders`,
+  `update-booking`. One line changed in each and nothing else.
+
+  ```bash
+  node scripts/deployed-inventory.mjs   # names every function not yet live
+  ```
+
+  **Nothing to decide.** Once they are live, tap the next job notification you
+  get; it should open that job. If it does, tell a session and it ticks
+  ROADMAP 14.34.
+
+
 - [ ] **SWITCH · Two more, same shape as the pair below: somewhere to type what
   the platform costs you, so the back office can show what it actually made.**
 

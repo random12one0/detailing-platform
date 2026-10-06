@@ -224,7 +224,7 @@ Deno.serve(async (req) => {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: "Payment finalized",
         body: `${booking.customer_name} · ${money(totalPaid)} (invoice + thank-you sent)`,
-        url: `/admin/job/${booking.id}`,
+        url: `/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });
     } catch (pushErr) {

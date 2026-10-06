@@ -163,7 +163,7 @@ async function sendOwnerReminder(b: BookingRow) {
   if (settings.push_enabled) await sendOwnerPush(business.id, {
     title: "Upcoming job reminder",
     body: `${b.customer_name} · ${formatTime12hr(data.startTime)}`,
-    url: `/admin/job/${b.id}`,
+    url: `/job/${b.id}`,
     tag: `booking-${b.id}`,
   }).catch((e) => console.error("push failed", e));
 }
@@ -273,7 +273,7 @@ Deno.serve(async (req) => {
         await sendOwnerPush(business.id, {
           title: "Starting soon",
           body: `${b.customer_name} · ${formatTime12hr(timeStrIn(business.timezone, new Date(b.start_at)))}`,
-          url: `/admin/job/${b.id}`,
+          url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
         await mark(b.id, "owner_nudge_sent_at");
@@ -288,7 +288,7 @@ Deno.serve(async (req) => {
         await sendOwnerPush(business.id, {
           title: "Wrapping up soon",
           body: `${b.customer_name} · finalize the payment when you're done`,
-          url: `/admin/job/${b.id}`,
+          url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
         await mark(b.id, "owner_wrapup_nudge_sent_at");
@@ -303,7 +303,7 @@ Deno.serve(async (req) => {
         await sendOwnerPush(business.id, {
           title: "Finalize payment",
           body: `${b.customer_name} · job ended, payment not finalized yet`,
-          url: `/admin/job/${b.id}`,
+          url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
         await mark(b.id, "owner_finalize_nudge_sent_at");
@@ -331,7 +331,7 @@ Deno.serve(async (req) => {
         await sendOwnerPush(business.id, {
           title: "Still waiting on you",
           body: `${b.customer_name} asked for ${when} · ${waited}h ago, no answer yet`,
-          url: `/admin/job/${b.id}`,
+          url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
         const brand = await buildBrand(business, settings);
@@ -502,7 +502,7 @@ Deno.serve(async (req) => {
             body: jobsToday
               .map((b) => `${formatTime12hr(timeStrIn(tz, new Date(b.start_at)))} ${b.customer_name}`)
               .join(" · "),
-            url: `/admin/job/${first.id}`,
+            url: `/job/${first.id}`,
             tag: `digest-${today}`,
           });
         }

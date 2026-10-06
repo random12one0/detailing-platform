@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
       await sendOwnerPush(business.id, {
         title: "Booking rescheduled",
         body: `${booking.customer_name} · now ${emailData.dateStr} at ${emailData.startTime}`,
-        url: `/admin/job/${booking.id}`,
+        url: `/job/${booking.id}`,
         tag: `booking-${booking.id}`,
       });
     } catch (pushErr) {

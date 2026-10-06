@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
         await sendOwnerPush(business.id, {
           title: "Quote accepted",
           body: `${booking.customer_name} · ${emailData.dateStr} at ${emailData.startTime} (${money(quoted)})`,
-          url: `/admin/job/${booking.id}`,
+          url: `/job/${booking.id}`,
           tag: `booking-${booking.id}`,
         });
       }

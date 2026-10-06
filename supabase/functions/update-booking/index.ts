@@ -282,7 +282,7 @@ Deno.serve(async (req) => {
       await sendOwnerPush(member.businessId, {
         title: "Booking updated",
         body: `${data.customer_name}${body.status ? ` · status: ${body.status}` : ""}`,
-        url: `/admin/job/${data.id}`,
+        url: `/job/${data.id}`,
         tag: `booking-${data.id}`,
       });
     } catch (pushErr) {
