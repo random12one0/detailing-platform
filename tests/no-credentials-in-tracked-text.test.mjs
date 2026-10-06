@@ -326,7 +326,6 @@ const DECLARED = [
   ["tests/booking-engine.test.mjs", "assignment", 1, "FIXTURE"],
   ["tests/tenant-isolation.test.mjs", "assignment", 1, "FIXTURE"],
   ["tests/staff-roles.test.mjs", "assignment", 3, "FIXTURE"],
-  ["app/public/map.html", "pair", 1, "OPEN"],
 ];
 console.log("\n3. no tracked text file carries a credential");
 
