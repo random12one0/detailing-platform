@@ -725,6 +725,18 @@ still knows them.
   account's secret key on this computer. Today the key only lives inside
   Supabase, where a session cannot read it.
 
+  **Where it goes, in one sentence.** One new line at the bottom of the file
+  called `.env` in the main project folder (`detailing-platform`), the same
+  file that already holds the Supabase keys. Nowhere else — not in a chat, not
+  in a document.
+
+  **What it unlocks — three steps that cannot run without it:**
+  1. **Renewal** — a month passing and the card being charged again.
+  2. **A failed card** — the card being declined and Stripe trying it again
+     over the following days.
+  3. **The page going offline** — the booking page switching off once the
+     retries run out, and coming back once paid.
+
   **What to do, about a minute.** Stripe dashboard, switch on **Test mode**,
   Developers, API keys, copy the **Secret key** (it starts `sk_test_`). Open
   `.env` in this folder in Notepad and add one line: `STRIPE_SECRET_KEY=`
