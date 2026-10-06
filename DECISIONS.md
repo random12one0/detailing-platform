@@ -298,6 +298,8 @@ were made more than once.
 
 - **A correct measurement was discarded because the operator asserted a different number** — a git-delta tool computed the right line (914) for a stale pointer, the manager had twice said 857, and the write-up invented a limitation to make the tool agree with the assertion. Neither number was re-read. The tell: when a tool and an authority disagree, the write-up that calls the TOOL broken without re-taking the measurement is the one to distrust. The fix is one `sed`. Re-graded: the tool was right both times. 2026-10-02.
 
+- **One file was added to scripts/ under 9.10, which the manager brief says is frozen — a recorded exception, not a silent one** — `scripts/page-preview.mjs` was created in the Business-screen-preview item (ROADMAP 9.10) while the manager brief had `scripts/` frozen. Kept, not deleted, because it is the only check that the right half of Business shows the real booking page. It is the ONLY file added; nothing else in `scripts/` was touched for it. Why, what it costs, and what would make it wrong are inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17775,3 +17777,19 @@ is a fact about the process, invisible in the prose.
 * The pass file's limitation bullet replaced with the re-grade above.
 * **Every pointer to the day-squares hold now carries the quote** beside the
   number, which is #88's rule applied to #88.
+
+## One file was added to scripts/ under 9.10, which the manager brief says is frozen — a recorded exception, not a silent one
+
+**Date:** 2026-10-06. **Item:** ROADMAP 9.10 (the Business screen's right half shows the detailer's real public booking page). **Decided by:** the instruction relayed with the 9.10 follow-ups, after the manager pressed the item on the real screen: *"Do not delete a working check."*
+
+**What happened.** The manager brief for this stretch froze `scripts/`. Item 9.10 was built in `app/src` (Lane A) and shipped with `scripts/page-preview.mjs`, a browser check of it. That is a new file under `scripts/`, so it broke the freeze, and it did so without saying so in the commit.
+
+**The decision.** Keep the file. It is a recorded exception: **exactly one file, `scripts/page-preview.mjs`, added under 9.10.** It is not a precedent for adding others.
+
+**Why keep it rather than delete it.** 9.10's own failing shapes are things only a browser can see: a preview that redraws on every keystroke, and a blank right half on a business with no services. A source-reading test cannot see either. The check holds those looks as code, runs against the dev server, writes a graded receipt (`receipts/page-preview.json`), and carries two canaries that were run rather than declared.
+
+**What it costs.** It needs the dev server, the seeded demo tenant and two logins from the gitignored `.env` (`DEMO_OWNER_PW` and `FIXTURE_OWNER_PW`). It also drives the demo tenant, so it must not run while another session is measuring it (CLAUDE.md, the same rule as the full test battery).
+
+**What would make this decision wrong.** If a second file is added under the same reasoning, the freeze has stopped meaning anything and this entry becomes the loophole it was written to avoid. Any further file in `scripts/` needs its own entry, or the manager's word first.
+
+**Follow-up on the same file, same day.** The first version proved the thin business by intercepting its own count queries. That is gone: the thin run signs in as the real owner of `final-pass-fixture` (dev project, `is_demo = true`). Its first sabotage run, signing in as the wrong business, PASSED the check, which is the useful finding: `thin-not-blank` had never asked whether the business was the thin one. It does now.
