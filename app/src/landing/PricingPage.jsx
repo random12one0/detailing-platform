@@ -350,26 +350,26 @@ export default function PricingPage() {
                 instrument that could have. */}
             <img src="/img/tenant-site-hero.jpg" alt=""
               loading="lazy" decoding="async" />
+            {/* ROADMAP 7.3 — ONE LINE EACH, AND THE SAVING NEVER STANDS ALONE.
+                This strip was three figures of equal weight in a row — $499,
+                $40, $80 — and the third was the saving, so it read as a third
+                fee ("SAVE ON THE YEAR $80 a year" reads as a yearly price of
+                $80). Now: what is paid once, what repeats, and the yearly
+                option written as a price with its saving in brackets at
+                fine-print size (`.saving`, matched to `.ld .fine`). */}
             <dl className="pnums">
               <div>
-                <dt>To build it</dt>
-                <dd className="mono">{fig(`$${p.setup}`)}<small>once</small></dd>
+                <dt>Once, to build it</dt>
+                <dd className="mono">{fig(`$${p.setup}`)}<small>one time</small></dd>
               </div>
               <div>
-                <dt>Then</dt>
+                <dt>Then, every month</dt>
                 <dd className="mono">{fig(`$${p.monthly}`)}<small>a month</small></dd>
               </div>
-              {/* THE THIRD FIGURE WAS `$0` FOR COMMISSION AND THAT IS A
-                  TYPED PRICE, which `landing-pricing` 5b catches on purpose:
-                  the rule is that every figure on this page comes from the
-                  price table, and a literal is how one number on a page comes
-                  to disagree with the checkout. "No commission" keeps its
-                  sentence in the list below, where it is a claim rather than
-                  a figure. What belongs here is the saving, because it is the
-                  reason to read the ladder underneath. */}
               <div>
-                <dt>Save on the year</dt>
-                <dd className="mono">{fig(`$${p.monthly * 12 - p.annual}`)}<small>a year</small></dd>
+                <dt>Or pay yearly</dt>
+                <dd className="mono">{fig(`$${p.annual}`)}<small>a year</small>
+                  <span className="saving">{clause(`(save $${p.monthly * 12 - p.annual})`)}</span></dd>
               </div>
             </dl>
           </div>
@@ -505,10 +505,11 @@ export default function PricingPage() {
                     struck price second with a visually-hidden "Old price"
                     label (a strikethrough is a visual fact only). */}
                 <span className="mono fig">{fig(`$${p.annual}`)}</span>
-                <small>a year</small>
+                {/* ROADMAP 7.3 — the saving rides on the price's own line as
+                    "(save $80)", never as a figure of its own. */}
+                <small>a year <span className="saving">{clause(`(save $${p.monthly * 12 - p.annual})`)}</span></small>
                 {founding && <span className="vh">Old price </span>}
                 {founding && <s className="was">${listP.annual}</s>}
-                <span className="saves">{fig(`$${p.monthly * 12 - p.annual}`)} less than monthly</span>
               </div>
               <a className="cta gh" href={buy("annual-upfront")} data-glow="">
                 Choose this<span className="ar">→</span>

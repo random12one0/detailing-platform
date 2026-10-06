@@ -115,7 +115,10 @@ const OPEN_FLOOR = 40;
 // guard was written against the number GROWING, and it fired on the number
 // shrinking for a good reason. **Moved deliberately, with the cause named, which
 // is the whole point of a declared constant over a derived one.**
-const CROSS_FILE_OVERLAP = 18;
+//
+// **18 → 17 on 2026-10-06, same cause:** 7.3 (pricing page) was ticked and
+// took its collision with old-roadmap 7.3 with it.
+const CROSS_FILE_OVERLAP = 17;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 

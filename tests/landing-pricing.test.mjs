@@ -802,5 +802,37 @@ console.log("\n9. no price is shown before it is known (roadmap 8.7, F-009)");
     `${legalRules} rules define .ld .legal — the /terms list is .legallist`);
 }
 
+// 8. ROADMAP 7.3 — A SAVING IS FINE PRINT, NEVER A THIRD FEE.
+//    "SAVE ON THE YEAR $80 a year" sat at the same size and weight as the two
+//    prices beside it and read as a yearly price of $80. Done-when (c) is
+//    measured by selector in a browser; this is the source half, so a later
+//    "tidy" that resizes the saving or lightens the price goes red here
+//    without a dev server. It reads DECLARATIONS, so it cannot see an
+//    inherited weight — which is why `.saving` declares its own.
+{
+  const { readFileSync } = await import("node:fs");
+  const css = readFileSync("app/src/landing/landing.css", "utf8");
+  const rule = (sel) => {
+    const at = css.search(new RegExp(`^${sel.replace(/\./g, "\\.")}\\s*\\{`, "m"));
+    return at < 0 ? "" : css.slice(css.indexOf("{", at) + 1, css.indexOf("}", at));
+  };
+  const prop = (body, p) => (body.match(new RegExp(`(?:^|[;\\s])${p}\\s*:\\s*([^;]+)`)) || [])[1]?.trim() ?? null;
+  const fine = rule(".ld .fine"), saving = rule(".ld .saving"), fig = rule(".ld .rungfig .fig");
+  check("7.3 the three rules exist", !!fine && !!saving && !!fig);
+  check("7.3 (c) the saving is the fine print's size",
+    prop(saving, "font-size") !== null && prop(saving, "font-size") === prop(fine, "font-size"),
+    `.saving ${prop(saving, "font-size")} vs .fine ${prop(fine, "font-size")}`);
+  check("7.3 (c) the saving is regular weight and the price figure is not",
+    prop(saving, "font-weight") === "400" && prop(fig, "font-weight") !== null && prop(fig, "font-weight") !== "400",
+    `.saving ${prop(saving, "font-weight")} vs .rungfig .fig ${prop(fig, "font-weight")}`);
+  check("7.3 (b) the standalone saving figure is gone",
+    !/Save on the year/i.test(pcopy) && !/less than monthly/.test(pcopy) && !/className="saves"/.test(pjsxCode));
+  const savings = (pjsxCode.match(/className="saving">\{clause\(`\(save \$\$\{/g) || []).length;
+  check("7.3 (b) both savings are written as (save $N) inside .saving", savings === 2, `found ${savings}`);
+  const from = pjsxCode.indexOf('id="website"');
+  const web = pjsxCode.slice(from, pjsxCode.indexOf("</section>", from));
+  check("7.3 (d) the payment choice is inside the plan-one card", from > 0 && /className="ladder"/.test(web));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

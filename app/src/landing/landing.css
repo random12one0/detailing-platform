@@ -470,6 +470,10 @@
 .ld .cta:hover .ar { transform: translateX(3px); }
 .ld .cta.block { display: flex; justify-content: center; width: 100%; }
 .ld .fine { font-size: 13px; color: var(--fog-2); line-height: 1.45; }
+/* ROADMAP 7.3 (c) — A SAVING IS FINE PRINT, NEVER A FIGURE. Same size and
+   weight as `.fine`, declared beside it so the two cannot drift; the price
+   figures it sits next to are 500 weight and 28px+, so it shares neither. */
+.ld .saving { font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--ac); font-family: "Archivo", sans-serif; white-space: nowrap; }
 
 /* ═══ 1. HERO — left-heavy asymmetric, one floating object ════════════ */
 /* THE TAB STRIP HAD TO BE PAID FOR OUT OF THE PADDING, and this was
@@ -1671,7 +1675,17 @@
 .ld .offerbar span { color: var(--bone-2); font-size: 14.5px; line-height: 1.5; flex: 1 1 22ch; }
 
 /* ── The website plan ─────────────────────────────────────────────── */
-.ld .planblock { padding: clamp(40px,7vh,74px) 0 clamp(30px,5vh,54px); }
+/* ROADMAP 7.3 (d) — THE PLAN IS A CARD, AND HOW YOU PAY FOR IT IS INSIDE IT.
+   It was an unbounded section, so the three payment choices read as a list
+   below the photo rather than as part of plan one. Same panel ground and
+   hairline as `.setupfee`; the section's own spacing moved to margin. */
+.ld .planblock {
+  margin-top: clamp(40px,7vh,74px);
+  padding: clamp(20px,3.4vw,44px) clamp(16px,3.4vw,44px) clamp(18px,3vw,36px);
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  background: rgba(255,255,255,.02);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 .ld .planhead {
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,300px);
   gap: clamp(22px,3.4vw,46px); align-items: start;
@@ -1749,7 +1763,7 @@
 .ld .rungfig .fig {
   font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
   font-size: clamp(28px,3.4vw,40px); line-height: 1; letter-spacing: -.05em;
-  color: var(--bone);
+  color: var(--bone); font-weight: 500;
 }
 .ld .rungfig small { display: block; margin-top: 6px; font-size: 12.5px; color: var(--fog-2); }
 /* THE LIST PRICE, ABOVE THE ONE BEING CHARGED — not inline beside it as on the
@@ -1974,25 +1988,29 @@
    at .82 opaque under the numbers, which is where they are measured. */
 .ld .pshot::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(to top, rgba(9,11,12,.92) 0%, rgba(9,11,12,.62) 34%, rgba(9,11,12,0) 68%);
+  background: linear-gradient(to top, rgba(9,11,12,.92) 0%, rgba(9,11,12,.8) 46%, rgba(9,11,12,0) 80%);
 }
+/* ROADMAP 7.3 (a) — ONE LINE EACH: what is paid once, what repeats, and the
+   yearly option. They were three equal columns in a row, which is how the
+   saving came to read as a third fee. */
 .ld .pnums {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; margin: 0;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: clamp(10px, 2vw, 28px); padding: clamp(16px, 3vw, 28px);
+  display: grid; grid-template-columns: max-content max-content;
+  gap: 10px clamp(16px, 2.4vw, 28px); align-items: baseline;
+  padding: clamp(16px, 3vw, 28px);
 }
-.ld .pnums > div { display: grid; gap: 2px; min-width: 0; }
+.ld .pnums > div { display: contents; }
 .ld .pnums dt {
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--bone-2);
 }
 .ld .pnums dd {
   margin: 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
-  font-size: clamp(24px, 4.4vw, 44px); line-height: 1;
+  font-size: clamp(22px, 2.8vw, 34px); line-height: 1; font-weight: 500;
   letter-spacing: -.03em; color: var(--bone); font-variant-numeric: tabular-nums;
 }
 .ld .pnums dd small {
-  font-size: 12px; letter-spacing: 0; color: var(--bone-2); font-variant-numeric: normal;
+  font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--bone-2); font-variant-numeric: normal;
 }
 
 /* ── the one that saves money stops looking like the two that do not ─────── */
@@ -2005,10 +2023,6 @@
   display: inline-block; margin-bottom: 8px;
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--ac);
-}
-.ld .saves {
-  display: block; margin-top: 6px; font-size: 12.5px; color: var(--ac);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ── the ground changes for plan two ─────────────────────────────────────── */
@@ -2046,10 +2060,7 @@
     border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
   }
   .ld .pshot::after { display: none; }
-  .ld .pnums {
-    position: static; padding: 14px 0 0;
-    grid-template-columns: repeat(3, 1fr); gap: 10px;
-  }
+  .ld .pnums { position: static; padding: 14px 0 0; }
   /* **THE LABEL CARRIED THE MEANING AND THE NUMBER GOT THE SIZE — 2026-09-12.**
      At 392 these read 10px over 21px figures, so a detailer saw $499, $40 and
      $80 and had to work out which was the one-off build fee and which was the
@@ -2064,6 +2075,7 @@
   .ld .pnums dd small { font-size: 11px; }
 }
 @media (max-width: 380px) {
-  /* At 320 three columns of a dollar figure is four characters each. */
-  .ld .pnums { grid-template-columns: 1fr 1fr; }
+  /* At 320 the label goes over its figure rather than beside it. */
+  .ld .pnums { grid-template-columns: 1fr; gap: 3px; }
+  .ld .pnums dd { margin-bottom: 9px; }
 }

@@ -9706,7 +9706,7 @@ rather than wording went to Andrew.
   *Raised from 7.2's audit, 2026-09-21. Andrew's ruling of 09-20 applied, not
   re-opened.*
 
-- [ ] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
+- [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.
   **Fix:** two plain plan cards at the top; separate lines for one-time build
@@ -9746,6 +9746,23 @@ rather than wording went to Andrew.
   the fault as reported — **the saving reading as a third fee** — and it survives
   any amount of rewording while the weights are equal.
   *A1 P2-02, A2 6.1*
+  **DONE 2026-10-06, measured on top of `51edf5d`, Lane A.** (a) the photo
+  strip is three lines, not three columns — "Once, to build it $499 one time",
+  "Then, every month $40", "Or pay yearly $400 a year (save $80)" — each at its
+  own height. (b) both savings now read "(save $80)" beside the yearly price; the
+  standalone "$80" and "$80 less than monthly" are gone. (c) read by selector at
+  320, 392, 768, 1440 and 1920, normal and `?lite=1` (10 of 10): `.ld .saving`
+  13px / 400, `.ld .fine` 13px / 400, `.ld .rungfig .fig` 28–40px / **500** —
+  the price figure was 400, the same weight as the fine print, so (c) could not
+  pass until the price got heavier; JetBrains Mono 500 was already loaded. (d)
+  plan one is now a card and the three payment choices sit inside it.
+  `contrast-insitu.mjs`: 56 of 56 screens, 0 failing, Pricing worst 5.16:1 — the
+  terms text already cleared and was not changed. **Guarded:**
+  `tests/landing-pricing.test.mjs` § 8, six checks; four sabotages (saving to
+  12.5px, price back to 400, the old "Save on the year" label, ladder out of the
+  card) each turned exactly one check red. **Not done, on purpose:** "two plain
+  plan cards at the top" and "reduce the empty booking-only area" are in the Fix
+  line but not in Done-when, and doing them would be a redesign.
 
 - [x] **7.4 — RESOLVED 2026-09-22, SECOND PASS. The Fix line names two
   requirements and the first pass only did one.** "Mark the struck price as
