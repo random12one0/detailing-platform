@@ -14369,6 +14369,7 @@ the dashboard or back office at phone width at all.
   | the arithmetic | `supabase/functions/_shared/platformNet.js` | a pure `.js` module, no client and no clock. **This is where the one rule lives** |
   | the read | `platform-admin`, action `platform_net` | two queries, then the module. Behind the existing `platform_admins` gate |
   | the test | `tests/platform-net.test.mjs` | **imports the module and runs it**, 10/10 |
+  | the write | `platform-admin`, action `platform_cost_add`; checks in `costEntry` in the same `_shared/platformNet.js` | added 2026-10-06, same gate. Suite now 14/14 (`node --test tests/platform-net.test.mjs`, at the commit carrying this row) |
 
   **THE ONE RULE, AND IT IS STRONGER THAN A FLAG:** when no costs were entered
   for the period, **`net_cents` is `null` and `cost_cents` is `null`** — not
@@ -14411,9 +14412,31 @@ the dashboard or back office at phone width at all.
   note. **Amounts are entered as dollars and stored as cents**; `MoneyField`
   in `app/src/components/controls.jsx` already exists for exactly this and must
   be reached for before writing an input (CLAUDE.md § Conventions).
-  **The write action does not exist yet** — it is one more `platform-admin`
-  action and it is the only server work left on this item. Ask for it rather
-  than writing to the table from the browser, which cannot work.
+  **THE WRITE ACTION EXISTS — `platform_cost_add` on `platform-admin`, built
+  2026-10-06. Nothing deployed.** Never write to the table from the browser;
+  it has no RLS policy and the insert would be refused.
+
+  | send | rule |
+  |---|---|
+  | `action` | `"platform_cost_add"` |
+  | `period_month` | `"2026-10"`, or any `YYYY-MM-DD` inside the month; stored as the first |
+  | `category` | exactly one of `hosting`, `database`, `email`, `domain`, `other` (lower case) |
+  | `amount_cents` | **a JSON integer of cents.** Convert dollars on the screen with `MoneyField`; `"1250"`, `12.5` and `null` are all refused. 0 is allowed, negatives are not |
+  | `note` | optional text, at most 300 characters |
+
+  **Answers:** `{ success: true, id }` on save. **A refusal is a 400 whose
+  `error` is a finished sentence — show it as-is beside the form**, e.g. *“The
+  amount must be a whole number of cents, like 1250 for $12.50.”*, *“Pick what
+  the bill is for: hosting, database, email, domain or other.”*, *“The month
+  has to be written like 2026-10.”* A 500 is also a sentence, and until the
+  migration runs it says *“Costs cannot be saved yet: the costs table has not
+  been set up. Nothing was saved.”* A non-admin gets the same bare 404 as every
+  other action.
+
+  **After a save, re-read `platform_net` for that month** rather than adding
+  the figure on the screen — the month's total is the server's to compute.
+  **No edit and no delete yet**: a wrong bill cannot be corrected from the
+  screen. Ask for them when the screen exists rather than building around it.
 
   **FOUR CATEGORIES PLUS `other`, as a segmented control and not a `<select>`**
   — five mutually exclusive choices is what `Segmented` is for, per the same

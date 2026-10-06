@@ -777,6 +777,9 @@ still knows them.
   rather than a wrong number — which is deliberate, because a failed read must
   never be mistaken for “no costs this month”.
 
+  **The part that saves a typed-in bill is now built too (2026-10-06), inside
+  the same `platform-admin` function — so it is still one publish, not two.**
+
   **WHAT IS NOT BUILT YET, so you are not waiting on me for it.** The screen
   itself, and the little form for typing a bill in. Both are written up in
   `ROADMAP.md` under 9.14 for whoever builds the front end. **Nothing for you to

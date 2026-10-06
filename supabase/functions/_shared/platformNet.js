@@ -155,3 +155,60 @@ export function platformNet({ invoiceRows, costRows, periodMonth }) {
     by_category,
   };
 }
+
+// ---------------------------------------------------------------------------
+// THE WRITE: one hand-typed bill, checked before it reaches the table.
+// ---------------------------------------------------------------------------
+// Lives here, not in `platform-admin`, for the same reason as everything above:
+// this is the only place node can execute it. Every refusal is a sentence a
+// person can act on, because the screen shows it as-is.
+
+/** The table's own CHECK list. tests/platform-net.test.mjs holds the two equal. */
+export const COST_CATEGORIES = ["hosting", "database", "email", "domain", "other"];
+
+const INT4_MAX = 2147483647; // `amount_cents integer` — Postgres int4
+
+/**
+ * Validate a cost entry from the request body.
+ * @returns {{ok:true, row:{period_month:string, category:string, amount_cents:number, note:string|null}}
+ *          | {ok:false, error:string}}
+ */
+export function costEntry(body) {
+  const b = body ?? {};
+
+  // INTEGER CENTS OR NOTHING. No `Number()`, no rounding: "12.50", 12.5 and
+  // "1250" are all refused, because a screen that sent dollars or a string has
+  // a bug, and quietly fixing it here is how $12.50 gets stored as 13 cents.
+  const amount = b.amount_cents;
+  if (typeof amount !== "number" || !Number.isInteger(amount)) {
+    return { ok: false, error: "The amount must be a whole number of cents, like 1250 for $12.50." };
+  }
+  if (amount < 0) return { ok: false, error: "The amount cannot be below zero." };
+  if (amount > INT4_MAX) {
+    return { ok: false, error: "That amount is too large. One bill can be at most $21,474,836.47." };
+  }
+
+  if (!COST_CATEGORIES.includes(b.category)) {
+    return { ok: false, error: "Pick what the bill is for: hosting, database, email, domain or other." };
+  }
+
+  // A month, as YYYY-MM or any YYYY-MM-DD inside it; stored as the first.
+  const p = typeof b.period_month === "string" ? b.period_month.trim() : "";
+  if (!p) return { ok: false, error: "Pick the month this bill belongs to." };
+  const m = p.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+  const month = m ? Number(m[2]) : 0;
+  const day = m?.[3] ? Number(m[3]) : 1;
+  if (!m || month < 1 || month > 12 || day < 1 || day > 31) {
+    return { ok: false, error: "The month has to be written like 2026-10." };
+  }
+  const period_month = `${m[1]}-${m[2]}-01`;
+
+  let note = null;
+  if (b.note != null) {
+    if (typeof b.note !== "string") return { ok: false, error: "The note has to be text." };
+    note = b.note.trim() || null;
+    if (note && note.length > 300) return { ok: false, error: "The note can be at most 300 characters." };
+  }
+
+  return { ok: true, row: { period_month, category: b.category, amount_cents: amount, note } };
+}

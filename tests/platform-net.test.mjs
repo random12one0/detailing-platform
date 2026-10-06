@@ -40,6 +40,8 @@ import {
   monthStart,
   nextMonthStart,
   platformNet,
+  costEntry,
+  COST_CATEGORIES,
 } from "../supabase/functions/_shared/platformNet.js";
 
 const MIGRATION = "supabase/migrations/20261006020000_hand_entered_platform_costs.sql";
@@ -203,5 +205,72 @@ test("ROADMAP 9.14 — revenue minus costs, and the empty-cost case", async (t) 
       + "to revenue with no costs entered). It must FAIL, which proves section 1 "
       + "is testing a real behaviour and not a tautology.",
     );
+  });
+
+  // --- THE WRITE: platform_cost_add ---------------------------------------
+  const good = { period_month: "2026-10", category: "hosting", amount_cents: 1250, note: " Netlify " };
+
+  await t.test("10 · a good entry is accepted and normalised to the first of the month", () => {
+    assert.deepEqual(costEntry(good), {
+      ok: true,
+      row: { period_month: "2026-10-01", category: "hosting", amount_cents: 1250, note: "Netlify" },
+    });
+    assert.equal(costEntry({ ...good, period_month: "2026-12-17" }).row.period_month, "2026-12-01");
+    assert.equal(costEntry({ ...good, amount_cents: 0 }).ok, true,
+      "a typed zero is allowed — section 4 is why: it is a person asserting it");
+    assert.equal(costEntry({ ...good, note: undefined }).row.note, null);
+  });
+
+  await t.test("11 · REFUSALS — amount must arrive as integer cents, and each refusal says why", () => {
+    const refused = (patch, words) => {
+      const r = costEntry({ ...good, ...patch });
+      assert.equal(r.ok, false, `${JSON.stringify(patch)} must be refused`);
+      assert.match(r.error, words, `${JSON.stringify(patch)} → "${r.error}"`);
+      assert.doesNotMatch(r.error, /amount_cents|period_month|null|undefined|NaN/,
+        "a refusal is shown to a person as-is; no field names or JS values");
+    };
+    const cents = /whole number of cents/;
+    refused({ amount_cents: 12.5 }, cents);      // dollars-with-decimals slipped through
+    refused({ amount_cents: "1250" }, cents);    // a string, even an integer-looking one
+    refused({ amount_cents: undefined }, cents); // missing
+    refused({ amount_cents: null }, cents);
+    refused({ amount_cents: NaN }, cents);
+    refused({ amount_cents: -100 }, /below zero/);
+    refused({ amount_cents: 2147483648 }, /too large/);
+    refused({ category: "coffee" }, /hosting, database, email, domain or other/);
+    refused({ category: undefined }, /hosting, database, email, domain or other/);
+    refused({ category: "Hosting" }, /hosting, database/); // the CHECK is case-sensitive
+    refused({ period_month: undefined }, /Pick the month/);
+    refused({ period_month: "October" }, /like 2026-10/);
+    refused({ period_month: "2026-13" }, /like 2026-10/);
+    refused({ note: 42 }, /has to be text/);
+    refused({ note: "x".repeat(301) }, /at most 300/);
+  });
+
+  await t.test("12 · the categories are EXACTLY the table's CHECK list", () => {
+    const sql = readFileSync(MIGRATION, "utf8");
+    const m = sql.match(/check \(category in \(([^)]*)\)\)/);
+    assert.ok(m, "could not find the category CHECK in the migration");
+    const inSql = [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]);
+    assert.deepEqual(COST_CATEGORIES, inSql,
+      "a category the function accepts and the table refuses becomes a 500 on a "
+      + "valid-looking bill; one the table accepts and the function refuses is a bill "
+      + "nobody can enter");
+  });
+
+  await t.test("13 · SOURCE CHECK — the write is gated, validated first, and logged", () => {
+    const src = readFileSync(FUNCTION, "utf8");
+    const i = src.indexOf('action === "platform_cost_add"');
+    assert.ok(i > 0, "the platform_cost_add action must exist on platform-admin");
+    assert.ok(src.indexOf('if (!admin) return json({ error: "Not found" }, 404);') < i,
+      "the platform_admins gate must come BEFORE the write");
+    const block = src.slice(i, i + 1400);
+    const v = block.indexOf("costEntry(body)");
+    const w = block.indexOf('.from("platform_costs").insert(');
+    assert.ok(v > 0 && w > v, "costEntry must run, and refuse, before the insert");
+    assert.match(block, /if \(!entry\.ok\) return json\(\{ error: entry\.error \}, 400\)/,
+      "a refusal returns its own sentence as a 400");
+    assert.match(block, /entered_by: admin\.id/, "who typed it is recorded");
+    assert.match(block, /logIt\(admin, "platform_cost_add"/, "money entered is logged");
   });
 });

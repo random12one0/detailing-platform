@@ -39,7 +39,7 @@ import { inviteEmail } from "../_shared/emailTemplates.ts";
 // ROADMAP 9.14 — a plain .js module so the one figure that must never be wrong
 // is runnable by node from tests/. See its header; brandColor.js is the
 // precedent for a .js file in _shared imported by a Deno function.
-import { monthStart, nextMonthStart, platformNet } from "../_shared/platformNet.js";
+import { costEntry, monthStart, nextMonthStart, platformNet } from "../_shared/platformNet.js";
 
 interface Admin { id: string; email: string }
 
@@ -152,6 +152,35 @@ Deno.serve(async (req) => {
         costRows: costs.data ?? [],
         periodMonth: period,
       }));
+    }
+
+    // --- ROADMAP 9.14: type in one bill -------------------------------------
+    //
+    // `{ period_month: "2026-10", category, amount_cents, note? }`. The checks
+    // are `costEntry` in `_shared/platformNet.js` so node can run them; every
+    // refusal is a 400 with a sentence the screen shows as-is. Amounts arrive as
+    // INTEGER CENTS — the screen converts dollars, this refuses anything else.
+    //
+    // No edit and no delete yet: a wrong bill is corrected by asking for those
+    // when the screen exists, not by guessing their shape now.
+    if (action === "platform_cost_add") {
+      const entry = costEntry(body);
+      if (!entry.ok) return json({ error: entry.error }, 400);
+      const row = { ...entry.row, entered_by: admin.id };
+      const { data, error } = await supabase
+        .from("platform_costs").insert(row).select("id").single();
+      if (error) {
+        console.error("platform_costs insert failed:", error);
+        // 42P01 / PGRST205: the table is not there — the migration has not run.
+        const missing = ["42P01", "PGRST205"].includes((error as { code?: string }).code ?? "");
+        return json({
+          error: missing
+            ? "Costs cannot be saved yet: the costs table has not been set up. Nothing was saved."
+            : "The cost could not be saved. Nothing was saved; try again.",
+        }, 500);
+      }
+      await logIt(admin, "platform_cost_add", null, row);
+      return json({ success: true, id: data.id });
     }
 
 
