@@ -66,3 +66,44 @@ export function stageDue(d: Deadline, today = new Date()): number | null {
   if (reached < 0) return null;
   return reached >= (d.reminded_stage ?? 0) ? reached : null;
 }
+
+// ---------------------------------------------------------------------------
+// ROADMAP 0.7 — MAY THIS MAINTENANCE EMAIL GO? (DECISIONS.md, 2026-10-06)
+// ---------------------------------------------------------------------------
+// The maintenance email sells a booking, so it gets the campaign email's legal
+// treatment: the business's postal address and the customer's own opt-out link
+// in the footer, and no send without them. **Never a placeholder address** — a
+// business without one is SKIPPED and the skip is recorded, not papered over.
+//
+// Here rather than in the sweep so node can run it (tests/maintenance-legal).
+// The order is the order the sweep needs: the switches are the detailer's
+// choice and stay silent; an unreachable customer is the same three checks
+// `send-campaign` makes; only then does a missing address become a recorded skip.
+
+export type MaintenanceVerdict =
+  | { send: true; mailingAddress: string }
+  | { send: false; reason: "switched_off" | "unreachable" }
+  | { send: false; reason: "no_mailing_address"; detail: string };
+
+export const NO_ADDRESS_DETAIL =
+  "Not sent: the business has no mailing address, and the law requires one at the bottom of this email.";
+
+export function maintenanceVerdict(input: {
+  settings: { email_customer_reminder?: boolean; email_customer_maintenance_due?: boolean };
+  customer: { email?: string | null; unsubscribed_at?: string | null; email_failed_at?: string | null } | null;
+  mailingAddress: string | null | undefined;
+}): MaintenanceVerdict {
+  const { settings, customer } = input;
+  // BOTH SWITCHES, the parent first: turning customer email off stops this, and
+  // the parent alone can never turn it on. The second defaults off and is
+  // binding (MANAGER-CLOSE-2026-09-21 § 2).
+  if (!settings?.email_customer_reminder || !settings?.email_customer_maintenance_due) {
+    return { send: false, reason: "switched_off" };
+  }
+  if (!String(customer?.email ?? "").trim() || customer?.unsubscribed_at || customer?.email_failed_at) {
+    return { send: false, reason: "unreachable" };
+  }
+  const mailingAddress = String(input.mailingAddress ?? "").trim();
+  if (!mailingAddress) return { send: false, reason: "no_mailing_address", detail: NO_ADDRESS_DETAIL };
+  return { send: true, mailingAddress };
+}

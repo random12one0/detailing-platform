@@ -896,6 +896,33 @@ and how the wait ends.
   satisfy any check asking whether a footer exists, while making the product state
   something untrue to a stranger.
 
+  ***UNPARKED AND BUILT 2026-10-06. NOTHING DEPLOYED.*** The manager decided
+  Question 3 for this email on Andrew's standing instruction (DECISIONS.md,
+  "ROADMAP 0.7 — the maintenance email gets the campaign email's legal
+  treatment…"): campaign footer, same opt-out list, **skip and record when the
+  business has no address, never a placeholder**, switch stays default off.
+
+  - **The rule** is `maintenanceVerdict` in `_shared/maintenance.ts`; the footer
+    and a refusal to render without an address are in `maintenanceDueEmail`; the
+    skip writes an `email_sends` row, `status: "skipped"`, from
+    `send-owner-reminders`.
+  - **`tests/maintenance-legal.test.mjs`, 5/5**: an address gets the footer and
+    link in English and Spanish; no address means no send and a recorded reason;
+    an opted-out, bounced or email-less customer gets nothing, not even a skip
+    row; the switch still gates it. Four sabotages, each red on its own section:
+    opt-out dropped (3), placeholder address (2), footer removed (1), sweep
+    filling the footer from a fallback (5).
+  - **Two older checks in `tests/maintenance.test.mjs` were reshaped**, because
+    the unreachable checks moved into the shared rule and a skip now stamps the
+    stage on purpose. Both were sabotaged after reshaping and both went red.
+  - **Looked at:** `node scripts/render-emails.mjs` and `--lang=es`, both
+    maintenance samples opened in a browser — address, "Stop getting emails like
+    this" / "Dejar de recibir correos como este", "You booked with us before".
+  - **Done when** still asks for it to be carried out live: publish
+    `send-owner-reminders` (FOR-ANDREW.md). Until then the running copy sends
+    the old email to any business that has switched it on — which is none,
+    because no control in the product can switch it on.
+
 ---
 
 ## Wave 1 — Stop exposing Andrew and other people's brands

@@ -19,10 +19,10 @@ import { businessById, getSettings, requireMember, type Business } from "../_sha
 import {
   buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, sendTenantEmail,
 } from "../_shared/email.ts";
-import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
+import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
-import { businessSiteUrl, receiptUrl } from "../_shared/config.ts";
-import { STAGES, stageDue } from "../_shared/maintenance.ts";
+import { businessSiteUrl, receiptUrl, unsubscribeUrl } from "../_shared/config.ts";
+import { maintenanceVerdict, STAGES, stageDue } from "../_shared/maintenance.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, hourIn, timeStrIn } from "../_shared/tz.ts";
 
@@ -410,33 +410,61 @@ Deno.serve(async (req) => {
           // `email_customer_maintenance_due`, which defaults false in the
           // column, in `getSettings`'s fallback, and is written by no control
           // in the product.
+          //
+          // **AND ROADMAP 0.7, 2026-10-06:** the switches, then the same three
+          // ways to be unreachable `send-campaign` asks about (no address,
+          // opted out, bounced), then the business's MAILING ADDRESS — all in
+          // `maintenanceVerdict`, which tests/maintenance-legal runs for real.
           if (!settings.email_customer_reminder) continue;
           if (!settings.email_customer_maintenance_due) continue;
           const { data: customer } = await supabase
             .from("customers")
             .select("name, email, unsubscribed_at, email_failed_at")
             .eq("id", d.customer_id).maybeSingle();
-          // THE SAME THREE WAYS TO BE UNREACHABLE the Clients count and
-          // `send-campaign` already ask about (roadmap 2.20): no address,
-          // opted out, bounced. A fourth opinion here is how they drift.
-          if (!customer?.email || customer.unsubscribed_at || customer.email_failed_at) continue;
-          const brand = await buildBrand(business, settings);
-          const site = await siteFor(supabase, business.id);
+          const verdict = maintenanceVerdict({ settings, customer, mailingAddress: business.mailing_address });
+          if (!verdict.send && verdict.reason !== "no_mailing_address") continue;
           // ROADMAP 8.17 — a deadline belongs to a CUSTOMER rather than to
           // one booking, so the language comes from the last thing they told
           // us. English for anybody who has never booked.
           const lang = await langForCustomer(d.customer_id);
+          const dueOn = formatDateLong(d.due_on, lang);
+          if (!verdict.send) {
+            // **NO ADDRESS: SKIPPED, RECORDED, NEVER A PLACEHOLDER.** The same
+            // `skipped` row `send-email` writes for an undeliverable address,
+            // so it shows where every other unsent email shows. The stage is
+            // advanced so a 15-minute cron writes ONE row per stage, not 96 a
+            // day; that stage's letter is lost, and the row says why.
+            const logged = await supabase.from("email_sends").insert({
+              business_id: business.id,
+              customer_id: d.customer_id,
+              to_email: customer!.email,
+              subject: maintenanceDueSubject({ label: d.label, dueOn, daysLeft: STAGES[stage] }, lang),
+              status: "skipped",
+              detail: verdict.detail,
+            });
+            // An unrecorded skip leaves the stage alone, so the next sweep
+            // tries to record it again rather than losing the reason.
+            if (logged.error) throw new Error(`could not record the skip: ${logged.error.message}`);
+            await supabase.from("maintenance_deadlines")
+              .update({ reminded_stage: stage + 1 }).eq("id", d.id);
+            results.push({ id: d.id, kind: "maintenance", sent: false, error: verdict.detail });
+            continue;
+          }
+          const brand = await buildBrand(business, settings);
+          const site = await siteFor(supabase, business.id);
           const msg = maintenanceDueEmail(brand, {
-            customerName: customer.name ?? "there",
+            customerName: customer!.name ?? "there",
             label: d.label,
             vehicle: d.vehicle,
-            dueOn: formatDateLong(d.due_on, lang),
+            dueOn,
             daysLeft: STAGES[stage],
             bookUrl: businessSiteUrl(site, business.slug),
+            unsubscribeUrl: unsubscribeUrl(site, d.customer_id),
+            mailingAddress: verdict.mailingAddress,
           }, lang);
           mustSend(
             await sendTenantEmail({
-              businessId: business.id, to: customer.email,
+              businessId: business.id, to: customer!.email,
               subject: msg.subject, html: msg.html, text: msg.text,
             }),
             "maintenance reminder",

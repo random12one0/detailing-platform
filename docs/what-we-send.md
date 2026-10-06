@@ -284,6 +284,16 @@ texts — they're time-critical and short. Which runs straight into question 1.
 
 ### Question 3 — Now that marketing email is allowed again, do you want any?
 
+> **ANSWERED 2026-10-06 for the maintenance email — by the manager, on your standing
+> instruction to decide what a session can decide.** It now gets the same treatment as
+> campaigns: your address and an unsubscribe link at the bottom, the same opt-out list,
+> and **it is skipped (and the reason written down) for any business that has not
+> given an address — never a made-up one.** No new setup step. It stays switched off
+> unless a business turns it on. DECISIONS.md, "ROADMAP 0.7 — the maintenance email
+> gets the campaign email's legal treatment", says how to undo it. The table below is
+> kept as it was; the maintenance row's "all three would have to be added" is now done.
+> Whether *you* want campaigns is still yours.
+
 You've reversed the rule that said email is only ever receipts and reminders.
 That doesn't decide whether you want marketing email — it just means you can.
 

@@ -300,6 +300,8 @@ were made more than once.
 
 - **One file was added to scripts/ under 9.10, which the manager brief says is frozen — a recorded exception, not a silent one** — `scripts/page-preview.mjs` was created in the Business-screen-preview item (ROADMAP 9.10) while the manager brief had `scripts/` frozen. Kept, not deleted, because it is the only check that the right half of Business shows the real booking page. It is the ONLY file added; nothing else in `scripts/` was touched for it. Why, what it costs, and what would make it wrong are inside.
 
+- **ROADMAP 0.7 — the maintenance email gets the campaign email's legal treatment; a business with no mailing address is skipped, never given a placeholder** — the manager's call on 2026-10-06, made on Andrew's standing instruction to decide what a session can decide. Answers `docs/what-we-send.md` Question 3 for the maintenance email only. Footer + unsubscribe + the same opt-out list as campaigns; no new setup step; the default-off switch stays. How to reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17793,3 +17795,60 @@ is a fact about the process, invisible in the prose.
 **What would make this decision wrong.** If a second file is added under the same reasoning, the freeze has stopped meaning anything and this entry becomes the loophole it was written to avoid. Any further file in `scripts/` needs its own entry, or the manager's word first.
 
 **Follow-up on the same file, same day.** The first version proved the thin business by intercepting its own count queries. That is gone: the thin run signs in as the real owner of `final-pass-fixture` (dev project, `is_demo = true`). Its first sabotage run, signing in as the wrong business, PASSED the check, which is the useful finding: `thin-not-blank` had never asked whether the business was the thin one. It does now.
+
+## ROADMAP 0.7 — the maintenance email gets the campaign email's legal treatment; a business with no mailing address is skipped, never given a placeholder
+
+*2026-10-06. Built by DP Cowork2 (Lane B).*
+
+**Who decided, and on what authority.** The manager, not Andrew. Andrew's
+standing instruction is that the manager decides what a session could decide
+and has it built, rather than parking it for him. ROADMAP 0.7 had been parked
+on `docs/what-we-send.md` Question 3 since 2026-09-24; this is the manager
+using that instruction to unpark it. **Andrew can overrule it at any time**, and
+the reversal is below.
+
+**The decision.** The "your maintenance is due" email is treated exactly like
+the campaign email, because it sells a booking ("Book it in" for a service the
+customer has not bought):
+
+1. Its footer carries the business's postal address and the customer's own
+   unsubscribe link — the same `legal` footer `campaignEmail` uses, in the
+   reader's language.
+2. It never goes to a customer who opted out, bounced, or has no email — the
+   same three checks `send-campaign` makes.
+3. **A business with no `mailing_address` is SKIPPED**, and the skip is
+   written to `email_sends` as `status: "skipped"` with the reason in words,
+   the same way `send-email` records an undeliverable address. **Never a
+   placeholder address.** The template itself refuses to render without one.
+4. **No new setup step.** A detailer is not asked for an address up front; the
+   email simply does not go until they have given one (the campaign screen
+   already asks for it, under Business info).
+5. **The per-business switch stays, and stays off by default.** Binding:
+   `MANAGER-CLOSE-2026-09-21.md` § 2, consequence 2. Nothing here turns it on.
+
+**One cost, chosen on purpose.** A skip advances the deadline's reminder stage,
+so that stage's letter is not sent later. The alternative was a skipped row
+every 15 minutes (96 a day per deadline) from the cron. The skip row says why.
+If the skip row cannot be written, the stage is left alone and the next sweep
+tries again.
+
+**Where it lives.** `maintenanceVerdict` in `supabase/functions/_shared/maintenance.ts`
+(the rule, executed by `tests/maintenance-legal.test.mjs`);
+`maintenanceDueEmail` in `_shared/emailTemplates.ts` (the footer, and the
+refusal); `send-owner-reminders` (the skip row). **Not deployed** —
+`send-owner-reminders` is a publish switch in `FOR-ANDREW.md`.
+
+**A recorded `scripts/` edit.** `scripts/render-emails.mjs` was changed in two
+lines: its two maintenance samples now pass an address and an unsubscribe link
+(otherwise the template's new refusal makes the render crash), and their sample
+date is formatted per language instead of typed in English. An existing file,
+not a new one — recorded here because the 9.10 entry above asks that anything in
+`scripts/` be said out loud.
+
+**How to reverse it.** If Andrew rules the email transactional (no footer
+needed): drop the `legal` option and the throw in `maintenanceDueEmail`, delete
+the `no_mailing_address` branch in `maintenanceVerdict` and the skip block in
+`send-owner-reminders`, and delete `tests/maintenance-legal.test.mjs` sections
+1, 2 and 5 in the same commit. If he would rather require the address at setup:
+keep all of this and add the setup step — the skip then simply never fires. If
+he wants the email gone: leave the switch off, which it already is.

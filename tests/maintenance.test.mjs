@@ -183,8 +183,15 @@ console.log("\n6. the detailer's own words");
     /if \(!settings\.email_customer_reminder\) continue;/.test(sweep));
   // The same three ways to be unreachable the Clients count and send-campaign
   // already ask about (roadmap 2.20). A fourth opinion is how they drift.
-  check("and the three ways to be unreachable are all asked",
-    /!customer\?\.email \|\| customer\.unsubscribed_at \|\| customer\.email_failed_at/.test(sweep));
+  // ROADMAP 0.7 MOVED THEM into `maintenanceVerdict` in _shared/maintenance.ts,
+  // where tests/maintenance-legal.test.mjs EXECUTES them. Asked here in both
+  // halves: the rule still names all three, and the sweep still calls the rule.
+  {
+    const shared = strip(readFileSync("supabase/functions/_shared/maintenance.ts", "utf8"));
+    check("and the three ways to be unreachable are all asked",
+      /customer\?\.email\b[\s\S]{0,80}customer\?\.unsubscribed_at \|\| customer\?\.email_failed_at/.test(shared)
+        && /maintenanceVerdict\(\{ settings, customer,/.test(sweep));
+  }
   // A bounced relay must not silently spend the stage — that is a warranty
   // lost because one email failed at four in the morning.
   // SCOPED TO THE MAINTENANCE BLOCK. `sendTenantEmail` appears six times
@@ -197,9 +204,20 @@ console.log("\n6. the detailer's own words");
   // belongs to a different reminder. **Third time this exact shape has been
   // caught tonight**, and every time by baselining rather than by reading.
   const block = sweep.slice(sweep.indexOf("const stage = stageDue(d);"));
+  // ROADMAP 0.7 ADDED A SECOND STAMP, on purpose: a no-address SKIP spends the
+  // stage once it is RECORDED, or a 15-minute cron logs 96 skips a day. So the
+  // send path is measured from the template call, and the skip path's stamp
+  // must come after the record's error check.
+  const at = block.indexOf("maintenanceDueEmail(brand,");
+  const sendPath = block.slice(at);
   check("the stage is stamped only after a successful send",
-    block.indexOf("reminded_stage: stage + 1") > block.indexOf("await sendTenantEmail"),
+    at >= 0 && sendPath.indexOf("await sendTenantEmail") >= 0
+      && sendPath.indexOf("reminded_stage: stage + 1") > sendPath.indexOf("await sendTenantEmail"),
     "a bounced relay must not spend the stage — that is a warranty lost to one failed email");
+  const skipPath = block.slice(0, at);
+  check("a skip spends the stage only after the skip is recorded",
+    skipPath.indexOf("if (logged.error) throw") >= 0
+      && skipPath.indexOf("reminded_stage: stage + 1") > skipPath.indexOf("if (logged.error) throw"));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

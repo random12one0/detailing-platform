@@ -736,6 +736,14 @@ still knows them.
   get; it should open that job. If it does, tell a session and it ticks
   ROADMAP 14.34.
 
+  **One of the seven now carries a second fix (2026-10-06):**
+  `send-owner-reminders` also gives the "your maintenance is due" email your
+  address and an unsubscribe link at the bottom, and skips it for any business
+  with no address on file instead of sending it without one. That email is
+  switched off for every business today, so nothing changes for anyone until a
+  business turns it on. The manager decided this one for you; DECISIONS.md
+  says how to undo it.
+
 
 - [ ] **SWITCH · Two more, same shape as the pair below: somewhere to type what
   the platform costs you, so the back office can show what it actually made.**

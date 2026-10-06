@@ -28,6 +28,10 @@
 // it is the one email in the set whose primary purpose is MARKETING — under
 // CAN-SPAM that needs an unsubscribe, a suppression list and a sending
 // reputation the transactional set is exempt from. Its own roadmap item.
+// **SUPERSEDED 2026-10-06 (ROADMAP 0.7):** it IS here — `maintenanceDueEmail`,
+// section 17 — and it now carries the campaign email's legal footer and is
+// skipped for any business with no mailing address. The paragraph above is
+// kept because it is the reason the footer exists.
 
 import {
   type Brand,
@@ -1437,12 +1441,33 @@ export interface MaintenanceEmailData {
   dueOn: string;      // as the detailer's timezone sees it, already formatted
   daysLeft: number;
   bookUrl: string;
+  /** The customer's own opt-out link. Required — ROADMAP 0.7, see below. */
+  unsubscribeUrl: string;
+  /** The business's postal address. Required, same reason. Never a placeholder. */
+  mailingAddress: string;
 }
 
+/** The subject alone, so a SKIPPED send can be logged under the same words. */
+export function maintenanceDueSubject(m: Pick<MaintenanceEmailData, "label" | "dueOn" | "daysLeft">, lang?: unknown): string {
+  const tt = T(lang);
+  return m.daysLeft <= 1
+    ? tt("Last day: {label}", { label: m.label })
+    : tt("{label} is due {date}", { label: m.label, date: m.dueOn });
+}
+
+// **ROADMAP 0.7 — IT SELLS A BOOKING, SO IT CARRIES THE CAMPAIGN EMAIL'S FOOTER.**
+// "Book it in" for a service the customer has not bought is commercial by its
+// primary purpose, so it gets exactly what `campaignEmail` gets: the postal
+// address and the customer's own opt-out link, through `shell`'s `legal`. The
+// sweep skips a business with no address (`maintenanceVerdict`); this throw is
+// the last line, so no caller can ever render it with a blank or missing one.
 export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData, lang?: unknown): Mail {
   // The label and the vehicle are the DETAILER's own words and the customer's
   // own car; only the sentence around them is ours.
   const tt = T(lang);
+  if (!String(m.mailingAddress ?? "").trim() || !String(m.unsubscribeUrl ?? "").trim()) {
+    throw new Error("maintenanceDueEmail: a mailing address and an unsubscribe link are required");
+  }
   const what = m.vehicle
     ? tt("{label} on your {vehicle}", { label: esc(m.label), vehicle: esc(m.vehicle) })
     : esc(m.label);
@@ -1467,9 +1492,8 @@ export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData,
     fineBlock(tt("If you have already had this done elsewhere, let us know and we will mark it off.")),
   ];
   return mail(
-    m.daysLeft <= 1
-      ? tt("Last day: {label}", { label: m.label })
-      : tt("{label} is due {date}", { label: m.label, date: m.dueOn }),
-    shell(brand, blocks, tt("{lead} to book your {label}.", { lead, label: m.label }), { lang }),
+    maintenanceDueSubject(m, lang),
+    shell(brand, blocks, tt("{lead} to book your {label}.", { lead, label: m.label }),
+      { lang, legal: { mailingAddress: m.mailingAddress.trim(), unsubscribeUrl: m.unsubscribeUrl } }),
   );
 }
