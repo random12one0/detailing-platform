@@ -310,6 +310,8 @@ were made more than once.
 
 - **ROADMAP 8.10c — migration-drift sees grants and indexes; the sabotage is a scratch copy of the migrations, never a live grant** — DP Cowork2, 2026-10-06, on the manager's instruction, edited `scripts/migration-drift.mjs` (one existing file, no precedent). It now compares every grant, revoke and index the migrations declare against `kguqylyzgyzfktkfnhjb`, read-only, and names each difference with the file that declares it. **A role "holds" a privilege if its own entry or PUBLIC's does** — judged on what the role can do, not on one ACL row. **Indexes are compared by name, table and uniqueness, not by column list** — said in the receipt rather than guessed at. **The sabotage is `--migrations=<scratch copy>`, because revoking a live grant is a schema change and a crash leaves it revoked.** First run found a real fault no earlier check could see: `authenticated` can still write `bookings.weather` and `weather_at` — the column revoke in the weather migration never took effect.
 
+- **ROADMAP 6.4a — the dashboard keeps its last list of jobs on the device and its own shell in a worker, so a reload with no signal still shows the day; sign-out is the only thing that clears it** — Andrew's standing instruction to decide, 2026-10-06 (DP Cowork, Lane A): both halves of 6.4a, because a detailer reloads in driveways. The last list Today loaded is kept in `localStorage` per business and cleared only by sign-out; `sw.js` became a network-first caching worker for `/app` and `/assets`; a start with no signal shows the saved list or a plain "No connection" page with Retry. The cost is customer names, phones and addresses on the device, and the reversal is one commit.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18086,3 +18088,58 @@ migration, and applying one is Andrew's.
 script returns to functions, tables, columns and policies. The queue-row command
 in `tests/queue-rows-still-belong.test.mjs` goes back to the `role_table_grants`
 probe with it.
+
+## ROADMAP 6.4a — the dashboard keeps its last list of jobs on the device and its own shell in a worker, so a reload with no signal still shows the day; sign-out is the only thing that clears it
+
+**Decided 2026-10-06, by DP Cowork on Andrew's standing instruction** ("mine to make
+on Andrew's standing instruction: do BOTH halves, because a detailer reloads in
+driveways"). The question was filed as ROADMAP 6.4a: after 6.4(a) made Today
+readable while its screen stayed open, a reload, or leaving Today and coming back,
+with no signal showed nothing, and a start with no signal showed *Create your
+business* or the sign-in form, which are untrue of the person.
+
+**What was decided.**
+1. **Today's last good list is stored on the device** (`dp.jobs.<businessId>`,
+   plus a pointer `dp.jobs.last`), written on every successful read, and used
+   when a read fails before anything is drawn, or as the first paint when the
+   browser already says it is offline. The line is the existing *You're offline.
+   Showing your jobs as of …*; a list saved on an earlier day carries its date.
+2. **Sign-out is the only thing that clears it** (`lib/signout.js` calls
+   `forgetJobs()` first, before the network calls). Nothing else deletes it, so
+   that call has to stay the one door.
+3. **`app/public/sw.js` is now a caching worker, narrowly.** Network first with
+   a four second wait for `/app` navigations and everything not content-hashed,
+   so a working connection always gets the live page; cache first only for
+   `/assets/*` (named by content hash); same-origin GET only, so Supabase, Stripe
+   and every POST are untouched. It is registered at boot under `/app`. The old
+   header said it must not be a caching worker because of stale HTML; the stale
+   page is exactly what network-first prevents, and that is written into the file.
+4. **A start with no signal renders `screens/NoConnection.jsx`**: the saved list
+   (with phone and address, and Print for the next day with jobs), or, with nothing
+   stored, a plain *No connection* page with Retry. It is never blank, and it
+   replaces the *Create your business* and sign-in screens that a failed read
+   used to fall through to. Past four seconds of a dead request it appears without
+   waiting for the client's retries.
+
+**What it costs, said plainly.** Customers' names, phones and addresses sit in
+`localStorage` on the detailer's own phone until they sign out. A shared device
+that is not signed out keeps them. What is stored is the booking rows Today already loads (contact details,
+notes and amounts included), and nothing else: no tokens, no card data.
+
+**What it does not do.** A device that has never loaded the dashboard online has
+no shell and no list; the browser's own offline page is all there is. The worker
+needs one online visit after install before it can start the app offline.
+
+**Proved, offline, on a fixture business, at 320 and 1440 with `?lite=1`:** 14
+checks (list saved; worker holds the shell; leave and return shows the list in
+about 0.1s; reload shows the saved list and line; not the sign-in form or *Create
+your business*; no sideways scroll; print opens; nothing stored shows *No
+connection* with Retry; Retry with the signal back restores the dashboard;
+sign-out leaves zero keys). **Broken on purpose:** never saving (5 red), sign-out
+not clearing (1 red: 2 keys left), worker without a fetch handler (the reload
+fails outright).
+
+**How to reverse it.** `git revert` the commit that carries this entry: `sw.js`
+goes back to push only, `useBookings` stops remembering, and the offline start
+returns to the old behavior. Existing stored lists are removed by the next
+sign-out.

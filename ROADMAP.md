@@ -9530,7 +9530,7 @@ most corroborated finding in the set.
   * **NOT COVERED, and filed as 6.4a:** reloading the page while offline, and
     leaving Today and coming back while offline.
 
-- [ ] **6.4a — Today is readable offline only while the screen that loaded it
+- [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**
   Found 2026-10-06 by DP Cowork while building 6.4(a); said in that commit
   rather than hidden. **6.4(a)'s done-when says "on a screen that had already
@@ -9561,6 +9561,39 @@ most corroborated finding in the set.
   out and reading it back. **Red proof:** drop the keeping step and (1) goes
   blank.
   *Lane:* A (`app/src`, plus `sw.js` if the cache is chosen).
+
+  **BUILT AND TICKED 2026-10-06, commit `e6302d5` (DP Cowork, Lane A). Andrew's
+  standing instruction was to do BOTH halves; the decision and its cost are in
+  DECISIONS.md under the same title.**
+  * **Leave and return, offline:** Today draws the saved list with *You're
+    offline. Showing your jobs as of 4:11 PM.* in **0.1 seconds** (87 to 152ms
+    across runs) instead of waiting out the retries for a spinner.
+  * **Reload, offline:** the worker starts the app from its cached shell and
+    `NoConnection.jsx` shows the saved list with the same line, phone and address
+    on each row, and Print for the next day with jobs. **It is no longer the
+    sign-in form or *Create your business*** (a failed membership read used to
+    fall through to both). Reached in **4.4 seconds** on the weak-signal path
+    (Playwright leaves `navigator.onLine` true on a reload, so the browser's own
+    offline flag is not what was measured) and at once when the browser says it is
+    offline.
+  * **Nothing stored:** a plain *No connection* page with a Retry button, not
+    blank. Retry with the signal back restores the dashboard and saves the list
+    again.
+  * **Sign-out clears it:** **0 keys left** after signing out; the stored entry is
+    customer names, phones and addresses on the device, which is the cost named in
+    DECISIONS.md.
+  * **Measured offline on my own fixture business** (its own owner, five jobs,
+    deleted afterward), 320 and 1440, `?lite=1`, with the address and forecast
+    calls aborted in the browser so the shared hourly address budget was not
+    touched: **14 of 14 checks at both widths**, no sideways scroll, console clean
+    apart from the cut-wire network errors and a `platform-admin` 404 that is not
+    this item's.
+  * **Broken on purpose:** never saving the list (5 red), sign-out not clearing
+    (red: 2 keys left), the worker without a fetch handler (the offline reload
+    fails outright, *ERR_INTERNET_DISCONNECTED*).
+  * **Still true, and said:** a device that has never loaded the dashboard online
+    has no shell and no list, so the browser's own offline page is all it can
+    show; the worker needs one online visit after install.
 
 ---
 
@@ -18839,7 +18872,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.35 — Six Spanish-translation checks are red, all in app/src, and one of them is two translations fighting
 
-- [ ] **14.35 — `tests/spanish.test.mjs` fails 6 checks, and every one is already
+- [x] **14.35 — `tests/spanish.test.mjs` fails 6 checks, and every one is already
   red at `4d61b06` (checked on an untouched worktree, 2026-10-06), so none came
   from 0.7, 9.14 or 14.34.** Found by DP Cowork2 while running it for 0.7.
   **Read-only: nothing below was changed.** Five belong to Lane A (`app/src`); one
@@ -18888,6 +18921,12 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   * `scripts/i18n-survey.mjs` before and after: **identical** (128 candidate
     strings in 30 files). It looks for text that never reaches `t()`; it cannot
     see missing or duplicate Spanish keys, so it could not show this fix.
+
+  **TICKED 2026-10-06 — THE ONE UNSEEN STRING IS NOW SEEN.** On a fixture business
+  with body types matched to sizes, the Spanish booking page at the vehicle step
+  (pick *Honda Civic*) reads **"Civic · lo pusimos en Pequeño ¿No es correcto?"**
+  at 320 and 1440, console clean, no English left on the step. The sentence above
+  that says *Not right?* was not seen is superseded by this, not deleted.
 
   *Lane:* A for 1b, 1c, 9a, 9f (`app/src`).
 
