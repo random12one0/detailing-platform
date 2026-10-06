@@ -268,8 +268,8 @@ export function initThread() {
 
     /* ── How a pinned beat reads its own progress ──────────────────────
        `pause` is a stretch at each end of the hold where the section is
-       locked and NOTHING happens — you arrive, it stops, and for four
-       tenths of a screen it just sits there before it begins. That is what
+       locked and NOTHING happens — you arrive, it stops, and for an eighth
+       of the hold it just sits there before it begins. That is what
        absorbs a flick that arrives with momentum.
 
        WHAT THIS RETURNS IS LINEAR, deliberately. Easing the WHOLE hold and
@@ -284,7 +284,10 @@ export function initThread() {
     function pinProgress(el, stageH) {
       const r = el.getBoundingClientRect();
       const run = Math.max(1, r.height - stageH);
-      const pause = stageH * 0.40;
+      /* A SHARE OF THE RUN, not a fixed 0.4 of a screen — ROADMAP 7.9 halved
+         the wrapper, and a fixed pause would have eaten 80% of a one-screen
+         hold. 0.133 is what 0.4 screens was of the old three-screen run. */
+      const pause = run * 0.133;
       return clamp((-r.top - pause) / Math.max(1, run - pause * 2));
     }
 

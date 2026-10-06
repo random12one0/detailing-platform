@@ -206,60 +206,33 @@ export default function LandingPage() {
   const [pane, setPane] = useState(0);
   const [steered, setSteered] = useState(false);
 
-  /* THE HEADLINE WRITES ITSELF, RUBS ITSELF OUT, AND WRITES THE NEXT ONE.
-     The owner, 2026-09-09: *"the exact same animation as before, where it
-     writes it out and then unwrites it and then writes it back… the reverse
-     animation and then the animation again for the new text."*
+  /* ROADMAP 7.9 — THE HEADLINE IS WRITTEN OUT FROM THE FIRST FRAME.
+     It used to type itself letter by letter, rub itself out and type the
+     next one (the owner's ask of 2026-09-09). The audit's finding was that
+     a visitor lands on half a sentence — "the headline types letter by
+     letter" — and the owner directed the Fix line's "show the headline
+     immediately" on 2026-10-06. So the words are always whole, and the
+     panes change by the 140ms cross-fade `.hpane` already had.
 
-     THE FIRST VERSION ONLY DID HALF OF IT. It typed the incoming line, but
-     the outgoing one left with its pane, so there was no un-writing to
-     watch. That is why this is ONE state machine and not a timer beside a
-     typewriter: the erase has to FINISH before the pane may change, and two
-     independent timers cannot agree on when that is.
+     ONE TIMER, the same 4050ms the tab bar's fill animation runs for, so the
+     bar finishing and the pane changing are still the same moment.
 
-         typing   chars climb to the end        17ms each
-         holding  the line sits still           2200ms — the part he reads
-         erasing  chars fall back to zero        9ms each; rubbing out is
-                                                 always quicker than writing
-         then, and only then, the pane advances and typing starts again.
-
-     THE PANE CHANGES AT ZERO CHARACTERS, which is what makes it read as one
-     movement rather than two: the label, the sentence and the picture all
-     cross-fade at the moment the headline is empty, so nothing is ever seen
-     changing underneath a written line.
-
-     `steered` parks the machine in `holding` — somebody who pressed a tab
-     wants to read that one, not watch it be erased. */
-  const [chars, setChars] = useState(0);
-  const [phase, setPhase] = useState("typing");
-  const total = HERO[pane].h.reduce((n, l) => n + l.length, 0);
+     WITH MOTION OFF NOTHING ROTATES AND NOTHING IS HIDDEN. `.lite` (main.jsx:
+     `?lite=1` or reduced motion) shows all three panes, in order — the same
+     order motion-on shows them in over time — because a pane that only a
+     timer would ever have revealed is a pane a reduced-motion visitor never
+     sees. `scripts/motion-off.mjs` reads it. */
   const lite = typeof document !== "undefined"
     && document.documentElement.classList.contains("lite");
 
   useEffect(() => {
-    // `.lite` on <html> is main.jsx's single switch for BOTH `?lite=1` and
-    // reduced motion. In lite the line is simply present and nothing runs.
-    if (lite) { setChars(total); return; }
-    let t = 0;
-    if (phase === "typing") {
-      if (chars < total) t = setTimeout(() => setChars(chars + 1), chars === 0 ? 90 : 17);
-      else setPhase("holding");
-    } else if (phase === "holding") {
-      if (steered) return;
-      t = setTimeout(() => setPhase("erasing"), 3000);   // +800ms, his ask
-    } else {
-      if (chars > 0) t = setTimeout(() => setChars(chars - 1), 9);
-      else t = setTimeout(() => {
-        setPane((k) => (k + 1) % HERO.length);
-        setPhase("typing");
-      }, 120);                       // a beat of empty ground between the two
-    }
+    if (lite || steered) return;
+    const t = setTimeout(() => setPane((k) => (k + 1) % HERO.length), 4050);
     return () => clearTimeout(t);
-  }, [chars, phase, steered, total, lite, HERO.length]);
+  }, [pane, steered, lite, HERO.length]);
 
-  const typed = Math.min(chars, total);
-
-  const steer = (i) => { setPane(i); setSteered(true); setPhase("typing"); setChars(0); };
+  const steer = (i) => { setPane(i); setSteered(true); };
+  const shows = (i) => lite || i === pane;
 
   return (
     <div className="ld">
@@ -337,44 +310,16 @@ export default function LandingPage() {
                   route in, and they are real buttons. */}
               <div className="hpanes">
                 {HERO.map((s, i) => (
-                  <div className={`hpane${i === pane ? " on" : ""}`} key={s.k}
-                       aria-hidden={i === pane ? undefined : true}>
+                  <div className={`hpane${shows(i) ? " on" : ""}`} key={s.k}
+                       aria-hidden={shows(i) ? undefined : true}>
                     <span className="lab">{s.lab}</span>
-                    {/* Only the LIVE pane types; the other two hold their
-                        full text, which is what keeps the grid cell's height
-                        constant while a line is still being written. The
-                        caret sits after the last character typed so far, and
-                        goes when the line is finished. */}
                     <h1 className="disp xl">
-                      {s.h.map((line, li) => {
-                        const before = s.h.slice(0, li).reduce((n, l) => n + l.length, 0);
-                        /* AN INACTIVE PANE'S HEADLINE IS EMPTY, NOT FULL,
-                           and that one word is the whole of his complaint:
-                           *"even though it disappears, it reappears in the
-                           last second just to fade out — this weird snappy
-                           thing."* The outgoing pane kept its FULL text
-                           while it faded, so the line you had just watched
-                           being rubbed out flashed back complete for the
-                           140ms of the cross-fade. Empty here means the
-                           headline is only ever written or erased — never
-                           faded — which is the separation he asked for,
-                           without a second element to keep in step. The
-                           `min-height` on `.hline` holds the two lines of
-                           space open, so nothing moves while it is blank. */
-                        const shown = i === pane ? line.slice(0, Math.max(0, typed - before)) : "";
-                        const writing = i === pane && typed > before && typed < before + line.length;
-                        return (
-                          <span className="hline" key={line}>
-                            {shown}
-                            {writing && <i className="caret" aria-hidden="true"></i>}
-                          </span>
-                        );
-                      })}
+                      {s.h.map((line) => <span className="hline" key={line}>{line}</span>)}
                     </h1>
                     <p className="lede">{s.p}</p>
                     <div className="ctas">
                       <a className="cta" href={s.href} data-glow=""
-                         tabIndex={i === pane ? undefined : -1}>
+                         tabIndex={shows(i) ? undefined : -1}>
                         {s.cta}<span className="ar">→</span>
                       </a>
                       <span className="fine">
@@ -450,25 +395,25 @@ export default function LandingPage() {
                       comes due is four fresh screenshots — not a rebuild. */}
 
                   {/* 1 · a real tenant site. */}
-                  <div className={`hv${pane === 0 ? " on" : ""}`}>
+                  <div className={`hv${shows(0) ? " on" : ""}`}>
                     <div className="hframe">
-                      <img src="/img/pane-site.webp" width="531" height="459"
+                      <img src="/img/hero-site.jpg" width="1100" height="900"
                            loading="lazy" decoding="async" alt="" />
                     </div>
                   </div>
 
                   {/* 2 · the real booking page, step 1 of 7. */}
-                  <div className={`hv${pane === 1 ? " on" : ""}`}>
+                  <div className={`hv${shows(1) ? " on" : ""}`}>
                     <div className="hframe">
-                      <img src="/img/pane-booking.webp" width="443" height="462"
+                      <img src="/img/hero-booking.jpg" width="920" height="940"
                            loading="lazy" decoding="async" alt="" />
                     </div>
                   </div>
 
                   {/* 3 · the real dashboard. */}
-                  <div className={`hv${pane === 2 ? " on" : ""}`}>
+                  <div className={`hv${shows(2) ? " on" : ""}`}>
                     <div className="hframe">
-                      <img src="/img/pane-dashboard.webp" width="530" height="500"
+                      <img src="/img/hero-dashboard.jpg" width="1060" height="849"
                            loading="lazy" decoding="async" alt="" />
                     </div>
                   </div>
