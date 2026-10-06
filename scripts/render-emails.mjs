@@ -532,7 +532,7 @@ const EMAILS = [
   // that reads as present in the code and turns out to be missing on the page.
   ["platform-payment-failed", "Detailer · a payment did not go through", () => T.billingEmail(
     platformBrand(PLATFORM),
-    { kind: "failed", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds." },
+    { kind: "failed", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds.", reasonCode: "insufficient_funds" },
     LANG,
   )],
   ["platform-suspended", "Detailer · the booking page is offline", () => T.billingEmail(

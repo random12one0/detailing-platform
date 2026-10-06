@@ -407,15 +407,22 @@ async function invoiceFailed(invoice: Obj): Promise<void> {
   // ONE CALL, ONLY ON A FAILURE, AND IT IS BEST-EFFORT: a reason we cannot
   // fetch must never stop the account being marked past due.
   let reason: string | null = null;
+  // The machine-readable half, so the email can say it in the reader's
+  // language (`declineText` in emailTemplates.ts). The decline code first —
+  // it is the specific one; `failure_code` is often just `card_declined`.
+  let reasonCode: string | null = null;
   try {
-    const inline = asObj(invoice.last_finalization_error).message;
+    const err = asObj(invoice.last_finalization_error);
+    const inline = err.message;
     if (typeof inline === "string" && inline) {
       reason = inline;
+      reasonCode = (err.decline_code as string) ?? (err.code as string) ?? null;
     } else if (typeof invoice.charge === "string" && invoice.charge) {
       const charge = await stripe(`/charges/${invoice.charge}`);
       reason = (charge.failure_message as string)
         ?? (asObj(charge.outcome).seller_message as string)
         ?? null;
+      reasonCode = (asObj(charge.outcome).reason as string) ?? (charge.failure_code as string) ?? null;
     }
   } catch (e) {
     console.error("could not read why the card was refused:", e);
@@ -444,8 +451,8 @@ async function invoiceFailed(invoice: Obj): Promise<void> {
     last_failure_reason: reason,
   }).eq("business_id", businessId);
 
-  if (exhausted) await suspend(businessId, reason, amount);
-  else await tell(businessId, "failed", amount, reason);
+  if (exhausted) await suspend(businessId, reason, amount, reasonCode);
+  else await tell(businessId, "failed", amount, reason, reasonCode);
 }
 
 /** Mirror one Stripe invoice so the billing page never has to call Stripe. */
@@ -467,13 +474,13 @@ async function mirrorInvoice(businessId: string, invoice: Obj): Promise<void> {
   }, { onConflict: "id" });
 }
 
-async function suspend(businessId: string, reason: string | null, amount: number): Promise<void> {
+async function suspend(businessId: string, reason: string | null, amount: number, reasonCode: string | null = null): Promise<void> {
   await supabase.from("platform_subscriptions").update({
     status: "suspended",
     suspended_at: new Date().toISOString(),
   }).eq("business_id", businessId);
   await setSuspension(businessId, true);
-  await tell(businessId, "suspended", amount, reason);
+  await tell(businessId, "suspended", amount, reason, reasonCode);
 }
 
 /**
@@ -498,6 +505,7 @@ async function tell(
   kind: "failed" | "suspended",
   amount: number,
   reason: string | null,
+  reasonCode: string | null = null,
 ): Promise<void> {
   const { data: business } = await supabase
     .from("businesses")
@@ -514,7 +522,7 @@ async function tell(
 
   const mail = billingEmail(platformBrand(PLATFORM_URL), {
     kind, businessName: String(business.name ?? "Your business"),
-    billingUrl: BILLING_URL, amount, reason,
+    billingUrl: BILLING_URL, amount, reason, reasonCode,
   }, await recipientLang(to, businessId)); // ROADMAP 3.4 FAULT 4 — the owner's dashboard language.
   await sendTenantEmail({
     businessId, to, subject: mail.subject, html: mail.html, text: mail.text,

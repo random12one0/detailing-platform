@@ -388,6 +388,17 @@ export const es: Record<string, string> = {
   "Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid.":
     "Todavía no hay nada en riesgo, y nunca se borra nada. Si después de dos semanas todavía no pasa, tu página de reservas queda fuera de línea hasta que se pague.",
   "Your bank said: {reason}": "Tu banco dijo: {reason}",
+  // `declineText` — Stripe's common decline codes, in our words.
+  "The card did not have enough funds.": "La tarjeta no tenía fondos suficientes.",
+  "The card has expired.": "La tarjeta está vencida.",
+  "The card's security code did not match.": "El código de seguridad de la tarjeta no coincidió.",
+  "The card number is not valid.": "El número de la tarjeta no es válido.",
+  "The card has reached its limit.": "La tarjeta llegó a su límite.",
+  "There was a problem processing the card. It may work on the next try.":
+    "Hubo un problema al procesar la tarjeta. Puede que funcione en el próximo intento.",
+  "The bank needs you to approve this payment.": "El banco necesita que apruebes este pago.",
+  "The card was declined. Your bank can tell you why.":
+    "La tarjeta fue rechazada. Tu banco te puede decir por qué.",
   "Put your page back online": "Volver a poner tu página en línea",
   "Update your card": "Actualizar tu tarjeta",
   "Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped.":

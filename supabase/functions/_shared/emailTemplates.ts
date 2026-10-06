@@ -1403,6 +1403,10 @@ export interface BillingEmailData {
   amount: number;
   /** The provider's own reason, when Stripe gave one. */
   reason?: string | null;
+  /** Stripe's decline code (`insufficient_funds`, …). When it is one we know,
+   *  the email says it in OUR words in the reader's language and `reason` is
+   *  not printed; an unknown code falls back to `reason` as given. */
+  reasonCode?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1480,11 +1484,46 @@ export function platformAlertEmail(brand: TenantBrand, a: PlatformAlertData, lan
   return { subject: a.headline, html, text: htmlToText(html) };
 }
 
+/**
+ * WHY THE CARD FAILED, IN OUR WORDS — the common Stripe decline codes. Stripe's
+ * own `failure_message` is English only ("Your card has insufficient funds."),
+ * so a Spanish billing email quoted English. An unknown code returns null and the
+ * caller prints the provider's text as before. Lost, stolen and fraud codes get
+ * the plain "declined" sentence on purpose: Stripe advises never repeating them.
+ */
+function declineText(code: string | null | undefined, lang?: unknown): string | null {
+  const tt = T(lang);
+  switch (String(code ?? "")) {
+    case "insufficient_funds":
+      return tt("The card did not have enough funds.");
+    case "expired_card":
+      return tt("The card has expired.");
+    case "incorrect_cvc": case "invalid_cvc":
+      return tt("The card's security code did not match.");
+    case "incorrect_number": case "invalid_number":
+      return tt("The card number is not valid.");
+    case "card_velocity_exceeded": case "withdrawal_count_limit_exceeded":
+      return tt("The card has reached its limit.");
+    case "processing_error":
+      return tt("There was a problem processing the card. It may work on the next try.");
+    case "authentication_required":
+      return tt("The bank needs you to approve this payment.");
+    case "card_declined": case "generic_decline": case "do_not_honor": case "call_issuer":
+    case "transaction_not_allowed": case "not_permitted": case "restricted_card":
+    case "lost_card": case "stolen_card": case "pickup_card": case "fraudulent":
+      return tt("The card was declined. Your bank can tell you why.");
+    default:
+      return null;
+  }
+}
+
 export function billingEmail(brand: TenantBrand, b: BillingEmailData, lang?: unknown): Mail {
   // `lang` is the RECIPIENT's dashboard language — see `ownerNewBookingEmail`.
-  // The bank's own reason is Stripe's text and is printed as given.
+  // The bank's reason is ours when Stripe's code is one we know, else Stripe's
+  // own text as given (`declineText`).
   const tt = T(lang);
   const down = b.kind === "suspended";
+  const why = declineText(b.reasonCode, lang) ?? b.reason;
   const blocks = [
     labBlock(down ? tt("Your site is offline") : tt("Payment problem"), "bad"),
     headlineBlock(down
@@ -1498,7 +1537,7 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData, lang?: unk
       ? tt("Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back as soon as this is sorted out.")
       : tt("Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid."),
       16),
-    b.reason ? fineBlock(tt("Your bank said: {reason}", { reason: esc(b.reason) }), 14) : "",
+    why ? fineBlock(tt("Your bank said: {reason}", { reason: esc(why) }), 14) : "",
     // THE BUTTON DOES NOT NAME THE CARD ON THE SUSPENDED EMAIL, and that is
     // not vagueness. With Stripe set to CANCEL at the end of dunning — the
     // owner's choice, 2026-09-05 — there is no invoice left to settle, so a new
