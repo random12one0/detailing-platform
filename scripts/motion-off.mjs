@@ -16,19 +16,27 @@
 // of its own and every ancestor's, so a child of an opacity-0 wrapper is
 // counted as the invisible thing it is.
 //
-// WHAT "LEFT HIDDEN" MEANS, WITHOUT A JUDGEMENT. A responsive page hides
-// things on purpose — the burger at a desk, the links on a phone, a caption
-// until a pointer is over it — and none of that is motion's doing. So the
-// same page is also walked WITH motion on, at the same width: watched at the
-// top for a full hero rotation, then scrolled through end to end. An element
-// fails if motion-off hides it and motion-on EVER shows it. Anything motion-on
-// never shows either is printed by count as "hidden in both", never folded
-// into a pass silently.
+// WHAT "LEFT HIDDEN" MEANS. TWO RULES, AND THE FIRST HAS NO EXCEPTIONS.
+// (1) A RENDERED element at opacity 0 or visibility:hidden FAILS, whatever
+// it is and whatever motion-on does with it. (2) An element that is NOT
+// RENDERED (display:none) fails if motion-on renders it at the same width —
+// the page is also walked WITH motion on, watched at the top for a full hero
+// rotation and scrolled end to end — unless it is a declared exception. The
+// responsive page's own display:none (the burger at a desk, the links on a
+// phone) is not motion's doing and is printed by name as "not rendered in
+// either mode", never folded into a pass silently.
+//
+// **RULE (1) WAS ONCE RULE (2), AND THAT IS HOW 48 CAPTIONS PASSED.** The
+// first version let anything motion-on never showed either through as
+// "hidden in both" — and the wall's hover-only captions are never shown
+// without a pointer, so they sat at opacity 0 in a bucket the run printed and
+// passed. The owner measured them, 2026-10-06. "It is not motion's doing"
+// was a judgement, and the clause's "NO element" was written to refuse it.
 //
 // THE EXCEPTIONS ARE DECLARED, NAMED, AND COUNTED WITH AN EQUALITY
-// (docs/gotchas.md 98). Each is something motion-on shows that motion-off
-// deliberately does not, with the reason. A new one has to be added here, on
-// purpose, with its own reason.
+// (docs/gotchas.md 98). Each is something motion-on renders that motion-off
+// deliberately does NOT RENDER, with the reason. An exception can never
+// excuse opacity 0. A new one has to be added here, on purpose.
 //
 // CANARIES, EVERY RUN, aimed at the scan this script uses (gotchas 95): an
 // opacity-0 paragraph planted after settle must be caught by the opacity rule,
@@ -57,11 +65,13 @@ if (SHOTS) mkdirSync(SHOTS, { recursive: true });
 const EXCEPTIONS = {
   ".htabs": "the hero's tabs choose which pane shows; with motion off all three show, so there is nothing to choose",
   ".hpane + .hpane .fine": "\"Built by a detailer…\" repeats under every hero pane; with all three showing it is said once, under pane one",
-  ".nojobs": "the thread demo's BEFORE frame; motion-off shows the after (four jobs booked), and \"Nothing yet\" over them would be false",
+  ".nojobs": "the thread demo's BEFORE frame; motion-off shows the after (four jobs booked), so it is not rendered — \"Nothing yet\" over them would be false",
   ".divider": "the pinned demo's progress line; with motion off there is no pin and no progress to draw",
   ".dotfield": "the moving dot canvas; motion-off draws the same lattice standing still, in CSS (.dots)",
+  ".wt figcaption": "hover-only names on the aria-hidden screenshot wall BEHIND a headline; shown with motion off they printed through the copy (looked at, 320 and 1440), so motion-off does not render them",
+  ".cursor": "the light that follows the mouse; with motion off nothing follows the pointer, so it is not rendered",
 };
-const EXPECTED_EXCEPTIONS = 5;
+const EXPECTED_EXCEPTIONS = 7;
 
 // One scan of the live page. Keys are DOM paths, so the same element can be
 // found again in the motion-on page.
@@ -101,6 +111,14 @@ const SCAN = (exc) => {
 // THE ONE RULE, used by the scan AND by the canaries, so a canary tests this
 // code rather than a copy of it. `inSeen`: motion-on showed this element.
 const judge = (v, later, inSeen) => {
+  // RENDERED BUT INVISIBLE FAILS, ALWAYS. No exception and no motion-on
+  // comparison can excuse opacity 0 or visibility:hidden — that is the
+  // Done-when's word "NO". The first version let anything motion-on never
+  // showed either through as "hidden in both", and 48 hover-only captions
+  // passed that way; the owner measured them. Only an element that is NOT
+  // RENDERED (display:none) may be excused, by a declared exception or by
+  // motion-on not rendering it at that width either (the responsive nav).
+  if (!v.shown && !v.none) return "hidden";
   if (!v.shown && !v.exc && inSeen) return "hidden";
   if (!later || later.shown !== v.shown || later.op !== v.op) return "changed";
   return null;
@@ -132,7 +150,7 @@ for (const [pname, path] of PAGES) {
     }));
     for (const h of h1) if (h.moved || h.caret) fail(`${pname}@${w} motion-on: headline "${h.text}" is not fully drawn on landing (${h.moved ? "still in its mask" : "being typed"})`);
     const seen = {};
-    const take = async () => { for (const [k, v] of Object.entries(await on.evaluate(SCAN, EXCEPTIONS))) if (v.shown) seen[k] = true; };
+    const take = async () => { for (const [k, v] of Object.entries(await on.evaluate(SCAN, EXCEPTIONS))) if (!v.none) seen[k] = true; };
     await take();
     if (await on.$(".hpane")) for (let t = 0; t < 14; t++) { await on.waitForTimeout(1000); await take(); }
     const H = await on.evaluate(() => document.documentElement.scrollHeight);
@@ -171,7 +189,9 @@ for (const [pname, path] of PAGES) {
       const opCanary = Object.entries(mid).find(([, v]) => v.name === "p#mo-canary-op");
       const tmA = Object.entries(mid).find(([, v]) => v.name === "p#mo-canary-timer");
       const tmB = Object.entries(b).find(([, v]) => v.name === "p#mo-canary-timer");
-      const caughtOp = !!opCanary && judge(opCanary[1], b[opCanary[0]], true) === "hidden";
+      // inSeen FALSE on purpose: the canary is something motion-on never
+      // shows either, which is exactly the hole the captions went through.
+      const caughtOp = !!opCanary && judge(opCanary[1], b[opCanary[0]], false) === "hidden";
       const caughtTimer = !!tmA && judge(tmA[1], tmB && tmB[1], true) === "changed";
       if (caughtOp && caughtTimer) canariesCaught++;
       else fail(`${tag}: CANARY NOT CAUGHT (opacity ${!!caughtOp}, timer ${!!caughtTimer}) — this run measured nothing`);
@@ -188,7 +208,7 @@ for (const [pname, path] of PAGES) {
         if (!why) continue;
         bad++;
         if (bad > 12) continue;
-        if (why === "hidden") fail(`${tag}: ${v.name}${v.text ? ` «${v.text}»` : ""} — motion-on shows it; here ${v.none ? "display:none" : !v.vis ? "visibility:hidden" : "opacity " + v.op}`);
+        if (why === "hidden") fail(`${tag}: ${v.name}${v.text ? ` «${v.text}»` : ""} — ${v.none ? "not rendered here, and motion-on renders it" : `rendered at ${!v.vis ? "visibility:hidden" : "opacity " + v.op}`}`);
         else fail(`${tag}: ${v.name} changed after first paint settled (${v.shown ? "shown" : "hidden"} → ${later ? (later.shown ? "shown" : "hidden") : "gone"}) — it was waiting on a timer`);
       }
       if (bad > 12) fail(`${tag}: …and ${bad - 12} more`);
@@ -211,7 +231,7 @@ for (const [pname, path] of PAGES) {
       const at = x.findIndex((k, i) => k !== y[i]);
       if (at >= 0) fail(`${tag}: reading order differs from motion-on at ${a[y[at]]?.name}`);
       for (const e of errs) fail(`${tag}: console — ${e.slice(0, 140)}`);
-      console.log(`  ${bad || at >= 0 || errs.length ? "  " : "ok"}    ${tag}: ${Object.keys(a).length} elements read, ${bad} left hidden, ${excepted} excepted, ${hiddenBoth} hidden in both (not motion's doing), ${common.size} in reading order, console ${errs.length}`);
+      console.log(`  ${bad || at >= 0 || errs.length ? "  " : "ok"}    ${tag}: ${Object.keys(a).length} elements read, ${bad} left hidden, ${excepted} excepted, ${hiddenBoth} hidden in both (not rendered in either mode), ${common.size} in reading order, console ${errs.length}`);
       await ctx.close();
     }
   }
@@ -222,7 +242,7 @@ const declared = Object.keys(EXCEPTIONS).length;
 if (declared !== EXPECTED_EXCEPTIONS) fail(`${declared} exceptions declared, ${EXPECTED_EXCEPTIONS} expected — a new one needs its reason and this count moved on purpose`);
 const unused = Object.keys(EXCEPTIONS).filter((s) => !excUsed.has(s));
 if (PAGES.length === 2 && WIDTHS.length === 5 && unused.length) fail(`exception never used on a full run, so it is excusing nothing: ${unused.join(", ")}`);
-console.log("\nhidden in both modes, by name — motion-on never showed these either (responsive, hover, closed):");
+console.log("\nnot rendered in either mode, by name — display:none with motion on too (responsive, closed):");
 for (const [n, c] of [...bothNames].sort((x, y) => y[1] - x[1])) console.log(`  ${String(c).padStart(4)}  ${n}`);
 console.log(`\ncanaries caught on ${canariesCaught} of ${runs} runs`);
 console.log(failures ? `FAIL — ${failures} finding(s)` : `PASS — ${runs} of ${runs} motion-off runs: nothing left hidden, nothing waiting on a timer, reading order unchanged`);

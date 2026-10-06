@@ -1281,12 +1281,20 @@
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
           mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
 }
-.ld .wrow { overflow: hidden; }
+/* THE TRACK IS OUT OF FLOW, ON PURPOSE — ROADMAP 7.9, 2026-10-06. It is a
+   marquee: twice its tiles wide so it can slide -50% and loop, and its row
+   clips it. In flow, that is a 4,000px box inside a 1,440px one, which is
+   what `sweep-widths` reported as past-parent at 1440 and 1920 — true, and
+   meant. Positioned, it says what it is: a strip that leaves its row by
+   design, which the sweep's own rule already exempts. The row takes its
+   height from --rh, which the tiles were already using, so nothing moves. */
+.ld .wrow { overflow: hidden; position: relative; height: var(--rh); }
 /* Three heights, so the field has a horizon rather than a rule. */
 .ld .wrow.r1 { --rh: 196px; }
 .ld .wrow.r2 { --rh: 248px; }
 .ld .wrow.r3 { --rh: 168px; }
 .ld .wtrack {
+  position: absolute; top: 0; left: 0;
   display: flex; width: max-content;
   gap: clamp(18px,2.6vw,34px);
   animation: ld-slide var(--dur, 96s) linear infinite;
@@ -1642,6 +1650,19 @@
 .lite .ld .hpanes, .lite .ld .hvis { gap: clamp(40px, 7vh, 72px); }
 .lite .ld .hpane + .hpane .fine { display: none; }
 .lite .ld .htabs { display: none; }
+/* ROADMAP 7.9, SENT BACK — "NO ELEMENT AT OPACITY 0" IS ABSOLUTE. The wall's
+   48 captions sat at opacity 0 waiting for a pointer, and the owner measured
+   them; aria-hidden does not excuse them. "Visible or not rendered at all."
+   SHOWN WAS TRIED FIRST AND IT WAS WORSE: the wall is a field BEHIND this
+   section's headline and paragraph, and 48 bright uppercase labels printed
+   through the copy — "PICKING A TIME" beside "Every one of" at 320, captions
+   showing through "Yours will be too" at 1440. Looked at, not reasoned about.
+   So with motion off they are NOT RENDERED; with motion on they stay as they
+   were, hover-only. The thread demo's "Nothing yet" frame goes the same way:
+   with motion off the four jobs have already landed, so the empty state is
+   not rendered rather than left invisible on top of them. */
+.lite .ld .wt figcaption { display: none; }
+.lite .ld .nojobs { display: none; }
 .lite .ld .htab-bar { animation: none !important; transform: scaleX(1) !important; }
 /* The caret only exists while something is typing, and in lite nothing
    types — the component writes the headline out whole. Hidden anyway, so a
