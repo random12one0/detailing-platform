@@ -1,15 +1,17 @@
 {
-  "git_sha": "bae576990b0fca054882ece8b5f83f91e3daddd9",
-  "git_sha_started": "71c29caa087f70aa8a6d7e3b949122d4abb1ccbb",
-  "head_moved": true,
+  "git_sha": "114b64678447956d9b3a77c783161f9ccef9b5a6",
+  "git_sha_started": "114b64678447956d9b3a77c783161f9ccef9b5a6",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-03T02:20:25.172Z",
+  "finished_at": "2026-10-06T22:34:35.559Z",
   "failures": [
-    "SUPABASE HOLDS NO RESTORE POINT. Plan is \"free\", point-in-time recovery is off and the backup list is empty. WAL archiving is running (15085 segments, 0 failures) but that is Supabase's own infrastructure, not something Andrew can restore from. THIS IS A FACT ABOUT SUPABASE ONLY - the restore path that does exist is github.com/random12one0/detailing-platform-backups (private): nightly 02:10 Pacific, pg_dump custom format, refuses a dump under 50 KB, age-encrypted, published as a release asset, 30-day retention keeping the 1st of each month. Its two real gaps: nobody has ever restored one, and the age private key's location is unrecorded. See docs/recovery.md - do not re-measure it here."
+    "SUPABASE HOLDS NO RESTORE POINT. Plan is \"free\", point-in-time recovery is off and the backup list is empty. WAL archiving is running (17387 segments, 0 failures) but that is Supabase's own infrastructure, not something Andrew can restore from. THIS IS A FACT ABOUT SUPABASE ONLY - the restore path that does exist is github.com/random12one0/detailing-platform-backups (private): nightly 02:10 Pacific, pg_dump custom format, refuses a dump under 50 KB, age-encrypted, published as a release asset, 30-day retention keeping the 1st of each month. Its two real gaps: nobody has ever restored one, and nobody has confirmed the age private key is where it was meant to go (Andrew's password manager). See docs/recovery.md - do not re-measure it here.",
+    "1 table(s) the migrations declare are NOT in `public`: platform_costs. The live database does not match the repo."
   ],
   "warnings": [
-    "THIS DRILLS A LOGICAL ROUND TRIP, NOT SUPABASE'S BACKUPS — there are none to test. It does not cover auth.users (the logins, in another schema) or the bytes behind storage.objects. See docs/recovery.md.",
-    "these tables changed in the live database DURING the drill, which is normal on a running system and is NOT a restore failure: bookings (56 -> 56 rows), session_pings (85 -> 85 rows), site_probes (4 -> 4 rows)"
+    "THIS DRILLS A LOGICAL ROUND TRIP, NOT SUPABASE'S BACKUPS — there are none to test. Since 2026-10-06 it carries the logins as ACCOUNTS (no password, no token — people get back in by a reset email) and the stored files as bytes, both to a folder outside the repository. It does not restore the nightly encrypted dump. See docs/recovery.md.",
+    "these tables changed in the live database DURING the drill, which is normal on a running system and is NOT a restore failure: job_heartbeats (2 -> 2 rows), owner_daily_digest_state (302 -> 303 rows), site_probes (4 -> 4 rows)",
+    "written for the fixture AFTER the export, so not in it and not restored — as on a real worst day: owner_daily_digest_state (0 in the export, 1 live)"
   ],
   "artifacts": [
     "artifacts/restore-drill/public-export.json"
@@ -21,30 +23,42 @@
       "pitr_enabled": false,
       "listed_backups": 0,
       "walg_enabled": true,
-      "wal_archived_count": 15085,
-      "wal_last_archived": "2026-10-03 02:14:32.11694+00",
+      "wal_archived_count": 17387,
+      "wal_last_archived": "2026-10-06 22:27:42.819017+00",
       "wal_failed_count": 0
     },
-    "schema": "restore_drill"
+    "schema": "restore_drill",
+    "recovery_dir": "detailing-platform-recovery/2026-10-06 (under the home folder, outside git)",
+    "accounts": 45,
+    "memberships": 22,
+    "files": 148,
+    "file_bytes": 14680
   },
   "check_id": "restore-drill",
-  "started_at": "2026-10-03T02:16:25.855Z",
+  "started_at": "2026-10-06T22:28:58.152Z",
   "status": "fail",
-  "expected_targets": 55,
+  "expected_targets": 56,
   "discovered_targets": 55,
   "attempted_targets": 55,
   "completed_targets": 55,
   "skipped_targets": 0,
-  "assertions_executed": 61,
+  "assertions_executed": 225,
   "min_assertions": 40,
   "canary": {
     "id": "one row altered in the restored copy · the row comparison must see it",
     "observed_failure": true,
     "caught_by": [
-      "row-compare"
+      "row-compare",
+      "account-compare",
+      "file-check"
     ],
     "findings": [
       "[row-compare] altering a single text value in one restored row changed that table's fingerprint, so 'every table matched' above is a comparison that can fail"
+    ],
+    "detectors_required": [
+      "row-compare",
+      "account-compare",
+      "file-check"
     ]
   }
 }

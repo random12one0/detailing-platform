@@ -7,6 +7,91 @@ recalled.
 
 ---
 
+## The worst day — what you actually do
+
+**Written 2026-10-06 for Andrew, in order. Read this part; the rest of the page
+is the evidence behind it.**
+
+The worst day is: the database is gone or wrecked, and detailers cannot open
+their dashboards and customers cannot book. Here is what you have to bring it
+back, and what you do with each.
+
+**What you will be working from — three things, and where each lives:**
+
+| | Where it is | How fresh |
+|---|---|---|
+| **The nightly backup** — every booking, customer, setting, and probably the logins | Your private GitHub repo `detailing-platform-backups`, one locked file per night | Up to 24 hours old. **Never yet opened by anyone** — see "What is proved" below |
+| **The key that unlocks it** | Your password manager. Nowhere else, on purpose | — |
+| **The drill folder** — the business data, the list of accounts, and every photo | `detailing-platform-recovery` in your home folder on this computer, one folder per day the drill ran | As old as the last time somebody ran the drill. **It is the only copy of the photos anywhere** |
+
+**Step 1 · Stop and get help.** Open a Claude session in this project and say
+"the database is gone, we are doing the worst-day steps in docs/recovery.md".
+Nothing you do in the first hour makes it worse, except deleting things.
+
+**Step 2 · Get somewhere to put it back.** If the Supabase project still exists
+and only the data is bad, it goes back into the same project. If the project is
+gone, you make a new one in the Supabase dashboard (free) and give the session a
+new access token. The session rebuilds every table from the repo's own history
+of changes.
+
+**Step 3 · Put the records back.** Download last night's file from the GitHub
+repo, take the key out of your password manager, and the session walks you
+through unlocking and loading it **on your computer — the key never goes into a
+chat or a file.** If that file will not open (it has never been tried), the
+session loads the drill folder's copy instead; that is older, but it is proved:
+the drill puts it back and checks every row.
+
+**Step 4 · Let people back in — by a password-reset email.** No password is
+copied anywhere, ever (your ruling, 2026-10-06). What comes back is each
+person's **account**: the same id, the same email, the same date they joined,
+and which businesses they belong to. Then each person gets an email with a link
+to choose a new password. Proved on a test business on 2026-10-06: the business
+was deleted, its owner's login deleted, its photo deleted, and all of it came
+back from the drill folder exactly, and a reset link could be made for that
+owner.
+
+**Two things about those emails that you need to know today, not that day:**
+- **Supabase's own mailer cannot send them.** This project has no email service
+  of its own set up for sign-in mail, so it uses Supabase's built-in one, which
+  sends **2 an hour** and only to people on your Supabase team — not to
+  detailers (read from the project's sign-in settings, 2026-10-06). So the
+  session makes each person's link itself and sends it through **Resend**, the
+  same service that sends booking emails. The lasting fix is free: point
+  Supabase's sign-in mail at Resend (Supabase → Authentication → Emails → SMTP).
+- **Each reset email uses one of the day's 100 sends, and your real business
+  shares those 100.** About 45 accounts today. If that is too many for one day,
+  send to the business owners first; staff can follow tomorrow.
+
+Anyone who signs in with Google just signs in with Google again.
+
+**Step 5 · Put the photos back.** The session uploads the drill folder's
+`storage` folder to the same places. The nightly backup **does not carry
+photos at all**, so anything uploaded after the last drill run is lost. That is
+why the drill should be run every week, and before any risky change:
+
+```bash
+set -a; . ./.env; set +a
+node scripts/restore-drill.mjs
+```
+
+**Step 6 · Reconnect the outside services — only if it is a NEW project.** The
+new project has a new address and new keys, so: the function secrets
+(`docs/services-and-secrets.md` lists every one and where to mint it), the
+functions themselves, the website's two settings in Netlify, and the Stripe and
+Resend webhook addresses. The session does each with you; the keys are yours to
+paste.
+
+**Step 7 · Check it, then say so.** Open a few booking pages, sign in as
+yourself, and run the drill once. Then tell your detailers what happened in
+plain words.
+
+**What would make this day short instead of long** — and it needs your card:
+a paid Supabase plan turns on daily backups that Supabase restores for you with
+one button, and point-in-time recovery lets you rewind to a minute. That is one
+row on `FOR-ANDREW.md`.
+
+---
+
 ## Correction first, because the last version of this page said the opposite
 
 The version written 2026-09-20 opened with:
@@ -274,7 +359,25 @@ set -a; . ./.env; set +a
 node scripts/restore-drill.mjs
 ```
 
-It covers `public` only — not `auth`, not storage bytes.
+**Since 2026-10-06 it also carries the logins and the files** — not
+`public` only. The accounts (id, email, created date, email confirmed, how they
+sign in; **never a password or a token**) and every stored file go to
+`~/detailing-platform-recovery/<date>/`, outside the repository, and are judged
+off disk: accounts restored and compared and every membership matched to an
+account; every file checked against the size and checksum storage holds and
+against the first bytes of a real PNG or JPEG. Then a fixture business is
+destroyed — rows, owner login, photo — and put back from those files alone, and
+a password-reset link is generated for its owner (not sent, not kept). Three
+planted defects must each be caught (a row, an account, a file byte), or the
+receipt refuses the run; `--break=canary`, `--break=fixture-photo` and
+`--break=secret-shape` prove it, and `--break=fixture-rows` proves the
+fixture comparison sees a table left out.
+
+**Anything written after the last copy is lost, and the drill shows it.** On
+2026-10-06 a scheduled job wrote a row for the test business between the export
+and the "disaster", and the restore could not bring it back — because the copy
+never had it. That is exactly the real worst day: the nightly backup loses up to
+24 hours, the drill folder loses everything since it last ran.
 
 ---
 

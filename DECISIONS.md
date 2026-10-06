@@ -306,6 +306,8 @@ were made more than once.
 
 - **ROADMAP 3.4d — car sizes in emails are named the way the booking page names them; English changes too** — DP Cowork2, 2026-10-06, on the manager's instruction to fix 3.4d. Seeded sizes (and an older booking's bare key) print as Small / Medium / Large, in the reader's language; a renamed size prints as typed. "Large / SUV" and "Small car" are gone from English emails. Two recorded `scripts/render-emails.mjs` edits. How to reverse it is inside.
 
+- **ROADMAP 6.1 — the restore drill brings back logins as accounts and files as bytes; no password hash or token ever leaves the database** — DP Cowork2, 2026-10-06, on the manager's instruction, amended the same hour by Andrew: no hash or token, not even outside git. A recorded `scripts/restore-drill.mjs` exception. Accounts come back by id, email and created date; people get back in by a reset email. Why, what it costs, and how to reverse it are inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17958,3 +17960,69 @@ straight through in `adjustmentText`; drop the three size keys from
 `_shared/strings/es.ts` and the seeded-size check from the render script in the
 same commit. To keep Spanish but restore the old English only, make `sizeName`
 return the old map's words when the language is English.
+
+## ROADMAP 6.1 — the restore drill brings back logins as accounts and files as bytes; no password hash or token ever leaves the database
+
+*2026-10-06. Built by DP Cowork2 (Lane B).*
+
+**Who decided.** The manager asked for the drill to restore the ability to sign
+in and the stored files (ROADMAP 6.1 gaps 2 and 3), allowing an edit to
+`scripts/restore-drill.mjs` and asking for it to be recorded here like the
+other `scripts/` exceptions. **Andrew then overrode the auth half the same
+hour:** *do NOT export password hashes or any token, not even to a file outside
+git.* Sign-in is restored as the user accounts (id, email, created date) and
+their business memberships, and each person regains access through a
+password-reset email.
+
+**The exception.** One existing file edited, `scripts/restore-drill.mjs`. No
+file added to `scripts/`. It is not a precedent for editing others.
+
+**What the drill now does, beyond `public`.** (6) It exports every account as
+exactly five columns — id, email, created date, email confirmed, sign-in
+providers — to `~/detailing-platform-recovery/<date>/auth-accounts.json`, and
+refuses the run if that file carries any other column or anything shaped like a
+bcrypt hash or a token. It restores them into the throwaway schema, compares,
+and checks every restored membership has an account. (7) It downloads every
+object in every bucket to the same folder and judges each OFF DISK: the size and
+the MD5 storage holds as its eTag, and the first bytes of a real PNG or JPEG.
+(8) It creates a fixture business with a password-less owner, a customer, a
+booking and a photo; destroys all of it; puts it back from the three files on
+disk only; compares; and generates a password-reset link for the owner, judged
+for shape and discarded — never sent, printed or kept. A control generates the
+same link BEFORE the disaster, so a failure after is the restore's.
+
+**Two choices inside it, so nobody re-decides them blind.**
+- **Accounts are restored by a direct insert into `auth.users` and
+  `auth.identities`, not by the admin API**, because the admin API cannot set
+  the created date and the ruling names it. `encrypted_password` stays null.
+  Six text columns (`confirmation_token`, `recovery_token`, `email_change`,
+  `email_change_token_new`, `email_change_token_current`,
+  `reauthentication_token`) are written as **empty strings** — no value — because
+  with them null the sign-in service answered **500** to the reset request.
+  Measured on the first run, fixed on the second.
+- **The restore runs with `session_replication_role = replica` for one
+  transaction**, as `pg_restore --disable-triggers` does, so rows go back as
+  exported rather than as a trigger rewrites them.
+
+**What it costs.** About three minutes. It writes to `kguqylyzgyzfktkfnhjb`
+only: the `restore_drill` schema (dropped at the end), and one
+`restore-fixture-<tag>` business with its owner and photo (deleted at the end,
+`is_demo`, on a `fixture.test` address, so no email costs anything). It puts
+people's emails and photographs in a folder in the home directory, outside git,
+on purpose; the script refuses a folder inside the repository.
+
+**Found by building it.** This project has no SMTP configured for sign-in mail
+(`smtp_host` null, `rate_limit_email_sent` 2, read from the project's auth
+config 2026-10-06). Supabase's built-in mailer delivers only to the project's
+team, so "each person gets a reset email" cannot go through it on the worst
+day. `docs/recovery.md` step 4 sends the links through Resend instead and names
+the free fix.
+
+**What would make this wrong.** If a later drill change adds a column to the
+account select, or the secret-shape guard is loosened to let one through — the
+ruling is that nothing that unlocks an account leaves the database.
+`--break=secret-shape` exists to keep that guard honest.
+
+**How to reverse it.** `git revert` the commit that carries this entry; the
+drill returns to `public` only. Delete `~/detailing-platform-recovery/` by hand
+— it is outside git, so a revert does not touch it.

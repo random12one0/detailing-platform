@@ -8716,6 +8716,50 @@ most corroborated finding in the set.
   backups.** Andrew would far rather read that this morning than discover it
   the week he moves his real business onto this.
 
+  **GAPS (2) AND (3) CLOSED IN THE DRILL, 2026-10-06 — LOGINS AS ACCOUNTS,
+  FILES AS BYTES, AND A FIXTURE BUSINESS LOST AND RESTORED.**
+  `node scripts/restore-drill.mjs` (`receipts/restore-drill.json`), run at the
+  commit that carries this note:
+  * **Logins:** 45 accounts exported as id, email, created date, email confirmed
+    and sign-in providers — **never a password hash or a token** (Andrew's
+    ruling, the same hour) — to `~/detailing-platform-recovery/<date>/`,
+    outside git; restored and compared; **22 memberships, 0 without an
+    account.**
+  * **Files:** **148 of 148** objects downloaded to the same folder and judged
+    off disk — size and MD5 against what storage holds, and the first bytes of a
+    real PNG or JPEG.
+  * **The worst day on one business:** a fixture business, its password-less
+    owner, a customer, a booking and a photo were **destroyed**, then put back
+    from those three files alone. Business identical, account identical (id,
+    email, created date), membership back, photo the same bytes, and a
+    **password-reset link generated** for the owner — not sent, not kept — with
+    the same call made before the disaster as a control.
+  * **Broken on purpose:** `--break=canary` (a row, an account and a file byte
+    are planted every run; skipping them makes the receipt refuse the run),
+    `--break=fixture-photo` (the photo is not put back; reported missing), and
+    `--break=secret-shape` (a hash-shaped string in what the account guard
+    scans; it fires), and `--break=fixture-rows` (the fixture's bookings are left
+    out of the restore; the comparison against the export reports it).
+  * **Two things the runs taught, both fixed in the drill.** A cron job wrote an
+    `owner_daily_digest_state` row for the fixture **after** the export, and the
+    restore — correctly — could not return it; the fixture is now judged against
+    what the export holds, and late writes are reported as what any restore loses.
+    And the first run's restored owner (before the empty-string fix) could not be
+    deleted through the admin API and was left behind; it was deleted by hand, and
+    the cleanup now deletes directly and **fails the run if any piece of the
+    fixture remains.**
+  * **FOUND:** sign-in mail has no SMTP of its own (`smtp_host` null, 2 an hour,
+    Supabase's mailer reaches only the project's team), so a mass password reset
+    cannot go through Supabase. The worst-day procedure sends the links through
+    Resend; the free fix is on Andrew's list.
+  * **Still failing, not this item's:** the drill's posture line (no Supabase
+    restore point, by design until the paid plan) and `platform_costs`, declared
+    by migration `20261006020000` and not in the live database.
+  **The worst-day procedure is now the top of `docs/recovery.md`, in plain
+  words.** The card half is one row on `FOR-ANDREW.md`. **Still open on 6.1:**
+  nobody has opened a nightly dump (the key lookup), the last-restore date in
+  the back office (a publish), and MFA (Andrew's).
+
 - [x] **6.2 — The back office cannot prove the product is healthy.**
   Netlify connected but not read; Supabase needing wiring; email delivery not
   wired; no outage history. Successful jobs are prominent and green; missing

@@ -714,6 +714,33 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **DECIDE · Pay for Supabase backups, when you are ready to put real
+  customers on it (ROADMAP 6.1).** Added 2026-10-06.
+
+  **What this is.** Today the only backups are the nightly locked file in your
+  GitHub repo and the drill folder on this computer. Both work differently from
+  a real backup: somebody has to unlock and load them by hand, and the nightly
+  one has never been opened. Supabase does this properly, for money:
+  - **A paid plan** turns on **daily backups** that Supabase keeps and restores
+    for you with one button. The monthly price is on Supabase's billing page;
+    check it there.
+  - **Point-in-time recovery** on top lets you rewind to any minute. Read off
+    Supabase's own add-on list on 2026-09-20: **$100 a month for 7 days**, $200
+    for 14, $400 for 28. It needs the paid plan first.
+
+  **My recommendation:** the paid plan before your real business moves onto
+  this. Point-in-time later, if ever. Nothing is at risk today because nothing
+  real is stored.
+
+  **And one free thing on the same page, worth doing first:** Supabase cannot
+  email a detailer a password-reset link today (it sends 2 an hour, only to your
+  own team). Pointing its sign-in mail at Resend fixes that for free —
+  Supabase → Authentication → Emails → SMTP. `docs/recovery.md` step 4 has why.
+
+  **What happens on the worst day either way** is written step by step at the
+  top of `docs/recovery.md`.
+
+
 - [ ] **SWITCH · Publish six booking functions, so a press repeated on a bad
   connection does not send a customer two emails or refuse their own booking
   (ROADMAP 6.4).** Added 2026-10-06.

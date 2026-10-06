@@ -66,6 +66,8 @@
 // `artifacts/restore-drill/` as a real file somebody could keep.
 
 import { mkdirSync, writeFileSync, readFileSync, statSync, readdirSync } from "node:fs";
+import os from "node:os";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
@@ -85,6 +87,24 @@ if (!TOKEN || !REF) {
 // This script CREATES AND DROPS A SCHEMA. CLAUDE.md § Hard rules: stop on any
 // project that is not the platform's own, so the allowed ref is named in the
 // file that does the writing.
+// ROADMAP 6.1 gaps (2) and (3): the logins and the stored files. Both go to a
+// folder OUTSIDE the repository, because what they hold is people's emails and
+// photographs, and both are read back from that folder rather than trusted.
+const URL_ = process.env.SUPABASE_URL;
+const SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!URL_ || !SRK) {
+  console.error("SKIPPED — needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the logins and files.");
+  process.exit(1);
+}
+const RECOVERY = path.resolve(process.env.RECOVERY_DIR
+  || path.join(os.homedir(), "detailing-platform-recovery", started_at.slice(0, 10)));
+if ((RECOVERY + path.sep).toLowerCase().startsWith((path.resolve(ROOT) + path.sep).toLowerCase())) {
+  console.error(`REFUSING — ${RECOVERY} is inside the repository. Logins and photos never go under git.`);
+  process.exit(2);
+}
+const HA = { apikey: SRK, Authorization: `Bearer ${SRK}` };
+const md5 = (buf) => createHash("md5").update(buf).digest("hex");
+
 const ALLOWED = "kguqylyzgyzfktkfnhjb";
 if (REF !== ALLOWED) {
   console.error(`REFUSING — this creates a schema and ${REF} is not ${ALLOWED}.`);
@@ -160,6 +180,9 @@ const SCHEMA = "restore_drill";
 let schemaMade = false;
 const canaryDetectors = [];
 let posture = {};
+let fx = null;
+const auth = {};
+const store = {};
 
 /** A content fingerprint of one table: row count plus an order-independent
  *  hash of every row's JSON. Two tables match only if every value matches. */
@@ -220,11 +243,47 @@ try {
       + `github.com/random12one0/detailing-platform-backups (private): nightly 02:10 `
       + `Pacific, pg_dump custom format, refuses a dump under 50 KB, age-encrypted, `
       + `published as a release asset, 30-day retention keeping the 1st of each month. `
-      + `Its two real gaps: nobody has ever restored one, and the age private key's `
-      + `location is unrecorded. See docs/recovery.md - do not re-measure it here.`);
+      + `Its two real gaps: nobody has ever restored one, and nobody has confirmed the `
+      + `age private key is where it was meant to go (Andrew's password manager). See docs/recovery.md - do not re-measure it here.`);
   }
 
   // -------------------------------------------------------------------------
+  // ── 1b · a fixture to lose on purpose ────────────────────────────────
+  // A business, its owner, a customer, a booking and a photo — created now so
+  // every export below carries them, and DESTROYED in § 8 so the restore is of
+  // something that was really gone. The owner has NO PASSWORD at all: the only
+  // way back in is the reset link § 8 generates, which is the worst-day path.
+  console.log("\n1b · a fixture business to lose and bring back");
+  fx = { tag: Math.random().toString(36).slice(2, 8) };
+  fx.email = `restore-fixture-${fx.tag}@fixture.test`;
+  const made = await fetch(`${URL_}/auth/v1/admin/users`, {
+    method: "POST", headers: { ...HA, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: fx.email, email_confirm: true }),
+  }).then((r) => r.json());
+  fx.userId = made?.id ?? null;
+  fx.biz = (await sql(`insert into public.businesses (slug, name, timezone, contact_email, is_demo)
+    values ('restore-fixture-${fx.tag}', 'Restore Fixture ${fx.tag}', 'America/Los_Angeles', '${fx.email}', true)
+    returning id`))[0]?.id ?? null;
+  if (fx.biz && fx.userId) {
+    await sql(`insert into public.business_users (business_id, user_id, role) values ('${fx.biz}', '${fx.userId}', 'owner')`);
+    const cust = (await sql(`insert into public.customers (business_id, name, phone, email)
+      values ('${fx.biz}', 'Drill Customer', '5550199', 'drill-customer-${fx.tag}@fixture.test') returning id`))[0].id;
+    await sql(`insert into public.bookings (business_id, customer_id, customer_name, customer_phone,
+        start_at, end_at, service_type, status, total_price)
+      values ('${fx.biz}', '${cust}', 'Drill Customer', '5550199',
+        now() + interval '30 days', now() + interval '30 days 2 hours', 'dropoff', 'confirmed', 180)`);
+    fx.photo = `${fx.biz}/restore-drill-${fx.tag}.png`;
+    // A real 1x1 PNG, so "it opens" is a question with a true answer.
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+    const up = await fetch(`${URL_}/storage/v1/object/business-media/${fx.photo}`, {
+      method: "POST", headers: { ...HA, "Content-Type": "image/png" }, body: png,
+    });
+    if (!up.ok) fx.photo = null;
+  }
+  assertions++;
+  if (!fx.biz || !fx.userId || !fx.photo) say("the fixture business, owner or photo could not be created, so § 8 has nothing to restore");
+  else console.log(`    restore-fixture-${fx.tag}: business, owner (no password), customer, booking, photo`);
+
   console.log("\n2 · export — every table in public, to a file");
   const tables = (await sql(`
     select c.relname as t from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -419,6 +478,260 @@ try {
     }
   }
 
+
+  // ── 6 · THE LOGINS ───────────────────────────────────────────────────────
+  // ANDREW'S RULING, 2026-10-06: NO PASSWORD HASH AND NO TOKEN LEAVES THE
+  // DATABASE, not even to a file outside git. What comes back is the ACCOUNT —
+  // id, email, created date, whether the email was confirmed, how they sign in
+  // — and each person gets back in through a password-reset email. So the
+  // select names its five columns and nothing else, and the file is checked
+  // for anything shaped like a secret before it counts.
+  console.log("\n6 · the logins — accounts and memberships, never passwords");
+  mkdirSync(RECOVERY, { recursive: true });
+  const ACCOUNTS = `select u.id, u.email, u.created_at, u.email_confirmed_at,
+      coalesce((select array_agg(i.provider order by i.provider) from auth.identities i where i.user_id = u.id), '{}') as providers
+    from auth.users u`;
+  const accounts = await sql(`${ACCOUNTS} order by u.id`);
+  const authFp = (await sql(`select count(*)::int as n,
+      coalesce(md5(string_agg(h, '' order by h)), '') as h
+    from (select md5(to_jsonb(s)::text) as h from (${ACCOUNTS}) s) z`))[0];
+  const authFile = path.join(RECOVERY, "auth-accounts.json");
+  writeFileSync(authFile, JSON.stringify(accounts, null, 1), "utf8");
+  const authText = readFileSync(authFile, "utf8");
+  auth.count = accounts.length;
+  assertions++;
+  const keys = [...new Set(accounts.flatMap((a) => Object.keys(a)))].sort().join(",");
+  if (keys !== "created_at,email,email_confirmed_at,id,providers") say(`the account export carries columns it must not: ${keys}`);
+  assertions++;
+  // --break=secret-shape plants a hash-shaped string in what is SCANNED (never
+  // in the file) to prove this guard can fire.
+  const scanned = BREAK === "secret-shape" ? authText + ' "$2a$10$drillcanarynotarealhash"' : authText;
+  if (/\$2[aby]\$|encrypted_password|_token|refresh|eyJ[A-Za-z0-9_-]{10,}/.test(scanned)) {
+    say("THE ACCOUNT EXPORT CONTAINS SOMETHING SHAPED LIKE A PASSWORD HASH OR A TOKEN. It must not exist; delete " + authFile);
+  }
+  console.log(`    ${accounts.length} accounts -> ${authFile} (no passwords, no tokens)`);
+
+  const onDiskAccounts = JSON.parse(authText);
+  await sql(`create table ${SCHEMA}.auth_accounts (id uuid, email varchar(255), created_at timestamptz,
+    email_confirmed_at timestamptz, providers text[])`);
+  const tagA = `ra${Date.now()}`;
+  await sql(`insert into ${SCHEMA}.auth_accounts select * from
+    json_populate_recordset(null::${SCHEMA}.auth_accounts, $${tagA}$${JSON.stringify(onDiskAccounts)}$${tagA}$)`);
+  const gotA = await fingerprint(SCHEMA, "auth_accounts");
+  assertions++;
+  if (gotA.n !== authFp.n || gotA.h !== authFp.h) {
+    say(`account restore mismatch — exported ${authFp.n}/${authFp.h.slice(0, 8)}, restored ${gotA.n}/${gotA.h.slice(0, 8)}`);
+  }
+  // Every membership in the restored business data has an account to belong to.
+  const orphans = (await sql(`select count(*)::int as n from ${SCHEMA}.business_users m
+    where not exists (select 1 from ${SCHEMA}.auth_accounts a where a.id = m.user_id)`))[0]?.n;
+  const members = (await sql(`select count(*)::int as n from ${SCHEMA}.business_users`))[0]?.n;
+  assertions++;
+  if (orphans !== 0) say(`${orphans} restored membership(s) point at an account the restore does not have`);
+  auth.memberships = members;
+  rows.push({ what: "logins", verdict: gotA.h === authFp.h && orphans === 0 ? "accounts and memberships matched" : "MISMATCH",
+    detail: `${accounts.length} accounts, ${members} memberships, ${orphans} orphaned` });
+  console.log(`    restored ${gotA.n} accounts; ${members} memberships, ${orphans} without an account`);
+  // canary: change one restored email; the comparison must notice.
+  if (BREAK !== "canary") {
+    await sql(`update ${SCHEMA}.auth_accounts set email = email || '.canary' where id = (select id from ${SCHEMA}.auth_accounts limit 1)`);
+  }
+  assertions++;
+  if ((await fingerprint(SCHEMA, "auth_accounts")).h !== authFp.h) canaryDetectors.push("account-compare");
+
+  // ── 7 · THE FILES ────────────────────────────────────────────────────────
+  // Every object in every bucket, downloaded to disk, then judged OFF DISK:
+  // the size storage reports, the MD5 storage reports as its eTag, and the
+  // first bytes of a real PNG or JPEG. "Opens" means it is the kind of file it
+  // says it is and every byte is the byte that was stored.
+  console.log("\n7 · the files — every stored object, to disk, checked");
+  const objs = await sql(`select bucket_id as b, name as n, metadata->>'size' as size,
+      metadata->>'mimetype' as mime, metadata->>'eTag' as etag from storage.objects order by 1, 2`);
+  const opens = (buf, o) => {
+    const p = [];
+    if (o.size != null && buf.length !== Number(o.size)) p.push(`size ${buf.length}, storage says ${o.size}`);
+    const tagMd5 = String(o.etag || "").replace(/"/g, "");
+    if (/^[0-9a-f]{32}$/.test(tagMd5) && md5(buf) !== tagMd5) p.push("bytes differ from the checksum storage holds");
+    const head = buf.subarray(0, 12);
+    const kind = head.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ? "image/png"
+      : head.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ? "image/jpeg"
+      : head.subarray(0, 4).toString() === "RIFF" && head.subarray(8, 12).toString() === "WEBP" ? "image/webp"
+      : head.subarray(0, 4).toString() === "%PDF" ? "application/pdf" : null;
+    if (/^image\/(png|jpeg|webp)$|pdf$/.test(o.mime || "") && kind !== o.mime) p.push(`does not open as ${o.mime} (looks like ${kind ?? "nothing known"})`);
+    return p;
+  };
+  const manifest = [];
+  const bad = [];
+  let firstGood = null;
+  for (const o of objs) {
+    const r = await fetch(`${URL_}/storage/v1/object/authenticated/${o.b}/${o.n.split("/").map(encodeURIComponent).join("/")}`, { headers: HA });
+    const buf = Buffer.from(await r.arrayBuffer());
+    const file = path.join(RECOVERY, "storage", o.b, ...o.n.split("/"));
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, buf);
+    const back = readFileSync(file);
+    const p = r.ok ? opens(back, o) : [`download refused ${r.status}`];
+    assertions++;
+    if (p.length) bad.push(`${o.b}/${o.n}: ${p.join("; ")}`);
+    else firstGood ??= { buf: back, o };
+    manifest.push({ bucket: o.b, name: o.n, size: back.length, mime: o.mime, md5: md5(back) });
+  }
+  writeFileSync(path.join(RECOVERY, "storage-manifest.json"), JSON.stringify(manifest, null, 1), "utf8");
+  store.count = objs.length;
+  store.bytes = manifest.reduce((a, m) => a + m.size, 0);
+  assertions++;
+  if (!objs.length) say("storage.objects is empty, so no file was downloaded or checked");
+  for (const b of bad) say(`file — ${b}`);
+  rows.push({ what: "stored files", verdict: bad.length ? `${bad.length} BAD` : "every file opened and matched",
+    detail: `${objs.length} files, ${store.bytes} bytes` });
+  console.log(`    ${objs.length - bad.length} of ${objs.length} files downloaded, opened and matched (${store.bytes} bytes) -> ${path.join(RECOVERY, "storage")}`);
+  // canary: one flipped byte in a copy must fail the same judgement.
+  if (firstGood) {
+    const copy = Buffer.from(firstGood.buf);
+    if (BREAK !== "canary") copy[copy.length - 1] ^= 0xff;
+    assertions++;
+    if (opens(copy, firstGood.o).length) canaryDetectors.push("file-check");
+  }
+
+  // ── 8 · THE WORST DAY, ON ONE BUSINESS ────────────────────────────────────
+  // Destroy the fixture — rows, login and photo — then put it back from the
+  // three things on disk and nothing else: the public export, the account
+  // file and the downloaded photo. Then ask the only question that matters to
+  // the person who owns it: can they get back in?
+  console.log("\n8 · lose the fixture business, then bring it back from disk");
+  if (fx?.biz && fx?.userId && fx?.photo) {
+    const withBiz = (await sql(`select c.table_name as t from information_schema.columns c
+        join information_schema.tables x on x.table_schema = c.table_schema and x.table_name = c.table_name
+       where c.table_schema = 'public' and c.column_name = 'business_id' and x.table_type = 'BASE TABLE'`)).map((r) => r.t);
+    const scope = (t) => t === "businesses" ? `id = '${fx.biz}'` : `business_id = '${fx.biz}'`;
+    const fxTables = ["businesses", ...withBiz.filter((t) => tables.includes(t))];
+    const fpOf = async (t, schema = "public") => (await sql(`select count(*)::int as n, coalesce(md5(string_agg(h, '' order by h)), '') as h
+      from (select md5(to_jsonb(y)::text) as h from ${schema}.${t} y where ${scope(t)}) z`))[0];
+    // "BEFORE" IS WHAT THE EXPORT HOLDS, NOT THE LIVE ROWS. A cron job wrote an
+    // `owner_daily_digest_state` row for the fixture between the export and the
+    // disaster (measured 2026-10-06), and no restore can return a row its
+    // backup never had — the same is true on the real worst day. So the
+    // restore is judged against the throwaway copy (proved identical to the
+    // export in § 4), and anything written later is reported, not failed.
+    const before = {};
+    const late = [];
+    for (const t of fxTables) {
+      before[t] = await fpOf(t, SCHEMA);
+      const live = await fpOf(t);
+      if (live.h !== before[t].h) late.push(`${t} (${before[t].n} in the export, ${live.n} live)`);
+    }
+    if (late.length) {
+      warnings.push(`written for the fixture AFTER the export, so not in it and not restored — as on a real worst day: ${late.join(", ")}`);
+      console.log(`    (written after the export, so lost by any restore: ${late.join(", ")})`);
+    }
+    const acctBefore = (await sql(`${ACCOUNTS} where u.id = '${fx.userId}'`))[0];
+
+    // CONTROL: the same reset-link call for the same owner BEFORE anything is
+    // lost, so a failure after the restore is the restore's and not the call's.
+    const resetLink = async () => {
+      const r = await fetch(`${URL_}/auth/v1/admin/generate_link`, {
+        method: "POST", headers: { ...HA, "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "recovery", email: fx.email }),
+      });
+      const j = await r.json().catch(() => ({}));
+      const l = j?.action_link ?? j?.properties?.action_link ?? "";
+      // A live credential: judged for shape and dropped, never printed or kept.
+      return { status: r.status, ok: r.ok && typeof l === "string" && /type=recovery/.test(l) };
+    };
+    const control = await resetLink();
+    assertions++;
+    if (!control.ok) say(`CONTROL: a reset link could not be generated even BEFORE the disaster (${control.status}), so the check below means nothing`);
+
+    // THE DISASTER — the photo, the business (its rows cascade) and the login.
+    await fetch(`${URL_}/storage/v1/object/business-media/${fx.photo}`, { method: "DELETE", headers: HA });
+    await sql(`delete from public.businesses where id = '${fx.biz}'`);
+    await fetch(`${URL_}/auth/v1/admin/users/${fx.userId}`, { method: "DELETE", headers: HA });
+    const gone = (await sql(`select (select count(*) from public.businesses where id = '${fx.biz}')
+        + (select count(*) from auth.users where id = '${fx.userId}')
+        + (select count(*) from storage.objects where bucket_id = 'business-media' and name = '${fx.photo}') as n`))[0].n;
+    assertions++;
+    if (Number(gone) !== 0) say(`the fixture was not fully destroyed (${gone} pieces left), so the restore below proves less than it says`);
+    console.log(`    destroyed: business and its rows, the owner's login, the photo`);
+
+    // THE RESTORE — from disk only. Triggers and foreign-key checks are paused
+    // for the one transaction, as pg_restore --disable-triggers does, so rows
+    // go back exactly as exported rather than as a trigger would rewrite them.
+    const acct = onDiskAccounts.find((a) => a.id === fx.userId);
+    const lit = (v) => (v == null ? "null" : `'${String(v).replace(/'/g, "''")}'`);
+    const providers = (Array.isArray(acct?.providers) ? acct.providers
+      : String(acct?.providers ?? "").replace(/[{}]/g, "").split(",").filter(Boolean));
+    if (!providers.length) providers.push("email");
+    let tx = `begin; set local session_replication_role = replica;
+      -- The six text columns below are EMPTY STRINGS, not values: the sign-in
+      -- service reads them as strings and answers 500 to a reset request when
+      -- they are null (measured on the first run of this section). No
+      -- password is written; encrypted_password stays null, so a reset is the
+      -- only way in, which is the point.
+      insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at, created_at, updated_at,
+          raw_app_meta_data, raw_user_meta_data, confirmation_token, recovery_token, email_change,
+          email_change_token_new, email_change_token_current, reauthentication_token)
+        values ('00000000-0000-0000-0000-000000000000', ${lit(acct?.id)}, 'authenticated', 'authenticated',
+          ${lit(acct?.email)}, ${lit(acct?.email_confirmed_at)}, ${lit(acct?.created_at)}, now(),
+          ${lit(JSON.stringify({ provider: providers[0], providers }))}::jsonb, '{}'::jsonb, '', '', '', '', '', '');
+      insert into auth.identities (provider_id, user_id, identity_data, provider, created_at, updated_at)
+        values (${lit(acct?.id)}, ${lit(acct?.id)},
+          ${lit(JSON.stringify({ sub: acct?.id, email: acct?.email, email_verified: true }))}::jsonb, 'email', now(), now());`;
+    for (const t of fxTables) {
+      const mine = (onDisk[t] ?? []).filter((r) => (t === "businesses" ? r.id : r.business_id) === fx.biz);
+      if (!mine.length) continue;
+      // --break=fixture-rows leaves the bookings out, and the comparison
+      // against the export must say so.
+      if (BREAK === "fixture-rows" && t === "bookings") continue;
+      const tg = `fx${t.replace(/_/g, "")}`;
+      tx += `\n insert into public.${t} select * from json_populate_recordset(null::public.${t}, $${tg}$${JSON.stringify(mine)}$${tg}$);`;
+    }
+    await sql(tx + "\ncommit;");
+    if (BREAK !== "fixture-photo") {
+      await fetch(`${URL_}/storage/v1/object/business-media/${fx.photo}`, {
+        method: "POST", headers: { ...HA, "Content-Type": "image/png" },
+        body: readFileSync(path.join(RECOVERY, "storage", "business-media", ...fx.photo.split("/"))),
+      });
+    }
+
+    // THE COMPARISON.
+    const diff = [];
+    for (const t of fxTables) {
+      const now = await fpOf(t);
+      if (now.n !== before[t].n || now.h !== before[t].h) diff.push(`${t} (${before[t].n} rows before, ${now.n} after)`);
+    }
+    assertions++;
+    if (diff.length) say(`the fixture business did not come back identical: ${diff.join(", ")}`);
+    const acctAfter = (await sql(`${ACCOUNTS} where u.id = '${fx.userId}'`))[0];
+    assertions++;
+    if (JSON.stringify(acctAfter) !== JSON.stringify(acctBefore)) {
+      say(`the owner's account came back different — before ${JSON.stringify(acctBefore)}, after ${JSON.stringify(acctAfter)}`);
+    }
+    const member = (await sql(`select role from public.business_users where business_id = '${fx.biz}' and user_id = '${fx.userId}'`))[0];
+    assertions++;
+    if (member?.role !== "owner") say("the owner's membership did not come back");
+    const photo = await fetch(`${URL_}/storage/v1/object/authenticated/business-media/${fx.photo}`, { headers: HA });
+    const photoBuf = Buffer.from(await photo.arrayBuffer());
+    const photoMeta = manifest.find((m) => m.bucket === "business-media" && m.name === fx.photo);
+    assertions++;
+    const photoOk = photo.ok && photoMeta && md5(photoBuf) === photoMeta.md5
+      && opens(photoBuf, { mime: "image/png", size: photoMeta.size }).length === 0;
+    if (!photoOk) say(`the fixture's photo did not come back (${photo.status}), so a restored row points at nothing`);
+
+    // CAN THEY GET BACK IN? A reset link is GENERATED and not sent: the admin
+    // endpoint returns it without mailing anybody. It is a live credential,
+    // so it is checked for shape and dropped — never printed, never written.
+    const link = await resetLink();
+    const linkOk = link.ok;
+    assertions++;
+    if (!linkOk) say(`a password-reset link could NOT be generated for the restored owner (${link.status}) — the account is back and nobody can get into it`);
+    rows.push({ what: "fixture lost and restored from disk",
+      verdict: !diff.length && JSON.stringify(acctAfter) === JSON.stringify(acctBefore) && member?.role === "owner" && photoOk && linkOk
+        ? "business, login, membership and photo back; reset link generates" : "INCOMPLETE",
+      detail: `${fxTables.filter((t) => before[t].n).length} tables with rows; reset link ${linkOk ? "generated and discarded, not sent" : "FAILED"}` });
+    console.log(`    business ${diff.length ? "DIFFERS" : "identical"} · account ${JSON.stringify(acctAfter) === JSON.stringify(acctBefore) ? "identical (id, email, created date)" : "DIFFERS"}`
+      + ` · membership ${member?.role === "owner" ? "back" : "MISSING"} · photo ${photoOk ? "opens, same bytes" : "MISSING"}`
+      + ` · reset link ${linkOk ? "generated (not sent, not kept)" : "FAILED"}`);
+  }
 } catch (e) {
   // **A CRASH USED TO LEAVE NO RECEIPT AT ALL.** The only `try` here had a
   // `finally` and no `catch`, so any throw - including the deliberate one for
@@ -428,6 +741,20 @@ try {
   say(`THE DRILL DID NOT FINISH: ${e.message}. The counts below are how far it got, `
     + `not a result.`);
 } finally {
+  if (fx?.photo) await fetch(`${URL_}/storage/v1/object/business-media/${fx.photo}`, { method: "DELETE", headers: HA }).catch(() => {});
+  if (fx?.biz) await sql(`delete from public.businesses where id = '${fx.biz}'`).catch((e) => say("could not delete the fixture business: " + e.message));
+  if (fx?.userId) {
+    await fetch(`${URL_}/auth/v1/admin/users/${fx.userId}`, { method: "DELETE", headers: HA }).catch(() => {});
+    // THE ADMIN DELETE CAN FAIL QUIETLY on an account this drill restored by
+    // hand — it did on 2026-10-06, before the empty-string columns, and left a
+    // login behind for the next run to count. So: delete directly, then prove
+    // nothing of the fixture is left.
+    await sql(`delete from auth.users where id = '${fx.userId}'`).catch(() => {});
+    const left = (await sql(`select (select count(*) from auth.users where id = '${fx.userId}')
+        + (select count(*) from public.businesses where id = '${fx.biz ?? fx.userId}') as n`).catch(() => [{ n: -1 }]))[0].n;
+    assertions++;
+    if (Number(left) !== 0) say(`the fixture was not cleaned up (${left} piece(s) left) — delete restore-fixture-${fx.tag} by hand`);
+  }
   if (schemaMade && !KEEP) {
     await sql(`drop schema if exists ${SCHEMA} cascade`).catch((e) =>
       say("could not drop the drill schema: " + e.message));
@@ -438,13 +765,15 @@ try {
 
 const canary = {
   id: "one row altered in the restored copy · the row comparison must see it",
-  observed_failure: canaryDetectors.includes("row-compare"),
+  // ALL THREE must see their planted defect: a row, an account, a file byte.
+  observed_failure: ["row-compare", "account-compare", "file-check"].every((d) => canaryDetectors.includes(d)),
   caught_by: canaryDetectors,
   findings: canaryDetectors.includes("row-compare")
     ? ["[row-compare] altering a single text value in one restored row changed that table's "
       + "fingerprint, so 'every table matched' above is a comparison that can fail"]
     : ["[row-compare] NOT CAUGHT — the comparison did not notice an altered row, so it cannot "
       + "tell a good restore from a bad one and every match above is void"],
+  detectors_required: ["row-compare", "account-compare", "file-check"],
 };
 
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
@@ -466,11 +795,17 @@ const { path: receiptPath } = writeReceipt({
   warnings: [
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
     "THIS DRILLS A LOGICAL ROUND TRIP, NOT SUPABASE'S BACKUPS — there are none to test. "
-    + "It does not cover auth.users (the logins, in another schema) or the bytes behind "
-    + "storage.objects. See docs/recovery.md.",
+    + "Since 2026-10-06 it carries the logins as ACCOUNTS (no password, no token — people "
+    + "get back in by a reset email) and the stored files as bytes, both to a folder "
+    + "outside the repository. It does not restore the nightly encrypted dump. See docs/recovery.md.",
     ...warnings,
   ],
-  dimensions: { project: REF, posture, schema: SCHEMA },
+  dimensions: {
+    project: REF, posture, schema: SCHEMA,
+    recovery_dir: path.relative(os.homedir(), RECOVERY).split(path.sep).join("/") + " (under the home folder, outside git)",
+    accounts: auth.count ?? null, memberships: auth.memberships ?? null,
+    files: store.count ?? null, file_bytes: store.bytes ?? null,
+  },
   canary,
 });
 
