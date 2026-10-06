@@ -16,12 +16,20 @@
 // maintenance nudge. That is the same journey stages 1 and 1b translated, one
 // medium later.
 //
-// **NOT THE DETAILER'S.** The owner's booking alert, the stale-request nudge,
+// ~~**NOT THE DETAILER'S.** The owner's booking alert, the stale-request nudge,
 // the staff invite, the plan-ended notice and the platform's own billing mail
 // all go to somebody who runs a business on this product, and their language
 // is the DASHBOARD's question — stage 2b. Translating half of that audience
 // would give a Spanish-speaking detailer an English dashboard and Spanish
-// alerts, which is worse than either.
+// alerts, which is worse than either.~~
+// **SUPERSEDED 2026-10-06 (ROADMAP 3.4 FAULT 4, DECISIONS.md):** the detailer's,
+// staff's and platform's emails now follow the language THAT PERSON chose for
+// the dashboard (`business_users.lang`, read by `recipientLang`), English when
+// unknown — which is exactly the "worse than either" case avoided: the email
+// follows the dashboard, never the customer's booking. Their section is at the
+// end of this file, worded like the DASHBOARD (`app/src/lib/strings/appEs.js`:
+// "cita", "panel") rather than like the customer emails, except where a key is
+// shared with them ("Rescheduled" is "Reprogramada" in both).
 //
 // **AND NOT THE DETAILER'S OWN WORDS.** Service names, plan names,
 // descriptions, their message templates, the campaign body they typed and the
@@ -286,4 +294,116 @@ export const es: Record<string, string> = {
   "Last day: {label}": "Último día: {label}",
   "{label} is due {date}": "{label} vence el {date}",
   "{lead} to book your {label}.": "{lead} para reservar tu {label}.",
+
+  // ══ THE DETAILER'S, STAFF'S AND PLATFORM'S EMAILS — ROADMAP 3.4 FAULT 4 ══
+  // Sent in Spanish only to somebody whose DASHBOARD is Spanish. Worded like
+  // the dashboard they chose it in: a booking is a "cita" there, the dashboard
+  // is the "panel". Customer names, service names, plan names, a role's label
+  // and the customer's notes are other people's words and are never here.
+  // ── 2 · New booking / request / the evening-before reminder ────────────
+  "Waiting for you to accept": "Esperando a que la aceptes",
+  "New booking": "Nueva cita",
+  "Phone": "Teléfono",
+  "Email": "Correo",
+  "Typed by hand. The address lookup found no match for it.":
+    "Escrita a mano. La búsqueda de direcciones no la encontró.",
+  "Doesn't mention the travel area they picked. Worth a quick check before you drive out.":
+    "No menciona la zona de traslado que eligieron. Vale la pena revisarla antes de salir.",
+  "Type": "Tipo",
+  // Its own key: "Drop-off" above is worded for the customer ("Lo dejas tú").
+  "The customer brings it in": "El cliente lo trae",
+  "Bring": "Lleva",
+  "water and power": "agua y electricidad",
+  "water": "agua",
+  "power": "electricidad",
+  "Customer notes": "Notas del cliente",
+  "None.": "Ninguna.",
+  "Answer this request": "Responder esta solicitud",
+  "Open the job": "Abrir el trabajo",
+  "Request · {name} · {date} ({total})": "Solicitud · {name} · {date} ({total})",
+  "New booking · {name} · {date} ({total})": "Nueva cita · {name} · {date} ({total})",
+  "Upcoming job - {name} - {date} at {time}": "Próximo trabajo - {name} - {date} a las {time}",
+  // ── 7 · A booking cancelled ────────────────────────────────────────────
+  "{date} at {time} is cancelled. The slot is open again.":
+    "La cita del {date} a las {time} se canceló. El horario quedó libre otra vez.",
+  "Was worth": "Valía",
+  "Cancelled · {name} · {date}": "Cancelada · {name} · {date}",
+  // `refundInstruction` in `_shared/connect.ts`. Same Spanish as the job
+  // screen's (appEs.js), so the email and the dashboard say it one way.
+  "what they paid": "lo que pagaron",
+  "This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Esto ya estaba pagado. Devuelve {amount} desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  // ── 8 · A booking moved ────────────────────────────────────────────────
+  "{name} moved their booking.": "{name} cambió su cita.",
+  "Rescheduled · {name} · now {date}": "Reprogramada · {name} · ahora el {date}",
+  // ── 9 · A request nobody answered ──────────────────────────────────────
+  "Still waiting on you": "Todavía te está esperando",
+  "asked for {date} at {time}. That was {hours} hour ago, and it is still waiting for an answer.":
+    "pidió el {date} a las {time}. Eso fue hace {hours} hora y todavía espera respuesta.",
+  "asked for {date} at {time}. That was {hours} hours ago, and it is still waiting for an answer.":
+    "pidió el {date} a las {time}. Eso fue hace {hours} horas y todavía espera respuesta.",
+  "That time is held for them until you accept or decline it, so nobody else can book it either.":
+    "Ese horario está apartado para esa persona hasta que lo aceptes o lo rechaces, así que nadie más puede reservarlo.",
+  "Asking": "Pide",
+  "Still waiting: {name} · {date}": "Todavía esperando: {name} · {date}",
+  "{name} asked for {date} and has not heard back.":
+    "{name} pidió el {date} y todavía no tiene respuesta.",
+  // ── 10 · The staff invite ──────────────────────────────────────────────
+  "Invitation": "Invitación",
+  "You've been added to the team": "Te agregaron al equipo",
+  "an owner": "propietario",
+  "a staff member": "miembro del equipo",
+  "{brand} has invited you to join their booking dashboard as {role}.":
+    "{brand} te invitó a su panel de reservas como {role}.",
+  "Use the button below to set your password and sign in.":
+    "Usa el botón de abajo para crear tu contraseña e iniciar sesión.",
+  "Set up your account": "Configurar tu cuenta",
+  "This link works until {date}. If the button doesn't work, open: {url}":
+    "Este enlace funciona hasta el {date}. Si el botón no funciona, abre: {url}",
+  "Join {brand} on the booking dashboard": "Únete a {brand} en el panel de reservas",
+  "{brand} invited you to their dashboard.": "{brand} te invitó a su panel.",
+  // ── 12 · Somebody left a plan ──────────────────────────────────────────
+  "Plan ended": "Plan terminado",
+  "ended their {plan} from their own plan page. Nothing else has changed. Any booking already in the diary is still there.":
+    "terminó su {plan} desde su propia página del plan. Nada más cambió. Cualquier cita que ya esté en la agenda sigue ahí.",
+  "Plan": "Plan",
+  "Member since": "Miembro desde",
+  "Ended": "Terminado",
+  "They can join again whenever they like; the record of what they were owed is kept either way.":
+    "Puede volver a unirse cuando quiera; el registro de lo que se le debía se guarda de todas formas.",
+  "{name} ended their plan": "{name} terminó su plan",
+  "{name} ended {plan}.": "{name} terminó {plan}.",
+  // ── 14 · The platform's own billing ────────────────────────────────────
+  "Your site is offline": "Tu sitio está fuera de línea",
+  "Payment problem": "Problema con el pago",
+  "Your booking page is offline until this is paid":
+    "Tu página de reservas está fuera de línea hasta que esto se pague",
+  "We couldn't take this month's payment": "No pudimos cobrar el pago de este mes",
+  "We tried your card several times over the last two weeks and it did not go through, so {business}'s booking page is no longer accepting new bookings.":
+    "Intentamos cobrar tu tarjeta varias veces en las últimas dos semanas y no pasó, así que la página de reservas de {business} ya no acepta reservas nuevas.",
+  "The {amount} payment for {business} was declined. We will try the same card again over the next two weeks and email you each time.":
+    "El pago de {amount} de {business} fue rechazado. Vamos a intentar con la misma tarjeta otra vez durante las próximas dos semanas y te escribiremos cada vez.",
+  "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back as soon as this is sorted out.":
+    "No se borró nada. Tus trabajos, tus clientes, tu configuración y tus fotos están exactamente donde los dejaste, y la página vuelve en cuanto esto se resuelva.",
+  "Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid.":
+    "Todavía no hay nada en riesgo, y nunca se borra nada. Si después de dos semanas todavía no pasa, tu página de reservas queda fuera de línea hasta que se pague.",
+  "Your bank said: {reason}": "Tu banco dijo: {reason}",
+  "Put your page back online": "Volver a poner tu página en línea",
+  "Update your card": "Actualizar tu tarjeta",
+  "Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped.":
+    "Los clientes que ya reservaron todavía pueden ver, cambiar y cancelar sus citas. Solo se detuvieron las reservas nuevas.",
+  "{business}'s booking page is offline": "La página de reservas de {business} está fuera de línea",
+  "We couldn't take payment for {business}": "No pudimos cobrar el pago de {business}",
+  "Nothing has been deleted. Open your billing page to bring it back.":
+    "No se borró nada. Abre tu página de facturación para recuperarla.",
+  "We'll try again over the next two weeks.": "Lo volveremos a intentar durante las próximas dos semanas.",
+  // ── 16 · The platform telling its owner somebody signed up ─────────────
+  "New detailer": "Nuevo detallador",
+  "{business} just signed up": "{business} se acaba de registrar",
+  "Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe.":
+    "Alguien creó una cuenta y un negocio. Todavía no se ha pagado nada. Te llegará un segundo correo cuando se suscriban.",
+  "Business": "Negocio",
+  "Booking page": "Página de reservas",
+  "Signed up by": "Registrado por",
+  "Open the back office": "Abrir la administración",
 };

@@ -22,8 +22,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
-import { sendTenantEmail } from "../_shared/email.ts";
-import { platformAlertEmail } from "../_shared/emailTemplates.ts";
+import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
+import { newDetailerAlert, platformAlertEmail } from "../_shared/emailTemplates.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 
@@ -126,18 +126,15 @@ Deno.serve(async (req) => {
       if (ps?.owner_email) {
         const site = await siteFor(business.id);
         const brand = platformBrand(site);
-        const mail = platformAlertEmail(brand, {
-          kind: "New detailer",
-          headline: `${business.name} just signed up`,
-          intro: "Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe.",
-          facts: [
-            ["Business", business.name],
-            ["Booking page", `${site}/book/${business.slug}`],
-            ["Signed up by", user.email ?? "unknown"],
-          ],
-          buttonLabel: "Open the back office",
-          buttonUrl: `${site}/admin`,
-        });
+        // The words live in `newDetailerAlert` so the render run draws the
+        // real ones and a lookup can reach them. ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+        const lang = await recipientLang(ps.owner_email);
+        const mail = platformAlertEmail(brand, newDetailerAlert({
+          business: business.name,
+          bookingPage: `${site}/book/${business.slug}`,
+          signedUpBy: user.email ?? "unknown",
+          adminUrl: `${site}/admin`,
+        }, lang), lang);
         await sendTenantEmail({
           businessId: business.id,
           to: ps.owner_email,

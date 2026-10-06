@@ -426,8 +426,12 @@ const EMAILS = [
   ["customer-reschedule", "Customer · rescheduled", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", false)],
   ["customer-cancellation", "Customer · cancelled", () => T.cancellationEmail(brand, booking, false)],
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],
-  ["owner-new-booking", "Owner · new booking", () => T.ownerNewBookingEmail(brand, booking, false)],
-  ["owner-new-request", "Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true)],
+  // ROADMAP 3.4 FAULT 4 — EVERY NON-CUSTOMER EMAIL TAKES `LANG` TOO. In
+  // production it is the RECIPIENT's dashboard language (`recipientLang`), not
+  // the booking's; here one run draws all 32 in one language so the Spanish
+  // checks below can reach the detailer's set as well as the customer's.
+  ["owner-new-booking", "Owner · new booking", () => T.ownerNewBookingEmail(brand, booking, false, undefined, LANG)],
+  ["owner-new-request", "Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true, undefined, LANG)],
   // ROADMAP 2.8 — THE SAME EMAIL WITH AN ADDRESS NOBODY COULD FIND, beside
   // the one above so the pair can be compared on one page. The only
   // difference between them is `addressSource`, which is the whole claim:
@@ -437,18 +441,20 @@ const EMAILS = [
       brand,
       { ...booking, customerAddress: "99999 Nonexistent Parkway, Nowhere Township, ZZ 00000", addressSource: "typed" },
       false,
+      undefined,
+      LANG,
     )],
   ["owner-new-booking-picked", "Owner · new booking, address picked from the lookup",
-    () => T.ownerNewBookingEmail(brand, { ...booking, addressSource: "picked" }, false)],
+    () => T.ownerNewBookingEmail(brand, { ...booking, addressSource: "picked" }, false, undefined, LANG)],
   // ROADMAP 8.10. Its own entry rather than a change to the one above,
   // because the ONE-car alert is what nearly every detailer gets and a fixture
   // that only shows three cars cannot reach the ordinary case. Both are drawn.
   ["owner-new-booking-carload", "Owner · new booking, three cars",
-    () => T.ownerNewBookingEmail(brand, carloadBooking, false)],
+    () => T.ownerNewBookingEmail(brand, carloadBooking, false, undefined, LANG)],
   ["customer-confirmation-carload", "Customer · confirmed, three cars",
     () => T.customerConfirmationEmail(brand, carloadBooking)],
-  ["owner-reschedule", "Owner · a booking moved", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", true)],
-  ["owner-cancellation", "Owner · a booking cancelled", () => T.cancellationEmail(brand, booking, true)],
+  ["owner-reschedule", "Owner · a booking moved", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", true, LANG)],
+  ["owner-cancellation", "Owner · a booking cancelled", () => T.cancellationEmail(brand, booking, true, LANG)],
   // ROADMAP 14.4 — ITS OWN ENTRY, because the refund instruction is a BRANCH
   // and the plain cancellation above takes the other side. A fixture that only
   // ever renders an unpaid cancellation cannot reach the sentence at all, and
@@ -472,16 +478,18 @@ const EMAILS = [
         refundNote: refundInstruction(
           refundOwed({ total_price: booking.total, final_amount: invoiceTotals.totalPaid, payment_status: "paid" }),
           money,
+          tt,
         ),
       },
       true,
+      LANG,
     )],
-  ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19)],
+  ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19, LANG)],
   // WITH A LABEL, because roadmap 2.13 made the role's name the detailer's to
   // choose and this sentence is where their customer-facing word first reaches
   // the person they invited. Rendered with one so the preview shows the real
   // string ("as a Detailer") rather than the fallback nobody will see.
-  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: "Detailer", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" })],
+  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: "Detailer", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" }, LANG)],
   // Roadmap 2.14 step 3. The plan link is the SAFE half of "type your email
   // and it shows you" — it is the only thing that answers that form, so it is
   // the one email in the set whose absence would be a security decision going
@@ -501,7 +509,7 @@ const EMAILS = [
   // unlooked-at, which is this script's whole reason for existing.
   ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(60), LANG), daysLeft: 60, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
   ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: T.formatDateLong(daysOut(1), LANG), daysLeft: 1, bookUrl: brand.siteUrl, unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002", mailingAddress: "PO Box 214, Lakewood CA 90713" }, LANG)],
-  ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
+  ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" }, LANG)],
   // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
   // human composes — so it is the only one whose footer carries a postal
   // address and an opt-out. It is rendered here for the reason every other row
@@ -525,10 +533,12 @@ const EMAILS = [
   ["platform-payment-failed", "Detailer · a payment did not go through", () => T.billingEmail(
     platformBrand(PLATFORM),
     { kind: "failed", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds." },
+    LANG,
   )],
   ["platform-suspended", "Detailer · the booking page is offline", () => T.billingEmail(
     platformBrand(PLATFORM),
     { kind: "suspended", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
+    LANG,
   )],
   // ROADMAP 8.6 — THE THIRD EMAIL THE PLATFORM SENDS IN ITS OWN NAME, and the
   // first that goes to the OWNER rather than to a detailer. It is rendered
@@ -537,18 +547,13 @@ const EMAILS = [
   // eleven under-floor headlines because nothing did.
   ["platform-new-detailer", "Owner · somebody signed up", () => T.platformAlertEmail(
     platformBrand(PLATFORM),
-    {
-      kind: "New detailer",
-      headline: "Ridgeline Auto Detail just signed up",
-      intro: "Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe.",
-      facts: [
-        ["Business", "Ridgeline Auto Detail"],
-        ["Booking page", `${PLATFORM}/book/ridgeline`],
-        ["Signed up by", "sam@ridgeline.example"],
-      ],
-      buttonLabel: "Open the back office",
-      buttonUrl: `${PLATFORM}/admin`,
-    },
+    T.newDetailerAlert({
+      business: "Ridgeline Auto Detail",
+      bookingPage: `${PLATFORM}/book/ridgeline`,
+      signedUpBy: "sam@ridgeline.example",
+      adminUrl: `${PLATFORM}/admin`,
+    }, LANG),
+    LANG,
   )],
 ];
 
@@ -564,9 +569,12 @@ function daysOut(n) {
 
 // ROADMAP 3.4c / 3.4 FAULT 5 — A SPANISH RUN MUST NOTICE AN ENGLISH DATE. A
 // literal "October 12, 2026" in a Spanish customer email rendered and exited 0.
-// Customer emails only: emails to the detailer are English by design.
+// ~~Customer emails only: emails to the detailer are English by design.~~
+// ROADMAP 3.4 FAULT 4, 2026-10-06: ALL emails. The detailer's, staff's and
+// platform's set now follow the reader's dashboard language (DECISIONS.md).
 const ENGLISH_DATE = /\b(January|February|March|April|May|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/;
 let spanishCustomerChecked = 0;
+let spanishOtherChecked = 0;
 
 // ROADMAP 3.4 FAULT 5, THE SENTENCE HALF — A SPANISH RUN MUST NOTICE AN ENGLISH
 // SENTENCE. `T()` returns the English key when the Spanish entry is missing and
@@ -582,7 +590,8 @@ let spanishCustomerChecked = 0;
 // they are in the list. Reading the renders is still part of the job.
 // ponytail: regex over source text, not a parser; a literal using \` or ' quotes is missed.
 function englishSentencePatterns() {
-  const src = ["emailTemplates.ts", "emailKit.ts"]
+  // connect.ts since 3.4 FAULT 4: the refund sentence in the owner's cancellation.
+  const src = ["emailTemplates.ts", "emailKit.ts", "connect.ts"]
     .map((f) => readFileSync(new URL(`../supabase/functions/_shared/${f}`, import.meta.url), "utf8"))
     .join("\n");
   const literals = new Set();
@@ -663,16 +672,23 @@ for (const [file, label, render] of EMAILS) {
       bad++;
     }
   }
-  if (LANG === "es" && file.startsWith("customer-")) {
-    spanishCustomerChecked++;
+  if (LANG === "es") {
+    if (file.startsWith("customer-")) spanishCustomerChecked++;
+    else spanishOtherChecked++;
     const hit = (subject + "\n" + (text ?? "")).match(ENGLISH_DATE);
     if (hit) {
-      console.error(`  FAIL  ${label}: English date word "${hit[0]}" in a Spanish customer email`);
+      console.error(`  FAIL  ${label}: English date word "${hit[0]}" in a Spanish email`);
       bad++;
     }
     const sentence = englishSentenceIn(subject + "\n" + (text ?? ""));
     if (sentence) {
-      console.error(`  FAIL  ${label}: untranslated English "${sentence.en}" in a Spanish customer email`);
+      console.error(`  FAIL  ${label}: untranslated English "${sentence.en}" in a Spanish email`);
+      bad++;
+    }
+    // A template that never handed `lang` to `shell` declares itself English
+    // and gets an English footer, whatever its body says.
+    if (!/<html lang="es"/.test(html)) {
+      console.error(`  FAIL  ${label}: the page declares itself <html lang="en"> in a Spanish run`);
       bad++;
     }
   }
@@ -865,6 +881,13 @@ if (LANG === "es") {
     && !ENGLISH_DATE.test("vence el lunes, 12 de octubre de 2026");
   console.log(`spanish ${spanishCustomerChecked} customer email(s) checked for an English date; detector ${fires ? "fires on an English date and not on a Spanish one" : "BROKEN"}`);
   if (!spanishCustomerChecked) failures.push("SPANISH RUN CHECKED NO CUSTOMER EMAIL for an English date");
+  // 3.4 FAULT 4: the other half of the set. Count, not a floor: every email in
+  // EMAILS is one or the other, so the two must add up to the run.
+  console.log(`spanish ${spanishOtherChecked} detailer / staff / platform email(s) checked the same way`);
+  if (!spanishOtherChecked) failures.push("SPANISH RUN CHECKED NO DETAILER, STAFF OR PLATFORM EMAIL");
+  if (spanishCustomerChecked + spanishOtherChecked !== EMAILS.length) {
+    failures.push(`only ${spanishCustomerChecked + spanishOtherChecked} of ${EMAILS.length} emails went through the Spanish checks`);
+  }
   if (!fires) failures.push("the English-date detector cannot tell an English date from a Spanish one");
   // The sentence detector, proved on a real catalogue sentence and its real Spanish.
   const probe = ENGLISH_SENTENCES.find(({ en }) => !/\{/.test(en) && ES_CATALOGUE[en]);

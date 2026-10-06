@@ -38,7 +38,7 @@ import {
   computeQuote, matchPriceRules, resolveAddOns, resolveServices,
   resolveTravel, whenContextFor,
 } from "../_shared/pricing.ts";
-import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -173,7 +173,6 @@ Deno.serve(async (req) => {
     };
 
     const customer = customerConfirmationEmail(brand, emailData, isRequest);
-    const owner = ownerNewBookingEmail(brand, emailData, isRequest);
     const card = [vcardAttachment({
       name: SAMPLE.name, phone: SAMPLE.phone, email: SAMPLE.email,
       address: SAMPLE.address, org: `${business.name} customer`,
@@ -181,6 +180,8 @@ Deno.serve(async (req) => {
 
     let sent = 0;
     for (const address of to) {
+      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+      const owner = ownerNewBookingEmail(brand, emailData, isRequest, undefined, await recipientLang(address, business.id));
       // BOTH SIDES, because they are different emails and a detailer has
       // never seen either. The customer's is the one they are really asking
       // about; their own is the one that carries the contact card.

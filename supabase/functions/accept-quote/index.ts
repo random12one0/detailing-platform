@@ -30,7 +30,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
-import { buildBrand, extraVehiclesFor, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { money } from "../_shared/emailKit.ts";
@@ -153,8 +153,9 @@ Deno.serve(async (req) => {
     // what just happened IS a new booking, at the price they named, and a
     // fourth near-copy of the same money table is a fourth place to fix.
     // The push below is what carries the word "quote".
-    const ownerMsg = ownerNewBookingEmail(brand, emailData);
     for (const to of ownerRecipients(business, settings)) {
+      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+      const ownerMsg = ownerNewBookingEmail(brand, emailData, false, undefined, await recipientLang(to, business.id));
       await sendTenantEmail({ bookingId: booking.id,
         businessId: business.id, to, subject: ownerMsg.subject, html: ownerMsg.html, text: ownerMsg.text,
       });

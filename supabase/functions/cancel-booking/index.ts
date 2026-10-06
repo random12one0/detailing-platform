@@ -14,7 +14,8 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
-import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, recipientLang, sendTenantEmail } from "../_shared/email.ts";
+import { T } from "../_shared/i18n.ts";
 import { cancellationEmail } from "../_shared/emailTemplates.ts";
 import { refundInstruction, refundOwed } from "../_shared/connect.ts";
 import { money } from "../_shared/emailKit.ts";
@@ -136,7 +137,12 @@ Deno.serve(async (req) => {
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
     if (brand.contactEmail) {
-      const msg = cancellationEmail(brand, emailData, true);
+      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language. The refund
+      // sentence inside it follows the same language.
+      const ownerLang = await recipientLang(brand.contactEmail, business.id);
+      const msg = cancellationEmail(
+        brand, { ...emailData, refundNote: refundInstruction(refund, money, T(ownerLang)) }, true, ownerLang,
+      );
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html, text: msg.text });
     }
     try {

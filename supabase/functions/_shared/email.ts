@@ -187,6 +187,28 @@ export async function langForCustomer(customerId: string | null | undefined): Pr
   return data?.lang === "es" ? "es" : "en";
 }
 
+/**
+ * ROADMAP 3.4 FAULT 4 — WHICH LANGUAGE AN ADDRESS READS, for every email that
+ * is NOT to a customer. DECISIONS.md 2026-10-06: the language that person chose
+ * for the DASHBOARD, English when unknown. Asked per recipient, because the
+ * owner list can hold two people who chose differently, or a shared inbox that
+ * is nobody's login. `businessId` narrows it to one business's members; left
+ * out (the platform owner's alerts, an invite) it is any membership.
+ *
+ * **ANY FAILURE IS ENGLISH, ON PURPOSE.** Until migration 20261006030000 is
+ * applied `recipient_lang` does not exist and this answers "en", so a deploy
+ * that lands before the migration changes nothing, and a lookup that breaks
+ * later can never cost somebody their alert.
+ */
+export async function recipientLang(to: string, businessId?: string | null): Promise<string> {
+  try {
+    const { data, error } = await supabase.rpc("recipient_lang", { p_email: to, p_business: businessId ?? null });
+    return !error && data === "es" ? "es" : "en";
+  } catch {
+    return "en";
+  }
+}
+
 export function ownerRecipients(business: Business, settings: BusinessSettings): string[] {
   const list = (settings.notification_emails ?? []).map((e) => String(e).trim()).filter(Boolean);
   if (list.length) return [...new Set(list)];

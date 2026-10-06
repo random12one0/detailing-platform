@@ -714,6 +714,39 @@ still knows them.
 ## Waiting on you — nothing breaks while these wait
 
 
+- [ ] **SWITCH · One database change, then the email functions, so a detailer
+  who uses the dashboard in Spanish gets their own alerts in Spanish.**
+
+  **What this is.** Your customers already get Spanish emails when they book in
+  Spanish. The emails that go to YOU, your staff and the platform's own alerts
+  were always English. The manager decided (on your standing instruction) that
+  those follow whatever language that person picked for the dashboard, and
+  English when nobody picked. It is built and checked. The dashboard's choice
+  was only ever saved inside the browser, where no email can see it, so it
+  needs one new spot in the database to live.
+
+  **Order: database first, then functions.** Publishing the functions first is
+  harmless: they quietly fall back to English until the database change is in.
+
+  ```bash
+  set -a; . ./.env; set +a
+  node scripts/apply-migrations.mjs 20261006030000_dashboard_language_reaches_the_server.sql
+  node scripts/deployed-inventory.mjs   # names every function not yet live
+  ```
+
+  **The functions that send these emails:** `accept-quote`, `cancel-booking`,
+  `create-booking`, `reschedule-booking`, `send-owner-reminders`, `plan-link`,
+  `stripe-webhook`, `invite-user`, `platform-admin`, `create-business`,
+  `preview-emails`.
+
+  **Nothing changes for anybody even after both**, until one more small piece
+  lands: the dashboard's EN/ES switch has to start saving the choice to the
+  database. That is a one-line change on the other session's side and it is
+  queued for them (ROADMAP 3.4). Every email stays English until then.
+
+  **Nothing to decide.** DECISIONS.md says how to undo it.
+
+
 - [ ] **SWITCH · Seven functions to publish so that tapping a job
   notification opens the job instead of a "page does not exist" screen.**
 

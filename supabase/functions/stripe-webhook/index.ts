@@ -55,7 +55,7 @@ import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { stripe, verifyWebhookAny, webhookSecret, connectWebhookSecret, API_VERSION, StripeError } from "../_shared/stripe.ts";
 import { ourStatus } from "../_shared/platformBilling.ts";
-import { sendTenantEmail } from "../_shared/email.ts";
+import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
 
@@ -515,7 +515,7 @@ async function tell(
   const mail = billingEmail(platformBrand(PLATFORM_URL), {
     kind, businessName: String(business.name ?? "Your business"),
     billingUrl: BILLING_URL, amount, reason,
-  });
+  }, await recipientLang(to, businessId)); // ROADMAP 3.4 FAULT 4 — the owner's dashboard language.
   await sendTenantEmail({
     businessId, to, subject: mail.subject, html: mail.html, text: mail.text,
     senderName: PLATFORM_NAME,

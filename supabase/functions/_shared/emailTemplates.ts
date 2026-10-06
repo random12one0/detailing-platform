@@ -306,7 +306,9 @@ export function jobAddress(
 export function ownerWhereRow(
   brand: TenantBrand,
   b: Pick<BookingEmailData, "serviceType" | "customerAddress" | "addressSource" | "travelZoneAddressMismatch">,
+  lang?: unknown,
 ): [string, string] {
+  const tt = T(lang);
   const unverified = b.serviceType === "mobile" && b.addressSource === "typed";
   // ROADMAP 2.3 — the same crude flag as the job record, in the same row as
   // the address it is about. Not distance, not a gate: see the column
@@ -316,10 +318,10 @@ export function ownerWhereRow(
   const note = (text: string) =>
     `<br><span class="c-fog2" style="color:${G.fog2}; font-size:13px;">${text}</span>`;
   return [
-    "Where",
+    tt("Where"),
     esc(jobAddress(brand, b))
-      + (unverified ? note("Typed by hand. The address lookup found no match for it.") : "")
-      + (zoneMismatch ? note("Doesn't mention the travel area they picked. Worth a quick check before you drive out.") : ""),
+      + (unverified ? note(tt("Typed by hand. The address lookup found no match for it.")) : "")
+      + (zoneMismatch ? note(tt("Doesn't mention the travel area they picked. Worth a quick check before you drive out.")) : ""),
   ];
 }
 
@@ -632,48 +634,60 @@ export function ownerNewBookingEmail(
   b: BookingEmailData,
   isRequest = false,
   headingOverride?: string,
+  // ROADMAP 3.4 FAULT 4 — THE RECIPIENT'S dashboard language (`recipientLang`
+  // in `_shared/email.ts`), NEVER `b.lang`, which is the CUSTOMER's. A Spanish
+  // booking must not turn an English-reading detailer's alert Spanish.
+  lang?: unknown,
 ): Mail {
-  const dateLong = formatDateLong(b.dateStr);
-  const services = [...b.serviceNames, ...b.addOnNames.map((a) => `${a} (add-on)`)];
+  const tt = T(lang);
+  const dateLong = formatDateLong(b.dateStr, lang);
+  const services = [...b.serviceNames, ...b.addOnNames.map((a) => tt("{name} (add-on)", { name: a }))];
   const blocks = [
-    labBlock(headingOverride ?? (isRequest ? "Waiting for you to accept" : "New booking")),
+    labBlock(headingOverride ?? (isRequest ? tt("Waiting for you to accept") : tt("New booking"))),
     headlineBlock(b.customerName),
     markBlock(brand, [money(Number(b.total)), `${dateLong} · ${formatTime12hr(b.startTime)} – ${formatTime12hr(b.endTime)}`]),
     factsBlock([
-      ["Phone", `<a href="tel:${esc(b.customerPhone)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
-      ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
-      ownerWhereRow(brand, b),
+      [tt("Phone"), `<a href="tel:${esc(b.customerPhone)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
+      ...(b.customerEmail ? [[tt("Email"), esc(b.customerEmail)] as [string, string]] : []),
+      ownerWhereRow(brand, b, lang),
       // **IDEA 11 — WHAT TO LOAD IN THE VAN, in the email that wakes a
       // detailer up.** The job record has printed this since W22; the OWNER'S
       // OWN ALERT never did, which is the real gap — the record is read when
       // you are already going, and the email is read when you are deciding
       // what to put in the van. Only for a mobile job, and only when the
       // answer is an explicit no.
-      ["Type", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
+      // "Drop-off" is already a key, worded for the CUSTOMER ("Lo dejas tú",
+      // you drop it off); on the detailer's row it means the customer brings it
+      // in, so Spanish gets its own key and English keeps "Drop-off" untouched.
+      [tt("Type"), b.serviceType === "mobile"
+        ? tt("Mobile")
+        : langOf(lang) === "es" ? tt("The customer brings it in") : "Drop-off"],
       ...(b.serviceType === "mobile" && (b.hasWater === false || b.hasPower === false)
-        ? [["Bring", [b.hasWater === false ? "water" : null, b.hasPower === false ? "power" : null]
-            .filter(Boolean).join(" and ")] as [string, string]]
+        ? [[tt("Bring"), b.hasWater === false && b.hasPower === false
+            ? tt("water and power")
+            : b.hasWater === false ? tt("water") : tt("power")] as [string, string]]
         : []),
-      vehicleFact(b),
+      vehicleFact(b, lang),
     ]),
     ruleBlock(34),
-    labBlock("The work"),
+    labBlock(tt("The work")),
     proseBlock(
       services.map((s) => `<div style="padding:4px 0;">${esc(s)}</div>`).join("")
-        + (b.promoCode ? `<div class="c-accent" style="padding:4px 0; color:${brand.accent};">Promo ${esc(b.promoCode)}${Number(b.promoDiscount) > 0 ? ` (−${money(Number(b.promoDiscount))})` : ""}</div>` : ""),
+        + (b.promoCode ? `<div class="c-accent" style="padding:4px 0; color:${brand.accent};">${tt("Promo {code}", { code: esc(b.promoCode) })}${Number(b.promoDiscount) > 0 ? ` (−${money(Number(b.promoDiscount))})` : ""}</div>` : ""),
       12,
     ),
     ruleBlock(30),
-    labBlock("Customer notes"),
-    proseBlock(b.customerNotes ? esc(b.customerNotes) : `<span class="c-fog2" style="color:${G.fog2};">None.</span>`, 12),
-    buttonBlock(brand, isRequest ? "Answer this request" : "Open the job", b.receiptUrl),
+    labBlock(tt("Customer notes")),
+    proseBlock(b.customerNotes ? esc(b.customerNotes) : `<span class="c-fog2" style="color:${G.fog2};">${tt("None.")}</span>`, 12),
+    buttonBlock(brand, isRequest ? tt("Answer this request") : tt("Open the job"), b.receiptUrl),
   ];
 
+  const subjectVars = { name: b.customerName, date: dateLong, total: money(Number(b.total)) };
   return mail(
     isRequest
-      ? `Request · ${b.customerName} · ${dateLong} (${money(Number(b.total))})`
-      : `New booking · ${b.customerName} · ${dateLong} (${money(Number(b.total))})`,
-    shell(brand, blocks, `${b.customerName} · ${dateLong} · ${money(Number(b.total))}`),
+      ? tt("Request · {name} · {date} ({total})", subjectVars)
+      : tt("New booking · {name} · {date} ({total})", subjectVars),
+    shell(brand, blocks, `${b.customerName} · ${dateLong} · ${money(Number(b.total))}`, { lang }),
   );
 }
 
@@ -985,24 +999,27 @@ export function customerReminderEmail(
 // accent is identity, never meaning). A cancellation is the one email in the
 // set that spends it.
 // ---------------------------------------------------------------------------
-export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOwner: boolean): Mail {
-  // **ONE TEMPLATE, TWO AUDIENCES, AND ONLY ONE OF THEM GETS SPANISH.** The
-  // owner's half goes to somebody who runs a business on this product; their
-  // language is the dashboard's question (stage 2b), and a Spanish booking
-  // must not turn a detailer's own alerts Spanish while their dashboard stays
-  // English. So `lang` is `undefined` on that branch, which is English.
-  const lang = forOwner ? undefined : b.lang;
+export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOwner: boolean, ownerLang?: unknown): Mail {
+  // **ONE TEMPLATE, TWO AUDIENCES, TWO LANGUAGES.** The customer's half reads
+  // `b.lang`, the booking's. The owner's half reads `ownerLang` — the
+  // RECIPIENT's dashboard language (ROADMAP 3.4 FAULT 4, DECISIONS.md
+  // 2026-10-06), English when unknown — so a Spanish booking still never turns
+  // an English-reading detailer's alert Spanish.
+  const lang = forOwner ? ownerLang : b.lang;
   const tt = T(lang);
   const dateLong = formatDateLong(b.dateStr, lang);
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   const blocks = forOwner
     ? [
-      labBlock("Cancelled", "bad"),
+      labBlock(tt("Cancelled"), "bad"),
       headlineBlock(b.customerName),
-      proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> is cancelled. The slot is open again.`),
+      proseBlock(tt("{date} at {time} is cancelled. The slot is open again.", {
+        date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
+        time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
+      })),
       factsBlock([
-        ["Phone", esc(b.customerPhone)],
-        ["Was worth", money(Number(b.total))],
+        [tt("Phone"), esc(b.customerPhone)],
+        [tt("Was worth"), money(Number(b.total))],
       ]),
       // ROADMAP 14.4 — THE MONEY, WHICH THIS EMAIL USED TO SAY NOTHING ABOUT.
       // A confirmed, already-paid booking could be cancelled by the customer
@@ -1052,7 +1069,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
     ].filter(Boolean);
   return mail(
     forOwner
-      ? `Cancelled · ${b.customerName} · ${dateLong}`
+      ? tt("Cancelled · {name} · {date}", { name: b.customerName, date: dateLong })
       : tt("Your booking has been cancelled"),
     shell(brand, blocks, tt("Cancelled: {date}", { date: dateLong }), { lang }),
   );
@@ -1071,10 +1088,11 @@ export function rescheduleEmail(
   oldDateStr: string,
   oldStartTime: string,
   forOwner: boolean,
+  ownerLang?: unknown,
 ): Mail {
-  // See `cancellationEmail` above: one template, two audiences, and the
-  // detailer's half stays English until stage 2b.
-  const lang = forOwner ? undefined : b.lang;
+  // See `cancellationEmail` above: one template, two audiences, each in its
+  // own reader's language.
+  const lang = forOwner ? ownerLang : b.lang;
   const tt = T(lang);
   const dateLong = formatDateLong(b.dateStr, lang);
   const oldLong = formatDateLong(oldDateStr, lang);
@@ -1082,7 +1100,7 @@ export function rescheduleEmail(
     labBlock(tt("Rescheduled")),
     headlineBlock(forOwner ? b.customerName : tt("Your booking has moved")),
     proseBlock(forOwner
-      ? `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong> moved their booking.`
+      ? tt("{name} moved their booking.", { name: `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong>` })
       : tt("Hi {first}, your booking with {brand} has been moved.",
         { first: esc(firstName(b.customerName)), brand: esc(brand.brandName) })),
     // ROADMAP 3.4 finding 3, the second of the two sites. The struck-through
@@ -1109,11 +1127,11 @@ export function rescheduleEmail(
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b, lang)),
     forOwner ? "" : ownWords(brand, "rescheduled"),
-    buttonBlock(brand, forOwner ? "Open the job" : tt("View your booking"), b.receiptUrl),
+    buttonBlock(brand, forOwner ? tt("Open the job") : tt("View your booking"), b.receiptUrl),
   ].filter(Boolean);
   return mail(
     forOwner
-      ? `Rescheduled · ${b.customerName} · now ${dateLong}`
+      ? tt("Rescheduled · {name} · now {date}", { name: b.customerName, date: dateLong })
       : tt("Your booking has been rescheduled"),
     shell(brand, blocks, tt("Rescheduled to {date}", { date: dateLong }), { lang }),
   );
@@ -1126,24 +1144,33 @@ export function rescheduleEmail(
 // on purpose: it is a nudge, and the thing it nudges toward is one tap away in
 // the dashboard, not in this email.
 // ---------------------------------------------------------------------------
-export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hoursWaited: number): Mail {
-  const dateLong = formatDateLong(b.dateStr);
+export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hoursWaited: number, lang?: unknown): Mail {
+  // `lang` is the RECIPIENT's dashboard language — see `ownerNewBookingEmail`.
+  const tt = T(lang);
+  const dateLong = formatDateLong(b.dateStr, lang);
+  const when = {
+    date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
+    time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
+    hours: hoursWaited,
+  };
   const blocks = [
-    labBlock("Still waiting on you", "bad"),
+    labBlock(tt("Still waiting on you"), "bad"),
     headlineBlock(b.customerName),
-    proseBlock(`asked for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>. That was ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.`),
-    proseBlock("That time is held for them until you accept or decline it, so nobody else can book it either.", 16),
+    proseBlock(hoursWaited === 1
+      ? tt("asked for {date} at {time}. That was {hours} hour ago, and it is still waiting for an answer.", when)
+      : tt("asked for {date} at {time}. That was {hours} hours ago, and it is still waiting for an answer.", when)),
+    proseBlock(tt("That time is held for them until you accept or decline it, so nobody else can book it either."), 16),
     factsBlock([
-      ["Phone", esc(b.customerPhone)],
-      ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
-      ownerWhereRow(brand, b),
-      ["Asking", money(Number(b.total))],
+      [tt("Phone"), esc(b.customerPhone)],
+      ...(b.customerEmail ? [[tt("Email"), esc(b.customerEmail)] as [string, string]] : []),
+      ownerWhereRow(brand, b, lang),
+      [tt("Asking"), money(Number(b.total))],
     ]),
-    buttonBlock(brand, "Answer this request", b.receiptUrl),
+    buttonBlock(brand, tt("Answer this request"), b.receiptUrl),
   ];
   return mail(
-    `Still waiting: ${b.customerName} · ${dateLong}`,
-    shell(brand, blocks, `${b.customerName} asked for ${dateLong} and has not heard back.`),
+    tt("Still waiting: {name} · {date}", { name: b.customerName, date: dateLong }),
+    shell(brand, blocks, tt("{name} asked for {date} and has not heard back.", { name: b.customerName, date: dateLong }), { lang }),
   );
 }
 
@@ -1153,27 +1180,35 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
 export function inviteEmail(
   brand: TenantBrand,
   opts: { role: string; label?: string | null; link: string; expiresAt: string },
+  // The INVITEE's dashboard language, which is almost always unknown (they
+  // have not signed in yet) and so English — `recipientLang` answers it.
+  lang?: unknown,
 ): Mail {
+  const tt = T(lang);
   // The detailer's own word for the role when they gave one (roadmap 2.13).
   // "as a Detailer" reads as their business; "as a staff member" reads as ours.
+  // The label is THEIR word and is never translated; Spanish takes no article
+  // before it ("como Detailer"), English picks a/an.
   const named = opts.role !== "owner" && opts.label?.trim();
   const roleWord = opts.role === "owner"
-    ? "an owner"
+    ? tt("an owner")
     : named
-      ? `${/^[aeiou]/i.test(opts.label!.trim()) ? "an" : "a"} ${opts.label!.trim()}`
-      : "a staff member";
-  const expires = formatDateLong(String(opts.expiresAt).slice(0, 10));
+      ? langOf(lang) === "es"
+        ? opts.label!.trim()
+        : `${/^[aeiou]/i.test(opts.label!.trim()) ? "an" : "a"} ${opts.label!.trim()}`
+      : tt("a staff member");
+  const expires = formatDateLong(String(opts.expiresAt).slice(0, 10), lang);
   const blocks = [
-    labBlock("Invitation"),
-    headlineBlock("You've been added to the team"),
-    proseBlock(`${esc(brand.brandName)} has invited you to join their booking dashboard as ${esc(roleWord)}.`),
-    proseBlock("Use the button below to set your password and sign in.", 16),
-    buttonBlock(brand, "Set up your account", opts.link),
-    fineBlock(`This link works until ${expires}. If the button doesn't work, open: ${opts.link}`),
+    labBlock(tt("Invitation")),
+    headlineBlock(tt("You've been added to the team")),
+    proseBlock(tt("{brand} has invited you to join their booking dashboard as {role}.", { brand: esc(brand.brandName), role: esc(roleWord) })),
+    proseBlock(tt("Use the button below to set your password and sign in."), 16),
+    buttonBlock(brand, tt("Set up your account"), opts.link),
+    fineBlock(tt("This link works until {date}. If the button doesn't work, open: {url}", { date: expires, url: opts.link })),
   ];
   return mail(
-    `Join ${brand.brandName} on the booking dashboard`,
-    shell(brand, blocks, `${brand.brandName} invited you to their dashboard.`),
+    tt("Join {brand} on the booking dashboard", { brand: brand.brandName }),
+    shell(brand, blocks, tt("{brand} invited you to their dashboard.", { brand: brand.brandName }), { lang }),
   );
 }
 
@@ -1231,21 +1266,26 @@ export function planLinkEmail(
 export function planCancelledEmail(
   brand: TenantBrand,
   opts: { customerName: string; planName: string; startedOn: string; endedOn: string },
+  // The RECIPIENT's dashboard language — see `ownerNewBookingEmail`.
+  lang?: unknown,
 ): Mail {
+  const tt = T(lang);
   const blocks = [
-    labBlock("Plan ended", "bad"),
+    labBlock(tt("Plan ended"), "bad"),
     headlineBlock(opts.customerName),
-    proseBlock(`ended their <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> from their own plan page. Nothing else has changed. Any booking already in the diary is still there.`),
+    proseBlock(tt("ended their {plan} from their own plan page. Nothing else has changed. Any booking already in the diary is still there.", {
+      plan: `<strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong>`,
+    })),
     factsBlock([
-      ["Plan", esc(opts.planName)],
-      ["Member since", formatDateLong(String(opts.startedOn).slice(0, 10))],
-      ["Ended", formatDateLong(String(opts.endedOn).slice(0, 10))],
+      [tt("Plan"), esc(opts.planName)],
+      [tt("Member since"), formatDateLong(String(opts.startedOn).slice(0, 10), lang)],
+      [tt("Ended"), formatDateLong(String(opts.endedOn).slice(0, 10), lang)],
     ]),
-    fineBlock("They can join again whenever they like; the record of what they were owed is kept either way."),
+    fineBlock(tt("They can join again whenever they like; the record of what they were owed is kept either way.")),
   ];
   return mail(
-    `${opts.customerName} ended their plan`,
-    shell(brand, blocks, `${opts.customerName} ended ${opts.planName}.`),
+    tt("{name} ended their plan", { name: opts.customerName }),
+    shell(brand, blocks, tt("{name} ended {plan}.", { name: opts.customerName, plan: opts.planName }), { lang }),
   );
 }
 
@@ -1399,7 +1439,36 @@ export interface PlatformAlertData {
   buttonUrl?: string;
 }
 
-export function platformAlertEmail(brand: TenantBrand, a: PlatformAlertData): Mail {
+/**
+ * ROADMAP 3.4 FAULT 4 — THE SIGNUP ALERT'S WORDS, IN ONE PLACE. They were typed
+ * in `create-business` and copied into the render fixture, so the fixture could
+ * agree with itself while the real one drifted, and no lookup could reach them.
+ * The values are escaped: `factsBlock` takes a value as raw HTML, and a business
+ * name is whatever somebody typed into the signup form.
+ */
+export function newDetailerAlert(
+  d: { business: string; bookingPage: string; signedUpBy: string; adminUrl: string },
+  lang?: unknown,
+): PlatformAlertData {
+  const tt = T(lang);
+  return {
+    kind: tt("New detailer"),
+    headline: tt("{business} just signed up", { business: d.business }),
+    intro: tt("Somebody created an account and a business. Nothing has been paid yet. You will get a second email when they subscribe."),
+    facts: [
+      [tt("Business"), esc(d.business)],
+      [tt("Booking page"), esc(d.bookingPage)],
+      [tt("Signed up by"), esc(d.signedUpBy)],
+    ],
+    buttonLabel: tt("Open the back office"),
+    buttonUrl: d.adminUrl,
+  };
+}
+
+/** `lang` is the RECIPIENT's dashboard language and sets only the frame (the
+ *  `<html lang>` and the footer); the words are the caller's — build them with
+ *  a helper like `newDetailerAlert` so they can be looked up. */
+export function platformAlertEmail(brand: TenantBrand, a: PlatformAlertData, lang?: unknown): Mail {
   const blocks = [
     labBlock(a.kind),
     headlineBlock(a.headline),
@@ -1407,50 +1476,53 @@ export function platformAlertEmail(brand: TenantBrand, a: PlatformAlertData): Ma
     ...(a.facts && a.facts.length ? [factsBlock(a.facts)] : []),
     ...(a.buttonLabel && a.buttonUrl ? [buttonBlock(brand, a.buttonLabel, a.buttonUrl)] : []),
   ].filter(Boolean);
-  const html = shell(brand, blocks, a.headline);
+  const html = shell(brand, blocks, a.headline, { lang });
   return { subject: a.headline, html, text: htmlToText(html) };
 }
 
-export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
+export function billingEmail(brand: TenantBrand, b: BillingEmailData, lang?: unknown): Mail {
+  // `lang` is the RECIPIENT's dashboard language — see `ownerNewBookingEmail`.
+  // The bank's own reason is Stripe's text and is printed as given.
+  const tt = T(lang);
   const down = b.kind === "suspended";
   const blocks = [
-    labBlock(down ? "Your site is offline" : "Payment problem", "bad"),
+    labBlock(down ? tt("Your site is offline") : tt("Payment problem"), "bad"),
     headlineBlock(down
-      ? "Your booking page is offline until this is paid"
-      : "We couldn't take this month's payment"),
+      ? tt("Your booking page is offline until this is paid")
+      : tt("We couldn't take this month's payment")),
     proseBlock(down
-      ? `We tried your card several times over the last two weeks and it did not go through, so ${esc(b.businessName)}'s booking page is no longer accepting new bookings.`
-      : `The ${money(b.amount)} payment for ${esc(b.businessName)} was declined. We will try the same card again over the next two weeks and email you each time.`),
+      ? tt("We tried your card several times over the last two weeks and it did not go through, so {business}'s booking page is no longer accepting new bookings.", { business: esc(b.businessName) })
+      : tt("The {amount} payment for {business} was declined. We will try the same card again over the next two weeks and email you each time.", { amount: money(b.amount), business: esc(b.businessName) })),
     // NOTHING IS DELETED — the sentence both kinds need most.
     proseBlock(down
-      ? "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back as soon as this is sorted out."
-      : "Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid.",
+      ? tt("Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back as soon as this is sorted out.")
+      : tt("Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid."),
       16),
-    b.reason ? fineBlock(`Your bank said: ${esc(b.reason)}`, 14) : "",
+    b.reason ? fineBlock(tt("Your bank said: {reason}", { reason: esc(b.reason) }), 14) : "",
     // THE BUTTON DOES NOT NAME THE CARD ON THE SUSPENDED EMAIL, and that is
     // not vagueness. With Stripe set to CANCEL at the end of dunning — the
     // owner's choice, 2026-09-05 — there is no invoice left to settle, so a new
     // card fixes nothing; the way back is picking a plan again. With "leave
     // unpaid" it really is the card. The billing page shows whichever applies,
     // and this sentence is true either way.
-    buttonBlock(brand, down ? "Put your page back online" : "Update your card", b.billingUrl),
+    buttonBlock(brand, down ? tt("Put your page back online") : tt("Update your card"), b.billingUrl),
     // The one fact the button cannot carry: their own customers are not
     // stranded. A detailer's first question when their page goes dark is what
     // happens to the people already booked in.
     down
-      ? fineBlock("Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped.")
+      ? fineBlock(tt("Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped."))
       : "",
   ].filter(Boolean);
 
   return mail(
     down
-      ? `${b.businessName}'s booking page is offline`
-      : `We couldn't take payment for ${b.businessName}`,
+      ? tt("{business}'s booking page is offline", { business: b.businessName })
+      : tt("We couldn't take payment for {business}", { business: b.businessName }),
     shell(brand, blocks, down
       // The preheader made the same promise the button used to, and it is the
       // first thing shown in an inbox. See the button's note above.
-      ? "Nothing has been deleted. Open your billing page to bring it back."
-      : "We'll try again over the next two weeks."),
+      ? tt("Nothing has been deleted. Open your billing page to bring it back.")
+      : tt("We'll try again over the next two weeks."), { lang }),
   );
 }
 

@@ -32,7 +32,7 @@ import {
 } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
-import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { money } from "../_shared/emailKit.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -684,7 +684,6 @@ Deno.serve(async (req) => {
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
     if (settings.email_owner_new_booking) {
-      const msg = ownerNewBookingEmail(brand, emailData, isRequest);
       // ROADMAP 4.2 — THE CUSTOMER'S CONTACT CARD RIDES THE ALERT. The old
       // site did this and the conversion dropped it. One tap and the customer
       // is in the detailer's phone, which is how this trade actually works;
@@ -704,6 +703,8 @@ Deno.serve(async (req) => {
         : undefined;
       // Every configured recipient, not just one address.
       for (const to of ownerRecipients(business, settings)) {
+        // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+        const msg = ownerNewBookingEmail(brand, emailData, isRequest, undefined, await recipientLang(to, business.id));
         await sendTenantEmail({ bookingId: booking.id,
           businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text,
           attachments: card,

@@ -34,7 +34,7 @@ import { createBusinessRow } from "../_shared/newBusiness.ts";
 import { dateStrIn, localToDate } from "../_shared/tz.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { inviteEmail } from "../_shared/emailTemplates.ts";
 // ROADMAP 9.14 — a plain .js module so the one figure that must never be wrong
 // is runnable by node from tests/. See its header; brandColor.js is the
@@ -804,7 +804,7 @@ Deno.serve(async (req) => {
           const business = (await businessById(created.id))!;
           const brand = await buildBrand(business, settings);
           const link = `${PLATFORM_URL}/invite/${row.token}`;
-          const msg = inviteEmail(brand, { role: "owner", label: null, link, expiresAt: row.expires_at });
+          const msg = inviteEmail(brand, { role: "owner", label: null, link, expiresAt: row.expires_at }, await recipientLang(email));
           const sent = await sendTenantEmail({
             businessId: created.id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
           });
@@ -934,7 +934,7 @@ Deno.serve(async (req) => {
       const business = (await businessById(id))!;
       const brand = await buildBrand(business, settings);
       const link = `${PLATFORM_URL}/invite/${row.token}`;
-      const msg = inviteEmail(brand, { role, label: null, link, expiresAt: row.expires_at });
+      const msg = inviteEmail(brand, { role, label: null, link, expiresAt: row.expires_at }, await recipientLang(email));
       const sent = await sendTenantEmail({
         businessId: id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
       });

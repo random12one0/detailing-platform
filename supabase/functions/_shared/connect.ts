@@ -269,18 +269,28 @@ export function refundOwed(b: PayableBooking | null | undefined): RefundOwed {
  * direction, and the browser could not follow it anyway. The caller passes its
  * own, which is the only arrangement where the sentence is written once AND
  * every surface still speaks in its own voice about money.
+ *
+ * **AND THE TRANSLATOR THE SAME WAY — ROADMAP 3.4 FAULT 4.** A detailer whose
+ * dashboard is Spanish now gets the owner's cancellation in Spanish, and this
+ * sentence sits inside it. The caller passes `T(lang)` from `_shared/i18n.ts`;
+ * left out, the English is filled in exactly as before. Same reason as the
+ * formatter: this module imports nothing.
  */
-export function refundInstruction(r: RefundOwed, money: (n: number) => string): string {
+export function refundInstruction(
+  r: RefundOwed,
+  money: (n: number) => string,
+  tt: (english: string, vars?: Record<string, string>) => string =
+    (english, vars) => english.replace(/\{(\w+)\}/g, (m, k) => vars?.[k] ?? m),
+): string {
   if (!r.owed) return "";
-  const amount = r.kind === "partial" ? "what they paid" : money(r.amountCents / 100);
+  const amount = r.kind === "partial" ? tt("what they paid") : money(r.amountCents / 100);
   // A SENTENCE JOINT TAKES A FULL STOP, not an em dash — CLAUDE.md § the em
   // dash has three shapes, and `tests/em-dash.test.mjs` is the gate. This
   // sentence exists in FOUR places (here, `BookingDetail.jsx`, and two keys in
   // `appEs.js`) and the catalogue is keyed on the English, so the punctuation
   // is load-bearing: change it here alone and the dashboard falls back to
   // English on a Spanish screen with no error anywhere.
-  return `This was paid. Refund ${amount} from your own Stripe. The money went `
-    + `straight into your account, so we cannot send it back for you.`;
+  return tt("This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.", { amount });
 }
 
 export interface PayabilityInput {

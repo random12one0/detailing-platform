@@ -449,8 +449,11 @@ console.log("6. the emails, where a mistake cannot be taken back");
     if (!/\bdateStr:\s/.test(src)) continue;
     senderSrc.push(src);
   }
+  // ROADMAP 3.4 FAULT 4 — `refundInstruction` (connect.ts) now looks its
+  // sentence up for the detailer's Spanish cancellation email.
+  const CONNECT = strip(readFileSync(path.join(SHARED, "connect.ts"), "utf8"));
   const mailKeys = new Set();
-  for (const src of [TPL, KIT, ...senderSrc]) {
+  for (const src of [TPL, KIT, CONNECT, ...senderSrc]) {
     for (const m of src.matchAll(TT)) mailKeys.add(m[1]);
     for (const m of src.matchAll(INLINE)) mailKeys.add(m[1]);
   }
@@ -543,18 +546,31 @@ console.log("6. the emails, where a mistake cannot be taken back");
   check("6f-iii · and hands it to the shell, which owns the footer",
     noShell.length === 0, noShell.join(" · "));
 
-  // ── AND THE DETAILER'S OWN MAIL IS UNTOUCHED ──────────────────────────
-  // Their language is the dashboard's question (stage 2b). A Spanish booking
+  // ── AND THE DETAILER'S OWN MAIL FOLLOWS THE DETAILER ──────────────────
+  // ~~Their language is the dashboard's question (stage 2b). A Spanish booking
   // must not turn a detailer's own alerts Spanish while their dashboard stays
-  // English — that is worse than either.
+  // English — that is worse than either.~~ 6g-ii used to assert NONE of these
+  // was translated. **Superseded 2026-10-06 (ROADMAP 3.4 FAULT 4, DECISIONS.md):**
+  // they follow the language the RECIPIENT chose for the dashboard. The hazard
+  // the old check stood for is unchanged and is what 6g-iii now holds: a
+  // Spanish BOOKING must never turn a detailer's alert Spanish, so none of
+  // these may read the customer's `b.lang`.
   const OWNER = ["ownerNewBookingEmail", "staleRequestEmail", "inviteEmail",
     "planCancelledEmail", "billingEmail", "platformAlertEmail"];
   check("6g · the check has subjects — every owner template was found",
     OWNER.every((n) => bodyOf(n).length > 150),
     OWNER.filter((n) => bodyOf(n).length <= 150).join(" · "));
-  const leaked = OWNER.filter((n) => /\bT\(/.test(bodyOf(n)));
-  check("6g-ii · and none of the detailer's own mail is translated",
-    leaked.length === 0, leaked.join(" · "));
+  const unbound = OWNER.filter((n) => !/\bT\(lang\)/.test(bodyOf(n)) && n !== "platformAlertEmail")
+    .concat(OWNER.filter((n) => !/shell\([\s\S]*?\{ lang/.test(bodyOf(n))));
+  check("6g-ii · every detailer / staff / platform template takes a language and hands it to the shell",
+    unbound.length === 0, unbound.join(" · "));
+  // The two templates with BOTH audiences must pick the owner's language on
+  // the owner's branch — `b.lang` there is the customer's.
+  const customerLang = OWNER.filter((n) => /\bb\.lang\b/.test(bodyOf(n)))
+    .concat(["cancellationEmail", "rescheduleEmail"]
+      .filter((n) => !/const lang = forOwner \? ownerLang : b\.lang;/.test(bodyOf(n))));
+  check("6g-iii · and none of them reads the CUSTOMER's language",
+    customerLang.length === 0, customerLang.join(" · "));
 
   // ── EVERY SENDER, DISCOVERED BY WHAT IT BUILDS ────────────────────────
   // A `BookingEmailData` is recognised by its `dateStr:` line — the same way

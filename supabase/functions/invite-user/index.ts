@@ -13,7 +13,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, cleanPermissions, getSettings, requireMember } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { inviteEmail } from "../_shared/emailTemplates.ts";
 import { PLATFORM_DOMAIN } from "../_shared/config.ts";
 
@@ -64,7 +64,9 @@ Deno.serve(async (req) => {
     const settings = await getSettings(business.id);
     const brand = await buildBrand(business, settings);
     const link = `https://${PLATFORM_DOMAIN}/invite/${invite.token}`;
-    const msg = inviteEmail(brand, { role, label, link, expiresAt: invite.expires_at });
+    // The invitee's dashboard language if they already use one anywhere (ROADMAP
+    // 3.4 FAULT 4); somebody new is unknown, which is English.
+    const msg = inviteEmail(brand, { role, label, link, expiresAt: invite.expires_at }, await recipientLang(email));
     const sent = await sendTenantEmail({ businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text });
 
     // The link is returned so the owner can copy it if email is unavailable.

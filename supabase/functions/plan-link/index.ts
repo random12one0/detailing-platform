@@ -40,7 +40,7 @@ import { langOf } from "../_shared/i18n.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, businessBySlug, getSettings } from "../_shared/tenant.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
-import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { planCancelledEmail, planLinkEmail } from "../_shared/emailTemplates.ts";
 import { businessSiteUrl, planUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -185,13 +185,14 @@ Deno.serve(async (req) => {
       try {
         const settings = await getSettings(business.id);
         const brand = await buildBrand(business, settings);
-        const msg = planCancelledEmail(brand, {
-          customerName: customer?.name ?? "A customer",
-          planName: member.plan.name,
-          startedOn: member.started_on,
-          endedOn: today,
-        });
         for (const to of ownerRecipients(business, settings)) {
+          // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+          const msg = planCancelledEmail(brand, {
+            customerName: customer?.name ?? "A customer",
+            planName: member.plan.name,
+            startedOn: member.started_on,
+            endedOn: today,
+          }, await recipientLang(to, business.id));
           await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
         }
       } catch (e) {

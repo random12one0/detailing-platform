@@ -13,7 +13,7 @@ import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
-import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { rescheduleEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -144,7 +144,10 @@ Deno.serve(async (req) => {
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
     if (brand.contactEmail) {
-      const msg = rescheduleEmail(brand, emailData, oldDateStr, oldStartTime, true);
+      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+      const msg = rescheduleEmail(
+        brand, emailData, oldDateStr, oldStartTime, true, await recipientLang(brand.contactEmail, business.id),
+      );
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html, text: msg.text });
     }
     try {

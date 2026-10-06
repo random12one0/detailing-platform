@@ -17,8 +17,9 @@ import { retryRead, supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import {
-  buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, sendTenantEmail,
+  buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, recipientLang, sendTenantEmail,
 } from "../_shared/email.ts";
+import { T } from "../_shared/i18n.ts";
 import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { businessSiteUrl, receiptUrl, unsubscribeUrl } from "../_shared/config.ts";
@@ -145,14 +146,18 @@ async function sendOwnerReminder(b: BookingRow) {
   const data = await emailDataFor(business, b);
   // The owner reminder reuses the owner notification layout — same info, new
   // subject line.
-  const msg = ownerNewBookingEmail(brand, data);
   if (settings.email_owner_reminder) {
     for (const to of ownerRecipients(business, settings)) {
+      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+      const lang = await recipientLang(to, business.id);
+      const msg = ownerNewBookingEmail(brand, data, false, undefined, lang);
       mustSend(
         await sendTenantEmail({ bookingId: b.id,
           businessId: business.id,
           to,
-          subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
+          subject: T(lang)("Upcoming job - {name} - {date} at {time}", {
+            name: data.customerName, date: data.dateStr, time: formatTime12hr(data.startTime),
+          }),
           html: msg.html,
           text: msg.text,
         }),
@@ -335,8 +340,10 @@ Deno.serve(async (req) => {
           tag: `booking-${b.id}`,
         });
         const brand = await buildBrand(business, settings);
-        const msg = staleRequestEmail(brand, await emailDataFor(business, b), waited);
+        const data = await emailDataFor(business, b);
         for (const to of ownerRecipients(business, settings)) {
+          // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+          const msg = staleRequestEmail(brand, data, waited, await recipientLang(to, business.id));
           mustSend(
             await sendTenantEmail({ bookingId: b.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text }),
             "stale request nudge",

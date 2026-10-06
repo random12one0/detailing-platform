@@ -302,6 +302,8 @@ were made more than once.
 
 - **ROADMAP 0.7 — the maintenance email gets the campaign email's legal treatment; a business with no mailing address is skipped, never given a placeholder** — the manager's call on 2026-10-06, made on Andrew's standing instruction to decide what a session can decide. Answers `docs/what-we-send.md` Question 3 for the maintenance email only. Footer + unsubscribe + the same opt-out list as campaigns; no new setup step; the default-off switch stays. How to reverse it is inside.
 
+- **ROADMAP 3.4 FAULT 4 — detailer, staff and platform emails follow the language that person chose for the dashboard, English when unknown** — the manager's call on 2026-10-06, made on Andrew's standing instruction to decide what a session can decide. Never the customer's booking language. The choice moves from the browser to `business_users.lang` (migration written, not applied). How to reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -17864,3 +17866,61 @@ the `no_mailing_address` branch in `maintenanceVerdict` and the skip block in
 1, 2 and 5 in the same commit. If he would rather require the address at setup:
 keep all of this and add the setup step — the skip then simply never fires. If
 he wants the email gone: leave the switch off, which it already is.
+
+## ROADMAP 3.4 FAULT 4 — detailer, staff and platform emails follow the language that person chose for the dashboard, English when unknown
+
+**2026-10-06. The manager's call, made on Andrew's standing instruction that
+the manager decides what a session could decide.** Recorded by DP Cowork2,
+which built it.
+
+**The question.** The customer's emails follow the language of their booking.
+The fourteen rendered emails that go to a detailer, their staff, or the
+platform's owner were English whatever anybody chose — and the dashboard has
+had an EN/ES switch since ROADMAP 8.17 stage 2b. So a detailer working in
+Spanish read Spanish on every screen and English in every alert about it.
+
+**The ruling.** Those emails follow the language THE RECIPIENT chose for the
+dashboard. When that is unknown — a shared inbox in the notification list,
+somebody invited who has never signed in, a person who never pressed the
+switch — they are English. **Never the customer's booking language:** a
+Spanish booking must not turn an English-reading detailer's alert Spanish.
+That was the reason the old rule kept them all English, and it still holds;
+`tests/spanish.test.mjs` 6g-iii now enforces exactly that half.
+
+**What "the dashboard language" is, and where it lives now.** It lived only
+in the browser (`dp.lang.app` in local storage), which no email can read.
+Migration `20261006030000_dashboard_language_reaches_the_server.sql` gives it
+the smallest server-side home that is per PERSON: a nullable
+`business_users.lang` (NULL = never chose = English, so no backfill), a
+`set_my_lang` function the dashboard calls to save it, and a
+`recipient_lang` lookup the email senders call per recipient address. It
+matches on the membership's stored email OR the sign-in account's, because 9 of
+21 membership rows had no email stored (read on `kguqylyzgyzfktkfnhjb`,
+2026-10-06, `select role,email from business_users`). **Not applied** —
+Andrew's switch in FOR-ANDREW.md. Any lookup failure, including the function not
+existing yet, answers English, so the order of publishing cannot break a send.
+
+**What stays English on purpose.** Other people's words: customer names,
+service and plan names, a role's label, the customer's notes, a business's own
+surcharge names ("Heavy soiling surcharge" is a detailer's price rule, typed in
+Booking rules). The bank's decline reason is Stripe's text. The scheduled-jobs
+alert from `watch-jobs` builds its sentences in that function, not in a
+template, so it is still English — it goes only to the platform owner.
+
+**Words chosen like the dashboard, not like the customer emails** — "cita",
+"panel" — except where a key is shared with a customer email ("Rescheduled"
+is "Reprogramada" in both).
+
+**A recorded `scripts/` edit (the 9.10 rule).** `scripts/render-emails.mjs`
+again, an existing file: the fourteen non-customer samples now take the run's
+language; the signup alert sample draws the real words (`newDetailerAlert`)
+instead of a typed copy; and a Spanish run checks EVERY email, not only the
+customer's, for an English date, an English template sentence, and a page that
+declares itself English. The brief named this work.
+
+**How to reverse it.** Pass nothing for the new last argument wherever an
+email is built from `recipientLang(…)` (eleven functions), and every one is
+English again, byte for byte — the English renders were compared file by file
+before and after and did not change. The column can stay (it is harmless
+NULL) or go in a new migration. Restore `tests/spanish.test.mjs` 6g-ii to
+"none of the detailer's own mail is translated" in the same commit.

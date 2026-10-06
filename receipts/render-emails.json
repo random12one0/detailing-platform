@@ -1,21 +1,21 @@
 {
-  "git_sha": "51edf5dfc2f8c350fc2bf0fcce00f95272f17faa",
-  "git_sha_started": "51edf5dfc2f8c350fc2bf0fcce00f95272f17faa",
+  "git_sha": "bb589b3996672aa8bd3075ae94712bc65f850b52",
+  "git_sha_started": "bb589b3996672aa8bd3075ae94712bc65f850b52",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-06T20:15:09.793Z",
+  "finished_at": "2026-10-06T20:34:33.914Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "email-preview/es/index.html"
+    "C:/Users/rando/AppData/Local/Temp/claude/D--Users-rando-Downloads-claude-detailing-platform/532754c2-c51e-41c8-9488-aa89686eba60/scratchpad/final-en/index.html"
   ],
   "dimensions": {
     "accent": "#38E08B",
     "rot_patterns": 4,
-    "out": "email-preview/es"
+    "out": "C:/Users/rando/AppData/Local/Temp/claude/D--Users-rando-Downloads-claude-detailing-platform/532754c2-c51e-41c8-9488-aa89686eba60/scratchpad/final-en"
   },
   "check_id": "render-emails",
-  "started_at": "2026-10-06T20:15:09.638Z",
+  "started_at": "2026-10-06T20:34:33.770Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,

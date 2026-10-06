@@ -5750,8 +5750,10 @@ requested.
   ### STATUS 2026-10-06 (DP Cowork2) — READ THIS FIRST. WHAT IS STILL OPEN, IN TWO LINES:
   1. **Andrew's:** every exported template (16 at `51edf5d`, by the Done-when's own
      grep) sent to a real inbox, read, and leaving a delivery row. No session can do it.
-  2. **Not a session's call:** FAULT 4 — whether a detailer whose dashboard is in
-     Spanish gets Spanish email. All 14 detailer/staff/platform renders are English.
+  2. ~~**Not a session's call:** FAULT 4 — whether a detailer whose dashboard is in
+     Spanish gets Spanish email. All 14 detailer/staff/platform renders are English.~~
+     **DECIDED AND BUILT 2026-10-06** — "FAULT 4, BUILT" just below. What is left
+     of it: Andrew's two switches (FOR-ANDREW.md) and one line on Lane A (below).
 
   **DONE THIS SITTING, everything open that lives outside `app/src`:**
   - **FAULT 5, the sentence half.** A Spanish run of `scripts/render-emails.mjs`
@@ -5790,6 +5792,65 @@ requested.
     worth $345"* then *"Refund $360"*. The $360 is what was actually paid,
     including a $30 tip, so it is defensible — but it may make a detailer stop.
   - **Lane A:** nothing new from the emails. The Spanish items are 14.35's.
+
+  ### FAULT 4, BUILT 2026-10-06 (DP Cowork2)
+  - **The ruling** (manager, on Andrew's standing instruction; DECISIONS.md, same
+    title): detailer, staff and platform emails follow the language THAT PERSON
+    chose for the dashboard, English when unknown, never the customer's booking.
+  - **Where the choice lives.** It was ONLY in the browser (`dp.lang.app`).
+    `supabase/migrations/20261006030000_dashboard_language_reaches_the_server.sql`:
+    nullable `business_users.lang`, `set_my_lang()` for the dashboard to save it,
+    `recipient_lang()` for senders, matched per recipient ADDRESS. **Not applied**;
+    `migration-drift.mjs` names its column and two functions as absent, as it
+    should. `recipientLang()` in `_shared/email.ts` answers English on any error,
+    so publishing the functions first changes nothing.
+  - **Built.** The eight templates behind the 14 renders take a language;
+    `refundInstruction` (connect.ts) takes a translator; 13 send sites in 11
+    functions ask `recipientLang` per recipient (owner lists can mix languages).
+    74 new Spanish keys (146 → 220 in `_shared/strings/es.ts`, counted with the
+    key pattern `tests/spanish.test.mjs` § 6 uses, HEAD against the working tree
+    before this commit), worded like the dashboard ("cita", "panel").
+  - **Measured** (`node scripts/render-emails.mjs --lang=es` / `--lang=en`, at the
+    commit carrying this entry): Spanish, **14 of 14** non-customer HTML renders now
+    differ from English (were 14 of 14 identical), exit 0. English: all 65 output
+    files `cmp`'d against a render taken before the change, **0 differ**.
+  - **The render run now checks every email in a Spanish run, not only the
+    customer's**: English date, English template sentence (now also read from
+    connect.ts), and a new one — a page that declares itself `<html lang="en">`.
+    Its own count: 18 customer + 14 others must add up to the run.
+  - **Broken on purpose, each restored and `cmp`'d back:** (1) the Spanish for
+    "Answer this request" deleted → 2 FAILs naming both emails, exit 1; (2) the
+    owner alert stops handing its language to the frame → 10 FAILs; (3) the owner
+    alert reads the CUSTOMER's language → `spanish.test` 6g-ii and 6g-iii red.
+  - **`tests/spanish.test.mjs` 6g-ii asserted the OLD rule** ("none of the
+    detailer's own mail is translated") and went red, correctly. Rewritten to the
+    new rule, old text struck through in place; 6g-iii added for the half that did
+    not change. Section 6 all green; the suite's 4 remaining reds are 1b, 1c, 9a,
+    9f — dashboard strings, Lane A's, untouched here.
+  - **Read, all 14 Spanish renders, as text.** One fix from reading: the moved-booking
+    email said "Reprogramada" on its label and "Reagendada" in its subject. Now
+    both "Reprogramada". Left English on purpose: names, service and plan names,
+    a role's label ("como Detailer"), the customer's notes, and the bank's decline
+    reason (Stripe's own text).
+  - **"Heavy soiling surcharge" in the Spanish three-car confirmation is
+    TENANT-TYPED — fine.** It is a price rule the detailer names in Booking rules
+    (`price_rules.label`; `pricing.ts` gives rule lines no `parts` on purpose).
+    The fixture has it on every booking, not only the three-car one.
+  - **Not verified:** no Deno here, so the eleven functions were parsed
+    (esbuild, which failed on a planted syntax error) but never type-checked or
+    run; `recipient_lang` has never executed (not applied); nothing was sent.
+  - **Still English, said out loud:** the scheduled-jobs alert from `watch-jobs`
+    builds its sentences inside that function and goes only to the platform
+    owner. A new finding is numbered below as **3.4d**.
+  - **LANE A — the one line that makes it real.** Nothing changes for anybody
+    until the dashboard SAVES the choice: where `setAppLocale(code)` runs
+    (`AppLanguagePicker.jsx`), also call `supabase.rpc("set_my_lang", { p_lang: code })`
+    for a signed-in user, best-effort. Only after the migration is applied.
+  - **Cost of this sitting, shared resources:** `tests/email-sends.test.mjs` was
+    run once (13:35 local) — it loads `.env` itself and made real sends to
+    Resend's two sandbox addresses (reach nobody, count against the daily
+    allowance) and briefly re-pointed a demo booking's address, restoring it. Its
+    failures are about the DEPLOYED functions. Its receipt was put back.
 
   ---
 
@@ -6892,6 +6953,22 @@ requested.
     DATE; an untranslated SENTENCE (FAULT 5's own sabotage, a deleted `es.ts`
     key) still renders and exits 0. FAULT 5's "declared count of templates that
     must differ from English" remains open under 3.4.
+
+- [ ] **3.4d — A business that never renamed its car sizes shows OUR English size
+  words in a Spanish email.** *Found 2026-10-06 reading the 3.4 FAULT 4 renders.*
+  Every email prints the booking's stored `vehicle_size_label`, and for a business
+  on the seeded sizes that is "Small" / "Medium" / "Large" — our words, which the
+  booking page already translates on exactly that test (`core.js`,
+  `DEFAULT_VEHICLE_SIZES`). The email then passes it through `sizeDisplay`
+  (`_shared/emailTemplates.ts`), which rewrites "Small" to "Small car" and "Large"
+  to "Large / SUV" — more English, in customer AND detailer emails, in both
+  languages' renders. The fixtures never show it: they use invented labels
+  ("Mid-size SUV"), which the code treats as the detailer's own words. **The fix
+  is a wording call before it is code**: whether the email should say what the
+  booking page says ("Grande") or what `sizeDisplay` says ("Large / SUV"), and the
+  extra-car line (`adjustmentText`) has to agree with whichever. **Done when** a
+  Spanish render with seeded sizes shows the booking page's Spanish word in the
+  vehicle row and the extra-car line, and the English render is unchanged.
 
 ---
 
