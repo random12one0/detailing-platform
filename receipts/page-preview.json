@@ -1,13 +1,13 @@
 {
-  "git_sha": "3dfd8dd0261f589b45dd778e17f4a5dd8cf37ca1",
-  "git_sha_started": "3dfd8dd0261f589b45dd778e17f4a5dd8cf37ca1",
-  "head_moved": false,
+  "git_sha": "1c30b8068e09a177a5d1fe053deec30a2fd8e639",
+  "git_sha_started": "056581a8b3fe551243d70dfceeb04b5d6f610400",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-06T19:08:22.248Z",
+  "finished_at": "2026-10-06T19:35:16.936Z",
   "failures": [],
   "warnings": [
-    "The THIN business is real: `final-pass-fixture` has genuinely zero services and the frame loads its REAL public page. What is intercepted is the signed-in session's own count queries, so the screen computes `counts` as thin and the sentence matches the page. Nothing is written to the database.",
-    "A real sign-in as a thin business's owner would need an auth user and a membership row - a write to the live project, which this sitting is not permitted. Said rather than implied.",
+    "The THIN run is a real sign-in as the owner of `final-pass-fixture` (dev project, is_demo, fixture.test sink) and nothing is intercepted. Its login is FIXTURE_OWNER_PW in the gitignored `.env`.",
+    "That business keeps its five weekday hours rows, so the thin sentence is about what it genuinely lacks (services, add-ons, photos, reviews), not an all-zero rewrite.",
     "`on-save` proves the frame is NOT remounted by typing. It does not prove a save DOES refresh it; that is `refreshKey` bumping in `onClose`, which is one line and is read rather than pressed here."
   ],
   "artifacts": [
@@ -29,12 +29,14 @@
       "1440px complete: src=http://localhost:5173/book/demo-detail 729x648 inCol2=true missing=\"This page works. It has no photos on it yet.\" stamp-after-typing=unmounted-while-open",
       "1440px thin: src=http://localhost:5173/book/final-pass-fixture 729x648 inCol2=true missing=\"Nobody can book this page yet — it has no services on it.\" stamp-after-typing=unmounted-while-open",
       "1440px lite: src=http://localhost:5173/book/demo-detail 729x648",
-      "console: 2 React Router future-flag warning(s) FORGIVEN BY NAME"
+      "console FORGIVEN BY NAME: warning: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use t",
+      "console FORGIVEN BY NAME: warning: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeS",
+      "console FORGIVEN BY NAME: error: Failed to load resource: the server responded with a status of 404 () @ https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/platfor"
     ],
     "sabotage": null
   },
   "check_id": "page-preview",
-  "started_at": "2026-10-06T19:07:24.485Z",
+  "started_at": "2026-10-06T19:34:23.880Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,

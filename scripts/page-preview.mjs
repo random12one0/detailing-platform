@@ -2,8 +2,7 @@
 //
 //   node scripts/page-preview.mjs
 //   node scripts/page-preview.mjs --headed
-//   node scripts/page-preview.mjs --break=keystroke   # sabotage: refresh on typing
-//   node scripts/page-preview.mjs --break=blankthin   # sabotage: blank panel when thin
+//   node scripts/page-preview.mjs --break=wrongowner  # sabotage: the thin run signs in as the DEMO owner
 //
 // Dev server + the seeded demo tenant + `.env` loaded.
 //
@@ -26,21 +25,28 @@
 // 4 questions x 2 businesses x 2 widths + 1 lite = **17**, fixed by the list.
 //
 // ---------------------------------------------------------------------------
-// THE THIN BUSINESS IS REAL AND THE COMPOSITE IS DECLARED
+// THE THIN BUSINESS IS REAL, ALL THE WAY DOWN
 // ---------------------------------------------------------------------------
-// **Nothing is written to the database.** `final-pass-fixture` is a REAL
-// business in this project with genuinely zero services, and the frame loads
-// its REAL public page — that half is not simulated at all.
+// The first version of this check made the thin case by INTERCEPTING the
+// signed-in session's count queries and rewriting the businesses answer, and
+// said so in its own header. That proved the sentence matched the page; it did
+// not prove the screen is right for an account that really is thin, and a
+// rewritten answer can disagree with the real one in ways nobody sees.
 //
-// What IS intercepted is the signed-in session's own count queries, so the
-// Business screen computes `counts` as thin. **Said plainly because the
-// alternative is a reader assuming more was real than was**: the page in the
-// frame is real and thin, the counts behind the sentence are rewritten, and
-// the two are made to agree rather than being allowed to contradict.
+// Now the thin run signs in as the REAL owner of `final-pass-fixture`, a
+// business on the dev project (ref kguqylyzgyzfktkfnhjb, `is_demo = true`, the
+// owner's address on the `fixture.test` sink) with genuinely zero services,
+// add-ons, photos and reviews. Nothing in this script intercepts a request.
 //
-// The honest reason it is not a real sign-in as that business's owner: that
-// needs an auth user and a membership row, which is a write to the live
-// project, and this sitting is not permitted one.
+// THE LOGIN: `FIXTURE_OWNER_PW` in `.env`, which is gitignored, the way
+// `DEMO_OWNER_PW` is. It fails loudly and never falls back to a literal.
+//
+//     set -a; . ./.env; set +a
+//
+// A consequence worth knowing: that business still has its five weekday
+// opening-hours rows (`final-pass.mjs` seeds them, as `newBusiness.ts` does),
+// so the thin sentence names what is genuinely missing, not what an
+// interception zeroed.
 
 import { createRequire } from "node:module";
 import { mkdirSync, rmSync } from "node:fs";
@@ -56,6 +62,15 @@ const ARGS = process.argv.slice(2);
 const HEADED = ARGS.includes("--headed");
 const BREAK = (ARGS.find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
 const OWNER = demoOwner();
+const FIXTURE_OWNER = (() => {
+  const password = process.env.FIXTURE_OWNER_PW;
+  if (!password) {
+    throw new Error("FIXTURE_OWNER_PW is not set, so the thin business cannot be signed into.\n"
+      + "  It is the password of final-owner@fixture.test and it lives in `.env`. Load it:\n"
+      + "      set -a; . ./.env; set +a\n  NOTHING WAS MEASURED. This is not a pass.");
+  }
+  return { email: "final-owner@fixture.test", password };
+})();
 
 // 320 FIRST, because 9.10's Done-when says so and because the phone is where
 // "stacks below rather than beside" is the whole question.
@@ -72,17 +87,17 @@ const check = (id, name, cond, detail) => {
   return false;
 };
 
-async function signIn(ctx) {
+async function signIn(ctx, owner = OWNER) {
   const page = await ctx.newPage();
   page.on("console", (m) => {
     const t = m.type();
-    if (t === "error" || t === "warning") consoleBad.push(`${t}: ${m.text().slice(0, 180)}`);
+    if (t === "error" || t === "warning") consoleBad.push(`${t}: ${m.text().slice(0, 180)} @ ${(m.location().url || "").replace(/apikey=[^&]+/, "").slice(0, 160)}`);
   });
   await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
   if (await page.locator("input[type=email]").count()) {
-    await page.fill("input[type=email]", OWNER.email);
-    await page.fill("input[type=password]", OWNER.password);
+    await page.fill("input[type=email]", owner.email);
+    await page.fill("input[type=password]", owner.password);
     await page.click("form button.btn.primary");
     await page.waitForSelector(".tabbar", { timeout: 30000 });
   }
@@ -94,35 +109,6 @@ async function signIn(ctx) {
     } catch { /* private mode */ }
   });
   return page;
-}
-
-/** Make the signed-in session read as a THIN business, page and all. */
-async function beThin(page) {
-  const zero = ["services", "add_ons", "gallery_images", "testimonials", "business_hours"];
-  for (const table of zero) {
-    await page.route(`**/rest/v1/${table}*`, async (route) => {
-      const res = await route.fetch().catch(() => null);
-      if (!res) return route.abort().catch(() => {});
-      return route.fulfill({
-        status: res.status(), contentType: "application/json",
-        // `content-range` is how PostgREST answers a head count, and the screen
-        // reads `count` off it. Returning [] without it leaves the count null,
-        // which renders as "—" rather than as zero and would have made the thin
-        // case look like a LOADING case.
-        headers: { "content-range": "*/0" },
-        body: "[]",
-      });
-    });
-  }
-  // and the frame points at a real business that really is thin
-  await page.route("**/rest/v1/businesses*", async (route) => {
-    const res = await route.fetch().catch(() => null);
-    if (!res) return route.abort().catch(() => {});
-    let b; try { b = await res.json(); } catch { return route.fulfill({ response: res }); }
-    const fix = (o) => { if (o && typeof o === "object" && "slug" in o) o.slug = THIN_SLUG; };
-    if (Array.isArray(b)) b.forEach(fix); else fix(b);
-    return route.fulfill({ status: res.status(), contentType: "application/json", body: JSON.stringify(b) });
-  });
 }
 
 async function openBusiness(page) {
@@ -167,8 +153,9 @@ async function run() {
     for (const thin of [false, true]) {
       const id = `${size.w}px ${thin ? "thin" : "complete"}`;
       const ctx = await browser.newContext({ viewport: { width: size.w, height: size.h } });
-      const page = await signIn(ctx);
-      if (thin) await beThin(page);
+      // the thin run is a REAL sign-in as the thin business's owner; --break=wrongowner
+      // signs in as the demo owner instead, which must turn `thin-not-blank` red
+      const page = await signIn(ctx, thin && BREAK !== "wrongowner" ? FIXTURE_OWNER : OWNER);
       await openBusiness(page);
       const p = await readPreview(page);
       await page.screenshot({ path: join(ART, `${size.w}-${thin ? "thin" : "complete"}.png`), fullPage: false });
@@ -180,7 +167,9 @@ async function run() {
       // 9.10's own failing shape: "a blank right half on the thin business".
       check(id, "thin-not-blank", !thin
         ? true
-        : !!(p.present && p.frameH > 100 && p.missing.length > 0),
+        // ...and it must BE the thin business: a signed-in demo owner also has a missing-line
+        // ("no photos yet"), which is how --break=wrongowner passed this the first time
+        : !!(p.present && p.frameH > 100 && p.missing.length > 0 && String(p.src).endsWith(`/book/${THIN_SLUG}`)),
         thin
           ? `thin business: frame ${p.frameH}px tall, missing-line ${p.missing ? `"${p.missing}"` : "ABSENT"}`
           : "n/a");
@@ -287,8 +276,7 @@ async function run() {
   const canaryProblems = [];
   {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const page = await signIn(ctx);
-    await beThin(page);
+    const page = await signIn(ctx, FIXTURE_OWNER);
     await openBusiness(page);
     const before = await readPreview(page);
     await page.evaluate(() => {
@@ -336,13 +324,15 @@ async function run() {
 
   await browser.close();
 
-  const FORGIVEN = /React Router Future Flag Warning/;
+  // Forgiven BY NAME, each with its reason. The 404 is the platform-admin function
+  // answering a NON-admin: GearMenu asks `whoami` and the function deliberately
+  // answers every non-admin with 404 so it never confirms itself. The demo owner is
+  // a platform admin, so it never shows there; the real thin owner is not.
+  const FORGIVEN = /React Router Future Flag Warning|status of 404.*functions[/]v1[/]platform-admin/;
   const uniq = [...new Set(consoleBad)];
   for (const c of uniq.filter((c) => !FORGIVEN.test(c))) failures.push(`console — ${c}`);
   const forgiven = uniq.filter((c) => FORGIVEN.test(c));
-  if (forgiven.length) {
-    observed.push(`console: ${forgiven.length} React Router future-flag warning(s) FORGIVEN BY NAME`);
-  }
+  for (const c of forgiven) observed.push(`console FORGIVEN BY NAME: ${c.slice(0, 140)}`);
 
   const targets = SIZES.length * 2 + 1;
   const { path, receipt } = writeReceipt({
@@ -364,12 +354,11 @@ async function run() {
       + "rather than dropping out, so the count cannot fall.",
     failures: [...failures, ...canaryProblems],
     warnings: [
-      "The THIN business is real: `final-pass-fixture` has genuinely zero services and the frame "
-      + "loads its REAL public page. What is intercepted is the signed-in session's own count "
-      + "queries, so the screen computes `counts` as thin and the sentence matches the page. "
-      + "Nothing is written to the database.",
-      "A real sign-in as a thin business's owner would need an auth user and a membership row - a "
-      + "write to the live project, which this sitting is not permitted. Said rather than implied.",
+      "The THIN run is a real sign-in as the owner of `final-pass-fixture` (dev project, is_demo, "
+      + "fixture.test sink) and nothing is intercepted. Its login is FIXTURE_OWNER_PW in the "
+      + "gitignored `.env`.",
+      "That business keeps its five weekday hours rows, so the thin sentence is about what it "
+      + "genuinely lacks (services, add-ons, photos, reviews), not an all-zero rewrite.",
       "`on-save` proves the frame is NOT remounted by typing. It does not prove a save DOES "
       + "refresh it; that is `refreshKey` bumping in `onClose`, which is one line and is read "
       + "rather than pressed here.",
