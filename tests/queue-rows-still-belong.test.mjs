@@ -143,10 +143,7 @@ const CMD = {
   "9.11": { done: "2026-10-03 02:01 — the other lane re-ran the sweep; receipt git_sha 50767da. Clause 2 is Andrew's." },
   "14.22": { cmd: `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -qv '^t('` },
   "14.21": { cmd: `! grep -qE 'SIGTERM|SIGINT' scripts/admin-contrast.mjs` },
-  "14.26": {
-    needsEnv: "SUPABASE_SECRET_KEY",
-    cmd: `test "$(curl -s "$SUPABASE_URL/rest/v1/bookings?address_source=eq.picked&select=id" -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY")" = "[]"`,
-  },
+  "14.26": { done: "2026-10-06 — tests/picked-evidence-survives.test.mjs keeps the one picked row on a fixture tenant the seed never deletes and re-books it if it is ever gone; the old probe (zero picked rows anywhere) is false now by design." },
   "3.4c": { cmd: `grep -q '"12 October 2026"' scripts/render-emails.mjs` },
   "7.18": { cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
   "4.6": { cmd: `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` },

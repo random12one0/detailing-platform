@@ -3665,7 +3665,7 @@ the wrong service, and never book a job we cannot reach.
 
   Restored after each; `git diff app/src` clean, 6/6 green.
 
-- [ ] **14.26 — A reseed eats the evidence an open item depends on, and nothing
+- [x] **DONE 2026-10-06 — 14.26 — A reseed eats the evidence an open item depends on, and nothing
   notices. Found 2026-09-23 inside 2.8; given its own item because it is
   bigger than 2.8.**
   ***NUMBERED 14.26 ON 2026-10-03.*** It had no number for ten days and was
@@ -3747,6 +3747,47 @@ the wrong service, and never book a job we cannot reach.
      than no instruction.
   **Done when:** either a flagged row survives a reseed, or no open item
   depends on one surviving.
+
+  **CLOSED 2026-10-06, FROM THE OTHER SIDE OF THE FENCE.** The fix this item
+  queued was a change to `scripts/seed-demo.mjs`, and `scripts/` is closed to
+  this lane. Shape 1 was reachable without it, because **the seed deletes
+  exactly one business, keyed on its own slug** — and the database already
+  shows what that means: `final-pass-fixture` (created 2026-09-13) and the
+  `engine-*` / `ics-*` fixtures (2026-09-20) are all still there after
+  `demo-detail` was recreated on 2026-10-02, its `business_id` changed. **The
+  evidence now lives on a tenant the seed does not delete.**
+
+  **`tests/picked-evidence-survives.test.mjs` is the mechanism and the
+  noticing.** Test 1 (no credentials) reads the seed as text: exactly one
+  delete against `/rest/v1/businesses`, keyed on `slug=eq.${SLUG}`, and the
+  fixture slug (`address-source-evidence`) is not that slug. Test 2 (service
+  key) asks whether the fixture holds a booking whose `address_source` is
+  `picked`, and **if not, books one through the real `create-booking` function**
+  — never by inserting a row, because the evidence is the server storing the
+  word it was sent. `PICKED_DRY=1` forbids the write and fails instead.
+
+  **RUN, NOT READ, AGAINST THE ZERO-ROW STATE THIS ITEM DESCRIBES.** Dry run
+  with no picked row anywhere: **test 2 red**, naming the fault. Real run:
+  **2 of 2 green**, one fixture tenant and one booking created
+  (`9eacba25…`, `address_source` read back `picked`). Dry run again: **2 of 2
+  green, nothing written.** `PICKED_BREAK=slug` points the fixture at
+  `demo-detail`: **0 of 2, test 1 red** by name, nothing written.
+
+  **THE SABOTAGE WROTE A ROW THE FIRST TIME, AND THAT IS WORTH KEEPING.** The
+  first `PICKED_BREAK=slug` run did not force read-only, so the heal path ran
+  against `demo-detail` and left one stray booking and one customer on the
+  seeded tenant. Both were this run's own, minutes old; both were removed by
+  id; `bookings?address_source=eq.picked` was read as `[]` afterwards. **A
+  sabotage switch that can write is not a sabotage switch** — it now implies
+  `PICKED_DRY`.
+
+  **WHAT WAS NOT DONE: A RESEED WAS NOT RUN.** `seed-demo.mjs` would rewrite the
+  tenant other sessions measure (`CLAUDE.md` § Commands), so survival is shown by
+  the 2026-10-02 recreation having left every other fixture standing plus the
+  structural read in test 1, not by watching this row outlive a reseed. If the
+  seed ever gains a second business delete, test 1 goes red the same day.
+  `queue-rows-still-belong.test.mjs` row 14.26 now reads DONE: its old probe
+  (*zero* picked rows anywhere) is false by design.
 
 - [ ] **14.27 — Nothing notices when a blocker goes stale, so an item can sit
   closed-in-fact and open-on-paper. Found 2026-09-23; Andrew asked for it in
