@@ -571,7 +571,7 @@ export default function Calendar({ refreshKey = 0 }) {
                             {shortName(b.customer_name)}
                           </span>
                         ))}
-                        {jobs.length > 3 && <span className="more">+{jobs.length - 3} more</span>}
+                        {jobs.length > 3 && <span className="more">{t("+{count} more", { count: jobs.length - 3 })}</span>}
                       </span>
                     )}
                   </button>

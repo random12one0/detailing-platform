@@ -97,7 +97,7 @@ export default function EmailTrail({ rows, timezone, cap, empty }) {
                   </span>
                   {/* The provider's own words, only when they add something
                       the word above does not. */}
-                  {state.ok === false && m.detail ? ` · ${m.detail}` : ""}
+                  {state.ok === false && m.detail ? ` · ${t(m.detail)}` : ""}
                 </span>
               </span>
               {state.ok === true && (

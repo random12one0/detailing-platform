@@ -21,7 +21,7 @@ import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, ExternalLink, Mess
 import { api, downloadOwnerIcs } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
-import { fillTemplate } from "../lib/templates.js";
+import { fillTemplate, templateLabel } from "../lib/templates.js";
 import { dateLong, localDate, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
 import ConfirmTap, { jobDoneQuestion } from "./ConfirmTap.jsx";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -63,7 +63,7 @@ const PAY_LABELS = {
 const MAIL_CAP = 6;
 const SIZE_LABELS = { small: "Small", medium: "Medium", large: "Large" };
 const sizeLabel = (b) => b.vehicle_size_label
-  || SIZE_LABELS[b.vehicle_size]
+  || (SIZE_LABELS[b.vehicle_size] && t(SIZE_LABELS[b.vehicle_size]))
   || String(b.vehicle_size || "").replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase());
 // W27. Shown only when it was asked — null means "not asked", which is a
 // different fact from a clean car.
@@ -351,7 +351,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               the card for the same booking. One vocabulary, one casing. */}
           <span className={`pill ${booking.status}`}>{t(STATUS_LABELS[booking.status] ?? booking.status)}</span>
           <span className={`pill ${booking.payment_status}`}>
-            {PAY_LABELS[booking.payment_status] ?? booking.payment_status}
+            {t(PAY_LABELS[booking.payment_status] ?? booking.payment_status)}
           </span>
           {/* Roadmap 2.14 step 3. The same fact the request card carries, on
               the record you open from it — a plan booking's price is the
@@ -528,14 +528,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   itemised in `price_adjustments`, so these lines are what the
                   cars ARE. */}
               {(booking.vehicles ?? []).length > 0 && (
-                <p className="muted">{`${(booking.vehicles ?? []).length + 1} vehicles`}</p>
+                <p className="muted">{t("{count} vehicles", { count: (booking.vehicles ?? []).length + 1 })}</p>
               )}
               <p className="muted">
                 {sizeLabel(booking)}
                 {booking.vehicle_year ? ` · ${booking.vehicle_year}` : ""}
                 {booking.vehicle_model ? ` · ${booking.vehicle_model}` : ""}
                 {CONDITION_LABELS[booking.vehicle_condition]
-                  ? ` · ${CONDITION_LABELS[booking.vehicle_condition]}` : ""}
+                  ? ` · ${t(CONDITION_LABELS[booking.vehicle_condition])}` : ""}
               </p>
               {[...(booking.vehicles ?? [])]
                 .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
@@ -742,7 +742,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   </button>
                   <button className="btn" disabled={busy} onClick={() => setQuoting(true)}>
                     <MessageSquareQuote size={18} strokeWidth={2} />
-                    {quotedAmount === null ? " Send a quote" : " Send a new quote"}
+                    {" "}{quotedAmount === null ? t("Send a quote") : t("Send a new quote")}
                   </button>
                   <button className="btn ghost" disabled={busy} onClick={() => respond("decline")}>
                     <X size={18} strokeWidth={2} /> {t("Decline")}
@@ -847,7 +847,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <label className="field"><span>{t("Private notes")}</span>
               <textarea value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} /></label>
             <p className="muted" style={{ marginBottom: 8 }}>
-              Date/time changes are re-checked against your hours, blockouts and other jobs — a conflicting move is rejected, not silently saved.
+              {t("Date/time changes are re-checked against your hours, blockouts and other jobs — a conflicting move is rejected, not silently saved.")}
             </p>
             <div className="grid2">
               <button className="btn" onClick={() => setEditing(false)}>{t("Back")}</button>
@@ -865,8 +865,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {templates.map((tpl) => (
                 <a key={tpl.id} className="card tappable" href={smsHref(filled(tpl.body))}
                    style={{ display: "block", color: "inherit" }}>
-                  {/* The detailer's OWN words — never translated. */}
-                  <div className="strong">{tpl.label}</div>
+                  {/* The five shipped NAMES follow the dashboard's language; the body is the detailer's own words. */}
+                  <div className="strong">{templateLabel(tpl)}</div>
                   <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{filled(tpl.body)}</div>
                 </a>
               ))}

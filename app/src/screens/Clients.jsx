@@ -795,7 +795,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 <div>
                   <span className="quiet">{t("Last vehicle")}</span>
                   <span className="v">
-                    {history[0].vehicle_size_label || history[0].vehicle_size}
+                    {history[0].vehicle_size_label || t({ small: "Small", medium: "Medium", large: "Large" }[history[0].vehicle_size] ?? history[0].vehicle_size)}
                     {history[0].vehicle_model ? ` · ${history[0].vehicle_model}` : ""}
                   </span>
                 </div>

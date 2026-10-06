@@ -43,7 +43,7 @@ import { MessageSquare, RotateCcw } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import {
-  DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate, findBadTokens, fromEditorDom, toSegments,
+  DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate, findBadTokens, fromEditorDom, templateLabel, toSegments,
 } from "../../lib/templates.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -94,7 +94,7 @@ const SAMPLE = {
 // label is always exactly one of `DEFAULT_TEMPLATES`' five — deriving it
 // fresh from the stable key and translating it live fixes every business
 // already seeded without writing to a single row.
-const templateLabel = (row) => t(DEFAULT_TEMPLATES.find((d) => d.key === row.key)?.label ?? row.label);
+// (`templateLabel` lives in `lib/templates.js` now — the job record's text sheet needs it too.)
 
 export default function MessageTemplates() {
   useAppLocale();

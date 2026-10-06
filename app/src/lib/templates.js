@@ -167,6 +167,12 @@ export const DEFAULT_TEMPLATES = [
   },
 ];
 
+// A template's name, in the dashboard's language. `row.label` is baked in at
+// seeding (see the note in screens/more/MessageTemplates.jsx), so the five
+// shipped names are derived from the stable key on every draw. ROADMAP 2.12.
+export const templateLabel = (row) =>
+  t(DEFAULT_TEMPLATES.find((d) => d.key === row.key)?.label ?? row.label);
+
 // Substitute placeholders from a booking. Anything unknown is left as-is so
 // a typo is visible rather than silently blanked.
 export function fillTemplate(body, {

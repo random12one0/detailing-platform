@@ -100,7 +100,7 @@ export default function QuoteModal({ booking, onClose, onSent }) {
         </div>
       ) : (
         <button className="btn primary" disabled={!valid} onClick={() => setConfirming(true)}>
-          Send {valid ? money(value) : "quote"}
+          {valid ? t("Send {amount}", { amount: money(value) }) : t("Send quote")}
         </button>
       )}
     </Sheet>

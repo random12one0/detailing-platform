@@ -113,7 +113,7 @@ export default function JobPhotos({ booking }) {
             return (
               <div key={kind} className="tight">
                 <div className="photo-head">
-                  <span className="label">{word}{mine.length > 0 ? ` · ${mine.length}` : ""}</span>
+                  <span className="label">{t(word)}{mine.length > 0 ? ` · ${mine.length}` : ""}</span>
                   <button className="btn small" disabled={busy}
                     onClick={() => { kindRef.current = kind; pick.current?.click(); }}>
                     <Camera size={16} strokeWidth={2} /> {t("Add")}

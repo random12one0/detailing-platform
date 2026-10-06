@@ -3169,4 +3169,17 @@ export const appEs = {
   "your car": "tu carro",
   "e.g. 2016": "ej. 2016",
   "Saved from your dashboard": "Guardado desde tu panel",
+  "Unpaid": "Sin pagar",
+  "Light dirt": "Suciedad ligera",
+  "Moderately dirty": "Suciedad moderada",
+  "Heavily soiled": "Suciedad fuerte",
+  "{count} vehicles": "{count} vehículos",
+  "that address cannot receive email": "esa dirección no puede recibir correo",
+  "email is not switched on for this deployment": "el correo no está activado en esta instalación",
+  "the day's email allowance was already spent": "ya se gastó el límite de correos del día",
+  "+{count} more": "+{count} más",
+  "Date/time changes are re-checked against your hours, blockouts and other jobs — a conflicting move is rejected, not silently saved.":
+    "Los cambios de fecha y hora se revisan contra tu horario, tus bloqueos y tus otros trabajos: un cambio que choque se rechaza, no se guarda sin avisar.",
+  "Send {amount}": "Mandar {amount}",
+  "Send quote": "Mandar cotización",
 };
