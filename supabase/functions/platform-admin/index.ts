@@ -48,6 +48,8 @@ import {
   nextMonthStart,
   platformNet,
 } from "../_shared/platformNet.js";
+// ROADMAP 3.1 — the back office's email list; see its header for the contract.
+import { emailList } from "../_shared/emailList.js";
 
 interface Admin { id: string; email: string }
 
@@ -168,6 +170,18 @@ Deno.serve(async (req) => {
         costRows: costs.data ?? [],
         periodMonth: period,
       }));
+    }
+
+    // --- ROADMAP 3.1: the mail every detailer sent, newest first -------------
+    //
+    // A READ, so it is not logged (nor is platform_net). It sits AFTER the
+    // platform_admins gate above and must stay there: it runs under the service
+    // role and returns every tenant's recipients.
+    // Contract and failure sentences: `_shared/emailList.js`.
+    if (action === "email_list") {
+      const out = await emailList(supabase, body);
+      if (out.status !== 200) console.error("email_list failed:", out.body.error);
+      return json(out.body, out.status);
     }
 
     // --- ROADMAP 9.14: type in one bill -------------------------------------

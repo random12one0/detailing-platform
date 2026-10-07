@@ -5975,6 +5975,43 @@ requested.
   assertions are what cover those. `american-english` does not visit `/admin`
   either; the new copy was read by hand.
 
+  ***SERVER HALF WRITTEN 2026-10-06 — NOT DEPLOYED, NOT APPLIED, AND THIS ITEM
+  STAYS UNTICKED UNTIL A REAL ROW IS SEEN ON THE SCREEN.***
+  `platform-admin` now answers `{ action: "email_list", limit?, statuses? }`
+  with `{ rows: [{ id, subject, to_email, status, detail, sent_at,
+  business_name, booking_id }] }`, newest first, to exactly the contract above
+  `EmailList`. The logic is `supabase/functions/_shared/emailList.js` (a
+  `.js` module that takes the client, so node can run it; `platformNet.js` is
+  the precedent) and the branch in `platform-admin/index.ts` is four lines,
+  placed **after** the `platform_admins` gate and held there by a test. It is a
+  read, so it writes no audit row, like `platform_net`.
+  **Choices the contract left open, said so they can be overruled:** `limit`
+  defaults to 100 and is capped at 200; a limit that is not a whole number of at
+  least 1 is a 400, not rounded; `statuses` must be drawn from the table's seven
+  states (a test holds the list equal to the migration's CHECK) or it is a 400;
+  `statuses: []` answers `{ rows: [] }` without a query. Ties on `sent_at`
+  break on `id` so a refresh cannot shuffle two sends from the same instant.
+  **Failure answers an error, never an empty list**, in three sentences written
+  as fragments because the screen prints *"Could not read the email log: …"* and
+  adds the full stop: the table missing, the `booking_id` column missing (the
+  not-yet-applied migration `20261006010000`, recognised by Postgres 42703 naming
+  that column, so any other missing column is not blamed on it), and anything
+  else ("the database did not answer").
+  **PROOF:** `node --test tests/email-list.test.mjs` — 9 pass, 0 fail, against an
+  in-memory client. Four in-process lies (ignore the filter, ignore the order,
+  ignore the limit, return empty on success) are each caught by the same
+  assertions, and four edits to the production module itself (drop the filter,
+  drop the booking sentence, ignore the error, widen the limit) each turned the
+  suite red before being undone. **What it does not prove:** that PostgREST
+  accepts the `businesses(name)` embed on `email_sends` (the foreign key exists
+  in the migration; nothing here has asked a real database), that the deployed
+  function is this one, or a real row. `node tests/platform-admin.test.mjs` has
+  four red lines (10g, 10h, 14d, 14e) **identical with and without this change**
+  — measured by running it against `HEAD`'s copy of the function, not assumed.
+  **To finish this item:** Andrew applies change 2 and publishes
+  `platform-admin` (both already in `FOR-ANDREW.md`'s publish-and-apply list),
+  then the back-office System health tab is opened and a real send is seen.
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.

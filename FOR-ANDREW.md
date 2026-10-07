@@ -165,7 +165,7 @@ name and do not re-run the big line.
 2. **`create-booking`, `get-booking-receipt`, `platform-admin`,
    `send-owner-reminders`, together.** A double-press now leaves one booking
    (ROADMAP 6.4); the public ceilings (14.9, 14.18); the back-office costs read
-   (9.14); setup progress agreeing between dashboard and back office (9.1, per its
+   (9.14); **the back-office "Email we sent" list's server half (3.1, needs change 2 above — it names that change in plain words if it is missing)**; setup progress agreeing between dashboard and back office (9.1, per its
    row below); the maintenance email's legal footer (0.7); the push-notification
    links pointing at the job page instead of a page that does not exist (14.34).
 3. **The other 24, in one pass** — `address-suggest`, `unsubscribe`,
