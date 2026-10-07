@@ -48,6 +48,7 @@ const PUBLIC_FUNCTIONS = new Set([
   // forecast a scheduled run would have written minutes later — no message, no
   // slot, no money on the other side of it.
   "refresh-weather",
+  "photo-reconcile", // ROADMAP 0.11 slice 6: pg_cron calls it nightly with no session, like the weather sweep above
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet
   "booking-ics",          // customers add their own booking to a calendar from email
