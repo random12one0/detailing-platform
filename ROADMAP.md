@@ -5405,6 +5405,19 @@ the wrong service, and never book a job we cannot reach.
   so either its pages carry no fixed element or the list is short by one. Needs: a recorded exception for `scripts/`, then the
   edits and the injected-bar proof run in a browser.
 
+  **CODE CHANGE LANDED, PROOF NOT RUN — 2026-10-06 (DP Cowork2, Lane B).** **LANE EXCEPTION, granted by the manager in chat:** edits
+  to `scripts/` limited to the scripts holding the nine call sites above plus `scripts/motion-off.mjs`, and nothing else under
+  `scripts/`. **Ruling: `motion-off.mjs` joins the list**, so it is ten call sites in seven scripts, and `sweep-widths.mjs` is NOT
+  edited (it has no `fullPage` call, only the comment at line 1294). **All ten now capture the viewport** (`fullPage: true` removed,
+  a one-line comment above each naming this item); `node --check` is clean on all seven. **The cost, said plainly:** a frame no longer
+  shows what is below the fold, so a tall dashboard tab or job record is now the top screen only. The alternative that keeps the whole
+  page is the one `shoot-dashboard.mjs` already uses for the landing surface (grow the viewport to the document height, shoot one
+  frame); it was not applied here because it changes the layout it measures and could not be tried without a browser.
+  **STILL OPEN, so this stays unticked:** the red proof (inject a `position: fixed` bar over a scrolling page, show the hit-test
+  catches it and a `fullPage` frame does not) needs a browser and waits on the manager saying `app/src` is clear of other editing,
+  because a Vite reload voids the run. And the second half of Done-when, a hit-test against every fixed element asked by any check
+  whose subject is a screen with furniture on it, is not started.
+
 - [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
