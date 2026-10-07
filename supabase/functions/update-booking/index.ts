@@ -43,6 +43,7 @@ import { servicesForBooking } from "../_shared/pricing.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { recordActions } from "../_shared/actionLog.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { cancellationEmail, rescheduleEmail } from "../_shared/emailTemplates.ts";
 import { refundOwed } from "../_shared/connect.ts";
@@ -106,7 +107,9 @@ Deno.serve(async (req) => {
         .select()
         .single();
       if (error) throw error;
-      return json({ success: true, booking: deleted, message: "Booking deleted" });
+      // ROADMAP 4.1: who deleted it and when. Best-effort and reported, see `_shared/actionLog.ts`.
+      const audited = await recordActions(supabase, member, bookingId, current, deleted);
+      return json({ success: true, booking: deleted, message: "Booking deleted", ...(audited ? {} : { audit_recorded: false }) });
     }
 
     const updateData: Record<string, unknown> = {};
@@ -194,6 +197,10 @@ Deno.serve(async (req) => {
       if (same) return json({ success: true, duplicate: true, booking: now, message: "Booking updated successfully" });
       return json({ error: "This booking was just changed on another device. Reload it and try again." }, 409);
     }
+
+    // ROADMAP 4.1: a status, payment-status or delete change leaves a row saying who, from what and to what.
+    // Written from the row's before and after, so a duplicate press (handled above) writes nothing twice.
+    const audited = await recordActions(supabase, member, bookingId, current, data);
 
     // Replace add-ons when a new set is provided.
     if (Array.isArray(body.add_ons)) {
@@ -310,7 +317,7 @@ Deno.serve(async (req) => {
       console.error("Owner push send error:", pushErr);
     }
 
-    return json({ success: true, booking: data, message: "Booking updated successfully" });
+    return json({ success: true, booking: data, message: "Booking updated successfully", ...(audited ? {} : { audit_recorded: false }) });
   } catch (error) {
     return json({ success: false, error: (error as Error)?.message || "internal_error" }, 400);
   }
