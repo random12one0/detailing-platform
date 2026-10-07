@@ -8786,6 +8786,23 @@ requested.
   a browser window. **Decision for whoever takes it:** split into one receipt per section, or widen the one receipt to list the
   sections that ran; the item recommends neither, and per-section is the one that cannot undersell a narrowed `--only` run.
 
+  **CODE CHANGE LANDED, PROOF NOT RUN — 2026-10-06 (DP Cowork2, Lane B).** **LANE EXCEPTION, extended by the manager in chat to
+  `scripts/sweep-tap-targets.mjs` for this item, and that file only.** Chosen: **one receipt per section**, so a default run now
+  writes `receipts/sweep-tap-targets-dashboard.json` (check_id `sweep-tap-targets-dashboard`) beside the admin one. It covers the
+  sign-in screen, the five tabs, every settings door behind Business and the gear, and the landing and pricing pages. Its
+  expectation is **declared where it can be** (per width and language: 1 sign-in + 5 tabs; 2 landing paths per width) and **read
+  from the product where it cannot** (the settings rows each index drew, added up as the walk reads them, so a row drawn but never
+  measured is a shortfall). Its canary is the five `BREAKS`, lifted out of `--baseline` into `runDashCanary` so the default walk
+  can use it (`--baseline` calls the same function and prints the same lines). **A run narrowed with `--only` writes no dashboard
+  receipt and says so**; `--widths` and `--lang` narrow honestly and still write. The admin receipt's scope line no longer says
+  the other half is unrepresented; it still begins *the /admin back office only*, which `tests/queue-rows-still-belong.test.mjs`
+  row 4.6 greps for. `node --check` is clean. **UNMEASURED, and written into the script's own comment so nobody reads them as
+  measured:** the floor of 100 probes per screen is a guess below the ~1,336 the back office averages, and the settings-door count
+  has no floor beyond the existing `no-doors` finding. **STILL OPEN, so this stays unticked:** the Done-when is *a default run
+  produces a receipt `receipt.mjs` grades*, and nothing has been run. It waits on the browser window with 9.11d. The first run
+  should set both numbers from what it measures, and the queue row for 4.6 should come off the work queue when the item is
+  ticked.
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
