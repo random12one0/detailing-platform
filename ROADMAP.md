@@ -10260,6 +10260,15 @@ most corroborated finding in the set.
   * **NOT COVERED, and filed as 6.4a:** reloading the page while offline, and
     leaving Today and coming back while offline.
 
+  ***THE QUEUE ROW "6.4's offline-reload case" IS STALE, FOUND 2026-10-06 (DP Cowork2) WHEN ASKED TO BUILD IT.*** That case is **6.4a, which is ticked below
+  and built on main (`e6302d5`)**: the leave-and-return half, the cold-reload half (the app-shell worker and `NoConnection.jsx`), and sign-out
+  clearing what was kept. Its `app/src` pieces exist at HEAD (`screens/NoConnection.jsx`, `lib/offlineJobs.js`, the worker's fetch handler) and its
+  measurements and red proofs are recorded under it. **Nothing of the offline reload is left to build, so nothing was built.** The older
+  `docs/BATCHES.md` snapshot (at `083208b`) still lists it as session-doable because it predates `e6302d5`; **a derived list rots**, which is
+  that file's own retirement notice. **What 6.4 itself still waits on, read from the entry above:** (b) and (c) are met in this checkout and live
+  only after Andrew publishes the six functions; `send-invoice` resends on a repeat and needs a key from the client (a change in `app/src` and in the
+  function together); and `update-booking`'s `add_ons` delete-and-reinsert would double under two concurrent presses but no screen sends it.
+
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**
   Found 2026-10-06 by DP Cowork while building 6.4(a); said in that commit
@@ -10897,6 +10906,24 @@ rather than wording went to Andrew.
   person's reading, not the census's.
   **STILL TO DO, AFTER DP COWORK RINGS:** `node scripts/build-examples.mjs --dev`, then a plain fetch of `/ex1/work` and the other
   example pages to read that the cards render and the attribute change reached the served copy. No browser sweep was asked for.
+
+  ***REBUILT AND READ ON THE SERVED PAGES, IN ISOLATION, 2026-10-06 (DP Cowork2, Lane B). THE 7.17 EDITS ARE ON THE PAGES AS THEY WILL BE SERVED. NOT TICKED.***
+  Done in a detached worktree at `2d1ddae` outside the main tree, with its **own** `npm ci` (a real `node_modules`, not a link to main's),
+  its own dev server on port 5177, and `node scripts/build-examples.mjs --dev` run there. **Nothing was written into main's `app/public`**,
+  and `git ls-files app/public/ex*` is empty and `.gitignore:167` ignores it, so **there is no built output to commit**: main's own rebuild
+  is a separate step for whoever next runs `build-examples.mjs --dev` in the main checkout, and it will change exactly the file below.
+  **Plain fetch of all nine built pages on 5177: 200, `text/html`** (`/ex1`, `/ex1/prices`, `/ex1/work`, `/ex2`, `/ex3`, `/ex3/prices`,
+  `/ex4`, `/ex5`, `/examples`), and the five slashless directory routes (`/ex1` to `/ex5`) answer 200. **Against main's currently served copies
+  (the old build) eight of the nine are line-for-line identical and `/ex1/work` differs in 20 lines, which are exactly this item's edit and
+  nothing else:** the three `<article class="jrow">` lose the sentence-as-source attribute, the explanatory comment appears, and the three
+  `<blockquote>`s gain `data-from="get_public_business_profile.testimonials"`. With comments stripped the built page has 0 articles carrying
+  `data-from`, 3 blockquotes opening and 3 closing, no `312`, no `1,240`, no `4.9 Average`, and `6 Years on the road` as the only stat; the three
+  price badges, the "Three jobs in full" heading and `div`/`article`/`section` balance are as before.
+  **One dev-server quirk, found and not this item's:** a slashless `/ex1/work` answers 200 with the app's own shell (`<title>Detailing Platform`),
+  on this port **and on 5173**, because `vite.config.js` maps only the directory roots (`/ex1`) to their `index.html`; the page itself is
+  at `/ex1/work.html` here, and production maps the slashless form through `_redirects`. Say so before anyone reads that 200 as the page.
+  **Still open on 7.17:** nothing built remains; the manager's acceptance of the plain-fetch reading, and (per the earlier note) that the price badges,
+  dates and cars on the job cards have no producing field by ruling.
 
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
