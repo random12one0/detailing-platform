@@ -17691,6 +17691,24 @@ event id.
   browser run of `node scripts/sweep-widths.mjs --all 1440` named in the first-half paragraph is still the one thing that shows a real
   entry.
 
+  ***RULINGS AND `billing-walk` 2026-10-06 (DP Cowork2, Lane B, code only). Manager's rulings, in his words: the census reading of
+  clause 1 is ACCEPTED, `billing-walk.mjs` is GRANTED for itemising its skips, and 14.11 is ticked AFTER a browser run shows a real
+  evidence field in a receipt. NOT TICKED YET: that run is the only thing left.***
+  **Lane exception, recorded:** `scripts/billing-walk.mjs` (granted for exactly this) and one helper added to
+  `scripts/lib/skipEvidence.mjs`. It supersedes the earlier paragraph's "reason 1": `billing-walk` is no longer a known gap.
+  **What changed.** Its one skip site (steps 3, 4 and 5 when no sandbox `STRIPE_SECRET_KEY` is in the shell) goes through
+  `addSkip` with `absentEvidence("STRIPE_SECRET_KEY")`, so a skip with no evidence throws before it is counted, and
+  `skip_allowlist.skipped` carries the three entries. **The ceiling is in the helper's own comment and repeated here:** this evidence
+  is a missing precondition, looked for and not found, not a surface that was reached and refused, because the surface cannot be
+  tried without a test clock. It is still an act with a recorded outcome. `tests/skip-census.test.mjs` now declares no known gap
+  and asserts both allowlist users supply evidence.
+  **Proved in node, not by running it** (the walk needs a Stripe sandbox and fixture businesses): the wiring is read as text, with a
+  canary aimed at the real file, and the receipt it would write is built from the same helper and graded, accepted with the evidence
+  and rejected without it. Four plants in a scratch copy of `scripts/` (a skip with no evidence, a second way into the list, an
+  allowlist that stopped itemising, the helper import dropped) each turned the intended case red; the control stayed clean.
+  **What ticks this item:** `node scripts/sweep-widths.mjs --all 1440` (dev server and seed, a browser), then
+  `receipts/sweep-widths-1440.json` read for `skip_allowlist.skipped` entries that each carry `evidence`. Waiting on DP Cowork's browser.
+
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field
 
