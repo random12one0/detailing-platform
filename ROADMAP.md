@@ -7834,6 +7834,14 @@ requested.
   **STILL OPEN on 4.1:** the screen sweep (a step that names the record before it changes, and a way back, for cancel, no-show, delete and
   waive, which is `app/src`, lane A) and the publish. Completion already has both.
 
+  ***CORRECTION 2026-10-06, THE MANAGER'S, BINDING FROM NOW ON: NO DDL AGAINST THE LIVE PLATFORM DATABASE, NOT EVEN INSIDE A ROLLED-BACK
+  TRANSACTION.*** The paragraph above records that the `action_log` migration was dry-run that way, and **that should not have been
+  done**: migrations are proved with node tests or a throwaway local Postgres, and applying is Andrew's. Nothing persisted, which was
+  checked at the time, and **it is re-checked now with a read-only `select`**: `to_regclass('public.action_log')` is null, the function
+  `action_log_is_append_only` has 0 rows in `pg_proc`, the two triggers and two indexes are 0, and no table in `information_schema.tables`
+  has a name beginning `action_log`. The append-only trigger is therefore **not proved against a real Postgres by anything left in this
+  repo**; what remains is the node reading of the SQL in `tests/action-log.test.mjs`. A throwaway local Postgres would close that.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -10848,6 +10856,30 @@ rather than wording went to Andrew.
   item stays OPEN on that one choice**: reword the cards' attribute to say
   honestly it is an illustration and teach the census a named, counted
   exception, or leave it red. Not mine to pick.***
+
+  ***SOURCE AND CENSUS EDITS MADE 2026-10-06 (DP Cowork2, Lane B), ON THE MANAGER'S SECOND RULING: THE JOB CARDS' ATTRIBUTE NAMES A TRUE
+  SOURCE OR NONE, AND THE CENSUS GOES GREEN FOR THE RIGHT REASON, NO NAMED EXCEPTION. NOT BUILT, NOT YET CHECKED ON THE SERVED PAGES, NOT
+  TICKED.*** **Lane exceptions, recorded:** `docs/tenant-sites/v-goldenhour-work.html` (the example site's source) and
+  `scripts/data-from-census.mjs`. **Timing rule from the manager:** `node scripts/build-examples.mjs --dev` writes into
+  `app/public/ex1/`, which the dev server on 5173 serves while DP Cowork is in a browser, so it was **not run** and nothing under
+  `app/public` was touched.
+  **What changed in the source.** The three `<article class="jrow">` cards lost `data-from="the detailer's own completed bookings"`, a
+  sentence and not a source, because nothing the product publishes is a list of completed jobs; **an HTML comment above the first card
+  says so where a diff reads it** and says what to do if the page is ever meant to be generated. **The one part of each card that does
+  have a source keeps one:** the quote, its stars and its "Google" label are what a detailer types into a testimonial (`author`,
+  `quote`, `rating`, `source`), so each `<blockquote>` now names `get_public_business_profile.testimonials`, the same key the manager
+  confirmed for the four `w-delgado` cards in ruling 3.
+  **Census, run:** `node scripts/data-from-census.mjs` exits **0**, 8 published pages, 185 attributes (three removed, three added, so the
+  count is unchanged), no failures; **`--break=lenient` still goes red** on its canary, so the green is not a resolver that stopped
+  refusing; the receipt grades PASS (`node scripts/receipt.mjs receipts/data-from-census.json`). `node tests/tenant-sites.test.mjs`
+  reports the one failure it reported before (`w-delgado.html` "placeholder box"), unchanged.
+  **WHAT THE GREEN DOES NOT SAY, written into the census's own output, receipt warning and `cannot_see` list:** an element with no
+  `data-from` is not counted, so **removing a false attribute turns a red row green**. That is the honest outcome for an illustration
+  and it is also what hiding a claim would look like, which is why it is said in words. The cards' price badges ($259, $990, $299),
+  dates, neighbourhoods and cars still have no producing field; ruling 2 keeps them as illustration of work done, and that remains a
+  person's reading, not the census's.
+  **STILL TO DO, AFTER DP COWORK RINGS:** `node scripts/build-examples.mjs --dev`, then a plain fetch of `/ex1/work` and the other
+  example pages to read that the cards render and the attribute change reached the served copy. No browser sweep was asked for.
 
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
