@@ -1,5 +1,97 @@
 # Batches — the running order, in session-sized pieces
 
+> **Section added 2026-10-06; the rest of this file is the older batch plan.**
+
+## Where the open items stand — recounted 2026-10-06 at `083208b`
+
+**This is a dated snapshot, and the way to re-take it is the command, not this
+page.** Item numbers written down start rotting the moment they are written (the
+batches were retired on 2026-09-24 for exactly that reason), so read the counts as a photograph and re-run:
+
+```bash
+grep -c '^- \[ \]' ROADMAP.md     # open: 60 at 083208b
+grep -c '^- \[x\]' ROADMAP.md     # ticked: 99 at 083208b
+grep -c '^- \[~\]' ROADMAP.md     # deferred: 1 at 083208b
+```
+
+**How the 60 were sorted, said plainly:** the total is a count; **the sorting is a
+judgement from reading each entry, not a count**, so a different reader could move
+an item between rows. The rows sum to 60, which is the only mechanical check on
+it. Every open entry has a number in the roadmap; the ones that print as a bare
+bullet in the `grep` listing sit under a `### 14.x` heading, and that is the number
+used here.
+
+### Waiting on Andrew — 32 items, and no session can move any of them
+
+**Apply or publish (built and finished on disk, switched off until launch) — 15:**
+0.3, 0.6, 0.7, 1.3, 2.1, 2.1b, 3.1, 3.4, 8.10d, 9.1, 9.14, 12.1, 14.9 (open
+on the live refusal), 14.18 (the header-less caller, waiting on the same publish)
+and 14.34. **The ordered list for
+these is in `FOR-ANDREW.md`, "Publish and apply — the one ordered list"**: five
+database changes first, then 31 of the 39 programs. **3.1 and 9.14 also carry a
+screen half that a session is building in `app/src`** (lane A, in progress).
+
+**His decision, his ruling, his own eyes or his accounts — 17:** 0.4, 0.16, 2.15,
+2.15a, 7.8, 7.10, 8.2, 8.5, 9.4, 9.7, 9.11, 9.11e, 9.12, 9.15, 12.3, 12.4, and
+14.24 (three human-only checks assembled from the ticked-item audit).
+9.12 is on this row rather than in the session-doable ones because its own entry
+says not to pick it up unprompted.
+
+### Waiting on something that is not Andrew and not a session — 9 items
+
+**A third party or the platform — 5:** 0.12 (Zoho refuses the domain), 0.13 (a
+Telnyx number and the wording), 0.14 (deferred on purpose; costs monthly), 0.15
+(Google's review), 6.1 (point-in-time recovery is off on the free plan).
+**Blocked on another open item — 2:** 3.3 (needs 0.13) and 7.6 (needs 0.11, by
+design, so the words are fixed once). **Nothing to do by design — 2:** 14.15
+(a rate-limit refusal nobody has been able to repeat) and 14.17 (the shared-budget
+guard, deliberately not built).
+
+### A session can still do these — 19 items, by lane
+
+**Lane A — `app/src` (one session at a time; DP Cowork is in `admin/` now) — 7:**
+0.11 (photo storage to R2; large, and has a `supabase/` half), 4.1 (confirmation
+and an audit row for seven actions; has a `supabase/` half), 4.6a (100 small tap
+targets on the dashboard), 4.6b (six small buttons on the back-office Money tab —
+**same files DP Cowork is editing, so it waits for that to land**), 6.4 (the
+offline-reload case, filed as 6.4a), 9.2 (the other four back-office advice
+rows), and 14.22 (two untranslated words on the client record).
+
+**Lane B — docs, tests, `supabase/`, migrations, receipts — 3:** 4.3 (make the
+read-only support view enforced by the server; large, needs a design the entry
+describes, and its own proof needs a credential a session may not create), 12.2
+(its second branch, the home page no longer promising a card payment, looks
+already met — `grep -n "card payment" app/src/landing/LandingPage.jsx` finds
+"Log a card payment" at `083208b`; **verify and tick, one line**), and 14.33
+(pinning the last document's 69 bare figures; parked on purpose, half-done work
+is worse than none).
+
+**Lane B\* — `scripts/`, frozen unless the manager records an exception — 9:**
+7.17 (example sites must not show a number the product does not), 7.18 (a nav
+check for every `.ld` marketing page), 9.11b (the width sweep comes up short at
+1440 and 392), 14.10 (five runs of that sweep at 1440), 14.11 (a declared skip
+that is really a dead walk), 14.21 (the back-office scripts' cleanup must survive
+a kill), 14.23 (walk the settings doors twice, folded then open), 14.30 (the
+2.15a receipt cannot tell an accepted exception from a new failure), and 14.31 (put the pointer-age tool in the repo). **Most of
+these also need a browser and the dev server, so they spend the practice
+business's rows and the address budget** — `docs/shared-resources.md` names which.
+
+**Sum: 32 + 9 + 19 = 60**, the same 60 the command prints.
+
+### The two things worth knowing before dispatching anyone
+
+* **Lane A is the bottleneck, not the work.** Seven of the nineteen are in
+  `app/src`, and the rule that only one session edits it at a time has not
+  changed. Lane B has three, and one of those is a one-line tick.
+* **Most of "waiting on Andrew" is a switch, not a task.** 15 of the 32 are
+  finished work waiting on two commands, so the honest headline is that the
+  roadmap is mostly built and the larger share of what is left is a launch-day
+  press, not engineering.
+
+---
+
+
+
 **`ROADMAP.md` says WHAT and WHY. This file says WHAT NEXT, and in what size.**
 It re-orders nothing in the roadmap and duplicates nothing from it. Every batch
 is a list of roadmap numbers plus the one thing a session needs to know before
