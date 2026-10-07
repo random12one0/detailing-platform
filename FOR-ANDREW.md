@@ -75,6 +75,136 @@ Updated 2026-09-21.
 
 ---
 
+## Publish and apply — the one ordered list. Written 2026-10-06.
+
+**This is the single list of everything that is built, finished and waiting on
+you to switch on.** It replaces the order scattered across the rows below; those
+rows keep the reasoning and the exact wording, this one keeps the order. **Nothing
+here is urgent** — your ruling of 2026-09-24 stands: nobody is on the site, so
+these are switches for launch day, not chores. **No session applied or published
+any of it.** Two read-only checks produced the numbers, both run on 2026-10-06 at
+commit `083208b`, and they are the commands to re-run before you start, because
+the lists below are photographs:
+
+* **5 database changes are not applied** — `node scripts/migration-drift.mjs`,
+  at `083208b`. It named exactly these five files and nothing else.
+* **31 of the 39 back-end programs are running older code than we have written**
+  (8 match) — `node scripts/deployed-inventory.mjs`, at `083208b`, with the 31
+  names read from `dimensions.differing` in `receipts/deployed-inventory.json`.
+  **The "25 of 39" in the rows below is the older figure.**
+
+### Part 1 · Apply the five database changes FIRST, in this order
+
+**Why first:** the programs in Part 2 are written to expect these. Four of the
+five add something and take nothing away; the fifth takes one permission away
+from the dashboard (the dashboard does not use it). **Pass the five file names
+exactly as below. Never run the command with no names after it** — with none it
+tries to re-run all 105 files in the folder. It stops at the first failure and
+tells you which.
+
+```bash
+cd /d/Users/rando/Downloads/claude/detailing-platform
+set -a; . ./.env; set +a
+node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql 20261006010000_an_email_row_knows_its_booking.sql 20261006020000_hand_entered_platform_costs.sql 20261006030000_dashboard_language_reaches_the_server.sql 20261006040000_bookings_browser_updates_nothing.sql
+node scripts/migration-drift.mjs
+```
+
+The last line should stop naming any of them. **Do not apply while a browser
+check is running on the practice business** — change 1 changes what its Clients
+screen shows, and a check measuring it mid-run reports your change as a fault.
+
+1. **`20260924010000_a_fixture_is_not_a_customer.sql`** — adds a "test row" tick
+   to customers, so your Clients list hides the three leftovers from automated
+   checks and the "gone quiet" figure reads 5 instead of 8. Nothing is deleted.
+   **Unblocks ROADMAP 1.3 and the client-list half of 0.3.** The screen is already
+   written; it appears with the next website publish (Part 3).
+2. **`20261006010000_an_email_row_knows_its_booking.sql`** — lets the record of
+   each email say which booking it was about. **Unblocks ROADMAP 3.1** (the
+   delivery list). **Apply it before `send-email` is published** — by my reading of
+   the code, a published `send-email` writes that new field, and the record of
+   every email sent would quietly stop being saved until the column exists.
+3. **`20261006020000_hand_entered_platform_costs.sql`** — one table where you type
+   what the platform costs you; only you can read or write it. **Unblocks ROADMAP
+   9.14** together with `platform-admin` (Part 2, step 2). Published first, the
+   program shows an error on that one figure instead of a wrong number, on purpose.
+4. **`20261006030000_dashboard_language_reaches_the_server.sql`** — saves each
+   person's English or Spanish choice so emails to them can follow it. **Part of
+   ROADMAP 3.4.** Safe to apply at any time, **and it changes nothing visible yet:**
+   no screen saves the choice today (`grep -rn set_my_lang app/src` prints nothing
+   at `083208b`), so every email stays English until that one small screen change
+   is built.
+5. **`20261006040000_bookings_browser_updates_nothing.sql`** — takes away the
+   dashboard's permission to edit a booking directly (every edit already goes
+   through the server). **Unblocks ROADMAP 8.10d.** Afterwards
+   `node tests/owner-writes.test.mjs` goes from one red line to green.
+
+### Part 2 · Publish the programs, in your settled order
+
+**The order is your own, from the night of 2026-09-21 — restated, not reopened:**
+`report-problem` alone, then four together, then the rest, then `platform-billing`
+alone, and **the payment webhook last and alone, because it touches money.** It
+publishes for real the moment you press it, costs no Netlify credits, and the way
+back is publishing the previous version. Run the inventory first and use the
+names it prints that moment; the names below are the 31 at `083208b`.
+
+```bash
+node scripts/deployed-inventory.mjs
+node scripts/deploy-functions.mjs report-problem
+node scripts/deploy-functions.mjs create-booking get-booking-receipt platform-admin send-owner-reminders
+node scripts/deploy-functions.mjs $(node -e "const x=['report-problem','create-booking','get-booking-receipt','platform-admin','send-owner-reminders','platform-billing','stripe-webhook'];console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>!x.includes(f)).join(' '))")
+node scripts/deploy-functions.mjs platform-billing
+node scripts/deploy-functions.mjs stripe-webhook
+node scripts/deployed-inventory.mjs
+```
+
+The last line should say everything matches; if it still names one, tell us that
+name and do not re-run the big line.
+
+1. **`report-problem`, alone.** The "report a problem" form and the error emails
+   (ROADMAP 3.4, 3.1). Smallest and oldest, so it is the test of the whole routine.
+2. **`create-booking`, `get-booking-receipt`, `platform-admin`,
+   `send-owner-reminders`, together.** A double-press now leaves one booking
+   (ROADMAP 6.4); the public ceilings (14.9, 14.18); the back-office costs read
+   (9.14); setup progress agreeing between dashboard and back office (9.1, per its
+   row below); the maintenance email's legal footer (0.7); the push-notification
+   links pointing at the job page instead of a page that does not exist (14.34).
+3. **The other 24, in one pass** — `address-suggest`, `unsubscribe`,
+   `resend-webhook`, `send-email`, `accept-invite`, `available-slots`,
+   `pay-booking`, `track-visit`, `validate-promo-code`, `accept-quote`,
+   `plan-link`, `reschedule-booking`, `calculate-booking`, `booking-ics`,
+   `cancel-booking`, `send-invoice`, `respond-to-booking`, `update-booking`,
+   `create-business`, `invite-user`, `preview-emails`, `send-campaign`,
+   `watch-jobs`, `connect-account`. **Price shown on the day, before the time**
+   (ROADMAP 2.1, 2.1b, `calculate-booking` and `validate-promo-code`); the second
+   car counted once (14.19); the rate ceilings on every public page (14.9, 14.18);
+   the booking-id link in the delivery record (3.1, `send-email`, after change 2
+   above); a repeated press leaves one change (6.4); Spanish and car-size wording in
+   emails (3.4); maintenance and campaign legal footers (0.7).
+4. **`platform-billing`, alone.** The paid-restart fix (ROADMAP 12.1).
+5. **`stripe-webhook`, last and alone.** The ceilings (14.9, 14.18) and the
+   email wording (3.4) on the one program that handles money.
+
+**Counted:** 1 + 4 + 24 + 1 + 1 = 31, the same 31, taken from the same receipt.
+
+**When it is all done, three small checks are still yours or ours to run, because
+publishing is not the same as proved:** `node scripts/deployed-inventory.mjs` says
+"matches" for all 39 (that is the state ROADMAP 0.6 is about); the live refusal
+for 14.9 is observed once (the row further down says how); and a real notification
+is tapped on a subscribed phone and opens the job (14.34).
+
+### Part 3 · Not a database change or a program, and waiting too
+
+* **The website itself.** The Clients screen (1.3), the delivery list (3.1), the
+  costs screen (9.14) and the language save (3.4) are all website code. Pushing
+  is yours, and a production build costs 15 Netlify credits (CLAUDE.md,
+  "Publishing"); **measure first whether a push publishes at all** before
+  spending one. Two of those screens are still being built, so this list says
+  nothing about their order yet.
+* **Everything else** open and waiting on you is in the rows below. The count of
+  what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
+
+---
+
 ## Start here — the one decision that unblocks the most
 
 - [ ] **DECIDE · Four finished things are waiting on you. Say go, and say when.
