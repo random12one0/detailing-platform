@@ -19626,6 +19626,20 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   named it as the blind spot documented only inside the instrument that cannot
   see it.*
 
+  ***SECOND OUTCOME BUILT 2026-10-06 (DP Cowork2), NOT TICKED: IT IS A DECISION AND THE
+  MANAGER'S TO CONFIRM.*** `tests/figures-carry-their-command.test.mjs` now prints
+  `out of scope (prose)` for `FOR-ANDREW.md` in place of `0/0`, and a new section 7
+  fails any document that finds no figures and carries no `outOfScope` label, so the
+  silent zero cannot come back on this file or a new one. **Prose figures are not
+  scanned and the item's first outcome (a classifier) is not built**; reversing the
+  decision means building that classifier and deleting the label.
+  **Run, not read:** `node --test tests/figures-carry-their-command.test.mjs` 9 pass,
+  0 fail, with the new line in the report; `FIG_BREAK=silent-zero` (in memory, strips
+  the label) turns section 7 red and prints `0/0` again, 7 pass 2 fail. `FOR-ANDREW.md`
+  still declares `bare: 0`, and the 411-numeral figure above was not re-taken here.
+  *Left open for one reason:* the done-when says a recorded decision closes it, and
+  this session should not record that decision on the manager's behalf.
+
 ### 14.31 — The pointer-staleness tool is not in the repo, so every grade it produced is unrepeatable
 
 - [ ] **14.31 — A measurement nobody can re-take is a claim. The git-delta

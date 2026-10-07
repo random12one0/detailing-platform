@@ -208,8 +208,18 @@ const DOCS = [
   // invisible to it. A zero here means "nothing in scope", never "nothing wrong" —
   // which is the distinction `docs/silences.md` exists to make, turned on this
   // file. Widening to prose would need a different parser and is not pretended at.
-  { path: "FOR-ANDREW.md", floor: 0, bare: 0 },
+  // ROADMAP 14.32, second outcome, 2026-10-06: the report now prints `out of scope
+  // (prose)` for this file instead of `0/0`, and section 7 fails any document that
+  // finds nothing and does not say why. **That is a decision (prose figures are not
+  // scanned), recorded here and in 14.32, and the manager can reverse it** by
+  // building the prose classifier and deleting `outOfScope`.
+  { path: "FOR-ANDREW.md", floor: 0, bare: 0, outOfScope: "prose" },
 ];
+
+// Sabotage for section 7, in memory only (nothing on disk): FIG_BREAK=silent-zero
+// strips the label so the file is back to a bare zero, and section 7 must go red.
+const DOCS_REPORTED = process.env.FIG_BREAK === "silent-zero"
+  ? DOCS.map(({ outOfScope, ...d }) => d) : DOCS;
 
 const CANARY_ON = process.env.FIG_CANARY !== "off";
 const CANARY_ROW = "| CANARY — a figure with no command and no revision | **999999** |";
@@ -380,9 +390,13 @@ test("every recorded figure carries its command or names why it cannot", async (
     console.log(`     half-pinned   ${String(res.halfPinned.length).padStart(4)}  still BARE; one edit from pinned`);
     console.log(`     (canary: ${CANARY_ON ? "on" : "OFF"})`);
     console.log(`\n     per document            found/floor      bare/declared`);
-    for (const d of DOCS) {
+    for (const d of DOCS_REPORTED) {
       const p = per(d.path);
       const pct = p.total ? Math.round((p.bare / p.total) * 100) : 0;
+      if (d.outOfScope) {
+        console.log(`       ${d.path.slice(0, 38).padEnd(40)} out of scope (${d.outOfScope}) - figures here are not scanned, so 0 means nothing was read`);
+        continue;
+      }
       console.log(`       ${d.path.replace("docs/", "").slice(0, 38).padEnd(40)} ${String(p.total).padStart(4)}/${String(d.floor).padEnd(5)} ${String(p.bare).padStart(4)}/${String(d.bare).padEnd(5)} ${pct}% bare`);
     }
     for (const v of res.verified) console.log(`       VERIFIED ${v.doc.replace("docs/", "")}:${v.line} **${v.f}** <- ${v.cmd.slice(0, 66)}`);
@@ -456,6 +470,20 @@ test("every recorded figure carries its command or names why it cannot", async (
       + "longer detect the thing it exists to detect. Every count above is "
       + "worthless until this passes.",
     );
+  });
+
+  await t.test("7 · a document that finds no figures SAYS why, never a silent 0 (ROADMAP 14.32)", () => {
+    const silent = DOCS_REPORTED
+      .filter((d) => per(d.path).total === 0 && !d.outOfScope)
+      .map((d) => d.path);
+    assert.deepEqual(
+      silent, [],
+      "a document found no figures and carries no outOfScope label, so its 0/0 reads as "
+      + "a clean bill when it means nothing was in scope. Label it or fix the parser.",
+    );
+    // the label must not be hiding a document the scanner CAN read
+    const hidden = DOCS.filter((d) => d.outOfScope && per(d.path).total > 0).map((d) => d.path);
+    assert.deepEqual(hidden, [], "outOfScope on a document the scanner found figures in");
   });
 
   await t.test("6 · UNJUDGEABLE is surfaced by name, not counted as passing", () => {
