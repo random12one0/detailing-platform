@@ -7802,6 +7802,38 @@ requested.
   and the row stays `no_show`. **STILL OPEN, unchanged:** the audit history (a migration and a publish), and the sweep over suspend,
   delete, waive and owner-invite.
 
+  ***AUDIT HISTORY BUILT 2026-10-06 (DP Cowork2, Lane B, code only, NO BROWSER, NO `app/src`). NOT APPLIED, NOT DEPLOYED, THE BOX STAYS `[ ]`.***
+  **What it is.** `supabase/migrations/20261006050000_action_log.sql` (one append-only table), `supabase/functions/_shared/actionLog.ts`
+  (import-free, so it runs in node) and two calls in `update-booking`. **Of the seven actions the done-when names, four are this
+  table's and three were already covered, said so rather than assumed:** complete, cancel and no-show are a `status` change, waive is a
+  `payment_status` change, and delete is `soft_delete`, all through `update-booking`; **suspend and restore already write
+  `platform_admin_events` with `{ from, to }`** (`platform-admin`), and **an owner invite is itself a row in `business_invites`** that
+  names `invited_by` and has its own `created_at` (a new row has no earlier state to record, which is a judgement, not a measurement).
+  **Each row says who (`actor_id`, `actor_role`), what it was and what it became (`before`, `after`), and when (`created_at`), and holds
+  the ONE changed field, never the booking row**, because a booking carries a customer's name, phone and address and an append-only copy
+  of them could never be erased by `delete-customer`. A reopen from completed, cancelled or no-show is recorded as `job.reopen`, since an
+  undo is the second half of the question the table exists to answer. The table has no foreign key on `business_id` on purpose (a cascade
+  would fire its own delete guard) and is locked three ways: RLS forced with no policy, `revoke all` from `anon` and `authenticated`, and a
+  trigger that refuses UPDATE, DELETE and TRUNCATE.
+  **Best-effort, and the ceiling is stated:** a failed insert does not undo the job change, because refusing to complete a job in a
+  driveway over a log row is the wrong trade; the function answers `audit_recorded: false` so the screen can say so. **A change with no
+  row is therefore possible, and is loud rather than silent.**
+  **Proved.** `node --test tests/action-log.test.mjs`, 5 pass: twelve properties on the real helper (right action named, before and after
+  and nothing else, no personal data, actor from the member, nothing written when nothing moved, a failed write reported and never
+  thrown), the migration read as text, `update-booking` read as text on both paths with a canary, and **eight sabotaged builds of the
+  helper, each turning its own probe red.** **The SQL was run for real, and not applied:** against `kguqylyzgyzfktkfnhjb` (ref confirmed
+  first), inside a transaction that ended in `ROLLBACK`: the migration ran, a row inserted, and **UPDATE, DELETE and TRUNCATE were each
+  refused by the trigger**; the same run with the update/delete trigger removed let the UPDATE through, so the probe can fail; both runs
+  were followed by `to_regclass('public.action_log')` reading null, so nothing persisted. `node scripts/migration-drift.mjs` now names
+  the table, its function, both indexes and the two grants as declared and absent, which is correct for an unapplied migration.
+  **NOT PROVEN:** that the deployed `update-booking` writes the row (it is not published and the table does not exist yet), anything in a
+  browser, and the TypeScript, which no compiler here has checked (node only strips the types). **Order at publish:** apply the migration
+  first; a published `update-booking` against a missing table still works, logs the failure and answers `audit_recorded: false`.
+  **FOR ANDREW'S PAGE, NOT EDITED HERE:** `FOR-ANDREW.md` Part 1 names exactly five migrations in a command he copies, so a sixth,
+  `20261006050000_action_log.sql`, is the manager's to add.
+  **STILL OPEN on 4.1:** the screen sweep (a step that names the record before it changes, and a way back, for cancel, no-show, delete and
+  waive, which is `app/src`, lane A) and the publish. Completion already has both.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
