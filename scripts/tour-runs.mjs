@@ -350,5 +350,22 @@ if (FORCE) {
     console.log("GREEN — the plan grew inside a block in every run, and the tour still reached six blocks, each walked in full.");
   }
 }
+// ── THE SLOW-FIRST-SCREEN ARM'S VERDICT (14.10, 2026-10-06) ────────────────
+// Every run, subject and control, must START ON TODAY and walk six blocks even though every read was
+// held for SLOW_FIRST ms. Before the retry in Walkthrough.jsx this read RED in every run (the tour
+// started on Calendar, 29 steps). The canary is to switch the retry off (the branch that sets
+// `looked_again`) and see this go RED again.
+if (SLOW_FIRST) {
+  const all = [...control, ...subject];
+  const onToday = all.filter((r) => r.names?.[0] === "TODAY").length;
+  const six = all.filter((r) => r.blocks.length === 6).length;
+  console.log(`\nSLOW FIRST SCREEN (reads held ${SLOW_FIRST}ms): started on Today ${onToday}/${all.length}, six blocks ${six}/${all.length}`);
+  if (onToday < all.length || six < all.length) {
+    console.log("RED — a slow first screen still costs the tour a block.");
+    forcedRed = true;
+  } else {
+    console.log("GREEN — a slow first screen no longer drops the Today block.");
+  }
+}
 console.log(`\nlast frames for every short run: ${SHOTS}/  ·  full record: ${SHOTS}/runs.json`);
 if (forcedRed) process.exit(1);

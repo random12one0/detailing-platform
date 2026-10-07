@@ -424,7 +424,10 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
     let steady = 0;
     let seen = -1;
     let shown = null;
-    const t0 = performance.now();
+    // A BLOCK THAT COMES UP SHORT IS LOOKED AT ONCE MORE BEFORE IT IS SKIPPED (14.10, 2026-10-06). `t0`
+    // restarts for that second look, which is why it is a `let`.
+    let t0 = performance.now();
+    let looked_again = false;
     const tick = () => {
       if (!on) return;
       const there = (name) => !!document.querySelector(`[data-tour="${name}"]`);
@@ -505,6 +508,18 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
           // guide dropped for having one step is not coming back, and that is
           // too final a decision to make off a fifth of a second.
           if (kept.length >= MIN_STEPS || tour === "shell") { shown = kept; setPlan(kept); }
+          // **NEVER SKIPPED ON THE FIRST SLOW LOAD — 14.10, 2026-10-06.** A block with fewer than
+          // `MIN_STEPS` targets at the cap was handed past in silence, and a first screen whose reads
+          // took longer than the cap came up empty and lost its whole block: the whole-dashboard tour
+          // started on Calendar and never mentioned Today (one natural run in about twenty; held reads
+          // reproduce it every time). So the cap is a first look, not a verdict: the plan is counted
+          // again from scratch, and a skip is allowed only once the screen has gone quiet (no spinner for
+          // `SETTLED_FRAMES`) with the count still short, or the second window has also run out. A
+          // genuinely empty tab costs one extra settle (about 200ms), not a second four seconds.
+          else if (out_of_time && !looked_again) {
+            looked_again = true; t0 = performance.now(); steady = 0; seen = -1;
+            requestAnimationFrame(tick); return;
+          }
           // **A TAB WITH NOTHING TO POINT AT IS SKIPPED, NOT THE END OF THE
           // TOUR.** A brand-new dashboard has no clients and no money, and
           // decision 6 is right that one lonely caption over an empty Clients
@@ -512,8 +527,8 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
           // that must not stop the run before Business, which is the tab a new
           // detailer most needs. So an empty block hands on, and only a tour
           // where EVERY block came up empty tells the caller it found nothing.
-          else if (out_of_time && b + 1 < BLOCKS.length) { goBlock(b + 1); return; }
-          else if (out_of_time) { live.current.onEmpty?.(); return; }
+          else if ((looked_again ? settled || out_of_time : out_of_time) && b + 1 < BLOCKS.length) { goBlock(b + 1); return; }
+          else if (looked_again ? settled || out_of_time : out_of_time) { live.current.onEmpty?.(); return; }
         } else if (kept.length > shown.length
           && kept.slice(0, iRef.current + 1).every((st, n) => st === shown[n])) {
           shown = kept;

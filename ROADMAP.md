@@ -17367,7 +17367,7 @@ event id.
 
 ### 14.10 — the sweep was measuring its own patience, and 1440 was mostly innocent
 
-- [ ] **Five runs of `sweep-widths.mjs` on the afternoon of 2026-09-20, same
+- [x] **DONE 2026-10-06 (the retry, below) — Five runs of `sweep-widths.mjs` on the afternoon of 2026-09-20, same
   account, same dev server, same seed.** 1440 truncated the guided tour to one
   block three times, walked all 33 steps once, and on the fifth **aborted the
   whole width after 84 of 125 surfaces** on `locator.click: Timeout 15000ms
@@ -17722,6 +17722,29 @@ event id.
   **THE PRODUCT QUESTION THIS LEAVES, FOR THE MANAGER AND NOT DECIDED HERE:** on a slow connection a detailer's *Show me around* silently starts at Calendar and
   never mentions Today. Nothing in the tour changed in this item. A candidate (not built): judge the floor at the cap only when the screen has no spinner, or retry
   the block once before skipping it. **The box stays `[ ]` for that reason, not for the short run, which is closed.**
+
+***THE RETRY IS BUILT AND PROVED, 2026-10-06 (DP Cowork, Lane A, `app/src/components/Walkthrough.jsx`). THE BOX IS TICKED.***
+  **The ruling** (the manager's): before skipping a tour block for having fewer than two targets, look at it once more after the screen has settled; a
+  block may still be skipped after that, but never silently on the first slow load. **The change:** at the 4-second plan cap a short block no longer goes
+  straight to `goBlock(b + 1)`; `looked_again` restarts the count and the clock, and the skip is allowed only once the screen has been quiet for
+  `SETTLED_FRAMES` (no spinner) with the count still short, or the second window has also run out. A genuinely empty tab therefore costs one more settle,
+  about 200ms, not a second four seconds, and no text on screen changed, so there is no Spanish key to add.
+  **Proved with the commands, current as of this commit:**
+  `TOUR_SLOW_FIRST=6000 node scripts/tour-runs.mjs 6 1440 392`: **every run started on TODAY and walked six blocks, 9 of 9** (6 at 1440 reading `7+6+6+5+6+6`,
+  3 control at 392), verdict line *GREEN*. `TOUR_SLOW_FIRST=6000 node scripts/tour-runs.mjs 6 392 1440`, the other way round: **9 of 9**, GREEN. Before the
+  change the same hold made 6 of 6 runs start on Calendar at 29 steps.
+  **Clean unforced batch for regression,** `node scripts/tour-runs.mjs 20 1440 392`: **20 of 20 started on Today, 20 of 20 complete, none short**, control 5 of 5.
+  One run read 35 steps (`7+6+6+5+5+6`, Business one step short): the other family recorded above (a step arriving behind the card being read is dropped
+  by design), seen three times in the 40 unforced runs before this change, so it is not new. `TOUR_FORCE_GROWTH=1 node scripts/tour-runs.mjs 10 1440 392`:
+  fired 10 of 10, six blocks 10 of 10, every block walked in full 10 of 10, GREEN.
+  **Broken on purpose, and it went red:** with the retry switched off (`let looked_again = true`, reverted, hash checked), `TOUR_SLOW_FIRST=6000 node scripts/tour-runs.mjs 2 1440 392`
+  came back to the old signature exactly (29 steps, `6+6+5+6+6`, Calendar first). **It reported through the script's VOID path** (the 392 control fell short
+  too, 28 steps, 0 of 3), **so the new SLOW FIRST SCREEN verdict line was not the thing that caught it, and I did not see that line go RED on its own.**
+  **Not proved:** a real slow network (the hold is at the browser's network layer), and a slow load with NO spinner on the screen, which the retry cannot tell
+  from an empty tab (the product comment says every screen paints one; the held runs are consistent with it and do not test it).
+  **Done-when, clause by clause:** the walk and the twenty-run batch, the declared skips and the baseline were met by the 2026-10-06 re-run above; the
+  deterministic clause was built in `8e0b79d`; the one unexplained short run is explained and its cause is now fixed. Ticked on that reading. The
+  instrument's own label for a short-but-finished walk (*"no card arrived after the press"* under 30 steps) is unchanged and noted above.
 
 ### 14.11 — a check with a sanctioned word for testing nothing — DONE 2026-10-06
 
