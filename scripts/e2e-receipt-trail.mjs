@@ -406,7 +406,8 @@ try {
   await page.waitForSelector("text=/Receipt/i", { timeout: 20000 }).catch(() => {});
   await page.waitForTimeout(2500);
   const shot = new URL("job-record.png", ART).pathname.replace(/^\/([A-Za-z]:)/, "$1");
-  await page.screenshot({ path: shot, fullPage: true }).catch(() => {});
+  // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+  await page.screenshot({ path: shot }).catch(() => {});
   artifacts.push("artifacts/e2e-receipt-trail/job-record.png");
 
   // `innerText` AND NOT `textContent` — gotchas.md: `textContent` hands back

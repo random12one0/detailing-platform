@@ -503,7 +503,8 @@ try {
     }
     subRow = row;
     keep("subscription-row.json", row);
-    await page.screenshot({ path: new URL("billing.png", ART).pathname.replace(/^\//, ""), fullPage: true })
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: new URL("billing.png", ART).pathname.replace(/^\//, "") })
       .catch(() => {});
     artifacts.push("artifacts/e2e-browser-features/billing.png");
     check("the subscription went active", row?.status === "active", String(row?.status));

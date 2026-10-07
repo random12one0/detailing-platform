@@ -270,7 +270,8 @@ for (const [w, h] of WIDTHS) {
   for (const t of TABS) {
     await page.getByRole("button", { name: LABEL[t], exact: true }).first().click();
     await settle(page, 2200);
-    await page.screenshot({ path: `${OUT}/${w}-${t}${suffix}.png`, fullPage: true });
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: `${OUT}/${w}-${t}${suffix}.png` });
   }
 
   if (MORE) {
@@ -292,7 +293,8 @@ for (const [w, h] of WIDTHS) {
   if (GEAR !== null) {
     await page.getByRole("button", { name: "Settings", exact: true }).first().click();
     await settle(page, 1500);
-    await page.screenshot({ path: `${OUT}/${w}-gear${suffix}.png`, fullPage: true });
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: `${OUT}/${w}-gear${suffix}.png` });
     for (const key of GEAR.split(",").filter(Boolean)) {
       const btn = page.locator(`.nav-row`, { hasText: key });
       if (!(await btn.count())) { problems.push(`${w}: no gear row matching "${key}"`); continue; }

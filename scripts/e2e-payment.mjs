@@ -567,7 +567,8 @@ try {
   const paid = (BREAK === "nopay" || BREAK === "webhook")
     ? { pressed: true, left: true, url: "(sabotage: no payment was made)" }
     : await payOnStripe(page, url, CARD_OK);
-  await page.screenshot({ path: new URL("paid.png", ART).pathname.replace(/^\//, ""), fullPage: true })
+  // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+  await page.screenshot({ path: new URL("paid.png", ART).pathname.replace(/^\//, "") })
     .catch(() => {});
   artifacts.push("artifacts/e2e-payment/paid.png");
   keep("card-result.json", paid);

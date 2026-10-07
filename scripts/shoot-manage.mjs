@@ -69,7 +69,8 @@ for (const [w, h] of WIDTHS) {
   // its hover colour and read as a defect for a while. It is muted, not bone.
   await page.mouse.move(2, 2);
   await page.waitForTimeout(300);
-  await page.screenshot({ path: `${OUT}/${w}-${TAG}${suffix}.png`, fullPage: true });
+  // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+  await page.screenshot({ path: `${OUT}/${w}-${TAG}${suffix}.png` });
   await ctx.close();
 }
 await browser.close();

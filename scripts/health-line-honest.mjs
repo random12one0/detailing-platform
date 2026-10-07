@@ -366,7 +366,8 @@ async function run() {
       assertions += 8;
       continue;
     }
-    await page.screenshot({ path: join(ART, `${tag}-three-states.png`), fullPage: true });
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: join(ART, `${tag}-three-states.png`) });
 
     ok(never.value !== just.value, "words/differ",
       `${tag}: both rows were handed the SAME \`ran_at\` and differ only by \`detail.seeded\`, `
@@ -421,7 +422,8 @@ async function run() {
       `${tag}: with every dot deleted the two rows read identically ("${nDot?.all?.slice(0, 60)}"). `
       + "The difference lives in a 7px mark, which a colour-blind reader and a phone in sunlight "
       + "both lose.");
-    await page.screenshot({ path: join(ART, `${tag}-no-dots.png`), fullPage: true });
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: join(ART, `${tag}-no-dots.png`) });
 
     // ── THE EMPTY SCREEN ─────────────────────────────────────────────────
     MODE = "empty";
@@ -448,7 +450,8 @@ async function run() {
       const cs = getComputedStyle(el);
       return cs.visibility !== "hidden" && cs.display !== "none" && Number(cs.opacity) > 0;
     }, SAYS_NONE.source);
-    await page.screenshot({ path: join(ART, `${tag}-empty.png`), fullPage: true });
+    // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+    await page.screenshot({ path: join(ART, `${tag}-empty.png`) });
 
     ok(!ALL_CLEAR.test(emptyText), "empty/not-all-clear",
       `${tag}: no job reported at all and the screen printed the all-clear. `

@@ -197,7 +197,8 @@ for (const [pname, path] of PAGES) {
       else fail(`${tag}: CANARY NOT CAUGHT (opacity ${!!caughtOp}, timer ${!!caughtTimer}) — this run measured nothing`);
       if (SHOTS) {
         await page.evaluate(() => { document.getElementById("mo-canary-op")?.remove(); document.getElementById("mo-canary-timer")?.remove(); });
-        await page.screenshot({ path: `${SHOTS}/motion-off-${pname}-${w}-${mode}.png`, fullPage: true });
+        // Viewport frame, not fullPage: fullPage paints a position: fixed element in the wrong place (ROADMAP 9.11d).
+        await page.screenshot({ path: `${SHOTS}/motion-off-${pname}-${w}-${mode}.png` });
       }
 
       let hiddenBoth = 0, excepted = 0, bad = 0;
