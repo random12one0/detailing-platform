@@ -101,6 +101,8 @@ stops for every tenant until midnight UTC**, not just for you.
 ceiling above them, outside the product, that is not counted at all** —
 ROADMAP 14.15, unreproduced.
 
+**`tests/geoapify.test.mjs` spends it only on request, 2026-10-06.** Its live half (§ 4 and § 5, about 11 lookups a run) needs `GEOAPIFY_LIVE=1`. Having credentials in `.env` is not enough, because `tests/_env.mjs` loads them into every suite and a plain run spent real lookups twice that day. Without the opt-in the file runs its 18 no-network checks and prints that § 4-5 were skipped. Measured by counting `fetch` calls with a preloaded counter: 0 calls with `.env` loaded and no opt-in, 8 calls with the opt-in and the network blocked.
+
 ### 3 · Andrew's daily email allowance
 
 **What:** **100 sends a day**, with **20 reserved for the platform**, leaving

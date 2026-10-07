@@ -18,12 +18,20 @@
  * § 1 is the one-module rule the weather seam already keeps: nothing but
  * `_shared/geoapify.ts` may name the host or read the key.
  *
- * § 4 runs the deployed endpoint if credentials are present, because the three
- * properties that matter are properties of a RUN: a short query costs no
- * credit, a real street comes back with a point, and the attribution travels
- * with the data.
+ * § 4 runs the deployed endpoint, because the three properties that matter are
+ * properties of a RUN: a short query costs no credit, a real street comes back
+ * with a point, and the attribution travels with the data. § 5 times it.
  *
- *   node tests/geoapify.test.mjs      (§ 1–3 are credential-free)
+ * **§ 4 AND § 5 ARE LIVE AND OPT-IN: `GEOAPIFY_LIVE=1`.** Having credentials in
+ * `.env` is not consent to spend. `_env.mjs` loads `.env` into every suite, so
+ * the old gate (credentials present) made a plain run of this file call the
+ * deployed endpoint, and that spent real lookups twice on 2026-10-06 (about 11
+ * a run, out of 60 an hour per IP and 2,400 a day for every tenant;
+ * docs/shared-resources.md § 2). Without the opt-in, § 1–3 run and § 4–5 print
+ * that they were skipped.
+ *
+ *   node tests/geoapify.test.mjs                     (§ 1–3, no network)
+ *   GEOAPIFY_LIVE=1 node tests/geoapify.test.mjs     (adds § 4–5, spends credits)
  */
 import "./_env.mjs";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -185,8 +193,13 @@ console.log("3. the attribution is settled, exact, and has one copy");
 console.log("4. the live endpoint, which is the only thing that proves it works");
 const URL_ = process.env.SUPABASE_URL;
 const ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
-if (!URL_ || !ANON) {
-  console.log("  SKIPPED — needs SUPABASE_URL and SUPABASE_ANON_KEY");
+const OPTED_IN = process.env.GEOAPIFY_LIVE === "1";
+const LIVE = OPTED_IN && !!URL_ && !!ANON;
+if (!OPTED_IN) {
+  console.log("  SKIPPED — live lookups are opt-in and this run did not opt in."
+    + " No request was sent. Set GEOAPIFY_LIVE=1 to run 4a-4f and § 5 (about 11 lookups).");
+} else if (!URL_ || !ANON) {
+  console.log("  SKIPPED — GEOAPIFY_LIVE=1 was set but SUPABASE_URL and SUPABASE_ANON_KEY are not.");
 } else {
   const call = (body) =>
     fetch(`${URL_}/functions/v1/address-suggest`, {
@@ -245,7 +258,8 @@ if (!URL_ || !ANON) {
   }
 }
 
-console.log(`\n${passed} passed, ${failed} failed`);
+console.log(`\n${passed} passed, ${failed} failed`
+  + (LIVE ? "" : "  (live § 4-5 NOT RUN: GEOAPIFY_LIVE=1 not set)"));
 // ─── 5. The latency, which Andrew asked to be told about ─────────────────
 // His rule for this feature: *"LATENCY IS A DESIGN CONSTRAINT, NOT SOMETHING TO
 // DISCOVER LATER... If the round trip turns out too slow to be usable, COME BACK
@@ -256,7 +270,7 @@ console.log(`\n${passed} passed, ${failed} failed`);
 // about what to do is HIS and is parked. A check that went red every run about a
 // provider's speed is one people learn to skip, which is the same disease as the
 // watchdog that only ever cried wolf.
-if (URL_ && ANON) {
+if (LIVE) {
   console.log("5. how long it actually takes, printed rather than asserted");
   const timed = (q) =>
     fetch(`${URL_}/functions/v1/address-suggest`, {
