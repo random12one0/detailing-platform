@@ -1,0 +1,497 @@
+{
+  "git_sha": "5338ac91acecd2d9ffb4b6c94675313d16f014e8",
+  "git_sha_started": "5338ac91acecd2d9ffb4b6c94675313d16f014e8",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-07T01:20:24.594Z",
+  "failures": [],
+  "warnings": [
+    "still-good means the target has not drifted since the pointer was written. It never means the pointer is correct.",
+    "suspect means lines moved above the cited line: likely stale, not certainly."
+  ],
+  "artifacts": [
+    "scripts/pointer-age.mjs"
+  ],
+  "dimensions": {
+    "rev": "5338ac91acecd2d9ffb4b6c94675313d16f014e8",
+    "self": 4,
+    "cross": 60,
+    "buckets": {
+      "still-good": 3,
+      "changed-below-only": 6,
+      "suspect": 55,
+      "unknown": 0
+    },
+    "pointers": [
+      {
+        "in": "DECISIONS.md:17638",
+        "to": "FOR-ANDREW.md:914",
+        "bucket": "suspect",
+        "dated": "43b43740",
+        "suggested": 1459
+      },
+      {
+        "in": "DECISIONS.md:17717",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1363
+      },
+      {
+        "in": "DECISIONS.md:17743",
+        "to": "gotchas.md:3612",
+        "bucket": "changed-below-only",
+        "dated": "d8d2b14f",
+        "suggested": 3612
+      },
+      {
+        "in": "ROADMAP.md:17198",
+        "to": "ROADMAP.md:8186",
+        "bucket": "suspect",
+        "dated": "e0932868",
+        "suggested": 16911
+      },
+      {
+        "in": "ROADMAP.md:19273",
+        "to": "ROADMAP.md:4714",
+        "bucket": "suspect",
+        "dated": "931e41cd",
+        "suggested": 5159
+      },
+      {
+        "in": "ROADMAP.md:19490",
+        "to": "ROADMAP.md:17640",
+        "bucket": "suspect",
+        "dated": "50767da8",
+        "suggested": 19450
+      },
+      {
+        "in": "docs/HANDOFF-2026-09-20.md:97",
+        "to": "ROADMAP.md:6262",
+        "bucket": "suspect",
+        "dated": "152622af",
+        "suggested": 20003
+      },
+      {
+        "in": "docs/HANDOVER-DP-COWORK2-2026-09-25.md:63",
+        "to": "ROADMAP.md:3099",
+        "bucket": "suspect",
+        "dated": "5a48e5c5",
+        "suggested": 3225
+      },
+      {
+        "in": "docs/HANDOVER-DP-COWORK2-2026-09-25.md:76",
+        "to": "ROADMAP.md:3099",
+        "bucket": "suspect",
+        "dated": "5a48e5c5",
+        "suggested": 3225
+      },
+      {
+        "in": "docs/HANDOVER-DP-COWORK2-2026-09-25.md:185",
+        "to": "FOR-ANDREW.md:186",
+        "bucket": "suspect",
+        "dated": "5a48e5c5",
+        "suggested": 316
+      },
+      {
+        "in": "docs/MANAGER-CLOSE-2026-09-21.md:173",
+        "to": "ROADMAP.md:4101",
+        "bucket": "suspect",
+        "dated": "3b9f4d5a",
+        "suggested": 9100
+      },
+      {
+        "in": "docs/MANAGER-CLOSE-2026-09-21.md:186",
+        "to": "FOR-ANDREW.md:587",
+        "bucket": "suspect",
+        "dated": "3b9f4d5a",
+        "suggested": 1957
+      },
+      {
+        "in": "docs/MANAGER-CLOSE-2026-09-21.md:244",
+        "to": "FOR-ANDREW.md:287",
+        "bucket": "suspect",
+        "dated": "9b0079fd",
+        "suggested": 1685
+      },
+      {
+        "in": "docs/MANAGER-CLOSE-2026-09-21.md:478",
+        "to": "FOR-ANDREW.md:291",
+        "bucket": "suspect",
+        "dated": "9b0079fd",
+        "suggested": 1689
+      },
+      {
+        "in": "docs/MANAGER-CLOSE-2026-09-21.md:512",
+        "to": "FOR-ANDREW.md:291",
+        "bucket": "suspect",
+        "dated": "1fc8b656",
+        "suggested": 1689
+      },
+      {
+        "in": "docs/gotchas.md:3612",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "c2fd3703",
+        "suggested": 1412
+      },
+      {
+        "in": "docs/gotchas.md:3864",
+        "to": "FOR-ANDREW.md:914",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1459
+      },
+      {
+        "in": "docs/gotchas.md:3974",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1363
+      },
+      {
+        "in": "docs/gotchas.md:3997",
+        "to": "gotchas.md:3612",
+        "bucket": "changed-below-only",
+        "dated": "d8d2b14f",
+        "suggested": 3612
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:145",
+        "to": "ROADMAP.md:3514",
+        "bucket": "suspect",
+        "dated": "2fa0152d",
+        "suggested": 3600
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:244",
+        "to": "ROADMAP.md:4770",
+        "bucket": "suspect",
+        "dated": "bbf19bac",
+        "suggested": 5218
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:256",
+        "to": "FOR-ANDREW.md:914",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1459
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:274",
+        "to": "ROADMAP.md:3551",
+        "bucket": "suspect",
+        "dated": "2fa0152d",
+        "suggested": 3669
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:323",
+        "to": "ROADMAP.md:4751",
+        "bucket": "suspect",
+        "dated": "bbf19bac",
+        "suggested": 5214
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:861",
+        "to": "FOR-ANDREW.md:1315",
+        "bucket": "suspect",
+        "dated": "5152cf2a",
+        "suggested": 1868
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2251",
+        "to": "ROADMAP.md:8398",
+        "bucket": "suspect",
+        "dated": "9fef3efd",
+        "suggested": 9395
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2348",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1363
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2397",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1363
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2398",
+        "to": "FOR-ANDREW.md:818",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1363
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2399",
+        "to": "FOR-ANDREW.md:857",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1402
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2400",
+        "to": "FOR-ANDREW.md:857",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1402
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2401",
+        "to": "FOR-ANDREW.md:857",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 1402
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2458",
+        "to": "gotchas.md:3612",
+        "bucket": "changed-below-only",
+        "dated": "d8d2b14f",
+        "suggested": 3612
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2540",
+        "to": "DECISIONS.md:17593",
+        "bucket": "suspect",
+        "dated": "7e63de7e",
+        "suggested": 17607
+      },
+      {
+        "in": "docs/open-items-read-as-a-stranger-2026-09-25.md:2565",
+        "to": "DECISIONS.md:17593",
+        "bucket": "suspect",
+        "dated": "d8d2b14f",
+        "suggested": 17607
+      },
+      {
+        "in": "docs/silences.md:986",
+        "to": "gotchas.md:348",
+        "bucket": "changed-below-only",
+        "dated": "949f63a9",
+        "suggested": 348
+      },
+      {
+        "in": "docs/silences.md:1053",
+        "to": "ROADMAP.md:8186",
+        "bucket": "suspect",
+        "dated": "10692a45",
+        "suggested": 17138
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:31",
+        "to": "ROADMAP.md:3588",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 13186
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:62",
+        "to": "DECISIONS.md:206",
+        "bucket": "changed-below-only",
+        "dated": "33673fe6",
+        "suggested": 206
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:63",
+        "to": "DECISIONS.md:4634",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4656
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:64",
+        "to": "DECISIONS.md:4638",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4660
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:65",
+        "to": "DECISIONS.md:4679",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4701
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:66",
+        "to": "DECISIONS.md:4690",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4712
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:67",
+        "to": "DECISIONS.md:4697",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4719
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:68",
+        "to": "DECISIONS.md:4705",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4727
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:69",
+        "to": "DECISIONS.md:4711",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 4733
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:70",
+        "to": "DECISIONS.md:7597",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 7619
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:71",
+        "to": "DECISIONS.md:11610",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 11632
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:72",
+        "to": "DECISIONS.md:15645",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 15667
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:86",
+        "to": "ROADMAP.md:3588",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 13186
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:87",
+        "to": "ROADMAP.md:3589",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 13187
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:88",
+        "to": "ROADMAP.md:3590",
+        "bucket": "suspect",
+        "dated": "33673fe6",
+        "suggested": 13188
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:90",
+        "to": "VERIFIED.md:257",
+        "bucket": "still-good",
+        "dated": "33673fe6",
+        "suggested": 257
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:163",
+        "to": "silences.md:326",
+        "bucket": "suspect",
+        "dated": "9f5496f0",
+        "suggested": 1640
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:194",
+        "to": "ROADMAP.md:3502",
+        "bucket": "suspect",
+        "dated": "9f5496f0",
+        "suggested": 13100
+      },
+      {
+        "in": "docs/spare-figures-2026-09-20.md:195",
+        "to": "VERIFIED.md:257",
+        "bucket": "still-good",
+        "dated": "9f5496f0",
+        "suggested": 257
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:467",
+        "to": "ROADMAP.md:3099",
+        "bucket": "suspect",
+        "dated": "5b7d98e9",
+        "suggested": 3225
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:476",
+        "to": "ROADMAP.md:4714",
+        "bucket": "changed-below-only",
+        "dated": "8e134c18",
+        "suggested": 4714
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:489",
+        "to": "ROADMAP.md:4714",
+        "bucket": "suspect",
+        "dated": "5b7d98e9",
+        "suggested": 5649
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:543",
+        "to": "ROADMAP.md:3099",
+        "bucket": "suspect",
+        "dated": "5b7d98e9",
+        "suggested": 3225
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:561",
+        "to": "ROADMAP.md:4876",
+        "bucket": "suspect",
+        "dated": "5b7d98e9",
+        "suggested": 6069
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:607",
+        "to": "ROADMAP.md:4714",
+        "bucket": "suspect",
+        "dated": "5b7d98e9",
+        "suggested": 5649
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:714",
+        "to": "VERIFIED.md:1412",
+        "bucket": "still-good",
+        "dated": "df200a72",
+        "suggested": 1412
+      },
+      {
+        "in": "docs/ticked-without-proof-2026-09-25.md:1140",
+        "to": "ROADMAP.md:13567",
+        "bucket": "suspect",
+        "dated": "9543fa62",
+        "suggested": 16028
+      }
+    ],
+    "pinned_fingerprint_checked": false
+  },
+  "check_id": "pointer-age",
+  "started_at": "2026-10-07T01:20:02.015Z",
+  "status": "pass",
+  "expected_targets": 64,
+  "discovered_targets": 64,
+  "attempted_targets": 64,
+  "completed_targets": 64,
+  "skipped_targets": 0,
+  "assertions_executed": 7,
+  "min_assertions": 6,
+  "canary": {
+    "id": "a pointer whose target gained a line above it",
+    "observed_failure": true,
+    "caught_by": [
+      "classify() against a throwaway repo, run before the real read"
+    ],
+    "findings": [
+      "reported suspect"
+    ]
+  }
+}

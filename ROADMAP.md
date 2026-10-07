@@ -19844,7 +19844,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.31 — The pointer-staleness tool is not in the repo, so every grade it produced is unrepeatable
 
-- [ ] **14.31 — A measurement nobody can re-take is a claim. The git-delta
+- [x] **14.31 — A measurement nobody can re-take is a claim. The git-delta
   pointer tool decided 53 pointers into four buckets on 2026-10-02, caught the
   one wrong citation it was graded against, and **ran out of a scratch directory
   that no longer exists.**
@@ -19876,6 +19876,47 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   *Lane:* `scripts/`. *Found 2026-10-02 by the manager refusing a reconciliation
   that closed a five-pointer gap with a command which happens to return 58 today;
   `docs/gotchas.md` 93 is the write-up.*
+
+  ***BUILT AND PROVED 2026-10-06 — `scripts/pointer-age.mjs`. A SECOND
+  RECORDED EXCEPTION TO THE `scripts/` LANE, GRANTED BY THE MANAGER FOR EXACTLY
+  THIS FILE.***
+  It transcribes the method as written (blame the citing line, `git log
+  <sha>..<rev> -- <target>`, sum `--unified=0` hunk length changes above the
+  cited line) and writes a graded receipt that names every pointer, its bucket
+  and the commit it was dated from (`receipts/pointer-age.json`, `dimensions.
+  pointers`). The population is `git grep` pinned to a revision, never the
+  working tree, and is counted a second way so a parser that drops lines cannot
+  agree with itself.
+  **Re-run at `23199db` (`node scripts/pointer-age.mjs --rev=23199db`, the
+  receipt `receipts/pointer-age-23199dba.json`): 58 pointers, 3 self, 55 cross —
+  exactly the fingerprint `gotchas.md` 92 records**, asserted by the script
+  itself whenever it is run at that revision, so a run that cannot reproduce it
+  goes red. A deliberate edit of that expectation (58 to 57, on a scratch copy)
+  turned the run red with *"fingerprint: 58 pointers, gotchas.md 92 pinned 57"*.
+  **The bucket column now re-takes, and it reconciles to the dated snapshot to
+  the pointer:** the lost tool's 5 still-good / 4 changed-below-only / 43 suspect
+  / 1 unknown over 53 pointers become 11 / 4 / 43 / 0 over 58 — the six new
+  pointers are the grade table's own rows and one narrative line, all dated
+  `23199dba` and all still-good, and the one unknown was the untracked
+  `docs/MANAGER-2026-09-22-evening.md`, which `git grep` at a revision cannot
+  see. 5 + 6 = 11, 1 − 1 = 0, and the other two buckets did not move.
+  **The self-test, run on every invocation before the real read:** a throwaway
+  git repo with one pointer per bucket plus one into a file that does not exist.
+  `--break=suspect-all` (a known-good pointer reported suspect) and
+  `--break=blind` (a moved target reported still-good) each turned the run red
+  and wrote no receipt; the canary is a pointer whose target gained a line above
+  it, and the receipt records it caught.
+  **Two deliberate departures from the written method, both toward flagging
+  more, both said in the script's header:** a hunk that rewrites the cited line
+  is suspect even at zero length change, and a cited line past the target's end
+  is suspect. A pure insertion at old-start `a` lands after line `a`, so it
+  shifts only when `a < n`. With both switched off on a scratch copy the four bucket counts at `23199db` are identical (11 / 4 / 43 / 0).
+  **Said in the receipt's own warnings, as the item required:** `still-good`
+  means *has not drifted*, never *is correct*; `suspect` is *likely* stale, not
+  certainly. At HEAD `5338ac9` it reports 64 pointers (4 self, 60 cross): 3
+  still-good, 6 changed-below-only, 55 suspect, 0 unknown
+  (`node scripts/pointer-age.mjs`, about 15 seconds). Those are the pointers
+  that need a human look, and nothing here has looked at any of them.
 ### 14.30 — `bk-bar-clearance` cannot tell an accepted exception from a new failure, so it is red either way
 
 - [ ] **Found 2026-10-03 while executing 2.15a's criterion, which could not pass
