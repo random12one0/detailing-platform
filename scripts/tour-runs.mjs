@@ -163,7 +163,7 @@ const once = async (browser, width, tag, wait = WAIT, force = false) => {
       // THE BLOCK'S NAME, KEPT FOR EVERY CARD (added 2026-10-06, 14.10's short run). The trail is bare
       // counters, so a short run said "five blocks, 29 steps" and could not say WHICH block was missing.
       // The card's label reads like "TODAY · 1 OF 6"; the name is what comes before the dot.
-      (out.names ??= []).push(String(lab).replace(/s+/g, " ").split("·")[0].trim());
+      (out.names ??= []).push(String(lab).replace(/\s+/g, " ").split("·")[0].trim());
       out.steps = k;
       // **THE LAST FRAME IS KEPT, NOT DESCRIBED.** "It stopped at step 5" is a
       // number; a picture of the screen it stopped on is where somebody sees
