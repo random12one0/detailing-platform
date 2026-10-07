@@ -21,16 +21,18 @@ proof ever being written down?**
 > `docs/open-items-read-as-a-stranger-2026-09-25.md`, “EVERY NUMBER IN THIS FILE
 > AND THE TICKED ONE, RE-RUN”.
 
+> ***PINNED 2026-10-06 (ROADMAP 14.33).** Every figure row in this file now carries either a command with the revision it was taken at, or a stated reason it cannot be re-taken. The commands were re-run by hand at their own revisions; the rest are tallies of entries a person opened and ruled on, labeled *judgement, not a count*. **That is "accounted for", not "verified".** Check: `node --test tests/figures-carry-their-command.test.mjs`.*
+
 | | |
 |---|---|
-| `- [x]` items in `ROADMAP.md` | **76** — *81 as of 2026-10-02* |
-| scanned by pattern | **76** — *81 as of 2026-10-02* |
-| **opened and judged as a stranger would** | **12** |
-| of those 12, carry proof a stranger can check | **12** |
-| of those 12, carry **no** checkable proof | **0** |
-| **could not judge** | **64** |
-| *overlay:* ticked items whose OWN text names something unproved or unbuilt | **26** |
-| of those 26, the gap is **live** | **3** |
+| `- [x]` items in `ROADMAP.md` | **76** — *81 as of 2026-10-02* *(re-run 2026-10-06: `git grep -c '^- \[x\] ' 07ea4b8 -- ROADMAP.md` gives 76 at `07ea4b8`; the same command at `8b1e4e7` gives 81)* |
+| scanned by pattern | **76** — *81 as of 2026-10-02* *(same count by the same command, 76 at `07ea4b8`: `git grep -c '^- \[x\] ' 07ea4b8 -- ROADMAP.md`; run 2026-10-06)* |
+| **opened and judged as a stranger would** | **12** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| of those 12, carry proof a stranger can check | **12** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| of those 12, carry **no** checkable proof | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **could not judge** | **64** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| *overlay:* ticked items whose OWN text names something unproved or unbuilt | **26** *(UNRE-TAKEABLE: the scan's pattern was not recorded; dated snapshot 2026-09-24)* |
+| of those 26, the gap is **live** | **3** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **12 judged + 64 not judged = 76.** The 26 and the 3 are an overlay on the same
 76, not a separate population.
@@ -170,10 +172,10 @@ its own header was false — is correct.**
 
 | | |
 |---|---|
-| gaps listed an hour earlier | **3** |
-| **genuinely live after ten minutes each** | **1** (7.4) |
-| resolved inside their own entry, mis-listed by me | **2** (2.1c, 14.12's `track-visit`) |
-| **ticks that should come off** | **0** |
+| gaps listed an hour earlier | **3** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **genuinely live after ten minutes each** | **1** (7.4) *(judgement, not a count; dated snapshot 2026-09-24)* |
+| resolved inside their own entry, mis-listed by me | **2** (2.1c, 14.12's `track-visit`) *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The roadmap did not have to go up by two. It would have been fine if it had** —
 the instruction was that a true count moving the wrong way beats a lie — but the
@@ -334,7 +336,7 @@ survey as its gate.** Three distinct faults, and they are not the same thing:
 
 | fault | count | what it does |
 |---|---|---|
-| **A done-when that cannot FAIL** | **1** | the item can be "met" by an instrument that returns 0 regardless |
+| **A done-when that cannot FAIL** | **1** | the item can be "met" by an instrument that returns 0 regardless *(judgement, not a count; dated snapshot 2026-09-25)* |
 | **A done-when that cannot be MET** | **0 found** | — |
 | **No done-when at all** | **25 of 59** | nobody can close the item, because nothing says what closing it would take |
 
@@ -394,13 +396,13 @@ close. **Named here so the next sitting can do it as its own item.**
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **10** |
-| carry no checkable proof | **0** |
-| could not judge | **0** |
-| **new live gaps found** | **0** |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry no checkable proof | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **new live gaps found** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **running total judged** | **23 of 76** — 13 earlier + this batch |
-| **still unjudged** | **53** |
+| **still unjudged** | **53** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten:** 1.1, 1.2, 2.1a, 2.2, the discount-label item, 2.3, the job-weather
 budget item, 2.4, 2.5, 2.32.
@@ -469,13 +471,13 @@ in this file can sit above the text it resolves as easily as below it.**
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **9** |
-| **carry a LIVE named unverified gap** | **1** (the booking-column width item, `ROADMAP.md:4714`) |
-| could not judge | **0** |
-| **ticks that should come off** | **0** — the one gap is a gap in coverage, not in the fix |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **9** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **carry a LIVE named unverified gap** | **1** (the booking-column width item, `ROADMAP.md:4714`) *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** — the one gap is a gap in coverage, not in the fix *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **running total judged** | **33 of 76** |
-| **still unjudged** | **43** |
+| **still unjudged** | **43** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten, in roadmap order:** the scroller-clearance item (`:3099`), 2.6, 2.8,
 2.9, 2.10, 2.11, 2.13, the booking-column width item (`:4714`), 3.4a, 3.4b.
@@ -628,13 +630,13 @@ same hour it was written — which is the cheapest this job will ever be.
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **10** |
-| carry a live named gap of their own | **0** |
-| could not judge | **0** |
-| **ticks that should come off** | **0** |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry a live named gap of their own | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **running total judged** | **43 of 77** |
-| **still unjudged** | **34** |
+| **still unjudged** | **34** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten, in roadmap order:** 4.2, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 6.2a, 6.3,
 7.1. 7.4 (`:8757`) was skipped as already judged.
@@ -657,10 +659,10 @@ have `<details>` rows and are NOT proven to open them before measuring."*
 
 | | |
 |---|---|
-| `scripts/sweep-tap-targets.mjs` — occurrences of `details` | **0** |
-| `scripts/lib/tapProbe.mjs` — occurrences of `details` | **0** |
-| files under `app/src` using `<details>` or `<Folded>` | **18** |
-| `BusinessInfo.jsx` / `Campaigns.jsx` / `Notifications.jsx` | **2 / 1 / 5** |
+| `scripts/sweep-tap-targets.mjs` — occurrences of `details` | **0** *(`git grep -c details df200a7 -- scripts/sweep-tap-targets.mjs` prints nothing and exits 1, which is zero, at `df200a7`; run 2026-10-06)* |
+| `scripts/lib/tapProbe.mjs` — occurrences of `details` | **0** *(`git grep -c details df200a7 -- scripts/lib/tapProbe.mjs` prints nothing and exits 1, which is zero, at `df200a7`; run 2026-10-06)* |
+| files under `app/src` using `<details>` or `<Folded>` | **18** *(`git grep -l -e '[<]details' -e '[<]Folded' df200a7 -- 'app/src/*.jsx'` lists 18 files at `df200a7`, run 2026-10-06. **The row's wording is looser than its figure:** counting the css and js that also mention them it lists 21)* |
+| `BusinessInfo.jsx` / `Campaigns.jsx` / `Notifications.jsx` | **2 / 1 / 5** *(re-run 2026-10-06 at `df200a7`: 2 and 1 reproduce as `<details>` lines; Notifications has 2 of those, or 3 counting `<Folded>`. **5 reproduces only as lines carrying an opening or closing tag of either.** Not a scanned figure; noted because it sits in a pinned table)* |
 
 **WHAT KIND OF FAULT IT IS, STATED PRECISELY, BECAUSE THE TWO KINDS ARE NOT THE
 SAME AND THE ENTRY DOES NOT DISTINGUISH THEM.** `tapProbe.mjs` filters its
@@ -790,13 +792,13 @@ in DP Cowork's lane, and it has no item.**
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **10** |
-| carry a live named gap of their own | **0** |
-| could not judge | **0** |
-| **ticks that should come off** | **0** |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry a live named gap of their own | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **running total judged** | **53 of 77** |
-| **still unjudged** | **24** |
+| **still unjudged** | **24** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten, in roadmap order:** 7.2, 7.5, 7.7, 7.11, 7.12, 7.13, 7.16, 8.10a,
 8.10b, 8.1. 7.4 (`:8757`) skipped as already judged.
@@ -913,12 +915,12 @@ first pass's *"13 earlier + this batch"*, and **the 13 was never itemised.**
 
 | | |
 |---|---|
-| `- [x]` items in `ROADMAP.md` | **77** |
-| judged, **and nameable**, before this batch | **49** |
-| of those, ones I can attribute to the first pass | **19**, not the 23 it claimed |
-| judged in this batch | **10** |
-| **judged and nameable now** | **59** |
-| **remaining, and nameable — the list is below** | **18** |
+| `- [x]` items in `ROADMAP.md` | **77** *(re-run 2026-10-06: `git grep -c '^- \[x\] ' 58349d9 -- ROADMAP.md` gives 77 at `58349d9`)* |
+| judged, **and nameable**, before this batch | **49** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| of those, ones I can attribute to the first pass | **19**, not the 23 it claimed *(judgement, not a count; dated snapshot 2026-09-24)* |
+| judged in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **judged and nameable now** | **59** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **remaining, and nameable — the list is below** | **18** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **So the honest number was 49, not 53**, and the gap is four items the first
 pass counted and did not name. They may genuinely have been read; there is no
@@ -930,11 +932,11 @@ the tally from here on.
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **9** |
-| **carry a LIVE named gap** | **1** (9.5) |
-| could not judge | **0** |
-| **ticks that should come off** | **0** |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **9** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **carry a LIVE named gap** | **1** (9.5) *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten, in roadmap order:** 8.1a, 8.1b, 8.3, 8.4, 9.5, 9.6, 9.8, 9.9, 9.13,
 9.16. 9.3 (`:12072`) skipped as already judged.
@@ -1082,13 +1084,13 @@ judge them on the same question anyway.
 
 | | |
 |---|---|
-| items in this batch | **10** |
-| carry proof a stranger could check | **10** |
-| carry a live named gap of their own | **0** |
-| could not judge | **0** |
-| **ticks that should come off** | **0** |
+| items in this batch | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **10** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry a live named gap of their own | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **judged and nameable now** | **69 of 77** |
-| **remaining, and nameable** | **8** |
+| **remaining, and nameable** | **8** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The ten, in roadmap order:** 10.1, 10.2, 11.1, and the five 2026-09-16/17
 security-and-money entries plus the ruling that follows them — `:13619` (14.1,
@@ -1231,12 +1233,12 @@ entry, which sits immediately after this batch's last item and was not read.
 
 | | |
 |---|---|
-| items in this batch | **8** |
-| carry proof a stranger could check | **8** |
-| could not judge | **0** |
-| **ticks that should come off** | **0** |
+| items in this batch | **8** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| carry proof a stranger could check | **8** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| could not judge | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 | **judged and nameable** | **77 of 77** |
-| **remaining** | **0** |
+| **remaining** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **The eight:** `:13974` (14.7, the money contradiction), `:14051` (14.8,
 `platform_admins`), `:14855` (`accept-invite`'s ceiling), `:15022` (8.6, phones
@@ -1342,7 +1344,7 @@ none by a tool.**
 > ***SEVENTY-SEVEN WAS EXACT WHEN WRITTEN AND IS 81 AS OF 2026-10-02.*** It
 > reproduces precisely at this section's own commit `dca4c37`; four more items
 > have been ticked since, three of them by this audit. **Both figures stand with
-> their dates.** Re-take: `grep -c '^- [x] ' ROADMAP.md`. **The finding below —
+> their dates.** Re-take: `grep -c '^- \[x\] ' ROADMAP.md`. **The finding below —
 > not one tick resting on nothing — is about the 77 that were read, and does not
 > extend to the four ticked afterwards.** That is the sentence a later reader needs:
 > a completed audit covers a population, not a file.
@@ -1353,13 +1355,13 @@ to 7 judged the remaining 58 in one.
 
 | | |
 |---|---|
-| `- [x]` items | **77** |
-| judged | **77** |
-| **ticks that should come off** | **0** |
-| ticks carrying a **live named gap** | **3** — `:4714` (steps 6 and 7 never compared), 9.5 (two open jobs never on screen), 7.4 (no screen reader, found by the first pass) |
-| gaps named inside a ticked entry that **belong to no item** | **3** — closed `<details>` never opened before tap-target measurement, `admin-contrast.mjs`'s crash-leak, `Clients.jsx:742`'s bare English |
-| defects of **form** — a sentence or title that reads false | **4** |
-| claims **re-measured** rather than re-read | **5**, all of which held |
+| `- [x]` items | **77** *(re-run 2026-10-06: `git grep -c '^- \[x\] ' dca4c37 -- ROADMAP.md` gives 77 at `dca4c37`)* |
+| judged | **77** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| **ticks that should come off** | **0** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| ticks carrying a **live named gap** | **3** — `:4714` (steps 6 and 7 never compared), 9.5 (two open jobs never on screen), 7.4 (no screen reader, found by the first pass) *(judgement, not a count; dated snapshot 2026-09-24)* |
+| gaps named inside a ticked entry that **belong to no item** | **3** — closed `<details>` never opened before tap-target measurement, `admin-contrast.mjs`'s crash-leak, `Clients.jsx:742`'s bare English *(judgement, not a count; dated snapshot 2026-09-24)* |
+| defects of **form** — a sentence or title that reads false | **4** *(judgement, not a count; dated snapshot 2026-09-24)* |
+| claims **re-measured** rather than re-read | **5**, all of which held *(judgement, not a count; dated snapshot 2026-09-24)* |
 
 **THE HEADLINE IS THE ONE NOBODY WANTED AND IT IS WORTH STATING PLAINLY: NOT ONE
 TICK IN SEVENTY-SEVEN WAS FOUND RESTING ON NOTHING.** The pass was commissioned

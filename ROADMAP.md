@@ -19550,7 +19550,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 
-- [ ] **14.33 — `docs/ticked-without-proof-2026-09-25.md` is 69 of 69 bare and
+- [x] **14.33 — `docs/ticked-without-proof-2026-09-25.md` is 69 of 69 bare and
   the work to pin it is PARKED, not abandoned.** `docs/gotchas.md` 94 is the
   rule (a recorded number carries the command that produced it and the revision
   it was taken at) and `tests/figures-carry-their-command.test.mjs` is the
@@ -19578,6 +19578,34 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   *Lane:* `docs/`, `tests/`. *Parked by the manager 2026-10-06 to take ROADMAP
   3.1; raised here because a queue is the only place a parked item is visible,
   and "I will come back to it" in a chat window is how 14.26 lost ten days.*
+
+  ***TICKED 2026-10-06 BY DP COWORK2 ON THE DONE-WHEN AS WRITTEN. The manager confirms.***
+  Every figure row in `docs/ticked-without-proof-2026-09-25.md` now carries a command and
+  the revision it was taken at, or a stated reason it cannot be re-taken, and the
+  declaration in `tests/figures-carry-their-command.test.mjs` was lowered 69 -> 0 in the
+  same commit. **The fenced order held:** rows annotated first; the run went RED at 4a on
+  the old declaration (*"declared 69, actually 0 - LOWER IT TO 0"*); only then did the
+  number move, and the run went 9 pass, 0 fail.
+  **Run, not read:** `node --test tests/figures-carry-their-command.test.mjs`. The report's
+  repo-wide PINNED line went 57 -> 64 and ACCOUNTED 30 -> 92 across the annotation, so this
+  document contributed 7 pinned and 62 accounted. **Real sabotage:** a bare row appended to
+  the document itself turned section 4 red naming it (*"1 bare, declared 0 (+1)"*); removed,
+  and `git hash-object` confirmed the file byte-identical to its pinned form.
+  **What zero means here, and it is lopsided:** the 7 are commands re-run by hand at their
+  own revisions (four rows of the `- [x]` total, at `07ea4b8` twice, `58349d9` and `dca4c37`,
+  with `8b1e4e7`'s 81 riding on the first; and three `details` rows at `df200a7`). **The 62 are tallies of entries a person opened and
+  ruled on, accounted as *judgement, not a count*, which is the answer this entry predicted,
+  not a shortcut.** Nothing in this document is VERIFIED by the checker; PINNED is the weaker
+  tier and the checker's header says so.
+  **Three things found while pinning, each written where it was found:** (1) *files under
+  `app/src` using `<details>` or `<Folded>`* is 18 only for `.jsx`; counting css and js it is
+  21 at `df200a7`. (2) The unscanned neighbour *2 / 1 / 5*: Notifications has 2 `<details>`
+  lines, 3 counting `<Folded>`, and 5 only if closing tags are counted. (3) **My first pass
+  wrote the `- [x]` command with its backslashes eaten by a JS template literal, so it
+  matched nothing, and the checker passed it anyway** because a PINNED row is never run for
+  equality. Caught by running the four commands by hand, fixed, re-run: 76, 81, 77, 77.
+  That is the PINNED tier's known weakness (*"a command that resolves but would print
+  something else passes"*) happening once, not a new fault.
 
 ### 14.32 — The figures in `FOR-ANDREW.md` are UNMEASURED, and the checker reports 0 because it cannot see them
 

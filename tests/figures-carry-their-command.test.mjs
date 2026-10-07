@@ -168,7 +168,18 @@ const DOCS = [
   // otherwise sit at 99% of a 121-figure population, where a parser guard is
   // supposed to sit well below reality so ordinary change never fires it.
   { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 90, bare: 97 },
-  { path: "docs/ticked-without-proof-2026-09-25.md", floor: 30, bare: 69 },
+  // **ZERO. The third document to reach it (ROADMAP 14.33), lowered 69 -> 0 on
+  // 2026-10-06 in the same commit as the pinning, in the fenced order:** every row
+  // was annotated first, 4a then went RED at the declaration of 69 reporting "LOWER
+  // IT TO 0", and only then was this number moved. **The split is the honest part
+  // and it is lopsided: 7 rows PINNED (a command and a revision, re-run by hand
+  // 2026-10-06), 62 ACCOUNTED** as a judgement, not a count, or as unre-takeable.
+  // Those 62 are tallies of entries a person opened and ruled on, which no command
+  // can reproduce. **Zero here means "accounted for", never "verified".**
+  // Pinning found one row looser than its figure: 18 files using `<details>` or
+  // `<Folded>` is true only for `.jsx` files (21 with the css and js); it is
+  // written into the row.
+  { path: "docs/ticked-without-proof-2026-09-25.md", floor: 30, bare: 0 },
 
   // **docs/silences.md: 31 figures, 31 bare, ONE HUNDRED PER CENT** — and this is
   // the sharpest finding of the night rather than one more red. **The document
