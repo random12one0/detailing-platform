@@ -27,7 +27,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ExternalLink, X, Check, Plus, Trash2, Mic, Globe } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { addPhoto } from "../lib/photos.js";
+import { uploadBusinessPhoto } from "../lib/upload.js";
 import { ALL, DISLIKED, EITHER, LIKED, STEPS, answered, intakeProgress } from "../lib/siteIntake.js";
 import { accentTriple } from "../lib/theme.js";
 import { t } from "../lib/appI18n.js";
@@ -434,7 +434,19 @@ function Photos({ value, set }) {
       try {
         // No business means the preview, where there is nothing to attach a
         // photograph to. The name is still recorded so the control behaves.
-        if (business?.id) await addPhoto({ file, businessId: business.id, kind: "gallery" });
+        //
+        // **THIS USED TO CALL `addPhoto`, WHICH CAN NEVER HAVE WORKED HERE.**
+        // `addPhoto` is the JOB photo: it needs a booking to file the picture
+        // under (`storagePath` throws without one) and `job_photos.kind` only
+        // allows before, after or damage, so `kind: "gallery"` was refused twice
+        // over. It was written that way in the commit that rebuilt this form
+        // (3b97ed0) and every photo a detailer chose here ended in an error
+        // sentence under the button. These are photographs for the website, so
+        // they go where `Gallery.jsx` sends its own: the business's folder in
+        // `business-media`, under `intake/`. Nothing is published from here —
+        // no `gallery_images` row is made — so the page is not changed until
+        // somebody decides which of them to use.
+        if (business?.id) await uploadBusinessPhoto(business.id, file, "intake");
         done.push(file.name);
       } catch (x) { setErr(x.message); }
     }
