@@ -7930,6 +7930,31 @@ requested.
   not checked** (I did not press a finalized job's record looking for one; none was added here); **Today's card** uses the same completion control as before and was not changed or re-pressed; and the audit row and the
   publish are still the open half.
 
+  ***FRESH-EYES REVIEW OF DP COWORK'S SWEEP (`dc655b2`) AGAINST THIS ENTRY AND ITS DONE-WHEN, 2026-10-06 (DP Cowork2, read only, nothing run or changed). THE CODE MATCHES WHAT THE ENTRY CLAIMS FOR THE
+  FOUR ACTIONS IT TOUCHES; THESE ARE THE GAPS, WITH FILE AND LINE. NOT FIXED: this is the list, not the repair.***
+  **What matches.** `ConfirmTap` asks for no-show (`BookingDetail.jsx:805`), cancel (`:831`), remove (`:865`) and, through `FinalizeModal.jsx:229`, waive; each names customer, service and time through one
+  `jobPhrase` (`ConfirmTap.jsx:57`); the native `confirm()` is gone from `softDelete` (`:176`); the answer scrolls into view (`ConfirmTap.jsx:74`); the Spanish keys landed in the same edit
+  (`appEs.js:2366`). Un-cancel (`:768`), Not completed after all (`:800`) and Showed up after all (`:824`) are the on-screen ways back.
+  **Gaps, in the order they matter:**
+  1. **The cancel question can say something false.** `BookingDetail.jsx:835` (and `appEs.js:2372`) always says *"The customer is emailed."*, but `update-booking/index.ts:239` sends only when the booking has a
+     `customer_email`. A phone-only booking is told an email is going out that never will. The screen has `booking.customer_email`; the sentence should depend on it.
+  2. **Spanish names the record wrongly for some services and some hours.** `appEs.js:2368` hard-codes the article and the preposition: *"el {service} de {name} de las {time}"*. The service is the detailer's own word, so a
+     feminine one reads *"el Limpieza de motor"*, and a 1:00 slot reads *"de las 1:00"* where Spanish says *"de la 1:00"*. `:2369` has the same "de las".
+  3. **Keyboard focus is dropped when the question opens.** `ConfirmTap.jsx:79-102`: pressing the button unmounts it and mounts the question, and nothing moves focus to the answer, so a keyboard user lands on the page
+     body in front of a destructive question (the same for remove, which is `.btn.danger`). The question has `role="alert"` (`:82`), so a screen reader hears it; focus is the part that is lost.
+  4. **Remove has no way back on screen, and the Done-when asks for one for "the ones that can be undone".** The fold says *"It cannot be undone"* (`BookingDetail.jsx:861`), while the string it replaced said support can
+     restore it, and the server's own delete is a soft delete (`update-booking/index.ts`, `deleted_at`). Either delete is exempt by a ruling nobody wrote down, or it needs a restore. The audit helper already names the
+     reverse action (`job.restore`) and nothing calls it.
+  5. **Waive's way back was not checked** (the sweep's own note says so). A search of `app/src` for `payment_status` and `waived` finds only `FinalizeModal.jsx` and `Money.jsx`'s `markPaid`, so no control writes it back that I could find; `payment_status` is an ordinary editable field on `update-booking`.
+  6. **Suspend and owner-invite are not swept** (named by the sweep's own note). Suspend is `AdminPage.jsx` (the Suspend control near `:1037`) and owner-invite is the form submit at `Team.jsx:95`; the Done-when names both,
+     and whether a form that already shows the address needs a further step is a ruling, not a build.
+  7. **The proof cannot be re-run.** The sweep commit touches no file under `tests/` (five files: ROADMAP, `BookingDetail`, `ConfirmTap`, `FinalizeModal`, `appEs`), and the press script was scratch. Nothing pins the five
+     questions' wording or the Spanish keys except `tests/spanish.test.mjs`, which loads `.env`.
+  8. **The server's `audit_recorded: false` is not read.** `api.updateBooking` and `api.softDeleteBooking` (`api.js:81-83`) return the answer as is and `act` in `BookingDetail.jsx` ignores it, so a change that
+     left no audit row is silent on screen. The server half is unpublished, so this is a contract to wire, not a fault yet.
+  **Adjacent, outside the seven and not counted as gaps:** `Money.jsx:408` `markPaid` writes `payment_status: "paid"` on one tap with no question; `RequestCard.jsx:111` Decline calls `respond-to-booking`
+  with no question, and that answer emails the customer.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -19753,6 +19778,8 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Both script sabotages reverted; `node --check` clean on both files; the four
   classifier canaries fire on every run.
 
+  ***NOT DONE, FOUND 2026-10-06 BY THE SUITE RUN (`docs/test-suite-run-2026-10-06.md`): `tests/mail-sink.test.mjs` IS STILL RED ON TWO ADDRESSES.*** Twelve undeclared addresses were found; ten were declared in `tests/` (`0f10bc1`). **The last two are
+  `scripts/email-list-admin.mjs:117` (`@an-equally-long-example-domain-name.example.com`) and `:123` (`@customer.example.com`)**, which need a `// mail-sink: why` comment each and are outside any grant. The guard stays red until they are declared.
 
 ### 14.21 — A teardown written AFTER `browser.close()` instead of inside a `finally` leaves a full platform admin behind on a crash — DONE 2026-10-06
 
