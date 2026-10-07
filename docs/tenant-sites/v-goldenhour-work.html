@@ -1216,10 +1216,15 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
     <h1>Our recent <em>work.</em></h1>
     <p class="pagelede">Photographed on the day, in whatever light there was. No
        filters and no stock photos &mdash; if it is on this page, we did it.</p>
-    <div class="headstats" data-from="the detailer's completed bookings">
-      <div class="stat"><b>1,240</b><span>Cars detailed</span></div>
-      <div class="stat"><b>312</b><span>Reviews</span></div>
-      <div class="stat"><b data-still>4.9</b><span>Average</span></div>
+    <!-- THREE OF THE FOUR STATS ARE GONE, NOT REDUCED - 2026-10-06, ROADMAP 7.17.
+         This row said "1,240 Cars detailed / 312 Reviews / 4.9 Average / 6 Years
+         on the road". The product has no business-level review count or rating
+         (`rating` is a per-testimonial star value the detailer types) and no
+         public field that counts completed jobs, so those three were claims
+         about software that is not there. Years on the road comes from
+         `established_year` and stays. The manager's ruling extends the
+         2026-09-21 home-page ruling to this page. -->
+    <div class="headstats" data-from="get_public_business_profile.established_year">
       <div class="stat"><b>6</b><span>Years on the road</span></div>
     </div>
   </header>

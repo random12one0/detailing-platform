@@ -13,7 +13,7 @@
 // boilerplate about arbitration and governing law, which is a promise he has
 // not made in language he cannot check. See that file's header.
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Ground, Foot } from "./LandingPage.jsx";
 import { initThread } from "./thread.js";
 import { TERMS, PRIVACY, NOT_YET_LAWYERED, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
@@ -58,6 +58,17 @@ export default function LegalPage({ which }) {
   // copied. It is a route in an SPA, so what it opens has to close again.
   useEffect(() => initThread(), []);
 
+  // ROADMAP 7.18. The phone nav, the same burger and menu the home and pricing
+  // pages carry (styled once in landing.css). Below 620px the Pricing and
+  // Questions links are hidden by CSS, so without this the bar held a wordmark
+  // and one link. Closed on Escape as well as on a link.
+  const [navOpen, setNavOpen] = useState(false);
+  useEffect(() => {
+    const k = (e) => e.key === "Escape" && setNavOpen(false);
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, []);
+
   return (
     <div className="ld legalpage">
       <Ground />
@@ -68,7 +79,18 @@ export default function LegalPage({ which }) {
         <a className="lk hide-s" href="/pricing">Pricing</a>
         <a className="lk hide-s" href="/#faq">Questions</a>
         <a className="lk" href="/app">Sign in</a>
+        <button className="burger" type="button" aria-label={navOpen ? "Close menu" : "Menu"}
+          aria-expanded={navOpen} aria-controls="navmenu"
+          onClick={() => setNavOpen((v) => !v)}>
+          <i></i><i></i>
+        </button>
       </nav>
+
+      <div id="navmenu" className={`navmenu${navOpen ? " on" : ""}`} hidden={!navOpen}>
+        <a className="lk" href="/pricing" onClick={() => setNavOpen(false)}>Pricing</a>
+        <a className="lk" href="/#faq" onClick={() => setNavOpen(false)}>Questions</a>
+        <a className="lk" href="/app">Sign in</a>
+      </div>
 
       <main id="top">
         <section className="phead wrap">

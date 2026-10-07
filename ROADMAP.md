@@ -10652,6 +10652,24 @@ rather than wording went to Andrew.
   choice is not made, and the item is not ticked until the stat row is edited
   and it is.**
 
+  ***RULING 1 APPLIED 2026-10-06 (Lane A). `v-goldenhour-work.html` stat row
+  now holds ONE stat.*** Source is `docs/tenant-sites/v-goldenhour-work.html`
+  (`build-examples.mjs` copies it to `app/public/ex1/work.html`); rebuilt with
+  `node scripts/build-examples.mjs --dev`. **Gone: 1,240 Cars detailed, 312
+  Reviews, 4.9 Average. Kept: 6 Years on the road**, whose attribute now names
+  `get_public_business_profile.established_year` instead of a sentence. The
+  withdrawal is said in an HTML comment above the row, where a diff reads it.
+  Seen in the browser at 1440 and 390: the row is one tile, no hole, console
+  clean. **Not touched, and deliberately:** `v-goldenhour.html` (home) still
+  shows `1,240 Cars` beside `6 Years`; the ruling named the work page, and that
+  tile's own comment says Cars comes from completed bookings. If it should go
+  too, that is one line. **Census after the edit:** `data-from-census.mjs` is
+  down from 4 failing rows to 3, all of them the job cards (lines 1295, 1315,
+  1335, *"the detailer's own completed bookings"*), which ruling 2 keeps. **The
+  item stays OPEN on that one choice**: reword the cards' attribute to say
+  honestly it is an illustration and teach the census a named, counted
+  exception, or leave it red. Not mine to pick.***
+
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.
@@ -12745,6 +12763,18 @@ rather than wording went to Andrew.
   suite stays red in `node --test tests/*.test.mjs` until that file is patched.
   **That red is the next job (Lane A), and the proof it is done is this suite
   going green.**
+
+  ***FIXED 2026-10-06 (Lane A). `LegalPage.jsx` now carries the burger and
+  menu, and the suite is green.*** The same markup `PricingPage.jsx` carries:
+  a `.burger` button in the nav, an `id="navmenu"` block outside it with
+  Pricing, Questions and Sign in, and the open/close state (Escape closes it as
+  well as a link). **Reused, not new:** the CSS is the existing `.ld .nav
+  .burger` and `.ld .navmenu` rules in `landing.css`, untouched. No sign-up
+  pill, as on the page's desktop nav. English only. **Measured:**
+  `node --test tests/ld-pages-carry-the-nav.test.mjs` passes 5 of 5 (it was
+  red); in a browser at 390x844, `/terms` and `/privacy` each show a 44 by 44
+  burger, which opens a menu listing Pricing, Questions and Sign in; console
+  clean on both. Screenshots are in `shots-legal-nav/`.
 
 ## Wave 8 — Field usability
 
