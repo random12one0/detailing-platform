@@ -1008,5 +1008,146 @@ console.log("11. text that only exists after an action");
     admin > 0, "no dialogs found in admin/ — has the back office moved?");
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// § 12 · WORDS HELD IN CONSTANTS — ROADMAP 2.12a, 2026-10-06
+//
+// **THIS SUITE STAYED 79 PASSED, 0 FAILED WHILE THE JOB RECORD SHOWED "Unpaid"
+// IN ENGLISH.** `PAY_LABELS = { pending: "Unpaid" }` is drawn as
+// `t(PAY_LABELS[x])`, a lookup on a VARIABLE, so § 9a — which reads literal
+// `t("…")` call sites — never saw the word, and the Spanish for it was removed
+// without a single check noticing. §§ 10e-f already walk `core.js`'s tier
+// constant for the same reason; this is that, for every other list.
+//
+// Most of these live in `.jsx` files, which Node cannot import, so the literal
+// is READ out of the source and evaluated on its own. Every prose value in it
+// must have a Spanish key in the catalogue its surface uses — `appEs` for the
+// dashboard, `es` for the booking page.
+//
+// **THE LIST IS DECLARED AND THE SOURCE IS SWEPT, BECAUSE A HAND-KEPT LIST IS
+// THE FAULT ONE LEVEL UP.** Any top-level constant in `app/src` whose name ends
+// in LABEL(S), KIND(S), STATE, SAYS, WORDS, NAMES, TITLES, COPY, TEXT or OPTIONS
+// must be either checked below or excluded below WITH A REASON. A new
+// `FOO_LABELS` therefore reddens this file until somebody says which it is.
+//
+//   SPANISH_BREAK="<word>" node tests/spanish.test.mjs
+//
+// removes that one word from the catalogues before checking, so the gate can be
+// shown going red without touching `app/src`.
+{
+  const SRC = path.join(ROOT, "app/src");
+  const { appEs: dashboard } = await import("../app/src/lib/strings/appEs.js");
+  const CATALOGUES = { app: dashboard, book: es };
+
+  // [file under app/src, constant, catalogue]
+  const LISTS = [
+    ["components/BookingDetail.jsx", "STATUS_LABELS", "app"],
+    ["components/BookingDetail.jsx", "PAY_LABELS", "app"],
+    ["components/BookingDetail.jsx", "SIZE_LABELS", "app"],
+    ["components/BookingDetail.jsx", "CONDITION_LABELS", "app"],
+    ["components/BookingCard.jsx", "STATUS_LABEL", "app"],
+    ["components/BookingCard.jsx", "LIVE_LABEL", "app"],
+    ["components/EmailTrail.jsx", "MAIL_STATE", "app"],
+    ["components/FinalizeModal.jsx", "PAYMENT_LABELS", "app"],
+    ["components/Walkthrough.jsx", "TAB_NAMES", "app"],
+    ["lib/emailMessages.js", "MESSAGE_KINDS", "app"],
+    ["lib/moneyAdvanced.js", "DAY_NAMES", "app"],
+    ["lib/periods.js", "PERIOD_KINDS", "app"],
+    ["lib/photo-rules.js", "KINDS", "app"],
+    ["lib/plans.js", "STATUS_WORDS", "app"],
+    ["lib/siteIntake.js", "SAYS", "app"],
+    ["lib/weather.js", "WEATHER_KINDS", "app"],
+    ["screens/more/Billing.jsx", "INVOICE_WORDS", "app"],
+    ["screens/more/Plans.jsx", "PRICE_KINDS", "app"],
+    ["book/ManageBookingPage.jsx", "CONDITION_WORDS", "book"],
+  ];
+  // Matches the name pattern and is NOT checked, and why. A reason is required.
+  const EXCLUDED = {
+    "admin/AdminPage.jsx#JOB_LABELS": "admin/ stays English on purpose (11c)",
+    "admin/AdminPage.jsx#ADMIN_EVENT_WORDS": "admin/ stays English on purpose (11c)",
+    "admin/AdminPage.jsx#WORDS": "admin/ stays English on purpose (11c)",
+    "components/ExpenseModal.jsx#CATEGORY_WORDS": "carries its own Spanish beside each word, see the comment above it",
+    "lib/localeStore.js#LOCALE_NAMES": "each language's name for ITSELF — \"Español\" is never translated",
+    "book/core.js#BODY_TYPE_GUESS_WORDS": "regex-to-key matching table; no word in it is ever shown",
+  };
+
+  const NAME_PATTERN = /^(?:export )?const ((?:[A-Z][A-Z0-9_]*_)?(?:LABELS?|KINDS?|STATE|SAYS|WORDS|NAMES|TITLES|COPY|TEXT|OPTIONS))\s*=\s*[[{]/gm;
+
+  // The balanced `[...]` or `{...}` after the `=`, skipping strings and comments.
+  const literalAt = (src, from) => {
+    let j = src.indexOf("=", from) + 1;
+    while (/\s/.test(src[j])) j++;
+    const open = src[j], close = open === "[" ? "]" : "}";
+    let depth = 0, str = null, k = j;
+    for (; k < src.length; k++) {
+      const c = src[k];
+      if (str) { if (c === "\\") k++; else if (c === str) str = null; continue; }
+      if (c === '"' || c === "'" || c === "`") { str = c; continue; }
+      if (c === "/" && src[k + 1] === "/") { while (k < src.length && src[k] !== "\n") k++; continue; }
+      if (c === "/" && src[k + 1] === "*") { k = src.indexOf("*/", k) + 1; continue; }
+      if (c === open) depth++;
+      else if (c === close && --depth === 0) break;
+    }
+    return src.slice(j, k + 1);
+  };
+  // Same notion of "prose" as scripts/i18n-coverage.mjs: not an identifier, a
+  // route, a constant or a lone character.
+  const isProse = (v) => typeof v === "string" && v.length > 1 && /[A-Za-z]{2}/.test(v)
+    && !/^[a-z][a-z0-9_.:-]*$/.test(v) && !/^[A-Z][A-Z0-9_]*$/.test(v) && !/^\//.test(v);
+  const wordsOf = (n, out = []) => {
+    if (typeof n === "string") { if (isProse(n)) out.push(n); }
+    else if (Array.isArray(n)) n.forEach((x) => wordsOf(x, out));
+    else if (n && typeof n === "object") Object.values(n).forEach((x) => wordsOf(x, out));
+    return out;
+  };
+  const read = (file, name) => {
+    const src = readFileSync(path.join(SRC, file), "utf8");
+    const m = new RegExp(`^(?:export )?const ${name}\\s*=\\s*[\\[{]`, "m").exec(src);
+    if (!m) return { error: "constant not found" };
+    try { return { words: wordsOf(new Function(`return (${literalAt(src, m.index)})`)()) }; }
+    catch (e) { return { error: `literal would not evaluate: ${e.message}` }; }
+  };
+
+  // Every word with no Spanish, as `"word" (file#NAME)`. The catalogues are a
+  // parameter so the canary below can aim THIS function at a catalogue with one
+  // real word taken away — never at a copy of the rule.
+  const gaps = (cats) => LISTS.flatMap(([file, name, cat]) =>
+    (read(file, name).words ?? []).filter((w) => !cats[cat][w])
+      .map((w) => `${JSON.stringify(w)} (${file}#${name})`));
+  const without = (cats, word) => Object.fromEntries(Object.entries(cats).map(
+    ([k, c]) => [k, Object.fromEntries(Object.entries(c).filter(([w]) => w !== word))]));
+
+  const results = LISTS.map(([file, name]) => ({ id: `${file}#${name}`, ...read(file, name) }));
+  const broken = results.filter((r) => r.error || r.words.length === 0);
+  check(`12a · the check has subjects — all ${LISTS.length} listed constants were read and hold words`,
+    broken.length === 0,
+    broken.map((r) => `${r.id}: ${r.error ?? "0 words"}`).join(" · "));
+
+  const swept = process.env.SPANISH_BREAK ? without(CATALOGUES, process.env.SPANISH_BREAK) : CATALOGUES;
+  if (process.env.SPANISH_BREAK) {
+    console.log(`  note  SPANISH_BREAK is set: ${JSON.stringify(process.env.SPANISH_BREAK)} was removed from both catalogues before checking`);
+  }
+  const noSpanish = gaps(swept);
+  const total = results.reduce((n, r) => n + (r.words?.length ?? 0), 0);
+  check(`12b · every word held in a constant has Spanish (${total} words in ${LISTS.length} constants)`,
+    noSpanish.length === 0, noSpanish.join(" · "));
+
+  const canaryWord = results[0]?.words?.[0];
+  check("12b-canary · a list word with no Spanish is caught",
+    Boolean(canaryWord) && gaps(without(CATALOGUES, canaryWord)).some((g) => g.startsWith(JSON.stringify(canaryWord))),
+    `aimed at ${JSON.stringify(canaryWord)}`);
+
+  const declared = new Set([...LISTS.map(([f, n]) => `${f}#${n}`), ...Object.keys(EXCLUDED)]);
+  const found = walk(SRC).flatMap((p) => {
+    const rel = path.relative(SRC, p).split(path.sep).join("/");
+    return [...readFileSync(p, "utf8").matchAll(NAME_PATTERN)].map((m) => `${rel}#${m[1]}`);
+  });
+  const unsaid = found.filter((id) => !declared.has(id));
+  const gone = [...declared].filter((id) => !found.includes(id));
+  check(`12c · every constant that looks like a word list is checked or excluded with a reason (${found.length} found)`,
+    unsaid.length === 0 && gone.length === 0,
+    [unsaid.length ? `NOT DECLARED: ${unsaid.join(", ")} — add to LISTS, or to EXCLUDED with a reason` : "",
+      gone.length ? `DECLARED BUT GONE: ${gone.join(", ")}` : ""].filter(Boolean).join(" · "));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
