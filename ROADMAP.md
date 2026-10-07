@@ -19317,9 +19317,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   classifier canaries fire on every run.
 
 
-### 14.21 — A teardown written AFTER `browser.close()` instead of inside a `finally` leaves a full platform admin behind on a crash
+### 14.21 — A teardown written AFTER `browser.close()` instead of inside a `finally` leaves a full platform admin behind on a crash — DONE 2026-10-06
 
-- [ ] **Found 2026-09-25 by the ticked-item audit, in 6.2a's own words. Not
+- [x] **Found 2026-09-25 by the ticked-item audit, in 6.2a's own words. Not
   built here: it lives in `scripts/`, which was another session's lane.**
 
   **THE PATTERN, WHICH IS THE PART THAT TRAVELS — read this before the line
@@ -19451,6 +19451,16 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   **What would close it:** an interruption that Node actually receives as a signal and a way to see what removes the row (the
   Management API's logs for `platform_admins` deletes around a kill would name it), or the manager accepting the `timeout`
   runs plus `--drop-leftover` as the standard. **Not ticked either way until one of those.**
+
+  ***TICKED 2026-10-06, ON THE MANAGER'S RULING (DP Cowork2, Lane B): THE CLEAN AND CRASH PROOFS PLUS `--drop-leftover` ARE THE
+  STANDARD.*** The manager took the second of the two ways out. **What that does and does not say:** the clean exit and the
+  crash exit are proved in a browser, the table read by email before and after, `platform-admins-declared` 18 passed, 0
+  failed; `--drop-leftover` removes a row a hard kill leaves behind, proved by a real `Stop-Process -Force` kill. **What is
+  still not proved, and is not claimed:** that the signal handlers are what removed the row in the `timeout` runs. The three
+  controls above still stand (a copy with the handlers removed came back clean too, and the handler's marker never fired), so
+  on Windows the SIGINT/SIGTERM clause is **accepted as covered by `--drop-leftover`, not demonstrated for the handlers.** The
+  third done-when sentence was relaxed by ruling rather than met; a session that finds out what removed the row (the Management
+  API's logs for `platform_admins` deletes around a kill) can reopen it with that, and nothing here forbids it.
 
   **DO NOT CLOSE THIS BY DECLARING THE ROW.** 14.8's rule: a check that absorbs
   whatever it finds is worthless, and the roster is read by the check and never
@@ -19961,6 +19971,35 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and where it lives and is reported by name when it is missing** rather than
   skipped.
 
+### 14.37 — Three booking-setup screens leave a row under the fixed bar at 320 and 392 wide, and the sweep now names them
+
+- [ ] **Lane A, `app/src`. Found 2026-10-06 by 14.30's own proof: once `bk-bar-clearance` could tell a declared exception
+  from a new failure, it reported three it had never been told about, in all three runs, and they reproduce.** Nothing here is
+  the hold on the 320 day squares (Andrew's ruling stands); these are different controls on different screens.
+
+  **THE THREE, BY NAME, SO THEY CAN BE FOUND WITHOUT RE-RUNNING ANYTHING.** Each is a `screen/furniture-clear` finding: a
+  row whose point, tested with `elementFromPoint`, lands on a fixed element instead of the row. From
+  `receipts/bk-bar-clearance.json`, `dimensions.unexpected_failures`:
+
+  | screen | width | rows under the bar | where |
+  |---|---|---|---|
+  | Services & add-ons | 320x844 | «Interior», «Customers pick one» | (38, 810) and (38, 830) |
+  | Services & add-ons | 392x844 | «Customers pick one», «Full interior and exterior» | (38, 777) and (39, 817) |
+  | Business info | 392x844 | «Logo and cover photo» | (45, 825) |
+
+  Each sits under one of three fixed elements on its screen. Which three is in the receipt line, not here. **The tab bar's
+  clearance (`--tabclear`) is the likely cause** and is a guess until someone reads the screen: these are the bottom rows
+  when scrolled to the end, and the sweep reads them there.
+
+  **Done when:** `node scripts/bk-bar-clearance.mjs` (dev server and seed) reports **`unexpected_failure_count: 0`** and
+  `gate: held` at all five widths, with the three 320 day-cell findings still listed as expected and still counted as 3.
+  **Fix the clearance, never the list:** adding these to `EXPECTED_FAILURES` in `scripts/lib/expectedFailures.mjs` turns the
+  gate green and hides three real obstructed rows, which is the thing 14.30 was built to prevent. Look at the three screens at
+  320 and 392 once the sweep is clean, because a row can clear the bar by hit-test and still sit hard against it.
+
+  **What failing looks like:** the gate green because the three were declared, or the three gone at 320 and still present at 392
+  (they are different rows at different pitches, so one number does not fix both).
+
 ### 14.36 — An email template hardcoded a dark-theme grey on a light background
 
 - [x] **14.36 — `ownerWhereRow`'s two notes ("Typed by hand…", "Doesn't mention the
@@ -20311,9 +20350,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   still-good, 6 changed-below-only, 55 suspect, 0 unknown
   (`node scripts/pointer-age.mjs`, about 15 seconds). Those are the pointers
   that need a human look, and nothing here has looked at any of them.
-### 14.30 — `bk-bar-clearance` cannot tell an accepted exception from a new failure, so it is red either way
+### 14.30 — `bk-bar-clearance` cannot tell an accepted exception from a new failure, so it is red either way — DONE 2026-10-06
 
-- [ ] **Found 2026-10-03 while executing 2.15a's criterion, which could not pass
+- [x] **Found 2026-10-03 while executing 2.15a's criterion, which could not pass
   because of this.** The sweep is built and correct — five widths, the ceiling
   read off the element's own `maxLength`, a receipt. **It reports `fail` with 7
   failures and all seven are the SAME accepted hold:** the 320 day cells at 37px,
@@ -20381,6 +20420,12 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and it says which.** `gate: FAIL`, exit 1, and it will read `held` the day the three are fixed.
   **To tick this:** either the three are fixed and the plant is re-run from zero, or the manager accepts 3 to 4 to 3, plus the
   node 0 to 1, as the proof. `receipts/bk-bar-clearance.json` is the clean third run.
+
+  ***TICKED 2026-10-06, ON THE MANAGER'S RULING (DP Cowork2, Lane B): 3 → 4 → 3 IN THE BROWSER PLUS THE NODE PROOF IS THE
+  PROOF.*** The literal "0 → 1" is **not** met in a browser, and the item says so above; it is accepted because the baseline
+  of 3 is three real faults that were not declared, which is the situation the item exists for, and the plant moved the count
+  by exactly one and came off. The node suite (`tests/expected-failures.test.mjs`) holds 0 → 1 itself. **The three are now
+  14.37, Lane A's.** The gate reads `held` the day they are fixed, and the receipt's `unexpected_failure_count` will then be 0.
 
 ### Still unanswered after steps 1–4
 
