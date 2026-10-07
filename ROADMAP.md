@@ -7842,6 +7842,23 @@ requested.
   has a name beginning `action_log`. The append-only trigger is therefore **not proved against a real Postgres by anything left in this
   repo**; what remains is the node reading of the SQL in `tests/action-log.test.mjs`. A throwaway local Postgres would close that.
 
+  ***APPEND-ONLY TRIGGER NOW PROVED ON A REAL POSTGRES THAT IS NOT OURS, 2026-10-06 (DP Cowork2, Lane B), AT THE MANAGER'S REQUEST, with no live database, no browser and no `app/src`.***
+  `tests/action-log-sql.test.mjs` applies `20261006050000_action_log.sql` to **PGlite** (`@electric-sql/pglite`, real PostgreSQL 18.3 compiled to
+  WebAssembly, in-process, nothing on disk) and runs nine cases: the migration applies and applies twice; a row writes; **UPDATE, DELETE and
+  TRUNCATE are each refused with the table's own message and the row is unchanged**; the table's check and `not null` constraints refuse a
+  bad subject and a missing before or after; RLS is enabled and forced, there is no policy, and neither `anon` nor `authenticated` holds any
+  privilege (a `SET ROLE` insert is refused); and **each guard removed alone lets exactly its own thing through**: no
+  update/delete trigger lets UPDATE and DELETE through (TRUNCATE still refused), no truncate trigger lets TRUNCATE through, a function that
+  does not raise guards nothing, the revoke removed gives `anon` the privilege back (row-level security alone still refuses the row, so the
+  two walls are separate and each is shown), and with the revoke and RLS both removed `anon` writes. **9 pass, 0 fail, 0 skipped.**
+  **HOW PGLITE IS INSTALLED, DECIDED ON PURPOSE:** this repo has no root `package.json` and no pattern for a dev dependency in tests, and
+  `app/package.json` is the Vite app's, so it is **not added to any `package.json`**. It is installed in a folder outside the repo and found
+  through `PGLITE_DIR`; without it the cases print `NOT RUN` with the install line and are skipped, and with `PGLITE_REQUIRED=1` they
+  **fail**, so a run that must have it cannot pass without it (checked both ways). **Two fixtures, said in the file:** the roles `anon` and
+  `authenticated` (plain Postgres has neither), and Supabase's default grant of every new public table to both, without which the revoke
+  could never be seen to work. **Not proved:** Supabase's own extensions, and anything about the live project, which was not touched.
+  This supersedes the previous paragraph's "not proved against a real Postgres by anything left in this repo".
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
