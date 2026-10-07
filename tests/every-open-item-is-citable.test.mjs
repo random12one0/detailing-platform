@@ -121,7 +121,12 @@ const OPEN_FLOOR = 40;
 //
 // **17 → 16 on 2026-10-06, same cause:** 2.12 (Spanish) was ticked and took its
 // collision with old-roadmap 2.12 with it. The new open item 2.12a has no twin.
-const CROSS_FILE_OVERLAP = 16;
+//
+// **16 → 15 on 2026-10-06, same cause:** 9.2 (the back office saying contradictory
+// things) was closed, Andrew having ruled the stages redesign not built, and took
+// its collision with old-roadmap 9.2 with it. Read off the failure's own list, which
+// names the open items sharing a number: 9.2 was the only one that left.
+const CROSS_FILE_OVERLAP = 15;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 
