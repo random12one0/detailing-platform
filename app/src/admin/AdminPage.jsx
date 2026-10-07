@@ -56,7 +56,8 @@ import { supabase } from "../lib/supabase.js";
 import { dateLong, localDate, money } from "../lib/format.js";
 import { mb } from "../lib/photo-rules.js";
 import { setupProgress } from "../lib/setup.js";
-import { needsALook, reasonsFor, QUIET_DAYS, SETUP_FLOOR } from "../lib/attention.js";
+import { needsALook, reasonsFor, QUIET_DAYS } from "../lib/attention.js";
+import { growthLines } from "../lib/growthLines.js";
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
@@ -739,54 +740,18 @@ const bookabilityOf = (r) => bookability({
   settings: { booking_mode: r?.booking_mode },
 });
 
-const STUCK = [
-  ["setup",
-   (r) => setupProgress(r.setup_inputs).count >= SETUP_FLOOR,
-   (n) => `${plural(n, "detailer has", "detailers have")} not got through setup`,
-   `Fewer than ${SETUP_FLOOR} of the steps are done. Ring them and finish it on the phone — every one of these signed up and then stopped.`],
-  ["open",
-   (r) => bookabilityOf(r).ok,
-   (n) => `${plural(n, "booking page", "booking pages")} cannot take a booking`,
-   "Nothing to sell, no open days, or the account is suspended. A customer who tries gets nowhere, and neither of you finds out. This is the most expensive thing on the page."],
-  // **THIS ROW'S ADVICE IS THE ONLY ONE WITH NO LEAD FACT, AND THAT IS A
-  // DECISION RATHER THAN AN OVERSIGHT — ROADMAP 9.2(b), 2026-09-21. Please do
-  // not helpfully put one back.** It used to open *"The page works and nobody
-  // has used it"*, and **"The page works" was a claim this row never made**:
-  // it tests `bookings_total` and nothing else, while the `open` row four
-  // lines up is the one that actually evaluates bookability. On an account
-  // that fails both — which is every account on this screen today — the two
-  // rows contradicted each other in plain English.
-  //
-  // The obvious repair is *"Nobody has used their page"*, which keeps the
-  // house fact-then-action shape. **It was rejected, and the reason is the
-  // shape argument's own limit:** the other four rows lead with a fact the
-  // headline does NOT carry, and this one would only restate the count two
-  // lines above it — CLAUDE.md's never-defaults name that exactly, *copy that
-  // explains what the label already said*, and the cost is that the row stops
-  // being read. What is left says the only thing on this row a person cannot
-  // already see.
-  ["first",
-   (r) => (r.bookings_total ?? 0) > 0,
-   (n) => `${plural(n, "detailer has", "detailers have")} never taken a booking`,
-   "Ask how they are telling their own customers about their booking page."],
-  // **A DETAILER WHO NEVER BOOKED IS NOT QUIET, AND THIS ROW SAID HE WAS —
-  // caught by loading the screen and reading it, 2026-09-13.** With no
-  // bookings `days_since_booking` is null, so the plain test made every new
-  // signup "has not booked in 21 days" and told Andrew *"they were taking work
-  // and stopped"* about somebody who had never started. The row above already
-  // owns that person and says the true thing about them. **Two rows on one
-  // screen contradicting each other about one detailer is worse than either
-  // row being missing** — and `lib/attention.js` has kept these two facts
-  // apart since the day it was written, for exactly this reason.
-  ["quiet",
-   (r) => (r.bookings_total ?? 0) === 0 || (r.days_since_booking ?? 9999) < QUIET_DAYS,
-   (n) => `${plural(n, "detailer has", "detailers have")} not booked in ${QUIET_DAYS} days`,
-   "They were taking work and stopped. Ring them before they decide to cancel."],
-  ["site",
-   (r) => Boolean(r.site_url || r.domain),
-   (n) => `${plural(n, "detailer has", "detailers have")} no website`,
-   "That one is ours rather than theirs. Build it, or tell them when it is coming."],
-];
+// THE HEADLINES ARE THE SCREEN'S, because they carry the plural and the screen
+// owns its words. The questions themselves, the note beside each name and the
+// advice under each line are in `lib/growthLines.js`, where a Node test can run
+// them (ROADMAP 9.2, Andrew's ruling of 2026-10-06: keep the five questions,
+// fix the three faults inside them).
+const GROWTH_HEADLINES = {
+  setup: (n) => `${plural(n, "detailer has", "detailers have")} not got through setup`,
+  open: (n) => `${plural(n, "booking page", "booking pages")} cannot take a booking`,
+  first: (n) => `${plural(n, "detailer has", "detailers have")} never taken a booking`,
+  quiet: (n) => `${plural(n, "detailer has", "detailers have")} not booked in ${QUIET_DAYS} days`,
+  site: (n) => `${plural(n, "detailer has", "detailers have")} no website`,
+};
 
 function TabGrowth({ rows, totals, onOpen }) {
   // REAL DETAILERS ONLY, the same rule every tile on this screen already
@@ -794,10 +759,8 @@ function TabGrowth({ rows, totals, onOpen }) {
   // counting them would make this screen permanently alarming and useless.
   const live = useMemo(() => rows.filter((r) => !r.is_demo), [rows]);
 
-  const stuck = useMemo(() => STUCK.map(([key, ok, headline, todo]) => {
-    const failing = live.filter((r) => !ok(r));
-    return { key, todo, failing, headline: headline(failing.length) };
-  }).filter((s) => s.failing.length > 0), [live]);
+  const stuck = useMemo(() => growthLines(live, { bookabilityOf, now: new Date() })
+    .map((s) => ({ ...s, headline: GROWTH_HEADLINES[s.key](s.failing.length) })), [live]);
 
   const booking = live.filter((r) => (r.bookings_total ?? 0) > 0).length;
   const onFounding = live.filter((r) => r.plan_tier === "founding").length;
@@ -838,7 +801,7 @@ function TabGrowth({ rows, totals, onOpen }) {
                   <div className="pa-do" key={s.key}>
                     <div className="pa-do-t">
                       <strong>{s.headline}</strong>
-                      <span className="pa-ev">{s.failing.map((r) => r.name).join(" · ")}</span>
+                      <span className="pa-ev">{s.failing.map((f) => (f.note ? `${f.name} (${f.note})` : f.name)).join(" · ")}</span>
                     </div>
                     <p className="pa-act">{s.todo}</p>
                   </div>

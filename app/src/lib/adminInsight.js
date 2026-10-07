@@ -157,7 +157,19 @@ export function bookability({ business, counts, settings }) {
   const reasons = [];
   if (business?.status === "paused") reasons.push("suspended");
   if (!(counts?.services > 0)) reasons.push("no active services");
-  if (!counts?.hoursOpen) reasons.push("no open days");
+  // **OPEN DAYS COME IN TWO SHAPES AND THIS READ ONE.** The detail payload and
+  // `Business.jsx` carry a boolean, `hoursOpen`. The back office's LIST rows,
+  // which both Growth and the detailer panel read, carry the ROWS instead,
+  // `hoursRows` (ROADMAP 9.1 changed them because `setupProgress` asks
+  // `.some((r) => r.open_time)`). Read against a list row this said "no open
+  // days" about EVERY business, with real opening hours or not: hidden before
+  // behind a sentence naming all three possible reasons, and a false statement
+  // the moment a line prints the account's own. When neither is present the
+  // answer is "not read", never "closed".
+  const hours = counts?.hoursOpen
+    ?? (Array.isArray(counts?.hoursRows) ? counts.hoursRows.some((h) => h?.open_time) : undefined);
+  if (hours === undefined) reasons.push("open days not read");
+  else if (!hours) reasons.push("no open days");
   return {
     ok: reasons.length === 0,
     reasons,
