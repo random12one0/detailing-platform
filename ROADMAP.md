@@ -10609,7 +10609,7 @@ rather than wording went to Andrew.
   stops early still prints a total and a clean console** — the first two runs
   said "0 errors" exactly as the real one does.
 
-- [ ] **7.17 — THE RULE: an example site must not show a number the product
+- [x] **7.17 — THE RULE: an example site must not show a number the product
   cannot produce.** Three classes of number on the five example sites are
   claims the software cannot honour. **Found 2026-09-21 — the first class by
   accident, while auditing 7.2; the other two by looking on purpose
@@ -10965,6 +10965,14 @@ rather than wording went to Andrew.
   is inside an image URL (`…1665453031228-332ad0c2ec3e…`), the second is a sentence in a source comment (*"a number climbing from 0.8 to 4.9"*), which is
   said here so nobody re-runs the search and reads two hits as a regression. The slashless `/ex1/work` still answers with the app shell on the dev server
   (the entry above says so); the page is at `/ex1/work.html`.
+
+  ***TICKED 2026-10-06 ON THE MANAGER'S RULING (DP Cowork2, Lane B).*** The two things left were the manager's ruling and the served-page check. The
+  ruling was the second one (the job cards name a true source or none, no named exception), the source and the census were edited to match
+  (`b56babd`), and the served pages were read twice and independently: in an isolated copy with a plain fetch (`adc9ee6`, eight of nine pages
+  identical to the old build and `/ex1/work` differing by exactly the edit) and in the main tree after DP Cowork's rebuild (`b7f80b0`, in a browser).
+  `node scripts/data-from-census.mjs` exits 0 over 185 attributes. **What the tick does not claim, and the census says in its own output:** the job
+  cards' price badges, dates and cars still have no producing field (ruling 2 keeps them as illustration), and an element with no `data-from` is not
+  counted, so a number with no attribute is invisible to the census.
 
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
