@@ -192,6 +192,50 @@ publishing is not the same as proved:** `node scripts/deployed-inventory.mjs` sa
 for 14.9 is observed once (the row further down says how); and a real notification
 is tapped on a subscribed phone and opens the job (14.34).
 
+### Part 2b · The photo publish: its own short list, because the order matters and one number rides with it
+
+**This is ROADMAP 0.11.** Everything for it is built and committed and none of it is live. **Do these in this order
+and in one sitting.** The reason for "one sitting" is a rule from the design (`docs/the-photo-allowance.md` § 2): the
+allowance number goes from 1 GB to 10 GB **in the same change that switches uploads to Cloudflare, and not one step
+earlier**, because a 10 on a detailer's screen with nothing behind it is a promise the platform cannot keep.
+
+1. **Cloudflare, in the dashboard (yours alone):** on the `job-photos` bucket, add a CORS rule that allows your
+   website's address to GET and PUT with the `Content-Type` header. Also allow `http://localhost:5173` while you are
+   testing, and any preview address you use. **Without it every upload is blocked by the browser even though the
+   program works.**
+2. **Check the three Cloudflare keys are set as secrets on the functions** (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
+   `R2_SECRET_ACCESS_KEY`). `docs/services-and-secrets.md` says they were saved on 2026-09-22; it does not say they
+   are on the functions. With one missing, each photo program answers *"Photo storage is not set up on the server
+   yet"* and names nothing else.
+3. **Publish `photo-door`.** It is not in the public list and must not be: every action needs a signed-in person.
+   `node scripts/deploy-functions.mjs photo-door`
+4. **Republish `delete-customer`** (it now removes a forgotten customer's photo files from both stores).
+   `node scripts/deploy-functions.mjs delete-customer`
+5. **Publish `photo-reconcile`, after one line is added.** It is called every night by a scheduled job with no
+   signed-in person, exactly like `refresh-weather`, so it has to be in `PUBLIC_FUNCTIONS` in
+   `scripts/deploy-functions.mjs`. **That one line is not in yet** (that file was not this item's to edit; the manager
+   adds it or says no). Published without it, the nightly call is refused at the gateway and the job shows on the back
+   office's *Jobs that run on their own* list as stopped after about a day, which is how it would be noticed.
+   `node scripts/deploy-functions.mjs photo-reconcile`
+6. **Apply the nightly schedule, now that the program exists:**
+   `node scripts/apply-migrations.mjs 20261006060000_photo_reconcile_cron.sql`
+   (**Never run that command with no names after it.** It seeds the job as *not reported yet* and schedules the
+   call for 03:40 UTC. Applied before step 5 it would email you a stopped-job alarm for a job that was never started.)
+7. **Last, apply the allowance number:**
+   `node scripts/apply-migrations.mjs 20261006061000_photo_total_gb_ten.sql`
+   It changes 1 to 10 and **only** when the value is still the default 1, so a number you set by hand is never
+   overwritten. **Then, and only then, publish the website** (Part 3): the photo screens in it use the door, and a
+   website published before step 3 answers every photo action with *"Photo storage is not set up on the server yet"*.
+
+**After it is all done, one read tells you the first night's reconcile ran and what it found.** Run it in the
+Supabase SQL editor the morning after step 6 (it only reads):
+`select ran_at, detail from job_heartbeats where job = 'photo-reconcile';`
+`detail` carries `clean` (true when the bucket and the records agree), the counts of objects with no record, records
+with no object and sizes that do not match, and `allowance`, how full the store is and how many businesses are over
+their share. **The reconcile never changes or deletes anything; it only reports.** A `clean: false` is a number to
+look at, not an emergency. **Not proved until that morning:** that Cloudflare accepts the listing request, which no
+test short of the live bucket can show.
+
 ### Part 3 · Not a database change or a program, and waiting too
 
 * **The website itself.** The Clients screen (1.3), the delivery list (3.1), the

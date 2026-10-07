@@ -377,6 +377,39 @@ and how the wait ends.
   `delete-customer`'s new path in a browser; and the credentialed `forget-customer.test.mjs` § 1 to 5. **The publish order and the
   Cloudflare CORS rule above are unchanged and are still Andrew's.**
 
+  ***SLICE 6 BUILT 2026-10-06 (DP Cowork2, Lane B): THE RECONCILE, ITS CRON ENTRY AND THE ALLOWANCE NUMBER. Code, SQL files and tests only. NOTHING APPLIED, NOTHING
+  PUBLISHED, NO DDL OR WRITE AGAINST THE LIVE DATABASE, NO R2 CALL. The box stays `[ ]`: slices 4 and 5 remain, and the publish.***
+  **What it is.** `supabase/functions/_shared/photoReconcile.ts` (the rules, runnable in node), `supabase/functions/photo-reconcile/index.ts` (the wiring),
+  `list` / `parseListPage` / `listAll` added to `_shared/r2.ts`, `20261006060000_photo_reconcile_cron.sql` and `20261006061000_photo_total_gb_ten.sql`.
+  Once a day it lists the `job-photos` bucket, reads every `job_photos` row, and compares them per business (`docs/the-photo-allowance.md` § 6): **objects with
+  no row, rows with no object, sizes that do not match**, and two the design implies, **a row with no recorded size (counted as unknown, never zero)** and **a row
+  filed under one business whose key sits under another's prefix** (the isolation question), plus keys this product does not mint. It reports the allowance
+  beside the drift (the store's use against the total, and how many businesses are over their share). **It never writes to R2 or to `job_photos`:** the handler
+  is handed an R2 object that can only `list`, and the test makes any other property throw. The numbers go to the `photo-reconcile` row of `job_heartbeats`
+  (already shown on the back office's *Jobs that run on their own* list and already read as stale when it stops), so drift is **a number on a schedule**, which is the item's
+  own wording, and **runs from a cron entry the way `refresh-weather` does**: daily at 03:40 UTC, the same `net.http_post` shape.
+  **A run that did not happen never reads as one that found nothing (6.2a, applied):** R2 not configured is a 503 and stamps nothing; a failed listing, a failed row read, a bucket past
+  the 200-page ceiling or a result that could not be recorded each answer an error and stamp nothing; an unreadable allowance still stamps the drift with `allowance: null` (the
+  caps are unknown, not "nobody is over"). **It is public and unauthenticated like the weather sweep and bounded the same way:** it refuses unless the last real run is older than
+  six hours (a seeded row is not a run) and it sits behind a global rate limit.
+  **THE ALLOWANCE NUMBER** (`platform_settings.photo_total_gb`, 1 to 10) is a separate migration that is **not** in `FOR-ANDREW.md`'s list of five to apply first. It is step 7 of a new
+  *Part 2b* there, the last step of the photo publish, because the design rule is that it moves in the same change as the switch and not one earlier. `where photo_total_gb = 1` means
+  it only ever replaces the default, never a number somebody chose.
+  **Proved.** `node --test tests/photo-reconcile.test.mjs`, 25 pass: the listing read strictly (an unreadable size, a cut-short page and a non-listing throw), **the signed listing
+  URL recomputed by an independent SigV4 written with `node:crypto` and matched, with and without a continuation token**, every kind of drift counted, the handler's refusals, and
+  **eleven rebuilds of the module with one guard removed each, each turning its own probe red.** `node --test tests/photo-reconcile-sql.test.mjs`, 6 pass **on PGlite (real PostgreSQL in
+  WebAssembly, installed outside the repo through `PGLITE_DIR`, the same arrangement as `tests/action-log-sql.test.mjs`)**: the cron migration seeds the heartbeat as *not yet reported*
+  with a 25-hour window and schedules the call, applying it again and a real report both survive, `note_heartbeat` keeps the window, the allowance migration moves 1 to 10 and never a chosen
+  number, and removing `on conflict do nothing` or the `where` is seen. `pg_cron` and `pg_net` are not in PGlite, so the two `create extension` lines are cut and recording stand-ins hold
+  their place, said in the test's header. The existing door suites still pass (`photo-door-server` 20).
+  **NOT PROVEN, said plainly:** that R2 accepts the listing signature or that its XML matches what is parsed (the signer is checked against an independent implementation of the published
+  algorithm, not against R2; the first real run is the proof and it is Andrew's, and `FOR-ANDREW.md` says how to read it); that pg_cron runs the entry; that the TypeScript compiles (no
+  compiler here, node only strips types); anything about the live project.
+  **ONE LINE IS NEEDED AND IS NOT MINE TO WRITE: `"photo-reconcile",` in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`** (beside `"refresh-weather"`), or a publish deploys it with the
+  JWT check on and the nightly call is refused at the gateway. It would then show as a stopped job after about a day, on purpose. **The manager's exception or no.** Also a lead, not run:
+  `scripts/edge-tenant-replay.mjs` enumerates the functions in `supabase/functions/`, so its next run will meet this one.
+  **SLICES LEFT:** 4, `business-media` (needs a public R2 address); 5, `expense-receipts` (`receipts.js`, `app/src`).
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
