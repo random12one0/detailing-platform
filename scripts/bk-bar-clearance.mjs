@@ -3,6 +3,7 @@
 //   node scripts/bk-bar-clearance.mjs                 # the sweep
 //   node scripts/bk-bar-clearance.mjs --headed        # watch it
 //   node scripts/bk-bar-clearance.mjs --break=canary  # sabotage: drop the canary
+//   node scripts/bk-bar-clearance.mjs --break=plant   # one failure on no declared list: unexpected must go 0 -> 1
 //   node scripts/bk-bar-clearance.mjs --break=rect    # inherited; see below, it
 //                                                     # cannot bite on THIS page
 //   node scripts/receipt.mjs receipts/bk-bar-clearance.json
@@ -97,6 +98,7 @@ import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
+import { EXPECTED_FAILURES, classifyFailures } from "./lib/expectedFailures.mjs";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import {
   advance, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, watchConsole,
@@ -339,6 +341,9 @@ const ART = fileURLToPath(new URL("../artifacts/bk-bar-clearance/", import.meta.
 
 let assertions = 0;
 const failures = [];
+// Every failure, structured, so the declared hold (ROADMAP 14.30) can be matched by
+// target and question rather than by counting strings.
+const failureRecords = [];
 const artifacts = [];
 const consoleNoise = [];
 const observed = [];
@@ -347,6 +352,7 @@ const check = (target, name, cond, detail = "") => {
   assertions++;
   if (cond) { console.log(`    ok      ${name}`); return true; }
   failures.push(`${target}: ${name} ${detail}`.trim());
+  failureRecords.push({ target, name, detail: String(detail) });
   console.error(`    FAIL    ${name}  ${detail}`);
   return false;
 };
@@ -382,7 +388,11 @@ function grade(id, m, sink) {
   sink(id, "legal", controls.length > 0 && illegal.length === 0,
     illegal.slice(0, 3).map((c) => `«${c.text}» is ${c.legal}px of hit area with nothing over it `
       + `(box ${c.rectH}px + ${c.overhang}px overhang)`).join("; ")
-      + (illegal.length > 3 ? ` … and ${illegal.length - 3} more` : ""));
+      + (illegal.length > 3 ? ` … and ${illegal.length - 3} more` : "")
+      // The smallest of ALL of them, not only the three printed: the declared hold
+      // (scripts/lib/expectedFailures.mjs) covers cells down to a floor, and a worse one
+      // beyond the first three must not hide behind "and N more".
+      + (illegal.length ? ` [${illegal.length} control(s), smallest ${Math.min(...illegal.map((c) => c.legal))}px]` : ""));
 
   const short = controls.filter((c) => c.legal >= ABSOLUTE && c.reachable < ABSOLUTE);
   sink(id, "reachable", controls.length > 0 && short.length === 0,
@@ -1162,9 +1172,17 @@ if (consoleNoise.length) {
   for (const c of consoleNoise) console.log("  " + c);
 }
 
-const status = failures.length === 0 && canary.observed_failure && canary2.observed_failure
-  && consoleNoise.length === 0 && completed === expected
-  ? "pass" : "fail";
+// --break=plant: one extra failure of a DIFFERENT kind from the held ones, so the unexpected
+// count can be watched going 0 -> 1 while the declared failures stay where they are.
+if (BREAK === "plant") check("planted", "plant/other-kind", false, "a deliberate failure that is on no declared list");
+
+// TWO NUMBERS (ROADMAP 14.30). The receipt still says `fail` while any failure exists, so
+// the hold stays visible; the GATE — exit code and the verdict dimension — is decided by
+// the failures that are NOT on the declared list.
+const held = classifyFailures(failureRecords);
+const gateOk = held.unexpected.length === 0 && canary.observed_failure && canary2.observed_failure
+  && consoleNoise.length === 0 && completed === expected;
+const status = failures.length === 0 && gateOk ? "pass" : "fail";
 const { path } = writeReceipt({
   check_id: "bk-bar-clearance",
   started_at,
@@ -1219,6 +1237,13 @@ const { path } = writeReceipt({
     absolute: ABSOLUTE,
     observed,
     sabotage: BREAK || null,
+    // ROADMAP 14.30: a declared hold is a SECOND number, not an allowlist.
+    expected_failures: EXPECTED_FAILURES,
+    expected_failure_count: held.expected.length,
+    unexpected_failure_count: held.unexpected.length,
+    unexpected_failures: held.unexpected.map((r) => `${r.target}: ${r.name} ${r.detail}`.slice(0, 300)),
+    declared_but_absent: held.missing.map((e) => `${e.target}: ${e.name}`),
+    gate: gateOk ? "held" : "fail",
     plan_name_under_test: PLAN_UNDER_TEST,
     plan_name_length: PLAN_UNDER_TEST.length,
     plan_name_ceiling: "60, from `maxLength` on the one input that writes `plans.name`; the column "
@@ -1233,4 +1258,8 @@ console.log(`\n${status.toUpperCase()} — ${completed}/${expected} targets, ${a
   + `${canary.observed_failure ? "caught" : "MISSED"}/${canary2.observed_failure ? "caught" : "MISSED"}. `
   + `Receipt ${path}`);
 for (const f of failures) console.log("  · " + f);
-process.exit(status === "pass" ? 0 : 1);
+console.log(`\nexpected (declared hold): ${held.expected.length} · NOT on the declared list: ${held.unexpected.length}`
+  + (held.missing.length ? ` · declared but absent this run: ${held.missing.map((e) => e.target).join(", ")}` : ""));
+for (const r of held.unexpected) console.log(`  UNEXPECTED · ${r.target}: ${r.name} ${r.detail}`.slice(0, 260));
+console.log(`gate: ${gateOk ? "HELD — nothing outside the declared hold failed (the receipt still reads fail, on purpose)" : "FAIL"}`);
+process.exit(gateOk ? 0 : 1);

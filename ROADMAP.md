@@ -20309,6 +20309,37 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   `bk-bar-clearance` is simply the first one where it was measured. **Fixing it
   inside 2.15a would hide a general fault inside a specific item.**
 
+  ***BUILT AND RUN 2026-10-06 (Lane B, on the manager's go). THE MECHANISM IS PROVED IN A BROWSER AND IN NODE; NOT TICKED,
+  FOR ONE LITERAL REASON AND ONE NEW FINDING.***
+  **Lane exception, recorded:** `scripts/bk-bar-clearance.mjs` (the item's own file) and the new `scripts/lib/
+  expectedFailures.mjs`, which holds the declared list and the classifier so node can run it.
+  **What it does.** `EXPECTED_FAILURES` names three targets and one question: `320x844 step 5`, `320x844 long-plan step 5`
+  and `320x844 long-tenant step 5`, each `legal`, each carrying a floor of 36px and the ruling it rests on. The seven the
+  entry counted are three target names now (the sweep records one `legal` failure per target, listing its worst cells). **Names
+  and a floor, never a tally:** the `legal` message now ends `[N control(s), smallest Mpx]`, taken over all of them and not the
+  three printed, so a day cell that got worse (30px) or any other question or target is not covered. Every failure lands in
+  exactly one of `expected` or `unexpected`, and a declared entry that matched nothing is reported as absent. The receipt
+  still says `fail` while any failure exists; `dimensions` carries `expected_failures`, `expected_failure_count`,
+  `unexpected_failure_count`, `unexpected_failures`, `declared_but_absent` and `gate`; **the exit code and `gate` are
+  decided by the unexpected ones alone** (and the canaries, console and arithmetic, as before).
+  **Proved in node:** `node --test tests/expected-failures.test.mjs`, 7 pass, includes the item's plant (an eighth failure of a
+  different kind takes unexpected 0 to 1 with the three held ones unmoved, and removing it takes it back), a same-question
+  failure at another width, another question at the held target, and a day cell at 30px with the count unchanged, which a tally
+  would have missed.
+  **Proved in the browser, three runs of `node scripts/bk-bar-clearance.mjs`:** every run classed the three day-cell failures
+  as expected and kept them at 3. **Clean: expected 3, unexpected 3. `--break=plant`: expected 3, unexpected 4, the planted
+  `plant/other-kind` named. Clean again: expected 3, unexpected 3.** The held ones did not move and the plant came off.
+  **THE LITERAL CLAUSE THAT IS NOT MET: "0 → 1".** The unexpected count was 3, not 0, in every run, so the plant was 3 → 4 → 3,
+  and 0 → 1 is shown in node only. The three are real and reproduce in all three runs:
+  **NEW FINDING, `app/src`, not mine to fix:** `screen/furniture-clear` at **Services & add-ons 320x844** («Interior» at (38,
+  810) and «Customers pick one» at (38, 830) are underneath a fixed element, by hit-test), **Services & add-ons 392x844**
+  («Customers pick one», «Full interior and exterior») and **Business info 392x844** («Logo and cover photo» at (45, 825)).
+  The receipt held four different findings (`screen/no-overflow`, 5px, at 1440 and 1920) when I began; those did not appear
+  in these runs. **This is exactly the case the item exists for: the gate went red on three failures nobody had declared,
+  and it says which.** `gate: FAIL`, exit 1, and it will read `held` the day the three are fixed.
+  **To tick this:** either the three are fixed and the plant is re-run from zero, or the manager accepts 3 to 4 to 3, plus the
+  node 0 to 1, as the proof. `receipts/bk-bar-clearance.json` is the clean third run.
+
 ### Still unanswered after steps 1–4
 
 - **RESOLVED 2026-09-19: `composition` is GREEN.** 97 passed, 0 failed,
