@@ -1253,7 +1253,7 @@ kind, which is why executing looked like the whole answer.
 | criterion | command | result |
 |---|---|---|
 | **14.22** | `grep -n '"visits\?"' app/src/screens/Clients.jsx` | **709 and 742** — and **709 and 742** again against a fixed copy. See below |
-| **3.4** | `grep -cE '^export (const\|function) [a-zA-Z]+Email' …/emailTemplates.ts` | **16** — the criterion's own count mechanism works |
+| **3.4** | `grep -cE '^export (const|function) [a-zA-Z]+Email' supabase/functions/_shared/emailTemplates.ts` — re-run 2026-10-06 at `d850a97`; the file's last change was `d9ca0f8`, the same day, and the count did not move | **16** — the criterion's own count mechanism works |
 | **7.17** | `grep -ic "number the product cannot" docs/tenant-site-kit.md` | **1** — the rule is in the brief; **that half is closed** |
 | **7.18** | `grep -c "navmenu\|burger" app/src/landing/LegalPage.jsx` | **0** — so the check's expected output (*it must name `/terms` and `/privacy`*) is **correct**, confirmed without building the check |
 | **2.12** | `node --test tests/spanish.test.mjs` | **71 passed, 6 failed** — clause 1 correctly does not pass |
