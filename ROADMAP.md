@@ -8777,6 +8777,14 @@ requested.
   only for `/admin`.
   Not started — named so it is not lost inside 4.5, which is ticked and
   closed for the half it actually built.
+  **STILL NOT STARTED, 2026-10-06 (DP Cowork2, Lane B) — BLOCKED ON TWO THINGS, NEITHER OF THEM LANE B.** The claim holds:
+  `grep -c 'writeReceipt(' scripts/sweep-tap-targets.mjs` returns **1** at `69e3dd0` (the call, near line 606, inside the admin
+  section). The fix is an edit to `scripts/sweep-tap-targets.mjs`, which is outside the `scripts/` lane exception (that covers the
+  nine `fullPage` scripts plus `motion-off.mjs` only), and the file launches a real Chromium (`chromium.launch()`, line 128), so
+  the Done-when, *a default run produces a graded receipt for the dashboard and settings sections*, cannot be proved without a
+  browser run, which waits for `app/src` to be clear of other editing. **Needs:** a recorded exception naming this one file, and
+  a browser window. **Decision for whoever takes it:** split into one receipt per section, or widen the one receipt to list the
+  sections that ran; the item recommends neither, and per-section is the one that cannot undersell a narrowed `--only` run.
 
 ## Wave 5 — Money truth
 
