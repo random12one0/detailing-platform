@@ -17492,6 +17492,38 @@ event id.
   **Receipts:** `receipts/sweep-widths-1440.json` is run 3 (PASS 150/150, HEAD moved during the run); the ledger was put back to
   the full default run's rows.
 
+  ***THE LAST CLAUSE IS BUILT 2026-10-06 (Lane A, `8e0b79d`, WITH THE MANAGER'S LANE EXCEPTION FOR EXACTLY `scripts/tour-runs.mjs`). THE
+  BOX STAYS `[ ]` ON ONE UNEXPLAINED SHORT RUN.*** **What was forced:** at 1440 the "next seven days" card on Today is fed by an
+  `available-slots` read the screen only makes at that width, so the tour plans without that step and the step arrives later.
+  `TOUR_FORCE_GROWTH=1 node scripts/tour-runs.mjs 10 1440 392` holds that read at the network, fetches the real answer at once,
+  and delivers it from memory right after the first press, so the late step lands inside the Today block on every run: the trail
+  reads `1/6 2/6 3/7 4/7 5/7 6/7 7/7`, the signature this item started from. The verdict asks three things of every run (the total
+  changed inside a block, the tour reached six blocks, each block was walked to the total it ended on) and **fails a batch where
+  nothing grew**, because a forced arm that forced nothing would read as a pass.
+  **Broken on purpose, twice, and both seen:** `TOUR_FORCE_BREAK=1` releases the read before the tour opens and the batch reads
+  *NOT FORCED, 0 of 3*; and with the splice branch in `Walkthrough.jsx` switched off (`else if (false && …)`, reverted
+  afterwards) the same batch reads *NOT FORCED, 0 of 3* because the step never joins the plan. **The mechanism is named in
+  `Walkthrough.jsx`** beside the branch, in a comment; no code in the tour changed, because nothing in it was wrong.
+  **Measured, final design: 26 of 27 forced runs completed, six blocks, each walked in full** (10 of 10, 4 of 5, 12 of 12), with the
+  control 3 of 3 each time. **Two things the arm taught that are worth keeping:** (1) a late step that arrives BEHIND the card being
+  read is dropped, not spliced in, by design; a first version of this arm held the request itself and so left the arrival to
+  network latency, and in some runs the answer landed behind the reader and the step was silently absent: the tour was fine, the
+  experiment was not forcing anything (that batch ran across 21:10, so its count is not quoted); (2) **the control's flat one-second wait killed one run in three at step 18** (*"the card
+  vanished after the press"*) and voided a batch that had nothing to do with it: it is the same fault the sweep had, one size
+  smaller, so the control now waits for the next card like the subject.
+  **THE ONE RUN THAT IS NOT EXPLAINED:** in a batch of five, run 4 stopped at 28 steps in five blocks (`6+6+5+5+6`), *"no card
+  arrived after the press"* after the full 8 seconds, with the Calendar block opening on `1/3` and correcting to `2/6`: **the
+  original signature, from a script that now waits for the next card, so this is not the old instrument fault.** Not reproduced in
+  the 12 runs that followed. Nothing else was running (CPU about a quarter, no other node job). **It cannot yet be told whether it
+  is the hold's doing** (the Calendar block does not read the held endpoint after the release) **or a real intermittent
+  under-count of the Calendar plan; the one other forced batch with a Calendar anomaly (`6+3+6+5+6+6`) was an earlier design
+  that did not deliver from memory.** A fair next step is twenty UNFORCED runs and twenty forced runs back to back, counting
+  Calendar blocks that open below six. The record is `artifacts/tour-runs/runs.json` (overwritten by the next batch) and the
+  frame `artifacts/tour-runs/subject-1440-4.png`.
+  **A caveat on the evidence:** a message from the manager said another session's worktree rewrote the dependency cache around
+  21:10 and a page on 5173 may have reloaded once. One batch of six ran across that time; **its result was discarded and not used
+  for anything above.** Every figure above is from a batch that started after it.
+
 ### 14.11 — a check with a sanctioned word for testing nothing — DONE 2026-10-06
 
 - [x] **A declared skip in this repo is supposed to mean a surface proved
@@ -20237,6 +20269,36 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
   **What failing looks like:** the gate green because the three were declared, or the three gone at 320 and still present at 392
   (they are different rows at different pitches, so one number does not fix both).
+
+  ***FOUND 2026-10-06 (Lane A), NOT FIXED, AND THE REASON IS THAT NO CLEARANCE IS WRONG: THE THREE ROWS ARE NOT OBSTRUCTED.***
+  The premise above (*"these are the bottom rows when scrolled to the end, and the sweep reads them there"*) is the guess it said it
+  was, and it is wrong in the one way that matters. **`bk-bar-clearance` asks its furniture question at the FIRST PAINT, scroll
+  position zero**, not at the end (`FURNITURE`, called right after `settle()` and before any scroll). A row near the bottom of the
+  first screen is simply further down a page that scrolls, and a fixed tab bar is in front of that part of the viewport by
+  construction. Measured against 5173 with a read-only probe (demo owner, nothing pressed, nothing written) at HEAD `1a41ece`: the
+  three findings reproduce at scroll zero, and **at maximum scroll every one of them is gone**:
+
+  | screen | width | rows under the bar at scroll zero | at maximum scroll | last row's bottom edge vs the tab bar's top |
+  |---|---|---|---|---|
+  | Services & add-ons | 320 | 2 | 0 | 461 vs 776 |
+  | Services & add-ons | 392 | 2 | 0 | 500 vs 776 |
+  | Business info | 320 | 0 | 0 | 748 vs 776 (28px clear) |
+  | Business info | 392 | 1 | 0 | 748 vs 776 (28px clear) |
+
+  At 768, 1440 and 1920 the count is 0 at both positions. The three fixed elements are the tab bar (`nav.tabbar`, 776 to 832), its
+  scrim (`div.tabscrim`, a fade with no hit area of its own) and the dotted background; `--tabclear` computes to `calc(96px + 0px)`
+  and does its job. **Looked at, not only measured:** at the end of the page the Save button on Business info sits a clear 28px
+  above the bar and the Services list ends well short of it; at the top, the next section's heading shows behind the bar and
+  scrolls up into view, as content under a bottom bar does on every scrolling page.
+  **So the "fix" 14.37 asks for has nothing to attach to in `app/src`**, and any CSS that made the sweep read zero at scroll zero
+  would have to take content out from under the bar on first paint, which is not a clearance, it is a smaller page.
+  **What is wrong is the instrument's question, and it is a Lane B\* edit to `scripts/bk-bar-clearance.mjs`:** scroll to the end
+  first and ask the hit-test there (the property is *can every row be brought clear of the furniture*, which is what the last row
+  at maximum scroll answers). That makes the three findings go away without touching the list and without hiding anything, and a
+  row genuinely left under the bar at the end of the page would still be caught, which is the point of the check. **It needs a
+  lane exception for exactly that file, or the manager's call to close 14.37 as not a product fault.** The box stays `[ ]`: this
+  entry is the finding, not the closure, and the probe's two numbers per cell are the proof if somebody wants to re-take them
+  (about seventy lines of Playwright, read-only; ask for it).
 
 ### 14.36 — An email template hardcoded a dark-theme grey on a light background
 
