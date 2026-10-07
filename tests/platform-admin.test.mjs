@@ -649,14 +649,32 @@ console.log("\n10. the jobs that nobody watches");
   // renamed everything. The heartbeats are mapped straight off `state`, and the
   // dot's two states are `pa-bad` / `pa-ok` — the property is that EVERY job
   // the server reports gets a row and a colour, not what the colour is called.
+  // **RE-POINTED 2026-10-06, AFTER ROADMAP 6.2a (2026-09-24) REWROTE THE LINE.**
+  // The map is over `beats` (`const beats = state?.heartbeats ?? []`) and each
+  // row's dot has THREE states, `pa-bad` / `pa-quiet` / `pa-ok`, picked by
+  // `jobState`. This check had been red since that commit and nobody had run
+  // the suite. The property is unchanged: every job the server reports gets a
+  // row and a colour, and the rows are drawn whether or not anything is wrong.
   check("10g · and the screen prints it either way",
-    /\(state\?\.heartbeats \?\? \[\]\)\.map\(/.test(p)
-      && /pa-bad" : "pa-ok"/.test(p));
+    /const beats = state\?\.heartbeats \?\? \[\];/.test(p)
+      && /beats\.map\(\(h\) =>/.test(p)
+      && /st === "stopped" \? "pa-bad" : st === "quiet" \? "pa-quiet" : "pa-ok"/.test(p));
   // A job that has never reported is what a dropped table looks like too, so
   // `null` has to fall on the BAD side of the comparison rather than skipping
   // it. RE-POINTED: `if (!beat) return true` became one expression.
-  check("10h · a job that has never reported counts as stale",
-    /const bad = m === null \|\| m > limit;/.test(p));
+  // **RE-POINTED 2026-10-06, AND THE PROPERTY MOVED WITH THE SPELLING.** 6.2a
+  // split "never reported" out of "stale": a job with no `ran_at` (or only a
+  // seeded stamp) is `quiet`, drawn in words as "not reported yet" and never
+  // as green, and it deliberately never reaches the alert list (Andrew's
+  // standing ruling: a monitor that can cry wolf is worse than none). What is
+  // still stale is a stamp that cannot be read, and one older than the window.
+  // The old sentence, "never reported counts as stale", is no longer true and
+  // would be wrong to keep; the thing it protected, silence read as good news,
+  // is what these three lines hold.
+  check("10h · a job that has never reported is quiet, never healthy",
+    /if \(!h\?\.ran_at \|\| h\?\.detail\?\.seeded === true\) return "quiet";/.test(p)
+      && /return m === null \|\| m > jobLimit\(h\) \? "stopped" : "ok";/.test(p)
+      && /st === "quiet" \? "not reported yet"/.test(p));
   // AND THE WINDOW IS THE ROW'S. Roadmap 8.12 moved it out of this screen
   // because the emailer needed the same number, and two copies of a threshold
   // is how a screen says a job is fine while the alarm is going off.
@@ -1325,7 +1343,19 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // for the string would fail on its own write-up. That is the comment-vacuity
   // trap this file has already been bitten by twice, from the other side.
   // The rule is about the SHAPE — a password that came out of the file.
-  const madeUp = (f) => /crypto\.randomUUID\(\)|Math\.random\(\)/.test(stripJs(read(`scripts/${f}`)));
+  // **A SCRIPT MAY GET ITS PASSWORD FROM `makeAdmin` INSTEAD OF MAKING ONE —
+  // RE-POINTED 2026-10-06.** `admin-contrast.mjs` took the account from
+  // `admin-account.mjs` when 14.21 reworked it, so its own text no longer
+  // holds a generator. That is the same property, the password was made up, as
+  // long as the helper it delegates to is itself a subject that passes. The
+  // delegation has to be real (an import of `makeAdmin` from that file and a
+  // call to it), or a script that merely mentions the name would pass.
+  const src = (f) => stripJs(read(`scripts/${f}`));
+  const generates = (f) => /crypto\.randomUUID\(\)|Math\.random\(\)/.test(src(f));
+  const madeUp = (f) => generates(f)
+    || (/import \{[^}]*\bmakeAdmin\b[^}]*\} from "\.\/admin-account\.mjs"/.test(src(f))
+      && /=\s*await makeAdmin\(/.test(src(f))
+      && generates("admin-account.mjs"));
   for (const f of inserts) {
     check(`13k · ${f} generates the password it uses, never writes one down`, madeUp(f));
   }
@@ -1483,8 +1513,14 @@ console.log("\n14. the email safety net (roadmap 8.6)");
       && !/dismiss/i.test(page.slice(page.indexOf("state.email"), page.indexOf("state.email") + 900)));
 
   // ── R2: SOMEBODY SIGNED UP ────────────────────────────────────────────
+  // **RE-POINTED 2026-10-06.** The words moved out of the caller into
+  // `newDetailerAlert` (so the render run draws the real ones and a lookup can
+  // reach them), and `kind` is looked up for the recipient's language now:
+  // `kind: tt("New detailer")`. The signup still calls the one alert template
+  // with the new-detailer words; the words themselves are checked where they live.
   check("14d · a signup emails the owner",
-    /platformAlertEmail\(/.test(cb) && /kind: "New detailer"/.test(cb));
+    /platformAlertEmail\(brand, newDetailerAlert\(/.test(cb)
+      && /kind: tt\("New detailer"\)/.test(tpl));
   // **NOT `platform_admins.email`.** Who may open the back office and who
   // wants to hear about a signup are different questions, and the admin login
   // is deliberately a throwaway today.
@@ -1502,7 +1538,10 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   // A signup, a first payment and 8.12's dead-man's switch are the same
   // shape. Twelve near-identical templates is how the set drifts.
   check("14e · the alert is one template the caller words",
-    /export function platformAlertEmail\(brand: TenantBrand, a: PlatformAlertData\)/.test(tpl));
+    // RE-POINTED 2026-10-06: ROADMAP 3.4 FAULT 4 added a trailing `lang`. The
+    // property is one template taking the caller's words, so pin the first two
+    // parameters and leave the tail alone.
+    /export function platformAlertEmail\(brand: TenantBrand, a: PlatformAlertData[,)]/.test(tpl));
   check("14e-ii · and it is rendered with the other twenty-five",
     /platform-new-detailer/.test(read("scripts/render-emails.mjs")),
     "this script is the only thing in the repo that has ever LOOKED at an email");
