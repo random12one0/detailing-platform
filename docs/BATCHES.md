@@ -76,6 +76,34 @@ a kill), 14.23 (walk the settings doors twice, folded then open), 14.30 (the
 these also need a browser and the dev server, so they spend the practice
 business's rows and the address budget** — `docs/shared-resources.md` names which.
 
+**What a session needs for each of those nine — added 2026-10-06 by DP Cowork2.**
+Read from each item's `ROADMAP.md` entry and the named script's own header at
+`a2b8d7d`; none of it was run. *Browser run* means the dev server and a real
+browser. *Credentialed run* means the script signs in as the seeded demo owner
+(`demoOwner()`) or needs `.env`. Size: **small** is a fraction of a sitting,
+**medium** about one, **large** more than one (this file's own calibration: six
+small items are about one sitting).
+
+| item | browser run | credentialed run | rough size | what is left |
+|---|---|---|---|---|
+| 7.17 | no | no | small | One misspelled `data-from` (`docs/tenant-sites/x-ballantyne-prices.html:481`), then a filesystem census of every `data-from` value. The entry forbids calling that census cover for the three number classes: its receipt must say in words that it cannot see them. |
+| 7.18 | no | no | small | A source check that every `.ld` page has the burger, `#navmenu` and a Sign in link. The canary must name `/terms` and `/privacy` by name. Probably a `tests/` suite rather than a `scripts/` file. |
+| 9.11b | yes | yes | large | 1440 and 392 now finish but measure 41 of 155 and 39 of 154 surfaces. Cause unknown. One full sweep is about nine minutes. |
+| 14.10 | yes | yes | medium to large | Make the tour walk wait for the next card, then clean twenty-run batches. **Its last clause (close the plan-growth fault deterministically) names a mechanism in `Walkthrough.jsx`, which is `app/src`, lane A.** |
+| 14.11 | yes | yes | large | Five scripts (`contrast-insitu`, `keyboard-walk`, `screenreader-structure`, `text-spacing-walk`, `zoom-walk`) must carry skip evidence, each refused once on purpose, plus a `receipt.mjs` rule. The entry says they cannot be break-tested without the dev server. |
+| 14.21 | yes | yes, and it **mints a throwaway platform admin** | small to medium | A `try/finally` in `admin-contrast.mjs`, then a crash proof and a SIGTERM proof. Needs `.env`'s service key. Minting an all-powerful fixture row is a credential call that needs the manager's say-so. |
+| 14.23 | yes | yes | medium | Open, or count, the closed `<details>` in `sweep-tap-targets.mjs`; one run reports both counts per screen. |
+| 14.30 | yes | no | small | `bk-bar-clearance.mjs` gets a declared `expected_failures` list by target name; the proof is planting an eighth failure in the five-width sweep and watching the unexpected count go 0 to 1. |
+| 14.31 | no | no | small | Transcribe the pointer-age method into `scripts/pointer-age.mjs`; it must reproduce 58 pointers, 3 self and 55 cross at `23199db`. |
+
+**Counted from that table's own columns:** 6 of the 9 need a browser run (9.11b,
+14.10, 14.11, 14.21, 14.23, 14.30), and 5 of the 9 need a credentialed one
+(9.11b, 14.10, 14.11, 14.21, 14.23). **Only 7.17, 7.18 and 14.31 need neither,
+so those three are the ones a session can do with no browser and no credential.**
+14.30 needs the browser but no credential. All nine still sit in `scripts/` and
+the freeze above applies; 7.18 may land in `tests/` and so may not need the
+exception.
+
 **Sum: 32 + 9 + 19 = 60**, the same 60 the command prints.
 
 ### The two things worth knowing before dispatching anyone
