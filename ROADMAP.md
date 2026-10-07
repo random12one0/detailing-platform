@@ -5335,7 +5335,7 @@ the wrong service, and never book a job we cannot reach.
   simulated one. `maxLength` is doing what the platform specifies; the question
   is whether the box should say what it did.
 
-- [ ] **9.11d — Seven scripts save evidence frames that can be wrong, on one named condition.**
+- [x] **9.11d — DONE 2026-10-06 (first clause and the red proof; the second is 9.11e). Seven scripts save evidence frames that can be wrong, on one named condition.**
   fullPage: true paints a position: fixed element at the wrong place. Measured
   2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
   the fullPage PNG, a 420px shift straight across the settings list, while the
@@ -5417,6 +5417,26 @@ the wrong service, and never book a job we cannot reach.
   catches it and a `fullPage` frame does not) needs a browser and waits on the manager saying `app/src` is clear of other editing,
   because a Vite reload voids the run. And the second half of Done-when, a hit-test against every fixed element asked by any check
   whose subject is a screen with furniture on it, is not started.
+
+  **DONE 2026-10-06, RUN.** The first Done-when clause is done at ten call sites in seven scripts (`c197d70`), and
+  `node tests/fullpage-frames-lie.test.mjs` is both the red proof and the standing guard: **8 passed, 0 failed**, and
+  `FULLPAGE_BREAK=1` puts an offending line in memory and turns § 2b red. § 1 reproduces the lie on a self-contained page:
+  with a `position: fixed` bar, a page taller than the viewport **and the page scrolled 600px**, `elementFromPoint` and the
+  viewport frame both have the bar at the point, and the full-page frame has it **600px lower**; unscrolled, the two frames agree
+  (the control). **Said plainly: the original sighting was a horizontal shift of about 420px and this did not reproduce a
+  horizontal shift; the vertical shift is the same mechanism and it is what a synthetic page shows.** The condition measured is
+  fixed + taller + **scrolled**, one more word than the item said. **One site is declared rather than fixed:**
+  `scripts/bk-bar-clearance.mjs:1022` saves a customer email's full-page frame and an email has no fixed element (0 in
+  `emailTemplates.ts`); it sits outside the exception, so the test allows it by an equality, not a ceiling.
+  **The second Done-when clause, a hit-test against every fixed element asked by any check whose subject is a screen with
+  furniture on it, is not built and is 9.11e.**
+
+- [ ] **9.11e — Screens with fixed furniture are not all hit-tested by the checks that measure them.**
+  Split out of 9.11d, 2026-10-06. `bk-bar-clearance.mjs`'s pattern (a hit-test against every fixed element) is asked on the
+  booking page. The dashboard shell's rail and tab bar, the back office and the job record's pinned bar are fixed furniture on
+  other screens, and which checks already ask the question (`pinned-bar.mjs`, `tabbar-clearance.mjs`, `keyboard-walk.mjs`) has
+  not been listed. **Done when:** a list names each screen with fixed furniture and the check that hit-tests it, and any screen
+  with none has one or a recorded reason. **Needs a person to say which screens count.**
 
 - [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
@@ -8743,7 +8763,7 @@ requested.
   separate, real gap. Andrew asked for 4.5 alone this round; all three are
   named so they are not lost, none of them started.
 
-- [ ] **4.6 — `sweep-tap-targets.mjs` writes a receipt for the back office
+- [x] **4.6 — DONE 2026-10-06. `sweep-tap-targets.mjs` writes a receipt for the back office
   and for nothing else it measures.**
   **Found answering Andrew's own question about 4.5's receipt scope line,
   2026-09-23.** The receipt's `dimensions.scope` says plainly: *"the /admin
@@ -8803,6 +8823,30 @@ requested.
   should set both numbers from what it measures, and the queue row for 4.6 should come off the work queue when the item is
   ticked.
 
+  **DONE 2026-10-06, RUN AND GRADED.** A default `node scripts/sweep-tap-targets.mjs` (dev server, seed, `.env` loaded, nothing
+  else measuring the demo tenant, `app/src` untouched by anyone for the duration) wrote
+  `receipts/sweep-tap-targets-dashboard.json` at `git_sha` `4b4a174`: **249 expected, 249 discovered, attempted and completed,
+  0 skipped; 696,043 assertions against a floor of 24,900; the canary caught 5 of 5 and restored cleanly; HEAD did not move.**
+  `node scripts/receipt.mjs receipts/sweep-tap-targets-dashboard.json` grades it. **IT GRADES `fail`, AND THE ONLY RULE IT
+  FAILS IS "100 failure(s) recorded"**: the walk found real tap-target findings in the product (68 narrow, 29 short, 1
+  no-subjects and 2 covered, counted per screen and width, on 17 distinct control names; the run's own total of 106 includes 6
+  back-office findings, which are 4.6b). That is the receipt doing its job.
+  The Done-when asked for a graded receipt, not a green one. **The floor of 100 probes a screen was raised to 1,000** after the
+  measured 2,800; the settings-door floor is left as a decision (the script's comment says why). **The two follow-ups are
+  numbered below so nothing is lost inside a ticked item.**
+
+- [ ] **4.6a — The dashboard receipt reads `fail` over 100 real tap-target findings.**
+  Found by 4.6's first run, 2026-10-06. Spread over the Today tab (`Hide`, 40px), the Booking rules and Weather warnings
+  settings screens (the `Less` and `More` buttons, 30 to 32px) and others, in English and Spanish at several widths. **They are
+  `app/src` work, and which are real controls and which a stated exception covers is a call for whoever owns the screen.**
+  Reproduce: `set -a; . ./.env; set +a; node scripts/sweep-tap-targets.mjs`, then read the receipt's `failures` list.
+  **Done when:** the receipt grades `pass`, or each remaining finding is a recorded hold in `receipts/holds.json` with a reason.
+
+- [ ] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
+  Found by the same run, 2026-10-06: `receipts/sweep-tap-targets.json` was `pass` at `469422a` and now carries 6 failures, all on
+  `/admin` Money at 320px (`Email`, `Other` at 38px wide; `Hosting`, `Database`, `Correo`, `Domain` at 39px tall). These are the
+  ROADMAP 9.14 cost-entry category buttons, which are new since the last pass. `app/src/admin`, not touched here.
+  **Done when:** the admin receipt grades `pass` again at 320, in both languages.
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
