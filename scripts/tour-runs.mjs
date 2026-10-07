@@ -84,6 +84,12 @@ const BOUND = 48;                       // above the 33 the tour is known to be
 const WAIT = Number(process.env.TOUR_WAIT || 0);
 const FORCE = process.env.TOUR_FORCE_GROWTH === "1";
 const FORCE_BREAK = FORCE && process.env.TOUR_FORCE_BREAK === "1";
+// THE SLOW-FIRST-SCREEN ARM (2026-10-06, 14.10's short runs). `TOUR_SLOW_FIRST=6000` holds every
+// Supabase read for that many ms from the moment "Show me around" is pressed, so the first block plans
+// against a screen whose data has not arrived. Walkthrough.jsx skips a block with fewer than MIN_STEPS
+// targets at its 4s planning cap, which is the suspected cause of the 29-step run (five blocks, the
+// first one missing). The batch prints which block each run STARTED on.
+const SLOW_FIRST = Number(process.env.TOUR_SLOW_FIRST || 0);
 const CARD_WAIT = 8000;
 const SHOTS = "artifacts/tour-runs";
 
@@ -92,7 +98,7 @@ const once = async (browser, width, tag, wait = WAIT, force = false) => {
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e).split("\n")[0]));
-  const out = { width, tag, steps: 0, blocks: [], trail: [], ended: null, errors, forced: force, held: 0, grew: 0, walkedFull: null };
+  const out = { width, tag, steps: 0, blocks: [], trail: [], names: [], ended: null, errors, forced: force, held: 0, grew: 0, walkedFull: null };
   // THE HOLD. Every `available-slots` read waits at the network until `release()`;
   // a safety release at 20s means a hung hold can never hang the batch.
   let release = () => {};
@@ -117,6 +123,14 @@ const once = async (browser, width, tag, wait = WAIT, force = false) => {
     page.on("close", () => clearTimeout(safety));
     if (FORCE_BREAK) release();            // the canary: released before anything can use it
   }
+  const slow = { until: 0 };
+  if (SLOW_FIRST) {
+    await page.route(/\/(rest|functions)\/v1\//, async (route) => {
+      const wait = slow.until - Date.now();
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      await route.continue().catch(() => {});
+    });
+  }
   try {
     await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
     await page.fill("input[type=email]", "demo@detailplatform.com");
@@ -130,6 +144,7 @@ const once = async (browser, width, tag, wait = WAIT, force = false) => {
     await page.waitForTimeout(1400);
     const row = page.locator(".nav-row", { hasText: "Show me around" });
     if (!(await row.count())) { out.ended = "no Show me around row"; await ctx.close(); return out; }
+    if (SLOW_FIRST) slow.until = Date.now() + SLOW_FIRST;
     await row.first().click();
     await page.waitForSelector(".tourcard", { timeout: 8000 }).catch(() => {});
     await page.waitForTimeout(1600);
@@ -145,6 +160,10 @@ const once = async (browser, width, tag, wait = WAIT, force = false) => {
       const lab = await page.locator(".tourcard .label").first().innerText().catch(() => "");
       const m = /(\d+)\s*OF\s*(\d+)/i.exec(String(lab).replace(/\s+/g, " "));
       if (m) out.trail.push(`${m[1]}/${m[2]}`);
+      // THE BLOCK'S NAME, KEPT FOR EVERY CARD (added 2026-10-06, 14.10's short run). The trail is bare
+      // counters, so a short run said "five blocks, 29 steps" and could not say WHICH block was missing.
+      // The card's label reads like "TODAY · 1 OF 6"; the name is what comes before the dot.
+      (out.names ??= []).push(String(lab).replace(/s+/g, " ").split("·")[0].trim());
       out.steps = k;
       // **THE LAST FRAME IS KEPT, NOT DESCRIBED.** "It stopped at step 5" is a
       // number; a picture of the screen it stopped on is where somebody sees

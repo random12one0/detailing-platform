@@ -10957,6 +10957,15 @@ rather than wording went to Andrew.
   **Still open on 7.17:** nothing built remains; the manager's acceptance of the plain-fetch reading, and (per the earlier note) that the price badges,
   dates and cars on the job cards have no producing field by ruling.
 
+  ***REBUILT IN THE MAIN TREE AND READ ON THE SERVED PAGE, 2026-10-06 (DP Cowork, Lane A), AT THE MANAGER'S REQUEST. NOT TICKED.***
+  `node scripts/build-examples.mjs --dev` in the main checkout (5 sites, `/ex1` to `/ex5`, written to `app/public/`, which is gitignored and has no
+  tracked file under `ex*`, so **there is nothing to commit**). Read on 5173 at `/ex1/work.html` after the build, in the browser: the visible stats
+  are `6 Years on the road` and nothing else; **no 312, no 4.9, no 1,240 in the visible text**; 0 articles carry `data-from`; 3 of 3 blockquotes carry
+  `get_public_business_profile.testimonials`; console empty. A raw substring search finds `312` once and `4.9` once, and **both are not figures**: the first
+  is inside an image URL (`…1665453031228-332ad0c2ec3e…`), the second is a sentence in a source comment (*"a number climbing from 0.8 to 4.9"*), which is
+  said here so nobody re-runs the search and reads two hits as a regression. The slashless `/ex1/work` still answers with the app shell on the dev server
+  (the entry above says so); the page is at `/ex1/work.html`.
+
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.
@@ -17582,6 +17591,29 @@ event id.
   **A caveat on the evidence:** a message from the manager said another session's worktree rewrote the dependency cache around
   21:10 and a page on 5173 may have reloaded once. One batch of six ran across that time; **its result was discarded and not used
   for anything above.** Every figure above is from a batch that started after it.
+
+***THE UNEXPLAINED SHORT RUN IS EXPLAINED, 2026-10-06 (DP Cowork, Lane A). IT IS THE PRODUCT, NOT THE INSTRUMENT, AND IT IS NOT THE HOLD'S DOING.***
+  **Reproduced without forcing anything.** Three more unforced batches, `node scripts/tour-runs.mjs 20 1440 392`, control 5 of 5 each time: **one 29-step run in
+  the first (five blocks, `6+6+5+6+6`), none in the second but two of 35 steps, one 29-step and one 35-step in the third**; and one forced batch,
+  `TOUR_FORCE_GROWTH=1 node scripts/tour-runs.mjs 20 1440 392`, fired 20 of 20, six blocks 20 of 20, every block walked in full 20 of 20, with one 34-step run
+  (`6+6+6+5+5+6`). The record now names every card's block (`names` in `artifacts/tour-runs/runs.json`, added to the script today), and the third batch's
+  29-step run reads **`CALENDAR > MONEY > CLIENTS > BUSINESS > SETTINGS`: the whole TODAY block is absent, the tour starts on Calendar, and the walk ENDS ON
+  SETTINGS with the tour closed** (frame `subject-1440-3.png` of that batch: the Settings screen, no card). So that run did not die: **it finished, seven steps short.**
+  **The script mislabelled it.** `tour-runs.mjs` calls a run that ends under 30 steps *"no card arrived after the press"* whatever happened, so a short but
+  complete tour read as a stall. Not changed, because the 30 is also the line the batch's complete count uses; said here instead.
+  **The mechanism, in `Walkthrough.jsx` (read, and then forced):** a block's plan is judged at a 4-second cap (`PLAN_GIVE_UP_MS`), and *"a tab with nothing to
+  point at is skipped"*: if fewer than `MIN_STEPS` (2) targets exist at the cap, the whole-dashboard tour hands on to the next tab without a word. The
+  Today block's targets come from reads the screen makes when it mounts, so a slow first screen has too few at the cap and the block is skipped.
+  **Forced on purpose:** `TOUR_SLOW_FIRST=6000 node scripts/tour-runs.mjs 6 1440 392` holds every Supabase read for 6 seconds from the press of *Show me around*
+  (new arm in the script today). **6 of 6 subject runs start on Calendar and read exactly `6+6+5+6+6`, 29 steps**, the natural run's signature to the digit, and the
+  392 control does the same (28 steps, 3 of 3), so it is not a 1440 matter. **What is proved:** a slow first screen produces this run exactly. **What is not:**
+  that the one natural run's first screen WAS slow; no load time was logged for it, and it is inferred from the shape, not measured. Not reproduced: the
+  earlier run's `6+6+5+5+6` with a Calendar block opening on 3 (28 steps). **The 35-step shape is the same family but not separately forced:** three unforced runs
+  and one forced one had a block one step short (Business 5 of 6, once Today 6 of 7), which fits the rule already recorded above that a step arriving behind the
+  card being read is dropped, not spliced in; it was not forced here.
+  **THE PRODUCT QUESTION THIS LEAVES, FOR THE MANAGER AND NOT DECIDED HERE:** on a slow connection a detailer's *Show me around* silently starts at Calendar and
+  never mentions Today. Nothing in the tour changed in this item. A candidate (not built): judge the floor at the cap only when the screen has no spinner, or retry
+  the block once before skipping it. **The box stays `[ ]` for that reason, not for the short run, which is closed.**
 
 ### 14.11 — a check with a sanctioned word for testing nothing — DONE 2026-10-06
 
