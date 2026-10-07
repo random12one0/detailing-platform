@@ -1,17 +1,13 @@
 {
-  "git_sha": "748a361e856aff1c3702ce53d1acd873dabb040b",
-  "git_sha_started": "748a361e856aff1c3702ce53d1acd873dabb040b",
+  "git_sha": "5fa24bae8294751958c1c51388a856f6263447ef",
+  "git_sha_started": "5fa24bae8294751958c1c51388a856f6263447ef",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-07T01:23:43.221Z",
-  "failures": [
-    "v-goldenhour-work.html:1219  data-from=\"the detailer's completed bookings\"  names nothing the product has",
-    "v-goldenhour-work.html:1290  data-from=\"the detailer's own completed bookings\"  names nothing the product has",
-    "v-goldenhour-work.html:1310  data-from=\"the detailer's own completed bookings\"  names nothing the product has",
-    "v-goldenhour-work.html:1330  data-from=\"the detailer's own completed bookings\"  names nothing the product has"
-  ],
+  "finished_at": "2026-10-07T04:25:50.722Z",
+  "failures": [],
   "warnings": [
     "CANNOT SEE class 1 (a per-mile travel rate), class 2 (a review count or rating) or class 3 (a deposit): those numbers carry attributes that name real fields and then state something the field cannot express. A passing census is not cover for ROADMAP 7.17.",
+    "CANNOT SEE a figure with no data-from at all: it is not counted, so removing a false attribute turns a red row green. 7.17 ruled that right for the three illustration job cards on /ex1/work, and it is also what hiding a claim would look like.",
     "'Exists' is weak: a profile key is any key the function writes, a function is checked by name and not by field, a column is found by regex over create/alter table.",
     "5 unresolvable data-from in 3 page(s) that are not published (not counted as failures): 1 | the detailer's own completed bookings"
   ],
@@ -46,13 +42,12 @@
       "create-booking": 4,
       "businesses.contact_phone": 8,
       "business_hours": 5,
-      "the detailer's completed bookings": 1,
+      "get_public_business_profile.established_year": 1,
       "job_photos": 1,
-      "the detailer's own completed bookings": 3,
+      "get_public_business_profile.testimonials": 7,
       "get_public_business_profile.services[].features": 4,
       "get_public_business_profile.services[].notes": 1,
       "services.features": 4,
-      "get_public_business_profile.testimonials": 4,
       "businesses.contact_email": 4,
       "calculate-booking.vehicle_size": 3,
       "get_public_business_profile.cancellation_window_hours": 1,
@@ -62,12 +57,13 @@
     "cannot_see": [
       "class 1: a per-mile travel rate",
       "class 2: a review count or rating",
-      "class 3: a deposit"
+      "class 3: a deposit",
+      "a figure with no data-from at all (not counted, so removing a false attribute reads green)"
     ]
   },
   "check_id": "data-from-census",
-  "started_at": "2026-10-07T01:23:43.050Z",
-  "status": "fail",
+  "started_at": "2026-10-07T04:25:50.556Z",
+  "status": "pass",
   "expected_targets": 185,
   "discovered_targets": 185,
   "attempted_targets": 185,

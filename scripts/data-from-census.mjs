@@ -141,7 +141,10 @@ for (const [v, n] of [...distinct].sort((a, b) => b[1] - a[1])) console.log(`  $
 if (failures.length) { console.log(`\nFAILED (${failures.length}):`); for (const f of failures) console.log(`  ${f}`); }
 for (const w of warnings) console.log(`\nnote: ${w}`);
 console.log("\nTHIS CENSUS CANNOT SEE A PER-MILE RATE (class 1), A REVIEW COUNT OR RATING (class 2) OR A DEPOSIT (class 3):"
-  + "\nthose carry attributes naming real fields and then state what the field cannot express. A green run says nothing about them.");
+  + "\nthose carry attributes naming real fields and then state what the field cannot express. A green run says nothing about them."
+  + "\nNOR CAN IT SEE A FIGURE WITH NO data-from AT ALL: an element that carries no attribute is not counted, so taking a false attribute"
+  + "\noff turns a red row green. That is the honest outcome for an illustration (the three job cards on /ex1/work, 7.17 ruling of 2026-10-06)"
+  + "\nand it is also exactly what hiding a claim would look like. Whether a number belongs without a source is a person's reading.");
 
 if (BREAK) {
   console.log(`\n--break=${BREAK}: ${failures.length ? "went RED, as it must" : "STAYED GREEN — THE SABOTAGE WAS NOT SEEN"}. No receipt written.`);
@@ -163,6 +166,7 @@ const { path } = writeReceipt({
   artifacts: ["scripts/data-from-census.mjs"],
   warnings: [
     "CANNOT SEE class 1 (a per-mile travel rate), class 2 (a review count or rating) or class 3 (a deposit): those numbers carry attributes that name real fields and then state something the field cannot express. A passing census is not cover for ROADMAP 7.17.",
+    "CANNOT SEE a figure with no data-from at all: it is not counted, so removing a false attribute turns a red row green. 7.17 ruled that right for the three illustration job cards on /ex1/work, and it is also what hiding a claim would look like.",
     "'Exists' is weak: a profile key is any key the function writes, a function is checked by name and not by field, a column is found by regex over create/alter table.",
     ...warnings,
   ],
@@ -170,7 +174,7 @@ const { path } = writeReceipt({
     pages: published,
     distinct_values: Object.fromEntries(distinct),
     profile_defined_in: defining,
-    cannot_see: ["class 1: a per-mile travel rate", "class 2: a review count or rating", "class 3: a deposit"],
+    cannot_see: ["class 1: a per-mile travel rate", "class 2: a review count or rating", "class 3: a deposit", "a figure with no data-from at all (not counted, so removing a false attribute reads green)"],
   },
   canary: {
     id: "a sentence standing in as a source, and a misspelt profile key",

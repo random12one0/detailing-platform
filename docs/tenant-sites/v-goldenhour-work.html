@@ -1292,7 +1292,15 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       <p>What the car came in like, what we did, and what the owner said afterwards.</p>
     </div>
 
-    <article class="jrow" data-from="the detailer's own completed bookings">
+    <!-- ROADMAP 7.17, ruling of 2026-10-06 (second ruling): THE THREE JOB CARDS ARE AN ILLUSTRATION OF WORK DONE AND NAME NO
+         SOURCE FOR THEMSELVES. They used to say data-from="the detailer's own completed bookings", a sentence and not a source:
+         nothing the product publishes is a list of completed jobs, so no endpoint produces a car, a date, a neighbourhood or a
+         price badge for a card like these. The attribute is gone rather than reworded into something softer, so a reader
+         diffing this file sees a claim withdrawn. THE ONE PART THAT HAS A SOURCE keeps one: each quote, its stars and its
+         "Google" label are what a detailer types into a testimonial (author, quote, rating, source), so every <blockquote>
+         below names get_public_business_profile.testimonials. If this page is ever meant to be generated from completed
+         jobs, name the field that would produce the card before putting an attribute back. -->
+    <article class="jrow">
       <div class="jshot">
         <img src="https://images.unsplash.com/photo-1639062909256-f3a109eec5b1?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
              alt="A sedan photographed after a full detail, parked under trees." loading="lazy">
@@ -1304,7 +1312,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <p class="jdid">Winter salt off the wheels and arches, one-stage polish
            and sealant on the hood and roof, interior steam-cleaned, and the
            driver&rsquo;s seat re-conditioned where it had gone shiny.</p>
-        <blockquote>&ldquo;On time, four hours in our driveway, and I could not
+        <blockquote data-from="get_public_business_profile.testimonials">&ldquo;On time, four hours in our driveway, and I could not
            find a single swirl afterwards. The seat looks new.&rdquo;
           <cite><b>Marcus T.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
         </blockquote>
@@ -1312,7 +1320,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       </div>
     </article>
 
-    <article class="jrow jrow--flip" data-from="the detailer's own completed bookings">
+    <article class="jrow jrow--flip">
       <div class="jshot">
         <img src="https://images.unsplash.com/photo-1700008347045-d2dff6d12c37?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
              alt="A coated coupe photographed by the water at dusk." loading="lazy">
@@ -1324,7 +1332,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <p class="jdid">Two days. Two-stage correction took out eleven years of
            wash marks, then a three-year coating on the paint, wheels and glass.
            Trim restored and sealed. Care card written for the owner.</p>
-        <blockquote>&ldquo;I have had this car since new and it has never looked
+        <blockquote data-from="get_public_business_profile.testimonials">&ldquo;I have had this car since new and it has never looked
            like this. The wheels are the part I keep staring at.&rdquo;
           <cite><b>Dana R.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
         </blockquote>
@@ -1332,7 +1340,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
       </div>
     </article>
 
-    <article class="jrow" data-from="the detailer's own completed bookings">
+    <article class="jrow">
       <div class="jshot">
         <img src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?fm=jpg&amp;fit=crop&amp;w=1300&amp;h=1000&amp;q=78"
              alt="Cleaning the dashboard of a classic car by hand." loading="lazy">
@@ -1344,7 +1352,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--cobalt);outline-off
         <p class="jdid">Thirty-six years of dust out of the vents and switchgear
            with a brush, leather fed twice, and the chrome brought back without
            touching the patina the owner asked us to leave alone.</p>
-        <blockquote>&ldquo;They asked first before doing anything to the chrome.
+        <blockquote data-from="get_public_business_profile.testimonials">&ldquo;They asked first before doing anything to the chrome.
            Nobody else has ever asked.&rdquo;
           <cite><b>Peter H.</b><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="src">Google</span></cite>
         </blockquote>
