@@ -17659,6 +17659,38 @@ event id.
   **STILL OPEN: the rule in `receipt.mjs`** (fail a receipt whose skips carry no evidence), which must follow that run and the
   re-run of every other issuer, and the audit's other 27 issuers, none of which is touched. **Done-when clause 3 is not met by this.**
 
+  ***SECOND HALF BUILT 2026-10-06 (DP Cowork2, Lane B, code only, NO BROWSER): THE GRADER NOW REFUSES AN UNEVIDENCED SKIP AND THE
+  AUDIT IS HELD AS CODE. STILL NOT TICKED, FOR TWO NAMED REASONS BELOW.***
+  **Lane exceptions, recorded:** `scripts/receipt.mjs` (named by the item); nothing else in `scripts/` was edited for this half.
+  **The grader (`31e7cff`).** A receipt with skips can only grade as a pass through `skip_allowlist`, so that is where the rule
+  sits: for a receipt started at or after `EVIDENCE_RULE_FROM` (the commit time of `386b653`, the first commit in which a check
+  could supply the field) the allowlist must carry a `skipped` list, exactly `skipped_targets` long, every entry with a `label` and
+  an `evidence` string. A receipt from before that is **not failed and not called clean**: it prints a note that its skips are
+  UNJUDGED, by count. An unreadable `started_at` owes the evidence. Proved: `node --test tests/receipt.test.mjs` (7 new cases, one
+  built from the real `skipEvidence` helper so producer and grader meet), and six sabotaged copies of the grader aimed at the suite
+  through `RECEIPT_UNDER_TEST`, each turning exactly its own cases red (rule off, evidence check off, count check off, lenient date,
+  cut-off pushed to 2999, legacy note silenced). `node scripts/receipt.mjs` over every receipt: the verdict list is **identical before
+  and after** (the same line-by-line list; the totals line read 0 valid, 46 stale, 30 failed both times, at `386b653`), and
+  `node scripts/receipt.mjs | grep -c UNJUDGED` printed 20 at `31e7cff`: the receipts that must be re-run to be judged.
+  **The audit, as code (`8982707`, `tests/skip-census.test.mjs`).** Read across every script that writes `skipped_targets`, the
+  question "what would have to be true for this skip to be refused" has a shorter answer than this entry feared. **Only two scripts
+  can attach a `skip_allowlist`, `sweep-widths` and `billing-walk`, and that is the only way a skip passes.** `sweep-widths` now
+  supplies evidence for every skip (first half). **Every other script whose count is an expression has no allowlist**, so a positive
+  count fails the receipt however it arrived: those are counted shortfalls that fail (the five anonymous-subtraction scripts already
+  name the labels and print `NEVER REACHED`), not skips that pass, and an evidence field would add nothing to them. **The rest write a
+  literal `0` and cannot issue one.** All three statements are checks, with the two lists asserted by equality and a discovery floor
+  on the reader; four plants in a scratch copy of `scripts/` each turned the intended case red and the control stayed clean.
+  **Reason 1 it stays open: `billing-walk.mjs`.** It writes an allowlist with a reason and an expiry and no itemisation, so its next
+  receipt fails the new rule. It already could not pass with a skip (`status` is `fail` whenever it has one), so this is a second red
+  beside an existing one and not a new break. It is **not named by this item and not edited**; the census lists it as the one known gap
+  and goes red the day it is fixed, to make the list shrink. **A grant for that one file, or a decision that its skips are not this
+  item's, is the manager's.**
+  **Reason 2: the literal clause "one skip per script refused on purpose" is not met.** For the writers that cannot pass a skip, the
+  refusal is the grader's, proved once in node for all of them rather than per script; the per-script canaries that plant a missing
+  target (`SHORTFALL_CANARY` on the five) need a browser and were not run. And **no receipt on disk has the evidence field yet**: the
+  browser run of `node scripts/sweep-widths.mjs --all 1440` named in the first-half paragraph is still the one thing that shows a real
+  entry.
+
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field
 
