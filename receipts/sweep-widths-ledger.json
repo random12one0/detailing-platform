@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-10-03T04:52:19.924Z",
+  "updated_at": "2026-10-07T02:16:39.253Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -1323,6 +1323,107 @@
       "outcome": "complete",
       "measured": 42,
       "declared": 0,
+      "expected": 42
+    },
+    {
+      "at": "2026-10-06T20:31:24.837Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 38,
+      "declared": 3,
+      "expected": 41
+    },
+    {
+      "at": "2026-10-06T20:31:24.837Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 3,
+      "expected": 42
+    },
+    {
+      "at": "2026-10-06T20:31:24.837Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 131,
+      "declared": 8,
+      "expected": 154,
+      "error": "page.waitForTimeout: Page crashed"
+    },
+    {
+      "at": "2026-10-06T20:31:24.837Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 150,
+      "declared": 10,
+      "expected": 158
+    },
+    {
+      "at": "2026-10-06T20:31:24.837Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 3,
+      "expected": 42
+    },
+    {
+      "at": "2026-10-07T02:16:39.234Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 38,
+      "declared": 3,
+      "expected": 41
+    },
+    {
+      "at": "2026-10-07T02:16:39.234Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 3,
+      "expected": 42
+    },
+    {
+      "at": "2026-10-07T02:16:39.234Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 149,
+      "declared": 7,
+      "expected": 154
+    },
+    {
+      "at": "2026-10-07T02:16:39.234Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 150,
+      "declared": 10,
+      "expected": 158
+    },
+    {
+      "at": "2026-10-07T02:16:39.234Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 39,
+      "declared": 3,
       "expected": 42
     }
   ]

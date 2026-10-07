@@ -1,9 +1,9 @@
 {
-  "git_sha": "2ed434cf1a6cda04879307be704396d342fded9c",
-  "git_sha_started": "2ed434cf1a6cda04879307be704396d342fded9c",
-  "head_moved": false,
+  "git_sha": "a52f884ee79977d770e4bfd3e9c1cd41e91c85d1",
+  "git_sha_started": "916fe22c78a17fe7b806efcb9e5210e7870fcda9",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-03T04:52:20.020Z",
+  "finished_at": "2026-10-07T02:16:39.363Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -25,17 +25,32 @@
     ]
   },
   "check_id": "sweep-widths-1920-1440-392-360-320",
-  "started_at": "2026-10-03T04:42:02.228Z",
+  "started_at": "2026-10-07T02:06:55.529Z",
   "status": "pass",
-  "expected_targets": 430,
-  "discovered_targets": 430,
-  "attempted_targets": 430,
-  "completed_targets": 430,
-  "skipped_targets": 11,
+  "expected_targets": 415,
+  "discovered_targets": 415,
+  "attempted_targets": 415,
+  "completed_targets": 415,
+  "skipped_targets": 26,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
     "skipped": [
+      {
+        "width": 1920,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1920,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1920,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
       {
         "width": 1920,
         "label": "gear · subscription, cancelling",
@@ -45,6 +60,66 @@
         "width": 1920,
         "label": "gear · subscription, past due",
         "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 392,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 392,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 392,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 360,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 360,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 360,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
       },
       {
         "width": 320,
@@ -93,8 +168,8 @@
       }
     ]
   },
-  "assertions_executed": 191079,
-  "min_assertions": 1720,
+  "assertions_executed": 175076,
+  "min_assertions": 1660,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,

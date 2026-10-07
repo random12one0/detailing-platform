@@ -5438,7 +5438,7 @@ the wrong service, and never book a job we cannot reach.
   not been listed. **Done when:** a list names each screen with fixed furniture and the check that hit-tests it, and any screen
   with none has one or a recorded reason. **Needs a person to say which screens count.**
 
-- [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
+- [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
   commit that fixed it, so nobody reads a live failure that was repaired days
@@ -5520,6 +5520,28 @@ the wrong service, and never book a job we cannot reach.
   fault with a different cause, and the ledger has rated both **broken
   instruments for five runs**. The expected-count gate catches it and names it.
   Completing was this item; the shortfall is the next one.
+
+  ***RE-RUN AND TICKED 2026-10-06 (Lane B, on the manager's go). Every clause of the Done-when is now met by a run at the
+  current tree, and the paragraph above that says "STILL OPEN" is answered at its end.***
+  **All five widths complete, and the receipt grades:** `node scripts/sweep-widths.mjs` (the default, 1920 1440 392 360 320;
+  584s) ended **415 surfaces reached, 415 of 415 counting toward the verdict, every width finished**, `VERDICT STANDS ON 415 of
+  415`. `node scripts/receipt.mjs receipts/sweep-widths-1920-1440-392-360-320.json` reads **PASS, 415/415 targets, 175,076
+  assertions, canary `sweep-canary-deliberate-overflow` failed as required**; 26 skips under the receipt's own allowlist, each
+  declared with its reason and re-probed before it was accepted. HEAD moved during the run (started `916fe22`, finished
+  `a52f884`, a `tests/spanish.test.mjs` commit), which the receipt records. The ledger reads 0 of the last 5 bad at 392 and
+  360 and 1 of 5 at each of 1920, 1440 and 320, all under its bar of more than 2.
+  **A sabotage that forces a width to abort goes RED, not short:** `SWEEP_ABORT_CANARY=1 node scripts/sweep-widths.mjs 1440`
+  printed *"WIDTH ABORTED at 1440px MEASURING «Calendar · history» — the 29th"* (it names the surface, not its own timeout),
+  *"28 measurement(s) … are DROPPED FROM THE VERDICT"*, `VERDICT STANDS ON 0 of 28 … NOTHING IS JUDGED`, and the receipt
+  graded **FAIL: discovered_targets is 0; target counts disagree: expected 152, discovered 0**. Exit 1. The canary's
+  receipt and ledger rows were put back to the full run's afterwards, so the committed receipts are the clean run's.
+  **The 1440 and 392 shortfall that paragraph left open is explained, and it is the expectation, not the walk:** this run's
+  1440 line reads `38/41 surfaces, 3 declared unreachable … every one accounted for` and 392 reads `39/42 … 3 declared`.
+  The tour and the guides walked at 1920 and 320 in this run and not at the three widths between (`cross-width 1440, 392,
+  360px left out of the comparison — no guide or tour ran there`), so 41 and 42 are what a default run should measure there.
+  The 155 and 154 were the counts of a run that walked the tour at those widths; `4e5d70a` and `498476d` (9.11c) made the
+  expectation record the MODE each number was written in, so one mode's number is no longer enforced in another. **What this
+  does not claim:** that the tour at 1440 is healthy. That is 14.10's, and it needs the walk at 1440 on purpose.
 
 - [x] **At 320 the booking calendar's day cells are 37px against the 44px
   absolute — thirty-two of them, every open day in the month. Found
