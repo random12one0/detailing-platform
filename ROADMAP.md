@@ -8981,7 +8981,7 @@ requested.
   measured 2,800; the settings-door floor is left as a decision (the script's comment says why). **The two follow-ups are
   numbered below so nothing is lost inside a ticked item.**
 
-- [ ] **4.6a — The dashboard receipt reads `fail` over 100 real tap-target findings.**
+- [x] **4.6a — The dashboard receipt reads `fail` over 100 real tap-target findings.**
   Found by 4.6's first run, 2026-10-06. Spread over the Today tab (`Hide`, 40px), the Booking rules and Weather warnings
   settings screens (the `Less` and `More` buttons, 30 to 32px) and others, in English and Spanish at several widths. **They are
   `app/src` work, and which are real controls and which a stated exception covers is a call for whoever owns the screen.**
@@ -9051,6 +9051,26 @@ requested.
   both are other sessions' output and one of them is a `fail` that was made on purpose.
   **4.6b:** unchanged, stays ticked. Its evidence is the admin receipt above (`pass`, `3aad2dd`) and the admin section of
   `full2.txt` (60 `/admin` screens, 6 screens by 5 widths by 2 languages, none with a finding: 1440, 1254, 768, 392, 320).
+
+  ***PROVED IN A BROWSER AND TICKED 2026-10-06 (Lane B, on the manager's go). This answers the "STILL NEEDED" paragraph above
+  point for point.***
+  **One correction to the fix first, found by running it:** the narrowed runs never exercised it. Three `--widths 768 --lang en`
+  runs all read `not_pressed: 0`, because the platform door is drawn only after the admin check answers and the walk read the
+  gear index before that. So a clean narrowed run said nothing. The walk now waits up to 8s for `.nav-row[data-settings-key=
+  "platform"]` after opening the gear (the demo login it signs in with is a platform admin) and, if it never comes, says so in
+  the receipt's warnings instead of reading the index as though the door did not exist.
+  **Both halves, narrowed to 768 and English, with the door drawn:** the fixed script ended `pass 32/32`, `not_pressed: 1`, no
+  finding; the same script with `--press-leaving-doors` ended `fail 33/33` with exactly `768/en/gear/The website business…
+  no-subjects … only 0 pressable controls`, the finding this item records. Same tree, same demo tenant, one flag apart.
+  **Then the default full run, `node scripts/sweep-tap-targets.mjs`:** `receipts/sweep-tap-targets-dashboard.json` reads
+  **`pass`, 248 of 248 screens, 704,195 assertions, 0 failures, canary 5 of 5**, `doors_that_leave_the_dashboard`:
+  `not_pressed: 8`, one per width and language (4 widths x 2 languages), so the door was drawn and left alone in every one of
+  them; the admin receipt `receipts/sweep-tap-targets.json` reads `pass`, 60 of 60 screens, 88,724 assertions, canary 5 of 5.
+  `node scripts/receipt.mjs` on each grades PASS. **Said plainly: HEAD MOVED DURING THE RUN** (started `3aad2dd`, finished
+  `05f2615`, both Lane A ROADMAP commits; neither touched `app/src` or `scripts/`), which the receipt records, so the run
+  is of the `app/src` as it stood at `3aad2dd`. The 249 in this item's first paragraph became 248 because the one screen
+  that was never a screen, the door, is no longer counted.
+  **Earlier receipts and `full2.txt` stay what the paragraph above says they are:** the pre-fix evidence.
 
 - [x] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
   Found by the same run, 2026-10-06: `receipts/sweep-tap-targets.json` was `pass` at `469422a` and now carries 6 failures, all on

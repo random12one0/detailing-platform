@@ -1,9 +1,9 @@
 {
-  "git_sha": "b5ccac8de356489fa346186f281a915341b0662a",
-  "git_sha_started": "b5ccac8de356489fa346186f281a915341b0662a",
-  "head_moved": false,
+  "git_sha": "05f26157412daead3bdd7214a5552633ad90c68b",
+  "git_sha_started": "3aad2dd39a563c9205ac6a5b33fd476b6a485163",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-07T01:42:00.005Z",
+  "finished_at": "2026-10-07T02:06:01.217Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -27,14 +27,14 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets",
-  "started_at": "2026-10-07T01:33:44.917Z",
+  "started_at": "2026-10-07T01:57:49.099Z",
   "status": "pass",
   "expected_targets": 60,
   "discovered_targets": 60,
   "attempted_targets": 60,
   "completed_targets": 60,
   "skipped_targets": 0,
-  "assertions_executed": 88937,
+  "assertions_executed": 88724,
   "min_assertions": 12000,
   "canary": {
     "id": ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing edit, not a syntax error",

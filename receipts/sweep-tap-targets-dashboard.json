@@ -1,13 +1,20 @@
 {
-  "git_sha": "b5ccac8de356489fa346186f281a915341b0662a",
-  "git_sha_started": "b5ccac8de356489fa346186f281a915341b0662a",
-  "head_moved": false,
+  "git_sha": "05f26157412daead3bdd7214a5552633ad90c68b",
+  "git_sha_started": "3aad2dd39a563c9205ac6a5b33fd476b6a485163",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-07T01:40:29.186Z",
-  "failures": [
-    "768/en/gear/The website businessEvery detailer, and : no-subjects - (the screen) - only 0 pressable controls were found — 0 matched the selector, 0 invisible, 0 with no box, 0 off screen. A screen this empty is an instrument that did not arrive, not a screen that passed."
+  "finished_at": "2026-10-07T02:04:34.917Z",
+  "failures": [],
+  "warnings": [
+    "1440/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
+    "1440/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
+    "768/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
+    "768/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
+    "392/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
+    "392/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
+    "320/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
+    "320/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section"
   ],
-  "warnings": [],
   "artifacts": [
     "receipts/screenshots/sweep-tap-targets-dashboard/today-1440-en.png"
   ],
@@ -24,7 +31,14 @@
       "es"
     ],
     "fixed_screens_per_combo": 6,
-    "settings_doors_read_from_the_product": 193,
+    "settings_doors_read_from_the_product": 192,
+    "doors_that_leave_the_dashboard": {
+      "keys": [
+        "platform"
+      ],
+      "not_pressed": 8,
+      "pressed": false
+    },
     "landing_paths": [
       "/",
       "/pricing"
@@ -33,15 +47,15 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets-dashboard",
-  "started_at": "2026-10-07T01:33:44.917Z",
-  "status": "fail",
-  "expected_targets": 249,
-  "discovered_targets": 249,
-  "attempted_targets": 249,
-  "completed_targets": 249,
+  "started_at": "2026-10-07T01:57:49.099Z",
+  "status": "pass",
+  "expected_targets": 248,
+  "discovered_targets": 248,
+  "attempted_targets": 248,
+  "completed_targets": 248,
   "skipped_targets": 0,
-  "assertions_executed": 707215,
-  "min_assertions": 249000,
+  "assertions_executed": 704195,
+  "min_assertions": 248000,
   "canary": {
     "id": "the five BREAKS in scripts/lib/tapProbe.mjs, each applied to the Clients tab at 392px and required to be reported by its own check",
     "observed_failure": true,
