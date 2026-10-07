@@ -1065,6 +1065,7 @@ console.log("11. text that only exists after an action");
     "admin/AdminPage.jsx#JOB_LABELS": "admin/ stays English on purpose (11c)",
     "admin/AdminPage.jsx#ADMIN_EVENT_WORDS": "admin/ stays English on purpose (11c)",
     "admin/AdminPage.jsx#WORDS": "admin/ stays English on purpose (11c)",
+    "admin/AdminPage.jsx#COST_KINDS": "admin/ stays English on purpose (11c)",
     "components/ExpenseModal.jsx#CATEGORY_WORDS": "carries its own Spanish beside each word, see the comment above it",
     "lib/localeStore.js#LOCALE_NAMES": "each language's name for ITSELF — \"Español\" is never translated",
     "book/core.js#BODY_TYPE_GUESS_WORDS": "regex-to-key matching table; no word in it is ever shown",
