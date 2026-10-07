@@ -13,7 +13,8 @@
 // That the migration declares the table locked and append-only, and that
 // `update-booking` calls the helper on both its paths, read as text.
 //
-// IT DOES NOT PROVE the migration runs: SQL was not applied anywhere by this file.
+// THIS FILE READS THE SQL AS TEXT; it does not run it. `tests/action-log-sql.test.mjs` executes the
+// migration on a throwaway in-process Postgres (PGlite) and shows the append-only trigger refuse.
 // It does not prove the deployed `update-booking` writes the row, because that
 // function is not published, and it does not type-check the TypeScript, because no
 // compiler is installed here (Node only strips the types). Each of those is the
