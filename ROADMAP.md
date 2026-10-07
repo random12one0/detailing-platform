@@ -7859,6 +7859,38 @@ requested.
   could never be seen to work. **Not proved:** Supabase's own extensions, and anything about the live project, which was not touched.
   This supersedes the previous paragraph's "not proved against a real Postgres by anything left in this repo".
 
+  ***THE STEP BEFORE CANCEL, NO-SHOW, REMOVE AND WAIVE, BUILT AND PRESSED 2026-10-06 (DP Cowork, Lane A, `app/src` only). THE BOX STAYS `[ ]`.***
+  **TWO OF THIS ENTRY'S OWN PARAGRAPHS DISAGREED AND THIS SAYS WHICH WON.** The 2026-09-23 ruling above says *no confirmations on cancel or
+  no-show*; the Done-when rewritten 2026-10-02 says *every one of the seven names the record before anything changes*, and the manager's
+  brief for this build named all four. **The later words and the instruction were built; ruling 1 is overridden for those two and nobody
+  should read it as still standing.** Its reason (a tax on every correct press) is real and is answered the one way this product already
+  answers it: the step is in place, not a dialog, and one tap on the answer completes it.
+  **What it is.** One control, `ConfirmTap`, now serves five questions. **Didn't show up** asks *"Mark Nia Noshow's Full Interior Detail at
+  11:00 AM as a no-show?"*; **Cancel the job** asks *"Cancel Casey Cancel's Full Interior Detail at 8:00 AM? The customer is emailed."*, because
+  it is the one of the four that sends a real message; **Remove from records** (inside its existing fold, which is kept) asks *"Remove Rory
+  Remove's Full Interior Detail at 2:00 PM from your records?"* in place of the browser's own unnamed `confirm()` box, which named nobody;
+  **Finalize payment, when Waived is chosen,** now asks *"Waive Wes Waive's Full Interior Detail at 5:00 PM? Nothing will be collected for
+  it."* instead of the generic *"record $220 as waived"*. Remove's answer button is `.btn.danger`; the other three are the control's usual
+  filled answer. The question is one phrase composed once (`jobPhrase`, in `ConfirmTap.jsx`) so the four cannot name the record differently,
+  and the control now scrolls its answer into view, because asked from the fold at the foot of the record on a phone the buttons were
+  below the screen. Spanish keys in the same edit (`appEs.js`); the Spanish article rides inside the phrase.
+  **Pressed on a flagged throwaway business** (`is_demo`, named *ZZ Sweep Fixture (4.1, delete me)*, four bookings, a fixture-only owner on a
+  `.test` address so the cancel email is skipped by the relay; **never `demo-detail`**) **with the database read before and after every
+  step:** each first tap wrote nothing and the original button was gone; "Not yet" put it back and still nothing was written; the second
+  confirmed tap wrote exactly one `update-booking` and the row read `cancelled`, `no_show`, `deleted_at` set and `waived` with `finalized_at`
+  set respectively; no browser dialog appeared; the answer buttons are 44px or more; "Un-cancel" and "Showed up after all" are on screen
+  afterwards. **1440 and 392 in English, 1440 and 392 in Spanish, and 392 with `?lite=1`: all green, console empty at each.** **One lite run
+  read red on two rows and a straight re-run read green**: the confirm hit the slow path and the fixed two-second wait ended before the
+  write, which is the script's patience and not the screen, said here because a green second run is not a reason to omit the first.
+  **Broken on purpose:** cancel put back to a direct write fails the proof on the first tap (no question, a write at once); the question
+  with the record's name taken out fails the "names customer, service and time" row; both restored byte for byte (hash checked). `node --test
+  tests/spanish.test.mjs` 83 pass (it caught a duplicate key of mine, "Yes, cancel it", which already existed), the credential-free gates
+  and the label guard are green. **The press script and the fixture were scratch and are not in the repo**; the fixture was torn down and
+  the business, its four bookings and the login read as gone afterwards.
+  **NOT DONE, NAMED:** suspend and owner-invite are not in this sweep and are still open; **whether a waived payment has a way back on screen was
+  not checked** (I did not press a finalized job's record looking for one; none was added here); **Today's card** uses the same completion control as before and was not changed or re-pressed; and the audit row and the
+  publish are still the open half.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be

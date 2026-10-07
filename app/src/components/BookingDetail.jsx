@@ -23,7 +23,7 @@ import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
 import { fillTemplate, templateLabel } from "../lib/templates.js";
 import { dateLong, localDate, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
-import ConfirmTap, { jobDoneQuestion } from "./ConfirmTap.jsx";
+import ConfirmTap, { jobDoneQuestion, jobPhrase } from "./ConfirmTap.jsx";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import JobPhotos from "./JobPhotos.jsx";
 // ROADMAP 5.3 — the same mail rows the client record draws. One file, so the
@@ -175,10 +175,17 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
   const softDelete = () =>
     act(async () => {
-      if (!confirm(t("Delete this booking? It is hidden, not destroyed, and can be restored by support."))) return;
       await api.softDeleteBooking(business.id, booking.id);
       onClose?.();
     });
+
+  // ROADMAP 4.1 — WHAT EVERY "ARE YOU SURE" ON THIS RECORD NAMES: customer,
+  // service, time. Same three facts the completion question carries.
+  const job = jobPhrase({
+    name: booking.customer_name,
+    service: (booking.services ?? []).map((sv) => sv.name_at_booking).filter(Boolean).join(" · "),
+    time: time12(booking.start_time),
+  });
 
   const address =
     booking.service_type === "mobile" && booking.customer_address
@@ -795,7 +802,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                     </button>
                   )}
                   {booking.status !== "no_show" && (
-                    <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>{t("Didn’t show up")}</button>
+                    <ConfirmTap
+                      disabled={busy}
+                      label={t("Didn’t show up")}
+                      question={t("Mark {job} as a no-show?", { job })}
+                      confirmLabel={t("Yes, they didn’t show")}
+                      onConfirm={() => setStatus("no_show")}
+                    />
                   )}
                   {/* ROADMAP 4.1, RULING 3 — THE WAY BACK FROM A NO-SHOW. `no_show`
                       had the only status button in this row with no undo: the
@@ -812,7 +825,17 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                       {t("Showed up after all")}
                     </button>
                   )}
-                  <button className="btn ghost" disabled={busy} onClick={() => setStatus("cancelled")}>{t("Cancel the job")}</button>
+                  {/* ROADMAP 4.1 — THE ONE THAT SENDS AN EMAIL, so the question
+                      says so. "Un-cancel" is the way back; the email already
+                      sent is not. */}
+                  <ConfirmTap
+                    className="btn ghost"
+                    disabled={busy}
+                    label={t("Cancel the job")}
+                    question={t("Cancel {job}? The customer is emailed.", { job })}
+                    confirmLabel={t("Yes, cancel it")}
+                    onConfirm={() => setStatus("cancelled")}
+                  />
                 </>
               )}
             </div>
@@ -837,9 +860,17 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               <p className="quiet" style={{ margin: "0 0 10px" }}>
                 {t("Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
               </p>
-              <button className="btn danger" disabled={busy} onClick={softDelete}>
-                {t("Remove from records")}
-              </button>
+              {/* The fold says what removing does; this names WHICH record, in
+                  place of the browser's own unnamed confirm box. */}
+              <ConfirmTap
+                className="btn danger"
+                confirmClassName="btn danger"
+                disabled={busy}
+                label={t("Remove from records")}
+                question={t("Remove {job} from your records?", { job })}
+                confirmLabel={t("Yes, remove it")}
+                onConfirm={softDelete}
+              />
             </details>
           </>
         ) : (

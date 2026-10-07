@@ -32,7 +32,7 @@
 // customer, the service and the time, which is ROADMAP 4.1's own wording for
 // what a confirmation has to show.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // **THE DASHBOARD'S SCOPE, NOT THE BOOKING PAGE'S.** `lib/i18n.js` is the
 // customer catalogue (`es.js`) and `lib/appI18n.js` is the detailer's
 // (`appEs.js`). This control is only ever on a detailer's screen, and the two
@@ -50,22 +50,38 @@ export function jobDoneQuestion({ name, service, time }) {
   return t("Mark {name}’s job at {time} as done?", { name, time });
 }
 
+// ROADMAP 4.1, THE SWEEP — cancel, no-show, remove and waive ask through this
+// same control, so each names the record the same way. One phrase, composed
+// from literal `t()` calls for the reason above, then dropped into each
+// question; the Spanish phrase carries its own article ("el … de …").
+export function jobPhrase({ name, service, time }) {
+  if (service) return t("{name}’s {service} at {time}", { name, service, time });
+  return t("{name}’s job at {time}", { name, time });
+}
+
 export default function ConfirmTap({
   label, question, confirmLabel, onConfirm,
-  className = "btn", icon = null, disabled = false, style,
+  className = "btn", confirmClassName = "btn primary", icon = null, disabled = false, style,
 }) {
   useAppLocale();
   const [asking, setAsking] = useState(false);
+  // THE ANSWER MUST BE REACHABLE WITHOUT SCROLLING FOR IT. Asked from the fold
+  // at the foot of the job record on a phone, the question lands at the very
+  // edge of the screen and the buttons below it are off it. `nearest` moves the
+  // page only when something is hidden, and the scroller's own
+  // `scroll-padding-bottom` keeps the answer clear of the pinned bar.
+  const answer = useRef(null);
+  useEffect(() => { if (asking) answer.current?.scrollIntoView({ block: "nearest" }); }, [asking]);
 
   // THE ANSWER REPLACES THE BUTTON RATHER THAN APPEARING UNDER IT. A second
   // block pushes everything below it down, which on a card in a list moves
   // the NEXT job's buttons under the thumb that is already travelling.
   if (asking) {
     return (
-      <div className="stack" style={{ gap: 8, ...style }}>
+      <div className="stack" ref={answer} style={{ gap: 8, ...style }}>
         <p className="quiet" style={{ margin: 0 }} role="alert">{question}</p>
         <div className="row" style={{ gap: 8 }}>
-          <button className="btn primary" disabled={disabled}
+          <button className={confirmClassName} disabled={disabled}
             onClick={() => { setAsking(false); onConfirm(); }}>
             {confirmLabel}
           </button>

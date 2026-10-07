@@ -7,10 +7,11 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { api } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
-import { money } from "../lib/format.js";
+import { money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented } from "./controls.jsx";
+import { jobPhrase } from "./ConfirmTap.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -222,11 +223,26 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
 
         {confirming ? (
           <div className="confirm-box">
+            {/* ROADMAP 4.1 — WAIVING GIVES THE JOB AWAY, so its question names
+                which job and says nothing will be collected, instead of the
+                generic "record $X as waived", which reads like bookkeeping. */}
+            {paymentStatus === "waived" ? (
+              <p>
+                {t("Waive {job}? Nothing will be collected for it.", {
+                  job: jobPhrase({
+                    name: booking.customer_name,
+                    service: (booking.services ?? []).map((sv) => sv.name_at_booking).filter(Boolean).join(" · "),
+                    time: time12(booking.start_time),
+                  }),
+                })}
+              </p>
+            ) : (
             <p>
               {t("Mark this job complete and record")} <strong>{money(finalAmount)}</strong> as{" "}
               <strong>{t(PAYMENT_LABELS[paymentStatus])}</strong>
               {items.length > 0 && <>{" "}{items.length === 1 ? t(", including {n} extra item", { n: items.length }) : t(", including {n} extra items", { n: items.length })}</>}?
             </p>
+            )}
             <div className="row" style={{ gap: 8, marginTop: 10 }}>
               <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>
                 {t("Go back")}

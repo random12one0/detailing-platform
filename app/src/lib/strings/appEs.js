@@ -1248,8 +1248,6 @@ export const appEs = {
   "Marked as not shown.": "Marcada como no presentada.",
   "Marked as canceled.": "Marcada como cancelada.",
   "They asked for": "Pidieron",
-  "Delete this booking? It is hidden, not destroyed, and can be restored by support.":
-    "¿Eliminar esta cita? Se oculta, no se destruye, y soporte la puede restaurar.",
   "Could not load bookings.": "No se pudieron cargar las citas.",
   "Could not load requests.": "No se pudieron cargar las solicitudes.",
   "a customer": "un cliente",
@@ -2365,6 +2363,17 @@ export const appEs = {
   // it: the second definition would have won silently and the first would have
   // looked maintained while doing nothing.
   "Not completed after all": "No estaba terminado",
+  // ROADMAP 4.1, the sweep — the step before no-show, cancel, remove and waive.
+  // {job} is the phrase below and carries its own article.
+  "{name}’s {service} at {time}": "el {service} de {name} de las {time}",
+  "{name}’s job at {time}": "el trabajo de {name} de las {time}",
+  "Mark {job} as a no-show?": "¿Marcar {job} como «no se presentó»?",
+  "Yes, they didn’t show": "Sí, no se presentaron",
+  "Cancel {job}? The customer is emailed.": "¿Cancelar {job}? Se avisa al cliente por correo.",
+  // "Yes, cancel it" already has an entry above.
+  "Remove {job} from your records?": "¿Quitar {job} de tus registros?",
+  "Yes, remove it": "Sí, quitarlo",
+  "Waive {job}? Nothing will be collected for it.": "¿Dejar sin cobrar {job}? No se cobrará nada.",
   // ROADMAP 4.1, ruling 3 — the way back from "Didn’t show up".
   "Showed up after all": "Sí se presentó",
   "Reminders and cancellations": "Recordatorios y cancelaciones",
