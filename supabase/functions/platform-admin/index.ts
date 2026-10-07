@@ -39,7 +39,15 @@ import { inviteEmail } from "../_shared/emailTemplates.ts";
 // ROADMAP 9.14 — a plain .js module so the one figure that must never be wrong
 // is runnable by node from tests/. See its header; brandColor.js is the
 // precedent for a .js file in _shared imported by a Deno function.
-import { costEntry, monthStart, nextMonthStart, platformNet } from "../_shared/platformNet.js";
+import {
+  COSTS_MISSING_READ,
+  COSTS_MISSING_WRITE,
+  costEntry,
+  costsTableMissing,
+  monthStart,
+  nextMonthStart,
+  platformNet,
+} from "../_shared/platformNet.js";
 
 interface Admin { id: string; email: string }
 
@@ -145,7 +153,15 @@ Deno.serve(async (req) => {
       // a different sentence on the screen and the wrong one — FOUND.md § 85,
       // READS DISCARDED THEIR ERROR, is the class.
       if (inv.error) return json({ error: "could not read platform invoices" }, 500);
-      if (costs.error) return json({ error: "could not read platform costs" }, 500);
+      // A MISSING TABLE IS ITS OWN SENTENCE, the same way the write answers it:
+      // the migration has not run, which is a fact about setup and not a fault,
+      // and the screen can say so as fact.
+      if (costs.error) {
+        console.error("platform_costs read failed:", costs.error);
+        return json({
+          error: costsTableMissing(costs.error) ? COSTS_MISSING_READ : "could not read platform costs",
+        }, 500);
+      }
 
       return json(platformNet({
         invoiceRows: inv.data ?? [],
@@ -172,10 +188,9 @@ Deno.serve(async (req) => {
       if (error) {
         console.error("platform_costs insert failed:", error);
         // 42P01 / PGRST205: the table is not there — the migration has not run.
-        const missing = ["42P01", "PGRST205"].includes((error as { code?: string }).code ?? "");
         return json({
-          error: missing
-            ? "Costs cannot be saved yet: the costs table has not been set up. Nothing was saved."
+          error: costsTableMissing(error)
+            ? COSTS_MISSING_WRITE
             : "The cost could not be saved. Nothing was saved; try again.",
         }, 500);
       }

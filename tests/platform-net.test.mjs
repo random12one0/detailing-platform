@@ -42,6 +42,9 @@ import {
   platformNet,
   costEntry,
   COST_CATEGORIES,
+  COSTS_MISSING_READ,
+  COSTS_MISSING_WRITE,
+  costsTableMissing,
 } from "../supabase/functions/_shared/platformNet.js";
 
 const MIGRATION = "supabase/migrations/20261006020000_hand_entered_platform_costs.sql";
@@ -272,5 +275,40 @@ test("ROADMAP 9.14 — revenue minus costs, and the empty-cost case", async (t) 
       "a refusal returns its own sentence as a 400");
     assert.match(block, /entered_by: admin\.id/, "who typed it is recorded");
     assert.match(block, /logIt\(admin, "platform_cost_add"/, "money entered is logged");
+  });
+
+  // --- A MISSING COSTS TABLE IS ITS OWN SENTENCE, ON THE READ AS WELL --------
+  await t.test("14 · the classifier names the two 'table is not there' codes and nothing else", () => {
+    assert.equal(costsTableMissing({ code: "42P01" }), true, "Postgres undefined_table");
+    assert.equal(costsTableMissing({ code: "PGRST205" }), true, "PostgREST schema-cache miss");
+    for (const other of [{ code: "42501" }, { code: "57014" }, { message: "boom" }, null, undefined]) {
+      assert.equal(costsTableMissing(other), false, `not a missing table: ${JSON.stringify(other)}`);
+    }
+    assert.notEqual(COSTS_MISSING_READ, "could not read platform costs",
+      "the missing-table sentence must differ from the generic read failure");
+    assert.match(COSTS_MISSING_READ, /not been set up/);
+    assert.match(COSTS_MISSING_WRITE, /not been set up/);
+  });
+
+  await t.test("15 · SOURCE CHECK — the read answers a missing table with that sentence, before the generic one", () => {
+    // nothing in supabase/ runs on this machine, so the function is read as text.
+    // The predicate is a function so it can be BROKEN ON PURPOSE below.
+    const readIsDistinct = (src) => {
+      const i = src.indexOf('action === "platform_net"');
+      const block = src.slice(i, i + 3200);
+      const m = block.indexOf("if (costs.error) {");
+      if (i < 0 || m < 0) return false;
+      const branch = block.slice(m, m + 600);
+      return /costsTableMissing\(costs\.error\)\s*\?\s*COSTS_MISSING_READ\s*:\s*"could not read platform costs"/.test(branch);
+    };
+    const src = readFileSync(FUNCTION, "utf8");
+    assert.equal(readIsDistinct(src), true, "the costs read must answer a missing table with COSTS_MISSING_READ");
+    // The write uses the same classifier, so the two cannot drift apart.
+    assert.match(src, /costsTableMissing\(error\)\s*\?\s*COSTS_MISSING_WRITE/);
+    // BROKEN ON PURPOSE: the same predicate over the source with the distinct
+    // branch removed must read false, or this check would pass over any file.
+    const broken = src.replace("costsTableMissing(costs.error) ? COSTS_MISSING_READ : ", "");
+    assert.notEqual(broken, src, "the sabotage must change something");
+    assert.equal(readIsDistinct(broken), false, "the check must go red when the distinct branch is gone");
   });
 });

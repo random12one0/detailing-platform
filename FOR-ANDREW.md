@@ -1038,6 +1038,17 @@ still knows them.
   rather than a wrong number — which is deliberate, because a failed read must
   never be mistaken for “no costs this month”.
 
+  **ADDED 2026-10-06 — what the back-office screen says today, and what it will say.**
+  The version of this function that is live now is older than the cost
+  figure, so the back-office screen shows the words “business_id is required”
+  where the figure should be. That is the old function not knowing the
+  question, not a fault in your data. The new version, once published, answers
+  in plain words: if the table has not been added yet it says **“Costs cannot
+  be shown yet: the costs table has not been set up,”** the same way typing a
+  bill already does. So publishing in the order above — table first, function
+  second — is what makes that line stop appearing. **Written and checked here
+  only; nothing has been published.**
+
   **The part that saves a typed-in bill is now built too (2026-10-06), inside
   the same `platform-admin` function — so it is still one publish, not two.**
 

@@ -163,6 +163,22 @@ export function platformNet({ invoiceRows, costRows, periodMonth }) {
 // this is the only place node can execute it. Every refusal is a sentence a
 // person can act on, because the screen shows it as-is.
 
+// ---------------------------------------------------------------------------
+// "THE COSTS TABLE IS NOT THERE" IS A FACT, AND THE SCREEN SHOULD BE ABLE TO SAY
+// IT AS ONE. Both the read and the write answer it with a sentence of its own
+// rather than the generic failure, so a migration that has not run reads as
+// "not set up yet" and not as a fault in the platform. 42P01 is Postgres's
+// undefined_table; PGRST205 is PostgREST's table-not-in-schema-cache.
+// ---------------------------------------------------------------------------
+
+/** True when a Supabase error means the platform_costs table does not exist. */
+export function costsTableMissing(error) {
+  return ["42P01", "PGRST205"].includes(error?.code ?? "");
+}
+
+export const COSTS_MISSING_READ = "Costs cannot be shown yet: the costs table has not been set up.";
+export const COSTS_MISSING_WRITE = "Costs cannot be saved yet: the costs table has not been set up. Nothing was saved.";
+
 /** The table's own CHECK list. tests/platform-net.test.mjs holds the two equal. */
 export const COST_CATEGORIES = ["hosting", "database", "email", "domain", "other"];
 
