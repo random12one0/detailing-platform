@@ -111,9 +111,10 @@ const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
 // PARSER GUARD. Deliberately well below the real count: closing queue rows must
 // never redden this, and a parser that matches nothing must.
 const PARSE_FLOOR = 8;
-// THE DECLARATION. Exact. 16 rows on 2026-10-03; 14 on 2026-10-06 after 3.4c and 2.12 closed and left the table.
+// THE DECLARATION. Exact. 16 rows on 2026-10-03; 14 on 2026-10-06 after 3.4c and 2.12 closed and left the table. 13 after that; 12 after 14.22
+// was ticked and its row came out (its old probe, a grep for a bare "visit" in Clients.jsx, is false now by design). Row numbers keep their gap.
 // Move it in the SAME EDIT as the table, with a sentence saying why.
-const DECLARED_ROWS = 13;
+const DECLARED_ROWS = 12;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
@@ -141,7 +142,6 @@ function rowsFromDoc() {
 /** Commands, keyed by item id. Membership and order come from the document. */
 const CMD = {
   "9.11": { done: "2026-10-03 02:01 — the other lane re-ran the sweep; receipt git_sha 50767da. Clause 2 is Andrew's." },
-  "14.22": { cmd: `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -qv '^t('` },
   "14.21": {
     unverifiable:
       "the teardown is written (finally, crash flag, signal handlers) and the clean and crash runs are proved; what is open is the SIGNAL clause, which a run under `timeout` cannot attribute to the handlers (the table came back the same with the handlers removed). The old probe, no SIGTERM in the script, is false now and would have read the row as gone.",

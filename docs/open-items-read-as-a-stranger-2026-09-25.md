@@ -1907,7 +1907,6 @@ dependency on something unbuilt**. The first step is the literal next action.
 | # | item | lane | first step |
 |---|---|---|---|
 | **1** | **9.11**, first clause | `scripts/` | **Re-run `sweep-widths.mjs` against the fixed tree.** Nothing to build — the receipt on disk still reads `"status": "fail"` over a `git_sha` that is an **ancestor** of the fix, so it reads as a live failure to anyone who does not check the sha. One run. |
-| **2** | **14.22** | `app/src` | **Wrap `Clients.jsx:742` in `t()`**, matching line 709 thirty-three rows above. Then `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx \| grep -v '^t('` must print nothing, and the record card must read `visita`/`visitas` in Spanish. |
 | **3** | **14.21** | `scripts/` | **Put `admin-contrast.mjs`'s teardown in a `finally` AND add a SIGINT/SIGTERM handler**, then prove all three exits — clean, `--crash-after-signin`, SIGTERM — each leaving `platform_admins` unchanged. A `finally` alone is not enough; `gotchas` 90 is why. |
 | **4** | **14.26's fix** | `scripts/` | **Make `seed-demo.mjs` create one booking with `address_source = 'picked'` every run.** There are **zero** such rows in the database today and 2.8's tick depends on one existing. |
 | **5** | **7.18** | `scripts/` | **Write the `.ld` nav check and run it ONCE, unmodified, before patching anything** — it must name `/terms` and `/privacy`. Verified 2026-10-03: `grep -c "navmenu\|burger" app/src/landing/LegalPage.jsx` is **0**, so that expected output is correct. |
