@@ -23,7 +23,8 @@
 // **(2) THE FILES.** `forget_customer()` deletes the `job_photos` ROWS, but a
 // row is not a photo — the images live in the private `job-photos` bucket and
 // SQL cannot reach object storage. So the paths are read and the objects
-// removed HERE, BEFORE the SQL call, and a failure to remove them ABORTS: a
+// removed HERE (from Supabase Storage AND from R2 since ROADMAP 0.11 — see
+// `_shared/forgetPhotos.ts`), BEFORE the SQL call, and a failure to remove them ABORTS: a
 // deletion that leaves a stranger's car outside their own house in a bucket,
 // while reporting success, is the worst outcome this endpoint has.
 //
@@ -41,6 +42,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { requireMember } from "../_shared/tenant.ts";
+import { removePhotoFiles } from "../_shared/forgetPhotos.ts";
+import { makeR2, r2Config } from "../_shared/r2.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -77,33 +80,37 @@ Deno.serve(async (req) => {
     }
 
     const paths = (photos ?? []).map((p: { path: string }) => p.path);
-    let filesRemoved = 0;
-    if (paths.length) {
-      const { data: removed, error: rmErr } = await supabase.storage.from("job-photos").remove(paths);
-      // ABORTS RATHER THAN CARRYING ON. Everything else here is recoverable by
-      // pressing the button again; a file left behind after the rows naming it
-      // are gone is not reachable by anything, ever.
-      if (rmErr) {
-        console.error("delete-customer could not remove photo files:", rmErr);
-        return json({
-          error: "We could not delete their photos, so nothing was deleted. Please try again.",
-        }, 500);
-      }
-      filesRemoved = (removed ?? []).length;
-      // **A `remove` THAT MATCHED NOTHING RETURNS AN EMPTY LIST AND NO ERROR**,
-      // so "no error" is not "the files are gone". Without this the endpoint
-      // reports a clean deletion while a stranger's car is still sitting in a
-      // private bucket — the one outcome this whole path exists to prevent,
-      // and the one nobody would ever look for because the screen said yes.
-      if (filesRemoved !== paths.length) {
-        console.error(
-          `delete-customer removed ${filesRemoved} of ${paths.length} photo files; nothing else was deleted`,
-        );
-        return json({
-          error: "We could not delete all of their photos, so nothing was deleted. Please try again.",
-        }, 500);
-      }
+
+    // ROADMAP 0.11 SLICE 3 — THE FILES ARE REMOVED FROM EVERY STORE THEY MAY BE
+    // IN, and only "confirmed gone from both" counts. `_shared/forgetPhotos.ts`
+    // has the reasoning and is run by `tests/forget-photos.test.mjs`; the short
+    // version is that job photos live in Supabase Storage until the app switches
+    // and in R2 after, the row does not say which, and neither store's delete
+    // says anything when the file was never there.
+    //
+    // ABORTS RATHER THAN CARRYING ON. Everything else here is recoverable by
+    // pressing the button again; a file left behind after the rows naming it
+    // are gone is not reachable by anything, ever.
+    const { config: r2Cfg } = r2Config((n) => Deno.env.get(n));
+    const files = await removePhotoFiles(businessId, paths, {
+      r2: r2Cfg ? makeR2(r2Cfg) : null,
+      supa: {
+        remove: async (ps) => ({ error: (await supabase.storage.from("job-photos").remove(ps)).error }),
+        async exists(path) {
+          const at = path.lastIndexOf("/");
+          const { data, error } = await supabase.storage.from("job-photos")
+            .list(path.slice(0, at), { search: path.slice(at + 1), limit: 10 });
+          if (error) throw error;
+          return (data ?? []).some((o: { name: string }) => o.name === path.slice(at + 1));
+        },
+      },
+    }, (...a) => console.error(...a));
+    if (!files.ok) {
+      return json({
+        error: "We could not delete their photos, so nothing was deleted. Please try again.",
+      }, 500);
     }
+    const filesRemoved = files.gone;
 
     const { data, error } = await supabase.rpc("forget_customer", {
       p_business_id: businessId,

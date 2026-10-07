@@ -345,7 +345,10 @@ console.log("\n6. what only reading the source can see");
   // THE ORDER IS THE ONLY THING HERE THAT CAN GO WRONG QUIETLY. Rows first
   // loses the paths — the rows that name them are gone — and the files are
   // then unreachable and undeletable for ever.
-  const removeAt = edge.indexOf('storage.from("job-photos").remove');
+  // ROADMAP 0.11 SLICE 3 — the removal moved into `_shared/forgetPhotos.ts`
+  // (both stores, each asked afterwards); `tests/forget-photos.test.mjs` runs
+  // that. What only this file can say is WHERE it is called from.
+  const removeAt = edge.indexOf("removePhotoFiles(");
   const rpcAt = edge.indexOf('rpc("forget_customer"');
   check("6a · the FILES are removed before the rows that name them",
     removeAt > 0 && rpcAt > 0 && removeAt < rpcAt, `${removeAt} / ${rpcAt}`);
@@ -353,7 +356,7 @@ console.log("\n6. what only reading the source can see");
   // A failed file removal must ABORT. Carrying on leaves a stranger's car in
   // a bucket with nothing left pointing at it, and reports success.
   check("6b · and a failed removal stops everything rather than carrying on",
-    /if \(rmErr\)[\s\S]{0,400}return json\(/.test(edge));
+    /if \(!files\.ok\)[\s\S]{0,400}return json\(/.test(edge));
 
   // Writing "deleted dana@example.com" to a log keeps the address after being
   // asked to destroy it, in the one place nobody would look.
