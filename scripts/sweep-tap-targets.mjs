@@ -126,7 +126,7 @@ const measure = async (page, where) => {
 
 // --------------------------------------------------------------------- OPEN
 const browser = await chromium.launch();
-const openDash = async (width, lang) => {
+const openDash = async (width, lang, quiet = false) => {
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   // THE DASHBOARD'S LANGUAGE IS `dp.lang.app` IN localStorage, NOT `?lang=es`,
@@ -147,7 +147,7 @@ const openDash = async (width, lang) => {
     // THE SIGN-IN SCREEN IS A SCREEN. It is the first thing anybody sees and
     // no sweep in this repo has ever measured a control on it.
     await settle(page, 1200);
-    await measure(page, `${width}/${lang}/sign-in`);
+    if (!quiet) await measure(page, `${width}/${lang}/sign-in`);
     await page.fill("input[type=email]", "demo@detailplatform.com");
     await page.fill("input[type=password]", demoOwner().password);
     await page.click("form button.btn.primary");
@@ -275,14 +275,21 @@ const runAdminCanary = async (browser, runs = 5) => {
   return { caught, runs, restored, before, detail };
 };
 
-// ----------------------------------------------------------------- BASELINE
-if (BASELINE) {
-  // ONE SCREEN, ONE WIDTH. An instrument is proved, not surveyed.
-  const { ctx, page } = await openDash(392, "en");
+// ── THE DASHBOARD CANARY: THE FIVE `BREAKS`, EACH APPLIED TO ONE REAL SCREEN
+// AND REQUIRED TO BE REPORTED BY ITS OWN CHECK. Lifted out of `--baseline`
+// 2026-10-06 (ROADMAP 4.6) so the default walk can write a receipt with a
+// negative control in it; before this the five were exercised only by
+// `--baseline`, which wrote no receipt either. It returns its problems rather
+// than adding them to `findings`, because a caller that is only borrowing the
+// canary must not have the canary's own faults counted as findings about the
+// product.
+const runDashCanary = async (browser) => {
+  const { ctx, page } = await openDash(392, "en", true);
   await goTab(page, "clients");
   const before = await page.evaluate(TAP_PROBE, ARGS);
   console.log(`\nthe real screen first: ${before.subjects} controls, ${before.findings.length} findings\n`);
   let blind = 0;
+  const problems = [];
   for (const [check, fn] of Object.entries(BREAKS)) {
     const what = await page.evaluate(fn);
     await settle(page, 600);
@@ -294,7 +301,7 @@ if (BASELINE) {
     const named = got.length ? got[0].el : "";
     console.log(`${got.length ? "SEES " : "BLIND"}  ${check.padEnd(12)} ${what}`
       + (got.length ? `  →  ${got.length} findings, first: ${named} — ${got[0].detail}` : ""));
-    if (!got.length) { blind++; add("baseline", { check: "BASELINE", el: check, detail: `the "${check}" check did not report its own deliberate fault (${what})` }); }
+    if (!got.length) { blind++; problems.push({ check: "BASELINE", el: check, detail: `the "${check}" check did not report its own deliberate fault (${what})` }); }
     // RESTORE, AND PROVE THE RESTORE. A break that survives into the next
     // measurement makes every later check look broken; a restore nobody checks
     // is the same bug one level up.
@@ -304,9 +311,18 @@ if (BASELINE) {
     const same = back.subjects === before.subjects && back.findings.length === before.findings.length;
     console.log(`       restored   ${back.subjects} controls, ${back.findings.length} findings `
       + (same ? "— back to where it started" : "— *** NOT back to where it started ***"));
-    if (!same) add("baseline", { check: "BASELINE", el: check, detail: `undoing the "${check}" break did not restore the screen (${before.subjects}/${before.findings.length} → ${back.subjects}/${back.findings.length})` });
+    if (!same) problems.push({ check: "BASELINE", el: check, detail: `undoing the "${check}" break did not restore the screen (${before.subjects}/${before.findings.length} → ${back.subjects}/${back.findings.length})` });
   }
   await ctx.close();
+  return { runs: Object.keys(BREAKS).length, blind, problems,
+    restored: !problems.some((q) => /did not restore/.test(q.detail)) };
+};
+// ----------------------------------------------------------------- BASELINE
+if (BASELINE) {
+  // ONE SCREEN, ONE WIDTH. An instrument is proved, not surveyed.
+  const dash = await runDashCanary(browser);
+  let blind = dash.blind;
+  for (const q of dash.problems) add("baseline", q);
 
   const adminCanary = await runAdminCanary(browser, 5);
   if (adminCanary.caught < adminCanary.runs) {
@@ -323,6 +339,18 @@ if (BASELINE) {
 
 // --------------------------------------------------------------------- WALK
 console.log(`floor ${FLOOR}px of reach, cap ${CAP}px a side, widths ${WIDTHS.join("/")}, languages ${LANGS.join("/")}\n`);
+// THE DASHBOARD / SETTINGS / LANDING RECEIPT'S OWN BASELINE - ROADMAP 4.6. Snapshotted
+// here so the receipt describes this walk only, never the sign-in screen the
+// canary opens or the back office that runs after it.
+const screensBeforeDash = screens, probesBeforeDash = probes, findingsBeforeDash = findings.length;
+// DECLARED PER COMBO: the sign-in screen and the five tabs. The settings doors are
+// the opposite on purpose - read out of the product, never typed here - so what
+// is expected of them is the number of rows each index DREW, added up as the
+// walk reads them, and a row that was drawn but never measured (row-vanished,
+// door-shut, walk-failed) is a shortfall against that number.
+const DASH_FIXED_PER_COMBO = 1 + TABS.length;
+let expectedSettings = 0, dashShotTaken = false;
+const dashArtifacts = [];
 for (const width of WIDTHS) {
   for (const lang of LANGS) {
     const { ctx, page } = await openDash(width, lang);
@@ -332,6 +360,14 @@ for (const width of WIDTHS) {
       if (!want(key)) continue;
       await goTab(page, key);
       await measure(page, `${width}/${lang}/${key}`);
+      // ONE REAL FRAME FOR THE RECEIPT: a viewport frame (ROADMAP 9.11d), the first screen measured.
+      if (!dashShotTaken) {
+        dashShotTaken = true;
+        const shotDir = fileURLToPath(new URL("../receipts/screenshots/sweep-tap-targets-dashboard/", import.meta.url));
+        mkdirSync(shotDir, { recursive: true });
+        await page.screenshot({ path: join(shotDir, `${key}-${width}-${lang}.png`) });
+        dashArtifacts.push(`receipts/screenshots/sweep-tap-targets-dashboard/${key}-${width}-${lang}.png`);
+      }
     }
 
     // THE SETTINGS SCREENS BEHIND BOTH DOORS.
@@ -357,6 +393,7 @@ for (const width of WIDTHS) {
       await open();
       const rows = await indexRows(page);
       const n = rows.length;
+      expectedSettings += n;
       if (!n) {
         // A DOOR WITH NO ROWS BEHIND IT IS NOT A CLEAN DOOR.
         add(`${width}/${lang}/${door}`, { check: "no-doors", el: "(the index)", detail: `no .nav-row settings doors were found behind "${door}" — the index did not draw, or the handle moved` });
@@ -461,6 +498,65 @@ for (const width of WIDTHS) {
     await measure(page, `${width}/en${path}`);
     await ctx.close();
   }
+}
+
+// ── THE DASHBOARD / SETTINGS / LANDING RECEIPT - ROADMAP 4.6, 2026-10-06. ─────
+// The admin receipt below has said since 4.5 that this half was "not represented".
+// This is the sibling that represents it: its own check_id, its own declared
+// expectation, its own canary (the five `BREAKS`), graded by `receipt.mjs`.
+// **A NARROWED RUN WRITES NONE.** `--only` skips tabs and doors, and a receipt
+// whose expectation was quietly narrowed to match proves nothing; it says it did
+// not write one. `--widths` and `--lang` are honest narrowing (the expectation
+// is computed from them) and still write.
+// **UNMEASURED UNTIL THE FIRST BROWSER RUN, said here so nobody reads these as
+// measured:** the 100-probes-per-screen floor is a guess below the ~1,336 the
+// back office averages, and the settings-door count has no floor beyond "the
+// index drew at least one row" (the `no-doors` finding). Both get a measured
+// value from the first run (ROADMAP 4.6).
+if (ONLY) {
+  skips.push(`the dashboard receipt was not written because --only ${ONLY} narrows the walk`);
+} else {
+  const dashDiscovered = screens - screensBeforeDash;
+  const dashProbes = probes - probesBeforeDash;
+  const dashFindings = findings.slice(findingsBeforeDash);
+  const dashExpected = WIDTHS.length * LANGS.length * DASH_FIXED_PER_COMBO + expectedSettings + WIDTHS.length * 2;
+  const dc = await runDashCanary(browser);
+  const dcOk = dc.blind === 0 && dc.restored && dc.problems.length === 0;
+  const dashStatus = dashFindings.length === 0 && dashDiscovered === dashExpected && dcOk ? "pass" : "fail";
+  const { path: dashReceipt } = writeReceipt({
+    check_id: "sweep-tap-targets-dashboard",
+    started_at,
+    status: dashStatus,
+    expected_targets: dashExpected,
+    discovered_targets: dashDiscovered,
+    attempted_targets: dashDiscovered,
+    completed_targets: dashDiscovered,
+    skipped_targets: Math.max(0, dashExpected - dashDiscovered),
+    assertions_executed: dashProbes,
+    min_assertions: Math.max(1, dashDiscovered) * 100,
+    failures: [
+      ...dashFindings.map((f) => `${f.where}: ${f.check} - ${f.el} - ${f.detail}`),
+      ...dc.problems.map((q) => `dashboard canary: ${q.el} - ${q.detail}`),
+    ],
+    artifacts: dashArtifacts,
+    warnings: skips.filter((x) => !(x.toLowerCase().includes("admin") || x.toLowerCase().includes("back office"))),
+    dimensions: {
+      scope: "the detailer dashboard (sign-in, five tabs, every settings door behind Business and the gear) and the landing and pricing pages; the /admin back office is in receipts/sweep-tap-targets.json",
+      widths: WIDTHS,
+      langs: LANGS,
+      fixed_screens_per_combo: DASH_FIXED_PER_COMBO,
+      settings_doors_read_from_the_product: expectedSettings,
+      landing_paths: ["/", "/pricing"],
+      canary_breaks: `${dc.runs - dc.blind}/${dc.runs}`,
+      canary_restored: dc.restored,
+    },
+    canary: {
+      id: "the five BREAKS in scripts/lib/tapProbe.mjs, each applied to the Clients tab at 392px and required to be reported by its own check",
+      observed_failure: dcOk,
+      findings: dc.problems.map((q) => q.detail),
+    },
+  });
+  console.log(`\nreceipt (dashboard, settings, landing) -> ${dashReceipt}`);
 }
 
 // THE BACK OFFICE — CREDENTIAL-FREE NOW, WHICH IT WAS NOT WHEN THIS SECTION
@@ -624,7 +720,7 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
     artifacts: adminArtifacts,
     warnings: skips.filter((s) => s.toLowerCase().includes("admin") || s.toLowerCase().includes("back office")),
     dimensions: {
-      scope: "the /admin back office only — this script's dashboard, settings and landing/pricing sections are not represented in this receipt",
+      scope: "the /admin back office only — the dashboard, settings and landing/pricing sections are in receipts/sweep-tap-targets-dashboard.json",
       admin_widths: ADMIN_WIDTHS,
       langs: LANGS,
       expected_screens_per_combo: EXPECTED_ADMIN_SCREENS_PER_COMBO,
