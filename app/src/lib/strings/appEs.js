@@ -1536,8 +1536,8 @@ export const appEs = {
   // ROADMAP 0.11, slice 1 — the photo door's plain sentences (`photo-door.js`).
   "Photo storage is not set up on the server yet. Nothing was saved.":
     "El almacenamiento de fotos aún no está configurado en el servidor. No se guardó nada.",
-  "Could not reach the photo service. Nothing was saved. Check your connection and try again.":
-    "No se pudo conectar con el servicio de fotos. No se guardó nada. Revisa tu conexión e inténtalo de nuevo.",
+  "Could not reach the photo service. Nothing was saved. Check your connection. If it is fine, photo storage may not be set up on the server yet.":
+    "No se pudo conectar con el servicio de fotos. No se guardó nada. Revisa tu conexión. Si está bien, puede que el almacenamiento de fotos aún no esté configurado en el servidor.",
   "The photo service had a problem. Nothing was saved. Try again in a minute.":
     "El servicio de fotos tuvo un problema. No se guardó nada. Inténtalo de nuevo en un minuto.",
   "The photo service sent back something this screen cannot use. Reload this job and check before trying again.":

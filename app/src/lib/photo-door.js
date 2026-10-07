@@ -76,7 +76,7 @@ export const DOOR_BATCH = 100;
 // them: they are shown on the dashboard in whichever language it is set to.
 export const DOOR_WORDS = {
   missing: "Photo storage is not set up on the server yet. Nothing was saved.",
-  unreachable: "Could not reach the photo service. Nothing was saved. Check your connection and try again.",
+  unreachable: "Could not reach the photo service. Nothing was saved. Check your connection. If it is fine, photo storage may not be set up on the server yet.",
   failed: "The photo service had a problem. Nothing was saved. Try again in a minute.",
   unreadable: "The photo service sent back something this screen cannot use. Reload this job and check before trying again.",
   putFailed: "The photo did not finish uploading. Nothing was saved.",
@@ -96,7 +96,12 @@ const refuse = (which) => { throw new Error(DOOR_WORDS[which]); };
  *   5xx                           → the service fell over.
  *   any other status              → the server's own sentence, untouched: this
  *                                   is where the over-cap message arrives.
- *   a TypeError (fetch itself)    → no connection.
+ *   a TypeError (fetch itself)    → no connection, OR a function that was never
+ *                                   published: the gateway's 404 for one carries no
+ *                                   CORS headers, so the browser blocks it and the
+ *                                   page sees the same TypeError as being offline.
+ *                                   Found by pressing it against the real server
+ *                                   (2026-10-06), which is why the sentence names both.
  *   anything else                 → passed through (the preview tab's
  *                                   "looking only" refusal is a plain Error).
  */
