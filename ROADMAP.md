@@ -10334,6 +10334,42 @@ most corroborated finding in the set.
   only after Andrew publishes the six functions; `send-invoice` resends on a repeat and needs a key from the client (a change in `app/src` and in the
   function together); and `update-booking`'s `add_ons` delete-and-reinsert would double under two concurrent presses but no screen sends it.
 
+  ***6.4, THE SERVER HALF OF A CLIENT KEY FOR `send-invoice`, BUILT 2026-10-06 (DP Cowork2, Lane B). Code, one migration and tests only; NOTHING APPLIED, NOTHING PUBLISHED, no live
+  database touched. The box stays `[ ]`: the app half is DP Cowork's, and the publish and the migration are Andrew's.***
+  **What it fixes.** `send-invoice` writes no row, so unlike a booking it has no natural key that tells a retry from a deliberate "send it again": two presses sent two invoices and a
+  thank-you email each. The only thing that can tell them apart is the client, so the function now accepts an `idempotency_key` and answers a repeat of the same key without sending.
+  **Files:** `supabase/functions/_shared/sendInvoiceClaim.ts` (the state machine, import-free so node runs it), the claim wired into `supabase/functions/send-invoice/index.ts`, and
+  `20261006062000_send_invoice_attempts.sql` (one small service-role-only table, no customer data, listed in `FOR-ANDREW.md` Part 1b).
+  **THE CONTRACT, and exactly what `app/src` must send** (the call is `api.sendInvoice` at `app/src/lib/api.js:102`, used at `BookingDetail.jsx:668`):
+  1. **Send `idempotency_key` in the body**, beside `business_id` and `booking_id`: a UUID, `crypto.randomUUID()`.
+  2. **Make the key once per INTENT to send, and keep it in the component (a ref), not recompute it.** The first press of *Send invoice* on a job record makes it.
+     **Every retry of that intent sends the SAME key**: a second tap while the first is unanswered, a thrown network error, a timeout, a 5xx, a 409, and the
+     `email_failed` answer (the server marks a failed key as retryable).
+  3. **Make a NEW key after the press succeeded** (any `success: true`, duplicate or not), so a deliberate *Send again* later is a new intent and goes through, and a new key
+     whenever the record opens on a different booking. **Never derive the key from the booking id** (that would make a second send impossible), and never reuse one across bookings.
+  4. **Answers to handle:** `200 { success: true, thank_you_sent }` is sent. **`200 { success: true, duplicate: true, thank_you_sent }` means an earlier press with this key already sent it: show
+     the same "invoice sent" notice, not an error.** `200` with `idempotent: false` is sent but unprotected (the table is not applied yet): treat as success. **`409 { error: "in_progress" }`
+     means another press of the same intent is still sending: do not show a failure; wait a moment and press again with the SAME key, which will then answer `duplicate`.**
+     `400 { error: "idempotency_key must be a UUID" }` is a bug in the caller. `502 { error: "email_failed" }` is a real failure: keep the same key for the retry. Any other answer as today.
+  5. **No key is the old behaviour, unchanged**: every press sends. A client that does not send one is not broken, just unprotected.
+  **Server rules, the states:** per (booking, key) `sending`, then `sent` or `failed`. A claim is the primary key's insert; a `failed` key is taken by exactly one retry; a key left `sending` for more than
+  two minutes is a crash and exactly one caller takes it over; both are compare-and-sets on the state, never a read then a write. A key written in capitals is the same key as its lower-case form.
+  **A store that cannot be used (the migration not applied) does not stop the invoice:** the answer is `idempotent: false` and it sends as it always did.
+  **Proved, in node and on PGlite, nothing live.** `node --test tests/send-invoice-key.test.mjs`, 6 pass: fifteen properties of the state machine on the real module, including two presses at once
+  sending ONE email (the function's own claim sequence with a counter standing in for Resend, said in the test), a failed key retried by exactly one of two presses, a stale send taken by exactly one,
+  a malformed key an error and never "no key", and **nine rebuilds of the module with one guard removed each, each turning its own probe red**; and `send-invoice` read as text: it claims after its own
+  checks (so an unfinalized booking never claims a key) and before anything is built or sent, releases the key on both failure exits, settles on success and says `idempotent: false` when nothing was deduped.
+  `node --test tests/send-invoice-key-sql.test.mjs`, 6 pass on PGlite (outside the repo through `PGLITE_DIR`, loud skip without it, as `tests/action-log-sql.test.mjs`): the primary key makes a claim atomic,
+  the state check, the cascade from the booking, the lock against a browser role, the compare-and-set the function issues winning once, and each of the primary key, the check and the revoke removed and seen.
+  **NOT PROVEN, said plainly:** that the deployed function does it (not published) or that supabase-js issues the statements the PGlite case runs (the call is read as text, and the table's own
+  behaviour is proved separately); an email actually going out (no Resend call was made); and the TypeScript, which no compiler here has checked. **One residual:** if the write that marks a key `sent` is lost
+  after the email went out, the row stays `sending`, and a retry two minutes later could send once more. The function logs it (`the invoice went out but its key could not be marked sent`, with the booking id); it is the only way
+  left to see a second invoice with a key in use.
+  **What DP Cowork should prove on the app half:** press *Send invoice* twice quickly on a fixture business's finalized job, with the function published and the table applied (Andrew's), and read `email_sends`
+  for that booking: one invoice and one thank-you, not two; then press *Send again* after the first answered and read two. **Red proof:** take the key out of the call and the same two presses read two and two.
+  **Incident, said because it is the kind of thing that is easy to omit:** while checking neighbours I ran `tests/email-sends.test.mjs`, which loads the root `.env` itself and so started its credentialed half.
+  It signed in as the demo owner and read the demo business's bookings, **and refused §§ 2 to 4 before touching anything** (*"REAL MAIL IS OPT-IN"*), so no email was sent and no row was written. I did not run it again.
+
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**
   Found 2026-10-06 by DP Cowork while building 6.4(a); said in that commit

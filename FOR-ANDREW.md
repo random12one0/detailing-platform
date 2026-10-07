@@ -138,6 +138,24 @@ screen shows, and a check measuring it mid-run reports your change as a fault.
    through the server). **Unblocks ROADMAP 8.10d.** Afterwards
    `node tests/owner-writes.test.mjs` goes from one red line to green.
 
+### Part 1b · Two more database changes, written after the list above, and neither one blocks anything
+
+Both are finished and tested on a throwaway database, and both are safe in either order with the programs that use them:
+the program works without the table and says so in its answer, it just does not do the extra thing until the table exists.
+**Pass the file names exactly, as in Part 1.** Never run the command with no names after it.
+
+1. **`20261006050000_action_log.sql`**: the memory behind "who completed, cancelled, no-showed, waived or deleted a job,
+   and when" (ROADMAP 4.1). `update-booking` writes one row per change. Apply it **before** publishing `update-booking`
+   (Part 2, step 3): published first, the program still works, logs the failure and answers `audit_recorded: false` on
+   every change until the table exists. It holds the one field that changed and nothing about the customer.
+2. **`20261006062000_send_invoice_attempts.sql`**: the memory behind "press Send invoice twice, get one invoice" (ROADMAP 6.4).
+   `send-invoice` already works without it (it answers `idempotent: false` and sends as before). **Nothing changes for a
+   detailer until the website also sends the key**, which is a screen change DP Cowork is wiring, so there is no hurry
+   and no order.
+
+`node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_send_invoice_attempts.sql`
+then `node scripts/migration-drift.mjs`, which should stop naming both.
+
 ### Part 2 · Publish the programs, in your settled order
 
 **The order is your own, from the night of 2026-09-21 — restated, not reopened:**
