@@ -12507,7 +12507,7 @@ rather than wording went to Andrew.
     nothing limits columns on INSERT, so a browser could insert its own booking
     with a made-up `weather`). Not sized; INSERT has a real browser caller.
 
-- [ ] **7.18 — There is no check that every `.ld` marketing page carries the
+- [x] **7.18 — There is no check that every `.ld` marketing page carries the
   same required nav elements, and three separate items today needed a person
   to notice that one of them didn't.**
 
@@ -12584,6 +12584,35 @@ rather than wording went to Andrew.
 
   *Found while correcting ROADMAP 7.12, 2026-09-22. Not from either audit —
   the pattern is the finding.*
+
+  ***CHECK WRITTEN AND PROVED 2026-10-06 — `tests/ld-pages-carry-the-nav.test.mjs`.
+  IT IS RED TODAY, ON PURPOSE, AND THE RED IS THIS ITEM'S DONE-WHEN.***
+  It lives in `tests/`, not `scripts/`, so it needed no lane exception. It
+  discovers the `.ld` pages by their root class (three today, with a floor of
+  three and the three names asserted, so a parser that stops matching cannot
+  read as all-clear), asks each for a `.burger` button, an `id="navmenu"` and a
+  `Sign in` link **inside** that menu, and resolves each failing file to the
+  URLs `main.jsx` serves from it. JSX comments are stripped before reading,
+  because `PricingPage.jsx`'s own comments quote the very strings.
+  **Run once, unmodified, against the repo as it stood (HEAD `dd33fbc`, no
+  `LegalPage.jsx` change):** `node --test tests/ld-pages-carry-the-nav.test.mjs`
+  exits 1 and prints *"LegalPage.jsx (/terms, /privacy) is missing a .burger
+  button and an id="navmenu" menu"*; `LandingPage.jsx` and `PricingPage.jsx`
+  pass. **Both URLs are named, which is the clause that makes it a check rather
+  than a pass.** Three sections are green and one is red: discovery, the
+  sabotage (each of the three pieces removed from the page known to be whole is
+  seen, and a `Sign in` in the bar does not satisfy the one in the menu), the
+  route map (`LegalPage.jsx` → `/privacy`, `/terms`), and the real result is
+  the red one.
+  **What it cannot see:** a burger drawn by a helper component (it would go red
+  on a page that is fine, the safe direction), whether the burger opens, and
+  anything at a width — the live DOM reading the item mentions was the
+  manager's, not this check's. The sign-up pill is not asked about, by design.
+  **Not fixed here, as the item says:** `LegalPage.jsx` is `app/src`, so
+  `/terms` and `/privacy` still have no way into the menu on a phone and the
+  suite stays red in `node --test tests/*.test.mjs` until that file is patched.
+  **That red is the next job (Lane A), and the proof it is done is this suite
+  going green.**
 
 ## Wave 8 — Field usability
 
