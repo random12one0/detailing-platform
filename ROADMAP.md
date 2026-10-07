@@ -20359,6 +20359,33 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   entry is the finding, not the closure, and the probe's two numbers per cell are the proof if somebody wants to re-take them
   (about seventy lines of Playwright, read-only; ask for it).
 
+  ***THE CHECK IS FIXED, 2026-10-06 (DP Cowork2, Lane B\*), ON THE MANAGER'S INSTRUCTION AND A LANE EXCEPTION FOR EXACTLY
+  `scripts/bk-bar-clearance.mjs`. THE THREE FINDINGS ARE GONE FOR THE RIGHT REASON; THE BOX IS THE MANAGER'S TO CLOSE.***
+  **What changed.** `FURNITURE` now takes every scroller to the end of its range (the document and any inner scroller, two passes so a
+  list that appends rows at the end has finished), hit-tests the rows on screen **there**, puts the scroll position back, and
+  reports only a row still covered at the end. The count at the top is kept and printed beside it (*"N were under one at the top; only a row
+  scrolling cannot clear is reported"*), so a smaller number is never silent. The probe is one self-contained function between two markers so
+  the test runs the production text.
+  **Proved, in my own isolated copy** (a detached worktree with its own install, the app on port 5177, nothing in the main tree touched):
+  * **Before, the old script, same app:** gate FAIL, **3 unexpected**, exactly the three named above (Services & add-ons 320 and 392,
+    Business info 392). **After, the new script, two full runs:** gate **HELD**, **0 unexpected**, 0 rows covered at the end at all ten
+    cells. The "at the top" column reads **2, 2 and 1** at exactly those three cells and 0 at the other seven: the rows set aside are the same three.
+    This reproduces DP Cowork's read-only probe above independently, down to the counts.
+  * **A planted control that really is covered at the bottom still goes red:** `--break=covered-at-end` puts a 60px fixed bar over the bottom of
+    the window and a control at the very end of the document. **Gate FAIL, 6 unexpected**, each a `screen/furniture-clear` with the planted
+    control in its sample, at Services & add-ons 320, 392 and 768 and Business info 320, 392 and 768. **At 1440 and 1920 the plant is not
+    covered** (why was not investigated: the control did not land under the bar there, and the likeliest cause is a different scroll container, which is a guess), so the plant proves the check
+    fires at six of ten cells and says nothing about the two widest. An earlier version of the plant appended the control to the end of `<body>`
+    and landed 867px above the window; the probe correctly reported nothing for it, and the plant was moved to the document's end by coordinate.
+  * **In node, in a browser, no dev server:** `node --test tests/furniture-at-end.test.mjs`, 11 pass, against fixture pages: covered at the top and
+    clear at the end is not reported; covered at the end is, on a document scroller and an inner one; a page that cannot scroll reports its row; no
+    fixed element claims nothing; the position is restored; and **five sabotages of the production text** (ask at scroll zero, never scroll,
+    scroll only the document, never restore, never report) each turn their own case wrong.
+  **Not done, and said:** the receipt of record in the main tree (`receipts/bk-bar-clearance.json`) still reads the three findings until the
+  new script is run in the main checkout, which needs the pause the manager is arranging; this entry's numbers come from my copy's receipt, which
+  I did not commit. **14.37 is not ticked by me:** its own done-when also asks for the three screens to be looked at, and closing it as "not a
+  product fault" is the manager's call.
+
 ### 14.36 — An email template hardcoded a dark-theme grey on a light background
 
 - [x] **14.36 — `ownerWhereRow`'s two notes ("Typed by hand…", "Doesn't mention the
