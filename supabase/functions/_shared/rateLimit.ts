@@ -162,4 +162,12 @@ export const LIMITS = {
   // address help until midnight on one caller's loop. A ceiling that spends the
   // whole allowance is not a ceiling.
   addressPerDay: { windowSeconds: 86400, limit: 2400 },
+  // ROADMAP 0.11 — THE PHOTO DOOR, per BUSINESS, all four of its actions in
+  // one bucket. It is not a spam rule (every caller is a signed-in member), it
+  // is what stops one loop spending the invocations and the R2 requests: R2
+  // charges per request past its free tier and a presigned URL costs a call to
+  // mint. A busy day is a dozen jobs at four photos each, a few hundred calls
+  // counting every job record opened; 600 an hour is above any real day and
+  // below what a runaway loop reaches in a minute.
+  photoDoorPerBusiness: { windowSeconds: 3600, limit: 600 },
 } as const;
