@@ -92,20 +92,39 @@ console.log("2. the key never reaches a browser");
   const appBytes = appFiles.reduce((n, f) => n + readFileSync(f, "utf8").length, 0);
   check("2a · the check has subjects", appFiles.length > 50 && appBytes > 200000,
     `${appFiles.length} files walked, ${appBytes} bytes read`);
-  const leaked = appFiles.filter((f) => /GEOAPIFY|geoapify\.com/i.test(readFileSync(f, "utf8")));
+  // THE PROVIDER'S PLAIN NAME IS ALLOWED IN ONE FILE - 2026-10-06. The privacy
+  // page must tell a customer their address goes to Geoapify (ROADMAP 0.4,
+  // 7.8), so the word has to exist in landing/legal.js. What a browser must
+  // never carry is the KEY NAME or the WEB HOST: those stay blocked everywhere,
+  // legal.js included. GEOAPIFY_BREAK=host-in-legal (or key-in-legal) appends the host (or key name) to
+  // legal.js IN MEMORY (nothing on disk) to prove 2b goes red.
+  const LEGAL = "app/src/landing/legal.js";
+  const SECRET = /GEOAPIFY_|geoapify\.com/i;
+  const NAME = /GEOAPIFY/i;
+  const text = (f) => {
+    const t = readFileSync(f, "utf8");
+    const b = process.env.GEOAPIFY_BREAK;
+    return f.endsWith(LEGAL) && (b === "host-in-legal" || b === "key-in-legal")
+      ? `${t} ${b === "key-in-legal" ? "GEOAPIFY_API_KEY" : "https://api.geoapify.com/v1/geocode"}` : t;
+  };
+  const leaked = appFiles.filter((f) => (f.endsWith(LEGAL) ? SECRET : NAME).test(text(f)));
   // A POSITIVE CONTROL FOR THE MATCHER ITSELF - 2026-09-13. 2b is a negative
   // over a tree where zero is the right answer, so nothing about a green 2b
-  // proves the pattern can match anything at all. The same regex is run over
-  // the ONE file that is supposed to name the provider; if it cannot find it
-  // there, a silent 2b means nothing.
-  check("2a-ii · and the pattern it scans with can actually match",
-    /GEOAPIFY|geoapify\.com/i.test(MOD),
-    "_shared/geoapify.ts names the provider; a regex that misses it makes 2b meaningless");
+  // proves the pattern can match anything at all. Both regexes are run over
+  // the ONE file that is supposed to name the provider; if either cannot find
+  // it there, a silent 2b means nothing.
+  check("2a-ii · and the patterns it scans with can actually match",
+    SECRET.test(MOD) && NAME.test(MOD),
+    "_shared/geoapify.ts names the key and the host; a regex that misses them makes 2b meaningless");
+  // The allowance is for a file that uses it: delete the disclosure and the
+  // exemption has nothing to exempt.
+  check("2b-ii · the privacy page still names the provider it discloses",
+    NAME.test(readFileSync(join(root, LEGAL), "utf8")), LEGAL);
   // NOT "no literal key": a regex for the key's SHAPE would pass the day
   // somebody interpolates it. The name and the host are what a client-side
   // implementation cannot avoid mentioning.
-  check("2b · nothing under app/ mentions the key or the host", leaked.length === 0,
-    leaked.join(", "));
+  check("2b · nothing under app/ mentions the key or the host (the name only in legal.js)",
+    leaked.length === 0, leaked.join(", "));
 
   // The function is public — a customer has no account — so the limits are the
   // only thing between the URL and the day's credits. Counted, not matched:
