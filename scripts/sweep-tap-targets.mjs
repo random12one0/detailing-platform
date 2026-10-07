@@ -132,8 +132,43 @@ const settle = (page, cap = 1800) => page.evaluate(async (cap) => {
   } finally { obs.disconnect(); }
 }, cap);
 
+// ── CLOSED FOLDS — ROADMAP 14.23 ────────────────────────────────────────────
+// `tapProbe` filters candidates through `checkVisibility`, so a control inside a
+// CLOSED `<details>` is never discovered, and neither the `n of N` the probe prints
+// nor any receipt can show the hole. Two scripts in this repo already solve it
+// (`sweep-widths` opens every fold; `tabbar-clearance` refuses and counts); this one
+// had neither. **This takes the opening route AND captures its own baseline in
+// one run:** each screen is probed as it arrives, every closed `<details>` is opened,
+// it is probed again, and BOTH counts are recorded by screen. The second probe is
+// the measurement; the first is the baseline. The folds are closed again afterwards.
+// It is the default; `--no-folds` restores the old closed-fold-blind walk. The first full run
+// with it measured 960 controls on 68 screens that no run had measured before.
+// **A screen that HAS a fold and gains no controls from opening it is reported as
+// UNEXPLAINED** (a warning, not a finding): it may be a fold of prose, or the probe may
+// have opened a fold on a screen it does not belong to. Name the screen either way.
+const FOLDS = !process.argv.includes("--no-folds");
+const foldCensus = [];
 const measure = async (page, where) => {
-  const r = await page.evaluate(TAP_PROBE, ARGS);
+  let r;
+  if (FOLDS) {
+    const closedR = await page.evaluate(TAP_PROBE, ARGS);
+    const folds = await page.evaluate(() => {
+      const ds = [...document.querySelectorAll("details:not([open])")];
+      for (const d of ds) { d.setAttribute("data-tap-opened", ""); d.open = true; }
+      return ds.length;
+    });
+    // A screen with no closed fold is measured ONCE, exactly as a plain run does: probing it a
+    // second time measures nothing new. One full --folds run read 78 findings off two Calendar screens
+    // (`the press never reaches it`, 1440 and 392, English) that the plain full run and a narrowed fold
+    // run did not; the cause was not established, and this removes the one difference this flag adds.
+    if (folds) { await settle(page, 600); r = await page.evaluate(TAP_PROBE, ARGS); } else r = closedR;
+    await page.evaluate(() => {
+      for (const d of document.querySelectorAll("details[data-tap-opened]")) { d.open = false; d.removeAttribute("data-tap-opened"); }
+    });
+    foldCensus.push({ where, folds, closed: closedR.subjects, opened: r.subjects, gained: r.subjects - closedR.subjects });
+  } else {
+    r = await page.evaluate(TAP_PROBE, ARGS);
+  }
   screens++; subjects += r.subjects; probes += r.probes;
   clamped += r.clamped; exempted += r.exempted;
   for (const [k, n] of Object.entries(r.fired)) fired[k] = (fired[k] || 0) + n;
@@ -555,6 +590,13 @@ for (const width of WIDTHS) {
 // FLOOR YET on that count beyond the `no-doors` finding** (an index that drew
 // none); a floor of about 20 a combo would sit under the measured average of
 // 24, and is a decision, not built here.
+if (FOLDS) {
+  const withFolds = foldCensus.filter((c) => c.folds > 0);
+  console.log(`\nCLOSED FOLDS: ${foldCensus.length} screens, ${withFolds.length} carry a closed <details> and were probed twice`);
+  for (const c of withFolds) console.log(`  ${c.where.padEnd(52)} ${String(c.folds).padStart(2)} fold(s)  closed ${String(c.closed).padStart(3)} -> opened ${String(c.opened).padStart(3)}  (+${c.gained})${c.gained === 0 ? "  UNEXPLAINED: opened and gained nothing" : ""}`);
+  console.log(`  controls nothing had measured before: ${withFolds.reduce((n, c) => n + c.gained, 0)}`);
+  for (const c of withFolds.filter((x) => x.gained === 0)) skips.push(`UNEXPLAINED fold: ${c.where} has ${c.folds} closed <details> and opening them gained no control`);
+}
 if (ONLY) {
   skips.push(`the dashboard receipt was not written because --only ${ONLY} narrows the walk`);
 } else {
@@ -589,6 +631,7 @@ if (ONLY) {
       fixed_screens_per_combo: DASH_FIXED_PER_COMBO,
       settings_doors_read_from_the_product: expectedSettings,
       doors_that_leave_the_dashboard: { keys: [...LEAVES], not_pressed: leavingDoors, pressed: PRESS_LEAVING },
+      ...(FOLDS ? { fold_census: foldCensus.filter((c) => c.folds > 0) } : {}),
       landing_paths: ["/", "/pricing"],
       canary_breaks: `${dc.runs - dc.blind}/${dc.runs}`,
       canary_restored: dc.restored,

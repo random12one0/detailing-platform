@@ -19530,7 +19530,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.23 — Nothing opens a closed `<details>` before the tap-target sweep measures, and eighteen files use one
 
-- [ ] **Found 2026-09-25 by the ticked-item audit. 4.5 named it as requirement 2
+- [x] **Found 2026-09-25 by the ticked-item audit. 4.5 named it as requirement 2
   and closed without it, deliberately and in writing. Not built here: it needs
   `scripts/` and the browser.**
 
@@ -19606,6 +19606,48 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   somebody concludes the gap was imaginary — when what actually happened is that
   the probe opened the fold on a screen that has none. **Name the screen the
   number came from.**
+
+  ***BUILT, RUN AND TICKED 2026-10-06 (Lane B, on the manager's go). Lane exception, recorded: `scripts/sweep-tap-targets.mjs`
+  only; `tapProbe.mjs` was not touched.***
+  **The route chosen is the opening route, and why:** it measures more, and the counting route's only advantage (honesty
+  about a gap) is kept by the census below, which prints the closed count beside the opened one. The walk now probes each
+  screen as it arrives, opens every closed `<details>` on it, waits for it to settle, probes again, and closes them again;
+  **the second probe is the measurement, the first is the baseline**, and a screen with no closed fold is probed once, as
+  before. It is the default; `--no-folds` restores the old walk.
+  **The baseline, both counts by screen, one default run** (`node scripts/sweep-tap-targets.mjs`, `receipts/
+  sweep-tap-targets-dashboard.json`, `dimensions.fold_census`): **248 screens, 68 of them carry a closed `<details>`, and
+  opening them measured 966 controls that no run had measured, every one clear of the 44px floor** (the run reads `clean`,
+  PASS 248/248, 809,894 assertions, 0 failures, canary 5 of 5). An earlier full run with the flag gave 960 on the same 68
+  screens; the 6 is Tracking links, which gained 4 at most rows and 10 at one in the last run (not investigated).
+  Per screen, English at every width (Spanish gains the same, row for row), closed to opened:
+
+  | screen | closed folds | controls gained by opening them |
+  |---|---|---|
+  | Today | 1 | 2 |
+  | Business · Promo codes & sale | 1 | 3 |
+  | Business · Booking rules | 2 | 32 |
+  | Business · Tracking links | 1 | 4 (10 at one row in the last run) |
+  | Gear · Notifications | 2 | 23 |
+  | Gear · Message templates | 5 | 50 |
+  | Gear · Weather warnings | 1 | 6 |
+  | Gear · Show me around | 1 | **0, explained below** |
+  | the landing page | 6 | **0, explained below** |
+
+  Booking rules at 32 is the figure this item's own source, 4.5's requirement 2, predicted ("29 of 41 `.choice` controls sit
+  inside two closed foldrows"): the order of magnitude agrees.
+  **The 12 rows that gained nothing are explained, and none is a probe opened on a screen it does not belong to:** the
+  landing page's six are the FAQ (`<details><summary>…</summary><p>…</p></details>`, so the only control is the summary,
+  already counted closed; read in `LandingPage.jsx`), 4 widths; and "Show me around" opens the guided tour over everything,
+  so the probe is scoped to the overlay (the sweep prints `[scoped to an open overlay — the page beneath it is not the
+  subject]` for it), 4 widths x 2 languages. **A zero on a screen with a fold is reported by the run as UNEXPLAINED in
+  its warnings until someone says why, and these are the explanations.**
+  **The first full run with it was NOT clean, said plainly:** 78 findings on two Calendar screens (1440 and 392, English), all
+  `the press never reaches it`, answered by `main.app-main`. A plain full run, a narrowed fold run at 1440 and 392, and the
+  next two full runs read those screens clean; the cause was not established. The only difference the flag adds on a screen
+  with no fold was the second probe, so that is removed (such a screen is probed once). **If it returns it is a finding,
+  and this note is where to look.**
+  **The one thing this does not do:** it opens `<details>`. A closed fold built any other way (a `display: none` panel behind
+  a button) is still invisible to it; `Folded` and the landing FAQ are the only users of `<details>` that the sweep reaches.
 
 ### 14.24 — Three ticked items each name a gap only a person with the browser can close, and all three are under ten minutes
 

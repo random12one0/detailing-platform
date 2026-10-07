@@ -1,9 +1,9 @@
 {
-  "git_sha": "05f26157412daead3bdd7214a5552633ad90c68b",
-  "git_sha_started": "3aad2dd39a563c9205ac6a5b33fd476b6a485163",
-  "head_moved": true,
+  "git_sha": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
+  "git_sha_started": "9dec18cfa08defaa6d5c767d83a030c2175349b0",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-07T02:04:34.917Z",
+  "finished_at": "2026-10-07T03:48:01.958Z",
   "failures": [],
   "warnings": [
     "1440/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
@@ -13,7 +13,19 @@
     "392/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
     "392/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
     "320/en/gear: 1 door that leaves the dashboard was NOT pressed (The website businessEvery detailer, and ); the place it leads is walked in its own section",
-    "320/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section"
+    "320/es/gear: 1 door that leaves the dashboard was NOT pressed (El negocio del sitio webCada detailer, y); the place it leads is walked in its own section",
+    "UNEXPLAINED fold: 1440/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 1440/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 768/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 768/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 392/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 392/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 320/en/gear/Show me aroundQuick tours. Stop any time has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 320/es/gear/Muéstrame el lugarRecorridos rápidos. Pa has 1 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 1440/en/ has 6 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 768/en/ has 6 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 392/en/ has 6 closed <details> and opening them gained no control",
+    "UNEXPLAINED fold: 320/en/ has 6 closed <details> and opening them gained no control"
   ],
   "artifacts": [
     "receipts/screenshots/sweep-tap-targets-dashboard/today-1440-en.png"
@@ -39,6 +51,484 @@
       "not_pressed": 8,
       "pressed": false
     },
+    "fold_census": [
+      {
+        "where": "1440/en/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "1440/en/business/Promo codes & sale2 active codes",
+        "folds": 1,
+        "closed": 38,
+        "opened": 41,
+        "gained": 3
+      },
+      {
+        "where": "1440/en/business/Booking rulesMobile & drop-off · 2 hours",
+        "folds": 2,
+        "closed": 67,
+        "opened": 99,
+        "gained": 32
+      },
+      {
+        "where": "1440/en/business/Tracking links1 link · not opened yet",
+        "folds": 1,
+        "closed": 24,
+        "opened": 34,
+        "gained": 10
+      },
+      {
+        "where": "1440/en/gear/Notifications5 of 5 emails on",
+        "folds": 2,
+        "closed": 33,
+        "opened": 56,
+        "gained": 23
+      },
+      {
+        "where": "1440/en/gear/Message templatesTexts you send from a j",
+        "folds": 5,
+        "closed": 26,
+        "opened": 76,
+        "gained": 50
+      },
+      {
+        "where": "1440/en/gear/Weather warnings5 of 6 on",
+        "folds": 1,
+        "closed": 38,
+        "opened": 44,
+        "gained": 6
+      },
+      {
+        "where": "1440/en/gear/Show me aroundQuick tours. Stop any time",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "1440/es/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "1440/es/business/Códigos y descuentos2 códigos activos",
+        "folds": 1,
+        "closed": 38,
+        "opened": 41,
+        "gained": 3
+      },
+      {
+        "where": "1440/es/business/Reglas de citasA domicilio y en el talle",
+        "folds": 2,
+        "closed": 67,
+        "opened": 99,
+        "gained": 32
+      },
+      {
+        "where": "1440/es/business/Enlaces de seguimiento1 enlace · sin ape",
+        "folds": 1,
+        "closed": 30,
+        "opened": 34,
+        "gained": 4
+      },
+      {
+        "where": "1440/es/gear/Avisos5 de 5 correos activos",
+        "folds": 2,
+        "closed": 33,
+        "opened": 56,
+        "gained": 23
+      },
+      {
+        "where": "1440/es/gear/Mensajes guardadosMensajes que mandas de",
+        "folds": 5,
+        "closed": 26,
+        "opened": 76,
+        "gained": 50
+      },
+      {
+        "where": "1440/es/gear/Avisos del clima5 de 6 activados",
+        "folds": 1,
+        "closed": 38,
+        "opened": 44,
+        "gained": 6
+      },
+      {
+        "where": "1440/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "768/en/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "768/en/business/Promo codes & sale2 active codes",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "768/en/business/Booking rulesMobile & drop-off · 2 hours",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "768/en/business/Tracking links1 link · not opened yet",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "768/en/gear/Notifications5 of 5 emails on",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "768/en/gear/Message templatesTexts you send from a j",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "768/en/gear/Weather warnings5 of 6 on",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "768/en/gear/Show me aroundQuick tours. Stop any time",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "768/es/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "768/es/business/Códigos y descuentos2 códigos activos",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "768/es/business/Reglas de citasA domicilio y en el talle",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "768/es/business/Enlaces de seguimiento1 enlace · sin ape",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "768/es/gear/Avisos5 de 5 correos activos",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "768/es/gear/Mensajes guardadosMensajes que mandas de",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "768/es/gear/Avisos del clima5 de 6 activados",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "768/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "392/en/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "392/en/business/Promo codes & sale2 active codes",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "392/en/business/Booking rulesMobile & drop-off · 2 hours",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "392/en/business/Tracking links1 link · not opened yet",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "392/en/gear/Notifications5 of 5 emails on",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "392/en/gear/Message templatesTexts you send from a j",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "392/en/gear/Weather warnings5 of 6 on",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "392/en/gear/Show me aroundQuick tours. Stop any time",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "392/es/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "392/es/business/Códigos y descuentos2 códigos activos",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "392/es/business/Reglas de citasA domicilio y en el talle",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "392/es/business/Enlaces de seguimiento1 enlace · sin ape",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "392/es/gear/Avisos5 de 5 correos activos",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "392/es/gear/Mensajes guardadosMensajes que mandas de",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "392/es/gear/Avisos del clima5 de 6 activados",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "392/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "320/en/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "320/en/business/Promo codes & sale2 active codes",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "320/en/business/Booking rulesMobile & drop-off · 2 hours",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "320/en/business/Tracking links1 link · not opened yet",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "320/en/gear/Notifications5 of 5 emails on",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "320/en/gear/Message templatesTexts you send from a j",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "320/en/gear/Weather warnings5 of 6 on",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "320/en/gear/Show me aroundQuick tours. Stop any time",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "320/es/today",
+        "folds": 1,
+        "closed": 22,
+        "opened": 24,
+        "gained": 2
+      },
+      {
+        "where": "320/es/business/Códigos y descuentos2 códigos activos",
+        "folds": 1,
+        "closed": 23,
+        "opened": 26,
+        "gained": 3
+      },
+      {
+        "where": "320/es/business/Reglas de citasA domicilio y en el talle",
+        "folds": 2,
+        "closed": 52,
+        "opened": 84,
+        "gained": 32
+      },
+      {
+        "where": "320/es/business/Enlaces de seguimiento1 enlace · sin ape",
+        "folds": 1,
+        "closed": 15,
+        "opened": 19,
+        "gained": 4
+      },
+      {
+        "where": "320/es/gear/Avisos5 de 5 correos activos",
+        "folds": 2,
+        "closed": 20,
+        "opened": 43,
+        "gained": 23
+      },
+      {
+        "where": "320/es/gear/Mensajes guardadosMensajes que mandas de",
+        "folds": 5,
+        "closed": 13,
+        "opened": 63,
+        "gained": 50
+      },
+      {
+        "where": "320/es/gear/Avisos del clima5 de 6 activados",
+        "folds": 1,
+        "closed": 25,
+        "opened": 31,
+        "gained": 6
+      },
+      {
+        "where": "320/es/gear/Muéstrame el lugarRecorridos rápidos. Pa",
+        "folds": 1,
+        "closed": 2,
+        "opened": 2,
+        "gained": 0
+      },
+      {
+        "where": "1440/en/",
+        "folds": 6,
+        "closed": 25,
+        "opened": 25,
+        "gained": 0
+      },
+      {
+        "where": "768/en/",
+        "folds": 6,
+        "closed": 25,
+        "opened": 25,
+        "gained": 0
+      },
+      {
+        "where": "392/en/",
+        "folds": 6,
+        "closed": 23,
+        "opened": 23,
+        "gained": 0
+      },
+      {
+        "where": "320/en/",
+        "folds": 6,
+        "closed": 23,
+        "opened": 23,
+        "gained": 0
+      }
+    ],
     "landing_paths": [
       "/",
       "/pricing"
@@ -47,14 +537,14 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets-dashboard",
-  "started_at": "2026-10-07T01:57:49.099Z",
+  "started_at": "2026-10-07T03:40:38.826Z",
   "status": "pass",
   "expected_targets": 248,
   "discovered_targets": 248,
   "attempted_targets": 248,
   "completed_targets": 248,
   "skipped_targets": 0,
-  "assertions_executed": 704195,
+  "assertions_executed": 809894,
   "min_assertions": 248000,
   "canary": {
     "id": "the five BREAKS in scripts/lib/tapProbe.mjs, each applied to the Clients tab at 392px and required to be reported by its own check",
