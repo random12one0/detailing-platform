@@ -1,0 +1,17 @@
+-- ROADMAP 0.11 — THE ALLOWANCE NUMBER: 1 GB BECOMES 10 GB.
+--
+-- `docs/the-photo-allowance.md` § 2 and `20260906011000_photo_share.sql` say the same thing from two sides:
+-- **`photo_total_gb` changes from 1 to 10 in the SAME CHANGE that switches uploads to R2, and not one change
+-- earlier.** The total must describe storage that actually exists. Until `photo-door` is published, the R2
+-- CORS rule is set and the app's photo code is the version that uploads through the door, the number is
+-- correct at 1 and must stay there: a 10 on a detailer's screen would be an allowance the platform cannot
+-- keep, which is the exact fault that file was written to remove.
+--
+-- **SO THIS FILE IS NOT IN `FOR-ANDREW.md`'S LIST OF FIVE MIGRATIONS TO APPLY FIRST.** It is the last step of the
+-- photo publish, in `FOR-ANDREW.md` Part 2, and is applied in the same sitting as the door and not before.
+--
+-- `where photo_total_gb = 1` is what makes it safe to run twice and safe if somebody has already set a value
+-- by hand: it only ever replaces the default, never a number a person chose. The column's own rule
+-- (`check (photo_total_gb > 0)`) stays; one hundred shares of 10 GB is about 102 MB each, which
+-- `docs/the-photo-allowance.md` § 2 works out. Going higher later is the same one number.
+update public.platform_settings set photo_total_gb = 10 where photo_total_gb = 1;

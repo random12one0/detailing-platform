@@ -50,6 +50,9 @@ export interface PresignOptions {
   /** Extra headers that become part of the proof (lowercase names). The
    *  caller MUST send them with exactly these values or R2 refuses. */
   headers?: Record<string, string>;
+  /** Extra query parameters that become part of the proof (a listing's `list-type`, `prefix`,
+   *  `continuation-token`). They are sorted in with the `X-Amz-*` ones, as signing requires. */
+  query?: Record<string, string>;
 }
 
 /**
@@ -73,6 +76,7 @@ export async function presign(o: PresignOptions): Promise<string> {
     "X-Amz-Date": amzDate,
     "X-Amz-Expires": String(o.expires),
     "X-Amz-SignedHeaders": signedHeaders,
+    ...(o.query ?? {}),
   };
   const query = Object.keys(params).sort()
     .map((k) => `${rfc3986(k)}=${rfc3986(params[k])}`).join("&");
@@ -111,6 +115,10 @@ export function r2Config(get: (name: string) => string | undefined): { config: R
   };
 }
 
+/** One object as the bucket's own listing reports it. `bytes` is R2's number, never a client's. */
+export interface ListedObject { key: string; bytes: number }
+export interface ListPage { objects: ListedObject[]; next: string | null }
+
 export interface R2Store {
   /** A URL a browser may PUT one object to, for `Content-Type: contentType` only. */
   putUrl(bucket: string, key: string, contentType: string, expires: number): Promise<string>;
@@ -120,9 +128,55 @@ export interface R2Store {
   head(bucket: string, key: string): Promise<{ exists: boolean; bytes: number | null }>;
   /** Removes the object. Already gone is success. */
   del(bucket: string, key: string): Promise<void>;
+  /** One page (up to 1000) of a bucket's keys and sizes, from `token` if given. ROADMAP 0.11 slice 6. */
+  list(bucket: string, token?: string | null): Promise<ListPage>;
 }
 
 const R2_FAILED = "R2 request failed";
+
+const xmlText = (s: string) =>
+  s.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&");
+
+/**
+ * A ListObjectsV2 answer, read strictly. **A size that is missing or not a whole number throws**, because
+ * a listing that reads an unreadable size as zero would make a stored photograph weigh nothing, and the
+ * reconcile exists to catch exactly that. A truncated page with no continuation token throws too: it
+ * would be reported as the end of the bucket.
+ */
+export function parseListPage(xml: string): ListPage {
+  if (!/<ListBucketResult[\s>]/.test(xml)) throw new Error("R2 listing was not a listing");
+  const objects: ListedObject[] = [];
+  for (const m of xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)) {
+    const key = /<Key>([\s\S]*?)<\/Key>/.exec(m[1]);
+    const size = /<Size>([\s\S]*?)<\/Size>/.exec(m[1]);
+    const n = size ? Number(size[1].trim()) : NaN;
+    if (!key || !Number.isInteger(n) || n < 0) throw new Error("R2 listing had an object with no readable size");
+    objects.push({ key: xmlText(key[1]), bytes: n });
+  }
+  const truncated = /<IsTruncated>\s*true\s*<\/IsTruncated>/.test(xml);
+  const tok = /<NextContinuationToken>([\s\S]*?)<\/NextContinuationToken>/.exec(xml);
+  if (truncated && !tok) throw new Error("R2 listing was cut short with no way to continue");
+  return { objects, next: truncated && tok ? xmlText(tok[1]) : null };
+}
+
+/** The most pages `listAll` will read: 1000 objects each, so 200,000 objects. Past it, it throws rather than
+ *  return a partial bucket as if it were the whole one. */
+export const LIST_PAGE_CEILING = 200;
+
+export async function listAll(store: Pick<R2Store, "list">, bucket: string): Promise<ListedObject[]> {
+  const out: ListedObject[] = [];
+  let token: string | null = null;
+  for (let page = 0; page < LIST_PAGE_CEILING; page++) {
+    const p = await store.list(bucket, token);
+    out.push(...p.objects);
+    if (!p.next) return out;
+    token = p.next;
+  }
+  throw new Error("R2 listing exceeded its page ceiling");
+}
 
 export function makeR2(
   cfg: R2Config,
@@ -130,11 +184,13 @@ export function makeR2(
   now: () => Date = () => new Date(),
 ): R2Store {
   const host = `${cfg.accountId}.r2.cloudflarestorage.com`;
-  const sign = (method: string, bucket: string, key: string, expires: number, headers?: Record<string, string>) =>
+  const signPath = (method: string, path: string, expires: number, headers?: Record<string, string>, query?: Record<string, string>) =>
     presign({
-      method, host, path: `/${bucket}/${key}`, accessKeyId: cfg.accessKeyId,
-      secretAccessKey: cfg.secretAccessKey, region: "auto", expires, now: now(), headers,
+      method, host, path, accessKeyId: cfg.accessKeyId,
+      secretAccessKey: cfg.secretAccessKey, region: "auto", expires, now: now(), headers, query,
     });
+  const sign = (method: string, bucket: string, key: string, expires: number, headers?: Record<string, string>) =>
+    signPath(method, `/${bucket}/${key}`, expires, headers);
   // `fetch`'s own failure text includes the whole signed URL, so it is never
   // allowed to travel: a generic message goes up instead.
   const call = async (method: string, url: string) => {
@@ -156,6 +212,13 @@ export function makeR2(
     async del(bucket, key) {
       const res = await call("DELETE", await sign("DELETE", bucket, key, 60));
       if (!res.ok && res.status !== 404) throw new Error(`${R2_FAILED} (${res.status})`);
+    },
+    async list(bucket, token) {
+      const query: Record<string, string> = { "list-type": "2", "max-keys": "1000" };
+      if (token) query["continuation-token"] = token;
+      const res = await call("GET", await signPath("GET", `/${bucket}`, 60, undefined, query));
+      if (!res.ok) throw new Error(`${R2_FAILED} (${res.status})`);
+      return parseListPage(await res.text());
     },
   };
 }
