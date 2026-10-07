@@ -17634,6 +17634,31 @@ event id.
   allowlist dated 2027-01-01); doing it before the issuers can supply the field would make the whole receipt list fail for a reason that is not
   a fault. **Recommendation, not built: add the field to `sweep-widths`'s allowlist first, then the rule, in that order.**
 
+  ***FIELD BUILT 2026-10-06 (DP Cowork2, Lane B, code only, NO BROWSER RUN): `sweep-widths` skips now carry an `evidence` string,
+  and the helper refuses one that has none. NOT TICKED, AND THE GRADER RULE IS STILL UNBUILT, IN THAT ORDER ON PURPOSE.***
+  **Lane exception, recorded:** `scripts/sweep-widths.mjs` (the item's own file, on the manager's instruction) and a new
+  `scripts/lib/skipEvidence.mjs`; nothing in `app/src`, no browser.
+  **What it does.** `addSkip(list, entry)` is the only way into `SKIPPED` and it **throws** on an entry whose `evidence` is not a
+  non-empty string, so a skip with none fails the run loudly and never reaches the receipt. The two issuers in the sweep both
+  go through it. `declareSkip` (the probe) writes `probe re-asked at the moment of the skip and found 0; …`, the number being what
+  `reachable()` returned, since a non-zero answer refuses the skip before it is issued. The tour and guide write-off writes
+  `pressed the primary button and waited Nms (bound 8000ms) and no new card came`, N being the wait of the press that ended the walk
+  (`endMs`, recorded beside `endProved` for the tour and for each guide). **Both describe an act the run did, never a state it
+  observed**, which is the item's own rule. The entries land in the receipt where the skips already were, inside
+  `skip_allowlist.skipped`.
+  **Proved in node, not in a browser:** `node --test tests/skip-evidence.test.mjs`, 5 pass. The helper is called with seven kinds of
+  absent or wrong evidence and refuses all seven without touching the list; the file is read for a bare `SKIPPED.push(` (none) and
+  for an `addSkip(SKIPPED, {` with no `evidence:` in its object (none), with a discovery floor of two sites rather than a declared
+  count; and a canary aims that reader at the real file with a bare push appended and with each of the two `evidence` lines removed,
+  and it finds one each. **Its ceiling is in its header:** it shows the evidence was supplied, not that it is true. Whether the
+  press really waited the full bound is what a sweep run shows, and `node --check` is all that has been run on the sweep itself.
+  **What a person with the browser does next, one run:** `node scripts/sweep-widths.mjs --all 1440` (dev server and seed), then open
+  `receipts/sweep-widths-1440.json` and read `skip_allowlist.skipped`: every entry should carry `evidence`, and the one tour skip the
+  last runs declared (step 37) should read `waited 80NNms (bound 8000ms)`. Until that run, **no receipt on disk has the field**: the
+  19 `sweep-widths` receipts and the rest were written before it existed.
+  **STILL OPEN: the rule in `receipt.mjs`** (fail a receipt whose skips carry no evidence), which must follow that run and the
+  re-run of every other issuer, and the audit's other 27 issuers, none of which is touched. **Done-when clause 3 is not met by this.**
+
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field
 

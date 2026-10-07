@@ -661,6 +661,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { ordinal } from "./lib/ordinal.mjs";
+import { addSkip, probeEvidence, pressEvidence } from "./lib/skipEvidence.mjs";
 
 const STARTED = new Date().toISOString();
 
@@ -1429,7 +1430,7 @@ for (const w of SIZES) {
       found++;
       return false;
     }
-    SKIPPED.push({ width: w, label, reason });
+    addSkip(SKIPPED, { width: w, label, reason, evidence: probeEvidence(n) });
     console.log(`${label.padEnd(24)} NOT MEASURED — ${reason}`);
     return true;
   };
@@ -2986,7 +2987,7 @@ for (const w of SIZES) {
     // Set only by a press whose bounded wait came back EMPTY. A walk that
     // broke because the card was already gone leaves it false, and false is
     // what refuses every write-off below.
-    let tourEndProved = false;
+    let tourEndProved = false, tourEndMs = null;
     for (let k = 1; k <= TOUR_BOUND; k++) {
       if (!(await page.locator(".tourcard").count())) break;
       // READ BEFORE THE PRESS. After the click the card is either the next
@@ -3001,7 +3002,7 @@ for (const w of SIZES) {
       await page.locator(".tourcard button.primary").click();
       const step = await nextCard(page, tourLast);
       tourPace.push(step.arrived ? String(step.ms) : step.ms + "=EMPTY");
-      if (!step.arrived) { tourEndProved = true; break; }
+      if (!step.arrived) { tourEndProved = true; tourEndMs = step.ms; break; }
     }
     console.log(`${"tour · the pace".padEnd(24)} waited up to ${TOUR_WAIT_MS}ms per press; `
       + `the next card took ${tourPace.join(" ") || "-"}`);
@@ -3024,7 +3025,7 @@ for (const w of SIZES) {
     console.log(`${"tour · the blocks".padEnd(24)} ${tourBlocks.length} block(s) declaring ${tourBlocks.join(" + ")} = ${blockSum} step(s); `
       + `${tourWalked} walked${blockSum === tourWalked ? "" : " — SHORT BY " + (blockSum - tourWalked)}`);
     WALKS.push({ width: w, prefix: "tour · step ", what: "the tour", walked: tourWalked, last: tourLast,
-      blocks: tourBlocks, endProved: tourEndProved,
+      blocks: tourBlocks, endProved: tourEndProved, endMs: tourEndMs,
       hitBound: tourWalked >= TOUR_BOUND && (await page.locator(".tourcard").count()) > 0 });
 
     // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
@@ -3168,7 +3169,7 @@ for (const w of SIZES) {
       // actually guarantees the next iteration can click.
       let last = null;
       let walked = 0;
-      let endProved = false;
+      let endProved = false, endMs = null;
       const GUIDE_BOUND = 12;
       for (let k = 1; k <= GUIDE_BOUND; k++) {
         if (!(await page.locator(".tourcard").count())) break;
@@ -3179,9 +3180,10 @@ for (const w of SIZES) {
         await page.locator(".tourcard button.primary").click();
         // Same rule as the tour: a guide's end is a press whose wait came back
         // empty, never a card that happened to be gone when we looked.
-        if (!(await nextCard(page, last)).arrived) { endProved = true; break; }
+        const step = await nextCard(page, last);
+        if (!step.arrived) { endProved = true; endMs = step.ms; break; }
       }
-      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last, endProved,
+      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last, endProved, endMs,
         hitBound: walked >= GUIDE_BOUND && (await page.locator(".tourcard").count()) > 0 });
       // BELT AND BRACES, and the belt is the part that matters: a guide left
       // open is not a finding about this tab, it is a failure of every
@@ -3457,9 +3459,10 @@ if (process.argv.includes("--dump-fingerprints")) {
       // the plan quoted in it, so `skipped_targets` and the receipt carry the
       // reason rather than the run quietly measuring fewer things.
       for (const l of short) {
-        SKIPPED.push({
+        addSkip(SKIPPED, {
           width: k.width,
           label: l,
+          evidence: pressEvidence(k.endMs, TOUR_WAIT_MS),
           reason: `${k.what} walked ${k.walked} step(s) on this dashboard and ended on the last card it had `
             + `(${k.last.at} of ${k.last.of}). `
             + `A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), `
