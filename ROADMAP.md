@@ -303,6 +303,56 @@ and how the wait ends.
   rather than a failure; and the recorded size being the client's claim, so a
   browser that under-reports buys itself unlimited storage.
 
+  ***PREPARED 2026-10-06 (Lane A and the server half, in a scratch folder), NOTHING APPLIED, NOTHING COMMITTED BUT THIS NOTE,
+  NOTHING DEPLOYED. The box stays `[ ]`.*** The item is carved into slices; the first three and a bug found on the way are
+  written as five patches that each pass `git apply --check` against HEAD `a84fd72` and apply together in either order:
+  1. **`photo-door-slice1.patch`, the app half for job photos** (9 files: `photo-door.js` new, `photos.js`, `api.js`,
+     `Gallery.jsx`, `JobPhotos.jsx`, `appEs.js`, and three tests). The contract is the header of `app/src/lib/photo-door.js`:
+     four actions on `photo-door` (`start`, `finish`, `urls`, `remove`). It fails in words until the server half exists and has
+     **no fallback to Supabase Storage**, on purpose.
+  2. **`photo-door-server.patch`, slice 2, the door itself** (6 files: `photo-door/index.ts`, `_shared/photoDoor.ts` and
+     `_shared/r2.ts` new, a ceiling in `rateLimit.ts`, two tests). **Credentials are read from the environment by name only**
+     (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`) and never reach a log, an answer or a URL.
+  3. **`photo-door-forget.patch`, slice 3** (4 files): `delete-customer` now removes a forgotten customer's photo files from
+     **both** stores, R2 and Supabase Storage, and counts a file only once each store confirms it is gone. `job_photos.path` is
+     the same string in both and the row does not say which, so removing from one would have left a stranger's car in the other
+     while reporting success. A key of another business, R2 not configured while photos exist, and any store failing all stop
+     everything before the rows are deleted.
+  4. **`siteintake-photos.patch`** (2 files): `SiteIntake.jsx` called `addPhoto({ ..., kind: "gallery" })` with no booking. That
+     function files a job photo, so `storagePath` throws without a booking and `job_photos.kind` only allows before, after or
+     damage: it cannot have worked since commit `3b97ed0`. It now sends the photos to `business-media` under `intake/` and
+     publishes nothing. The new `tests/photo-call-sites.test.mjs` reads every `addPhoto(` call in `app/src` and would have
+     caught it; with the old call put back it goes red on both the missing booking and the kind.
+  5. **`no-show-way-back.patch`** (4.1 ruling 3) is a separate item and is listed only because it shares `appEs.js`.
+  **Proved, in a scratch copy of the repo at that HEAD with all five applied, no network and no database:** the 13 suites named in
+  `rebuild5.sh` pass together (`node --test` on them), `label-guard` exits 0, the credentials-in-tracked-text check passes, and
+  `forget-customer.test.mjs` § 6 (its source reads, extracted and run alone) passes. Each new guard was removed one at a time and
+  seen (nine in `photo-door-server`, five in `forget-photos`, five in `photo-door`). Amazon's published signing example
+  is reproduced to the character.
+  **Two faults the runs found and the patches already carry the fix for:** `job_photo_budget()` guards itself with
+  `current_business_ids()`, which reads the CALLER's session, so asked with the service-role key it returns **no rows**, and a door
+  that read that as "no limit" would have been unlimited from the first day (the door asks as the caller and an unreadable budget
+  refuses); and the app's reader took every 404 to mean "the function is not deployed", so the door's own *"Booking not found"*
+  would have been shown as *"Photo storage is not set up"*.
+  **NOT PROVEN, SAID PLAINLY:** that R2 accepts these signatures (the first real upload after publishing is that proof); anything
+  in a browser; the credentialed `forget-customer.test.mjs` § 1 to 5 (it writes to the shared demo database and exercises the
+  function that is DEPLOYED, which is the old one until Andrew publishes); and that the three R2 secrets are set as function secrets
+  (`docs/services-and-secrets.md` says saved on 2026-09-22, not that they are on the functions).
+  **FOR ANDREW, at publish:** (a) a CORS rule on the `job-photos` bucket in Cloudflare allowing the app's web address (and
+  `http://localhost:5173` for development, and any preview address) to GET and PUT with the `Content-Type` header, or every upload
+  is blocked by the browser even though the function works; (b) publish `photo-door` (it deploys with the JWT check on, it is not in
+  the public list) and republish `delete-customer`; (c) **the app patch must not ship before the door is published**, or job photo
+  uploads fail with *"Photo storage is not set up on the server yet"*; (d) `photo_total_gb` goes to 10 in that same change and not a
+  commit earlier.
+  **SLICES LEFT:** 4, `business-media` (the public gallery copy and the logo; needs a public R2 address, and `upload.js`,
+  `publishToGallery`'s destination and the intake photos move with it); 5, `expense-receipts` (`receipts.js`); 6, the reconcile on a
+  cron entry like `refresh-weather` and the allowance number. Photos an old browser tab added to Supabase Storage before the switch
+  are removed by `delete-customer` too, which is why slice 3 handles both stores. An object in R2 with no row cannot be reached by
+  path and is the reconcile's to count, not `delete-customer`'s.
+  *A note on process, 2026-10-06:* a credentialed test, `rate-limit-loops.test.mjs`, was run in the live checkout by mistake while
+  checking these patches and killed part-way; it left one row in `rate_hits` (`cancel-booking:no-address`, key `all`), which was
+  deleted by exact bucket and key and re-read as gone. Nothing else was written.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -17274,6 +17324,35 @@ event id.
   run's own report). An unscoped `--drop-missing` would have deleted **all 37
   of them** along with the two rename casualties.
 
+  ***RE-RUN 2026-10-06 (Lane B, on the manager's go): THREE OF THE FOUR DONE-WHEN CLAUSES ARE NOW MET BY A RUN, AND THE FOURTH
+  IS LANE A'S. NOT TICKED, BECAUSE OF THAT ONE.***
+  **Clause 1 and 2, the walk and the batch.** `node scripts/tour-runs.mjs 20 1440 392`, which waits for the next card exactly as
+  the sweep does: **20 of 20 complete at 1440, every one 36 steps in six blocks `[7+6+6+5+6+6]`; the control, 5 of 5 at 392, 35
+  steps, six blocks.** The first run at that tempo that completes every time, against the 20 of 20 stopping at 5 recorded above.
+  **Twenty runs cannot say the rare shape is gone**, and this entry's own earlier paragraphs say why; it says only that this
+  batch drew none.
+  **Clause 3, the declared skips.** `node scripts/sweep-widths.mjs --all 1440`, run three times. Runs 2 and 3: `tour · the
+  blocks 6 block(s) declaring 7 + 6 + 6 + 5 + 6 + 6 = 36 step(s); 36 walked`, `ended on the last card it had (6 of 6)`,
+  expected-count `150/155 surfaces, 5 declared unreachable … every one accounted for`, exit 0, receipt PASS 150/150. **Steps 6 and
+  7 are walked, not declared.** The one tour step still declared unreachable is `tour · step 37`, and its press is the last in the
+  pace line: `8014=EMPTY`, a full 8-second wait that came back empty, which is the evidence 14.11 asks for and the only thing
+  that excuses it. `SWEEP_TOUR_HOLD` is gone (one mention, in a comment).
+  **Clause 4, the baseline.** `scripts/sweep-widths.expected.json` (written `2026-10-03T03:36`) carries 37 `tour · step` labels
+  at 1440 in the deep mode, from a walk, not from a held run. Not rewritten here, and `--write-expected` was not run.
+  **THE FIRST RUN OF THE THREE IS THE USEFUL ONE.** It read `tour · step @1440  NO STEP COUNTER READ — 0 step(s) walked, plan
+  unknown, nothing written off`, the card never arrived, and the instrument did exactly what 14.11 demands of it: it wrote off
+  **nothing**, listed all 37 tour steps as NEVER MEASURED, and the expected-count gate went RED (`expected 155 surfaces, measured
+  119`), `VERDICT STANDS ON 0 of 119`, exit 1. **That is the rare zero-step shape from the table above, drawn once in three
+  sweeps (and 0 in 20 tour-runs), and the sweep reported it as a failure rather than as a property of the dashboard.** The same
+  run also lists `guide · today 9`–`12` as NOT EXPECTED, the Today-guide-walks-past-its-length reading from 2026-09-21 (1); it
+  did not repeat in runs 2 and 3, which read `guide · today @1440  7 step(s) … 7 of 7`.
+  **STILL OPEN, AND NOT MINE: the deterministic clause.** *"The cold-open condition is forced on purpose, the tour still reaches
+  six blocks under it, and the mechanism that was failing is named in `Walkthrough.jsx`"* needs a change in `app/src`, which is
+  **Lane A's** (the manager's instruction for this sitting). The one-in-three zero-step draw above is the evidence it is still
+  worth doing: whether the card failing to arrive is the product or the instrument is the question that clause answers.
+  **Receipts:** `receipts/sweep-widths-1440.json` is run 3 (PASS 150/150, HEAD moved during the run); the ledger was put back to
+  the full default run's rows.
+
 ### 14.11 — a check with a sanctioned word for testing nothing
 
 - [ ] **A declared skip in this repo is supposed to mean a surface proved
@@ -17484,6 +17563,18 @@ event id.
   one skip per script has been refused on purpose to prove the probe fires,
   **and** `receipt.mjs` fails a receipt whose skips carry no evidence field, so
   the rule is graded rather than remembered.
+
+  ***RE-RUN 2026-10-06 (Lane B, on the manager's go): THE INSTANCE HOLDS, THE REST IS NOT DONE, AND NOTHING IS TICKED.***
+  **The instance, in a browser:** see 14.10's 2026-10-06 paragraph. `node scripts/sweep-widths.mjs --all 1440`, run 1 of 3: the
+  tour never arrived, the walk wrote off no step (*"NO STEP COUNTER READ — 0 step(s) walked, plan unknown, nothing written
+  off"*), and the gate failed red. Runs 2 and 3: the one declared tour skip, step 37, rests on a press whose full 8s wait came
+  back empty (`8014=EMPTY`). **A walk that died is no longer allowed to call itself a property of the dashboard.**
+  **What was NOT done, said so it cannot be read as done:** the audit's other 27 issuers (this entry's own recount says 28) were
+  not touched, no skip was refused on purpose in any script but the sweep, and `receipt.mjs` still does not fail a receipt whose
+  skips carry no evidence field. That last one is a few lines in the grader and would turn the receipts that declare skips
+  without one red (22 receipts on disk carry `skipped_targets` above 0 at this tree, 19 of them `sweep-widths` runs, each under an
+  allowlist dated 2027-01-01); doing it before the issuers can supply the field would make the whole receipt list fail for a reason that is not
+  a fault. **Recommendation, not built: add the field to `sweep-widths`'s allowlist first, then the rule, in that order.**
 
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field

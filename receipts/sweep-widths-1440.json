@@ -1,70 +1,10 @@
 {
-  "git_sha": "719604e4acded8f82c1974e24fa64aac1772ae84",
-  "git_sha_started": "05921cc6d508742f01c568cf31522c7063e4b2c0",
-  "head_moved": true,
+  "git_sha": "a84fd7261eb7e55446cb6e815bc5f85df2161bdd",
+  "git_sha_started": "a84fd7261eb7e55446cb6e815bc5f85df2161bdd",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-03T01:32:08.188Z",
-  "failures": [
-    {
-      "target": "guide · calendar 5",
-      "width": 1440,
-      "findings": [
-        "page-scrolls   +291px  the whole page can be dragged sideways",
-        "past-viewport  +286px  div.col-2.leaving  «Thursday, October 11 job4:»",
-        "past-viewport  +286px  section.daypanel  «Thursday, October 11 job4:»",
-        "past-viewport  +286px  div.row.between  «Thursday, October 11 job»",
-        "past-viewport  +159px  div  «Thursday, October 11 job»",
-        "past-viewport  +159px  h2  «Thursday, October 1»",
-        "past-viewport  +159px  p.quiet  «1 job»",
-        "past-viewport  +286px  button.x  «»",
-        "past-viewport  +277px  svg  «»",
-        "past-viewport  +286px  div.group  «4:00 PMDana RuizExpress Wa»",
-        "past-viewport  +49px  div.tight.day-jobs  «4:00 PMDana RuizExpress Wa»",
-        "past-viewport  +49px  div.rows  «4:00 PMDana RuizExpress Wa»",
-        "past-viewport  +49px  button.row-item  «4:00 PMDana RuizExpress Wa»",
-        "past-viewport  +9px  span.txt  «4:00 PMDana RuizExpress Wa»",
-        "past-viewport  +9px  span.nm  «4:00 PMDana Ruiz»",
-        "past-viewport  +9px  span.sub  «Express Wash · Mobile»",
-        "past-viewport  +47px  span.figure.sm  «$80»",
-        "past-viewport  +49px  div.row  «Add a job»",
-        "past-viewport  +49px  button.btn.sm.inline  «Add a job»",
-        "past-viewport  +196px  div.tight.day-state  «This dayBlock this dayBook»",
-        "past-viewport  +196px  span.label  «This day»",
-        "past-viewport  +196px  div.card.tappable  «Block this dayBookings all»",
-        "past-viewport  +177px  div.row.top.between  «Block this dayBookings all»",
-        "past-viewport  +72px  div.row  «Block this dayBookings all»",
-        "past-viewport  +72px  div  «Block this dayBookings all»",
-        "past-viewport  +72px  div.strong  «Block this day»",
-        "past-viewport  +72px  div.quiet  «Bookings allowed as normal»",
-        "past-viewport  +177px  label.switch  «»",
-        "past-viewport  +177px  input  «»",
-        "past-viewport  +177px  span.knob  «»",
-        "past-viewport  +196px  div.card.tappable  «HoursYour normal hours for»",
-        "past-viewport  +177px  div.row.top.between  «HoursYour normal hours for»",
-        "past-viewport  +110px  div.row  «HoursYour normal hours for»",
-        "past-viewport  +110px  div  «HoursYour normal hours for»",
-        "past-viewport  +110px  div.strong  «Hours»",
-        "past-viewport  +110px  div.quiet  «Your normal hours for this»",
-        "past-viewport  +177px  button.btn.sm.inline  «Set»",
-        "past-viewport  +196px  div.card.tappable  «How this day worksMobile a»",
-        "past-viewport  +177px  div.row.top.between  «How this day worksMobile a»",
-        "past-viewport  +107px  div.row  «How this day worksMobile a»",
-        "past-viewport  +107px  div  «How this day worksMobile a»",
-        "past-viewport  +107px  div.strong  «How this day works»",
-        "past-viewport  +107px  div.quiet  «Mobile and drop-off both b»"
-      ]
-    },
-    {
-      "target": "(not a per-surface geometry finding)",
-      "count": 43,
-      "captured": [
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
-        "EXPECTED-COUNT GATE FAILED at 1440px: expected 155 surfaces, measured 122"
-      ],
-      "why": "43 problem(s) raised, 3 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
-    }
-  ],
+  "finished_at": "2026-10-07T02:49:18.630Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/sweep-widths/index.html"
@@ -81,17 +21,32 @@
     ]
   },
   "check_id": "sweep-widths-1440",
-  "started_at": "2026-10-03T01:28:59.037Z",
-  "status": "fail",
-  "expected_targets": 155,
-  "discovered_targets": 122,
-  "attempted_targets": 122,
-  "completed_targets": 122,
-  "skipped_targets": 2,
+  "started_at": "2026-10-07T02:45:45.969Z",
+  "status": "pass",
+  "expected_targets": 150,
+  "discovered_targets": 150,
+  "attempted_targets": 150,
+  "completed_targets": 150,
+  "skipped_targets": 7,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
     "skipped": [
+      {
+        "width": 1440,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
       {
         "width": 1440,
         "label": "gear · subscription, cancelling",
@@ -101,11 +56,21 @@
         "width": 1440,
         "label": "gear · subscription, past due",
         "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "tour · step 37",
+        "reason": "the tour walked 36 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+      },
+      {
+        "width": 1440,
+        "label": "guide · today 8",
+        "reason": "the today guide walked 7 step(s) on this dashboard and ended on the last card it had (7 of 7). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
       }
     ]
   },
-  "assertions_executed": 60592,
-  "min_assertions": 488,
+  "assertions_executed": 69954,
+  "min_assertions": 600,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,
