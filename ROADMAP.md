@@ -10580,6 +10580,28 @@ rather than wording went to Andrew.
   published (`a-shop`, `b-van`: the bare value `1`, a flag and not a source;
   `j-northside`: a sentence); they are reported as a note, not a failure.
 
+  ***RULED 2026-10-06 BY THE MANAGER, ON THE CENSUS'S FINDINGS ABOVE.***
+  1. **The 2026-09-21 home-page ruling extends to the example sites.** On
+     `v-goldenhour-work.html` (`/ex1/work`) the stat row loses **312 Reviews**
+     and **4.9 Average**, **keeps 6 Years on the road** (it comes from
+     `established_year`), and loses **1,240 Cars detailed**, which nothing
+     public produces. Per the withdrawal rule above, the removal is to be said
+     where somebody diffing the file will read it.
+  2. **The three job cards stay, as long as they claim no reviews.** They are
+     illustration of work done, not a claim about a feed.
+  3. **The four-attribute repoint on `w-delgado.html` stands**
+     (`get_public_business_profile.testimonials`).
+  **Who does what:** the page edits in 1 are Lane A's (with the `/terms` and
+  `/privacy` phone menu from 7.18). Nothing was edited here.
+  **WHAT IS STILL OPEN, AND IT IS SMALL:** ruling 2 keeps the job cards, but the
+  census will keep exiting 1 on them (and on the stat row's own attribute until
+  that row is rewritten), because *"the detailer's own completed bookings"* is a
+  sentence and not a source. Either the cards' attribute is reworded to say what
+  it is honestly (an illustration, no producing field) and the census is taught
+  to accept that wording in a named, counted exception, or it stays red. **That
+  choice is not made, and the item is not ticked until the stat row is edited
+  and it is.**
+
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.
