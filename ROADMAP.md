@@ -17411,9 +17411,9 @@ event id.
   **Receipts:** `receipts/sweep-widths-1440.json` is run 3 (PASS 150/150, HEAD moved during the run); the ledger was put back to
   the full default run's rows.
 
-### 14.11 — a check with a sanctioned word for testing nothing
+### 14.11 — a check with a sanctioned word for testing nothing — DONE 2026-10-06
 
-- [ ] **A declared skip in this repo is supposed to mean a surface proved
+- [x] **A declared skip in this repo is supposed to mean a surface proved
   unreachable, and one of them is really just a walk that died — so the
   instrument certifies its own fault as correct on every run and the gate
   believes it. That is the disease at the level above the disease: not a check
@@ -17708,6 +17708,23 @@ event id.
   allowlist that stopped itemising, the helper import dropped) each turned the intended case red; the control stayed clean.
   **What ticks this item:** `node scripts/sweep-widths.mjs --all 1440` (dev server and seed, a browser), then
   `receipts/sweep-widths-1440.json` read for `skip_allowlist.skipped` entries that each carry `evidence`. Waiting on DP Cowork's browser.
+
+  ***TICKED 2026-10-06 (DP Cowork2, Lane B), AFTER THE BROWSER RUN THE MANAGER NAMED. Every skip in a real receipt carries evidence.***
+  **The run:** `node scripts/sweep-widths.mjs --all 1440` at `7406351`, against a dev server started from a detached worktree at that
+  commit with its own dependency cache (so nothing under the main tree's server was touched), on port **5176**, not the 5175 the
+  instruction named, because 5175 was already held by an unrelated static server for `email-preview`. `BASE` points the script
+  at it; nothing is hard-coded. 150 of 150 measurements, 222 seconds, HEAD did not move, `receipts/sweep-widths-1440.json` graded
+  by `node scripts/receipt.mjs receipts/sweep-widths-1440.json`: **PASS, 150/150, 69,942 assertions, canary failed as required,
+  and it started after `EVIDENCE_RULE_FROM`, so the new rule bound it.**
+  **`skip_allowlist.skipped` read in the receipt itself: 7 declared, 7 listed, 7 carrying `evidence`.** Five are probes (`job record ·
+  finished`, `job record · finalize`, `job record · send a text`, `gear · subscription, cancelling`, `gear · subscription, past due`,
+  each `probe re-asked at the moment of the skip and found 0`), and two are presses (`tour · step 37` waited 8042ms and `guide ·
+  today 8` waited 8032ms against a bound of 8000ms, and no new card came). The one the earlier note said to look for, tour step 37,
+  reads as predicted. Clause 3 of the done-when (the grader fails a receipt whose skips carry none) was met in node
+  (`31e7cff`) and this run is the first real receipt to meet it.
+  **What this does not say:** it is one width. The other `sweep-widths` receipts on disk (18 had skips when counted, at `386b653`) and the rest still carry the UNJUDGED
+  note until each is re-run, and `receipts/sweep-widths-ledger.json` gained this run's row. The per-script refused-skip canaries on the
+  five shortfall scripts still need a browser; the census reading of clause 1 was accepted by the manager, which is what lets this tick.
 
 ### 14.12 — Four public endpoints 14.9 left open, given their own line rather
 than living only in a receipt's warnings field
