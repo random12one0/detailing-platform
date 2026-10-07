@@ -86,7 +86,10 @@ for (const f of files) {
 
   // 3 · NO GREY PLACEHOLDER BOXES. CLAUDE.md § Design: "never a grey
   //     placeholder box." l-tidewater shipped four empty rectangles.
-  ok(!/placeholder|\bcoming soon\b/i.test(body.replace(/placeholder="[^"]*"/g, "")),
+  //     **COMMENTS ARE NOT BOXES, 2026-10-06.** w-delgado.html failed this for weeks over a source comment that says the word
+  //     "placeholder" while explaining a stale date, which nobody sees. The check is about what a visitor can see, so the HTML
+  //     comments are taken out first; a `class="placeholder"` or a visible "coming soon" still fails.
+  ok(!/placeholder|\bcoming soon\b/i.test(body.replace(/<!--[\s\S]*?-->/g, "").replace(/placeholder="[^"]*"/g, "")),
      `${f}: looks like it carries a placeholder box`);
 
   // 4 · THE GROUND IS NOT A FLAT FILL (device A1). A page whose body/ground

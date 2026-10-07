@@ -159,7 +159,7 @@ function quoteSweep(roadmapText) {
 // DECLARED — measured 2026-10-02 at the commit recorded below.
 // Move these in the SAME EDIT as whatever really changed, and say why.
 // ===========================================================================
-const TAKEN_AT = "3398470";          // the commit these were measured at
+const TAKEN_AT = "45e98bd";          // the commit these were measured at (re-taken 2026-10-06; was 3398470)
 
 // ITEMS WITH NO COMMIT NAMING THEM, DECLARED BY NAME RATHER THAN COUNTED.
 // This was `itemsWithACommit: 66` — a bare count — and it broke the moment 14.32
@@ -181,14 +181,18 @@ const NO_COMMIT_YET = [];
 const DECLARED = {
   // 68 after 14.33, the parked figure-pinning item. Moved in the same edit as
   // that item, per this file's own rule.
-  numberedOpenItems: 68,
+  // 68 -> 47, 2026-10-06: items were ticked and left the open population (the count equals `grep -c '^- [ ]' ROADMAP.md`
+  // at the same revision, which is the cross-check). Moved in the same edit as the re-measurement, per this file's own rule.
+  numberedOpenItems: 47,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
-  quoteCriteria: 37,
+  // 37 -> 32, 2026-10-06: the ticked items' criteria left the population with them.
+  quoteCriteria: 32,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
-  quoteFragments: 280,
+  // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
+  quoteFragments: 254,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

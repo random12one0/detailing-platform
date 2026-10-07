@@ -29,10 +29,10 @@ const MIGRATION = readFileSync("supabase/migrations/20260916010000_every_email_l
 
 const BUSINESSES = { b1: { name: "Shine Co" }, b2: { name: "Gloss Bros" } };
 const SENDS = [
-  { id: "a1", business_id: "b1", subject: "Confirmed", to_email: "x@y.com", status: "delivered", detail: null, sent_at: "2026-10-05T10:00:00Z", booking_id: "k1" },
-  { id: "a2", business_id: "b2", subject: "Reminder", to_email: "p@q.com", status: "bounced", detail: "mailbox full", sent_at: "2026-10-06T09:00:00Z", booking_id: null },
-  { id: "a3", business_id: null, subject: "Heartbeat", to_email: "me@us.com", status: "sent", detail: null, sent_at: "2026-10-04T08:00:00Z", booking_id: null },
-  { id: "a4", business_id: "b1", subject: "Invite", to_email: "z@z.com", status: "failed", detail: "refused", sent_at: "2026-10-06T09:00:00Z", booking_id: null },
+  { id: "a1", business_id: "b1", subject: "Confirmed", to_email: "x@y.com", status: "delivered", detail: null, sent_at: "2026-10-05T10:00:00Z", booking_id: "k1" },  // mail-sink: fixture row for a pure function; nothing is sent
+  { id: "a2", business_id: "b2", subject: "Reminder", to_email: "p@q.com", status: "bounced", detail: "mailbox full", sent_at: "2026-10-06T09:00:00Z", booking_id: null },  // mail-sink: fixture row for a pure function; nothing is sent
+  { id: "a3", business_id: null, subject: "Heartbeat", to_email: "me@us.com", status: "sent", detail: null, sent_at: "2026-10-04T08:00:00Z", booking_id: null },  // mail-sink: fixture row for a pure function; nothing is sent
+  { id: "a4", business_id: "b1", subject: "Invite", to_email: "z@z.com", status: "failed", detail: "refused", sent_at: "2026-10-06T09:00:00Z", booking_id: null },  // mail-sink: fixture row for a pure function; nothing is sent
 ];
 
 /** An in-memory stand-in for the one chain the module uses. `lie` breaks one thing on purpose. */

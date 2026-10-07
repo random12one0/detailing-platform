@@ -65,10 +65,19 @@ const weekdayOf = (d) => new Date(`${d}T12:00:00Z`).getUTCDay();
 const localDateTimeToInstant = (_tz, d, t) => new Date(`${d}T${t}:00Z`);
 const TZ = "America/Los_Angeles";
 
-// 2026-09-26 is a Saturday, 2026-09-27 a Sunday, 2026-09-30 a Wednesday.
-const SATURDAY = "2026-09-26";
-const SUNDAY = "2026-09-27";
-const WEDNESDAY = "2026-09-30";
+// **THESE DATES ARE COMPUTED FROM THE CLOCK, NOT WRITTEN DOWN — 2026-10-06.** They were the literals 2026-09-26, -27 and -30,
+// which were in the future on the day the test was written and in the past a fortnight later. `SHORT_NOTICE` is a lead-time rule
+// ("booked within 24 hours of the job"), so once a fixture day was behind the clock it matched, +$20 landed on every quote
+// that carried an hour, and two tests went red over a product that had not changed. The days are now the first Saturday,
+// the Sunday after it, and the first Wednesday that are at least a week away, so the rule cannot fire at any hour.
+const dayAfterWeek = (weekday) => {
+  let d = new Date(Date.now() + 7 * 86400000);
+  while (d.getUTCDay() !== weekday) d = new Date(d.getTime() + 86400000);
+  return d.toISOString().slice(0, 10);
+};
+const SATURDAY = dayAfterWeek(6);
+const SUNDAY = new Date(Date.parse(`${SATURDAY}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+const WEDNESDAY = dayAfterWeek(3);
 
 test("a day with no time now carries the weekday, and nothing else", () => {
   const when = whenContextFor(TZ, SATURDAY, null, localDateTimeToInstant, weekdayOf);

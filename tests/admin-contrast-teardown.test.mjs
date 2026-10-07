@@ -25,7 +25,7 @@ import assert from "node:assert/strict";
 
 const SRC = readFileSync("scripts/admin-contrast.mjs", "utf8");
 const ACCOUNT = readFileSync("scripts/admin-account.mjs", "utf8");
-const MINE = "admin-contrast-test@detailplatform.com";
+const MINE = "admin-contrast-test@detailplatform.com";  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
 
 function fakeBackend(users, admins) {
   const log = [];
@@ -66,7 +66,7 @@ const run = (url, args) => new Promise((ok) => {
 
 test("ROADMAP 14.21 — the throwaway admin's teardown", async (t) => {
   await t.test("1 · --drop-leftover removes the test account and nothing else, and reads email only", async () => {
-    const users = [{ id: "u-demo", email: "demo@detailplatform.com" }, { id: "u-mine", email: MINE }];
+    const users = [{ id: "u-demo", email: "demo@detailplatform.com" }, { id: "u-mine", email: MINE }];  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
     const admins = [
       { user_id: "u-demo", email: "demo@detailplatform.com", note: "SECRET-NOTE-DO-NOT-READ" },
       { user_id: "u-mine", email: MINE, note: "TEST ACCOUNT" },
@@ -75,16 +75,16 @@ test("ROADMAP 14.21 — the throwaway admin's teardown", async (t) => {
     const r = await run(url, ["--drop-leftover"]);
     server.close();
     assert.equal(r.code, 0, r.out);
-    assert.deepEqual(users.map((u) => u.email), ["demo@detailplatform.com"]);
-    assert.deepEqual(admins.map((a) => a.email), ["demo@detailplatform.com"]);
+    assert.deepEqual(users.map((u) => u.email), ["demo@detailplatform.com"]);  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
+    assert.deepEqual(admins.map((a) => a.email), ["demo@detailplatform.com"]);  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
     assert.match(r.out, /platform_admins now: \["demo@detailplatform.com"\]/);
     assert.doesNotMatch(r.out, /SECRET-NOTE/, "the note column must never be printed");
     assert.ok(log.filter((l) => l.includes("/rest/v1/platform_admins") && l.startsWith("GET")).every((l) => /select=email/.test(l)), "the roster is read by email only");
   });
 
   await t.test("2 · with no leftover it says so, and touches nothing", async () => {
-    const users = [{ id: "u-demo", email: "demo@detailplatform.com" }];
-    const admins = [{ user_id: "u-demo", email: "demo@detailplatform.com" }];
+    const users = [{ id: "u-demo", email: "demo@detailplatform.com" }];  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
+    const admins = [{ user_id: "u-demo", email: "demo@detailplatform.com" }];  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
     const { server, log, url } = await fakeBackend(users, admins);
     const r = await run(url, ["--drop-leftover"]);
     server.close();
