@@ -5912,6 +5912,69 @@ requested.
   scripts/migration-drift.mjs` is what says whether it has been applied; it
   names the column today.
 
+  ***APP HALF BUILT 2026-10-06 — THE SCREEN IS DONE AND PROVEN AGAINST FIXTURES;
+  THE LIST IS STILL UNREACHABLE BECAUSE THE SERVER ACTION DOES NOT EXIST, AND
+  THIS ITEM STAYS UNTICKED UNTIL A REAL ROW IS SEEN.***
+
+  **Where it is:** `app/src/admin/AdminPage.jsx`, a new `EmailList` section on
+  the **System health** tab, between *Quotas* and *Not wired up yet*. The
+  Resend row that said *"confirmed possible"* is gone because it is no longer
+  true. Words come from the one `MAIL_STATE` table in `EmailTrail.jsx`
+  (*"On its way"* against *"Delivered"*, *"Bounced"* in `--bad` with the
+  provider's reason), imported rather than copied. An *Everything / Problems*
+  switch makes the bad rows findable, which is the whole of "alert" here —
+  `customers.email_failed_at` is still the only alarm.
+
+  **WHAT THE SPEC GOT WRONG, found by reading before building, and both change
+  what Andrew has to do:**
+  1. **There is no `platform-admin` action to read the rows.** The server half
+     added the column and the sender plumbing and nothing that lists them, and
+     a browser query from `/admin` returns zero rows with no error. The screen
+     asks for `{ action: "email_list", limit: 100, statuses?: [...] }` and
+     expects `{ rows: [{ id, subject, to_email, status, detail, sent_at,
+     business_name, booking_id }] }` newest first; the contract is written
+     above the component. **The action is the next server job** and the screen
+     cannot show a real row until it is written, deployed and the migration is
+     applied.
+  2. **`/admin/job/:id` is not a route.** The only job route is `/job/:id`, the
+     detailer's own screen behind their own sign-in, and `send-owner-reminders`
+     links there too. So **no booking link is drawn**, and a null `booking_id`
+     draws nothing at all. **Where a booking link should go for Andrew is his
+     call** and nothing is built toward it.
+
+  **PROOF, and what it does not prove.** `scripts/email-list-admin.mjs`
+  (a recorded one-file `scripts/` exception) answers `email_list` inside the
+  browser with eight fixture rows covering all seven states, null and non-null
+  booking ids and a row that will not fit at 320. Nothing is written to
+  `email_sends`. Per width it asks 18 questions — 1 wire + 5 widths x 18 + 2
+  canaries = 93, declared and asserted as an equality — and the ONE
+  un-rewritten measurement is the wire: against the deployed function the
+  screen must say *failed*, never *no email has been sent yet*. Today the
+  deployed function answers 400 `business_id is required`, and the screen says
+  failed. **It does not prove a real row, a real booking id, or that the
+  server action will return this shape.**
+  **Broken on purpose, four ways, each caught by the rule aimed at it:**
+  `--break=collapse` ("sent" drawn as "Delivered", 10 findings),
+  `--break=placeholder` (a chip on a null booking, 5), `--break=failempty` (a
+  failed read drawn as the empty list, 15), `--break=filter` (Problems asks
+  without "bounced", 6). The sabotages are applied to the live page or the
+  wire, not to a source file.
+  **One flake, said plainly:** the first run after the 44px probe was fixed
+  went red on `empty/problems` at two widths, and a later sabotage run read a
+  44px hit area as 43 at 768. Both were measured while an entrance animation was
+  in flight, the shape `docs/gotchas.md` already has. A `settle()` now runs
+  before every state screen; four clean runs in a row followed. **Not
+  reproduced since, and not proven gone** — if it comes back it is a
+  measurement race, not the screen.
+  **Gates:** the four credential-free suites, `no-credentials-in-tracked-text`,
+  `label-guard` (it flagged a run-time label in this script and the script was
+  changed to a literal rather than the guard being waved through),
+  `american-english`, `contrast-insitu`, `admin-contrast` — all green. Of
+  those, only `admin-contrast` reads `/admin`, and it measures the sign-in card
+  and the resting tabs, **not** this section's states; the script's own
+  assertions are what cover those. `american-english` does not visit `/admin`
+  either; the new copy was read by hand.
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.

@@ -48,6 +48,10 @@
 import { ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MoneyField, Segmented } from "../components/controls.jsx";
+// THE ONE MAPPING FROM A STORED STATE TO THE WORD A PERSON READS — the detailer's
+// client and job records draw from this same table, so the back office cannot
+// disagree with them about whether an email bounced (ROADMAP 3.1).
+import { MAIL_STATE } from "../components/EmailTrail.jsx";
 import { supabase } from "../lib/supabase.js";
 import { dateLong, localDate, money } from "../lib/format.js";
 import { mb } from "../lib/photo-rules.js";
@@ -1955,6 +1959,117 @@ function TabMoney({ state, totals, rows, reload }) {
 }
 
 /* ══ TAB 5 · PLUMBING ══════════════════════════════════════════════════════ */
+/* ══ THE MAIL WE SENT, FOR EVERY DETAILER — ROADMAP 3.1, app half ═══════════
+   Andrew's list, not a detailer's: it reads the `platform-admin` action
+   `email_list`, which runs under the service role. **A browser query from this
+   screen would return ZERO ROWS WITH NO ERROR** — `email_sends` is scoped by
+   `current_business_ids()` and Andrew is a member of no detailer's business —
+   and an empty list that looks correct is the worst way for this to fail.
+
+   THE CONTRACT THIS SCREEN ASSUMES, so the server half can be written to it:
+     request   { action: "email_list", limit: 100, statuses?: [...] }
+               `statuses`, when present, restricts to those stored states. The
+               client owns what counts as a problem (MAIL_STATE `ok === false`)
+               so there is one definition, not one per runtime.
+     response  { rows: [{ id, subject, to_email, status, detail, sent_at,
+                          business_name, booking_id }] }  newest first
+   Anything else — no `rows` array, an error, "Unknown action" from a function
+   that has not been republished — is a FAILED read and says so. It never
+   falls through to the empty sentence.
+
+   NO BOOKING LINK, AND NO PLACEHOLDER FOR ITS ABSENCE. The spec pointed at
+   `/admin/job/:id`, which is not a route: the only job route is `/job/:id`,
+   the detailer's own screen behind their own sign-in, and it would not open
+   for Andrew. A null `booking_id` is correct for campaigns, invites and plan
+   links and must not read as a fault; a non-null one has nowhere to go yet, so
+   neither draws anything. Where it should go is Andrew's call.
+
+   NO SECOND ALERT. "Alert on permanent failure" is `customers.email_failed_at`,
+   already drawn on the client record. This list only has to make the bad rows
+   FINDABLE, which is the Problems switch. */
+const MAIL_CAP = 100;
+const MAIL_PROBLEMS = Object.keys(MAIL_STATE).filter((k) => MAIL_STATE[k].ok === false);
+const MAIL_FILTERS = [["all", "Everything"], ["bad", "Problems"]];
+
+function EmailList() {
+  const [which, setWhich] = useState("all");
+  const [rows, setRows] = useState(null);      // null while unknown; an array once the server has answered
+  const [readErr, setReadErr] = useState("");
+  const latest = useRef(0);
+
+  // `latest` drops an answer that lands after the person flipped the switch —
+  // the Problems rows must never land under Everything.
+  const read = useCallback(async (w) => {
+    const mine = ++latest.current;
+    setRows(null); setReadErr("");
+    try {
+      const out = await call({
+        action: "email_list", limit: MAIL_CAP,
+        ...(w === "bad" ? { statuses: MAIL_PROBLEMS } : {}),
+      });
+      if (mine !== latest.current) return;
+      if (!Array.isArray(out?.rows)) throw new Error("the server answered without a list");
+      setRows(out.rows);
+    } catch (e) {
+      if (mine === latest.current) setReadErr(e.message);
+    }
+  }, []);
+  useEffect(() => { read(which); }, [which, read]);
+
+  return (
+    <section className="pa-sec" style={{ "--i": 4 }}>
+      <div className="pa-h"><h2>Email we sent</h2></div>
+      <Segmented label="Which emails" value={which} onChange={setWhich} options={MAIL_FILTERS} />
+      <div className="pa-svc pa-mail">
+        {readErr && (
+          <div className="pa-card" data-mail-state="failed">
+            <p className="pa-err">Could not read the email log: {readErr}.</p>
+            <p className="pa-sub pa-act">
+              No list is shown, because an empty one would say no email has been sent. A back-office
+              function that has not been republished with the email list answers with an error
+              like this one.
+            </p>
+            <div className="pa-acts">
+              <button className="pa-btn" type="button" onClick={() => read(which)}>Try again</button>
+            </div>
+          </div>
+        )}
+        {!readErr && rows === null && <p className="pa-none" data-mail-state="loading">Reading the email log…</p>}
+        {!readErr && rows?.length === 0 && (
+          <p className="pa-none" data-mail-state="empty">
+            {which === "bad"
+              ? "No email has bounced, been refused or failed to send."
+              : "No email has been sent yet."}
+          </p>
+        )}
+        {!readErr && rows?.map((m) => {
+          const st = MAIL_STATE[m.status] ?? MAIL_STATE.sent;
+          return (
+            <div className="pa-svc-r" key={m.id} data-mail-id={m.id}>
+              <span className="pa-svc-n">{m.subject}</span>
+              {/* THE WORD IS THE DIFFERENCE, THE MARK IS ONLY NOT-GREEN: a ring
+                  for "on its way", a fill for delivered, red for a bad
+                  outcome. "Delivered" and "On its way" are told apart in
+                  words first — 3.1's own done-when. */}
+              <span className="pa-v" style={{ fontSize: 12, ...(st.ok === false ? { color: "var(--bad)" } : null) }}>
+                <i className={`pa-dot ${st.ok === true ? "pa-ok" : st.ok === false ? "pa-bad" : "pa-quiet"}`} />
+                {st.word}
+              </span>
+              <span className="pa-svc-d">
+                {m.to_email}
+                {m.business_name ? ` · ${m.business_name}` : ""}
+                {` · ${shortAgo(m.sent_at)}`}
+                {st.ok === false && m.detail ? ` · ${m.detail}` : ""}
+              </span>
+            </div>
+          );
+        })}
+        {!readErr && rows?.length >= MAIL_CAP && <p className="pa-sub">{MAIL_CAP} most recent.</p>}
+      </div>
+    </section>
+  );
+}
+
 function TabPipes({ state, alerts }) {
   const store = state?.photo_store;
   const mail = state?.email;
@@ -2080,13 +2195,14 @@ function TabPipes({ state, alerts }) {
         </div>
       </section>
 
-      <section className="pa-sec" style={{ "--i": 3 }}>
+      <EmailList />
+
+      <section className="pa-sec" style={{ "--i": 5 }}>
         <div className="pa-h"><h2>Not wired up yet</h2></div>
         <div className="pa-card">
           <div className="pa-rows">
             <Row k="Stripe · is it taking money, and did anything fail" v="needs connecting" />
             <Row k="Netlify · builds, credits, bandwidth" v="connected, not read yet" />
-            <Row k="Resend · every message, with delivered or bounced" v="confirmed possible" />
             <Row k="Supabase · database, logins, storage" v="needs wiring" />
             <Row k="Was it down on Tuesday?" v="nothing keeps a history yet" />
           </div>
