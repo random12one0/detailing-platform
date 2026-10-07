@@ -26,3 +26,12 @@ export const probeEvidence = (found) =>
 /** A walk's end is a press whose full bounded wait came back empty, never a card that was already gone. */
 export const pressEvidence = (ms, boundMs) =>
   `pressed the primary button and waited ${ms}ms (bound ${boundMs}ms) and no new card came`;
+
+/**
+ * A step that needs something the ENVIRONMENT must supply: the run looked for it and it was not
+ * there. THE CEILING, said where it is used: this is evidence of a missing precondition, not of a
+ * surface that was reached and refused, because the surface cannot be tried without the thing.
+ * It is still an act with a recorded outcome, which "it was not set when I looked" alone is not.
+ */
+export const absentEvidence = (what) =>
+  `looked for ${what} in the environment before the first step that needs it and it was not set, so the surface could not be tried`;

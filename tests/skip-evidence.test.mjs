@@ -66,3 +66,41 @@ test("canary: the reader catches a bare push and a site with no evidence", () =>
   assert.equal(skipSitesWithoutEvidence(real.replace(/evidence: probeEvidence\(n\)/, "")).length, 1);
   assert.equal(skipSitesWithoutEvidence(real.replace(/evidence: pressEvidence\(k\.endMs, TOUR_WAIT_MS\),/, "")).length, 1);
 });
+
+// ── billing-walk, the second allowlist user (manager's grant, 2026-10-06) ──
+// It cannot be run from here (a sandbox Stripe key, fixture businesses), so what is proved is
+// the wiring as text plus the receipt it would write, built from the same helper and graded.
+test("billing-walk issues its skip through addSkip with evidence and itemises it in the allowlist", () => {
+  const src = readFileSync("scripts/billing-walk.mjs", "utf8");
+  const skipCalls = (s) => [...s.matchAll(/(?<![A-Za-z.])skip\((?!name, why, evidence)[^;]*;/g)].map((m) => m[0]);
+  assert.match(src, /import \{ addSkip, absentEvidence \} from "\.\/lib\/skipEvidence\.mjs"/);
+  assert.match(src, /const skip = \(name, why, evidence\) => \{ addSkip\(skipEntries, /);
+  assert.equal((src.match(/\bnotMeasured\.push\(/g) ?? []).length, 1, "a second way into the skip list that bypasses addSkip");
+  assert.ok(skipCalls(src).length >= 1, "the reader found no skip call: the pattern stopped matching");
+  for (const call of skipCalls(src).map((c) => [c])) {
+    assert.match(call[0], /absentEvidence\(/, "a skip call with no evidence argument: " + call[0]);
+  }
+  assert.match(src, /expires: "[0-9-]+",\s+skipped: skipEntries,/);
+  // canary: the reader sees a call with no evidence
+  const planted = src.replace('absentEvidence("STRIPE_SECRET_KEY"));', '"x");');
+  assert.ok(skipCalls(planted).some((c) => !/absentEvidence\(/.test(c)));
+});
+
+test("the receipt billing-walk writes with its three skips is accepted, and rejected without the evidence", async () => {
+  const { validate } = await import("../scripts/receipt.mjs");
+  const { absentEvidence } = await import("../scripts/lib/skipEvidence.mjs");
+  const labels = ["3 · renew", "4 · failed payment retries", "5 · page offline after the retries run out"];
+  const r = (skipped) => ({
+    check_id: "billing-walk", git_sha: "0".repeat(40), environment: "test",
+    started_at: "2026-10-08T00:00:00.000Z", finished_at: "2026-10-08T00:01:00.000Z", status: "pass",
+    expected_targets: 3, discovered_targets: 3, attempted_targets: 3, completed_targets: 3,
+    skipped_targets: 3, assertions_executed: 40, min_assertions: 10, failures: [], dimensions: {},
+    artifacts: ["scripts/receipt.mjs"], warnings: [], canary: { id: "c", observed_failure: true },
+    skip_allowlist: { reason: "needs a test clock", expires: "2099-01-01", skipped },
+  });
+  const full = labels.map((label) => ({ label, reason: "r", evidence: absentEvidence("STRIPE_SECRET_KEY") }));
+  assert.equal(validate(r(full), { sha: null }).ok, true);
+  const bare = validate(r(full.map(({ evidence, ...e }) => e)), { sha: null });
+  assert.equal(bare.ok, false);
+  assert.match(bare.problems.join(" | "), /3 skip\(s\) carry no evidence.*3 · renew/);
+});

@@ -9,10 +9,9 @@
 //
 //   * A receipt with skips can only GRADE AS A PASS through `skip_allowlist`
 //     (`receipt.mjs`: any skip without one is a problem). Two scripts write one.
-//   * One of those, `sweep-widths`, routes every skip through `addSkip`, which
-//     refuses a skip with no evidence. The other, `billing-walk`, does not, and
-//     is listed below as a KNOWN gap. It is also `status: "fail"` whenever it has a
-//     skip, so it has never produced a passing receipt with one.
+//   * Both route every skip through `addSkip`, which refuses a skip with no
+//     evidence. `billing-walk` was the known gap until 2026-10-06; it is also
+//     `status: "fail"` whenever it has a skip, so it never passed with one anyway.
 //   * Every other computed writer has no allowlist, so a positive count fails the
 //     receipt however it arrived: those are counted shortfalls that fail, not
 //     skips that pass, and there is nothing for an evidence field to add.
@@ -48,9 +47,9 @@ const COMPUTED = [
   "text-spacing-walk.mjs", "zoom-walk.mjs",
 ];
 const ALLOWLISTERS = ["billing-walk.mjs", "sweep-widths.mjs"];
-// The one known gap. Not named by the item, so not edited under its grant. Shrinks to
-// [] the day billing-walk itemises its skips, and this test says so by going red.
-const KNOWN_UNEVIDENCED = ["billing-walk.mjs"];
+// The known gaps. Was ["billing-walk.mjs"] until it itemised its skips (manager's grant, 2026-10-06);
+// now empty, and a new allowlist user that does not supply evidence turns this red.
+const KNOWN_UNEVIDENCED = [];
 
 test("the scripts whose skip count is an expression are exactly the declared ones", () => {
   assert.deepEqual(computed, COMPUTED);
@@ -62,7 +61,7 @@ test("the scripts that can attach an allowlist, the only way a skip passes, are 
 
 test("every allowlist user either supplies evidence or is the declared known gap, and nothing else", () => {
   assert.deepEqual(allowlisters.filter((f) => !evidenced.includes(f)), KNOWN_UNEVIDENCED);
-  assert.ok(evidenced.includes("sweep-widths.mjs"));
+  assert.deepEqual(evidenced, ALLOWLISTERS);
 });
 
 test("a writer with no allowlist cannot pass a skip, whatever it computes", async () => {

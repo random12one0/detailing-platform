@@ -50,6 +50,7 @@ import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { sink } from "../tests/_mail.mjs";
 import { writeReceipt } from "./receipt.mjs";
+import { addSkip, absentEvidence } from "./lib/skipEvidence.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -81,7 +82,7 @@ if (BREAK && BREAK !== "page-stays-up") {
 }
 
 // ─── bookkeeping ──────────────────────────────────────────────────────────
-const failures = [], warnings = [], notMeasured = [];
+const failures = [], warnings = [], notMeasured = [], skipEntries = [];
 let assertions = 0;
 const check = (name, ok, detail = "") => {
   assertions++;
@@ -89,7 +90,8 @@ const check = (name, ok, detail = "") => {
   else { failures.push(`${name}${detail ? ` — ${detail}` : ""}`); console.log(`  FAIL  ${name}${detail ? `\n        ${detail}` : ""}`); }
   return ok;
 };
-const skip = (name, why) => { notMeasured.push(`${name} — ${why}`); console.log(`  NOT MEASURED  ${name} — ${why}`); };
+// ROADMAP 14.11: a skip carries evidence or `addSkip` throws before it is counted, so the receipt's allowlist can itemise it.
+const skip = (name, why, evidence) => { addSkip(skipEntries, { label: name, reason: why, evidence }); notMeasured.push(`${name} — ${why}`); console.log(`  NOT MEASURED  ${name} — ${why}`); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ─── Supabase ─────────────────────────────────────────────────────────────
@@ -294,7 +296,7 @@ try {
   // ── 3–5. RENEW, RETRIES, OFFLINE ────────────────────────────────────────
   if (!SK) {
     for (const s of ["3 · renew", "4 · failed payment retries", "5 · page offline after the retries run out"]) {
-      skip(s, "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock");
+      skip(s, "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock", absentEvidence("STRIPE_SECRET_KEY"));
     }
   } else {
     let row = await subRow();
@@ -416,6 +418,7 @@ const { path } = writeReceipt({
   ...(notMeasured.length ? { skip_allowlist: {
     reason: "renew, retries and the real suspension need a test clock, and a test clock needs the sandbox STRIPE_SECRET_KEY in the shell (FOR-ANDREW.md)",
     expires: "2026-10-20",
+    skipped: skipEntries,
   } } : {}),
   assertions_executed: assertions,
   // Below a clean run on purpose (half A runs 18, the full walk 30+), so a
