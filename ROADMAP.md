@@ -4821,7 +4821,7 @@ the wrong service, and never book a job we cannot reach.
   stands. Still `app/src` work, still not this pass's to finish in full.
   *A1 P2-10, A2 2.8*
 
-- [ ] **2.12a — `tests/spanish.test.mjs` cannot see a Spanish key that is missing for a string held in a constant.**
+- [x] **2.12a — `tests/spanish.test.mjs` cannot see a Spanish key that is missing for a string held in a constant.**
   Found 2026-10-06 closing 2.12. Section 9a reads literal `t("…")` call sites, so
   anything like `PAY_LABELS = { pending: "Unpaid" }` drawn later as
   `t(PAY_LABELS[x])` is outside it. **Proved:** with the Spanish for `Unpaid`
@@ -4833,6 +4833,37 @@ the wrong service, and never book a job we cannot reach.
   value against `appEs.js`. **Done when:** deleting the Spanish for `Unpaid`
   turns the suite red, and putting it back turns it green. Outside `app/src`,
   so not a lane-A change. *2.12*
+
+  **DONE 2026-10-06 — `tests/spanish.test.mjs` § 12, commit `0b3b403`.** The file
+  reads each constant's literal out of its source (the `.jsx` ones cannot be
+  imported) and requires a Spanish key for every prose word in it, in the
+  catalogue that surface uses: `appEs` for the dashboard, `es` for the booking
+  page. Nineteen constants are checked, including all seven this entry named.
+  **THE LIST IS SWEPT AS WELL AS DECLARED:** every top-level constant in
+  `app/src` named like a word list (…LABEL(S), …KIND(S), …STATE, …SAYS, …WORDS,
+  …NAMES, …TITLES, …COPY, …TEXT, …OPTIONS) must be checked or excluded with a
+  reason, so the next `FOO_LABELS` reddens the file instead of joining the
+  blind spot. Five are excluded, each with its reason in the test: the three in
+  `admin/` (English on purpose, § 11c), `CATEGORY_WORDS` (carries its own
+  Spanish) and `LOCALE_NAMES` (a language's name for itself).
+  **BROKEN ON PURPOSE, RUN, AT `0b3b403`:** `SPANISH_BREAK="Unpaid" node
+  tests/spanish.test.mjs` goes **red naming `"Unpaid"` and
+  `components/BookingDetail.jsx#PAY_LABELS`**; the same with `"Damage"` names
+  `lib/photo-rules.js#KINDS` (a `.js` list) and with `"Light"` names
+  `book/ManageBookingPage.jsx#CONDITION_WORDS` (the booking-page catalogue).
+  Unset, the file is green: **83 passed, 0 failed**, `node tests/spanish.test.mjs`
+  at `0b3b403`. **THE SWEEP WENT RED ON ITS OWN FIRST RUN** — `admin/AdminPage.jsx`
+  `WORDS`, a seventh admin constant a hand-written probe had missed — which is the
+  case for sweeping.
+  **HOW THE BREAK WAS MADE, SAID PLAINLY:** `SPANISH_BREAK` removes the word from
+  the catalogue in memory before the check runs. `appEs.js` itself was not
+  edited, because `app/src` was another session's that night. The check reads the
+  same object either way; a deleted line in the file would change nothing the
+  check can see. A built-in canary (`12b-canary`) takes one real word out and
+  asks the same function to catch it, on every run.
+  **WHAT IT STILL CANNOT SEE:** whether a word is actually drawn through `t()`
+  (every word in a listed constant is required to have Spanish whether or not
+  it is), and a list whose name does not match the pattern.
 
 - [x] **2.13 — DONE 2026-09-20. Each category now says "optional, choose one", which is what the rule actually is.**
   ~~**Fix:** "Optional — choose one" per category, or state the real rule once
