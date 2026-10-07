@@ -1052,6 +1052,7 @@ console.log("11. text that only exists after an action");
     ["lib/emailMessages.js", "MESSAGE_KINDS", "app"],
     ["lib/moneyAdvanced.js", "DAY_NAMES", "app"],
     ["lib/periods.js", "PERIOD_KINDS", "app"],
+    ["lib/photo-door.js", "DOOR_WORDS", "app"],
     ["lib/photo-rules.js", "KINDS", "app"],
     ["lib/plans.js", "STATUS_WORDS", "app"],
     ["lib/siteIntake.js", "SAYS", "app"],

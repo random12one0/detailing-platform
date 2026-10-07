@@ -148,7 +148,7 @@ console.log("\n4. the promises");
   check("4a · the job-photos bucket is created PRIVATE",
     /'job-photos', 'job-photos', false/.test(sql), "public-read would expose every driveway");
   check("4b · and photos are shown through signed URLs",
-    /createSignedUrls/.test(photos));
+    /action: "urls"/.test(photos));
   check("4c · which expire", /SIGNED_FOR = \d+/.test(photos));
 
   // ANY MEMBER MAY ADD, ONLY settings MAY REMOVE. Taking the photo is doing
@@ -177,26 +177,42 @@ console.log("\n4. the promises");
     const i = hay.indexOf(a), j = hay.indexOf(b);
     return i >= 0 && j >= 0 && i < j;
   };
-  check("4g · the upload happens before the row",
-    before(add, ".upload(", '.from("job_photos").insert'),
+  // ROADMAP 0.11 SLICE 1 — THE DOOR WRITES THE ROW NOW, so 4g and 4h are the
+  // same two promises in the shape the code has: the file is put before the
+  // door is asked to finish (the step that inserts the row), and a put that
+  // fails stops there. A failed row taking the file back out is the server's
+  // half now and is not asserted here.
+  check("4g · the file is put before the door is asked to finish",
+    before(add, 'method: "PUT"', 'action: "finish"'),
     "a row pointing at no file is a permanently broken image");
-  check("4h · and a failed row takes the file back out",
-    /if \(error\) \{\s*await supabase\.storage\.from\("job-photos"\)\.remove/.test(add));
+  check("4h · and a put that fails never reaches finish",
+    before(add, "if (!put.ok) throw", 'action: "finish"'));
+  check("4h2 · photos.js has no second door: nothing reads or writes the job-photos bucket directly",
+    !/from\("job-photos"\)/.test(photos),
+    "a second path to the store is how the cap stops meaning anything");
+  const gallery = strip(read("app/src/screens/more/Gallery.jsx"));
+  check("4h3 · and neither does the gallery export",
+    !/from\("job-photos"\)/.test(gallery));
 
   // PUBLISHING COPIES. Making the private file public instead would be one
   // line shorter and would put every photo of that job one URL guess away.
   const pub = photos.slice(photos.indexOf("export async function publishToGallery"));
   check("4i · publishing to the gallery COPIES into the public bucket",
-    /\.from\("business-media"\)\s*\.upload/.test(pub) && /download\(photo\.path\)/.test(pub),
+    /\.from\("business-media"\)\s*\.upload/.test(pub) && /signedUrls\(\[photo\.path\]\)/.test(pub),
     "flipping the private file public would expose the whole job");
 
   // THE RESIZE IS NOT OPTIONAL. If addPhoto ever uploads the raw file the
   // whole budget is 10x wrong and nothing says so until storage is full.
   check("4j · nothing is uploaded without being shrunk first",
-    before(add, "await shrink(file)", ".upload("),
+    before(add, "await shrink(file)", 'method: "PUT"') && before(add, "await shrink(file)", 'action: "start"'),
     "the raw camera file is 10x the size the budget assumes");
-  check("4k · and the size written down is the SHRUNK size",
-    /bytes: blob\.size/.test(add), "recording the original size makes the budget a fiction");
+  // THE CLIENT'S SIZE IS A CLAIM, never the record. The old check asked that
+  // the SHRUNK size be written; now nothing is written from here at all, and
+  // the one size sent is labelled as what it is. A bare `bytes:` in this
+  // function would be the client dictating the number the cap is measured by.
+  check("4k · the size sent is the SHRUNK size, labelled a claim, and no bare `bytes:` is sent",
+    /claimed_bytes: blob\.size/.test(add) && !/(?<![_\w])bytes:/.test(add),
+    "a client that records its own size can buy itself unlimited storage");
 }
 
 // ─── 5. The allowance is a SHARE of a known total ─────────────────────────

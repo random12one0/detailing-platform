@@ -7,6 +7,7 @@ import { Camera, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
+import { signedUrls } from "../../lib/photos.js";
 import {
   assertOwned, assertPathOwned, buildZip, photoRows, photosCsv, photosFilename,
 } from "../../lib/photo-export.js";
@@ -155,6 +156,10 @@ export default function Gallery() {
       }]));
 
       const rows = photoRows({ photos, bookings, gallery, timezone: business.timezone });
+      // ROADMAP 0.11, SLICE 1 — the private job photos are read through the
+      // photo door, signed for the hour in one pass up front. A refusal here
+      // stops the whole export in words, never a zip that is quietly empty.
+      const signed = await signedUrls(rows.filter((r) => r._path).map((r) => r._path));
       const files = [];
       const missed = [];
       let n = 0;
@@ -165,9 +170,10 @@ export default function Gallery() {
           let bytes;
           if (r._path) {
             assertPathOwned(r._path, business.id);
-            const dl = await supabase.storage.from("job-photos").download(r._path);
-            if (dl.error) throw dl.error;
-            bytes = new Uint8Array(await dl.data.arrayBuffer());
+            if (!signed[r._path]) throw new Error("no link for this photo");
+            const res = await fetch(signed[r._path]);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            bytes = new Uint8Array(await res.arrayBuffer());
           } else {
             const res = await fetch(r._url);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);

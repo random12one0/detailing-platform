@@ -1533,6 +1533,19 @@ export const appEs = {
   "Detailing Platform": "Detailing Platform",
   "Detailing since": "Detallando desde",
   "Didn’t show up": "No se presentó",
+  // ROADMAP 0.11, slice 1 — the photo door's plain sentences (`photo-door.js`).
+  "Photo storage is not set up on the server yet. Nothing was saved.":
+    "El almacenamiento de fotos aún no está configurado en el servidor. No se guardó nada.",
+  "Could not reach the photo service. Nothing was saved. Check your connection and try again.":
+    "No se pudo conectar con el servicio de fotos. No se guardó nada. Revisa tu conexión e inténtalo de nuevo.",
+  "The photo service had a problem. Nothing was saved. Try again in a minute.":
+    "El servicio de fotos tuvo un problema. No se guardó nada. Inténtalo de nuevo en un minuto.",
+  "The photo service sent back something this screen cannot use. Reload this job and check before trying again.":
+    "El servicio de fotos devolvió algo que esta pantalla no puede usar. Vuelve a abrir este trabajo y revisa antes de intentarlo de nuevo.",
+  "The photo did not finish uploading. Nothing was saved.":
+    "La foto no terminó de subirse. No se guardó nada.",
+  "The photo service did not confirm that the photo was saved. Reload this job to check before adding it again.":
+    "El servicio de fotos no confirmó que la foto se guardó. Vuelve a abrir este trabajo para revisar antes de agregarla de nuevo.",
   "Disconnect Stripe": "Desconectar Stripe",
   "Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button.":
     "¿Desconectar Stripe? Tus clientes no podrán pagar con tarjeta, y cualquier recibo que tengan pierde su botón de Pagar.",

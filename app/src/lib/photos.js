@@ -9,7 +9,11 @@
 // deliberately thin: resize, upload, insert, sign.
 
 import { supabase } from "./supabase.js";
-import { MAX_EDGE, QUALITY, fit, storagePath } from "./photo-rules.js";
+import { api } from "./api.js";
+import { MAX_EDGE, QUALITY, fit, firstFolder, storagePath } from "./photo-rules.js";
+import {
+  DOOR_BATCH, DOOR_WORDS, doorError, readFinish, readRemoved, readStart, readUrls,
+} from "./photo-door.js";
 
 export * from "./photo-rules.js";
 
@@ -34,44 +38,47 @@ export async function shrink(file, { maxEdge = MAX_EDGE, quality = QUALITY } = {
   return { blob, width, height };
 }
 
-// THE FILE GOES UP BEFORE THE ROW GOES IN, and the file is removed again if
-// the row fails. The other order leaves a row pointing at nothing — a broken
-// image on a job record forever. This order can at worst leave an orphaned
-// file, which costs bytes and shows nobody anything.
+// ROADMAP 0.11, SLICE 1 — JOB PHOTOS GO THROUGH THE PHOTO DOOR, and nowhere
+// else. `photo-door.js` holds the contract; the server half is not built yet,
+// so every call below fails in words until it is. There is no fallback to
+// Supabase Storage on purpose: a second door is how a cap stops meaning
+// anything.
+const door = async (businessId, body) => {
+  try { return await api.photoDoor(businessId, body); } catch (e) { throw doorError(e); }
+};
+
+// THE SERVER WRITES THE ROW, AND THE SIZE IT WRITES IS R2's, NOT OURS. The
+// order is: ask the door (it checks the business and the room), put the file,
+// ask the door to finish (it measures what landed and inserts the row in the
+// same step). A file with no row costs bytes and shows nobody anything; a row
+// with no file is a broken image on a job record forever, and this order never
+// makes one. `blob.size` goes up only as a CLAIM, to refuse early — the client
+// is the thing being limited, so what it says about its own size is never what
+// is recorded.
 export async function addPhoto({ file, businessId, bookingId, kind, caption = null }) {
   const { blob, width, height } = await shrink(file);
-  // The shape is `photo-rules.js`'s, because the first folder IS the bucket
-  // policy's check and it is asserted credential-free over there.
-  const path = storagePath({
-    businessId, ownerId: bookingId, id: crypto.randomUUID(), type: blob.type,
-  });
+  const type = blob.type || "image/jpeg";
+  const photoId = crypto.randomUUID();
+  // The shape is `photo-rules.js`'s, and `readStart` refuses to go on unless the
+  // server agrees with it to the character.
+  const want = { businessId, bookingId, photoId, type: blob.type };
+  const { uploadUrl, key } = readStart(await door(businessId, {
+    action: "start", booking_id: bookingId, photo_id: photoId, kind,
+    content_type: type, claimed_bytes: blob.size, width, height,
+  }), want);
 
-  const up = await supabase.storage.from("job-photos")
-    .upload(path, blob, { contentType: blob.type || "image/jpeg", upsert: false });
-  if (up.error) throw up.error;
+  let put;
+  try { put = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": type }, body: blob }); }
+  catch (e) { throw doorError(e); }
+  if (!put.ok) throw new Error(DOOR_WORDS.putFailed);
 
-  const { data, error } = await supabase.from("job_photos").insert({
-    business_id: businessId,
-    booking_id: bookingId,
-    kind,
-    path,
-    bytes: blob.size,
-    width,
-    height,
-    caption,
-  }).select().single();
-
-  if (error) {
-    await supabase.storage.from("job-photos").remove([path]);
-    throw error;
-  }
-  return data;
+  return readFinish(await door(businessId, {
+    action: "finish", booking_id: bookingId, photo_id: photoId, kind, width, height, caption,
+  }), { photoId, key });
 }
 
 export async function removePhoto(photo) {
-  const { error } = await supabase.from("job_photos").delete().eq("id", photo.id);
-  if (error) throw error;
-  await supabase.storage.from("job-photos").remove([photo.path]);
+  readRemoved(await door(photo.business_id, { action: "remove", photo_id: photo.id }));
 }
 
 // PRIVATE BUCKET, so every displayed photo is a signed URL with an expiry.
@@ -80,12 +87,22 @@ export async function removePhoto(photo) {
 // permanent public link to a customer's driveway.
 export const SIGNED_FOR = 3600;
 
+// THE BUSINESS IS READ OFF THE KEYS, so no caller changes: the first folder of
+// a key is its business, and the door checks that the session belongs to it. A
+// batch that spans two businesses is refused here rather than sent.
 export async function signedUrls(paths) {
   if (!paths.length) return {};
-  const { data, error } = await supabase.storage.from("job-photos")
-    .createSignedUrls(paths, SIGNED_FOR);
-  if (error) throw error;
-  return Object.fromEntries((data ?? []).map((d) => [d.path, d.signedUrl]));
+  const businessId = firstFolder(paths[0]);
+  if (paths.some((p) => firstFolder(p) !== businessId)) {
+    throw new Error("signedUrls: keys from more than one business in one call");
+  }
+  const out = {};
+  for (let i = 0; i < paths.length; i += DOOR_BATCH) {
+    Object.assign(out, readUrls(await door(businessId, {
+      action: "urls", keys: paths.slice(i, i + DOOR_BATCH),
+    })));
+  }
+  return out;
 }
 
 export async function budgetFor(businessId) {
@@ -100,11 +117,13 @@ export async function budgetFor(businessId) {
 // keeps that line: one photo, chosen by a person, becomes public — and the
 // original stays private even after the gallery copy is deleted.
 export async function publishToGallery(photo, businessId) {
-  const dl = await supabase.storage.from("job-photos").download(photo.path);
-  if (dl.error) throw dl.error;
+  const read = (await signedUrls([photo.path]))[photo.path];
+  if (!read) throw new Error(DOOR_WORDS.unreadable);
+  const dl = await fetch(read);
+  if (!dl.ok) throw new Error(DOOR_WORDS.unreadable);
   const dest = `${businessId}/gallery/${crypto.randomUUID()}.jpg`;
   const up = await supabase.storage.from("business-media")
-    .upload(dest, dl.data, { contentType: "image/jpeg", upsert: false });
+    .upload(dest, await dl.blob(), { contentType: "image/jpeg", upsert: false });
   if (up.error) throw up.error;
 
   const { data: pub } = supabase.storage.from("business-media").getPublicUrl(dest);

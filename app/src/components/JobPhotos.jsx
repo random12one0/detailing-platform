@@ -48,7 +48,7 @@ export default function JobPhotos({ booking }) {
     try {
       if (data?.length) setUrls(await signedUrls(data.map((p) => p.path)));
       setBudget(await budgetFor(business.id));
-    } catch (err) { setError(String(err.message ?? err)); }
+    } catch (err) { setError(t(String(err.message ?? err))); }
   }, [booking.id, business.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -70,7 +70,7 @@ export default function JobPhotos({ booking }) {
       }
       await load();
     } catch (err) {
-      setError(String(err.message ?? err));
+      setError(t(String(err.message ?? err)));
     } finally {
       setBusy(false);
       if (pick.current) pick.current.value = "";
@@ -81,14 +81,14 @@ export default function JobPhotos({ booking }) {
     if (!confirm(t("Delete this photo? A before-photo is what settles an argument about a scratch."))) return;
     setBusy(true);
     try { await removePhoto(photo); await load(); }
-    catch (err) { setError(String(err.message ?? err)); }
+    catch (err) { setError(t(String(err.message ?? err))); }
     finally { setBusy(false); }
   }
 
   async function publish(photo) {
     setBusy(true);
     try { await publishToGallery(photo, business.id); await load(); }
-    catch (err) { setError(String(err.message ?? err)); }
+    catch (err) { setError(t(String(err.message ?? err))); }
     finally { setBusy(false); }
   }
 

@@ -37,7 +37,9 @@ export const bookingTransport = createBookingTransport({ supabaseUrl: SUPABASE_U
 const PREVIEW_READS = new Set(["get-booking-receipt"]);
 
 async function callFn(name, body) {
-  if (!PREVIEW_READS.has(name) && !(name === "platform-billing" && body?.action === "summary")) guardWrite();
+  if (!PREVIEW_READS.has(name)
+    && !(name === "platform-billing" && body?.action === "summary")
+    && !(name === "photo-door" && body?.action === "urls")) guardWrite();
   const { data: sessionData } = await supabase.auth.getSession();
   const jwt = sessionData?.session?.access_token;
   return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);
@@ -254,6 +256,11 @@ export const api = {
       consented: true,
       promo_code: promoCode || undefined,
     }),
+  // ROADMAP 0.11, SLICE 1 — THE ONE DOOR TO PHOTO STORAGE. Every shape it
+  // takes and gives is written down in `photo-door.js`; `photos.js` is its only
+  // caller. Only `urls` is a read, which is why only `urls` works in a preview
+  // tab that is still on Looking.
+  photoDoor: (businessId, body) => callFn("photo-door", { business_id: businessId, ...body }),
   billingPortal: (businessId) => callFn("platform-billing", { business_id: businessId, action: "portal" }),
   billingCancel: (businessId) => callFn("platform-billing", { business_id: businessId, action: "cancel" }),
   billingResume: (businessId) => callFn("platform-billing", { business_id: businessId, action: "resume" }),
