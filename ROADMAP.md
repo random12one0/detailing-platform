@@ -9032,6 +9032,26 @@ requested.
   at least some of the time. The flake means a single clean run proves little: repeat the narrowed run, then do the default
   full run once and read `receipts/sweep-tap-targets-dashboard.json`.
 
+  ***READ 2026-10-06 (Lane A): `full2.txt` IS NOT THE PROOF, AND 4.6a STAYS OPEN. 4.6b NEEDS NOTHING.***
+  `full2.txt` is a full default sweep saved in another session's scratchpad (written 6:42 PM; no revision printed in it).
+  **What it says:** 309 screens, 4 widths, 2 languages, 7,253 controls, 796,152 press probes; every screen `ok` except one:
+  `768/en/gear/The website business`, `no-subjects`, 0 controls, 1 finding. **That is the same single finding this item
+  already records, and nothing else.** The admin section of the same run is clean (8 controls, 0 findings, canary caught 5 of 5).
+  **Why it cannot tick 4.6a:** it was written at 6:42 PM and the fix for that row (`9adabda`) was committed at 6:47 PM, so the run
+  is of the script BEFORE the fix. It shows the finding still exists when the door is pressed; it says nothing about whether the
+  fix removes it. **Two receipts on disk agree and neither is the fixed-script run:** `receipts/sweep-tap-targets-dashboard.json`
+  (6:57 PM, HEAD `3aad2dd`, 768 and English only) reads `fail` on the same row with `doors_that_leave_the_dashboard.pressed: true`,
+  i.e. it was a `--press-leaving-doors` run, the "old finding appears" half of the proof plan above; and
+  `receipts/sweep-tap-targets.json` (the admin section, 6:57 PM, HEAD `3aad2dd`) reads `pass`, 6 of 6 screens, canary 5 of 5.
+  **`scripts/sweep-tap-targets.mjs` also has uncommitted edits newer than `9adabda`** (file time 6:54 PM, `git status` shows it
+  modified), so a receipt stamped `3aad2dd` does not say which version of the script made it.
+  **STILL NEEDED, unchanged:** a default narrowed run (`--widths 768 --lang en`, no `--press-leaving-doors`) that reads
+  `no-subjects` absent and `not_pressed` 1 or 0, repeated because the row is drawn only once the admin check answers, then one
+  default full run. **Not run here: a browser run was not authorized this turn.** Neither receipt was committed with this note;
+  both are other sessions' output and one of them is a `fail` that was made on purpose.
+  **4.6b:** unchanged, stays ticked. Its evidence is the admin receipt above (`pass`, `3aad2dd`) and the admin section of
+  `full2.txt` (60 `/admin` screens, 6 screens by 5 widths by 2 languages, none with a finding: 1440, 1254, 768, 392, 320).
+
 - [x] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
   Found by the same run, 2026-10-06: `receipts/sweep-tap-targets.json` was `pass` at `469422a` and now carries 6 failures, all on
   `/admin` Money at 320px (`Email`, `Other` at 38px wide; `Hosting`, `Database`, `Correo`, `Domain` at 39px tall). These are the
