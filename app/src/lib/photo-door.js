@@ -74,10 +74,16 @@ export const DOOR_BATCH = 100;
 
 // THE PLAIN SENTENCES. Named DOOR_WORDS so `tests/spanish.test.mjs` § 12 reads
 // them: they are shown on the dashboard in whichever language it is set to.
+//
+// THE THREE ABOUT THE SERVICE ITSELF SAY NOTHING ABOUT WHAT WAS SAVED, ON PURPOSE.
+// They were first written "Nothing was saved" and then PRESSED: the same
+// sentence also appears when a job record asks for the links to show photos that
+// already exist, and when a customer's photos are exported, and in both of those
+// nothing was being saved. Only the one about an upload that did not finish keeps it.
 export const DOOR_WORDS = {
-  missing: "Photo storage is not set up on the server yet. Nothing was saved.",
-  unreachable: "Could not reach the photo service. Nothing was saved. Check your connection. If it is fine, photo storage may not be set up on the server yet.",
-  failed: "The photo service had a problem. Nothing was saved. Try again in a minute.",
+  missing: "Photo storage is not set up on the server yet.",
+  unreachable: "Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet.",
+  failed: "The photo service had a problem. Try again in a minute.",
   unreadable: "The photo service sent back something this screen cannot use. Reload this job and check before trying again.",
   putFailed: "The photo did not finish uploading. Nothing was saved.",
   unconfirmed: "The photo service did not confirm that the photo was saved. Reload this job to check before adding it again.",
