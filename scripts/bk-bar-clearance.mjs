@@ -814,36 +814,86 @@ const MAIL_DIR = join(REPO, "artifacts", "tenant-strings", "email-long");
    answer to "is the furniture covering the list" is a hit-test and never an
    image. A picture nobody opens is not evidence, and a picture that lies is
    worse than none. */
-const FURNITURE = async (page) => page.evaluate(() => {
-  const fixed = [...document.querySelectorAll("body *")].filter((e) => {
+/* **A ROW IS COVERED ONLY IF SCROLLING CANNOT CLEAR IT — ROADMAP 14.37, 2026-10-06.**
+   The first version of this asked `elementFromPoint` of every row on screen at
+   SCROLL ZERO. That is not a question a person ever lives with: the last rows of
+   a long settings list sit under the bottom bar when the page is first drawn
+   and scroll out from under it as soon as the thumb moves. It reported three
+   such rows (Services & add-ons at 320 and 392, Business info at 392) that were
+   clear at the end of the page, which is where the bar can actually hurt: the
+   last control, once everything above it has scrolled away, with nothing left
+   to scroll it clear. So the hit-test now runs AFTER every scroller has been
+   taken to the end of its range, and only a row still covered THERE is a
+   finding. The count at the top is kept and reported beside it, so a reader can
+   see what was set aside and why, never a silently smaller number.
+
+   **THE PROBE IS ONE SELF-CONTAINED FUNCTION BETWEEN TWO MARKERS BECAUSE
+   `tests/furniture-at-end.test.mjs` READS THIS FILE, CUTS OUT EXACTLY THAT TEXT
+   AND RUNS IT IN A BROWSER AGAINST FIXTURE PAGES.** A copy in the test would be
+   a check of a copy (`docs/gotchas.md` 95); this is the production text. Keep it
+   free of anything outside its own braces.
+
+   WHAT IT CANNOT SEE, said once: a page that scrolls only after a gesture
+   (infinite lists that grow when the end is reached are given a second pass,
+   not a third), and a control covered at some MIDDLE scroll position but clear
+   at the top and the end, which is a row a person can scroll past. */
+/*FURNITURE-PROBE-BEGIN*/
+const furnitureProbe = async () => {
+  const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const fixedElements = () => [...document.querySelectorAll("body *")].filter((e) => {
     const cs = getComputedStyle(e);
     if (cs.position !== "fixed") return false;
     const r = e.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   });
-  if (!fixed.length) return { fixedCount: 0, covered: 0, sample: [], rowsSeen: 0 };
-  const covered = [];
-  let rowsSeen = 0;
-  for (const el of document.querySelectorAll("body *")) {
-    if (el.children.length) continue;
-    const t = (el.textContent || "").trim();
-    if (!t) continue;
-    if (fixed.some((f) => f.contains(el))) continue;        // the furniture's own labels
-    if (typeof el.checkVisibility === "function"
-      && !el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) continue;
-    const r = el.getBoundingClientRect();
-    if (!r.width || !r.height) continue;
-    if (r.bottom < 0 || r.top > innerHeight) continue;       // off screen, not covered
-    rowsSeen++;
-    const x = Math.round(r.left + Math.min(8, r.width / 2));
-    const y = Math.round(r.top + r.height / 2);
-    const hit = document.elementFromPoint(x, y);
-    if (hit && fixed.some((f) => f === hit || f.contains(hit))) {
-      covered.push({ t: t.slice(0, 26), x, y });
+  const hitTest = () => {
+    const fixed = fixedElements();
+    if (!fixed.length) return { fixedCount: 0, covered: [], rowsSeen: 0 };
+    const covered = [];
+    let rowsSeen = 0;
+    for (const el of document.querySelectorAll("body *")) {
+      if (el.children.length) continue;
+      const t = (el.textContent || "").trim();
+      if (!t) continue;
+      if (fixed.some((f) => f.contains(el))) continue;        // the furniture's own labels
+      if (typeof el.checkVisibility === "function"
+        && !el.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true })) continue;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      if (r.bottom < 0 || r.top > innerHeight) continue;       // off screen, not covered
+      rowsSeen++;
+      const x = Math.round(r.left + Math.min(8, r.width / 2));
+      const y = Math.round(r.top + r.height / 2);
+      const hit = document.elementFromPoint(x, y);
+      if (hit && fixed.some((f) => f === hit || f.contains(hit))) covered.push({ t: t.slice(0, 26), x, y });
     }
-  }
-  return { fixedCount: fixed.length, covered: covered.length, sample: covered.slice(0, 4), rowsSeen };
-});
+    return { fixedCount: fixed.length, covered, rowsSeen };
+  };
+  const scrollers = () => {
+    const out = [document.scrollingElement || document.documentElement];
+    for (const e of document.querySelectorAll("body *")) {
+      const cs = getComputedStyle(e);
+      if ((cs.overflowY === "auto" || cs.overflowY === "scroll") && e.clientHeight > 0 && e.scrollHeight - e.clientHeight > 1) out.push(e);
+    }
+    return out;
+  };
+
+  const top = hitTest();
+  const sc = scrollers();
+  const was = sc.map((e) => e.scrollTop);
+  // Two passes: a list that appends rows when the end is reached has not finished after one.
+  for (let pass = 0; pass < 2; pass++) { for (const e of sc) e.scrollTop = e.scrollHeight; await frame(); }
+  const end = hitTest();
+  const scrolled = sc.some((e, i) => e.scrollTop !== was[i]);
+  sc.forEach((e, i) => { e.scrollTop = was[i]; });
+  await frame();
+  return {
+    fixedCount: end.fixedCount, rowsSeen: end.rowsSeen, covered: end.covered.length, sample: end.covered.slice(0, 4),
+    coveredAtTop: top.covered.length, topSample: top.covered.slice(0, 4), scrolled, scrollerCount: sc.length,
+  };
+};
+/*FURNITURE-PROBE-END*/
+const FURNITURE = async (page) => page.evaluate(furnitureProbe);
 
 const OVERFLOW = async (page, needles) => page.evaluate((needles) => {
   const root = document.documentElement;
@@ -1119,6 +1169,30 @@ try {
       await appPage.waitForTimeout(2500);
       await settle(appPage, 2000);
       const o = await OVERFLOW(appPage, SCREEN_NEEDLES);
+      // `--break=covered-at-end`: a control that REALLY is under a fixed bar once the page is scrolled to its
+      // end (the last thing in the scroller, with a 60px bar over the bottom of the window). The probe must
+      // report it, or a clean run proves only that it stopped asking.
+      if (BREAK === "covered-at-end") {
+        await appPage.evaluate(() => {
+          const bar = document.createElement("div");
+          bar.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:60px;z-index:99999;background:#fff";
+          document.body.appendChild(bar);
+          const ctl = document.createElement("button");
+          ctl.textContent = "PLANTED covered control";
+          ctl.style.cssText = "display:block;margin:0;padding:0 8px;height:44px";
+          const inner = [...document.querySelectorAll("body *")].filter((e) => {
+            const cs = getComputedStyle(e);
+            return (cs.overflowY === "auto" || cs.overflowY === "scroll") && e.clientHeight > 0 && e.scrollHeight - e.clientHeight > 1;
+          }).sort((a, b) => b.scrollHeight - a.scrollHeight)[0];
+          const doc = document.scrollingElement || document.documentElement;
+          if (inner && inner.scrollHeight > doc.scrollHeight) { inner.appendChild(ctl); return; }
+          // The app's own content does not decide the document's height (the body's last child is not at
+          // the end of the scroll), so the control is placed at the document's very end by coordinate:
+          // far below the fold at the top, and in the bottom 44px of the window once scrolled to the end.
+          ctl.style.cssText = `position:absolute;left:0;top:${doc.scrollHeight - 44}px;margin:0;padding:0 8px;height:44px`;
+          document.body.appendChild(ctl);
+        });
+      }
       const furn = await FURNITURE(appPage);
       /* **THE BOOKING PAGE'S SELECTORS MATCH NOTHING ON A SETTINGS SCREEN**,
          and the first version passed them here: `PRESS` found no control,
@@ -1144,8 +1218,9 @@ try {
       check(id, "screen/furniture-clear", furn.covered === 0 && furn.rowsSeen > 0,
         furn.rowsSeen === 0
           ? "no text was on screen to test, so this question was asked of nothing"
-          : `${furn.covered} row(s) are underneath one of the ${furn.fixedCount} fixed element(s) on `
-          + "this screen, by hit-test: "
+          : `${furn.covered} row(s) are STILL underneath one of the ${furn.fixedCount} fixed element(s) on `
+          + `this screen at the end of scrolling (${furn.coveredAtTop} were under one at the top; `
+          + "only a row scrolling cannot clear is reported), by hit-test: "
           + furn.sample.map((c) => `\u00ab${c.t}\u00bb at (${c.x}, ${c.y})`).join("; "));
 
       check(id, "screen/pressed", !!(press && press.ok),
@@ -1154,7 +1229,8 @@ try {
       observed.push(`${id}: ${o.seenCount} capped name(s) on screen, ${o.badCount} escaping their box, `
         + `${o.truncatedCount} truncated (reported, not graded), document over by ${o.docOver}px, `
         + `press ${press && press.ok ? "landed" : "LOST to " + (press && press.who)}`
-        + `, ${furn.fixedCount} fixed element(s) covering ${furn.covered} of ${furn.rowsSeen} rows`);
+        + `, ${furn.fixedCount} fixed element(s) covering ${furn.covered} of ${furn.rowsSeen} rows at the end of scrolling `
+        + `(${furn.coveredAtTop} at the top; page ${furn.scrolled ? "scrolled" : "did not scroll"})`);
       completed += 1;
     }
   }
