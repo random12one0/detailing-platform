@@ -481,6 +481,24 @@ export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) 
       // only when every step up to and including the one on screen is the same
       // step it already was — otherwise a late arrival could renumber the
       // sentence somebody is reading.
+      //
+      // **THIS BRANCH IS THE MECHANISM BEHIND THE `1/5 … 2/6` SIGNATURE, AND IT
+      // IS NOW PROVED BY FORCING IT, NOT BY WAITING FOR IT — ROADMAP 14.10,
+      // 2026-10-06.** At 1440 the "next seven days" card is fed by an
+      // `available-slots` read the screen only makes at that width, so it is
+      // ruled out when the plan is first shown and arrives afterwards: the plan
+      // is replaced here and the count on the card goes up by one in the middle
+      // of the block. Nothing about this was ever a reason for the tour to die:
+      // the 2-in-20 that suggested it was a script reading a card that had not
+      // arrived yet. `TOUR_FORCE_GROWTH=1 node scripts/tour-runs.mjs 10 1440 392`
+      // holds that read until the first press and lets it go, so the step lands
+      // while the tour is on screen, every run: ten of ten took the new total
+      // (`1/6 2/6 3/7 …`) and walked six blocks, each in full. With this
+      // `else if` switched off the same batch finds the step in none of them,
+      // so the proof can fail. **The other half of the rule is worth knowing:** a
+      // step that arrives BEHIND the card being read is dropped, not spliced in
+      // (the `every` above), because renumbering a sentence somebody is reading
+      // is worse than a guide one step shorter.
       if (settled || out_of_time) {
         if (!shown) {
           // The floor is judged at the CAP, never at the first quiet gap: a
