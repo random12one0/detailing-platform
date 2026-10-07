@@ -5539,8 +5539,9 @@ the wrong service, and never book a job we cannot reach.
   1440 line reads `38/41 surfaces, 3 declared unreachable … every one accounted for` and 392 reads `39/42 … 3 declared`.
   The tour and the guides walked at 1920 and 320 in this run and not at the three widths between (`cross-width 1440, 392,
   360px left out of the comparison — no guide or tour ran there`), so 41 and 42 are what a default run should measure there.
-  The 155 and 154 were the counts of a run that walked the tour at those widths; `4e5d70a` and `498476d` (9.11c) made the
-  expectation record the MODE each number was written in, so one mode's number is no longer enforced in another. **What this
+  I did not re-derive where the old 155 and 154 came from; the subjects of `4e5d70a` (*a number written in one mode was
+  enforced in another*) and `498476d` (the expectation records the MODE each number was written in) say a mode mismatch was
+  the cause, and this run, with the modes matching, is the evidence that the shortfall is gone. **What this
   does not claim:** that the tour at 1440 is healthy. That is 14.10's, and it needs the walk at 1440 on purpose.
 
 - [x] **At 320 the booking calendar's day cells are 37px against the 44px
