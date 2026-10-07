@@ -5395,6 +5395,16 @@ the wrong service, and never book a job we cannot reach.
   manager's call, not a session's. Nothing automated will catch it:
   `american-english.mjs` reads the rendered page, not `ROADMAP.md`.
 
+  **NOT STARTED, 2026-10-06 (DP Cowork2, Lane B) — AND WHY, SO NOBODY READS IT AS FORGOTTEN.** The fix is an edit to scripts
+  under `scripts/`, which is frozen for this lane with no exception recorded, and the red proof needs a browser, which this
+  session was told not to run. **Sizing it turned up two corrections to the list, neither a fix.** Measured at `d850a97`:
+  `grep -nE '^s*[^/ ].*screenshot(.*fullPage: *true' scripts/{e2e-browser-features,e2e-payment,e2e-receipt-trail,health-line-honest,shoot-dashboard,shoot-manage,sweep-widths}.mjs`
+  returns **9 call sites in 6 scripts** (1+1+1+3+2+1), not 13 in 7. **`sweep-widths.mjs` has none**: its only `fullPage` is a
+  comment at line 1294 saying the capture is deliberately the viewport, so it may already be safe and belongs off the list
+  or on it with that comment as its reason. **And `scripts/motion-off.mjs:200` saves `fullPage: true` and is not on the list**,
+  so either its pages carry no fixed element or the list is short by one. Needs: a recorded exception for `scripts/`, then the
+  edits and the injected-bar proof run in a browser.
+
 - [ ] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
