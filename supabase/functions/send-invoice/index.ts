@@ -23,9 +23,42 @@ import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 // ROADMAP 3.4 findings 4 and 5 — the eight money-column labels this file
 // invents are ours rather than the detailer's, so they go through the lookup.
 import { T } from "../_shared/i18n.ts";
+// ROADMAP 6.4 — a client key, so a repeated press leaves ONE invoice email. See `_shared/sendInvoiceClaim.ts`.
+import { claim, type ClaimStore, settleFailed, settleSent } from "../_shared/sendInvoiceClaim.ts";
+
+// The claim store, over `send_invoice_attempts`. Any error but "already there" throws, and `claim` turns a throw
+// into `unavailable`, which sends as before (the table is a migration that may not be applied yet).
+const claimStore: ClaimStore = {
+  async insert(businessId, bookingId, key, nowIso) {
+    const { error } = await supabase.from("send_invoice_attempts").insert({
+      booking_id: bookingId, idempotency_key: key, business_id: businessId, state: "sending", created_at: nowIso, updated_at: nowIso,
+    });
+    if (!error) return true;
+    if (error.code === "23505") return false;
+    throw error;
+  },
+  async get(bookingId, key) {
+    const { data, error } = await supabase.from("send_invoice_attempts").select("state, response, updated_at")
+      .eq("booking_id", bookingId).eq("idempotency_key", key).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async move(bookingId, key, from, to, nowIso, olderThanIso, response) {
+    let q = supabase.from("send_invoice_attempts")
+      .update({ state: to, updated_at: nowIso, ...(response ? { response } : {}) })
+      .eq("booking_id", bookingId).eq("idempotency_key", key).in("state", from);
+    if (olderThanIso) q = q.lt("updated_at", olderThanIso);
+    const { data, error } = await q.select("state");
+    if (error) throw error;
+    return (data ?? []).length > 0;
+  },
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
+
+  // Set once this call owns a client key, so every way out below can release it.
+  let claimedBooking = "", claimedKey = "";
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -55,6 +88,17 @@ Deno.serve(async (req) => {
     const isFinalized = booking.final_amount !== null && booking.final_amount !== undefined && !!booking.payment_status;
     if (!isFinalized) return json({ error: "not_finalized" }, 400);
     if (!booking.customer_email) return json({ error: "no_customer_email" }, 400);
+
+    // ROADMAP 6.4 — A REPEAT OF THE SAME PRESS IS ANSWERED, NOT SENT AGAIN. After the checks above, so an unfinalized
+    // booking never claims a key, and before anything is built or sent. No key (every existing client) sends as before.
+    const attempt = await claim(claimStore, new Date(), member.businessId, booking.id, body.idempotency_key);
+    if (attempt.kind === "bad") return json({ error: "idempotency_key must be a UUID" }, 400);
+    if (attempt.kind === "duplicate") return json({ success: true, duplicate: true, thank_you_sent: attempt.thankYouSent });
+    if (attempt.kind === "busy") return json({ error: "in_progress" }, 409);
+    if (attempt.kind === "go") { claimedBooking = booking.id; claimedKey = body.idempotency_key; }
+    // A key was sent and the store could not be used: the invoice goes out as it always did, and the answer says
+    // nothing was deduped, so a screen can tell.
+    const notDeduped = attempt.kind === "unavailable";
 
     const business = (await businessById(member.businessId))!;
     const settings = await getSettings(business.id);
@@ -199,7 +243,10 @@ Deno.serve(async (req) => {
       html: invoice.html,
       text: invoice.text,
     });
-    if (!sent) return json({ error: "email_failed" }, 502);
+    if (!sent) {
+      if (claimedKey) await settleFailed(claimStore, new Date(), claimedBooking, claimedKey);
+      return json({ error: "email_failed" }, 502);
+    }
 
     // Separate thank-you / review-request email — best-effort.
     let thankYouSent = false;
@@ -231,8 +278,14 @@ Deno.serve(async (req) => {
       console.error("Owner push send error:", pushErr);
     }
 
-    return json({ success: true, thank_you_sent: thankYouSent });
+    // The invoice is out, so the key is spent. If THIS write is lost the row stays `sending`, and a retry after two
+    // minutes could send once more: said in `_shared/sendInvoiceClaim.ts`, and the only way left to see a second one.
+    if (claimedKey && !(await settleSent(claimStore, new Date(), claimedBooking, claimedKey, thankYouSent))) {
+      console.error("send-invoice: the invoice went out but its key could not be marked sent:", claimedBooking);
+    }
+    return json({ success: true, thank_you_sent: thankYouSent, ...(notDeduped ? { idempotent: false } : {}) });
   } catch (err) {
+    if (claimedKey) await settleFailed(claimStore, new Date(), claimedBooking, claimedKey);
     return json({ error: (err as Error).message }, 500);
   }
 });
