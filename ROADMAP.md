@@ -7901,6 +7901,19 @@ requested.
   unchanged.** The orphaned-rows fix above is still the one small piece with no design
   question in it, and it also takes effect only on a publish.
 
+  **DESIGN WRITTEN 2026-10-06, LATER THE SAME DAY: `docs/design-4.3-support-session.md`.** It
+  answers point 1 above (nothing was built, minted or run). Two options, each tagged READ,
+  UNTESTED or JUDGEMENT line by line. **Recommended: the server uses the link itself and
+  marks the session by its id before the browser ever holds it**, so it fails closed, has
+  no race and needs no setting outside the repo. The rival, a sign-in hook, fails open
+  silently if it is ever switched off. **Two things are unknown and decide whether the
+  recommendation is possible at all**: whether Supabase's access token carries a session
+  id, and whether the server can exchange a link token itself. Both are quick on a throwaway
+  fixture and come before any migration. **One decision is needed before a build: what
+  happens to the Working switch** (recommended: it stays as a separate, logged, unprotected
+  door). The part most likely to be underestimated is the security-definer functions that
+  write, which nobody has listed. Points 2 and 3 above are unchanged.
+
 - [x] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
