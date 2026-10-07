@@ -10520,6 +10520,66 @@ rather than wording went to Andrew.
   *Raised from 7.2's audit, 2026-09-21. Andrew's ruling of 09-20 applied, not
   re-opened.*
 
+  ***CENSUS BUILT AND RUN 2026-10-06 — `scripts/data-from-census.mjs`. A THIRD
+  RECORDED `scripts/` EXCEPTION, MANAGER-GRANTED FOR EXACTLY THIS FILE. THIS
+  ITEM STAYS OPEN, AND THE CENSUS IS THE REASON, NOT THE EXCUSE.***
+  **What it is:** the cheap check the paragraph above describes, and no more. It
+  reads the `data-from` of the eight pages `build-examples.mjs` publishes
+  (`node scripts/data-from-census.mjs`: 8 pages, 185 attributes, 27 distinct
+  values, at the working tree on top of `748a361`) and asks whether what each
+  names exists: a key the live `get_public_business_profile` writes (read from
+  the last migration that creates it, 89 keys), an edge function, a
+  `table.column` or table the migrations declare, or a `core.js` export.
+  **It says in words, in its output and in its receipt, that it cannot see class
+  1, 2 or 3** — the instruction this entry gave whoever built it. A green run
+  would say nothing about them.
+  **Proof:** `--break=lenient` (every non-empty value resolves) turns the run red
+  on its canary — the two cases this entry names, *"the detailer's Google
+  reviews"* and `…profile.addons` — and writes no receipt. Four known-good
+  sources must still resolve, so a resolver that refuses everything cannot pass
+  the canary. The attribute count is taken a second way and must agree.
+  **Run on the pages as they stood, before any page was touched, it named 9:**
+  the `addons` misspelling (`x-ballantyne-prices.html:481`), *"the detailer's
+  Google reviews"* on four testimonial cards (`w-delgado.html:885, 903, 921,
+  938`), and 4 more it still names (below).
+  **Fixed in the same commit, attributes only, no visible text changed:**
+  `addons` → `add_ons` (the misspelling this entry names). And the four
+  `w-delgado.html` testimonial cards now say
+  `get_public_business_profile.testimonials` instead of a sentence: each card is
+  a star row, a quote and a name, which is exactly the `author` / `quote` /
+  `rating` the `testimonials` key carries. **That second edit is a judgement
+  call and the first one is not** — overrule it if those quotes were meant to be
+  pulled from Google.
+  **STILL RED, AND THIS IS A NEW FINDING, NOT ONE OF THE THREE CLASSES' ROWS
+  ABOVE: `v-goldenhour-work.html` (`/ex1/work`) STILL SHOWS A REVIEW COUNT AND A
+  RATING.** Line 1219 is a stat row, **"1,240 Cars detailed · 312 Reviews · 4.9
+  Average · 6 Years on the road"**, under `data-from="the detailer's completed
+  bookings"`. **`312 Reviews` and `4.9 Average` are exactly class 2** — the same
+  figures this entry ruled off `v-goldenhour.html` on 2026-09-21 — and the
+  ruling's table lists only `v-goldenhour.html`, `x-ballantyne.html` and
+  `x-ballantyne-prices.html`. `1,240 Cars detailed` has no public endpoint
+  either, and the census would have gone green over all of it had the attribute
+  named a real field. Lines 1290, 1310 and 1330 are three job cards (car, date,
+  a price badge, a description) under `data-from="the detailer's own completed
+  bookings"`; nothing the profile returns is a list of completed jobs
+  (`gallery` carries photos and a caption).
+  **NOT EDITED HERE: those four are page content, not provenance, and the
+  withdrawal rule is *take it off, and say so where a diff will read it*, which
+  is the manager's or Andrew's call to extend to this page.** **Recommendation:
+  extend the 2026-09-21 ruling to the stat row — drop the 312 and the 4.9, keep
+  Years on the road (it comes from `established_year`), and either drop Cars
+  detailed or name what would produce it. The job cards want a decision on
+  whether /ex1/work is allowed to be an illustration of work done rather than a
+  claim about a feed.** Until then the census exits 1 on exactly those four
+  rows, which is correct, and the clause *"no example site states a figure whose
+  producing field cannot be named"* is not met.
+  **Also seen, unrelated, and not touched:** `node tests/tenant-sites.test.mjs`
+  reports one failure, *"w-delgado.html: looks like it carries a placeholder
+  box"*, identical with and without this change (run against `HEAD`'s copy of
+  the page). Five unresolvable `data-from` also sit on pages that are not
+  published (`a-shop`, `b-van`: the bare value `1`, a flag and not a source;
+  `j-northside`: a sentence); they are reported as a note, not a failure.
+
 - [x] **7.3 — Pricing page: the decision is below the photo, and savings look like a charge.**
   $499, $40 and $80 carry similar visual weight, so the saving reads as a third
   fee. "SAVE ON THE YEAR $80 a year" reads as if the yearly price is $80.

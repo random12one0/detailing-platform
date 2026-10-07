@@ -1,0 +1,88 @@
+{
+  "git_sha": "748a361e856aff1c3702ce53d1acd873dabb040b",
+  "git_sha_started": "748a361e856aff1c3702ce53d1acd873dabb040b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-07T01:23:43.221Z",
+  "failures": [
+    "v-goldenhour-work.html:1219  data-from=\"the detailer's completed bookings\"  names nothing the product has",
+    "v-goldenhour-work.html:1290  data-from=\"the detailer's own completed bookings\"  names nothing the product has",
+    "v-goldenhour-work.html:1310  data-from=\"the detailer's own completed bookings\"  names nothing the product has",
+    "v-goldenhour-work.html:1330  data-from=\"the detailer's own completed bookings\"  names nothing the product has"
+  ],
+  "warnings": [
+    "CANNOT SEE class 1 (a per-mile travel rate), class 2 (a review count or rating) or class 3 (a deposit): those numbers carry attributes that name real fields and then state something the field cannot express. A passing census is not cover for ROADMAP 7.17.",
+    "'Exists' is weak: a profile key is any key the function writes, a function is checked by name and not by field, a column is found by regex over create/alter table.",
+    "5 unresolvable data-from in 3 page(s) that are not published (not counted as failures): 1 | the detailer's own completed bookings"
+  ],
+  "artifacts": [
+    "scripts/data-from-census.mjs"
+  ],
+  "dimensions": {
+    "pages": [
+      "v-goldenhour.html",
+      "v-goldenhour-work.html",
+      "v-goldenhour-prices.html",
+      "w-delgado.html",
+      "x-ballantyne.html",
+      "x-ballantyne-prices.html",
+      "y-kinzie.html",
+      "z-tampabay.html"
+    ],
+    "distinct_values": {
+      "available-slots": 10,
+      "get_public_business_profile.service_area": 6,
+      "travel_zones": 2,
+      "testimonials": 6,
+      "faqs": 2,
+      "core.js stepsFor(addOns)": 4,
+      "get_public_business_profile.services": 11,
+      "calculate-booking": 68,
+      "get_public_business_profile.add_ons": 8,
+      "get_public_business_profile.vehicle_sizes": 7,
+      "core.js VEHICLE_CONDITIONS": 4,
+      "core.js offersBothModes(settings)": 2,
+      "get_public_business_profile.travel_zones": 7,
+      "create-booking": 4,
+      "businesses.contact_phone": 8,
+      "business_hours": 5,
+      "the detailer's completed bookings": 1,
+      "job_photos": 1,
+      "the detailer's own completed bookings": 3,
+      "get_public_business_profile.services[].features": 4,
+      "get_public_business_profile.services[].notes": 1,
+      "services.features": 4,
+      "get_public_business_profile.testimonials": 4,
+      "businesses.contact_email": 4,
+      "calculate-booking.vehicle_size": 3,
+      "get_public_business_profile.cancellation_window_hours": 1,
+      "get_public_business_profile.service_groups": 5
+    },
+    "profile_defined_in": "20260905001000_tenant_site_contract_gaps.sql",
+    "cannot_see": [
+      "class 1: a per-mile travel rate",
+      "class 2: a review count or rating",
+      "class 3: a deposit"
+    ]
+  },
+  "check_id": "data-from-census",
+  "started_at": "2026-10-07T01:23:43.050Z",
+  "status": "fail",
+  "expected_targets": 185,
+  "discovered_targets": 185,
+  "attempted_targets": 185,
+  "completed_targets": 185,
+  "skipped_targets": 0,
+  "assertions_executed": 6,
+  "min_assertions": 5,
+  "canary": {
+    "id": "a sentence standing in as a source, and a misspelt profile key",
+    "observed_failure": true,
+    "caught_by": [
+      "resolves()"
+    ],
+    "findings": [
+      "both refused"
+    ]
+  }
+}
