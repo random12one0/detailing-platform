@@ -353,6 +353,30 @@ and how the wait ends.
   checking these patches and killed part-way; it left one row in `rate_hits` (`cancel-booking:no-address`, key `all`), which was
   deleted by exact bucket and key and re-read as gone. Nothing else was written.
 
+  ***COMMITTED TO MAIN 2026-10-06 (Lane A), AFTER BEING BUILT AND PRESSED IN AN ISOLATED WORKTREE. STILL NOT DEPLOYED, STILL NOT
+  APPLIED TO THE LIVE DATABASE, STILL NOT PUSHED. The box stays `[ ]`.*** The prepared patches above were applied on a branch of
+  their own, `dp-lane-a/patches` (a git worktree outside the main tree, its own dev server on port 5174), pressed in a real browser
+  against the real database, and then cherry-picked onto main with the content of every commit checked identical to the original
+  (`git log --oneline 38d8c33..e125e2c` is the branch; on main they are `fbbbfc5`, `158e202`, `07b993f`, `8f78bde`, `cb4df7a`,
+  `bd5ccb5`, `c8542fe`, `a1d5b72`). **What the browser added, which no scratch test could:**
+  * **Two defects found by pressing it, both fixed.** (1) A photo door that was never published does not show as "not set up": the
+    gateway's 404 for a missing function carries no CORS headers, the browser blocks it, and the page sees the same error as being
+    offline. The sentence now names both causes. (2) The three sentences about the service itself ended *"Nothing was saved"*, which
+    is false when a job record asks for the links to photos that already exist and when photos are exported; they no longer say it.
+  * **Job photos, against the real server with the door unpublished, at 1440, 768 and 392 (and Spanish):** an upload stops in words
+    and writes no row; an existing photo's job record and the Gallery export both stop in words, with no zip. With the door and R2
+    stubbed in the browser, the order is start, one PUT of the shrunk file with the declared content type, finish, and no call is ever
+    made to the job-photos bucket directly. A finish answer with no usable size is refused in words, and the over-cap sentence is shown
+    as the server wrote it.
+  * **Site-intake photos:** each upload is one object under the business's `intake/` folder in `business-media`, one request, no
+    gallery row, the label counts them ("1 added", *agregadas* in Spanish). With patch 2 applied and not this one, the same control
+    reached the photo door with no booking: the bug the patch fixes.
+  * **The test business was a flagged, throwaway one** (`is_demo`), created and removed by a script in the session's scratch folder;
+    its rows, its login and four uploaded files were deleted and re-read as gone. `demo-detail` was only ever read.
+  **STILL NOT PROVEN:** that R2 accepts these signatures and that the three secrets are set as function secrets on the functions;
+  `delete-customer`'s new path in a browser; and the credentialed `forget-customer.test.mjs` § 1 to 5. **The publish order and the
+  Cloudflare CORS rule above are unchanged and are still Andrew's.**
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -7768,6 +7792,16 @@ requested.
   correctly by the session that acted on it, but with no trace either way. That
   is the reason findings files get committed here at all.
 
+  ***RULING 3 BUILT AND PRESSED 2026-10-06 (Lane A), `fbbbfc5`. THE ITEM STAYS OPEN.*** A job marked *"Didn't show up"* now has a
+  way back: a *"Showed up after all"* button (Spanish *"Sí se presentó"*) beside "Mark completed" on the job record, writing
+  `confirmed` through `update-booking` like *"Un-cancel"* and *"Not completed after all"*; no server change, no confirmation (it
+  undoes an outcome rather than causing one). **Pressed on a flagged throwaway business's own no-show booking, status read from the
+  database before and after at 1440, 768 and 392 and in Spanish at 1440 and 392: `no_show` to `confirmed` every time, the
+  "Marked as confirmed" notice shown, "Didn't show up" back, the button 46px tall, console clean.** Broken on purpose in the browser:
+  the control writing `completed` is seen (status `completed`, no confirmed notice), and with the control removed the proof fails
+  and the row stays `no_show`. **STILL OPEN, unchanged:** the audit history (a migration and a publish), and the sweep over suspend,
+  delete, waive and owner-invite.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -14101,7 +14135,7 @@ the dashboard or back office at phone width at all.
   **Folded in from `docs/9.1-findings-2026-09-23.md`, which is now deleted.**
   It existed untracked only because this file was held at the time.
 
-- [ ] **9.2 — The back office says contradictory things about one account.**
+- [x] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,
   never-booked and no-website at once.
@@ -14437,6 +14471,30 @@ the dashboard or back office at phone width at all.
   office opened on an existing browser session. A session that needs `/admin`
   and finds no session waiting cannot get in without re-seeding, which is a
   write to the demo tenant.
+
+  ***9.2 CLOSED 2026-10-06 (Lane A). (c), THE STAGES REDESIGN, IS NOT BUILT, BY ANDREW'S RULING; THE THREE FAULTS THAT WERE ACTUALLY
+  ON THE SCREEN ARE FIXED INSIDE THE FIVE QUESTIONS.*** `docs/9-2c-stages-proposal-2026-10-06.md` named three faults and two
+  directions; **Andrew ruled Direction 1** (keep the five questions, fix the three, build no stages). The reasons stages was not built
+  are in that document and are worth one line here: only the current state can be read (nothing records a timestamp per setup step),
+  a current stage needs a tie-break and the tie-break is exactly the funnel this screen's own comment refuses, and there is one real
+  detailer. **Built as `bd5ccb5`, with `lib/growthLines.js` holding the five questions as data so a Node test can run them:**
+  1. **The "cannot take a booking" line shows each account's own reason** (*"Counter Signup Test Detail (no active services)"*) and its
+     advice no longer lists all three possibilities or says "neither of you finds out" (untrue of a page we suspended ourselves).
+  2. **The setup line shows how long ago each detailer signed up** (*"signed up 24 days ago"*) and no longer says every one of them
+     "signed up and then stopped", which nothing checked.
+  3. **A suspended account is off the never-booked and quiet lines**, as on Today, and shows once, on the cannot-book line.
+  **AND A WORSE FAULT SAT UNDER THE FIRST ONE, found by writing its test and not before: `bookability()` read `counts.hoursOpen`, a
+  boolean only the detail payload carries, while the back office's LIST rows carry `counts.hoursRows` (ROADMAP 9.1 changed them).**
+  Read against a list row it said "no open days" about every business, with real opening hours or not: hidden until now behind a
+  sentence naming all three possible reasons, and a false statement the moment a line printed the account's own. It reads both shapes
+  now, and says "open days not read", never "closed", when neither is there. The old test fixtures used the other shape, which is
+  why they passed.
+  **PRESSED, in a browser, on a branch's dev server against the real back office, at 1440, 768 and 392: the Growth card reads as
+  above for the one real account, no sideways scroll, console clean.** Before and after were captured from the same screen. **NOT
+  PRESSED: the suspended case**, because no business is paused and pausing one would darken a booking page for every other check;
+  `tests/growth-lines.test.mjs` § 4 is the only thing standing behind that half, and it has been broken on purpose (the old
+  behavior put back is seen). `tests/platform-admin.test.mjs` also fails five of its checks on a clean checkout of HEAD both with and
+  without this change (10g, 10h, 13k, 14d, 14e): not this item's, named so nobody reads them as new.
 
 - [x] **9.3 — The setup banner shows an empty list and "and 2 more". DONE
   2026-09-20.**
@@ -19471,7 +19529,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.22 — `Clients.jsx` writes two words in bare English thirty-three lines below the line that translates the same two words
 
-- [ ] **Found 2026-09-25 by the ticked-item audit, named inside 9.6's own entry
+- [x] **Found 2026-09-25 by the ticked-item audit, named inside 9.6's own entry
   as "worth its own line, not folded into this commit", and verified still
   present. Not built here: `app/src`.**
 
@@ -19537,6 +19595,13 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   entry**. Whether this is one of the ten was **not** established — the audit
   found it by reading 9.6, not by running the test. **Do not close the ten on
   the strength of this one line.**
+
+  ***CLOSED 2026-10-06 (Lane A).*** The wrapping itself was done on 2026-10-03 (`aff219b`, and proved then on the Spanish screen). What
+  kept the box open was the entry's own command, which still printed one line: **the comment explaining the fix quoted the very word
+  the grep looks for**, so `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -v '^t('` printed `d "visits"`. The comment
+  no longer quotes it (`fbbbfc5`); **run on main after that commit the command prints nothing**. It also remains true that
+  `tests/spanish.test.mjs` found other untranslated strings on the dashboard; **this entry never claimed to close those**, and 14.22's
+  last paragraph still stands: do not close them on the strength of this one line.
 
 ### 14.23 — Nothing opens a closed `<details>` before the tap-target sweep measures, and eighteen files use one
 
