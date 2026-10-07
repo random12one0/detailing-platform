@@ -105,6 +105,29 @@ export const gitSha = () => {
 // verdict.
 export const SHA_AT_START = gitSha();
 
+/**
+ * A SKIP THAT PASSES MUST SAY WHAT THE RUN DID ABOUT IT — ROADMAP 14.11, second half.
+ *
+ * `skip_allowlist` is the ONLY way a receipt with skips can grade as a pass, and
+ * until this rule it took a reason and an expiry for the whole batch and nothing
+ * about any single skip. "Reason: the demo cannot be in that state" over ten
+ * labels is an assertion; it does not show that any of the ten was reached and
+ * refused. So an allowlisted receipt must ITEMISE: one entry per skip, each with
+ * a `label` and an `evidence` string describing an ACT the run performed (a probe
+ * re-asked, a press that waited the full bound), and the entries must number
+ * exactly `skipped_targets`. `scripts/lib/skipEvidence.mjs` is how a check produces them.
+ *
+ * **IT BINDS RECEIPTS STARTED AT OR AFTER `EVIDENCE_RULE_FROM`, AND NOBODY ELSE.** Every
+ * receipt on disk before that was written by a check that had no such field to
+ * give, so failing it would turn the list red for a reason that is not a fault.
+ * Those are NOT folded into the pass: they carry a note saying their skips are
+ * unjudged, by count, so the third answer stays visible. The cut-off is the commit
+ * time of `386b653`, the first one in which the sweep could supply the field.
+ * An unreadable `started_at` owes the evidence, because a rule that a missing
+ * date can switch off is not a rule.
+ */
+export const EVIDENCE_RULE_FROM = "2026-10-07T03:58:37.000Z";
+
 /** Every field `validate` requires, with the type it must have. */
 const REQUIRED = {
   check_id: "string",
@@ -190,6 +213,30 @@ export function validate(r, opts = {}) {
       bad(`${r.skipped_targets} target(s) skipped with no \`skip_allowlist\` {reason, expires}`);
     } else if (!(new Date(al.expires) > new Date())) {
       bad(`${r.skipped_targets} target(s) skipped under an allowlist that expired ${al.expires}`);
+    }
+    // The itemisation. Skipped when there is no allowlist at all, because the
+    // first problem above already says that and a second one is noise.
+    if (r.skip_allowlist && typeof r.skip_allowlist === "object") {
+      const list = r.skip_allowlist.skipped;
+      const named = (e) => (typeof e?.label === "string" && e.label.trim() ? e.label : "(no label)");
+      const lacking = Array.isArray(list)
+        ? list.filter((e) => typeof e?.evidence !== "string" || !e.evidence.trim()) : [];
+      const owes = !(new Date(r.started_at) < new Date(EVIDENCE_RULE_FROM));
+      if (owes) {
+        if (!Array.isArray(list)) {
+          bad(`${r.skipped_targets} target(s) skipped and the allowlist does not itemise them: no \`skipped\` list of {label, evidence}`);
+        } else if (list.length !== r.skipped_targets) {
+          bad(`${r.skipped_targets} target(s) skipped but the allowlist itemises ${list.length}`);
+        }
+        if (lacking.length) {
+          bad(`${lacking.length} skip(s) carry no evidence that the surface was reached and refused: `
+            + lacking.slice(0, 5).map(named).join(", ") + (lacking.length > 5 ? ", ..." : ""));
+        }
+      } else {
+        note(`${r.skipped_targets} skip(s) accepted under an allowlist with `
+          + (Array.isArray(list) ? `${list.length} itemised, ${list.length - lacking.length} with evidence` : "no per-skip itemisation")
+          + `; written before the evidence rule (${EVIDENCE_RULE_FROM}), so UNJUDGED rather than clean. Re-run it to judge.`);
+      }
     }
   }
 

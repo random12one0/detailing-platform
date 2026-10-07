@@ -20,7 +20,10 @@ import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { test } from "node:test";
 
-import { REPO, validate } from "../scripts/receipt.mjs";
+// RECEIPT_UNDER_TEST points this file at a sabotaged COPY of the grader, so a rule can be
+// proved able to fail without breaking the live one under whoever is running a sweep.
+const mod = await import(process.env.RECEIPT_UNDER_TEST ?? "../scripts/receipt.mjs");
+const { REPO, validate } = mod;
 
 // A REAL FILE, because the artifact rule stats the disk. Written into the OS
 // temp dir and pathed relative to the repo, which is what a receipt carries.
@@ -124,6 +127,69 @@ test("5 · a skip is a failure unless allowlisted, and the allowlist expires", (
     skip_allowlist: { reason: "flaky font load", expires: "2099-01-01" },
   };
   assert.equal(v(live).ok, true, "a current, reasoned allowlist should be accepted");
+});
+
+// ── ROADMAP 14.11, second half: an allowlisted skip must be itemised with evidence ──
+// An allowlist is the only way a receipt with skips can pass, and it used to take one
+// reason for the whole batch. These cases each break exactly one half of the new rule,
+// against the real `validate` (or the module named in RECEIPT_UNDER_TEST, which is how
+// the sabotage run aims this file at a broken copy instead of the live grader).
+const AFTER = "2026-10-08T00:00:00.000Z";
+const BEFORE = "2026-10-06T00:00:00.000Z";
+const allowlist = (skipped) => ({
+  reason: "surfaces the demo cannot be in the state for", expires: "2099-01-01",
+  ...(skipped === undefined ? {} : { skipped }),
+});
+const withSkips = (n, started_at, skipped) => ({
+  ...good(), started_at, skipped_targets: n, skip_allowlist: allowlist(skipped),
+});
+const one = (over = {}) => ({ width: 1440, label: "tour · step 37", reason: "r", evidence: "pressed and waited 8014ms (bound 8000ms) and no new card came", ...over });
+
+test("5b · after the rule, an allowlist that does not itemise its skips is rejected", () => {
+  rejects(withSkips(2, AFTER), "does not itemise");
+});
+
+test("5c · and one that itemises the wrong number is rejected", () => {
+  rejects(withSkips(2, AFTER, [one()]), "itemises 1");
+  rejects(withSkips(1, AFTER, [one(), one({ label: "b" })]), "itemises 2");
+});
+
+test("5d · and a skip with no evidence is rejected, by name, whatever shape the absence takes", () => {
+  for (const bad of [undefined, null, "", "   ", 8000, {}]) {
+    rejects(withSkips(2, AFTER, [one(), one({ label: "gear · subscription, past due", evidence: bad })]),
+      "gear · subscription, past due");
+  }
+  rejects(withSkips(1, AFTER, [{ width: 1440, reason: "r", evidence: "" }]), "(no label)");
+});
+
+test("5e · a skip that carries evidence is accepted — made by the helper a check uses, graded by the grader", async () => {
+  const { addSkip, probeEvidence, pressEvidence } = await import("../scripts/lib/skipEvidence.mjs");
+  const list = [];
+  addSkip(list, { width: 1440, label: "gear · subscription, past due", reason: "r", evidence: probeEvidence(0) });
+  addSkip(list, { width: 1440, label: "tour · step 37", reason: "r", evidence: pressEvidence(8014, 8000) });
+  const out = v(withSkips(2, AFTER, list));
+  assert.equal(out.ok, true, out.problems.join(" | "));
+});
+
+test("5f · the rule starts at its cut-off, to the millisecond, and an unreadable date does not switch it off", () => {
+  const { EVIDENCE_RULE_FROM } = mod;
+  rejects(withSkips(1, EVIDENCE_RULE_FROM), "does not itemise");
+  assert.equal(v(withSkips(1, new Date(Date.parse(EVIDENCE_RULE_FROM) - 1).toISOString())).ok, true);
+  for (const junk of ["", "not a date"]) {
+    rejects({ ...withSkips(1, junk) }, "does not itemise");
+  }
+});
+
+test("5g · a receipt from before the rule is not failed for lacking evidence, and is not called clean either", () => {
+  const legacy = v(withSkips(3, BEFORE));
+  assert.equal(legacy.ok, true, "a receipt written before the field existed cannot have it");
+  assert.match(legacy.notes.join(" | "), /3 skip\(s\) .*UNJUDGED/);
+  const half = v(withSkips(2, BEFORE, [one(), one({ label: "b", evidence: undefined })]));
+  assert.match(half.notes.join(" | "), /2 itemised, 1 with evidence/);
+});
+
+test("5h · a receipt with no skips owes nothing, whatever its allowlist says", () => {
+  assert.equal(v({ ...good(), started_at: AFTER, skip_allowlist: allowlist() }).ok, true);
 });
 
 test("6 · assertions below the declared floor are rejected", () => {
