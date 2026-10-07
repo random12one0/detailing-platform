@@ -1,17 +1,10 @@
 {
-  "git_sha": "4b4a17474ee623ed659791dfe1a24d5cf9a69d00",
-  "git_sha_started": "4b4a17474ee623ed659791dfe1a24d5cf9a69d00",
+  "git_sha": "b5ccac8de356489fa346186f281a915341b0662a",
+  "git_sha_started": "b5ccac8de356489fa346186f281a915341b0662a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-07T00:25:46.976Z",
-  "failures": [
-    "320/en/admin/Money: narrow — button \"Email\" — 38px of reach across (rect 37px), floor 44",
-    "320/en/admin/Money: narrow — button \"Other\" — 38px of reach across (rect 37px), floor 44",
-    "320/es/admin/Money: short — button.on \"Hosting\" — 39px of reach down (rect 36px), floor 44",
-    "320/es/admin/Money: short — button \"Database\" — 39px of reach down (rect 36px), floor 44",
-    "320/es/admin/Money: short — button \"Correo\" — 39px of reach down (rect 36px), floor 44",
-    "320/es/admin/Money: short — button \"Domain\" — 39px of reach down (rect 36px), floor 44"
-  ],
+  "finished_at": "2026-10-07T01:42:00.005Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png"
@@ -34,14 +27,14 @@
     "canary_restored": true
   },
   "check_id": "sweep-tap-targets",
-  "started_at": "2026-10-07T00:17:32.272Z",
-  "status": "fail",
+  "started_at": "2026-10-07T01:33:44.917Z",
+  "status": "pass",
   "expected_targets": 60,
   "discovered_targets": 60,
   "attempted_targets": 60,
   "completed_targets": 60,
   "skipped_targets": 0,
-  "assertions_executed": 85876,
+  "assertions_executed": 88937,
   "min_assertions": 12000,
   "canary": {
     "id": ".pa-tab squeezed to 2px/4px padding and 10px type — a plausible spacing edit, not a syntax error",

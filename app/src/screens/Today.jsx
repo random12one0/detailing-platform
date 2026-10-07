@@ -663,10 +663,10 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             </>
           ) : (
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="row between" style={{ alignItems: "flex-start", gap: 8 }}>
+              <div className="row between" style={{ alignItems: "center", gap: 8 }}>
                 <strong>{t("Your page isn't fully set up")}</strong>
                 {canCollapse && (
-                  <button onClick={() => toggleCollapsed(true)} style={{
+                  <button className="nudge-link" onClick={() => toggleCollapsed(true)} style={{
                     background: "none", border: 0, color: "var(--accent-text)",
                     fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
                     font: "inherit", fontSize: "var(--t-meta)",
@@ -676,10 +676,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               {/* LEAD WITH WHAT ACTUALLY STOPS A BOOKING OR A PAYMENT — never
                   more than the three real ones. Everything else is real but
                   cosmetic and sits behind the fold below. */}
-              <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+              <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column" }}>
                 {lead.map((s) => (
                   <li key={s.key}>
                     <button
+                      className="nudge-link"
                       onClick={() => onSetup?.(STEPS.findIndex(([k]) => k === s.key))}
                       style={{
                         background: "none", border: 0, padding: 0, textAlign: "left",
@@ -694,13 +695,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               </ul>
               {cosmetic.length > 0 && (
                 <details style={{ marginTop: 6 }}>
-                  <summary style={{ cursor: "pointer", fontSize: "var(--t-meta)", color: "var(--text-muted)" }}>
+                  <summary className="nudge-summary" style={{ cursor: "pointer", fontSize: "var(--t-meta)", color: "var(--text-muted)" }}>
                     {t("and {count} more", { count: cosmetic.length })}
                   </summary>
-                  <ul style={{ margin: "6px 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+                  <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column" }}>
                     {cosmetic.map(([k, , name]) => (
                       <li key={k}>
                         <button
+                          className="nudge-link"
                           onClick={() => onSetup?.(STEPS.findIndex(([kk]) => kk === k))}
                           style={{
                             background: "none", border: 0, padding: 0, textAlign: "left",

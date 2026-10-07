@@ -2559,6 +2559,16 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .warn-box .actions button:hover { background: var(--accent-quiet); }
 .error-box .actions button { color: inherit; text-decoration: underline; }
 .error-box .actions button:hover { background: color-mix(in srgb, var(--bad) 12%, transparent); }
+/* THE TEXT LINKS INSIDE "YOUR PAGE ISN'T FULLY SET UP" (Today) — ROADMAP 4.6a.
+   They were bare inline-styled buttons, 19px tall, stacked 6px apart, so no
+   negative-inset `::after` could have reached 44 without stealing the press
+   from the line above. The box has room, the same call `.actions button`
+   above made, so the BOX grows: each line is a 44px row and the list's own gap
+   is gone (the row height replaces it). `.nudge-summary` is the fold under
+   them; it stays `display: list-item` so the disclosure marker survives, which
+   `display: flex` would remove. */
+.nudge-link { min-height: var(--tap); min-width: var(--tap); display: inline-flex; align-items: center; }
+.nudge-summary { display: list-item; padding-block: calc((var(--tap) - 1lh) / 2); }
 /* AND IT DROPS UNDER THE MESSAGE ON A PHONE. At 392 the alarm wrapped to three
    lines with its remedy pinned top-right, reading as a footnote beside the
    problem. Below the wrap the action takes the full row instead of competing
@@ -3860,8 +3870,14 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    only where the alternative is overflow — and `.choices` below has wrapped a
    row of choices this way since it was written, so this is the product's own
    pattern rather than a new one. */
+/* **ROW GAP 8, COLUMN GAP 3 — ROADMAP 4.6a.** Each segment's `::after` reaches 4px
+   past its 36px box, so two WRAPPED rows 3px apart overlap by 5px and the
+   walk stops half-way: Spanish at 392 wraps the Clients sort and Booking
+   rules' "where" control, and every segment measured 39 of reach, not 44. 8px
+   between rows is the arithmetic that lets the two bands meet exactly. An
+   unwrapped control has no row gap to pay, so nothing moves for it. */
 .segmented {
-  display: inline-flex; flex-wrap: wrap; padding: 3px; gap: 3px;
+  display: inline-flex; flex-wrap: wrap; padding: 3px; gap: 8px 3px;
   background: var(--surface-sunken); border: 1px solid var(--hairline);
   border-radius: var(--r-pill);
 }
@@ -3875,7 +3891,7 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
 .segmented button {
   border: 0; background: transparent; color: var(--text-muted);
   font-family: var(--f-body); font-size: var(--t-meta); font-weight: 600;
-  min-height: 36px; padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
+  min-height: 36px; min-width: 44px; padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
   position: relative;
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out);
 }
@@ -3900,6 +3916,12 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    1px border, so -4px lands exactly on the container's outer edge: nothing
    above or below the control loses a pixel, and the pitch question the chip row
    had does not arise, because a segmented control is one row. */
+/* **AND 44 ACROSS, BY THE PAINT — ROADMAP 4.6b.** The `::after` above is
+   vertical only, so a short word is only as wide to a thumb as it is on the
+   screen: the cost category "Email" is 37 and "Other" 37 on the back office's
+   Money tab. `min-width: 44px` on the segment above is the whole fix; no
+   segment with a longer word moves, and a horizontal inset is still the thing
+   that steals a neighbour's press. */
 .segmented button::after { content: ""; position: absolute; inset: -4px 0; }
 .segmented button:hover:not(.on) { color: var(--text); }
 /* W24. Selection here is a LIFT rather than a tint — the chosen segment is
@@ -4018,7 +4040,7 @@ label.row:has(> input[type="checkbox"]) { min-height: 44px; }
    it, so the box itself grows: the control goes from 44 to 46 tall overall,
    which is the same height as the `.btn` beside it. */
 .stepper button {
-  width: var(--tap); height: var(--tap); border: 0; background: transparent;
+  width: var(--tap); height: var(--tap); flex: none; border: 0; background: transparent;
   color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background var(--t-hover) var(--e-out);
 }

@@ -8988,11 +8988,43 @@ requested.
   Reproduce: `set -a; . ./.env; set +a; node scripts/sweep-tap-targets.mjs`, then read the receipt's `failures` list.
   **Done when:** the receipt grades `pass`, or each remaining finding is a recorded hold in `receipts/holds.json` with a reason.
 
-- [ ] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
+  **100 FINDINGS TO 1 — 2026-10-06 (DP Cowork, Lane A). NOT TICKED: ONE IS LEFT AND IT IS NOT A HIT AREA.** Measured by a full
+  default `node scripts/sweep-tap-targets.mjs` at `b5ccac8` (HEAD did not move): dashboard receipt 249 of 249 screens, 707,215
+  assertions, canary 5 of 5, **1 failure, was 100.** Four causes, each fixed where every caller routes through it:
+  - **`.stepper button` (the Less and More buttons) was shrinking.** The box said 46 wide and the page drew 29, because the
+    buttons could shrink and the number field could not. `flex: none` on the buttons; the control's overall width is unchanged
+    (186 before and after), the number field gives up 33px instead. 68 findings, **every one a Stepper**, on Booking rules and
+    Weather warnings at every width, both languages. Fixed in `theme.css`.
+  - **The "Your page isn't fully set up" links on Today** (`Hide`, `Vehicle types`, `and 2 more`) were bare 19px buttons
+    stacked 6px apart, so no `::after` could reach 44 without stealing the line above's press. The box grows instead, the call
+    `.warn-box .actions button` already made: each line is a 44px row, the list gap is gone. `.nudge-link`, `.nudge-summary`.
+  - **`.segmented` wrapped** (Clients sort and Booking rules' "where you work" in Spanish at 392): rows 3px apart made the
+    `::after` bands overlap, so every segment read 39 of reach. Row gap 8, column gap 3. Unwrapped controls do not move.
+  - **The landing hero rotation.** The leaving pane stayed hit-testable for its 140ms fade and, when the third pane gives way to
+    the first, sat ON TOP of it and swallowed a press. `pointer-events: none` on the leaving pane and its button hidden at once.
+    **Measured with the probe run back to back for 30s: 26 covered of ~220 probes at 392, 26 at 320, before; 0 and 0 after.**
+  **WHAT IS LEFT, 1 finding, and it is the sweep's, not a control's:** `768/en/gear/The website business`, `no-subjects`, 0
+  pressable controls. That row is the platform-admin door in the gear list (`GearMenu.jsx`, only drawn once the admin check has
+  loaded); pressing it LEAVES the dashboard for the back office, so there is no dashboard screen to measure behind it. It appeared
+  once in eight width and language combos, and in two narrowed re-runs the row was not drawn at all. **Needs:** Lane B, in
+  `scripts/sweep-tap-targets.mjs`, to treat a door that navigates away as "left the dashboard", not as an empty screen; or
+  Andrew to record it as a hold. **Deliberately small marks: none found.** Every finding was a real control.
+  Proof of the instrument: with `flex: none` removed, Booking rules at 392 went back to 2 findings (Less, More at 30px); restored,
+  clean. Looked at by eye at 1440, 768 and 390 (Today, Booking rules in Spanish, Weather, Clients in Spanish) and 320 (back
+  office Money); `receipts/screenshots/4.6a-4.6b/` (gitignored, local only). Console: clean on every page looked at. (Back office Money logs two 400s
+  from `platform-admin` — "business_id is required" — the deployed function not matching this checkout, not this work.)
+
+- [x] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
   Found by the same run, 2026-10-06: `receipts/sweep-tap-targets.json` was `pass` at `469422a` and now carries 6 failures, all on
   `/admin` Money at 320px (`Email`, `Other` at 38px wide; `Hosting`, `Database`, `Correo`, `Domain` at 39px tall). These are the
   ROADMAP 9.14 cost-entry category buttons, which are new since the last pass. `app/src/admin`, not touched here.
   **Done when:** the admin receipt grades `pass` again at 320, in both languages.
+
+  **DONE 2026-10-06 (DP Cowork, Lane A).** The Money tab uses the shared `Segmented`, so this is the same wrap fix as 4.6a (row
+  gap 8 between wrapped rows; four of the six findings) plus `min-width: 44px` on a segment (the other two: "Email" and "Other"
+  were 37 wide, and the `::after` is vertical only). `node scripts/sweep-tap-targets.mjs --only admin` with the row gap alone
+  left 2 findings; with both, clean. `receipts/sweep-tap-targets.json` grades PASS, 60 of 60 screens at `b5ccac8`, canary 5 of 5,
+  in the full default run too. The `.btn.sm` 38px-icon exception was not touched.
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the

@@ -533,6 +533,19 @@
    DELAY equal to the fade — without that it snaps away on frame one and
    the outgoing pane never fades at all. */
 .ld .hpane.on { opacity: 1; visibility: visible; transition-delay: 0s, 0s; }
+/* THE LEAVING PANE'S BUTTON GOES AT ONCE — ROADMAP 4.6a. For the 140ms fade the
+   outgoing pane is still `visibility: visible` and sits UNDER the incoming one
+   in the same grid cell, so its CTA and fine print were pressable-looking
+   controls whose centre answers somebody else's: the tap sweep read them as
+   "covered" on about one probe in nine at 392 and 320 (26 of 218 back to back).
+   The words still fade with the pane; only the button is gone early, and the
+   incoming pane's own button is drawn in the same place. */
+.ld .hpane:not(.on) .ctas { visibility: hidden; }
+/* AND THE PANE ITSELF STOPS TAKING PRESSES. Panes stack in DOM order, so when the
+   third leaves and the first returns, the leaving one is ON TOP for the fade and
+   swallowed a press aimed at the button underneath it (the 7 left after the rule
+   above, all on that wrap-around). */
+.ld .hpane:not(.on) { pointer-events: none; }
 /* `min-height` HOLDS THE LINE WHILE IT IS STILL BEING WRITTEN. An empty
    block collapses to nothing, so without this the lede and the buttons
    under a retyping headline jump up and settle back down twice a cycle. */
