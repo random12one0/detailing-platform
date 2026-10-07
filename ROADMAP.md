@@ -9014,6 +9014,24 @@ requested.
   office Money); `receipts/screenshots/4.6a-4.6b/` (gitignored, local only). Console: clean on every page looked at. (Back office Money logs two 400s
   from `platform-admin` — "business_id is required" — the deployed function not matching this checkout, not this work.)
 
+  ***THE LAST FINDING'S FIX IS WRITTEN 2026-10-06 (Lane B) AND NOT YET RUN IN A BROWSER, SO THIS ITEM IS STILL NOT TICKED.***
+  Lane exception, recorded: the manager granted `scripts/sweep-tap-targets.mjs` for exactly this. **What changed:** the sweep no
+  longer presses a gear row whose key is in a `LEAVES` set (just `platform`, the door that does `window.location.href =
+  "/admin"`). The row is named by the `data-settings-key` the product already puts on every gear row, never by its translated
+  words. It is left out of the expected count and counted instead: `dimensions.doors_that_leave_the_dashboard` in the dashboard
+  receipt and one warning per width/language combination, so a shortfall cannot be this row and the omission is printed rather
+  than silent. `--press-leaving-doors` restores the old behavior.
+  **Proved without a browser:** `node --test tests/sweep-tap-targets-leaving-door.test.mjs`, 5 pass, holds `LEAVES` equal to
+  the set of gear rows `GearMenu.jsx` navigates away for, in both directions (a new leaving row, or the platform door ceasing
+  to leave, turns it red in-process), and that the skip sits before the press and is counted. **It cannot see** a leaving door
+  written in some shape other than `if (key === "…") { window.location.href`.
+  **To prove it in a browser, when there is a window** (dev server, seed and credentials; nothing else touching the demo tenant):
+  `node scripts/sweep-tap-targets.mjs --widths 768 --lang en`, a narrowed run that still writes a receipt, expecting no
+  `no-subjects` finding, and `not_pressed` of 1 or 0 (the row is drawn only once the admin check answers, which is why the
+  finding appeared once in eight combinations); then the same with `--press-leaving-doors`, which should show the old finding
+  at least some of the time. The flake means a single clean run proves little: repeat the narrowed run, then do the default
+  full run once and read `receipts/sweep-tap-targets-dashboard.json`.
+
 - [x] **4.6b — The back-office Money tab's cost category buttons are 38 to 39px and the admin receipt flipped from pass to fail.**
   Found by the same run, 2026-10-06: `receipts/sweep-tap-targets.json` was `pass` at `469422a` and now carries 6 failures, all on
   `/admin` Money at 320px (`Email`, `Other` at 38px wide; `Hosting`, `Database`, `Correo`, `Domain` at 39px tall). These are the

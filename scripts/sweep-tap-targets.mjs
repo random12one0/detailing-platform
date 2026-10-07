@@ -74,6 +74,29 @@ const WIDTHS = (WIDTHS_ARG || "1440,768,392,320").split(",").map(Number);
 // so a narrow debugging run stays narrow.
 const ADMIN_WIDTHS = WIDTHS_ARG ? WIDTHS : [...WIDTHS, 1254];
 const LANGS = (argOf("--lang") || "en,es").split(",");
+
+// ── DOORS THAT LEAVE THE DASHBOARD — ROADMAP 4.6a's last finding ─────────────
+// The gear list's "The website business" row does `window.location.href =
+// "/admin"`: a FULL navigation to a different application. There is no
+// dashboard screen behind it, so pressing it and then measuring "the screen"
+// measured the sign-in page, a half-loaded back office or nothing, and
+// reported `no-subjects`, 0 pressable controls. It appeared once in eight
+// width/language combinations, because the row is only drawn once the
+// platform-admin check has answered. The back office is walked by its own
+// section below.
+//
+// **THE ROW IS NOT PRESSED, AND THE WALK SAYS SO.** It is named by the
+// `data-settings-key` the product puts on every gear row (`GearMenu.jsx`),
+// NEVER by its words, which are translated. Left out of the expected count, and
+// counted and printed instead (`dimensions.doors_that_leave_the_dashboard`, a
+// warning), so a shortfall in the receipt cannot be this row.
+// **TWO WAYS THE EXEMPTION COULD GO STALE:** the key stops being a door that
+// leaves (GearMenu no longer navigates for it), or a different row starts to
+// navigate away and nobody listed it. This script cannot see either; `tests/
+// sweep-tap-targets-leaving-door.test.mjs` holds both facts, without a browser. `--press-leaving-doors` restores the old behavior, for proving the
+// finding it removes.
+const LEAVES = new Set(["platform"]);
+const PRESS_LEAVING = process.argv.includes("--press-leaving-doors");
 const ARGS = { floor: FLOOR, cap: CAP, exceptions: EXCEPTIONS };
 
 const findings = [];
@@ -206,6 +229,8 @@ const goTab = async (page, key) => {
 // Reading the labels once and then finding each by its own words survives all
 // three: a contaminating row has a different label, and a row that genuinely
 // disappears is REPORTED rather than silently replaced by its neighbour.
+const indexKeys = (page) => page.evaluate(() =>
+  [...document.querySelectorAll(".nav-row")].map((e) => e.getAttribute("data-settings-key")));
 const indexRows = (page) => page.evaluate(() =>
   [...document.querySelectorAll(".nav-row")]
     .map((e) => ((e.textContent || "").trim().replace(/\s+/g, " ") || "row").slice(0, 40)));
@@ -349,7 +374,7 @@ const screensBeforeDash = screens, probesBeforeDash = probes, findingsBeforeDash
 // walk reads them, and a row that was drawn but never measured (row-vanished,
 // door-shut, walk-failed) is a shortfall against that number.
 const DASH_FIXED_PER_COMBO = 1 + TABS.length;
-let expectedSettings = 0, dashShotTaken = false;
+let expectedSettings = 0, leavingDoors = 0, dashShotTaken = false;
 const dashArtifacts = [];
 for (const width of WIDTHS) {
   for (const lang of LANGS) {
@@ -392,8 +417,13 @@ for (const width of WIDTHS) {
     ]) {
       await open();
       const rows = await indexRows(page);
+      const keys = await indexKeys(page);
+      const leaves = (i) => !PRESS_LEAVING && LEAVES.has(keys[i]);
       const n = rows.length;
-      expectedSettings += n;
+      const leftOut = rows.filter((_, i) => leaves(i));
+      expectedSettings += n - leftOut.length;
+      leavingDoors += leftOut.length;
+      if (leftOut.length) skips.push(`${width}/${lang}/${door}: ${leftOut.length} door that leaves the dashboard was NOT pressed (${leftOut.join(", ")}); the place it leads is walked in its own section`);
       if (!n) {
         // A DOOR WITH NO ROWS BEHIND IT IS NOT A CLEAN DOOR.
         add(`${width}/${lang}/${door}`, { check: "no-doors", el: "(the index)", detail: `no .nav-row settings doors were found behind "${door}" — the index did not draw, or the handle moved` });
@@ -403,6 +433,7 @@ for (const width of WIDTHS) {
         const label = rows[i];
         // `--only gear` names the DOOR; `--only Team` names a row behind it.
         if (!want(label) && !want(door)) continue;
+        if (leaves(i)) continue;
         // **ONE ODD ROW MUST NOT TAKE DOWN A FORTY-MINUTE WALK.** The previous
         // run died on row four of the Spanish Business index and threw away
         // every screen after it — 1440/es onward, three widths unmeasured, and
@@ -548,6 +579,7 @@ if (ONLY) {
       langs: LANGS,
       fixed_screens_per_combo: DASH_FIXED_PER_COMBO,
       settings_doors_read_from_the_product: expectedSettings,
+      doors_that_leave_the_dashboard: { keys: [...LEAVES], not_pressed: leavingDoors, pressed: PRESS_LEAVING },
       landing_paths: ["/", "/pricing"],
       canary_breaks: `${dc.runs - dc.blind}/${dc.runs}`,
       canary_restored: dc.restored,
