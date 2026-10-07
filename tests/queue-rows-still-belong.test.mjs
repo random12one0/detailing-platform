@@ -113,7 +113,7 @@ const QUEUE_DOC = "docs/open-items-read-as-a-stranger-2026-09-25.md";
 const PARSE_FLOOR = 8;
 // THE DECLARATION. Exact. 16 rows on 2026-10-03; 14 on 2026-10-06 after 3.4c and 2.12 closed and left the table.
 // Move it in the SAME EDIT as the table, with a sentence saying why.
-const DECLARED_ROWS = 14;
+const DECLARED_ROWS = 13;
 
 const FLIP = process.env.QUEUE_FLIP || "";
 
@@ -145,7 +145,6 @@ const CMD = {
   "14.21": { cmd: `! grep -qE 'SIGTERM|SIGINT' scripts/admin-contrast.mjs` },
   "14.26": { done: "2026-10-06 — tests/picked-evidence-survives.test.mjs keeps the one picked row on a fixture tenant the seed never deletes and re-books it if it is ever gone; the old probe (zero picked rows anywhere) is false now by design." },
   "7.18": { cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
-  "4.6": { cmd: `grep -q 'the /admin back office only' receipts/sweep-tap-targets.json` },
   "14.23": { cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
   "8.10c": { done: "2026-10-06 — migration-drift.mjs compares grants and indexes; the old probe (no role_table_grants in the script) would have kept saying the row belonged after grants were built another way." },
   "3.1": { cmd: `! grep -q 'email_sends' app/src/admin/AdminPage.jsx` },

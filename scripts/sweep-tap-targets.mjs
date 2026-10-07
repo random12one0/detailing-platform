@@ -508,11 +508,13 @@ for (const width of WIDTHS) {
 // whose expectation was quietly narrowed to match proves nothing; it says it did
 // not write one. `--widths` and `--lang` are honest narrowing (the expectation
 // is computed from them) and still write.
-// **UNMEASURED UNTIL THE FIRST BROWSER RUN, said here so nobody reads these as
-// measured:** the 100-probes-per-screen floor is a guess below the ~1,336 the
-// back office averages, and the settings-door count has no floor beyond "the
-// index drew at least one row" (the `no-doors` finding). Both get a measured
-// value from the first run (ROADMAP 4.6).
+// **MEASURED, 2026-10-06, first default run (ROADMAP 4.6):** 249 screens, 696,043
+// press probes, so about 2,800 a screen. The floor below is 1,000 a screen,
+// genuinely under that, and was 100 (a guess) in the first run. The settings
+// doors read from the product came to 193 across 8 width/language combos. **NO
+// FLOOR YET on that count beyond the `no-doors` finding** (an index that drew
+// none); a floor of about 20 a combo would sit under the measured average of
+// 24, and is a decision, not built here.
 if (ONLY) {
   skips.push(`the dashboard receipt was not written because --only ${ONLY} narrows the walk`);
 } else {
@@ -533,7 +535,7 @@ if (ONLY) {
     completed_targets: dashDiscovered,
     skipped_targets: Math.max(0, dashExpected - dashDiscovered),
     assertions_executed: dashProbes,
-    min_assertions: Math.max(1, dashDiscovered) * 100,
+    min_assertions: Math.max(1, dashDiscovered) * 1000,
     failures: [
       ...dashFindings.map((f) => `${f.where}: ${f.check} - ${f.el} - ${f.detail}`),
       ...dc.problems.map((q) => `dashboard canary: ${q.el} - ${q.detail}`),

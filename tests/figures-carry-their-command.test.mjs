@@ -167,7 +167,7 @@ const DOCS = [
   // The floor moves with it — it was set when the population was 146 and would
   // otherwise sit at 99% of a 121-figure population, where a parser guard is
   // supposed to sit well below reality so ordinary change never fires it.
-  { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 90, bare: 98 },
+  { path: "docs/open-items-read-as-a-stranger-2026-09-25.md", floor: 90, bare: 97 },
   { path: "docs/ticked-without-proof-2026-09-25.md", floor: 30, bare: 69 },
 
   // **docs/silences.md: 31 figures, 31 bare, ONE HUNDRED PER CENT** — and this is
