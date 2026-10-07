@@ -2352,6 +2352,8 @@ export const appEs = {
   // it: the second definition would have won silently and the first would have
   // looked maintained while doing nothing.
   "Not completed after all": "No estaba terminado",
+  // ROADMAP 4.1, ruling 3 — the way back from "Didn’t show up".
+  "Showed up after all": "Sí se presentó",
   "Reminders and cancellations": "Recordatorios y cancelaciones",
   "When these reach you": "Cuándo te llegan",
   "{count} days ahead": "{count} días de anticipación",

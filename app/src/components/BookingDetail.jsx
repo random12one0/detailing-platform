@@ -797,6 +797,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   {booking.status !== "no_show" && (
                     <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>{t("Didn’t show up")}</button>
                   )}
+                  {/* ROADMAP 4.1, RULING 3 — THE WAY BACK FROM A NO-SHOW. `no_show`
+                      had the only status button in this row with no undo: the
+                      button above vanishes once it is set, "Mark completed"
+                      moves the job FORWARD, and nothing wrote it back to
+                      `confirmed`. Same shape and same write as "Un-cancel" and
+                      "Not completed after all": `status` is an ordinary field
+                      on `update-booking` with no transition guard, so this
+                      needs no server change. Not behind a confirmation, for
+                      the reason the ruling gives for the button above: it
+                      undoes an outcome, it does not cause one. */}
+                  {booking.status === "no_show" && (
+                    <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>
+                      {t("Showed up after all")}
+                    </button>
+                  )}
                   <button className="btn ghost" disabled={busy} onClick={() => setStatus("cancelled")}>{t("Cancel the job")}</button>
                 </>
               )}

@@ -742,7 +742,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 {/* **WRAPPED 2026-10-03, ROADMAP 14.22.** The same two words already go
                     through `t()` in the `c-total-lbl` row above - the one reading
                     `owner ? t("lifetime") : ...` - so a Spanish customer saw "visitas"
-                    in one place on this screen and "visits" in the other. `appEs.js`
+                    in one place on this screen and the English plural in the other. `appEs.js`
                     already carries both keys (`visita`, `visitas`), so nothing new was
                     added: the strings existed and this one line was not asking for them.
 
