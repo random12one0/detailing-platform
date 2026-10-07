@@ -20300,9 +20300,9 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and where it lives and is reported by name when it is missing** rather than
   skipped.
 
-### 14.37 — Three booking-setup screens leave a row under the fixed bar at 320 and 392 wide, and the sweep now names them
+### 14.37 — Three booking-setup screens leave a row under the fixed bar at 320 and 392 wide, and the sweep now names them — CLOSED 2026-10-06, NOT A PRODUCT FAULT
 
-- [ ] **Lane A, `app/src`. Found 2026-10-06 by 14.30's own proof: once `bk-bar-clearance` could tell a declared exception
+- [x] **Lane A, `app/src`. Found 2026-10-06 by 14.30's own proof: once `bk-bar-clearance` could tell a declared exception
   from a new failure, it reported three it had never been told about, in all three runs, and they reproduce.** Nothing here is
   the hold on the 320 day squares (Andrew's ruling stands); these are different controls on different screens.
 
@@ -20385,6 +20385,23 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   new script is run in the main checkout, which needs the pause the manager is arranging; this entry's numbers come from my copy's receipt, which
   I did not commit. **14.37 is not ticked by me:** its own done-when also asks for the three screens to be looked at, and closing it as "not a
   product fault" is the manager's call.
+
+  ***TICKED 2026-10-06 ON THE MANAGER'S RULING: THE PRODUCT WAS FINE AT THE END OF SCROLLING, THE CHECK WAS WRONG, AND THE CHECK IS FIXED.***
+  No clearance in `app/src` was wrong and none was changed. The done-when's first clause (`unexpected_failure_count: 0`, `gate: held`) was
+  met in an isolated copy three times (above and below); its look-at-the-screens clause is met by DP Cowork's reading of the Save button's 28px
+  clear at the end of Business info and the Services list ending well short of the bar. **The receipt of record in the main tree still holds
+  the three findings until the new script is run in the main checkout**, which waits on the pause the manager is arranging.
+  **Why the plant did not land at 1440 and 1920, found and fixed (DP Cowork2, same `scripts/bk-bar-clearance.mjs` exception):** at those
+  widths the settings list is an inner scroller (`div.settings-body`, 703px wide, bottom edge 856 in a 900px window) and the page itself
+  scrolls only 18px. The plant put its control at the end of that scroller, so the control's centre sat at y 834, and a fixed 60px bar starts
+  at 840: **the bar covered 16 of its 44px and the hit-test point was clear.** Measured, not guessed, with a read-only probe at 1440, 1920 and 768
+  against my own copy (768 was the control: the document scrolls there, the control lands in the bottom 44px, and the bar covers it). **The
+  plant now scrolls first, reads where its control actually lands, and sizes the bar to cover from there to the bottom of the window**, then
+  restores the scroll positions so the probe still starts from the top. **Run again, plant: every one of the ten cells goes red on
+  `screen/furniture-clear`** (1 row at eight cells, 2 at the two 1440 cells where the bigger bar also covers the Save row), 14 unexpected in
+  all. **Four of those 14 are a side effect and not the check's doing:** at 1440 and 1920 (both screens) `screen/pressed` also goes red because the bar now
+  sits over the control the sweep presses, which is what a bar over the bottom of the window does. **Clean run, same script, same app:** gate
+  HELD, 0 unexpected, 0 covered at the end at all ten cells, 2, 2 and 1 set aside at the top at the same three cells.
 
 ### 14.36 — An email template hardcoded a dark-theme grey on a light background
 
