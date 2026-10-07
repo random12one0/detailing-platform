@@ -410,6 +410,12 @@ and how the wait ends.
   `scripts/edge-tenant-replay.mjs` enumerates the functions in `supabase/functions/`, so its next run will meet this one.
   **SLICES LEFT:** 4, `business-media` (needs a public R2 address); 5, `expense-receipts` (`receipts.js`, `app/src`).
 
+  ***THE ONE LINE IS IN, 2026-10-06, ON THE MANAGER'S PER-FILE EXCEPTION (DP Cowork2): `scripts/deploy-functions.mjs`, ONE LINE ONLY.*** `"photo-reconcile",` now sits in
+  `PUBLIC_FUNCTIONS` beside `"refresh-weather"`, with a one-line comment saying why. **The script was NOT run** (it publishes); the change was checked by reading the set out of the file
+  (23 entries, `photo-reconcile` present, `photo-door` still absent, as `photo-door/index.ts` says it must be) and by `node --check`. A publish of `photo-reconcile` therefore deploys it with the
+  sign-in check off, which the nightly `net.http_post` needs. `FOR-ANDREW.md` Part 2b step 5 is updated to say so. **Still true:** the first night's call is the proof that the gateway lets it in, and the
+  heartbeat read in that part of `FOR-ANDREW.md` is how it is seen; and `scripts/edge-tenant-replay.mjs` will meet this function on its next run (not run).
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**

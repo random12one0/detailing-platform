@@ -229,11 +229,11 @@ earlier**, because a 10 on a detailer's screen with nothing behind it is a promi
    `node scripts/deploy-functions.mjs photo-door`
 4. **Republish `delete-customer`** (it now removes a forgotten customer's photo files from both stores).
    `node scripts/deploy-functions.mjs delete-customer`
-5. **Publish `photo-reconcile`, after one line is added.** It is called every night by a scheduled job with no
-   signed-in person, exactly like `refresh-weather`, so it has to be in `PUBLIC_FUNCTIONS` in
-   `scripts/deploy-functions.mjs`. **That one line is not in yet** (that file was not this item's to edit; the manager
-   adds it or says no). Published without it, the nightly call is refused at the gateway and the job shows on the back
-   office's *Jobs that run on their own* list as stopped after about a day, which is how it would be noticed.
+5. **Publish `photo-reconcile`.** It is called every night by a scheduled job with no signed-in person, exactly like
+   `refresh-weather`, so it is in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs` (the line was added on the manager's
+   say-so, 2026-10-06), and the script deploys it with the sign-in check off, which that nightly call needs. If the job
+   still shows on the back office's *Jobs that run on their own* list as stopped about a day after step 6, the gateway is
+   refusing it: tell us.
    `node scripts/deploy-functions.mjs photo-reconcile`
 6. **Apply the nightly schedule, now that the program exists:**
    `node scripts/apply-migrations.mjs 20261006060000_photo_reconcile_cron.sql`
