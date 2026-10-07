@@ -142,12 +142,15 @@ function rowsFromDoc() {
 const CMD = {
   "9.11": { done: "2026-10-03 02:01 — the other lane re-ran the sweep; receipt git_sha 50767da. Clause 2 is Andrew's." },
   "14.22": { cmd: `grep -oE '.{2}"visits?"' app/src/screens/Clients.jsx | grep -qv '^t('` },
-  "14.21": { cmd: `! grep -qE 'SIGTERM|SIGINT' scripts/admin-contrast.mjs` },
+  "14.21": {
+    unverifiable:
+      "the teardown is written (finally, crash flag, signal handlers) and the clean and crash runs are proved; what is open is the SIGNAL clause, which a run under `timeout` cannot attribute to the handlers (the table came back the same with the handlers removed). The old probe, no SIGTERM in the script, is false now and would have read the row as gone.",
+  },
   "14.26": { done: "2026-10-06 — tests/picked-evidence-survives.test.mjs keeps the one picked row on a fixture tenant the seed never deletes and re-books it if it is ever gone; the old probe (zero picked rows anywhere) is false now by design." },
-  "7.18": { cmd: `! grep -qE 'navmenu|burger' app/src/landing/LegalPage.jsx` },
+  "7.18": { done: "2026-10-06 — tests/ld-pages-carry-the-nav.test.mjs is built and names /terms and /privacy; the old probe (no burger in LegalPage.jsx) is now the CHECK's subject, and fixing that file is Lane A's, not this row's." },
   "14.23": { cmd: `! grep -qi details scripts/lib/tapProbe.mjs` },
   "8.10c": { done: "2026-10-06 — migration-drift.mjs compares grants and indexes; the old probe (no role_table_grants in the script) would have kept saying the row belonged after grants were built another way." },
-  "3.1": { cmd: `! grep -q 'email_sends' app/src/admin/AdminPage.jsx` },
+  "3.1": { done: "2026-10-06 — both halves are built: the screen (1f6d295) and the server action email_list (dd33fbc). The old probe (no email_sends in AdminPage.jsx) was never the right test of it, and the item stays unticked only until a real row is seen after the publish." },
   "4.3": { cmd: `! grep -rqE 'support_mode|is_support' supabase/functions/` },
   "9.2": {
     unverifiable:

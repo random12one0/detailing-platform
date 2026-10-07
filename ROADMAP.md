@@ -19416,6 +19416,42 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   and the only way to make it green is to delete the row by hand — which is the
   state this item exists to make impossible rather than merely detectable.
 
+  ***BUILT AND RUN 2026-10-06 (Lane B, on the manager's go and under the throwaway-admin ruling): TWO OF THE THREE EXITS ARE
+  PROVED, THE SIGNAL EXIT IS NOT, AND THIS ITEM STAYS OPEN.***
+  **Lane exception, recorded:** `scripts/admin-contrast.mjs` (the item's own file) and one line of `scripts/admin-account.mjs`.
+  **What was built.** The whole run is inside `try { … } catch { crashed = e } finally { await teardown() }`, one teardown
+  instead of two, no `process.exit` inside the try; `--crash-after-signin` throws after the sign-in and the tab list, before the
+  screenshots; `process.on(SIGINT | SIGTERM | SIGBREAK)` runs the same teardown; `--drop-leftover` removes the account by its
+  address. **The ruling, as built:** the account is flagged as a test account twice (address
+  `admin-contrast-test@detailplatform.com`, and the row's note now starts `TEST ACCOUNT`), removed at the end of every path,
+  and its password is random per run, held in memory, never printed or written, and redacted from any error text. The table is
+  read **by email only** (the note column has held a password) before the account exists and after it is gone, and both
+  readings are printed.
+  **Clean exit, run:** `node scripts/admin-contrast.mjs` printed `platform_admins BEFORE: ["demo@demo.com","demo@detailplatform.com"]`
+  and, after, the same two, then `clear of the floor`, exit 0. **Crash, run:** `--crash-after-signin` printed the same BEFORE
+  and AFTER and `deliberate crash, proving the teardown runs`, exit 1, and the log holds no password. **`node
+  tests/platform-admins-declared.test.mjs`: 18 passed, 0 failed, declared 2, in the table 2, undeclared 0, missing 0**, with no
+  edit to `docs/platform-admins.md`. `node --test tests/admin-contrast-teardown.test.mjs` (8 pass, browser-free, in-process
+  sabotage of each exit) holds the structure, and runs `--drop-leftover` against a fake backend that returns the note column
+  if anyone asks for it, to prove the roster read never does.
+  **THE SIGNAL EXIT, WHERE I COULD NOT PROVE THE CLAIM.** `timeout N node scripts/admin-contrast.mjs` (Git Bash, N = 6 to 11,
+  more than ten interruptions after the sign-in, some of them the controls below) left `platform_admins` as it was **every time**, and no auth user behind. **That is not
+  evidence for the handlers, and three controls say so:** (1) the same interruption of a copy **with the handlers removed**
+  also came back clean (the table showed the row at five successive polls and gone within a second of the kill); (2) a marker written
+  **synchronously at the top of the handler** never appeared, so the handler did not run; (3) the process wrote nothing at
+  all after being signalled, not the AFTER reading and not the teardown's own marker. Something removed the row about a second
+  after the process died, and **I did not find what**; it is not in this script. **A genuine hard kill does leave it:** a
+  minting process stopped with `Stop-Process -Force` left the row and the auth user for a full 20 seconds of polling, and
+  `--drop-leftover` removed them (that run's row is gone; the table is the declared two). So on Windows the handlers are
+  unproven, `timeout` is not a faithful SIGTERM, and **the sentence the item asks for, that a SIGTERM leaves the same
+  rows, is true of the `timeout` runs and unexplained**.
+  **Order, found on the way:** the first signalled run left the auth user behind (the row had gone, the user had not), because
+  the browser was closed before the account was dropped. The teardown now drops the account first, reads the table and prints
+  it, and closes the browser last.
+  **What would close it:** an interruption that Node actually receives as a signal and a way to see what removes the row (the
+  Management API's logs for `platform_admins` deletes around a kill would name it), or the manager accepting the `timeout`
+  runs plus `--drop-leftover` as the standard. **Not ticked either way until one of those.**
+
   **DO NOT CLOSE THIS BY DECLARING THE ROW.** 14.8's rule: a check that absorbs
   whatever it finds is worthless, and the roster is read by the check and never
   the reverse.

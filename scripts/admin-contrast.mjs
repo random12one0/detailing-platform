@@ -48,15 +48,82 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 
 const BASE = process.env.BASE || "http://localhost:5173";
+// A TEST ACCOUNT, BY ITS ADDRESS AND BY THE NOTE `makeAdmin` writes on its row.
+const ADMIN_EMAIL = "admin-contrast-test@detailplatform.com";  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
 const URL_ = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }
 // Made for this run, removed at the end of it — roadmap 8.2. The fixed
 // password that used to be on this line was a published credential for the
 // account that can read every tenant; `scripts/admin-account.mjs` has the
 // finding.
-const acct = await makeAdmin(URL_, KEY);
+// ── THE ACCOUNT'S WHOLE LIFE, ROADMAP 14.21 ─────────────────────────────────
+// A throwaway PLATFORM ADMIN can read every detailer and customer and suspend,
+// impersonate and reprice, and `platform_admins` has no narrower level. So its
+// teardown has to run on every way a run can end, not on the happy one:
+//
+//   clean exit   the `finally` below
+//   a throw      the same `finally`; `--crash-after-signin` throws on purpose,
+//                after sign-in and before the screenshots, where the two real
+//                crashes threw
+//   a signal     `process.on(SIGINT|SIGTERM|SIGBREAK)` — **a `finally` does not
+//                run on a signal**, only an explicit handler does
+//                (`docs/gotchas.md` 90). A hard kill (`TerminateProcess`, which
+//                is what Windows does to a process that ignores the polite
+//                ones) cannot be caught by anything in this file; the row it
+//                leaves is replaced by the next run's `makeAdmin` and the next
+//                declared-admins check names it. `--drop-leftover` removes it.
+//
+// THE TABLE IS READ BEFORE THE ACCOUNT EXISTS AND AFTER IT IS GONE, and both
+// readings are printed by the run. EMAIL ONLY: `platform_admins.note` has held
+// a password in plain text and is never selected here. The password itself is
+// random per run, lives in this process's memory, is never printed or written,
+// and is redacted from any error text before it is shown.
+const HDR = { apikey: KEY, Authorization: `Bearer ${KEY}` };
+const roster = async () => {
+  const r = await fetch(`${URL_}/rest/v1/platform_admins?select=email&order=email`, { headers: HDR });
+  const rows = await r.json().catch(() => null);
+  if (!r.ok || !Array.isArray(rows)) throw new Error(`could not read platform_admins (${r.status})`);
+  return rows.map((x) => x.email);
+};
+
+if (process.argv.includes("--drop-leftover")) {
+  // Removes only the account this script makes, by its address.
+  const found = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=1000`, { headers: HDR })).json();
+  const left = (found.users ?? []).find((u) => u.email === ADMIN_EMAIL);
+  console.log(left ? `leftover ${ADMIN_EMAIL} found; dropping it` : `no leftover ${ADMIN_EMAIL}`);
+  if (left) await dropAdmin(URL_, KEY, left.id);
+  console.log("platform_admins now:", JSON.stringify(await roster()));
+  await new Promise((r) => setTimeout(r, 150));  // let the sockets close: process.exit with a socket closing dies on Windows (exit 3221226505)
+  process.exit(0);
+}
+
+const before = await roster();
+console.log("platform_admins BEFORE:", JSON.stringify(before));
+const acct = await makeAdmin(URL_, KEY, ADMIN_EMAIL);
 if (!acct) { console.error("no admin account"); process.exit(1); }
 const EMAIL = acct.email, PW = acct.password;
+const redact = (t) => String(t).split(PW).join("[password]");
+
+let browser, page, tornDown = false;
+async function teardown(why) {
+  if (tornDown) return;
+  tornDown = true;
+  // THE ADMIN FIRST, THE BROWSER AFTER: dropping the account is the part that matters and takes
+  // milliseconds; closing a browser mid-page can take seconds, which is a window a signal can land in.
+  await dropAdmin(URL_, KEY, acct.id);          // never throws
+  let after = null;
+  try { after = await roster(); } catch (e) { console.error(redact(e.message)); }
+  // PRINTED BEFORE THE BROWSER IS CLOSED, so the reading survives a signal that lands while it closes.
+  console.log(`platform_admins AFTER (${why}):`, JSON.stringify(after));
+  try { await browser?.close(); } catch { /* closing anyway */ }
+  if (!after || JSON.stringify(after) !== JSON.stringify(before)) {
+    console.error("THE TABLE IS NOT WHAT IT WAS BEFORE THIS RUN. Do not declare the extra row; run: node --env-file=.env scripts/admin-contrast.mjs --drop-leftover");
+    process.exitCode = 1;
+  }
+}
+for (const sig of ["SIGINT", "SIGTERM", "SIGBREAK"]) {
+  process.on(sig, async () => { console.error(`${sig} received; dropping the test admin`); await teardown(sig); process.exit(sig === "SIGINT" ? 130 : 143); });
+}
 
 // The WCAG relative-luminance formula, on sRGB 0-255.
 const lum = ([r, g, b]) => {
@@ -68,12 +135,8 @@ const ratio = (a, b) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
-const browser = await chromium.launch();
-const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
-const page = await ctx.newPage();
-await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-await page.waitForTimeout(900);
-
+// `page` is assigned inside the try below, once the browser exists; the
+// functions that use it only run after that.
 // **THE BROWSER DECODES ITS OWN SCREENSHOT.** Reading pixels needs a PNG
 // decoder, and this repo has four dependencies; adding a fifth to check a
 // colour would be the wrong trade. The page already has one — canvas — so the
@@ -138,6 +201,14 @@ async function screen(name) {
 console.log("\nthe quietest text in the back office, against the pixels actually behind it");
 console.log("(the sign-in card and every tab, at rest, 1920x1080)\n");
 
+let crashed = null;
+try {
+browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+page = await ctx.newPage();
+await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(900);
+
 await screen("Sign in");
 
 await page.fill("input[type=email]", EMAIL);
@@ -146,26 +217,27 @@ await page.click("form button.pa-btn");
 await page.waitForTimeout(3000);
 
 const TABS = await page.$$eval(".pa-tab", (els) => els.map((e) => (e.textContent || "").trim()));
-if (!TABS.length) {
-  console.error("NO TABS — `.pa-tab` matched nothing, so the sign-in never went through.");
-  await browser.close(); await dropAdmin(URL_, KEY, acct.id);
-  process.exit(1);
-}
+if (!TABS.length) throw new Error("NO TABS — `.pa-tab` matched nothing, so the sign-in never went through.");
+// Proves the teardown. Throws where the two real crashes threw: after the
+// admin row exists and the sign-in is done, before anything is photographed.
+if (process.argv.includes("--crash-after-signin")) throw new Error("deliberate crash, proving the teardown runs");
 for (const [i, name] of TABS.entries()) {
   if (i) { await page.click(`.pa-tab >> nth=${i}`); await page.waitForTimeout(1400); }
   await screen(name);
 }
-
-await browser.close();
-// BEFORE THE EXITS BELOW, NOT AFTER THEM — this script ends with a
-// `process.exit` on a failure, and a teardown written under it would run on a
-// pass and never on a fail, leaving the all-seeing account behind on exactly
-// the runs somebody is going to re-run several times.
-// ponytail: no try/finally around the browser section, so a THROW above this
-// line leaves the admin row standing until somebody runs this or shoot-admin
-// again — both re-create and re-drop it. Wrap the whole script if that ever
-// stops being true, which it will the day something else reads that row.
-await dropAdmin(URL_, KEY, acct.id);
+} catch (e) {
+  crashed = e;
+} finally {
+  // ONE TEARDOWN, ON EVERY PATH, AND BEFORE THE EXITS BELOW. The old ordering
+  // fix (drop above the `process.exit`s) was real but did nothing for a throw:
+  // two crashed runs each left a live all-seeing row, caught only by
+  // tests/platform-admins-declared.test.mjs.
+  await teardown("finished or threw");
+}
+if (crashed) {
+  console.error(redact(String(crashed.message || crashed).split("\n")[0]).slice(0, 300));
+  process.exit(1);
+}
 
 // **ANCHOR 1 — A SELECTOR THAT MATCHES NOTHING ANYWHERE IS THE FAILURE, NOT A
 // QUIET PASS.** This is exactly how the script went blind: five selector

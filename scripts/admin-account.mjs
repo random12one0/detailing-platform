@@ -65,7 +65,7 @@ export async function makeAdmin(URL_, KEY, email = "shoot-admin@detailplatform.c
   await fetch(`${URL_}/rest/v1/platform_admins?user_id=eq.${user.id}`, { method: "DELETE", headers: H });
   await fetch(`${URL_}/rest/v1/platform_admins`, {
     method: "POST", headers: H,
-    body: JSON.stringify([{ user_id: user.id, email, note: "Temporary — a script is looking at /admin. Removed when it finishes." }]),
+    body: JSON.stringify([{ user_id: user.id, email, note: "TEST ACCOUNT — a script is looking at /admin. Removed when it finishes." }]),
   });
   return { email, password, id: user.id };
 }
