@@ -45,8 +45,9 @@
 // here rather than deleted, because a later session finding a chart and a
 // comment forbidding charts would have to guess which one won.
 
-import { Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MoneyField, Segmented } from "../components/controls.jsx";
 import { supabase } from "../lib/supabase.js";
 import { dateLong, localDate, money } from "../lib/format.js";
 import { mb } from "../lib/photo-rules.js";
@@ -1523,6 +1524,162 @@ const ADMIN_EVENT_WORDS = {
 };
 
 /* ══ TAB 3 · MONEY ═════════════════════════════════════════════════════════ */
+/* ══ 9.14 · DID THE PLATFORM MAKE MONEY THIS MONTH? ═══════════════════════
+   Revenue, minus the bills somebody typed in, for ONE month at a time.
+
+   **THE RULE THIS COMPONENT EXISTS TO KEEP: A MONTH WITH NO COSTS ENTERED HAS
+   NO NET FIGURE ON SCREEN.** `platform-admin` returns `net_cents: null` for it
+   rather than zero, so the branch below that prints a net can only be reached
+   by a number the server actually computed — and it asks for the number
+   itself (`Number.isInteger`) rather than trusting the `costs_entered` flag
+   alone, so a response that disagrees with itself prints nothing.
+   A NEGATIVE NET IS PRINTED AS A LOSS. Never clamped, never hidden.
+
+   **A FAILED READ IS NOT A MONTH WITH NO COSTS.** Until the migration that
+   creates `platform_costs` is applied, the server answers 500; this says so in
+   words and prints no net, instead of a confident zero.
+
+   The browser never touches the table: it has no policy, so a direct read would
+   return an empty list with no error — exactly the lie this screen refuses to
+   tell. Both calls go through `platform-admin`. After a save the month is
+   RE-READ rather than added up here, because the total is the server's. */
+const COST_KINDS = [["hosting", "Hosting"], ["database", "Database"], ["email", "Email"], ["domain", "Domain"], ["other", "Other"]];
+const pad2 = (n) => String(n).padStart(2, "0");
+const thisMonth = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`; };
+const shiftMonth = (ym, n) => {
+  const [y, m] = ym.split("-").map(Number);
+  const d = new Date(y, m - 1 + n, 1);
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+};
+const monthName = (ym) => new Date(`${ym}-01T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+function PlatformNet() {
+  const [month, setMonth] = useState(thisMonth);
+  const [net, setNet] = useState(null);        // the server's answer for `month`; null while unknown
+  const [readErr, setReadErr] = useState("");
+  const [kind, setKind] = useState("hosting");
+  const [dollars, setDollars] = useState("");
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState("");
+  const latest = useRef(0);
+
+  // `latest` DROPS AN ANSWER THAT ARRIVES AFTER THE PERSON MOVED ON — October's
+  // figures must never land under September's heading.
+  const read = useCallback(async (m) => {
+    const mine = ++latest.current;
+    setNet(null); setReadErr("");
+    try {
+      const out = await call({ action: "platform_net", period: m });
+      if (mine === latest.current) setNet(out);
+    } catch (e) {
+      if (mine === latest.current) setReadErr(e.message);
+    }
+  }, []);
+  useEffect(() => { read(month); }, [month, read]);
+
+  const cents = dollars === "" ? NaN : Math.round(Number(dollars) * 100);
+  const canSave = Number.isInteger(cents) && cents >= 0 && !saving;
+  const add = async () => {
+    setSaving(true); setSaveErr("");
+    try {
+      await call({ action: "platform_cost_add", period_month: month, category: kind, amount_cents: cents, note: note.trim() || undefined });
+      setDollars(""); setNote("");
+      await read(month);
+    } catch (e) { setSaveErr(e.message); }
+    setSaving(false);
+  };
+
+  const name = monthName(month);
+  const known = !!net && net.costs_entered === true && Number.isInteger(net.net_cents) && Number.isInteger(net.cost_cents);
+  const loss = known && net.net_cents < 0;
+
+  return (
+    <section className="pa-sec" style={{ "--i": 2 }}>
+      <div className="pa-h"><h2>Did we make money?</h2></div>
+      <div className="pa-card">
+        <div className="pa-month">
+          <button className="pa-btn" type="button" aria-label="Previous month"
+                  onClick={() => setMonth(shiftMonth(month, -1))}><ChevronLeft size={16} /></button>
+          <strong>{name}</strong>
+          <button className="pa-btn" type="button" aria-label="Next month"
+                  disabled={month >= thisMonth()} onClick={() => setMonth(shiftMonth(month, 1))}><ChevronRight size={16} /></button>
+        </div>
+
+        {readErr && (
+          <>
+            <p className="pa-err">Could not work out {name}: {readErr}.</p>
+            <p className="pa-sub pa-act">
+              No profit figure is shown, because one worked out from a failed read would be a
+              guess. If this keeps happening, the costs table may not have been set up in the
+              database yet.
+            </p>
+            <div className="pa-acts">
+              <button className="pa-btn" type="button" onClick={() => read(month)}>Try again</button>
+            </div>
+          </>
+        )}
+        {!readErr && !net && <p className="pa-none">Reading {name}…</p>}
+        {!readErr && net && (
+          <>
+            <div className="pa-rows">
+              <Row k={`Paid to us in ${name}`} v={money(net.revenue_cents / 100)} />
+              {known && (
+                <>
+                  <Row k={`Costs entered · ${plural(net.cost_count, "bill", "bills")}`} v={money(net.cost_cents / 100)} />
+                  {Object.entries(net.by_category ?? {}).map(([k, c]) => (
+                    <Row key={k} k={`· ${COST_KINDS.find(([v]) => v === k)?.[1] ?? k}`} v={money(c / 100)} />
+                  ))}
+                </>
+              )}
+            </div>
+            {known
+              ? (
+                <p className={`pa-net${loss ? " pa-down" : ""}`}>
+                  <span className="pa-k">{loss ? "We lost" : net.net_cents === 0 ? "We broke even" : "We kept"}</span>
+                  <strong>{money(Math.abs(net.net_cents) / 100)}</strong>
+                  <span className="pa-sub">{loss ? "more went out than came in" : "after the costs entered"}</span>
+                </p>
+              )
+              : (
+                <p className="pa-net pa-unknown">
+                  <strong>Costs not entered for {name}</strong>
+                  <span className="pa-sub">
+                    Add this month&apos;s bills below to see whether we made money. The figure above
+                    is what arrived, not what was kept.
+                  </span>
+                </p>
+              )}
+          </>
+        )}
+
+        <div className="pa-costform">
+          <h3>Add a bill for {name}</h3>
+          <Segmented label="What the bill is for" value={kind} onChange={setKind} options={COST_KINDS} />
+          <label className="pa-fld">
+            <span className="pa-sub">Amount, in dollars</span>
+            <MoneyField value={dollars} onChange={setDollars} />
+          </label>
+          <label className="pa-fld">
+            <span className="pa-sub">Note, if any</span>
+            <input type="text" maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} />
+          </label>
+          {saveErr && <p className="pa-err">{saveErr}</p>}
+          <div className="pa-acts">
+            <button className="pa-btn pa-go" type="button" disabled={!canSave} onClick={add}>
+              {saving ? "Saving…" : "Save this bill"}
+            </button>
+          </div>
+          <p className="pa-sub pa-act">
+            To record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or
+            removed from here yet.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function TabMoney({ state, totals, rows, reload }) {
   const byTier = useMemo(() => {
     const t = {};
@@ -1658,7 +1815,9 @@ function TabMoney({ state, totals, rows, reload }) {
           )}
       </section>
 
-      <section className="pa-sec" style={{ "--i": 2 }}>
+      <PlatformNet />
+
+      <section className="pa-sec" style={{ "--i": 3 }}>
         <div className="pa-h"><h2>What we earn, by plan</h2></div>
         <div className="pa-card">
           {byTier.length === 0
@@ -1678,7 +1837,7 @@ function TabMoney({ state, totals, rows, reload }) {
         </div>
       </section>
 
-      <section className="pa-sec" style={{ "--i": 3 }}>
+      <section className="pa-sec" style={{ "--i": 4 }}>
         <div className="pa-h">
           <h2>What we charge</h2>
           <span className="pa-sub">
@@ -1763,7 +1922,7 @@ function TabMoney({ state, totals, rows, reload }) {
         </div>
       </section>
 
-      <section className="pa-sec" style={{ "--i": 4 }}>
+      <section className="pa-sec" style={{ "--i": 5 }}>
         <div className="pa-h"><h2>Promo codes</h2></div>
         <div className="pa-card">
           {(state?.promos ?? []).length === 0
@@ -1779,20 +1938,16 @@ function TabMoney({ state, totals, rows, reload }) {
         </div>
       </section>
 
-      {/* SAYING WHAT IS MISSING IS PART OF THE SCREEN. A money page that
-          silently omits costs reads as "you have no costs", which is worse
-          than an empty panel that names what it is waiting for. */}
-      <section className="pa-sec" style={{ "--i": 5 }}>
+      {/* SAYING WHAT IS MISSING IS PART OF THE SCREEN. Costs and profit left this
+          list on 2026-10-06 (9.14): they have a place to be typed now, in the
+          section above. Stripe is the one thing still waiting. */}
+      <section className="pa-sec" style={{ "--i": 6 }}>
         <div className="pa-h"><h2>Not here yet</h2></div>
         <div className="pa-card">
           <div className="pa-rows">
-            <Row k="What it costs to run · Supabase, Netlify, Resend, the domain" v="needs a place to record them" />
-            <Row k="Profit" v="needs the line above" />
             <Row k="Stripe · payouts, failed charges, disputes" v="needs Stripe connected" />
           </div>
-          <p className="pa-sub pa-act">
-            Missing, not zero — until costs exist, the figure above is revenue, not profit.
-          </p>
+          <p className="pa-sub pa-act">Missing, not zero.</p>
         </div>
       </section>
     </>

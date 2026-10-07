@@ -15303,6 +15303,67 @@ the dashboard or back office at phone width at all.
   is deliberate (a failed read must not read as “costs not entered”), so the
   screen will show an error and not a confident zero.
 
+  ***APP HALF BUILT 2026-10-06 (DP Cowork, Lane A). NOT TICKED: the done-when
+  needs a real month of real costs on screen, and the migration is not applied
+  and `platform_net` is not deployed, so what is proven is the screen against a
+  stand-in server, not the feature.*** Both remain Andrew's.
+
+  | piece | where | what it is |
+  |---|---|---|
+  | the screen | `app/src/admin/AdminPage.jsx`, `PlatformNet` | **“Did we make money?”** on the Money tab, second section, above “What we earn, by plan”. A month switch (previous / next, next disabled on the current month), revenue, costs by category, the net, and the form |
+  | the form | same | `Segmented` for the five kinds, `MoneyField` for dollars (converted to integer cents with `Math.round(dollars * 100)`), a note. Saves through `platform_cost_add`, then **re-reads `platform_net`** for the month |
+  | the styles | `app/src/admin/admin.css`, `.pa-month`, `.pa-net`, `.pa-costform`, `.pa-fld` | |
+  | the old rows | `TabMoney`, “Not here yet” | *“What it costs to run”* and *“Profit”* removed from it — they have a place now. Stripe stays |
+
+  **THE THREE STATES, AS BUILT.** A net is printed only when `costs_entered` is
+  true **and** `net_cents` and `cost_cents` are themselves integers; the check is
+  on the numbers, not only the flag, so a response that disagrees with itself
+  prints no figure. No costs → *“Costs not entered for October 2026”* and no
+  net; revenue is shown as **“Paid to us”**, labelled as what arrived. A
+  negative net reads **“We lost $71”** in the loss color; a real `$0` bill reads
+  *“We kept …”*.
+
+  **A FAILED READ SAYS SO.** The server answers 500 *“could not read platform
+  costs”* for ANY error, including the missing table, so the screen cannot
+  tell the two apart. It shows the server's sentence, **no figure**, and *“the
+  costs table may not have been set up in the database yet”*, with Try again.
+  **A one-line server change would let it say “not set up” as fact** — return a
+  distinct sentence for `42P01`/`PGRST205` on the READ the way `platform_cost_add`
+  already does on the write. That is server code and not done here.
+
+  **MONTH IS THE MONTH YOU ARE LOOKING AT.** The form has no month field of its
+  own: it saves into the month under the heading, so a bill can never land in a
+  month the screen is not showing. A bill for another month means switching
+  first.
+
+  **SPANISH: NONE, AND THIS IS THE REASON.** `/admin` is English-only by
+  `appI18n.js`'s own scope comment and only a `platform_admins` row can open it;
+  no detailer reaches it. The shared `Segmented` calls `t()`, which falls back to
+  English when there is no key.
+
+  **HOW IT WAS LOOKED AT.** Browser walk at 1440, 392 and 320 against the real
+  sign-in and the real `platform-admin` for everything EXCEPT the two new
+  actions, which the walk answered itself (the deployed function has neither).
+  **97 checks green across the three widths, then 64 again at 1440 and 392 after a last style tweak, 0 failed**: the empty month prints no net; a
+  disagreeing response (flag false with a net, flag true with a null net) prints
+  no net; a loss prints as a loss; a `$0` bill prints a net; a 500 prints the
+  failure and no figure; a save sends `amount_cents` as an integer, `category`
+  lower-case and the month under the heading; the month is re-read after a save;
+  the server's refusal sentence appears beside the form; a negative amount
+  cannot be saved; previous month asks for the previous month; no horizontal
+  scroll; every control reaches 44 (the five segments by hit test, because they
+  are 36 painted); console clean. **Broken on purpose:** the net rule
+  sabotaged to print a figure for any response; **9 checks failed at 1440**: the empty
+  month and the flag-false-with-a-net response each failed all four of their checks, and the flag-true-with-a-null-net response failed its one. Screenshots are in
+  `shots-platform-costs/` (gitignored). The walk script lives in the session
+  scratchpad, not the repo.
+
+  **STILL TO DO BEFORE THIS CAN BE TICKED, all of it Andrew's:** apply
+  `20261006020000_hand_entered_platform_costs.sql`; deploy `platform-admin`;
+  then type one real month of bills and read the figure against a calculator.
+  **No edit and no delete yet**, as the spec says — a wrong bill cannot be fixed
+  from the screen.
+
 - [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*

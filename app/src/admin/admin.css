@@ -481,6 +481,36 @@
 .pa-field input:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
 .pa-err { color: var(--bad); font-size: 12.5px; margin-top: 10px; }
 
+/* ── 9.14 · Did we make money? ──────────────────────────────────────────
+   The month switch's buttons keep the 44px floor from `.pa-btn`. The figure
+   is the loudest thing in its card on purpose: it is the one answer the card
+   exists to give, and the "costs not entered" state uses the SAME block with
+   words in the figure's place, so the absence is as visible as the number. */
+.pa-month { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.pa-month strong { font-size: 15px; }
+.pa-net { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.pa-net strong { font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 28px; line-height: 1.1; }
+.pa-net.pa-unknown strong { font-family: inherit; font-size: 17px; color: var(--bone); }
+.pa-net.pa-down strong { color: var(--bad); }
+.pa-costform { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+.pa-costform h3 { font-size: 13px; margin: 0; color: var(--bone); }
+/* `.pa-fld`, NOT `.pa-field`: that rule styles every `input` beneath it, and
+   `MoneyField` brings its own bordered box — the two stacked as a box in a box. */
+.pa-fld { display: block; }
+.pa-fld > .pa-sub { display: block; margin-bottom: 5px; }
+.pa-fld > input[type="text"] {
+  width: 100%; min-height: 44px; background: var(--ink-1); color: var(--bone);
+  border: 0; box-shadow: inset 0 0 0 1px var(--line); border-radius: var(--r-inset);
+  corner-shape: var(--corner); padding: 10px 12px; font: inherit; font-size: 14px;
+}
+.pa-fld > input[type="text"]:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
+.pa-costform .pa-acts { margin-top: 0; }
+/* Five labels in one row at 392; the shared control wraps "Other" onto a second
+   line inside its pill, so this one closes up and spreads to the full width. */
+.pa-costform .segmented { display: flex; max-width: 460px; }
+.pa-costform .segmented button { flex: 1 1 auto; padding-inline: 6px; }
+@media (max-width: 360px) { .pa-costform .segmented button { padding-inline: 3px; font-size: 12px; } }
+
 /* ═══ 4 · DEGRADATION ═════════════════════════════════════════════════════
    ONE MECHANISM, `.lite` on <html>, set by main.jsx for BOTH `?lite=1` and
    prefers-reduced-motion. **No `@media (prefers-reduced-motion)` block may
