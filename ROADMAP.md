@@ -7805,6 +7805,39 @@ requested.
   on the history query in `platform-admin`'s `detail` action. **Behind the
   same publish freeze, and not started.**
 
+  ── **NOT DONE 2026-10-06: THIS IS NOT A SESSION-DOABLE ITEM, WHICH IS WHAT
+  `docs/BATCHES.md` LISTED IT AS.** ─────────────────────────────────────────
+
+  **Checked rather than assumed, by DP Cowork2 (lane B).** The entry's state still
+  holds: no auth hook, claim or support-session marker exists under
+  `supabase/` (`grep -rniE "custom_access_token|access_token_hook|support_session|is_support"
+  supabase` finds nothing; there is no `supabase/config.toml` at all), and `platform-admin`'s `impersonate` still mints an
+  ordinary magic link for the owner's own email (`generateLink`,
+  `supabase/functions/platform-admin/index.ts:980` at `8e134c1`). Three things stop a session:
+
+  1. **There is no design to build from.** The entry states the problem (the database
+     cannot tell the two sessions apart) and the shape of a fix (a claim on the token,
+     read by policies), not how the session gets marked. **The session does not exist
+     until the owner follows the link and `verifyOtp` runs, which is after `impersonate`
+     has written its audit row**, so a marker written beforehand is keyed to the user, not
+     the session, and would also flag the owner's own sign-in in the same window. That is
+     the identity-keyed lockout the 2026-09-21 ruling above forbids. **That is my reading
+     of the order of events. I did not test what an access-token hook receives**, and it is
+     the first thing a design has to establish.
+  2. **The proof needs three things that are Andrew's.** The done-when wants a refusal
+     observed from the server with the support session's own credentials, naming the layer.
+     That needs the migration applied, `platform-admin` published and a hook switched on in
+     the project's auth settings. A session applies, publishes and changes none of those.
+  3. **Pressing it means minting an impersonation link, which is creating a credential**:
+     the standing constraint recorded above for the banner, unchanged.
+
+  **What a session could do and did not:** write the design for Andrew or the manager to
+  choose between (the marking options, and a test plan that presses both layers, the Data
+  API and the edge functions). Not written here because a design nobody can test is the
+  thing this entry warns against, and nobody has asked for one. **The entry stays open and
+  unchanged.** The orphaned-rows fix above is still the one small piece with no design
+  question in it, and it also takes effect only on a publish.
+
 - [x] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
