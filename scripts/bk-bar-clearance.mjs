@@ -1170,27 +1170,43 @@ try {
       await settle(appPage, 2000);
       const o = await OVERFLOW(appPage, SCREEN_NEEDLES);
       // `--break=covered-at-end`: a control that REALLY is under a fixed bar once the page is scrolled to its
-      // end (the last thing in the scroller, with a 60px bar over the bottom of the window). The probe must
-      // report it, or a clean run proves only that it stopped asking.
+      // end. The probe must report it, or a clean run proves only that it stopped asking.
+      // **THE BAR IS SIZED FROM WHERE THE CONTROL LANDS, NOT A FIXED 60px.** The first version used 60px and
+      // proved nothing at 1440 and 1920, 2026-10-06: there the settings list is an inner scroller whose
+      // bottom edge is 44px above the window's, so a control at its end has its CENTRE at 834 and a 60px bar
+      // starts at 840. Scrolling is done first, the control's top is read, and the bar is made to cover from
+      // there to the bottom of the window, so the same plant is covered at every width. The scroll
+      // positions are put back before the probe runs, so the probe still starts from the top.
       if (BREAK === "covered-at-end") {
-        await appPage.evaluate(() => {
-          const bar = document.createElement("div");
-          bar.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:60px;z-index:99999;background:#fff";
-          document.body.appendChild(bar);
+        await appPage.evaluate(async () => {
+          const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const scrollers = () => [document.scrollingElement || document.documentElement,
+            ...[...document.querySelectorAll("body *")].filter((e) => {
+              const cs = getComputedStyle(e);
+              return (cs.overflowY === "auto" || cs.overflowY === "scroll") && e.clientHeight > 0 && e.scrollHeight - e.clientHeight > 1;
+            })];
+          const doc = document.scrollingElement || document.documentElement;
+          const inner = scrollers().slice(1).sort((a, b) => b.scrollHeight - a.scrollHeight)[0];
           const ctl = document.createElement("button");
           ctl.textContent = "PLANTED covered control";
-          ctl.style.cssText = "display:block;margin:0;padding:0 8px;height:44px";
-          const inner = [...document.querySelectorAll("body *")].filter((e) => {
-            const cs = getComputedStyle(e);
-            return (cs.overflowY === "auto" || cs.overflowY === "scroll") && e.clientHeight > 0 && e.scrollHeight - e.clientHeight > 1;
-          }).sort((a, b) => b.scrollHeight - a.scrollHeight)[0];
-          const doc = document.scrollingElement || document.documentElement;
-          if (inner && inner.scrollHeight > doc.scrollHeight) { inner.appendChild(ctl); return; }
-          // The app's own content does not decide the document's height (the body's last child is not at
-          // the end of the scroll), so the control is placed at the document's very end by coordinate:
-          // far below the fold at the top, and in the bottom 44px of the window once scrolled to the end.
-          ctl.style.cssText = `position:absolute;left:0;top:${doc.scrollHeight - 44}px;margin:0;padding:0 8px;height:44px`;
-          document.body.appendChild(ctl);
+          if (inner && inner.scrollHeight > doc.scrollHeight) {
+            ctl.style.cssText = "display:block;margin:0;padding:0 8px;height:44px";
+            inner.appendChild(ctl);
+          } else {
+            // The app's own content does not decide the document's height (the body's last child is not at
+            // the end of the scroll), so the control is placed at the document's very end by coordinate.
+            ctl.style.cssText = `position:absolute;left:0;top:${doc.scrollHeight - 44}px;margin:0;padding:0 8px;height:44px`;
+            document.body.appendChild(ctl);
+          }
+          const sc = scrollers();
+          const was = sc.map((e) => e.scrollTop);
+          for (let pass = 0; pass < 2; pass++) { for (const e of sc) e.scrollTop = e.scrollHeight; await frame(); }
+          const top = Math.max(0, Math.floor(ctl.getBoundingClientRect().top));
+          const bar = document.createElement("div");
+          bar.style.cssText = `position:fixed;left:0;right:0;bottom:0;height:${innerHeight - top}px;z-index:99999;background:#fff`;
+          document.body.appendChild(bar);
+          sc.forEach((e, i) => { e.scrollTop = was[i]; });
+          await frame();
         });
       }
       const furn = await FURNITURE(appPage);
