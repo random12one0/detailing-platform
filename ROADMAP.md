@@ -17424,6 +17424,104 @@ the dashboard or back office at phone width at all.
   throwaway platform admin created and dropped for the probe; `platform_admins`
   verified back to its two declared rows afterwards.*
 
+- [ ] **9.19 — The fade at the bottom of every dashboard screen is 40px taller
+  than the gap left for it, so the last line of content is always under it.**
+  Found by DP Cowork during 9.4, 2026-10-07. **Filed, not fixed.**
+
+  **IN PLAIN WORDS.** The tab bar at the bottom of the app is glass, so a strip
+  of fading ground is painted behind it — otherwise the page's own words show
+  through the bar. The shell reserves a gap at the bottom of every screen so
+  content stops above that strip. **The gap is 96px and the strip is 136px**, so
+  **the last 40px of content on any dashboard screen sits inside the fade**:
+  still visible, but washed out against it. On a short screen there is nowhere
+  else for the content to go, so this is where the eye actually lands.
+
+  **THE GEOMETRY, READ OUT OF THE STYLESHEET AT THIS COMMIT** (not inferred, and
+  re-checkable in one pass):
+
+  | | where | what it says |
+  |---|---|---|
+  | the gap | `app/src/theme.css:341`, `:1122` | `--tabclear: calc(96px + var(--safe-b))`, and `.app-main`'s bottom padding IS `--tabclear` |
+  | the strip | `app/src/theme.css:1235` | `.tabscrim { height: calc(var(--tabclear) + 40px) }` — **the same variable plus forty** |
+  | the fade | `app/src/theme.css:1237` | solid `--ink-0` from the bottom up to `calc(100% - 60px)`, then fading over the top 60px |
+  | where it is | `app/src/App.jsx:610` | one `<div className="tabscrim">` in the shell, OUTSIDE `<main>` — so it is over **every** dashboard screen, not one |
+  | where it is not | `app/src/theme.css:1441` | `@media (min-width: 1024px)` sets `.tabscrim { display: none }` and drops the padding to `--sp-6`. **This is a phone-and-tablet fault only** |
+
+  With `--safe-b` at 0: content's last pixel comes to rest 96px above the
+  bottom; the strip covers 0–136px; it is solid to 76px and fades from 76 to
+  136. **96 to 136 is content, and all of it is inside the fade.** The overlap
+  is not conditional on height — a short viewport is simply where there is no
+  room to scroll past it.
+
+  **WHAT IT MEASURED, AND THESE ARE DP COWORK'S NUMBERS, NOT RE-TAKEN HERE.**
+  On the calendar legend at **320x640**: **1.92:1 in English, 1.47:1 in
+  Spanish**, against **6.97:1 for the same legend at the project's five
+  standard sizes**. The Spanish figure is the worse one because the legend
+  wraps differently and lands deeper into the fade. *Not re-measured by this
+  session on purpose: a browser sweep of the demo tenant while Lane A is
+  measuring it is the collision CLAUDE.md § Commands and `docs/gotchas.md`
+  describe, where the victim's run completes and simply comes back strange. The
+  geometry above is what this session verified, and it is enough to say the
+  overlap is real and exactly 40px.*
+
+  **AND THE STYLESHEET SAYS, IN WRITING, THAT THIS CANNOT HAPPEN.**
+  `theme.css:1147`, over the scrim: *“ONE NUMBER, `--tabclear`, SHARED WITH
+  `.app-main`'s BOTTOM PADDING. The space the page reserves and the space the
+  ground covers are the same space; two numbers is how one of them drifts.”*
+  **They are not the same space. One of them is the other plus forty**, eighty
+  lines further down in the same file. The comment is not wrong about the rule;
+  it is a comment describing an invariant that the code beside it breaks, which
+  is why every reader since has had no reason to look. That is the real cost of
+  this one, and it is why (b) of the done-when is a gate rather than a careful
+  pair of eyes.
+
+  **WHY IT MATTERS MORE THAN IT LOOKS.** 1.47:1 is not "a bit faint" — it is
+  below the 3:1 this project treats as the floor for anything large and well
+  under 4.5:1 for body text, so the bottom line of a screen is effectively
+  unreadable rather than merely dim. **And it is every screen**, because the
+  strip lives in the shell: the legend is where it was caught, not where it is.
+  It has also been invisible to every check here, which is the second half of
+  the finding and is written up as `docs/gotchas.md` 100.
+
+  **`--tabclear` IS A SHARED VARIABLE AND CHANGING IT IS NOT LOCAL.** CLAUDE.md
+  § Hard rules, *"BEFORE CHANGING A SHARED VARIABLE, FIND OUT WHETHER A PREVIOUS
+  ITEM ALREADY DECIDED NOT TO"* — `--bk-bar-clear` is the worked example and
+  this is the same shape. `--tabclear` is read by `.app-main`'s padding
+  (`:1122`), the scrim's height (`:1235`) and `scroll-padding-bottom` together
+  with `--hit-overhang` (`:1184`), and `theme.css:1147` already records that the
+  one number is deliberately shared with `.app-main`, while `:1153` records a
+  measurement that **`--tabclear` could never have fixed** a related fault.
+  **So raising `--tabclear` by 40px is the obvious move and is the one most
+  likely to be wrong**: it moves the reserved gap, the scroll padding and the
+  strip together, and `scripts/tabbar-clearance.mjs`'s own `--break=rect` is the
+  record of what a clearance sized to the wrong box leaves behind — four
+  pressable rows under the bar while the run reports itself finished. Shrinking
+  the strip instead re-opens what `:1229`–`:1234` was written to fix: words
+  faintly readable along the bar's top edge.
+
+  **Done when:** **(a)** the last 40px of content on a dashboard screen measures
+  **at least 4.5:1** against whatever is painted over it, at **320x640 in both
+  languages**, pressed on the calendar legend (where it was found) and on one
+  text-dense screen that is not the calendar; **(b)** there is a gate that can
+  SEE this — one that goes **red on the build before the fix** and green after,
+  because `scripts/tabbar-clearance.mjs` hit-tests and `pointer-events: none`
+  makes this strip invisible to it (`docs/gotchas.md` 100), and the
+  credential-free contrast gates measure token PAIRS, which cannot describe a
+  gradient composited over a label; and **(c)** if `--tabclear` itself moved,
+  every consumer named in the table above is re-measured in the same change and
+  `tabbar-clearance.mjs` is still green, with the reason it is safe now written
+  in the commit — CLAUDE.md's shared-variable rule, in full.
+
+  **What failing looks like:** a fix signed off by a hit test, which will report
+  the strip uncovered while it is painted over at 1.47:1; or `--tabclear` raised
+  on its own, which moves the bar's clearance and the scroll padding with it and
+  can leave controls resting under the bar while every other line of the run
+  reads normally.
+
+  *Filed by DP Cowork2, 2026-10-07. No `app/src` touched. The measurements are
+  DP Cowork's, taken during 9.4; the stylesheet geometry is this session's and
+  was read at the commit carrying this entry.*
+
 ## Wave 10 — Copy
 
 One pass, one list. All of it is the same defect: internal voice reaching

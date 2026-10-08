@@ -4558,3 +4558,56 @@ it (§ 94) all survive the hop to another machine. A localhost URL, a
 devtools reading, an open tab and "I looked at it" do not. **When the
 instruction says *show* somebody, ask which half of "show" your environment is
 supplying** — and here the session was supplying the whole of it.
+
+## 100. A HIT TEST ANSWERS "CAN THIS BE PRESSED", NEVER "CAN THIS BE READ", AND AN OVERLAY WITH `pointer-events: none` IS INVISIBLE TO IT BY DESIGN
+
+**Found 2026-10-07, by DP Cowork during ROADMAP 9.4, and filed as ROADMAP 9.19.**
+
+`.tabscrim` is the fading ground painted behind the app's glass tab bar. It is
+`position: fixed`, it covers the bottom 136px of the viewport, and it is
+**`pointer-events: none`** — necessarily, because a strip that swallowed presses
+across the full width would be a far worse bug than the one it exists to fix.
+
+`elementFromPoint` returns the topmost element **that can receive a pointer
+event**. An element with `pointer-events: none` is not a candidate, so the
+scrim is simply not in the answer. Hit-test the calendar legend at its own
+coordinates and the legend comes back: topmost, uncovered, legal, 46px, exactly
+as it should. **It was at the same moment painted over at 1.47:1 in Spanish and
+1.92:1 in English at 320x640** — against 6.97:1 for the same legend at the five
+standard sizes.
+
+**NEITHER READING IS WRONG. THEY ARE ANSWERS TO DIFFERENT QUESTIONS**, and the
+trap is that one of them is routinely accepted as a general statement about the
+surface. *"Nothing is covering it"* is what a hit test can say about
+pressability and nothing at all about legibility.
+
+**AND THE INSTRUMENT'S OWN SOPHISTICATION IS WHAT MAKES THIS CONVINCING.**
+`scripts/tabbar-clearance.mjs` is the most careful thing in this repo about this
+exact bar: it measures the HIT AREA rather than the bounding rect, because a
+38px `.choice` presses as 46 through a negative-inset `::after`, and it ships
+`--break=rect` as the record of that bug. **It is the check a session would
+reach for here, it is right about everything it measures, and it cannot see
+this fault at all.** A blind spot in a crude instrument gets caught. A blind
+spot in the careful one is trusted.
+
+**HOW TO TELL, AND IT IS ONE QUESTION.** `pointer-events: none` means *visible
+to the eye, absent from the hit test*. So for anything fixed or absolutely
+positioned with that property, a hit test cannot be the evidence — the evidence
+has to come from the pixels: sample what is actually painted at the label's
+coordinates, or compute the composite of the overlay over the ground. **The
+credential-free contrast gates cannot do it either: they measure token PAIRS,
+and a gradient composited over a label is not a pair.** Whether
+`contrast-insitu.mjs` reaches this strip at all is an open question — which is
+why 9.19's done-when asks for a gate shown to go RED on the build before the
+fix, rather than for one that merely passes after it.
+
+**AND THE REVERSE HOLDS, which is where it bites in the other direction:** an
+overlay that DOES take pointer events is visible to a hit test and may be
+perfectly readable through, e.g. a transparent click-catcher over a dialog. So
+the two questions are independent in both directions, and the shape of this
+entry is not "hit tests are weak" but **"a measurement that answers a question
+you did not ask reads exactly like one that answers the question you did"** —
+the same family as “A STYLESHEET REVIEW AND A SCROLL CHECK WOULD BOTH HAVE
+PASSED THIS FOREVER” and “AN ACCESSIBILITY WALKER CAN ONLY SEE THE CLICKABLE
+THINGS THAT WERE STYLED AS CLICKABLE” above — arriving this time through the
+instrument nobody doubts.
