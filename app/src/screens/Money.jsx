@@ -1074,8 +1074,15 @@ export default function Money({ onGo }) {
           instruction and the shape every other gated control on these screens
           takes. If the server ever refuses anyway, its sentence is shown as it
           wrote it — never re-worded. */}
+      {/* **peek 84, not the default 56 — measured 2026-10-08 with a real
+          1200x1800 phone photo.** A sheet opens at 56vh, which is right when the
+          content is a short form; a portrait receipt plus a destructive Remove is
+          taller than that, so the button opened below the fold on an 844 screen.
+          Capping the image alone did not fix it — 388px of image still left Remove
+          off-screen — because the limit was the SHEET's opening height, not the
+          picture. It still drags to full and still closes the same way. */}
       {viewing && (
-        <Sheet onClose={() => setViewing(null)} title={t("Receipt")}
+        <Sheet onClose={() => setViewing(null)} peek={84} title={t("Receipt")}
           subtitle={`${viewing.description} · ${money(viewing.amount)}`}>
           <img className="receipt-full" src={receiptUrls[viewing.receipt_path]}
             alt={t("Receipt")} />

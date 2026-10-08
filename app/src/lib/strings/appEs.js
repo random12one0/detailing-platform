@@ -1002,7 +1002,9 @@ export const appEs = {
   "{mode} for these {count} days": "{mode} por estos {count} días",
   "Through (inclusive)": "Hasta (inclusive)",
   "Change": "Cambiar",
-  "Set": "Poner",
+  // Andrew, live at 320: "Poner" on a settings row reads as *put* rather than
+  // *configure*. "Configurar" is what the button does.
+  "Set": "Configurar",
   "Remove": "Quitar",
   "Closed": "Cerrado",
 

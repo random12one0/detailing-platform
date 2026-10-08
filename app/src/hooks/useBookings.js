@@ -20,7 +20,11 @@ export const BOOKING_SELECT =
   // reaches the job record, the row, the day panel, the calendar and the
   // client's own history in a single line — and none of them can be the one
   // that forgot.
-  + "vehicles:booking_vehicles(position, vehicle_size_label, vehicle_model)";
+  // `vehicle_size` joined 2026-10-08: without the KEY, `sizeLabel` in the job
+  // record has nothing to translate for an extra car and falls through to an
+  // empty string whenever the detailer never renamed that size. The label is
+  // still preferred when it is there — it is their own word.
+  + "vehicles:booking_vehicles(position, vehicle_size, vehicle_size_label, vehicle_model)";
 
 // Attach business-local date/time strings so screens never re-derive them.
 export function withLocal(b, tz) {

@@ -56,7 +56,14 @@ export default function JobPage() {
   // not reasoned about.
   return (
     <div className="app-shell">
-      <main className="app-main">
+      {/* **A RECORD IS A COLUMN, NOT A PAGE WIDTH — Andrew, live at 1920.**
+          `.app-main` is `--wrap`, which is right for a list or a grid and
+          wrong for one job: the cards and the confirm button measured 1144px
+          across, so a yes/no answer ran nearly the whole screen. The desk's
+          second column renders this same component at ~420px and the sheet at
+          phone width; only this route had no cap at all. `job-page` caps the
+          COLUMN rather than changing `--wrap`, which every other screen reads. */}
+      <main className="app-main job-page">
         <button className="btn inline ghost" style={{ marginBottom: "var(--sp-3)" }}
           onClick={() => navigate("/app")}>
           <ChevronLeft strokeWidth={2} /> {t("Dashboard")}

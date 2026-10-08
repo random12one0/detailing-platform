@@ -155,6 +155,44 @@ export default function NewBookingModal({ onClose, onCreated, initialDate, initi
       .eq("business_id", business.id).eq("customer_id", c.id)
       .neq("status", "ended").limit(1);
     setPlan(data?.[0] ?? null);
+
+    // ── ROADMAP 9.7 — THE LAST VEHICLE COMES WITH THEM ────────────────────
+    // **Found live by Andrew: the client card said "Large · Ford F-150" and
+    // Book again opened on Small with the model blank, so one tap books a
+    // large truck at the small price.** The size is the one field on this form
+    // that carries a PRICE, and it was the one field defaulting.
+    //
+    // **IT GOES IN `pick()` RATHER THAN IN THE BOOK-AGAIN BRANCH, WHICH IS
+    // THIS ITEM'S OWN EARLIER RULING KEPT RATHER THAN OVERTURNED.** 9.7
+    // considered enriching Book again alone and refused it, because that would
+    // make it behave differently from a manual search for the identical
+    // customer. Both routes run this function, so both now carry the vehicle
+    // and they stay byte-identical — which is the property that ruling was
+    // protecting.
+    //
+    // **THE SAME BOOKING THE CLIENT CARD CALLS "Last"** — most recent by
+    // `start_at`, the customer's own history — so the card and the form the
+    // card opens cannot disagree, which is the whole complaint.
+    //
+    // EACH FIELD ONLY IF THE PREVIOUS BOOKING HAD ONE. A blank model must not
+    // wipe a typed one and a null travel zone must not clear a chosen zone;
+    // absent means "nothing to carry", never "set it to empty".
+    const { data: prev } = await supabase
+      .from("bookings")
+      .select("vehicle_size, vehicle_model, travel_zone")
+      .eq("business_id", business.id)
+      .eq(c.id ? "customer_id" : "customer_phone", c.id ?? c.phone)
+      .is("deleted_at", null)
+      .order("start_at", { ascending: false })
+      .limit(1);
+    const last = prev?.[0];
+    if (last) {
+      set({
+        ...(last.vehicle_size ? { vehicleSize: last.vehicle_size } : {}),
+        ...(last.vehicle_model ? { vehicleModel: last.vehicle_model } : {}),
+        ...(last.travel_zone ? { travelZone: last.travel_zone } : {}),
+      });
+    }
   };
 
   // ROADMAP 9.7 — "BOOK AGAIN," AND IT ROUTES INTO THE SAME FUNCTION A

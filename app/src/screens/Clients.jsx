@@ -851,8 +851,16 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                   either, and reaching further than it does would be a
                   second, richer version of the function rather than wiring
                   into the one that exists. */}
+              {/* ROADMAP 9.7 — **"AGAIN" IS A CLAIM ABOUT THEM, AND FOR A
+                  CLIENT WITH NO VISITS IT IS FALSE.** Andrew, live.
+                  **IT DEFAULTS TO "Book again" WHILE `history` IS STILL NULL**,
+                  which is this item's own unknown-vs-empty rule: a returning
+                  client must never flash "Book" before their visits arrive.
+                  The rarer direction — a brand-new client reading "Book again"
+                  for a moment — is the cheaper of the two wrongs. */}
               <button className="btn" onClick={() => setBooking(open)}>
-                <CalendarPlus size={18} strokeWidth={2} /> {t("Book again")}
+                <CalendarPlus size={18} strokeWidth={2} />{" "}
+                {history == null || history.length ? t("Book again") : t("Book")}
               </button>
               {/* ROADMAP 2.20 — THE ONE PLACE A REJECTED SEND BECOMES VISIBLE.
                   Until this line the provider refusing an address was a

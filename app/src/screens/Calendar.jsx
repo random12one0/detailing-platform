@@ -645,8 +645,14 @@ export default function Calendar({ refreshKey = 0 }) {
       return (
         <div className={`split calday${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
           <div className="group col-1">{month}</div>
+          {/* ROADMAP — the day panel is a `.col-2` and NOT a `.record`, so it
+              never got `.record`'s `--sp-4` of padding: at 1920 its heading sat
+              flush against the panel's own outline on the left with 173px of
+              air on the right. Andrew, live. `calday-panel` carries the inset
+              rather than `.record`, because this panel is not a record and
+              should not inherit a record's border and background with it. */}
           {day && !selected && (
-          <div className={`col-2${dayLeaving ? " leaving" : ""}`}>{daypanel}</div>
+          <div className={`col-2 calday-panel${dayLeaving ? " leaving" : ""}`}>{daypanel}</div>
         )}
           {record}
           {newBooking}

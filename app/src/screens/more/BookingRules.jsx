@@ -95,8 +95,31 @@ const ruleSentence = (r) => {
       ? t("{amount} when booked within the hour", { amount: amt })
       : t("{amount} when booked within {hours} hours", { amount: amt, hours: r.within_hours });
   }
+  // **"+$30 los dom, sáb" — Andrew, live.** Two faults in one short line:
+  // abbreviated day names in a sentence a person reads, and a comma where a
+  // language wants a conjunction. It now reads "+$30 los sábados y domingos".
+  //
+  // **LONG NAMES, PLURALISED BY A RULE RATHER THAN A TABLE.** English adds an
+  // "s" (Saturday → Saturdays); Spanish adds one only where the name does not
+  // already end in one (sábado → sábados, domingo → domingos, while lunes,
+  // martes, miércoles, jueves and viernes are invariant). The same one-line
+  // test — already ends in "s"? — is correct in both, so this needs no new
+  // catalogue entries and cannot drift out of step with them.
+  //
+  // **`Intl.ListFormat` DOES THE JOINING**, so the conjunction is the
+  // language's own ("y", "and") rather than a word glued in by this file.
+  //
+  // **SORTED MONDAY-FIRST, which is the one judgement here.** The array arrives
+  // in whatever order it was saved and index order puts Sunday first, so a
+  // weekend rule read "domingos y sábados". A weekend is named Saturday-first
+  // in both languages; the calendar grid stays Sunday-first because that is a
+  // grid and this is a sentence.
+  const plural = (n) => (/s$/i.test(n) ? n : `${n}s`);
   const days = Array.isArray(r.weekdays) && r.weekdays.length
-    ? r.weekdays.map((d) => DAY_NAMES()[d]).join(", ")
+    ? new Intl.ListFormat(appIntlLocale(), { style: "long", type: "conjunction" })
+      .format([...r.weekdays]
+        .sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7))
+        .map((d) => plural(dayName(d, "long"))))
     : t("every day");
   return r.start_time && r.end_time
     ? t("{amount} on {days}, {from}–{to}",

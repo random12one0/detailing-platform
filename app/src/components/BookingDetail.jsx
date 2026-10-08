@@ -728,11 +728,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 {CONDITION_LABELS[booking.vehicle_condition]
                   ? ` · ${t(CONDITION_LABELS[booking.vehicle_condition])}` : ""}
               </p>
+              {/* **`sizeLabel(v)`, NOT `v.vehicle_size_label` — Andrew, live, on a
+                  Spanish job record: "Chico · Ford F-150" on the first line and
+                  "Medium · Subaru Forester" and a bare "Small" under it.** The
+                  first vehicle goes through `sizeLabel`, which translates one of
+                  the three known keys and leaves a detailer's own renamed label
+                  alone; these printed the stored column raw, so every extra car
+                  on a Spanish screen was in English — and a row whose label was
+                  never set printed nothing at all. One function, both places.
+                  `vehicle_size` joins `BOOKING_SELECT` in the same edit, because
+                  `sizeLabel` has nothing to translate without it. */}
               {[...(booking.vehicles ?? [])]
                 .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
                 .map((v) => (
                   <p className="muted" key={v.position}>
-                    {v.vehicle_size_label}
+                    {sizeLabel(v)}
                     {v.vehicle_model ? ` · ${v.vehicle_model}` : ""}
                   </p>
                 ))}
@@ -857,13 +867,29 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   <p className="quiet" style={{ margin: "0 0 10px" }}>
                     {t("Unpaid and Part paid put the job back on your chase list. Paid takes it off and counts the money as collected. Waived takes it off as well, and the job still shows in what the customer owes. The job stays finished and its charges are not touched.")}
                   </p>
-                  <Segmented
-                    value={payWant}
-                    onChange={setPayPick}
-                    disabled={busy}
-                    label={t("Correct how it was paid")}
-                    options={PAY_CHOICES}
-                  />
+                  {/* **TWO THINGS LOOKED SELECTED AND THEY SAID DIFFERENT
+                      STATES — Andrew, live at 1440.** The pill at the top of
+                      the record is the STORED payment, drawn in the accent on
+                      an accent-tinted ground; the segment is the PICK, drawn
+                      lit white on `--surface-lit`. Choose Waived on a job that
+                      is Paid and the screen carries two confident, contradictory
+                      answers, each looking like the state.
+                      **The pill is the truth and keeps its weight. The pick is
+                      a PROPOSAL until it is pressed, so while the two differ it
+                      is drawn as a ring instead of a fill** — present, obviously
+                      chosen, and visibly not yet a fact. The moment it matches
+                      the stored state again the class drops and the ordinary
+                      segmented look returns, so nothing about the shared control
+                      changes anywhere else in the product. */}
+                  <div className={payWant !== booking.payment_status ? "pay-pending" : undefined}>
+                    <Segmented
+                      value={payWant}
+                      onChange={setPayPick}
+                      disabled={busy}
+                      label={t("Correct how it was paid")}
+                      options={PAY_CHOICES}
+                    />
+                  </div>
                   {payWant !== booking.payment_status && (
                     <div style={{ marginTop: "var(--sp-2)" }}>
                       <ConfirmTap

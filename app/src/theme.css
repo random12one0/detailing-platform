@@ -4530,10 +4530,56 @@ button.warn-box:hover { border-color: var(--fog-2); }
    receipt is tall and narrow, and a full-width one would push its own total
    off the bottom of a phone. */
 .receipt-full {
-  display: block; width: 100%; max-height: 62vh; object-fit: contain;
+  /* **46vh, NOT 62 — measured 2026-10-08 with a real 1200x1800 phone photo.**
+     At 62vh a portrait receipt rendered 523px tall on an 844 screen and pushed
+     Remove off the bottom of the sheet, which is the same fault the receipt
+     FAILURE message had two rounds ago: the thing and the way out of it have to
+     be on screen together. A landscape one never hit the cap at all. */
+  display: block; width: 100%; max-height: 46vh; object-fit: contain;
   border-radius: var(--r-inset); corner-shape: var(--corner);
   background: var(--surface-sunken); margin-bottom: var(--sp-4);
 }
+
+/* **A PICK THAT IS NOT YET A FACT — the payment correction, 2026-10-08.**
+   See `BookingDetail.jsx`: the status pill and the chosen segment both read as
+   "selected" while saying different states. A ring says chosen; a fill says
+   settled, and only the stored state is settled. Scoped to the one wrapper, so
+   every other segmented control in the product is untouched. */
+.pay-pending .segmented button.on {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+/* **THE CALENDAR'S DAY PANEL IS A COLUMN, NOT A RECORD — 2026-10-08.** It uses
+   `.col-2` without `.record`, so it had none of the `--sp-4` inset a record
+   gets and its content sat on the panel's own edge at 1920. The padding only;
+   a record's border and background would make it look like something it is
+   not. */
+.calday-panel { padding: var(--sp-4); }
+
+/* **A LABEL MUST NOT SIT ON THE BLOCK ABOVE IT — Andrew, live in New booking.**
+   Measured at 1920: "Customer name" 0px under the green plan notice, and
+   "Send their emails in" and "Make and model" both 0px under the `.grid2`
+   above them. `.field` has no top margin of its own because it is usually
+   inside a `.fields` stack with a gap; these three follow a sibling that is
+   not in that stack, so nothing separated them. Adjacency rather than a blanket
+   margin, so a field already spaced by its own container does not gain a second
+   gap. */
+.ok-box + .field,
+.error-box + .field,
+.warn-box + .field,
+.grid2 + .field,
+.segmented + .field,
+.choices + .field { margin-top: var(--sp-4); }
+
+/* **THE STANDALONE JOB PAGE IS CAPPED — 2026-10-08.** `--wrap` is 1180 and
+   that is correct for the screens that read it; a single record is a reading
+   column and 1144px of confirm button is not a question, it is a banner. 560
+   is the measure the same record already gets in the desk's two-column layout,
+   so the three containers now agree rather than one of them being the width of
+   the page it happens to sit on. `--wrap` is untouched. */
+.app-main.job-page { max-width: 560px; }
 
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }
