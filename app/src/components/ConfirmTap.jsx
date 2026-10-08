@@ -60,7 +60,7 @@ export function jobPhrase({ name, service, time }) {
 }
 
 export default function ConfirmTap({
-  label, question, confirmLabel, onConfirm,
+  label, question, confirmLabel, cancelLabel, onConfirm,
   className = "btn", confirmClassName = "btn primary", icon = null, disabled = false, style,
 }) {
   useAppLocale();
@@ -96,12 +96,16 @@ export default function ConfirmTap({
             {confirmLabel}
           </button>
           {/* "Not yet" rather than "Cancel": on this screen Cancel is a word
-              that already means calling off the job. */}
+              that already means calling off the job.
+              **AND A CALLER MAY KEEP ITS OWN WORDS.** The platform admin screen is
+              English-only by construction — zero `t()` calls, no strings import — so a
+              translated "Not yet" appearing there the moment somebody put the dashboard
+              into Spanish would be the one Spanish word on Andrew's back office. */}
           {/* AND BACK AGAIN ON "Not yet" — the button it returns to is the one that
               asked, so the keyboard is where it started and not at the top of the page. */}
           <button className="btn ghost" disabled={disabled}
             onClick={() => { setAsking(false); requestAnimationFrame(() => opener.current?.focus()); }}>
-            {t("Not yet")}
+            {cancelLabel ?? t("Not yet")}
           </button>
         </div>
       </div>

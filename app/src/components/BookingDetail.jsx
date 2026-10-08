@@ -920,7 +920,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   the only thing on this block that reads like an action. */}
               <summary>{t("Removing it from your records")}</summary>
               <p className="quiet" style={{ margin: "0 0 10px" }}>
-                {t("Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.")}
+                {t("Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. You cannot undo it yourself, but support can bring the job back.")}
               </p>
               {/* The fold says what removing does; this names WHICH record, in
                   place of the browser's own unnamed confirm box. */}

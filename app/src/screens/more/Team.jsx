@@ -23,6 +23,7 @@ import { Copy, X } from "lucide-react";
 import { Segmented, Setting, Switch } from "../../components/controls.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
+import ConfirmTap from "../../components/ConfirmTap.jsx";
 import { PERMISSIONS, permissionSummary, roleName } from "../../lib/permissions.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
@@ -272,10 +273,23 @@ export default function Team() {
             onToggle={toggleForm} />
         </div>
       )}
-      <button className="btn primary" style={{ marginTop: 10 }}
-        disabled={busy || !form.email.trim()} onClick={invite}>
-        {busy ? t("Sending") : t("Send invite")}
-      </button>
+      {/* ROADMAP 4.1 — AN INVITE IS A CONSEQUENTIAL WRITE AND IT DID NOT ASK. One press
+          created the account's way in and emailed it. The form shows the address, which is
+          why the fresh-eyes review left this as a question rather than a finding; the ruling
+          (2026-10-07) is that it is swept like the rest. **OWNER AND STAFF GET DIFFERENT
+          SENTENCES**, because they are different sizes of decision: an owner can do
+          everything the person asking can do, permanently, including removing them. */}
+      <ConfirmTap
+        className="btn primary"
+        style={{ marginTop: 10 }}
+        disabled={busy || !form.email.trim()}
+        label={busy ? t("Sending") : t("Send invite")}
+        question={form.role === "owner"
+          ? t("Invite {email} as an owner? An owner can do everything you can, permanently.", { email: form.email.trim() })
+          : t("Send an invite to {email}?", { email: form.email.trim() })}
+        confirmLabel={t("Yes, send it")}
+        onConfirm={invite}
+      />
 
       {lastLink && (
         <div className="card row between" style={{ marginTop: 12 }}>

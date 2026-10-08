@@ -1238,6 +1238,11 @@ export const appEs = {
   "Send a quote": "Mandar cotización",
   "Send a new quote": "Mandar una cotización nueva",
   "Yes, send it": "Sí, mándala",
+  // ROADMAP 4.1 — the step before an invite. Two sentences, because an owner is a bigger
+  // decision than a staff member and the screen should not pretend otherwise.
+  "Send an invite to {email}?": "¿Mandar una invitación a {email}?",
+  "Invite {email} as an owner? An owner can do everything you can, permanently.":
+    "¿Invitar a {email} como dueño? Un dueño puede hacer todo lo que tú haces, para siempre.",
   "Accepted. They've been emailed.": "Aceptada. Ya se les mandó correo.",
   "Declined. They've been emailed.": "Rechazada. Ya se les mandó correo.",
   "Reminder sent to customer.": "Recordatorio enviado al cliente.",
@@ -1459,8 +1464,11 @@ export const appEs = {
   "Saved {name} — {count} people": "Guardado {name} — {count} personas",
   "We could not build that file. Please try again.": "No pudimos crear ese archivo. Inténtalo de nuevo.",
   "Cancel the job": "Cancelar el trabajo",
-  "Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. It cannot be undone.":
-    "Cancelar libera el horario y deja el trabajo en tu historial. Eliminar lo saca de tus registros y de tus totales también. No se puede deshacer.",
+  // **"It cannot be undone" WAS NOT TRUE AND THE SCREEN KNEW BETTER THAN THE SENTENCE** — the
+  // server does a SOFT delete, so the job is hidden rather than destroyed. Andrew's manager,
+  // 2026-10-07: say plainly that support can bring it back, and do not build a restore screen.
+  "Canceling frees the slot and keeps the job in your history. Removing takes it out of your records and your totals as well. You cannot undo it yourself, but support can bring the job back.":
+    "Cancelar libera el horario y deja el trabajo en tu historial. Eliminar lo saca de tus registros y de tus totales también. Tú no lo puedes deshacer, pero soporte puede recuperar el trabajo.",
   "Canceling": "Cancelando",
   "Card details": "Datos de la tarjeta",
   "Card payments": "Pagos con tarjeta",
@@ -2353,10 +2361,16 @@ export const appEs = {
     "Esta dirección no menciona la zona de viaje que eligieron. Vale la pena revisarlo antes de salir.",
   // ROADMAP 4.1 — the question a consequential tap asks before it acts, and
   // the way back afterwards. Both screens that can complete a job share them.
+  // **THESE TWO CARRIED THE SAME FAULT THE PHRASE BELOW WAS FIXED FOR, PLUS ONE MORE.**
+  // They read "¿Marcar como terminado el {service} de {name} de las {time}?": the article is
+  // wrong for a feminine service ("el Limpieza de motor"), "de las" is wrong at one o'clock,
+  // and **"terminado" AGREES TOO**, so a feminine service also wanted "terminada". None of the
+  // three can be decided from here. The adjective now agrees with "el trabajo", which is OUR
+  // noun and always masculine, and the service is named after it with no article in front.
   "Mark {name}’s {service} at {time} as done?":
-    "¿Marcar como terminado el {service} de {name} de las {time}?",
+    "¿Marcar como terminado el trabajo de {name}, {service}, {time}?",
   "Mark {name}’s job at {time} as done?":
-    "¿Marcar como terminado el trabajo de {name} de las {time}?",
+    "¿Marcar como terminado el trabajo de {name}, {time}?",
   "Yes, it’s done": "Sí, ya está",
   // NO "Not yet" ENTRY HERE — the catalogue already had one and a second copy
   // is a duplicate key, which `tests/spanish` § 9f fails on. Caught by running

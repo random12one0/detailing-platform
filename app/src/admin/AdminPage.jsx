@@ -48,6 +48,7 @@
 import { ChevronLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MoneyField, Segmented } from "../components/controls.jsx";
+import ConfirmTap from "../components/ConfirmTap.jsx";
 // THE ONE MAPPING FROM A STORED STATE TO THE WORD A PERSON READS — the detailer's
 // client and job records draw from this same table, so the back office cannot
 // disagree with them about whether an email bounced (ROADMAP 3.1).
@@ -1269,8 +1270,18 @@ function Business({ row, detail, onClose, reload }) {
             {row.status === "paused"
               ? <button className="pa-btn" type="button" disabled={busy === "restore"}
                         onClick={() => act({ action: "restore" }, `Let ${row.name} back in?`)}>Restore</button>
-              : <button className="pa-btn pa-danger" type="button" disabled={busy === "suspend"}
-                        onClick={() => act({ action: "suspend" }, `Suspend ${row.name}? Their booking page stops taking bookings.`)}>Suspend</button>}
+              : /* ROADMAP 4.1 — SUSPEND ASKS IN PLACE. It did ask, through `window.confirm`:
+                   the browser's own box, which is what the job record's Remove was moved off
+                   in the first sweep. It takes focus nowhere a keyboard user can see, it
+                   cannot be styled, and on this screen it was the only thing standing between
+                   a stray press and a detailer's booking page going dark. The sentence is the
+                   one that was already there, word for word. `cancelLabel` is passed because
+                   this screen is English-only by construction. */
+                <ConfirmTap className="pa-btn pa-danger" confirmClassName="pa-btn pa-danger"
+                            disabled={busy === "suspend"} label="Suspend"
+                            question={`Suspend ${row.name}? Their booking page stops taking bookings.`}
+                            confirmLabel="Yes, suspend them" cancelLabel="Not yet"
+                            onConfirm={() => act({ action: "suspend" })} />}
             {/* A NEW TAB, AND THIS ONE STAYS SIGNED IN AS YOU. It used to
                 replace your session with the detailer's, warn you about it,
                 and leave you at their dashboard with no way back. The owner,

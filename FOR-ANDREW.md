@@ -149,9 +149,13 @@ the program works without the table and says so in its answer, it just does not 
    (Part 2, step 3): published first, the program still works, logs the failure and answers `audit_recorded: false` on
    every change until the table exists. It holds the one field that changed and nothing about the customer.
 2. **`20261006062000_send_invoice_attempts.sql`**: the memory behind "press Send invoice twice, get one invoice" (ROADMAP 6.4).
-   `send-invoice` already works without it (it answers `idempotent: false` and sends as before). **Nothing changes for a
-   detailer until the website also sends the key**, which is a screen change DP Cowork is wiring, so there is no hurry
-   and no order.
+   **The website's half is now done** (2026-10-07): the receipt button gives every send a ticket, keeps the same ticket if it
+   has to try again, and takes a fresh one once a send has gone through, so the server can tell "that did not go, send it
+   again" from "send them another copy". **There is nothing for you to do about that half.**
+   **Two things of yours are left, and the protection starts only when BOTH are done:** apply this table, and publish
+   `send-invoice` (Part 2). Either order is safe — the program works without the table and says so in its answer.
+   **Until both are done, nothing is worse than today and nothing is better:** a detailer who presses the receipt button
+   twice in a bad signal still sends their customer two invoices, which is what happens now.
 
 `node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_send_invoice_attempts.sql`
 then `node scripts/migration-drift.mjs`, which should stop naming both.
