@@ -53,7 +53,46 @@
   font-size: 14px;
   line-height: 1.45;
   --pa-gut: clamp(16px, 3.2vw, 34px);
+}
+
+/* ── ROADMAP 9.11e — THE TOP SCROLL RESERVE, AND WHY IT IS DECLARED HERE ──
+   **There was no `scroll-padding-top` anywhere in this product.** Measured at
+   `715c095`: `grep -rn "scroll-padding" app/src --include=*.css` returned four
+   lines and every declaration was `scroll-padding-BOTTOM`. So a control focused
+   in the back office was scrolled to the top of the scrollport and came to rest
+   under a fixed bar 98–106px tall, with nothing reserved — **10 of 20 surfaces
+   failing `reachable` at every width**, attributed by `elementFromPoint` to
+   `.pa-top` and, at 320 and 392, three more rows to the `.pa-load` strip.
+
+   **A PADDING IS NOT A SCROLL RESERVE, which is the whole of this fix and the
+   reason the obvious one is wrong.** `.pa-body` already carries 130px of top
+   padding and the controls still landed at y 0: padding decides where content
+   STARTS, `scroll-padding-top` decides where the browser STOPS. The entry says
+   so and it is restated here because the next person to read `.pa-body` will
+   see a big number and assume it was already handled.
+
+   **WHY `html:has(.pa)` AND NOT `:root`.** `.pa` is not a scrollport — it
+   declares no `overflow` — so the DOCUMENT scrolls and the reserve has to be on
+   the root element. But this file's standing law is that `admin.css` shares NO
+   RULE with `theme.css`, only its tokens (roadmap 4.4, and `AdminPage.jsx`
+   re-states it where it refuses to borrow `PasswordInput`). A bare `:root` here
+   would write to the selector the dashboard's own stylesheet owns and would
+   leak a back-office number into every screen. `:has(.pa)` cannot match on a
+   page that does not render the back office, so the rule is unreachable
+   anywhere else — the opposite of coupling.
+
+   **AND `--pa-top` MOVES UP WITH IT RATHER THAN BEING COPIED.** It used to be
+   declared on `.pa`, and a `var(--pa-top)` on `html` CANNOT SEE a property
+   declared on a descendant — it takes its fallback forever, which is exactly
+   the silent fault `scripts/var-scope-guard.mjs` exists to catch: valid CSS,
+   identical rendering, every browser check green, two numbers quietly drifting
+   apart. Declared here, `.pa-body` inherits the same value it always read, and
+   the reserve and the padding are one number rather than two.
+   `calc(var(--pa-top) + 14px)` is `.pa-body`'s own expression, character for
+   character, for that reason. */
+html:has(.pa) {
   --pa-top: 116px;
+  scroll-padding-top: calc(var(--pa-top) + 14px);
 }
 
 /* THE BAR IS THE ONE THING THAT NEVER MOVES. The old header was clipped at
@@ -105,7 +144,11 @@
    check — every geometry rule this repo owns asks about an EDGE, and a bar
    growing downward is inside every edge it should be inside. */
 @media (max-width: 620px) {
-  .pa { --pa-top: 100px; }
+  /* ROADMAP 9.11e — the override follows the declaration up to the root rule,
+     for the reason given there: a value declared on `.pa` is invisible to the
+     `scroll-padding-top` that has to sit on `html`. The bar is shorter here, so
+     the reserve is too, and both still come from this one number. */
+  html:has(.pa) { --pa-top: 100px; }
   .pa-who { display: none; }
   .pa-top-in { min-height: 52px; }
   .pa-tab { padding: 10px 12px 12px; font-size: 12.5px; }
