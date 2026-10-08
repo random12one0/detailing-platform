@@ -10353,6 +10353,44 @@ requested.
   (`JobPage.jsx:76`), which fixes both blocks at once and removes the need for
   6.4's effect. **The first is smaller; the second is the root cause.**
 
+  ***FIXED 2026-10-08 (DP Cowork, Lane A), `96d7eb6`. The first form, plus the
+  correction the second form was really pointing at.*** `payPick` now resets on
+  `booking.id` beside `sendKey`'s identical line, so correctness lives in the
+  component that needs it rather than in another file's animation key. And
+  `RecordHost.jsx`'s assertion that *"two different jobs cannot collide"* is
+  **struck and corrected in place**: the key is `customer_name` plus
+  `"<date> · <start> – <end>"`, so two bookings for one customer in one slot
+  share it. The note now says what the key is for — the swap animation — and
+  that nothing may lean on it for correctness, because both pieces of
+  per-booking state in `BookingDetail.jsx` reset themselves.
+
+  **REPRODUCED BEFORE IT WAS FIXED, AND THE FIRST ATTEMPT TO REPRODUCE IT WAS
+  WRONG IN THE MOST ORDINARY WAY.** `page.goto` is a full document load, so the
+  component remounted and the walk reported **0 answer buttons with the fix
+  REMOVED** — a sabotage that proved nothing, and it would have been written up
+  as "could not reproduce" by anybody who stopped there. React Router keeps the
+  element mounted only across a CLIENT-SIDE transition, so the history is driven
+  in the page and real `history.back()` / `history.forward()` fire popstate,
+  which is what a thumb on the browser's own arrows does.
+
+  | on `/job/:id`, pick **Waived** on job A, then Back and Forward onto job B | answer buttons live on B |
+  |---|---|
+  | reset removed | **1** — segment marked *Waived* / *Perdonado* while B's pill reads *Paid* / *Pagado* |
+  | reset in place | **0** — segment marked *Paid* / *Pagado*, matching the pill |
+
+  Both at 1440 English and 392 Spanish, console clean, and **both bookings read
+  back unchanged**: the proof is that there is nothing left to press, so nothing
+  was ever written. Frames in `.manager-shots/4.7-fix/`.
+
+  **AND THE CHECK THAT WAS MISSING WHILE SEVEN WENT GREEN NOW EXISTS.**
+  `tests/payment-correction.test.mjs` gains **3a** and the
+  `PAYMENT_BREAK=no-reset` sabotage: **8 pass clean, and all seven sabotages go
+  red on exactly the check aimed at them.** Every earlier question was about the
+  block's SHAPE — is it there, does it send one field, does it refuse a no-op —
+  and none of them could see state surviving a booking change, because none of
+  them knew there was a second booking. It also pins `RecordHost`'s corrected
+  sentence, so the old assumption cannot be re-derived from the old words.
+
   **WHAT THE EXISTING CHECK SAYS ABOUT THIS: nothing, and it is green.**
   `node --test tests/payment-correction.test.mjs` → **7 passed, 0 failed**, and
   the seven are the block's presence, the one-field write, the `finalized_at`
@@ -11499,6 +11537,34 @@ going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one
   `FOR-ANDREW.md` Part 1b explicitly permits in either direction — every send is unprotected, the server says so in every answer, and nothing in the
   product can tell.** The same discard means a `duplicate` answer whose `thank_you_sent` is false still prints *"Receipt + thank-you sent."*
 
+  ***FINDINGS 1 AND 3 FIXED 2026-10-08 (DP Cowork, Lane A), `96d7eb6`; FINDING 2 ANSWERED AND LEFT ALONE, WITH THE REASON.***
+
+  **1 · THE TOKEN IS GONE.** An exhausted 409 now throws a plain sentence — *"That receipt is still sending. Give it a
+  minute and check again."* — written as a **literal inside `t()` rather than a constant**, because
+  `tests/spanish.test.mjs` reads the first argument of each `t()` call and a sentence held in a variable is invisible
+  to every extractor here. Translated at the throw rather than inside `act`, whose bare `setError(e.message)`
+  deliberately shows server sentences as written; wrapping that would re-word every one of them. Spanish key in the
+  same edit. **The key is deliberately NOT cleared on this path** — the intent really is still in flight, so the next
+  press must carry the same key rather than mint a fresh one and send a second invoice.
+  **Pressed with the server's own answer served by interception** (`409 {"error":"in_progress"}`, every attempt
+  refused before it left the browser, so no invoice could go out): at 1440 English and 392 and 320 Spanish,
+  **4 requests refused each time** — one press plus the three retries, exactly as designed — the sentence on screen
+  with `role="alert"` in the right language, and **`in_progress` nowhere**. Frames in `.manager-shots/6.4-fix/`.
+
+  **2 · `idempotent: false` IS STILL NOT SURFACED, AND THAT IS A DECISION RATHER THAN UNFINISHED WORK.** The brief was
+  to show it *only if there is a plain, honest way to say it*. There is not, and the reason is what it would have to
+  say: the field means **this send was not deduplicated, because the protection table is not applied yet**. That is a
+  fact about the server's configuration, it arrives attached to a send that **succeeded**, and there is nothing a
+  detailer can do with it — they cannot apply a migration. The only honest sentence is some form of *"it sent, but if
+  you press again you may send two"*, which turns a successful send into a warning about something the reader cannot
+  fix, on every send, for as long as the publish and the apply are out of step — an order `FOR-ANDREW.md` Part 1b
+  explicitly permits. **Clause 4 already rules it success.** So the limitation stands exactly as the cold read wrote
+  it, and **the reader who needs that fact is Andrew, where `FOR-ANDREW.md` already has it.**
+  **One thing inside finding 2 IS a lie to a detailer rather than a silence, and it is left for its own item:** a
+  `duplicate` answer whose `thank_you_sent` is false still prints *"Receipt + thank-you sent."* That is the screen
+  claiming something that did not happen — a different kind of fault from an unreadable field — and fixing it means
+  `act` returning its answer to four call sites. Not folded in here.
+
   **3 · THE `[booking.id]` EFFECT'S STATED PREMISE IS FALSE WHERE IT IS USUALLY READ, AND TRUE WHERE IT MATTERS.** `BookingDetail.jsx:334`–`:339` says the
   ref must be cleared *"because the record is reused in place on Today, Calendar, Money and Clients — `booking` changes under the same component"*. **On
   those four screens it does not:** `RecordHost.jsx:115` wraps the body in a `<div className="record-body swap">` **keyed on `title|subtitle`**, so
@@ -11506,6 +11572,9 @@ going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one
   `JobPage.jsx:76`, bare, under the `/job/:id` route (`main.jsx:150`), where only the param changes. **So the effect is load-bearing, on the one screen
   its comment does not name**, and the comment should say that rather than the opposite. *(It is also the screen where ROADMAP 4.7's missing equivalent
   for `payPick` is a live mis-tap — written up under 4.7.)*
+  **Corrected in `96d7eb6`:** the comment now names `JobPage.jsx` as the screen the line saves and says why
+  the other four do not need it — *a guard whose comment points at the wrong screen is a guard somebody
+  deletes while checking the screens it names.*
 
   **WHAT WAS CHECKED AND HELD:** `err.status` and `err.body` really do travel (`core.js:63` and `:69`), so the 409 branch is live code and not a dead
   condition; the field name, the 409 shape and `duplicate: true` match the function exactly (`send-invoice/index.ts:94`–`:98`); `api.sendInvoice` omits

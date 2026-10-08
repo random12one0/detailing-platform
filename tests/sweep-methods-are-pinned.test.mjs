@@ -224,7 +224,11 @@ const DECLARED = {
   // ROADMAP 9.19 at `5396f86` — the tab scrim being 40px taller than the reserve,
   // handed up by this lane earlier the same evening. Recorded as theirs rather
   // than absorbed, the way the fragments ledger above splits its legs.
-  numberedOpenItems: 48,
+  // 48 -> 49, 2026-10-08, and it is NOT this edit's: the other session filed
+  // ROADMAP 9.20 at `37471cf` — a receipt can be attached and never seen again,
+  // which this lane handed up while pressing 0.11 slice 5. Theirs, recorded as
+  // theirs.
+  numberedOpenItems: 49,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -373,7 +377,12 @@ const DECLARED = {
   // measurement and its commit. The criteria figure holds at 34: 0.11 and 2.15a were
   // both already in the population. Both ends measured against
   // `git show b109170:ROADMAP.md` (316) and this tree (319).
-  quoteFragments: 319,
+  //
+  // 319 -> 323, 2026-10-08, +4, and all four are this lane's: the 4.7 and 6.4
+  // write-ups for the two money bugs the OTHER lane found by reading them cold.
+  // `quoteCriteria` holds at 34 — both items were already in the population.
+  // Measured against `git show 96d7eb6:ROADMAP.md` (319) and this tree (323).
+  quoteFragments: 323,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
