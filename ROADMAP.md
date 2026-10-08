@@ -5437,7 +5437,7 @@ the wrong service, and never book a job we cannot reach.
   size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
   LAYOUT viewport alone, which is why `resize_window` cannot stand in.
 
-- [ ] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
+- [x] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for
   it. That was `plans.name`, and `plans.name` is the ONLY tenant string in this
@@ -5969,6 +5969,49 @@ the wrong service, and never book a job we cannot reach.
   are not failures today**; whether a row under the header at the top of a
   scrolled screen is a defect is a question for a person, and this is the first
   run that has stated the number out loud.
+
+  ***TICKED 2026-10-08 (DP Cowork2), on the manager's instruction, against the
+  amended Done-when and a run that is on disk.*** `receipts/bk-bar-clearance.json`
+  at commit `96d7eb6`, committed in `868d23f`: **137 of 137 targets, 953
+  assertions, 3 failures — all three the declared 320 day-cell hold, by name —
+  `unexpected_failures: []`, `gate: HELD`, canaries caught/caught.** That is the
+  amendment's own sentence: every question green on every step except the declared
+  exception, which stayed red and stayed named rather than being allowlisted into
+  silence.
+
+  **AND THE ONE THING THIS ENTRY CALLED OPEN IS GONE.** It recorded *"1 escaping
+  by 5px"* on the business name at 1440 and 1920, measured and never eyeballed.
+  **The same run reports `0 escaping their box` at all five widths on both
+  screens and all four emails** — twelve of twelve lines at 1440 and 1920. So the
+  thing a person was going to have to look at is no longer there to look at.
+
+  **THE UI HALF IS COMPLETE, AND THE TWO BOXES THIS ITEM FOUND LAST ARE CAPPED.**
+  `CreateBusiness.jsx:151` and `AdminPage.jsx:990` both carry `maxLength={60}`
+  (Lane A, 2026-10-08), so all **seven** boxes that write one of the five names
+  now cap at the same 60 — the five this entry started with plus the signup form
+  and the back office's own create form.
+  **A FALSE NEGATIVE OF MINE WAS IN THE WAY AND IS FIXED IN THE SAME EDIT:**
+  `tests/name-length.test.mjs` read forward from `value={…}` to the next `>`, and
+  `AdminPage.jsx` writes `maxLength` **before** `value`, so it printed
+  *"NOT CAPPED"* over a capped box — a check reading one spelling instead of the
+  element, which is this repo's oldest shape of error. It reads the whole `<input>`
+  now; 11 passed, 0 failed, and no `NOT CAPPED` line.
+
+  **WHAT THE TICK DOES NOT CLAIM, SAID HERE SO NOBODY READS IT INTO THE BOX:**
+  * **The database limits are NOT live.**
+    `20261007010000_tenant_string_lengths.sql` is written, proved on PGlite
+    (`tests/tenant-string-lengths-sql.test.mjs`, 9 pass, four sabotages) and **not
+    applied** — it is **step 7 of `FOR-ANDREW.md`'s one ordered list**, after the
+    publishes, and applying it is Andrew's. The box is ticked on the house style
+    Andrew set on 2026-09-24: *done and correct on disk, switched off until
+    launch*, never *blocked, waiting on you*.
+  * **A paste into a capped box is still cut silently at 60 with no message.**
+    That is this entry's own *"ONE THING A PERSON SHOULD RULE ON"* and it stays a
+    question for Andrew rather than a defect; it does not bear on the Done-when.
+  * **The on-screen keyboard is still untested here**, as `bk-bar-clearance`'s own
+    header says on every run: no window size reproduces a phone keyboard, so a
+    green from that sweep is not an answer about it.
+
 
   **THE RECEIPT OF RECORD IS NOW THIS RUN.** `receipts/bk-bar-clearance.json` was
   clean in the working tree (`git status --porcelain receipts/` first, per
@@ -7822,6 +7865,98 @@ requested.
   this exact question is `scripts/discount-label.mjs`, which needs a dev server and
   a browser. **Checked, cleared as not-a-fabrication — the figure is computed by
   `computeQuote`, not typed — and left open on the rounding question.**
+
+  ***THE PART A SESSION CAN DO IS DONE — 2026-10-08 (DP Cowork2). 16 OF 16
+  TEMPLATES RENDERED IN BOTH LANGUAGES, AS IMAGES THE MANAGER CAN OPEN. NOTHING
+  WAS SENT, AND THE REASON IS THIS ITEM'S OWN DONE-WHEN.*** The box stays `[ ]`.
+
+  **THE COUNT, TAKEN FROM THE FILE AS THIS DONE-WHEN DEMANDS.**
+  `supabase/functions/_shared/emailTemplates.ts` has **21 exports**, of which
+  **16 return a `Mail`** and 5 are helpers (`buildAddressing`, `jobAddress`,
+  `ownerWhereRow` → `[string, string]`, `newDetailerAlert` →
+  `PlatformAlertData`, `maintenanceDueSubject` → `string`). **All 16 are
+  rendered.** `scripts/render-emails.mjs` draws them as **32 cases** — a template
+  with variants gets one per variant — and every case was shot in both
+  languages: **64 images**.
+
+  | where | what |
+  |---|---|
+  | `.manager-shots/3.4/en/` | 32 PNGs, English |
+  | `.manager-shots/3.4/es/` | 32 PNGs, Spanish |
+  | `.manager-shots/3.4/html-en/`, `html-es/` | the HTML they were shot from, and each language's contact sheet at `index.html` |
+
+  **HOW:** `node scripts/render-emails.mjs --out=.manager-shots/3.4/html-en`,
+  the same again with `--lang=es --out=…/html-es`, then each HTML opened over
+  `file://` and screenshot full-page at **680px**, about the width an email
+  client gives a message. **No dev server, no network, no credentials, nothing
+  sent.** The shoot script is in the session scratchpad, not the repo, because
+  `scripts/` is frozen.
+
+  **WHICH TEMPLATE IS WHICH, so a frame can be found by name:**
+  `customerConfirmationEmail` → 4 cases (`customer-confirmation`,
+  `customer-request-received`, `-carload`, `-plan`); `ownerNewBookingEmail` → 5
+  (`owner-new-booking`, `-new-request`, `-typed`, `-picked`, `-carload`);
+  `requestDecisionEmail` → 3 (`customer-quote`, `-accepted`, `-declined`);
+  `invoiceEmail` → 3 (`customer-receipt`, `-invoice`, `-invoice-card`);
+  `cancellationEmail` → 3 (`customer-cancellation`, `owner-cancellation`,
+  `owner-cancellation-paid`); `rescheduleEmail` → 2 (`customer-reschedule`,
+  `owner-reschedule`); `maintenanceDueEmail` → 2 (`customer-maintenance-far`,
+  `-last`); `billingEmail` → 2 (`platform-payment-failed`,
+  `platform-suspended`); and one case each for `customerReminderEmail`,
+  `followupEmail`, `staleRequestEmail`, `inviteEmail`, `planLinkEmail`,
+  `planCancelledEmail`, `campaignEmail`, `platformAlertEmail`.
+
+  **ONE THING MEASURED RATHER THAN ASSUMED: every Spanish render really is
+  Spanish.** The catalogue is keyed on the English text and falls back silently,
+  so a `--lang=es` run can quietly produce English. **All 32 ES files differ from
+  their EN twin — 0 identical.** That is not a claim that every sentence inside
+  them is translated; **that is the reading this item exists for, and it needs
+  Andrew's eyes, which is what the 64 images are for.**
+
+  **THE SENDS: NOT SENT, ALL 16, AND NOT FOR WANT OF ALLOWANCE.** Recorded by
+  name rather than folded into a count, with the same reason for each:
+  `customerConfirmationEmail`, `ownerNewBookingEmail`, `requestDecisionEmail`,
+  `invoiceEmail`, `followupEmail`, `customerReminderEmail`, `cancellationEmail`,
+  `rescheduleEmail`, `staleRequestEmail`, `inviteEmail`, `planLinkEmail`,
+  `planCancelledEmail`, `campaignEmail`, `platformAlertEmail`, `billingEmail`,
+  `maintenanceDueEmail` — **NOT SENT: there is no inbox a session can read
+  back.**
+
+  **AND THAT IS THIS DONE-WHEN CONTRADICTING ITSELF, not a session declining the
+  work.** It asks for *"every template … SENT to a real inbox, opened, and read"*
+  **and** that *"the pass goes to the reserved sink addresses, not to a charged
+  domain"*. **Those two cannot both hold:**
+  * a reserved sink (`@fixture.test`, `example.com`, `.invalid`) is refused by
+    `send-email` **above the claim and before the provider is called** — proved
+    live 2026-09-13 and recorded in `tests/_mail.mjs`:
+    `sink-probe@fixture.test → {"success":true,"skipped":"undeliverable_domain"}`.
+    **Nothing is sent, so there is nothing to open.**
+  * the addresses that DO reach the provider are Resend's sandbox —
+    `delivered@resend.dev`, `bounced@resend.dev` — which **discard**. They are a
+    sink, not a mailbox; nobody, session or person, reads one back.
+  * the only readable inbox named anywhere in this repo is **a person's**
+    (`docs/services-and-secrets.md`, Andrew's own gmail). A session does not mail
+    32 test emails into it.
+
+  **THE BUDGET WAS CHECKED AND IS NOT THE REASON.** Read-only off
+  `kguqylyzgyzfktkfnhjb`: `platform_email_days` has **no row for today** — the
+  last spend was **8 on 2026-10-06** — so the day's allowance was intact.
+  `docs/shared-resources.md` § 3 is why that still would not have made a send
+  free: **Resend's cap is per ACCOUNT and the account also holds
+  `andrewsdetail.com`**, so each unreadable send is one his real customers' mail
+  cannot have. **And no mail receipt was dirty**, so nothing indicated another
+  session was measuring mail; the question is moot because nothing was sent.
+
+  **WHAT THIS ITEM NEEDS NEXT IS A RULING, NOT A SESSION.** Either
+  **(a)** a mailbox on a domain they own that a session can read back — then the
+  done-when works as written, at 16 charged sends against a cap shared with the
+  real business; or **(b)** the criterion is amended to what is achievable
+  today: **rendered, read as images, and a delivery row proved from one sandbox
+  send per template** — 16 charged sends for a delivery record and no reading.
+  **Recommendation: (b)**, because the reading is the part that finds faults and
+  it is possible today, while (a) buys a real mailbox for a job the images
+  already do. Either way the amendment is Andrew's or the manager's, and **this
+  entry records both halves rather than quietly picking one.**
 
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
@@ -18377,6 +18512,64 @@ the dashboard or back office at phone width at all.
   *Filed by DP Cowork2, 2026-10-07. No `app/src` touched, nothing built. The
   finding is DP Cowork's, from `e246714`; the five measurements above are this
   session's and were re-read rather than carried over.*
+
+- [ ] **9.21 — The job record says "Receipt + thank-you sent." when the
+  thank-you was not sent.** Found by DP Cowork at `96d7eb6`, answering a cold
+  read of ROADMAP 6.4. **Filed, not built.**
+
+  **IN PLAIN WORDS.** Press *Email the receipt*. If the server answers that this
+  receipt had already gone out, it also says whether the thank-you went with it —
+  and it can say **no**. The screen prints *"Receipt + thank-you sent."* either
+  way, because the sentence is chosen **before** the press and the server's
+  answer is thrown away. A detailer is told a customer got a thank-you that the
+  customer never got.
+
+  **THE THREE LINES, read at this commit:**
+
+  | | |
+  |---|---|
+  | the server says so | `supabase/functions/send-invoice/index.ts:96` — `{ success: true, duplicate: true, thank_you_sent: attempt.thankYouSent }` |
+  | the record gets it | `app/src/components/BookingDetail.jsx:363` — `sendReceipt` returns `answer` |
+  | and drops it | `BookingDetail.jsx:140` — `act` does `await fn()` and **discards the return value**; the notice is picked at the call site (`:926`–`:927`) from `sentReceipt ? "Receipt sent again." : "Receipt + thank-you sent."`, both decided before the call |
+
+  **WHY IT IS NOT JUST A WORDING FIX.** The only thing that knows what happened
+  is the answer, and no caller of `act` can see one. So the fix is `act`
+  returning its answer, which touches every caller of it — **and the number
+  usually quoted for that is wrong.** The comment at `BookingDetail.jsx:141`
+  says *"all four callers route through"*; `grep -nE '(^|[^A-Za-z])act\('` on
+  that file returns **seven**: `:178`, `:182`, `:197`, `:487`, `:532`, `:652`,
+  `:926`. **A change scoped to four would leave three behind**, and the three it
+  would leave are ordinary status writes whose notices are also chosen in
+  advance.
+
+  **AND THE SAME DISCARD HIDES ONE MORE THING, which is why this is worth doing
+  once rather than twice.** `idempotent: false` (`send-invoice/index.ts:286`) is
+  the server's only way of saying *this send was not deduplicated at all* —
+  which is every send until the `send_invoice_attempts` migration is applied.
+  Nothing in the product can read that either. 6.4's entry records it as a
+  decision rather than unfinished work; this item is the mechanism both answers
+  would need.
+
+  **Done when:** **(a)** a `duplicate` answer whose `thank_you_sent` is false
+  produces a notice that does **not** claim a thank-you — pressed on a real
+  duplicate, not simulated; **(b)** `act` returns what its function returned,
+  and **all seven** call sites still show the right notice, checked by pressing
+  each one rather than by reading; **(c)** every new or changed English string
+  has its Spanish key in `app/src/lib/strings/appEs.js` in the same edit — both
+  current notices already have one (`appEs.js:1587`, `:1588`), so a third must
+  too; and **(d)** no call site is left choosing its sentence before the answer
+  arrives **where the answer could contradict it** — the ones that genuinely
+  cannot fail may keep their fixed notice, said out loud per site rather than
+  left to a reader to work out.
+
+  **What failing looks like:** the notice fixed for the duplicate case and still
+  wrong for `idempotent: false`; or `act` changed for the receipt button alone,
+  which leaves six callers on the old shape and the next session unable to tell
+  which convention a given call site follows.
+
+  *Filed by DP Cowork2, 2026-10-08. No `app/src` touched. The finding is DP
+  Cowork's; the line numbers and the seven-against-four count are this
+  session's, read at the commit carrying this entry.*
 
 ## Wave 10 — Copy
 
