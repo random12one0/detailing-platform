@@ -7955,6 +7955,60 @@ requested.
   **Adjacent, outside the seven and not counted as gaps:** `Money.jsx:408` `markPaid` writes `payment_status: "paid"` on one tap with no question; `RequestCard.jsx:111` Decline calls `respond-to-booking`
   with no question, and that answer emails the customer.
 
+  ***GAPS 1, 2, 3 AND 7 OF DP COWORK2'S REVIEW ARE FIXED AND PRESSED, 2026-10-07 (DP Cowork, Lane A). 4, 5, 6 AND 8 ARE NOT, AND EACH IS A RULING OR
+  ANOTHER LANE — SAID BELOW RATHER THAN QUIETLY LEFT. THE BOX STAYS `[ ]`.***
+  **Gap 1 — the cancel question no longer claims something that will not happen.** `update-booking` emails only a booking that carries an address, and the
+  sentence said *"The customer is emailed."* on every cancellation, so a phone-only customer's job was called off under a promise nothing kept. The
+  question now asks the screen: with an address it keeps the sentence, without one it is *"Cancel {job}?"* and promises nothing (new English string, Spanish
+  in the same edit).
+  **Gap 2 — the Spanish stops guessing a gender and an hour.** The phrase hard-coded *"el {service} de {name} de las {time}"* and was wrong twice over: the
+  service is the DETAILER'S OWN WORD, so a feminine one read *"el Limpieza de motor"*, and Spanish says *"de la 1:00"*, never *"de las 1:00"*. Neither can be
+  chosen correctly from here, so the phrase asks for neither: **"{service} de {name}, {time}"**. `el trabajo` keeps its article, because that noun is ours.
+  Measured on a fixture whose service really is *Limpieza de motor* at 1:00 PM: **"¿Cancelar Limpieza de motor de Nora Noemail, 1:00 PM?"**
+  **Gap 3 — the keyboard goes with the question.** Pressing the button UNMOUNTS it, so focus fell back to the page body in front of a question whose answer
+  is sometimes `.btn.danger`. The QUESTION now takes focus, not the answer — landing on a destructive button means a stray Enter presses it, which is the
+  accident this control exists to prevent — and **"Not yet" hands focus back to the button that asked**. Measured: focus is on the `role="alert"` paragraph
+  and its tag is not `BUTTON`; after "Not yet" it is on *Cancel the job*.
+  **Gap 7 — the proof can be re-run now.** `tests/confirm-questions.test.mjs`, **credential-free, four filesystem reads, 6 pass**: the three writes are
+  wired through a `ConfirmTap` `onConfirm` and none of them from a bare `onClick`; all **seven** questions and five answers are declared by wording and must
+  still be on a screen; every one has a Spanish entry; the Spanish phrase forces neither an article nor "de las"; and focus is moved and handed back. Its own
+  header says what it cannot see: that any of it is ever DRAWN. **Five sabotages, each red on its own probe.**
+  **AND THE SABOTAGE SWITCH DID NOT WORK WHEN IT WAS WRITTEN, WHICH IS THE PART WORTH READING.** It was a `--break=` flag, like this repo's scripts.
+  `node --test` keeps its own arguments and runs the file in a CHILD process, so `process.argv` never carried it: **all five sabotages ran and all five
+  printed 6 pass, 0 fail.** A canary that cannot fire, reporting green over a defect it was pointed at — `docs/gotchas.md` 95 exactly, found only because
+  the "SABOTAGE ON" line never printed. It is `CONFIRM_BREAK=<case>` now, which crosses the process boundary.
+  **Pressed at 1440 and 392, in English and Spanish, on a flagged throwaway business** (`is_demo`, two bookings — one with an address, one phone-only on a
+  feminine service at one o'clock — torn down and read back gone, never `demo-detail`): **8 of 8 in English, 11 of 11 in Spanish** (the three Spanish-only
+  rows), console clean at every width. **Nothing was confirmed in any run** — every case presses "Not yet" — and both bookings read `confirmed` from the
+  database afterwards. **Broken on purpose, three times, each caught by its own row and each file restored byte for byte (hashes checked):** the question
+  made to always claim an email (1b red, and it printed the false sentence), the Spanish article and hour put back (2a, 2b, 2c red, printing
+  *"¿Cancelar el Limpieza de motor de Nora Noemail de las 1:00 PM?"*), and the focus effect switched off (3a red, focus on `BODY`).
+  **ONE SELF-INFLICTED FAULT, RECORDED BECAUSE IT COST A RUN:** the gap-1 note was first written as `{/* … */}` **between two JSX attributes**, which is a
+  parse error, and the dev server then served a blank app — the browser script reported only *"Timeout waiting for the sign-in form"*, which reads like a
+  slow machine and not like a broken build. A JSX comment is children syntax; between attributes it belongs in the block above the element.
+  **STILL OPEN, and each for its own reason — none of these is built:**
+  * **Gap 4, remove has no way back.** The fold says *"It cannot be undone"* and the server does a SOFT delete, so a restore is possible but there is **no
+    screen that lists a removed booking** to restore it from. That is a new surface, not a control, so it is **a ruling for Andrew**, not a build.
+  * **Gap 5, waive has no way back either** — and it is wider than waive: once a job is finalized, `canFinalize` hides *Finalize payment*, so **no control
+    changes `payment_status` afterwards at all**. Also a ruling.
+  * **Gap 6, suspend and owner-invite are not swept.** Suspend is `AdminPage.jsx`, Andrew's own English-only back office; owner-invite is `Team.jsx`, and
+    the review's own words are that whether a form already showing the address needs a further step is a ruling rather than a build.
+  * **Gap 8, `audit_recorded: false` is not read by the screen.** The server half is unpublished, so this is a contract to wire, and wiring it means new
+    copy about an audit row that nobody has decided the words for.
+  * **AND ONE THE REVIEW FOUND THAT I DID NOT FIX, NAMED HERE SO IT IS NOT LOST:** the two COMPLETION questions carry the identical Spanish fault gap 2 was
+    about — `appEs.js` *"¿Marcar como terminado el {service} de {name} de las {time}?"*, where `terminado` agrees as well — and they were outside the gap as
+    written (`:2368`/`:2369`). Same defect, one screen along.
+
+  **AND A GATE THAT WAS ALREADY RED BEFORE THIS EDIT, REPORTED RATHER THAN QUIETLY MOVED.**
+  `node --test tests/sweep-methods-are-pinned.test.mjs` fails on two pinned figures. **Measured at `HEAD` with my own changes copied aside and the file put
+  back from `git show HEAD:ROADMAP.md` (hash checked after restoring): it was ALREADY red there** — `numberedOpenItems` **46 against a declared 47**, and
+  `quoteFragments` **260 against a declared 254**. With this note added, fragments read **273**. **So of the three movements, exactly one is mine** (260 to
+  273, my own quoted sentences) and the other two are not: an open item left the population and six fragments arrived before I started.
+  **`DECLARED` IS LEFT ALONE ON PURPOSE.** That file's rule is to move the constant in the same edit as the change that moved it, and I can only account for
+  one of the three. Updating it to 273 would fold an unexplained open-item drop in behind a number I was entitled to move, which is `docs/gotchas.md` 93 —
+  a figure edited so that two things agree. **Whoever ticked the item that took the count from 47 to 46 owns that move**, and the gate should stay red until
+  they make it.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -10400,6 +10454,37 @@ most corroborated finding in the set.
   for that booking: one invoice and one thank-you, not two; then press *Send again* after the first answered and read two. **Red proof:** take the key out of the call and the same two presses read two and two.
   **Incident, said because it is the kind of thing that is easy to omit:** while checking neighbours I ran `tests/email-sends.test.mjs`, which loads the root `.env` itself and so started its credentialed half.
   It signed in as the demo owner and read the demo business's bookings, **and refused §§ 2 to 4 before touching anything** (*"REAL MAIL IS OPT-IN"*), so no email was sent and no row was written. I did not run it again.
+
+  ***THE APP HALF OF THE `send-invoice` KEY, BUILT AND PRESSED 2026-10-07 (DP Cowork, Lane A, `3cd2a4a`). THE BOX STAYS `[ ]`: the publish and the
+  migration are Andrew's.***
+  **Built to DP Cowork2's contract above, clause by clause.** `api.sendInvoice` takes a third argument and puts `idempotency_key` in the body,
+  **omitting the field entirely when there is no key** — a present-but-malformed key is a 400 and no key is the old behaviour, so a `null` must never
+  be sent in place of one. `BookingDetail.jsx` keeps the key in a ref: made with `crypto.randomUUID()` at the press, the same key on every retry of
+  that intent, cleared only after an answer that says the invoice is out (**`duplicate: true` is such an answer**), and cleared when the record opens
+  on another booking, because the record is reused in place on five screens. **A 409 `in_progress` is not shown as a failure**: it is retried with the
+  same key, three times at 700ms, which is the contract's own instruction.
+  **A DEFECT IN THE FIRST VERSION, FOUND BY DOUBLE-TAPPING IT RATHER THAN BY READING IT.** The key was passed as `sendKey.current` on every attempt.
+  Two presses in flight: the first succeeds and clears the ref, and the second — waiting out its 409 — re-reads the ref, finds `null`, and goes back to
+  the server **with no key at all**, which is the old send-anyway path. Measured: two presses, **three requests, the third keyless, two invoices out**.
+  The key is now read once into a local (the intent owns it; the ref only exists so the NEXT press can find an unfinished intent) and the ref is cleared
+  only if it still holds that same key. **The ref alone was not enough, and nothing short of pressing it would have said so.**
+  **WHAT WAS PROVED AGAINST WHAT, AND IT IS NOT THE LIVE SYSTEM.** The client is real: the app in Chromium, signed in as a throwaway business's owner
+  (`is_demo`, one finalized booking, torn down and read back gone), pressing the real button. The decision is real too — every request was answered by
+  **this repo's own `_shared/sendInvoiceClaim.ts`**, imported and run over an in-memory store, with the same branches in the same order as
+  `send-invoice/index.ts` (its lines 94-98, 247-248, 283-286, copied as code into the harness rather than described). **Stood in for: the deployed
+  function** (not published — the live one accepts no key), **the `send_invoice_attempts` table** (migration not applied, so the store is a Map) **and
+  Resend** (nothing was emailed; an invoice "sent" is a counter). **So this proves what the app sends and what the agreed rules do with it, and proves
+  nothing about the live system until Andrew applies the migration and publishes the function.** DP Cowork2's own halves cover the module and the
+  table's SQL separately.
+  **Pressed at 1440 and 392, 13 of 13 each.** **A double tap** (both clicks dispatched in one tick, because `disabled={busy}` blocks the second once
+  React has re-rendered): **one invoice, one thank-you, one key across every request**, and no error on screen. **A forced failure then a retry**: the
+  failed press sent nothing and said so, the retry sent **exactly one invoice and one thank-you and carried the SAME key** as the press that failed.
+  **A deliberate send after a success**: a **new** key, and the second invoice went out. **Broken on purpose** (a new key per request): **4 red**, the
+  double tap reading **two invoices and two thank-yous** and both same-key rows failing; restored and the hash checked.
+  **No text changed on any screen, so there is no Spanish key to add** — a 409 now resolves into the sent notice the press was going to earn anyway.
+  The two console entries in each run are the 409 and the 502 this check causes on purpose.
+  **STILL OPEN ON 6.4:** the publish of the six functions and of `send-invoice`, and the two migrations — all Andrew's; and
+  `update-booking`'s `add_ons` list, which no screen sends today.
 
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**

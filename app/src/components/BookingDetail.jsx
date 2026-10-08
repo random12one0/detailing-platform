@@ -882,12 +882,19 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   )}
                   {/* ROADMAP 4.1 — THE ONE THAT SENDS AN EMAIL, so the question
                       says so. "Un-cancel" is the way back; the email already
-                      sent is not. */}
+                      sent is not.
+                      **AND IT ONLY SAYS SO WHEN IT IS TRUE — 2026-10-07.** The sentence
+                      claimed an email on every cancellation, and `update-booking` sends
+                      one only when the booking carries an address, so a phone-only
+                      customer's job was called off under a promise nothing kept. The
+                      screen holds the answer, so the sentence asks it. */}
                   <ConfirmTap
                     className="btn ghost"
                     disabled={busy}
                     label={t("Cancel the job")}
-                    question={t("Cancel {job}? The customer is emailed.", { job })}
+                    question={booking.customer_email
+                      ? t("Cancel {job}? The customer is emailed.", { job })
+                      : t("Cancel {job}?", { job })}
                     confirmLabel={t("Yes, cancel it")}
                     onConfirm={() => setStatus("cancelled")}
                   />

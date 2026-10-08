@@ -71,7 +71,17 @@ export default function ConfirmTap({
   // page only when something is hidden, and the scroller's own
   // `scroll-padding-bottom` keeps the answer clear of the pinned bar.
   const answer = useRef(null);
+  const said = useRef(null);
+  const opener = useRef(null);
   useEffect(() => { if (asking) answer.current?.scrollIntoView({ block: "nearest" }); }, [asking]);
+  // **AND FOCUS GOES WITH IT, WHICH SCROLLING DOES NOT DO.** Pressing the button
+  // UNMOUNTS it, so a keyboard user's focus falls back to the page body — in front
+  // of a question whose answer is sometimes `.btn.danger`, with no way to tab
+  // forward to it except from the top of the document. The QUESTION takes focus
+  // rather than the answer: landing on a destructive button means a stray Enter
+  // presses it, which is the accident this whole control exists to prevent.
+  // `role="alert"` already speaks the sentence; this is where the keyboard stands.
+  useEffect(() => { if (asking) said.current?.focus(); }, [asking]);
 
   // THE ANSWER REPLACES THE BUTTON RATHER THAN APPEARING UNDER IT. A second
   // block pushes everything below it down, which on a card in a list moves
@@ -79,7 +89,7 @@ export default function ConfirmTap({
   if (asking) {
     return (
       <div className="stack" ref={answer} style={{ gap: 8, ...style }}>
-        <p className="quiet" style={{ margin: 0 }} role="alert">{question}</p>
+        <p className="quiet" style={{ margin: 0, outline: "none" }} role="alert" tabIndex={-1} ref={said}>{question}</p>
         <div className="row" style={{ gap: 8 }}>
           <button className={confirmClassName} disabled={disabled}
             onClick={() => { setAsking(false); onConfirm(); }}>
@@ -87,7 +97,10 @@ export default function ConfirmTap({
           </button>
           {/* "Not yet" rather than "Cancel": on this screen Cancel is a word
               that already means calling off the job. */}
-          <button className="btn ghost" disabled={disabled} onClick={() => setAsking(false)}>
+          {/* AND BACK AGAIN ON "Not yet" — the button it returns to is the one that
+              asked, so the keyboard is where it started and not at the top of the page. */}
+          <button className="btn ghost" disabled={disabled}
+            onClick={() => { setAsking(false); requestAnimationFrame(() => opener.current?.focus()); }}>
             {t("Not yet")}
           </button>
         </div>
@@ -96,7 +109,7 @@ export default function ConfirmTap({
   }
 
   return (
-    <button className={className} disabled={disabled} style={style}
+    <button className={className} disabled={disabled} style={style} ref={opener}
       onClick={() => setAsking(true)}>
       {icon}{icon ? " " : ""}{label}
     </button>

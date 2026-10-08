@@ -2365,11 +2365,20 @@ export const appEs = {
   "Not completed after all": "No estaba terminado",
   // ROADMAP 4.1, the sweep — the step before no-show, cancel, remove and waive.
   // {job} is the phrase below and carries its own article.
-  "{name}’s {service} at {time}": "el {service} de {name} de las {time}",
-  "{name}’s job at {time}": "el trabajo de {name} de las {time}",
+  // **NO ARTICLE IN FRONT OF THE SERVICE, AND NO PREPOSITION IN FRONT OF THE HOUR.**
+  // This read "el {service} de {name} de las {time}" and was wrong twice over: the
+  // service is the DETAILER'S OWN WORD, so a feminine one gave "el Limpieza de motor",
+  // and Spanish says "de la 1:00", not "de las 1:00", for the one o'clock hour. Neither
+  // can be chosen correctly from here — the gender of an arbitrary noun is not knowable
+  // and the hour is a formatted string — so the phrase asks for neither. "el trabajo" is
+  // OUR noun and keeps its article.
+  "{name}’s {service} at {time}": "{service} de {name}, {time}",
+  "{name}’s job at {time}": "el trabajo de {name}, {time}",
   "Mark {job} as a no-show?": "¿Marcar {job} como «no se presentó»?",
   "Yes, they didn’t show": "Sí, no se presentaron",
   "Cancel {job}? The customer is emailed.": "¿Cancelar {job}? Se avisa al cliente por correo.",
+  // The same question for a booking with no email address on it: no promise is made.
+  "Cancel {job}?": "¿Cancelar {job}?",
   // "Yes, cancel it" already has an entry above.
   "Remove {job} from your records?": "¿Quitar {job} de tus registros?",
   "Yes, remove it": "Sí, quitarlo",
