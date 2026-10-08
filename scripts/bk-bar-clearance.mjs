@@ -4,6 +4,11 @@
 //   node scripts/bk-bar-clearance.mjs --headed        # watch it
 //   node scripts/bk-bar-clearance.mjs --break=canary  # sabotage: drop the canary
 //   node scripts/bk-bar-clearance.mjs --break=plant   # one failure on no declared list: unexpected must go 0 -> 1
+//   node scripts/bk-bar-clearance.mjs --break=ceiling:<id>
+//                                                     # ROADMAP 9.22: strip ONE box's maxLength in
+//                                                     # memory and watch that box, and only that
+//                                                     # box, go red. Ids are the CEILINGS ids,
+//                                                     # e.g. --break="ceiling:businesses.name @ signup"
 //   node scripts/bk-bar-clearance.mjs --break=rect    # inherited; see below, it
 //                                                     # cannot bite on THIS page
 //   node scripts/receipt.mjs receipts/bk-bar-clearance.json
@@ -164,12 +169,30 @@ const SIZES = [
    kind of right: a reader following the file:line would have landed on the
    wrong control. Services and add-ons genuinely share one editor, and that is
    said rather than hidden behind two rows that look independent. */
+/* **SEVEN BOXES, NOT FIVE — ROADMAP 9.22, 2026-10-08.** This list had five
+   entries and five is not how many boxes write these names. `businesses.name`
+   is typed in THREE places, and the two that were missing are the ones a person
+   meets first: the signup form every new detailer fills in, and the back
+   office's own create form. Both were capped on 2026-10-08 (Lane A), so nothing
+   was broken while they were absent — **what was missing is this: remove either
+   cap tomorrow and this sweep would not have noticed.**
+   **A NEW BOX IS A FINDING, NOT A SILENCE.** The population is declared here by
+   hand on purpose, the same way `platform-admins-declared` reads a document
+   rather than the table: a check that derives its own expectation from what it
+   finds agrees with whatever it finds. So an eighth box arriving means somebody
+   adds a row here, and until they do `tests/name-length.test.mjs` is the
+   credential-free half that already covers all seven. */
 const CEILINGS = [
   { id: "service_groups.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 1 },
   { id: "services.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 2 },
   { id: "add_ons.name", file: "app/src/screens/more/Catalog.jsx", near: "editing.form.name", nth: 2, shares: "services.name" },
   { id: "businesses.name", file: "app/src/screens/more/BusinessInfo.jsx", near: "biz.name", nth: 1 },
   { id: "plans.name", file: "app/src/screens/more/Plans.jsx", near: "planForm.name", nth: 1 },
+  // The same column, in the two places this list used to miss. Ids carry WHERE,
+  // because three rows reading `businesses.name` would be three rows nobody
+  // could tell apart in a failure line.
+  { id: "businesses.name @ signup", file: "app/src/screens/CreateBusiness.jsx", near: "value={name}", nth: 1 },
+  { id: "businesses.name @ back office", file: "app/src/admin/AdminPage.jsx", near: "value={form.name}", nth: 1 },
 ];
 const readCeiling = (c) => {
   let src;
@@ -182,19 +205,53 @@ const readCeiling = (c) => {
   // tell a failed read from an empty one. The error now travels.
   try { src = readFileSync(join(REPO, c.file), "utf8"); }
   catch (e) { return { ...c, found: false, why: `could not read ${c.file}: ${e.message.slice(0, 90)}` }; }
-  const lines = src.split(/\r?\n/);
+  /* **IT READS THE ELEMENT, NOT A LINE — ROADMAP 9.22.** The first version
+     required `<input` and the value expression on the SAME line and then read
+     `maxLength` from that line and the next. **Neither of the two boxes added
+     above is written that way**: `CreateBusiness.jsx` puts `<input` on one line
+     and `value={name}` on the next, and `AdminPage.jsx` puts `<input …
+     maxLength={60}` on one line and `value={form.name}` on the next. So adding
+     them to the list without changing this would have reported `found: false`
+     on two boxes that ARE capped — and an uncapped box FAILS this check by
+     design, so the run would have named two correct boxes as unbounded. A false
+     FAILURE rather than a false pass, which is the honest direction and still
+     wrong.
+     **The same defect, in the other direction, was in `tests/name-length.test.mjs`
+     on the same day**: it read forward from `value={…}` to the next `>` and
+     called a capped box uncapped, because `AdminPage.jsx` writes `maxLength`
+     BEFORE `value`. One matcher read too little before the attribute, the other
+     too little after it. **Both are the same mistake: a line is not an
+     element.** */
   let seen = 0;
-  for (let i = 0; i < lines.length; i++) {
-    if (!lines[i].includes(c.near) || !/<input/.test(lines[i])) continue;
+  for (let from = 0;;) {
+    const open = src.indexOf("<input", from);
+    if (open < 0) break;
+    const close = src.indexOf(">", open);
+    const el = src.slice(open, close < 0 ? src.length : close + 1);
+    from = open + "<input".length;
+    if (!el.includes(c.near)) continue;
     if (++seen < (c.nth ?? 1)) continue;
+    const i = src.slice(0, open).split(/\r?\n/).length - 1;
     // The attribute may sit on the same line or the line after — both are the
     // same element and both are how this repo writes them.
     // The attribute may sit on the same line or the next - both are the same
     // element and both are how this repo writes them. The COMMENT above an
     // input can mention `maxLength={60}` in prose, so only the element's own
     // two lines are read, never the block above it.
-    const m = (lines[i] + " " + (lines[i + 1] || "")).match(/maxLength=\{(\d+)\}/);
+    /* **THE SABOTAGE IS AIMED AT THIS ELEMENT'S OWN TEXT — ROADMAP 9.22.**
+       `--break=ceiling:<id>` strips the cap from the element as read, in
+       memory, so the box really is unbounded as far as every line below is
+       concerned, and `app/src` is never touched — it belongs to another lane
+       and a sabotage that edits it is a measurement taken while somebody else
+       is building. One id at a time, because a sabotage that reddens
+       everything proves nothing about which row it reached. */
+    const sabotaged = BREAK === `ceiling:${c.id}`;
+    const m = sabotaged ? null : el.match(/maxLength=\{(\d+)\}/);
     if (m) return { ...c, found: true, max: Number(m[1]), line: i + 1 };
+    if (sabotaged) {
+      return { ...c, found: false, line: i + 1, sabotaged: true,
+        why: `SABOTAGE --break=ceiling:${c.id}: the cap was removed from the element as read` };
+    }
     return { ...c, found: false, why: `\`<input>\` at ${c.file}:${i + 1} carries no \`maxLength\``, line: i + 1 };
   }
   return { ...c, found: false, why: `no \`<input>\` bound to \`${c.near}\` in ${c.file}` };
@@ -619,6 +676,16 @@ for (const c of ceilings) {
       + (c.shares ? ` (one shared editor with ${c.shares})` : ""));
   } else {
     console.log(`    FAIL    ceiling/${c.id} - ${c.why}`);
+    /* **AND INTO `failureRecords`, WHICH IT WAS NOT UNTIL ROADMAP 9.22.** This
+       loop pushed to `failures` alone, so a ceiling failure made `status: fail`
+       and was invisible to `classifyFailures` — the run would print
+       **`gate: HELD — nothing outside the declared hold failed`** while an
+       unbounded name box sat in the list above it. The gate line is the one line
+       a reader uses to decide whether anything NEW broke, so a widened
+       population that cannot reach it is a longer list and not a better check.
+       Four edits were granted for this item; this is the fourth, and it is the
+       one that makes the other three mean something. */
+    failureRecords.push({ target: `ceiling/${c.id}`, name: "ceiling", detail: String(c.why) });
     failures.push(`ceiling/${c.id}: ${c.why}. UNBOUNDED - the sweep below therefore runs at a `
       + `PROBE length of ${PROBE_LEN}, which is this repo's own most-used text limit, not a `
       + "ceiling. A cap on what a detailer may type is a product decision with a number in it; "
