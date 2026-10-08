@@ -197,9 +197,27 @@ console.log("\n4. the promises");
   // PUBLISHING COPIES. Making the private file public instead would be one
   // line shorter and would put every photo of that job one URL guess away.
   const pub = photos.slice(photos.indexOf("export async function publishToGallery"));
+  // **RE-POINTED AT THE BEHAVIOUR, ROADMAP 0.11 SLICE 4, AND SAID OUT LOUD
+  // RATHER THAN QUIETLY RELAXED.** It asked for the literal text
+  // `.from("business-media").upload`, which went away when the copy was routed
+  // through `uploadBusinessPhoto` so that one function — and one flag — decides
+  // where a business image goes. **The promise it guards did not change**: a
+  // published photo is a COPY, and the private original is never flipped
+  // public. That promise is three things, and all three are still asserted:
+  // the original is read through a SIGNED url, a NEW object is written by the
+  // one public-upload function, and the row records THAT object's address.
+  // `docs/gotchas.md` has this failure as its own entry — a grep coupled to a
+  // spelling rather than to a behaviour — and the old form would equally have
+  // gone green on a `publishToGallery` that uploaded nothing at all, because it
+  // never asked what the `gallery_images` row ended up pointing at.
   check("4i · publishing to the gallery COPIES into the public bucket",
-    /\.from\("business-media"\)\s*\.upload/.test(pub) && /signedUrls\(\[photo\.path\]\)/.test(pub),
+    /signedUrls\(\[photo\.path\]\)/.test(pub)
+    && /uploadBusinessPhoto\(businessId, await dl\.blob\(\), "gallery"\)/.test(pub)
+    && /image_url: url/.test(pub),
     "flipping the private file public would expose the whole job");
+  check("4i2 · and the copy it just made is removed if the row does not land",
+    /removeBusinessPhoto\(businessId, dest\)/.test(pub),
+    "an object with nothing pointing at it is invisible to everything but the nightly reconcile");
 
   // THE RESIZE IS NOT OPTIONAL. If addPhoto ever uploads the raw file the
   // whole budget is 10x wrong and nothing says so until storage is full.

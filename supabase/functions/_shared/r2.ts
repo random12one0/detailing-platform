@@ -115,13 +115,65 @@ export function r2Config(get: (name: string) => string | undefined): { config: R
   };
 }
 
+// ---------------------------------------------------------------------------
+// THE PUBLIC ADDRESS — ROADMAP 0.11 slice 4, and the one thing R2 has no
+// default for.
+// ---------------------------------------------------------------------------
+// `job-photos` and `expense-receipts` are private: every read is a signed URL
+// this file mints, and the bucket needs no address of its own. **`business-media`
+// is public-read, and that is not a detail — a logo and a gallery photograph are
+// rendered to an anonymous visitor on a tenant's booking page, so a one-hour
+// signature is not a URL that can be stored in a row.**
+//
+// Supabase gives a public bucket an address for free (`getPublicUrl`).
+// **R2 does not.** A bucket has a public address only once somebody binds one
+// in the Cloudflare dashboard — the `r2.dev` development subdomain, or a custom
+// domain. There is nothing to infer and nothing to default to, so the base is
+// read from the environment by name like every other credential-shaped thing
+// here, and when it is absent the door says so in words.
+//
+// **AND THE ADDRESS BECOMES PERMANENT DATA, WHICH IS WHY IT IS ANDREW'S
+// DECISION AND NOT A SESSION'S.** `gallery_images.image_url` and the brand's
+// `logo_url` store an ABSOLUTE url, so whichever host is configured on the day
+// of the switch is written into every row created after it. Changing it later
+// does not move those rows; it breaks them. `FOR-ANDREW.md` step 9 says this in
+// his words and recommends the custom domain for exactly that reason.
+
+/** The environment name carrying `business-media`'s public base. */
+export const R2_PUBLIC_ENV = "R2_MEDIA_BASE" as const;
+
+/**
+ * The public base for `business-media`, or `null` and the NAME that is missing
+ * or unusable. Trailing slashes are trimmed so a base with one and a base
+ * without produce the same url.
+ *
+ * **`https` only.** A public image fetched over `http` is blocked as mixed
+ * content on every page this product serves, which would show as a broken
+ * logo rather than as a configuration mistake.
+ */
+export function mediaBase(get: (name: string) => string | undefined): { base: string | null; missing: string[] } {
+  const raw = (get(R2_PUBLIC_ENV) ?? "").trim().replace(/\/+$/, "");
+  if (!raw || !/^https:\/\/[^\s/?#]+[^\s?#]*$/.test(raw)) return { base: null, missing: [R2_PUBLIC_ENV] };
+  return { base: raw, missing: [] };
+}
+
+/**
+ * Where the public internet reads one object. The key is path-encoded with the
+ * same function the signer uses, so a key and its url can never disagree about
+ * what character means what.
+ */
+export const publicUrl = (base: string, key: string) => `${base}/${encodePath(key)}`;
+
 /** One object as the bucket's own listing reports it. `bytes` is R2's number, never a client's. */
 export interface ListedObject { key: string; bytes: number }
 export interface ListPage { objects: ListedObject[]; next: string | null }
 
 export interface R2Store {
-  /** A URL a browser may PUT one object to, for `Content-Type: contentType` only. */
-  putUrl(bucket: string, key: string, contentType: string, expires: number): Promise<string>;
+  /** A URL a browser may PUT one object to, for `Content-Type: contentType` only.
+   *  With `exactBytes`, the length is signed in too, so a body of any other
+   *  size fails the signature — the only server-side ceiling the public store
+   *  has, since it has no `finish` to measure at (`_shared/photoDoor.ts`). */
+  putUrl(bucket: string, key: string, contentType: string, expires: number, exactBytes?: number): Promise<string>;
   /** A URL anybody holding it may GET the object from, until it expires. */
   getUrl(bucket: string, key: string, expires: number): Promise<string>;
   /** What R2 itself says is stored: the size is R2's, never the client's. */
@@ -197,7 +249,14 @@ export function makeR2(
     try { return await fetchImpl(url, { method }); } catch { throw new Error(R2_FAILED); }
   };
   return {
-    putUrl: (bucket, key, contentType, expires) => sign("PUT", bucket, key, expires, { "content-type": contentType }),
+    // A SIGNED `content-length` IS BINDING ON THE BROWSER, which is why it is
+    // the public store's ceiling: a browser cannot set that header from
+    // JavaScript, it is filled in from the body itself, so a file of any other
+    // size simply does not match the signature.
+    putUrl: (bucket, key, contentType, expires, exactBytes) => sign("PUT", bucket, key, expires,
+      exactBytes === undefined
+        ? { "content-type": contentType }
+        : { "content-type": contentType, "content-length": String(exactBytes) }),
     getUrl: (bucket, key, expires) => sign("GET", bucket, key, expires),
     async head(bucket, key) {
       const res = await call("HEAD", await sign("HEAD", bucket, key, 60));

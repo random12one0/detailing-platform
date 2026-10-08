@@ -14,6 +14,7 @@ import { MAX_EDGE, QUALITY, fit, firstFolder, storagePath } from "./photo-rules.
 import {
   DOOR_BATCH, DOOR_WORDS, doorError, readFinish, readRemoved, readStart, readUrls,
 } from "./photo-door.js";
+import { removeBusinessPhoto, uploadBusinessPhoto } from "./upload.js";
 
 export * from "./photo-rules.js";
 
@@ -121,20 +122,27 @@ export async function publishToGallery(photo, businessId) {
   if (!read) throw new Error(DOOR_WORDS.unreadable);
   const dl = await fetch(read);
   if (!dl.ok) throw new Error(DOOR_WORDS.unreadable);
-  const dest = `${businessId}/gallery/${crypto.randomUUID()}.jpg`;
-  const up = await supabase.storage.from("business-media")
-    .upload(dest, await dl.blob(), { contentType: "image/jpeg", upsert: false });
-  if (up.error) throw up.error;
+  // ROADMAP 0.11 SLICE 4 — THROUGH `upload.js`, WHICH IS WHERE THE FLAG LIVES.
+  // This used to build the destination path and call the bucket itself: a
+  // second copy of `uploadBusinessPhoto`'s body, which would have needed a
+  // second copy of the door branch too. One upload path, one flag, read once.
+  //
+  // IT ALSO FIXES A SMALL OLD INCONSISTENCY ON THE WAY: the destination was
+  // always named `.jpg` and always declared `image/jpeg`, so a PNG job photo
+  // was published as a JPEG that was not one. The blob carries its own type now
+  // and the extension follows it.
+  const { url, key: dest } = await uploadBusinessPhoto(businessId, await dl.blob(), "gallery");
 
-  const { data: pub } = supabase.storage.from("business-media").getPublicUrl(dest);
   const { data, error } = await supabase.from("gallery_images").insert({
     business_id: businessId,
     kind: "single",
-    image_url: pub.publicUrl,
+    image_url: url,
     caption: photo.caption ?? null,
   }).select().single();
   if (error) {
-    await supabase.storage.from("business-media").remove([dest]);
+    // THE OBJECT GOES WHEN THE ROW DOES NOT LAND, which is the one thing this
+    // function needed the key back for. Already-gone is success on both paths.
+    await removeBusinessPhoto(businessId, dest).catch(() => {});
     throw error;
   }
   await supabase.from("job_photos").update({ gallery_id: data.id }).eq("id", photo.id);

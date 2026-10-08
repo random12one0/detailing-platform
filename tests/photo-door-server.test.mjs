@@ -492,8 +492,26 @@ test("20 · the function's own wiring: verify_jwt stays on, nothing is printed, 
   assert.match(code, /Deno\.serve\(\(req\) => handlePhotoDoor\(req, deps\(\)\)\)/);
   assert.match(code, /LIMITS\.photoDoorPerBusiness/);
   // Credentials are read by NAME through r2Config; the only other env read is the anon key, for the budget.
+  //
+  // **THE DISTINCT SET, NOT THE LIST, AND THE CHANGE IS RECORDED RATHER THAN
+  // QUIETLY MADE — ROADMAP 0.11 slice 4.** It was `envReads.sort()` against a
+  // two-element list, which went red the moment a SECOND by-name helper was
+  // wired (`mediaBase`, the public address for `business-media`): two
+  // `Deno.env.get(n)` calls, both correct. The thing being asserted is *which
+  // names this file reads from the environment* — that the only literal is the
+  // anon key and every credential-shaped value goes through a helper that takes
+  // the name as an argument. A set says exactly that and survives a third
+  // helper; it is still an equality, so a stray `Deno.env.get("R2_SECRET…")`
+  // added tomorrow still reddens it (gotcha 98 — a declaration is an equality,
+  // never an inequality).
   const envReads = [...code.matchAll(/Deno\.env\.get\(([^)]*)\)/g)].map((m) => m[1]);
-  assert.deepEqual(envReads.sort(), ['"SUPABASE_ANON_KEY"', "n"].sort());
+  assert.ok(envReads.length >= 2, "the env reads stopped matching; the pattern or the file changed");
+  assert.deepEqual([...new Set(envReads)].sort(), ['"SUPABASE_ANON_KEY"', "n"].sort(),
+    `a name is read from the environment that is neither the anon key nor passed to a by-name helper: ${envReads.join(", ")}`);
+  // And the public address is wired the same way the credentials are: by name,
+  // through `mediaBase`, never spelled as a literal here.
+  assert.match(code, /mediaBase\(\(n\) => Deno\.env\.get\(n\)\)/);
+  assert.match(code, /mediaUrl: base \?/, "the public image address is not wired into the door");
   assert.ok(!/console\.(log|error)\([^)]*(SECRET|ACCESS_KEY|config\b)/.test(code), "no credential is passed to a log call");
   const deploy = readFileSync("scripts/deploy-functions.mjs", "utf8");
   assert.ok(!/photo-door/.test(deploy), "photo-door is not in PUBLIC_FUNCTIONS, so it deploys with verify_jwt on");

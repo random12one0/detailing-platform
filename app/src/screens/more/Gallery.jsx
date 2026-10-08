@@ -43,7 +43,7 @@ export default function Gallery() {
     setMsg(null);
     try {
       for (const file of files) {
-        const url = await uploadBusinessPhoto(business.id, file, "gallery");
+        const { url } = await uploadBusinessPhoto(business.id, file, "gallery");
         const { error } = await supabase.from("gallery_images").insert({
           business_id: business.id,
           kind: "single",

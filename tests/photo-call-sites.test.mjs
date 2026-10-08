@@ -97,6 +97,68 @@ test("3 · THE REAL RESULT — every call to addPhoto in app/src gives it a book
   assert.deepEqual(bad, [], bad.join("\n"));
 });
 
+// ---------------------------------------------------------------------------
+// ROADMAP 0.11 SLICE 4 — AND THE SAME QUESTION ABOUT THE OTHER UPLOAD FUNCTION
+// ---------------------------------------------------------------------------
+// `uploadBusinessPhoto` returned a bare url until slice 4 and now returns
+// `{ url, key }` — the key, so `publishToGallery` can undo its own upload
+// instead of keeping a second copy of the whole function. **That is a change to
+// a function three screens call, and getting it wrong is silent in the worst
+// way:** `const url = await uploadBusinessPhoto(…)` still compiles, still
+// uploads the file, and then writes the string `"[object Object]"` into a
+// business's `logo_url` or a `gallery_images` row. A saved row, not a failed
+// press, and nothing goes red.
+//
+// So the same question this file asks of `addPhoto` is asked here: not "does
+// the function work" but "does every caller use it correctly", with the callers
+// DISCOVERED so a new screen is checked by existing.
+
+/** How each `uploadBusinessPhoto(` call in `src` takes its result. */
+export function uploadBindings(src) {
+  const code = stripComments(src);
+  const out = [];
+  for (const m of code.matchAll(/(?:(?:const|let|var)\s+(\{[^}]*\}|[A-Za-z_$][\w$]*)\s*=\s*)?await\s+uploadBusinessPhoto\s*\(/g)) {
+    out.push(m[1] ?? null);   // null = the result is ignored, which is fine
+  }
+  return out;
+}
+
+/** What is wrong with one binding, as a plain phrase. Empty string is fine. */
+export function bindingProblem(bound) {
+  if (bound === null) return "";                       // ignored on purpose
+  if (!bound.startsWith("{")) {
+    return `takes the result as a single value (\`${bound}\`); uploadBusinessPhoto returns { url, key }, `
+      + "so this writes an object where a url belongs";
+  }
+  const names = bound.slice(1, -1).split(",").map((t) => t.trim().split(":")[0].trim()).filter(Boolean);
+  const unknown = names.filter((n) => !["url", "key"].includes(n));
+  return unknown.length ? `destructures ${unknown.join(", ")}, which uploadBusinessPhoto does not return` : "";
+}
+
+test("5 · SABOTAGE — the checker sees the binding every call site used before slice 4", () => {
+  const old = 'const url = await uploadBusinessPhoto(business.id, file, "gallery");';
+  assert.deepEqual(uploadBindings(old), ["url"]);
+  assert.match(bindingProblem(uploadBindings(old)[0]), /single value/);
+  // and the forms that are right
+  assert.equal(bindingProblem(uploadBindings('const { url } = await uploadBusinessPhoto(b, f, "gallery");')[0]), "");
+  assert.equal(bindingProblem(uploadBindings('const { url, key: dest } = await uploadBusinessPhoto(b, f, "gallery");')[0]), "");
+  assert.equal(bindingProblem(uploadBindings('await uploadBusinessPhoto(b, f, "intake");')[0]), "");
+  // a field that does not exist is caught too, which is the other direction
+  assert.match(bindingProblem(uploadBindings('const { publicUrl } = await uploadBusinessPhoto(b, f, "gallery");')[0]), /does not return/);
+  // the definition is not a call
+  assert.deepEqual(uploadBindings("export async function uploadBusinessPhoto(businessId, file, folder = \"gallery\") {"), []);
+});
+
+test("6 · THE REAL RESULT — every uploadBusinessPhoto caller in app/src takes its result correctly", () => {
+  const files = walk(ROOT).filter((f) => !/lib[\\/]upload\.js$/.test(f));
+  const sites = files.flatMap((f) => uploadBindings(readFileSync(f, "utf8")).map((b) => ({ f, b })));
+  // A DISCOVERY FLOOR: four callers today — the logo and hero on Business info,
+  // the gallery screen, the website intake, and the gallery copy in photos.js.
+  assert.ok(sites.length >= 3, `only ${sites.length} uploadBusinessPhoto call sites found; the pattern or the tree changed`);
+  const bad = sites.flatMap(({ f, b }) => { const p = bindingProblem(b); return p ? [`${f}: ${p}`] : []; });
+  assert.deepEqual(bad, [], bad.join("\n"));
+});
+
 test("4 · the website-intake photos go to the business's own folder, and nothing is published from there", () => {
   const src = stripComments(readFileSync("app/src/screens/SiteIntake.jsx", "utf8"));
   assert.match(src, /uploadBusinessPhoto\(business\.id, file, "intake"\)/);

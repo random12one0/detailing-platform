@@ -1554,6 +1554,10 @@ export const appEs = {
     "La foto no terminó de subirse. No se guardó nada.",
   "The photo service did not confirm that the photo was saved. Reload this job to check before adding it again.":
     "El servicio de fotos no confirmó que la foto se guardó. Vuelve a abrir este trabajo para revisar antes de agregarla de nuevo.",
+  // ROADMAP 0.11, slice 4 — the public images store. The five file-type names
+  // stay as they are: they are the extensions a file is called, not words.
+  "That kind of image cannot be used. Choose a JPG, PNG, WEBP, GIF or AVIF.":
+    "Ese tipo de imagen no se puede usar. Elige un JPG, PNG, WEBP, GIF o AVIF.",
   "Disconnect Stripe": "Desconectar Stripe",
   "Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button.":
     "¿Desconectar Stripe? Tus clientes no podrán pagar con tarjeta, y cualquier recibo que tengan pierde su botón de Pagar.",

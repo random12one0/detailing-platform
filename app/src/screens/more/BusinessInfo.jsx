@@ -198,7 +198,7 @@ export default function BusinessInfo() {
     setBusy(true);
     setMsg(null);
     try {
-      const url = await uploadBusinessPhoto(business.id, file, folder);
+      const { url } = await uploadBusinessPhoto(business.id, file, folder);
       setBrand((b) => ({ ...b, [field]: url }));
       setMsg({ ok: true, text: t("Photo uploaded. Press Save to keep it.") });
     } catch (err) {

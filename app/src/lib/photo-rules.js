@@ -153,3 +153,66 @@ export function storagePath({ businessId, ownerId, id, type } = {}) {
 /** What the bucket policy reads. Kept here so a test can assert against the
  *  same expression the database uses rather than against a guess. */
 export const firstFolder = (path) => String(path ?? "").split("/")[0];
+
+// ---------------------------------------------------------------------------
+// THE PUBLIC BUCKET'S PATH — `business-media`. ROADMAP 0.11 slice 4.
+// ---------------------------------------------------------------------------
+// **THE FIRST FOLDER IS STILL THE ISOLATION, and everything the long comment
+// above says applies here unchanged.** What differs is the middle segment: a
+// logo and a gallery photograph hang off no row, so where a job photo names its
+// booking, a business image names a FOLDER — one of exactly three, which are the
+// three `uploadBusinessPhoto` is called with.
+//
+// **AND THE TYPES ARE THE BUCKET'S OWN, NOT `shrink()`'s.** A job photo is
+// re-encoded to JPEG on the way up, which is why `extForType` above answers
+// only `jpg` or `png`. A logo must not be: re-encoding a PNG logo to JPEG
+// throws away its transparency and leaves a white box on a dark booking page.
+// So a business image is uploaded as the file the detailer chose, and the five
+// types here are exactly `business-media`'s own `allowed_mime_types` from
+// `20260827001000_phase2_cleanup_and_storage.sql` — no sixth, because the
+// bucket refuses a sixth, and no fewer, because a detailer can upload all five
+// today.
+//
+// **THESE TWO CONSTANTS ARE HELD AGAINST THE SERVER'S COPIES BY
+// `tests/photo-door-media.test.mjs`, which imports BOTH and compares them.**
+// Two copies of a path rule that can disagree is this repo's most repeated
+// failure; the app and the edge function are different runtimes and cannot
+// share a module, so the agreement is asserted instead of assumed.
+
+/** The three folders business images are filed under, and no others. */
+export const MEDIA_FOLDERS = ["gallery", "branding", "intake"];
+
+/** Content type to stored extension, for the public bucket. */
+export const MEDIA_EXT_FOR_TYPE = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/avif": "avif",
+};
+
+/** The extension a business image of this type is stored under, or `null` if
+ *  the bucket does not take the type at all. `null` rather than a default:
+ *  guessing `jpg` for a HEIC would store a file under a name that lies about
+ *  what is in it, and the screen can say something useful instead. */
+export const mediaExtForType = (type) => MEDIA_EXT_FOR_TYPE[String(type ?? "")] ?? null;
+
+/**
+ * `businessId/folder/id.ext` — the key the door mints for a business image.
+ * Throws rather than producing a path with an empty or unknown segment, for
+ * the reason `storagePath` does: the first folder is the check, and a folder
+ * name outside the three would be an object nothing can later parse as ours.
+ */
+export function mediaPath({ businessId, folder, id, type } = {}) {
+  for (const [name, v] of [["businessId", businessId], ["id", id]]) {
+    if (!v || !String(v).trim() || String(v).includes("/")) {
+      throw new Error(`mediaPath: ${name} is missing or not a single path segment`);
+    }
+  }
+  if (!MEDIA_FOLDERS.includes(folder)) {
+    throw new Error(`mediaPath: folder must be one of ${MEDIA_FOLDERS.join(", ")}`);
+  }
+  const ext = mediaExtForType(type);
+  if (!ext) throw new Error(`mediaPath: ${type} is not a type business-media accepts`);
+  return `${businessId}/${folder}/${id}.${ext}`;
+}

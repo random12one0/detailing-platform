@@ -42,13 +42,20 @@
 // wrong tenant, every way a key can carry one, and fails if a single one is
 // allowed. A guard that cannot refuse is the whole defect this replaces.
 
-import { storagePath, extForType } from "../app/src/lib/photo-rules.js";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { storagePath, extForType, mediaPath, MEDIA_FOLDERS, MEDIA_EXT_FOR_TYPE } from "../app/src/lib/photo-rules.js";
 import {
   parseObjectKey,
   businessOwnsKey,
   assertBusinessOwnsKey,
   businessPrefix,
   TENANT_PRIVATE_BUCKETS,
+  TENANT_PUBLIC_BUCKET,
+  MEDIA_EXTS,
+  MEDIA_FOLDERS as SERVER_MEDIA_FOLDERS,
 } from "../supabase/functions/_shared/photoKey.ts";
 
 let pass = 0, fail = 0;
@@ -190,8 +197,119 @@ check("6a an always-yes guard would allow B A's object, which § 2 refuses",
   alwaysYes(B, aKey) === true && businessOwnsKey(B, aKey) === false);
 check("6b an always-no guard would refuse A its own object, which § 1 requires",
   alwaysNo(A, aKey) === false && businessOwnsKey(A, aKey) === true);
+// ═════════════════════════════════════════════════════════════════════════
+// 7 · THE SECOND SHAPE — `business-media`. ROADMAP 0.11 slice 4.
+// ═════════════════════════════════════════════════════════════════════════
+// **THE GUARD WAS WIDENED, SO THIS FILE IS WIDENED WITH IT**, which is the
+// instruction `photoKey.ts`'s own header gives, and the reason this section is
+// here rather than only in the new suite. The public bucket's middle segment is
+// a FOLDER NAME, so every key in it returned `null` from the one shape above —
+// correct refusal, and useless as a guard, because the door would then have
+// refused the whole store.
+//
+// **THE TWO QUESTIONS THAT MATTER ARE THE SAME TWO, ASKED AGAIN**, plus one that
+// only exists now there are two shapes: THEY MUST NOT BLEED. A job-photo key
+// that parsed as a business image would let the public store delete a private
+// object, and a business image that parsed as a private key would let the
+// private stores sign for a public one. Both directions are asked.
+console.log("\n7. the public bucket's shape, and that the two shapes do not bleed");
+
+const mKey = mediaPath({ businessId: A, folder: "gallery", id: PHOTO, type: "image/jpeg" });
+check("7a the guard accepts exactly what mediaPath() mints", businessOwnsKey(A, mKey, "media") === true, mKey);
+check("7b and refuses it to B", businessOwnsKey(B, mKey, "media") === false);
+check("7c every folder and every type round-trips", (() => {
+  for (const folder of MEDIA_FOLDERS) {
+    for (const type of Object.keys(MEDIA_EXT_FOR_TYPE)) {
+      const k = mediaPath({ businessId: A, folder, id: PHOTO, type });
+      if (businessOwnsKey(A, k, "media") !== true) return false;
+      if (businessOwnsKey(B, k, "media") !== false) return false;
+    }
+  }
+  return true;
+})(), `${MEDIA_FOLDERS.length} folders × ${Object.keys(MEDIA_EXT_FOR_TYPE).length} types`);
+check("7d the app and the server allow the same folders",
+  JSON.stringify(MEDIA_FOLDERS) === JSON.stringify([...SERVER_MEDIA_FOLDERS]),
+  `${MEDIA_FOLDERS.join(",")} vs ${[...SERVER_MEDIA_FOLDERS].join(",")}`);
+check("7e every extension the app can mint is one the guard can parse",
+  Object.values(MEDIA_EXT_FOR_TYPE).every((e) => MEDIA_EXTS.includes(e)),
+  `${Object.values(MEDIA_EXT_FOR_TYPE).join(",")} vs ${[...MEDIA_EXTS].join(",")}`);
+check("7f the public bucket is named, and is not in the private list",
+  TENANT_PUBLIC_BUCKET === "business-media" && !TENANT_PRIVATE_BUCKETS.includes(TENANT_PUBLIC_BUCKET),
+  "a public bucket in the private list would be handed signed GET urls for objects anybody can already read");
+
+// THE TWO SHAPES DO NOT BLEED, both directions.
+check("7g a job-photo key is not a business image", businessOwnsKey(A, aKey, "media") === false, aKey);
+check("7h a business image is not a job-photo key", businessOwnsKey(A, mKey) === false, mKey);
+check("7i the default shape is still the private one, so no existing caller moved",
+  businessOwnsKey(A, aKey) === true && parseObjectKey(aKey)?.photoId === PHOTO);
+
+// EVERY WRONG-TENANT SHAPE FROM ·2 IS REFUSED UNDER THE NEW SHAPE TOO, plus the
+// ones only this shape can have: a folder outside the list, an extension outside
+// it, and an unknown shape NAME, which must not fall back to the private pattern.
+check(`7j every wrong-tenant key ·2 lists is refused as a business image too`,
+  WRONG_TENANT.every(([, key]) => businessOwnsKey(B, key, "media") === false),
+  `${WRONG_TENANT.length} keys`);
+const MEDIA_WRONG = [
+  ["a folder outside the list", `${A}/secrets/${PHOTO}.jpg`, "media"],
+  ["an uppercase folder", `${A}/GALLERY/${PHOTO}.jpg`, "media"],
+  ["an extension the bucket refuses", `${A}/gallery/${PHOTO}.svg`, "media"],
+  ["no extension", `${A}/gallery/${PHOTO}`, "media"],
+  ["a traversal in the folder slot", `${A}/../${B}/gallery/${PHOTO}.jpg`, "media"],
+  ["a fourth segment", `${A}/gallery/sub/${PHOTO}.jpg`, "media"],
+  ["a bare prefix", `${A}/gallery/`, "media"],
+  ["its own key under an unknown shape name", mKey, "nonesuch"],
+];
+
+// · AND THE WIDENING IS SABOTAGED, because a widened allowlist is exactly the
+// kind of change that reads as safe. The folder group is loosened to anything
+// without a slash — which is what somebody writing `[^/]+` "so a new folder
+// does not need a code change" would produce — and the two refusals that must
+// then stop refusing are asserted to stop. `..` is not in the list and IS a
+// segment without a slash, so that one edit reopens the traversal this whole
+// file exists to close.
+const sabSrc = readFileSync("supabase/functions/_shared/photoKey.ts", "utf8")
+  .replace(/\r\n/g, "\n")
+  .replace("${MEDIA_FOLDERS.join(\"|\")}", "[^/]+");
+const sabFile = path.join(mkdtempSync(path.join(tmpdir(), "photokey-sab-")), "loose.ts");
+writeFileSync(sabFile, sabSrc);
+const loose = await import(pathToFileURL(sabFile).href);
+check("7m the control: the real guard refuses a folder outside the list",
+  businessOwnsKey(A, `${A}/secrets/${PHOTO}.jpg`, "media") === false);
+check("7m a loosened folder group accepts a folder outside the list",
+  loose.businessOwnsKey(A, `${A}/secrets/${PHOTO}.jpg`, "media") === true,
+  "the sabotage changed nothing, so 7k was never testing the folder list");
+// **AND THIS IS WHERE RUNNING THE SABOTAGE TAUGHT SOMETHING THE FIRST DRAFT HAD
+// WRONG, SO IT IS WRITTEN DOWN RATHER THAN QUIETLY FIXED.** The probe was
+// `${A}/../${B}/gallery/${PHOTO}.jpg`, and it stayed REFUSED with the folder
+// group loosened — because that key has five segments and the pattern has
+// three, whichever characters the middle one allows. So the folder allowlist is
+// not what closes a deep traversal; the SEGMENT COUNT and the anchoring are.
+// What the allowlist closes is the one-level escape below, whose real object is
+// the bucket root rather than anything inside A.
+const escape1 = `${A}/../${PHOTO}.jpg`;
+check("7m a loosened folder group reopens a one-level escape",
+  loose.businessOwnsKey(A, escape1, "media") === true
+  && businessOwnsKey(A, escape1, "media") === false,
+  "an object OUTSIDE A's folder read as A's: the fault the allowlist exists to make unrepresentable");
+check("7m the deeper traversal is closed by the segment count, not by the folder list",
+  loose.businessOwnsKey(A, `${A}/../${B}/gallery/${PHOTO}.jpg`, "media") === false,
+  "if this ever passes, the pattern has stopped being three anchored segments");
+
+for (const [name, key, shape] of MEDIA_WRONG) {
+  check(`7k A is refused: ${name}`, businessOwnsKey(A, key, shape) === false, JSON.stringify(key));
+}
+
 
 console.log(`\n   ${minted} minted keys · ${WRONG_TENANT.length} wrong-tenant keys · `
-  + `10 bad callers · 2 naive guards fooled`);
+  + `10 bad callers · 2 naive guards fooled · `
+  + `${MEDIA_FOLDERS.length * Object.keys(MEDIA_EXT_FOR_TYPE).length} media keys round-tripped · `
+  + `${MEDIA_WRONG.length} media keys refused`);
 console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+// `exitCode` RATHER THAN `process.exit()`, AND THE REASON IS A REAL CRASH.
+// § 7m imports a rebuilt copy of `photoKey.ts`, which leaves the type-stripping
+// loader's handle open; exiting the process on top of it printed
+// `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)` from libuv AFTER a
+// clean "83 passed, 0 failed" and exit code 0. A green run that ends in a crash
+// message is a run the next session will not trust. Setting the code lets node
+// finish on its own; the exit status is identical.
+process.exitCode = fail ? 1 : 0;

@@ -28,7 +28,7 @@ import { SUPABASE_URL, supabase } from "../_shared/db.ts";
 import { can, requireMember } from "../_shared/tenant.ts";
 import { LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { handlePhotoDoor, type PhotoDeps, type PhotoRow } from "../_shared/photoDoor.ts";
-import { makeR2, r2Config } from "../_shared/r2.ts";
+import { makeR2, mediaBase, publicUrl, r2Config } from "../_shared/r2.ts";
 
 const getPhoto = async (businessId: string, photoId: string): Promise<PhotoRow | null> => {
   const { data, error } = await supabase.from("job_photos").select("*")
@@ -40,6 +40,11 @@ const getPhoto = async (businessId: string, photoId: string): Promise<PhotoRow |
 const deps = (): PhotoDeps => {
   const { config, missing } = r2Config((n) => Deno.env.get(n));
   if (!config) console.error("photo-door: not configured, missing", missing.join(", "));
+  // `business-media` is public-read, so it needs an address as well as a
+  // credential — and a missing one is a different failure from a missing key,
+  // so it is logged by its own NAME. ROADMAP 0.11 slice 4.
+  const { base, missing: noBase } = mediaBase((n) => Deno.env.get(n));
+  if (!base) console.error("photo-door: no public image address, missing", noBase.join(", "));
   return {
     requireMember,
     can,
@@ -120,6 +125,12 @@ const deps = (): PhotoDeps => {
         .eq("id", expenseId).eq("business_id", businessId);
       if (error) throw error;
     },
+
+    // ------------------------------------------- business-media, slice 4
+    // No row and no query: the whole wiring is one address. `null` when none
+    // is configured, and the door turns that into a sentence rather than a
+    // signed upload nobody could ever read back.
+    mediaUrl: base ? (key) => publicUrl(base, key) : undefined,
 
     r2: config ? makeR2(config) : null,
     log: (...a) => console.error(...a),

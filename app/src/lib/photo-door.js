@@ -61,12 +61,43 @@
 //            Row first, then the object: the other order leaves a row pointing
 //            at nothing, this one can at worst leave bytes the reconcile counts.
 //
-// **WHAT IT DOES NOT COVER, ON PURPOSE.** `business-media` (the public gallery
-// copy) and `expense-receipts` stay on Supabase Storage in this slice; so does
-// `publishToGallery`'s destination. See `ROADMAP.md` 0.11 for the slices left.
+// ---------------------------------------------------------------------------
+// AND TWO MORE STORES SINCE, EACH ASKED FOR BY A `store` FIELD. Slice 1's
+// bodies send none, which still means `job`, so nothing above changed.
+//
+//   store: "receipt"   `expense-receipts`. Same four actions; the parent is an
+//            EXPENSE and `finish` UPDATES five columns rather than inserting a
+//            row. The exact bodies are in `ROADMAP.md` 0.11, slice 5.
+//
+//   store: "media"     `business-media` — the logo, the marketing gallery and
+//            the website-intake photographs. **TWO ACTIONS, NOT FOUR**, because
+//            a business image hangs off no row:
+//
+//     start  { business_id, store:"media", folder, file_id, content_type,
+//              claimed_bytes }
+//       200  { upload_url, key, public_url, expires_in }
+//            `folder` is one of `gallery` / `branding` / `intake`. The PUT URL
+//            is signed for the declared `content-length` as well as the type,
+//            so the body must be exactly `claimed_bytes` long — that signature
+//            is the only thing holding the bucket's 10 MB per-file ceiling,
+//            since there is no `finish` to measure the real size at.
+//            `public_url` is where anybody reads it, and it is the thing that
+//            gets stored in a row.
+//
+//     remove { business_id, store:"media", key }
+//       200  { removed: true }
+//            BY KEY, because there is no row to name. A key belonging to
+//            another business is 404, exactly like one that does not exist.
+//
+//     There is no `finish` (nothing to record) and no `urls` (the bucket is
+//     public-read, so there is nothing to sign). Both answer in words.
+//
+// **BOTH ARE BEHIND A FLAG IN THIS FILE AND BOTH ARE OFF** —
+// `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`, each with its reason beside it.
+// Job photos have no flag because they never had a working path to lose.
 // ---------------------------------------------------------------------------
 
-import { storagePath } from "./photo-rules.js";
+import { mediaPath, storagePath } from "./photo-rules.js";
 
 export const DOOR = "photo-door";
 
@@ -93,6 +124,30 @@ export const DOOR = "photo-door";
 // has not published yet. Same destination, different starting state, so a
 // different switch.
 export const RECEIPTS_VIA_DOOR = false;
+
+// ── ROADMAP 0.11 SLICE 4 — THE PUBLIC IMAGES FLAG ───────────────────────────
+// **FLIP THIS TO `true` ONCE `photo-door` IS PUBLISHED *AND* `business-media`
+// HAS A PUBLIC ADDRESS AND A CORS RULE IN CLOUDFLARE.** It is a flag for the
+// same reason `RECEIPTS_VIA_DOOR` is one and not for a different reason:
+// logos, the marketing gallery and the website-intake photographs all WORK
+// today, so re-pointing them unconditionally would break a working feature on
+// the next push, before a publish only Andrew can do.
+//
+// **IT NEEDS ONE THING RECEIPTS DO NOT, AND IT IS NOT A KEY.** `business-media`
+// is public-read: a logo is rendered to an anonymous visitor on a booking page,
+// so a signed URL is no use and the bucket needs a real public address.
+// Supabase gives a public bucket one for free; **R2 gives it none until
+// somebody binds one in the Cloudflare dashboard.** So there is a third
+// condition behind this flag that is a DECISION rather than a publish —
+// `FOR-ANDREW.md` step 9 puts it in his words, and the recommendation is a
+// custom domain, because `gallery_images.image_url` stores an ABSOLUTE url and
+// whatever host is live on the day of the switch is written permanently into
+// every row made after it.
+//
+// **AND NOTHING GOES RED IF IT IS LEFT `false` AFTER ALL THREE ARE TRUE** — the
+// old path keeps working, which is exactly why this comment and the row in
+// `FOR-ANDREW.md` exist.
+export const MEDIA_VIA_DOOR = false;
 /** The most keys one `urls` call may carry; `signedUrls` chunks to this. */
 export const DOOR_BATCH = 100;
 
@@ -111,6 +166,11 @@ export const DOOR_WORDS = {
   unreadable: "The photo service sent back something this screen cannot use. Reload this job and check before trying again.",
   putFailed: "The photo did not finish uploading. Nothing was saved.",
   unconfirmed: "The photo service did not confirm that the photo was saved. Reload this job to check before adding it again.",
+  // SLICE 4. Said before anything is sent, because the file is on the person's
+  // phone and they can pick another one. It names the five the bucket takes
+  // rather than the one it refused: "image/heic is not supported" tells a
+  // detailer nothing they can act on.
+  badImageType: "That kind of image cannot be used. Choose a JPG, PNG, WEBP, GIF or AVIF.",
 };
 
 const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
@@ -148,13 +208,33 @@ export function doorError(err) {
   return err instanceof Error ? err : new Error(String(err));
 }
 
-/** `start`'s answer, or a thrown sentence. The key must be EXACTLY the one
- *  this press asked for: the browser will not PUT to any other object. */
-export function readStart(resp, { businessId, bookingId, photoId, type }) {
-  const want = storagePath({ businessId, ownerId: bookingId, id: photoId, type });
+/**
+ * **ONE EXPRESSION DECIDES WHAT THIS BROWSER WILL PUT TO, FOR EVERY STORE.**
+ * An `https` url, and a key that is EXACTLY the one this press asked for.
+ *
+ * **IT WAS INLINE IN `readStart` UNTIL SLICE 4, AND A RUNNING CANARY IS WHAT
+ * MOVED IT.** `readMediaStart` needs the same two checks against a differently
+ * minted key, and spelling them again made two of
+ * `tests/photo-door.test.mjs` § 5's sabotage targets ambiguous — `resp.key !==
+ * want` and the `https` test each appeared twice, so that suite refused to run
+ * and said "the line to sabotage is not unique". **That is the third time this
+ * slice met that trap** (`_shared/photoDoor.ts`'s receipt branch renamed its
+ * budget locals for it, and its media branch its permission local), and here
+ * the trap was pointing at the better answer rather than at a rename: lifting
+ * the rule out leaves ONE copy, so the sabotage is unique again AND it now
+ * disarms the check for both stores at once, which is what a canary aimed at
+ * production code is supposed to do. `docs/gotchas.md` 95.
+ */
+const checkedStart = (resp, want) => {
   if (!isObject(resp) || typeof resp.upload_url !== "string" || !/^https:\/\//.test(resp.upload_url)
     || typeof resp.key !== "string" || resp.key !== want) refuse("unreadable");
   return { uploadUrl: resp.upload_url, key: resp.key };
+};
+
+/** `start`'s answer, or a thrown sentence. The key must be EXACTLY the one
+ *  this press asked for: the browser will not PUT to any other object. */
+export function readStart(resp, { businessId, bookingId, photoId, type }) {
+  return checkedStart(resp, storagePath({ businessId, ownerId: bookingId, id: photoId, type }));
 }
 
 /** `finish`'s answer, or a thrown sentence. A row with no positive whole-number
@@ -191,6 +271,27 @@ export function readReceiptFinish(resp, { expenseId, key }) {
   if (!isObject(x) || x.id !== expenseId || x.receipt_path !== key) refuse("unconfirmed");
   if (!Number.isInteger(x.receipt_bytes) || x.receipt_bytes <= 0) refuse("unconfirmed");
   return x;
+}
+
+/**
+ * `start`'s answer for a BUSINESS IMAGE — ROADMAP 0.11 slice 4.
+ *
+ * **IT CHECKS A THIRD FIELD THE OTHER TWO STORES DO NOT HAVE: `public_url`.**
+ * `business-media` is public-read and the url is what gets WRITTEN TO A ROW —
+ * `gallery_images.image_url`, the brand's `logo_url` — so an unusable one is
+ * not a broken image this time, it is a broken image stored permanently. It is
+ * required, and required to be `https`, because an `http` image is blocked as
+ * mixed content on every page this product serves and would look like a missing
+ * logo rather than a configuration mistake.
+ *
+ * The key is `mediaPath()`'s, called rather than restated, for the reason
+ * `readStart` calls `storagePath()`: the browser will not PUT to any other
+ * object, and one expression decides which.
+ */
+export function readMediaStart(resp, { businessId, folder, fileId, type }) {
+  const out = checkedStart(resp, mediaPath({ businessId, folder, id: fileId, type }));
+  if (typeof resp.public_url !== "string" || !/^https:\/\//.test(resp.public_url)) refuse("unreadable");
+  return { ...out, publicUrl: resp.public_url };
 }
 
 /** `urls`' answer: the map, or a thrown sentence if there is no map at all. A

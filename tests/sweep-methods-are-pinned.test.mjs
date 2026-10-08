@@ -433,7 +433,23 @@ const DECLARED = {
   // 9.23 is filed `[x]` in the same edit and therefore adds nothing: a ticked
   // item is not in this population at all, which is the same rule the -6 is.
   // Measured against `git show <HEAD>:ROADMAP.md` (321) and this tree (315).
-  quoteFragments: 315,
+  //
+  // 315 -> 317, 2026-10-08, in the same edit as ROADMAP 0.11's slice 4 note, and
+  // **the two new fragments are named rather than counted** because a +2 with no
+  // names is the thing this constant exists to stop:
+  //
+  //     "[object Object]"                     what a wrong destructure of
+  //                                           uploadBusinessPhoto now saves into a
+  //                                           business's logo_url
+  //     "the line to sabotage is not unique"  the message a canary printed when
+  //                                           readMediaStart re-spelled two of
+  //                                           tests/photo-door.test.mjs's targets
+  //
+  // 0.11 is open and has a `Done when`, so anything appended to its entry is in
+  // this population. Nothing closed and nothing else moved: `quoteCriteria` and
+  // `numberedOpenItems` are unchanged, which is what a note on an EXISTING item
+  // should do. Measured against `git show HEAD:ROADMAP.md` (315) and this tree (317).
+  quoteFragments: 317,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

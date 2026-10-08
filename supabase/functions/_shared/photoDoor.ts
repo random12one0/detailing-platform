@@ -41,9 +41,9 @@
 // The service-role client bypasses RLS, so the door enforces it itself.
 
 import { json, preflight } from "./http.ts";
-import { businessOwnsKey } from "./photoKey.ts";
+import { businessOwnsKey, MEDIA_EXTS, MEDIA_FOLDERS, TENANT_PUBLIC_BUCKET } from "./photoKey.ts";
 
-/** The bucket this door signs for by default. `business-media` is slice 4. */
+/** The bucket this door signs for by default. */
 export const BUCKET = "job-photos";
 /** `job-photos`' own `file_size_limit`: the ceiling, not the expectation. */
 export const MAX_BYTES = 10 * 1024 * 1024;
@@ -51,6 +51,9 @@ export const MAX_BYTES = 10 * 1024 * 1024;
  *  document and the client resizes before upload
  *  (`20260921020000_a_receipt_is_not_a_job_photo.sql`). */
 export const RECEIPT_MAX_BYTES = 5 * 1024 * 1024;
+/** `business-media`'s own `file_size_limit`, 10 MB per file
+ *  (`20260827001000_phase2_cleanup_and_storage.sql`). */
+export const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
 /** How long a PUT URL lives: long enough for a slow driveway upload. */
 export const PUT_SECONDS = 600;
 /** How long a GET URL lives. Matches `SIGNED_FOR` in `app/src/lib/photos.js`. */
@@ -105,13 +108,56 @@ const KINDS = ["before", "after", "damage"];
 
 /** Which store a request is for. Absent means `job`: the app half built in
  *  slice 1 sends no `store` field and must keep working unchanged. */
-export type StoreName = "job" | "receipt";
+// ---------------------------------------------------------------------------
+// AND A THIRD STORE — `business-media`, ROADMAP 0.11 slice 4
+// ---------------------------------------------------------------------------
+// **IT BREAKS THE "SAME FOUR QUESTIONS" PATTERN IN TWO PLACES, AND BOTH ARE
+// WRITTEN HERE RATHER THAN DISCOVERED LATER.**
+//
+// **1 · THERE IS NO PARENT ROW AND NO ROW TO WRITE.** A logo hangs off nothing;
+// the gallery row is `gallery_images`, written by the browser afterwards, and
+// the intake photographs are written nowhere at all on purpose. So the store
+// has no `finish`: the object IS the whole act, and the only thing the app
+// needs back is the key and the public address. `remove` therefore takes a
+// KEY, because the key is the only handle anything has on the object.
+//
+// **2 · IT IS NOT METERED, AND IT IS NOT METERED TODAY EITHER.**
+// `job_photo_budget()` sums `job_photos` and the `expenses` receipt columns —
+// `business-media` is in neither, and it never has been, so nothing here
+// removes a cap. **But the move changes what "unmetered" costs.** On Supabase
+// the free plan's 1 GB was a hard ceiling that stopped the upload; on R2 there
+// is no ceiling and the same traffic arrives as a bill, which is the shape
+// `docs/the-photo-allowance.md` § 5 trap one warns about. **Adding this bucket
+// to the allowance is a migration and a number nobody has chosen**, so it is
+// recorded in `ROADMAP.md` 0.11 and `FOR-ANDREW.md` as a decision rather than
+// quietly invented here. What IS enforced is the per-file ceiling, below.
+//
+// **AND THE PER-FILE CEILING IS A SECOND GUARD R2 DOES NOT HAVE.** Supabase
+// enforced `file_size_limit` on the server, whatever the client said. R2
+// enforces nothing: a presigned PUT will take a five-gigabyte body as happily
+// as a five-kilobyte one. The private stores catch an under-claim afterwards,
+// at `finish`, by asking R2 how big the object really is — and this store has
+// no finish. So **the claimed size is signed INTO the URL as `content-length`**
+// (`putUrl`'s `exactBytes`), which makes the browser's claim binding: send one
+// byte more or less than it declared and R2 refuses the PUT outright. The
+// claim check below stays anyway, so an over-size file is refused in a sentence
+// a detailer can read instead of as a 403 from Cloudflare.
+//
+// **WRITING TO THIS BUCKET NEEDS THE `settings` PERMISSION, which is NOT the
+// same asymmetry as the other two stores.** They let any member add and need
+// `settings` only to remove; `20260904001000_catalog_behind_settings.sql`
+// replaced this bucket's three write policies so that insert, update AND delete
+// all require it — a logo and a marketing gallery are the business's public
+// face, not the job in front of you. Both actions here check it.
+
+export type StoreName = "job" | "receipt" | "media";
 
 export interface StoreProfile {
   bucket: string;
   maxBytes: number;
-  /** The request field naming the row this object hangs off. */
-  parentField: string;
+  /** The request field naming the row this object hangs off, or `null` when
+   *  there is no parent row (`media`). */
+  parentField: string | null;
   /** The request field naming the object itself. */
   idField: string;
   /** `null` when the store has no kinds. */
@@ -129,10 +175,26 @@ export const STORES: Record<StoreName, StoreProfile> = {
     bucket: "expense-receipts", maxBytes: RECEIPT_MAX_BYTES,
     parentField: "expense_id", idField: "file_id", kinds: null, noun: "receipt",
   },
+  media: {
+    bucket: TENANT_PUBLIC_BUCKET, maxBytes: MEDIA_MAX_BYTES,
+    parentField: null, idField: "file_id", kinds: null, noun: "image",
+  },
 };
 // `shrink()` re-encodes to JPEG and only PNG survives as PNG, and
 // `parseObjectKey` knows exactly these two extensions.
 const EXT: Record<string, "jpg" | "png"> = { "image/jpeg": "jpg", "image/png": "png" };
+// THE PUBLIC BUCKET TAKES FIVE TYPES, which is the bucket's own
+// `allowed_mime_types` and not a choice made here: signing for a sixth hands
+// out a URL the bucket itself would refuse, and refusing one of these five
+// would reject a file a detailer can upload today. A business image is NOT run
+// through `shrink()` — a logo must not be re-encoded to JPEG and lose its
+// transparency — so the type arrives as the file's own and the extension
+// follows it. The keys of this map and `MEDIA_EXTS` are held to agree by
+// `tests/photo-door-media.test.mjs` § 0.
+export const MEDIA_EXT: Record<string, string> = {
+  "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp",
+  "image/gif": "gif", "image/avif": "avif",
+};
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export interface Member { userId: string; businessId: string; role: string; permissions: string[] }
@@ -152,7 +214,11 @@ export interface ReceiptRow {
   receipt_uploaded_at?: string | null;
 }
 export interface PhotoStore {
-  putUrl(bucket: string, key: string, contentType: string, expires: number): Promise<string>;
+  /** `exactBytes`, when given, is signed into the URL as `content-length`, so
+   *  the body must be exactly that many bytes or R2 refuses the PUT. The two
+   *  private stores leave it off and check the real size at `finish` instead;
+   *  `media` has no finish, so for it this IS the ceiling. */
+  putUrl(bucket: string, key: string, contentType: string, expires: number, exactBytes?: number): Promise<string>;
   getUrl(bucket: string, key: string, expires: number): Promise<string>;
   head(bucket: string, key: string): Promise<{ exists: boolean; bytes: number | null }>;
   del(bucket: string, key: string): Promise<void>;
@@ -187,6 +253,19 @@ export interface PhotoDeps {
   saveReceipt?(row: ReceiptRow): Promise<ReceiptRow>;
   /** Sets the five columns back to null. */
   clearReceipt?(businessId: string, expenseId: string): Promise<void>;
+
+  // ------------------------------------------------------- business-media
+  // ROADMAP 0.11 slice 4. **A FUNCTION RATHER THAN AN IMPORT OF `r2.ts`, AND
+  // THAT IS NOT A STYLE CHOICE.** Three suites rebuild this file in a temp
+  // directory with one guard removed, rewriting its `./http.ts` and
+  // `./photoKey.ts` specifiers to absolute paths; a third relative import
+  // would fail to resolve there and take two already-green suites with it.
+  // Wiring it in `photo-door/index.ts` keeps this file's import list at two
+  // and keeps the public base — which is configuration, not logic — out of
+  // the part that is tested in memory.
+  /** The public address of one `business-media` object. Absent or returning
+   *  `null` means no public base is configured, and the store says so. */
+  mediaUrl?(key: string): string | null;
 
   /** `null` when the R2 credentials are not configured. */
   r2: PhotoStore | null;
@@ -242,6 +321,16 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
   if (isReceipt && !(deps.expenseBelongs && deps.getReceipt && deps.saveReceipt && deps.clearReceipt)) {
     return bad("Receipt storage is not set up on the server yet.", 503);
   }
+  // THE SAME SHAPE FOR THE PUBLIC STORE, and here the thing that can be absent
+  // is the one thing R2 has no default for: `business-media` is public-read, so
+  // a stored url is the whole point, and R2 has no public address until one is
+  // bound in the Cloudflare dashboard (`R2_MEDIA_BASE`, `_shared/r2.ts`).
+  // Signing an upload with nowhere to read it from would store a logo nobody
+  // can ever see, so it refuses in words instead.
+  const isMedia = storeName === "media";
+  if (isMedia && !deps.mediaUrl) {
+    return bad("Public image storage is not set up on the server yet.", 503);
+  }
 
   // WHO — the first question. An explicit business, because "the only one the
   // user belongs to" is a guess and this door signs for exactly one tenant.
@@ -263,6 +352,77 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
 
   try {
+    // -------------------------------------------- business-media (slice 4)
+    // FIRST, so nothing below has to ask "unless it is the public one". Two
+    // actions and no others: `start` mints the key and the two URLs, `remove`
+    // deletes one object by key. There is nothing to sign a GET for — the
+    // bucket is public — and nothing to finish, because there is no row.
+    if (isMedia) {
+      // THE PERMISSION, ON BOTH ACTIONS. `20260904001000_catalog_behind_settings.sql`
+      // requires `settings` to insert, update AND delete here, which is a
+      // stricter rule than the other two stores carry, and the service role
+      // bypasses the policy that states it — so it is stated again here or it
+      // is gone.
+      //
+      // **AND IT IS SPELLED THROUGH A LOCAL RATHER THAN AS THE SAME CONDITION
+      // THE OTHER TWO STORES USE, WHICH IS NOT TIDINESS.**
+      // `tests/photo-door-server.test.mjs` sabotages the job store by replacing
+      // the exact text of its own `settings` condition, and a line that
+      // appears twice is not a line it can replace — written the obvious way,
+      // this branch turned that suite's `staffRemoved` canary into "the text to
+      // sabotage is not unique" and TWO green suites went red. It is the same
+      // fault the receipts branch met from the other direction (its budget
+      // locals are `rb`/`rBudget` for this reason) and `docs/gotchas.md` 95 is
+      // the general case. The local name is the whole fix.
+      const mayChangeBranding = deps.can(member, "settings");
+      if (!mayChangeBranding) {
+        return bad(`Changing a business's ${store.noun}s needs the settings permission.`, 403);
+      }
+
+      if (action === "remove") {
+        // THE KEY IS THE ONLY HANDLE, so the isolation is the only thing doing
+        // the job a row's `business_id` does in the other two stores. A key
+        // belonging to anybody else — or of any shape this product does not
+        // mint — is 404, exactly like one that does not exist, so a prober
+        // learns nothing from the difference.
+        const key = body.key;
+        if (!businessOwnsKey(member.businessId, key, "media")) return bad("Image not found", 404);
+        await r2.del(store.bucket, key as string);
+        return json({ removed: true });
+      }
+      if (action !== "start") {
+        return bad(`A business image is stored in one step; there is no ${action} step for it.`);
+      }
+
+      const folder = body.folder;
+      if (typeof folder !== "string" || !(MEDIA_FOLDERS as readonly string[]).includes(folder)) {
+        return bad(`folder must be ${MEDIA_FOLDERS.join(", ")}.`);
+      }
+      const fileId = body.file_id;
+      if (typeof fileId !== "string" || !UUID.test(fileId)) return bad("file_id is not valid.");
+      const type = body.content_type;
+      if (typeof type !== "string" || !(type in MEDIA_EXT)) {
+        return bad(`A business image must be ${Object.keys(MEDIA_EXT).join(", ")}.`);
+      }
+      const claimed = body.claimed_bytes;
+      if (!isInt(claimed) || claimed <= 0) return bad("claimed_bytes must be a whole number of bytes.");
+      if (claimed > store.maxBytes) return bad(`That image is larger than ${mb(store.maxBytes)}.`, 413);
+
+      // MINTED FROM THE MEMBER'S BUSINESS, never from the body, which is the
+      // whole isolation: the first folder cannot come from the browser.
+      const key = `${member.businessId}/${folder}/${fileId}.${MEDIA_EXT[type]}`;
+      const url = deps.mediaUrl!(key);
+      if (!url) return bad("Public image storage is not set up on the server yet.", 503);
+      return json({
+        // `claimed` is signed INTO the URL as `content-length`. This store has
+        // no `finish` to measure the real size at, so this is the only thing
+        // holding the 10 MB ceiling the Supabase bucket used to enforce
+        // itself: a body of any other length fails the signature at R2.
+        upload_url: await r2.putUrl(store.bucket, key, type, PUT_SECONDS, claimed),
+        key, public_url: url, expires_in: PUT_SECONDS,
+      });
+    }
+
     // ------------------------------------------------------------- urls
     if (action === "urls") {
       const keys = body.keys;

@@ -594,6 +594,135 @@ and how the wait ends.
 
   **SLICES LEFT:** 4, `business-media` (needs a public R2 address); **5's publish and the one-word flag flip**.
 
+  ***SLICE 4 BUILT 2026-10-08 (Lane A and the server half). BEHIND A FLAG, DEFAULT OFF. NOTHING DEPLOYED, NOTHING APPLIED, NO
+  DDL OR WRITE AGAINST THE LIVE DATABASE, NO R2 CALL, NO BROWSER. The box stays `[ ]`: this slice cannot be finished by a
+  session at all, and the reason is a DECISION rather than a publish.***
+
+  **WHAT BLOCKS IT, SAID FIRST, BECAUSE IT IS NOT THE USUAL BLOCKER.** `job-photos` and `expense-receipts` are private: every
+  read is a signed URL the door mints, and the bucket needs no address of its own. **`business-media` is public-read** — a logo
+  and a gallery photograph are rendered to an anonymous visitor on a tenant's booking page, so a one-hour signature is no use.
+  Supabase gives a public bucket an address for free. **R2 gives it none until somebody binds one in the Cloudflare dashboard**,
+  as an `r2.dev` development subdomain or a custom domain. There is nothing to infer and nothing to default to.
+  **And whichever address he picks becomes permanent data**, which is why it is his and not a session's: `gallery_images.image_url`
+  and the brand's `logo_url` store an ABSOLUTE url, so the host that is live on the day of the switch is written into every row
+  made after it. Changing it later does not move those rows, it breaks them. `FOR-ANDREW.md` step 9 carries it as a decision with
+  a recommendation (the custom domain, for exactly that reason). **Rows written before the switch keep working afterwards** — the
+  old bucket stays public and the old urls still point at it, so nothing migrates and nothing needs to.
+
+  **WHAT IS BUILT.** `_shared/photoKey.ts` gains a second anchored shape and `KeyShape`; `_shared/photoDoor.ts` gains a `media`
+  store, `MEDIA_MAX_BYTES`, a `mediaUrl` dep and a media branch; `_shared/r2.ts` gains `mediaBase`, `publicUrl` and an
+  `exactBytes` argument to `putUrl`; `photo-door/index.ts` wires the address by NAME (`R2_MEDIA_BASE`); `app/src/lib/photo-rules.js`
+  gains `mediaPath`/`MEDIA_FOLDERS`/`MEDIA_EXT_FOR_TYPE`; `photo-door.js` gains `MEDIA_VIA_DOOR` (false), `readMediaStart` and one
+  sentence; `upload.js` goes through the door behind the flag and now returns **`{ url, key }`**; `photos.js`'s `publishToGallery`
+  stops talking to the bucket itself and goes through `upload.js`. New suite `tests/photo-door-media.test.mjs`.
+
+  **FOUR THINGS THAT ARE NOT THE OTHER SLICES, AND EACH WOULD HAVE BEEN WRONG IF COPIED FROM THEM:**
+  * **TWO ACTIONS, NOT FOUR.** A logo hangs off no row, so there is nothing to `finish` and — the bucket being public — nothing to
+    sign a GET for. `start` mints the key and both urls; `remove` takes a **KEY**, because the key is the only handle anything has.
+    `finish` and `urls` are refused in words rather than falling through to another store's handler.
+  * **THE PERMISSION IS STRICTER AND THE OTHER WAY ROUND.** The other two stores let any member ADD and need `settings` to remove.
+    `20260904001000_catalog_behind_settings.sql` requires `settings` to insert, update AND delete here, and the service role
+    bypasses the policy that says so — so carrying the other stores' asymmetry over would have let any member replace the
+    business's logo. Both actions check it, and the test proves the difference by having the same member succeed at a job photo.
+  * **THE PER-FILE CEILING IS A SECOND GUARD R2 DOES NOT HAVE, and this store has no `finish` to catch an under-claim at.**
+    Supabase enforced the bucket's `file_size_limit` itself; a presigned PUT takes a five-gigabyte body as happily as a
+    five-kilobyte one. So the claimed length is signed INTO the URL as `content-length` — a browser cannot set that header from
+    JavaScript, it is filled in from the body — and a file of any other size fails the signature at Cloudflare. **NOT PROVED that
+    R2 honours it** (see below); the flag is off, so nothing is at risk until it flips, and the fix if it is refused is one
+    argument.
+  * **IT IS NOT METERED, AND IT IS NOT METERED TODAY EITHER.** `job_photo_budget()` sums `job_photos` and the `expenses` receipt
+    columns; `business-media` is in neither and never has been, so nothing here removes a cap. **What the move changes is what
+    "unmetered" costs:** on Supabase the free plan's 1 GB was a hard ceiling that stopped the upload, and on R2 the same traffic
+    arrives as a bill — the shape `docs/the-photo-allowance.md` § 5 trap one warns about. **Adding this bucket to the allowance is
+    a migration and a number nobody has chosen**, so it is a row in `FOR-ANDREW.md` rather than quietly invented here, and
+    `tests/photo-door-media.test.mjs` § 5 asserts today's behaviour so that changing it has to be deliberate.
+
+  **THE GUARD WAS WIDENED ON PURPOSE, WHICH ITS OWN HEADER DEMANDS, AND THE TEST WAS WIDENED IN THE SAME EDIT.**
+  `parseObjectKey` matched one shape, `uuid/uuid/uuid.(jpg|png)`, and returned `null` for every business-media key — correct
+  refusal, and useless as a guard, because the door would have refused the whole store. The public bucket's middle segment is a
+  FOLDER NAME (`gallery`, `branding`, `intake` — the three `app/src` passes), and its types are the five in the bucket's own
+  `allowed_mime_types`. **The design is unchanged and that is the point:** still one anchored pattern per store, still an
+  allowlist, still nothing stripped or normalised. `..` is not a uuid and is not one of three literal folder names either.
+  **`"private"` is the default, so `forgetPhotos.ts`, `photoReconcile.ts` and the job and receipt halves of the door are
+  byte-for-byte unchanged.** And the two shapes are asserted NOT to bleed in both directions: a job-photo key that parsed as a
+  business image would let the public store delete a private object, and the reverse would let the private stores sign for a
+  public one. **SVG is not signable, and that is luck rather than care** — an SVG may carry script and a public bucket on a custom
+  domain would serve it from the platform's own name; the bucket has refused it since the day it was made, and so does this.
+
+  **PROVED, credential-free, no network, no database, no R2, no browser — each figure with the command that produced it, taken on
+  the working tree at `e3fc4e1`, which is the commit this note lands in:**
+  * `node --test tests/photo-door-media.test.mjs` → **17 pass, 0 fail**, and **8 of 8 sabotages caught** (the ownership guard on
+    remove, the `settings` permission, the 10 MB ceiling, signing the declared length, the folder allowlist, the `file_id` shape,
+    refusing with no public address, and refusing the two actions this store does not have). It also **RUNS `app/src/lib/upload.js`**
+    rather than reading it — copied beside four stub siblings with its own text untouched — on **both** sides of the flag: flag off
+    writes to the bucket with `upsert: false` and returns the key it wrote; flag on is start, exactly one PUT of the declared size
+    with the declared type, the public url, and **zero** calls to the Supabase bucket; a type the bucket refuses is refused before
+    anything is sent; an unpublished door fails in the `unreachable` sentence with nothing uploaded; and a `start` answer naming
+    another business's key is refused **before** the PUT.
+  * `node tests/photo-key-isolation.test.mjs` → **83 passed, 0 failed** (it was 61 before this change). 15 media keys round-trip
+    through `mediaPath` into the guard, 8 are refused, and **the widening carries its own sabotage**: the folder group loosened to
+    `[^/]+` is seen.
+  * `node --test tests/photo-call-sites.test.mjs` → **6 pass**, and the two real call sites were edited to the wrong binding one at
+    a time and both were caught, then restored byte for byte.
+  * `node --test tests/job-photos.test.mjs` → **67 passed, 0 failed**, and the four promises of `publishToGallery` were each removed
+    from the real `photos.js` one at a time and each was caught, then restored byte for byte, control green.
+  * The eleven photo suites together → **110 tests, 104 pass, 0 fail, 6 skipped**, and the 6 are `photo-reconcile-sql` announcing it
+    needs PGlite through `PGLITE_DIR`; no SQL changed in this slice.
+  * `npm run build --prefix app` → built, 5 example sites. `node scripts/label-guard.mjs` → exit 0, no stale labels. The four
+    credential-free gates → 4 pass. `tests/figures-carry-their-command.test.mjs` + `tests/sweep-methods-are-pinned.test.mjs` → 17 pass.
+  * `node scripts/deployed-inventory.mjs` (credentialed, read-only) → **41 functions in the repo, 39 deployed; 7 match, 32 differ,
+    2 were never deployed** (`photo-door`, `photo-reconcile`). **This change puts no new function on that list**: `delete-customer`
+    was already differing, and the shared files edited here are imported only by it and by the two that were never deployed.
+
+  **THREE CANARIES WENT RED BECAUSE OF THIS CHANGE AND ALL THREE WERE REAL. They are written down rather than quietly fixed,
+  because two of them are the same trap and the third was pointing at a better design:**
+  * **`tests/photo-door-server.test.mjs` § 20's env-read assertion changed shape.** It declared the exact LIST of
+    `Deno.env.get(...)` arguments in `photo-door/index.ts`, and wiring a second by-name helper (`mediaBase`) made it two `n`s —
+    both correct. It now declares the distinct SET, which says the same thing (*the only literal read is the anon key; every
+    credential-shaped value goes through a helper that takes the name*), survives a third helper, and is still an equality, so a
+    stray literal still reddens it (`docs/gotchas.md` 98).
+  * **`tests/photo-door.test.mjs` § 5 refused to run: "the line to sabotage is not unique".** `readMediaStart` re-spelled two of
+    that suite's sabotage targets. **This is the third time this slice met that trap** — `_shared/photoDoor.ts`'s receipt branch
+    renamed its budget locals for it, and its media branch its `settings` local — and here it was pointing at the better answer
+    rather than at a rename: the url-and-key rule was lifted into one `checkedStart`, so **one expression decides what this browser
+    will PUT to, for every store**, the sabotage is unique again, and it now disarms the check for both stores at once, which is
+    what a canary aimed at production code is for.
+  * **`tests/job-photos.test.mjs` § 4i was coupled to a spelling, not to the promise.** It asked for the literal
+    `.from("business-media").upload` inside `publishToGallery`, which went away when the copy was routed through
+    `uploadBusinessPhoto` so one function and one flag decide where a business image goes. The promise is unchanged — a published
+    photo is a COPY and the private original is never flipped public — and it is now asserted as its three parts: the original is
+    read through a SIGNED url, a NEW object is written by the one public-upload function, and the `gallery_images` row records THAT
+    object's address. **The old form would equally have gone green on a `publishToGallery` that uploaded nothing**, because it never
+    asked what the row ended up pointing at.
+
+  **NOT PROVEN, SAID PLAINLY:** that R2 accepts these signatures for this bucket, and in particular **that it honours a signed
+  `content-length`** — that is new in this slice and it is the whole per-file ceiling, so if Cloudflare refuses it every business
+  image fails on the door path (the flag is off, so nothing is at risk until it flips); that any public address exists; **anything
+  in a browser** — the three screens that upload a business image (the logo and hero on Business info, the Gallery screen, the
+  website intake) were NOT opened, because the door is unpublished and there is no public base, so the ON path cannot be pressed
+  from here at all, and pressing the OFF path means signing in and writing real rows and objects. What was proved instead of a
+  press is the paragraph above: `upload.js` run for real on both branches, and a discovered call-site check with two real
+  sabotages — which is what covers the one change that reaches a screen with the flag still off, `uploadBusinessPhoto` returning
+  `{ url, key }` instead of a bare url. **A wrong destructure there is silent in the worst way:** it still uploads the file and
+  then saves `"[object Object]"` into a business's `logo_url`.
+
+  **FOUND AND NOT FIXED, each because it is its own item rather than this one:**
+  * **`Gallery.jsx`'s remove deletes the `gallery_images` row and leaves the object**, so `business-media` has been accumulating
+    orphans since it was built. `removeBusinessPhoto` now exists for `publishToGallery`'s rollback, so the screen has something to
+    call. On R2 the orphan is the reconcile's to count — and **the reconcile reads only `job-photos`**.
+  * **`delete-customer` does not touch the gallery at all**, so a published copy of a forgotten customer's car stays public. True
+    today with Supabase Storage as well, so the move neither causes nor worsens it; slice 3 handled the two private stores.
+  * **`expense-receipts` lists `image/webp` and nothing in this product can mint a `.webp` key** (slice 5's finding, still open).
+    The public bucket takes webp and now mints it, so the two key functions already know the extension; what is still undecided is
+    whether the receipts bucket should drop the type or the receipt path should accept it.
+
+  **FOR ANDREW, added to `FOR-ANDREW.md` step 9:** a public address for `business-media` (a decision, with a recommendation); a
+  CORS rule on `business-media` **and on `expense-receipts`**, which the list named only for `job-photos`; and the second flag,
+  `MEDIA_VIA_DOOR`, beside `RECEIPTS_VIA_DOOR`.
+
+  **SLICES LEFT:** **4's publish, its public-address decision and its one-word flag flip**; **5's publish and its one-word flag
+  flip**. No slice has code left to write.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**

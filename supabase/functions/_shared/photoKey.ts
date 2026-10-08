@@ -72,6 +72,56 @@
 /** The two private buckets that carry per-business isolation in their path. */
 export const TENANT_PRIVATE_BUCKETS = ["job-photos", "expense-receipts"] as const;
 
+// ---------------------------------------------------------------------------
+// THE SECOND SHAPE — `business-media`. ROADMAP 0.11 slice 4.
+// ---------------------------------------------------------------------------
+// **THIS IS THE DELIBERATE WIDENING THIS FILE'S OWN HEADER ASKS FOR, NOT A
+// LOOSENING TO MAKE A RUN GO GREEN.** The header says a key of an older or
+// different shape must be honoured only by widening on purpose and widening
+// the test with it. Here is the reason, and it is not legacy data: the PUBLIC
+// bucket's keys were never the private shape and never could be.
+//
+//   `business-media`  `<business>/gallery/<uuid>.webp`
+//   `job-photos`      `<business>/<booking>/<uuid>.jpg`
+//
+// The middle segment is a FOLDER NAME — `gallery`, `branding`, `intake`, the
+// three `app/src` actually passes to `uploadBusinessPhoto` — because a logo
+// hangs off no row at all. So `parseObjectKey` returned `null` for every
+// business-media key, which is correct refusal and useless as a guard: the
+// door would have refused the whole store.
+//
+// **THE DESIGN IS UNCHANGED AND THAT IS THE POINT.** It is still one anchored
+// pattern per store, still an allowlist, still nothing stripped or normalised.
+// `..` is not a uuid and is not one of three literal folder names either.
+// What is wider is exactly two things, each read off the bucket's own
+// declaration in `20260827001000_phase2_cleanup_and_storage.sql` rather than
+// chosen here:
+//
+//   the folders  the three `app/src` passes, as literals, closed.
+//   the types    the five in the bucket's own `allowed_mime_types`. **SVG IS
+//                NOT AMONG THEM and that is lucky rather than careful** — an
+//                SVG may carry script, and a public bucket on a custom domain
+//                would serve it from the platform's own name. The bucket has
+//                refused it since the day it was made; this does too.
+//
+// **EVERY EXISTING CALLER IS UNTOUCHED** because `"private"` is the default:
+// `forgetPhotos.ts`, `photoReconcile.ts` and the job/receipt halves of the
+// door pass no shape and get byte-for-byte what they got before.
+
+/** The one public bucket. Public-READ; writes still need the `settings`
+ *  permission (`20260904001000_catalog_behind_settings.sql`). */
+export const TENANT_PUBLIC_BUCKET = "business-media";
+
+/** The folders `uploadBusinessPhoto` is called with, and no others. A closed
+ *  list: `gallery` (the marketing gallery), `branding` (logo and hero) and
+ *  `intake` (photographs offered for a website that is not built yet). */
+export const MEDIA_FOLDERS = ["gallery", "branding", "intake"] as const;
+
+/** The five types `business-media`'s own `allowed_mime_types` permits, as the
+ *  extensions a key may end in. Signing for a sixth would hand out a URL the
+ *  bucket itself refuses. */
+export const MEDIA_EXTS = ["jpg", "png", "webp", "gif", "avif"] as const;
+
 /**
  * A key longer than this is not one of ours and is not worth parsing or
  * logging. Three 36-character uuids, two slashes and a four-character
@@ -92,13 +142,32 @@ const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
  */
 const OBJECT_KEY = new RegExp(`^(${UUID})/(${UUID})/(${UUID})\\.(jpg|png)$`);
 
+/**
+ * The public bucket's shape, built from the two lists above so there is no
+ * second copy of either. Anchored at both ends exactly like the private one.
+ */
+const MEDIA_KEY = new RegExp(
+  `^(${UUID})/(${MEDIA_FOLDERS.join("|")})/(${UUID})\\.(${MEDIA_EXTS.join("|")})$`,
+);
+
+/** Which store's shape a key is being read against. `"private"` everywhere it
+ *  is not said, so adding this changed no existing call. */
+export type KeyShape = "private" | "media";
+
+const SHAPES: Record<KeyShape, RegExp> = { private: OBJECT_KEY, media: MEDIA_KEY };
+
 export interface ParsedObjectKey {
   /** The tenant. The first segment, and the whole of the isolation. */
   businessId: string;
-  /** The booking for a job photo, the expense for a receipt. */
+  /**
+   * The middle segment. For a private key the booking (a job photo) or the
+   * expense (a receipt); for a `media` key the FOLDER NAME, because a logo
+   * hangs off no row. Named once rather than twice so the guard below has one
+   * expression to compare and not two.
+   */
   ownerId: string;
   photoId: string;
-  ext: "jpg" | "png";
+  ext: string;
 }
 
 /**
@@ -112,12 +181,16 @@ export interface ParsedObjectKey {
  * key of the right shape but the wrong length — not because each is checked,
  * but because none of them can match the pattern above.
  */
-export function parseObjectKey(key: unknown): ParsedObjectKey | null {
+export function parseObjectKey(key: unknown, shape: KeyShape = "private"): ParsedObjectKey | null {
   if (typeof key !== "string") return null;
   if (key.length === 0 || key.length > MAX_KEY_LENGTH) return null;
-  const m = OBJECT_KEY.exec(key);
+  const re = SHAPES[shape];
+  // An unknown shape name must not fall through to the private pattern: that
+  // would answer a question nobody asked, and answer it permissively.
+  if (!re) return null;
+  const m = re.exec(key);
   if (!m) return null;
-  return { businessId: m[1], ownerId: m[2], photoId: m[3], ext: m[4] as "jpg" | "png" };
+  return { businessId: m[1], ownerId: m[2], photoId: m[3], ext: m[4] };
 }
 
 /**
@@ -128,10 +201,10 @@ export function parseObjectKey(key: unknown): ParsedObjectKey | null {
  * itself a canonical uuid is refused too, so a caller that passes `undefined`,
  * an empty string, `"*"` or a list cannot open the door by accident.
  */
-export function businessOwnsKey(businessId: unknown, key: unknown): boolean {
+export function businessOwnsKey(businessId: unknown, key: unknown, shape: KeyShape = "private"): boolean {
   if (typeof businessId !== "string") return false;
   if (!new RegExp(`^${UUID}$`).test(businessId)) return false;
-  const parsed = parseObjectKey(key);
+  const parsed = parseObjectKey(key, shape);
   return parsed !== null && parsed.businessId === businessId;
 }
 
@@ -143,11 +216,11 @@ export function businessOwnsKey(businessId: unknown, key: unknown): boolean {
  * which is the thing being protected. The caller logs what it needs on its own
  * side.
  */
-export function assertBusinessOwnsKey(businessId: unknown, key: unknown): ParsedObjectKey {
-  if (!businessOwnsKey(businessId, key)) {
+export function assertBusinessOwnsKey(businessId: unknown, key: unknown, shape: KeyShape = "private"): ParsedObjectKey {
+  if (!businessOwnsKey(businessId, key, shape)) {
     throw new Error("that file does not belong to this business");
   }
-  return parseObjectKey(key) as ParsedObjectKey;
+  return parseObjectKey(key, shape) as ParsedObjectKey;
 }
 
 /**
