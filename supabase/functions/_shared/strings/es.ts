@@ -79,7 +79,7 @@ export const es: Record<string, string> = {
   "Nothing to pay now. This is for when the work is done.":
     "No hay nada que pagar ahora. Esto es para cuando el trabajo esté hecho.",
   "For when the work is done.": "Para cuando el trabajo esté hecho.",
-  "Keep this email. The link above is how you change or cancel without ringing anyone. To book again any time: {url}":
+  "Keep this email. The link above is how you change or cancel without calling anyone. To book again any time: {url}":
     "Guarda este correo. El enlace de arriba es como cambias o cancelas sin llamar a nadie. Para reservar otra vez cuando quieras: {url}",
   // `reconcile`'s two labels: the line it draws when an itemised column does
   // not reach its own total.
@@ -154,7 +154,7 @@ export const es: Record<string, string> = {
   "See it and say yes": "Verlo y aceptar",
   "Request accepted": "Solicitud aceptada",
   "You're booked in": "Ya quedaste apartado",
-  "Good news. We've accepted your request for {when}. It's in the diary.":
+  "Good news. We've accepted your request for {when}. It's on the calendar.":
     "Buenas noticias. Aceptamos tu solicitud para el {when}. Ya está en la agenda.",
   "View or change your booking": "Ver o cambiar tu reserva",
   "Request declined": "Solicitud rechazada",
@@ -370,7 +370,7 @@ export const es: Record<string, string> = {
   "{brand} invited you to their dashboard.": "{brand} te invitó a su panel.",
   // ── 12 · Somebody left a plan ──────────────────────────────────────────
   "Plan ended": "Plan terminado",
-  "ended their {plan} from their own plan page. Nothing else has changed. Any booking already in the diary is still there.":
+  "ended their {plan} from their own plan page. Nothing else has changed. Any booking already on your calendar is still there.":
     "terminó su {plan} desde su propia página del plan. Nada más cambió. Cualquier cita que ya esté en la agenda sigue ahí.",
   "Plan": "Plan",
   "Member since": "Miembro desde",

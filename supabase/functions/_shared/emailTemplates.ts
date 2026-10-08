@@ -435,7 +435,7 @@ function keepLink(bookUrl: string, lang?: unknown): string {
   // concatenation — so the catalogue and the call site would disagree about
   // what the key even is. Found by the check that compares them.
   return fineBlock(T(lang)(
-    "Keep this email. The link above is how you change or cancel without ringing anyone. To book again any time: {url}",
+    "Keep this email. The link above is how you change or cancel without calling anyone. To book again any time: {url}",
     { url: bookUrl },
   ));
 }
@@ -762,7 +762,7 @@ export function requestDecisionEmail(
     ? [
       labBlock(tt("Request accepted")),
       headlineBlock(tt("You're booked in")),
-      proseBlock(tt("Good news. We've accepted your request for {when}. It's in the diary.", { when })),
+      proseBlock(tt("Good news. We've accepted your request for {when}. It's on the calendar.", { when })),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b, b.lang)),
       // ---------------------------------------------------------------------
@@ -1294,7 +1294,7 @@ export function planCancelledEmail(
   const blocks = [
     labBlock(tt("Plan ended"), "bad"),
     headlineBlock(opts.customerName),
-    proseBlock(tt("ended their {plan} from their own plan page. Nothing else has changed. Any booking already in the diary is still there.", {
+    proseBlock(tt("ended their {plan} from their own plan page. Nothing else has changed. Any booking already on your calendar is still there.", {
       plan: `<strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong>`,
     })),
     factsBlock([
