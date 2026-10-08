@@ -15522,7 +15522,7 @@ the dashboard or back office at phone width at all.
   overlap. Spacing the list out is a design decision on a reviewed screen and
   was not taken unilaterally.
 
-- [ ] **9.4 — Calendar is hard to read at a glance.**
+- [x] **9.4 — DONE 2026-10-08. Calendar is hard to read at a glance.**
   Single-letter weekdays make both S days and both T days ambiguous; names
   truncate; only "Blocked" is explained; the first partial week omits blank
   cells so the grid is irregular.
@@ -15749,10 +15749,35 @@ the dashboard or back office at phone width at all.
   is a transient in one earlier run, and `App.jsx` is not being changed on a
   theory.**
 
-  **It still stays `[ ]`.** The press that rejected it was taken on the ragged
-  frames; the Done-when is unchanged and is one look away. Ten month frames and
-  ten selected-day frames (Oct 2, five jobs) at 1440 and 320 in both languages are
-  in `.manager-shots/9.4/`.
+  ~~**It still stays `[ ]`.**~~ **ACCEPTED AND TICKED 2026-10-08**, by the manager
+  standing in as Andrew's eyes, on three named frames: **`.manager-shots/9.4/320-es.png`**,
+  **`.manager-shots/9.4/day-1440x900-en.png`** and **`.manager-shots/9.4/day-320-es.png`**.
+  Reported back by name, which is what this item's Done-when asks for rather than a
+  script asserting it: *"the month is a rectangle, the legend reads clean, and the
+  Oct 2 detail lists all five jobs with times, names, prices and services in both
+  languages."* That covers all three repairs — the rectangular month, the legend,
+  and the readable selected-job detail — plus the fourth that turned out not to be
+  a fault. **The frames are not committed** (`.manager-shots/` is ignored), so the
+  evidence is this paragraph and the ten-by-ten measurement above it; the press
+  itself is unrepeatable by construction, which is an honest property and not a
+  gap.
+
+  **THE PRESS THAT MATTERED WAS THE SECOND ONE, AND THE FIRST IS WHY THIS ITEM
+  TOOK TWO ROUNDS.** The frames shot before `1064383` were rejected on sight for a
+  ragged month that five widths of automated geometry had called rectangular. The
+  tick is on the re-shot set.
+
+  **AND THE 401 IS ACCEPTED AS NOT A DEFECT** — the manager's words, 2026-10-08:
+  three attempts, no reproduction, and the grants intact. Recorded here so the next
+  session that meets a `/rest/v1/user_tours` line in a console log can read this
+  instead of re-opening it: the request is `App.jsx:390`, it answers **200** with a
+  user JWT both through the app and called directly, and `App.jsx` was deliberately
+  not changed on a theory. **If it ever recurs it is new evidence, not this.**
+
+  **ONE THING LEFT THE ITEM RATHER THAN BEING FOLDED IN:** the tab scrim covering
+  the bottom 40px of every screen's content box at short viewport heights, found
+  while measuring this legend. Ruled 2026-10-08 — **DP Cowork2 files it, and
+  `--tabclear` is left alone.**
 
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or

@@ -220,7 +220,7 @@ const DECLARED = {
   // simple case for once -- which is worth saying, because the three moves
   // above were all two things cancelling and a reader who skims could take
   // "+1" as the normal shape.
-  numberedOpenItems: 48,
+  numberedOpenItems: 47,   // 48 -> 47, 2026-10-08: 9.4 ticked.
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -256,7 +256,12 @@ const DECLARED = {
   // `scripts/calendar-legible.mjs`, where before the zone named no file at all.
   // Both ends measured by running this file against a checkout of
   // `git show 2dc6064:ROADMAP.md` (33) and against this commit's tree (35).
-  quoteCriteria: 35,
+  //
+  // 35 -> 34, 2026-10-08: **9.4 TICKED.** A ticked item's criteria leave the
+  // population with it, which this constant's own trail already records happening
+  // twice (7.8 on 2026-10-07, and the 37 -> 32 move on 2026-10-06). Measured at
+  // both ends against `git show 639ae24:ROADMAP.md` (35) and this tree (34).
+  quoteCriteria: 34,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -321,7 +326,20 @@ const DECLARED = {
   // **A criteria figure that holds while the fragments figure moves is the ordinary
   // case for a second pass on one item**, and it is written down because the pair
   // moving together is what the note above used as its own cross-check.
-  quoteFragments: 296,
+  //
+  // 296 -> 299, 2026-10-08. **TWO LEGS IN OPPOSITE DIRECTIONS AND ONLY ONE OF THEM
+  // IS THIS EDIT'S**, recorded separately because folding them into a single "+3"
+  // would credit this commit with somebody else's four:
+  //
+  //     2dc6064 + this lane's 9.4 note   296   <- where 296 was taken
+  //     639ae24                          300   +4  the OTHER session's 9.14 write-up
+  //     + 9.4 TICKED (this commit)       299   -1  9.4 leaves the open population
+  //
+  // So 296 was already stale at HEAD before this edit existed, and the honest
+  // ledger is +4 theirs, -1 mine. Both ends measured the way this file asks, by
+  // running it against a checkout of `git show 639ae24:ROADMAP.md` (300) and
+  // against this tree (299).
+  quoteFragments: 299,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
