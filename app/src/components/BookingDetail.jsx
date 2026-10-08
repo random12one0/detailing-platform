@@ -32,6 +32,9 @@ import EmailTrail from "./EmailTrail.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 import QuoteModal from "./QuoteModal.jsx";
 import Sheet from "./Sheet.jsx";
+// ROADMAP 4.7 — four mutually exclusive states is a Segmented by law, and this
+// is the same control the sheet that SET the value uses.
+import { Segmented } from "./controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -53,6 +56,16 @@ const STATUS_LABELS = {
 const PAY_LABELS = {
   paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
 };
+// ROADMAP 4.7 — THE SAME FOUR STATES, AS A CONTROL, IN THIS RECORD'S OWN WORDS.
+// Derived from `PAY_LABELS` rather than written out again, so the choice a
+// detailer presses and the pill at the top of the record can never disagree
+// about what a state is called. FinalizeModal's own segmented says "Not yet"
+// where this says "Unpaid"; that seam is older than this block and the call
+// here is to agree with the pill sitting six lines above it, on the same
+// screen, rather than with a sheet that has closed.
+// The ORDER is a scale and is written out rather than taken from the object:
+// paid, part paid, nothing, given away.
+const PAY_CHOICES = ["paid", "partial", "pending", "waived"].map((k) => [k, PAY_LABELS[k]]);
 // W9 — sizes are the detailer's own list now, so a booking carries the LABEL
 // it was taken at (bookings.vehicle_size_label). This map is the fallback for
 // rows taken before that column existed; a key we do not know is de-slugged
@@ -94,6 +107,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const [editing, setEditing] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [quoting, setQuoting] = useState(false);
+  // ROADMAP 4.7 — NULL MEANS "WHATEVER THE ROW SAYS", WHICH IS WHY IT IS NOT
+  // SEEDED FROM THE BOOKING. Seeded, it would go stale the moment the write
+  // lands and `booking` comes back changed, and the record would offer to
+  // change a payment to the value it already holds. Read through `??` it
+  // follows the row for free and the answer button disappears on success
+  // with no effect anywhere.
+  const [payPick, setPayPick] = useState(null);
   const [mail, setMail] = useState(null);   // ROADMAP 5.3 — null means loading
 
   const [form, setForm] = useState({
@@ -366,6 +386,51 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // next. It also answers the design's "a job in the future has no Finalize
   // payment" for free: a future job cannot be completed.
   const canFinalize = booking.status === "completed" && !booking.finalized_at;
+  // ── ROADMAP 4.7 — THE WAY BACK FROM A RECORDED PAYMENT ───────────────────
+  //
+  // **WHAT THERE WAS BEFORE THIS: nothing, on any screen.** `FinalizeModal`
+  // writes `payment_status` and stamps `finalized_at` in the same call, and
+  // the line above takes the modal away the moment it has set the payment. The
+  // only other screen that writes a payment state is Money's chase list, and
+  // it reads `pending` or `partial` only, so a job marked **paid** or
+  // **waived** by a mis-tap appeared on no list that could change it. The
+  // server allowed it the whole time: `payment_status` is an ordinary editable
+  // field on `update-booking` and the column's CHECK takes all four values in
+  // any order. **The way back was simply never drawn.**
+  //
+  // **AND IT IS NOT A SECOND FINALIZE, WHICH IS THE ITEM'S OWN NAMED WAY TO
+  // FAIL.** The obvious build re-opens `FinalizeModal`, which stamps
+  // `finalized_at` again and re-writes the line items, and leaves an audit
+  // trail saying the job was finished twice. This sends ONE field. No
+  // `finalized_at`, no `booking_line_items`, no `status`.
+  //
+  // THE AUDIT ROW NEEDS NOTHING BUILT. `_shared/actionLog.ts` already writes a
+  // `payment.set` (or `payment.waive`) row carrying the before and the after
+  // for any `payment_status` move through `update-booking`, from the row's own
+  // two states rather than from the payload — so a correction is exactly as
+  // visible as the original waive, and a repeated press writes nothing twice.
+  const canCorrectPayment = !!booking.finalized_at;
+  // `??` rather than a seeded state: see `payPick` above.
+  const payWant = payPick ?? booking.payment_status;
+  // **THE TWO THAT CAN LOSE MONEY**, which is what earns them `--bad` under
+  // `docs/screen-rules.md` while the other two do not get it: **Paid** takes
+  // the job off the chase list and says the money is in, so nobody is ever
+  // asked about it again; **Waived** gives the work away. Unpaid and Part paid
+  // both put the job BACK on a list a person reads, which is an outcome a
+  // detailer can live with rather than a loss.
+  const payLosesMoney = payWant === "paid" || payWant === "waived";
+  const correctPayment = () =>
+    act(() => api.updateBooking(business.id, {
+      booking_id: booking.id,
+      payment_status: payWant,
+      // **A NOTE ABOUT HOW THEY PAID IS A LIE ONCE NOTHING WAS PAID.** The
+      // record prints "How they paid: Cash" from `payment_notes`, and a job
+      // corrected to Unpaid or Waived would print it under a pill saying
+      // nothing came in. This is FinalizeModal's own rule, not a new one: that
+      // sheet hides the method chips and the note field for exactly these two
+      // states, so the states already mean "no method to record".
+      ...(payWant === "pending" || payWant === "waived" ? { payment_notes: null } : {}),
+    }), "Payment updated.");
   const cancelled = booking.status === "cancelled";
   // ROADMAP 14.4 — A CANCELLED JOB THAT WAS ALREADY PAID FOR.
   //
@@ -686,6 +751,80 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 </button>
               )}
             </div>
+
+            {/* ── ROADMAP 4.7 — CORRECTING WHAT WAS RECORDED ─────────────────
+                THE DESTRUCTIVE-ACTION PATTERN, COPIED FROM THE DELETE BLOCK AT
+                THE FOOT OF THIS SAME RECORD RATHER THAN DESIGNED AGAIN:
+                `docs/screen-rules.md` names that block as the reference and
+                asks for three things, and the item's done-when asks for the
+                pattern by name. All three are here. A FOLD, so the rare and
+                consequential thing takes a deliberate press to reach, which is
+                also the honest shape for it: a correction is a thing a detailer
+                does once in a hundred jobs, and an open segmented control
+                offering to move the money on every finished job would be four
+                mis-taps waiting on a screen that currently has none. COPY THAT
+                SAYS WHAT EACH DIRECTION DOES, because the whole fault is that
+                two of the four are quiet. And `.btn.danger` ON THE TWO THAT
+                CAN LOSE MONEY AND NOT THE OTHER TWO — the same distinction the
+                rules draw when they say "Didn't show up" and "Cancel the job"
+                deliberately do NOT take `--bad`.
+
+                A HEADING THAT NAMES THE ACTION, and a SUMMARY PHRASED AS THE
+                SUBJECT — the two things the rules say that same delete block
+                gets wrong and a copy of it should not. "The money" above is a
+                noun and cannot do the heading's job.
+
+                ONE CONTROL AND ONE BUTTON, not four buttons. Four mutually
+                exclusive states is a `Segmented` by law (`design-system.md`
+                § Composition), the sheet that SET this value uses one, and the
+                pick-then-confirm shape means the question can name both sides
+                of the change in one sentence.
+
+                **AND PICKING THE STATE IT IS ALREADY IN OFFERS NOTHING**,
+                which is the refusal this screen owes: `payWant` falls back to
+                the row, so the answer appears only once the pick has actually
+                moved. Nothing can write a no-op, and nothing can file an audit
+                row that says a payment changed from paid to paid. */}
+            {canCorrectPayment && (
+              <>
+                <h3 className="section-title">{t("Correct how it was paid")}</h3>
+                <details className="disclose">
+                  <summary>{t("Changing what you recorded")}</summary>
+                  <p className="quiet" style={{ margin: "0 0 10px" }}>
+                    {t("Unpaid and Part paid put the job back on your chase list. Paid takes it off and counts the money as collected. Waived takes it off as well, and the job still shows in what the customer owes. The job stays finished and its charges are not touched.")}
+                  </p>
+                  <Segmented
+                    value={payWant}
+                    onChange={setPayPick}
+                    disabled={busy}
+                    label={t("Correct how it was paid")}
+                    options={PAY_CHOICES}
+                  />
+                  {payWant !== booking.payment_status && (
+                    <div style={{ marginTop: "var(--sp-2)" }}>
+                      <ConfirmTap
+                        className={payLosesMoney ? "btn danger" : "btn"}
+                        confirmClassName={payLosesMoney ? "btn danger" : "btn primary"}
+                        disabled={busy}
+                        label={t("Change it to {to}", { to: t(PAY_LABELS[payWant]) })}
+                        question={t("Change {job} from {from} to {to}?", {
+                          job,
+                          from: t(PAY_LABELS[booking.payment_status] ?? booking.payment_status),
+                          to: t(PAY_LABELS[payWant]),
+                        })}
+                        confirmLabel={t("Yes, change it")}
+                        // NOT ConfirmTap's default "Not yet": that is the word on one of
+                        // the four choices this very control offers, and a refusal button
+                        // sharing its label with a destination is a question a person can
+                        // answer wrongly by reading it carefully.
+                        cancelLabel={t("Leave it")}
+                        onConfirm={correctPayment}
+                      />
+                    </div>
+                  )}
+                </details>
+              </>
+            )}
 
             {/* ── ROADMAP 5.3 — THE RECEIPT, WHERE THE JOB IS ───────────────
                 The audit asked whether receipts and invoices are findable and

@@ -3231,4 +3231,18 @@ export const appEs = {
     "Los cambios de fecha y hora se revisan contra tu horario, tus bloqueos y tus otros trabajos: un cambio que choque se rechaza, no se guarda sin avisar.",
   "Send {amount}": "Mandar {amount}",
   "Send quote": "Mandar cotización",
+
+  // ROADMAP 4.7 — correcting a payment already recorded on a finished job.
+  // The four state names inside the paragraph are the ones already in this
+  // file ("Pagado", "Pagado en parte", "Sin pagar", "Perdonado"), so the
+  // sentence and the control it describes read the same words.
+  "Correct how it was paid": "Corregir cómo se pagó",
+  "Changing what you recorded": "Cambiar lo que anotaste",
+  "Unpaid and Part paid put the job back on your chase list. Paid takes it off and counts the money as collected. Waived takes it off as well, and the job still shows in what the customer owes. The job stays finished and its charges are not touched.":
+    "Sin pagar y Pagado en parte devuelven el trabajo a tu lista de cobros. Pagado lo saca de ahí y cuenta el dinero como cobrado. Perdonado también lo saca, y el trabajo sigue apareciendo en lo que el cliente debe. El trabajo sigue terminado y sus cargos no se tocan.",
+  "Change it to {to}": "Cambiarlo a {to}",
+  "Change {job} from {from} to {to}?": "¿Cambiar {job} de {from} a {to}?",
+  "Yes, change it": "Sí, cambiarlo",
+  "Leave it": "Déjalo así",
+  "Payment updated.": "Pago actualizado.",
 };
