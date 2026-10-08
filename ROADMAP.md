@@ -518,7 +518,62 @@ and how the wait ends.
   **NOT PROVEN, said plainly:** that R2 accepts these signatures for this bucket; that the `expenses` update lands against the real
   database; that the TypeScript compiles (no compiler here, node only strips types); anything about the live project. The first real
   PUT is the proof and it is Andrew's.
-  **SLICES LEFT:** 4, `business-media` (needs a public R2 address); **5's app half** (`app/src/lib/receipts.js`, contract above).
+  ***SLICE 5 APP HALF BUILT 2026-10-08 (DP Cowork, Lane A). BEHIND A FLAG, DEFAULT OFF. Nothing deployed, nothing applied.***
+
+  `app/src/lib/receipts.js`'s three functions each go through the door with `store: "receipt"`, reusing
+  `app/src/lib/photo-door.js` — no second client. `readReceiptStart` delegates to `readStart`'s own key check rather than
+  copying it (the names differ because a receipt hangs off an EXPENSE, and `storagePath`'s parameter has always been
+  `ownerId` for that reason); `readReceiptFinish` checks `receipt_bytes` the way `readFinish` checks a photo's `bytes`,
+  because a size that stops landing makes the allowance compare against zero and the cap is silently unlimited.
+  `signedReceiptUrl` became the `urls` action through a new `signedReceiptUrls`, which chunks to `DOOR_BATCH`.
+
+  **A FLAG, `RECEIPTS_VIA_DOOR`, AND NOT A FALLBACK — THE MANAGER RULED ON THIS AND THE CODE ALREADY HAD.** A fallback
+  that catches the door's 503 and writes to Supabase Storage anyway is a SECOND DOOR, live exactly when the function is
+  down, and `photo-door.js`'s own header forbids it in those words: *"a second door is how a cap stops meaning anything."*
+  The flag chooses one door, once, in the open; the two paths are never both reachable.
+
+  **THE ASYMMETRY, WRITTEN DOWN BECAUSE IT LOOKS LIKE AN INCONSISTENCY AND IS NOT: `photos.js` HAS NO FLAG.** Slice 1
+  re-pointed job photos with nothing to fall back to, and that was right — job photos were ALREADY going through a door
+  that did not exist, so they fail in words today either way and a flag would have guarded nothing. **Receipts work
+  today.** Re-pointing them unconditionally would take a working feature and break it on the next push, before a publish
+  only Andrew can do. Same destination, different starting state, different switch. `FOR-ANDREW.md`'s publish list now
+  names the flag beside the function, because a published door with the flag still `false` means receipts keep bypassing
+  the meter **and nothing goes red to say so**.
+
+  **PROVED BY PRESSING, four frames each (1440x900 and 320x844, EN and ES), every row and object cleaned up afterwards
+  and 0 left behind:**
+  * **Flag OFF — today's path, unchanged.** All four: no error sentence, the `expenses` row carries
+    `receipt_path`/`bytes`/`width`/`height`, the object answers **GET 200**, and a signed URL for it answers **GET 200**.
+    Console clean, no refused requests. Re-run after the flag was restored, so the restoration was measured, not assumed.
+  * **Flag ON with the door absent — nothing written, and the detailer is told.** All four: `receipt_path` null, no
+    object, **0 rows left behind**, and the sheet reads *"Expense saved, but the receipt did not attach. Could not reach
+    the photo service… photo storage may not be set up on the server yet."* / *"Gasto guardado, pero el recibo no se
+    adjuntó. No se pudo conectar…"*. **It is the `unreachable` sentence rather than `missing`, and that is correct:** an
+    unpublished function's gateway 404 carries no CORS headers, so the browser blocks it and the page sees a TypeError —
+    `photo-door.js` names both causes in that one sentence for exactly this case. Console carries **two lines, both from
+    the single blocked request** (the CORS refusal and its `Failed to load resource`), and nothing else.
+  * **Flag ON with the door ANSWERING: NOT PROVED, and it cannot be from here.** `photo-door` is not published, so no
+    `start`, `finish`, `urls` or `remove` has ever been answered by a real server. What IS proved is everything on this
+    side of the wire: the bodies, the key check, the readers and their refusals (`tests/photo-door.test.mjs` with the
+    call-site suite, 10 pass). **The first real PUT is the proof and it is Andrew's**, which is this item's own standing
+    statement and is unchanged.
+
+  **TWO THINGS THE PRESSING TURNED UP THAT WERE NOT THIS SLICE'S WORK:**
+  * **THE RECEIPT-FAILURE SENTENCE HAD NEVER BEEN ON A SCREEN.** `ExpenseModal`'s catch set the message and then called
+    `onSaved?.()`, and the parent's handler is `() => { setAdding(false); loadExtras(); }` — so the sheet unmounted in
+    the same tick and took the message with it. **Every receipt failure this product can have has been silent for as
+    long as that branch existed, including "photo storage is full".** It is the same fault `BookingDetail`'s `act()`
+    already carries a comment about, one screen over. Fixed here because requirement 2 is unprovable without it: the
+    sheet now stays open and the Save button becomes **Close**, since the expense is already in the database and leaving
+    a live Save under the message would insert a second one on the obvious next press.
+  * **NOTHING IN `app/src` EVER SHOWS OR DELETES A RECEIPT.** Measured 2026-10-08: `receipt_path` is read nowhere outside
+    `lib/receipts.js`, and `removeReceipt` and `signedReceiptUrl` have **no call sites at all**. So "prove a view and a
+    delete still work" could not be answered as a user action, and is not claimed. What was proved instead is that the
+    stored object is fetchable through a signed URL, and that removing object-then-row leaves nothing — both with the
+    service role, which is the substance without the screen. **A detailer can attach a receipt and never see it again.**
+    Worth its own item; not folded in here.
+
+  **SLICES LEFT:** 4, `business-media` (needs a public R2 address); **5's publish and the one-word flag flip**.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived

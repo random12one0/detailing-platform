@@ -209,6 +209,16 @@ name and do not re-run the big line.
    above); a repeated press leaves one change (6.4); Spanish and car-size wording in
    emails (3.4); maintenance and campaign legal footers (0.7); **the written record of a corrected payment (4.7,
    `update-booking`, and only together with change 1 in Part 1b — the correction screen itself is live either way)**.
+
+   **AND ONE THING TO DO AFTER `photo-door` GOES LIVE, WHICH IS NOT A PUBLISH AND IS EASY TO FORGET.** Receipts for
+   expenses are written to go through `photo-door`, but they are **switched off** until you publish it, by a single
+   line: **`RECEIPTS_VIA_DOOR` in `app/src/lib/photo-door.js`**, currently `false`. Publish the function, then have a
+   session flip that to `true`; it is one word, and the website has to be published afterwards for it to take effect.
+   **Why it is off at all:** receipts work today, so switching them over before the function exists would break
+   something that is working. Job photos have no such switch, because they were already going through this door
+   before it existed and are waiting on the publish either way.
+   **If you publish and nobody flips it, nothing breaks and nothing says so** — receipts just keep going the old way,
+   which does not count them against the photo limit. That is the whole reason this line is here.
 4. **`platform-billing`, alone.** The paid-restart fix (ROADMAP 12.1).
 5. **`stripe-webhook`, last and alone.** The ceilings (14.9, 14.18) and the
    email wording (3.4) on the one program that handles money.

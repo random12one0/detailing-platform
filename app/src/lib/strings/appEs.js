@@ -3245,4 +3245,10 @@ export const appEs = {
   "Yes, change it": "Sí, cambiarlo",
   "Leave it": "Déjalo así",
   "Payment updated.": "Pago actualizado.",
+
+  // ROADMAP 0.11 slice 5 — the receipt door's refusal, wrapped so the
+  // expense-is-saved half is still said. `{reason}` is the server's own
+  // sentence and arrives already translated (the DOOR_WORDS catalogue).
+  "Expense saved, but the receipt did not attach. {reason}":
+    "Gasto guardado, pero el recibo no se adjuntó. {reason}",
 };

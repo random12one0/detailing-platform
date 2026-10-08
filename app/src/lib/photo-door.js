@@ -69,6 +69,30 @@
 import { storagePath } from "./photo-rules.js";
 
 export const DOOR = "photo-door";
+
+// ── ROADMAP 0.11 SLICE 5 — THE RECEIPTS FLAG, AND WHY RECEIPTS HAVE ONE WHEN
+//    JOB PHOTOS DO NOT ────────────────────────────────────────────────────
+// **FLIP THIS TO `true` ONCE `photo-door` IS PUBLISHED.** It is named in
+// `FOR-ANDREW.md`'s publish list beside the function, because a published door
+// with this still `false` means receipts keep bypassing the meter, and nothing
+// goes red to say so.
+//
+// **IT IS A FLAG AND NOT A FALLBACK, AND THE DIFFERENCE IS THE WHOLE POINT.**
+// A fallback that catches the door's 503 and writes to Supabase Storage anyway
+// is a SECOND DOOR, live exactly when the function is down — and this file's
+// own header forbids that in those words, because a second door is how the cap
+// stops meaning anything again, quietly. This chooses one door, once, in the
+// open. There is never a moment when both are reachable.
+//
+// **AND THE ASYMMETRY IS DELIBERATE: `photos.js` HAS NO FLAG.** Slice 1
+// re-pointed job photos at the door with nothing to fall back to, which was
+// right because job photos were ALREADY going through a door that did not
+// exist — they fail in words today either way, so a flag would have guarded
+// nothing. Receipts WORK today. Re-pointing them unconditionally would take a
+// working feature and break it on the next push, before the function Andrew
+// has not published yet. Same destination, different starting state, so a
+// different switch.
+export const RECEIPTS_VIA_DOOR = false;
 /** The most keys one `urls` call may carry; `signedUrls` chunks to this. */
 export const DOOR_BATCH = 100;
 
@@ -141,6 +165,32 @@ export function readFinish(resp, { photoId, key }) {
   if (!isObject(p) || p.id !== photoId || p.path !== key) refuse("unconfirmed");
   if (!Number.isInteger(p.bytes) || p.bytes <= 0) refuse("unconfirmed");
   return p;
+}
+
+/**
+ * `start`'s answer for a RECEIPT. The key check is `readStart`'s, unchanged and
+ * not copied: one expression decides what object this browser will PUT to, for
+ * both stores. The names differ because the parent does — a receipt hangs off an
+ * EXPENSE, not a booking — and `storagePath`'s parameter has always been called
+ * `ownerId` for exactly that reason.
+ */
+export function readReceiptStart(resp, { businessId, expenseId, fileId, type }) {
+  return readStart(resp, { businessId, bookingId: expenseId, photoId: fileId, type });
+}
+
+/**
+ * `finish`'s answer for a RECEIPT: `{ expense }` carrying the five receipt
+ * columns as stored. **`receipt_bytes` is checked the same way `readFinish`
+ * checks a photo's `bytes` and for the same reason** — the size is what the
+ * server read back off R2, and a zero or a missing one makes the allowance
+ * compare against nothing, at which point the cap is silently unlimited. A
+ * receipt that cannot say how big it is has not been saved.
+ */
+export function readReceiptFinish(resp, { expenseId, key }) {
+  const x = resp?.expense;
+  if (!isObject(x) || x.id !== expenseId || x.receipt_path !== key) refuse("unconfirmed");
+  if (!Number.isInteger(x.receipt_bytes) || x.receipt_bytes <= 0) refuse("unconfirmed");
+  return x;
 }
 
 /** `urls`' answer: the map, or a thrown sentence if there is no map at all. A

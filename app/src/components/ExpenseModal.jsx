@@ -90,6 +90,9 @@ export default function ExpenseModal({ onClose, onSaved }) {
   // receipt's storage path contains the expense id and there is no id until
   // the insert comes back.
   const [receipt, setReceipt] = useState(null);
+  // ROADMAP 0.11 SLICE 5 — THE EXPENSE IS SAVED AND THE RECEIPT IS NOT, which
+  // is the one outcome this sheet could not say out loud. See `save()`.
+  const [savedNoReceipt, setSavedNoReceipt] = useState(false);
   const amountRef = useRef(null);
 
   useEffect(() => { amountRef.current?.focus(); }, []);
@@ -126,11 +129,44 @@ export default function ExpenseModal({ onClose, onSaved }) {
       try {
         await addReceipt({ file: receipt, businessId: business.id, expenseId: row.id });
       } catch (e) {
+        // ROADMAP 0.11 SLICE 5 — THE DOOR'S OWN SENTENCE, SHOWN AS IT WAS
+        // WRITTEN. The contract is explicit: *"Every refusal carries a sentence
+        // meant for a detailer; show it as the server wrote it and do not
+        // re-word it."* Until now every failure here collapsed into one generic
+        // line, so a door answering **"Photo storage is not set up on the server
+        // yet."** would have read as "the receipt did not upload" — a detailer
+        // retrying for ever against something that is not switched on.
+        //
+        // THE EXPENSE-IS-SAVED HALF STILL HAS TO BE SAID, which is why this
+        // wraps rather than replaces: the number is already recorded and the
+        // screen must not imply otherwise. Wrapping is not re-wording — the
+        // server's sentence goes through untouched as `{reason}`.
+        //
+        // `t()` ON THE REASON because `DOOR_WORDS` are catalogued strings
+        // (`tests/spanish.test.mjs` § 12 reads them from `photo-door.js`), so a
+        // Spanish dashboard gets a Spanish sentence; anything not in the
+        // catalogue passes through unchanged, which is `t()`'s own behaviour.
         setError(e?.code === "BUDGET_FULL"
           ? t("Expense saved, but photo storage is full so the receipt was not attached.")
-          : t("Expense saved, but the receipt did not upload."));
+          : e?.message
+            ? t("Expense saved, but the receipt did not attach. {reason}", { reason: t(e.message) })
+            : t("Expense saved, but the receipt did not upload."));
         setBusy(false);
-        onSaved?.();
+        // **AND THE SHEET STAYS OPEN, BECAUSE UNTIL NOW THAT SENTENCE WAS
+        // NEVER ON A SCREEN — found 2026-10-08 while proving slice 5.** This
+        // branch used to call `onSaved?.()` here, and the parent's handler is
+        // `() => { setAdding(false); loadExtras(); }` — so the sheet unmounted
+        // in the same tick and took the message with it. Every receipt failure
+        // this product can have, including "storage is full", has been silent
+        // for as long as the branch has existed. It is the same fault
+        // `BookingDetail`'s `act()` already carries a comment about, one screen
+        // over, and it is why this was caught by pressing rather than reading.
+        //
+        // **THE SAVE BUTTON HAS TO GO WITH IT.** The expense is already in the
+        // database; leaving a live Save under the message would insert a second
+        // one on the obvious next press. It becomes a Close that does what
+        // `onSaved` always did.
+        setSavedNoReceipt(true);
         return;
       }
     }
@@ -200,11 +236,17 @@ export default function ExpenseModal({ onClose, onSaved }) {
           </div>
         )}
 
-        {error && <div className="error-box">{error}</div>}
+        {error && <div className="error-box" role="alert">{error}</div>}
+        {savedNoReceipt ? (
+          <button className="btn primary" style={{ marginTop: 12 }} onClick={() => onSaved?.()}>
+            {t("Close")}
+          </button>
+        ) : (
         <button className="btn primary" style={{ marginTop: 12 }}
           disabled={busy || !Number(amount) || !category} onClick={save}>
           {busy ? t("Saving") : t("Save expense")}
         </button>
+        )}
     </Sheet>
   );
 }

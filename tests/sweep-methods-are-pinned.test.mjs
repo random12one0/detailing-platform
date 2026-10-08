@@ -348,7 +348,21 @@ const DECLARED = {
   // fragment, inside 9.11e's existing Done-when zone, so `quoteCriteria` holds at
   // 34 — 9.11e was already in the population. Measured against
   // `git show 34f93eb:ROADMAP.md` (299) and this tree (300).
-  quoteFragments: 300,
+  //
+  // 300 -> 305, 2026-10-08. **TWO LEGS AGAIN, AND THEY ARE NOT BOTH THIS LANE'S:**
+  //
+  //     c750236                          300   <- where 300 was taken
+  //     fc524da                          303   +3  the OTHER session's 2.15a write-up
+  //     + 0.11 slice 5 app half          305   +2  this commit
+  //
+  // `quoteCriteria` holds at 34: 0.11 and 2.15a were both already in the
+  // population, so neither write-up could enter it twice. Both ends measured by
+  // running this file against a checkout of `git show fc524da:ROADMAP.md` (303)
+  // and against this tree (305). **This constant has now been overtaken by the
+  // other lane three times in one evening**, which is not a fault in either
+  // lane — it is what a shared document looks like with two sessions in it, and
+  // it is the reason this trail records an owner per leg instead of a net.
+  quoteFragments: 305,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
