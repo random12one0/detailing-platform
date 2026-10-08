@@ -362,7 +362,18 @@ const DECLARED = {
   // other lane three times in one evening**, which is not a fault in either
   // lane — it is what a shared document looks like with two sessions in it, and
   // it is the reason this trail records an owner per leg instead of a net.
-  quoteFragments: 305,
+  //
+  // 305 -> 319, 2026-10-08, and ELEVEN OF THE FOURTEEN ARE NOT THIS LANE'S:
+  //
+  //     e246714                          305   <- where 305 was taken
+  //     b109170                          316   +11  the OTHER session's cold read of the two money items
+  //     + 0.11 re-framing and 2.15a      319   +3   this commit
+  //
+  // Fourth time in one evening this constant has been overtaken between a
+  // measurement and its commit. The criteria figure holds at 34: 0.11 and 2.15a were
+  // both already in the population. Both ends measured against
+  // `git show b109170:ROADMAP.md` (316) and this tree (319).
+  quoteFragments: 319,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

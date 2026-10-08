@@ -558,7 +558,8 @@ and how the wait ends.
     call-site suite, 10 pass). **The first real PUT is the proof and it is Andrew's**, which is this item's own standing
     statement and is unchanged.
 
-  **TWO THINGS THE PRESSING TURNED UP THAT WERE NOT THIS SLICE'S WORK:**
+  **TWO THINGS THE PRESSING TURNED UP. THE FIRST WAS RULED IN SCOPE AND KEPT
+  (manager, 2026-10-08); the second is DP Cowork2's to file.**
   * **THE RECEIPT-FAILURE SENTENCE HAD NEVER BEEN ON A SCREEN.** `ExpenseModal`'s catch set the message and then called
     `onSaved?.()`, and the parent's handler is `() => { setAdding(false); loadExtras(); }` — so the sheet unmounted in
     the same tick and took the message with it. **Every receipt failure this product can have has been silent for as
@@ -566,6 +567,24 @@ and how the wait ends.
     already carries a comment about, one screen over. Fixed here because requirement 2 is unprovable without it: the
     sheet now stays open and the Save button becomes **Close**, since the expense is already in the database and leaving
     a live Save under the message would insert a second one on the obvious next press.
+    **AND THE FIX WAS SENT BACK ONCE BEFORE IT WAS RIGHT, which is the part worth keeping.** The frames showed two
+    things the measurement had not asked about. *1440 English contradicted itself:* **"Receipt attached — choose
+    another"** sat directly above **"the receipt did not attach"**, because the label reported the FILE THE PERSON
+    PICKED rather than what happened to it. It is now a plain **"Receipt not attached."** and deliberately not a
+    picker — the expense is already in the database and `save()` is the only thing that attaches a receipt, so
+    pressing it again would insert a SECOND expense. *320 Spanish hid its own way out:* the red line was cut off by
+    the sheet's edge with Close below it, off screen, so the failure block now scrolls itself into view with
+    `block: "end"` rather than `"nearest"` — what has to be on screen is the BUTTON under the sentence, not only the
+    sentence. Re-measured at **all five widths in both languages**: message fully in view and Close fully in view
+    (46px) on all ten, the receipt line reads correctly on all ten, nothing written, 0 rows left behind, and two
+    console lines both from the one blocked request. **Both were found by a person opening two frames, after a
+    ten-frame measurement had reported the screen clean** — the measurement asked whether the sentence existed and
+    never whether it contradicted the line above it or could be reached.
+    **ONE THING HANDED BACK RATHER THAN DONE:** capitalising the Spanish category chips to match the English.
+    `ExpenseModal`'s own `CATEGORY_WORDS` comment refuses it in those terms — *"CAPITALISATION IS NOT UNIVERSAL.
+    Spanish does not capitalise common nouns, so forcing 'Producto' and 'Gasolina' was wrong the moment the toggle
+    existed"* — and `FOUND.md` records the table's cost. Reversing a decision whose reason is written down is not a
+    session's to do quietly.
   * **NOTHING IN `app/src` EVER SHOWS OR DELETES A RECEIPT.** Measured 2026-10-08: `receipt_path` is read nowhere outside
     `lib/receipts.js`, and `removeReceipt` and `signedReceiptUrl` have **no call sites at all**. So "prove a view and a
     delete still work" could not be answered as a user action, and is not claimed. What was proved instead is that the
@@ -5521,6 +5540,28 @@ the wrong service, and never book a job we cannot reach.
 
   **THE CAP WAS TAKEN, AND THEN THE GAP ABOVE WAS CLOSED — 2026-10-02, commits
   `6cb226d` and `a2a43d5`.**
+
+  ***AND IT MISSED TWO DOORS, FOUND AND CLOSED 2026-10-08 (DP Cowork, Lane A), `803af7c`.***
+  The round above capped `businesses.name` at `BusinessInfo.jsx:260` — **which is where a name is EDITED**. A
+  business is NAMED somewhere else first: **`CreateBusiness.jsx` at sign-up** and **`AdminPage.jsx`'s own create
+  form in the back office**, both unbounded. **So the cap only ever applied to the second thing anybody typed**, and
+  a 400-character name typed at sign-up reached a customer's booking page exactly as before. Same 60 as the other
+  five, no new number, each with the reason beside it. Six name inputs now carry `maxLength={60}`; the five strings
+  in the table above are covered by four of them, because `Catalog.jsx` is one shared editor for three.
+
+  **Measured at 320 in both languages with the name set to EXACTLY 60 characters, on `demo-riverside` rather than
+  `demo-detail`** — the other session was measuring that tenant, and renaming a business under a running sweep is
+  the non-file collision `docs/shared-resources.md` is about. Six frames over the booking page's first step, its
+  review step and the manage page: **0 sideways scroll, 0 elements escaping their box, 0 console noise**, the `<h1>`
+  wrapping to 182x77 unclipped and the interpolated sentence to 288x57 unclipped. The tenant's name was restored and
+  the restoration read back.
+
+  **THREE OF THE FIVE SURFACES, SAID RATHER THAN IMPLIED.** The confirmation screen needs a completed booking, which
+  would have meant writing one into a tenant for a screenshot; and `StepServices`' interpolated sentence renders
+  only for a business with NO services, which `demo-riverside` has two of. Neither was faked and neither is claimed.
+  **And the first two runs reported 59 characters, not 60** — the generator padded to 60 and trimmed the trailing
+  space back off. The run asserts its own length now and exits if it is not 60, so the ceiling cannot be claimed
+  untested again.
 
   **60 CHARACTERS ON ALL FIVE NAME BOXES. The number came from the box next
   door, not from anybody's judgement here** — `Plans.jsx` has carried
