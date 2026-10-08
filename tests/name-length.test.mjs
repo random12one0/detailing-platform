@@ -126,9 +126,15 @@ test("ROADMAP 2.15a — a name over the cap is refused in words, by the server",
     // AND THE TWO THAT HAVE NONE: printed, not failed. Adding them is Lane A's file and 2.15a
     // specifies them; a guard that skips must say so rather than going quiet.
     for (const f of ["app/src/screens/CreateBusiness.jsx", "app/src/admin/AdminPage.jsx"]) {
-      const box = read(f).match(/value=\{(?:form\.)?name\}[^>]*/s);
+      // THE WHOLE ELEMENT, NOT THE TEXT AFTER `value=`. The first version read forward from
+      // `value={name}` to the next `>`, and `AdminPage.jsx:990` writes `maxLength` BEFORE `value`,
+      // so it reported a capped box as NOT CAPPED - a false negative that reads exactly like the
+      // gap it was written to watch. Caught 2026-10-08 when Lane A capped it and this still said
+      // otherwise.
+      const box = read(f).split("<input").map((c) => "<input" + c.split(">")[0])
+        .find((c) => /value=\{(?:form\.)?name\}/.test(c));
       assert.ok(box, `${f}: the business-name input was not found at all, so this gap is unmeasured`);
-      const cap = box[0].match(/maxLength=\{(\d+)\}/);
+      const cap = box.match(/maxLength=\{(\d+)\}/);
       if (!cap) console.error(`  NOT CAPPED (expected — specified for Lane A under 2.15a): ${f}`);
       else assert.equal(Number(cap[1]), NAME_MAX, `${f} caps its name box at ${cap[1]}, not ${NAME_MAX}`);
     }
