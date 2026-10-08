@@ -3251,4 +3251,7 @@ export const appEs = {
   // sentence and arrives already translated (the DOOR_WORDS catalogue).
   "Expense saved, but the receipt did not attach. {reason}":
     "Gasto guardado, pero el recibo no se adjuntó. {reason}",
+  // Replaces the file picker once the expense is saved and the receipt is not:
+  // picking again cannot work, so the line states the fact instead of offering.
+  "Receipt not attached.": "Recibo sin adjuntar.",
 };

@@ -93,6 +93,19 @@ export default function ExpenseModal({ onClose, onSaved }) {
   // ROADMAP 0.11 SLICE 5 — THE EXPENSE IS SAVED AND THE RECEIPT IS NOT, which
   // is the one outcome this sheet could not say out loud. See `save()`.
   const [savedNoReceipt, setSavedNoReceipt] = useState(false);
+  // **THE MESSAGE AND ITS WAY OUT HAVE TO BE REACHABLE WITHOUT HUNTING FOR
+  // THEM — 2026-10-08, found in the 320 Spanish frame.** The failure lands at
+  // the foot of a sheet that is already taller than a phone, so the red line
+  // was cut off by the sheet's own edge and Close was below it, off screen.
+  // A message nobody scrolls to is the same as the message that used to
+  // unmount itself. `block: "end"` rather than `"nearest"`, because what has
+  // to be on screen is the BUTTON under the sentence and not only the
+  // sentence; `ConfirmTap` uses `"nearest"` for the opposite case, where the
+  // answer replaces the control in place and the page should barely move.
+  const failure = useRef(null);
+  useEffect(() => {
+    if (savedNoReceipt) failure.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, [savedNoReceipt]);
   const amountRef = useRef(null);
 
   useEffect(() => { amountRef.current?.focus(); }, []);
@@ -228,14 +241,32 @@ export default function ExpenseModal({ onClose, onSaved }) {
             {/* Survey finding 6 — the paper behind the number. It goes through
                 the same resize as a job photo and counts against the same
                 allowance, so this cannot become a second, uncounted store. */}
-            <label className="btn ghost" style={{ cursor: "pointer", marginTop: 4 }}>
-              {receipt ? t("Receipt attached — choose another") : t("Add a photo of the receipt")}
-              <input type="file" accept="image/*" hidden
-                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} />
-            </label>
+            {/* **IT SAID "Receipt attached — choose another" DIRECTLY ABOVE
+                "the receipt did not attach" — 2026-10-08, read off the 1440
+                English frame.** `receipt` is the FILE THE PERSON PICKED, and
+                the label was reporting that rather than what happened to it,
+                so the two lines contradicted each other at the one moment a
+                detailer most needs to know which is true.
+
+                **AND IT IS A PLAIN LINE RATHER THAN A PICKER, because picking
+                again cannot work here.** The expense is already in the
+                database and `save()` is the only thing that attaches a
+                receipt — pressing it again would insert a SECOND expense,
+                which is why the button below is Close. Offering a file dialog
+                that leads nowhere is worse than saying the thing plainly. */}
+            {savedNoReceipt ? (
+              <p className="quiet" style={{ marginTop: 4 }}>{t("Receipt not attached.")}</p>
+            ) : (
+              <label className="btn ghost" style={{ cursor: "pointer", marginTop: 4 }}>
+                {receipt ? t("Receipt attached — choose another") : t("Add a photo of the receipt")}
+                <input type="file" accept="image/*" hidden
+                  onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} />
+              </label>
+            )}
           </div>
         )}
 
+        <div ref={failure}>
         {error && <div className="error-box" role="alert">{error}</div>}
         {savedNoReceipt ? (
           <button className="btn primary" style={{ marginTop: 12 }} onClick={() => onSaved?.()}>
@@ -247,6 +278,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
           {busy ? t("Saving") : t("Save expense")}
         </button>
         )}
+        </div>
     </Sheet>
   );
 }
