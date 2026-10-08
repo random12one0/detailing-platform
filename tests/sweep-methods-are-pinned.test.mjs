@@ -313,7 +313,15 @@ const DECLARED = {
   // this commit's tree reads 294. Worth one line because +4 is small enough to
   // look like drift and is not: it is two items arriving, and the criteria figure
   // beside it moving by exactly 2 is the cross-check.
-  quoteFragments: 294,
+  //
+  // 294 -> 296, 2026-10-08, same sitting, +2: ROADMAP 9.4's second write-up, after
+  // the manager rejected the frames and the padding cells were given a class. All of
+  // it lands inside 9.4's existing Done-when zone, so `quoteCriteria` does NOT move
+  // this time — 9.4 entered the population two commits ago and cannot enter twice.
+  // **A criteria figure that holds while the fragments figure moves is the ordinary
+  // case for a second pass on one item**, and it is written down because the pair
+  // moving together is what the note above used as its own cross-check.
+  quoteFragments: 296,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

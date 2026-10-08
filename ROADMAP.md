@@ -15691,8 +15691,68 @@ the dashboard or back office at phone width at all.
   not having loaded in that one context rather than a defect. **Both are the
   instrument, not the screen, and neither is a reason to touch this item.**
 
-  **So there is nothing here for a session to build.** It stays `[ ]` for Andrew's
-  press and nothing else.
+  **AND THAT PARAGRAPH WAS WRONG WITHIN THE HOUR — 2026-10-08, `1064383`.** The
+  manager opened the two frames and the month was **still not a rectangle to the
+  eye**: October's 1st is a Thursday, and Sun–Wed of the first row were empty air
+  at both widths. **A COUNT OF CELLS IS NOT A RECTANGLE.** `cells` has been a
+  whole number of weeks since 2026-09-23 and the DOM has carried 35 entries ever
+  since — which is why `grid-rect` went green and why the re-measurement above
+  repeated it — but the lead-in and run-out entries rendered as a bare `<div/>`
+  with **no class**, so they had no border, no height and no presence. The check
+  was measuring the array and the fault was in the paint. **Five widths of
+  automated geometry missed what one person saw in one look**, because nothing
+  anywhere asked whether a cell was PAINTED.
+
+  **A padding day is now a quiet cell.** Empty rather than the neighbouring
+  month's dates, which was the other option offered: a number at reduced emphasis
+  is text a person reads and would owe a contrast measurement that an empty box
+  does not. `aria-hidden`, because seven silent boxes are worth nothing read
+  aloud. `.cal-cell.other` was **declared in `theme.css` and had never been
+  emitted by anything** — dead CSS waiting for exactly this. Its opacity goes
+  0.3 → **0.42**, because at 0.3 the hairline border is all but gone and the row
+  still reads as a gap. **And its hit-area `::after` comes off, which is the part
+  that would have bitten:** `.cal-cell::after` is a −2.5px inset that tiles half
+  the 5px gutter so two real days meet with no dead strip, and on a cell that does
+  nothing that same inset is an inert box 2.5px inside its neighbour's gutter — a
+  press traded for a WRONG one. `pointer-events: none` says it a second way. No
+  gutter is lost: before this these cells had no `::after` either.
+
+  **Measured after, at all five widths in both languages: 35 cells, 5 rows, and
+  35 of them carrying `.cal-cell` — on all ten.** Quiet cell reads `DIV`, opacity
+  0.42, `pointer-events: none`, `::after` content `none`, empty text. No sideways
+  scroll, console clean on all ten. `calendar-legible.mjs` back to **PASS, 11/11
+  targets, 55 assertions, canary caught**, and clean of console noise this run.
+
+  **THE LEGEND'S CONTRAST, MEASURED IN PLACE, AND IT IS NOT WHAT THE FRAME
+  SUGGESTED.** At the five widths this project uses it reads **6.97:1** with
+  nothing painted over it — `.tabscrim` is not drawn at all at 1440 and 1920, and
+  at 768x1024, 392x844 and 320x844 the legend sits clear of it. The washed-out
+  frame was **320x640**, a viewport height this session chose and the project does
+  not use, and there it is genuinely bad: the scrim covers the legend at alpha
+  **0.63 EN / 0.75 ES**, taking 6.97:1 down to **1.92:1 and 1.47:1**. **Nothing is
+  changed for it here, because it is not a calendar fault:** `.app-main` reserves
+  `--tabclear` and `.tabscrim` is `--tabclear + 40px` tall, so **the bottom 40px of
+  every screen's content box sits under the fade at short viewport heights**. That
+  is a `--tabclear`-class decision with its own gate and its own warning in
+  CLAUDE.md, so it is handed up rather than taken. **Worth one line about the
+  instrument:** `elementFromPoint` reported nothing covering the legend and was
+  wrong, because `.tabscrim` is `pointer-events: none` — a hit test answers *can
+  this be pressed*, never *can this be read*.
+
+  **THE 401 ON `/rest/v1/user_tours` DID NOT REPRODUCE, in three attempts, and the
+  server side is correct.** It comes from `App.jsx:390`, the tour-dismissal read.
+  Driven through the app exactly as `calendar-legible.mjs` drives it, the request
+  carries an 810-character user JWT and answers **200**; called directly against
+  the live database with a password-grant token for the same account, **200**; the
+  table exists, both policies are `to authenticated` on `user_id = auth.uid()`,
+  and the `authenticated` grant is intact. The full re-run is clean of it. **So it
+  is a transient in one earlier run, and `App.jsx` is not being changed on a
+  theory.**
+
+  **It still stays `[ ]`.** The press that rejected it was taken on the ragged
+  frames; the Done-when is unchanged and is one look away. Ten month frames and
+  ten selected-day frames (Oct 2, five jobs) at 1440 and 320 in both languages are
+  in `.manager-shots/9.4/`.
 
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or
