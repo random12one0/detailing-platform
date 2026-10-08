@@ -114,13 +114,13 @@ const FIX = [
   { slug: "zz-skipped",   status: "skipped",   booking: false, min: 150 },
   // The long one: an address and a business name that will not fit at 320.
   { slug: "zz-long", status: "delivered", booking: false, min: 200,
-    to: "a-very-long-recipient-address-that-keeps-going@an-equally-long-example-domain-name.example.com",
+    to: "a-very-long-recipient-address-that-keeps-going@an-equally-long-example-domain-name.example.com",  // mail-sink: a fixture row fulfilled inside the browser; nothing is sent and no row is written
     business: "Zz The Extremely Long Business Name Detailing And Ceramic Coating Studio" },
 ];
 const rowsFor = (statuses) => FIX.filter((f) => !statuses || statuses.includes(f.status)).map((f, i) => ({
   id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
   subject: `${f.slug}: your appointment`,
-  to_email: f.to ?? `${f.slug}@customer.example.com`,
+  to_email: f.to ?? `${f.slug}@customer.example.com`,  // mail-sink: a fixture row fulfilled inside the browser; nothing is sent and no row is written
   status: f.status,
   detail: f.detail ?? null,
   sent_at: ago(f.min),

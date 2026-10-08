@@ -76,7 +76,7 @@ test("ROADMAP 14.21 — the throwaway admin's teardown", async (t) => {
     server.close();
     assert.equal(r.code, 0, r.out);
     assert.deepEqual(users.map((u) => u.email), ["demo@detailplatform.com"]);  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
-    assert.deepEqual(admins.map((a) => a.email), ["demo@detailplatform.com"]);  // mail-sink: a login name in a fake backend on 127.0.0.1; nothing here can send
+    assert.deepEqual(admins.map((a) => a.email), ["demo@detailplatform.com"]);
     assert.match(r.out, /platform_admins now: \["demo@detailplatform.com"\]/);
     assert.doesNotMatch(r.out, /SECRET-NOTE/, "the note column must never be printed");
     assert.ok(log.filter((l) => l.includes("/rest/v1/platform_admins") && l.startsWith("GET")).every((l) => /select=email/.test(l)), "the roster is read by email only");
