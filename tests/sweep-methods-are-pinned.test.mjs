@@ -246,7 +246,17 @@ const DECLARED = {
   // 32 -> 33, 2026-10-07, fourth sitting: 9.18's Done-when names files, so that
   // item entered the criteria population. 0.11's slice 5 block did not move it:
   // 0.11 was already in the population.
-  quoteCriteria: 33,
+  //
+  // 33 -> 35, 2026-10-08: TWO items entered at once, and both were already open —
+  // this is a population change, not a backlog change, which is why
+  // `numberedOpenItems` did not move. **4.7**: its Done-when quoted no multi-word
+  // fragment when the note three blocks up recorded it at "+0", and the build
+  // write-up gave the zone a restated Done-when that does. **9.4**: its
+  // re-verification block sits inside the same zone as its Done-when and names
+  // `scripts/calendar-legible.mjs`, where before the zone named no file at all.
+  // Both ends measured by running this file against a checkout of
+  // `git show 2dc6064:ROADMAP.md` (33) and against this commit's tree (35).
+  quoteCriteria: 35,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -294,7 +304,16 @@ const DECLARED = {
   // and that is stated rather than implied: both additions are in the SAME
   // uncommitted tree, so there is no revision between them to measure at. The
   // two ends are `git show 8a2292b:ROADMAP.md` (274) and this commit (290).
-  quoteFragments: 290,
+  //
+  // 290 -> 294, 2026-10-08. +4, the fragments carried in by the two items that
+  // entered the criteria population in the same edit (see `quoteCriteria` above):
+  // ROADMAP 4.7's restated Done-when and 9.4's re-verification block. **The whole
+  // move is those two items** — no other Done-when zone was touched. Both ends
+  // measured the way this file asks: `git show 2dc6064:ROADMAP.md` reads 290, and
+  // this commit's tree reads 294. Worth one line because +4 is small enough to
+  // look like drift and is not: it is two items arriving, and the criteria figure
+  // beside it moving by exactly 2 is the cross-check.
+  quoteFragments: 294,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

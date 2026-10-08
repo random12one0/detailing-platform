@@ -9829,6 +9829,64 @@ requested.
   4.1 is one tap that completes a job with no undo, and this is the money half of
   the same shape.*
 
+  **BUILT 2026-10-07 (DP Cowork, Lane A), commit `0f62d9d`. NOT TICKED, and the
+  clause that is missing is Andrew's twice over.** "Correct how it was paid" sits
+  under *The money* on a finalized record: a fold, copy saying what each of the
+  four states does to the chase list and to what the customer owes, the shared
+  `Segmented`, and one question naming the job and both sides of the change.
+
+  **It sends ONE field**, which is this entry's own named way to fail — no
+  `finalized_at`, no line items, no `status`. Measured by pressing, on
+  `demo-detail` as the owner, Marcus Webb $65, restored afterwards: finalized as
+  **Waived** through the real modal, then **waived → paid → unpaid → part paid**.
+  `finalized_at` stayed `02:04:02.895` and `final_amount` stayed `65` across all
+  three corrections. Money read between every press — earned **$255** throughout;
+  collected **$0 → $65 → $0 → $0**; still owed **$255 → $190 → $255 → $255**;
+  chase list **3 rows/$255 → 2/$190** on the waive, **2/$190** on paid, **3/$255**
+  the moment it went back to unpaid, **3/$255** on part paid. **The job reappears
+  on the chase list**, which is the half of the fault nothing else could reach.
+
+  **Three refusals, each pressed rather than reasoned about:** no control at all on
+  a job that was never finalized (Finalize is offered instead); **no answer button
+  while the pick has not moved**, so nothing can write a no-op or file a row saying
+  a payment changed from paid to paid; and another tenant's booking through
+  `update-booking` as this owner answers **404** with that row unchanged.
+
+  **The destructive-action pattern is all three of its parts.** Behind a fold;
+  copy that says what each direction does; and `.btn.danger` on **Paid** and
+  **Waived** — the two that can lose money — and deliberately not on Unpaid or
+  Part paid, the same distinction `docs/screen-rules.md` draws when it says
+  "Didn't show up" and "Cancel the job" do not take `--bad`.
+
+  **WHAT IS MISSING: the `action_log` row, and no session can supply it.** The
+  table does not exist in the live database — `GET /rest/v1/action_log` answers
+  **404 PGRST205** — and `node scripts/deployed-inventory.mjs` reports
+  `update-booking` running a copy **15.4 days old with `_shared/actionLog.ts`
+  among its seven differing files**, so the code that would write the row is
+  neither present nor running. The correction still writes, because
+  `recordActions` is best-effort by design. **Both halves are on `FOR-ANDREW.md`'s
+  one ordered list and that list now names 4.7** (Part 1b change 1, Part 2 step 3)
+  — apply `20261006050000_action_log.sql`, publish `update-booking`. **Neither
+  half changes anything a detailer sees**: the fix is already in front of them.
+
+  **`tests/payment-correction.test.mjs`** is the check — credential-free, four
+  filesystem reads, 7 checks, `PAYMENT_BREAK` with six sabotages (`refinalize`,
+  `ungated`, `no-refusal`, `no-spanish`, `no-danger`, `no-audit`). **All six were
+  run and all six go red on exactly the check aimed at them**; the clean run reads
+  7 passed, 0 failed.
+
+  **Ten frames**, 1920 / 1440x900 / 768x1024 / 392x844 / 320 in English and
+  Spanish: control present and question on screen in all ten, both answers 46px
+  and topmost by hit test, **console clean in all ten**. Worst contrast over the
+  block **6.23:1 across 44 measurements** — taken by hand, because
+  `contrast-insitu.mjs` never opens a job record and `american-english.mjs` reads
+  only the eleven public pages, **so both mandated gates pass without seeing this
+  surface.**
+
+  **Done when, restated for the tick:** Andrew applies the migration and publishes
+  `update-booking`, then one correction is pressed and its `action_log` row read
+  back naming the before and the after.
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
@@ -15611,6 +15669,31 @@ the dashboard or back office at phone width at all.
   its inner viewport at 1414, so the 320 evidence stays this session's measured run
   and the entry must keep saying so.
 
+  **RE-MEASURED 2026-10-08 at `dcdd271`, because a session was sent to BUILD this
+  and it was already built.** Nothing was changed. All three repairs are live at
+  1920 / 1440x900 / 768x1024 / 392x844 / 320 in both languages: seven distinct
+  weekday labels (`Sun Mon Tue Wed Thu Fri Sat` / `dom lun mar mié jue vie sáb`),
+  **35 cells — five whole weeks — at every one of the ten**, and the legend naming
+  every status present (`Booked · Done · Blocked` / `Agendado · Terminados ·
+  Bloqueado`). No sideways scroll and **console clean on all ten**. The legend is
+  **not** under the tab bar at any width in either language — hit-tested by
+  `elementFromPoint` at each word's own midpoint, 30 words, 0 covered, which a
+  bounding-box test gets wrong at 1440 where `.tabbar` is the desk's vertical rail.
+  Ten frames in `.manager-shots/9.4/` (not committed), so the press can happen at
+  widths his browser cannot reach.
+
+  **`scripts/calendar-legible.mjs` reads 11/11 targets, 55 assertions, 0 failures,
+  canary caught — and still prints FAIL**, because its verdict is
+  `failures === 0 && canary && consoleNoise === 0` and that run carried two console
+  lines: a **401 on `/rest/v1/user_tours` at 320 en**, which is not one of the four
+  repairs. The same run also reported an empty legend at 1440 en with no statuses
+  present; the pass above draws the full legend there, so that was the month's jobs
+  not having loaded in that one context rather than a defect. **Both are the
+  instrument, not the screen, and neither is a reason to touch this item.**
+
+  **So there is nothing here for a session to build.** It stays `[ ]` for Andrew's
+  press and nothing else.
+
 - [x] **DONE 2026-09-20 — 9.5 Late jobs are not flagged.** At 10pm a 2:00 PM
   job still sits under "Still to do". Mark it late and offer "Mark done" or
   "Move it".
@@ -21389,6 +21472,56 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   all. **Four of those 14 are a side effect and not the check's doing:** at 1440 and 1920 (both screens) `screen/pressed` also goes red because the bar now
   sits over the control the sweep presses, which is what a bar over the bottom of the window does. **Clean run, same script, same app:** gate
   HELD, 0 unexpected, 0 covered at the end at all ten cells, 2, 2 and 1 set aside at the top at the same three cells.
+
+### 14.38 — The job record scrolled sideways 16px at 320 in Spanish, and `1fr` is why — FIXED 2026-10-08
+
+- [x] **Lane A, `app/src/theme.css`, commit `dcdd271`. Found by Andrew in the 320 Spanish shot taken for 4.7:
+  "Recordatorio" cut off at the right edge of the pinned bar, and the four-way payment `Segmented` squeezing
+  "Perdonado" against its own edge.** Numbered 14.38 because no open item owns the job record's pinned bar; 9.11e
+  is the adjacent one and it is somebody else's, in progress.
+
+  **Measured on the record at five widths in both languages before anything was changed**,
+  `document.scrollingElement.scrollWidth` against `clientWidth`: **336 vs 320 at es@320, and exactly 0 difference on
+  the other nine.** One width, one language, and the whole page moved for it.
+
+  **`.actions-row`'s own comment claims the control "divides rather than overflows", and `1fr` does not.** It is
+  `minmax(auto, 1fr)`, so every track is floored at its content's min-content width; a single long word cannot wrap,
+  so the floor wins and the GRID grows past its container instead of sharing it — the three tracks measured
+  **97.4 / 94 / 110.4 inside 288px of room**. `minmax(0, 1fr)` on all four of the row's declared shapes makes the
+  comment true, and that is the part that generalizes: **no label in a language nobody has written yet can scroll
+  this page again.**
+
+  **That stops the page moving; it does not make the words fit, and they are different jobs.** With tracks capped at
+  88.9px, Spanish's "Calendario" (97) and "Contactos" (94) still want more than their share, so the three-up row goes
+  to two columns **in Spanish only**. Shortening one translation was available — `t("Reminder")` has exactly one call
+  site — and was the wrong fix for that reason: the bar's own ceiling is *"~9 characters / ~60px of text, measured at
+  320"* and Spanish breaks it on all three words at once.
+
+  **The `Segmented` takes the same shape for the same reason, and the scoping is the load-bearing part.** The
+  `max-width: 360` block already drops SIX options to two columns and says in the same breath **"SCOPED TO SIX, so
+  nothing that fits today moves"**, citing the four-option payment control at 23–297 inside 301. **That measurement
+  was taken in English and is not true in Spanish.** So the new rule is scoped by language rather than by child count
+  — `html[lang^="es"]`, which `lib/localeStore.js` already keeps true for screen-reader voice — and the English
+  four-up that the earlier item deliberately left alone **is still deliberately left alone**. This is the
+  "say in the commit why it is safe now" case from CLAUDE.md: the premise was disproved, not the judgement overruled.
+
+  **AFTER, same ten measurements: sideways scroll 0 everywhere, console clean on all ten.** English unchanged at
+  every width — en@320's row 2 went 88.91/88.91/90.19 → 89.33/89.33/89.34, which is `minmax` stopping the third track
+  stealing 1.3px, bar still 160px, `Segmented` still one row of 67px. **Spanish at 392 and above unchanged to the
+  pixel.** Only es@320 moves: bar **160 → 208px**, row 2 two columns at 138px with all three labels full size and
+  nothing clipped, `Segmented` **2×2 at 136.5px** with every label on one line instead of four 67px tracks on two
+  lines each.
+
+  **The taller bar breaks the rule that stops a focused control landing under it**, so `scroll-margin-top` goes
+  10rem → 14rem under the same language-and-width scope. **Proved rather than reasoned: 176 focus stops tabbed on the
+  job record across en/es at 320 and 392, 0 landing under the bar or off screen.** `keyboard-walk.mjs` is clean at 167
+  stops but walks Today, Calendar, Money, Clients, Business and Booking step 1 and **never the job record**, which is
+  why that walk was taken by hand.
+
+  `pinned-bar.mjs` PASS, 17/17 targets, 119 assertions, canary failed as required. `var-scope-guard.mjs` reads 1865
+  rules and every root-level `var()` still resolves. 19 credential-free checks pass. **`sweep-widths.mjs` and the full
+  battery were skipped on purpose** — another session was driving a browser at the demo tenant — so the width evidence
+  here is this session's own ten measurements and ten frames, said plainly rather than left to look like a sweep.
 
 ### 14.36 — An email template hardcoded a dark-theme grey on a light background
 
