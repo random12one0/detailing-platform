@@ -4557,6 +4557,25 @@ button.warn-box:hover { border-color: var(--fog-2); }
   .segmented:has(> button:nth-child(6)) {
     grid-auto-flow: row; grid-template-columns: 1fr 1fr;
   }
+  /* **AND FOUR GO IN TWO ROWS IN SPANISH — 2026-10-08.** The rule above says
+     "SCOPED TO SIX, so nothing that fits today moves", and cites the four-option
+     payment control measuring 23→297 inside 301. **That measurement was taken in
+     English and it is not true in Spanish**, which is the whole reason this line
+     exists rather than a change to the one above: each track is 66.75px here, and
+     "Pagado en parte" needs two lines inside it while "Perdonado" at 94px of text
+     is squeezed to within a pixel of its own track's edge. Andrew saw it on the
+     320 Spanish shot of the job record before any check did.
+     **SCOPED BY LANGUAGE RATHER THAN BY CHILD COUNT, so the English four-up that
+     the earlier item deliberately left alone is still deliberately left alone** —
+     it measures 67px a track on one line at 320 and does not move. `<html lang>`
+     is already kept true by `lib/localeStore.js`, where it is set for screen-reader
+     voice; this is the second reader of the same fact.
+     Two columns gives each label ~137px, so every one of the four sits on a single
+     line. Nothing at 392 or above is touched: there the control is still the flex
+     row of the base rule, which already wraps Spanish onto two lines by itself. */
+  html[lang^="es"] .segmented:has(> button:nth-child(4)) {
+    grid-auto-flow: row; grid-template-columns: 1fr 1fr;
+  }
 
   /* The 8px above is not enough down here: three buttons plus two gaps still
      want 237px of the 220px a 320px card gives. Their LABELS are 189px of
@@ -4566,6 +4585,48 @@ button.warn-box:hover { border-color: var(--fog-2); }
      showed the same row failing at 392, where this media query never ran.) */
   .btnrow { gap: 4px; }
   .btnrow .btn, .actions-row .btn { padding: 0 4px; }
+
+  /* ── THE JOB RECORD'S PINNED BAR RAN 16px OFF THE SCREEN IN SPANISH — 2026-10-08.
+     Andrew found it on the 320 Spanish shot: "Recordatorio" cut off at the right
+     edge. Measured on the record at five widths in both languages before the fix:
+     `document.scrollingElement.scrollWidth` 336 against a `clientWidth` of 320 at
+     es@320, and **exactly 0 difference on the other nine**. So this is one width
+     in one language, and the whole page scrolled sideways for it.
+
+     **`1fr` DOES NOT DIVIDE, WHICH IS THE BUG, AND `.actions-row`'s OWN COMMENT
+     CLAIMS IT DOES** — "one column per child, so it divides rather than overflows".
+     `1fr` is `minmax(auto, 1fr)` and that `auto` floors every track at its content's
+     min-content width. A single long word cannot wrap, so the floor wins and the
+     GRID grows past its container instead of dividing it: the three tracks measured
+     97.4 / 94 / 110.4 inside 288px of room. `minmax(0, 1fr)` is the one-word
+     correction that makes the comment true, and it is applied to all four of the
+     row's declared shapes rather than just the three-up, because any of them can
+     meet a long word next.
+
+     **THAT STOPS THE PAGE MOVING; IT DOES NOT MAKE THE WORDS FIT**, and the two are
+     different jobs. With tracks capped at 88.9px, Spanish's "Calendario" (97) and
+     "Contactos" (94) still want more than their share, so the three-up row becomes
+     two columns in Spanish only. **English is untouched at every width**: its three
+     measure 89 / 89 / 90 in the same 288 and have always fitted. The bar's own
+     label ceiling is "~9 characters / ~60px of text, measured at 320"; Spanish
+     breaks it on all three words at once, so shortening one translation would have
+     left the other two over and the next translation free to do it again.
+     **The orphan is accepted here and was rejected for four.** Three children in two
+     columns is 2 + 1 with no even alternative; the four-child rule above chose two
+     even rows because it had one. */
+  .actions-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .actions-row:has(> :last-child:nth-child(2)),
+  .actions-row:has(> :last-child:nth-child(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .actions-row:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+  html[lang^="es"] .actions-row:has(> :last-child:nth-child(3)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* AND THE KEYBOARD RULE MOVES WITH IT, because the bar is taller now. The
+     unconditional `scroll-margin-top: 10rem` is 160px, which is what the bar
+     measures with three rows of buttons; the Spanish bar at this width has four
+     and measures 206. A focused control below it would otherwise be scrolled to
+     exactly where the bar is covering, which is the fault that rule exists for. */
+  html[lang^="es"] .jobbar ~ *, html[lang^="es"] .jobbar ~ * * { scroll-margin-top: 14rem; }
 
   /* 6 x 44 + 5 x 8 = 304 in 282. Four columns keeps the circle at 44px —
      shrinking it instead would take the tap target under the floor — and
