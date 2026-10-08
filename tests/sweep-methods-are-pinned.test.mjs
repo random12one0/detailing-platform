@@ -159,7 +159,12 @@ function quoteSweep(roadmapText) {
 // DECLARED — measured 2026-10-02 at the commit recorded below.
 // Move these in the SAME EDIT as whatever really changed, and say why.
 // ===========================================================================
-const TAKEN_AT = "45e98bd";          // the commit these were measured at (re-taken 2026-10-06; was 3398470)
+const TAKEN_AT = "31f6e32";          // re-taken 2026-10-07 (was 45e98bd, before that 3398470).
+// PER-FIGURE REVISIONS ARE IN THE COMMENTS BELOW WHERE THEY DIFFER FROM THIS ONE:
+// `quoteCriteria` and `quoteFragments` are both taken at `31f6e32`. `numberedOpenItems`
+// is taken at the tree that adds ROADMAP 4.7, which is the commit this edit lands in --
+// it reads 46 at `31f6e32` and 47 with 4.7 in. `docs/gotchas.md` 94 asks for the revision
+// beside the number, and these two are no longer the same revision.
 
 // ITEMS WITH NO COMMIT NAMING THEM, DECLARED BY NAME RATHER THAN COUNTED.
 // This was `itemsWithACommit: 66` — a bare count — and it broke the moment 14.32
@@ -183,16 +188,63 @@ const DECLARED = {
   // that item, per this file's own rule.
   // 68 -> 47, 2026-10-06: items were ticked and left the open population (the count equals `grep -c '^- [ ]' ROADMAP.md`
   // at the same revision, which is the cross-check). Moved in the same edit as the re-measurement, per this file's own rule.
+  //
+  // 47 -> 46 -> 47, 2026-10-07, AND THE VALUE IS UNCHANGED WHILE THE POPULATION IS NOT.
+  // THIS IS THE ENTRY TO READ BEFORE TRUSTING THIS NUMBER AGAIN.
+  //
+  // The run was RED when this sitting opened: 46 found against 47 declared. Measured
+  // per revision with `git show <c>:ROADMAP.md | grep -c '^- [ ]'`:
+  //
+  //     45e98bd  47   <- where 47 was taken
+  //     1b97ac3  47       7.17 ticked
+  //     cbc144a  46   <- 14.10 ticked; the whole -1 is here and nowhere else
+  //     2c0308a  46
+  //     31f6e32  46
+  //     + ROADMAP 4.7 (this commit)  47
+  //
+  // 47 was NOT wrong because of two ticks. `1b97ac3` (7.17) is an ANCESTOR of `45e98bd`
+  // -- `git merge-base --is-ancestor 1b97ac3 45e98bd` exits 0 -- so 7.17's tick was
+  // already inside the declared 47 and never moved it. Only `cbc144a` (14.10) did.
+  // Recorded as measured rather than as handed over, which is `docs/gotchas.md` 93:
+  // the fault there was a correct measurement being bent to agree with an assertion.
+  //
+  // AND THE PART THAT MATTERS MORE THAN THE ARITHMETIC: adding 4.7 puts the live count
+  // back to 47, so this equality would have gone green TODAY WITH THE CONSTANT NEVER
+  // TOUCHED -- right value, wrong population, and nothing anywhere to say so. A
+  // declared count can be correct by coincidence, and the only defence is the trail
+  // above. If this number ever matches without you knowing which commit last moved it,
+  // it is a memory and not a measurement.
   numberedOpenItems: 47,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
   // 37 -> 32, 2026-10-06: the ticked items' criteria left the population with them.
+  // UNCHANGED at 32, re-taken 2026-10-07 at `31f6e32` and again with 4.7 in the tree.
+  // Stated rather than left silent: a figure that did not move is evidence only if
+  // somebody re-took it, and this one sits between two that both moved today.
   quoteCriteria: 32,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
-  quoteFragments: 254,
+  //
+  // 254 -> 277, 2026-10-07. ALSO RED WHEN THIS SITTING OPENED, AND NOT MENTIONED WHEN
+  // THE 46/47 RED WAS HANDED OVER -- which is the reason to re-take every figure in a
+  // declaration and not only the one somebody noticed. Attributed commit by commit,
+  // each reading taken by running THIS FILE against `git show <c>:ROADMAP.md`:
+  //
+  //     45e98bd  254  <- where 254 was taken
+  //     2a357c8  254
+  //     7a4f757  261  +7   ROADMAP 4.1 fresh-eyes review
+  //     cbc144a  259  -2   14.10 ticked; its criteria left the population with it
+  //     24d32f0  260  +1   14.34 re-measured
+  //     2c0308a  273  +13  ROADMAP 4.1 gaps 1, 2, 3 and 7
+  //     31f6e32  277  +4   ROADMAP 7.8's clause (b)(c)(d) write-up
+  //     + ROADMAP 4.7       277  +0  -- its Done-when quotes no multi-word fragment
+  //
+  // So 19 of the 23 predate this sitting and 4 are its own. Written out because the
+  // tempting write-up was "my block moved it", and the measurement says that was a
+  // sixth of it.
+  quoteFragments: 277,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

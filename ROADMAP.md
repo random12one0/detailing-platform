@@ -9397,6 +9397,61 @@ requested.
   were 37 wide, and the `::after` is vertical only). `node scripts/sweep-tap-targets.mjs --only admin` with the row gap alone
   left 2 findings; with both, clean. `receipts/sweep-tap-targets.json` grades PASS, 60 of 60 screens at `b5ccac8`, canary 5 of 5,
   in the full default run too. The `.btn.sm` 38px-icon exception was not touched.
+- [ ] **4.7 — Once a job is finalized, a recorded payment can never be changed
+  back.** A detailer finishes a job, says how it was paid — paid, part paid, not
+  yet, or waived — and presses Finalize. **From that moment the choice is
+  permanent as far as this product is concerned.** Picking the wrong one is one
+  tap. There is no tap that undoes it.
+
+  **What happens today**, read at `2c0308a` on 2026-10-07.
+  `FinalizeModal.jsx:100-105` writes `payment_status` and stamps `finalized_at`
+  in the same call. `BookingDetail.jsx:368` offers Finalize only while
+  `status === "completed" && !finalized_at`, so **the modal that set the payment
+  is gone the moment it has set it**, and the record offers nothing in its place.
+  The only other screen that writes a payment state is Money's chase list, and
+  `Money.jsx:275` asks only for jobs whose state is `pending` or `partial` — so a
+  job marked **paid** or **waived** appears on no list that can change it.
+  **The server would allow it.** `payment_status` and `finalized_at` are both in
+  `update-booking`'s editable fields (`update-booking/index.ts:70-72`) with no
+  guard on either, and the state's own check constraint
+  (`20260827000200_tenant_data.sql:257`) accepts all four values in any order.
+  **So nothing is protecting anything. The way back was simply never drawn.**
+
+  **Why it matters, and the waived case is the sharp one.** `waived` means the
+  detailer gave the work away. `moneyAdvanced.js:245` keeps a waived job in
+  **owed** at its quoted price, deliberately, *"rather than being quietly written
+  off where nobody can see it"* — so a job waived by accident sits in what the
+  customer owes for ever, the dashboard goes on saying that money is outstanding,
+  and the detailer can still invoice for it. **The mirror mistake is as bad in
+  the other direction:** a job marked **paid** by mistake drops off the chase
+  list and nobody is ever asked about it again. Neither is a database fault and
+  neither is recoverable from any screen a detailer can reach.
+
+  **The audit trail for this already exists**, which is what makes it a small fix
+  rather than a design question. `_shared/actionLog.ts` already records a waive as
+  a `payment_status` change carrying its before and its after
+  (`20261006050000_action_log.sql:5`), and that table is append-only. **A
+  correction has somewhere to be written down on the day it is built.**
+
+  **Done when:** from a finalized job's own record a detailer can change its
+  payment state to any of the four values and back again, **and that is not a
+  second Finalize** — `finalized_at` does not move and the line items are not
+  rewritten; **the change writes an `action_log` row naming the before and the
+  after**, the way a waive does today, so a correction is exactly as visible as
+  the original; and the destructive-action pattern in `docs/screen-rules.md`
+  guards the two choices that can lose money, so neither is one unguarded tap.
+  **What failing looks like, and it is the obvious build:** a *"correct the
+  payment"* control that simply re-opens the Finalize modal — which stamps
+  `finalized_at` again, rewrites the line items, and makes the audit say the job
+  was finalized twice.
+
+  *Found 2026-10-07 by DP Cowork while sweeping 4.1 at `2c0308a`; written up by
+  DP Cowork2 the same day, not built. Wave 4 is the risk band — a state change
+  with no way back — and the order inside a wave in this document is numeric, so
+  it sits at the end of the wave rather than beside 4.1, which is its sibling:
+  4.1 is one tap that completes a job with no undo, and this is the money half of
+  the same shape.*
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
@@ -11970,8 +12025,8 @@ rather than wording went to Andrew.
 
   **WHAT THE CHECK DELIBERATELY DOES NOT KNOW.** It judges **this checkout**,
   never the deployed functions — that is `deployed-inventory.mjs`'s question and
-  needs credentials. `photo-door`'s own header says **NOT DEPLOYED**, and today's
-  photos are still in Supabase Storage. **The red is still correct**, because the
+  needs credentials. **Read 2026-10-07 at `2c0308a`:** `photo-door`'s own header
+  says **NOT DEPLOYED**, and photos are still in Supabase Storage. **The red is still correct**, because the
   page becomes wrong the moment Andrew publishes rather than the moment somebody
   notices, and the page already has the shape for a not-yet-live processor: the
   Google Business Profile section opens by saying it is not switched on.
@@ -11995,7 +12050,8 @@ rather than wording went to Andrew.
   *Today ... with Supabase* answers the question the first sentence creates.
   *random identifiers* is a fact worth more than the disclosure: the object key
   is `businessId/ownerId/photoId.ext`, three UUIDs, so **no name, address, phone
-  or note reaches Cloudflare** — `_shared/photoKey.ts:57`. *one-time link* is
+  or note reaches Cloudflare** — `_shared/photoKey.ts:57`, read 2026-10-07 at
+  `2c0308a`. *one-time link* is
   why the browser never holds a credential, `_shared/r2.ts` header.
 
   **NO SPANISH KEY.** This page is English-only — `grep -c "t(" app/src/landing/legal.js`
