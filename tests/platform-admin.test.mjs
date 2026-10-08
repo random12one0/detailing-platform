@@ -1547,5 +1547,93 @@ console.log("\n14. the email safety net (roadmap 8.6)");
     "this script is the only thing in the repo that has ever LOOKED at an email");
 }
 
+
+// ─── 15. AN UNKNOWN ACTION SAYS SO, AND NEVER ANOTHER ACTION'S REFUSAL ────
+//
+// **ROADMAP 9.18 (d).** 9.18's first three parts stop being true of anything
+// the moment Andrew publishes `platform-admin`; this one outlives the deploy.
+// The back office asked the live bundle for `email_list`, which that bundle
+// has no branch for, and the answer was **400 "business_id is required"** — a
+// parameter the call never sent, naming a field that belongs to `get`. The
+// System health tab printed it faithfully and sent its reader at the wrong
+// thing entirely.
+//
+// Every action below the per-business guard needs a `business_id`, so that
+// guard answered for all of them — including the ones that do not exist.
+//
+// **WHAT IS CHECKED IS THE INVARIANT, NOT A SPELLING.** The set of
+// business-scoped actions is read out of the function and compared, in BOTH
+// directions, against the `action === "…"` branches that actually sit below
+// it. An action added underneath without being named answers "Unknown action"
+// — the honest failure — and this section goes red, so somebody puts it in the
+// set on purpose rather than meeting it as a wrong sentence on a screen.
+//
+// Source, because nothing in `supabase/` runs on this machine (no Deno, and
+// the deploy bundler does not type-check). The predicate is a function so the
+// sabotages below can run it over a broken copy of the REAL file.
+console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
+{
+  const BIZ_GUARD = 'if (!id) return json({ error: "business_id is required" }, 400);';
+  const gateOf = (text) => {
+    const m = /const BUSINESS_ACTIONS = new Set\(\[([\s\S]*?)\]\);\s*\n\s*if \(!BUSINESS_ACTIONS\.has\(action\)\) return json\(\{ error: "Unknown action" \}, 400\);/.exec(text);
+    if (!m) return null;
+    return {
+      at: m.index,
+      names: [...m[1].matchAll(/"([a-z_]+)"/g)].map((x) => x[1]),
+      // The guard that FOLLOWS the gate, never `get`'s own copy further up.
+      guard: text.indexOf(BIZ_GUARD, m.index),
+      // Every action branch underneath the gate: exactly the ones that used to
+      // lend their refusal to an action nobody handles.
+      below: [...text.matchAll(/action === "([a-z_]+)"/g)].filter((x) => x.index > m.index).map((x) => x[1]),
+    };
+  };
+  const g = gateOf(fn);
+
+  check("15a · the gate exists and stands BEFORE the per-business guard",
+    g !== null && g.guard > g.at,
+    g === null
+      ? "no BUSINESS_ACTIONS gate answering 'Unknown action' 400 in platform-admin/index.ts"
+      : `gate at ${g.at}, business_id guard at ${g.guard} — the guard must come after`);
+
+  // A DISCOVERY FLOOR, not a declaration — actions get added, and finding more
+  // than the eight below the gate is not a fault. docs/gotchas.md 98.
+  check("15b · every action handled below the gate is named in it",
+    g !== null && g.below.length >= 8 && g.below.every((a) => g.names.includes(a)),
+    g === null ? "no gate" : `below: ${g.below.join(", ")} | named: ${g.names.join(", ")}`);
+
+  // THE OTHER DIRECTION, and it is the one that re-opens the fault: a name in
+  // the set that nothing handles passes the gate and falls to the business_id
+  // guard, which is 9.18 again, one action at a time.
+  check("15c · and every name in it is really handled below it",
+    g !== null && g.names.every((a) => g.below.includes(a)),
+    g === null ? "no gate" : `named but unhandled: ${g.names.filter((a) => !g.below.includes(a)).join(", ") || "none"}`);
+
+  // The sentence a reader gets. It names no parameter, field or table — the
+  // whole of 9.18's sharper half is that "business_id is required" did.
+  check("15d · the answer is 'Unknown action' with a 400, naming no parameter",
+    /if \(!BUSINESS_ACTIONS\.has\(action\)\) return json\(\{ error: "Unknown action" \}, 400\);/.test(fn)
+      && /return json\(\{ error: "Unknown action" \}, 400\);\s*\n\s*\} catch/.test(fn),
+    "the gate's reply and the handler's own tail must both be the same 400 'Unknown action'");
+
+  // ── BROKEN ON PURPOSE, THREE WAYS, EVERY RUN ──────────────────────────
+  // Not `PA_MUT`: these mutate the real file's TEXT in memory, so the sabotage
+  // is aimed at production code and no other lane's tree is touched. Each one
+  // is asserted to have CHANGED the source before its verdict is believed —
+  // docs/gotchas.md 95, a canary that stops biting while still passing.
+  const sabotage = (name, broken, verdict) => {
+    check(`15e · ${name}`, broken !== fn && verdict(gateOf(broken)),
+      broken === fn ? "THE SABOTAGE DID NOT APPLY — this check proved nothing" : "the sabotaged source still passed");
+  };
+  sabotage("the gate removed is seen",
+    fn.replace('if (!BUSINESS_ACTIONS.has(action)) return json({ error: "Unknown action" }, 400);', ""),
+    (b) => b === null);
+  sabotage("an action handled below but left out of the set is seen",
+    fn.replace('"resend_invite", "impersonate",', '"resend_invite",'),
+    (b) => b !== null && !b.below.every((a) => b.names.includes(a)));
+  sabotage("a name in the set that nothing handles is seen",
+    fn.replace('"note", "suspend"', '"refund_everything", "note", "suspend"'),
+    (b) => b !== null && !b.names.every((a) => b.below.includes(a)));
+}
+
 console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
 process.exit(failed ? 1 : 0);

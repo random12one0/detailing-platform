@@ -17171,6 +17171,52 @@ the dashboard or back office at phone width at all.
   receipt named above — and the fall-through will still be there waiting for the
   next action.
 
+  ***(d) BUILT 2026-10-07 (DP Cowork2, Lane B). CODE AND A TEST, NOTHING
+  DEPLOYED.*** The box stays `[ ]`: (a), (b) and (c) are a publish, and
+  publishing is Andrew's.
+
+  **THE FIX IS A GATE, NOT A MESSAGE.** Every action below
+  `platform-admin/index.ts`'s shared per-business guard needs a `business_id`,
+  so that guard was answering for all of them — including the names the
+  function does not handle at all. The eight business-scoped actions are now
+  named in a `BUSINESS_ACTIONS` set immediately above it, and **anything else
+  gets the same `400 "Unknown action"` the tail of the handler has always
+  returned.** 400 and not the admin gate's 404: that 404 means *you are not an
+  admin* and has to keep meaning only that.
+
+  **WHY A SET RATHER THAN A SENTENCE PER ACTION.** The fault was positional —
+  an unhandled name falling into a guard that belonged to `get` — so a fix that
+  re-words the guard leaves the fall-through in place. The set is also the one
+  place a new business-scoped action goes; one left out of it answers "Unknown
+  action", which is the honest failure rather than a misleading one.
+
+  **CHECKED AS AN INVARIANT, IN BOTH DIRECTIONS, NOT AS A SPELLING.**
+  `tests/platform-admin.test.mjs` § 15 (new) reads the set out of the function
+  and compares it against the `action === "…"` branches that actually sit below
+  it: every branch below must be named (a discovery floor — more than eight is
+  not a fault), **and every name must really be handled**, because a name in
+  the set that nothing handles passes the gate and falls to the `business_id`
+  guard, which is this fault again one action at a time.
+
+  **RUN, CREDENTIAL-FREE:** `node tests/platform-admin.test.mjs` →
+  **160 passed, 0 failed, 7 skipped** at the commit carrying this block.
+  **Three sabotages run every time, inside the suite, against the real file's
+  text** — the gate deleted, an action handled below but dropped from the set,
+  and a name in the set that nothing handles — each asserted to have changed the
+  source before its verdict is believed (`docs/gotchas.md` 95).
+  **And baselined the way `PA_MUT` exists for:** a scratch copy of
+  `index.ts` with the gate line removed, `PA_MUT={"supabase/functions/platform-admin/index.ts":"<copy>"}`
+  → **153 passed, 7 failed**, the four new checks plus all three sabotages going
+  red, and the sabotages printing *"THE SABOTAGE DID NOT APPLY"* rather than
+  passing quietly.
+
+  **WHAT THIS DOES NOT DO.** It does not run the function: there is no Deno on
+  this machine and the deploy bundler does not type-check, so the gate is proved
+  as source and `node --experimental-strip-types --check` is all that says it
+  parses. **The live 400 is unchanged until `platform-admin` is published** —
+  already step 2 of `FOR-ANDREW.md`'s one ordered list, which now says that this
+  tab's error is the same publish.
+
   *Filed by DP Cowork2, 2026-10-07, not fixed. Found by direct call with a
   throwaway platform admin created and dropped for the probe; `platform_admins`
   verified back to its two declared rows afterwards.*

@@ -847,6 +847,37 @@ Deno.serve(async (req) => {
       return json({ success: true, business: created, invite });
     }
 
+    // --- ROADMAP 9.18 (d): AN ACTION THIS FUNCTION DOES NOT HANDLE SAYS SO ---
+    //
+    // **EVERY ACTION BELOW THIS LINE IS ABOUT ONE BUSINESS**, and the guard
+    // underneath asks for `business_id`. Until now an action name this
+    // function does not handle at all fell through to it and was answered
+    // *"business_id is required"* — **a parameter it never sent, about a
+    // business the screen does not have.**
+    //
+    // That is 9.18, measured rather than reasoned about: the back office asked
+    // the live bundle for `email_list`, which that bundle has no branch for,
+    // and the reply named a field belonging to `get`. The System health tab
+    // printed *"Could not read the email log: business_id is required."* and
+    // sent whoever read it at the wrong thing entirely. **Publishing fixes
+    // that one action. The fall-through is what would do it again** to the
+    // next action that ships ahead of its server half, and nothing anywhere
+    // would say so.
+    //
+    // 400, the same status the tail of this handler has always used for an
+    // unknown action — the request named something this function does not do,
+    // which is the caller's half of the exchange. It is deliberately NOT the
+    // 404 the admin gate gives: that one means "you are not an admin" and must
+    // keep meaning only that.
+    //
+    // **THIS LIST IS THE ONLY PLACE A NEW BUSINESS-SCOPED ACTION GOES.** One
+    // left out of it answers "Unknown action", which is the honest failure;
+    // the fault this replaces was a misleading one.
+    const BUSINESS_ACTIONS = new Set([
+      "note", "suspend", "restore", "site", "export", "tier", "resend_invite", "impersonate",
+    ]);
+    if (!BUSINESS_ACTIONS.has(action)) return json({ error: "Unknown action" }, 400);
+
     const id = String(body.business_id || "");
     if (!id) return json({ error: "business_id is required" }, 400);
     const { data: biz } = await supabase
