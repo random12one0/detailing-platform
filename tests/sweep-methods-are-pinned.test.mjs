@@ -274,7 +274,12 @@ const DECLARED = {
   // done-when write-up (`868d23f`) gave that item's Done-when zone a quoted
   // fragment, so 2.15a entered the criteria population. This commit's own note
   // lands inside 4.7's zone, which was already in it.
-  quoteCriteria: 35,
+  //
+  // 35 -> 34, 2026-10-08, same cause and NOT this edit's: the other lane ticked
+  // 2.15a at `ca6065f`, so that item's criteria left the population with it —
+  // the sixth time this constant has moved for exactly that reason. This commit's
+  // own note lands inside 9.11's zone, which was already in the population.
+  quoteCriteria: 34,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -397,7 +402,19 @@ const DECLARED = {
   // Both ends measured against `git show 868d23f:ROADMAP.md` (327) and this
   // tree (328). Fifth time in two sittings this constant has been overtaken
   // between a measurement and its commit.
-  quoteFragments: 328,
+  //
+  // 328 -> 318, 2026-10-08, and this is the first DOWN move in the trail:
+  //
+  //     1261425                          328   <- where 328 was taken
+  //     ca6065f                          316   -12  the OTHER lane TICKED 2.15a; a ticked
+  //                                             item's Done-when zone leaves the population
+  //     + 9.11's guide-red note          318   +2   this commit
+  //
+  // **A FALL IS NOT A LOSS HERE** — it is the ordinary consequence of an item
+  // closing, which this constant's `quoteCriteria` twin has recorded four times.
+  // Both ends measured against `git show ca6065f:ROADMAP.md` (316) and this tree
+  // (318).
+  quoteFragments: 318,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

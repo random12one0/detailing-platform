@@ -17641,6 +17641,42 @@ the dashboard or back office at phone width at all.
   which this entry predicts in its own last sentence — or a source read passing as
   a press, which it already refused once.
 
+  ***THE `guide · calendar 5` RED: THE PRODUCT FAULT DOES NOT REPRODUCE, AND THE
+  INSTRUMENT STOPPED ASKING. Two different statements, 2026-10-08, kept apart on
+  purpose.***
+
+  **The product, measured independently of the sweep.** The calendar guide was
+  walked end to end — all six steps, with the two seen-flags CLEARED rather than
+  set, so the per-tab guide really ran — at 1920 / 1440x900 / 768x1024 / 392x844 /
+  320 in **both languages**, step 5 confirmed by its own caption (*"5 OF 6
+  Everything booked that day, in order…"* / *"5 DE 6 Todo lo agendado ese día…"*).
+  **`scrollingElement.scrollWidth − clientWidth` is 0 on every step of all ten
+  runs, console clean.** And it is not marginal at the width that failed: step 5's
+  caption clears the right edge by **226px at 1920** (340px wide, left 1354, right
+  1694 of 1920). The 16px clearances at 1440 and 320 are the page gutter, which is
+  where the caption is clamped by design. Frames in `.manager-shots/guide-cal5/`.
+
+  **The instrument, and this is the half that needs somebody.** Clause 1's
+  re-run is on disk as `receipts/sweep-widths-1920-1440-392-360-320.json` and now
+  reads **`status: pass`, `failures: []`**, at `a52f884` — an ancestor of HEAD —
+  with **415 expected, 415 discovered, 415 attempted, 415 completed**, 175,076
+  assertions and the canary caught at every width. **It is not a fix. The calendar
+  guide is not in that receipt at all:** its only guide targets are
+  `guide · today 7` through `guide · today 12`, and `calendar` appears nowhere in
+  the file. **Nor was it skipped** — the 26 declared skips are job-record, gear and
+  `guide · today` surfaces, and `calendar-related skips: 0`. So the run's own rule
+  that *"a skip over a reachable surface is refused and fails the run"* never
+  fired, because **nothing declared the calendar guide a surface to begin with**.
+  **A red was recorded against a target, the target left the population, and the
+  receipt now says pass with every count agreeing.** That is the narrowed-population
+  failure this repo keeps meeting, in the one place it is hardest to see: a green
+  with 415 of 415 and a live canary.
+
+  **NOT FIXED HERE: `sweep-widths.mjs` is `scripts/`, which is lane B.** What it
+  needs is the calendar guide back in its target list — or declared as a skip with
+  a reason, which would at least be visible. **Clause 1 should not be read as met
+  on that receipt** while the surface its own finding named is missing from it.
+
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
   Default to real accounts; replace the three-column card wall with a list —
   detailer, status, setup, last booking, earned, customers, primary warning,
