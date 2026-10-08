@@ -331,12 +331,46 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // which is why this is a ref made at the press and NEVER derived from the
   // booking id: a key that was a function of the booking could never send twice.
   const sendKey = useRef(null);
-  // A DIFFERENT BOOKING IS A DIFFERENT INTENT. The record is reused in place on
-  // Today, Calendar, Money and Clients — `booking` changes under the same
-  // component — so without this a key left over from a failed send on one job
-  // would ride along to the next one and the server would answer `duplicate`
-  // about somebody else's invoice.
+  // A DIFFERENT BOOKING IS A DIFFERENT INTENT. Without this a key left over from
+  // a failed send on one job would ride along to the next one and the server
+  // would answer `duplicate` about somebody else's invoice.
+  //
+  // **THIS COMMENT USED TO NAME THE FOUR SCREENS WHERE IT IS NOT LOAD-BEARING
+  // AND MISS THE ONE WHERE IT IS — corrected 2026-10-08.** It said the record is
+  // reused in place on Today, Calendar, Money and Clients; on those four
+  // `RecordHost` mounts a fresh `BookingDetail` for each job, so the ref is
+  // already gone. The screen this line actually saves is the FIFTH:
+  // `screens/JobPage.jsx` renders the record bare under `/job/:id`, where only
+  // the route param changes and the component stays mounted. A guard whose
+  // comment points at the wrong screen is a guard somebody deletes while
+  // checking the screens it names.
   useEffect(() => { sendKey.current = null; }, [booking.id]);
+
+  // **AND `payPick` IS THE SAME SHAPE OF STATE AND DID NOT HAVE THIS LINE —
+  // found 2026-10-08 by the session that did NOT build 4.7, reading it cold.**
+  // Two blocks in one file, written the same evening, one guarded and one not.
+  //
+  // WHAT IT COST, said plainly because it is a money path: `payWant` is
+  // `payPick ?? booking.payment_status`, so a pick left over from the previous
+  // job stayed live when `booking` changed under a mounted component. The
+  // answer button appeared because that stale pick differed from the NEW job's
+  // status, and one press wrote the previous job's chosen state onto the job on
+  // screen — including **Waived**, which this file paints `.btn.danger`
+  // precisely because it loses money.
+  //
+  // **IT WAS REACHABLE ON `/job/:id`.** `screens/JobPage.jsx` renders this
+  // component bare — no `RecordHost`, no key — and React Router keeps the
+  // element mounted when only the param changes, so Back and Forward between
+  // two job pages swap `booking` without a remount. A tapped push notification
+  // is the other way in; ROADMAP 14.34 points those links at this route.
+  //
+  // **ON THE DASHBOARD IT WAS SAVED BY AN ANIMATION DEVICE, WHICH IS NOT A
+  // GUARD.** `RecordHost.jsx`'s `swapKey` remounts the body to re-run the swap
+  // animation, and that happened to take `payPick` with it. Correctness resting
+  // on another file's animation key is correctness nobody can see; this line is
+  // what makes the four wide-layout screens safe ON PURPOSE rather than by side
+  // effect, and it holds even where that key collides.
+  useEffect(() => { setPayPick(null); }, [booking.id]);
 
   // THE KEY SURVIVES A FAILURE AND DIES ON SUCCESS, which is the whole rule in
   // two lines. It is cleared only after an answer that says the invoice is out
@@ -371,6 +405,36 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         if (attempt <= 3 && e.status === 409 && e.body?.error === "in_progress") {
           await new Promise((r) => setTimeout(r, 700));
           continue;
+        }
+        // **AND THE GIVEN-UP 409 PUT THE WORD `in_progress` IN A RED BOX — found
+        // 2026-10-08 by the session that did not build this, reading it cold.**
+        // The contract's clause 4 says a 409 `in_progress` must not be shown as a
+        // failure, and the paragraph above is careful about the three retries and
+        // then throws the server's TOKEN at the screen: `send-invoice` answers
+        // `{ error: "in_progress" }`, `book/core.js` makes that the Error's
+        // message, `act` does `setError(e.message)`, and the record renders it
+        // raw. It had no Spanish key either, so it was the same token in both
+        // languages.
+        //
+        // **AND IT IS REACHABLE FOR TWO WHOLE MINUTES, WHICH IS THE PART THAT
+        // MAKES IT WORTH A BRANCH.** The server's stale-send takeover is two
+        // minutes (`_shared/sendInvoiceClaim.ts`); this loop gives up after about
+        // 2.1 seconds. So a send that dies mid-flight leaves every press until
+        // that takeover answering 409 — four requests, then the token. The retry
+        // budget is reasonable; the sentence at the end of it was not.
+        //
+        // The key is deliberately NOT cleared here: this intent really is still
+        // in flight somewhere, so the next press must carry the same key rather
+        // than mint a fresh one and send a second invoice.
+        if (e.status === 409 && e.body?.error === "in_progress") {
+          // A LITERAL INSIDE `t()`, NOT A CONSTANT: `tests/spanish.test.mjs` reads
+          // the first argument of each `t()` call, so a sentence held in a
+          // variable is invisible to every extractor here — ConfirmTap's own
+          // comment says the same thing about lookup tables. And it is
+          // translated HERE rather than in `act`, whose catch does a bare
+          // `setError(e.message)`; wrapping that would re-word every server
+          // sentence the product deliberately shows as written.
+          throw new Error(t("That receipt is still sending. Give it a minute and check again."));
         }
         throw e;
       }

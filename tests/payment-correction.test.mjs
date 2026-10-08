@@ -50,6 +50,7 @@ const BREAKS = {
   "no-spanish": "an English string loses its Spanish entry",
   "no-danger": "the two choices that can lose money stop carrying --bad",
   "no-audit": "the server stops logging a payment_status move, so a correction is invisible",
+  "no-reset": "the pick is not cleared when the record opens on a different job",
 };
 const BREAK = process.env.PAYMENT_BREAK || "";
 if (BREAK && !BREAKS[BREAK]) throw new Error(`PAYMENT_BREAK must be one of: ${Object.keys(BREAKS).join(", ")}`);
@@ -76,6 +77,7 @@ if (BREAK === "no-refusal") detail = detail.replace("{payWant !== booking.paymen
 if (BREAK === "no-spanish") spanish = spanish.replace(/\n\s*"Yes, change it": "[^"]*",/, "");
 if (BREAK === "no-danger") detail = detail.replace('payLosesMoney ? "btn danger" : "btn primary"', '"btn primary"');
 if (BREAK === "no-audit") log = log.replace("if (!same(current.payment_status, after.payment_status)) {", "if (false) {");
+if (BREAK === "no-reset") detail = detail.replace("useEffect(() => { setPayPick(null); }, [booking.id]);", "");
 
 // COMMENTS COME OUT BEFORE ANY ASSERTION READS CODE. This repo's comments quote
 // its own code at length — the paragraph above this one names `finalized_at`
@@ -134,6 +136,41 @@ test("3 · picking the state it is already in offers nothing to press", () => {
   assert.match(code(detail), /const payWant = payPick \?\? booking\.payment_status;/,
     "payWant no longer falls back to the row, so after a successful write the control goes on offering "
     + "to change the payment to the value it already holds");
+});
+
+test("3a · the pick is cleared when the record opens on a different job", () => {
+  // **THIS IS THE CHECK THAT WAS MISSING WHILE SEVEN WENT GREEN.** 4.7 shipped
+  // with `payPick` never reset, and every question this file asked was about the
+  // block's SHAPE — is it there, does it send one field, does it refuse a no-op.
+  // None of them could see state surviving a booking change, because none of them
+  // knew there was a second booking. The cold read found it; this is the line that
+  // would have.
+  //
+  // WHY IT MATTERS MORE THAN AN ORDINARY STALE-STATE BUG: `payWant` is
+  // `payPick ?? booking.payment_status`, so a leftover pick makes the answer
+  // button appear on the NEW job — it differs from that job's status — and one
+  // press writes the previous job's choice, which can be **Waived**.
+  //
+  // REACHABLE BARE: `screens/JobPage.jsx` renders the record with no `RecordHost`
+  // and no key, so Back and Forward on `/job/:id` swap `booking` under a mounted
+  // component. On the wide layout it was masked by `RecordHost`'s ANIMATION key,
+  // which is not a guard and can collide for two bookings of one customer in one
+  // slot.
+  assert.match(code(detail), /useEffect\(\(\) => \{ setPayPick\(null\); \}, \[booking\.id\]\);/,
+    "payPick is not cleared on a booking change, so a pick made on one job stays live when the record "
+    + "opens on another and one press writes it onto the job now on screen — Waived included");
+  // AND ITS SIBLING, because the pair is the point: these are the two pieces of
+  // per-booking state in this file and they must be reset the same way. 6.4's
+  // `sendKey` had this line ninety lines up while `payPick` did not.
+  assert.match(code(detail), /useEffect\(\(\) => \{ sendKey\.current = null; \}, \[booking\.id\]\);/,
+    "sendKey lost its reset — the invoice key from one job would ride to the next");
+  // AND NOTHING MAY GO BACK TO LEANING ON THE ANIMATION KEY. `RecordHost`'s own
+  // claim that two jobs cannot collide was false; the correction has to stay, or
+  // the next reader re-derives the old assumption from the old sentence.
+  const host = read("app/src/components/RecordHost.jsx");
+  assert.doesNotMatch(host, /so two different jobs cannot collide/,
+    "RecordHost has gone back to asserting that two different jobs cannot collide — it is an animation "
+    + "key of customer name plus date and time, and two bookings for one customer in one slot share it");
 });
 
 test("4 · the destructive-action pattern is all three of its parts", () => {

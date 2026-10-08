@@ -3254,4 +3254,8 @@ export const appEs = {
   // Replaces the file picker once the expense is saved and the receipt is not:
   // picking again cannot work, so the line states the fact instead of offering.
   "Receipt not attached.": "Recibo sin adjuntar.",
+  // ROADMAP 6.4 — replaces the raw server token `in_progress`, which had no
+  // entry here and so read as that token in both languages.
+  "That receipt is still sending. Give it a minute and check again.":
+    "Ese recibo todavía se está enviando. Dale un minuto y vuelve a revisar.",
 };

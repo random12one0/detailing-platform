@@ -93,10 +93,24 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   //
   // KEYED ON title + subtitle rather than on an id threaded down from five
   // call sites. `jobRecordProps` makes those the customer's name and the job's
-  // date and time, so two different jobs cannot collide, and a client record's
-  // name + phone is unique by construction. The key is what makes React mount
-  // a NEW node, which is what re-runs the animation — a class alone would sit
-  // there already-played.
+  // date and time, and a client record's name + phone is unique by
+  // construction. The key is what makes React mount a NEW node, which is what
+  // re-runs the animation — a class alone would sit there already-played.
+  //
+  // **"TWO DIFFERENT JOBS CANNOT COLLIDE" USED TO BE ASSERTED HERE AND IT IS
+  // NOT TRUE — corrected 2026-10-08.** The key is `customer_name` plus
+  // `"<date> · <start> – <end>"`, so **two bookings for the same customer in
+  // the same slot produce the same key** and no remount happens. It is true of
+  // two different CUSTOMERS, which is what the sentence was reaching for.
+  //
+  // **AND NOTHING MAY LEAN ON THIS KEY FOR CORRECTNESS, WHICH IS WHY THE
+  // CORRECTION MATTERS MORE THAN THE SENTENCE.** This is an ANIMATION device —
+  // the owner's "it just looks like a page refresh" note is what it exists for.
+  // For a while 4.7's payment pick was safe on four screens only because this
+  // remount happened to clear it, and that is not a guard anybody can see from
+  // the file that needs it. Both pieces of per-booking state in
+  // `BookingDetail.jsx` now reset themselves on `booking.id`, so simplifying or
+  // removing this key is a question about the ANIMATION and nothing else.
   //
   // THE CLOSE BUTTON IS OUTSIDE THE SWAP on purpose: it does not change, and a
   // control that moves under the pointer that is about to press it reads as a
