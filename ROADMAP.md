@@ -10189,6 +10189,101 @@ requested.
   `update-booking`, then one correction is pressed and its `action_log` row read
   back naming the before and the after.
 
+  ---
+
+  ### READ COLD BY DP COWORK2, 2026-10-07 — ONE REAL FAULT, AND IT IS A MIS-TAP ONTO THE WRONG JOB
+
+  *A second session that did not build this read the code and the test as a
+  stranger and tried to break them on paper. **The money arithmetic holds** —
+  see the end of this block. **One fault is confirmed and it can waive the wrong
+  job.** No `app/src` was touched.*
+
+  **THE FAULT: `payPick` IS NEVER RESET WHEN THE RECORD OPENS ON A DIFFERENT
+  JOB.** `BookingDetail.jsx:116` declares `const [payPick, setPayPick] =
+  useState(null)` and nothing clears it on a booking change. `payWant = payPick
+  ?? booking.payment_status` (`:414`) therefore keeps the state a person picked
+  for the PREVIOUS job, the answer button appears because that pick differs from
+  the new job's status, and **one press writes the previous job's chosen state
+  onto the job now on screen.** The two states that can arrive this way include
+  **Waived**, which this block itself marks `.btn.danger` because it loses money.
+
+  **AND THE GUARD FOR EXACTLY THIS HAZARD IS NINETY LINES AWAY, IN THIS FILE,
+  WRITTEN THE SAME EVENING.** ROADMAP 6.4's app half added
+  `useEffect(() => { sendKey.current = null; }, [booking.id]);` at
+  `BookingDetail.jsx:339`, with a comment saying *"A DIFFERENT BOOKING IS A
+  DIFFERENT INTENT … the record is reused in place"*. **`payPick` is the same
+  shape of state and got no such line.** Two blocks in one file, one guarded and
+  one not.
+
+  **WHERE IT IS REACHABLE, AND THIS IS THE PART THAT MAKES IT A FAULT RATHER
+  THAN A WORRY.** On the job page — `main.jsx:150` routes `/job/:id` to a single
+  `<JobPage />`, and `JobPage.jsx:76` renders `BookingDetail` **bare: no
+  `RecordHost`, no `key`**. React Router keeps the element mounted when only the
+  param changes, so `useParams()` returns the new id, `load()` replaces
+  `booking`, and **`BookingDetail` is never remounted.** Browser Back and
+  Forward between two job pages is enough; a push notification tapped while a
+  job page is open is the other way in, and ROADMAP 14.34 pointed push links at
+  this very route.
+
+  **ON THE DASHBOARD IT IS SAVED, BY SOMETHING THAT IS NOT ABOUT STATE AT ALL.**
+  `RecordHost.jsx:115` wraps the record's body in
+  ``<div className="record-body swap" key={`b-${title}|${subtitle}`}>``, so
+  choosing another job in the wide two-column layout changes that key and React
+  mounts a fresh `BookingDetail` — `payPick` goes with it. **That key is
+  documented at `RecordHost.jsx:77`–`:100` as existing to RE-RUN THE ANIMATION**
+  (the owner's own "it just looks like a page refresh" note), not to reset
+  state. **So 4.7's correctness on four of five screens rests on an animation
+  device in another file, and neither file says so.** Simplify that key for any
+  reason and the mis-tap arrives on Today, Calendar, Money and Clients too.
+
+  **AND THAT KEY CAN COLLIDE.** It is `title|subtitle` =
+  `customer_name` + `"<date> · <start> – <end>"` (`BookingDetail.jsx:90`–`:93`).
+  **Two bookings for the same customer at the same date and time produce the
+  same key**, so no remount happens and both leaks are live.
+  `RecordHost.jsx:96` asserts *"two different jobs cannot collide"* — that is
+  true of two different customers and unproved for one customer twice in a slot.
+  **Not measured here** (it needs two such rows and a browser, and the demo
+  tenant was being measured by the other lane); the experiment is two bookings
+  for one customer at one slot, switch between them at wide width, and read
+  whether the pick survives.
+
+  **THE SUGGESTED FIX IS ONE LINE AND IT IS NOT MINE TO WRITE** (`app/src` is
+  Lane A's): either give `payPick` the same reset `sendKey` has —
+  `useEffect(() => { setPayPick(null); }, [booking.id]);` — or key the whole
+  record on `booking.id` at the one call site that renders it bare
+  (`JobPage.jsx:76`), which fixes both blocks at once and removes the need for
+  6.4's effect. **The first is smaller; the second is the root cause.**
+
+  **WHAT THE EXISTING CHECK SAYS ABOUT THIS: nothing, and it is green.**
+  `node --test tests/payment-correction.test.mjs` → **7 passed, 0 failed**, and
+  the seven are the block's presence, the one-field write, the `finalized_at`
+  gate, the no-op refusal, the three parts of the destructive pattern, the
+  Spanish keys and the server's audit branch. **None of them is about state
+  surviving a change of booking**, and no sabotage in `PAYMENT_BREAK` can reach
+  it. That is not a criticism of the suite's six sabotages; it is the gap.
+
+  **WHAT WAS CHECKED AND HELD, SAID SO IT IS NOT RE-CHECKED:**
+  * **The money figures in the build note are internally consistent and agree
+    with the declared rule.** `app/src/lib/moneyAdvanced.js:240`–`:252` (ROADMAP
+    14.7) says **only `paid` counts as collected**, while `partial` and `waived`
+    stay in `owed` — partial because nothing in the database records how much
+    moved, waived because it is work given away at the quoted price. Every
+    reading in the build note follows from `owed = earned − collected` with
+    `collected` counting `paid` alone: waived → collected $0, owed $255; paid →
+    $65 and $190; unpaid → $0 and $255; part paid → $0 and $255. **The chase
+    list is a different question and a different number** —
+    `Money.jsx:275` filters `payment_status in ('pending','partial')`, which is
+    why the waived job leaves the list while its $65 stays inside `owed`.
+  * **`payment_notes: null` really does clear the note.**
+    `update-booking/index.ts:117` copies any field that is `!== undefined`, and
+    `payment_notes` is in `EDITABLE_FIELDS` at `:71`. A `null` is applied rather
+    than skipped, so "How they paid: Cash" cannot survive a correction to Unpaid
+    or Waived.
+  * **The refusals are where the note says they are:** `canCorrectPayment =
+    !!booking.finalized_at`, and the answer button is behind `payWant !==
+    booking.payment_status`.
+
+
 ## Wave 5 — Money truth
 
 Both audits independently reached the same conclusion here, which makes it the
@@ -11277,6 +11372,47 @@ most corroborated finding in the set.
   The two console entries in each run are the 409 and the 502 this check causes on purpose.
   **STILL OPEN ON 6.4:** the publish of the six functions and of `send-invoice`, and the two migrations — all Andrew's; and
   `update-booking`'s `add_ons` list, which no screen sends today.
+
+  **READ COLD BY DP COWORK2, 2026-10-07 — THE KEY HANDLING IS RIGHT; THE WAY IT GIVES UP IS NOT.**
+  *A second session that did not build this read the app half, `api.js`, `core.js`, the function and the contract above as a stranger. **All four of this
+  item's own claims hold**: one key per intent (`BookingDetail.jsx:355`, `||=` on a ref), the same key on every retry (read once into a local, which is the
+  defect the build note records), a new key after any resolved send, and a new key on a different booking. **Two things are wrong anyway**, one of them
+  user-visible and against clause 4 of the contract above. No `app/src` was touched.*
+
+  **1 · A GIVEN-UP 409 PUTS THE WORD `in_progress` ON THE SCREEN, WHICH IS THE ONE THING CLAUSE 4 SAYS NOT TO DO.** The contract reads *"409 `in_progress`
+  … do not show a failure"*. The implementation retries three times at 700ms and then **re-throws** (`BookingDetail.jsx:375`), `act`'s catch does
+  `setError(e.message)` (`:149`), and `:499` renders `{error}` **raw** in an `error-box` with `role="alert"`. The message is the server's token, not a
+  sentence: `send-invoice/index.ts:97` answers `{ error: "in_progress" }` and `app/src/book/core.js:62` makes `err.message` out of `data.error`. **So a
+  detailer reads the literal string `in_progress` in a red box.** It also has no Spanish key, so it is that same token in both languages — **which is the one line of this item's write-up that the finding
+contradicts outright**: *“No text changed on any screen, so there is no Spanish key to add — a 409 now resolves into the sent notice the press was
+going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one puts a new string on the screen, and that string is `in_progress`.
+  **IT IS REACHABLE, AND THE TWO NUMBERS ARE WHY.** The server's stale-send takeover is **two minutes** (`_shared/sendInvoiceClaim.ts`, the
+  `updated_at < now() - interval '2 minutes'` compare-and-set proved in `tests/send-invoice-key-sql.test.mjs` § 5). The client gives up after **2.1
+  seconds**. So any send that dies mid-flight leaves every press for the next two minutes answering 409 — four requests, then the token. **The failure
+  mode is not the retry budget, which is reasonable; it is the sentence at the end of it.** A fix is one branch in the catch: on an exhausted 409, show
+  words — *"That receipt is still sending. Give it a moment and try again."* — and add the Spanish key in the same edit, per CLAUDE.md.
+
+  **2 · THE TWO FIELDS THE SERVER RETURNS FOR THE SCREEN CANNOT BE READ BY THE SCREEN AT ALL.** `sendReceipt` returns `answer`
+  (`BookingDetail.jsx:363`), and `act` does `await fn()` and **discards the return value** (`:140`). So `idempotent: false` — the server's one way of
+  saying *this send was NOT deduplicated* (`send-invoice/index.ts:286`, and the claim module's header: *"the screen can tell that nothing was deduped …
+  reported, never silent"*) — is unreachable, as is `thank_you_sent`. **This is to contract** (clause 4 says treat `idempotent: false` as success) and it
+  is not a bug today, so it is recorded as a limitation rather than a fault: **between publishing `send-invoice` and applying the table — an order
+  `FOR-ANDREW.md` Part 1b explicitly permits in either direction — every send is unprotected, the server says so in every answer, and nothing in the
+  product can tell.** The same discard means a `duplicate` answer whose `thank_you_sent` is false still prints *"Receipt + thank-you sent."*
+
+  **3 · THE `[booking.id]` EFFECT'S STATED PREMISE IS FALSE WHERE IT IS USUALLY READ, AND TRUE WHERE IT MATTERS.** `BookingDetail.jsx:334`–`:339` says the
+  ref must be cleared *"because the record is reused in place on Today, Calendar, Money and Clients — `booking` changes under the same component"*. **On
+  those four screens it does not:** `RecordHost.jsx:115` wraps the body in a `<div className="record-body swap">` **keyed on `title|subtitle`**, so
+  choosing another job mounts a fresh `BookingDetail` and the ref is already gone. The premise holds on the **fifth** place this component is rendered —
+  `JobPage.jsx:76`, bare, under the `/job/:id` route (`main.jsx:150`), where only the param changes. **So the effect is load-bearing, on the one screen
+  its comment does not name**, and the comment should say that rather than the opposite. *(It is also the screen where ROADMAP 4.7's missing equivalent
+  for `payPick` is a live mis-tap — written up under 4.7.)*
+
+  **WHAT WAS CHECKED AND HELD:** `err.status` and `err.body` really do travel (`core.js:63` and `:69`), so the 409 branch is live code and not a dead
+  condition; the field name, the 409 shape and `duplicate: true` match the function exactly (`send-invoice/index.ts:94`–`:98`); `api.sendInvoice` omits
+  the key rather than sending `null` (`api.js:115`); `BookingDetail.jsx:358` is the only caller in `app/src`; and clearing only `if (sendKey.current ===
+  key)` is correct for the two-press race the build note describes.
+
 
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**
