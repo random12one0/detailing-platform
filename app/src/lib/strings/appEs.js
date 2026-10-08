@@ -3256,6 +3256,12 @@ export const appEs = {
   "Receipt not attached.": "Recibo sin adjuntar.",
   // ROADMAP 6.4 — replaces the raw server token `in_progress`, which had no
   // entry here and so read as that token in both languages.
+  // ROADMAP 9.20 — seeing, opening and removing a receipt on an expense.
+  "Open the receipt": "Abrir el recibo",
+  "Remove the receipt": "Quitar el recibo",
+  "Remove this receipt? The photo is deleted and the space goes back on your allowance.":
+    "¿Quitar este recibo? La foto se borra y el espacio vuelve a tu límite.",
+  "The receipt was not removed.": "El recibo no se quitó.",
   "That receipt is still sending. Give it a minute and check again.":
     "Ese recibo todavía se está enviando. Dale un minuto y vuelve a revisar.",
 };

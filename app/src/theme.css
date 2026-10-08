@@ -4479,6 +4479,62 @@ button.warn-box:hover { border-color: var(--fog-2); }
    changed nothing. */
 .jobbar ~ *, .jobbar ~ * * { scroll-margin-top: 10rem; }
 
+/* ── ROADMAP 9.20 — THE RECEIPT ON AN EXPENSE ROW ──────────────────────────
+   **34px OF PAINT, 44px OF TARGET.** The mark is deliberately small: an expense
+   row is a description, a date and a figure, and the figure is what a person
+   actually reads here — a thumbnail at button size would out-weigh it on every
+   cash row. So this is the `.chip` / `.btn.sm` / `.segmented button` pattern,
+   fourth instance: the painted thing keeps its size and an absolutely
+   positioned `::after` with a negative inset carries the press. 34 + 5 + 5 = 44,
+   and a bounding rect cannot see it — probe with `elementFromPoint`.
+
+   **HORIZONTAL AS WELL AS VERTICAL, WHICH THE SEGMENTED ONE DELIBERATELY IS
+   NOT.** A segment sits shoulder to shoulder with its neighbours across a 3px
+   gap, so growing it sideways would steal their presses. This sits alone in a
+   row between a text block and a figure with `--sp-3` either side, so there is
+   nothing within 5px to steal from.
+
+   NO PLACEHOLDER WHEN THERE IS NO RECEIPT: the element is not rendered at all.
+   `CLAUDE.md` § Design names a grey placeholder box as a never-default, and on
+   this screen it would be the commonest thing on it. */
+.receipt-thumb {
+  width: 34px; height: 34px; flex-shrink: 0; padding: 0; margin-inline: var(--sp-3);
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+  border: 1px solid var(--hairline); background: var(--surface-sunken);
+  cursor: pointer; position: relative; display: block;
+  transition: border-color var(--t-hover) var(--e-out);
+}
+/* **NO `overflow: hidden` ON THE BUTTON, AND THAT IS THE WHOLE TRICK — measured
+   2026-10-08, after the first version read 34x34 of reach against a 44 floor.**
+   `overflow: hidden` was there to clip the photograph to the rounded box, and it
+   clipped the `::after` with it: the negative inset existed, painted nothing and
+   reached nothing, so the probe found exactly the paint. **A hit-area `::after`
+   cannot escape a clipped parent** — the clipping moves to the IMG, which is the
+   thing that actually needed rounding. */
+/* **-7px, NOT -5px, AND THE REASON IS ALREADY WRITTEN IN THIS FILE UNDER
+   `.btn.sm`: an absolutely positioned child's containing block is the PADDING
+   box.** The thumb is 34px border-box with a 1px border, so the `::after` is
+   measured against 32px, and -5px gave 32 + 10 = 42 — the probe read 41 against
+   a 44 floor. -7px gives 32 + 14 = **46**, which clears the floor with the
+   tolerance that note also asks for ("exactly 44 rounds under" on a control
+   sitting at a fractional pixel). The overhang is 7px into a 12px
+   `margin-inline`, so it reaches nothing beside it. */
+.receipt-thumb::after { content: ""; position: absolute; inset: -7px; border-radius: inherit; }
+.receipt-thumb:hover { border-color: var(--line-2); }
+.receipt-thumb img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  border-radius: inherit; corner-shape: inherit;
+}
+/* The photograph itself, in the sheet. It is a document a person is reading,
+   so it is capped by HEIGHT rather than stretched to the sheet's width: a
+   receipt is tall and narrow, and a full-width one would push its own total
+   off the bottom of a phone. */
+.receipt-full {
+  display: block; width: 100%; max-height: 62vh; object-fit: contain;
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+  background: var(--surface-sunken); margin-bottom: var(--sp-4);
+}
+
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }
 .segmented.is-disabled button { cursor: not-allowed; }

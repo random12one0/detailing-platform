@@ -182,8 +182,22 @@ export async function signedReceiptUrl(path) {
 export async function signedReceiptUrls(paths) {
   if (!paths.length) return {};
   if (!RECEIPTS_VIA_DOOR) {
+    // **ONE REQUEST ON THIS PATH TOO — ROADMAP 9.20 (c).** The first version
+    // looped `signedReceiptUrl` per path, which is one round trip per row and
+    // is exactly what this function exists to prevent; the door path was the
+    // only half that honoured its own rule. `createSignedUrls` (plural) takes
+    // the whole array and answers in one call, so the clause holds with the
+    // flag in either position.
+    // **AN ENTRY THAT CANNOT BE SIGNED IS SIMPLY ABSENT**, never an error: the
+    // map's contract is "a missing key means cannot be shown", and a row the
+    // screen cannot draw a thumbnail for must not take the screen down.
+    const { data, error } = await supabase.storage.from(BUCKET)
+      .createSignedUrls(paths, SIGNED_FOR);
+    if (error) throw error;
     const out = {};
-    for (const p of paths) out[p] = await signedReceiptUrl(p);
+    for (const row of data ?? []) {
+      if (row?.signedUrl && !row.error) out[row.path] = row.signedUrl;
+    }
     return out;
   }
   const businessId = String(paths[0]).split("/")[0];

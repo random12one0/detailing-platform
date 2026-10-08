@@ -63,6 +63,10 @@ import { RATE_FLOOR } from "../lib/moneyAdvanced.js";
 import { whereFrom } from "../lib/moneyAdvanced.js";
 import { api } from "../lib/api.js";
 import ExpenseModal, { categoryWord } from "../components/ExpenseModal.jsx";
+// ROADMAP 9.20 — the two functions that already existed and nothing called.
+import { removeReceipt, signedReceiptUrls } from "../lib/receipts.js";
+import Sheet from "../components/Sheet.jsx";
+import ConfirmTap from "../components/ConfirmTap.jsx";
 import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
@@ -166,7 +170,7 @@ const EXPENSE_CAP = 12;
 
 export default function Money({ onGo }) {
   useAppLocale();
-  const { business } = useBusiness();
+  const { business, can } = useBusiness();
   const today = todayLocal(business.timezone);
   // W6 — the screen was month-only. He asked for week / month / six months /
   // year / lifetime, "whatever is the standard online", so the conventions
@@ -253,6 +257,14 @@ export default function Money({ onGo }) {
   // screen rather than a route: same rows, same period control above it, and
   // closing it puts the detailer back exactly where they were.
   const [advanced, setAdvanced] = useState(false);
+  // ── ROADMAP 9.20 — THE RECEIPT A DETAILER COULD NEVER SEE AGAIN ─────────
+  // `receipt_path` has been arriving on this screen all along: the expenses
+  // read below is `select("*")`, so the column was already in `expenses` and
+  // simply never rendered. The bytes counted against the allowance and there
+  // was no route to them from any screen, by any person.
+  const [receiptUrls, setReceiptUrls] = useState({});
+  const [viewing, setViewing] = useState(null);   // the expense whose receipt is open
+  const [receiptErr, setReceiptErr] = useState("");
 
   const loadExtras = useCallback(async () => {
     const [e, li, up, cp, cv] = await Promise.all([
@@ -291,6 +303,19 @@ export default function Money({ onGo }) {
     const failed = [e.error, li.error, up.error, cp.error, cv.error].find(Boolean);
     setExtrasError(failed ? (failed.message || t("Could not load your expenses.")) : "");
     if (e.data) setExpenses(e.data);
+    // ROADMAP 9.20 — **ONE REQUEST FOR THE WHOLE LIST, NEVER ONE PER ROW.**
+    // `signedReceiptUrls` takes up to `DOOR_BATCH` keys and answers with a map;
+    // its own header says a one-key helper called per row is the thing it
+    // exists to prevent. **A key ABSENT from the map means "cannot be shown",
+    // not "the call failed"** — that is the module's rule and the row below
+    // simply draws nothing for it.
+    if (e.data) {
+      const paths = e.data.map((x) => x.receipt_path).filter(Boolean);
+      if (paths.length) {
+        try { setReceiptUrls(await signedReceiptUrls(paths)); }
+        catch { setReceiptUrls({}); }   // no thumbnails rather than a broken screen
+      } else setReceiptUrls({});
+    }
     if (li.data) setLineItems(li.data);
     if (up.data) setUnpaid(up.data.map((b) => withLocal(b, business.timezone)));
     if (cp.data) setCampaigns(cp.data);
@@ -981,6 +1006,20 @@ export default function Money({ onGo }) {
                       {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {categoryWord(e.category, getAppLocale())}
                     </div>
                   </div>
+                  {/* ROADMAP 9.20 — AN EXPENSE WITH NO RECEIPT SAYS NOTHING AT
+                      ALL. No placeholder box: `CLAUDE.md` § Design names that
+                      as a never-default, and a grey square on every cash row
+                      would be the commonest thing on this screen.
+                      The mark is 34px and the TARGET is 44 through the
+                      `::after` below — the paint stays small because a receipt
+                      thumbnail the size of a button would out-weigh the figure
+                      beside it, which is what a person actually reads here. */}
+                  {e.receipt_path && receiptUrls[e.receipt_path] && (
+                    <button className="receipt-thumb" onClick={() => { setReceiptErr(""); setViewing(e); }}
+                      aria-label={t("Open the receipt")}>
+                      <img src={receiptUrls[e.receipt_path]} alt="" />
+                    </button>
+                  )}
                   <div className="body num">{money(e.amount)}</div>
                 </div>
               </div>
@@ -1021,6 +1060,53 @@ export default function Money({ onGo }) {
         <ExpenseModal onClose={() => setAdding(false)}
           onSaved={() => { setAdding(false); loadExtras(); }} />
       )}
+      {/* ── ROADMAP 9.20 — THE RECEIPT, AND THE ONE PLACE REMOVE BELONGS ───
+          **The handover put Remove in `ExpenseModal.jsx` and that sheet cannot
+          hold it:** it is add-only — `Money.jsx` renders it with no expense
+          prop and there is no way to reopen a saved one — so a Remove there
+          would have needed an edit mode this item does not ask for. Said out
+          loud rather than quietly re-scoped.
+          **Here is the better home anyway:** the detailer is looking at the
+          photograph they are about to delete. A Remove on the list row would
+          be a destructive tap beside a money figure, aimed at something they
+          cannot see.
+          NOT OFFERED AT ALL WITHOUT THE PERMISSION, which is the handover's own
+          instruction and the shape every other gated control on these screens
+          takes. If the server ever refuses anyway, its sentence is shown as it
+          wrote it — never re-worded. */}
+      {viewing && (
+        <Sheet onClose={() => setViewing(null)} title={t("Receipt")}
+          subtitle={`${viewing.description} · ${money(viewing.amount)}`}>
+          <img className="receipt-full" src={receiptUrls[viewing.receipt_path]}
+            alt={t("Receipt")} />
+          {receiptErr && <div className="error-box" role="alert">{receiptErr}</div>}
+          {can("settings") && (
+            <ConfirmTap
+              className="btn danger"
+              confirmClassName="btn danger"
+              label={t("Remove the receipt")}
+              question={t("Remove this receipt? The photo is deleted and the space goes back on your allowance.")}
+              confirmLabel={t("Yes, remove it")}
+              onConfirm={async () => {
+                try {
+                  // BOTH HALVES, WHICH IS WHY IT IS THIS FUNCTION AND NOT A
+                  // COLUMN UPDATE: it deletes the object AND clears the five
+                  // receipt columns. Clearing the columns alone looks finished
+                  // on screen while the bytes stay on the allowance for ever
+                  // and `photo-reconcile` never collects them — it reconciles
+                  // `job_photos` only.
+                  await removeReceipt({ expense: viewing, businessId: business.id });
+                  setViewing(null);
+                  await loadExtras();
+                } catch (err) {
+                  setReceiptErr(err?.message || t("The receipt was not removed."));
+                }
+              }}
+            />
+          )}
+        </Sheet>
+      )}
+
       {loggingBulk && (
         <BulkJobModal onClose={() => setLoggingBulk(false)}
           onSaved={() => { setLoggingBulk(false); reload(); }} />
