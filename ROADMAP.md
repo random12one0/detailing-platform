@@ -16967,6 +16967,8 @@ the dashboard or back office at phone width at all.
   **A one-line server change would let it say “not set up” as fact** — return a
   distinct sentence for `42P01`/`PGRST205` on the READ the way `platform_cost_add`
   already does on the write. That is server code and not done here.
+  ***^ STALE, AND THE CHANGE WAS ALREADY MADE — see “A CORRECTION TO THIS
+  ENTRY'S OWN TEXT” at the end of this item. `266fc3a`, 2026-10-06.***
 
   **MONTH IS THE MONTH YOU ARE LOOKING AT.** The form has no month field of its
   own: it saves into the month under the heading, so a bill can never land in a
@@ -17000,6 +17002,122 @@ the dashboard or back office at phone width at all.
   then type one real month of bills and read the figure against a calculator.
   **No edit and no delete yet**, as the spec says — a wrong bill cannot be fixed
   from the screen.
+
+  ***THE SERVER HALF WAS ALREADY BUILT. WHAT 2026-10-07 ADDED IS THE TABLE RUN
+  ON A REAL DATABASE (DP Cowork2, Lane B). NOTHING APPLIED, NOTHING DEPLOYED,
+  NO DDL AGAINST THE LIVE DATABASE.*** A session was sent to build this half
+  and found all four pieces — the migration file, `_shared/platformNet.js`, both
+  actions and `tests/platform-net.test.mjs` — present and green. **The one thing
+  the standard asked for and this item did not have was a test that asks the
+  DATABASE rather than greps the migration.**
+
+  **WHY A GREP WAS NOT ENOUGH, and it is this repo's own scar.**
+  `tests/platform-net.test.mjs` § 7 reads the migration as text and asserts the
+  words `enable row level security`, `force row level security` and `revoke all
+  …` are in it. That is a lock that READS correctly.
+  `20260921000000_revoke_locked_table_grants.sql` is the record of ten tables in
+  this project that read exactly that way and were not locked: RLS on, zero
+  policies, and Supabase's default grant still in place — **`anon` held INSERT
+  on the audit trail until it ran.** This table holds what the platform spends
+  and no detailer may ever read it, so the lock is now asserted by asking
+  Postgres, under the roles a browser actually arrives as.
+
+  | | |
+  |---|---|
+  | the new test | `tests/platform-costs-sql.test.mjs` |
+  | how to run it | `npm install @electric-sql/pglite` in any folder OUTSIDE the repo, then `PGLITE_DIR=<that folder> node --test tests/platform-costs-sql.test.mjs` |
+  | what it ran on | **PGlite — real PostgreSQL in WebAssembly, in process.** Nothing touches the live database, and it is in no `package.json`. The same arrangement as `tests/send-invoice-key-sql.test.mjs` and `tests/action-log-sql.test.mjs` |
+  | the result | **9 pass, 0 fail**, at the commit carrying this block |
+  | with no PGlite | every case prints `NOT RUN — needs @electric-sql/pglite …` and skips; `PGLITE_REQUIRED=1` turns the same run into **9 fail**. Both measured, because a guard that skips must say so |
+
+  **WHAT IT PROVES, AND IT IS THE LOCK FIRST:** zero policies on the table; both
+  RLS flags set in `pg_class`; `anon` and `authenticated` hold **none** of
+  select, insert, update, delete; and under `set role anon` and `set role
+  authenticated` a `select *` and an insert are both answered **permission
+  denied** — the read asserted as its own case, because reading is the one 9.14
+  cares about most. Then the shape: the period constraint takes the 1st and
+  refuses the 15th; the five categories are exactly what the table takes and
+  `Hosting` is refused by the DATABASE as well as by `costEntry`; a zero bill is
+  allowed and a negative one is not; `updated_at` moves on an update while
+  `created_at` does not, so the trigger from `foundation.sql` is really
+  installed.
+
+  **AND IT FOUND SOMETHING NO SOURCE SCAN COULD: `integer` ROUNDS, IT DOES NOT
+  REFUSE.** Inserting `12.5` cents — dollars-with-decimals arriving where cents
+  belong — is accepted by the column and stored as a whole number. So
+  `costEntry`'s *“The amount must be a whole number of cents, like 1250 for
+  $12.50.”* is **the only thing between a screen bug and a wrong figure in the
+  database**, and the case is in the suite so nobody later removes that guard as
+  redundant because "the column is an integer anyway".
+
+  **THREE SABOTAGES, EACH ASSERTED TO HAVE CHANGED THE SQL BEFORE ITS VERDICT IS
+  BELIEVED** (`docs/gotchas.md` 95): the period constraint removed and the 15th
+  goes in; the amount check removed and a negative bill goes in; **the revoke
+  removed and `anon` holds `select` on the platform's costs.**
+
+  **THE THIRD SABOTAGE IS THE ONE WORTH READING.** With the revoke gone, RLS is
+  still enabled and forced — and `anon`'s `select` **does not fail. It returns
+  an empty answer with no error at all.** An empty answer is indistinguishable
+  from a month with no costs: 9.14's own unknown-versus-known-empty trap,
+  arriving at the security layer instead of on the screen. **The revoke is what
+  turns that silence into a refusal**, and it is the half this repo has already
+  shipped without once.
+
+  **WHAT IT CANNOT SHOW, said rather than implied:** that `force row level
+  security` does anything, because the role running the statements owns the
+  table and PGlite's superuser bypasses RLS regardless. Those two flags are read
+  as declarations. **That is the same split the live database has** — the
+  service role bypasses RLS too, so the GRANT is what stands between a browser
+  and this table, and the grant is the half that is proved behaviourally.
+
+  **THE ARITHMETIC SUITE RE-RUN AT THE SAME COMMIT:** `node --test
+  tests/platform-net.test.mjs` → **16 pass, 0 fail** (15 cases and their parent).
+  **`PLATFORM_NET_CANARY=1 node --test tests/platform-net.test.mjs` → 2 fail**,
+  section 9 and the parent it hangs under, which is the canary asserting 9.14's
+  fault — a net equal to revenue with no costs entered — and failing as it must.
+
+  ---
+
+  ### A CORRECTION TO THIS ENTRY'S OWN TEXT, 2026-10-07
+
+  **“A FAILED READ SAYS SO” above is STALE and the one-line change it asks for
+  was already made.** It says the read answers 500 *“could not read platform
+  costs”* for any error including a missing table, and that a distinct sentence
+  for `42P01`/`PGRST205` on the READ *“is server code and not done here”*.
+  **`266fc3a`, 2026-10-06, did it** — `costsTableMissing()` is shared by both
+  the read and the write in `_shared/platformNet.js`, and the read now answers
+  **“Costs cannot be shown yet: the costs table has not been set up.”**
+  Verified at this commit by reading the branch: `index.ts`'s `if (costs.error)`
+  returns `costsTableMissing(costs.error) ? COSTS_MISSING_READ : "could not read
+  platform costs"`, and `tests/platform-net.test.mjs` § 15 asserts exactly that
+  with its own in-memory sabotage. **Left in place and marked rather than
+  rewritten**, because the useful part is that a paragraph describing a gap
+  outlived the gap by a day.
+
+  ### THE CONTRACT, COMPLETED — THE READ'S REQUEST WAS NEVER WRITTEN DOWN
+
+  Everything the screen SENDS to save a bill is specified above, field by field,
+  and re-checked against `_shared/platformNet.js` at this commit: it holds.
+  **The read's own request shape was missing.** Lane A found it from the source
+  while building; the next session should not have to.
+
+  | send | rule |
+  |---|---|
+  | `action` | `"platform_net"` |
+  | `period` | **optional.** Any date string inside the month — `"2026-10"`, `"2026-10-01"`, `"2026-10-17T22:10:00Z"` all ask about October 2026. **Omit it and the server answers for the month it is in**, so the screen has a figure before anybody picks a period |
+  | nothing else | no `business_id` — this is the platform's own figure and has no business on it |
+
+  **The answer carries the period it answered about:** `period_month`, always
+  `YYYY-MM-01`. **Render that, never the month the screen asked for** — the
+  server normalises, and the two disagree the moment a screen sends a bare
+  `"2026-10"` and reads its own string back.
+
+  **AND THE SCREEN HALF IS ALREADY BUILT** — `PlatformNet` in
+  `app/src/admin/AdminPage.jsx`, 2026-10-06, recorded above. **There is nothing
+  for Lane A to build here.** What is left is Andrew's, unchanged: apply
+  `20261006020000_hand_entered_platform_costs.sql`, publish `platform-admin`
+  (`FOR-ANDREW.md` Part 2, step 2 — already named there), then type one real
+  month of bills and read the figure against a calculator.
 
 - [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
