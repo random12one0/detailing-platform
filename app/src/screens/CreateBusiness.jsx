@@ -135,8 +135,20 @@ export default function CreateBusiness({ onDone }) {
 
         <label className="field">
           <span>{t("Business name")}</span>
+          {/* ROADMAP 2.15a — 60, AND IT IS THE NUMBER FROM NEXT DOOR RATHER THAN
+              ANYBODY'S JUDGEMENT. `Plans.jsx:283` has carried `maxLength={60}`
+              since it was written, 2.15a put the same 60 on the other four name
+              boxes in `6cb226d`, and a cap on what a detailer may type is a
+              product decision the manager already took: *"picking the number the
+              neighbouring box already uses is a smaller act than leaving four
+              boxes with no limit at all."*
+              **THIS IS THE DOOR THAT ROUND MISSED, AND IT IS THE FIRST ONE.**
+              2.15a capped `BusinessInfo.jsx:260`, which is where a name is
+              EDITED — but a business is NAMED here, at sign-up, before that
+              screen exists for it. An unbounded field in front of the capped one
+              means the cap only ever applied to the second thing a person typed. */}
           <input
-            value={name} required autoFocus autoComplete="organization"
+            value={name} required autoFocus autoComplete="organization" maxLength={60}
             onChange={(e) => setName(e.target.value)}
             placeholder={t("Riverside Mobile Detail")}
           />

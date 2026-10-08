@@ -981,7 +981,13 @@ function NewBusiness({ reload }) {
           Creates the business, emails the owner an invite, and shows the link here too in case you
           want to read it to them.
         </p>
-        <input className="pa-find" placeholder="Business name" required
+        {/* ROADMAP 2.15a — the third door into `businesses.name`, and the one
+            furthest from the screens the name lands on. Same 60 as
+            `Plans.jsx:283`, `BusinessInfo.jsx:260` and the two in `Catalog.jsx`;
+            no new number. A name typed here reaches a customer's booking page
+            exactly like one typed at sign-up, so a cap that skipped this box
+            would be a cap with a way round it. */}
+        <input className="pa-find" placeholder="Business name" required maxLength={60}
                value={form.name} onChange={(e) => setName(e.target.value)} />
         <input className="pa-find" placeholder="Booking link (letters, numbers, hyphens)" required
                value={form.slug}
