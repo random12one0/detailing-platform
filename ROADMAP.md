@@ -5860,6 +5860,45 @@ the wrong service, and never book a job we cannot reach.
   scripts/admin-furniture-clearance.mjs` reports **0 failures** with the canary
   still caught, and the strip rows go with it.
 
+  **BACK-OFFICE THIRD BUILT AND MET 2026-10-08 (DP Cowork, Lane A), `34f93eb`.**
+  `html:has(.pa) { scroll-padding-top: calc(var(--pa-top) + 14px) }` in
+  `admin/admin.css`, with `--pa-top` moved up to that same rule. **0 failures,
+  26/26 targets, 83 assertions, canary caught**, and the `.pa-load` strip rows
+  went with them exactly as this entry predicted.
+
+  **PROVED BY TAKING IT OUT, on the same instrument in the same sitting, which
+  is the only version of this claim worth anything:** with the reserve removed
+  by hand the run goes to **12 failures** — «Sign up a detail» at 0px of 44 lost
+  to `{".pa-top":45}` at all five widths, «Everything» lost to `{".pa-top":44}`,
+  and «See everyone» lost to `{"offscreen":14,".pa-load":3,".pa-top":29}`, which
+  is **the manager's three-pixel-strip question of 2026-10-07 answered inside the
+  same measurement**. Restored, re-run, 0 again; the restoration was confirmed by
+  running it rather than assumed, and `tests/platform-admins-declared.test.mjs`
+  is green so the throwaway admin was deleted at both ends.
+
+  **TWO SHARED-VARIABLE RULES WERE LIVE HERE AND BOTH CHANGED THE ANSWER.**
+  *(1)* `.pa` declares no `overflow`, so the DOCUMENT scrolls and the reserve has
+  to sit on the root element — but this file's standing law is that `admin.css`
+  shares **no rule** with `theme.css`, only its tokens (roadmap 4.4,
+  `AdminPage.jsx` re-states it where it refuses to borrow `PasswordInput`). A
+  bare `:root` would have written to the selector the dashboard's stylesheet owns
+  and leaked a back-office number into every screen. `:has(.pa)` cannot match on
+  a page without the back office, so the rule is unreachable anywhere else.
+  *(2)* `--pa-top` was declared on `.pa`, and **a `var()` on `html` cannot see a
+  property declared on a descendant** — it would have taken its fallback for
+  ever. That is `scripts/var-scope-guard.mjs`'s whole subject: valid CSS,
+  identical rendering, every browser check green, two numbers drifting apart. It
+  moves up to the `:has` rule instead of being copied, `.pa-body` inherits the
+  value it always read, and the guard now counts **27 root-level `var()` reads,
+  all resolving**.
+
+  **THE RUN STILL PRINTS `FAIL`, AND IT IS NOT THIS FIX.** Its verdict is
+  `failures === 0 && canary && consoleNoise === 0`, and the 20 console lines are
+  all the HTTP 400 from `platform-admin` on the System health tab — **ROADMAP
+  9.18**, filed the same evening, and already recorded four paragraphs above as
+  observed and not chased. **The done-when as written is met; the verdict word is
+  somebody else's item.**
+
   ### THE INSTRUMENT WAS WRONG THREE TIMES AND ITS OWN QUESTIONS CAUGHT ALL THREE
 
   Recorded because it is the part worth copying, not the part worth hiding.
