@@ -18697,6 +18697,81 @@ the dashboard or back office at phone width at all.
   is the same file 2.15a's own grant named** — that grant was for that step and
   was never spent. Asked for rather than assumed.
 
+  ***BUILT AND PROVED — 2026-10-08 (DP Cowork2), on the manager's one-commit
+  grant for `scripts/bk-bar-clearance.mjs` and nothing else in `scripts/`.
+  Commit `e44b4c7`.*** Four edits, all in that one file.
+
+  | # | what | why it was not optional |
+  |---|---|---|
+  | 1 | **`CEILINGS` five entries → seven** | `businesses.name` is typed in three places. The two added are `CreateBusiness.jsx` (signup) and `AdminPage.jsx` (the back office create form), with ids carrying WHERE — three rows reading `businesses.name` would be three rows nobody could tell apart in a failure line |
+  | 2 | **the matcher reads the ELEMENT, not a line** | it required `<input` and the value expression on the same line, and **neither new box is written that way**, so adding them to the list alone would have named two capped boxes as unbounded |
+  | 3 | **`--break=ceiling:<id>`** | one box's cap stripped from the element **as read, in memory** — `app/src` is another lane's and a sabotage that edits it is a measurement taken while somebody else is building |
+  | 4 | **a ceiling failure now also enters `failureRecords`** | **this is the one that makes the other three mean anything.** The loop pushed only to `failures`, so an unbounded name box made `status: fail` while `classifyFailures` never saw it and the run still printed **`gate: HELD — nothing outside the declared hold failed`.** The gate line is the one line a reader uses to decide whether anything NEW broke |
+
+  **THE CLEAN RUN, at `e44b4c7`, in a throwaway worktree on `:5193`:**
+  **137 of 137 targets, 955 assertions** — 953 before, **plus exactly the two new
+  ceiling questions** — **3 failures, all three the declared 320 day-cell hold by
+  name, `unexpected_failures: []`, `gate: HELD`, canaries caught/caught.** All
+  **seven** ceiling questions read `ok` with `maxLength=60`, each naming its file
+  and line: `Catalog.jsx:732`, `:777` (twice, one shared editor),
+  `BusinessInfo.jsx:260`, `Plans.jsx:283`, **`CreateBusiness.jsx:150`** and
+  **`AdminPage.jsx:990`**.
+
+  **THE PER-BOX SABOTAGE, RUN TWICE, ONE BOX EACH TIME:**
+
+  | run | what happened |
+  |---|---|
+  | `--break="ceiling:businesses.name @ signup"` | **six boxes `ok`, that one `FAIL`**, `expected (declared hold): 3 · NOT on the declared list: **1**`, `UNEXPECTED · ceiling/businesses.name @ signup`, **`gate: FAIL`** |
+  | `--break="ceiling:businesses.name @ back office"` | **six boxes `ok`, that one `FAIL`**, same two numbers, `UNEXPECTED · ceiling/businesses.name @ back office`, **`gate: FAIL`** |
+
+  **So the widened population is a population the check can be shown to see** —
+  which is the whole of (b) in this item's done-when, and it is also the proof of
+  edit 4: before it, both of those runs would have printed `gate: HELD` beside
+  the failure. **And in both runs the three declared day cells stayed expected
+  and nothing else moved**, which is (d).
+
+  **ONE PROPERTY OF THIS SCRIPT WORTH WRITING DOWN, because it reads like a bug
+  and is not:** the clean run **exits 0 while its own report says `FAIL`**.
+  `process.exit(gateOk ? 0 : 1)` — the exit code follows the **gate**, not the
+  status, so the declared hold stays red in the receipt and still lets a clean
+  run pass. Both sabotage runs exit 1.
+
+  **(c) IS RULED ON RATHER THAN BUILT, AND THAT IS THE RULING.** The
+  top-of-scroll rows — *"(2 at the top; page scrolled)"* on *Services &
+  add-ons* at 320 and 392, one on *Business info* at 392 — are a **declared
+  hold, not a fault**: content passing under the sticky header while a page is
+  scrolled mid-way is what a sticky header does, and the two things that matter
+  (the END of scrolling, and where a focused control comes to rest) are graded
+  here and by `scripts/keyboard-walk.mjs`. **The manager's ruling, 2026-10-08,
+  standing in for Andrew under `MANAGER.md`** — `DECISIONS.md` §
+  *"Content passing under the sticky header mid-scroll is normal; what is graded
+  is the end of scrolling"*, which also records why it is **deliberately not
+  added to `EXPECTED_FAILURES`**: that list declares accepted FAILURES, and
+  this was never graded as one, so declaring it would mean grading it first in
+  order to forgive it.
+
+  **HOW IT WAS RUN, and what it did not measure.** A detached `git worktree`
+  outside the repo, its own `npm install`, its own dev server on **`:5193`**
+  (lane A holds 5173), `BASE` pointed at it, the long-name emails rendered into
+  it first (`render-emails.mjs --long --out=artifacts/tenant-strings/email-long`
+  — a fresh worktree has none, and without them the sweep crashes on a missing
+  file). **Nothing in the repository was edited for the run**; the worktree was
+  checked out at `e44b4c7` so the receipt's commit and the code that produced it
+  are the same. It spent `calculate-booking` quotes as this script always has; no
+  seed, nothing written to the demo tenant's rows. **The worktree, its packages
+  and its server were torn down afterwards.** A first clean run was taken at
+  `3a74fe1` before the script change was committed and is **discarded rather
+  than reported**, because its commit and its code would not have matched.
+
+  **Done when, answered clause by clause:** (a) seven of seven, declared by hand
+  so an eighth box is a finding rather than a silence — and
+  `tests/name-length.test.mjs` is the credential-free half that already covers
+  all seven; (b) the matcher spans the element, **proved per box**; (c) ruled on,
+  cited above; (d) `unexpected_failures: []` with the three day cells expected.
+  **The box can be ticked on this, and is left for the manager to tick** with
+  9.7 and 9.11 in the same pass.
+
+
   *Filed by DP Cowork2, 2026-10-08. No `app/src` and no `scripts/` touched. The
   five-against-seven count, both line shapes and the top-of-scroll numbers were
   read at the commit carrying this entry.*

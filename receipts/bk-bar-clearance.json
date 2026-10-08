@@ -1,9 +1,9 @@
 {
-  "git_sha": "96d7eb6386ec75c71a0725545bc8190990055ebf",
-  "git_sha_started": "96d7eb6386ec75c71a0725545bc8190990055ebf",
+  "git_sha": "e44b4c785d4ebcf1780c9ec522c86bd82f8e139b",
+  "git_sha_started": "e44b4c785d4ebcf1780c9ec522c86bd82f8e139b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-08T04:40:16.709Z",
+  "finished_at": "2026-10-08T05:56:57.712Z",
   "failures": [
     "320x844 step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
     "320x844 long-plan step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
@@ -363,16 +363,16 @@
     }
   },
   "check_id": "bk-bar-clearance",
-  "started_at": "2026-10-08T04:34:12.151Z",
+  "started_at": "2026-10-08T05:50:40.311Z",
   "status": "fail",
   "expected_targets": 137,
   "discovered_targets": 137,
   "attempted_targets": 137,
   "completed_targets": 137,
   "skipped_targets": 0,
-  "assertions_executed": 953,
-  "min_assertions": 869,
-  "assertion_floor": "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, nothing-at-rest) x (5 widths x 7 steps x 3 sweeps + 2 canary walks) + 5 ceiling questions + 35 strings/landed (asked only in the long-tenant sweep, where a long string IS the subject). Fixed by SIZES x STEPS x passes x the question list, never by what the run finds: a step with no matching controls grades as five failures rather than dropping out, and a walk that stops before the review step leaves targets missing so the receipt fails on arithmetic.",
+  "assertions_executed": 955,
+  "min_assertions": 871,
+  "assertion_floor": "7 questions (subjects, legal, reachable, bar-clear, pressed, reserve-tracks, nothing-at-rest) x (5 widths x 7 steps x 3 sweeps + 2 canary walks) + 7 ceiling questions + 35 strings/landed (asked only in the long-tenant sweep, where a long string IS the subject). Fixed by SIZES x STEPS x passes x the question list, never by what the run finds: a step with no matching controls grades as five failures rather than dropping out, and a walk that stops before the review step leaves targets missing so the receipt fails on arithmetic.",
   "canary": {
     "id": "the-pre-2.15-bar-put-back",
     "observed_failure": true,
