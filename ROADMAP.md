@@ -18607,6 +18607,78 @@ the dashboard or back office at phone width at all.
   Cowork's; the line numbers and the seven-against-four count are this
   session's, read at the commit carrying this entry.*
 
+- [ ] **9.22 — `bk-bar-clearance`'s ceiling question asks about five boxes and
+  there are seven, and the two it misses are the first ones anybody types into.**
+  Assigned to DP Cowork2 by the manager, 2026-10-08, off 2.15a's tick. **Filed
+  with the gap measured and the fix named; not built, because the one file it
+  needs is frozen.**
+
+  **IN PLAIN WORDS.** The sweep reads the length cap off the box that writes each
+  name, rather than trusting a number typed into the check — which is the right
+  design and is 2.15a's own rule. **But the list of boxes it reads is a list, and
+  it has five entries.** Seven boxes now write one of those five names. The two
+  that are not on the list are the **signup form** — the first screen a new
+  detailer ever fills in — and the **back office's own create form**.
+
+  | | |
+  |---|---|
+  | the list | `scripts/bk-bar-clearance.mjs:167`, `CEILINGS` — **5 entries**: `service_groups.name` and `services.name`/`add_ons.name` (`Catalog.jsx`, one shared editor), `businesses.name` (`BusinessInfo.jsx`), `plans.name` (`Plans.jsx`) |
+  | not on it | `app/src/screens/CreateBusiness.jsx:151` and `app/src/admin/AdminPage.jsx:990`, both writing `businesses.name`, both capped at 60 by Lane A on 2026-10-08 |
+  | what the gap costs today | **nothing is broken** — all seven are capped, and `tests/name-length.test.mjs` checks all seven credential-free. **What is missing is the browser half: if either of those two caps is removed or changed, this sweep will not notice** |
+
+  **AND ADDING TWO LINES TO THAT LIST WOULD NOT WORK, WHICH IS THE HALF WORTH
+  KNOWING BEFORE SOMEBODY TRIES.** `readCeiling` finds the element by requiring
+  **the value expression and `<input` on the SAME line**
+  (`lines[i].includes(c.near) && /<input/.test(lines[i])`), then reads
+  `maxLength` from that line and the next. **Neither new box is written that
+  way:**
+  * `CreateBusiness.jsx` has `<input` on line 150 and `value={name}` on 151;
+  * `AdminPage.jsx` has `<input … maxLength={60}` on 990 and `value={form.name}`
+    on 991.
+
+  So an entry added as-is reports `found: false`, and **a box with no cap FAILS
+  this check by design** — it would name two capped boxes as unbounded. **A false
+  FAILURE rather than a false pass**, which is the honest direction and still
+  wrong, and it is the same class of defect as the one fixed in
+  `tests/name-length.test.mjs` on 2026-10-08: **a matcher that reads one line
+  instead of the element.**
+
+  **THE SECOND POPULATION GAP, IN THE SAME INSTRUMENT, FOUND BY THE SAME RUN.**
+  `screen/furniture-clear` grades **the end of scrolling** and prints the top
+  without grading it. The 2026-10-08 run reports *"(2 at the top; page
+  scrolled)"* on *Services & add-ons* at 320 and 392 and *"(1 at the top)"* on
+  *Business info* at 392 — **rows covered at the TOP of a scrolled screen, by
+  hit test, in a number nobody has judged.** Not in the declared hold, not a
+  failure today, and **the manager is ruling on whether it should be either.**
+  Until he does, this item records it rather than letting it sit only in a
+  receipt.
+
+  **Done when:** **(a)** `CEILINGS` names **every** box that writes one of the
+  five names — seven today, derived or declared, and a new one appearing is a
+  finding rather than a silence; **(b)** the element matcher spans the `<input>`
+  rather than one line, **proved by removing a cap from each of the two new
+  boxes in turn and watching that box, and only that box, go red**; **(c)** the
+  top-of-scroll number is either graded or declared as a hold with the ruling
+  that accepted it, per `docs/gotchas.md` and the expected-failures pattern in
+  14.30; and **(d)** the run still reads `unexpected_failures: []` with the three
+  320 day cells expected, so the widened population has not quietly swallowed
+  the hold.
+
+  **What failing looks like:** two entries added, `found: false` on both, and
+  two capped boxes named as unbounded — a red that sends the next session to the
+  wrong file; or the matcher widened without a per-box sabotage, which is a
+  population nobody has proved the check can see.
+
+  **WHAT IT NEEDS THAT THIS SESSION DOES NOT HAVE: `scripts/` is frozen and the
+  whole fix is in one file**, `scripts/bk-bar-clearance.mjs` (the list at `:167`
+  and the matcher at `readCeiling` just under it). **One file, one commit, and it
+  is the same file 2.15a's own grant named** — that grant was for that step and
+  was never spent. Asked for rather than assumed.
+
+  *Filed by DP Cowork2, 2026-10-08. No `app/src` and no `scripts/` touched. The
+  five-against-seven count, both line shapes and the top-of-scroll numbers were
+  read at the commit carrying this entry.*
+
 ## Wave 10 — Copy
 
 One pass, one list. All of it is the same defect: internal voice reaching
