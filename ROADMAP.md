@@ -7061,6 +7061,28 @@ requested.
   file at the time of the pass, never typed into this line — **and each one has
   left a delivery row**, so a template that reached nobody cannot be reported as
   reaching somebody.
+  ***^ SUPERSEDED 2026-10-08. IT COULD NEVER BE SATISFIED AND THE REASON IS IN
+  ITS OWN NEXT PARAGRAPH:*** it asks for a send to a **real inbox** AND for the
+  pass to go **to the reserved sink addresses**, and a reserved sink is refused
+  by `send-email` above the claim, before the provider — so nothing is sent and
+  there is nothing to open. Kept rather than rewritten, because a criterion that
+  cannot pass is the mirror of one that cannot fail and both stop being read.
+  **Done when, amended 2026-10-08 — the manager's ruling, standing in for Andrew
+  under `MANAGER.md` (`DECISIONS.md` § *“The manager presses the visual ones for
+  this run”*), choosing option (b) of the two this entry put to him:**
+  **every exported template rendered in English and Spanish as images and read
+  by the manager against what it claims, plus one delivery row per template from
+  a sandbox send where a sandbox exists; anything unsendable named NOT SENT with
+  its reason.** The count is still taken from the file at the time of the pass
+  and never typed into this line.
+  **WHAT THAT MEANS IN PRACTICE, SO THE NEXT SESSION DOES NOT RE-DERIVE IT:**
+  the rendering half is **done** (16 of 16, 32 cases, 64 images — see below) and
+  the reading half is the manager's, in progress. The delivery half is **one
+  sandbox send per template**, which is a charged send against a cap shared with
+  `andrewsdetail.com`, so it is run deliberately and once — `ALLOW_REAL_MAIL=1`,
+  `docs/shared-resources.md` § 3 — and the templates with no sendable path
+  (`maintenanceDueEmail` is gated off by 0.7; a platform alert has no customer)
+  are named **NOT SENT** with the reason rather than counted as covered.
   **TWO THINGS A COLD READ ADDED, 2026-10-02, because a stranger would have been
   stopped by both:**
   **THE COST IS NAMED AND IT IS A SHARED ONE.** Sixteen real sends is sixteen of

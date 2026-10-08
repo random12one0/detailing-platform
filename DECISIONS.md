@@ -318,6 +318,9 @@ were made more than once.
 
 - **The manager presses the visual ones for this run, through frames a session writes into `.manager-shots/`** — Andrew's `MANAGER.md` of 2026-10-07 puts the manager in the chair to verify by looking (§ 7.2: navigate Chrome to localhost:5173, press the buttons, read the console at five widths). **That Chrome cannot reach localhost**, so the looking happens on screenshot FILES a session writes and the manager opens and judges; ROADMAP 9.4 was ticked that way. **Supersedes, for this run only, the "Andrew presses the visual ones himself" convention** recorded in 9.7 and 9.11 — both entries now carry a pointer here and their own history is untouched. What would reverse it is inside.
 
+
+- **Content passing under the sticky header mid-scroll is normal; what is graded is the end of scrolling** — the manager's ruling, 2026-10-08, standing in for Andrew under `MANAGER.md`. `bk-bar-clearance` prints *"(2 at the top; page scrolled)"* on two screens at 320 and 392 and does not grade it; that stays ungraded **as a declared hold rather than a fault**, because mid-scroll overlap is what a sticky header does, and the two things that matter — the END of scrolling and where a focused control comes to rest — are graded by this check and by `keyboard-walk`. ROADMAP 9.22. What would reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18260,3 +18263,49 @@ each, 44px of real hit area — only who holds the mouse.
 `localhost:5173`. Either one puts § 7.2 back as written and this section becomes
 history; 9.7 and 9.11's own text needs no edit on that day either, which is the
 reason it was left alone.
+
+## Content passing under the sticky header mid-scroll is normal; what is graded is the end of scrolling
+
+*The manager's ruling, 2026-10-08, standing in for Andrew under `MANAGER.md` —
+the same standing recorded in [[the-manager-presses-the-visual-ones]], § **The
+manager presses the visual ones for this run, through frames a session writes
+into `.manager-shots/`**. Written down because it closes a question a session
+raised and would otherwise raise again every time the number is printed.*
+
+**WHAT WAS ASKED.** `scripts/bk-bar-clearance.mjs`'s `screen/furniture-clear`
+question grades whether any row comes to rest underneath fixed furniture **at
+the end of scrolling**, and it also prints, without grading, how many rows are
+covered **at the top** while the page sits mid-scroll: *"(2 at the top; page
+scrolled)"* on *Services & add-ons* at 320 and 392, and one on *Business info* at
+392 (run of 2026-10-08, `receipts/bk-bar-clearance.json`). A session found the
+number in the receipt, could not tell whether it was a fault nobody had judged,
+and took it up rather than deciding it.
+
+**THE RULING: it is a declared hold, not a fault.** Content passing under the
+sticky header while a page is scrolled mid-way **is what a sticky header is
+for**. There is no state in which a person is looking at that row and cannot
+reach it: scrolling is the thing they are already doing.
+
+**WHAT MATTERS INSTEAD, and both are already graded:**
+* **the end of scrolling** — a row that comes to rest under furniture can never
+  be read or pressed, and that is this check's own graded question;
+* **where a focused control comes to rest** — `scripts/keyboard-walk.mjs` is the
+  only instrument here that catches a control focused UNDERNEATH a fixed bar,
+  and it carries two canaries.
+
+**SO NOTHING IS BUILT FOR THIS, AND THAT IS THE POINT.** The number keeps being
+printed and keeps not being graded. **It is deliberately NOT added to
+`EXPECTED_FAILURES`**: that list declares accepted FAILURES, and this was never
+graded as one, so declaring it would mean grading it first in order to forgive
+it — more code, a longer list, and no new information. The expected-failures
+pattern's own rule applies here in the negative: *an entry with no ruling behind
+it is a bug being filed as furniture*, and the reverse is just as true — **a
+ruling needs recording, not a row in a list.**
+
+**WHAT WOULD REVERSE IT.** A row that is covered at the top **and cannot be
+reached by scrolling** — a short page that cannot scroll, a container that
+scrolls separately, or a header that grows over content already at rest. Any of
+those is a different fault and gets its own item with the measurement attached.
+
+**WHERE IT IS CITED:** ROADMAP **9.22**, which carries the measurement and names
+this ruling rather than repeating it.
