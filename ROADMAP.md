@@ -20724,6 +20724,42 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   - **Still open for the tick:** publish the seven, then tap a real
     notification on a subscribed device and see the record open.
 
+  ***RE-READ, RE-MEASURED AND PRESSED 2026-10-07 (DP Cowork2, Lane B). THE SOURCE HALF WAS ALREADY DONE AND HOLDS; THE CHECK'S CANARY NOW AIMS AT A REAL
+  CALL SITE; THE DESTINATION RENDERS. STILL NOT TICKED: the real push tap needs Andrew's publish.***
+  **The twelve, re-counted rather than trusted.** `grep -rn 'url: \`/job/' supabase/functions` is **12** lines — `accept-quote:181`,
+  `cancel-booking:157`, `create-booking:744`, `reschedule-booking:185`, `send-invoice:274`, `send-owner-reminders:171, 281, 296, 311, 339, 540`,
+  `update-booking:313` — and `sendOwnerPush(` appears 13 times under `supabase/functions`, the thirteenth being its own definition in
+  `_shared/ownerPush.ts`. **So the population is 12 and every one of them emits `/job/<id>`.** Checked too, and this is why the test asks the
+  question the way it does: every other `url:` under `supabase/functions` belongs to Stripe, an email button or the outside-check ping, so
+  `sendOwnerPush` is the whole of the notification population.
+  **THE DONE-WHEN'S GREP CLAUSE IS NOT LITERALLY MET, AND IT IS NOT A LINK.** *"`grep -rn '/admin/job' supabase/ app/src` returns nothing"* still
+  returns **one** line: `app/src/admin/AdminPage.jsx:1944`, a comment explaining this very fault (*"…which is not a route: the only job route is
+  `/job/:id`"*). It emits nothing and `app/src` is Lane A's. Said rather than quietly re-scoped: the clause as written is unsatisfiable while that
+  sentence stands, and the thing it was protecting — no emitted link to `/admin/job` — is true.
+  **THE CANARY NOW POINTS A REAL SITE AT A ROUTE THAT DOES NOT EXIST.** It aimed at `isServed` with strings the test wrote itself, which is a canary
+  at a copy of the question (`docs/gotchas.md` 95). `pushCalls(overrides)` now takes a file's text to read instead of the file, so two canaries run
+  the **same extraction and the same verdict as the real check** over `cancel-booking/index.ts`'s own text with one `url` changed: `/admin/job/${…}`
+  fails and **names the line** (`cancel-booking/index.ts:157 → /admin/job/X`), and a non-literal url (`url: jobUrl(booking)`) is named
+  **UNJUDGEABLE** rather than skipped. The same file's real text, read through the same override, reports nothing, so the red is the plant.
+  **Nothing is written to disk, so a killed run cannot leave a sabotage in `supabase/`** — which the hand-edited red proof in the paragraph above
+  could. `node --test tests/push-urls-are-routes.test.mjs`: **6 pass, 0 fail**, 12 push calls against 23 routes read out of `main.jsx` and
+  `App.jsx`'s `TAB_PATHS` (read, never edited), discovery floor 12.
+  **AND THE CANARIES ARE NOT VACUOUS, proved by breaking the thing they watch:** with `isServed` made to answer `true` to everything, in a scratch
+  copy, the run goes **4 pass / 2 fail** — the matcher canary and the real-site canary — and the plain check still passes, which is exactly the
+  shape this item is about: a green check over a dead route.
+  **THE DESTINATION, PRESSED READ-ONLY ON ANOTHER SESSION'S DEV SERVER (5173, not restarted, nothing clicked).** Signed in as the demo owner,
+  `/job/777f06b4-…` drew **Chris Vogel · Tuesday, October 13 · 1:30 PM – 4:45 PM · Confirmed · Unpaid**, with *The job*, *The money* and *Photos*;
+  `/job/02297cf3-…` drew **Marcus Webb · Saturday, October 17 · Waiting on you · PLAN · BI-WEEKLY MAINTENANCE**. **Console clean, 0 errors or
+  warnings.** The old link, `/admin/job/777f06b4-…`, drew the 404 page in its own words: *"404 That page does not exist. The address may have a typo
+  in it, or the link you followed is out of date."* — 140 characters against 453, with no sign-in form, so it is the 404 and not a redirect to
+  login. **No shared budget was spent:** `address-suggest`, the weather function, `api.weather.gov` and Geoapify were all routed to abort before
+  the first load, and **0 such calls were made**, so the guard was in place and unneeded; nothing was written to `demo-detail`.
+  **WHAT IS STILL UNPROVEN, AND IT IS THE TICK:** a real notification tapped on a subscribed device. The deployed functions still send
+  `/admin/job/<id>` until the seven are published, so **no tap can be proved from this checkout at all** — the page that opens from a notification
+  today is the 404 above. **Already on Andrew's list, not added twice:** `FOR-ANDREW.md` names the seven (`accept-quote`, `cancel-booking`,
+  `create-booking`, `reschedule-booking`, `send-invoice`, `send-owner-reminders`, `update-booking`), carries them inside Part 2 steps 2 and 3, and
+  already ends with *"a real notification is tapped on a subscribed phone and opens the job (14.34)"*. Nothing was deployed.
+
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 
 - [x] **14.33 — `docs/ticked-without-proof-2026-09-25.md` is 69 of 69 bare and

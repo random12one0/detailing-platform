@@ -53,11 +53,16 @@ function filesUnder(dir) {
 }
 
 // Each `sendOwnerPush(` call, its payload object (brace-matched), and its url.
-function pushCalls() {
+//
+// `overrides` maps a file path to text to read INSTEAD of the file on disk. It is how the two canaries below aim
+// this exact function, and the exact verdict it feeds, at a REAL source file with one `url` changed. A canary
+// aimed at a copy of the rule, or at a payload the test wrote itself, is the fault `docs/gotchas.md` 95 records.
+function pushCalls(overrides = {}) {
   const calls = [];
   for (const file of filesUnder(FN_DIR)) {
-    if (file.replace(/\\/g, "/").endsWith("_shared/ownerPush.ts")) continue;
-    const src = readFileSync(file, "utf8");
+    const rel = file.replace(/\\/g, "/");
+    if (rel.endsWith("_shared/ownerPush.ts")) continue;
+    const src = overrides[rel] ?? readFileSync(file, "utf8");
     for (const m of src.matchAll(/sendOwnerPush\s*\(/g)) {
       const line = src.slice(0, m.index).split("\n").length;
       const open = src.indexOf("{", m.index);
@@ -69,7 +74,7 @@ function pushCalls() {
       const payload = src.slice(open, end + 1);
       const u = payload.match(/\burl:\s*(`[^`]*`|"[^"]*"|'[^']*')/);
       const url = u ? u[1].slice(1, -1).replace(/\$\{[^}]*\}/g, "X") : null;
-      calls.push({ where: `${file.replace(/\\/g, "/")}:${line}`, url });
+      calls.push({ where: `${rel}:${line}`, url });
     }
   }
   return calls;
@@ -92,9 +97,36 @@ test("the matcher can say no (canary, runs every time)", () => {
   assert.equal(isServed("/job/X/extra", routes), false);
 });
 
+// THE CANARY THAT MATTERS, ROADMAP 14.34's own red proof held as code: a REAL call site pointed at a route that
+// does not exist, read through the same extraction and graded by the same verdict as the run below. Nothing is
+// written to disk — `pushCalls` is handed the file's own text with one `url` changed — so a killed run cannot
+// leave a sabotage behind in `supabase/`.
+const CANARY_FILE = "supabase/functions/cancel-booking/index.ts";
+const REAL_URL = "url: `/job/${booking.id}`";
+const verdict = (cs) => cs
+  .filter((c) => !c.url || !c.url.startsWith("/") || !isServed(c.url, routes))
+  .map((c) => `${c.where} → ${c.url ?? "UNJUDGEABLE (no literal url)"}`);
+
+test("canary: one real site pointed at a route that does not exist turns the run RED, by name", () => {
+  const real = readFileSync(CANARY_FILE, "utf8");
+  const broken = real.replace(REAL_URL, "url: `/admin/job/${booking.id}`");
+  assert.notEqual(broken, real, "the sabotage did not apply — this canary is testing nothing");
+  const bad = verdict(pushCalls({ [CANARY_FILE]: broken }));
+  assert.equal(bad.length, 1, `expected exactly the planted site to fail, got: ${bad.join("; ")}`);
+  assert.match(bad[0], /cancel-booking\/index\.ts:\d+ → \/admin\/job\/X$/);
+  // And the same call with the file's real text reports nothing, so the red above is the plant and not the file.
+  assert.deepEqual(verdict(pushCalls({ [CANARY_FILE]: real })), []);
+});
+
+test("canary: a url that is not a literal is named UNJUDGEABLE, never passed over", () => {
+  const broken = readFileSync(CANARY_FILE, "utf8").replace(REAL_URL, "url: jobUrl(booking)");
+  const bad = verdict(pushCalls({ [CANARY_FILE]: broken }));
+  assert.equal(bad.length, 1, bad.join("; "));
+  assert.match(bad[0], /cancel-booking\/index\.ts:\d+ → UNJUDGEABLE \(no literal url\)/);
+});
+
 test("every push notification url is a path the router serves", () => {
-  const bad = calls.filter((c) => !c.url || !c.url.startsWith("/") || !isServed(c.url, routes));
-  assert.deepEqual(bad.map((c) => `${c.where} → ${c.url ?? "UNJUDGEABLE (no literal url)"}`), []);
+  assert.deepEqual(verdict(calls), []);
 });
 
 test("the service worker's fallback is a served path too", () => {
