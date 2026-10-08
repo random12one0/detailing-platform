@@ -1,16 +1,13 @@
 {
-  "git_sha": "38d8c33900a466276c28934f0bc6680991a8730b",
-  "git_sha_started": "38d8c33900a466276c28934f0bc6680991a8730b",
+  "git_sha": "96d7eb6386ec75c71a0725545bc8190990055ebf",
+  "git_sha_started": "96d7eb6386ec75c71a0725545bc8190990055ebf",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-07T03:20:24.046Z",
+  "finished_at": "2026-10-08T04:40:16.709Z",
   "failures": [
     "320x844 step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
     "320x844 long-plan step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
-    "320x844 long-tenant step 5: legal «» is 36px of hit area with nothing over it (box 37px + 0px overhang); «» is 36px of hit area with nothing over it (box 37px + 0px overhang); «» is 36px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
-    "screen Services & add-ons 320x844: screen/furniture-clear 2 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Interior» at (38, 810); «Customers pick one» at (38, 830)",
-    "screen Services & add-ons 392x844: screen/furniture-clear 2 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Customers pick one» at (38, 777); «Full interior and exterior» at (39, 817)",
-    "screen Business info 392x844: screen/furniture-clear 1 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Logo and cover photo» at (45, 825)"
+    "320x844 long-tenant step 5: legal «» is 36px of hit area with nothing over it (box 37px + 0px overhang); «» is 36px of hit area with nothing over it (box 37px + 0px overhang); «» is 36px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]"
   ],
   "warnings": [
     "Measures the HIT AREA — the bounding rect plus the overhang read off each element's own ::after — never the rect.",
@@ -308,16 +305,16 @@
       "email the confirmation, on a plan 768x1024: 3 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px",
       "email the confirmation, on a plan 1440x900: 3 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px",
       "email the confirmation, on a plan 1920x1080: 3 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px",
-      "screen Services & add-ons 320x844: 10 capped name(s) on screen, 0 escaping their box, 7 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 2 of 33 rows",
-      "screen Services & add-ons 392x844: 10 capped name(s) on screen, 0 escaping their box, 7 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 2 of 35 rows",
-      "screen Services & add-ons 768x1024: 10 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 61 rows",
-      "screen Services & add-ons 1440x900: 11 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 83 rows",
-      "screen Services & add-ons 1920x1080: 11 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 87 rows",
-      "screen Business info 320x844: 1 capped name(s) on screen, 0 escaping their box, 1 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 10 rows",
-      "screen Business info 392x844: 1 capped name(s) on screen, 0 escaping their box, 1 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 1 of 11 rows",
-      "screen Business info 768x1024: 1 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 11 rows",
-      "screen Business info 1440x900: 2 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 35 rows",
-      "screen Business info 1920x1080: 2 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 39 rows"
+      "screen Services & add-ons 320x844: 10 capped name(s) on screen, 0 escaping their box, 7 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 13 rows at the end of scrolling (2 at the top; page scrolled)",
+      "screen Services & add-ons 392x844: 10 capped name(s) on screen, 0 escaping their box, 7 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 16 rows at the end of scrolling (2 at the top; page scrolled)",
+      "screen Services & add-ons 768x1024: 10 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 44 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Services & add-ons 1440x900: 11 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 67 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Services & add-ons 1920x1080: 11 capped name(s) on screen, 0 escaping their box, 6 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 79 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Business info 320x844: 1 capped name(s) on screen, 0 escaping their box, 1 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 10 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Business info 392x844: 1 capped name(s) on screen, 0 escaping their box, 1 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 13 rows at the end of scrolling (1 at the top; page scrolled)",
+      "screen Business info 768x1024: 1 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 3 fixed element(s) covering 0 of 15 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Business info 1440x900: 2 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 40 rows at the end of scrolling (0 at the top; page scrolled)",
+      "screen Business info 1920x1080: 2 capped name(s) on screen, 0 escaping their box, 0 truncated (reported, not graded), document over by 0px, press landed, 2 fixed element(s) covering 0 of 45 rows at the end of scrolling (0 at the top; page scrolled)"
     ],
     "sabotage": null,
     "expected_failures": [
@@ -341,14 +338,10 @@
       }
     ],
     "expected_failure_count": 3,
-    "unexpected_failure_count": 3,
-    "unexpected_failures": [
-      "screen Services & add-ons 320x844: screen/furniture-clear 2 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Interior» at (38, 810); «Customers pick one» at (38, 830)",
-      "screen Services & add-ons 392x844: screen/furniture-clear 2 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Customers pick one» at (38, 777); «Full interior and exterior» at (39, 817)",
-      "screen Business info 392x844: screen/furniture-clear 1 row(s) are underneath one of the 3 fixed element(s) on this screen, by hit-test: «Logo and cover photo» at (45, 825)"
-    ],
+    "unexpected_failure_count": 0,
+    "unexpected_failures": [],
     "declared_but_absent": [],
-    "gate": "fail",
+    "gate": "held",
     "plan_name_under_test": "Platinum bi-weekly maintenance and interior protection plan",
     "plan_name_length": 59,
     "plan_name_ceiling": "60, from `maxLength` on the one input that writes `plans.name`; the column itself is bare `text` with no constraint, so the database would take more",
@@ -370,7 +363,7 @@
     }
   },
   "check_id": "bk-bar-clearance",
-  "started_at": "2026-10-07T03:14:07.515Z",
+  "started_at": "2026-10-08T04:34:12.151Z",
   "status": "fail",
   "expected_targets": 137,
   "discovered_targets": 137,

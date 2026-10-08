@@ -5914,6 +5914,67 @@ the wrong service, and never book a job we cannot reach.
   the clearance should read both entries before changing `--tabclear`, and
   CLAUDE.md's shared-variable rule applies to the whole of it.
 
+  ***AND THE RUN WAS TAKEN — 2026-10-07/08 (DP Cowork2). THE AMENDED DONE-WHEN
+  IS MET.*** `node scripts/bk-bar-clearance.mjs`, **137 of 137 targets, 953
+  assertions**, started `04:34:12Z` and finished `04:40:16Z`, both ends at commit
+  **`96d7eb6`**:
+
+  > **FAIL — 3 failure(s), canaries caught/caught.
+  > expected (declared hold): 3 · NOT on the declared list: 0
+  > gate: HELD — nothing outside the declared hold failed (the receipt still
+  > reads fail, on purpose)**
+
+  **The three are the three**, by name, each still the 320 day cells and nothing
+  else: `320x844 step 5`, `320x844 long-plan step 5`, `320x844 long-tenant step
+  5`, all of them `legal`, smallest 36px. **`unexpected_failures` is an empty
+  list.** That is the amendment's own wording satisfied — all six questions green
+  on every step except the declared 320 day-cell exception, which stayed red and
+  stayed named rather than being allowlisted into silence.
+
+  **AND THE THREE OBSTRUCTED ROWS ARE GONE, which the receipt on disk could not
+  have told anybody.** Every screen line now reads *"3 fixed element(s) covering
+  **0 of N rows** at the end of scrolling"* — including the three that had them:
+  *Services & add-ons* at 320 (0 of 13) and 392 (0 of 16), and *Business info* at
+  392 (0 of 13). **So the `[x]` on that item was right and its receipt was simply
+  stale.** The old receipt said `unexpected_failures: 3` because it was taken at
+  `38d8c33`, before the fix.
+
+  **HOW IT WAS RUN, because the usual way would have been worthless tonight.**
+  Lane A was committing to `app/src` while this ran, and a Vite reload mid-sweep
+  voids the measurement while still reporting clean (CLAUDE.md). So the sweep ran
+  in **a detached `git worktree` outside the repo, with its own `npm install`, its
+  own dev server on `:5191`** (not 5173, which lane A holds, and not 5175) and
+  `BASE` pointed at it. **Nothing in the repository was edited for it and the main
+  tree's server was not touched.**
+  **What it therefore did NOT measure:** anything lane A committed after
+  `96d7eb6`. That is one commit touching `app/src` — `bb09f5e`, a
+  `html[lang^="es"] .segmented` grid rule for the four-way payment control at
+  ≤392 — and **none of this sweep's 137 targets is that control**, so the verdict
+  stands for what it covers.
+  **What it spent:** quotes on `calculate-booking` (the walk asks for a price),
+  which is the shared budget this script has always spent; no address lookups by
+  design, **no seed was run**, nothing was written to the demo tenant's own rows,
+  and no credentials were printed. **The first attempt crashed** on
+  `artifacts/tenant-strings/email-long/customer-confirmation.html` not existing in
+  a fresh worktree — that set is rendered by `node scripts/render-emails.mjs
+  --long --out=artifacts/tenant-strings/email-long`, which is worth knowing
+  because the crash looks like a missing feature rather than a missing input.
+  **The worktree, its packages and its server were torn down afterwards.**
+
+  **ONE NUMBER NOBODY HAS JUDGED, reported rather than folded in:** at 320 and
+  392 the same screens report *"(2 at the top; page scrolled)"* — two rows
+  covered at the TOP of *Services & add-ons*, and one at the top of *Business
+  info* at 392. The question this instrument grades is the END of scrolling, so
+  those are printed and not graded. **They are not in the declared hold and they
+  are not failures today**; whether a row under the header at the top of a
+  scrolled screen is a defect is a question for a person, and this is the first
+  run that has stated the number out loud.
+
+  **THE RECEIPT OF RECORD IS NOW THIS RUN.** `receipts/bk-bar-clearance.json` was
+  clean in the working tree (`git status --porcelain receipts/` first, per
+  `docs/shared-resources.md` § 7) and carries this run, `96d7eb6` at both ends,
+  with `expected_failures: 3` and `unexpected_failures: []`.
+
 - [x] **9.11d — DONE 2026-10-06 (first clause and the red proof; the second is 9.11e). Seven scripts save evidence frames that can be wrong, on one named condition.**
   fullPage: true paints a position: fixed element at the wrong place. Measured
   2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
@@ -22520,6 +22581,15 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
   **What failing looks like:** the gate green because the three were declared, or the three gone at 320 and still present at 392
   (they are different rows at different pitches, so one number does not fix both).
+
+  ***ANSWERED BY A RUN — 2026-10-08, DP Cowork2, at `96d7eb6`: `unexpected_failures` is an EMPTY LIST and the gate reads HELD.***
+  Every screen line now says *“3 fixed element(s) covering **0 of N rows** at the end of scrolling”* — *Services & add-ons* 0 of 13 at 320 and
+  0 of 16 at 392, *Business info* 0 of 13 at 392 — and the only three failures left are the declared 320 day cells. **Both halves of this item's
+  own “what failing looks like” are clear: the gate is not green (the receipt still reads `fail` on purpose) and the three are gone at 320 AND
+  392.** The receipt on disk had said 3 unexpected since `38d8c33`, which was before the fix; `receipts/bk-bar-clearance.json` now carries this
+  run. Taken in a detached worktree on its own port because lane A was committing to `app/src` at the time; 2.15a has the full account.
+  **One number it prints and does not grade, so it is said here too:** at 320 and 392 those same screens report *“(2 at the top; page scrolled)”*
+  — rows covered at the TOP, which this instrument does not judge. Not a failure today and not in the declared hold.
 
   **AND THE SAME 40px OF SCREEN CARRIES A SECOND FAULT THAT THIS INSTRUMENT CANNOT SEE — ROADMAP 9.19, filed 2026-10-07.**
   `.app-main` reserves `--tabclear` (96px) and `.tabscrim` is `--tabclear + 40px` tall, so **the last 40px of content on every
