@@ -5856,6 +5856,64 @@ the wrong service, and never book a job we cannot reach.
   of a sentence. Nothing is broken either way; it is only which sentence a new
   detailer reads.
 
+  **THE AMENDED DONE-WHEN ABOVE IS ALREADY SATISFIED BY SOMEBODY ELSE'S ITEM, AND
+  NOTHING IN `scripts/` NEEDED TOUCHING — checked 2026-10-07 (DP Cowork2) with a
+  one-file grant in hand that was not spent.** The amendment asks for *"making the
+  receipt tell the accepted exception apart from a real failure"*. **That is
+  ROADMAP 14.30, and it was DONE 2026-10-06.**
+
+  | the piece | where |
+  |---|---|
+  | the declared list, BY TARGET NAME | `scripts/lib/expectedFailures.mjs` — `EXPECTED_FAILURES`, each entry naming the ruling that accepted it |
+  | the two numbers | `scripts/bk-bar-clearance.mjs:1274` reads `classifyFailures(...)`; the receipt carries `expected_failures` AND `unexpected_failures` |
+  | the gate | **the exit code and the verdict are decided by the UNEXPECTED count alone**, while `status` stays `fail` while any failure exists, so the hold stays visible in every run |
+  | the sabotage | **`--break=plant`** — one extra failure of a different kind, so the unexpected count can be watched going 0 → 1 while the declared list stays put |
+  | the canaries | two, and the gate requires both to have fired (`canary.observed_failure && canary2.observed_failure`) |
+
+  **VERIFIED CREDENTIAL-FREE RATHER THAN READ:** `node --test
+  tests/expected-failures.test.mjs` → **8 passed, 0 failed.** It runs
+  `classifyFailures` on records shaped like the real ones and asserts the held
+  320 day-cell findings are expected **by name**, a planted failure of a
+  different kind moves `unexpected` 0 → 1, an ordinary new failure at an
+  undeclared target does too, **a day cell that gets WORSE while the count stays
+  the same is caught** (which a tally cannot do), nothing is ever dropped, a hold
+  whose finding has vanished is reported rather than quietly kept, every declared
+  entry cites its ruling, and the sweep routes its verdict through the second
+  number only.
+
+  **SO 2.15a's AMENDED DONE-WHEN NEEDS ONE THING AND IT IS A RUN, NOT A CHANGE:**
+  `node scripts/bk-bar-clearance.mjs` (dev server + seed) with the three 320
+  day-cell findings listed as expected and `unexpected_failures` empty.
+
+  **IT WAS NOT TAKEN TONIGHT, AND THE REASON IS A RULE RATHER THAN A PREFERENCE.**
+  Lane A is editing `app/src` right now — `BookingDetail.jsx` for tonight's two
+  cold-read findings, plus `CreateBusiness.jsx` and `AdminPage.jsx` for this
+  item's own two name caps. **Vite reloads the page mid-run and the measurement
+  is worth nothing while still reporting clean** (CLAUDE.md, § the `app/src`
+  rule), and the run writes `receipts/bk-bar-clearance.json`, which
+  `docs/shared-resources.md` § 7 is about.
+
+  **AND THE RECEIPT ON DISK CANNOT BE READ AS THE ANSWER EITHER — this is the
+  thing to know before anybody ticks a box off it.** `receipts/bk-bar-clearance.json`
+  was finished **2026-10-07T03:20:24Z at `38d8c33`** and says `status: fail`,
+  `expected_failures: 3`, **`unexpected_failures: 3`**. Those three are the
+  obstructed rows that 14.30's own proof turned up — two on *Services & add-ons*
+  at 320 and 392, one on *Business info* at 392 — and **their item is already
+  ticked `[x]`, while its own Done-when asks for a run reporting
+  `unexpected_failure_count: 0`.** So either the fix landed and nobody re-ran the
+  sweep, or it did not. **The receipt predates the tick and no one has re-taken
+  it**; one sweep answers both that question and this one.
+
+  **AND THOSE THREE ROWS AND ROADMAP 9.19 ARE VERY PROBABLY ONE FAULT SEEN BY TWO
+  INSTRUMENTS.** Both are *the bottom rows when scrolled to the end* at phone
+  widths; 14.30's three are rows whose hit point lands on fixed furniture, and
+  9.19 is the 40px of content that sits inside `.tabscrim`'s fade. **The scrim
+  itself is `pointer-events: none`, so it can never be what a hit test lands
+  on** (`docs/gotchas.md` 100) — which is why one instrument found three rows and
+  the other found a strip, and why neither saw the other's half. Whoever fixes
+  the clearance should read both entries before changing `--tabclear`, and
+  CLAUDE.md's shared-variable rule applies to the whole of it.
+
 - [x] **9.11d — DONE 2026-10-06 (first clause and the red proof; the second is 9.11e). Seven scripts save evidence frames that can be wrong, on one named condition.**
   fullPage: true paints a position: fixed element at the wrong place. Measured
   2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
@@ -16795,6 +16853,15 @@ the dashboard or back office at phone width at all.
   9.7 stays `[ ]` for his press, **like 9.11 and now 9.4** — the "now" matters,
   because 9.4 joined that set the same night. Kept because a correction to an
   instruction is worth more than the instruction.
+  ***AND FOR THIS RUN THE PRESSING MOVED, 2026-10-07 — a pointer, not a
+  rewrite.*** Andrew's `MANAGER.md` of that date puts the MANAGER in the chair to
+  verify by looking (§ 7.2), and because that Chrome cannot reach
+  `localhost:5173` the looking happens on frames a session writes into
+  `.manager-shots/`, which the manager opens and judges — 9.4 was ticked that
+  way. **The paragraph above is left exactly as written**, because what went
+  wrong with this convention before was a fold that kept the ruling and dropped
+  its reason. `DECISIONS.md` § *“The manager presses the visual ones for this
+  run”* has the whole of it, including what reverses it.
 
   **AND THE FIRST FOLD OF THIS PARAGRAPH DROPPED THAT REASON, 2026-09-24, which
   is the same failure one level out.** The version written when the findings
@@ -17217,6 +17284,10 @@ the dashboard or back office at phone width at all.
   **CHECKBOX LEFT OPEN ON PURPOSE.** Verified here is not the bar this item's
   own history just raised — Andrew presses it himself, 320 first this time,
   before it goes back to `[x]`.
+  ***FOR THIS RUN, SEE `DECISIONS.md` § “The manager presses the visual ones for
+  this run” — 2026-10-07.*** Andrew's `MANAGER.md` moved the press to the manager,
+  through frames in `.manager-shots/`, because that Chrome cannot reach
+  `localhost:5173`. **This sentence is a pointer and the line above it stands.**
 
   **ANDREW'S OWN PRESS, 2026-09-20, AND IT IS A SOURCE READ FOR THE ONE
   WIDTH THAT MATTERS MOST — SAID PLAINLY RATHER THAN LEFT TO LOOK LIKE
@@ -18011,6 +18082,76 @@ the dashboard or back office at phone width at all.
   *Filed by DP Cowork2, 2026-10-07. No `app/src` touched. The measurements are
   DP Cowork's, taken during 9.4; the stylesheet geometry is this session's and
   was read at the commit carrying this entry.*
+
+- [ ] **9.20 — A detailer can attach a receipt to an expense and then never see
+  it, replace it or delete it. The bytes stay on their allowance forever.**
+  Found by DP Cowork at `e246714` while building 0.11 slice 5's app half, and
+  recorded in the module itself. **Filed, not built.**
+
+  **IN PLAIN WORDS.** The expense sheet lets a detailer photograph a bill and
+  attach it. It uploads, it is stored, it counts against their photo allowance
+  — **and there is no screen anywhere in the product that shows it back.** No
+  thumbnail, no link, no "that's the wrong photo, remove it". The one thing a
+  receipt is for — proving later what the money went on — is the one thing this
+  cannot do.
+
+  **MEASURED, NOT INFERRED** (read 2026-10-07, at the commit carrying this
+  entry):
+
+  | | |
+  |---|---|
+  | what the module offers | `app/src/lib/receipts.js` exports `addReceipt`, **`removeReceipt`** (`:134`), **`signedReceiptUrl`** (`:156`) and **`signedReceiptUrls`** (`:182`) |
+  | what the product uses | **`addReceipt` alone.** `app/src/components/ExpenseModal.jsx:26` is the only import of that module in `app/src`, and it imports that one function |
+  | who reads the column | **nobody.** `receipt_path` appears in `app/src` only inside `lib/receipts.js` and as an internal guard in `lib/photo-door.js:191`. **No screen** |
+  | and it is already on the screen's hands | `app/src/screens/Money.jsx:264` reads expenses with `select("*")`, so `receipt_path` is fetched into the Money screen's data on every load and simply never rendered |
+  | the module says so itself | `app/src/lib/receipts.js:174`–`:176`: *"NOTHING CALLS THIS YET AND THAT IS NOT AN OVERSIGHT … `receipt_path` is read nowhere in `app/src`"* |
+
+  **WHY IT IS WORSE THAN A MISSING FEATURE: THE BYTES ARE PERMANENT.** The photo
+  allowance sums BOTH stores — `job_photo_budget()` counts job photos and
+  receipts together (0.11 slice 5) — so every attached receipt eats a detailer's
+  1 GB. And nothing ever gives it back:
+  * **no screen can delete it** (`removeReceipt` has no call site);
+  * **no screen can delete the expense either** — `app/src` writes `expenses`
+    once, at `ExpenseModal.jsx:123`, and there is no delete anywhere;
+  * **the nightly orphan sweep does not look at this bucket.**
+    `supabase/functions/photo-reconcile/index.ts:31` reconciles **`job_photos`
+    only**. An `expense-receipts` object that nothing points at is never found
+    and never reclaimed.
+
+  So a mis-attached photo — the wrong bill, a thumb over the lens, a duplicate —
+  is a permanent charge against the allowance with no route to it from any
+  screen, by any person, ever. **That is the part that makes this a fault rather
+  than a gap in the roadmap.**
+
+  **THE SERVER HALF IS ALREADY BUILT, WHICH IS WHY THIS IS SMALL.** 0.11 slice 5
+  put `remove` and `urls` on the photo door for the receipts store, each gated,
+  tenant-isolated and carrying its own refusal sentence — *"Removing a receipt
+  needs the settings permission."*, *"Receipt not found"* — and
+  `tests/photo-door-receipts.test.mjs` is 13 pass with 8 sabotages. **Nothing
+  new is needed on the server.** What is missing is a thumbnail and a Remove on
+  a screen.
+
+  **Done when:** **(a)** every expense that has a receipt shows it on the screen
+  the expense lives on, and opening it shows the real image; **(b)** a Remove
+  deletes the object **and** clears the five `receipt_*` columns, and the
+  detailer's remaining allowance moves down afterwards — read before and after,
+  not assumed; **(c)** the signed URLs for a LIST are asked for in **one**
+  request through `signedReceiptUrls`, never one per row; **(d)** pressed at
+  **320 and 392 in both languages**, console clean, with a 44px hit area on the
+  thumbnail and on Remove; and **(e)** a staff member without the settings
+  permission is refused by the server's own sentence, shown as written.
+
+  **What failing looks like:** a link built in the browser out of
+  `receipt_path` — the bucket is private and the key is the whole of the tenant
+  isolation, so a hand-built URL is either a 404 or a hole; one signed-URL
+  request per row, which is the exact thing `signedReceiptUrls`' own header says
+  it exists to prevent; or a Remove that clears the columns and leaves the
+  object, which looks finished on screen while the allowance never moves and
+  `photo-reconcile` will never collect it either.
+
+  *Filed by DP Cowork2, 2026-10-07. No `app/src` touched, nothing built. The
+  finding is DP Cowork's, from `e246714`; the five measurements above are this
+  session's and were re-read rather than carried over.*
 
 ## Wave 10 — Copy
 

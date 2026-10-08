@@ -315,6 +315,9 @@ were made more than once.
 
 - **ROADMAP 0.11 slice 5 — `.webp` stays refused at the photo door, and the `expense-receipts` bucket's allowed types are left exactly as they are** — DP Cowork2, 2026-10-07, on the manager's instruction. The bucket accepts `image/webp` and the product cannot mint a `.webp` key, so the door refuses the type rather than signing an upload the isolation guard could not parse. Nothing is changed: no key function learns `webp`, and a live bucket's configuration is a structure change we do not make. What would reverse it is inside.
 
+
+- **The manager presses the visual ones for this run, through frames a session writes into `.manager-shots/`** — Andrew's `MANAGER.md` of 2026-10-07 puts the manager in the chair to verify by looking (§ 7.2: navigate Chrome to localhost:5173, press the buttons, read the console at five widths). **That Chrome cannot reach localhost**, so the looking happens on screenshot FILES a session writes and the manager opens and judges; ROADMAP 9.4 was ticked that way. **Supersedes, for this run only, the "Andrew presses the visual ones himself" convention** recorded in 9.7 and 9.11 — both entries now carry a pointer here and their own history is untouched. What would reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18208,3 +18211,52 @@ that is deliberately not.
 The two live in different directories and are changed by different lanes, which
 is exactly how one of them gets done alone. `tests/photo-key-isolation.test.mjs`
 is where a check for that belongs.
+
+## The manager presses the visual ones for this run, through frames a session writes into `.manager-shots/`
+
+*DP Cowork2, 2026-10-07, recording a change in who does the pressing. It is a
+procedural ruling, not a product one, and it is the kind that has already gone
+wrong here once by being folded into a paragraph without its reason — ROADMAP
+9.7 records exactly that failure about this same convention.*
+
+**WHAT CHANGED.** Andrew's `MANAGER.md` of 2026-10-07 puts the **manager** in
+the seat that verifies by looking. § 7.2, *How to verify*: *"Navigate Chrome to
+`http://localhost:5173`… Press the buttons. Walk the flow. Try what should work
+**and** what should be refused"*, at 1920 / 1440x900 / 768x1024 / 392x844 with
+320 as the narrowest supported, reading the console at each, and **confirming the
+other session is not editing `app/src` while you look.** § 7 is titled *"NEVER
+ACCEPT 'DONE' ON TRUST — and verify while they work."*
+
+**AND THE WAY IT ACTUALLY HAPPENS, WHICH IS THE PART WORTH WRITING DOWN: THAT
+CHROME CANNOT REACH `localhost:5173`.** So the instruction's mechanism is not
+available as written. What replaced it: **a session writes the frames to
+`.manager-shots/<item>/` and the manager opens those files and judges them.**
+`docs/gotchas.md` 99 is the measurement behind it — *verification that exists
+only as a live URL is not transferable* — and it is why visual claims in this run
+ship as FILES rather than as a sentence saying a session looked.
+
+**IT HAS BEEN USED AND IT TICKED A BOX.** ROADMAP **9.4** was accepted on three
+named frames — `320-es`, `day-1440x900-en` and `day-320-es` — reported back
+**by name** by the manager standing in as Andrew's eyes, rather than by a script
+asserting the screen was right. The entry records the press as unrepeatable by
+construction, which is an honest property of a first reading and not a gap.
+
+**WHAT THIS SUPERSEDES, AND ONLY FOR THIS RUN.** ROADMAP 9.7 records the older
+convention in its own words — *"the convention here is that Andrew presses the
+visual ones himself"* — and names 9.11 and 9.4 as the set it applies to; 9.11
+repeats it (*"Andrew presses it himself, 320 first this time, before it goes back
+to `[x]`"*). **Both entries keep that history exactly as written.** A pointer to
+this section was added to each, because the thing that went wrong with this
+convention before was a fold that kept the ruling and dropped its reason, and
+rewriting the old text would be that failure a third time.
+
+**WHAT IT DOES NOT CHANGE.** Publishing, applying a migration and pushing stay
+Andrew's. A manager's press is not Andrew's press for anything he has said he
+wants to see himself; it is the standard for **ticking a visual box inside this
+run**. And the bar is unchanged — the five widths, both languages, the console at
+each, 44px of real hit area — only who holds the mouse.
+
+**HOW TO REVERSE IT.** Andrew says he wants to press them, or his Chrome reaches
+`localhost:5173`. Either one puts § 7.2 back as written and this section becomes
+history; 9.7 and 9.11's own text needs no edit on that day either, which is the
+reason it was left alone.
