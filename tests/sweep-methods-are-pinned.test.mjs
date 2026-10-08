@@ -222,7 +222,14 @@ const DECLARED = {
   // UNCHANGED at 32, re-taken 2026-10-07 at `31f6e32` and again with 4.7 in the tree.
   // Stated rather than left silent: a figure that did not move is evidence only if
   // somebody re-took it, and this one sits between two that both moved today.
-  quoteCriteria: 32,
+  //
+  // 32 -> 33, 2026-10-07, LATER THE SAME SITTING: ROADMAP 9.11e's write-up gave that
+  // item's Done-when zone a filename, so 9.11e ENTERED this population. Before the
+  // block its Done-when named no file at all ("a list names each screen with fixed
+  // furniture and the check that hit-tests it"), and this figure counts only items
+  // whose criteria name one. Moved in the same edit as the prose that moved it, which
+  // is this file's own rule and the third time it has been applied today.
+  quoteCriteria: 33,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -244,7 +251,13 @@ const DECLARED = {
   // So 19 of the 23 predate this sitting and 4 are its own. Written out because the
   // tempting write-up was "my block moved it", and the measurement says that was a
   // sixth of it.
-  quoteFragments: 277,
+  //
+  // 277 -> 279, 2026-10-07, LATER THE SAME SITTING: the same 9.11e block, the same
+  // cause as `quoteCriteria` above -- its Done-when zone now names files and quotes
+  // two multi-word fragments. Both figures moved together because they are two
+  // readings of one population, and a sitting that moved one and not the other would
+  // have left this file red for a reason nobody could reconstruct.
+  quoteFragments: 279,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

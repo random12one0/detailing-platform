@@ -5549,7 +5549,126 @@ the wrong service, and never book a job we cannot reach.
   booking page. The dashboard shell's rail and tab bar, the back office and the job record's pinned bar are fixed furniture on
   other screens, and which checks already ask the question (`pinned-bar.mjs`, `tabbar-clearance.mjs`, `keyboard-walk.mjs`) has
   not been listed. **Done when:** a list names each screen with fixed furniture and the check that hit-tests it, and any screen
-  with none has one or a recorded reason. **Needs a person to say which screens count.**
+  with none has one or a recorded reason. ~~**Needs a person to say which screens count.**~~
+  **ANSWERED 2026-10-07 — the ruling, and the check built on it, are below.**
+
+  **THE OPEN QUESTION IS ANSWERED — THE MANAGER'S RULING, 2026-10-07.** *Every
+  screen that has anything fixed or sticky over the scroll counts* — the booking
+  page's fixed bar, the dashboard rail and phone tab bar, the back office, the job
+  record's pinned bar, and any sticky header or footer. And the method with it:
+  **derive the list from the CSS, do not type it from memory.** The Done-when's
+  last sentence is struck above rather than deleted, because the sentence is what
+  held this item still for a day and the correction is worth seeing.
+
+  **THE LIST EXISTS AND IT IS NOT A LIST ANY MORE — it is a check that re-derives
+  itself every run.** `tests/fixed-furniture-is-hit-tested.test.mjs`,
+  credential-free, no dev server, no browser, nothing written to disk, **6 passed
+  0 failed**. Re-take `node --test tests/fixed-furniture-is-hit-tested.test.mjs`.
+  It reads every `position: fixed` and `position: sticky` rule out of the four
+  stylesheets, so **a bar written tomorrow is in the population tomorrow** rather
+  than when somebody remembers this item.
+
+  **WHAT IT FOUND, all at `715c095`, re-take as above.**
+
+  | | |
+  |---|---|
+  | fixed/sticky rules in the four stylesheets | **25** |
+  | furniture (can take or block a press) | **14**, on 7 screens |
+  | excluded by a stated rule | **11** |
+  | hit-tested | **3 of 14** — `.bk-bar`, `.jobbar`, `.tabbar` |
+  | NOT hit-tested | **11**, each named |
+  | of those, on a screen NO hit-tester visits at all | **7** |
+
+  **THE THREE THAT ARE COVERED, and which check:** `.bk-bar` on the public booking
+  page by `bk-bar-clearance.mjs`; `.jobbar` on the job record by `pinned-bar.mjs`;
+  `.tabbar` on the dashboard by `tabbar-clearance.mjs` **and** `keyboard-walk.mjs`.
+  **Derived, not asserted:** coverage means one of the four hit-testing scripts
+  *names the selector*, and the narrowing is the load-bearing part — `.tabbar` is
+  named by **30** scripts (`grep -rl '\.tabbar' scripts/*.mjs | wc -l` at
+  `715c095`) and almost all of them only wait on it to know the dashboard has
+  loaded. **Naming a bar is not probing it.**
+
+  **THE ELEVEN WITH NO HIT-TEST, AND THEY ARE TWO DIFFERENT PROBLEMS.** A row that
+  reads *"none"* can mean a generic walker goes to that screen and simply never
+  names the bar, or that **nothing goes to that screen at all**, and only the
+  second needs a new instrument. `keyboard-walk.mjs` focuses every control on the
+  six screens it reaches through the tab bar's own buttons and asks
+  `elementFromPoint` whether the focused thing is really on top — so it would
+  catch a control under any fixed thing that **was on screen at the time**,
+  without ever naming it.
+
+  | furniture | screen | what it needs |
+  |---|---|---|
+  | `.topbar` | the dashboard shell, every `/app` screen | **probably already covered in effect** by `keyboard-walk`'s generic probe. What is missing is the proof: the walk does not name `.topbar`, so nothing says a control was ever found under it. Cheapest honest fix is a line in `keyboard-walk`'s receipt naming which fixed elements were on screen at each stop |
+  | `.split > .col-2` | Today, Calendar, Money, every settings host | same — generic reach, no named probe. The second column is sticky and tall, so the question is real |
+  | `.impbar` | the dashboard while an admin is impersonating | `keyboard-walk` reaches the screen and **never in this state**: it signs in as the demo tenant, not impersonating. Needs a walk that enters impersonation first |
+  | `.tourcard` | the guided tour, over whichever dashboard screen it is on | same shape — reached, never in this state. The tour has its own walkers (`tour-runs.mjs`, `tour-caption.mjs`); the hit-test question has never been asked of the card |
+  | `.pa-top` | the back office at `/admin` | **nothing visits this screen with a hit-test.** Needs the `tabbar-clearance` pattern pointed at `/admin` |
+  | `.pa-x` | the back office, a panel's own close control | same screen, same gap. It is `sticky` and floated right, so it can come to rest over a panel's own content |
+  | `.pa-load` | the back office — a 3px progress strip pinned over the top edge | same screen, same gap, **and it is the sharpest small finding here: `z-index: 50` against `.pa-top`'s 30, so the 3px strip outranks the bar beneath it** (`admin/admin.css:467` against `:57`). Three pixels, with pointer events live |
+  | `.ld .nav` | every marketing page — landing, pricing, legal | **nothing visits the marketing surface with a hit-test.** Fixed at `z-index: 60`, over every page a stranger sees first |
+  | `.ld .navmenu.on` | every marketing page, menu open | same screen, and the menu is the one that covers content on purpose |
+  | `.ld .stage` | the landing page's pinned scroll stage | same screen. `position: sticky; top: 0; height: 100vh` — a whole viewport that stays |
+  | `.intake:has(> .livesite) > .livesite` | the site intake screen's live preview | nothing visits it. Sticky preview beside a form somebody types into |
+
+  **AND THE ELEVEN EXCLUSIONS ARE A RULE, NOT A JUDGEMENT, and every one is
+  printed by name on every run so none of them is mistaken for a covered
+  surface.** Two reasons, both stated in the check: **`pointer-events: none`** —
+  it is painted over the page and passes every press straight through
+  (`.tabscrim`, `.app-dots`, `.spotlight`, `.bk::before`, `.bk::after`,
+  `.ld .ground`, the two shell layers); and **covers the viewport** — `inset: 0`
+  with a high stacking order, a modal surface that covers everything on purpose
+  (`.photo-view`, `.sheet-backdrop`, `.tourblock`, `.pa-open`). **For those four
+  the hit-test question is the wrong one** — whether they trap focus is the right
+  one, and that is a different check.
+
+  **`.pa-load` IS WHY THE EXCLUSION RULE WAS NOT WIDENED.** It arrived as a
+  failure: fixed, `z-index: 50`, pointer events live, and no declared screen. The
+  tempting fix was a third exclusion reason — *"it is only three pixels"* — which
+  is this repo's oldest mistake in a new place: widening a rule until the red goes
+  away. It is on the list instead.
+
+  **BROKEN ON PURPOSE, THREE WAYS, ALL CAUGHT**, in memory, nothing on disk, and
+  each through the same `rulesFrom()` and `classify()` the real run uses
+  (`docs/gotchas.md` 95).
+
+  | sabotage | result |
+  |---|---|
+  | `FURNITURE_BREAK=new-furniture` — a fixed strip appended to `theme.css` | 4/2; § 2 and § 3 fail and `.sabotage-strip` is named in the table with `none` |
+  | `FURNITURE_BREAK=uncover` — `.bk-bar` hidden from the coverage read | 5/1; § 3 fails and `.bk-bar` flips to `none` |
+  | `FURNITURE_CANARY=off` | 5/1; § 5 fails on purpose, so a run cannot be green with the canary off |
+
+  **WHY THE GAPS ARE A DECLARED SET AND NOT ELEVEN FAILURES.** A check that failed
+  on each would be **red every day**, which this repo has rejected by name twice
+  (`every-open-item-is-citable` on a figure that moves every commit,
+  `docs/gotchas.md` 95). So `NO_HIT_TEST` is declared by name — the `NO_COMMIT_YET`
+  pattern from `tests/sweep-methods-are-pinned.test.mjs` — and the assertion is an
+  **equality**, per `docs/gotchas.md` 98, because it states how much debt exists.
+  **A piece of fixed furniture arriving uncovered and undeclared fails by name.**
+  One leaving is ordinary progress: take it off the list in the same edit as the
+  hit-test that covers it.
+
+  **WHAT THIS CHECK CANNOT SEE, in its own words and in this entry's:** it reads
+  text, so coverage means *a check exists that would ask the question*, never *the
+  question was asked today*. A walk that never encountered a bar proves nothing
+  about it, and nothing here can tell those apart.
+
+  **THE DONE-WHEN, CLAUSE BY CLAUSE, AND IT IS NOT ALL MET — so this is NOT
+  ticked.**
+  * *"a list names each screen with fixed furniture and the check that hit-tests
+    it"* — **MET**, and better than asked: it is re-derived from the CSS on every
+    run rather than written down once.
+  * *"any screen with none has one or a recorded reason"* — **NOT MET for the
+    seven unvisited ones.** What each one NEEDS is recorded above, which is a plan
+    and not a reason. A *reason* would be a measured statement that the question
+    does not arise there — for example that no control on the marketing pages can
+    come to rest under `.ld .nav` — and nothing here has established that for any
+    of the seven.
+  * **`scripts/` was frozen for this session**, so no hit-test was built and none
+    was edited. That is why the table above says what each screen needs instead.
+
+  *Lane B, 2026-10-07. Nothing deployed, pushed or applied; no credential loaded;
+  no receipt written; `scripts/` read-only throughout.*
 
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
