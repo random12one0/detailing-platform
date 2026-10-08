@@ -90,8 +90,17 @@ export default function ConfirmTap({
     return (
       <div className="stack" ref={answer} style={{ gap: 8, ...style }}>
         <p className="quiet" style={{ margin: 0, outline: "none" }} role="alert" tabIndex={-1} ref={said}>{question}</p>
-        <div className="row" style={{ gap: 8 }}>
-          <button className={confirmClassName} disabled={disabled}
+        {/* **THE ANSWERS STACK RATHER THAN SQUEEZE — 2026-10-07.** `.row` is a plain
+            flex row with no wrap, so an answer whose words are longer than the space
+            SHRINKS and breaks its own text: on the platform admin screen at 392,
+            "Yes, suspend them" came out as three lines of red inside a pill half the
+            width of "Not yet" beside it, which reads as a broken control rather than a
+            question. `nowrap` on each answer stops the squeeze and `wrap` on the row
+            gives it somewhere to go, so a pair that no longer fits side by side drops
+            onto two lines at its own natural width. **Nothing stretches**: the job
+            record's own answers are short, still fit, and are unchanged at every width. */}
+        <div className="row wrap" style={{ gap: 8 }}>
+          <button className={confirmClassName} disabled={disabled} style={{ whiteSpace: "nowrap" }}
             onClick={() => { setAsking(false); onConfirm(); }}>
             {confirmLabel}
           </button>
@@ -103,7 +112,7 @@ export default function ConfirmTap({
               into Spanish would be the one Spanish word on Andrew's back office. */}
           {/* AND BACK AGAIN ON "Not yet" — the button it returns to is the one that
               asked, so the keyboard is where it started and not at the top of the page. */}
-          <button className="btn ghost" disabled={disabled}
+          <button className="btn ghost" disabled={disabled} style={{ whiteSpace: "nowrap" }}
             onClick={() => { setAsking(false); requestAnimationFrame(() => opener.current?.focus()); }}>
             {cancelLabel ?? t("Not yet")}
           </button>
