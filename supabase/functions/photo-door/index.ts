@@ -4,6 +4,9 @@
 // real database and the real R2.
 //
 // Input / output: the contract at the top of `app/src/lib/photo-door.js`.
+// Since 0.11 slice 5 the same door also signs for `expense-receipts`, asked
+// for with `store: "receipt"`; the differences are the STORES table in
+// `_shared/photoDoor.ts` and what ROADMAP 0.11 tells the app half to send.
 //
 // **verify_jwt STAYS ON** — this is not in `PUBLIC_FUNCTIONS` in
 // `scripts/deploy-functions.mjs` and must not be: every action needs the
@@ -74,6 +77,50 @@ const deps = (): PhotoDeps => {
       const { error } = await supabase.from("job_photos").delete().eq("id", photoId).eq("business_id", businessId);
       if (error) throw error;
     },
+
+    // ---------------------------------------------------- receipts, slice 5
+    // EVERY ONE OF THESE FILTERS ON `business_id` AS WELL AS `id`. The service
+    // role bypasses RLS, so the isolation the storage policies give a browser
+    // has to be written out here; a query by id alone would read and write
+    // another tenant's expense with no error anywhere.
+    async expenseBelongs(businessId, expenseId) {
+      const { data } = await supabase.from("expenses").select("id")
+        .eq("id", expenseId).eq("business_id", businessId).maybeSingle();
+      return !!data;
+    },
+    async getReceipt(businessId, expenseId) {
+      const { data, error } = await supabase.from("expenses")
+        .select("id, business_id, receipt_path, receipt_bytes, receipt_width, receipt_height, receipt_uploaded_at")
+        .eq("id", expenseId).eq("business_id", businessId).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    async saveReceipt(row) {
+      // `.eq("business_id", ...)` again on the WRITE, not only the read above:
+      // the read and the write are two round trips and the guard belongs on
+      // the one that changes something.
+      const { data, error } = await supabase.from("expenses")
+        .update({
+          receipt_path: row.receipt_path, receipt_bytes: row.receipt_bytes,
+          receipt_width: row.receipt_width, receipt_height: row.receipt_height,
+          receipt_uploaded_at: row.receipt_uploaded_at,
+        })
+        .eq("id", row.id).eq("business_id", row.business_id)
+        .select("id, business_id, receipt_path, receipt_bytes, receipt_width, receipt_height, receipt_uploaded_at")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    async clearReceipt(businessId, expenseId) {
+      const { error } = await supabase.from("expenses")
+        .update({
+          receipt_path: null, receipt_bytes: null, receipt_width: null,
+          receipt_height: null, receipt_uploaded_at: null,
+        })
+        .eq("id", expenseId).eq("business_id", businessId);
+      if (error) throw error;
+    },
+
     r2: config ? makeR2(config) : null,
     log: (...a) => console.error(...a),
   };

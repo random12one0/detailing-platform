@@ -416,6 +416,110 @@ and how the wait ends.
   sign-in check off, which the nightly `net.http_post` needs. `FOR-ANDREW.md` Part 2b step 5 is updated to say so. **Still true:** the first night's call is the proof that the gateway lets it in, and the
   heartbeat read in that part of `FOR-ANDREW.md` is how it is seen; and `scripts/edge-tenant-replay.mjs` will meet this function on its next run (not run).
 
+  ***SLICE 5 SERVER HALF BUILT 2026-10-07 (DP Cowork2, Lane B): THE DOOR SIGNS FOR RECEIPTS. Code and tests only. NOTHING DEPLOYED,
+  NOTHING APPLIED, NO DDL OR WRITE AGAINST THE LIVE DATABASE, NO R2 CALL, NO APP/SRC. The box stays `[ ]`: slice 4 remains, the app
+  half of this slice remains, and the publish.***
+
+  **THE FAULT DP Cowork FOUND IS REAL AND IS NOW GONE.** `_shared/photoDoor.ts` hard-coded one bucket and read and wrote
+  `job-photos` only. Receipts live in a different bucket, on different columns, with no booking — so the door could not sign for one
+  at all.
+
+  **ONE DOOR, TWO STORES, AND THE DIFFERENCES ARE DATA.** A `STORES` table in `_shared/photoDoor.ts` rather than a second file:
+  `_shared/db.ts`'s own header records what the alternative costs — *"a duplicated block is how one of the two copies keeps the old
+  behaviour when somebody fixes the other"* — and the thing that would have been duplicated here is **the tenant isolation**. The
+  protocol is identical: who are you, are you under the rate limit, is the parent row yours, have you room.
+
+  | | job photos | receipts |
+  |---|---|---|
+  | bucket | `job-photos` | `expense-receipts` |
+  | ceiling | 10 MB | **5 MB**, the bucket's own `file_size_limit` |
+  | parent | a BOOKING | an EXPENSE |
+  | the row | INSERTS into `job_photos` | **UPDATES five columns** on the `expenses` row that is already there |
+  | kind | before / after / damage | none |
+  | allowance | ← **the same one**, `job_photo_budget()` sums both stores | |
+
+  **WHAT IS NEW IN THE REPO:** `_shared/photoDoor.ts` gains `STORES`, `RECEIPT_MAX_BYTES`, a `ReceiptRow` type, four optional deps
+  (`expenseBelongs`, `getReceipt`, `saveReceipt`, `clearReceipt`) and a receipts branch; `photo-door/index.ts` wires those four,
+  **each filtering on `business_id` as well as `id`, because the service role bypasses RLS and the isolation the storage policies
+  give a browser has to be written out by hand here**; `tests/photo-door-receipts.test.mjs` is new.
+
+  **PROVED. `node --test tests/photo-door-receipts.test.mjs`: 13 pass, 8 sabotages all caught.** Credential-free, no network, no
+  database, no R2, no Deno — Node strips the types and runs the module against an in-memory world. The isolation on all four
+  actions (start, finish, remove and urls, each against a real second tenant), the key minted from the MEMBER so a forged body
+  cannot steer it, the 5 MB ceiling **asserted by the same 6 MB request being refused as a receipt and accepted as a job photo** (so
+  the ceiling is provably read off the profile and not shared), the allowance checked at start and again at finish against the size
+  R2 states, failing closed when it cannot be read, one receipt per expense, the permission asymmetry, columns-before-object on
+  remove, and no database message reaching a reply or a log.
+  **And the job-photos half is untouched: `tests/photo-door-server.test.mjs` is still 20 pass with every sabotage biting**; all four
+  photo suites together are **64 pass, 0 fail**.
+
+  **THREE THINGS THE BUILD TURNED UP, written down because each is the sort that rots quietly:**
+  * **A canary stopped biting and it was my doing.** The receipt branch copied the job store's local names, so
+    `underClaimStored`'s sabotage — which deletes one line of text — found two and refused to run. The locals are `rb` / `rBudget`
+    / `rBytes` / `rKey` on purpose and there is a comment saying why. `docs/gotchas.md` 95 is this fault arriving from the other
+    direction: not a canary aimed at a changed assertion, but an assertion that grew a twin.
+  * **The isolation on an expense is DOUBLED**, so a sabotage that removes one half removes nothing: `expenseBelongs` asks, and
+    `getReceipt` answers null for another tenant's expense anyway. Defence in depth is right; the canary takes both halves, and says so.
+  * **WEBP IS ACCEPTED BY THE BUCKET AND CANNOT BE USED.** `expense-receipts` lists `image/webp` in `allowed_mime_types`
+    (`20260921020000_a_receipt_is_not_a_job_photo.sql`), but `extForType` in `app/src/lib/photo-rules.js` returns only `jpg` or
+    `png` and `parseObjectKey` in `_shared/photoKey.ts` matches only those two. **Nothing in this product can mint a `.webp` key**,
+    so the door deliberately refuses the type rather than signing an upload whose key the isolation guard would then fail to parse.
+    Either drop it from the bucket or teach the two key functions; not decided here.
+
+  ### THE APP HALF, EXACTLY — FOR DP COWORK, AS ONE STEP
+
+  **File:** `app/src/lib/receipts.js`. Its three functions talk to `supabase.storage` directly today; each becomes a call to the
+  door, the same way `app/src/lib/photos.js` was re-pointed in slice 1. **`app/src/lib/photo-door.js` already holds the contract and
+  the transport** — add `store: "receipt"` to the body and reuse it; do not write a second client.
+
+  **The app mints `file_id` with `crypto.randomUUID()` and NEVER builds the path.** The server mints the key and returns it; a path
+  built in the browser is the one thing the isolation cannot check.
+
+  ```
+  start    { action:"start",  store:"receipt", business_id, expense_id, file_id,
+             content_type:"image/jpeg"|"image/png", claimed_bytes }
+           -> 200 { upload_url, key, expires_in }     then PUT the blob to upload_url
+                                                      with the SAME Content-Type
+  finish   { action:"finish", store:"receipt", business_id, expense_id, file_id, width?, height? }
+           -> 200 { expense }      the five receipt columns, as stored
+  urls     { action:"urls",   store:"receipt", business_id, keys:[...1..100] }
+           -> 200 { urls, expires_in }    keys not owned by the caller are simply absent
+  remove   { action:"remove", store:"receipt", business_id, expense_id }
+           -> 200 { removed:true }
+  ```
+
+  **Every refusal carries a sentence meant for a detailer; show it as the server wrote it and do not re-word it.**
+
+  | | when |
+  |---|---|
+  | **400** | a field is the wrong shape, or `store` is neither `job` nor `receipt` |
+  | **401** | not a member of that business |
+  | **403** | *"Removing a receipt needs the settings permission."* |
+  | **404** | *"Expense not found"* — also what another tenant's expense answers — or *"Receipt not found"* on remove |
+  | **409** | *"That expense already has a receipt. Remove it first."*; *"The receipt never arrived…"*; or the storage-full sentence |
+  | **413** | *"That receipt is larger than 5.0 MB."* |
+  | **422** | *"The stored receipt has no usable size, so it was not saved."* |
+  | **429** | *"Too many photo requests in the last hour…"* |
+  | **503** | *"Photo storage is not set up on the server yet."* or *"Could not check your photo storage…"* |
+
+  **FOUR THINGS THE APP HALF MUST DO AND IS EASY NOT TO:**
+  1. **Replacing a receipt is remove THEN add.** The door refuses a second one with 409 rather than swapping it, exactly so the old
+     object cannot be orphaned — which is what `removeReceipt`'s own comment already promises.
+  2. **A `finish` that is retried after a lost reply returns the same expense, not an error.** Retry it.
+  3. **Shrink before declaring `claimed_bytes`**, and send the size of the blob actually being PUT: the door checks the claim at
+     start and the real size at finish, and an under-claim is caught there with the object deleted.
+  4. **`signedReceiptUrl` becomes the `urls` action**, which takes up to 100 keys at once — a list of expenses should ask once.
+
+  **AND THE ORDER, WHICH IS THE SAME TRAP SLICE 1 HIT:** the app patch must not ship before `photo-door` is published, or every
+  receipt action answers *"Photo storage is not set up on the server yet."* The CORS rule Andrew needs on `job-photos` is needed on
+  **`expense-receipts`** too, with the same origins and the same `Content-Type` header, or the browser blocks every PUT while the
+  function works perfectly.
+
+  **NOT PROVEN, said plainly:** that R2 accepts these signatures for this bucket; that the `expenses` update lands against the real
+  database; that the TypeScript compiles (no compiler here, node only strips types); anything about the live project. The first real
+  PUT is the proof and it is Andrew's.
+  **SLICES LEFT:** 4, `business-media` (needs a public R2 address); **5's app half** (`app/src/lib/receipts.js`, contract above).
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -16914,6 +17018,79 @@ the dashboard or back office at phone width at all.
   *Filed by DP Cowork2, 2026-10-07, not fixed; `app/src` is DP Cowork's. The
   observation ran on an isolated worktree on :5181 and :5182 so that lane's
   editing on :5173 could not move it.*
+
+- [ ] **9.18 — The back office's System health tab cannot read the email log,
+  and the error it shows is about a parameter it never sent.** Found 2026-10-07
+  while sweeping the back office for 9.11e: **HTTP 400 from
+  `/functions/v1/platform-admin` at every width**, 9 console lines across five
+  widths, and the only console noise in that run. **It is not a bug in this
+  checkout. It is a publish gap wearing a code fault's clothes**, which is why
+  it is filed rather than fixed.
+
+  **WHAT HAPPENS.** `AdminPage.jsx:2172` renders `<EmailList />` inside
+  `TabPipes`, and `AdminPage.jsx:1981` asks `{action:"email_list", limit:100}`
+  on mount. The answer is **`400 {"error":"business_id is required"}`** —
+  measured 2026-10-07 by calling the live function directly with a throwaway
+  platform admin's token, not inferred from the browser. The screen does what it
+  should with that: it prints *"Could not read the email log: business_id is
+  required."* **On a screen that has no business on it, and from a call that
+  never mentioned one.**
+
+  **WHY, AND THE DEDUCTION IS FROM THE ANSWER ITSELF.** In this checkout
+  `email_list` is handled at `platform-admin/index.ts:181` and returns
+  `emailList()`'s own messages — it **cannot** produce the string
+  `"business_id is required"`, which exists only at `:634` (the `get` guard) and
+  `:851`. So the running bundle has no `email_list` branch and the request falls
+  through to a later guard. `email_list` entered the function in **`dd33fbc`,
+  2026-10-06, *"ROADMAP 3.1 server half"*, which is also the last commit to
+  touch it** — and it was never published.
+
+  **Confirmed against the deployed inventory rather than assumed:**
+  `receipts/deployed-inventory.json`, **another lane's run**, finished
+  2026-10-08T02:08Z at `8fcb154`, names
+  *`platform-admin`: 6 file(s) differ — `index.ts` | `_shared/email.ts` |
+  `_shared/emailTemplates.ts` | `_shared/platformNet.js` |
+  **`_shared/emailList.js`** | `_shared/strings/es.ts` (newest commit is 15.1d
+  after the deploy)*. **The module that implements this action is not on the
+  server at all.** *(That receipt was READ and deliberately not re-run, because
+  it was already dirty in the working tree — `docs/shared-resources.md` § 7.)*
+
+  **WHY IT MATTERS, and the publish gap is only half of it.** The back office's
+  email log is the one place anybody can see what this product actually sent —
+  that is what ROADMAP 3.1 built it for — and it has shown an error instead since
+  the day the screen started asking. **The sharper half is the sentence.** A
+  reader is told a parameter is missing. It is not missing; it was never asked
+  for. **An unshipped action silently inherits a different action's refusal**,
+  and the message sends whoever reads it at the wrong thing entirely — which is
+  this repo's recurring shape, a failure that reads as a different, plausible
+  failure. **The next action that ships ahead of its server half will do exactly
+  the same**, and nothing anywhere will say so.
+
+  **NOT A CODE CHANGE, AND NOBODY SHOULD MAKE ONE FOR THE FIRST HALF.**
+  Publishing is Andrew's (CLAUDE.md, and `FOR-ANDREW.md` carries the shipping
+  order). A session that "fixes" this by editing `app/src` or the function would
+  be repairing something that is already correct in the repository.
+
+  **Done when:** **(a)** `platform-admin` is deployed from this checkout and
+  `node scripts/deployed-inventory.mjs` stops naming it; **(b)** an
+  authenticated `{action:"email_list", limit:100}` answers **200 with a `rows`
+  array** — pressable with a throwaway admin's token the way this was found;
+  **(c)** the System health tab draws the list with **no 400 in the console at
+  any width**; and **(d)** — the part that outlives the deploy — **an action
+  the function does not handle answers `"Unknown action"`, never another
+  action's refusal.** Today an unhandled action falls through the handler chain
+  until some later guard happens to reject it, and a check should fail when a
+  known action name produces a message naming a parameter that action does not
+  take.
+
+  **(d) is the one worth building**, because (a) to (c) stop being true of
+  nothing the moment Andrew publishes — undeployed as of 2026-10-07, per the
+  receipt named above — and the fall-through will still be there waiting for the
+  next action.
+
+  *Filed by DP Cowork2, 2026-10-07, not fixed. Found by direct call with a
+  throwaway platform admin created and dropped for the probe; `platform_admins`
+  verified back to its two declared rows afterwards.*
 
 ## Wave 10 — Copy
 

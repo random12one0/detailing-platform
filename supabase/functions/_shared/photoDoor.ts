@@ -43,10 +43,14 @@
 import { json, preflight } from "./http.ts";
 import { businessOwnsKey } from "./photoKey.ts";
 
-/** The bucket this door signs for. The other two stay on Supabase in slice 1. */
+/** The bucket this door signs for by default. `business-media` is slice 4. */
 export const BUCKET = "job-photos";
-/** The bucket's own `file_size_limit`: the ceiling, not the expectation. */
+/** `job-photos`' own `file_size_limit`: the ceiling, not the expectation. */
 export const MAX_BYTES = 10 * 1024 * 1024;
+/** `expense-receipts`' limit. 5 MB rather than 10: a receipt is a small flat
+ *  document and the client resizes before upload
+ *  (`20260921020000_a_receipt_is_not_a_job_photo.sql`). */
+export const RECEIPT_MAX_BYTES = 5 * 1024 * 1024;
 /** How long a PUT URL lives: long enough for a slow driveway upload. */
 export const PUT_SECONDS = 600;
 /** How long a GET URL lives. Matches `SIGNED_FOR` in `app/src/lib/photos.js`. */
@@ -55,6 +59,77 @@ export const GET_SECONDS = 3600;
 export const URL_BATCH = 100;
 
 const KINDS = ["before", "after", "damage"];
+
+// ---------------------------------------------------------------------------
+// TWO STORES, ONE DOOR — ROADMAP 0.11 slice 5
+// ---------------------------------------------------------------------------
+// **The protocol is identical and the differences are data.** Both stores ask
+// the same four questions in the same order: who are you, are you under the
+// rate limit, is the parent row yours, have you room. Both mint the key server
+// side as `businessId/ownerId/id.ext` so the first folder — the only thing the
+// bucket policy checks — can never come from the browser. Both fail closed on
+// an unreadable budget, and both count against the SAME allowance, because
+// `job_photo_budget()` was replaced to sum the two stores on the day the
+// receipts bucket was created.
+//
+// **So this is a table, not a second file.** `_shared/db.ts`'s own header
+// records what the alternative costs: *"a duplicated block is how one of the
+// two copies keeps the old behaviour when somebody fixes the other"*, and the
+// thing that would have been duplicated here is the tenant isolation.
+//
+// **WHAT ACTUALLY DIFFERS, and each line is a rule somebody wrote down:**
+//
+//   bucket      `job-photos` against `expense-receipts`.
+//   ceiling     10 MB against 5 MB, each the bucket's own `file_size_limit`.
+//   parent      a BOOKING against an EXPENSE. Both must belong to the caller's
+//               business or the answer is 404, the same as a uuid that does
+//               not exist.
+//   the row     a job photo INSERTS a row in `job_photos`; a receipt UPDATES
+//               five columns on the `expenses` row that already exists. **That
+//               is why a receipt has no row to "already be saved" — the expense
+//               is there either way, and what makes it taken is `receipt_path`
+//               being set.**
+//   kind        before/after/damage for a job photo; a receipt has none.
+//   audience    a job photo is customer-facing and is in the photo export; a
+//               receipt is the detailer's own paper and must never be. The
+//               migration's header is emphatic about it and it is the reason
+//               the two are different tables at all.
+//
+// **WEBP IS DELIBERATELY NOT ACCEPTED, and that is a finding rather than an
+// omission.** The receipts bucket's `allowed_mime_types` lists
+// `image/webp`, but `extForType` in `app/src/lib/photo-rules.js` returns only
+// `jpg` or `png`, and `parseObjectKey` in `_shared/photoKey.ts` matches only
+// those two. **Nothing in this product can mint a `.webp` key**, so accepting
+// the type here would sign an upload whose key the isolation guard then refuses
+// to parse. Written up in ROADMAP 0.11 rather than quietly supported.
+
+/** Which store a request is for. Absent means `job`: the app half built in
+ *  slice 1 sends no `store` field and must keep working unchanged. */
+export type StoreName = "job" | "receipt";
+
+export interface StoreProfile {
+  bucket: string;
+  maxBytes: number;
+  /** The request field naming the row this object hangs off. */
+  parentField: string;
+  /** The request field naming the object itself. */
+  idField: string;
+  /** `null` when the store has no kinds. */
+  kinds: string[] | null;
+  /** What the over-size sentence calls the thing, in words a detailer uses. */
+  noun: string;
+}
+
+export const STORES: Record<StoreName, StoreProfile> = {
+  job: {
+    bucket: BUCKET, maxBytes: MAX_BYTES,
+    parentField: "booking_id", idField: "photo_id", kinds: KINDS, noun: "photo",
+  },
+  receipt: {
+    bucket: "expense-receipts", maxBytes: RECEIPT_MAX_BYTES,
+    parentField: "expense_id", idField: "file_id", kinds: null, noun: "receipt",
+  },
+};
 // `shrink()` re-encodes to JPEG and only PNG survives as PNG, and
 // `parseObjectKey` knows exactly these two extensions.
 const EXT: Record<string, "jpg" | "png"> = { "image/jpeg": "jpg", "image/png": "png" };
@@ -67,6 +142,15 @@ export interface PhotoRow {
   created_by?: string | null; created_at?: string;
 }
 export interface Budget { used_bytes: number; cap_bytes: number }
+/** The five columns `20260921020000_a_receipt_is_not_a_job_photo.sql` added to
+ *  `expenses`. There is no receipts TABLE: one receipt per expense, as columns,
+ *  because a child table would buy many-per-expense nobody asked for. */
+export interface ReceiptRow {
+  id: string; business_id: string;
+  receipt_path: string | null; receipt_bytes: number | null;
+  receipt_width: number | null; receipt_height: number | null;
+  receipt_uploaded_at?: string | null;
+}
 export interface PhotoStore {
   putUrl(bucket: string, key: string, contentType: string, expires: number): Promise<string>;
   getUrl(bucket: string, key: string, expires: number): Promise<string>;
@@ -87,6 +171,23 @@ export interface PhotoDeps {
    *  that is there instead of throwing. */
   insertPhoto(row: PhotoRow): Promise<PhotoRow>;
   deletePhoto(businessId: string, photoId: string): Promise<void>;
+
+  // ---------------------------------------------------------------- receipts
+  // ROADMAP 0.11 slice 5. OPTIONAL on purpose: a caller that wired only the
+  // job store keeps working, and asking this door for the receipt store
+  // without them answers in words rather than throwing from somewhere deep.
+  // `photo-door/index.ts` wires all four.
+  /** Is this expense this business's? Another tenant's uuid must answer false,
+   *  so the door can 404 it exactly like one that does not exist. */
+  expenseBelongs?(businessId: string, expenseId: string): Promise<boolean>;
+  /** The expense's five receipt columns, or `null` if the expense is not this
+   *  business's. A row whose `receipt_path` is null HAS no receipt. */
+  getReceipt?(businessId: string, expenseId: string): Promise<ReceiptRow | null>;
+  /** Writes the five columns. Returns the row as stored. */
+  saveReceipt?(row: ReceiptRow): Promise<ReceiptRow>;
+  /** Sets the five columns back to null. */
+  clearReceipt?(businessId: string, expenseId: string): Promise<void>;
+
   /** `null` when the R2 credentials are not configured. */
   r2: PhotoStore | null;
   log(...args: unknown[]): void;
@@ -125,6 +226,23 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
     return bad("Unknown action");
   }
 
+  // WHICH STORE. Absent is `job`, so slice 1's app half — which sends no
+  // `store` field — keeps working byte for byte. An unknown name is refused
+  // rather than defaulted: defaulting would sign a job-photo URL for somebody
+  // who asked for something else and thought they got it.
+  const storeName = body.store === undefined ? "job" : body.store;
+  if (typeof storeName !== "string" || !(storeName in STORES)) {
+    return bad(`store must be ${Object.keys(STORES).join(" or ")}.`);
+  }
+  const store = STORES[storeName as StoreName];
+  const isReceipt = storeName === "receipt";
+  // The receipt store needs four extra deps. Saying so here beats throwing
+  // from inside a handler, and it is the same shape as the missing-R2 refusal
+  // below: a thing that is not wired up says so in words.
+  if (isReceipt && !(deps.expenseBelongs && deps.getReceipt && deps.saveReceipt && deps.clearReceipt)) {
+    return bad("Receipt storage is not set up on the server yet.", 503);
+  }
+
   // WHO — the first question. An explicit business, because "the only one the
   // user belongs to" is a guess and this door signs for exactly one tenant.
   const businessId = body.business_id;
@@ -156,14 +274,34 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
       // absent from the answer, which also tells a prober nothing.
       const urls: Record<string, string> = {};
       for (const k of new Set(keys)) {
-        if (businessOwnsKey(member.businessId, k)) urls[k as string] = await r2.getUrl(BUCKET, k as string, GET_SECONDS);
+        if (businessOwnsKey(member.businessId, k)) urls[k as string] = await r2.getUrl(store.bucket, k as string, GET_SECONDS);
       }
       return json({ urls, expires_in: GET_SECONDS });
     }
 
     // ----------------------------------------------------------- remove
     if (action === "remove") {
-      if (!deps.can(member, "settings")) return bad("Removing a photo needs the settings permission.", 403);
+      // THE SAME ASYMMETRY ON BOTH STORES, and the migration gives the sharper
+      // reason for receipts: a receipt is the evidence behind a number in the
+      // accounts, so anyone may attach one and removing it is a settings act.
+      if (!deps.can(member, "settings")) return bad(`Removing a ${store.noun} needs the settings permission.`, 403);
+
+      if (isReceipt) {
+        const expenseId = body.expense_id;
+        if (typeof expenseId !== "string" || !UUID.test(expenseId)) return bad("expense_id is not valid.");
+        const row = await deps.getReceipt!(member.businessId, expenseId);
+        // An expense that is not this business's reads as null, so another
+        // tenant's uuid 404s exactly like one that does not exist.
+        if (!row || !row.receipt_path) return bad("Receipt not found", 404);
+        // COLUMNS FIRST, then the object — the same order and the same reason
+        // as the job store: the other way can leave a path pointing at nothing,
+        // which is a broken image on an expense for ever.
+        await deps.clearReceipt!(member.businessId, expenseId);
+        try { await r2.del(store.bucket, row.receipt_path); }
+        catch { deps.log("photo-door: receipt object not removed after its columns were", expenseId); }
+        return json({ removed: true });
+      }
+
       const photoId = body.photo_id;
       if (typeof photoId !== "string" || !UUID.test(photoId)) return bad("photo_id is not valid.");
       const row = await deps.getPhoto(member.businessId, photoId);
@@ -172,9 +310,123 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
       // nothing, which is a broken image on a job record for ever; this one can
       // at worst leave bytes, which the reconcile counts.
       await deps.deletePhoto(member.businessId, photoId);
-      try { await r2.del(BUCKET, row.path); }
+      try { await r2.del(store.bucket, row.path); }
       catch { deps.log("photo-door: object not removed after its row was", row.id); }
       return json({ removed: true });
+    }
+
+    // ------------------------------------- RECEIPTS: start and finish
+    // Kept as its own block rather than threaded through the job store's,
+    // because the two differ in the one place that matters: a job photo
+    // INSERTS a row and a receipt UPDATES an expense that is already there.
+    // Threading that through one body would mean a flag read in four places,
+    // and a flag read in four places is three chances to read it wrong.
+    // **THE BUDGET LOCALS HERE ARE `rb` / `rBudget` AND MUST STAY DIFFERENT
+    // FROM THE JOB STORE'S `b` / `budget`.** `tests/photo-door-server.test.mjs`
+    // sabotages the job store by deleting one line of its text, and a line
+    // that appears twice is not a line it can delete: the first version of
+    // this branch copied the names and turned that suite's `underClaimStored`
+    // canary into "the text to sabotage is not unique". `docs/gotchas.md` 95
+    // is about a canary that stops biting; this is the same fault arriving
+    // from the other direction, and renaming is the whole fix.
+    if (isReceipt) {
+      const expenseId = body.expense_id;
+      const fileId = body.file_id;
+      if (typeof expenseId !== "string" || !UUID.test(expenseId)) return bad("expense_id is not valid.");
+      if (typeof fileId !== "string" || !UUID.test(fileId)) return bad("file_id is not valid.");
+      // THE ISOLATION. The expense must be this business's; another tenant's
+      // uuid 404s exactly like one that does not exist, and the key below is
+      // minted from `member.businessId` rather than from anything sent.
+      if (!(await deps.expenseBelongs!(member.businessId, expenseId))) return bad("Expense not found", 404);
+
+      const row = await deps.getReceipt!(member.businessId, expenseId);
+      if (!row) return bad("Expense not found", 404);
+
+      if (action === "start") {
+        const type = body.content_type;
+        if (typeof type !== "string" || !(type in EXT)) return bad("Receipts must be JPEG or PNG.");
+        const claimed = body.claimed_bytes;
+        if (!isInt(claimed) || claimed <= 0) return bad("claimed_bytes must be a whole number of bytes.");
+        if (claimed > store.maxBytes) return bad(`That receipt is larger than ${mb(store.maxBytes)}.`, 413);
+        // **AN EXPENSE HOLDS ONE RECEIPT, so a second is refused rather than
+        // silently replacing the first.** `removeReceipt` in
+        // `app/src/lib/receipts.js` already says replacing is removing then
+        // adding, "so the old file never leaks" — if start overwrote the
+        // column here, the old object would stay in R2 with nothing pointing
+        // at it, invisible to everything except the nightly reconcile.
+        if (row.receipt_path) return bad("That expense already has a receipt. Remove it first.", 409);
+
+        // THE CEILING, and unreadable fails CLOSED. One allowance across both
+        // stores: `job_photo_budget()` was replaced to sum them the day the
+        // receipts bucket was made, which is the whole reason a receipt store
+        // that ignored it would make the meter a lie.
+        const rb = await deps.budget(member.businessId, token);
+        if (!rb || !(Number(rb.cap_bytes) > 0) || !Number.isFinite(Number(rb.used_bytes))) {
+          return bad("Could not check your photo storage. Nothing was saved. Try again in a minute.", 503);
+        }
+        const rBudget = { used_bytes: Number(rb.used_bytes), cap_bytes: Number(rb.cap_bytes) };
+        if (rBudget.used_bytes + claimed > rBudget.cap_bytes) return bad(fullSentence(rBudget), 409);
+
+        const key = mintKey(member.businessId, expenseId, fileId, type);
+        return json({ upload_url: await r2.putUrl(store.bucket, key, type, PUT_SECONDS), key, expires_in: PUT_SECONDS });
+      }
+
+      // ---- finish -------------------------------------------------------
+      // Finishing twice is one answer, the same bargain the job store makes:
+      // the first reply may have been lost on a bad connection. It is the SAME
+      // file only when the column already points at this file id; a different
+      // one is a second receipt and is refused, not overwritten.
+      const mine = `${member.businessId}/${expenseId}/${fileId}.`;
+      if (row.receipt_path) {
+        if (row.receipt_path.startsWith(mine)) return json({ expense: row });
+        return bad("That expense already has a receipt. Remove it first.", 409);
+      }
+
+      let rKey = "";
+      let rStored: { exists: boolean; bytes: number | null } = { exists: false, bytes: null };
+      for (const ext of ["jpg", "png"]) {
+        const k = `${mine}${ext}`;
+        const h = await r2.head(store.bucket, k);
+        if (h.exists) { rKey = k; rStored = h; break; }
+      }
+      if (!rStored.exists) return bad("The receipt never arrived, so nothing was saved. Try adding it again.", 409);
+
+      // THE SIZE IS R2's, never the client's. Anything R2 will not state as a
+      // positive whole number is a refusal and the object goes — a zero here
+      // would count as free against the allowance for ever.
+      const rBytes = rStored.bytes;
+      if (!isInt(rBytes) || rBytes <= 0 || rBytes > store.maxBytes) {
+        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unusable receipt", expenseId));
+        return bad("The stored receipt has no usable size, so it was not saved.", 422);
+      }
+
+      // AND THE CAP AGAIN, against what is really there. This is the check a
+      // client that under-reported its size meets.
+      const rb = await deps.budget(member.businessId, token);
+      if (!rb || !(Number(rb.cap_bytes) > 0) || !Number.isFinite(Number(rb.used_bytes))) {
+        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unchecked receipt", expenseId));
+        return bad("Could not check your photo storage. Nothing was saved. Try again in a minute.", 503);
+      }
+      const rBudget = { used_bytes: Number(rb.used_bytes), cap_bytes: Number(rb.cap_bytes) };
+      if (rBudget.used_bytes + rBytes > rBudget.cap_bytes) {
+        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an over-cap receipt", expenseId));
+        return bad(fullSentence(rBudget), 409);
+      }
+
+      try {
+        const saved = await deps.saveReceipt!({
+          id: expenseId, business_id: member.businessId,
+          receipt_path: rKey, receipt_bytes: rBytes,
+          receipt_width: dim(body.width), receipt_height: dim(body.height),
+          receipt_uploaded_at: new Date().toISOString(),
+        });
+        return json({ expense: saved });
+      } catch {
+        // The columns did not land, so the object goes: an object with no row
+        // is invisible to everything except the nightly reconcile.
+        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unrecorded receipt", expenseId));
+        return bad("Could not save the receipt. Try again.", 500);
+      }
     }
 
     // ------------------------------------------- start and finish share
@@ -207,7 +459,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
       if (budget.used_bytes + claimed > budget.cap_bytes) return bad(fullSentence(budget), 409);
 
       const key = mintKey(member.businessId, bookingId, photoId, type);
-      return json({ upload_url: await r2.putUrl(BUCKET, key, type, PUT_SECONDS), key, expires_in: PUT_SECONDS });
+      return json({ upload_url: await r2.putUrl(store.bucket, key, type, PUT_SECONDS), key, expires_in: PUT_SECONDS });
     }
 
     // ----------------------------------------------------------- finish
@@ -221,7 +473,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
     let stored: { exists: boolean; bytes: number | null } = { exists: false, bytes: null };
     for (const ext of ["jpg", "png"]) {
       const k = `${member.businessId}/${bookingId}/${photoId}.${ext}`;
-      const h = await r2.head(BUCKET, k);
+      const h = await r2.head(store.bucket, k);
       if (h.exists) { key = k; stored = h; break; }
     }
     if (!stored.exists) return bad("The photo never arrived, so nothing was saved. Try adding it again.", 409);
@@ -230,7 +482,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
     // is a refusal and the object goes, never a zero that would count as free.
     const bytes = stored.bytes;
     if (!isInt(bytes) || bytes <= 0 || bytes > MAX_BYTES) {
-      await r2.del(BUCKET, key).catch(() => deps.log("photo-door: could not remove an unusable object", photoId));
+      await r2.del(store.bucket, key).catch(() => deps.log("photo-door: could not remove an unusable object", photoId));
       return bad("The stored photo has no usable size, so it was not saved.", 422);
     }
 
@@ -238,12 +490,12 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
     // client that under-reported its size meets.
     const b = await deps.budget(member.businessId, token);
     if (!b || !(Number(b.cap_bytes) > 0) || !Number.isFinite(Number(b.used_bytes))) {
-      await r2.del(BUCKET, key).catch(() => deps.log("photo-door: could not remove an unchecked object", photoId));
+      await r2.del(store.bucket, key).catch(() => deps.log("photo-door: could not remove an unchecked object", photoId));
       return bad("Could not check your photo storage. Nothing was saved. Try again in a minute.", 503);
     }
     const budget = { used_bytes: Number(b.used_bytes), cap_bytes: Number(b.cap_bytes) };
     if (budget.used_bytes + bytes > budget.cap_bytes) {
-      await r2.del(BUCKET, key).catch(() => deps.log("photo-door: could not remove an over-cap object", photoId));
+      await r2.del(store.bucket, key).catch(() => deps.log("photo-door: could not remove an over-cap object", photoId));
       return bad(fullSentence(budget), 409);
     }
 
@@ -257,7 +509,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
     } catch {
       // The row did not land, so the object is removed: an object with no row
       // is invisible to every check this product has.
-      await r2.del(BUCKET, key).catch(() => deps.log("photo-door: could not remove an unrecorded object", photoId));
+      await r2.del(store.bucket, key).catch(() => deps.log("photo-door: could not remove an unrecorded object", photoId));
       return bad("Could not save the photo. Try again.", 500);
     }
   } catch (e) {

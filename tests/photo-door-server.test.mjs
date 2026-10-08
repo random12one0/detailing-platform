@@ -450,10 +450,10 @@ const SAB = [
   ["limiterIgnored", "photoDoor.ts", [["if (!allowed)", "if (false)"]], "the rate ceiling"],
   ["foreignBookingAccepted", "photoDoor.ts", [["if (!(await deps.bookingBelongs(member.businessId, bookingId)))", "if (false)"]], "the booking-belongs check"],
   ["zeroSizeStored", "photoDoor.ts", [["if (!isInt(bytes) || bytes <= 0 || bytes > MAX_BYTES) {", "if (false) {"]], "refusing a size R2 will not state"],
-  ["orphanKept", "photoDoor.ts", [["await r2.del(BUCKET, key).catch(() => deps.log(\"photo-door: could not remove an unrecorded object\", photoId));", ""]], "removing the object when the row fails"],
+  ["orphanKept", "photoDoor.ts", [["await r2.del(store.bucket, key).catch(() => deps.log(\"photo-door: could not remove an unrecorded object\", photoId));", ""]], "removing the object when the row fails"],
   ["rowLastOnRemove", "photoDoor.ts", [
-    ["await deps.deletePhoto(member.businessId, photoId);\n      try { await r2.del(BUCKET, row.path); }\n      catch { deps.log(\"photo-door: object not removed after its row was\", row.id); }",
-     "try { await r2.del(BUCKET, row.path); } catch { /* sabotage */ }\n      await deps.deletePhoto(member.businessId, photoId);"],
+    ["await deps.deletePhoto(member.businessId, photoId);\n      try { await r2.del(store.bucket, row.path); }\n      catch { deps.log(\"photo-door: object not removed after its row was\", row.id); }",
+     "try { await r2.del(store.bucket, row.path); } catch { /* sabotage */ }\n      await deps.deletePhoto(member.businessId, photoId);"],
   ], "row-before-object on remove"],
 ];
 

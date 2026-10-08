@@ -214,7 +214,13 @@ const DECLARED = {
   // declared count can be correct by coincidence, and the only defence is the trail
   // above. If this number ever matches without you knowing which commit last moved it,
   // it is a memory and not a measurement.
-  numberedOpenItems: 47,
+  //
+  // 47 -> 48, 2026-10-07, fourth sitting of the day: ROADMAP 9.18 filed (the
+  // System health tab's 400). One item in, nothing out, so this one is the
+  // simple case for once -- which is worth saying, because the three moves
+  // above were all two things cancelling and a reader who skims could take
+  // "+1" as the normal shape.
+  numberedOpenItems: 48,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -236,7 +242,11 @@ const DECLARED = {
   // furniture and the check that hit-tests it"), and this figure counts only items
   // whose criteria name one. Moved in the same edit as the prose that moved it, which
   // is this file's own rule and the third time it has been applied today.
-  quoteCriteria: 32,
+  //
+  // 32 -> 33, 2026-10-07, fourth sitting: 9.18's Done-when names files, so that
+  // item entered the criteria population. 0.11's slice 5 block did not move it:
+  // 0.11 was already in the population.
+  quoteCriteria: 33,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -277,7 +287,14 @@ const DECLARED = {
   // fragments going missing. Two items moved in opposite directions inside one
   // working tree, which is the ordinary case in a two-lane repo and the reason this
   // constant carries a trail instead of a value.
-  quoteFragments: 274,
+  //
+  // 274 -> 290, 2026-10-07, fourth sitting. +16, from two items in one working
+  // tree: ROADMAP 9.18, and 0.11's slice 5 write-up, whose Done-when zone now
+  // quotes the receipts contract. Not attributed commit by commit this time,
+  // and that is stated rather than implied: both additions are in the SAME
+  // uncommitted tree, so there is no revision between them to measure at. The
+  // two ends are `git show 8a2292b:ROADMAP.md` (274) and this commit (290).
+  quoteFragments: 290,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
