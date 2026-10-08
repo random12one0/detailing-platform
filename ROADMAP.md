@@ -5670,6 +5670,121 @@ the wrong service, and never book a job we cannot reach.
   *Lane B, 2026-10-07. Nothing deployed, pushed or applied; no credential loaded;
   no receipt written; `scripts/` read-only throughout.*
 
+  ---
+
+  **THE BACK OFFICE IS HIT-TESTED NOW, AND IT IS RED — 2026-10-07, later the
+  same day, on the manager's grant of one new file.**
+  `scripts/admin-furniture-clearance.mjs`, the `tabbar-clearance` pattern
+  pointed at `/admin`. **26 of 26 surfaces, 83 assertions, 12 failures, canary
+  caught**, receipt graded by `receipt.mjs`. Run on an isolated git worktree
+  with its own installed packages, serving on **:5181**, so DP Cowork's editing
+  on :5173 could not move it; the worktree was removed afterwards.
+
+  **`.pa-top`, `.pa-x` and `.pa-load` now read hit-tested**, and
+  `tests/fixed-furniture-is-hit-tested.test.mjs` moved **3 of 14 → 6 of 14**,
+  with `NO_HIT_TEST` **11 → 8** in the same edit. **The "nothing visits this
+  screen at all" set went 7 → 4**, and what is left is the marketing surface
+  (`.ld .nav`, `.ld .navmenu.on`, `.ld .stage`) plus the intake preview.
+
+  **WHICH ACCOUNT IT SIGNS IN AS, because somebody will ask before they run it:**
+  a **throwaway platform admin created for the run and deleted in a `finally`** —
+  `makeAdmin()` / `dropAdmin()` from `scripts/admin-account.mjs`, the shared
+  helper five other scripts use. The email is
+  `admin-furniture-test@detailplatform.com`, deliberately distinct from
+  `admin-contrast-test@` and `shoot-admin@` so two runs cannot delete each
+  other's account mid-measurement. **The password is random per run, never
+  printed and never written to disk.** The account and its `platform_admins`
+  row are the only writes this script makes; it does **not** clear `rate_hits`,
+  because the back office geocodes nothing. **Do not wrap it in `timeout`** —
+  `docs/gotchas.md` 90, a `finally` does not run on SIGTERM, and that `finally`
+  is what deletes an account that can read every detailer.
+
+  ### THE FINDING, AND IT IS ONE FAULT WEARING TWO FACES
+
+  **THE BACK OFFICE HAS NO TOP SCROLL RESERVE AT ALL.**
+  `grep -rn "scroll-padding" app/src --include=*.css` returns **4** lines at
+  `715c095` — three declarations and one comment — **and every declaration is
+  `scroll-padding-bottom`**: two on the dashboard for the tab bar, one on the
+  booking page for its own bar. The direct form,
+  `grep -rn "scroll-padding-top" app/src --include=*.css`, returns **0**.
+  **There is no `scroll-padding-top` anywhere in this product.** *(This line
+  said "three lines" until the command was run against it; the figure it
+  carries now is the one the command returns — `docs/gotchas.md` 94.)* So when a control in
+  `/admin` is focused, the browser scrolls it to the top of the scrollport and
+  it comes to rest **under a fixed bar 98–106px tall**, with nothing reserved.
+
+  **10 of the 20 measurement surfaces fail `reachable`, at every width.** Each
+  names the control, where it landed, and what took it — read off
+  `elementFromPoint`, not assumed:
+
+  | | |
+  |---|---|
+  | `320 tab:now` | «See everyone» (`pa-out`) legal at **46px**, **0px** survive at y 0..17, lost to `{offscreen:14, .pa-top:32}` |
+  | `320 / 392 / 768 / 1440 / 1920 tab:who` | «Sign up a detail» (`pa-btn`) legal at **44px**, **0px** survive at y 0..44, lost to `{.pa-top:45}` |
+  | `320 tab:pipes` | «Everything» legal at **44px**, **0px** survive at y 25..61, lost to `{.pa-top:44}` |
+
+  **AND THE MANAGER'S QUESTION OF 2026-10-07 — do presses land on the 3px
+  progress strip over a control — IS ANSWERED YES, AT 320 AND 392.**
+  «See everyone» **loses 3 rows to `.pa-load`**, measured with the strip's
+  computed `z-index: 50` on the page. **It is a real defect and it is the
+  smaller half of the one above:** that control is already at 0px because
+  `.pa-top` has taken 29 of its rows, and the strip takes 3 of the few
+  `.pa-top` left. **Reserving the top fixes both**, which is why this is
+  reported as one fault and not two.
+
+  **A SEPARATE THING, OBSERVED AND NOT CHASED, recorded so the next person does
+  not think it is new:** the **System health** tab answers **HTTP 400 from
+  `/functions/v1/platform-admin`**, at every width — 9 console lines across the
+  five widths, and the only console noise in the run. It is in the receipt's
+  `failures` by name. Nothing here diagnosed it.
+
+  ### WHAT LANE A HAS TO DO, AND WHAT IT MUST NOT DO
+
+  **`app/src` is DP Cowork's and nothing was changed there.** The fix is a top
+  reserve for the back office's fixed bar, the mirror of what the dashboard and
+  the booking page already have for theirs. **Before writing it, read
+  CLAUDE.md's shared-variable rule and `booking.css:115`:** `--bk-bar-clear` is
+  the worked example of a reserve that a previous item deliberately left alone,
+  and the reserve here (`--pa-top`, 116px, consumed by `.pa-body`'s own padding)
+  is the same shape. **A padding is not a scroll reserve** — `.pa-body` already
+  has 130px of top padding and the controls still land at y 0, because padding
+  decides where content STARTS and `scroll-padding-top` decides where the
+  browser STOPS. That distinction is the whole of 2.32 and it is why the
+  obvious fix is the wrong one.
+
+  **Done when (for the back office third):** `node --env-file=.env
+  scripts/admin-furniture-clearance.mjs` reports **0 failures** with the canary
+  still caught, and the strip rows go with it.
+
+  ### THE INSTRUMENT WAS WRONG THREE TIMES AND ITS OWN QUESTIONS CAUGHT ALL THREE
+
+  Recorded because it is the part worth copying, not the part worth hiding.
+
+  | run | what it reported | what was actually wrong |
+  |---|---|---|
+  | 1 | 75 failures, **0 controls on every surface** | the sweep measured before `/admin` finished loading — the screenshot showed *"Reading the platform…"*. **The `subjects` question caught it**, which is exactly why a surface with nothing on it grades as a failure instead of dropping out |
+  | 2 | 17 failures, 5 of them `legal` on the panel | `.pa-tab` lives inside `.pa-top`, and on a panel surface the detailer dialog (`.pa-open`, `inset: 0`, z 40) is legitimately over it. Five "defects" per width that were the product working |
+  | 3 | 17 failures, 5 `legal` again | same shape one level out: the whole page behind the modal read 0px. A panel surface now measures **inside the panel**, which is the only reason it exists |
+  | 4 | **12 failures, all real** | — |
+
+  **And one number was quietly missing from the first three receipts:** the
+  strip's `z-index` printed blank, because `getComputedStyle` was read **after**
+  the injected element was detached. Fixed; it reads **50**, which is the number
+  that makes the strip outrank the bar.
+
+  ### BROKEN ON PURPOSE
+
+  | sabotage | result |
+  |---|---|
+  | `--break=rect` — measure the bounding box, ignore the `::after` | **25 `legal` failures against 0 in the clean run.** «See everyone» reads **17px of box** where it has **46px of target**. This is the instrument bug `tabbar-clearance` exists not to have, and `.pa-x` (30px wearing `inset: -7px`) is the control it would have condemned |
+  | the same run's receipt, graded | `receipt.mjs` **refuses** it by name: *canary "the-bar-reserve-taken-away" did NOT fail — the check cannot see a defect it was handed on purpose* |
+  | the clean run's receipt, graded | FAIL on **30 recorded failures** (12 checks + 18 console lines), canary caught. **The red is the product's** |
+
+  *Lane B, 2026-10-07. One new file in `scripts/`, on the manager's grant, which
+  dies with this item; nothing else in `scripts/` was edited. Nothing deployed,
+  pushed or applied. The throwaway admin was created and dropped on every run,
+  confirmed in the log each time. Worktree removed.*
+
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
@@ -16718,6 +16833,87 @@ the dashboard or back office at phone width at all.
   whole shape of it at once.
 
 ---
+
+- [ ] **9.17 — Opening the Settings gear puts a 404 in the console, twice, at
+  every width — and the request it comes from is working exactly as designed.**
+  Found 2026-10-07 by DP Cowork sweeping 4.1 (`c8cd339`); it predates that work.
+  **The 404 is not the bug. The bug is that a deliberately silent endpoint
+  announces itself in red, on a screen every detailer opens, in a way nobody can
+  tell apart from a real failure** — and it was read as a failure, which is how
+  this item got filed.
+
+  **WHICH REQUEST, measured rather than reasoned about.** `POST
+  /functions/v1/platform-admin` with `{action:"whoami"}`, fired from
+  `GearMenu.jsx:163` in a mount effect. `platform-admin/index.ts:97` answers
+  **404 to anybody who is not a platform admin**, on purpose, and its own comment
+  says why in terms this item must not break: *"What it must never become is an
+  action that returns `{admin:false}` instead of 404 — that would turn a silent
+  endpoint into one that confirms itself to anybody who asks."* `GearMenu.jsx`
+  agrees from the other side: *"A 404 IS THE ORDINARY ANSWER HERE, not an error."*
+
+  **WHAT HAPPENS, measured 2026-10-07 on a worktree dev server at :5181 and a
+  production bundle at :5182, signed in as `demo-staff@detailplatform.com`, an
+  ordinary non-admin member, three gear opens per width.** Re-take: sign in as a
+  non-admin, open the gear, count `platform-admin` responses.
+
+  | | dev server | production bundle |
+  |---|---|---|
+  | `platform-admin` calls on the FIRST gear open | **2**, both 404 | **1**, 404 |
+  | on the second and third open | **0** | **0** |
+  | widths showing it | **5 of 5** (1920, 1440, 768, 392, 320) | **5 of 5** |
+  | gap between the pair | 52–142ms | n/a |
+
+  **SO THE DOUBLING IS DEV-ONLY AND THE 404 IS NOT**, and the two halves have
+  different costs. The pair is `React.StrictMode` (`app/src/main.jsx:72`)
+  double-invoking the mount effect, and the cache that exists to stop repeat
+  calls cannot stop it: `adminSeen` is assigned at `GearMenu.jsx:172`, **after**
+  the `fetch` resolves, so both invocations are already in flight before either
+  one writes it. **The cache is not broken** — opens two and three make zero
+  calls, measured — it just cannot see a sibling that has not answered yet.
+
+  **WHY IT MATTERS, and it is not the detailer's cost.** One wasted edge-function
+  call on a first gear open is nothing. What it costs is **every reader of this
+  repo's console**: a red `Failed to load resource: the server responded with a
+  status of 404` on the one screen every browser check passes through, and the
+  product's own design says it must stay a 404. It has already been paid twice —
+  once when this was filed as a defect, and once in the instrument: three browser
+  scripts here carry console-noise filters, and a line that must be filtered by
+  name is a line that hides the next real one behind it. **`docs/gotchas.md`'s
+  running theme is a check that cannot tell a pass from a did-not-run; this is a
+  console that cannot tell a designed answer from a failure.**
+
+  **ONE DOOR IS SHUT AND A LATER ITEM SHUT IT, so nobody should reopen it
+  without saying why.** The obvious fix is to let the browser read its own row
+  out of `platform_admins` instead of asking an endpoint — a 200-or-empty query
+  rather than a 404. **It is the wrong door.** That table is RLS-on with zero
+  policies (`20260906001000_platform_admin.sql:51`) **and** had its grants
+  revoked from `authenticated` deliberately
+  (`20260921000000_revoke_locked_table_grants.sql:38`). Opening a self-read
+  policy on it would be undoing a lock a later migration put on on purpose, which
+  is CLAUDE.md's shared-variable rule exactly.
+
+  **Done when:** **(a)** a first gear open makes **one** `platform-admin` call,
+  not two, at every width on the dev server — so the fix is in the cache's
+  timing (an in-flight marker written before the request, not after its answer)
+  rather than in StrictMode being switched off, because StrictMode is a
+  development aid and turning it off to quieten a log would hide the class of
+  fault it exists to surface; **(b)** `platform-admin` still answers **404** to a
+  non-admin, unchanged, and a check asserts it — anything that makes it answer
+  `{admin:false}` fails this item rather than completing it; and **(c)** the
+  remaining console line is something a reader can tell apart from a failure, or
+  it is recorded in one named place as expected noise with the reason, so the
+  next person reading a console does not re-file this.
+
+  **(c) IS THE ONLY OPEN DESIGN QUESTION AND IT IS NOT MINE TO SETTLE.** A 4xx
+  from `fetch` is logged by Chrome and **cannot be suppressed from JavaScript**,
+  so the only ways to remove the line are to stop using a status code to carry
+  the answer — which (b) forbids — or to stop asking. Parked for Andrew rather
+  than decided here, because the alternative is inventing a third option and
+  calling it a requirement.
+
+  *Filed by DP Cowork2, 2026-10-07, not fixed; `app/src` is DP Cowork's. The
+  observation ran on an isolated worktree on :5181 and :5182 so that lane's
+  editing on :5173 could not move it.*
 
 ## Wave 10 — Copy
 

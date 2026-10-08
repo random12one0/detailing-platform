@@ -104,6 +104,13 @@ const HIT_TESTERS = [
   "scripts/pinned-bar.mjs",
   "scripts/tabbar-clearance.mjs",
   "scripts/keyboard-walk.mjs",
+  // ADDED 2026-10-07, and it is the first row this check caused rather than
+  // recorded. The back office was the largest of the two "nothing visits this
+  // screen at all" gaps -- three pieces of furniture, no probe -- and
+  // `admin-furniture-clearance.mjs` is the `tabbar-clearance` pattern pointed at
+  // /admin. Its own header says which account it signs in as and why that is a
+  // throwaway.
+  "scripts/admin-furniture-clearance.mjs",
 ];
 
 // Comments are blanked rather than removed, so a reported line number is the
@@ -204,13 +211,14 @@ const NO_HIT_TEST = [
   ".ld .nav",
   ".ld .navmenu.on",
   ".ld .stage",
-  ".pa-load",
-  ".pa-top",
-  ".pa-x",
   ".split > .col-2",
   ".topbar",
   ".tourcard",
 ];
+// 11 -> 8 on 2026-10-07: `.pa-top`, `.pa-x` and `.pa-load` came off in the same
+// edit as the check that covers them, which is what the equality above is for.
+// **The marketing surface is now the whole of the unvisited half**, and the
+// three that left were the other half of it.
 
 // DISCOVERY FLOORS, and they stay floors: more rules than expected is the repo
 // growing, not a fault (`docs/gotchas.md` 98). They exist so a parser that has

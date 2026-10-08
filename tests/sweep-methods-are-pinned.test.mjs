@@ -223,13 +223,20 @@ const DECLARED = {
   // Stated rather than left silent: a figure that did not move is evidence only if
   // somebody re-took it, and this one sits between two that both moved today.
   //
+  // 33 -> 32, 2026-10-07, third sitting of the day: lane A TICKED 7.8 (`8fcb154`),
+  // and a ticked item's criteria leave the population with it. Measured at that
+  // commit by running this file against `git show 8fcb154:ROADMAP.md`: 32. So the
+  // +1 the note below records and this -1 are two different items passing each
+  // other, which is exactly why each move is written down rather than the number
+  // being nudged to whatever the run returned.
+  //
   // 32 -> 33, 2026-10-07, LATER THE SAME SITTING: ROADMAP 9.11e's write-up gave that
   // item's Done-when zone a filename, so 9.11e ENTERED this population. Before the
   // block its Done-when named no file at all ("a list names each screen with fixed
   // furniture and the check that hit-tests it"), and this figure counts only items
   // whose criteria name one. Moved in the same edit as the prose that moved it, which
   // is this file's own rule and the third time it has been applied today.
-  quoteCriteria: 33,
+  quoteCriteria: 32,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -257,7 +264,20 @@ const DECLARED = {
   // two multi-word fragments. Both figures moved together because they are two
   // readings of one population, and a sitting that moved one and not the other would
   // have left this file red for a reason nobody could reconstruct.
-  quoteFragments: 279,
+  //
+  // 279 -> 274, 2026-10-07, third sitting. Attributed by running this file against
+  // `git show <c>:ROADMAP.md`, the same way as the block above:
+  //
+  //     5e5a54d  279
+  //     b561c11  279   (lane A's 4.1 work moved neither figure)
+  //     8fcb154  272   -7  lane A TICKED 7.8; its Done-when zone left the population
+  //     + ROADMAP 9.17 and the 9.11e back-office block   274   +2
+  //
+  // **A net -5 that is a -7 and a +2**, and the bare number would have read as five
+  // fragments going missing. Two items moved in opposite directions inside one
+  // working tree, which is the ordinary case in a two-lane repo and the reason this
+  // constant carries a trail instead of a value.
+  quoteFragments: 274,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
