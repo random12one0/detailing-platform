@@ -5552,6 +5552,127 @@ the wrong service, and never book a job we cannot reach.
   simulated one. `maxLength` is doing what the platform specifies; the question
   is whether the box should say what it did.
 
+  ***THE DATABASE HALF IS WRITTEN — 2026-10-07 (DP Cowork2, Lane B). A FILE,
+  NOT AN APPLY. NO DDL WAS RUN; THE ONLY LIVE CONTACT WAS READ-ONLY.***
+  `supabase/migrations/20261007010000_tenant_string_lengths.sql` adds
+  `char_length(name) between 1 and 60` to **`businesses`, `services`,
+  `add_ons`, `service_groups` and `plans`** — the five columns this entry's own
+  table names, each as `<table>_name_len`, in the style
+  `20260831001000_catalog_groups_and_tenant_shapes.sql:152` already set for
+  `vehicle_size`. **Applying is Andrew's.**
+
+  **WHY A COLUMN BOUND WHEN THE BOXES ARE ALREADY CAPPED.** `maxLength` is a
+  property of ONE input element. `platform-admin`'s `create` action passes
+  `body.name` straight into the insert (`index.ts:814`) and
+  `_shared/newBusiness.ts:48` trims the name and refuses only an EMPTY one — so
+  **any caller that is not that one input can still write an unbounded business
+  name today**, and it lands in the `<h1>` of the booking page, the
+  confirmation and the manage screen.
+
+  **THE NUMBER IS 60 AND IT IS NOT A NEW NUMBER.** It is the cap already on all
+  five boxes, taken from `Plans.jsx`'s long-standing `maxLength={60}` on the
+  manager's 2026-10-02 ruling, and it is **the length this entry already
+  rendered and measured**: all five at exactly 60 through 4 customer emails x 5
+  widths and the two settings screens, nothing escaping in the emails, nothing
+  truncated, documents over by 0px. A database cap TIGHTER than the screen's
+  would refuse what a box produced; a looser one would not be a guard. **Equal
+  is the only defensible choice.**
+
+  **`char_length`, NEVER `octet_length` — AND THIS PRODUCT IS BILINGUAL.** Sixty
+  accented characters are **120 bytes** in UTF-8; *“Detallado Rápido de
+  Automóviles”* is 31 characters and 33. A byte bound would refuse a Spanish
+  name a Spanish-speaking detailer typed into a box that accepted it, **and the
+  live data cannot reveal that, because every value in all five columns today is
+  pure ASCII** — so the broken version passes every existing row and nothing
+  anywhere goes red. The browser's `maxLength` counts UTF-16 code units, never
+  fewer than the character count, so `char_length(…) <= 60` **cannot refuse
+  anything a capped box allowed.**
+
+  **READ-ONLY AGAINST THE LIVE DATABASE BEFORE THE FILE WAS WRITTEN**, so no
+  existing row can be made illegal by applying it. `kguqylyzgyzfktkfnhjb`,
+  2026-10-07, Management API `database/query`, `SELECT` only:
+
+  | column | rows | longest | shortest | over 60 | null | empty | untrimmed |
+  |---|---|---|---|---|---|---|---|
+  | `businesses.name` | 17 | **48** | 9 | 0 | 0 | 0 | 0 |
+  | `services.name` | 28 | 22 | 6 | 0 | 0 | 0 | 0 |
+  | `add_ons.name` | 7 | 21 | 5 | 0 | 0 | 0 | 0 |
+  | `service_groups.name` | 4 | 10 | 7 | 0 | 0 | 0 | 0 |
+  | `plans.name` | 4 | 21 | 11 | 0 | 0 | 0 | 0 |
+
+  **Nothing is within 12 characters of the cap**, nothing is NULL, nothing is
+  empty and nothing carries untrimmed whitespace — so the lower bound of 1 costs
+  nothing today and refuses a nameless service tomorrow. *(`char_length(null)`
+  is NULL and a CHECK rejects only FALSE, so nullability is untouched.)*
+
+  **PROVED ON PGlite, 9 pass 0 fail:** `PGLITE_DIR=<a folder outside the repo>
+  node --test tests/tenant-string-lengths-sql.test.mjs` — real PostgreSQL in
+  WebAssembly, in process, nothing near the live database. With no PGlite every
+  case prints `NOT RUN` and skips; `PGLITE_REQUIRED=1` turns the same run into
+  **9 fail**. It asserts 60 in and 61 out on all five, that a 30-character emoji
+  string (60 UTF-16 units — the box's own limit) is accepted, that NULL passes
+  and `''` does not, that **sixty `á` go in**, and that **each column's longest
+  live value above would survive**. **Four sabotages**, each asserted to have
+  changed the SQL first: `octet_length` for `char_length` (the Spanish name is
+  refused **while every ASCII row still passes**, which is why reading the
+  migration could never catch it), the bound widened to 600, the lower bound
+  dropped, and the constraint replaced by a no-op.
+
+  **`tagline`, `about_copy` and `service_area` ARE DELIBERATELY NOT IN IT** —
+  this entry's own ladder result, repeated in the migration's header so nobody
+  re-opens it. Live longest today: **tagline 29, about_copy 58, service_area
+  22.** They live on `business_branding` (tagline, about_copy) and `businesses`
+  (service_area), **not where this entry's prose implies**, which is worth
+  knowing before anybody greps for them.
+
+  ---
+
+  ### THE `app/src` HALF — TWO BOXES NOBODY CAPPED, AND THEY ARE THE FIRST ONES A DETAILER MEETS
+
+  **FOUND 2026-10-07 WHILE WRITING THE MIGRATION.** The 2026-10-02 cap was
+  applied to the five boxes this entry's table names. **The table was
+  incomplete**: it lists `businesses.name` as typed at `BusinessInfo.jsx`, and
+  `businesses.name` is typed in **three** places. The other two have no cap at
+  all, and one of them is the signup screen every new detailer fills in before
+  they have seen anything else.
+
+  | add | file and line | value | why this number |
+  |---|---|---|---|
+  | `maxLength={60}` | **`app/src/screens/CreateBusiness.jsx:138`** — the “Business name” input on *Create your business* | **60** | the same cap the settings screen for the same column already has (`BusinessInfo.jsx:260`). Not a new number |
+  | `maxLength={60}` | **`app/src/admin/AdminPage.jsx:984`** — the “Business name” input on the back office's create-a-business form (`.pa-find`) | **60** | same column, same cap. `/admin` is platform-owner only, so this is the smaller of the two, but it writes the same `<h1>` |
+
+  **Nothing else needs a `maxLength` added**, verified by reading rather than
+  assumed: `Plans.jsx:283`, `Catalog.jsx:732` (groups), `Catalog.jsx:777`
+  (services and add-ons, one shared editor) and `BusinessInfo.jsx:260` all
+  carry 60 today. **Do not touch the slug box** at
+  `CreateBusiness.jsx:147` — it is `slugify`'d on every keystroke and has its
+  own rules; this item is about names.
+
+  **STRETCH-TEST AT 320, ON THESE SCREENS, WITH A 60-CHARACTER NAME IN THE
+  BOX** — the question is not whether the value is refused but whether the FORM
+  survives holding it:
+
+  | screen | how to reach it | what to look at |
+  |---|---|---|
+  | **Create your business** | signed in with no business | the 60-character value inside the input at **320**: no sideways page scroll, the label and the *“Customers will book at /book/…”* line still readable, the submit button still 44px and reachable, console clean |
+  | **Business info** (`more` → Business info) | an existing business | already capped, so this is a regression check only — same 60 in the box at 320 |
+  | **Services & add-ons** (`more` → Catalog) | existing business | 2.15a already measured 7 / 7 / 6 truncated with an ellipsis at 320 / 392 / 768 and a press landing. Re-confirm nothing moved |
+  | **The back office create form** | `/admin`, platform admin | 320 as well. It is the owner's own screen, but it is a form with a required field and no reason to break |
+  | **The booking page `<h1>`** | `/book/<slug>` for a business whose name is 60 characters | the one surface with an open question against it: the entry records the business name **escaping its box by 5px at 1440 and 1920**, measured and never eyeballed. A person has to look, and this is the screen to look at |
+
+  **ONE THING THAT IS NOT LANE A'S AND IS NOT DONE EITHER.** Once the migration
+  is applied, a name over 60 from a non-browser caller returns Postgres `23514`
+  with the constraint name in it — a far worse sentence than a screen's own
+  refusal. The fix is a length check in `_shared/newBusiness.ts` beside the
+  empty-name refusal it already has, answering a finished sentence, and the same
+  on `platform-admin`'s `create`. **That is server work (Lane B) and it should
+  land before or with the apply, not after it.** It is written here rather than
+  filed separately because it is the same decision.
+
+  **AND THE OPEN QUESTION FROM 2026-10-02 IS STILL OPEN AND STILL A PERSON'S:** a
+  paste into a capped box is cut silently at 60 with no message. Nothing above
+  changes that, and the two new caps add two more places it happens.
+
 - [x] **9.11d — DONE 2026-10-06 (first clause and the red proof; the second is 9.11e). Seven scripts save evidence frames that can be wrong, on one named condition.**
   fullPage: true paints a position: fixed element at the wrong place. Measured
   2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
