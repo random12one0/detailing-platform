@@ -205,8 +205,8 @@ resizes a window he is not looking at.
 
 ### 7 · The receipt files in `receipts/`
 
-**What:** one JSON file per check, at a fixed path. `receipts/` holds 61
-tracked files; `receipt.mjs` grades them and several ROADMAP items read a
+**What:** one JSON file per check, at a fixed path. `receipts/` holds **72**
+tracked files (`git ls-files receipts | wc -l`, 2026-10-07; this line said 61); `receipt.mjs` grades them and several ROADMAP items read a
 verdict straight out of one.
 **Who spends it:** **every session that runs a graded check.** The path is the
 check's name, not the session's, so two sessions running
@@ -246,6 +246,41 @@ dirty and naming it in the handoff is better than committing somebody else's
 half-overwritten verdict under your own message** — which is what this session
 did on 2026-10-06, and it is why these two files were deliberately left out of
 commit `3dfd8dd`.
+
+**AND IT HAPPENED AGAIN THE NEXT DAY, TO THE SAME FILE, BY A SESSION THAT HAD READ
+THIS PAGE — 2026-10-07 (DP Cowork2).** `receipts/migration-drift.json` was already
+modified in the working tree by the other lane. This session ran
+`node scripts/migration-drift.mjs` because CLAUDE.md's verification table asks for
+it after a migration, **overwrote the other lane's result, and then committed it**
+under its own message in `fc524da`.
+
+**THE FIRST CLAUSE HAD BEEN OBEYED TWENTY-FOUR HOURS EARLIER AND BY THE SAME
+SESSION.** ROADMAP 9.18 records reading `receipts/deployed-inventory.json` and
+**deliberately not re-running it** for exactly this reason, citing this section by
+number. **So this is not a rule nobody knew; it is a rule that does not survive a
+checklist.** The table said *run migration-drift after a migration*, and
+`git status --porcelain receipts/` was never typed.
+
+**AND THE SECOND CLAUSE IS THE ONE THAT HAD NEVER BEEN BROKEN BEFORE.** *"Do not
+quietly commit it"* exists because committing is what removes the remedy above:
+once a receipt is in a commit, `git checkout HEAD -- receipts/<name>.json` restores
+**that** file rather than the last state both lanes agreed on.
+**What the commit message did say, which is the only mitigation here:** it named the
+overwrite and the mistake in its own text rather than leaving it to be found.
+
+**WHAT WAS AND WAS NOT LOST, measured rather than assumed.** Both verdicts were
+`fail`; the committed file is a **whole run of this session's**, not a mixture, so
+the "known state" remedy would swap one true measurement for an older one and is
+not worth taking. What is gone is the other lane's **run**, and it was gone the
+moment the script started — the commit did not destroy it, it only made it
+permanent. The last committed version before it was stamped 2026-10-06T23:04:08Z;
+this session's is 2026-10-08T03:26:55Z.
+
+**THE AMENDMENT, and it is one word longer than the rule above:** the `git status
+--porcelain receipts/` check belongs **in the same breath as the decision to run the
+script**, not in a review afterwards — because by the time there is something to
+review, the other lane's numbers are already gone and the only choice left is
+whether to compound it.
 
 **WHY A LANE STATEMENT DOES NOT COVER THIS.** A lane statement names the
 directories a session will WRITE and the budgets it will SPEND. `receipts/` is
