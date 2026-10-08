@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is NINETY-EIGHT specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is NINETY-NINE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -241,6 +241,10 @@ Twelve sittings unbroken.
 **97 → 98 on 2026-10-02, same edit** — a declaration compared with an inequality
 carries slack; 10 found in `tests/`, 8 correctly floors, 1 converted, 1 split
 because it was answering two questions. Thirteen sittings unbroken.
+**98 → 99 on 2026-10-07, same edit** — verification that exists only as a
+live URL is not transferable, measured when the manager's Chrome could not
+reach `localhost:5173`; visual claims now ship as screenshot FILES under
+`.manager-shots/`. Fourteen sittings unbroken.
 **93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
 number with no command and no revision beside it is a memory. Ten sittings
 unbroken.

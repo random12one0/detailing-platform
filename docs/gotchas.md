@@ -4528,3 +4528,33 @@ column zero) and three whose values are **expressions rather than literals** —
 `250 * 1024 * 1024`, `1_757_000_000`, `3600_000`. **One revision, three commands,
 three populations.** The number is a fact about the pattern, not about the repo,
 and #89 is the same lesson from the other direction.
+
+## 99. VERIFICATION THAT ONLY EXISTS AS A LIVE URL IS NOT TRANSFERABLE, AND THE SESSION'S OWN BROWSER IS WHAT HIDES IT
+
+**2026-10-07 17:50. The manager's Chrome loads an error page on
+`localhost:5173`.** Every visual turn in this repo had been ending the way
+`docs/how-we-run.md` asks — the right tabs left open at the right widths, on the
+session's own dev server — and on his screen that handoff produced an error page.
+
+**The failure is silent in the exact way this file is about.** The session walks
+the page, reads the console, measures the widths, and every one of those readings
+is *true*. The browser it used is real. Nothing fails, nothing is red, nothing in
+the transcript reads differently from a turn that handed over working evidence.
+**The measurement was sound and the delivery was empty**, and only the reader
+could tell the difference — after the work was called done.
+
+### THE RULE
+
+> **A visual claim is handed over as FILES.** Screenshots written to
+> `.manager-shots/<item>/<width>.png` at 1920, 1440x900, 768x1024, 392x844 and
+> 320, with the paths named in "Look at it". `.manager-shots/` lives in
+> `.git/info/exclude` and is never committed.
+
+### THE GENERAL SHAPE, WHICH IS WORTH MORE THAN THE PORT NUMBER
+
+**Evidence that lives in the prover's environment is not evidence.** A
+screenshot on disk, a receipt in `receipts/`, a figure with its command beside
+it (§ 94) all survive the hop to another machine. A localhost URL, a
+devtools reading, an open tab and "I looked at it" do not. **When the
+instruction says *show* somebody, ask which half of "show" your environment is
+supplying** — and here the session was supplying the whole of it.

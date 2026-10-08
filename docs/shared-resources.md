@@ -255,6 +255,22 @@ statement does not mention, because the check is about `supabase/` or `docs/`.
 which is the amendment `docs/gotchas.md` 78 and 79 already forced once — this is
 the same shape in a third place.
 
+### 8 · The manager's own browser, which cannot reach `localhost:5173`
+
+**Measured 2026-10-07 17:50 — his Chrome loads an error page there.** So the
+shared resource a visual turn actually depends on is **not** his browser; it is
+the `.manager-shots/` directory. Write screenshot files to
+`.manager-shots/<item>/<width>.png` at 1920, 1440x900, 768x1024, 392x844 and
+320, and name the paths in "Look at it".
+
+**Two sessions writing the same `<item>` overwrite each other silently**, the
+same shape as § 7 — the directory is untracked, so `git status` will never
+show you the collision. Use your own item number, and say in your lane
+statement that you are writing there.
+
+Full rule and the reason: `docs/how-we-run.md` § "Driving the browser",
+`docs/gotchas.md` 99.
+
 ## The honest column
 
 **For five of the six, nothing reports the contention** — and the sixth is

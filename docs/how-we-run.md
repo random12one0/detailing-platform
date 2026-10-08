@@ -318,6 +318,31 @@ holding only the tabs he needs**, already on the right screen.
   screen, and what "right" looks like.
 - **When nothing visual changed, say so plainly** and do not open anything.
 
+### AND SINCE 2026-10-07 HIS BROWSER CANNOT REACH THE DEV SERVER, SO "LEAVE THE TAB OPEN" IS NOT EVIDENCE ANY MORE
+
+**Measured 2026-10-07 17:50: the manager's Chrome loads an error page on
+`localhost:5173`.** Not a slow start, not a wrong port, not a tab he had not
+scrolled — it does not reach it. A dev server running on his own machine is a
+thing he cannot open.
+
+**Everything above still stands for the session's own browser** — the walking,
+the five widths, the console read at each. What changed is only the handoff:
+**a URL is no longer a deliverable here.**
+
+> **Every visual claim handed to the manager carries screenshot FILES, written
+> to `.manager-shots/<item>/<width>.png` at 1920, 1440x900, 768x1024, 392x844
+> and 320.** The "Look at it" slot names those paths instead of naming tabs,
+> and says what "right" looks like in each.
+
+`.manager-shots/` is in `.git/info/exclude` and **is never committed.** It is
+evidence for one reading, not repo history; the receipts and the figures in the
+reply card are the durable record.
+
+**Why this is a rule and not a note: the session's own browser works.** Nothing
+fails, nothing goes red, and the turn reads exactly like every turn before it.
+The only person who finds out is the manager, after the work has been called
+done. `docs/gotchas.md` 99.
+
 ## Handing off — never make Andrew ask to clear
 
 **When a task is finished and the next step is a different task, hand him the
