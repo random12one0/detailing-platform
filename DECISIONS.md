@@ -312,6 +312,9 @@ were made more than once.
 
 - **ROADMAP 6.4a — the dashboard keeps its last list of jobs on the device and its own shell in a worker, so a reload with no signal still shows the day; sign-out is the only thing that clears it** — Andrew's standing instruction to decide, 2026-10-06 (DP Cowork, Lane A): both halves of 6.4a, because a detailer reloads in driveways. The last list Today loaded is kept in `localStorage` per business and cleared only by sign-out; `sw.js` became a network-first caching worker for `/app` and `/assets`; a start with no signal shows the saved list or a plain "No connection" page with Retry. The cost is customer names, phones and addresses on the device, and the reversal is one commit.
 
+
+- **ROADMAP 0.11 slice 5 — `.webp` stays refused at the photo door, and the `expense-receipts` bucket's allowed types are left exactly as they are** — DP Cowork2, 2026-10-07, on the manager's instruction. The bucket accepts `image/webp` and the product cannot mint a `.webp` key, so the door refuses the type rather than signing an upload the isolation guard could not parse. Nothing is changed: no key function learns `webp`, and a live bucket's configuration is a structure change we do not make. What would reverse it is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18143,3 +18146,65 @@ fails outright).
 goes back to push only, `useBookings` stops remembering, and the offline start
 returns to the old behavior. Existing stored lists are removed by the next
 sign-out.
+
+## ROADMAP 0.11 slice 5 — `.webp` stays refused at the photo door, and the `expense-receipts` bucket's allowed types are left exactly as they are
+
+*DP Cowork2, 2026-10-07, on the manager's instruction. The finding is in
+`ROADMAP.md`'s 0.11 slice 5 block (third of the "three things the build turned
+up"), written in `2dc6064`; the sitting it was found in also carries
+`82f2a16`. That block ends "Either drop it from the bucket or teach the two key
+functions; not decided here." This is that decision, and it is **neither**.*
+
+**THE RULING: nothing changes.** The `expense-receipts` bucket keeps
+`image/webp` in its `allowed_mime_types`, the photo door keeps refusing that
+type, and **no key function learns to mint or parse a `.webp` key.**
+
+**THE STATE, READ OUT OF THE FILES RATHER THAN REMEMBERED** (all four at
+`2dc6064`):
+
+| where | what it says |
+|---|---|
+| `supabase/migrations/20260921020000_a_receipt_is_not_a_job_photo.sql:62` | the bucket's `allowed_mime_types` is `array['image/jpeg','image/png','image/webp']` |
+| `app/src/lib/photo-rules.js:136` | `extForType` is one expression: `image/png` → `png`, **everything else** → `jpg` |
+| `supabase/functions/_shared/photoKey.ts:93` | the key regex ends `\.(jpg\|png)$` — a `.webp` key does not parse, and `parseObjectKey` returning `null` is what `businessOwnsKey` reads as "not yours" |
+| `supabase/functions/_shared/photoDoor.ts:135` | `EXT` maps `image/jpeg` and `image/png` and nothing else, so the door refuses the type at `start` |
+
+**WHY REFUSING IS RIGHT AND NOT A GAP.** The isolation in this product is the
+first segment of a parsed key. A type the door signed but the key functions
+could not parse would produce an object nobody can prove the ownership of —
+`assertBusinessOwnsKey` would refuse the detailer their own receipt, which
+reads as a broken upload rather than as an unsupported format. **Refusing at the
+door is the only place the refusal is legible.**
+
+**WHY THE BUCKET IS LEFT ALONE, AND THIS IS THE HALF ANDREW'S RULES DECIDE
+rather than taste.** `allowed_mime_types` on a live bucket is configuration in
+the live database. CLAUDE.md § Hard rules: a session writes migration FILES and
+never applies them, and no session deploys or publishes. So "drop it from the
+bucket" is not a thing a session can do — it is a row in `FOR-ANDREW.md` at
+best, and **a chore with no symptom.** Nothing in this product produces a
+`.webp`: no camera path, no export, no email, no tenant site. The bucket's
+third entry is dead permission, not an open door — a browser cannot reach that
+bucket without a signed URL from the door, and the door never signs one.
+
+**WHAT IT COSTS, SAID PLAINLY.** A detailer who has a `.webp` receipt on their
+phone — a screenshot saved by a modern browser is the realistic way that happens
+— is told the type is not accepted and has to save it as a JPEG or PNG. That is
+a real, small cost, and it is paid by the person least equipped to understand
+it. It is accepted because the alternative is two key functions, a regex, a
+migration against a live bucket and a publish, for a format no part of this
+product emits.
+
+**WHAT WOULD REVERSE IT.** A real receipt arriving as `.webp` more than once —
+i.e. somebody hitting the refusal rather than somebody predicting it. Then it is
+**one change in three files and nothing else**: `extForType` learns
+`image/webp` → `webp`, `OBJECT_KEY` gains `|webp`, `EXT` gains the
+pair, and the bucket needs nothing done to it at all, because it already allows
+the type. **That asymmetry is the reason this ruling is cheap to hold:** the
+expensive half (the live bucket) is already done, and the cheap half is the half
+that is deliberately not.
+
+**WHAT MUST NOT HAPPEN INSTEAD.** Teaching `extForType` without
+`OBJECT_KEY` — that mints keys the isolation guard reads as another tenant's.
+The two live in different directories and are changed by different lanes, which
+is exactly how one of them gets done alone. `tests/photo-key-isolation.test.mjs`
+is where a check for that belongs.
