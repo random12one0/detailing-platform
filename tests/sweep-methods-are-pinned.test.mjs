@@ -269,7 +269,12 @@ const DECLARED = {
   // population with it, which this constant's own trail already records happening
   // twice (7.8 on 2026-10-07, and the 37 -> 32 move on 2026-10-06). Measured at
   // both ends against `git show 639ae24:ROADMAP.md` (35) and this tree (34).
-  quoteCriteria: 34,
+  //
+  // 34 -> 35, 2026-10-08, and it is NOT this edit's: the other lane's 2.15a
+  // done-when write-up (`868d23f`) gave that item's Done-when zone a quoted
+  // fragment, so 2.15a entered the criteria population. This commit's own note
+  // lands inside 4.7's zone, which was already in it.
+  quoteCriteria: 35,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -382,7 +387,17 @@ const DECLARED = {
   // write-ups for the two money bugs the OTHER lane found by reading them cold.
   // `quoteCriteria` holds at 34 — both items were already in the population.
   // Measured against `git show 96d7eb6:ROADMAP.md` (319) and this tree (323).
-  quoteFragments: 323,
+  //
+  // 323 -> 328, 2026-10-08, and FOUR OF THE FIVE ARE THE OTHER LANE'S:
+  //
+  //     e20ed1e                          323   <- where 323 was taken
+  //     b4f1d70 + 868d23f                327   +4  FOR-ANDREW's ten-step list and 2.15a's done-when
+  //     + 4.7's 3+1 note (this commit)   328   +1
+  //
+  // Both ends measured against `git show 868d23f:ROADMAP.md` (327) and this
+  // tree (328). Fifth time in two sittings this constant has been overtaken
+  // between a measurement and its commit.
+  quoteFragments: 328,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

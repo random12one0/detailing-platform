@@ -10443,6 +10443,26 @@ requested.
   back unchanged**: the proof is that there is nothing left to press, so nothing
   was ever written. Frames in `.manager-shots/4.7-fix/`.
 
+  **AND THE CONTROL BROKE 3 + 1 AT 392 IN SPANISH — sent back from the 392
+  frame, fixed in `bb09f5e`.** The two-column rule written for 320 lived inside
+  `max-width: 360px`, so between **361 and 430** the control was still the base
+  `inline-flex` and a wrap filled the first row and dropped the remainder,
+  leaving *"Perdonado"* alone under three others. **A wrap is always 3 + 1 for
+  four items**; the grid makes the break even, which is this stylesheet's own
+  "a pair becomes a stack" answer and the same shape its six-option rule takes.
+  **431 is measured, not chosen:** the four Spanish labels want **395px** of
+  control (74 + 125 + 85 + 94 plus gaps and padding) and the control gets the
+  viewport less 36px of page gutter, so one row fits from 431 up. Swept before
+  and after at 320 / 360 / 361 / 392 / 420 / 460 / 500 / 560 / 620 / 700 / 768 /
+  900 / 1180 / 1440 / 1920: **before, 3 + 1 across 361–420; after, 2x2 at and
+  below 420 and one row at and above 460, with no 3 + 1 at any width.** English
+  wants 296px and fits on one row at every width down to 320, so it is untouched
+  at all fifteen — which keeps the earlier item's *"nothing that fits today
+  moves"* true. Re-shot at 392 and 768 Spanish: 392 is 2x2 with every button
+  173x36, each label on one line and each its own topmost element by hit test;
+  768 is one row of four at their natural widths. Frames in
+  `.manager-shots/4.7-fix/`.
+
   **AND THE CHECK THAT WAS MISSING WHILE SEVEN WENT GREEN NOW EXISTS.**
   `tests/payment-correction.test.mjs` gains **3a** and the
   `PAYMENT_BREAK=no-reset` sabotage: **8 pass clean, and all seven sabotages go
