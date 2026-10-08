@@ -70,6 +70,19 @@
 // run on SIGTERM, and the `finally` here is what deletes an account that can
 // read every detailer in the product.
 //
+// **AND BECAUSE THAT WILL HAPPEN ANYWAY, THE CLEANUP RUNS AT BOTH ENDS.** A run
+// killed at a cap, closed with the terminal, or stopped from a task list leaves
+// **one `platform_admins` row and one auth user behind, and they stay until the
+// next run of this file.** That is the honest statement of the window: not
+// "never", not "briefly" — until somebody runs this again. So before it creates
+// anything, this script deletes any existing account at the constant below and
+// SAYS SO IF IT FOUND ONE. A leftover that is swept up silently is a leftover
+// nobody learns about.
+//
+// **`tests/platform-admins-declared.test.mjs` is what notices in the meantime.**
+// A surviving row is an UNDECLARED platform admin and that check goes red naming
+// it, which is the backstop for the window this cleanup cannot close.
+//
 // ---------------------------------------------------------------------------
 // WHAT IT ASKS
 // ---------------------------------------------------------------------------
@@ -309,6 +322,28 @@ if (!URL_ || !KEY) {
   process.exit(1);
 }
 
+/**
+ * Delete any account left at ADMIN_EMAIL by an earlier run that did not reach
+ * its `finally`. Returns true when one was found, so the run can say so.
+ *
+ * Finding it needs the auth user list: `dropAdmin` takes an id, and a killed
+ * run took its id to the grave.
+ */
+async function dropLeftover() {
+  const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
+  const all = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=1000`, { headers: H }))
+    .json().catch(() => ({}));
+  const left = (all.users ?? []).find((u) => u.email === ADMIN_EMAIL);
+  if (!left) return false;
+  await dropAdmin(URL_, KEY, left.id);
+  return true;
+}
+
+const leftover = await dropLeftover();
+console.log(leftover
+  ? `found a LEFTOVER ${ADMIN_EMAIL} from a run that did not reach its teardown — deleted it before starting`
+  : `no leftover ${ADMIN_EMAIL}`);
+
 const acct = await makeAdmin(URL_, KEY, ADMIN_EMAIL);
 if (!acct) {
   console.error("could not create the throwaway platform admin; nothing measured, no receipt written");
@@ -539,8 +574,11 @@ const { path } = writeReceipt({
     ".pa-load is INJECTED with the app's own class on the strip surfaces, because the product draws "
     + "it only while a fetch is in flight. Nothing about the app is modified; a probe that waited to "
     + "catch one would usually measure nothing and call it clean.",
-    "Signs in as a THROWAWAY platform admin created for this run and deleted in a finally. Do not "
-    + "wrap this script in `timeout`: docs/gotchas.md 90, a finally does not run on SIGTERM.",
+    "Signs in as a THROWAWAY platform admin created for this run and deleted in a finally, AND "
+    + "any leftover at that address is deleted before the run starts. Do not wrap this script in "
+    + "`timeout`: docs/gotchas.md 90, a finally does not run on SIGTERM, and a killed run leaves "
+    + "one platform_admins row until the next run of this file. "
+    + "tests/platform-admins-declared.test.mjs reddens on it in the meantime.",
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
   ],
   dimensions: {
@@ -550,6 +588,7 @@ const { path } = writeReceipt({
     absolute: ABSOLUTE,
     furniture: [".pa-top", ".pa-x", ".pa-load"],
     strip_findings: stripHits,
+    leftover_admin_found_at_start: leftover,
     observed,
     sabotage: BREAK || null,
   },
