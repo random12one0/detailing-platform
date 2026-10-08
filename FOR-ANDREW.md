@@ -148,6 +148,12 @@ the program works without the table and says so in its answer, it just does not 
    and when" (ROADMAP 4.1). `update-booking` writes one row per change. Apply it **before** publishing `update-booking`
    (Part 2, step 3): published first, the program still works, logs the failure and answers `audit_recorded: false` on
    every change until the table exists. It holds the one field that changed and nothing about the customer.
+   **AND SINCE 2026-10-07 IT IS TWO ITEMS WAITING ON IT RATHER THAN ONE, AND THE SECOND ONE IS ALREADY ON THE SCREEN.**
+   ROADMAP 4.7 is built: a detailer who picked the wrong answer on Finalize — said a job was paid when it was not, or gave
+   it away by accident — can now change it back from the job's own page. It works today, and the money figures were watched
+   moving the right way on every press. **What is missing is only the written record of the correction, which is this
+   table.** So 4.7 stays unticked until you have done both halves — apply this change, then publish `update-booking` — and
+   **neither half changes anything a detailer sees.** The fix is already in front of them; this is the paper trail behind it.
 2. **`20261006062000_send_invoice_attempts.sql`**: the memory behind "press Send invoice twice, get one invoice" (ROADMAP 6.4).
    **The website's half is now done** (2026-10-07): the receipt button gives every send a ticket, keeps the same ticket if it
    has to try again, and takes a fresh one once a send has gone through, so the server can tell "that did not go, send it
@@ -201,7 +207,8 @@ name and do not re-run the big line.
    car counted once (14.19); the rate ceilings on every public page (14.9, 14.18);
    the booking-id link in the delivery record (3.1, `send-email`, after change 2
    above); a repeated press leaves one change (6.4); Spanish and car-size wording in
-   emails (3.4); maintenance and campaign legal footers (0.7).
+   emails (3.4); maintenance and campaign legal footers (0.7); **the written record of a corrected payment (4.7,
+   `update-booking`, and only together with change 1 in Part 1b — the correction screen itself is live either way)**.
 4. **`platform-billing`, alone.** The paid-restart fix (ROADMAP 12.1).
 5. **`stripe-webhook`, last and alone.** The ceilings (14.9, 14.18) and the
    email wording (3.4) on the one program that handles money.
