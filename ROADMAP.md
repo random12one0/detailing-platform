@@ -11883,6 +11883,140 @@ rather than wording went to Andrew.
   answer, confirmed rather than repeated. Status unchanged: **open on
   Andrew's wording only.**
 
+  **CLAUSE (b) EXISTS NOW, AND IT IS RED — 2026-10-07.**
+  `tests/privacy-processors.test.mjs`, credential-free: no dev server, no
+  browser, no Geoapify credit, no email allowance, nothing written to disk.
+  **7 passed, 1 failed** at commit `2c0308a`, re-take
+  `node --test tests/privacy-processors.test.mjs`.
+
+  **THE ONE RED, AND IT IS A REAL GAP THAT NEITHER AUDIT AND NEITHER LIST
+  MENTIONS: Cloudflare.** `_shared/r2.ts:186` builds the photo store's host as
+  `${cfg.accountId}.r2.cloudflarestorage.com`, and `photo-door`,
+  `photo-reconcile` and `delete-customer` all sign for it. **Job photographs
+  leave for a company the privacy page does not name.** The check reports it by
+  name, with the host, the file and the line, and what it receives.
+
+  **AND THE REASON TWELVE DAYS OF READING MISSED IT IS THE CHECK'S OWN SECOND
+  PASS.** A `https?://` grep — which is what every by-hand sweep of this item
+  used, including the 2026-09-22 one that swept `_shared/` "for anything else
+  the booking flow talks to" — **cannot see this host at all**, because the
+  literal in the source has no scheme on it. The same blindness hides DeepL
+  (`_shared/translate.ts:125` picks `api.deepl.com` or `api-free.deepl.com` as a
+  bare string). So the check runs two passes: `https?://<literal>`, and bare
+  hostname literals validated against a declared tld set. **Both on
+  comment-stripped text**, because `r2.ts` quotes Amazon's example bucket in its
+  own header and `db.ts` quotes the `esm.sh` import it removed in September —
+  a one-pass scan over raw text counts both as live hosts and misses the one
+  that matters.
+
+  **WHICH SECTION ANSWERS WHICH CLAUSE, and the figures, each with its command.**
+  All at `2c0308a`; re-take is the one command above unless stated.
+
+  | | |
+  |---|---|
+  | files scanned / distinct hosts | **236** / **38** — 32 literal, 6 completed at run time |
+  | processors the code earns | **12** — Geoapify, US National Weather Service, Resend, Stripe, DeepL, Google Translate, Google Fonts, Google Maps, Apple Maps, Waze, Google Calendar, Cloudflare |
+  | named on the page | **11 of 12** |
+  | § 2 — clause (c) | every literal host classifies, or the run fails by name. 32 of 32 classified |
+  | § 3 — clause (b), code → page | **1 missing: Cloudflare** |
+  | § 4 — clause (b), page → code | 0 extra, against a vocabulary of **19** names |
+  | § 5 — clause (d) | **6** run-time hosts + **5** declared ungreppable, all 11 printed by name every run |
+
+  **CLAUSE (c) IS IN THE CHECK, NOT IN A REVIEWER'S HEAD**, as the clause asks:
+  a table of exact host strings — never patterns, because a wildcard is slack
+  and `docs/gotchas.md` 98 is about what slack costs — each row carrying one of
+  seven kinds and a reason. **`processor`** receives customer data or answers
+  about a customer. **`platform`** is the floor the product stands on, which is
+  the clause's own named exception. **`credit`** is `openstreetmap.org`, where no
+  request is ever made and where naming it on the page would be the other half
+  of this item's fault. **`plain-link`** is the distinction List B findings 2 and
+  3 turn on and is worth reading twice: a Directions link is a processor because
+  **the customer's address is inside the URL**, and a Venmo link is not, because
+  the only thing inside it is the detailer's own handle. A host in none of the
+  seven **fails the run** rather than being dropped.
+
+  **CLAUSE (d), AND IT NAMES ITS OWN CEILING.** Eleven things it cannot resolve,
+  printed by name on every run, pass or fail. Six are hosts finished at run time
+  (`${host}`, `${o.host}${path}`, four more), each with what it is. Five have
+  **no literal of any kind** and were declared from reading, because no pass of
+  any check can find them: the Supabase project host from the environment, the
+  three browser push endpoints that arrive inside the subscription object,
+  Stripe's hosted pages whose URL Stripe returns, a detailer's own custom
+  domain, and **any host a future environment variable introduces — which is
+  the honest ceiling: a processor added purely by configuration will not redden
+  this check.** The declaration is asserted with an **equality**, so a seventh
+  run-time host reddens the run instead of being absorbed.
+
+  **BROKEN ON PURPOSE, FOUR WAYS, AND EACH ONE CAUGHT.** Nothing on disk; every
+  sabotage is in memory and every one runs through the same `hostsIn()`,
+  `classify()` and `reconcile()` the real run used, which is `docs/gotchas.md`
+  95's requirement that a canary be aimed at production code and not a copy.
+
+  | sabotage | result |
+  |---|---|
+  | `PRIVACY_BREAK=drop-name` — strips "Geoapify" out of the page text | 6/1, § 3 now names **2** missing |
+  | `PRIVACY_BREAK=new-host` — adds `api.sentry.io` to a real file | 5/2, § 2 fires, unclassifiable, by name |
+  | `PRIVACY_BREAK=flatten-blind` — pretends run-time hosts are judgeable | 4/3, § 5's equality fails **and** § 2 fires on all six |
+  | `PRIVACY_CANARY=off` | 5/2, § 6 fails on purpose — a run cannot be green with the canaries off |
+
+  **AND A POSITIVE CONTROL, BECAUSE THIS CHECK IS RED ON ARRIVAL AND A SABOTAGE
+  ONLY PROVES A SECTION CAN FAIL.** Without it, *"red for the right reason"* and
+  *"red because the comparison is broken"* look identical. § 7 feeds the real
+  page text with the word Cloudflare appended through the real `reconcile()` and
+  requires that it clears **exactly** Cloudflare and leaves the rest alone:
+  `section 3 red on: [Cloudflare] · with "Cloudflare" on the page: [nothing]`.
+  So the one thing standing between this run and green is the copy below, and
+  that claim is machine-checked rather than asserted.
+
+  **WHAT THE CHECK DELIBERATELY DOES NOT KNOW.** It judges **this checkout**,
+  never the deployed functions — that is `deployed-inventory.mjs`'s question and
+  needs credentials. `photo-door`'s own header says **NOT DEPLOYED**, and today's
+  photos are still in Supabase Storage. **The red is still correct**, because the
+  page becomes wrong the moment Andrew publishes rather than the moment somebody
+  notices, and the page already has the shape for a not-yet-live processor: the
+  Google Business Profile section opens by saying it is not switched on.
+
+  **THE COPY CHANGE, READY TO APPLY — LANE A, ONE STEP.** Written out rather
+  than described, because this item has twice been re-opened on a description.
+
+  **File:** `app/src/landing/legal.js`. **Where:** inside `PRIVACY`'s section
+  array, **immediately after** the element whose title is
+  `"The two buttons that hand a job to somebody else"` and **before** the
+  `// ── GOOGLE SIGN-IN` comment. **Insert exactly this element:**
+
+  ```js
+    ["Where your photos will live",
+     "**This is not switched on yet.** It is written here so you know what will happen when it is. Today your photos are held in the same place as everything else, with Supabase. When the new photo storage is switched on, the picture files will be kept by **Cloudflare** instead, and the rest of the booking will stay where it is. Cloudflare receives the picture and nothing else. Each file is named with random identifiers, so no customer name, address, phone number or note travels with it. Your browser hands each photo straight to them through a one-time link this product signs, so your own computer never holds a key of ours. Nothing here is sold, and Cloudflare is not paid to use any of it for anything of their own."],
+  ```
+
+  **Why each sentence is there, so none of it gets trimmed as padding:**
+  *not switched on yet* is the page's own existing convention for a processor
+  that is wired and not live, and without it the sentence is false today.
+  *Today ... with Supabase* answers the question the first sentence creates.
+  *random identifiers* is a fact worth more than the disclosure: the object key
+  is `businessId/ownerId/photoId.ext`, three UUIDs, so **no name, address, phone
+  or note reaches Cloudflare** — `_shared/photoKey.ts:57`. *one-time link* is
+  why the browser never holds a credential, `_shared/r2.ts` header.
+
+  **NO SPANISH KEY.** This page is English-only — `grep -c "t(" app/src/landing/legal.js`
+  answers **0** at `2c0308a`, re-confirmed today rather than carried over, since
+  the entry's earlier note counted one match (`initThread(`) that is no longer
+  in the file. **American English checked by reading:** no *colour*, *licence*,
+  *practise* or *whilst* in the inserted copy; it contains no em dash, so
+  `docs/gotchas.md`'s three em-dash shapes do not arise.
+
+  **AFTER APPLYING IT, LANE A RUNS `node --test tests/privacy-processors.test.mjs`
+  AND IT MUST READ 8 PASSED, 0 FAILED.** That is the whole verification of the
+  copy half; `tests/landing-pricing.test.mjs` also reads this file and must stay
+  green.
+
+  **STILL NOT TICKED, AND THE REMAINING CONDITION IS ONE LINE.** Clause (b)
+  exists and fails by name, which is what the item was open on. It is **red**, so
+  the two lists do not match yet, which is clause (a). **Tick it when the copy
+  above is in and the check reads 8/0** — and not before, because a mechanism
+  that is red is a working mechanism and an unfinished item, and those are two
+  different things.
+
 - [x] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
   areas; the page is about 13 screens tall; the headline types letter by letter;
