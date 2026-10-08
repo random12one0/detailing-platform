@@ -126,7 +126,22 @@ const OPEN_FLOOR = 40;
 // things) was closed, Andrew having ruled the stages redesign not built, and took
 // its collision with old-roadmap 9.2 with it. Read off the failure's own list, which
 // names the open items sharing a number: 9.2 was the only one that left.
-const CROSS_FILE_OVERLAP = 15;
+//
+// **15 → 14 on 2026-10-08, same cause for the fifth time:** 9.4 (the calendar) was
+// ticked and took its collision with old-roadmap 9.4 with it. Nobody renumbered
+// anything — this constant's own note says a shrink is worth knowing because it
+// USUALLY means a renumber, and this is the other way it can shrink. Read off the
+// failure's own list, which names the fourteen that remain: 0.3, 0.4, 1.3, 2.1,
+// 2.15, 3.1, 3.3, 3.4, 4.1, 4.3, 6.1, 8.2, 8.5, 9.1 — 9.4 is the only one gone.
+//
+// **AND THIS GATE WAS RED FOR EXACTLY ONE COMMIT, `e95f01c`, WHICH IS WORTH A LINE
+// RATHER THAN A QUIET FIX.** The failure was on screen when that commit was made
+// and it was committed anyway, in the same breath as a message claiming the gates
+// were run. Nothing downstream was harmed — the move is this one line and the tick
+// it describes is correct — but "the output was printed" and "the output was read"
+// are two different things, and this repo's oldest lesson is about exactly that
+// gap. Caught on the next command rather than by anybody else.
+const CROSS_FILE_OVERLAP = 14;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 
