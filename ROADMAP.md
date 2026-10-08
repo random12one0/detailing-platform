@@ -5728,6 +5728,93 @@ the wrong service, and never book a job we cannot reach.
   paste into a capped box is cut silently at 60 with no message. Nothing above
   changes that, and the two new caps add two more places it happens.
 
+  ***THE SERVER SENTENCE IS BUILT — 2026-10-07 (DP Cowork2, Lane B). NOTHING
+  DEPLOYED, NOTHING APPLIED, NO `app/src`.*** `_shared/nameLimit.js` holds
+  `NAME_MAX = 60` and `checkName(raw)`, and `_shared/newBusiness.ts` calls it
+  where it used to check only for an empty name. A refusal is *“A business name
+  can be at most 60 characters. Shorten it and try again.”* — **the number is in
+  the sentence**, because *“too long”* leaves a person deleting characters one at
+  a time to find out how many.
+
+  **WHY IT EXISTS AT ALL:** a violated CHECK is Postgres `23514`, which Supabase
+  hands back naming the constraint. Without this, the sentence a detailer meets
+  at signup is *“new row for relation "businesses" violates check constraint
+  "businesses_name_len"”*.
+
+  **AND THE SCOPE IS ONE WRITER, WHICH IS A FINDING AND NOT A SMALL SCOPE.**
+  `grep -rn 'from("businesses")' supabase/functions` with its following line
+  shows **exactly one `insert`** in all of `supabase/functions` —
+  `_shared/newBusiness.ts:72` — and both ways a business can come into existence
+  reach it: `create-business/index.ts:50` (signup) and
+  `platform-admin/index.ts:813` (the back office). One guard covers both.
+
+  | the other four names | where they are actually written |
+  |---|---|
+  | `services.name` | `app/src/screens/more/Catalog.jsx:247`, `:248` |
+  | `add_ons.name` | `Catalog.jsx:266`, `:267` |
+  | `service_groups.name` | `Catalog.jsx:289`, `:290` |
+  | `plans.name` | `app/src/screens/more/Plans.jsx:211`, `:212` |
+
+  **THE BROWSER WRITES ALL FOUR DIRECTLY, UNDER RLS, WITH NO EDGE FUNCTION IN
+  THE PATH.** So there is no server sentence to add for them: **the column's own
+  CHECK is the only server-side guard those four can have**, and when it fires
+  the browser will show `23514` unless the screen catches it. Routing catalog
+  writes through a function is what CLAUDE.md's *“consequential writes go through
+  edge functions”* would want and is a far larger change than this item —
+  **named here rather than left as a silence**, because a reader of the server
+  half would otherwise reasonably assume it covers five names. `businesses.name`
+  is also edited from the browser at `BusinessInfo.jsx:149`, so even that column
+  has a browser path the new guard does not sit on.
+
+  **ENGLISH ONLY, AND IT IS THE EXISTING SHAPE RATHER THAN A SHORTCUT.** `grep
+  -rn "error: tt(" supabase/functions` returns **nothing**: no edge function in
+  this repo localizes an HTTP refusal. `tt()` and `_shared/strings/es.ts` are
+  email copy, and `_shared/i18n.ts`'s own header says the language is always an
+  argument because there is no ambient locale in a function. Every other
+  sentence `createBusinessRow` can return is English today. **A single Spanish
+  exception for one of six refusals would read as a bug rather than as
+  progress.** The gap is real and is now written down: the signup screen can be
+  in Spanish while every refusal it can provoke is in English.
+
+  **IT COUNTS CODE POINTS, BECAUSE THAT IS WHAT POSTGRES COUNTS.**
+  `char_length` counts characters; JavaScript's `.length` counts UTF-16 units,
+  and an emoji is two. **A server counting `.length` would be STRICTER than the
+  column it protects** — refusing a 40-emoji name the database would have stored
+  — which is a refusal with no authority behind it. It also counts the TRIMMED
+  value, because the trimmed value is what gets stored.
+
+  **PROVED, CREDENTIAL-FREE: `node --test tests/name-length.test.mjs` → 11
+  passed, 0 failed.** It imports the module and runs it. Four sabotages, **one
+  per path**: the code-point count swapped for `.length` and the mutated module
+  **imported from a `data:` URL so the thing executed is production code with a
+  defect in it**; the guard removed from the writer; and each of the two callers
+  rewritten to insert into `businesses` directly, which must make § 4's
+  no-bypass half go red. § 5 asserts the module, the five bounded columns and the
+  capped boxes all say the same 60, and **prints the two uncapped boxes by name
+  rather than failing**, because adding them is Lane A's file.
+
+  **ONE THING WENT WRONG IN THIS TEST AND IT IS `docs/gotchas.md` 95 ARRIVING
+  INSIDE ITS OWN SABOTAGE.** The emoji fixture was first written as 30 car
+  emoji — which is **60 UTF-16 units exactly**, and the rule is `> 60`, so the
+  broken module accepted it and the sabotage could not bite. The fixture looked
+  deliberate and the number looked like the cap. It is 40 now (80 units, 40
+  characters), and the comment says why. **Caught by running the sabotage rather
+  than by reading it.**
+
+  **AND THE PARSE EVIDENCE IS REAL THIS TIME:**
+  `require("node:module").stripTypeScriptTypes(src, { mode: "strip" })` accepts
+  `newBusiness.ts`, `create-business/index.ts` and `platform-admin/index.ts`, and
+  **throws on a copy with a deliberate syntax error** —
+  `node --experimental-strip-types --check` does not, which is
+  `docs/gotchas.md` 101 and corrected in 9.18 (d) tonight.
+
+  **THE ORDER MATTERS AND IT IS ON ANDREW'S LIST AS `FOR-ANDREW.md` PART 1c:**
+  **publish `create-business` and `platform-admin` FIRST, then apply
+  `20261007010000_tenant_string_lengths.sql`.** The other way round, for the
+  hours in between, a long name at signup answers with database jargon instead
+  of a sentence. Nothing is broken either way; it is only which sentence a new
+  detailer reads.
+
 - [x] **9.11d — DONE 2026-10-06 (first clause and the red proof; the second is 9.11e). Seven scripts save evidence frames that can be wrong, on one named condition.**
   fullPage: true paints a position: fixed element at the wrong place. Measured
   2026-10-03 at 1440: the app shell's rail is at x 24–96 in the DOM and x ~445 in
@@ -17631,7 +17718,18 @@ the dashboard or back office at phone width at all.
   **WHAT THIS DOES NOT DO.** It does not run the function: there is no Deno on
   this machine and the deploy bundler does not type-check, so the gate is proved
   as source and `node --experimental-strip-types --check` is all that says it
-  parses. **The live 400 is unchanged until `platform-admin` is published** —
+  parses.
+  ***^ THAT SENTENCE IS WRONG AND IT WAS WRONG WHEN IT WAS WRITTEN — corrected
+  2026-10-07, the next sitting, by breaking the check on purpose instead of
+  trusting its exit code.*** `node --experimental-strip-types --check` **exits 0
+  on a copy of this very file with `(((` injected into `Deno.serve`**, and exits
+  1 on a valid `.ts` file whose types it parses as JavaScript. **Nothing said
+  this file parses.** What does is
+  `require("node:module").stripTypeScriptTypes(src, { mode: "strip" })`, which
+  throws on a real syntax error — run against `platform-admin/index.ts` after the
+  gate landed, it accepts it, and it refuses the `(((` copy. So the gate does
+  parse; **the evidence originally given for that was worth nothing**, which is a
+  different fault from the claim being false. `docs/gotchas.md` 101. **The live 400 is unchanged until `platform-admin` is published** —
   already step 2 of `FOR-ANDREW.md`'s one ordered list, which now says that this
   tab's error is the same publish.
 

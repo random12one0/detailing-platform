@@ -17,6 +17,8 @@
 // cannot, because the person it is signing up may not have an account at all.
 // So membership is the caller's business and this function refuses to guess.
 
+import { checkName } from "./nameLimit.js";
+
 // deno-lint-ignore no-explicit-any
 type Db = any;
 
@@ -45,11 +47,25 @@ const hoursFor = (business_id: string) => [
 ];
 
 export async function createBusinessRow(db: Db, input: NewBusinessInput): Promise<NewBusinessResult> {
-  const name = String(input.name || "").trim();
+  // ROADMAP 2.15a — THE NAME IS TRIMMED, CHECKED FOR EMPTY *AND* CHECKED FOR
+  // LENGTH IN ONE PLACE. `_shared/nameLimit.js` is a plain `.js` module so a
+  // node test can execute the rule; its header carries the reasoning,
+  // including why it counts code points rather than `.length`.
+  //
+  // **THIS IS THE ONLY NAME AN EDGE FUNCTION WRITES.** Both ways a business
+  // can come into existence land here — `create-business` (signup) and
+  // `platform-admin`'s `create` (the back office) — and there is exactly ONE
+  // `insert` into `businesses` in all of `supabase/functions`: the one below.
+  // The other four names in 2.15a (`services`, `add_ons`, `service_groups`,
+  // `plans`) are written by the BROWSER under RLS with no server in the path,
+  // so for those the column's own CHECK is the only server-side guard there
+  // can be. 2.15a says so rather than letting this read as covering five.
+  const checked = checkName(input.name);
+  if (!checked.ok) return { error: checked.error, status: 400 };
+  const name = checked.value;
   const slug = String(input.slug || "").trim().toLowerCase();
   const timezone = String(input.timezone || "").trim();
 
-  if (!name) return { error: "A business name is required.", status: 400 };
   if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(slug)) {
     return { error: "Choose a web address using lowercase letters, numbers and dashes.", status: 400 };
   }

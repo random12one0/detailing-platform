@@ -166,6 +166,35 @@ the program works without the table and says so in its answer, it just does not 
 `node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_send_invoice_attempts.sql`
 then `node scripts/migration-drift.mjs`, which should stop naming both.
 
+### Part 1c · One more database change, and this one has an ORDER — written 2026-10-07
+
+1. **`20261007010000_tenant_string_lengths.sql`**: a length limit on the five names a detailer
+   types — their business name, their services, their add-ons, their service groups and their
+   plans. Sixty characters each, which is the limit the boxes on the website already use.
+   **It is the only one of these changes where the order matters, so this is the whole of it:**
+   **publish `create-business` and `platform-admin` FIRST** (they are already in Part 2, steps 2
+   and 3), **then apply this.**
+
+   **Why that way round.** Done in that order, somebody typing a very long business name is told,
+   in a sentence, that a name can be at most sixty characters. Done the other way round, for the
+   hours in between, they are shown a line of database jargon with the words *"violates check
+   constraint"* in it — at signup, which is the first thing a new detailer ever does here.
+   Nothing is lost either way and nothing is broken either way; it is only a question of which
+   sentence they get.
+
+   **Nothing in the database today is anywhere near the limit** — the longest business name on
+   there is 48 characters, and the longest of anything else is 22 — so applying this cannot make
+   any existing row illegal. Checked by reading, before the file was written.
+
+   **Two boxes on the website still have no limit on them** — the one on the signup form and the
+   one in your own back office — and that is a website change somebody here will make, not
+   something for you.
+
+`node scripts/apply-migrations.mjs 20261007010000_tenant_string_lengths.sql`
+then `node scripts/migration-drift.mjs`. **It will not mention this one either way** — that check
+cannot see this kind of change, which is written in its own notes; it is not a sign that anything
+went wrong.
+
 ### Part 2 · Publish the programs, in your settled order
 
 **The order is your own, from the night of 2026-09-21 — restated, not reopened:**

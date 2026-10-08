@@ -4611,3 +4611,47 @@ the same family as “A STYLESHEET REVIEW AND A SCROLL CHECK WOULD BOTH HAVE
 PASSED THIS FOREVER” and “AN ACCESSIBILITY WALKER CAN ONLY SEE THE CLICKABLE
 THINGS THAT WERE STYLED AS CLICKABLE” above — arriving this time through the
 instrument nobody doubts.
+
+## 101. `node --experimental-strip-types --check file.ts` EXITS 0 ON A FILE WITH A SYNTAX ERROR AND 1 ON A FILE WITH NONE, SO ITS EXIT CODE CARRIES NO INFORMATION AT ALL
+
+**Found 2026-10-07, and it had already been written into a ROADMAP entry as evidence the night before.**
+
+There is no Deno and no TypeScript compiler on this machine, so `supabase/` is never type-checked.
+A session reaching for *"at least prove it parses"* finds `node --check`, which is exactly right
+for `.mjs`, and on Node 24 the type-stripping flag is already on. **Both halves of the reading are
+wrong, measured on Node v24.18.0:**
+
+| what was run | what happened |
+|---|---|
+| a copy of `platform-admin/index.ts` with `(((` injected after `Deno.serve(async (req) => {` | **exit 0.** A deliberate syntax error, reported clean |
+| `_shared/newBusiness.ts`, untouched and valid | **exit 1** — `SyntaxError: Unexpected identifier 'Db'` at `type Db = any;`, i.e. parsed as plain JavaScript with the types left in |
+
+So a **0** can mean *the file was never parsed* and a **1** can mean *the file was parsed as the
+wrong language*. The second is the louder failure and therefore the safer one: it sends you looking
+at a line that is fine. **The first is the dangerous one**, because it is what a session gets on the
+file it actually edited, and it reads as a pass.
+
+**WHAT DOES WORK, AND IT IS ONE CALL:** `require("node:module").stripTypeScriptTypes(src, { mode:
+"strip" })` **is** the parser — it throws on a real syntax error and returns JavaScript otherwise.
+Measured in both directions: it threw *"Expression expected"* on the `(((` copy, and accepted
+`platform-admin/index.ts`, `_shared/newBusiness.ts` and `create-business/index.ts` unchanged. Write
+its output to a `.mjs` if you also want `node --check`'s own opinion, but the strip is what catches
+the fault.
+
+```bash
+node -e 'require("node:module").stripTypeScriptTypes(require("fs").readFileSync(process.argv[1],"utf8"),{mode:"strip"})' <file.ts>
+```
+
+**AND WHAT IT STILL IS NOT.** Stripping is a parse, not a type-check: a wrong type, a missing
+property, a misspelled import still pass. `_shared/email.ts` records a type error that shipped and
+put the literal word `undefined` into every detailer's email as a colour, and nothing here would
+have caught it. **Say "it parses", never "it compiles".**
+
+**THE SHAPE, which is why this is an entry and not a footnote.** The tool was not broken and
+nothing was misread: `--check` was asked a question about a language it was not told it was reading,
+and it answered confidently. **A green from a tool that was never pointed at the thing you meant is
+indistinguishable from a green from one that was** — the same disease as “A SKIPPED CHECK READS
+EXACTLY LIKE A PASSING ONE”, with the skip inside the tool rather than inside our own `if`. The
+only reason it was caught is that § 95's rule was followed: a copy was broken on purpose before the
+result was believed. **It had been quoted as evidence in ROADMAP 9.18 (d) the previous night**, and
+that entry is corrected rather than edited quietly.

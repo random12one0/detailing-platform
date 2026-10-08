@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND ONE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -250,6 +250,10 @@ pressed"*, never *"can this be read"*: `.tabscrim` is `pointer-events: none`, so
 `elementFromPoint` reported the calendar legend uncovered while it was painted
 over at 1.47:1. Fifteen sittings unbroken; `grep -c "^## " docs/gotchas.md` run
 before writing this, as the rule says.
+**100 → 101 on 2026-10-07, same edit, same sitting** — `node --experimental-strip-types --check file.ts` exits **0 on a file with `(((` injected** and **1
+on a valid file**, so its exit code says nothing; `module.stripTypeScriptTypes()` is the parser
+that actually throws. **It had been written into ROADMAP 9.18 (d) as evidence the night
+before**, and that entry is corrected rather than quietly edited. Sixteen sittings unbroken.
 **93 → 94 on 2026-10-02, same edit** — 44 recorded figures re-run, 5 survived; a
 number with no command and no revision beside it is a memory. Ten sittings
 unbroken.
