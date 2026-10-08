@@ -449,7 +449,19 @@ const DECLARED = {
   // this population. Nothing closed and nothing else moved: `quoteCriteria` and
   // `numberedOpenItems` are unchanged, which is what a note on an EXISTING item
   // should do. Measured against `git show HEAD:ROADMAP.md` (315) and this tree (317).
-  quoteFragments: 317,
+  //
+  // 317 -> 318, same sitting, same edit, and the one new fragment is again named:
+  //
+  //     "which is the commit this note lands in"   the clause that note had to
+  //                                               correct, because another
+  //                                               session's checkpoint committed
+  //                                               the work before it did
+  //
+  // The second quotation in that correction — the other session's commit message —
+  // wraps across a line in the markdown, and the fragment rule excludes a newline,
+  // so it is not in this population. **Written out because +1 where +2 looks right
+  // is exactly the gap a bare count hides.** Measured on this tree (318).
+  quoteFragments: 318,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

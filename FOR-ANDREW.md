@@ -275,11 +275,45 @@ allowance goes from 1 GB to 10 GB **in the same change that switches uploads to
 Cloudflare, and not one step earlier**, because a 10 on a detailer's screen with
 nothing behind it is a promise the platform cannot keep.
 
-**a · Cloudflare, in your dashboard — yours alone.** On the `job-photos` bucket,
-add a CORS rule allowing your website's address to GET and PUT with the
+**a · Cloudflare, in your dashboard — yours alone. TWO THINGS, AND THE SECOND
+IS A DECISION ONLY YOU CAN MAKE.**
+
+**a1 · The CORS rule, on all THREE buckets:** `job-photos`, `expense-receipts`
+and `business-media`. Allow your website's address to GET and PUT with the
 `Content-Type` header. Also allow `http://localhost:5173` while testing, and any
 preview address you use. **Without it every upload is blocked by the browser even
-though the program works.**
+though the program works.** *This line named only `job-photos` until 2026-10-08;
+receipts and the logo-and-gallery bucket need the same rule and would have failed
+with a program that was working perfectly.*
+
+**a2 · Give `business-media` a public web address, and tell us what it is.**
+This is the one thing in the whole photo job that nobody but you can do, and it
+is not a publish.
+
+*What it is.* Two of the three buckets are private: nobody can read a photo
+without a one-hour link our server signs for them. **`business-media` is the
+public one** — your logo and your marketing photographs, which have to be
+readable by a stranger looking at a booking page. Supabase gave that bucket a
+web address for free. **Cloudflare does not.** A bucket there has no address at
+all until you attach one, in the R2 part of your dashboard.
+
+*The two ways, and our recommendation.* Cloudflare offers a free development
+address ending `r2.dev`, and it lets you point one of your own web addresses at
+the bucket instead — something like `media.detailingplatform.com`. **Use your
+own.** Not for tidiness: **the address gets written into your database, one row
+per photograph, and it stays there.** Every logo and every gallery photo stores
+its full web address, so whichever one is switched on the day we flip this over
+is the address those photographs keep. Changing your mind later does not move
+them, it breaks them — and Cloudflare's own documentation says the free
+`r2.dev` address is for development and is rate-limited, so it is not the one to
+be stuck with. **Photographs already uploaded are safe either way:** the old
+bucket stays readable and the addresses already in your database still point at
+it. Nothing has to be moved.
+
+*What to tell us.* Just the address. It goes in beside the three Cloudflare keys,
+by name, as `R2_MEDIA_BASE`. **Until it is set, every logo or gallery upload on
+the new path answers *"Public image storage is not set up on the server yet"* and
+writes nothing** — which is why the switch for it is off, see step 10.
 
 **b · Check the three Cloudflare keys are set as secrets on the functions**
 (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`).
@@ -310,6 +344,21 @@ never started.**
 It changes 1 to 10 and **only** when the value is still the default 1, so a number
 you set by hand is never overwritten.
 
+**h · One thing to know rather than do, and it is about money.** Your logo and
+your marketing gallery are **not counted against the photo allowance** — they
+never have been; the allowance counts job photographs and expense receipts.
+That did not matter while storage was on Supabase, because their free plan's
+1 GB was a hard wall: an upload past it simply failed. **On Cloudflare there is
+no wall. There is a bill.** No single file may be bigger than 10 MB, and that is
+the only limit; a thousand gallery photographs would simply be stored.
+**Nothing is wrong today** — a detailer uploads a handful of marketing shots —
+and we have not invented a limit for it, because the number would have to be
+yours. **The decision, when you want it:** either leave it as it is and watch the
+Cloudflare bill, or tell us a figure for how much marketing-photo space a
+detailer gets and we add it to the same allowance the job photographs use. Our
+recommendation is to leave it until you have more than a handful of real
+detailers, and then pick the number from what they actually use.
+
 **Unlocks ROADMAP 0.11.**
 **Then, the morning after:** one read tells you the first night's reconcile ran
 and what it found. In the Supabase SQL editor (it only reads):
@@ -335,16 +384,26 @@ a push publishes at all** before spending one.
 website published before `photo-door` exists answers every photo action with
 *"Photo storage is not set up on the server yet"*.
 
-**AND ONE LINE TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND IS
-EASY TO FORGET.** Receipts for expenses are written to go through `photo-door` but
-are **switched off** by a single line — **`RECEIPTS_VIA_DOOR` in
-`app/src/lib/photo-door.js`, currently `false`.** Publish the function, then have a
-session flip it to `true`; the website has to be published afterwards for it to
-take effect. **Why it is off at all:** receipts work today, so switching them over
-before the function existed would break something that works. **If you publish and
-nobody flips it, nothing breaks and nothing says so** — receipts keep going the old
-way, which does not count them against the photo limit. That is the whole reason
-this line is here.
+**AND NOW TWO LINES TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND
+IS EASY TO FORGET.** Two parts of the photo job are written, tested and
+**switched off** by one word each, both in `app/src/lib/photo-door.js`:
+
+* **`RECEIPTS_VIA_DOOR`, currently `false`** — receipts for expenses.
+  **Needs:** `photo-door` published (step 9c).
+* **`MEDIA_VIA_DOOR`, currently `false`** — your logo, the marketing gallery and
+  the website-intake photographs. **Needs:** `photo-door` published **and** the
+  public web address from step 9a2, **and** the CORS rule on `business-media`.
+  *Added 2026-10-08.*
+
+Publish the function, meet each one's conditions, then have a session flip it to
+`true`; the website has to be published afterwards for either to take effect.
+**Why they are off at all:** both of those features work today, so switching them
+over before the function existed would break something that works. (Job
+photographs have no switch, because they were already going through a door that
+did not exist — there was nothing working to lose.) **If you publish and nobody
+flips them, nothing breaks and nothing says so** — both keep going the old way,
+straight to Supabase, which does not count against the photo limit. That is the
+whole reason these lines are here.
 
 ### When it is all done · Three proofs that are not publishes
 

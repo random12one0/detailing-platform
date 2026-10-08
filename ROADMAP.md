@@ -650,7 +650,14 @@ and how the wait ends.
   domain would serve it from the platform's own name; the bucket has refused it since the day it was made, and so does this.
 
   **PROVED, credential-free, no network, no database, no R2, no browser — each figure with the command that produced it, taken on
-  the working tree at `e3fc4e1`, which is the commit this note lands in:**
+  the working tree at `e3fc4e1`.** *That sentence first said "which is the commit this note lands in", and it was false within
+  minutes: this whole slice, the note included, was swept into **another session's** `662cd34` — "Belt checkpoint before 0.13: 20
+  files were already dirty" — while the last checks were still running. **Nothing was lost and nothing of theirs came in with it:**
+  all 20 files in that commit are this slice, and the committed content is identical to the working tree the figures were measured
+  on. **What it cost is the commit message**, which names 0.13 and contains only 0.11 slice 4, and this correction, which exists
+  because `docs/gotchas.md` 94 asks for the revision beside the number and a wrong one is worse than none. It is the
+  `CLAUDE.md` bare-`git commit` hazard arriving from the far side: the rule protects you from sweeping up somebody else's work, and
+  cannot stop somebody sweeping up yours.*
   * `node --test tests/photo-door-media.test.mjs` → **17 pass, 0 fail**, and **8 of 8 sabotages caught** (the ownership guard on
     remove, the `settings` permission, the 10 MB ceiling, signing the declared length, the folder allowlist, the `file_id` shape,
     refusing with no public address, and refusing the two actions this store does not have). It also **RUNS `app/src/lib/upload.js`**
