@@ -4575,25 +4575,9 @@ button.warn-box:hover { border-color: var(--fog-2); }
   .segmented:has(> button:nth-child(6)) {
     grid-auto-flow: row; grid-template-columns: 1fr 1fr;
   }
-  /* **AND FOUR GO IN TWO ROWS IN SPANISH — 2026-10-08.** The rule above says
-     "SCOPED TO SIX, so nothing that fits today moves", and cites the four-option
-     payment control measuring 23→297 inside 301. **That measurement was taken in
-     English and it is not true in Spanish**, which is the whole reason this line
-     exists rather than a change to the one above: each track is 66.75px here, and
-     "Pagado en parte" needs two lines inside it while "Perdonado" at 94px of text
-     is squeezed to within a pixel of its own track's edge. Andrew saw it on the
-     320 Spanish shot of the job record before any check did.
-     **SCOPED BY LANGUAGE RATHER THAN BY CHILD COUNT, so the English four-up that
-     the earlier item deliberately left alone is still deliberately left alone** —
-     it measures 67px a track on one line at 320 and does not move. `<html lang>`
-     is already kept true by `lib/localeStore.js`, where it is set for screen-reader
-     voice; this is the second reader of the same fact.
-     Two columns gives each label ~137px, so every one of the four sits on a single
-     line. Nothing at 392 or above is touched: there the control is still the flex
-     row of the base rule, which already wraps Spanish onto two lines by itself. */
-  html[lang^="es"] .segmented:has(> button:nth-child(4)) {
-    grid-auto-flow: row; grid-template-columns: 1fr 1fr;
-  }
+
+  /* (the Spanish four-up lives in its own block below — it has to reach past
+     360, which this one does not) */
 
   /* The 8px above is not enough down here: three buttons plus two gaps still
      want 237px of the 220px a 320px card gives. Their LABELS are 189px of
@@ -4650,6 +4634,40 @@ button.warn-box:hover { border-color: var(--fog-2); }
      shrinking it instead would take the tap target under the floor — and
      twelve is a whole rectangle either way. */
   .swatch-row { grid-template-columns: repeat(4, 44px); }
+}
+
+/* **FOUR OPTIONS IN SPANISH GO 2x2 UNTIL THEY FIT ON ONE ROW — 2026-10-08.**
+   The first version of this rule lived inside `max-width: 360px` and fixed the
+   320 squeeze; Andrew then saw the 392 Spanish frame, where the same control
+   breaks **3 + 1** and leaves "Perdonado" alone on a second row, which reads as
+   a mistake rather than a layout.
+
+   **431 IS MEASURED, NOT CHOSEN.** The four Spanish labels want **395px** of
+   control (74 + 125 + 85 + 94 plus gaps and padding); the control gets the
+   viewport less 36px of page gutter, so it fits on one row from **431** up. Swept
+   at 320 / 360 / 361 / 392 / 420 / 460 / 500 / 560 / 620 / 700 / 768 / 900 /
+   1180 / 1440 / 1920: two rows at and below 420, one row at and above 460, and
+   the boundary computed from the 395 and the 36. **English wants 296px and fits
+   on one row at every width down to 320**, which is why this stays scoped to
+   `html[lang^="es"]` and the earlier item's "nothing that fits today moves" still
+   holds.
+
+   **2x2 RATHER THAN LETTING IT WRAP** because a wrap is 3 + 1: flex fills the
+   first row and drops the remainder, so the fourth option sits alone under three
+   others. The grid makes the break even, which is this stylesheet's own "a pair
+   becomes a stack" answer and the same shape the six-option rule above takes.
+
+   `display: grid` is restated here because above 360 the base `.segmented` is an
+   `inline-flex`; below it the base rule has already made it a grid and these
+   values simply agree with it. */
+@media (max-width: 430px) {
+  html[lang^="es"] .segmented:has(> button:nth-child(4)) {
+    display: grid; grid-auto-flow: row; grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  html[lang^="es"] .segmented:has(> button:nth-child(4)) button {
+    white-space: normal; padding: 8px 6px; line-height: 1.2; text-wrap: balance;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════ FIRST RUN
