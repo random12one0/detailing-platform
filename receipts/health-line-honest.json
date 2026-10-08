@@ -1,9 +1,9 @@
 {
-  "git_sha": "c42e12ea25a6450208ffc6fa8f1a236d4c311613",
-  "git_sha_started": "c42e12ea25a6450208ffc6fa8f1a236d4c311613",
+  "git_sha": "5a1d97490516d66fedd91ff6c998b8607eec0f04",
+  "git_sha_started": "5a1d97490516d66fedd91ff6c998b8607eec0f04",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-25T03:49:19.440Z",
+  "finished_at": "2026-09-25T04:00:59.867Z",
   "failures": [],
   "warnings": [
     "The fixtures are injected by rewriting the `platform-admin` response IN THE BROWSER. Nothing is written to `job_heartbeats`, no cron is disturbed and there is nothing to restore if this dies halfway. It measures the DISPLAY, which is all of 6.2a.",
@@ -62,7 +62,7 @@
     ]
   },
   "check_id": "health-line-honest",
-  "started_at": "2026-09-25T03:48:39.845Z",
+  "started_at": "2026-09-25T04:00:16.684Z",
   "status": "pass",
   "expected_targets": 11,
   "discovered_targets": 11,

@@ -228,7 +228,10 @@ const DECLARED = {
   // ROADMAP 9.20 at `37471cf` — a receipt can be attached and never seen again,
   // which this lane handed up while pressing 0.11 slice 5. Theirs, recorded as
   // theirs.
-  numberedOpenItems: 49,
+  // 49 -> 48, 2026-10-08: the other lane filed one (50) and this edit TICKED
+  // TWO — 9.7 and 9.11, both on the manager's own press. 9.23 was filed `[x]`
+  // and so was never an open item. Net -1, and the legs are what matter.
+  numberedOpenItems: 48,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -279,7 +282,11 @@ const DECLARED = {
   // 2.15a at `ca6065f`, so that item's criteria left the population with it —
   // the sixth time this constant has moved for exactly that reason. This commit's
   // own note lands inside 9.11's zone, which was already in the population.
-  quoteCriteria: 34,
+  //
+  // 34 -> 33, 2026-10-08: net -1 across two legs. The other lane's work took it
+  // to 35; ticking 9.7 and 9.11 took two items' criteria out, and 9.23 enters
+  // nothing because it is filed ticked. Seventh move for the same reason.
+  quoteCriteria: 33,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -414,7 +421,19 @@ const DECLARED = {
   // closing, which this constant's `quoteCriteria` twin has recorded four times.
   // Both ends measured against `git show ca6065f:ROADMAP.md` (316) and this tree
   // (318).
-  quoteFragments: 318,
+  //
+  // 318 -> 315, 2026-10-08. Two legs, and the second is the biggest single move
+  // this constant has made:
+  //
+  //     6f3b4f8                          318   <- where 318 was taken
+  //     (the other lane's work since)     321   +3  theirs
+  //     + 9.7 and 9.11 TICKED             315   -6  two items' Done-when zones
+  //                                             left the population together
+  //
+  // 9.23 is filed `[x]` in the same edit and therefore adds nothing: a ticked
+  // item is not in this population at all, which is the same rule the -6 is.
+  // Measured against `git show <HEAD>:ROADMAP.md` (321) and this tree (315).
+  quoteFragments: 315,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

@@ -1,0 +1,123 @@
+{
+  "git_sha": "66b02b27a9e21b8a0a4e0cd12000cf1d9e0bfc16",
+  "git_sha_started": "66b02b27a9e21b8a0a4e0cd12000cf1d9e0bfc16",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-06T22:20:31.891Z",
+  "failures": [
+    {
+      "target": "(not a per-surface geometry finding)",
+      "count": 1,
+      "captured": [
+        "job record · finished NOT MEASURED — no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
+        "job record · finalize NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "job record · send a text NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
+        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
+        "WIDTH ABORTED at 320px MEASURING «setup · step 8 of 12» — the 2nd — locator.click: Timeout 15000ms exceeded. | - waiting for locator('.tabbar button[data-tour=\"today\"]').first() | - locator resolved to <button class=\"active\" data-tour=\"today\">…</button> | 2 × waiting for element to be visible, enabled and stable",
+        "job record · finished NOT MEASURED — no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
+        "job record · finalize NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "job record · send a text NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
+        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      ],
+      "why": "1 problem(s) raised, 11 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+    }
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/sweep-widths-lite/index.html"
+  ],
+  "dimensions": {
+    "viewports": [
+      320,
+      1440
+    ],
+    "locales": [
+      "en?lite=1"
+    ],
+    "identities": [
+      "demo-detail-owner"
+    ]
+  },
+  "check_id": "sweep-widths-320-1440-lite",
+  "started_at": "2026-10-06T22:17:33.852Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 1,
+  "attempted_targets": 1,
+  "completed_targets": 1,
+  "skipped_targets": 10,
+  "skip_allowlist": {
+    "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
+    "expires": "2027-01-01",
+    "skipped": [
+      {
+        "width": 320,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "gear · subscription, cancelling",
+        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
+      },
+      {
+        "width": 320,
+        "label": "gear · subscription, past due",
+        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "gear · subscription, cancelling",
+        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
+      },
+      {
+        "width": 1440,
+        "label": "gear · subscription, past due",
+        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
+      }
+    ]
+  },
+  "assertions_executed": 1922,
+  "min_assertions": 8,
+  "canary": {
+    "id": "sweep-canary-deliberate-overflow",
+    "observed_failure": true,
+    "per_width": [
+      {
+        "width": 320,
+        "caught": true
+      },
+      {
+        "width": 1440,
+        "caught": true
+      }
+    ]
+  }
+}

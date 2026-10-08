@@ -1,6 +1,24 @@
-# Batches — the running order, in session-sized pieces
+# Batches — RETIRED 2026-09-24. Andrew scrapped the sectioning.
 
-> **Section added 2026-10-06; the rest of this file is the older batch plan.**
+> **DO NOT WORK FROM THIS FILE. It is kept for the lane rules only.**
+>
+> **Andrew's ruling, 2026-09-24:** drop the batches and the fixed amounts —
+> *"let's just have it just finish the rest of the roadmap… just keep going and
+> working until I am done."* So there is no batch to pick. **The next item is
+> whatever is still open and highest in `ROADMAP.md`, read live, every time.**
+>
+> **Why it went, and it is worth knowing:** naming item numbers in advance is
+> what caused a manager to be handed work that was already finished. Five of
+> Batch 1A's six items were closed before the batch was ever dispatched,
+> because the file was written a day ahead of the work. **A written-down list
+> of item numbers starts rotting the moment it is written.** Derive, never
+> remember.
+>
+> **The two things still true here** and worth reading before dispatching
+> anything: the **lane rule** (one session in `app/src`, one outside it, never
+> two inside) and the **sizing calibration** (six small items ≈ one sitting).
+
+---
 
 ## Where the open items stand — recounted 2026-10-06 at `083208b`
 
@@ -118,6 +136,7 @@ exception.
 
 ---
 
+# The original file, kept below for the lane rules
 
 
 **`ROADMAP.md` says WHAT and WHY. This file says WHAT NEXT, and in what size.**

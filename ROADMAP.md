@@ -16934,7 +16934,7 @@ the dashboard or back office at phone width at all.
   asked for, so a future session sees two different numbers, reads this
   paragraph, and does not unify them by accident.
 
-- [ ] **9.7 — Client card is missing basics.** No Text button, no vehicle, no
+- [x] **9.7 — DONE 2026-10-08. Client card is missing basics.** No Text button, no vehicle, no
   address, no "Book again". Add them; "Book again" opens New booking prefilled.
   *A2 4.7*
 
@@ -17072,8 +17072,44 @@ the dashboard or back office at phone width at all.
   clientWidth` at 320 with the modal open; no console error at either
   width. `tests/composition.test.mjs` 97/97, `scripts/label-guard.mjs`
   clean. No new translatable string — `t("Book again")` already existed.
-  **Still not ticked** — same standard as 9.11: built and verified by this
-  session, held for Andrew's own press before it goes to `[x]`.
+  ~~**Still not ticked**~~ — **and the press found a money fault the build had
+  not, which is the whole argument for the standard.**
+
+  ***SENT BACK 2026-10-08, FIXED, RE-PRESSED AND TICKED.*** Live on his laptop:
+  **the client card read "Last vehicle: Large · Ford F-150" and Book again
+  opened on Vehicle size Small with Make and model blank.** The scope note four
+  paragraphs up calls that deliberate — *"Does not travel: last vehicle, last
+  service. The detailer picks fresh"* — and it is wrong for one reason nothing
+  in that reasoning weighed: **the size is the only field on that form that
+  carries a PRICE.** A tap on Book again for a customer whose truck is Large
+  books it at the Small price, and the screen the detailer just read said Large.
+  *"Picks fresh"* is a fair rule for a service; for a price it is a mis-charge
+  one tap away.
+
+  **THE FIX KEEPS THIS ITEM'S OWN EARLIER RULING RATHER THAN OVERTURNING IT.**
+  That ruling refused to enrich Book again alone, so that it could not behave
+  differently from a manual search for the identical customer. Both routes run
+  `pick()`, so **the lookup went into `pick()`** — both carry the vehicle now and
+  the two stay identical, which is the property the ruling was protecting. It
+  reads the same booking the card calls *"Last"*, so **the card and the form the
+  card opens cannot disagree**, which was the complaint. Each field is carried
+  only if the previous booking had one: a blank model may not wipe a typed one,
+  a null travel zone may not clear a chosen zone.
+
+  **AND "AGAIN" IS A CLAIM ABOUT THEM.** A client with no visits now gets
+  **"Book" / "Reservar"**; it defaults to "Book again" while `history` is still
+  `null`, so a returning client never flashes the wrong word — this item's own
+  unknown-vs-empty rule, applied to a label.
+
+  | at 392 English and 320 Spanish | card | Book again form |
+  |---|---|---|
+  | Marcus Webb | *Large · Ford F-150* / *Grande · Ford F-150* | Vehicle size **Large / Grande**, Make and model **Ford F-150** |
+  | a client with no visits | no *Last vehicle* row | button reads **Book / Reservar** |
+
+  Name, phone and email still travel as before; console clean at both widths;
+  the no-visits client was a fixture, created and deleted (0 rows left). Frames
+  in `.manager-shots/9.7/`. **Ticked on the manager's press of those frames and
+  the live screen**, standing in as Andrew's eyes.
 
   ---
 
@@ -17460,7 +17496,7 @@ the dashboard or back office at phone width at all.
   literal** — declared rather than run, which would have called this check sound
   on the day it stopped working.
 
-- [ ] **9.11 — Booking-rule conflict needs a one-click fix. RE-OPENED
+- [x] **9.11 — DONE 2026-10-08. Booking-rule conflict needs a one-click fix. RE-OPENED
   2026-09-20 — see the correction below; do not re-tick without reading it.**
   The product already correctly warns that a 2-hour booking notice plus a
   24-hour change cutoff locks a new booking immediately. **Keep the
@@ -17662,6 +17698,16 @@ the dashboard or back office at phone width at all.
   **What failing looks like:** the stale receipt read as a second regression —
   which this entry predicts in its own last sentence — or a source read passing as
   a press, which it already refused once.
+
+  ***TICKED 2026-10-08*** by the manager standing in as Andrew's eyes, live on
+  `http://192.168.0.119:5173/app` in Chrome on his laptop and on the frames in
+  `.manager-shots/9.11/`. Clause 2's three answers measured **one row at both
+  widths** — `106px ×3` at 392 and `82px ×3` at 320, each button its own topmost
+  element by hit test, no sideways scroll, console clean, in both languages.
+  **The guide-calendar red is written up above and does not block this**: the
+  product fault does not reproduce at ten width/language pairs, and the receipt
+  that reads `pass` over it is a narrowed population, which is lane B's to
+  repair.
 
   ***THE `guide · calendar 5` RED: THE PRODUCT FAULT DOES NOT REPRODUCE, AND THE
   INSTRUMENT STOPPED ASKING. Two different statements, 2026-10-08, kept apart on
@@ -18570,6 +18616,39 @@ the dashboard or back office at phone width at all.
   *Filed by DP Cowork2, 2026-10-07. No `app/src` touched, nothing built. The
   finding is DP Cowork's, from `e246714`; the five measurements above are this
   session's and were re-read rather than carried over.*
+
+- [x] **9.23 — DONE 2026-10-08. Six small things Andrew read off the live
+  screens in one pass, filed together because each is one line and none is worth
+  its own number.** Found on his laptop at
+  `http://192.168.0.119:5173/app`, 1920 and 320, both languages. Fixed in
+  `e2dedf4`, each measured before and after.
+
+  | | before | after |
+  |---|---|---|
+  | **"Set" in Spanish** | *"Poner"* on a settings row, which reads as **put** rather than configure | *"Configurar"* |
+  | **the surcharge line** | *"+$30 los dom, sáb"* — abbreviations inside a sentence, and a comma where a language wants a conjunction | *"+$30 los sábados y domingos"* / *"+$30 on Saturdays and Sundays"* |
+  | **the payment control** | the status pill and the picked segment both drawn as settled, saying **different states** | the pill keeps its weight; a pick that differs from it is a **ring, not a fill** |
+  | **the calendar day panel at 1920** | heading flush on the panel's own outline, **0px** left, 155px right | **18px**, the inset a record already gets |
+  | **labels under a block** | *"Customer name"* **0px** under the plan notice; *"Send their emails in"* and *"Make and model"* **0px** under a grid | **18px** on each |
+  | **the standalone job page at 1920** | cards and the confirm button **1144px** across | **524px** inside a 560 column |
+
+  **THE TWO THAT ARE MORE THAN TIDYING.** The surcharge fix pluralises long day
+  names **by a rule rather than a table** — add an `s` unless the name already
+  ends in one — which is correct in English (*Saturday → Saturdays*) and in
+  Spanish (*sábado → sábados*, while *lunes*, *martes*, *miércoles*, *jueves* and
+  *viernes* are invariant), so it needs no catalogue entries and cannot drift out
+  of step with them; `Intl.ListFormat` supplies the conjunction in the reader's
+  own language, and the list is sorted **Monday-first** because a weekend is
+  named Saturday-first in both, while the calendar grid stays Sunday-first
+  because that is a grid and this is a sentence. And the job-page cap is **560,
+  the measure that same record already gets in the desk's two-column layout** —
+  three containers agreeing rather than one of them inheriting the width of the
+  page it happens to sit on. **`--wrap` is untouched**, which is the
+  shared-variable rule: the fault was one route taking the page width, not the
+  page width being wrong.
+
+  *Filed and fixed by DP Cowork, 2026-10-08, from the manager's live pass
+  standing in as Andrew's eyes.*
 
 - [ ] **9.21 — The job record says "Receipt + thank-you sent." when the
   thank-you was not sent.** Found by DP Cowork at `96d7eb6`, answering a cold

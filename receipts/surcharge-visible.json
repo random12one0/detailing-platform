@@ -1,9 +1,9 @@
 {
-  "git_sha": "6160e248979902db8661b10a9b0ea40db13eb702",
-  "git_sha_started": "6160e248979902db8661b10a9b0ea40db13eb702",
-  "head_moved": false,
+  "git_sha": "5a48e5c58825b4dfab8b8ad71b28714c3e0ed3b9",
+  "git_sha_started": "84e6b7eae151397cc2101741aa0eb180fa886b44",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-09-24T03:07:02.094Z",
+  "finished_at": "2026-09-25T04:42:34.256Z",
   "failures": [
     "1920x1080 weekend, first slot: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
     "1920x1080 weekend, first slot: early-priced the bar reads $65 with the day chosen and $95 once a time is tapped, so the figure on screen is not the figure that will be charged",
@@ -143,7 +143,7 @@
     "stand_in": null
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-09-24T03:00:06.285Z",
+  "started_at": "2026-09-25T04:35:38.770Z",
   "status": "fail",
   "expected_targets": 25,
   "discovered_targets": 25,
