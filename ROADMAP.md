@@ -8128,6 +8128,45 @@ requested.
   a figure edited so that two things agree. **Whoever ticked the item that took the count from 47 to 46 owns that move**, and the gate should stay red until
   they make it.
 
+  ***THE MANAGER'S FOUR RULINGS, BUILT AND PRESSED 2026-10-07 (DP Cowork, Lane A). THE BOX STAYS `[ ]`.***
+  **The rulings, 2026-10-07:** (1) Remove gets no new screen — say plainly that support can bring the job back; (2) a waived payment that cannot be changed
+  back is real but its own item, DP Cowork2's to file; (3) suspend and owner-invite are swept to the same standard as the rest of 4.1; (4) the 46-vs-47
+  pinned count is DP Cowork2's. Only (1) and (3) are builds, and both are below, with (a) the completion questions' Spanish the manager put first.
+  **(a) THE TWO COMPLETION QUESTIONS' SPANISH, which carried gap 2's fault plus one more.** They read *"¿Marcar como terminado el {service} de {name} de las
+  {time}?"*: the article is wrong for a feminine service, *"de las"* is wrong at one o'clock, **and `terminado` agrees as well**, so a feminine service also
+  wanted *terminada* — three guesses, none of them decidable from here. The adjective now agrees with **`el trabajo`, which is our own noun and always
+  masculine**, and the service is named after it with no article: *"¿Marcar como terminado el trabajo de {name}, {service}, {time}?"*
+  **(b) REMOVE SAYS WHAT SUPPORT CAN DO.** The fold ended *"It cannot be undone."* while the server does a SOFT delete, so the sentence was less true than the
+  code. It now reads *"You cannot undo it yourself, but support can bring the job back."*, Spanish in the same edit. **No restore screen was built**, per the ruling.
+  **(c) SUSPEND ASKS IN PLACE.** It did ask — through `window.confirm`, the browser's own box, which is exactly what the first sweep moved Remove off. The
+  sentence is the one that was already there, word for word; what changed is that it is on the page, focus lands on it, and "Not yet" puts the button back.
+  `ConfirmTap` gained a `cancelLabel` prop so the admin screen can keep its own English words — `admin/` has zero `t()` calls by construction, and a
+  translated "Not yet" would have been the one Spanish word on Andrew's back office.
+  **(d) THE OWNER INVITE ASKS.** One press created the way in and emailed it. **Owner and staff get different sentences**, because they are different sizes of
+  decision: *"Invite {email} as an owner? An owner can do everything you can, permanently."* against *"Send an invite to {email}?"* Spanish in the same edit;
+  *"Yes, send it"* already had an entry and was reused rather than duplicated.
+  **PRESSED AT THE MANAGER'S FIVE WIDTHS — 1920, 1440x900, 768x1024, 392x844 and 320 — on a flagged throwaway business** (`is_demo`, a booking on a service
+  really called *Limpieza de motor* at 1:00 PM, torn down and read back gone, never `demo-detail`): **27 of 27 in English, 42 of 42 in Spanish, 26 of 26 on the
+  admin screen.** Nothing was ever confirmed — every question is opened, photographed and answered "Not yet" — and afterwards the booking still read
+  `confirmed`, no invite row existed and the business was not `paused`. **The platform admin login was created and dropped in a `finally`** and the
+  `platform_admins` roster read identical before and after; it also held when an earlier run crashed, which is ROADMAP 14.21's own case.
+  **Screenshots for the manager at every width and language: `.manager-shots/4.1-mark-done`, `4.1-remove`, `4.1-invite`, `4.1-suspend`** — kept out of git by
+  `.git/info/exclude`, confirmed by `git status` seeing none of them.
+  **BROKEN ON PURPOSE, FOUR TIMES, EACH CAUGHT, EACH FILE RESTORED BYTE FOR BYTE (hashes checked):** the completion Spanish put back (three rows red, printing
+  *"¿Marcar como terminado el Limpieza de motor de Nora Noemail de las 1:00 PM?"*); *"It cannot be undone"* put back (two rows red); the invite's question
+  removed (two rows red, *"<<no question appeared>>"*); and suspend returned to `window.confirm` (three rows red, focus on `BUTTON`).
+  **AND THE INVITE SABOTAGE WROTE TWO REAL ROWS, WHICH IS THE FAULT ITSELF RATHER THAN A MISHAP.** With the question gone the button sent on one press, and
+  `business_invites` held two rows afterwards — the clearest statement of what the step prevents. They were deleted and the clean run re-read zero. The
+  address was on `fixture.test`, which `send-email` refuses before the provider, so no mail was spent.
+  **TWO THINGS THE HARNESS GOT WRONG, FIXED AND SAID:** the invite sabotage was first caught only as a 30-second timeout, which reads as a broken script
+  rather than a found defect — an unguarded `scrollIntoViewIfNeeded` on a question that never appeared — so the missing question now fails a NAMED row; and
+  Team is a panel behind the gear rather than a route, so the first run walked to a URL that does not exist.
+  **ONE ADJACENT FINDING, NOT MINE AND NOT FIXED:** opening the gear calls `platform-admin` and gets a **404**, twice per load, on every width — `GearMenu.jsx:163`,
+  which this change never touched. It is the only console noise in these runs; the admin walk is clean at 0.
+  **STILL OPEN ON 4.1:** the audit row's migration and publish (Andrew's), gap 8's `audit_recorded: false` (unpublished, and the words for it are undecided),
+  and the Restore button beside Suspend, which is still a `window.confirm` — **left deliberately, because by this item's own ruling 3 an undo does not get a
+  confirmation at all**, so whether it keeps one is a question rather than a build.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
@@ -11799,7 +11838,7 @@ rather than wording went to Andrew.
   product.** Build it or retract the word — both are Andrew's, and the row is
   on his list.
 
-- [ ] **7.8 — The privacy page omits services that receive customer addresses.**
+- [x] **DONE 2026-10-07 — 7.8 — The privacy page omits services that receive customer addresses.**
   It names Supabase, Netlify, Resend, Stripe and Google. The booking address
   search visibly credits **Geoapify** and **OpenStreetMap**, so typed addresses
   go somewhere the policy does not mention.
@@ -12191,6 +12230,22 @@ rather than wording went to Andrew.
   above is in and the check reads 8/0** — and not before, because a mechanism
   that is red is a working mechanism and an unfinished item, and those are two
   different things.
+
+  ***THE COPY IS IN AND THE CHECK IS GREEN, 2026-10-07 (DP Cowork, Lane A). TICKED.***
+  The element was **pasted from this entry, not paraphrased** — the entry spells it out in full for exactly that reason — into `app/src/landing/legal.js`, immediately after
+  *"The two buttons that hand a job to somebody else"* and before the `GOOGLE SIGN-IN` comment, as written. **`node --test tests/privacy-processors.test.mjs`: 8 passed, 0 failed**,
+  which is this entry's own stated condition, and `tests/landing-pricing.test.mjs` stays green. **No Spanish key**: `grep -c "t(" app/src/landing/legal.js` is 0, re-confirmed at
+  `b561c11` rather than carried over.
+  **Pressed, not only tested.** `/privacy` at 1440 and 392: the paragraph is on the page, says *Cloudflare* and *not switched on yet*, carries the *random identifiers* sentence, no
+  sideways scroll, console clean at both. **Its two bold spans really are bold** — two `<strong>` elements inside the section and **zero `**` anywhere in the page text**, checked in
+  the DOM rather than by eye, because at this size in the dark theme the weight difference is easy to mistake for markers that were never processed.
+  **THE FIRST SCREENSHOT CAME BACK BLANK AND THAT IS WORTH A LINE.** The legal page reveals its sections on scroll, so a viewport shot taken straight after scrolling catches the gap
+  the paragraph is about to appear in — the text assertions all passed over a photograph of nothing. The shot now waits for the reveal, asserts the element's own opacity is 1 and its
+  height is non-zero, and frames the SECTION rather than the viewport. Same family as `docs/gotchas.md`'s animation-mid-flight entries.
+  **Shots: `.manager-shots/7.8/1440-en.png` and `392-en.png`.**
+  **WHAT THE TICK DOES AND DOES NOT CLAIM.** Clause (a)'s two lists now match and clause (b)'s mechanism exists and fails by name, which is the whole Done-when. It judges **this
+  checkout**, never the deployed functions, and `photo-door` is still unpublished — so the page is now right about a thing that is not switched on yet, which is what its own first
+  sentence says and why the copy was written that way.
 
 - [x] **7.9 — The home page animation delays the point.**
   Several long scrolls advance a controlled sequence with large empty black
