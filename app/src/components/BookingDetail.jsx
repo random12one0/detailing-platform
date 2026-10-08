@@ -16,7 +16,7 @@
 // Every booking WRITE goes through the update-booking edge function
 // (validation + conflict checks server-side).
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, ExternalLink, MessageSquare, MessageSquareQuote, Navigation, Phone, Receipt, UserPlus, X } from "lucide-react";
 import { api, downloadOwnerIcs } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
@@ -302,6 +302,61 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // for one customer at the identical price share a subject and would share
   // this answer; that is a soft wrong label over a list that still shows the
   // truth, and it is a smaller lie than a second copy of the fact.
+  // ROADMAP 6.4 — ONE INTENT TO SEND, ONE KEY, AND THE SERVER CANNOT WORK THIS
+  // OUT FOR ITSELF. A press of "Email the receipt" that is never answered — a
+  // driveway with one bar, a timeout, a second tap while the first is still in
+  // flight — has to reach the server carrying the SAME key as the press it is
+  // repeating, or it is a second invoice in the customer's inbox. A deliberate
+  // "Email it again" an hour later is a different intent and takes a new key,
+  // which is why this is a ref made at the press and NEVER derived from the
+  // booking id: a key that was a function of the booking could never send twice.
+  const sendKey = useRef(null);
+  // A DIFFERENT BOOKING IS A DIFFERENT INTENT. The record is reused in place on
+  // Today, Calendar, Money and Clients — `booking` changes under the same
+  // component — so without this a key left over from a failed send on one job
+  // would ride along to the next one and the server would answer `duplicate`
+  // about somebody else's invoice.
+  useEffect(() => { sendKey.current = null; }, [booking.id]);
+
+  // THE KEY SURVIVES A FAILURE AND DIES ON SUCCESS, which is the whole rule in
+  // two lines. It is cleared only after an answer that says the invoice is out
+  // (`duplicate: true` is such an answer: an earlier press of THIS key already
+  // sent it), so every other ending — a thrown network error, a 502
+  // `email_failed`, a timeout — leaves the key in place for the next press.
+  // **THE KEY IS READ ONCE, INTO A LOCAL, AND THAT IS NOT TIDINESS — IT IS THE BUG
+  // THIS WAS WRITTEN WITH, FOUND BY DOUBLE-TAPPING IT.** The first version passed
+  // `sendKey.current` on every attempt. Two presses in flight: the first succeeds and
+  // clears the ref, and the second press — waiting out its 409 — then re-reads the ref,
+  // finds null, and goes back to the server WITH NO KEY, which is the old send-anyway
+  // behaviour and a second invoice. Measured: two presses, three requests, the third
+  // keyless, and TWO invoices out. The intent's key belongs to the call, not to the ref;
+  // the ref only exists so the NEXT press can find an unfinished intent.
+  const sendReceipt = async () => {
+    const key = (sendKey.current ||= crypto.randomUUID());
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const answer = await api.sendInvoice(business.id, booking.id, key);
+        // ONLY IF IT IS STILL THIS INTENT'S KEY. Clearing blind would wipe a newer
+        // press's key and hand the next retry a fresh one, which is the same fault
+        // one step along.
+        if (sendKey.current === key) sendKey.current = null;
+        return answer;
+      } catch (e) {
+        // **409 `in_progress` IS NOT A FAILURE AND MUST NOT BE SHOWN AS ONE.** It
+        // says another press of this same intent is still sending, so the honest
+        // thing on screen is the sent notice this press is about to earn: wait,
+        // ask again with the same key, and the server answers `duplicate` once
+        // the first press lands. Three tries at 700ms covers a send that is
+        // slower than the tap; past that the error is real and is shown.
+        if (attempt <= 3 && e.status === 409 && e.body?.error === "in_progress") {
+          await new Promise((r) => setTimeout(r, 700));
+          continue;
+        }
+        throw e;
+      }
+    }
+  };
+
   const sentReceipt = (mail ?? []).some((m) =>
     /^(receipt|recibo)\b/i.test(String(m.subject || ""))
     && String(m.subject).includes(money(charged)));
@@ -665,7 +720,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   {booking.customer_email ? (
                     <>
                       <button className="btn" disabled={busy}
-                        onClick={() => act(() => api.sendInvoice(business.id, booking.id),
+                        onClick={() => act(sendReceipt,
                           sentReceipt ? "Receipt sent again." : "Receipt + thank-you sent.", false)
                           .then(loadMail)}>
                         <Receipt size={18} strokeWidth={2} />{" "}

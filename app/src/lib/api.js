@@ -99,7 +99,21 @@ export const api = {
   // works with the network off, so nothing may ever depend on this answering.
   addressSuggest: (businessSlug, q) => bookingTransport.addressSuggest(businessSlug, q),
   createBusiness: (payload) => callFn("create-business", payload),
-  sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
+  // ROADMAP 6.4 — THE ONE CALL HERE THAT A RETRY CANNOT BE TOLD FROM A SECOND
+  // SEND. It writes no row, so the server has no natural key to match on the way
+  // a booking does: two presses are two invoices and two thank-yous in a
+  // customer's inbox. The key is the caller's, because the caller is the only
+  // one that knows whether this press is a repeat of the last one — one key per
+  // intent to send, the same key on every retry of it, a new one after it
+  // succeeds (`BookingDetail.jsx`, and ROADMAP 6.4 for the whole contract).
+  // **OMITTED WHEN ABSENT, NOT SENT AS NULL**: the server reads a present but
+  // malformed key as a caller bug and answers 400, while no key at all is the
+  // old send-every-time behaviour, so the two must not be confused here.
+  sendInvoice: (businessId, bookingId, idempotencyKey) =>
+    callFn("send-invoice", {
+      business_id: businessId, booking_id: bookingId,
+      ...(idempotencyKey ? { idempotency_key: idempotencyKey } : {}),
+    }),
   sendReminder: (businessId, bookingId, target) =>
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),
   inviteUser: (businessId, email, role, label, permissions) =>
