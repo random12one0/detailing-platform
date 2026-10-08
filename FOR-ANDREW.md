@@ -1,30 +1,5 @@
 # For Andrew — the things only you can do
 
-> ## Read this first: the six emails tonight are ours. Nothing broke.
->
-> **You will open your phone to six alerts from healthchecks.io. Every one of
-> them was us, and nothing was wrong with your site at any point.**
->
-> We built two new alarms tonight and then set each one off on purpose, because
-> an alarm nobody has ever seen ring is not an alarm. Setting them off is what
-> sent the mail.
->
-> | time (Tue 23rd) | what it said | what it really was |
-> |---|---|---|
-> | **9:55pm** | site check DOWN | us breaking the homepage check on purpose |
-> | **9:56pm** | site check UP | us putting it straight back |
-> | **10:30pm** | detailer check DOWN | **a real mistake of ours** — the new alarm counted a test business as a real one |
-> | **10:32pm** | detailer check UP | us fixing that |
-> | **10:33pm** | detailer check DOWN | us breaking it on purpose, properly this time |
-> | **10:33pm** | detailer check UP | us putting it back |
->
-> **You do not need to do anything.** Both alarms are green and quiet now.
->
-> **From here on they only ring for something real** — and we have stopped
-> testing alarms against your inbox. Any future one is worth reading.
->
-> *Written 2026-09-23.*
-
 **This is your list. Nothing on it can be done by a session.** It is accounts to
 open, money to spend, names to decide, and keys to paste. Everything else in
 this repo is somebody else's job.
@@ -75,247 +50,313 @@ Updated 2026-09-21.
 
 ---
 
-## Publish and apply — the one ordered list. Written 2026-10-06.
+## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
-**This is the single list of everything that is built, finished and waiting on
-you to switch on.** It replaces the order scattered across the rows below; those
-rows keep the reasoning and the exact wording, this one keeps the order. **Nothing
-here is urgent** — your ruling of 2026-09-24 stands: nobody is on the site, so
-these are switches for launch day, not chores. **No session applied or published
-any of it.** Two read-only checks produced the numbers, both run on 2026-10-06 at
-commit `083208b`, and they are the commands to re-run before you start, because
-the lists below are photographs:
+**This is the single list of everything that is built, finished and waiting on you
+to switch on.** The rows further down this file keep the reasoning and the exact
+wording; this list keeps the ORDER. **Nothing here is urgent** — your ruling of
+2026-09-24 stands: nobody is on the site, so these are switches for launch day,
+not chores.
 
-* **5 database changes are not applied** — `node scripts/migration-drift.mjs`,
-  at `083208b`. It named exactly these five files and nothing else.
-* **31 of the 39 back-end programs are running older code than we have written**
-  (8 match) — `node scripts/deployed-inventory.mjs`, at `083208b`, with the 31
-  names read from `dimensions.differing` in `receipts/deployed-inventory.json`.
-  **The "25 of 39" in the rows below is the older figure.**
+**Three things about how to read it.** Every database change and every program
+appears **once**, at the step where it should happen, so if you see something
+twice anywhere else in this file, this list is the one to follow. **No session has
+applied or published any of it.** And **the counts below are photographs** — they
+carry the date and the commit they were taken at, and the two commands under
+*Before you start* re-take them.
 
-### Part 1 · Apply the five database changes FIRST, in this order
+**Each step says the same four things:** what it is in plain words, the command,
+which ROADMAP items it unlocks, and the one check to run afterwards.
 
-**Why first:** the programs in Part 2 are written to expect these. Four of the
-five add something and take nothing away; the fifth takes one permission away
-from the dashboard (the dashboard does not use it). **Pass the five file names
-exactly as below. Never run the command with no names after it** — with none it
-tries to re-run all 105 files in the folder. It stops at the first failure and
-tells you which.
+### Before you start · Two reads. They change nothing.
 
 ```bash
 cd /d/Users/rando/Downloads/claude/detailing-platform
 set -a; . ./.env; set +a
-node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql 20261006010000_an_email_row_knows_its_booking.sql 20261006020000_hand_entered_platform_costs.sql 20261006030000_dashboard_language_reaches_the_server.sql 20261006040000_bookings_browser_updates_nothing.sql
 node scripts/migration-drift.mjs
-```
-
-The last line should stop naming any of them. **Do not apply while a browser
-check is running on the practice business** — change 1 changes what its Clients
-screen shows, and a check measuring it mid-run reports your change as a fault.
-
-1. **`20260924010000_a_fixture_is_not_a_customer.sql`** — adds a "test row" tick
-   to customers, so your Clients list hides the three leftovers from automated
-   checks and the "gone quiet" figure reads 5 instead of 8. Nothing is deleted.
-   **Unblocks ROADMAP 1.3 and the client-list half of 0.3.** The screen is already
-   written; it appears with the next website publish (Part 3).
-2. **`20261006010000_an_email_row_knows_its_booking.sql`** — lets the record of
-   each email say which booking it was about. **Unblocks ROADMAP 3.1** (the
-   delivery list). **Apply it before `send-email` is published** — by my reading of
-   the code, a published `send-email` writes that new field, and the record of
-   every email sent would quietly stop being saved until the column exists.
-3. **`20261006020000_hand_entered_platform_costs.sql`** — one table where you type
-   what the platform costs you; only you can read or write it. **Unblocks ROADMAP
-   9.14** together with `platform-admin` (Part 2, step 2). Published first, the
-   program shows an error on that one figure instead of a wrong number, on purpose.
-4. **`20261006030000_dashboard_language_reaches_the_server.sql`** — saves each
-   person's English or Spanish choice so emails to them can follow it. **Part of
-   ROADMAP 3.4.** Safe to apply at any time, **and it changes nothing visible yet:**
-   no screen saves the choice today (`grep -rn set_my_lang app/src` prints nothing
-   at `083208b`), so every email stays English until that one small screen change
-   is built.
-5. **`20261006040000_bookings_browser_updates_nothing.sql`** — takes away the
-   dashboard's permission to edit a booking directly (every edit already goes
-   through the server). **Unblocks ROADMAP 8.10d.** Afterwards
-   `node tests/owner-writes.test.mjs` goes from one red line to green.
-
-### Part 1b · Two more database changes, written after the list above, and neither one blocks anything
-
-Both are finished and tested on a throwaway database, and both are safe in either order with the programs that use them:
-the program works without the table and says so in its answer, it just does not do the extra thing until the table exists.
-**Pass the file names exactly, as in Part 1.** Never run the command with no names after it.
-
-1. **`20261006050000_action_log.sql`**: the memory behind "who completed, cancelled, no-showed, waived or deleted a job,
-   and when" (ROADMAP 4.1). `update-booking` writes one row per change. Apply it **before** publishing `update-booking`
-   (Part 2, step 3): published first, the program still works, logs the failure and answers `audit_recorded: false` on
-   every change until the table exists. It holds the one field that changed and nothing about the customer.
-   **AND SINCE 2026-10-07 IT IS TWO ITEMS WAITING ON IT RATHER THAN ONE, AND THE SECOND ONE IS ALREADY ON THE SCREEN.**
-   ROADMAP 4.7 is built: a detailer who picked the wrong answer on Finalize — said a job was paid when it was not, or gave
-   it away by accident — can now change it back from the job's own page. It works today, and the money figures were watched
-   moving the right way on every press. **What is missing is only the written record of the correction, which is this
-   table.** So 4.7 stays unticked until you have done both halves — apply this change, then publish `update-booking` — and
-   **neither half changes anything a detailer sees.** The fix is already in front of them; this is the paper trail behind it.
-2. **`20261006062000_send_invoice_attempts.sql`**: the memory behind "press Send invoice twice, get one invoice" (ROADMAP 6.4).
-   **The website's half is now done** (2026-10-07): the receipt button gives every send a ticket, keeps the same ticket if it
-   has to try again, and takes a fresh one once a send has gone through, so the server can tell "that did not go, send it
-   again" from "send them another copy". **There is nothing for you to do about that half.**
-   **Two things of yours are left, and the protection starts only when BOTH are done:** apply this table, and publish
-   `send-invoice` (Part 2). Either order is safe — the program works without the table and says so in its answer.
-   **Until both are done, nothing is worse than today and nothing is better:** a detailer who presses the receipt button
-   twice in a bad signal still sends their customer two invoices, which is what happens now.
-
-`node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_send_invoice_attempts.sql`
-then `node scripts/migration-drift.mjs`, which should stop naming both.
-
-### Part 1c · One more database change, and this one has an ORDER — written 2026-10-07
-
-1. **`20261007010000_tenant_string_lengths.sql`**: a length limit on the five names a detailer
-   types — their business name, their services, their add-ons, their service groups and their
-   plans. Sixty characters each, which is the limit the boxes on the website already use.
-   **It is the only one of these changes where the order matters, so this is the whole of it:**
-   **publish `create-business` and `platform-admin` FIRST** (they are already in Part 2, steps 2
-   and 3), **then apply this.**
-
-   **Why that way round.** Done in that order, somebody typing a very long business name is told,
-   in a sentence, that a name can be at most sixty characters. Done the other way round, for the
-   hours in between, they are shown a line of database jargon with the words *"violates check
-   constraint"* in it — at signup, which is the first thing a new detailer ever does here.
-   Nothing is lost either way and nothing is broken either way; it is only a question of which
-   sentence they get.
-
-   **Nothing in the database today is anywhere near the limit** — the longest business name on
-   there is 48 characters, and the longest of anything else is 22 — so applying this cannot make
-   any existing row illegal. Checked by reading, before the file was written.
-
-   **Two boxes on the website still have no limit on them** — the one on the signup form and the
-   one in your own back office — and that is a website change somebody here will make, not
-   something for you.
-
-`node scripts/apply-migrations.mjs 20261007010000_tenant_string_lengths.sql`
-then `node scripts/migration-drift.mjs`. **It will not mention this one either way** — that check
-cannot see this kind of change, which is written in its own notes; it is not a sign that anything
-went wrong.
-
-### Part 2 · Publish the programs, in your settled order
-
-**The order is your own, from the night of 2026-09-21 — restated, not reopened:**
-`report-problem` alone, then four together, then the rest, then `platform-billing`
-alone, and **the payment webhook last and alone, because it touches money.** It
-publishes for real the moment you press it, costs no Netlify credits, and the way
-back is publishing the previous version. Run the inventory first and use the
-names it prints that moment; the names below are the 31 at `083208b`.
-
-```bash
-node scripts/deployed-inventory.mjs
-node scripts/deploy-functions.mjs report-problem
-node scripts/deploy-functions.mjs create-booking get-booking-receipt platform-admin send-owner-reminders
-node scripts/deploy-functions.mjs $(node -e "const x=['report-problem','create-booking','get-booking-receipt','platform-admin','send-owner-reminders','platform-billing','stripe-webhook'];console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>!x.includes(f)).join(' '))")
-node scripts/deploy-functions.mjs platform-billing
-node scripts/deploy-functions.mjs stripe-webhook
 node scripts/deployed-inventory.mjs
 ```
 
-The last line should say everything matches; if it still names one, tell us that
-name and do not re-run the big line.
+**The first names the database changes that have never run.** When it was last
+read it named **seven** of the ten files in this list.
+**AND IT CANNOT SEE THE OTHER THREE, which is written in its own report rather
+than hidden:** the nightly photo schedule (step 9f), the photo allowance number
+(step 9g) and the name-length limits (step 7) are kinds of change it does not
+compare. **So for those three, "it said nothing" is not "it is done."** The step
+itself says how to tell.
 
-1. **`report-problem`, alone.** The "report a problem" form and the error emails
-   (ROADMAP 3.4, 3.1). Smallest and oldest, so it is the test of the whole routine.
-2. **`create-booking`, `get-booking-receipt`, `platform-admin`,
-   `send-owner-reminders`, together.** A double-press now leaves one booking
-   (ROADMAP 6.4); the public ceilings (14.9, 14.18); the back-office costs read
-   (9.14); **the back-office "Email we sent" list's server half (3.1, needs change 2 above — it names that change in plain words if it is missing)**; **the System health tab's error (9.18) is the same publish — that tab asks for this list and is answered about a parameter it never sent**; setup progress agreeing between dashboard and back office (9.1, per its
-   row below); the maintenance email's legal footer (0.7); the push-notification
-   links pointing at the job page instead of a page that does not exist (14.34).
-3. **The other 24, in one pass** — `address-suggest`, `unsubscribe`,
-   `resend-webhook`, `send-email`, `accept-invite`, `available-slots`,
-   `pay-booking`, `track-visit`, `validate-promo-code`, `accept-quote`,
-   `plan-link`, `reschedule-booking`, `calculate-booking`, `booking-ics`,
-   `cancel-booking`, `send-invoice`, `respond-to-booking`, `update-booking`,
-   `create-business`, `invite-user`, `preview-emails`, `send-campaign`,
-   `watch-jobs`, `connect-account`. **Price shown on the day, before the time**
-   (ROADMAP 2.1, 2.1b, `calculate-booking` and `validate-promo-code`); the second
-   car counted once (14.19); the rate ceilings on every public page (14.9, 14.18);
-   the booking-id link in the delivery record (3.1, `send-email`, after change 2
-   above); a repeated press leaves one change (6.4); Spanish and car-size wording in
-   emails (3.4); maintenance and campaign legal footers (0.7); **the written record of a corrected payment (4.7,
-   `update-booking`, and only together with change 1 in Part 1b — the correction screen itself is live either way)**.
+**The second compares every program on the server against what we have written.**
+Read at **2026-10-08 02:08 (commit `8fcb154`)**: **32 of 39 differ, 7 match.** The
+32 are every program named in this list — the 31 in steps 1, 3, 5, 6 and 8, plus
+`delete-customer` in step 9d.
+**AND A PROGRAM THAT HAS NEVER BEEN PUBLISHED AT ALL IS IN NEITHER LIST.**
+`photo-door` and `photo-reconcile` are new; they appear in neither the 32 nor the
+7, so their absence from that check is not a sign they are live. Steps 9c and
+9e are the only thing that puts them there.
 
-   **AND ONE THING TO DO AFTER `photo-door` GOES LIVE, WHICH IS NOT A PUBLISH AND IS EASY TO FORGET.** Receipts for
-   expenses are written to go through `photo-door`, but they are **switched off** until you publish it, by a single
-   line: **`RECEIPTS_VIA_DOOR` in `app/src/lib/photo-door.js`**, currently `false`. Publish the function, then have a
-   session flip that to `true`; it is one word, and the website has to be published afterwards for it to take effect.
-   **Why it is off at all:** receipts work today, so switching them over before the function exists would break
-   something that is working. Job photos have no such switch, because they were already going through this door
-   before it existed and are waiting on the publish either way.
-   **If you publish and nobody flips it, nothing breaks and nothing says so** — receipts just keep going the old way,
-   which does not count them against the photo limit. That is the whole reason this line is here.
-4. **`platform-billing`, alone.** The paid-restart fix (ROADMAP 12.1).
-5. **`stripe-webhook`, last and alone.** The ceilings (14.9, 14.18) and the
-   email wording (3.4) on the one program that handles money.
-
-**Counted:** 1 + 4 + 24 + 1 + 1 = 31, the same 31, taken from the same receipt.
-
-**When it is all done, three small checks are still yours or ours to run, because
-publishing is not the same as proved:** `node scripts/deployed-inventory.mjs` says
-"matches" for all 39 (that is the state ROADMAP 0.6 is about); the live refusal
-for 14.9 is observed once (the row further down says how); and a real notification
-is tapped on a subscribed phone and opens the job (14.34).
-
-### Part 2b · The photo publish: its own short list, because the order matters and one number rides with it
-
-**This is ROADMAP 0.11.** Everything for it is built and committed and none of it is live. **Do these in this order
-and in one sitting.** The reason for "one sitting" is a rule from the design (`docs/the-photo-allowance.md` § 2): the
-allowance number goes from 1 GB to 10 GB **in the same change that switches uploads to Cloudflare, and not one step
-earlier**, because a 10 on a detailer's screen with nothing behind it is a promise the platform cannot keep.
-
-1. **Cloudflare, in the dashboard (yours alone):** on the `job-photos` bucket, add a CORS rule that allows your
-   website's address to GET and PUT with the `Content-Type` header. Also allow `http://localhost:5173` while you are
-   testing, and any preview address you use. **Without it every upload is blocked by the browser even though the
-   program works.**
-2. **Check the three Cloudflare keys are set as secrets on the functions** (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
-   `R2_SECRET_ACCESS_KEY`). `docs/services-and-secrets.md` says they were saved on 2026-09-22; it does not say they
-   are on the functions. With one missing, each photo program answers *"Photo storage is not set up on the server
-   yet"* and names nothing else.
-3. **Publish `photo-door`.** It is not in the public list and must not be: every action needs a signed-in person.
-   `node scripts/deploy-functions.mjs photo-door`
-4. **Republish `delete-customer`** (it now removes a forgotten customer's photo files from both stores).
-   `node scripts/deploy-functions.mjs delete-customer`
-5. **Publish `photo-reconcile`.** It is called every night by a scheduled job with no signed-in person, exactly like
-   `refresh-weather`, so it is in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs` (the line was added on the manager's
-   say-so, 2026-10-06), and the script deploys it with the sign-in check off, which that nightly call needs. If the job
-   still shows on the back office's *Jobs that run on their own* list as stopped about a day after step 6, the gateway is
-   refusing it: tell us.
-   `node scripts/deploy-functions.mjs photo-reconcile`
-6. **Apply the nightly schedule, now that the program exists:**
-   `node scripts/apply-migrations.mjs 20261006060000_photo_reconcile_cron.sql`
-   (**Never run that command with no names after it.** It seeds the job as *not reported yet* and schedules the
-   call for 03:40 UTC. Applied before step 5 it would email you a stopped-job alarm for a job that was never started.)
-7. **Last, apply the allowance number:**
-   `node scripts/apply-migrations.mjs 20261006061000_photo_total_gb_ten.sql`
-   It changes 1 to 10 and **only** when the value is still the default 1, so a number you set by hand is never
-   overwritten. **Then, and only then, publish the website** (Part 3): the photo screens in it use the door, and a
-   website published before step 3 answers every photo action with *"Photo storage is not set up on the server yet"*.
-
-**After it is all done, one read tells you the first night's reconcile ran and what it found.** Run it in the
-Supabase SQL editor the morning after step 6 (it only reads):
-`select ran_at, detail from job_heartbeats where job = 'photo-reconcile';`
-`detail` carries `clean` (true when the bucket and the records agree), the counts of objects with no record, records
-with no object and sizes that do not match, and `allowance`, how full the store is and how many businesses are over
-their share. **The reconcile never changes or deletes anything; it only reports.** A `clean: false` is a number to
-look at, not an emergency. **Not proved until that morning:** that Cloudflare accepts the listing request, which no
-test short of the live bucket can show.
-
-### Part 3 · Not a database change or a program, and waiting too
-
-* **The website itself.** The Clients screen (1.3), the delivery list (3.1), the
-  costs screen (9.14) and the language save (3.4) are all website code. Pushing
-  is yours, and a production build costs 15 Netlify credits (CLAUDE.md,
-  "Publishing"); **measure first whether a push publishes at all** before
-  spending one. Two of those screens are still being built, so this list says
-  nothing about their order yet.
-* **Everything else** open and waiting on you is in the rows below. The count of
-  what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
+**Two rules for the whole list.** **Never run `apply-migrations.mjs` with no file
+names after it** — with none it tries to re-run every file in the folder. It stops
+at the first failure and tells you which. And **do not apply or publish while a
+browser check is running on the practice business**: a check measuring a screen
+mid-change reports your change as a fault.
 
 ---
+
+### Step 1 · Publish `report-problem`, alone
+
+The "report a problem" form and the error emails. **Smallest and oldest, so it is
+the test of the whole routine** — if this goes smoothly the rest will.
+
+```bash
+node scripts/deploy-functions.mjs report-problem
+```
+
+**Unlocks:** part of ROADMAP 3.4 and 3.1.
+**Then:** `node scripts/deployed-inventory.mjs` — it should stop naming
+`report-problem`.
+
+### Step 2 · Apply the five database changes that the programs expect
+
+Four of the five add something and take nothing away. The fifth takes one
+permission away from the dashboard, which the dashboard does not use.
+
+```bash
+node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql 20261006010000_an_email_row_knows_its_booking.sql 20261006020000_hand_entered_platform_costs.sql 20261006030000_dashboard_language_reaches_the_server.sql 20261006040000_bookings_browser_updates_nothing.sql
+```
+
+1. **`20260924010000_a_fixture_is_not_a_customer.sql`** — a "test row" tick on
+   customers, so your Clients list hides the three leftovers from automated checks
+   and the "gone quiet" figure reads 5 instead of 8. Nothing is deleted.
+   **Unlocks ROADMAP 1.3 and the client-list half of 0.3.** The screen is already
+   written and appears with the website publish (step 11).
+2. **`20261006010000_an_email_row_knows_its_booking.sql`** — lets the record of
+   each email say which booking it was about. **Unlocks ROADMAP 3.1.**
+   **This one must be applied before `send-email` is published** (step 6):
+   published first, it writes that new field and the record of every email sent
+   would quietly stop being saved until the column exists.
+3. **`20261006020000_hand_entered_platform_costs.sql`** — one table where you type
+   what the platform costs you; only you can read or write it. **Unlocks ROADMAP
+   9.14** together with `platform-admin` (step 4). If `platform-admin` goes first
+   the screen shows an error on that one figure rather than a wrong number, on
+   purpose.
+4. **`20261006030000_dashboard_language_reaches_the_server.sql`** — saves each
+   person's English or Spanish choice so emails to them can follow it. **Part of
+   ROADMAP 3.4.** It changes nothing visible yet: no screen saves the choice today,
+   so every email stays English until that small screen change is built.
+5. **`20261006040000_bookings_browser_updates_nothing.sql`** — takes away the
+   dashboard's permission to edit a booking directly; every edit already goes
+   through the server. **Unlocks ROADMAP 8.10d.**
+
+**Then:** `node scripts/migration-drift.mjs` should stop naming all five, and
+`node tests/owner-writes.test.mjs` goes from one red line to green.
+
+### Step 3 · Publish four programs together
+
+```bash
+node scripts/deploy-functions.mjs create-booking get-booking-receipt platform-admin send-owner-reminders
+```
+
+**Unlocks:** a double-press leaving one booking (6.4); the public ceilings (14.9,
+14.18); the back-office costs read (9.14, with step 2.3); the back-office "Email
+we sent" list's server half (3.1, with step 2.2); **the System health tab's error
+(9.18) — that tab asks for this list and is answered about a parameter it never
+sent**; setup progress agreeing between dashboard and back office (9.1); the
+maintenance email's legal footer (0.7); the push-notification links pointing at
+the job page instead of a page that does not exist (14.34).
+**Then:** `node scripts/deployed-inventory.mjs` should stop naming all four.
+
+### Step 4 · Apply the two changes written after that list
+
+Both are finished and tested on a throwaway database, and **the program works
+without the table and says so in its answer** — it just does not do the extra
+thing until the table exists.
+
+```bash
+node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_send_invoice_attempts.sql
+```
+
+1. **`20261006050000_action_log.sql`** — the memory behind "who completed,
+   cancelled, no-showed, waived or deleted a job, and when" (ROADMAP 4.1). It
+   holds the one field that changed and nothing about the customer.
+   **Apply it before `update-booking` is published** (step 6): the other way round,
+   the program works and logs the failure until the table exists.
+   **AND IT IS TWO ITEMS WAITING ON IT, NOT ONE.** ROADMAP **4.7** is built: a
+   detailer who picked the wrong answer on Finalize — said a job was paid when it
+   was not, or gave it away by accident — can change it back from the job's own
+   page. **That works today; what is missing is only the written record of the
+   correction, which is this table.** Neither half changes anything a detailer
+   sees.
+2. **`20261006062000_send_invoice_attempts.sql`** — the memory behind "press Send
+   invoice twice, get one invoice" (ROADMAP 6.4). **The website's half is done.**
+   The protection starts only when both this and `send-invoice` (step 6) are done;
+   until then a detailer who presses the receipt button twice in a bad signal still
+   sends two invoices, which is what happens now.
+
+**Then:** `node scripts/migration-drift.mjs` should stop naming both.
+
+### Step 5 · Publish the remaining 24, in one pass
+
+```bash
+node scripts/deploy-functions.mjs $(node -e "const x=['report-problem','create-booking','get-booking-receipt','platform-admin','send-owner-reminders','platform-billing','stripe-webhook','delete-customer'];console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>!x.includes(f)).join(' '))")
+```
+
+That line reads the names out of the check's own last answer, so it cannot go
+stale. At the last read they were: `address-suggest`, `unsubscribe`,
+`resend-webhook`, `send-email`, `accept-invite`, `available-slots`, `pay-booking`,
+`track-visit`, `validate-promo-code`, `accept-quote`, `plan-link`,
+`reschedule-booking`, `calculate-booking`, `booking-ics`, `cancel-booking`,
+`send-invoice`, `respond-to-booking`, `update-booking`, `create-business`,
+`invite-user`, `preview-emails`, `send-campaign`, `watch-jobs`, `connect-account`.
+
+**Unlocks:** the price shown on the day, before the time (2.1, 2.1b); the second
+car counted once (14.19); the rate ceilings on every public page (14.9, 14.18);
+the booking-id link in the delivery record (3.1, with step 2.2); a repeated press
+leaving one change (6.4, with step 4.2); Spanish and car-size wording in emails
+(3.4); maintenance and campaign legal footers (0.7); **the written record of a
+corrected payment (4.7, with step 4.1 — the correction screen itself is live
+either way)**; and the sentence a long business name gets, which **step 7 needs**.
+**Then:** `node scripts/deployed-inventory.mjs` — only `platform-billing`,
+`stripe-webhook` and `delete-customer` should still be named.
+
+### Step 6 · Publish `platform-billing`, alone
+
+The paid-restart fix (ROADMAP 12.1).
+
+```bash
+node scripts/deploy-functions.mjs platform-billing
+```
+
+**Then:** `node scripts/deployed-inventory.mjs`.
+
+### Step 7 · Apply the name-length limits — AFTER step 5, not before
+
+**This is the one change in the whole list where the order is the other way
+round: the programs go first.** A limit of sixty characters on the five names a
+detailer types — their business name, their services, their add-ons, their service
+groups and their plans.
+
+```bash
+node scripts/apply-migrations.mjs 20261007010000_tenant_string_lengths.sql
+```
+
+**Why after.** With `create-business` and `platform-admin` published first (steps
+3 and 5), somebody typing a very long business name is told in a sentence that a
+name can be at most sixty characters. Applied first, for the hours in between,
+they are shown a line of database jargon with the words *"violates check
+constraint"* in it — at signup, which is the first thing a new detailer ever does
+here. Nothing is lost or broken either way; it is only which sentence they get.
+
+**Nothing in the database is anywhere near the limit** — the longest business name
+on there is 48 characters and the longest of anything else is 22 — so this cannot
+make any existing row illegal. Checked by reading, before the file was written.
+**Unlocks ROADMAP 2.15a's database half.**
+**Then:** nothing to run. **`migration-drift` cannot see this kind of change and
+will not mention it either way** — that is the check's own limit, not a problem.
+To see it worked, type a 61-character business name on the signup form: it is
+refused with a sentence.
+
+### Step 8 · Publish `stripe-webhook`, last and alone
+
+**Last because it touches money.** The ceilings (14.9, 14.18) and the email
+wording (3.4) on the one program that handles payments.
+
+```bash
+node scripts/deploy-functions.mjs stripe-webhook
+```
+
+**Then:** `node scripts/deployed-inventory.mjs` — only `delete-customer` should
+still be named, and step 9d is where it goes.
+
+### Step 9 · The photos — ROADMAP 0.11, in this order and in one sitting
+
+Everything for it is built and committed and none of it is live. **The reason for
+"one sitting" is a rule from the design** (`docs/the-photo-allowance.md` § 2): the
+allowance goes from 1 GB to 10 GB **in the same change that switches uploads to
+Cloudflare, and not one step earlier**, because a 10 on a detailer's screen with
+nothing behind it is a promise the platform cannot keep.
+
+**a · Cloudflare, in your dashboard — yours alone.** On the `job-photos` bucket,
+add a CORS rule allowing your website's address to GET and PUT with the
+`Content-Type` header. Also allow `http://localhost:5173` while testing, and any
+preview address you use. **Without it every upload is blocked by the browser even
+though the program works.**
+
+**b · Check the three Cloudflare keys are set as secrets on the functions**
+(`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`).
+`docs/services-and-secrets.md` says they were saved on 2026-09-22; it does not say
+they are on the functions. With one missing, each photo program answers *"Photo
+storage is not set up on the server yet"* and names nothing else.
+
+**c · Publish `photo-door`.** `node scripts/deploy-functions.mjs photo-door`
+It is not in the public list and must not be: every action needs a signed-in
+person.
+
+**d · Republish `delete-customer`.** `node scripts/deploy-functions.mjs delete-customer`
+It now removes a forgotten customer's photo files from both stores.
+
+**e · Publish `photo-reconcile`.** `node scripts/deploy-functions.mjs photo-reconcile`
+It is called every night by a scheduled job with no signed-in person, exactly like
+`refresh-weather`, so it is in the public list and is deployed with the sign-in
+check off, which that nightly call needs.
+
+**f · Apply the nightly schedule, now that the program exists:**
+`node scripts/apply-migrations.mjs 20261006060000_photo_reconcile_cron.sql`
+It seeds the job as *not reported yet* and schedules the call for 03:40 UTC.
+**Applied before step e it would email you a stopped-job alarm for a job that was
+never started.**
+
+**g · Last, apply the allowance number:**
+`node scripts/apply-migrations.mjs 20261006061000_photo_total_gb_ten.sql`
+It changes 1 to 10 and **only** when the value is still the default 1, so a number
+you set by hand is never overwritten.
+
+**Unlocks ROADMAP 0.11.**
+**Then, the morning after:** one read tells you the first night's reconcile ran
+and what it found. In the Supabase SQL editor (it only reads):
+`select ran_at, detail from job_heartbeats where job = 'photo-reconcile';`
+`detail` carries `clean` (true when the bucket and the records agree), the counts
+of objects with no record, records with no object and sizes that do not match, and
+`allowance`, how full the store is and how many businesses are over their share.
+**The reconcile never changes or deletes anything; it only reports.** A
+`clean: false` is a number to look at, not an emergency. **Not proved until that
+morning:** that Cloudflare accepts the listing request, which no test short of the
+live bucket can show. If the job still shows as stopped on the back office's *Jobs
+that run on their own* list about a day after step f, the gateway is refusing it —
+tell us.
+
+### Step 10 · Publish the website, last
+
+The Clients screen (1.3), the delivery list (3.1), the costs screen (9.14) and the
+language save (3.4) are all website code. Pushing is yours, and **a production
+build costs 15 Netlify credits** (CLAUDE.md, "Publishing"); **measure first whether
+a push publishes at all** before spending one.
+
+**It goes after step 9c, not before.** The photo screens in it use the door, and a
+website published before `photo-door` exists answers every photo action with
+*"Photo storage is not set up on the server yet"*.
+
+**AND ONE LINE TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND IS
+EASY TO FORGET.** Receipts for expenses are written to go through `photo-door` but
+are **switched off** by a single line — **`RECEIPTS_VIA_DOOR` in
+`app/src/lib/photo-door.js`, currently `false`.** Publish the function, then have a
+session flip it to `true`; the website has to be published afterwards for it to
+take effect. **Why it is off at all:** receipts work today, so switching them over
+before the function existed would break something that works. **If you publish and
+nobody flips it, nothing breaks and nothing says so** — receipts keep going the old
+way, which does not count them against the photo limit. That is the whole reason
+this line is here.
+
+### When it is all done · Three proofs that are not publishes
+
+**Publishing is not the same as proved.**
+
+1. `node scripts/deployed-inventory.mjs` says "matches" for all 39 — that is the
+   state ROADMAP 0.6 is about.
+2. The live refusal for 14.9 is observed once; the row further down says how.
+3. A real notification is tapped on a subscribed phone and opens the job (14.34).
+
+**Everything else** open and waiting on you is in the rows below. The count of
+what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
 
 ## Start here — the one decision that unblocks the most
 
@@ -2083,6 +2124,36 @@ once, which is still more than any script here can do.
 ---
 
 ## Recorded — nothing needed from you yet
+
+### The six emails of 2026-09-23 — moved here 2026-10-07 because it was the
+### first thing on the page a fortnight later
+
+> ## Read this first: the six emails tonight are ours. Nothing broke.
+>
+> **You will open your phone to six alerts from healthchecks.io. Every one of
+> them was us, and nothing was wrong with your site at any point.**
+>
+> We built two new alarms tonight and then set each one off on purpose, because
+> an alarm nobody has ever seen ring is not an alarm. Setting them off is what
+> sent the mail.
+>
+> | time (Tue 23rd) | what it said | what it really was |
+> |---|---|---|
+> | **9:55pm** | site check DOWN | us breaking the homepage check on purpose |
+> | **9:56pm** | site check UP | us putting it straight back |
+> | **10:30pm** | detailer check DOWN | **a real mistake of ours** — the new alarm counted a test business as a real one |
+> | **10:32pm** | detailer check UP | us fixing that |
+> | **10:33pm** | detailer check DOWN | us breaking it on purpose, properly this time |
+> | **10:33pm** | detailer check UP | us putting it back |
+>
+> **You do not need to do anything.** Both alarms are green and quiet now.
+>
+> **From here on they only ring for something real** — and we have stopped
+> testing alarms against your inbox. Any future one is worth reading.
+>
+> *Written 2026-09-23.*
+
+
 
 - **There is a corner of your product your own checks cannot look at, and it
   is the dashboard.** Everything a customer sees — your booking page, your

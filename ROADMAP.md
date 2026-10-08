@@ -540,7 +540,7 @@ and how the wait ends.
   names the flag beside the function, because a published door with the flag still `false` means receipts keep bypassing
   the meter **and nothing goes red to say so**.
 
-  **PROVED BY PRESSING, four frames each (1440x900 and 320x844, EN and ES), every row and object cleaned up afterwards
+  **PROVED BY PRESSING on 2026-10-07 (`e246714`), four frames each (1440x900 and 320x844, EN and ES), every row and object cleaned up afterwards
   and 0 left behind:**
   * **Flag OFF — today's path, unchanged.** All four: no error sentence, the `expenses` row carries
     `receipt_path`/`bytes`/`width`/`height`, the object answers **GET 200**, and a signed URL for it answers **GET 200**.
@@ -11551,7 +11551,7 @@ going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one
   **4 requests refused each time** — one press plus the three retries, exactly as designed — the sentence on screen
   with `role="alert"` in the right language, and **`in_progress` nowhere**. Frames in `.manager-shots/6.4-fix/`.
 
-  **2 · `idempotent: false` IS STILL NOT SURFACED, AND THAT IS A DECISION RATHER THAN UNFINISHED WORK.** The brief was
+  **2 · `idempotent: false` IS STILL NOT SURFACED, AND THAT IS A DECISION RATHER THAN UNFINISHED WORK — 2026-10-08.** The brief was
   to show it *only if there is a plain, honest way to say it*. There is not, and the reason is what it would have to
   say: the field means **this send was not deduplicated, because the protection table is not applied yet**. That is a
   fact about the server's configuration, it arrives attached to a send that **succeeded**, and there is nothing a
@@ -18148,6 +18148,26 @@ the dashboard or back office at phone width at all.
   can leave controls resting under the bar while every other line of the run
   reads normally.
 
+  **AND THIS IS PROBABLY ONE FAULT WITH ANOTHER ITEM, SEEN BY A DIFFERENT
+  INSTRUMENT — read both before touching `--tabclear`.** 14.30's own proof turned
+  up **three obstructed rows** nothing had been told about, and they are the same
+  place on the screen: *Services & add-ons* at 320 («Interior», «Customers pick
+  one») and at 392 («Customers pick one», «Full interior and exterior»), and
+  *Business info* at 392 («Logo and cover photo») — **the bottom rows when
+  scrolled to the end, at phone widths.** Their entry already names
+  `--tabclear` as the likely cause.
+
+  **THE TWO INSTRUMENTS CANNOT SEE EACH OTHER'S HALF, AND THAT IS THE USEFUL
+  PART.** Those three are rows whose hit point lands on a fixed element, which
+  `bk-bar-clearance`'s `screen/furniture-clear` question asks and finds. **This
+  item is rows that are not covered by anything pressable at all** — the scrim is
+  `pointer-events: none`, so no hit test can ever land on it (`docs/gotchas.md`
+  100), and no contrast gate opens a dashboard screen's bottom strip. **Same
+  40px of screen, two faults, two blind instruments.** A fix to the clearance
+  that satisfies one says nothing about the other, so whoever takes it should
+  satisfy both done-whens in the same change and say which measurement covers
+  which.
+
   *Filed by DP Cowork2, 2026-10-07. No `app/src` touched. The measurements are
   DP Cowork's, taken during 9.4; the stylesheet geometry is this session's and
   was read at the commit carrying this entry.*
@@ -18217,6 +18237,61 @@ the dashboard or back office at phone width at all.
   it exists to prevent; or a Remove that clears the columns and leaves the
   object, which looks finished on screen while the allowance never moves and
   `photo-reconcile` will never collect it either.
+
+  ---
+
+  ### THE `app/src` HALF, EXACTLY — FOR DP COWORK, AS ONE STEP
+
+  **FILES: `app/src/screens/Money.jsx` (the expense list) and
+  `app/src/components/ExpenseModal.jsx` (the sheet that attaches one). No new
+  file, no new library — `app/src/lib/receipts.js` already has every function
+  this needs and they are exported.**
+
+  **WHICH PATH IS LIVE, BECAUSE THERE ARE TWO AND ONE IS SWITCHED OFF.**
+  `app/src/lib/photo-door.js:95` is `export const RECEIPTS_VIA_DOOR = false`,
+  and every function in `receipts.js` is two paths behind that flag (`:34`).
+  **Build against the functions, never against either path** — `removeReceipt`
+  and `signedReceiptUrls` already answer the same shape with the flag on or
+  off, which is the whole reason they exist. **Do not flip the flag in this
+  item**; that is 0.11 slice 5's own step and it needs the door published.
+
+  **WHAT TO ADD, AND IT IS THREE THINGS:**
+
+  | | where | what |
+  |---|---|---|
+  | **the thumbnail** | `Money.jsx`, the expense row | for every expense whose `receipt_path` is set, a small image that opens the full one. **The URL comes from `signedReceiptUrls(paths)` — ONE call for the whole list** |
+  | **Remove** | `ExpenseModal.jsx`, when the expense already has a receipt | `removeReceipt({ expense, businessId })`, then re-read the expense. It deletes the object **and** clears the five `receipt_*` columns, both halves, which is why it is this function and not a column update |
+  | **the empty case** | both | an expense with no receipt says nothing at all. No placeholder box (`CLAUDE.md` § Design: never a gray placeholder box) |
+
+  **THE ONE CALL, NOT ONE PER ROW.** `signedReceiptUrls` takes **up to
+  `DOOR_BATCH` keys** and returns a map; `receipts.js:174`–`:180` says in its
+  own header that a one-key helper making one request per row *"would be the
+  thing that clause exists to prevent"*. So gather the paths for the rows on
+  screen, ask once, and read the map. **A key that is absent from the map means
+  "cannot be shown", never "the call failed"** — that is stated at `:170`–`:172`
+  and the screen must not turn an absence into an error.
+
+  **NEVER BUILD A URL FROM `receipt_path`.** The bucket is private and that key
+  IS the tenant isolation (`_shared/photoKey.ts`'s first segment). A hand-built
+  URL is a 404 at best.
+
+  **THE REFUSAL TO SHOW AS WRITTEN:** removing needs the settings permission, and
+  the server's sentence is *"Removing a receipt needs the settings permission."*
+  Show it as the server wrote it, beside the control. **A staff member without
+  that permission should not be offered a Remove they cannot use** — the same
+  shape as every other permission-gated control on these screens.
+
+  **SPANISH IN THE SAME EDIT.** Any new English string needs its key in
+  `app/src/lib/strings/appEs.js`, which is keyed on the English text, or it
+  silently falls back with no error anywhere (`CLAUDE.md` § Conventions).
+
+  **WHAT TO PRESS, AND THE ALLOWANCE IS THE ONE THAT MATTERS:** attach a
+  receipt, see it, open it, remove it, and **read the remaining allowance before
+  and after the remove** — if the figure does not move, the object is still
+  there and the columns were cleared alone, which is this item's own named way
+  to fail. At **320 and 392 in both languages**, console clean, 44px of real hit
+  area on the thumbnail and on Remove, and one expense left with no receipt to
+  prove the empty case shows nothing.
 
   *Filed by DP Cowork2, 2026-10-07. No `app/src` touched, nothing built. The
   finding is DP Cowork's, from `e246714`; the five measurements above are this
@@ -22445,6 +22520,15 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
   **What failing looks like:** the gate green because the three were declared, or the three gone at 320 and still present at 392
   (they are different rows at different pitches, so one number does not fix both).
+
+  **AND THE SAME 40px OF SCREEN CARRIES A SECOND FAULT THAT THIS INSTRUMENT CANNOT SEE — ROADMAP 9.19, filed 2026-10-07.**
+  `.app-main` reserves `--tabclear` (96px) and `.tabscrim` is `--tabclear + 40px` tall, so **the last 40px of content on every
+  dashboard screen sits inside the fade** — measured on the calendar legend at 320x640 at **1.47:1 in Spanish** against 6.97:1 for
+  the same legend at the five standard sizes. **It is invisible here by construction:** the scrim is `pointer-events: none`, so
+  `elementFromPoint` can never land on it and `screen/furniture-clear` reports those rows uncovered — correctly
+  (`docs/gotchas.md` 100). **So these three rows and 9.19 are very probably one geometry fault seen by two instruments**, one
+  asking *can it be pressed* and the other *can it be read*. **Do not fix `--tabclear` for one without reading the other**: 9.19's
+  done-when needs a gate that can see a composited gradient, and CLAUDE.md's shared-variable rule covers the whole of it.
 
   ***FOUND 2026-10-06 (Lane A), NOT FIXED, AND THE REASON IS THAT NO CLEARANCE IS WRONG: THE THREE ROWS ARE NOT OBSTRUCTED.***
   The premise above (*"these are the bottom rows when scrolled to the end, and the sweep reads them there"*) is the guess it said it
