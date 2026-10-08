@@ -2657,7 +2657,25 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 }
 .cal-cell:hover { border-color: var(--line-2); }
 .cal-cell:active { background: var(--surface-lit); }
-.cal-cell.other { opacity: 0.3; }
+/* ROADMAP 9.4 — THE PADDING DAYS, AND THIS RULE EXISTED BEFORE ANYTHING WORE IT.
+   `.cal-cell.other` was declared and never emitted; the lead-in and run-out cells
+   rendered as a classless `<div/>`, so a month whose 1st is a Thursday drew four
+   columns of nothing and read as ragged however many entries the array held.
+   **0.42 RATHER THAN 0.3.** At 0.3 the hairline border is all but gone and the row
+   still reads as a gap, which is the whole fault; these have to be visible AS BOXES
+   to do their job. They carry no text, so nothing here owes a contrast ratio.
+   **AND THE HIT-AREA `::after` COMES OFF, WHICH IS THE PART THAT WOULD HAVE BITTEN.**
+   `.cal-cell::after` is a -2.5px inset that tiles exactly half the 5px gutter so two
+   real days meet with no dead strip between them. On a cell that does nothing, that
+   same inset is an inert box sitting 2.5px inside its neighbour's gutter, which is
+   trap (n) — a press traded for a WRONG one. `pointer-events: none` says the same
+   thing a second way, and both are a line each.
+   No gutter is lost by this: before the change these cells had no `::after` either,
+   because they had no class at all. */
+.cal-cell.other {
+  opacity: 0.42; cursor: default; pointer-events: none; background: none;
+}
+.cal-cell.other::after { content: none; }
 /* "Today" is marked by SHAPE — a filled disc behind the number — so the
    accent budget isn't spent on a day that is merely today. */
 .cal-cell .n {

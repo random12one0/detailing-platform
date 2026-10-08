@@ -504,7 +504,22 @@ export default function Calendar({ refreshKey = 0 }) {
                 is work on it. */}
             <div className={`cal-grid${writes ? " writes" : ""}`} data-tour="calgrid">
               {cells.map((date, i) => {
-                if (date === null) return <div key={`x${i}`} />;
+                // ROADMAP 9.4 — A PADDING DAY IS A QUIET CELL, NOT NOTHING.
+                // `cells` has been a whole number of weeks since 2026-09-23 and the
+                // DOM has carried 35 entries ever since, which is why the check's
+                // `grid-rect` went green — but seven of them rendered as a bare
+                // `<div/>` with no class, so the first row of October drew four
+                // columns of empty air and the month still started ragged to the eye.
+                // **A COUNT OF CELLS IS NOT A RECTANGLE.** The check was measuring the
+                // array and the fault was in the paint, which is this repo's own
+                // oldest shape: a measurement that answers a question next to the one
+                // a person is asking.
+                // EMPTY RATHER THAN THE NEIGHBOURING MONTH'S DATES, which was the
+                // other option offered: a number at reduced emphasis is text a person
+                // reads, and it would owe a contrast measurement that an empty box
+                // does not. `aria-hidden` because seven silent boxes are worth nothing
+                // read aloud.
+                if (date === null) return <div key={`x${i}`} className="cal-cell other" aria-hidden="true" />;
                 const jobs = (byDay[date] ?? []).filter((b) => b.status !== "cancelled");
                 const blocked = marks.blocked.has(date);
                 const limited = marks.dropoff.has(date);
