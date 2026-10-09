@@ -172,7 +172,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND FIVE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND SIX specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -711,3 +711,13 @@ satisfied by the broken gate**, and a session confirming its own fix reads that 
 Certify on the FINDINGS LIST (1 naming ex3, against 0), never on the verdict word. Found while
 certifying ROADMAP 7.10. Twenty sittings unbroken; `grep -c "^## " docs/gotchas.md` run before
 writing this and again after, so the 105 above is a count rather than an increment.
+
+
+**105 → 106 on 2026-10-08, same edit** — a selector chosen from the WORD in somebody's claim rather
+than from their picture. `/ex2` has two wordmarks; `.brand` is the obvious one and the wrong one, and
+measuring it refuted a true 42px overlap cleanly at five widths with no error and no console noise.
+The real element is the `aria-hidden` `.ghost` watermark, and against it the original figure
+reproduces to the pixel. **A refutation deserves more scepticism than a confirmation**, because
+confirming costs nothing and refuting overwrites a correct record. Found by the supervisor, on
+itself, while re-checking ROADMAP 7.10. Twenty-one sittings unbroken; `grep -c "^## " docs/gotchas.md`
+run before writing this and again after, so the 106 above is a count rather than an increment.

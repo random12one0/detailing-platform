@@ -3024,3 +3024,63 @@ Shots: `.manager-shots/7.10/` — `ex2-wordmark-1440.png`, `ex2-wordmark-392.png
 **Gotcha 105 came out of run D** and is the thing most worth carrying forward: its verdict line
 said `FAIL` while it found nothing, so the spec's own acceptance test was satisfied by the broken
 gate. Certify on the findings list, never on the verdict word.
+
+---
+
+## Supervision 2026-10-08 — 7.10 and 4.1 re-measured independently, at `f56be2e`
+
+**Re-measured by the supervisor in a browser, from scratch, not read off the
+previous session's receipts.** Shots are FILES per `docs/gotchas.md` 99:
+`.manager-shots/supervision-2026-10-08-7.10/` and `…-4.1/`.
+
+### 7.10 — 3 of 3 claims reproduce
+
+| Claim (commit `f56be2e`) | Supervisor's measurement | Verdict |
+|---|---|---|
+| `/ex3` hero is 903px at 1440x900 | **903px** | reproduces exactly |
+| `/ex1` hero is 774px (the control) | **774px** | reproduces exactly |
+| `/ex2` wordmark overlaps the headline by 42px at 392/320, clears at 1920/1440/768 | **−42px at 392 and 320**; clears by **2px** at 1920/1440 and **14px** at 768 | reproduces exactly |
+| all five `/examples` thumbnails are stale, not `ex4` alone | **all five** | confirmed by a second method |
+
+Console: **0 errors and 0 warnings** on `/ex1`, `/ex2`, `/ex3` at every width
+measured. No sideways scroll at 320 or 392.
+
+**The thumbnail staleness was confirmed a different way than the gate confirms
+it**, because agreeing with an instrument using that instrument proves nothing.
+The gate compares content fingerprints; the supervisor compared commit
+timestamps against the manifest's own `captured_at` of `2026-09-21T12:26:17Z`.
+Every one of the five sources was committed *after* that moment — `5fe5eff` at
+16:49Z, `1acd9a6` at 18:04Z, `da40720` on 2026-10-06. **Two independent methods,
+same answer: all five are stale.**
+
+**One thing worth carrying: the 1920/1440 clearance is 2px.** The commit's word
+"clears" is true and the margin is two pixels, which is one font-metric or
+line-height change away from being the same defect as the phone. Whoever takes
+clause 3 should treat the desktop case as *barely* clear, not as safe.
+
+### 4.1 — `cfd8932`'s two Decline surfaces reproduce, with one new defect
+
+**Reproduced at 1440x900 and 392x844, on both surfaces:** the request card on
+Today and the job record's pending bar both ask before they act; the question
+names the record (*"Decline Marcus Webb's Ceramic Coating at 8:30 AM? The
+customer is emailed."*); "Not yet" removes the question, restores the Decline
+button and brings "Quote" back; focus lands on the question rather than on the
+destructive answer; the question takes 375px of a 413px card at 1440 and 318px of
+356px at 392, so it takes the row rather than a sliver. **0 console errors or
+warnings at either width on either surface.**
+`tests/confirm-questions.test.mjs` passes **6/6**, and
+`CONFIRM_BREAK=no-ask-card-decline` goes red against the correct control — the
+sabotage was proved to land rather than believed.
+
+**"Yes, decline it" was deliberately never pressed.** It writes a cancellation
+and emails a customer on the shared demo tenant, and an outward-facing send is
+not the supervisor's to trigger. **The write half of 4.1 is therefore NOT
+re-verified here** — it rests on `cfd8932`'s own throwaway-business run. Said
+plainly because a skipped check reads exactly like a passing one.
+
+**NEW DEFECT, recorded as ROADMAP 4.1 (f):** on both surfaces, at both widths,
+**two buttons carry the identical accent fill `rgb(14, 165, 233)` while the
+question is open — "Accept" and "Yes, decline it"**, 101px apart on the card and
+155px apart on the record. Measured as computed `backgroundColor` of every
+visible button, not read off a screenshot. See ROADMAP 4.1 (f) and `DECISIONS.md`
+§ *"The supervisor names a composition defect and does not fix it"*.

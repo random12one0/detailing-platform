@@ -9168,6 +9168,70 @@ requested.
 ## Wave 4 — State safety
 
 - [ ] **4.1 — One tap completes a job, with no confirmation and no undo.**
+
+  **4.1 (f) — THE CONFIRMATION IS PAINTED IN THE LIVERY OF THE BUTTON IT IS
+  PROTECTING AGAINST. Found by the supervisor 2026-10-08, measured on both
+  surfaces at both widths, in the browser, at `cfd8932`.**
+
+  The two Decline confirmations added by `cfd8932` pass no `confirmClassName`,
+  so they take `ConfirmTap`'s default — `btn primary`, the accent fill. On the
+  request card on Today, and on the job record's pending bar, that puts **two
+  buttons with the identical accent fill on the same surface, meaning opposite
+  things**: "Accept" and "Yes, decline it".
+
+  Measured, not read off a screenshot — computed `backgroundColor` of every
+  visible button while the question is open:
+
+  | Surface | Width | Accent-filled buttons | Gap |
+  |---|---|---|---|
+  | Request card (Today) | 1440x900 | `Accept` and `Yes, decline it`, both `rgb(14, 165, 233)` | 101px |
+  | Request card (Today) | 392x844 | the same two, same value | 101px |
+  | Job record (pending bar) | 1440x900 | the same two of **12** visible buttons | 155px |
+  | Job record (pending bar) | 392x844 | the same two of **12** visible buttons | 155px |
+
+  **Why this is a defect and not taste.** `docs/design-system.md` § Composition:
+  *"three or more actions take three weights — filled, ringed, ringless — because
+  a set where everything is equally loud has no first thing, and a destructive
+  action weighted the same as a convenience is a hazard, not a neutral choice."*
+  And `RequestCard.jsx`'s own header comment records that this exact card broke
+  the one-accent-fill rule once before and was fixed for it: *"ONLY THE LIT
+  CARD'S ACCEPT IS FILLED … put two accent buttons on one screen."*
+
+  **And it is sharpest precisely where this item is pointed.** 4.1 exists to stop
+  a mis-aimed thumb declining a job. The step it added asks the right question in
+  the right words — and then paints *yes, decline it* in the same blue as
+  *Accept*, 101px away, on a card the item's own comment says is read one-handed.
+  The guard is correct; its answer is dressed as the thing it is guarding.
+
+  **Done when:** on both surfaces, at 1440 and 392, **exactly one accent fill is
+  on the surface while the question is open**, measured as computed
+  `backgroundColor` rather than by eye, with the console read at both.
+
+  **Recommendation, and it reopens no ruling:** make the two Decline answers
+  **ringed, not filled** — pass a `confirmClassName` that is not `btn primary`.
+  **Do not reach for `btn danger`**: `docs/screen-rules.md` rules that "Didn't
+  show up" and "Cancel the job" deliberately do NOT take `--bad`, because they
+  are outcomes a detailer can live with rather than deletions, and a decline is
+  the same kind of thing. Ringed satisfies the three-weights rule without
+  touching that ruling. The supervisor did not make the change because the exact
+  weight is a composition call the next worker should make with the screen open,
+  not a one-word substitution made from a table.
+
+  **What the supervisor DID reproduce of `cfd8932`, so this is read as one
+  defect and not a verdict on the item:** both surfaces ask before they act, at
+  1440 and 392; the question names the record ("Decline Marcus Webb's Ceramic
+  Coating at 8:30 AM? The customer is emailed."); "Not yet" restores the button,
+  removes the question and brings "Quote" back; focus lands on the question
+  rather than on the destructive answer; the question takes 375px of a 413px card
+  at 1440 and 318px of 356px at 392, so it takes the row as claimed; **0 console
+  errors or warnings at both widths on both surfaces.**
+  `tests/confirm-questions.test.mjs` passes 6/6 and
+  `CONFIRM_BREAK=no-ask-card-decline` goes red against the right control.
+  Shots: `.manager-shots/supervision-2026-10-08-4.1/`.
+  **"Yes, decline it" was never pressed** — that write emails a real address on
+  the shared demo tenant, and an outward-facing send is not the supervisor's to
+  trigger. The write half rests on `cfd8932`'s own throwaway-business run.
+
   A1 marked a demo job complete by accident while exploring. This gets used
   one-handed in a driveway, and completion moves reminders, reports, money and
   customer status.

@@ -327,6 +327,8 @@ were made more than once.
 - **The belt does not dispatch an Andrew-only hold, and a permanently-red receipt census is not a gate** — supervision on 2026-10-08 after 0.11 stayed first in the ready shortlist despite having no code left, and 2.15 was selected three times despite requiring Andrew's iPhone. Adds the standard `NEEDS ANDREW` marker to both, removes the full receipt census from per-item gates, and corrects the stale claim that triage had moved off Codex.
 - **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
 
+- **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18484,3 +18486,46 @@ decision from a side channel.
 **0.11 was also authorized to proceed immediately.** That does not remove the two
 Cloudflare account actions only Andrew can perform or authorize a session to deploy;
 it means the prepared photo move is not parked for a later product decision.
+
+## The supervisor names a composition defect and does not fix it
+
+**Supervision, 2026-10-08.** Re-checking ROADMAP 4.1's two new Decline
+confirmations in a browser, I measured the computed `backgroundColor` of every
+visible button while the question was open. On the request card on Today and on
+the job record's pending bar, at 1440 and 392, **exactly two buttons carry the
+accent fill `rgb(14, 165, 233)` — "Accept" and "Yes, decline it"** — 101px apart
+on the card and 155px apart on the record. `docs/design-system.md` § Composition
+forbids it in terms: *"a destructive action weighted the same as a convenience is
+a hazard, not a neutral choice."* `RequestCard.jsx`'s own header comment records
+that this same card broke the one-accent-fill rule once before and was fixed.
+
+**The fix looks like one word** — pass a `confirmClassName` other than the
+`btn primary` default, exactly as `BookingDetail.jsx:1179` already does for its
+destructive answer. **I did not make it, and the reason is not caution.**
+
+**Why it was handed over instead of patched.** The obvious substitution is
+`btn danger`, and that one is *ruled against*: `docs/screen-rules.md` says
+"Didn't show up" and "Cancel the job" deliberately do NOT take `--bad`, because
+they are outcomes a detailer can live with rather than deletions — and a decline
+is the same kind of thing. So the correct weight is **ringed**, which is a
+composition call about how the three weights land on two different surfaces, and
+CLAUDE.md's own rule applies: *"repeating a change a previous item chose not to
+make, without saying why it is safe now, is how a deferred decision becomes an
+accidental one."* A supervisor typing a class name from a table, with no screen
+open, is precisely the actor that rule describes. The next worker makes it with
+the browser in front of them and the `?lite=1` and 320px paths checked.
+
+**What makes this reversible.** The defect is recorded with the measurement, the
+command that took it, the commit it was taken at (`cfd8932`) and a stated
+"done when" that is a number rather than a judgement — exactly one accent fill
+per surface while asking, measured as computed `backgroundColor`. If the next
+worker disagrees with "ringed", they have everything needed to argue it.
+
+**And the half that is NOT in question.** The rest of `cfd8932` reproduced:
+both surfaces ask, the question names the record, "Not yet" restores the row and
+brings "Quote" back, focus lands on the question rather than the destructive
+answer, 0 console errors at both widths, `tests/confirm-questions.test.mjs` 6/6
+with its sabotage biting the right control. **This is one defect inside work that
+is otherwise sound**, and it is filed that way so nobody reads it as a verdict on
+the item.
+

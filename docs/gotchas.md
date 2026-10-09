@@ -4850,3 +4850,40 @@ says "fail" is satisfiable by a crash, a typo in a flag name, or a gate that has
 Related: 102 (a sabotage whose edit silently never matched prints the same green a caught one
 prints — the same disease, one step earlier), and 95 (a canary aimed at an assertion that changed
 shape keeps passing while testing nothing).
+
+## 106 — A SELECTOR CHOSEN FROM THE WORD IN THE CLAIM, NOT FROM THE PICTURE, MEASURES A DIFFERENT ELEMENT AND CONFIDENTLY REFUTES A TRUE FINDING
+
+**Measured 2026-10-08 by the supervisor, on itself, while re-checking ROADMAP 7.10.**
+
+The claim under test was *"the wordmark clears the headline at 1920/1440/768 and
+overlaps by 42px at 392/320"* on `/ex2`. The obvious selector for "the wordmark"
+is `.brand` — and `/ex2` has a `.brand`: the small "Delgado." in the header. It
+was measured against `h1` at five widths and **cleared at every one, by 61px at
+392**, which reads as a clean, quantified refutation of the previous session's
+figure.
+
+**It was the wrong element.** The page carries a *second* wordmark — a huge
+ghosted `DELGADO` watermark, `<div class="ghost" aria-hidden="true">`, sitting
+behind the headline. Measured against that, the numbers reproduce the original
+claim **exactly**: `-42px` at 392 and 320, clearing by 2px at 1920/1440 and 14px
+at 768. The original finding was right to the pixel.
+
+**What caught it was opening the other session's screenshot and looking at it** —
+`.manager-shots/7.10/ex2-wordmark-392.png` shows the ghost letters crossing the
+headline, which no number in the refutation would ever have revealed.
+
+**Why this direction is the dangerous one.** A selector that matches nothing
+fails loudly (gotchas 102). A selector that matches *the wrong real element*
+returns plausible geometry at every width, with zero console noise and no
+error — and it arrives as *"the previous session's figure does not reproduce"*,
+which is a satisfying conclusion that invites you to overwrite a correct record
+with a wrong one. **A refutation deserves more scepticism than a confirmation,
+not less**, because confirming costs nothing and refuting rewrites the file.
+
+**The rule:** when re-measuring somebody else's visual claim, **derive the
+selector from their artefact — their screenshot, their script, the element they
+name in the commit — never from the English noun in the sentence.** If the only
+thing you have is the noun, grep the page for *every* candidate and report how
+many you found; two candidates for "the wordmark" is itself the finding. And
+before publishing a refutation, **put the two pictures side by side.**
+
