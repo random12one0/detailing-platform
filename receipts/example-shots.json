@@ -1,11 +1,15 @@
 {
-  "git_sha": "5050885967b98d2c09179c1f54a858f2324e7f62",
-  "git_sha_started": "5050885967b98d2c09179c1f54a858f2324e7f62",
+  "git_sha": "3843f6b9296736772c98e9f905eb42c0bf617cae",
+  "git_sha_started": "3843f6b9296736772c98e9f905eb42c0bf617cae",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-21T12:27:52.852Z",
+  "finished_at": "2026-10-09T03:42:15.293Z",
   "failures": [
-    "ex4 (Kinzie Mobile Detailing): its picture was taken before a change to y-kinzie.html. Recorded 1779dbd11e8bc0de, the file is now 6a52528f8e6861ad. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs"
+    "ex1 (Prime Mobile Detailing): its picture was taken before a change to v-goldenhour.html. Recorded 6a3964439a7677c6, the file is now 6b0d6bf29b11a5f4. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs",
+    "ex2 (Delgado Mobile Detailing): its picture was taken before a change to w-delgado.html. Recorded 70f9e4f9d3143ef9, the file is now bff4785818db266a. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs",
+    "ex3 (Ballantyne Mobile Detailing): its picture was taken before a change to x-ballantyne.html. Recorded 149dc73e66f069be, the file is now 8a27c500cb4b253b. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs",
+    "ex4 (Kinzie Mobile Detailing): its picture was taken before a change to y-kinzie.html. Recorded 1779dbd11e8bc0de, the file is now 27706139cb6537f3. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs",
+    "ex5 (Sunglade Auto Detail): its picture was taken before a change to z-tampabay.html. Recorded 8df86c2e560ad24e, the file is now 1c0551ce03408e2f. **The thumbnail on /examples shows a version of this site that no longer exists.** Recapture: node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs"
   ],
   "warnings": [
     "the thumbnails on /examples are REAL SCREENSHOTS of the real example sites, committed rather than generated because the examples build runs on every paid deploy. This check is what stops them going stale silently."
@@ -16,11 +20,11 @@
   "dimensions": {
     "sites": 5,
     "injected_blocks": 1,
-    "source_stale": 1,
+    "source_stale": 5,
     "captured_at": "2026-09-21T12:26:17.293Z"
   },
   "check_id": "example-shots",
-  "started_at": "2026-09-21T12:27:52.761Z",
+  "started_at": "2026-10-09T03:42:15.117Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,

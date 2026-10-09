@@ -308,7 +308,17 @@ const DECLARED = {
   // in place (34/320, 8 pass / 0 fail) and against this tree (35/341), with the
   // working copy saved and restored byte-for-byte around it — `cmp -s`, not
   // `git checkout` (`docs/gotchas.md` 97).
-  quoteCriteria: 35,
+  // 35 -> 36, 2026-10-08, ROADMAP 7.10's round: **prose arriving, not an item
+  // leaving.** 7.10 had a `Done when` zone already, but it named no file, so
+  // `NAMES_A_FILE` was false and the whole item was skipped. The write-up
+  // appended under it names `app/public/ex3/index.html`,
+  // `docs/tenant-sites/x-ballantyne.html`, `FOR-ANDREW.md`,
+  // `scripts/example-shots-check.mjs` and others, so the zone crosses the
+  // threshold and 7.10 enters the criteria population whole. Same cause and
+  // same shape as 0.13 and 3.1 above. `numberedOpenItems` does not move: 7.10
+  // was already numbered, already open, and is still open — its third clause
+  // needs a ruling from Andrew.
+  quoteCriteria: 36,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -609,7 +619,28 @@ const DECLARED = {
   // against `e063d8c` before the block was written, red at 362 after, with
   // ROADMAP.md the only file changed in between (`git diff --numstat ROADMAP.md`
   // -> 116 added, 0 removed).
-  quoteFragments: 362,
+  // 362 -> 382, 2026-10-08, and **THE SPLIT IS THE POINT: 18 OF THE 20 ARE NOT
+  // THIS ROUND'S.** This constant was ALREADY RED on arrival. Measured, not
+  // inferred: a detached worktree at `cfd8932` — the tip before 7.10's edit —
+  // runs this file at **380 against a declared 362**, 1 failing subtest. So
+  // `cfd8932` (4.1's decline write-up) moved it 362 -> 380 and did not move the
+  // declaration; that session's own note recorded the gate as "red by exactly
+  // ONE fragment that is not mine" at **363**, taken before its own block was
+  // written, and the remaining 17 arrived with the block.
+  // **7.10's own contribution is 2**, 380 -> 382: the resolution block quotes
+  // *"the next action is a MEASUREMENT, not a build"* and the spec's
+  // *"fail on a gate that has the fix and pass on one that does not"*, both
+  // inside the zone this method slices. Its other quotations are invisible for
+  // the reasons recorded above — over 70 characters, or wrapped across a line
+  // break.
+  // **It is moved to the true current figure rather than to 380 + 2 of my own**,
+  // because an equality left red teaches the next session to walk past it, and
+  // because the split above is what an audit actually needs: this edit absorbs
+  // another round's 18 and says so by name rather than silently blessing them.
+  // Both ends measured by running THIS FILE — 380 in the worktree at `cfd8932`,
+  // 382 in this tree — with `ROADMAP.md` the only document changed between them
+  // (`git diff --numstat ROADMAP.md` -> 147 added, 0 removed).
+  quoteFragments: 382,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

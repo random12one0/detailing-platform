@@ -2931,3 +2931,96 @@ escalation named), and contrast as a ratio — colour PARITY with the existing t
 clauses was measured, which is a weaker claim than `contrast-insitu.mjs` makes.
 **0.4's box stays open**, and not for anything on this page: the open half is
 Andrew's decision about the "told on the day" build-start notice.
+
+---
+
+## ROADMAP 7.10 — the `/ex3` hero measured, and the thumbnail gate certified · 2026-10-08 @ `cfd8932`
+
+**Two of the item's three clauses. The box stays open on the third, which is Andrew's.**
+
+### 1 · The hero: a measurement, not a build
+
+Two records disagreed — the queue said the 21st's edit landed (1111px → 903px), `FOR-ANDREW.md`
+said the question was still open. The item's instruction was that **the next action is a
+measurement**. Nothing was edited and no build was run; the built copy under `app/public/ex3/`
+was compared against `docs/tenant-sites/x-ballantyne.html` first and already carried all five
+trimmed values.
+
+| what | recorded 2026-09-21 | measured 2026-10-08 | |
+|---|---|---|---|
+| `/ex3` hero @ 1440x900 | 903px, 1.00 viewports | **903px, 1.00** | reproduces |
+| `/ex3` hero @ 1920x1080 | 0.91 | **986px, 0.91** | reproduces |
+| `/ex3` hero @ 390x844 | 0.78 | **661px, 0.78** | reproduces |
+| `/ex1` hero @ 1440x900 (control) | 774px, 0.86 | **774px, 0.86** | reproduces |
+| `/ex1` hero @ 1920x1080 (control) | 0.72 | **780px, 0.72** | reproduces |
+| `/ex1` hero @ 390x844 (control) | 0.83 | **700px, 0.83** | reproduces |
+
+**6 of 6 reproduce. 0 console errors or warnings at any of the six.** The control is the load-
+bearing half: `/ex1` was untouched and returned the figure this item has recorded since
+2026-09-20, which is how the measurement is known to be of the page and not of the method.
+
+**Method** (pinned by recipe, not by a command — the script is scratch and is not in the repo,
+said in those words per `docs/gotchas.md` 94): dev server on :5173, Playwright,
+`document.querySelector(".hero")`, `getBoundingClientRect().height`, polled every 100ms until the
+value held for six consecutive samples, at the three viewports above.
+
+**A failed read was reported as a failed read.** The first attempt keyed on `section.hero` and
+returned `-1` on `/ex1`, whose hero is a `<header>`. The harness printed `-1`, not `0` — a probe
+that cannot tell "not found" from "zero" would have recorded the control as 0px and DIFFERS.
+
+### 2 · The thumbnail staleness gate, certified
+
+Built in `83737c4`; **never certified until now.** Eight runs in a scratch sandbox (a parallel
+tree with both gates, the scripts they import, the five tenant sources and a generated green
+manifest). Nothing in the repo, in `app/public` or on the dev server was touched.
+
+| run | gate | flag | result |
+|---|---|---|---|
+| A | fixed | — | pass, `5 sites, 1 injected block` |
+| B | fixed | `--break=inject` | names **ex3 and only ex3** |
+| C | fixed | `--break=drift` | names **ex3 and only ex3** |
+| D | pre-fix `9570e97` | `--break=inject` | **all five `current`, 0 findings — the hole** |
+| E | pre-fix | — | pass, 0 stale (baseline really is green) |
+| F | pre-fix | `--break=drift` | catches ex3 — it did do the half it knew |
+| G | fixed | `injectedFor` → null, recaptured in that state | **FAIL, `ZERO INJECTED BLOCKS`** |
+| H | fixed | `injectedFor` → null, manifest still vouching | **FAIL**, names ex3's orphaned record |
+
+The pre-fix gate is the **actual parent of the fix commit**, fetched with `git show`, not a copy
+with a block deleted. Each sabotage was **proved to have landed before either color was believed**
+(`docs/gotchas.md` 102): B moved the block hash `b254a42ed3ea1ab0` → `c3beade6b50fda57`, C moved
+the source hash `8a27c500cb4b253b` → `9e235c970b0e3818`, G's edit was diffed against a held copy.
+
+**NOT a clean bill, and this is the limit of the claim:** these eight runs certify the gate's
+*behavior*, on a manufactured green baseline. They say nothing about the thumbnails themselves.
+
+### 3 · What the gate found when it was run for real
+
+`node scripts/example-shots-check.mjs` @ `cfd8932`: **5 of 5 sites STALE, 31 assertions, exit 1.**
+Not ex4 alone, which is what the item and the gate's own comment both said. Capture was
+`2026-09-21T12:26:17.293Z`; `1acd9a6` — *the hero fix in § 1* — landed 11:04 -0700 the same day,
+after it. **The picture of `/ex3` on `/examples` still shows the 1111px hero.**
+
+**Deliberately not recaptured.** It needs `build-examples.mjs --dev` (writes `app/public`) plus
+ten loads on the shared dev server, and another session was editing `app/src` six minutes earlier
+(`theme.css`, 20:41, read off its mtime). That is the `docs/shared-resources.md` collision in
+which **both runs complete and report clean.** Left red and naming five files.
+
+### 4 · The `/ex2` wordmark — measured, not decided
+
+| width | `.ghost` bottom | `h1` top | overlap |
+|---|---|---|---|
+| 1920 / 1440 | 305 | 307 | **0px, clear** |
+| 768 | 206 | 220 | **0px, clear** |
+| 392 / 320 | 165 | 123 | **42px, OVERLAPS** |
+
+The audit's "overlaps the headline" is **false on a desktop and true on a phone.** The defending
+reading is also true: `.ghost` has a negative left and a right equal to the viewport at all five
+widths, so it is genuinely cropped by the viewport, as `docs/TASTE-NOTES.md` § 1 describes.
+Stroke `rgba(255, 255, 255, 0.086)`. **Nobody decided it; it went to Andrew with both shots.**
+
+Shots: `.manager-shots/7.10/` — `ex2-wordmark-1440.png`, `ex2-wordmark-392.png`,
+`ex3-hero-1440-measures-903.png`. Written as FILES, per `docs/gotchas.md` 99.
+
+**Gotcha 105 came out of run D** and is the thing most worth carrying forward: its verdict line
+said `FAIL` while it found nothing, so the spec's own acceptance test was satisfied by the broken
+gate. Certify on the findings list, never on the verdict word.

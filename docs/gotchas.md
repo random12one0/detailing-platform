@@ -4797,3 +4797,56 @@ anchor and `StepLocation.jsx` writes the address label twice — once as the vis
 as the field's `label` prop. **Replace every occurrence, and read the failure line rather than the
 exit code**: a green run proves nothing about a sabotage, and "the anchor was found" proves only
 that something changed.
+
+## 105. A SABOTAGE CAN BE "CAUGHT" BY A STATUS RULE RATHER THAN BY AN ASSERTION, SO THE VERDICT WORD AND THE FINDINGS LIST DISAGREE AND THE VERDICT WORD IS THE LIE
+
+Found 2026-10-08 while certifying the `/examples` thumbnail gate for ROADMAP 7.10, on the one
+run whose whole job was to prove the gate had actually been fixed.
+
+**The acceptance test, as the spec wrote it:** `--break=inject` must **fail** on a gate that has
+the fix and **pass** on one that does not. That sentence is the single assertion separating a
+real fix from a paragraph describing one, and it is the sentence this entry is about.
+
+So the pre-fix gate was fetched from history — `git show 9570e97:scripts/example-shots-check.mjs`,
+the actual parent of the fix commit, not a hand-made copy with a block deleted — and run against a
+green baseline with `--break=inject`.
+
+**Its last line said `FAIL`.** By the criterion as written, the unfixed gate passes the acceptance
+test, and the fix was unnecessary.
+
+**It is not what happened.** The pre-fix gate printed all five sites `current` and `0 stale or
+missing`. It found nothing, because it never compares the injected block at all — `--break=inject`
+is a flag it has never heard of. The word `FAIL` came from its own status rule:
+
+```js
+const status = failures.length === 0 && BREAK === "" ? "pass" : (SABOTAGE && canary.observed_failure ? "pass" : "fail");
+```
+
+`BREAK` is non-empty, `SABOTAGE` is false, so the expression reds — **for an unrecognized flag, not
+for a caught defect.** Every gate in this repo that guards its sabotage path with
+`BREAK === "<known>"` has the same property: feed it an unknown `--break=` value and it reds
+while measuring exactly nothing.
+
+**Why this is worse than an ordinary false green.** A false green is suspicious on sight. This is a
+**red that looks like the fix working**, read by a session that is specifically trying to confirm a
+fix, at the moment confirmation bias is highest. The honest reading — *the old gate catches it
+too, so what did we build?* — is the wrong conclusion drawn from a correct output.
+
+**THE RULE: certify a sabotage on the FINDINGS LIST, never on the verdict word.** The question is
+never *did the run go red*, it is **did it name the thing you broke**. Here the discriminating
+figures are 1 finding naming `ex3`'s injected block, against 0 — not `FAIL` against `FAIL`.
+
+| run | gate | `--break=inject` verdict | findings naming ex3's block |
+|---|---|---|---|
+| B | fixed (`83737c4`) | FAIL | **1 — "its picture was taken before a change to the block"** |
+| D | pre-fix (`9570e97`) | FAIL | **0 — all five sites `current`** |
+
+**And the corollary, which is the cheap half: a criterion written as "it must fail" is not a
+criterion.** Write it as *"it must name X and only X"*, which is what this repo's better canaries
+already do — `example-shots-check.mjs` itself measures *which sites the switch altered* rather than
+reading its own failure list, for a neighboring reason recorded in its own comments. **A spec that
+says "fail" is satisfiable by a crash, a typo in a flag name, or a gate that has never worked.**
+
+Related: 102 (a sabotage whose edit silently never matched prints the same green a caught one
+prints — the same disease, one step earlier), and 95 (a canary aimed at an assertion that changed
+shape keeps passing while testing nothing).

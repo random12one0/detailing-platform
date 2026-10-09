@@ -1970,6 +1970,62 @@ still knows them.
 
   **Nothing is broken either way** and the page works at every size.
 
+  **MEASURED 2026-10-08 — IT WAS ALREADY DONE, AND THIS ROW WAS THE STALE
+  ONE.** The page was opened and the opening picture measured, which is the one
+  thing this row asked for. **It is 903 pixels on a 900-pixel screen — it
+  fits.** So the build queue was right and this row was simply never ticked.
+  Nothing was rebuilt, and nothing needed to be.
+
+  **How it is known to be a real measurement and not a lucky reading:** the
+  Prime site's opening picture was measured the same way at the same moment as
+  a control, and it came back at exactly the figure we have had written down
+  for it since 20 September. Three screen sizes each, both sites, and all six
+  numbers matched what was recorded. No errors on either page.
+
+  **Nothing for you to do on this one.** It is closed.
+
+- [ ] **DECIDE · On a phone, the giant faded "DELGADO" lettering on the Phoenix
+  example site runs behind the first line of the headline. On a computer it
+  does not. Ten seconds, and either answer is fine.**
+
+  **Which one:** the Phoenix site, `/ex2` — *Delgado Mobile Detailing*, the
+  dark one with the orange buttons.
+
+  **What the thing is.** There is an enormous outlined word "DELGADO" sitting
+  faintly behind the top of the page, running off both edges of the screen. It
+  is meant to read as a watermark, not as something you read.
+
+  **Why you are being asked.** One of our own audits called it a mistake —
+  "the lettering overlaps the headline". A later session disagreed and said it
+  is the design working on purpose, because **the first of the five sites you
+  sent us unprompted does exactly this**, and that file is our record of what
+  you actually like. Nobody wanted to overrule you in either direction, so it
+  sat unresolved for two and a half weeks.
+
+  **Nobody had measured it until today, and that settles half of it.** On a
+  computer the lettering stops two pixels above the headline — it genuinely
+  does not touch it, so the audit's complaint is simply not true there. **On a
+  phone it does overlap, by about the height of one line of text.** So both
+  sides were right, about different screens.
+
+  **Look at it:** `.manager-shots/7.10/ex2-wordmark-1440.png` is the computer
+  view and `.manager-shots/7.10/ex2-wordmark-392.png` is the phone view. The
+  phone one is where you can see it crossing behind "Mobile paint".
+
+  **What happens either way.** Leave it and the phone keeps a faint word
+  crossing behind the headline's first line — it is very pale, and you may well
+  like it. Change it and the lettering moves up to sit above the headline on
+  phones, exactly as it already does on wider screens; the watermark stays, the
+  character stays, nothing is removed.
+
+  **My recommendation, and it is only that:** move it up on phones. It keeps
+  the device you liked on every screen and removes the one place the audit's
+  complaint is literally true. **But this is taste and taste is yours** — if
+  you say leave it, the audit entry gets struck with a reason and nobody
+  re-opens it.
+
+  **It is a small change either way and nothing is broken today.**
+
 - [ ] **DECIDE · A recommendation about your publish order, and ten seconds is
   all it needs. The order is yours and I am not changing it.**
 

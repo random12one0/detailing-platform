@@ -14499,6 +14499,153 @@ rather than wording went to Andrew.
   disagreeing records; a gate reporting `current` over a thumbnail that no longer
   matches, which is the live bug today; or the wordmark quietly edited out.
 
+  ── **WORKED 2026-10-08. TWO OF THE THREE CLAUSES ARE CLOSED, THE THIRD IS
+  ANDREW'S, AND THE GATE FOUND SOMETHING NOBODY HAD LOOKED AT. BOX STAYS [ ].**
+
+  **1 · THE HERO IS 903px. THE 21ST'S EDIT LANDED AND ONLY THE PAPERWORK
+  LAGGED.** This entry's own instruction was *"the next action is a
+  MEASUREMENT, not a build"*, and that is all that was done — nothing on
+  `/ex3` was touched, and **no build was run**, because the built copy under
+  `app/public/ex3/index.html` was compared against
+  `docs/tenant-sites/x-ballantyne.html` first and already carried all five
+  trimmed values. **A rebuild would have been the "hero rebuilt from the wrong
+  one of two disagreeing records" failure this entry names.**
+
+  | | recorded 2026-09-21 | measured 2026-10-08 | |
+  |---|---|---|---|
+  | `/ex3` hero @ 1440x900 | 903px, **1.00** viewports | **903px, 1.00** | reproduces |
+  | `/ex3` hero @ 1920x1080 | 0.91 | **986px, 0.91** | reproduces |
+  | `/ex3` hero @ 390x844 | 0.78 | **661px, 0.78** | reproduces |
+  | `/ex1` hero @ 1440x900 (control) | 774px, 0.86 | **774px, 0.86** | reproduces |
+  | `/ex1` hero @ 1920x1080 (control) | 0.72 | **780px, 0.72** | reproduces |
+  | `/ex1` hero @ 390x844 (control) | 0.83 | **700px, 0.83** | reproduces |
+
+  **6 of 6 figures reproduce; 0 console errors or warnings at any of the six.**
+  A proportion rather than a bare count, per `docs/gotchas.md` 94. **The control
+  is what makes this a measurement of the page rather than of the method** —
+  `/ex1` is untouched and returns the exact figure this entry has recorded since
+  2026-09-20. `min-height` on `/ex3`'s hero is **0px**, so its height is content;
+  `/ex1`'s is 774/780/700px, so its hero is a `min-height` rule. The two pages
+  are measured the same way and are differently built, which no earlier pass
+  recorded.
+  **Method, so it can be re-taken** (@ `cfd8932`): dev server on :5173, Playwright,
+  `document.querySelector(".hero")` — `section.hero` on ex3 and `header.hero` on
+  ex1 — `getBoundingClientRect().height`, polled every 100ms until the value held
+  for **six consecutive samples**. **The script is scratch and is not in the repo**,
+  so these six figures are pinned by recipe rather than runnable by a command;
+  said in those words rather than dressed up with a command nobody can run.
+  **A first attempt keyed on `section.hero` returned `-1` on `/ex1`, and the
+  harness printed `-1` rather than `0`** — `/ex1`'s hero is a `<header>`. A probe
+  that cannot tell a failed read from an empty one would have recorded the control
+  as 0px and "DIFFERS", and the selector would have been blamed on the page.
+  **`FOR-ANDREW.md` was the stale record** and is corrected in the same commit:
+  its row asked for exactly this measurement and now carries the answer.
+
+  **2 · THE STALENESS GATE: BUILT IN `83737c4`, AND CERTIFIED HERE FOR THE
+  FIRST TIME.** The spec written into this entry was already implemented —
+  `example-shots-check.mjs` imports `injectedFor` from `build-examples.mjs`
+  (one place decides which sites get an injection, which is the spec's own
+  requirement), hashes the block into `injected_fingerprint`, and treats a
+  missing field as its own answer rather than as a match. **What had never been
+  done is the part the spec called "the single assertion proving the hole is
+  closed rather than described."** Eight runs, in a scratch sandbox — a parallel
+  tree holding the two gates, the three scripts they import, the five tenant
+  sources and a freshly generated green manifest. **Nothing in the repo, in
+  `app/public` or on the dev server was touched**, which also kept it clear of
+  another session editing `app/src` at the time.
+
+  | run | gate | flag | result |
+  |---|---|---|---|
+  | A | fixed | — | **pass**, `5 sites, 1 injected block` |
+  | B | fixed | `--break=inject` | names **ex3 and only ex3**, INJECTED BLOCK STALE |
+  | C | fixed | `--break=drift` | names **ex3 and only ex3**, source stale |
+  | D | **pre-fix (`git show 9570e97`)** | `--break=inject` | **all five `current`, 0 findings — the hole** |
+  | E | pre-fix | — | pass, 0 stale (the baseline really is green) |
+  | F | pre-fix | `--break=drift` | catches ex3 (it did do the half it knew) |
+  | G | fixed | `injectedFor` returns null, manifest recaptured in that state | **FAIL — `ZERO INJECTED BLOCKS`** |
+  | H | fixed | `injectedFor` null, manifest still vouching | **FAIL**, names ex3's orphaned fingerprint |
+
+  **The pre-fix gate is `git show 9570e97:scripts/example-shots-check.mjs`, the
+  actual parent of the fix commit — not a hand-made copy with a block deleted**,
+  which would have proved only that I can delete a block. It contains the string
+  `injectedFor` zero times and `break=inject` zero times.
+  **Each sabotage was proved to have LANDED before either color was believed**
+  (`docs/gotchas.md` 102): B moved the recorded block hash `b254a42ed3ea1ab0` to
+  `c3beade6b50fda57`, C moved the source hash `8a27c500cb4b253b` to
+  `9e235c970b0e3818`, and G's scripted edit was diffed against a held copy and
+  confirmed to have changed the file.
+  **G is the rot case and it is the one worth keeping:** somebody renames
+  `PAINTS`, `injectedFor` quietly matches nothing, the sites are recaptured, and
+  **every source reads `current` with every injected fingerprint `null`** — green
+  forever over a measurement of nothing. The gate prints
+  `ZERO INJECTED BLOCKS FINGERPRINTED` and exits 1.
+  Of the spec's four wrong answers, shape 1 is closed by B, shape 2 by B and C
+  naming ex3 only, shape 3 by G and H, and **shape 4 does not apply by design** —
+  this gate reads `docs/tenant-sites/`, so it needs no build and keeps the
+  independence the spec said not to trade away.
+
+  > **AND THE SPEC'S OWN ACCEPTANCE TEST, AS WRITTEN, IS NOT DISCRIMINATING —
+  > `docs/gotchas.md` 105, written from this run.** It asks that
+  > `--break=inject` *"fail on a gate that has the fix and pass on one that does
+  > not."* **Run D's last line says `FAIL`.** Not because anything was caught —
+  > all five sites printed `current` and the findings list was empty — but
+  > because the pre-fix gate's status rule reds any non-empty `--break=` it does
+  > not recognize. **A session reading the verdict word would have recorded "the
+  > old gate catches it too" and concluded the fix was pointless.** What
+  > discriminates is the FINDINGS LIST: 1 naming ex3's injected block, against 0.
+  > The criterion is restated that way here so the next person measures the right
+  > thing.
+
+  **3 · THE `/ex2` WORDMARK IS STILL ANDREW'S, AND IT IS NOW A SMALLER
+  QUESTION THAN IT WAS.** Not decided here, in either direction. But the
+  disagreement had never been measured, and **both readings turn out to be
+  partly right, at different widths**:
+
+  | width | `.ghost` bottom | `h1` top | vertical overlap |
+  |---|---|---|---|
+  | 1920x1080 | 305 | 307 | **0px — clear** |
+  | 1440x900 | 305 | 307 | **0px — clear** |
+  | 768x1024 | 206 | 220 | **0px — clear** |
+  | 392x844 | 165 | 123 | **42px — OVERLAPS** |
+  | 320x780 | 165 | 123 | **42px — OVERLAPS** |
+
+  **The audit said the lettering "overlaps the headline". On a desktop it does
+  not — it clears by 2px — and on a phone it does, by 42px.** The defending
+  session's reading is also measured true: `.ghost`'s left is negative and its
+  right equals the viewport width at **all five** widths, so it is genuinely
+  *cropped by the viewport*, which is what `docs/TASTE-NOTES.md` § 1 describes
+  Andrew's own reference doing on purpose. Its stroke is
+  `rgba(255, 255, 255, 0.086)` — **8.6% white**, a watermark rather than type.
+  **So what goes to him is no longer "device or defect" but the narrow thing the
+  measurement leaves:** on a phone only, 42px of an 8.6%-white outline runs
+  behind the first line of the headline. Row added to `FOR-ANDREW.md` with both
+  shots. **NEEDS ANDREW: rule on the `/ex2` wordmark on a phone — keep it as it
+  is, or let it sit above the headline at narrow widths the way it already does
+  at 768 and up. This clause is the only thing holding the box open.**
+
+  **4 · AND THE GATE, RUN FOR REAL, IS RED ON SOMETHING NOBODY HAD LOOKED AT:
+  ALL FIVE THUMBNAILS ON `/examples` ARE STALE.** Not ex4 alone, which is what
+  this entry and the gate's own comment both still say.
+  `node scripts/example-shots-check.mjs` @ `cfd8932`: **5 of 5 sites STALE, 31
+  assertions, exit 1.** The manifest's `captured_at` is
+  `2026-09-21T12:26:17.293Z`; `5fe5eff` landed 09:49 -0700 and `1acd9a6` — *the
+  hero fix measured in clause 1* — landed 11:04 -0700, both **after** that
+  capture once the offset is applied, and `da40720` edited `w-delgado.html` on
+  2026-10-06. **So the thumbnail of `/ex3` on `/examples` still shows the 1111px
+  hero this item spent two sittings correcting.**
+  **NOT RECAPTURED, DELIBERATELY, AND THIS IS THE HONEST HALF.** Recapturing
+  needs `build-examples.mjs --dev` (which writes `app/public`, and Vite serves
+  it) plus ten page loads on the shared dev server. Another session was editing
+  `app/src` six minutes before this was considered — `theme.css` at 20:41, read
+  off its mtime rather than guessed — and that is the collision
+  `docs/shared-resources.md` is about: their reload lands mid-capture, or my
+  build lands mid-sweep, and **both runs complete and report clean.** The gate
+  is red and naming five files, which is a working gate doing its job; it stays
+  red until somebody owns the dev server. **The fix is two commands and needs
+  nobody's permission:**
+  `node scripts/build-examples.mjs --dev && node scripts/capture-examples.mjs`,
+  then re-run the gate.
+
 - [x] **7.11 — Andrew's own name and domain are printed on his sales page
   beside a city, and nobody has ever checked that it's the one he actually
   works in.** Originally logged as "the home page's own example is a
