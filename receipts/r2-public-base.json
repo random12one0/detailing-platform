@@ -1,9 +1,9 @@
 {
-  "git_sha": "68f2f38b2a19cd8b7509390d677b480d36e17ef5",
-  "git_sha_started": "68f2f38b2a19cd8b7509390d677b480d36e17ef5",
+  "git_sha": "0626b1588d2397d1e276a3beadbd9b926784323c",
+  "git_sha_started": "0626b1588d2397d1e276a3beadbd9b926784323c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:02:26.012Z",
+  "finished_at": "2026-10-09T21:50:21.890Z",
   "failures": [
     "base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2)."
   ],
@@ -18,12 +18,10 @@
     "receipts/r2-public-base.log"
   ],
   "dimensions": {
-    "break": "accept-get-only",
+    "break": null,
     "unjudgeable": 5,
-    "canaries_caught": 7,
-    "canaries_missed": [
-      "mode \"cors-get-only\" went UNNOTICED by cors-allows-our-pages"
-    ],
+    "canaries_caught": 8,
+    "canaries_missed": [],
     "origins": [
       "https://detailingplatform.com",
       "https://www.detailingplatform.com",
@@ -32,7 +30,7 @@
     "base_source": "none"
   },
   "check_id": "r2-public-base",
-  "started_at": "2026-10-09T20:02:25.786Z",
+  "started_at": "2026-10-09T21:50:21.617Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -43,7 +41,7 @@
   "min_assertions": 24,
   "canary": {
     "id": "eight-handed-over-defects",
-    "observed_failure": false,
-    "detail": "caught 7 of 8; MISSED mode \"cors-get-only\" went UNNOTICED by cors-allows-our-pages"
+    "observed_failure": true,
+    "detail": "caught 8 of 8; none missed"
   }
 }

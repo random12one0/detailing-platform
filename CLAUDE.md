@@ -174,7 +174,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND SIXTEEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND SEVENTEEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -797,3 +797,15 @@ a check derives from its own parse cannot validate that parse.** Found twice in 
 time as a bucket resolver that looked in one file, resolved **2 of 3** and printed *"names all 2
 buckets"* as a PASS over a three-bucket table. `grep -c "^## " docs/gotchas.md` run before writing this
 and again after, so the 116 above is a count rather than an increment.
+
+**116 → 117 on 2026-10-09, same edit, by the supervisor** — a caught sabotage writes the same
+`"status": "fail"` a real defect does, and it is the LAST thing on disk.
+`receipts/mail-log-scroll.json` stood at `fail` with two credible failures over **ROADMAP 3.1a, which
+is ticked and correct** — re-run clean it is 20 assertions, 0 failed — and the only trace of why was
+`dimensions.break: "unstyled"` nine lines down. `r2-public-base.json` was in the same state.
+**A sabotage red beats every honest receipt before it and invites a session to "fix" working code.**
+Fixed at the shared writer: a receipt recording a `dimensions.break` now lands in
+`receipts/<name>.sabotage.json`, so one guard covers all 28 graded checks — **and a check that
+forgets to record its break still clobbers its own receipt, silently.** Twenty-seven sittings
+unbroken; `grep -c "^## " docs/gotchas.md` run before writing this and again after, so the 117 above
+is a count rather than an increment.

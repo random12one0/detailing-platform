@@ -1,0 +1,208 @@
+{
+  "git_sha": "0626b1588d2397d1e276a3beadbd9b926784323c",
+  "git_sha_started": "0626b1588d2397d1e276a3beadbd9b926784323c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T21:45:58.531Z",
+  "failures": [
+    "1440/box/overflows — scrollHeight 2818 vs clientHeight 2818",
+    "1440/box/scrolls — the box's own scrollTop landed at 0 (asked 200)",
+    "1440/page/not-page-scroll — the page overflows by 18px, the list by 0px; .settings-body overflows true",
+    "392/box/overflows — scrollHeight 3790 vs clientHeight 3790",
+    "392/box/scrolls — the box's own scrollTop landed at 0 (asked 200)",
+    "392/page/not-page-scroll — the page overflows by 3361px, the list by 0px; .settings-body is not in this layout"
+  ],
+  "warnings": [
+    "HEADED CHROMIUM (`headless: false`, Playwright's bundled build — the `chrome` channel is not installed here). The headless shell draws overlay scrollbars with a 0px layout gutter, which is why ROADMAP 3.1a's thumb went unseen by the session that built it. A 0px gutter here is reported UNJUDGEABLE by name, never folded into a pass.",
+    "WHAT IT CANNOT ANSWER, AND IT IS HALF THE ITEM: the thumb's APPEARANCE. No browser on this machine lays out a classic scrollbar gutter — the `chrome` channel is not installed, `headless: false` dies with `spawn UNKNOWN`, `--disable-features=OverlayScrollbar` leaves the gutter at 0px (probed both ways), and Firefox is not downloaded. The gutter is recorded in `dimensions` and listed in `unjudgeable`; it is never counted as a pass. Andrew's own browser is the instrument.",
+    "`rules-in-effect` proves the two standard declarations REACH the element (computed `scrollbar-width` and `scrollbar-color` read back in Chromium with no bar drawn), which catches a `var()` taking its fallback for ever. It does not prove what the bar looks like and must not be read as if it did.",
+    "It says nothing about row spacing (ROADMAP 3.1b), grouping (3.1c) or previews (3.1d).",
+    "Both --break= sabotages are applied to the LIVE page with `addStyleTag`, never to a source file, and each one is required to prove it changed the computed style before the run is judged either colour (docs/gotchas.md 102)."
+  ],
+  "artifacts": [
+    ".manager-shots/3.1a/scroll-1440-0.png",
+    ".manager-shots/3.1a/scroll-1440-05.png",
+    ".manager-shots/3.1a/scroll-1440-1.png",
+    ".manager-shots/3.1a/scroll-392-0.png",
+    ".manager-shots/3.1a/scroll-392-05.png",
+    ".manager-shots/3.1a/scroll-392-1.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "business": "demo-detail",
+    "fog_2_rgb": "rgb(123, 133, 138)",
+    "browser": "playwright bundled chromium, headed",
+    "item": "3.1a",
+    "break": "unbound"
+  },
+  "check_id": "mail-log-scroll",
+  "started_at": "2026-10-09T21:45:52.364Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "assertion_floor": "2 widths x 8 (exists, gutter-ours, overflows, scrolls, ancestors-still, no-native-bar, no-overlap, console) + 4 canaries = 20. Structural: fixed by the question list, never by what the run finds, and asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canaries": [
+    {
+      "name": "the-browsers-own-scrollbar",
+      "flagged": true
+    },
+    {
+      "name": "the-list-that-never-filled",
+      "flagged": true
+    },
+    {
+      "name": "the-stacked-rows",
+      "flagged": true
+    },
+    {
+      "name": "the-page-grown-by-the-list",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [
+    "1440/box/thumb-appearance — 0px gutter: an overlay scrollbar, so there was no bar laid out to photograph. The thumb's look is Andrew's eyes, not this run's.",
+    "392/box/thumb-appearance — 0px gutter: an overlay scrollbar, so there was no bar laid out to photograph. The thumb's look is Andrew's eyes, not this run's."
+  ],
+  "sabotage": [
+    {
+      "width": 1440,
+      "break": "unbound",
+      "before": {
+        "maxH": "520px",
+        "color": "rgb(123, 133, 138) rgba(0, 0, 0, 0)",
+        "swidth": "thin"
+      },
+      "after": {
+        "maxH": "none",
+        "color": "rgb(123, 133, 138) rgba(0, 0, 0, 0)",
+        "swidth": "thin"
+      },
+      "landed": true
+    },
+    {
+      "width": 392,
+      "break": "unbound",
+      "before": {
+        "maxH": "506.4px",
+        "color": "rgb(123, 133, 138) rgba(0, 0, 0, 0)",
+        "swidth": "thin"
+      },
+      "after": {
+        "maxH": "none",
+        "color": "rgb(123, 133, 138) rgba(0, 0, 0, 0)",
+        "swidth": "thin"
+      },
+      "landed": true
+    }
+  ],
+  "observed": [
+    {
+      "id": "1440/box/exists",
+      "ok": true,
+      "detail": ".mail-scroll is on the screen"
+    },
+    {
+      "id": "1440/box/rules-in-effect",
+      "ok": true,
+      "detail": "scrollbar-width \"thin\", scrollbar-color \"rgb(123, 133, 138) rgba(0, 0, 0, 0)\" (--fog-2 is rgb(123, 133, 138))"
+    },
+    {
+      "id": "1440/box/overflows",
+      "ok": false,
+      "detail": "scrollHeight 2818 vs clientHeight 2818"
+    },
+    {
+      "id": "1440/box/scrolls",
+      "ok": false,
+      "detail": "the box's own scrollTop landed at 0 (asked 200)"
+    },
+    {
+      "id": "1440/page/ancestors-still",
+      "ok": true,
+      "detail": ".settings-body moved 0px, the document moved 0px"
+    },
+    {
+      "id": "1440/page/not-page-scroll",
+      "ok": false,
+      "detail": "the page overflows by 18px, the list by 0px; .settings-body overflows true"
+    },
+    {
+      "id": "1440/box/no-overlap",
+      "ok": true,
+      "detail": "at 0%: 29 rows, tightest gap 0.00px; at 50%: 29 rows, tightest gap 0.00px; at 100%: 29 rows, tightest gap 0.00px"
+    },
+    {
+      "id": "1440/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "392/box/exists",
+      "ok": true,
+      "detail": ".mail-scroll is on the screen"
+    },
+    {
+      "id": "392/box/rules-in-effect",
+      "ok": true,
+      "detail": "scrollbar-width \"thin\", scrollbar-color \"rgb(123, 133, 138) rgba(0, 0, 0, 0)\" (--fog-2 is rgb(123, 133, 138))"
+    },
+    {
+      "id": "392/box/overflows",
+      "ok": false,
+      "detail": "scrollHeight 3790 vs clientHeight 3790"
+    },
+    {
+      "id": "392/box/scrolls",
+      "ok": false,
+      "detail": "the box's own scrollTop landed at 0 (asked 200)"
+    },
+    {
+      "id": "392/page/ancestors-still",
+      "ok": true,
+      "detail": ".settings-body moved 0px, the document moved 0px"
+    },
+    {
+      "id": "392/page/not-page-scroll",
+      "ok": false,
+      "detail": "the page overflows by 3361px, the list by 0px; .settings-body is not in this layout"
+    },
+    {
+      "id": "392/box/no-overlap",
+      "ok": true,
+      "detail": "at 0%: 29 rows, tightest gap 0.00px; at 50%: 29 rows, tightest gap 0.00px; at 100%: 29 rows, tightest gap 0.00px"
+    },
+    {
+      "id": "392/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "canary/the-browsers-own-scrollbar",
+      "ok": true,
+      "detail": "`scrollbar-width: auto; scrollbar-color: auto` must NOT read as styled"
+    },
+    {
+      "id": "canary/the-list-that-never-filled",
+      "ok": true,
+      "detail": "a list no longer than its box must NOT read as overflowing"
+    },
+    {
+      "id": "canary/the-stacked-rows",
+      "ok": true,
+      "detail": "rows overlapping by 12px must NOT read as clear"
+    },
+    {
+      "id": "canary/the-page-grown-by-the-list",
+      "ok": true,
+      "detail": "a page overflowing by 2800px over a list that scrolls by 0 must NOT read as contained"
+    }
+  ]
+}

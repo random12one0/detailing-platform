@@ -3352,3 +3352,60 @@ here can head an object or list a bucket. The server's side of that arithmetic
 is proved in memory by `tests/photo-door-server.test.mjs` §§ 11 and 13, which
 are statements about this checkout and not about what is answering on the
 internet. **0.11d stays open.**
+
+## ROADMAP 3.1a reproduced by the supervisor, and its receipt was lying — 2026-10-09, at `0626b158`
+
+**The tick stands.** `node scripts/mail-log-scroll.mjs`, dev server + seed +
+`.env`, headed Chromium: **20 assertions, 0 failed**, all four canaries caught
+(`the-browsers-own-scrollbar`, `the-list-that-never-filled`,
+`the-stacked-rows`, `the-page-grown-by-the-list`), and **2 UNJUDGEABLE named
+rather than folded in** — the thumb's appearance, which no browser on this
+machine lays out a gutter for and which stays Andrew's eyes. Measured:
+`scrollbar-width "thin"`, `scrollbar-color "rgb(123, 133, 138) rgba(0,0,0,0)"`
+at both 1440 and 392; the box overflows 2818-vs-520 at 1440 and 3790-vs-506 at
+392; `.settings-body` moved **0px** and the document moved **0px**; 0 console
+errors and 0 warnings at both widths. The `[data-mail-log]` scope was checked to
+reach a real element (`MailLog.jsx:101`) rather than taken from the CSS — a
+scoped declaration that matches nothing is this repo's "declaration is
+decoration" fault.
+
+**What the receipt on disk said before that run: `"status": "fail"`,** with two
+failures reading `scrollbar-width "auto", scrollbar-color "auto"` — a precise
+description of the exact defect 3.1a fixed. It was a sabotage run
+(`dimensions.break: "unstyled"`) left as the standing verdict. Written up as
+`docs/gotchas.md` 117 and fixed at the shared writer; see below.
+
+## The sabotage-receipt guard, broken on purpose before it was trusted — 2026-10-09
+
+`scripts/receipt.mjs`'s `writeReceipt` now routes a receipt recording a
+`dimensions.break` to `receipts/<name>.sabotage.json`, and the directory
+validator skips those as it already skips `holds.json`. Proved in both
+directions rather than read:
+
+* `node scripts/mail-log-scroll.mjs --break=unbound` → **FAIL, 6 of 20 failed**
+  on real assertions, receipt written to `receipts/mail-log-scroll.sabotage.json`,
+  and `receipts/mail-log-scroll.json` read `pass` before and after the run.
+* `node scripts/receipt.mjs` → still **36 failed** receipts reported, and
+  **0** mentions of a sabotage file, so the filter silenced no genuine red.
+* `receipts/r2-public-base.json` was in the same clobbered state from item 0's
+  gate-regression run. Its red is **honest** — `base-configured`, nobody has
+  bound `business-media`'s public address — but it was unreadable as either, so
+  the check was re-run clean (`break: null`, 1 failed, 5 UNJUDGEABLE) and the
+  sabotage run kept beside it. **0.11ba's blocker is unchanged and still
+  Andrew's.**
+
+`status` was deliberately left alone: `validate()` grades that field and must
+keep failing a red receipt.
+
+## ROADMAP 0.11d3a's cron timeout reproduced — 2026-10-09, at `0626b158`
+
+`node tests/photo-cron-call.test.mjs` → **37 passed, 0 failed**.
+`CRON_BREAK=no-timeout node tests/photo-cron-call.test.mjs` → **34 passed, 3
+failed**, red on three real assertions rather than on a status rule
+(`docs/gotchas.md` 105), and the run names itself a sabotage in its own note.
+Checked independently of the test: `20261006060000_photo_reconcile_cron.sql`
+contains `net.http_post` and **no `timeout_milliseconds`**, so pg_net's 5,000 ms
+default stood against a job whose cost scales with every object in the bucket;
+`20261009120000_photo_reconcile_cron_timeout.sql` reschedules the same job name
+with `timeout_milliseconds := 60000`. **Applying it is Andrew's**, and the
+migration says so.

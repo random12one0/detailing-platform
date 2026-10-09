@@ -5332,3 +5332,59 @@ from the source, not from its own match.** `grep -c` the construct, count the en
 by hand once, or read a `declared` count out of the text — and fail when the two
 disagree. A parse that quietly returns fewer items is indistinguishable from a healthy
 one.
+
+## 117 — A CAUGHT SABOTAGE WRITES THE SAME `"status": "fail"` A REAL DEFECT DOES, AND IT IS THE LAST THING LEFT ON DISK
+
+Found by the supervisor, 2026-10-09, while verifying ROADMAP 3.1a — a ticked item.
+
+`receipts/mail-log-scroll.json` read `"status": "fail"` with two named failures:
+
+```
+1440/box/rules-in-effect — scrollbar-width "auto", scrollbar-color "auto"
+392/box/rules-in-effect  — scrollbar-width "auto", scrollbar-color "auto"
+```
+
+That is a precise, credible report of the exact fault 3.1a was written to fix:
+the browser's own scrollbar back across the design. Re-run clean, the same gate
+is **20 assertions, 0 failed, 4 canaries caught, 2 UNJUDGEABLE** — the item is
+correct and the tick stands. The only trace of why the receipt was red sat nine
+lines down the file, inside `dimensions`:
+
+```json
+"dimensions": { "break": "unstyled" }
+```
+
+**It was a sabotage run.** Somebody proved the gate bites, and the proof
+overwrote the product's verdict with it. `receipts/r2-public-base.json` was in
+the identical state from item 0's gate-regression run.
+
+**Why this is worse than an ordinary stale receipt.** A stale pass says "true at
+an older commit". A sabotage red says "broken now", in the voice of the
+instrument built to be believed, and it is the *most recent* run — so it beats
+every honest receipt that came before it, and the stale-receipt sweep that feeds
+supervision surfaces it as a live failure on a closed item. The direction of the
+error is the dangerous one: **it invites a session to go and "fix" working code.**
+
+It is `docs/gotchas.md` 105 one level out. There, a sabotage was *caught* by a
+status rule rather than by an assertion; here, a caught sabotage *is* the
+standing report.
+
+**The fix is a filename, not a status field.** `writeReceipt` in
+`scripts/receipt.mjs` now writes `receipts/<name>.sabotage.json` when the
+receipt records a `dimensions.break`, and the directory validator skips those
+the way it already skips `holds.json`. `status` is deliberately left alone:
+`validate()` grades that field and must keep failing a red receipt, so the
+sabotage evidence stays complete and readable in its own file while the real
+receipt keeps the last honest verdict about the product. One guard at the shared
+writer covers all 28 graded checks; per-script fixes would have covered one.
+
+Proved both directions rather than read: `--break=unbound` on the mail-log gate
+still reddens (6 of 20 failed, on assertions), the sabotage lands in
+`mail-log-scroll.sabotage.json`, and `mail-log-scroll.json` still reads `pass`
+across the run. `node scripts/receipt.mjs` still reports its 36 genuine reds and
+grades zero sabotage files.
+
+**What it does not fix: a check that never records its break.** Detection is
+`dimensions.break`, so a script that forgets to write it still clobbers its own
+receipt, silently, exactly as before. If you add a `--break=` switch, record it
+in `dimensions` or you have built this fault again.

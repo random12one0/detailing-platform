@@ -3,13 +3,13 @@ THE STAND-IN — the three network probes against a loopback bucket, seven modes
   no-object             caught by anonymous-read: GET returned 404, not 200 — no readable object at biz/branding/logo.webp
   parked-page           caught by anonymous-read: GET returned 200 but content-type is "text/html", not an image
   no-cors               caught by cors-allows-our-pages: https://detailingplatform.com: allow-origin is "(none)" — this page is not permitted; https://www.detailingplatform.com: allow-origin is "(none)" — this page is not permitted; http://localhost:5173: allow-origin is "(none)" — this page is not permitted
-  cors-get-only         NOT CAUGHT by cors-allows-our-pages — the probe is not looking
+  cors-get-only         caught by cors-allows-our-pages: https://detailingplatform.com: allow-methods is "get, head" — PUT is not permitted; https://www.detailingplatform.com: allow-methods is "get, head" — PUT is not permitted; http://localhost:5173: allow-methods is "get, head" — PUT is not permitted
   cors-no-content-type  caught by cors-allows-our-pages: https://detailingplatform.com: allow-headers is "x-amz-meta-x" — Content-Type is not permitted; https://www.detailingplatform.com: allow-headers is "x-amz-meta-x" — Content-Type is not permitted; http://localhost:5173: allow-headers is "x-amz-meta-x" — Content-Type is not permitted
   cors-wildcard         caught by cors-refuses-a-stranger: allow-origin is "*" — any page on the internet may PUT with a presigned URL
   a blank base          caught by base-usable: reported R2_MEDIA_BASE missing
   an http base          caught by base-usable: reported R2_MEDIA_BASE missing
 
-CANARIES CAUGHT: 7 of 8 handed-over defects. 1 MISSED: mode "cors-get-only" went UNNOTICED by cors-allows-our-pages
+CANARIES CAUGHT: 8 of 8 handed-over defects. None missed.
 
 THE REAL ADDRESS — 0.11ba's four criteria, asked of business-media's public base.
   FAIL  base-configured          no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2).
@@ -35,4 +35,4 @@ UNJUDGEABLE, by name — not folded into the pass:
 FAILED:
   base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2).
 
-FAIL — 1 failed, 5 unjudgeable, 1 canaries missed.
+FAIL — 1 failed, 5 unjudgeable, 0 canaries missed.

@@ -338,6 +338,8 @@ were made more than once.
 - **Routing the belt on the top of an entry, not all 1,249 words of it** — supervision 2026-10-09, after measuring that 24 of 57 open items (42%) took the single most expensive rule in the config, and that *2.15 — the sticky footer can cover the last choice* ran at opus/xhigh because the word "migration" appears somewhere in its entry. Why the answer was a character window rather than matching on the heading, why a rule for irreversible state had to be added in the same edit, and why under-routing is the safe direction here.
 - **An unmeasured gate is not a passing gate** — supervision 2026-10-09, after proving from `state.json` that `sweep-pinned` was configured as the belt's 8th gate while the cached baseline held only 7 names, so its red was announced as *"these were passing at baseline"* and blamed on three consecutive items. Why the fix requires a measured `true` rather than merely "not `false`", why a baseline that does not name every configured gate now forces a re-measure, why the no-baseline-at-all case deliberately keeps its old ruling, and why 0.11b got two of its three attempts back instead of staying parked.
 
+- **An answer to a decision card does not do hand-work** — supervision 2026-10-09, after the belt spent nine Opus attempts (~$74) on 0.11b, 0.11c and 0.11d, every criterion of which is hand-work only Andrew can do, because he had answered a decision card about each and the override cleared every blocking phrase forever. Why his answer now buys ONE dispatch to prove it, why the entry is believed over the card once a session has worked the item, why matching the prose for "not a decision" was rejected, and how the canary was aimed at the new rule rather than the override above it.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18881,3 +18883,45 @@ entry points now refuse a parent whose indented checkbox id extends its own.
 The new self-check assertion was deliberately made false (and failed), then
 passed at 336 assertions. This preserves deliberate hand-written task design;
 only genuinely unsliced large parents are automatic-split candidates.
+
+## An answer to a decision card does not do hand-work, so it buys one dispatch and not a standing pass
+
+**Supervision, 2026-10-09.** The belt cleared *every* blocking phrase on an
+item, permanently, as soon as Andrew had answered anything about it. That
+override was itself a good fix — ten of his answers had done nothing because
+the roadmap entry still read "NEEDS ANDREW" — but it does not distinguish the
+two things an item can wait on. He answered decision cards for 0.11b ("Yes,
+deploy it now"), 0.11c ("Release now to all customers") and 0.11d ("Fix the
+tests and translations before launching"). Every criterion under those three is
+hand-work only he can do: bind `business-media`'s public address in Cloudflare,
+paste the bucket CORS rules, publish `photo-door`, install a cron. Saying "yes,
+deploy it" does not deploy it.
+
+The belt spent **nine Opus attempts on the three of them — 0.11b ×3, 0.11c ×3,
+0.11d ×3, about $74** — and every one returned `progress`, ticked nothing, and
+wrote another "NEEDS ANDREW" line into the entry. Open went 47 → 63 against two
+ticks in that window; the "diverging" trend verdict is substantially this loop
+re-discovering that it cannot finish.
+
+**The ruling: his answer buys one dispatch to prove it unblocked the item.** If
+a session has run on it and the entry still carries a blocking phrase, the entry
+is believed — a session that just spent twenty minutes inside the item and
+re-wrote "NEEDS ANDREW" is better informed than a decision card from that
+morning. The original fault stays fixed, because an answered item with no
+attempts against it is still dispatched whatever the entry says, and `attempts`
+is cleared on a successful tick, so finishing an item restores the override for
+whatever follows.
+
+Rejected: regexes over the entry's prose to tell a "decision" blocker from a
+"setup" blocker. Several entries do say "not a decision" in words, but keying
+dispatch on a phrasing is the coupling-to-a-spelling fault this repo keeps
+meeting, and it would have to be right about every future wording.
+
+Four assertions were added to `belt.mjs --self-check`, including both the
+canary (`SPEND_CANARY=never-spend`, restoring the old forever-override) and the
+opposite direction (an entry whose blocking phrase is gone is not re-blocked by
+its attempt count). The spend rule was then replaced with `false` and the run
+watched to fail **exactly the two new assertions**, leaving the original
+override assertion green — so the canary is aimed at this rule and not at the
+one above it. `lib.mjs` was restored byte-identical and the clean run is **340
+assertions**.

@@ -1,0 +1,49 @@
+{
+  "git_sha": "68f2f38b2a19cd8b7509390d677b480d36e17ef5",
+  "git_sha_started": "68f2f38b2a19cd8b7509390d677b480d36e17ef5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T20:02:26.012Z",
+  "failures": [
+    "base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2)."
+  ],
+  "warnings": [
+    "base-usable: nothing to judge: no address was supplied",
+    "base-not-dev-address: nothing to judge: no usable address",
+    "anonymous-read: nothing to judge: no address to GET through",
+    "cors-allows-our-pages: nothing to judge: no address to send a preflight to",
+    "cors-refuses-a-stranger: nothing to judge: no address to send a preflight to"
+  ],
+  "artifacts": [
+    "receipts/r2-public-base.log"
+  ],
+  "dimensions": {
+    "break": "accept-get-only",
+    "unjudgeable": 5,
+    "canaries_caught": 7,
+    "canaries_missed": [
+      "mode \"cors-get-only\" went UNNOTICED by cors-allows-our-pages"
+    ],
+    "origins": [
+      "https://detailingplatform.com",
+      "https://www.detailingplatform.com",
+      "http://localhost:5173"
+    ],
+    "base_source": "none"
+  },
+  "check_id": "r2-public-base",
+  "started_at": "2026-10-09T20:02:25.786Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 29,
+  "min_assertions": 24,
+  "canary": {
+    "id": "eight-handed-over-defects",
+    "observed_failure": false,
+    "detail": "caught 7 of 8; MISSED mode \"cors-get-only\" went UNNOTICED by cors-allows-our-pages"
+  }
+}

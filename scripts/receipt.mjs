@@ -443,7 +443,27 @@ export function writeReceipt(r) {
     ...r,
   };
   const name = String(full.check_id).replace(/[^a-z0-9.-]+/gi, "-");
-  const path = join(RECEIPTS, name + ".json");
+  // A SABOTAGE RUN'S RED IS A VERDICT ABOUT THE CHECK, NEVER ABOUT THE
+  // PRODUCT — AND UNTIL 2026-10-09 IT CLOBBERED THE REAL RECEIPT WITH IT.
+  // Found by the supervisor: `receipts/mail-log-scroll.json` sat at
+  // `"status": "fail"` with two failures about `scrollbar-width "auto"` over
+  // ROADMAP 3.1a, which was ticked and correct — re-run clean it is 20
+  // assertions, 0 failed. The only trace of why was `dimensions.break:
+  // "unstyled"` nine lines down. `receipts/r2-public-base.json` was in the
+  // same state from item 0's gate-regression run. **A caught sabotage and a
+  // real defect wrote byte-identical `status` fields, and the sabotage was
+  // the LAST thing on disk**, so it is what every reader and every stale-
+  // receipt sweep sees. That is `docs/gotchas.md` 105 one level out: there,
+  // a sabotage was "caught" by a status rule rather than an assertion; here,
+  // a caught sabotage IS the standing report.
+  //
+  // The fix is a different filename, not a different status: `validate()`
+  // grades `status` and must keep failing a red receipt, so the sabotage
+  // evidence stays complete and readable in its own file and the real
+  // receipt keeps the last honest verdict about the product. The directory
+  // validator below skips these the way it already skips `holds.json`.
+  const sabotage = String(full.dimensions?.break || full.dimensions?.sabotage || "");
+  const path = join(RECEIPTS, name + (sabotage ? ".sabotage" : "") + ".json");
   writeFileSync(path, JSON.stringify(full, null, 2) + "\n");
   return { path, receipt: full };
 }
@@ -458,7 +478,9 @@ if (invokedDirectly) {
   let files;
   try {
     files = statSync(target).isDirectory()
-      ? readdirSync(target).filter((f) => f.endsWith(".json") && f !== "holds.json").map((f) => join(target, f))
+      // `.sabotage.json` is a deliberate red about the CHECK, so it is not
+      // graded here — see the note beside `writeReceipt`'s path.
+      ? readdirSync(target).filter((f) => f.endsWith(".json") && f !== "holds.json" && !f.endsWith(".sabotage.json")).map((f) => join(target, f))
       : [target];
   } catch {
     console.error("No such receipt or directory: " + target);
