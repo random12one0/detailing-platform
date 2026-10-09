@@ -1496,10 +1496,13 @@ and how the wait ends.
 
   **NOT PROVEN, SAID PLAINLY.** That the Cloudflare CORS rules are set - unchanged, and `bucket-cors` prints
   UNJUDGEABLE by name on every run; 0.11d's first browser upload is the only proof there is. That R2 accepts
-  these signatures. That the deployed bundle's 0 of 3 is drift rather than a bundle format this parse cannot
-  read - the three identifiers are present in the checkout and absent from a 5.7 MB body that was read in
-  full, which is strong but is not the same as having watched the R2 version's own bundle carry them. **And no
-  browser evidence, which here is an absent subject rather than a skipped check:** this piece ships no screen
+  these signatures. **The caveat this block carried about the 0 of 3 being a parse failure rather than real
+  drift is now CLOSED, by a second instrument that knows nothing about these markers:**
+  `node scripts/deployed-inventory.mjs` names `delete-customer` as `DIFFERS v37, running copy is 18.1d old;
+  4 file(s) differ: index.ts, _shared/forgetPhotos.ts, _shared/r2.ts +1` - **the two shared modules the markers
+  are parsed from, named as absent from the deployed bundle by a content comparison that was written for a
+  different purpose a month earlier.** (That run exits 1 and names 29 of 39 functions as differing, which is
+  ROADMAP 0.6's standing state and is not this item's to fix; publishing is Andrew's.) **And no browser evidence, which here is an absent subject rather than a skipped check:** this piece ships no screen
   and moves no pixel - one command-line gate, one node suite and two paragraphs of prose, none of them
   reachable from a page.
 
