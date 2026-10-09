@@ -1332,6 +1332,31 @@ and how the wait ends.
   - The deployed door returns public URLs derived from the configured public R2 address.
 
 - [ ] **0.11bc — Enable the media door and verify live upload flows**
+
+  ***CUT INTO THREE NUMBERED SLICES — 2026-10-09. This item was sent out and killed twice. The dispatcher's
+  own rule says an unnumbered sub-task is invisible to every sweep here, so the numbering is the work and not
+  bookkeeping. Slice 1 is the only one of the three that is buildable today; 2 and 3 both wait on acts only
+  Andrew performs.***
+
+  - [ ] **0.11bc1 — The INTAKE flow pressed through the door in a real browser.**
+    The third of the three `uploadBusinessPhoto` call sites. `scripts/media-door-browser.mjs` presses the
+    gallery and the logo at three widths each and names **intake UNJUDGEABLE in its own receipt**, so
+    criterion 1's third clause — *"intake-photo uploads"* — has never been asked of a running browser.
+    Answers the app half of criteria 1, 3 and 4 for that flow: the bytes go to `business-media` through the
+    door, the key is minted under the caller's own business, a stranger's `public_url` is refused before any
+    byte leaves, and zero Supabase Storage uploads happen. Needs no deploy, no publish and no flag flipped
+    on disk.
+  - [ ] **0.11bc2 — Flip `MEDIA_VIA_DOOR` on disk and press all three flows against the DEPLOYED door.**
+    Blocked on 0.11ba (the public address bound in Cloudflare) and 0.11bb (`photo-door` published). The flip
+    itself is one line in `app/src/lib/photo-door.js`, and it must not land before both of those: a flag
+    flipped early answers every logo and gallery upload with *"Public image storage is not set up on the
+    server yet."* on two features that work today, with nothing anywhere to say why (0.11bb measured that
+    against the real handler).
+  - [ ] **0.11bc3 — Public-read without authentication, against the bound address.**
+    Criterion 2's second clause. Unmeasurable until a real address exists: every run today derives the url
+    through `r2.ts`'s own `mediaBase` + `publicUrl` against a deliberately fake host, because no address has
+    been bound. Nothing in the repo can stand in for *"an anonymous visitor can GET this object"*.
+
   Set MEDIA_VIA_DOOR to true in the application, then verify gallery, branding/logo, and intake-photo uploads use the deployed door and public R2 URLs. This is the final traffic switch and live proof; it does not deploy unrelated accumulated work or change the allowance.
   Part 3 of 3 of item 0.11b, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
