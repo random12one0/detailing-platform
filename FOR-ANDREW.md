@@ -291,8 +291,8 @@ allowance goes from 1 GB to 10 GB **in the same change that switches uploads to
 Cloudflare, and not one step earlier**, because a 10 on a detailer's screen with
 nothing behind it is a promise the platform cannot keep.
 
-**a · Cloudflare, in your dashboard — yours alone. TWO THINGS, AND THE SECOND
-IS A DECISION ONLY YOU CAN MAKE.**
+**a · Cloudflare, in your dashboard — yours alone. TWO ORDERED SETUP STEPS:
+complete a1, then a2. Neither is a product decision or a question for review.**
 
 **a1 · The CORS rule, on all THREE buckets:** `job-photos`, `expense-receipts`
 and `business-media`. **Without it every upload is blocked by the browser even
@@ -339,9 +339,9 @@ six addresses and left the other five to be guessed. *The step named only
 `job-photos` until 2026-10-08; receipts and the logo-and-gallery bucket need the
 same rule and would have failed with a program that was working perfectly.*
 
-**a2 · Give `business-media` a public web address, and tell us what it is.**
-This is the one thing in the whole photo job that nobody but you can do, and it
-is not a publish.
+**a2 · Give `business-media` its permanent public web address, after a1.**
+This is the one Cloudflare setup step in the photo job that only you can do; it
+is not a publish or a decision request.
 
 *What it is.* Two of the three buckets are private: nobody can read a photo
 without a one-hour link our server signs for them. **`business-media` is the
@@ -350,10 +350,11 @@ readable by a stranger looking at a booking page. Supabase gave that bucket a
 web address for free. **Cloudflare does not.** A bucket there has no address at
 all until you attach one, in the R2 part of your dashboard.
 
-*The two ways, and our recommendation.* Cloudflare offers a free development
-address ending `r2.dev`, and it lets you point one of your own web addresses at
-the bucket instead — something like `media.detailingplatform.com`. **Use your
-own.** Not for tidiness: **the address gets written into your database, one row
+*The required address.* Cloudflare offers a free development address ending
+`r2.dev`, and it lets you point one of your own web addresses at the bucket
+instead — something like `media.detailingplatform.com`. **Use your own.** This
+is the required production setup, not a choice to send back for approval: **the
+address gets written into your database, one row
 per photograph, and it stays there.** Every logo and every gallery photo stores
 its full web address, so whichever one is switched on the day we flip this over
 is the address those photographs keep. Changing your mind later does not move
