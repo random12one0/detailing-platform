@@ -1,0 +1,44 @@
+{
+  "git_sha": "08cecb6fae52bd9ac57d6a7af3ecdc5324186d4b",
+  "git_sha_started": "08cecb6fae52bd9ac57d6a7af3ecdc5324186d4b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T20:18:18.406Z",
+  "failures": [
+    "door-published: photo-door is not deployed on this project. Publishing is Andrew's: FOR-ANDREW.md step 9 (`node scripts/deploy-functions.mjs photo-door`). Nothing below can be judged until it is.",
+    "secret-name-present: R2_MEDIA_BASE is not among this project's function secrets. It is the public address for business-media, it has no default, and it cannot exist until 0.11ba binds one in Cloudflare."
+  ],
+  "warnings": [
+    "base-live-on-door: nothing to judge: the deployed door was never called",
+    "caller-scoped-key: nothing to judge: the door minted no key",
+    "refuses-another-business: nothing to judge: neither refusal was attempted",
+    "public-url-from-base: UNJUDGEABLE: no configured address to compare against. Re-run with --base=<the address bound in Cloudflare>, or with R2_MEDIA_BASE exported. Criterion 4 is that the url is DERIVED from the configured address, and reading the host out of the answer would be the answer marking its own work."
+  ],
+  "artifacts": [
+    "receipts/photo-door-deployed.log"
+  ],
+  "dimensions": {
+    "break": null,
+    "unjudgeable": 4,
+    "canaries_caught": 11,
+    "canaries_missed": [],
+    "door_deployed": false,
+    "base_source": "none"
+  },
+  "check_id": "photo-door-deployed",
+  "started_at": "2026-10-09T20:18:17.930Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 12,
+  "min_assertions": 12,
+  "assertion_floor": "one assertion per stand-in mode (8) plus one per fabricated account world (4). The count is fixed by construction, so the floor is the same number by design: removing a mode drops below it.",
+  "canary": {
+    "id": "eleven-handed-over-defects",
+    "observed_failure": true,
+    "detail": "caught 11 of 11; none missed"
+  }
+}
