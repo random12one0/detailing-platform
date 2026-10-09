@@ -174,11 +174,22 @@ function openItems(text) {
     if (!/^- \[ \] /.test(line)) return;
     const bare = line.replace(/\*\*/g, "");
     // The number may lead the item text...
-    let m = bare.match(/^- \[ \] (\d+\.\d+[a-z]?)\b/);
+    // `[a-z]*\d*`, NOT `[a-z]?`, AND THE WIDENING WAS FORCED BY A RED — 2026-10-09.
+    // The one-letter suffix could not read `0.11ba`, `0.11bb` or `0.11bc`, the
+    // three slices the splitter minted under 0.11b: `\b` after `0.11b` fails on
+    // the following `a`, the optional letter backtracks away, and `0.11` then
+    // fails the same boundary — so the match is null and the item reads as
+    // UNNUMBERED. It would have read `0.11d1` as unnumbered too, which nothing
+    // noticed only because that one is already ticked and this check looks at
+    // open items. **That is this check's own subject happening to this check**:
+    // a parser whose grammar is narrower than the numbers in use reports real
+    // items as naked ones, and a session reading the red "fixes" the roadmap
+    // instead of the regex.
+    let m = bare.match(/^- \[ \] (\d+\.\d+[a-z]*\d*)\b/);
     // ...or sit in a `### 14.26 — ...` heading just above it.
     if (!m) {
       for (let j = i - 1; j >= 0 && j > i - 6; j--) {
-        const h = lines[j].match(/^#{2,4} (\d+\.\d+[a-z]?) —/);
+        const h = lines[j].match(/^#{2,4} (\d+\.\d+[a-z]*\d*) —/);
         if (h) { m = [null, h[1]]; break; }
       }
     }
@@ -193,7 +204,7 @@ function openItems(text) {
 /** Item numbers issued by the old build history, which reuses them. */
 function oldIds(text) {
   return new Set(
-    (text.match(/^- \[.\] (\d+\.\d+[a-z]?)\b/gm) || [])
+    (text.match(/^- \[.\] (\d+\.\d+[a-z]*\d*)\b/gm) || [])
       .map((s) => s.replace(/^- \[.\] /, "")),
   );
 }
