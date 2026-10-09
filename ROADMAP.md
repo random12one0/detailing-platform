@@ -7632,9 +7632,11 @@ requested.
   *failed* rather than empty (`node scripts/email-list-admin.mjs`, its one
   un-rewritten target).
 
-  **NEEDS ANDREW: apply `20261006010000` (FOR-ANDREW step 2), publish
-  `platform-admin` (step 3), and publish `send-email` and the ten booking
-  senders (steps 6 and 7) — in that order.** After the first two the list works
+  **READY FOR CODE AGAIN after Andrew's 2026-10-09 decision:** build the
+  detailer's business-wide delivery list under their own tenant-scoped session.
+  After that, Andrew applies `20261006010000` (FOR-ANDREW step 2), publishes
+  `platform-admin` (step 3), and publishes `send-email` and the ten booking
+  senders (steps 6 and 7) — in that order. After the first two the admin list works
   on 225 real rows; the third is what makes `booking_id` start arriving.
   **The booking LINK is still his call and nothing is built toward it** —
   `/admin/job/:id` is not a route and `/job/:id` is the detailer's own screen,
