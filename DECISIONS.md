@@ -328,6 +328,7 @@ were made more than once.
 - **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
 - **Andrew's second dashboard decisions of 2026-10-09** — hold and end-to-end test the fixtures before switching 0.3/1.3; show each price change on its first causative click; texting is planned and awaits setup, not approval; redesign email/text policy rather than sending every template; rethink the back office substantially from scratch; and keep 3.1's mail log while adding integrated overflow, spacing, time groups and message previews.
 - **Andrew's photo-release and Google decisions of 2026-10-09** — finish and tick 0.11a after the new wire test; deploy 0.11b now; release 0.11c to all customers now; keep tests and English / Spanish strings green before launch; and build 99.1's connection and error surface now while synchronization waits for Google's scope approval.
+- **A parent with numbered child slices is already split** — the belt must preserve hand-written breakdowns rather than create a competing alphabetic series.
 
 - **The supervisor cuts an item up rather than sending it out a fourth time** — supervision 2026-10-09, after 3.1 was killed twice at ~50 minutes and 4.1 once the same night. Why the answer was four numbered slices and a `Queued behind` marker rather than more time or another attempt, why `0.4` is marked `Waits on:` while `0.4g` stays dispatchable, and why two credential-free gates were added instead of a new check.
 - **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
@@ -18867,3 +18868,16 @@ than sending it out a fourth time"*.
 **Easiest to change later:** both edits are one expression each, and the attempt
 count is a number in `state.json`. Nothing about the gate list, the cadence or
 the model rules was touched, because nothing I measured pointed at them.
+
+## A parent with numbered child slices is already split
+
+**Supervision, 2026-10-09.** The size splitter treated 0.11d's 152 lines as an
+unsliced task, although its body already held 0.11d1, 0.11d2 and 0.11d3. Those
+rows are indented, intentionally outside the dispatcher's top-level parser.
+The splitter added a second set, 0.11da–dc, and blocked the parent behind the
+duplicates, inflating the queue by three. The existing slices remain the source
+of truth; the duplicate rows and false split state were removed. Both split
+entry points now refuse a parent whose indented checkbox id extends its own.
+The new self-check assertion was deliberately made false (and failed), then
+passed at 336 assertions. This preserves deliberate hand-written task design;
+only genuinely unsliced large parents are automatic-split candidates.

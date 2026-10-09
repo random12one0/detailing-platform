@@ -731,13 +731,13 @@ and how the wait ends.
   CORS rule on `business-media` **and on `expense-receipts`**, which the list named only for `job-photos`; and the second flag,
   `MEDIA_VIA_DOOR`, beside `RECEIPTS_VIA_DOOR`.
 
-  **SLICES LEFT:** **4's publish, its public-address decision and its one-word flag flip**; **5's publish and its one-word flag
+  **SLICES LEFT:** **4's ordered public-address setup, publish and one-word flag flip**; **5's publish and its one-word flag
   flip**. No slice has code left to write.
 
-  **NEEDS ANDREW: choose the permanent public address for `business-media`, add
-  the bucket CORS rules, then publish and flip the two prepared flags.** No code
-  remains for the belt to write, and another worker cannot make those account and
-  publishing decisions on Andrew's behalf.
+  **NEEDS ANDREW (ordered setup, not a decision): add the bucket CORS rules,
+  bind `business-media`'s permanent public address, then publish and flip the
+  two prepared flags.** No code remains for the belt to write, and another
+  worker cannot perform those account and publishing steps.
 
   **ANDREW DECIDED 2026-10-09: proceed immediately.** This authorizes the move;
   it does not make the account-only address and CORS steps executable by the
@@ -1118,7 +1118,7 @@ and how the wait ends.
   `photo-door`, add the CORS rule to `business-media`, and then flip `MEDIA_VIA_DOOR` to `true` in `app/src/lib/photo-door.js`. No
   media code remains to write: criteria 3 and 4 are built and proved in memory, criterion 1's *"write only to business-media in R2"* and
   criterion 2's *"usable by unauthenticated visitors"* are only true in the live product once the address exists and the flag is on, and the
-  address is a decision rather than a publish because `gallery_images.image_url` stores an ABSOLUTE url and whatever host is live on the
+  permanent address must be configured before publishing because `gallery_images.image_url` stores an ABSOLUTE url and whatever host is live on the
   day of the switch is written permanently into every row made after it. **`FOR-ANDREW.md` already carries all four** — step 9a2 is the
   address, 9c is the publish, and the `MEDIA_VIA_DOOR` bullet after step 9 names the flag and the CORS rule — so no row was added rather
   than a duplicate written.
@@ -1337,8 +1337,9 @@ and how the wait ends.
   is at `belt/runs/2026-10-09T20-40-39-007Z-0.md`. Needs a person or a different
   approach — unpark by deleting these four lines.
 
-  NEEDS ANDREW: bind `business-media`'s public address in Cloudflare (`FOR-ANDREW.md` step 9a2, item
-  0.11ba) and then publish `photo-door` (step 9c, item 0.11bb), **in that order** — 0.11bb measured that a
+  NEEDS ANDREW (ordered release work, not a decision): bind `business-media`'s public address in Cloudflare
+  (`FOR-ANDREW.md` step 9a2, item 0.11ba) and then publish `photo-door` (step 9c, item 0.11bb), **in that
+  order** — 0.11bb measured that a
   door published before the address is bound refuses every media request. Slices 2 and 3 cannot start
   until both are done; slice 1 did not need either and is finished.
 
@@ -1767,6 +1768,10 @@ and how the wait ends.
   website is published.**
 
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
+  **BELT PARKED after 3 attempts, 2026-10-09 21:39:08.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T21-39-02-745Z-0.11d.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
   Part 4 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1998,40 +2003,6 @@ and how the wait ends.
   all 17 test cases plus the Spanish suite's 83 checks passed. The launch still
   waits on 0.11c's ordered release; 0.11d2 and 0.11d3 remain the required live
   proof after it.
-
-  Waits on: 0.11da, 0.11db, 0.11dc. How the wait ends: those pieces are ticked.
-  Split on 2026-10-09 because this entry is 152 lines
-  long and no single session was finishing it.
-
-- [ ] **0.11da — 0.11d1 — Verify visible over-cap refusal on job and expense paths**
-  Verify the two existing pre-upload refusal flows show used space, limit, and deletion guidance to detailers, including translations and responsive browser rendering. This does not test deployed R2 uploads or the scheduled reconciliation.
-  Part 1 of 3 of item 0.11d, split out so it can be
-  finished and ticked on its own. The parent keeps the full write-up.
-  Acceptance criteria:
-  - Job-photo and expense-receipt over-cap refusals show used space, limit, and removal guidance.
-  - English and Spanish render correctly on the affected screens.
-  - Browser checks pass at the specified desktop and mobile widths with no console errors.
-  - Credential-free refusal and translation tests pass.
-
-- [ ] **0.11db — 0.11d2 — Verify live R2 upload path and authoritative object size**
-  After release, exercise a real browser upload through the deployed photo door and presigned R2 URL. Confirm the job-photo route avoids Supabase Storage and persists R2’s HEAD-reported size rather than a client claim; this excludes reconciliation cron proof.
-  Part 2 of 3 of item 0.11d, split out so it can be
-  finished and ticked on its own. The parent keeps the full write-up.
-  Acceptance criteria:
-  - A real job-photo upload succeeds through a presigned R2 URL.
-  - No job-photo upload request reaches Supabase Storage’s object endpoint.
-  - A deliberately false claimed size is ignored.
-  - The persisted job_photos.bytes exactly matches R2 HEAD size.
-
-- [ ] **0.11dc — 0.11d3 — Verify scheduled reconcile records all live drift categories**
-  After release and cron installation, trigger the deployed photo-reconcile schedule and inspect its heartbeat result. Confirm the live run records the five required numeric drift categories; this does not re-test upload behavior or UI allowance messaging.
-  Part 3 of 3 of item 0.11d, split out so it can be
-  finished and ticked on its own. The parent keeps the full write-up.
-  Acceptance criteria:
-  - A cron-triggered request reaches the deployed photo-reconcile function.
-  - A job_heartbeats record is written by the reconcile run.
-  - The heartbeat records numeric orphan, missing-object, size-mismatch, unknown-size, and tenant-prefix-mismatch drift values.
-  - The recorded values correspond to intentionally created live drift conditions.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
@@ -9706,6 +9677,16 @@ requested.
   sign-in. It is intermittent — present on one run, absent on the next — and
   the same read with a fully settled token answers **200**, so it is a race,
   not a permission.
+
+  **TRIAGE 2026-10-09 — THE CURRENT RECEIPT IS NOT THE GREEN RUN THIS TICK
+  CITES.** `receipts/mail-log-scroll.json` is a deliberate
+  `--break=unstyled` run at `653bf3b` (an ancestor of HEAD): `status: fail`,
+  with the two expected `rules-in-effect` failures. That proves the sabotage
+  was caught; it is not a retained normal-run receipt. The claimed 20/0 normal
+  result therefore cannot be re-read from the present receipt. **Deep pass:**
+  run and retain a normal receipt separately from its failing controls, then
+  inspect the thumb and scroll behavior at 1440 and 392 before relying on this
+  tick. This does not reopen the already-filed edge defects 3.1b/3.1e.
 
 - [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
   No text may crowd or touch its neighbor. **Done when:** measured at 1440
