@@ -6,6 +6,12 @@
 // of them imports from the other is a worse shape than a file that just holds
 // it (component inventory §3c).
 //
+// TWENTY-FOUR AS OF ROADMAP 3.1 — "Emails we sent" joined the GEAR, beside
+// Notifications. Same admission test as Weather warnings: a record of what was
+// sent and whether it arrived changes nothing a CUSTOMER meets. The count is
+// `Object.keys(SCREENS).length` and the numbers in the notes below this one
+// are each true of the day they were written, not of today.
+//
 // FIFTEEN AS OF ROADMAP 2.20 STAGE 2 — "Your subscription" joined the GEAR,
 // not Business, and that is the admission test working rather than a
 // coincidence: a card on file changes nothing a customer ever meets. It is
@@ -59,6 +65,7 @@ import BookingRules from "./BookingRules.jsx";
 import Notifications from "./Notifications.jsx";
 import Weather from "./Weather.jsx";
 import MessageTemplates from "./MessageTemplates.jsx";
+import MailLog from "./MailLog.jsx";
 import Team from "./Team.jsx";
 import Preferences from "./Preferences.jsx";
 import Password from "./Password.jsx";
@@ -89,6 +96,12 @@ export const SCREENS = {
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],
   notifications: [Notifications, "Notifications"],
+  // ROADMAP 3.1 — ON THE GEAR, and it passes that admission test the way
+  // Weather warnings does: a log of what went out changes nothing a customer
+  // ever meets. It sits beside Notifications because they are the two halves
+  // of one subject — that row says which emails go out, this one says what
+  // became of them.
+  mail: [MailLog, "Emails we sent"],
   // WEATHER WARNINGS — Andrew, 2026-09-13. On the GEAR rather than Business,
   // and it passes that admission test outright: a threshold changes what the
   // DETAILER is told about their own day and nothing a customer ever meets.

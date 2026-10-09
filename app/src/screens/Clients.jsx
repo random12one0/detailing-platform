@@ -146,6 +146,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [open, setOpen] = useState(null);      // customer
   const [history, setHistory] = useState(null); // null while the record's list loads
   const [mail, setMail] = useState(null);       // ROADMAP 14.3 — same null-means-loading rule
+  const [mailErr, setMailErr] = useState("");   // ROADMAP 3.1 — a failed read is not an empty one
   const [selected, setSelected] = useState(null);
   const [booking, setBooking] = useState(null); // ROADMAP 9.7 — customer to open New Booking with, or null
   const [notes, setNotes] = useState("");
@@ -279,6 +280,13 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser
     // `select` and nothing else, so this screen cannot mark a bounce as
     // delivered however hard it tries; the service role writes every row.
+    //
+    // **`data ?? []` WAS DRAWING A FAILED READ AS "no emails sent to this
+    // address yet" — roadmap 3.1.** That sentence is the product answering the
+    // one question 3.1 exists to stop it getting wrong, and it was being
+    // printed on no evidence at all. The error goes to `EmailTrail`, which owns
+    // the empty sentence and suppresses it.
+    setMailErr("");
     supabase
       .from("email_sends")
       .select("id, subject, to_email, status, detail, sent_at")
@@ -286,7 +294,9 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
       .eq("customer_id", c.id)
       .order("sent_at", { ascending: false })
       .limit(MAIL_CAP)
-      .then(({ data: sends }) => setMail(sends ?? []));
+      .then(({ data: sends, error }) => {
+        if (error) setMailErr(error.message); else setMail(sends ?? []);
+      });
     const { data } = await supabase
       .from("bookings")
       .select(BOOKING_SELECT)
@@ -945,7 +955,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               <div className="tight">
                 <span className="label">{t("Emails")}</span>
                 <EmailTrail rows={mail} timezone={business.timezone} cap={MAIL_CAP}
-                  empty="No emails sent to this address yet." />
+                  error={mailErr} empty="No emails sent to this address yet." />
               </div>
             )}
 

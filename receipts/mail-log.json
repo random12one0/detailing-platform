@@ -1,0 +1,100 @@
+{
+  "git_sha": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
+  "git_sha_started": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T06:38:03.759Z",
+  "failures": [],
+  "warnings": [
+    "TARGET A IS REAL AND UN-REWRITTEN: the browser's own PostgREST read of `email_sends` under the demo owner's session, compared in order against an independent service-role read of the same table (29 rows, 25 of them bad). Nothing is written anywhere.",
+    "TARGET B IS FIXTURES, fulfilled inside the browser, and it exists for two questions real data cannot ask: `demo-detail` has no `sent` row (3.1's done-when needs one beside a `delivered`) and no long address (the `.sub.addr` rule exists because a long address clips at 320).",
+    "It measures THE DETAILER'S SCREEN ONLY. It says nothing about `/admin`, which reads the same table through `platform-admin` under the service role — `scripts/email-list-admin.mjs` is that walk.",
+    "A booking link is not in scope: this screen draws none, because `/admin/job/:id` is not a route and `/job/:id` is the detailer's own screen. 3.1's booking link is still Andrew's call.",
+    "The six --break= sabotages are applied to the LIVE page or to the request on the wire, never to a source file, and each one reports whether it actually landed (docs/gotchas.md 102).",
+    "The real-row figures move as `demo-detail`'s own rows move; they are read fresh every run rather than written into the floor."
+  ],
+  "artifacts": [
+    "artifacts/mail-log/1920x1080-real.png",
+    "artifacts/mail-log/1920x1080-real-problems.png",
+    "artifacts/mail-log/1920x1080-fixture.png",
+    "artifacts/mail-log/1920x1080-empty.png",
+    "artifacts/mail-log/1920x1080-failed.png",
+    "artifacts/mail-log/1920x1080-loading.png",
+    "artifacts/mail-log/1440x900-real.png",
+    "artifacts/mail-log/1440x900-real-problems.png",
+    "artifacts/mail-log/1440x900-fixture.png",
+    "artifacts/mail-log/1440x900-empty.png",
+    "artifacts/mail-log/1440x900-failed.png",
+    "artifacts/mail-log/1440x900-loading.png",
+    "artifacts/mail-log/768x1024-real.png",
+    "artifacts/mail-log/768x1024-real-problems.png",
+    "artifacts/mail-log/768x1024-fixture.png",
+    "artifacts/mail-log/768x1024-empty.png",
+    "artifacts/mail-log/768x1024-failed.png",
+    "artifacts/mail-log/768x1024-loading.png",
+    "artifacts/mail-log/392x844-real.png",
+    "artifacts/mail-log/392x844-real-problems.png",
+    "artifacts/mail-log/392x844-fixture.png",
+    "artifacts/mail-log/392x844-empty.png",
+    "artifacts/mail-log/392x844-failed.png",
+    "artifacts/mail-log/392x844-loading.png",
+    "artifacts/mail-log/320x844-real.png",
+    "artifacts/mail-log/320x844-real-problems.png",
+    "artifacts/mail-log/320x844-fixture.png",
+    "artifacts/mail-log/320x844-empty.png",
+    "artifacts/mail-log/320x844-failed.png",
+    "artifacts/mail-log/320x844-loading.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1920x1080",
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "320x844"
+    ],
+    "business": "demo-detail",
+    "real_rows": 29,
+    "real_bad_rows": 25,
+    "real_status_tally": {
+      "skipped": 21,
+      "bounced": 4,
+      "delivered": 4
+    },
+    "observed": [
+      "the table holds 29 row(s) for demo-detail: {\"skipped\":21,\"bounced\":4,\"delivered\":4}",
+      "25 of those are states that need a person (bounced, complained, failed, refused, skipped)",
+      "157 row(s) belong to other businesses and are available to the `foreign` sabotage",
+      "console: 1 browser log line(s) for the 500 this check asks for, FORGIVEN BY NAME"
+    ],
+    "canaries": [
+      "the-same-word: a delivered row overwritten with \"On its way\" — comparator says SAME",
+      "the-clipped-address: a 480px address in a 246px box — rule says CLIPPED",
+      "the-foreign-row: a row the business does not hold — rule says FLAGGED"
+    ],
+    "sabotage": null,
+    "sabotage_landed": [],
+    "console_errors_and_warnings": [
+      "error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "console_forgiven_by_name": [
+      "error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ]
+  },
+  "check_id": "mail-log",
+  "started_at": "2026-10-09T06:34:40.810Z",
+  "status": "pass",
+  "expected_targets": 25,
+  "discovered_targets": 25,
+  "attempted_targets": 25,
+  "completed_targets": 25,
+  "skipped_targets": 0,
+  "assertions_executed": 103,
+  "min_assertions": 103,
+  "assertion_floor": "5 widths x 20 (8 real list, 1 switch, 1 problems filter, 5 fixture list, 5 states) + 3 canaries = 103. Structural: fixed by the question list, never by what the run finds, and asserted as an EQUALITY.",
+  "canary": {
+    "id": "the-clipped-address",
+    "observed_failure": true,
+    "problems": []
+  }
+}

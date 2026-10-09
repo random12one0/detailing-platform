@@ -88,7 +88,7 @@ set -a; . ./.env; set +a
 | **Anything, before you finish — and especially any markdown you wrote** | `node --test tests/no-credentials-in-tracked-text.test.mjs`. Credential-free, one `git` call. **Population widened from markdown-only to every tracked text file on 2026-10-06 (ROADMAP 14.25); `--break=md-only` restores the old net and turns it red — **but only run DIRECTLY, `node tests/no-credentials-in-tracked-text.test.mjs --break=md-only`; appending that flag to the `node --test` command at the start of this row does NOTHING, because `node --test` consumes every extra argument and the file's argv never sees it** (`docs/gotchas.md` 104, measured 2026-10-08: the flag-on run printed pass 1 / fail 0, the direct run 14 passed / 6 failed). The hard rule below — no password in a markdown file — was being broken in 8 files and 25 occurrences on 2026-09-25, some of it for weeks, because NOTHING HAD EVER CHECKED.** It matches SHAPES rather than the values somebody happens to know: the first cleanup was keyed on three known passwords and missed a fourth account's. It names the file, the line and the rule, never the value. Its blind spot is written in its own header — read that before trusting a green |
 | **Anything, before you finish** | `node --test tests/every-open-item-is-citable.test.mjs`. Credential-free, two filesystem reads, **0.25s**. **An open item with no number is UNCHECKABLE** — every sweep here keys on the identifier, so nothing will ever report on it and nothing will say so. Two items sat unnumbered for ten days and one of them turned out to be the sharpest finding of the night the hour it got a number. It carries a discovery floor, because a parser that stops matching would otherwise read as all-clear |
 | **Before handing anybody a row off the work queue** | `node --test tests/queue-rows-still-belong.test.mjs`. **2.87s**, credential-free except one row which names its credential. **A derived list rots: this one rotted in ninety minutes** and the manager was about to hand out finished work. Reports per row, declares its row count, and prints the two unverifiable rows by name rather than skipping them. ROADMAP 14.29 |
-| **Any copy change — a rename, a re-wording, a condensation** | `node scripts/label-guard.mjs`. Credential-free, one filesystem read. **45 controls are addressed by the WORDS on them, so a rename silently blinds a check** — the matcher falls back to bare English, matches nothing, and the screen goes unmeasured while every other line reads normally. The two that happened are in the script's header |
+| **Any copy change — a rename, a re-wording, a condensation** | `node scripts/label-guard.mjs`. Credential-free, one filesystem read. **47 controls are addressed by the WORDS on them, so a rename silently blinds a check** — the matcher falls back to bare English, matches nothing, and the screen goes unmeasured while every other line reads normally. The two that happened are in the script's header |
 | **Anything, before you finish — and this one needs credentials** | `node scripts/deployed-inventory.mjs`. **It exits 1 and names every function that is not running this checkout.** See below; do not deploy to clear it |
 | **Anything a person reads, before you finish** | `node scripts/american-english.mjs` (dev server, no credentials). **A word spelled correctly but wrong for the audience passes every other gate here.** It reads the FINISHED page, not the source — a source scan printed clean over "Aluminium tanks". The 36 that reached visitors are in the script's header |
 | **Anything a person reads — copy, a colour, a class, a whole screen** | `node scripts/contrast-insitu.mjs` (dev server + seed). **The credential-free gates measure token PAIRS, and a pair does not know which surface a label lands on** — `--fog-2` is 4.90:1 on `--ink-1` and 4.20:1 on `--ink-3`. The case is in the script's header |
@@ -172,7 +172,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND SIX specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND SEVEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -712,6 +712,16 @@ Certify on the FINDINGS LIST (1 naming ex3, against 0), never on the verdict wor
 certifying ROADMAP 7.10. Twenty sittings unbroken; `grep -c "^## " docs/gotchas.md` run before
 writing this and again after, so the 105 above is a count rather than an increment.
 
+
+**106 → 107 on 2026-10-08, same edit** — `page.waitForSelector` defaults to `state: "visible"`, and
+Playwright's "visible" means a non-empty bounding box, so **a loading container is invisible for
+exactly the interval in which it is true**: the wait timed out at all five widths and printed a
+finding about the PRODUCT — *"the list is NOT marked busy"* — on a screen that was marked busy for
+1.8 seconds every time. `state: "attached"` is the whole fix. **It fails toward a FALSE DEFECT**,
+which is the rarer direction in this file and the one that gets working code "fixed". Found while
+building `scripts/mail-log.mjs` for ROADMAP 3.1. Twenty-two sittings unbroken;
+`grep -c "^## " docs/gotchas.md` run before writing this and again after, so the 107 above is a
+count rather than an increment.
 
 **105 → 106 on 2026-10-08, same edit** — a selector chosen from the WORD in somebody's claim rather
 than from their picture. `/ex2` has two wordmarks; `.brand` is the obvious one and the wrong one, and

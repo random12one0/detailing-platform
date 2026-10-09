@@ -29,7 +29,7 @@
 // that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
-import { Bell, Building2, ChevronRight, CloudSun, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
+import { Bell, Building2, ChevronRight, CloudSun, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MailCheck, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { GRAND_STEPS } from "./Walkthrough.jsx";
@@ -201,6 +201,20 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
   const ROWS = [
     ["notifications", "Notifications", Bell,
       emailsOn === null ? "…" : t("{count} of 5 emails on", { count: emailsOn }), "settings"],
+    // ROADMAP 3.1 — BESIDE NOTIFICATIONS, because the two are halves of one
+    // subject: that row decides which emails go out, this one says what became
+    // of them. **NO COUNT IN THE SUMMARY, AND THAT IS THE ITEM'S OWN RULING.**
+    // 3.1's *"alert on permanent failure"* is `customers.email_failed_at`,
+    // already drawn on the client record, and the item says in terms that the
+    // list needs the bad rows FINDABLE rather than a second alarm. A live
+    // "3 problems" here would be that second alarm, plus a network call in a
+    // menu this file already refuses to make five of.
+    // **`null`, NOT A PERMISSION.** `email_sends` grants `select` to every
+    // member of the business and the client record already shows any of them
+    // the same rows, so gating this would be a restriction the database does
+    // not have — and the four ticks in `permissions.js` are each a group of
+    // database policies, never a screen.
+    ["mail", "Emails we sent", MailCheck, "Whether each one arrived", null],
     ["templates", "Message templates", MessageSquare, "Texts you send from a job", null],
     // WEATHER PER BOOKING — 2026-09-13. The summary is the one fact somebody
     // opens this row to check: WHAT would interrupt them, not "manage your

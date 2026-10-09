@@ -299,6 +299,21 @@ export const appEs = {
   "Last 90 days": "Últimos 90 días",
   "Last year": "Último año",
   "Everything": "Todo",
+  // ── EMAILS WE SENT — ROADMAP 3.1 ────────────────────────────────────────
+  // The gear row's summary, the filter beside it, and the two empty
+  // sentences. "Everything" above is the filter's first option and was
+  // already keyed; "Delivered", "On its way" and "Bounced" come from
+  // `MAIL_STATE` and are keyed with the client record's own trail.
+  "Whether each one arrived": "Si cada uno llegó",
+  "Which emails": "Cuáles correos",
+  "Problems": "Problemas",
+  "Every email this business has sent, newest first: your customers' mail and your own notifications. A customer's record shows only theirs.":
+    "Todos los correos que este negocio ha enviado, lo más reciente primero: el correo de tus clientes y tus propios avisos. El expediente de un cliente muestra solo el suyo.",
+  "No email has been sent yet.": "Todavía no se ha enviado ningún correo.",
+  "Nothing has bounced, been refused or failed to send.":
+    "Nada ha rebotado, sido rechazado ni fallado al enviarse.",
+  "Could not read your sent email: {detail}":
+    "No se pudo leer tu correo enviado: {detail}",
   // The same ranges again, INSIDE a sentence — *"No hay citas en los últimos
   // 30 días."* Spanish needs the article here and not on the chip, which is
   // exactly why English keeps two forms of these too.
@@ -498,6 +513,8 @@ export const appEs = {
   "Hours & days off": "Horario y días libres",
   "Booking rules": "Reglas de citas",
   "Notifications": "Avisos",
+  // ROADMAP 3.1 — the twenty-fourth screen.
+  "Emails we sent": "Correos que enviamos",
   "Message templates": "Mensajes guardados",
   "Team": "Equipo",
   "Your subscription": "Tu suscripción",

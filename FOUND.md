@@ -5,6 +5,27 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## `"Not sent — our daily limit"` IS A LABEL SEPARATOR WEARING AN EM DASH — found 2026-10-08
+
+`MAIL_STATE.refused` in `app/src/components/EmailTrail.jsx` reads **"Not sent —
+our daily limit"**. By `docs/gotchas.md`'s three shapes that is the third one —
+a LABEL SEPARATOR, the same shape as *"Travel — {zone}"* and *"Also booked — 2
+more cars"* — and the settled answer is the middle dot: **"Not sent · our daily
+limit"**. The other six words in that table carry no dash, and the line it draws
+on already uses `·` twice around it.
+
+**It is from ROADMAP 14.3 and predates the dash ruling's sweep.** It now draws on
+a THIRD screen (3.1's detailer list), which is why it was noticed — three
+surfaces rather than one.
+
+**Not fixed, because it is not what 3.1 asked for and it is not free:** changing
+it means changing the Spanish key in the same edit, and 3.1's own note says to
+reuse these exact words so two screens cannot disagree about a status. Changing
+`MAIL_STATE` changes the client record, the job record, the detailer list and
+`/admin` at once, which is right — but it is a copy decision, not this item's.
+
+---
+
 ## `sweep-widths.mjs` HAS GRADED NOTHING SINCE 2026-10-07 EVENING — found 2026-10-08
 
 **CLAUDE.md's verification table makes it the instrument for "A layout", and it

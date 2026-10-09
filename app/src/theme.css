@@ -1845,6 +1845,18 @@ html:has(.tabbar) {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
   overflow: hidden; white-space: normal; text-overflow: clip;
 }
+/* AN ADDRESS IS A HANDLE, NOT A DESCRIPTION — roadmap 3.1. `.row-item .sub` is
+   `nowrap` with an ellipsis, which is right for "Mon, Oct 6 · Delivered" and
+   wrong for the one line on the business-wide mail list that says WHOSE mail
+   this row is: at 320 the card is 246px and
+   `jordan.mcallister@longdomain.com` clips to "jordan.mcall…", which names
+   nobody. No clamp either — an address is one token and three lines of it is
+   still the fact somebody came here for. `overflow-wrap: anywhere` because
+   there is no space in an address to break at; `white-space: normal` alone
+   would wrap nothing at all and keep the clip. */
+.row-item .sub.addr {
+  white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere;
+}
 
 /* A RULED ROW THAT HOLDS A CHOICE — roadmap 2.20 stage 2, and the three ways
    to pay are the only `.row-item`s in this product that do. Until this rule a

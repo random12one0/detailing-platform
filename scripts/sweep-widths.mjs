@@ -254,7 +254,11 @@ const BUSINESS_ROWS = ["Business info", "Your color", "Photo gallery", "Reviews"
 // for trusting a check", and this line is what it means: a screen this array
 // does not name is a screen no width ever measures, and nothing anywhere
 // prints a word about it.
-const GEAR_ROWS = ["Notifications", "Message templates", "Weather warnings", "Team",
+// "Emails we sent" JOINED 2026-10-08 — ROADMAP 3.1. A new settings screen that
+// no width sweep walks is the unmeasured-screen failure this file exists for,
+// and the row is one line. `scripts/mail-log.mjs` asks the questions ABOUT it;
+// this walks its geometry alongside the other seven.
+const GEAR_ROWS = ["Notifications", "Emails we sent", "Message templates", "Weather warnings", "Team",
   "Your password", "This device", "Report a problem"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching

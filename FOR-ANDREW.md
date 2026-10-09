@@ -1470,10 +1470,27 @@ still knows them.
 
   **WHAT YOU GET WHEN BOTH ARE ON.** Every email about a job carries the job's
   identity, so the back-office list can show *this email, about this
-  appointment, to this customer, and here is what became of it*. **The screen
-  itself is not built yet** — that is the other half of the same item and it is
-  written up in `ROADMAP.md` under 3.1 so whoever builds it does not have to
-  ask. There is nothing for you to decide about the screen.
+  appointment, to this customer, and here is what became of it*.
+
+  **THE SENTENCE HERE SAID "THE SCREEN ITSELF IS NOT BUILT YET" UNTIL
+  2026-10-08, AND BOTH SCREENS ARE NOW BUILT.** Corrected rather than quietly
+  replaced, because it changes what you are waiting for:
+
+  * **The detailer's own list is live right now and needs no switch from you.**
+    Settings (the gear) → **Emails we sent**. It shows everything that business
+    has emailed, newest first, with a one-tap **Problems** filter, and it reads
+    the table directly under the detailer's own sign-in. Checked today against
+    every one of the demo business's own real email rows, at five screen sizes
+    down to the narrowest phone — the deliberately bounced test messages read
+    *Bounced* in red with the provider's own reason beside them, and the
+    delivered ones read *Delivered* with a tick.
+  * **Your back-office list still needs the two switches above**, because it
+    reads through `platform-admin` rather than through a detailer's sign-in.
+    Until you publish it, that one screen says it could not read the email log
+    — which is deliberate, so an unpublished function can never be mistaken for
+    *no email has been sent*.
+
+  There is still nothing for you to decide about either screen.
 
   **WHAT IS ALREADY TRUE WITHOUT EITHER SWITCH.** You can already see whether a
   customer's email was delivered or bounced on their client record, and a

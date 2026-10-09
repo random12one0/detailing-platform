@@ -7785,6 +7785,229 @@ requested.
   the source of § 1 and § 6 rather than gates that passed — both exit 1, by
   design, and must.
 
+  ***THE DETAILER'S HALF IS BUILT AND PROVEN ON REAL ROWS, 2026-10-08 — AND IT
+  NEEDED NO SERVER CHANGE, NO DEPLOY AND NO MIGRATION, WHICH IS WHY IT IS LIVE
+  TODAY WHILE ANDREW'S HALF IS STILL WAITING ON HIM.*** Andrew's 2026-10-09
+  ruling asked for both audiences; this is the second one. **The box stays
+  unticked**, because 3.1's Done-when names *the back office*, and that screen
+  cannot show a real row until `platform-admin` is published.
+
+  **WHERE IT IS.** `app/src/screens/more/MailLog.jsx`, the **24th** settings
+  screen, on the **gear** beside *Notifications* — key `mail`, title **"Emails
+  we sent"**, row summary *"Whether each one arrived"*. It passes the gear's own
+  admission test the way *Weather warnings* does: a record of what went out
+  changes nothing a CUSTOMER meets. `Notifications` says which emails go out;
+  this says what became of them.
+
+  **WHY A THIRD LIST AT ALL, since 14.3 and 5.3 already draw these rows.** Both
+  of those are scoped to one PERSON — a client record shows mail to that
+  customer, a job record shows mail to that booking's address — and they are the
+  right screens for *"did THIS person get it?"*. **Neither can answer this
+  item's own title.** *"The owner cannot tell whether emails arrived"* is a
+  question about the business, and you cannot ask it by opening two hundred
+  customers one at a time. Seeing that nothing has gone out since Tuesday needs
+  a list with no customer in the `where` clause.
+
+  **THE DATA PATH, AND IT IS THE OPPOSITE OF `/admin`'S.** `email_sends` carries
+  `email_sends_tenant_select`, `for select` scoped by `current_business_ids()`,
+  and `email_sends_business_idx` is already `(business_id, sent_at desc)` — the
+  2026-09-16 migration's own comment anticipated this list: *"the business-wide
+  list is the same question one level up."* So the detailer's browser reads the
+  table directly and gets exactly their own rows. `/admin` must go through
+  `platform-admin` under the service role for the mirror-image reason: Andrew is
+  a member of no detailer's business, so the same browser query there returns
+  **zero rows with no error**. One table, two data paths, and either one used on
+  the wrong screen fails silently.
+
+  **THE ROOT-CAUSE FIX NOBODY ASKED FOR, AND IT IS THIS ITEM'S OWN SUBJECT.**
+  All three callers read `.then(({ data }) => setMail(data ?? []))`, so **a read
+  that FAILED drew *"No emails sent to this address yet."*** — the product
+  stating, in a complete sentence, the one thing 3.1 exists to stop it getting
+  wrong. `EmailTrail` now takes `error` and owns the empty sentence
+  (`rows.length === 0 && !error`, the shape `Maintenance.jsx` already uses);
+  `Clients.jsx` and `BookingDetail.jsx` pass it. One guard where all three route
+  through, rather than three.
+
+  **TWO PROPS AND ONE CSS RULE, WHICH IS THE WHOLE APP DIFF BESIDES THE SCREEN.**
+  `EmailTrail` gained `to` — the recipient on its own line, off on a client
+  record and a job where the address is already the button three sections up
+  (Part B row 18), on here because the address is the only thing saying whose
+  mail a row is. And `.row-item .sub.addr` in `theme.css`: `.row-item .sub` is
+  `nowrap` with an ellipsis, which is right for *"Mon, Oct 6 · Delivered"* and
+  wrong for an address — at 320 the card is 246px and a long address clips to
+  *"jordan.mcall…"*, which names nobody and which **nothing in this repo could
+  see**, because clipped text has a perfectly normal box. Spanish keys moved in
+  the same edit (9 of them); `node scripts/i18n-survey.mjs` reports the same 1
+  candidate in `GearMenu.jsx` with and without this change — measured by
+  stashing the file, not assumed.
+
+  **WHAT IS DELIBERATELY NOT HERE.** No second alarm — *"alert on permanent
+  failure"* is `customers.email_failed_at`, already drawn as *"This address
+  bounced"*, and this item's own note forbids building it twice; the **Problems**
+  switch makes the bad rows findable, which is what it asks for. No booking link
+  — `/admin/job/:id` is not a route and `/job/:id` is the detailer's own screen;
+  still Andrew's call. No `kind` column. No count on the gear row, which would be
+  that second alarm plus a network call in a menu `GearMenu.jsx` already refuses
+  to make five of.
+  **PROOF — `node scripts/mail-log.mjs`, and the success path is REAL, which the
+  back office's own walk could not manage.** `email-list-admin.mjs` feeds
+  `/admin` eight invented rows because the action that serves them is not
+  deployed. This screen needs no deploy and no migration, so **TARGET A is the
+  browser's own un-rewritten PostgREST read under the demo owner's session**,
+  compared row by row and in order against an independent service-role read of
+  the same table taken before the browser opens. `demo-detail`'s own rows are
+  the evidence 3.1 asks for: **4 bounced and 4 delivered** from the 2026-10-06
+  test sends, out of 29, with 25 in the five states that need a person.
+
+  ```bash
+  set -a; . ./.env; set +a
+  node scripts/mail-log.mjs                 # PASS, 25 targets, 103 assertions
+  node scripts/receipt.mjs receipts/mail-log.json
+  ```
+
+  **25 targets, 103 assertions, asserted as an EQUALITY** (5 widths x 20 + 3
+  canaries), graded **PASS** by `receipt.mjs`. Widths 1920 / 1440 / 768 / 392 /
+  320. Console clean at every width but one 500 the check itself asks for, which
+  is forgiven by name.
+
+  **TARGET B is fixtures, and it exists for exactly two questions real rows
+  cannot ask**: `demo-detail` has no `sent` row, and 3.1's Done-when needs one
+  beside a `delivered`; and every real address here is short, so the new
+  `.sub.addr` rule would never be exercised. Those two, and nothing else, are
+  measured on invented rows.
+
+  **THREE CANARIES, EACH AIMED AT A RULE THAT WOULD OTHERWISE BE SATISFIED BY
+  NOTHING HAPPENING** — and that is the point of the second and third:
+  `the-same-word` (two rows with one word must read SAME), `the-clipped-address`
+  (a 480px address in a 246px box must read CLIPPED — without it `scrollWidth <=
+  clientWidth` is trivially true for every short address and the rule tests
+  nothing), `the-foreign-row` (a row the business does not hold must be FLAGGED
+  — without it *"every drawn row is mine"* is satisfied by an empty list).
+
+  **BROKEN ON PURPOSE SIX WAYS, EACH CAUGHT BY THE RULE AIMED AT IT, AND EACH
+  SABOTAGE REPORTS WHETHER IT LANDED** (`docs/gotchas.md` 102 — an edit that
+  silently matched nothing prints the same green a caught one prints). Judged on
+  the FINDINGS LIST, never on the verdict word (105):
+
+  | `--break=` | what it does | findings |
+  |---|---|---|
+  | `noaddr` | removes the recipient line | `real/recipient` x5 (+ 5 derived) |
+  | `collapse` | draws "sent" as "Delivered" | `fix/words-differ`, `fix/words-exact`, x5 each |
+  | `clip` | puts the address back to nowrap + ellipsis | `fix/addr-unclipped` x5, **and nothing else** |
+  | `failempty` | draws a failed read as the empty sentence | `failed/not-empty` x5, **and nothing else** |
+  | `filter` | Problems asks the wire without `bounced` | `real/problems-only-bad` x5 — 21 drawn against 25 held |
+  | `foreign` | splices another business's real row in | `real/scope` x5 (+ 5 derived) |
+
+  The sabotages are applied to the LIVE page or to the request on the wire,
+  never to a source file — nothing under `app/src` is edited while a browser
+  script is running.
+  **AND THE CHECK FOUND A FAULT IN ITSELF FIRST, WHICH IS NOW `docs/gotchas.md`
+  107.** The loading question went red at **all five widths** with the sentence
+  *"the list is NOT marked busy"* — on a screen that was marked busy for 1.8
+  seconds every time. `page.waitForSelector` defaults to `state: "visible"`, and
+  Playwright's "visible" means a non-empty bounding box: **the element that
+  proves we are still waiting is empty by definition, so it is invisible for
+  precisely the interval in which it is true.** `state: "attached"` is the whole
+  fix. **It fails toward a FALSE DEFECT**, which is the rarer direction in that
+  file and the one that gets working code "fixed" — an hour spent on a loading
+  state that was correct, or a height given to an empty container nobody asked
+  for. The count moved 106 -> 107 in the same edit, `grep -c "^## "
+  docs/gotchas.md` run before and after.
+
+  **WHAT THIS DOES NOT PROVE, said plainly.**
+  * **The `100 most recent.` line has never drawn on THIS screen.** `demo-detail`
+    holds 29 rows, so `real/no-cap-line` asserts its ABSENCE, which is the
+    correct assertion at 29 and is not the same as seeing it. It is the same
+    `EmailTrail` line the client record uses and `email-list-admin.mjs` saw it
+    draw on 100 real rows at five widths on 2026-10-08.
+  * **No non-null `booking_id` exists anywhere yet**, because nothing can write
+    one until `send-email` is published. This screen draws no booking link
+    either way.
+  * **Nothing about `/admin`.** Same table, different data path;
+    `scripts/email-list-admin.mjs` is that walk and it is unchanged.
+  * **Nothing about a SECOND tenant's session.** `real/scope` proves no foreign
+    row reaches this screen and the `foreign` sabotage proves the rule bites,
+    but both run as one detailer. `tenant-matrix.mjs` is the instrument for the
+    other direction and was not run.
+
+  **GATES, every one re-run after the edits rather than quoted:** the four
+  credential-free suites **4 of 4**; `no-credentials-in-tracked-text` **1 of 1**;
+  `every-open-item-is-citable` **6 of 6**; `email-list` **9 of 9**;
+  `email-row-knows-its-booking` **9 of 9**; `node scripts/label-guard.mjs` clean
+  at **47 of 47** declared labels — **that figure said 45 in CLAUDE.md and in the
+  script's own header and was already stale before this change; both were moved
+  to 47 in this edit**; `node scripts/i18n-survey.mjs` unchanged at 1 candidate
+  in `GearMenu.jsx`, measured by stashing the file rather than assumed;
+  `node scripts/mail-log.mjs` PASS, graded by `receipt.mjs`.
+
+  **RED, AND NOT BY THIS CHANGE — MEASURED BOTH WAYS RATHER THAN ASSUMED.**
+  `tests/sweep-methods-are-pinned.test.mjs` fails section 3. **Before this
+  change** it read `{numberedOpenItems: 47, quoteCriteria: 35, quoteFragments:
+  363}` against a declared `{48, 36, 382}` — **identical with and without the
+  three documents this session had edited**, run once with them stashed and once
+  without, same actual and same expected both times. **After this block was
+  written** it reads `{47, 35, 373}`: only `quoteFragments` moved, by the ten
+  quoted fragments above, and the item and criteria counts correctly did not,
+  because this adds a note to an existing item rather than opening or closing
+  one. It is still red on the same pre-existing gap. **The declared constants are
+  NOT edited to agree** (`docs/gotchas.md` 93); that reconciliation belongs to
+  whoever owns the 382.
+
+  ```bash
+  node --test tests/sweep-methods-are-pinned.test.mjs   # the actual/expected pair above
+  ```
+
+  **NOT RUN, AND WHY.** `american-english.mjs` visits the marketing pages and the
+  five example sites and **never opens `/app`**, so it cannot see this screen —
+  the same hole the back-office half recorded. The new copy was instead held
+  against that script's own 66-word British list by a throwaway probe, which
+  found none, with a canary (`aluminium colour centre`) proving the matcher
+  matches. `contrast-insitu.mjs` walks the five dashboard tabs and three public
+  pages and **does not open a settings screen either**; no colour token was
+  touched here — `.sub.addr` sets wrapping only — so the address line draws in
+  the same `.sub` colour the line beneath it has used since 14.3.
+  `migration-drift.mjs` and `deployed-inventory.mjs` were not re-run: nothing
+  server-side changed, and both still exit 1 for the reasons § 1 and § 6 above
+  record.
+
+  **AND THIS RUN COLLIDED WITH ANOTHER SESSION, WHICH IS WORTH ONE LINE BECAUSE
+  IT IS `docs/shared-resources.md`'S EXACT SUBJECT.** A second session began
+  running this same new script against the same demo tenant while the final
+  clean run's receipt was being graded; it wipes `artifacts/mail-log/` and
+  rewrites `receipts/mail-log.json` on every run, so for a few minutes the
+  receipt on disk read `fail` from somebody else's `--break=` run. Nothing was
+  wrong with either session's work and no file was lost — **but the receipt is a
+  shared resource with no lock, and a session reading it at the wrong second
+  would have reported this check as failing.**
+
+  **TWO SMALLER THINGS, BOTH RECORDED RATHER THAN QUIETLY LEFT.**
+  * **The check had a latent race and a throwaway screenshot probe found it, not
+    the check.** Pressing *Problems* sets `which`; an effect then calls `load()`,
+    which sets `rows` to null — two renders away — so polling for `!aria-busy` on
+    the frame of the click is satisfied by the list that is STILL SHOWING, and
+    the Everything rows get measured while the screen is labelled Problems. **The
+    real runs won that race at all five widths, which is luck, not a guard.** It
+    now waits for busy to APPEAR first and tolerates never seeing it. The clean
+    run and `--break=filter` were both re-run against the hardened version and
+    both held.
+  * **`"Emails we sent"` was added to `sweep-widths.mjs`'s `GEAR_ROWS`, and that
+    buys nothing today.** `label-guard` validates the label (47 of 47, a figure
+    that said 45 in two places and was already stale before this change), but
+    `FOUND.md` records that `sweep-widths.mjs` has graded nothing since
+    2026-10-07: it aborts at 24 of 155 surfaces on a Calendar selector, long
+    before it reaches the gear. The row is correct and will take effect when that
+    is fixed. A third thing is parked in `FOUND.md` rather than fixed:
+    `MAIL_STATE.refused` reads *"Not sent — our daily limit"*, which is a label
+    separator wearing an em dash.
+
+  **WHAT IS LEFT, AND IT IS ALL ANDREW'S.** Apply `20261006010000` (FOR-ANDREW
+  step 2), publish `platform-admin` (step 3), then publish `send-email` and the
+  ten booking senders (steps 6 and 7) — in that order, because publishing
+  `send-email` before the migration makes `record()`'s insert fail on every send
+  and `record()` is best-effort. After the first two his back-office list works
+  on the real rows; the third is what makes `booking_id` start arriving. **The
+  booking LINK is still his call and nothing is built toward it.**
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.

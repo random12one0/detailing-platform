@@ -115,6 +115,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // with no effect anywhere.
   const [payPick, setPayPick] = useState(null);
   const [mail, setMail] = useState(null);   // ROADMAP 5.3 — null means loading
+  const [mailErr, setMailErr] = useState(""); // ROADMAP 3.1 — a failed read is not an empty one
 
   const [form, setForm] = useState({
     customer_name: booking.customer_name,
@@ -257,16 +258,22 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // hard it tries; the service role writes every row and Resend's webhook
   // updates it. `null` means loading, `[]` means nothing was ever sent — a
   // spinner is the difference and the two must not collapse.
+  //
+  // **`data ?? []` WAS DRAWING A FAILED READ AS "nothing has been emailed to
+  // this address yet" — roadmap 3.1.** Same one-line fault as the client
+  // record's copy, and the same fix: the error goes to `EmailTrail`, which owns
+  // the empty sentence and suppresses it rather than racing it.
   const loadMail = useCallback(async () => {
+    setMailErr("");
     if (!booking.customer_email) { setMail([]); return; }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("email_sends")
       .select("id, subject, to_email, status, detail, sent_at")
       .eq("business_id", business.id)
       .eq("to_email", booking.customer_email)
       .order("sent_at", { ascending: false })
       .limit(MAIL_CAP);
-    setMail(data ?? []);
+    if (error) setMailErr(error.message); else setMail(data ?? []);
   }, [business.id, booking.customer_email]);
   useEffect(() => { setMail(null); loadMail(); }, [loadMail]);
 
@@ -977,7 +984,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                       <div className="tight" style={{ marginTop: "var(--sp-1)" }}>
                         <span className="label">{t("Emails to this address")}</span>
                         <EmailTrail rows={mail} timezone={business.timezone} cap={MAIL_CAP}
-                          empty="Nothing has been emailed to this address yet." />
+                          error={mailErr} empty="Nothing has been emailed to this address yet." />
                       </div>
                     </>
                   ) : (

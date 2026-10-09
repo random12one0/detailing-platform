@@ -1,10 +1,16 @@
-// THE MAIL WE SENT, AND WHAT BECAME OF IT — one implementation, two screens.
+// THE MAIL WE SENT, AND WHAT BECAME OF IT — one implementation, THREE screens.
 //
 // ROADMAP 14.3 built this list and put it on the CLIENT record. ROADMAP 5.3
 // found the half it could not answer: a detailer standing over a finished job
 // asking *"did the receipt go out?"* was on the wrong screen to be asked, and
 // the answer was two taps away on a person rather than on the job. So the same
 // rows now draw in both places and this file is the only copy of them.
+//
+// ROADMAP 3.1 ADDED THE THIRD — Andrew, 2026-10-09: *"both should be able to
+// see."* The back office got a platform-wide list of every detailer's mail;
+// this is the detailer's own, business-wide, under their own session. Both of
+// the first two answer *"did THIS person get it?"*, and neither answers *"is
+// my mail going out at all?"* — which is the question 3.1's title is.
 //
 // **WHY A COMPONENT AND NOT A SECOND BLOCK OF JSX.** The seven stored states
 // collapse into three words a person reads, and the collapse is a JUDGMENT —
@@ -59,8 +65,22 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
  * rather than assumed so the "n most recent" line cannot claim a limit that
  * was never applied — the client record asks for twelve and a job record asks
  * for fewer, and a hard-coded number here would be wrong on one of them.
+ *
+ * `error` IS WHY THIS COMPONENT OWNS THE EMPTY SENTENCE — ROADMAP 3.1. All
+ * three callers used to read `.then(({ data }) => setMail(data ?? []))`, so a
+ * read that FAILED drew *"No emails sent to this address yet."* — the product
+ * stating, in a complete sentence, the one thing 3.1 exists to stop it getting
+ * wrong. A failed read and an empty table are different facts; one guard here
+ * is smaller than three, and the empty sentence is suppressed rather than
+ * raced. Same shape `Maintenance.jsx` already uses: `rows.length === 0 &&
+ * !error`.
+ *
+ * `to` draws the RECIPIENT on its own line, for the business-wide list where
+ * the address is the only thing identifying whose mail a row is. It is off on
+ * a client record and on a job, where the address is already the button three
+ * sections up and printing it twice is Part B row 18.
  */
-export default function EmailTrail({ rows, timezone, cap, empty }) {
+export default function EmailTrail({ rows, timezone, cap, empty, error = "", to = false }) {
   return (
     <>
       <div className={`rows${rows === null ? " refreshing" : ""}`}
@@ -71,11 +91,18 @@ export default function EmailTrail({ rows, timezone, cap, empty }) {
             <div className="row-item" key={m.id} style={{ cursor: "default" }}>
               <span className="txt">
                 <span className="nm">{m.subject}</span>
-                {/* DATE AND OUTCOME ON ONE LINE. The address is not repeated —
-                    it is the button three sections up on the client record and
-                    the line above this list on a job, and Part B row 18 is
-                    this product's own lesson about printing the same fact
-                    twice. */}
+                {/* `addr` RATHER THAN THE DEFAULT `.sub`: `.row-item .sub` is
+                    `nowrap` with an ellipsis, and an address clipped to
+                    "jordan.mcall…" names nobody — which is the whole job of
+                    this line on a business-wide list. theme.css carries the
+                    one rule. */}
+                {to && <span className="sub addr">{m.to_email}</span>}
+                {/* DATE AND OUTCOME ON ONE LINE. The address is not on it —
+                    on a client record and on a job it is the button three
+                    sections up, and Part B row 18 is this product's own lesson
+                    about printing the same fact twice; on the business-wide
+                    list it is the `to` line above, which has nothing above it
+                    to repeat. */}
                 {/* `clamp2` RATHER THAN THE DEFAULT ONE LINE, and it took a
                     screenshot to see: at 392 the line read "that address
                     cannot receive e…", because `.sub` clips and clipped text
@@ -112,7 +139,9 @@ export default function EmailTrail({ rows, timezone, cap, empty }) {
           );
         })}
       </div>
-      {rows !== null && rows.length === 0 && (
+      {/* THE ERROR REPLACES THE EMPTY SENTENCE, never sits beside it. */}
+      {error && <div className="error-box" role="alert">{error}</div>}
+      {rows !== null && rows.length === 0 && !error && (
         <p className="quiet">{t(empty)}</p>
       )}
       {rows?.length >= cap && (

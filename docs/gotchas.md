@@ -4887,3 +4887,55 @@ thing you have is the noun, grep the page for *every* candidate and report how
 many you found; two candidates for "the wordmark" is itself the finding. And
 before publishing a refutation, **put the two pictures side by side.**
 
+
+## 107 — `waitForSelector` DEFAULTS TO *VISIBLE*, AND A LOADING CONTAINER IS INVISIBLE EXACTLY WHILE IT IS TRUE
+
+**Measured 2026-10-08 while building `scripts/mail-log.mjs` for ROADMAP 3.1.**
+
+The screen under test draws its list as `<div class="rows" aria-busy="true">`
+while the answer is on its way, and fills it with rows once it lands. The check
+asked the obvious question — *while we are waiting, is the list marked busy?* —
+the obvious way:
+
+```js
+await page.waitForSelector('[data-mail-log] .rows[aria-busy="true"]', { timeout: 10000 });
+```
+
+**It timed out at all five widths**, and the finding it produced read *"the list
+is NOT marked busy"* on a screen that was marked busy for 1.8 seconds every
+single time. Nothing about the message suggested the instrument: the wait is a
+normal wait, the timeout is a normal timeout, and the sentence it prints is a
+sentence about the product.
+
+**Why.** Playwright's `waitForSelector` defaults to `state: "visible"`, and
+"visible" means *a non-empty bounding box*. The element that proves we are still
+waiting is **empty by definition** — that is what waiting means — so it has zero
+height, and is therefore invisible for precisely the interval in which the thing
+being asserted is true. The attribute is in the DOM the whole time; the default
+simply refuses to look at it.
+
+```js
+{ state: "attached", timeout: 10000 }   // the fix, and it is the whole fix
+```
+
+**The shape to remember is not "Playwright has a default".** It is that **the
+default is wrong in exactly the case you are testing for, and right everywhere
+else** — every other wait in the same file (`.tabbar`, the gear row, the rows
+themselves) wants `visible` and gets it. So the bug cannot be found by noticing
+that one wait looks different from its neighbours; the one that is different is
+the one that is correct.
+
+**It fails toward a FALSE DEFECT, which is the less common direction here and
+worth saying.** Most entries in this file are about a check that goes green over
+a real fault. This one goes red over a working screen, and a red that names the
+product is how a session spends an hour editing code that was never wrong — or
+worse, "fixes" a loading state by giving the empty container a height nobody
+asked for.
+
+**The rule:** any wait for an element whose whole meaning is *there is nothing
+here yet* — a loading container, an empty-state wrapper, a skeleton, a
+`[hidden]` region you expect to be hidden — takes `state: "attached"`. If you
+are asserting a presence rather than a sight, say so.
+
+Related: 100 (a hit test answers *"can this be pressed"*, never *"can this be
+read"*), and 36's family — computed is not painted, painted is not visible.

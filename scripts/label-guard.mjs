@@ -5,7 +5,7 @@
 // needs once they are already looking at this file.
 //
 // **Credential-free, no browser, no dev server, no tenant — one filesystem
-// read.** 45 controls across `scripts/*.mjs` are addressed by the WORDS on
+// read.** 47 controls across `scripts/*.mjs` are addressed by the WORDS on
 // them, so renaming one silently blinds a check: the matcher falls back to
 // bare English, matches nothing, and the screen goes unmeasured while every
 // other line reads normally. It happened twice on 2026-09-20 — `"Log a bulk
