@@ -1,9 +1,9 @@
 {
-  "git_sha": "442d25e9367c1201b0ff20e3bca913ce57e33fb0",
-  "git_sha_started": "442d25e9367c1201b0ff20e3bca913ce57e33fb0",
+  "git_sha": "63b72ee10ccea9d6757b7b8f016b2fe103e38a8a",
+  "git_sha_started": "63b72ee10ccea9d6757b7b8f016b2fe103e38a8a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T17:51:11.554Z",
+  "finished_at": "2026-10-09T21:04:28.539Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE bucket-cors: the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this program does not have and must not acquire; the buckets are unreachable anonymously (two are private, the third has no public address yet). 0.11d's first browser upload is the proof"
@@ -12,7 +12,7 @@
     "receipts/photo-release-order.txt"
   ],
   "dimensions": {
-    "rules": 9,
+    "rules": 10,
     "unjudgeable": 1,
     "door_deployed": false,
     "reconcile_deployed": false,
@@ -23,15 +23,15 @@
     "broken_on_purpose": null
   },
   "check_id": "photo-release-order",
-  "started_at": "2026-10-09T17:51:09.064Z",
+  "started_at": "2026-10-09T21:04:23.352Z",
   "status": "pass",
-  "expected_targets": 9,
-  "discovered_targets": 9,
-  "attempted_targets": 9,
-  "completed_targets": 9,
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
   "skipped_targets": 0,
-  "assertions_executed": 11,
-  "min_assertions": 9,
+  "assertions_executed": 12,
+  "min_assertions": 10,
   "canary": {
     "id": "allowance-with-switch-vacuous",
     "observed_failure": true

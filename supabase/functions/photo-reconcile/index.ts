@@ -5,11 +5,15 @@
 //
 // **PUBLIC, LIKE `refresh-weather`, AND IT MUST BE.** pg_cron calls it with no session
 // (`20261006060000_photo_reconcile_cron.sql`). It is bounded instead of authenticated: it refuses unless the
-// last real run is older than six hours, and it sits behind a global rate limit. **`photo-reconcile` is NOT yet
-// in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`, and without that one line a publish deploys it with
-// the JWT check on, the cron's anonymous call is refused at the gateway, nothing runs, and the heartbeat goes
-// stale** (which is how it would be noticed, on purpose). That script was not this item's to edit; the line is
-// named in `FOR-ANDREW.md` and in ROADMAP 0.11.
+// last real run is older than six hours, and it sits behind a global rate limit.
+//
+// **THE LINE IS THERE NOW — corrected 2026-10-09 (ROADMAP 0.11c).** This header said `photo-reconcile` was NOT
+// yet in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs` and sent the reader to `FOR-ANDREW.md` to have it
+// added. It has been in that list since the line was written, so the instruction was for work already done.
+// Without it a publish would deploy this with the JWT check on, the cron's anonymous call would be refused at
+// the gateway, nothing would run, and the heartbeat would go stale — which is how it would be noticed, on
+// purpose. `scripts/photo-release-order.mjs`'s `reconcile-public-for-cron` now holds it on every run, and
+// `tests/photo-release-order.test.mjs` test 6 reddens if the slug leaves the list.
 //
 // **CREDENTIALS: BY NAME, FROM THE ENVIRONMENT, NEVER PRINTED.** `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
 // `R2_SECRET_ACCESS_KEY` (`docs/services-and-secrets.md`). Missing: 503, and only the NAMES are logged.

@@ -1,7 +1,8 @@
-photo release order · 2026-10-09T17:51:09.064Z · project kguqylyzgyzfktkfnhjb
+photo release order · 2026-10-09T21:04:23.352Z · project kguqylyzgyzfktkfnhjb
 photo-door deployed: false · photo-reconcile deployed: false
 photo_total_gb: 1 · flags: {"RECEIPTS_VIA_DOOR":false,"MEDIA_VIA_DOOR":false}
 live bundle: assets/index-CfUTS91_.js
+delete-customer bundle: 5700534 bytes, 0 of 3 R2 markers
 R2 secrets present (names only): R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 R2_MEDIA_BASE set: false
 broken on purpose: no
@@ -22,6 +23,8 @@ PASS  r2-secrets-present (criterion 2)
     all 3 required R2 secret(s) are set on the functions (names read, no value touched)
 PASS  cron-after-reconcile (criterion 4)
     neither photo-reconcile nor its cron entry is installed, which is the right pre-release pair
+PASS  forget-reaches-r2 (criterion 3)
+    photo-door is not live, so no job photo is in R2 yet and the deployed delete-customer's Supabase-Storage-only removal still reaches every photo there is
 UNJUDGEABLE  bucket-cors (criterion 1)
     the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this program does not have and must not acquire; the buckets are unreachable anonymously (two are private, the third has no public address yet). 0.11d's first browser upload is the proof
 

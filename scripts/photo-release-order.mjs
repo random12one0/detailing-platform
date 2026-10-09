@@ -135,6 +135,54 @@ export function doorMarkers(src) {
   return out;
 }
 
+// ── THE FORGETTING PROGRAM'S OWN MARKERS, READ THE SAME WAY ─────────────────
+// `delete-customer` is the third function step 9 publishes (step 9d) and the
+// only one whose lateness is SILENT AND PERMANENT. `forget_customer()` deletes
+// the `job_photos` ROWS; the objects are removed by this function. Since
+// ROADMAP 0.11 slice 3 it removes them from Supabase Storage **and** from R2.
+// The version deployed before that cannot reach R2 at all.
+//
+// So if `photo-door` goes live and `delete-customer` is left on its old
+// version, a customer who asks to be forgotten has their rows deleted, their
+// photos left sitting in R2, and **the rows that named those objects are gone**
+// — the files are then unreachable by anything, for ever. Nothing refuses,
+// nothing logs, and the only thing that would ever notice is the nightly
+// reconcile counting orphans into a heartbeat row.
+//
+// `deployed-inventory.mjs` does name any function whose bundle differs, and
+// today it names about twenty — so a session reads a list rather than a fault.
+// This rule is narrower on purpose: it reddens only when the R2 capability is
+// MISSING while the door is LIVE, which is the one drift that loses somebody's
+// photos, and it says so in those words.
+//
+// The markers are the identifiers `delete-customer` imports from the two
+// `_shared` modules that are the R2 half, parsed by MODULE PATH. A re-wording
+// moves them with the product; a missing import line throws rather than
+// returning a short list that would read as "the old version is fine".
+const FORGET_MODULES = ["../_shared/forgetPhotos.ts", "../_shared/r2.ts"];
+
+/** The identifiers in the deployed bundle only if the R2-era forgetting shipped. */
+export function forgetMarkers(src) {
+  const out = [];
+  for (const mod of FORGET_MODULES) {
+    const line = new RegExp(`^import \\{([^}]*)\\} from "${mod.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}";$`, "m")
+      .exec(src);
+    if (!line) {
+      throw new Error(`delete-customer/index.ts no longer imports from ${mod} in the shape this reads — `
+        + "this check reads the R2 markers out of the product and cannot go on without them. Re-point "
+        + "FORGET_MODULES at the module that now carries the R2 delete; do NOT let it go on searching "
+        + "the deployed bundle for identifiers nothing imports");
+    }
+    for (const name of line[1].split(",").map((s) => s.trim()).filter(Boolean)) out.push(name);
+  }
+  // A COUNT A CHECK DERIVES FROM ITS OWN PARSE CANNOT VALIDATE THAT PARSE —
+  // `docs/gotchas.md` 116. Two modules carrying three names between them is
+  // what the product has; fewer means the parse lost one silently.
+  if (out.length < 3) throw new Error(`forgetMarkers parsed ${out.length} identifiers from `
+    + `${FORGET_MODULES.length} import lines, and the product has at least 3`);
+  return out;
+}
+
 export const R2_SECRETS = ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY"];
 
 /** Every rule, in the order it is judged, with the 0.11c criterion it serves. */
@@ -147,6 +195,7 @@ export const RULES = [
   ["reconcile-public-for-cron", 4],
   ["r2-secrets-present", 2],
   ["cron-after-reconcile", 4],
+  ["forget-reaches-r2", 3],
   ["bucket-cors", 1],
 ];
 
@@ -308,7 +357,39 @@ export function judge(w) {
       : "neither photo-reconcile nor its cron entry is installed, which is the right pre-release pair");
   }
 
-  // 9 · CORS. STRUCTURALLY UNJUDGEABLE HERE — see this file's header.
+  // 9 · THE FORGETTING PROGRAM CAN REACH WHERE THE PHOTOS NOW ARE. Step 9d
+  //     republishes `delete-customer`; step 9c publishes the door before it.
+  //     **This rule is one-directional and that is honest rather than a gap:**
+  //     republishing delete-customer EARLY is harmless — it still removes from
+  //     Supabase Storage, and R2 simply holds nothing yet. Leaving it LATE is
+  //     the fault, and it is permanent, because the rows that name the objects
+  //     are deleted in the same call.
+  if (w.forgetBundleMarkers === null || w.doorDeployed === null) {
+    add("forget-reaches-r2", "unjudgeable", 0,
+      "the deployed delete-customer bundle or photo-door's deploy state was not read — and an unread "
+      + "bundle is not a bundle with no R2 in it");
+  } else {
+    // EVERY marker, not any: a bundle carrying one of three is not the R2
+    // version, and `any` is the equality-to-floor move that disarms the
+    // sabotage aimed at this rule (`docs/gotchas.md` 95).
+    const reachesR2 = w.forgetBundleMarkers.length === w.forgetMarkerCount;
+    if (w.doorDeployed && !reachesR2) {
+      add("forget-reaches-r2", "fail", 2,
+        `photo-door is live and the deployed delete-customer carries ${w.forgetBundleMarkers.length} of `
+        + `${w.forgetMarkerCount} R2 markers — forgetting a customer deletes their job_photos rows and `
+        + "leaves their photos in R2, and because the rows that named those objects are gone the files "
+        + "are then unreachable by anything, for ever. Nothing refuses and nothing logs it. Run step 9d: "
+        + "node scripts/deploy-functions.mjs delete-customer");
+    } else {
+      add("forget-reaches-r2", "pass", w.doorDeployed ? 2 : 1, reachesR2
+        ? `the deployed delete-customer carries all ${w.forgetMarkerCount} R2 markers, so forgetting a `
+          + "customer removes their photos from both stores"
+        : "photo-door is not live, so no job photo is in R2 yet and the deployed delete-customer's "
+          + "Supabase-Storage-only removal still reaches every photo there is");
+    }
+  }
+
+  // 10 · CORS. STRUCTURALLY UNJUDGEABLE HERE — see this file's header.
   add("bucket-cors", "unjudgeable", 0,
     "the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this "
     + "program does not have and must not acquire; the buckets are unreachable anonymously (two are "
@@ -338,6 +419,14 @@ const api = async (p) => {
   return r.json();
 };
 
+/** Same call, read as text — `/functions/<slug>/body` is a bundle, not JSON. */
+const apiText = async (p) => {
+  const r = await fetch(`https://api.supabase.com/v1/projects/${REF}${p}`,
+    { headers: { Authorization: `Bearer ${TOKEN}` } });
+  if (!r.ok) throw new Error(`${p} failed: ${r.status}`);
+  return r.text();
+};
+
 const sql = async (query) => {
   const r = await fetch(`https://api.supabase.com/v1/projects/${REF}/database/query`, {
     method: "POST",
@@ -360,6 +449,10 @@ export async function observe() {
   // `doorMarkers` throws if the shapes it reads are gone, so a re-wording
   // reddens here rather than silently emptying the bundle comparison.
   const markers = doorMarkers(flagSrc);
+  // Same contract: throws if the shapes it reads are gone, so a re-wording
+  // reddens here rather than silently emptying the bundle comparison.
+  const forget = forgetMarkers(
+    readFileSync(path.join(REPO, "supabase/functions/delete-customer/index.ts"), "utf8"));
   const deploySrc = readFileSync(path.join(HERE, "deploy-functions.mjs"), "utf8");
   const pubBlock = /const PUBLIC_FUNCTIONS = new Set\(\[([\s\S]*?)\]\)/.exec(deploySrc);
   if (!pubBlock) throw new Error("PUBLIC_FUNCTIONS is not in deploy-functions.mjs in the shape this reads");
@@ -372,6 +465,7 @@ export async function observe() {
     reconcileDeployed: null, reconcileVerifyJwt: null,
     allowanceGb: null, cronNames: null, secretNames: null, liveBundleMarkers: null,
     markers, markerCount: markers.length,
+    forgetMarkers: forget, forgetMarkerCount: forget.length, forgetBundleMarkers: null,
   };
 
   const fns = await api("/functions");
@@ -381,6 +475,24 @@ export async function observe() {
   w.reconcileDeployed = !!find("photo-reconcile");
   w.reconcileVerifyJwt = w.reconcileDeployed ? find("photo-reconcile").verify_jwt : null;
   w.deployedCount = fns.length;
+
+  // THE DEPLOYED FORGETTING PROGRAM, BY CONTENT. The listing says a function
+  // exists; only its bundle says whether it can reach R2. A body that cannot
+  // be read, or one too short to be a bundle, stays `null` — "unreadable" and
+  // "no R2 in it" are opposite answers and must not share a value.
+  w.deleteCustomerDeployed = !!find("delete-customer");
+  if (w.deleteCustomerDeployed) {
+    try {
+      const body = await apiText("/functions/delete-customer/body");
+      if (body.length < 2000) throw new Error(`body is only ${body.length} bytes, too short to be a bundle`);
+      w.forgetBundleBytes = body.length;
+      w.forgetBundleMarkers = forget.filter((m) => body.includes(m));
+    } catch (e) {
+      w.forgetBundleError = String(e.message || e);
+    }
+  } else {
+    w.forgetBundleError = "delete-customer is not deployed at all";
+  }
 
   // NAMES ONLY. `.name` is taken on the line that receives the listing, so no
   // secret value is ever bound, compared, printed or written. Criterion 2.
@@ -425,6 +537,15 @@ export const BREAKS = {
     w.secretNames = w.secretNames.filter((n) => n !== "R2_SECRET_ACCESS_KEY");
   }, "r2-secrets-present"],
   "cron-early": [(w) => { w.cronNames = [...w.cronNames, "photo-reconcile"]; }, "cron-after-reconcile"],
+  // TWO FIELDS, AND IT REDDENS TWO RULES BY DESIGN — like `flag-early` above.
+  // `forget-reaches-r2` cannot fire until the door is live, so a sabotage that
+  // only empties the markers would be judged in a world where the rule is
+  // vacuous and would print a green it had not earned. Deploying the door is
+  // what makes the fault reachable, and it reddens `allowance-with-switch`
+  // too. Certify on the findings list naming `forget-reaches-r2`
+  // (`docs/gotchas.md` 105), not on the verdict word.
+  "forget-stale": [(w) => { w.doorDeployed = true; w.doorVerifyJwt = true; w.forgetBundleMarkers = []; },
+    "forget-reaches-r2"],
 };
 
 const invokedDirectly = process.argv[1]
@@ -449,6 +570,10 @@ if (invokedDirectly) {
     + `photo-reconcile ${w.reconcileDeployed ? "DEPLOYED" : "not deployed"} · `
     + `photo_total_gb ${w.allowanceGb} · flags `
     + Object.entries(w.flags).map(([k, v]) => `${k}=${v}`).join(" "));
+  console.log(w.forgetBundleMarkers === null
+    ? `delete-customer bundle: UNREADABLE — ${w.forgetBundleError}`
+    : `delete-customer bundle: ${w.forgetBundleBytes} bytes, ${w.forgetBundleMarkers.length} of `
+      + `${w.forgetMarkerCount} R2 markers present (${w.forgetMarkers.join(", ")})`);
   console.log(w.liveBundleMarkers === null
     ? `live bundle: UNREADABLE — ${w.liveBundleError}\n`
     : `live bundle: ${w.liveBundle}, ${w.liveBundleBytes} bytes, `
@@ -495,6 +620,9 @@ if (invokedDirectly) {
     `photo-door deployed: ${w.doorDeployed} · photo-reconcile deployed: ${w.reconcileDeployed}`,
     `photo_total_gb: ${w.allowanceGb} · flags: ${JSON.stringify(w.flags)}`,
     `live bundle: ${w.liveBundle ?? "UNREADABLE: " + w.liveBundleError}`,
+    `delete-customer bundle: ${w.forgetBundleMarkers === null
+      ? "UNREADABLE: " + w.forgetBundleError
+      : `${w.forgetBundleBytes} bytes, ${w.forgetBundleMarkers.length} of ${w.forgetMarkerCount} R2 markers`}`,
     `R2 secrets present (names only): ${R2_SECRETS.filter((n) => w.secretNames?.includes(n)).join(", ")}`,
     `R2_MEDIA_BASE set: ${w.secretNames?.includes("R2_MEDIA_BASE")}`,
     `broken on purpose: ${brk || "no"}`,
@@ -518,7 +646,7 @@ if (invokedDirectly) {
     // more than this; it is set below so that losing a rule's questions — the
     // way a relaxed assertion loses them — shows up as a red rather than as a
     // smaller number nobody reads.
-    min_assertions: 9,
+    min_assertions: 10,
     failures: failures.map((r) => `${r.rule}: ${r.says}`),
     warnings: unjudgeable.map((r) => `UNJUDGEABLE ${r.rule}: ${r.says}`),
     artifacts: ["receipts/photo-release-order.txt"],

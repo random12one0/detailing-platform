@@ -3,15 +3,17 @@
 //   node --test tests/photo-release-order.test.mjs
 //
 // Credential-free, no network, no database, no R2, no browser. It imports
-// `judge` and `doorMarkers` from `scripts/photo-release-order.mjs` and never
-// calls `observe()`, so nothing here reaches the live project.
+// `judge`, `doorMarkers` and `forgetMarkers` from
+// `scripts/photo-release-order.mjs` and never calls `observe()`, so nothing
+// here reaches the live project.
 //
 // ---------------------------------------------------------------------------
 // WHY THIS SUITE IS THE LOAD-BEARING HALF
 // ---------------------------------------------------------------------------
-// **Today's world satisfies eight of the nine rules by not having started.**
-// `photo-door` is not deployed, both flags are `false`, the allowance is 1 and
-// there is no cron entry, so the live gate's clean run is mostly rules that
+// **Today's world satisfies nine of the ten rules by not having started.**
+// `photo-door` is not deployed, both flags are `false`, the allowance is 1,
+// there is no cron entry and the deployed `delete-customer` is the pre-R2 one
+// with nothing in R2 to miss, so the live gate's clean run is mostly rules that
 // returned early. A gate in that state is indistinguishable from a gate that
 // does not work — this repo's single most repeated failure, one level up.
 //
@@ -40,10 +42,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { judge, doorMarkers, RULES, R2_SECRETS } from "../scripts/photo-release-order.mjs";
+import { judge, doorMarkers, forgetMarkers, RULES, R2_SECRETS } from "../scripts/photo-release-order.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DOOR_SRC = path.join(REPO, "app/src/lib/photo-door.js");
+const FORGET_SRC = path.join(REPO, "supabase/functions/delete-customer/index.ts");
 
 /** The world as it stood when this suite was written — 2026-10-09, measured. */
 const PRE = {
@@ -57,6 +60,13 @@ const PRE = {
   liveBundleMarkers: [],
   markers: ["photo-door", "a", "b", "c"],
   markerCount: 4,
+  // MEASURED, not assumed: `node scripts/photo-release-order.mjs` at commit
+  // 63b72ee printed `delete-customer bundle: 5700534 bytes, 0 of 3 R2 markers
+  // present`. The deployed forgetting program is the pre-0.11 one, so the
+  // moment the door goes live this is the world that reddens.
+  forgetMarkers: ["removePhotoFiles", "makeR2", "r2Config"],
+  forgetMarkerCount: 3,
+  forgetBundleMarkers: [],
 };
 
 /** Every step of step 9 and step 10 done, in order. This must be GREEN. */
@@ -69,6 +79,7 @@ const POST = {
   cronNames: ["refresh-weather", "watch-jobs", "photo-reconcile"],
   secretNames: [...R2_SECRETS, "R2_MEDIA_BASE", "RESEND_API_KEY"],
   liveBundleMarkers: ["photo-door", "a", "b", "c"],
+  forgetBundleMarkers: ["removePhotoFiles", "makeR2", "r2Config"],
 };
 
 const world = (base, over) => structuredClone({ ...base, ...over });
@@ -77,13 +88,13 @@ const failed = (w) => judge(w).filter((r) => r.verdict === "fail").map((r) => r.
 const says = (w, rule) => judge(w).find((r) => r.rule === rule).says;
 
 // ── 1 · THE SHAPE OF THE ANSWER ─────────────────────────────────────────────
-// Nine rules, declared, in order, every one with a verdict and a sentence.
+// Ten rules, declared, in order, every one with a verdict and a sentence.
 // A judge that silently dropped a rule would otherwise read as a clean run.
-test("1 · judge returns exactly the nine declared rules, in order", () => {
-  assert.equal(RULES.length, 9, "nine rules are declared");
+test("1 · judge returns exactly the ten declared rules, in order", () => {
+  assert.equal(RULES.length, 10, "ten rules are declared");
   for (const w of [PRE, POST]) {
     const got = judge(w);
-    assert.equal(got.length, 9, "judge answers all nine");
+    assert.equal(got.length, 10, "judge answers all ten");
     assert.deepEqual(got.map((r) => r.rule), RULES.map(([n]) => n), "same rules, same order");
     for (const r of got) {
       assert.ok(["pass", "fail", "unjudgeable"].includes(r.verdict), `${r.rule} has a real verdict`);
@@ -135,15 +146,23 @@ const VIOLATIONS = [
   ["an R2 secret not set on the functions", world(PRE, { secretNames: ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID"] }), ["r2-secrets-present"]],
   ["the cron entry installed before the function", world(PRE, { cronNames: [...PRE.cronNames, "photo-reconcile"] }), ["cron-after-reconcile"]],
   ["the function published with no cron entry", world(POST, { cronNames: ["refresh-weather"] }), ["cron-after-reconcile"]],
+  // **THE ONE WHOSE DAMAGE IS PERMANENT.** The door is live, every other step
+  // is right, and delete-customer was never republished: forgetting a customer
+  // deletes the rows that name their photos and leaves the objects in R2,
+  // unreachable by anything afterwards.
+  ["the door live and delete-customer left on its old version", world(POST, { forgetBundleMarkers: [] }), ["forget-reaches-r2"]],
+  // A PARTIAL BUNDLE IS NOT THE R2 VERSION. One identifier of three present is
+  // what an `any`-instead-of-every rule would read as a pass.
+  ["the door live and delete-customer carrying one marker of three", world(POST, { forgetBundleMarkers: ["makeR2"] }), ["forget-reaches-r2"]],
 ];
 
 test("3 · every violation reddens its own rule and no other", () => {
-  assert.equal(VIOLATIONS.length, 12, "twelve violations are declared");
+  assert.equal(VIOLATIONS.length, 14, "fourteen violations are declared");
   // Every rule that CAN fail is covered. `bucket-cors` never can, by design.
   const covered = new Set(VIOLATIONS.flatMap(([, , rules]) => rules));
   const failable = RULES.map(([n]) => n).filter((n) => n !== "bucket-cors");
   assert.deepEqual([...covered].sort(), [...failable].sort(),
-    "each of the eight failable rules has at least one world that reddens it");
+    "each of the nine failable rules has at least one world that reddens it");
 
   for (const [name, w, want] of VIOLATIONS) {
     assert.deepEqual(failed(w).sort(), [...want].sort(), `${name}: reddens exactly ${want.join(" + ")}`);
@@ -161,11 +180,12 @@ test("3 · every violation reddens its own rule and no other", () => {
 test("4 · an unobserved world is unjudgeable, never a pass", () => {
   const blind = world(PRE, {
     doorDeployed: null, reconcileDeployed: null, allowanceGb: null,
-    cronNames: null, secretNames: null, liveBundleMarkers: null,
+    cronNames: null, secretNames: null, liveBundleMarkers: null, forgetBundleMarkers: null,
   });
   const v = verdicts(blind);
   for (const rule of ["app-flag-before-door", "app-shipped-before-door", "allowance-before-switch",
-    "allowance-with-switch", "r2-secrets-present", "cron-after-reconcile", "bucket-cors"]) {
+    "allowance-with-switch", "r2-secrets-present", "cron-after-reconcile", "forget-reaches-r2",
+    "bucket-cors"]) {
     assert.equal(v[rule], "unjudgeable", `${rule} cannot be judged blind`);
   }
   assert.deepEqual(failed(blind), [], "and a blind run invents no failures either");
@@ -264,4 +284,48 @@ test("7 · the migrations named in the failure sentences exist and say what the 
   const cron = readFileSync(path.join(REPO, "supabase/migrations", named2[0]), "utf8");
   assert.match(cron, /cron\.schedule\(\s*'photo-reconcile'/, "and that file schedules the job this rule is about");
   assert.match(cron, /functions\/v1\/photo-reconcile/, "posting to the function the rule requires be deployed first");
+});
+
+// ── 8 · THE FORGETTING PROGRAM'S MARKERS COME OUT OF THE PRODUCT TOO ────────
+// Same contract as test 5, for the same reason: a marker list written here by
+// hand would go on being searched for in the deployed bundle after the product
+// stopped containing it, and `forget-reaches-r2` would read as a pass on the
+// one drift that loses somebody's photos permanently.
+test("8 · forgetMarkers parses the real delete-customer and throws when it cannot", () => {
+  const src = readFileSync(FORGET_SRC, "utf8");
+  const got = forgetMarkers(src);
+  assert.ok(got.length >= 3, `three identifiers at least, got ${got.length}`);
+  for (const m of got) {
+    assert.ok(src.includes(m), `"${m}" is really imported by delete-customer`);
+    assert.ok(m.length > 5, "an identifier short enough to collide is not a marker");
+  }
+  // They must be the R2-era ones. `removePhotoFiles` is the two-store removal
+  // and `makeR2`/`r2Config` are R2 itself; the pre-0.11 version had none.
+  for (const need of ["removePhotoFiles", "makeR2", "r2Config"]) {
+    assert.ok(got.includes(need), `${need} is one of the markers`);
+  }
+
+  // TWO SABOTAGES ON THE REAL SOURCE TEXT, each asserted to have LANDED before
+  // the throw is believed — `docs/gotchas.md` 102.
+  const sabotage = [
+    ['import { makeR2, r2Config } from "../_shared/r2.ts";', "", /_shared\/r2\.ts/],
+    ['import { removePhotoFiles } from "../_shared/forgetPhotos.ts";', "", /forgetPhotos\.ts/],
+  ];
+  for (const [from, to, mentions] of sabotage) {
+    assert.ok(src.includes(from), `the sabotage target is present: ${from.slice(0, 50)}`);
+    const broken = src.replace(from, to);
+    assert.notEqual(broken, src, "the edit landed");
+    assert.throws(() => forgetMarkers(broken), mentions,
+      `removing "${from.slice(0, 40)}" must throw, not return a short list`);
+  }
+
+  // AND THE COUNT GUARD: an import line that parses to one name is a parse
+  // that lost two, which is `docs/gotchas.md` 116 in this file.
+  const thinned = src.replace('import { makeR2, r2Config } from "../_shared/r2.ts";',
+    'import { makeR2 } from "../_shared/r2.ts";')
+    .replace('import { removePhotoFiles } from "../_shared/forgetPhotos.ts";',
+      'import { x } from "../_shared/forgetPhotos.ts";');
+  assert.notEqual(thinned, src, "the edit landed");
+  assert.throws(() => forgetMarkers(thinned), /parsed 2 identifiers/,
+    "two markers where the product has three must throw, not shorten the list");
 });
