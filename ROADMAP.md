@@ -906,6 +906,51 @@ and how the wait ends.
   their job. This is not waiting for another product decision. It stays open
   until that end-to-end proof exists, then the already-built flag/filter path
   can be judged on its evidence.
+
+  **THE END-TO-END MEASUREMENT HE ASKED FOR, TAKEN 2026-10-09 AT `ee6f5e0`,
+  AND IT REFUTES THIS ENTRY'S OWN PRECONDITION. THE DEMO TENANT HAS NO
+  FIXTURES LEFT.** `set -a; . ./.env; set +a; node scripts/client-fixtures.mjs`
+  — **13 rows, 0 marked, at every one of 320 / 392 / 768 / 1440 / 1920**, and
+  the sweep's own zero-targets guard (`client-fixtures.mjs:336`) fired by
+  name: *"learn: no fixture row was discovered — every question below would be
+  vacuous"*. 16 failures and `canary MISSED`, all one cause. `receipts/
+  client-fixtures.json` is graded FAIL. **The instrument is sound; its subject
+  is gone.**
+  **The three droppings this entry and the migration header are both written
+  about — `zone-muew68al`, `ROADMAP 2.8 selected 2026-09-23`, `ROADMAP 2.8
+  Address Test 2026-09-23` — are no longer in the database.** All 13 of
+  `demo-detail`'s customers are `@example.com` seeded personas, which the
+  migration's backfill **deliberately does not catch** (its own header: they
+  are "just as reserved", so a rule wide enough to catch a dropping would empty
+  the demo of its content).
+  **So the Done-when below cannot be satisfied as written** — it says *"pressed
+  on the demo tenant, which has such rows today"*, and today it has none. By
+  this repo's own rule, **zero fixtures discovered is a failure, never a pass**,
+  so there is currently **no instrument that can prove this item** either way.
+  **AND THE BLAST RADIUS OF THE PENDING MIGRATION IS NOW MEASURED RATHER THAN
+  FEARED, WHICH IS THE OTHER HALF OF HIS HOLD.** Read-only against
+  `kguqylyzgyzfktkfnhjb` at `ee6f5e0`: **49 customers platform-wide, 31
+  carrying a reserved-domain address** — so the backfill would flag 31 rows —
+  **and 0 of those 31 are on `demo-detail`.** They sit on **six other
+  businesses** (`764cc66d` holds 18, plus `7a675073`, `801aa0f1`,
+  `3b06fccc`, `89b4507b`, `621b59a2`) whose addresses name the suites that
+  made them — `@engine.test`, `@tz.test`, `@ics.test`, `@booking.test`.
+  **Those are exactly the fixtures Andrew's ruling protects, and the migration
+  does not delete one of them.**
+  **What applying it would change, in one sentence: nothing a detailer sees.**
+  `!is_test` is applied in exactly **two** places in all of `app/src` —
+  `Clients.jsx:234` (the screen's `people` list, which every figure on the
+  screen derives from) and `:415` (the CSV export) — both **browser-side**, so
+  the ~60 node suites that sign into those six tenants read the table directly
+  and cannot be touched by the filter at all. The column is
+  `not null default false`, so every unflagged row behaves exactly as today.
+  **The screen is already showing the right number without the migration:**
+  "gone quiet" reads **5** with fixtures shown and **5** with them hidden — the
+  same 5 the migration header calls *"the true answer for real customers"*,
+  because the 3 rows that inflated it to 8 are gone.
+  **The honest status is therefore THREE things, not one:** the code is built
+  (both halves), the column is still absent, and **the evidence base has
+  decayed** — which is a decay a re-run catches and a stale receipt does not.
   **HE SAID YES ON 2026-09-20 — the title was four days stale, found by the
   stale-blocker pass 2026-09-24.** Evidence: `FOR-ANDREW.md` carries it ticked,
   *"Test detailers: flag, don't delete — 2026-09-20"*, and
