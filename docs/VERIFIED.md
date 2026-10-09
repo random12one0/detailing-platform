@@ -2868,3 +2868,24 @@ with 44 running, which is this repo's own stale-derived-tally gotcha living insi
 that lets a second belt start) fails its assertion by name, and disabling one assertion fails the
 floor with *"only 45 assertions ran, floor is 46"*. **The floor was wrong first** — set at 44 with
 46 present, it passed a real sabotage at 45 before being corrected to equal the true count.
+
+## 2026-10-08 — triage: 0.4 and 2.15 checks re-run; 2.15 correctly parked
+
+**Against commit `cb59887`, before this note was written. No browser was opened; this
+was the belt's cheap triage pass.**
+
+- `node --test tests/legal-promises.test.mjs` passed clean. Each documented
+  `LEGAL_BREAK` value — `rename`, `unbacked`, `host`, `debt`, and `call` — was
+  then run through the same command and failed. Each sabotage printed the change
+  it injected, so these were not clean runs wearing sabotage names.
+- `node --test tests/keyboard-boxes-declared.test.mjs` passed clean. `BREAK=new-box`,
+  `BREAK=walk-step`, and `BREAK=label` each failed the intended population, walk,
+  or label assertion. **Eight of eight declared sabotages bit across the two new
+  checks.**
+- `node scripts/receipt.mjs` reported `0 valid · 48 stale · 29 failed` at
+  `cb59887`. That proves the repo-wide receipt command is a useful census and a
+  useless per-item regression gate while the belt stores only a pass/fail baseline:
+  it begins false and cannot turn false again.
+- ROADMAP 2.15 remains open. Its only remaining acceptance step is a physical-phone
+  keyboard walk by Andrew, so it now carries the belt's existing `NEEDS ANDREW`
+  marker. No product claim was ticked from these source checks.

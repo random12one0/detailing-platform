@@ -324,6 +324,8 @@ were made more than once.
 
 - **The belt commits nothing it did not write, and only one belt runs at a time** - the supervisor's ruling, 2026-10-08, after two belt instances shared this working tree and the second one's checkpoint committed the first one's twenty live files. Removes `checkpointDirtyTree` and puts a real lock on `belt.pid`, which was written and never read. Also swaps the triage role off Codex, which cannot read this repo on Windows at all. What would reverse each is inside.
 
+- **The belt does not dispatch a physical-phone hold, and a permanently-red receipt census is not a gate** — supervision on 2026-10-08 after 2.15 was selected three times despite requiring Andrew's iPhone, while the receipt gate stayed red at baseline and could not detect a new failure. Adds the standard `NEEDS ANDREW` marker to 2.15, removes the full receipt census from per-item gates, and corrects the stale claim that triage had moved off Codex.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18411,3 +18413,40 @@ guard against that rather than a solution to it.
 
 **WHERE IT IS CITED:** `belt/log.md` under SUPERVISOR CHANGES, `docs/VERIFIED.md`, and
 `docs/gotchas.md` **102**, which came out of verifying this pass's own work.
+
+## The belt does not dispatch a physical-phone hold, and a permanently-red receipt census is not a gate
+
+**Supervisor ruling, 2026-10-08.** The previous belt ruling said the repo-wide
+`receipts` gate was useful because its failure was real and was not blamed on an
+item. This pass reverses that narrow conclusion after checking what the belt can
+actually learn from it.
+
+**2.15 is waiting on Andrew, not on another model pass.** Its entry has said since
+2026-09-20 that only a physical phone with the on-screen keyboard can answer the
+remaining question. The belt nevertheless selected it three times as *fully
+actionable*, spent two Opus runs, made two documentation commits, and left the box
+open. The standard `NEEDS ANDREW` marker is now in the entry, so the existing
+`blockedBy` rule skips it. This is deliberately item-local: broadening `blockedBy`
+to every mention of a phone would risk starving unrelated work.
+
+**The full receipt census is a report, not a per-item gate.** At commit `cb59887`,
+`node scripts/receipt.mjs` reported `0 valid · 48 stale · 29 failed`. Because the
+belt stores only one boolean baseline per gate, that permanent false means a newly
+broken receipt and the same old receipt debt produce the same result: `regressed`
+stays empty. The supervisor prompt already lists stale receipts by name, and each
+item remains responsible for grading the receipt it creates. Running the entire
+census after every item added time and a red label, but no discrimination, so it
+has been removed from the belt's per-item gates.
+
+**The triage comment is corrected, not the role.** The earlier decision says triage
+moved from Codex to Claude. The configuration did not: it uses `codex-review` with
+`danger-full-access`, and this pass successfully read the rulebook, gotchas, belt
+state, log, diffs and test files. The failed configuration was Codex under the
+Windows `workspace-write` sandbox. The comment now describes the configuration
+that exists and the condition that would make it fail again.
+
+**What would reverse this:** a receipt gate that compares only receipts created or
+changed by the current item, with the pre-item commit passed to it explicitly. That
+would be a real regression detector and should replace the removed census when it
+exists. 2.15 leaves the blocked set when Andrew's physical-phone result is written
+into its entry.

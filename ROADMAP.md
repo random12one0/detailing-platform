@@ -5947,6 +5947,11 @@ the wrong service, and never book a job we cannot reach.
   labels the screen actually carries, and a rename or a ninth box reddens a check
   instead of quietly widening the gap between the walk and the product.
 
+  **NEEDS ANDREW: this item can only close from the physical-phone walk above.**
+  The belt cannot substitute another source count, browser viewport or documentation
+  pass for an iPhone keyboard. Do not dispatch this item again until Andrew has run
+  section 5 of `docs/testing/phones-we-do-not-own.md` and reported what happened.
+
 - [x] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for
