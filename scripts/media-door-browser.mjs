@@ -167,6 +167,7 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 import { writeReceipt } from "./receipt.mjs";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { mediaPath } from "../app/src/lib/photo-rules.js";
+import { STEPS } from "../app/src/lib/siteIntake.js";
 import { DOOR_WORDS } from "../app/src/lib/photo-door.js";
 import { mediaBase, publicUrl } from "../supabase/functions/_shared/r2.ts";
 
@@ -231,6 +232,20 @@ if (!PUB_BASE || NO_BASE.length) {
 const OTHER_BIZ = "00000000-0000-4000-8000-00000000beef";
 const PUT_HOST = "https://r2.media.test";
 
+// WHICH STEP OF THE WEBSITE BRIEF HOLDS THE PHOTOS QUESTION — **read out of
+// `STEPS` rather than written down.** It is 10 of 21 today and it moves every
+// time a step is added before it; a literal here would send the run to the
+// wrong screen and the picker-count equality would redden on a product that
+// is fine. `-1` is refused below rather than clamped, because `Math.min` in
+// `SiteIntake.jsx` would quietly turn a missing step into step 0.
+const SHOW_STEP = STEPS.findIndex((x) => x.key === "show");
+if (SHOW_STEP < 0) {
+  console.error(`
+REFUSING: no "show" step in STEPS — the website brief's photos step has been renamed or removed.`);
+  console.error("NOTHING ran and NO receipt was written. This is not a pass.");
+  process.exit(2);
+}
+
 // A real 1x1 PNG. `mediaExtForType` takes `image/png`, so the door mints `.png`
 // and the product never re-encodes a business image (a logo must keep its
 // transparency), which is why this is a PNG and not a JPEG.
@@ -253,17 +268,40 @@ const WIDTHS = [
 // publishing, logo uploads and intake-photo uploads"* — and the first version
 // of this gate pressed only the first, which its own receipt said out loud.
 //
-// **BRANDING IS THE ONE ADDED NEXT, AND NOT BECAUSE IT WAS THE EASIER ONE.**
+// **BRANDING WAS THE ONE ADDED SECOND, AND NOT BECAUSE IT WAS THE EASIER ONE.**
 // There are exactly two permanent records a wrong `public_url` can land in:
 // `gallery_images.image_url` and a brand's `logo_url`. The second is the one
 // every page of a tenant's site renders, and it is the one 0.11b's own
-// write-up names beside the first. **Intake writes no row at all** —
-// `SiteIntake.jsx` says so in its own words, *"nothing is published from here —
-// no `gallery_images` row is made"* — so it is the only one of the three where
-// a wrong url cannot become permanent. It is also the only one with no address
-// of its own: the photos question is a step inside the website brief, behind
-// earlier required answers. So it stays unpressed, named in the receipt by
-// name rather than folded into the pass.
+// write-up names beside the first.
+//
+// ── ROADMAP 0.11bc1 — **AND INTAKE IS THE THIRD, PRESSED HERE NOW** ────────
+// Until this, this gate's own receipt named intake UNJUDGEABLE in those words
+// and gave three reasons. **Two of them were true and neither made it
+// unmeasurable, which is the same mistake 0.11b's first attempt made about the
+// flag:** *"it writes no row"* and *"it has no address of its own"* describe
+// what there is to MEASURE, not whether a browser can press it.
+//
+//   it writes no row       True, and it changes WHICH claim is asked rather
+//                          than whether one is. Criterion 3 reads *"refused
+//                          before an object or row is written"*; with no row,
+//                          the whole of it falls on the OBJECT — the PUT — and
+//                          that is the sharper half anyway, because it is the
+//                          byte leaving. What replaces the stored-url
+//                          assertion is its absence, asserted: **no recorded
+//                          row body anywhere carries a media url at all.**
+//   no address of its own  True, and it is two lines of arrangement rather
+//                          than a wall: `?brief=1` is the brief's own deep
+//                          link (`App.jsx`), the step is `SiteIntake.jsx`'s
+//                          own `row.step`, and the ONE thing supplied is that
+//                          number — declared in the receipt beside the other
+//                          intercepts.
+//   a wrong url cannot     True of the DATABASE and false of the detailer. The
+//   become permanent       brief counts a photograph as added only when the
+//                          upload came back clean, so a refused photo that
+//                          still reads *"1 added"* is a person told their
+//                          picture is on the pile when it is not. That is this
+//                          flow's own version of *"no row was written"*, and
+//                          it is what assertion 12 asks here.
 //
 // Each flow DECLARES how many file pickers its screen has, as an equality
 // rather than a floor: a new picker on either screen reddens this run instead
@@ -306,6 +344,48 @@ const FLOWS = [
     // have been stored. See the paragraph at that press.
     refusalRows: 1,
   },
+  {
+    key: "intake",
+    screen: "Website brief · Photos and prices",
+    // THE BRIEF'S OWN DEEP LINK. `App.jsx`: *"lands here with `?brief=1`"*.
+    url: "/app?brief=1",
+    folder: "intake",
+    // ONE, and the equality matters more here than on the other two screens:
+    // the photos question is `A10` and the only other question on this step is
+    // `A9`, a chip row. A second file input on this step is a flow this run
+    // presses no part of (`docs/gotchas.md` 98).
+    inputs: 1,
+    // **NO PERMANENT RECORD, AND THAT IS THE MEASUREMENT RATHER THAN THE
+    // EXCUSE.** `SiteIntake.jsx`: *"Nothing is published from here — no
+    // `gallery_images` row is made"*. So assertion 7 flips from *the url that
+    // was stored is the right one* to *no url was stored anywhere*, which is
+    // the claim this flow actually makes and is checkable against every row
+    // body the run recorded.
+    table: null,
+    field: null,
+    // `.label`, NOT `.error-box`, and not an oversight on either side: the
+    // brief's photo control puts `err` in a `<span className="label">` beside
+    // the button, which is where a person picking files is looking. A selector
+    // copied from the other two flows would have found nothing and printed a
+    // finding about the PRODUCT.
+    okSel: ".uploadbox .label",
+    errSel: ".uploadbox .label",
+    okWords: /1 added/i,
+    save: null,
+    // THE BRIEF'S DEBOUNCED UPSERT FIRES ON EVERY ANSWER, so a row COUNT here
+    // is a measurement of this script's own timing. The claim is the content
+    // instead — see assertion 12's intake branch.
+    refusalRows: null,
+    // GETTING TO THE STEP, AND THE ONE THING SUPPLIED. The step number comes
+    // from the brief's own saved row (seeded in the `rest/v1` route), and the
+    // picker does not exist until the question is answered: `Photos` renders
+    // it only for `v.have` set and not "Almost none". So a chip is pressed,
+    // which is what a detailer does.
+    arm: async (page) => {
+      await page.waitForSelector('button.chip[aria-pressed]', { state: "visible", timeout: 30000 });
+      await page.getByRole("button", { name: "A few good ones", exact: true }).first().click();
+    },
+  },
 ];
 
 // **EVERY WRITE TO THESE FOUR TABLES IS ANSWERED HERE AND NEVER REACHES THE
@@ -315,7 +395,12 @@ const FLOWS = [
 // real rows on the demo tenant on every width. The bodies are kept, because
 // the body is the evidence; the row would only be cleanup. GETs continue to
 // the real database, which is what lets the screens render.
-const WRITE_TABLES = ["gallery_images", "business_branding", "businesses", "business_settings"];
+// **`site_intake` IS THE FIFTH AND IT IS NOT OPTIONAL.** The brief has ONE
+// debounced writer and every answer on every step goes through it, so
+// pressing a chip without this entry would upsert over the demo tenant's
+// real brief row — three times, once per width — from a gate whose header
+// promises it writes nothing.
+const WRITE_TABLES = ["gallery_images", "business_branding", "businesses", "business_settings", "site_intake"];
 
 let passed = 0, assertions = 0, completed = 0;
 const expectedTargets = FLOWS.length * WIDTHS.length;
@@ -571,6 +656,21 @@ try {
     await page.route("**/rest/v1/**", async (route) => {
       const req = route.request();
       const table = new URL(req.url()).pathname.replace(/^\/rest\/v1\//, "").split("?")[0];
+      // **THE ONE THING THIS RUN SUPPLIES FOR THE INTAKE FLOW: A STEP
+      // NUMBER.** The brief opens on whichever step the detailer left off at
+      // — `setI(Math.min(data?.step ?? 0, STEPS.length - 1))` — so reaching
+      // the photos question otherwise means pressing Next ten times through
+      // ten steps of required answers. The row is answered with the real
+      // shape and an EMPTY `answers`, so every question on the step is
+      // unanswered exactly as a detailer would find it, and the photos
+      // control is armed by pressing a chip rather than by being handed one.
+      // Declared in the receipt beside the other three intercepts.
+      if (req.method() === "GET" && table === "site_intake" && flow.key === "intake") {
+        return route.fulfill({
+          status: 200, contentType: "application/json",
+          body: JSON.stringify({ business_id: biz, answers: {}, step: SHOW_STEP, submitted_at: null, updated_at: new Date().toISOString() }),
+        });
+      }
       if (req.method() === "GET" || !WRITE_TABLES.includes(table)) return route.continue();
       seen.rows.push({ table, method: req.method(), body: req.postData() || "" });
       return route.fulfill({ status: 201, contentType: "application/json", body: "[]" });
@@ -593,6 +693,12 @@ try {
     // navigating once per width removes the second load, and the executed-copy
     // proof below is what tells us it stayed removed.
     await page.goto(`${BASE_URL}${flow.url}`, { waitUntil: "domcontentloaded" });
+    // **AND THE PICKER MAY NOT EXIST YET.** On the brief's photos step the file
+    // input is rendered only once the question is answered, so `arm` presses
+    // the chip first. It runs AFTER the one navigation and does its own
+    // waiting; the two older flows have no `arm` and are byte-for-byte
+    // unchanged by it.
+    if (flow.arm) await flow.arm(page);
     // `state: "attached"`, NOT the default. The gallery's file input is
     // `hidden` behind a `<label>` — the pattern three screens here use — and
     // Playwright's "visible" means a non-empty box, so the default wait times
@@ -642,7 +748,11 @@ try {
     check(`${at} · the key is this business's own <id>/${flow.folder}/<file>.png`,
       !!okKey && okKey.startsWith(`${biz}/${flow.folder}/`) && okKey.endsWith(".png"), String(okKey));
 
-    const okBox = page.locator(".ok-box").first();
+    // PER FLOW, because the three screens say it in three places: `.ok-box` on
+    // the gallery and on Business info, and the brief's own `.uploadbox .label`
+    // beside the Choose photos button. A selector copied across would have
+    // found nothing on the third and printed a finding about the product.
+    const okBox = page.locator(flow.okSel ?? ".ok-box").first();
     check(`${at} · the screen says what happened in its own words`,
       await okBox.count() > 0 && flow.okWords.test(((await okBox.innerText().catch(() => "")) || "")),
       (await okBox.innerText().catch(() => "")) || "no ok-box");
@@ -656,13 +766,27 @@ try {
       await page.waitForTimeout(1500);
     }
 
-    const rowsFor = () => seen.rows.filter((r) => r.table === flow.table);
-    const stored = rowsFor();
-    let storedUrl = null;
-    try { storedUrl = stored.length ? JSON.parse(stored[0].body)[flow.field] : null; } catch { storedUrl = "unparseable"; }
-    check(`${at} · the url stored in ${flow.table}.${flow.field} is publicUrl(base, key) for the key that was PUT`,
-      stored.length === 1 && okKey !== null && storedUrl === publicUrl(PUB_BASE, okKey),
-      stored.length ? String(storedUrl) : "no row written");
+    const rowsFor = () => (flow.table ? seen.rows.filter((r) => r.table === flow.table) : []);
+    // **ASSERTION 7 ASKS THE PERMANENT RECORD, AND INTAKE'S ANSWER IS THAT IT
+    // HAS NONE — asserted rather than assumed.** `SiteIntake.jsx` publishes
+    // nothing, so the claim flips from *the stored url is the right one* to
+    // *no url was stored anywhere*, checked against every row body the run
+    // recorded across all five tables. It is the same count of assertions, so
+    // the floor below does not move, and it is a real claim: a future screen
+    // that starts writing the intake url somewhere reddens this line without
+    // this script being edited.
+    if (flow.table) {
+      const stored = rowsFor();
+      let storedUrl = null;
+      try { storedUrl = stored.length ? JSON.parse(stored[0].body)[flow.field] : null; } catch { storedUrl = "unparseable"; }
+      check(`${at} · the url stored in ${flow.table}.${flow.field} is publicUrl(base, key) for the key that was PUT`,
+        stored.length === 1 && okKey !== null && storedUrl === publicUrl(PUB_BASE, okKey),
+        stored.length ? String(storedUrl) : "no row written");
+    } else {
+      const withUrl = seen.rows.filter((r) => r.body.includes(PUB_BASE));
+      check(`${at} · NO row body anywhere carries a media url — this flow publishes nothing`,
+        withUrl.length === 0, withUrl.map((r) => r.table).join(", "));
+    }
 
     // ── THE CASE THAT IS REFUSED — the 0.11b fault ───────────────────────
     mode = "theirs";
@@ -670,10 +794,34 @@ try {
     await picker.setInputFiles({ name: "second.png", mimeType: "image/png", buffer: PNG });
     await page.waitForTimeout(1500);
 
-    const box = page.locator(".error-box").first();
+    // **THE BRIEF'S ERROR AND ITS SUCCESS COUNTER ARE THE SAME CLASS**, both
+    // `.label` inside `.uploadbox`, and the counter is rendered FIRST — so
+    // `.first()` would have hit "1 added" and the sentence assertion below
+    // would have reddened on a screen showing the refusal correctly.
+    //
+    // **IT IS KEYED ON THE COUNTER'S SHAPE, NEVER ON THE ERROR'S WORDING.**
+    // Filtering by the sentence would make assertion 9 — *is it the sentence
+    // the product composes* — circular: it would locate by the answer and
+    // then assert the answer. `^\d+ added$` is the counter and the only other
+    // label is the preview's sign-in hint, which cannot appear here because
+    // this run is signed in.
+    const box = flow.key === "intake"
+      ? page.locator(".uploadbox .label").filter({ hasNotText: /^\d+ added$/ }).first()
+      : page.locator(flow.errSel ?? ".error-box").first();
     const present = await box.count() > 0 && await box.isVisible().catch(() => false);
     check(`${at} · another business's public_url is refused, on the screen`, present);
-    const said = present ? (await box.innerText()).trim() : "";
+    // **`textContent`, NOT `innerText`, AND IT COST THIS GATE SIX FALSE
+    // DEFECTS BEFORE IT WAS READ.** `innerText` returns what CSS RENDERED;
+    // `theme.css:422` gives `.label` `text-transform: uppercase`, which is the
+    // class the brief's photo control puts its error in — so this assertion
+    // reddened at all three widths with "THE PHOTO SERVICE SENT BACK SOMETHING
+    // THIS SCREEN CANNOT USE…" against the sentence the product actually
+    // composes. A FALSE DEFECT, the direction that gets working code "fixed".
+    // `textContent` is the authored text; the whitespace collapse is what
+    // `innerText` was being relied on for and is all that is needed from it.
+    // `docs/gotchas.md` 115. (The uppercase rendering of a full sentence in an
+    // eyebrow style IS a real screen fault — FOUND.md, not this item's.)
+    const said = present ? ((await box.textContent()) || "").replace(/\s+/g, " ").trim() : "";
     check(`${at} · and it is the sentence the product composes`, said === DOOR_WORDS.unreadable, JSON.stringify(said));
 
     if (present) {
@@ -724,9 +872,24 @@ try {
     // gallery's refusal must write NO row, and the logo's Save press above
     // writes exactly one by design. An inequality here would hide a second
     // gallery insert (`docs/gotchas.md` 98).
-    check(`${at} · ${flow.refusalRows === 0 ? "NOTHING WAS STORED — no row was written" : "exactly the one row the Save press wrote"}`,
-      rowsFor().length === rowsBefore + flow.refusalRows,
-      `${rowsFor().length - rowsBefore} rows, expected ${flow.refusalRows}`);
+    if (flow.refusalRows === null) {
+      // **THE BRIEF HAS NO ROW TO COUNT, SO THIS ASKS THE THING A DETAILER
+      // SEES.** `Photos`'s `pick` pushes the file name onto `files` only after
+      // `uploadBusinessPhoto` returned clean, so a refused photograph that
+      // still reads "2 added" is a person told their picture is on the pile
+      // when no byte left. It is this flow's own version of *no row was
+      // written*, and it is what `--break=public-url` moves: the guard gone,
+      // the upload goes through and the counter becomes 2.
+      // `textContent` for the reason above: `innerText` reads this counter as
+      // "1 ADDED" and the equality below would never hold.
+      const counted = (((await page.locator(".uploadbox .label").first().textContent().catch(() => "")) || "")).replace(/\s+/g, " ").trim();
+      check(`${at} · the refused photo was NOT counted as added — still "1 added"`,
+        /^1 added$/.test(counted), JSON.stringify(counted));
+    } else {
+      check(`${at} · ${flow.refusalRows === 0 ? "NOTHING WAS STORED — no row was written" : "exactly the one row the Save press wrote"}`,
+        rowsFor().length === rowsBefore + flow.refusalRows,
+        `${rowsFor().length - rowsBefore} rows, expected ${flow.refusalRows}`);
+    }
     // **AND THE OTHER BUSINESS'S ID IS NOWHERE IN ANY ROW THIS SCREEN TRIED TO
     // WRITE.** The assertion above says no SECOND row went; this one says the
     // first one did not carry it either, across every table Save touches. It
@@ -780,12 +943,15 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 52,
+  min_assertions: 78,
   assertion_floor: "13 per flow-and-width (the picker count, the flag landed, zero storage uploads, one PUT, the "
-    + "key's folder, the success sentence, the stored url, the refusal present, the refusal's wording, its pixels, "
-    + "no PUT, no second row, no row body naming the other business) x 2 flows x 3 widths + 1 console = 79 when "
-    + "every screen renders. A screen that renders but refuses nothing still books its assertions as failures "
-    + "rather than dropping out, so the count cannot silently fall below 52. --break=public-url adds one per pair.",
+    + "key's folder, the success sentence, THE PERMANENT RECORD, the refusal present, the refusal's wording, its "
+    + "pixels, no PUT, WHAT THE REFUSAL LEFT BEHIND, no row body naming the other business) x 3 flows x 3 widths "
+    + "+ 1 console = 118 when every screen renders. The two capitalised ones have a per-flow variant rather than "
+    + "being skipped on the flow that has no row: for intake the permanent record is asserted ABSENT (no row body "
+    + "anywhere carries a media url) and what the refusal left behind is the brief's own 'n added' counter, which "
+    + "is what a detailer reads. A screen that renders but refuses nothing still books its assertions as failures "
+    + "rather than dropping out, so the count cannot silently fall below 78. --break=public-url adds one per triple.",
   canary: {
     id: "the-pre-fix-reader",
     observed_failure: preFixWouldAccept,
@@ -797,33 +963,39 @@ const { path: receiptPath } = writeReceipt({
   dimensions: {
     roadmap: "0.11b",
     criteria: [
-      "1 · gallery publishing AND logo uploads write only to business-media in R2 — zero Supabase Storage UPLOADS "
-      + "observed on either screen. Intake is the third flow and is not pressed here; see unjudgeable",
+      "1 · ALL THREE of criterion 1's flows — gallery publishing, logo uploads and intake-photo uploads — write "
+      + "only to business-media through the door: zero Supabase Storage UPLOADS observed on any of the three "
+      + "screens, at three widths each. Intake was named UNJUDGEABLE by this gate's own receipt until 0.11bc1",
       "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url "
-      + "and business_branding.logo_url — the two permanent records a wrong public_url can land in",
-      "3 · the key is minted for the caller's own business, under the folder the screen asked for",
-      "4 · no Supabase Storage upload fallback remains on either path, asked of the live runtime",
+      + "and business_branding.logo_url — the two permanent records a wrong public_url can land in. The brief has "
+      + "no third record and that absence is asserted rather than assumed",
+      "3 · the key is minted for the caller's own business, under the folder the screen asked for; a stranger's "
+      + "public_url is refused on all three screens before any byte leaves",
+      "4 · no Supabase Storage upload fallback remains on any of the three paths, asked of the live runtime",
     ],
     flows: FLOWS.map((f) => `${f.key} · ${f.screen} · ${f.url} · ${f.inputs} picker(s) · stores ${f.table}.${f.field}`),
     widths: WIDTHS.map((w) => w.label),
     public_base: PUB_BASE,
     sabotage: BREAK || null,
-    intercepted: "three responses: the photo-door.js module (the flag flipped in flight), the undeployed "
+    intercepted: "four responses: the photo-door.js module (the flag flipped in flight), the undeployed "
       + "photo-door function (its answer DERIVED by photo-rules.js's mediaPath and r2.ts's publicUrl), and the "
       + "signed PUT plus every write to " + WRITE_TABLES.join(", ") + " (so nothing is written anywhere — the last "
-      + "three are what BusinessInfo's Save touches). Nothing in app/src is edited.",
+      + "three are what BusinessInfo's Save touches), plus ONE READ for the intake flow only — the brief's own "
+      + "site_intake row, answered with an EMPTY answers object and step=" + SHOW_STEP + " (read out of STEPS, not "
+      + "written down), because the brief opens on whichever step the detailer left off at and reaching the photos "
+      + "question otherwise means ten Next presses through ten steps of required answers. Nothing in app/src is edited.",
     wrote_nothing: "no R2 object, no Supabase Storage object, no gallery_images row, no business_branding row, no "
-      + "businesses or business_settings update, no file on disk",
+      + "site_intake upsert, no businesses or business_settings update, no file on disk",
     unjudgeable: [
       "That R2 accepts the signature, that Cloudflare serves the PUT, and that an unauthenticated visitor can read "
       + "the url: no public address has been bound in Cloudflare yet (FOR-ANDREW.md step 9a2), so this run uses a "
       + "test host through r2.ts's real reader. The DERIVATION is measured; the live address is Andrew's.",
-      "The INTAKE folder is not pressed in the browser — gallery and branding are. It is the third and last of the "
-      + "three uploadBusinessPhoto call sites, it has no address of its own (the photos question is a step inside "
-      + "the website brief, behind earlier required answers, reachable only by ?brief=1 plus stepping), and it is "
-      + "the only one of the three that writes NO row, so a wrong public_url cannot become permanent through it. "
-      + "It completes through the real handler in tests/photo-door-media-wire.test.mjs section 1, which declares "
-      + "its folder count from MEDIA_FOLDERS so a fourth folder reddens.",
+      "NOTHING about the intake flow is unjudgeable any more, and this line is kept rather than deleted because "
+      + "the reversal is the load-bearing part. This receipt said for four runs that intake 'is not pressed in the "
+      + "browser' and gave three reasons; two of them were true and described what there was to MEASURE rather "
+      + "than whether a browser could press it (ROADMAP 0.11bc1). It is now pressed at 1440, 392 and 320 like the "
+      + "other two, with the stored-url assertion replaced by its absence and the row-count assertion replaced by "
+      + "the brief's own 'n added' counter.",
     ],
   },
   warnings: [

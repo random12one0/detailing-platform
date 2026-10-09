@@ -1,9 +1,9 @@
 {
-  "git_sha": "040b0de13458c884426ea8ebd586b173dc058c86",
-  "git_sha_started": "040b0de13458c884426ea8ebd586b173dc058c86",
+  "git_sha": "251ebd75824872e8e5b0298440cde8a6a14bcff9",
+  "git_sha_started": "251ebd75824872e8e5b0298440cde8a6a14bcff9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T19:35:54.116Z",
+  "finished_at": "2026-10-09T20:34:14.007Z",
   "failures": [],
   "warnings": [
     "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
@@ -16,19 +16,23 @@
     ".manager-shots/media-door-clean-gallery-320.png",
     ".manager-shots/media-door-clean-branding-1440.png",
     ".manager-shots/media-door-clean-branding-392.png",
-    ".manager-shots/media-door-clean-branding-320.png"
+    ".manager-shots/media-door-clean-branding-320.png",
+    ".manager-shots/media-door-clean-intake-1440.png",
+    ".manager-shots/media-door-clean-intake-392.png",
+    ".manager-shots/media-door-clean-intake-320.png"
   ],
   "dimensions": {
     "roadmap": "0.11b",
     "criteria": [
-      "1 · gallery publishing AND logo uploads write only to business-media in R2 — zero Supabase Storage UPLOADS observed on either screen. Intake is the third flow and is not pressed here; see unjudgeable",
-      "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url and business_branding.logo_url — the two permanent records a wrong public_url can land in",
-      "3 · the key is minted for the caller's own business, under the folder the screen asked for",
-      "4 · no Supabase Storage upload fallback remains on either path, asked of the live runtime"
+      "1 · ALL THREE of criterion 1's flows — gallery publishing, logo uploads and intake-photo uploads — write only to business-media through the door: zero Supabase Storage UPLOADS observed on any of the three screens, at three widths each. Intake was named UNJUDGEABLE by this gate's own receipt until 0.11bc1",
+      "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url and business_branding.logo_url — the two permanent records a wrong public_url can land in. The brief has no third record and that absence is asserted rather than assumed",
+      "3 · the key is minted for the caller's own business, under the folder the screen asked for; a stranger's public_url is refused on all three screens before any byte leaves",
+      "4 · no Supabase Storage upload fallback remains on any of the three paths, asked of the live runtime"
     ],
     "flows": [
       "gallery · Photo gallery · /app?settings=gallery · 1 picker(s) · stores gallery_images.image_url",
-      "branding · Business info · /app?settings=info · 2 picker(s) · stores business_branding.logo_url"
+      "branding · Business info · /app?settings=info · 2 picker(s) · stores business_branding.logo_url",
+      "intake · Website brief · Photos and prices · /app?brief=1 · 1 picker(s) · stores null.null"
     ],
     "widths": [
       "1440",
@@ -37,24 +41,24 @@
     ],
     "public_base": "https://img.media.test/business",
     "sabotage": null,
-    "intercepted": "three responses: the photo-door.js module (the flag flipped in flight), the undeployed photo-door function (its answer DERIVED by photo-rules.js's mediaPath and r2.ts's publicUrl), and the signed PUT plus every write to gallery_images, business_branding, businesses, business_settings (so nothing is written anywhere — the last three are what BusinessInfo's Save touches). Nothing in app/src is edited.",
-    "wrote_nothing": "no R2 object, no Supabase Storage object, no gallery_images row, no business_branding row, no businesses or business_settings update, no file on disk",
+    "intercepted": "four responses: the photo-door.js module (the flag flipped in flight), the undeployed photo-door function (its answer DERIVED by photo-rules.js's mediaPath and r2.ts's publicUrl), and the signed PUT plus every write to gallery_images, business_branding, businesses, business_settings, site_intake (so nothing is written anywhere — the last three are what BusinessInfo's Save touches), plus ONE READ for the intake flow only — the brief's own site_intake row, answered with an EMPTY answers object and step=10 (read out of STEPS, not written down), because the brief opens on whichever step the detailer left off at and reaching the photos question otherwise means ten Next presses through ten steps of required answers. Nothing in app/src is edited.",
+    "wrote_nothing": "no R2 object, no Supabase Storage object, no gallery_images row, no business_branding row, no site_intake upsert, no businesses or business_settings update, no file on disk",
     "unjudgeable": [
       "That R2 accepts the signature, that Cloudflare serves the PUT, and that an unauthenticated visitor can read the url: no public address has been bound in Cloudflare yet (FOR-ANDREW.md step 9a2), so this run uses a test host through r2.ts's real reader. The DERIVATION is measured; the live address is Andrew's.",
-      "The INTAKE folder is not pressed in the browser — gallery and branding are. It is the third and last of the three uploadBusinessPhoto call sites, it has no address of its own (the photos question is a step inside the website brief, behind earlier required answers, reachable only by ?brief=1 plus stepping), and it is the only one of the three that writes NO row, so a wrong public_url cannot become permanent through it. It completes through the real handler in tests/photo-door-media-wire.test.mjs section 1, which declares its folder count from MEDIA_FOLDERS so a fourth folder reddens."
+      "NOTHING about the intake flow is unjudgeable any more, and this line is kept rather than deleted because the reversal is the load-bearing part. This receipt said for four runs that intake 'is not pressed in the browser' and gave three reasons; two of them were true and described what there was to MEASURE rather than whether a browser could press it (ROADMAP 0.11bc1). It is now pressed at 1440, 392 and 320 like the other two, with the stored-url assertion replaced by its absence and the row-count assertion replaced by the brief's own 'n added' counter."
     ]
   },
   "check_id": "media-door-browser",
-  "started_at": "2026-10-09T19:35:10.129Z",
+  "started_at": "2026-10-09T20:33:09.573Z",
   "status": "pass",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 6,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 79,
-  "min_assertions": 52,
-  "assertion_floor": "13 per flow-and-width (the picker count, the flag landed, zero storage uploads, one PUT, the key's folder, the success sentence, the stored url, the refusal present, the refusal's wording, its pixels, no PUT, no second row, no row body naming the other business) x 2 flows x 3 widths + 1 console = 79 when every screen renders. A screen that renders but refuses nothing still books its assertions as failures rather than dropping out, so the count cannot silently fall below 52. --break=public-url adds one per pair.",
+  "assertions_executed": 118,
+  "min_assertions": 78,
+  "assertion_floor": "13 per flow-and-width (the picker count, the flag landed, zero storage uploads, one PUT, the key's folder, the success sentence, THE PERMANENT RECORD, the refusal present, the refusal's wording, its pixels, no PUT, WHAT THE REFUSAL LEFT BEHIND, no row body naming the other business) x 3 flows x 3 widths + 1 console = 118 when every screen renders. The two capitalised ones have a per-flow variant rather than being skipped on the flow that has no row: for intake the permanent record is asserted ABSENT (no row body anywhere carries a media url) and what the refusal left behind is the brief's own 'n added' counter, which is what a detailer reads. A screen that renders but refuses nothing still books its assertions as failures rather than dropping out, so the count cannot silently fall below 78. --break=public-url adds one per triple.",
   "canary": {
     "id": "the-pre-fix-reader",
     "observed_failure": true,
