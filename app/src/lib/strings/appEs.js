@@ -2400,6 +2400,13 @@ export const appEs = {
   // The same question for a booking with no email address on it: no promise is made.
   "Cancel {job}?": "¿Cancelar {job}?",
   // "Yes, cancel it" already has an entry above.
+  // ROADMAP 4.1 - a decline is a cancellation (`status: "cancelled"` plus
+  // `declined_at`) and it emails the customer, so it asks like one. Both the job
+  // record and the request card on Today ask with these.
+  "Decline {job}? The customer is emailed.": "¿Rechazar {job}? Se avisa al cliente por correo.",
+  "Decline {job}?": "¿Rechazar {job}?",
+  // Feminine, agreeing with "la solicitud" - the same choice "Sí, cancélala" makes.
+  "Yes, decline it": "Sí, recházala",
   "Remove {job} from your records?": "¿Quitar {job} de tus registros?",
   "Yes, remove it": "Sí, quitarlo",
   "Waive {job}? Nothing will be collected for it.": "¿Dejar sin cobrar {job}? No se cobrará nada.",

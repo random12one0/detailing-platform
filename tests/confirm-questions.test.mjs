@@ -16,7 +16,14 @@
 // 4.1 are where they live. **A green here is "the wiring is still as it was left", not "the
 // screen is right".**
 //
-// Credential-free: four filesystem reads, no network, no database, no `.env`.
+// **AND IT NOW COVERS A FIFTH FILE, BECAUSE THE SWEEP IT PINNED HAD COUNTED BUTTONS
+// RATHER THAN STATE CHANGES.** `respond-to-booking` writes `status: "cancelled"` plus
+// `declined_at` and emails the customer, so **"Decline" is a cancellation** - and there
+// are two of them, one in the job record's pending bar and one on the request card on
+// Today. The 2026-10-06 sweep gated "Cancel the job" and filed the card's decline as
+// "adjacent, outside the seven"; it never saw the record's at all. Both are pinned here.
+//
+// Credential-free: five filesystem reads, no network, no database, no `.env`.
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -31,6 +38,8 @@ const BREAK = process.env.CONFIRM_BREAK || "";
 // run cannot leave one behind in `app/src` (ROADMAP 14.34 learned that the hard way).
 const BREAKS = {
   "no-ask": "the cancel control writes straight from its onClick again",
+  "no-ask-decline": "the job record's Decline writes straight from its onClick again",
+  "no-ask-card-decline": "the request card's Decline writes straight from its onClick again",
   "nameless": "a question stops naming the record",
   "no-spanish": "an English answer loses its Spanish entry",
   "gendered": "the Spanish phrase forces an article in front of the detailer's own word",
@@ -43,19 +52,50 @@ const read = (p) => readFileSync(new URL(`../app/src/${p}`, import.meta.url), "u
 let detail = read("components/BookingDetail.jsx");
 let confirm = read("components/ConfirmTap.jsx");
 let finalize = read("components/FinalizeModal.jsx");
+let request = read("components/RequestCard.jsx");
 let spanish = read("lib/strings/appEs.js");
 
+// **A SABOTAGE THAT MATCHES NOTHING PRINTS THE GREEN A CAUGHT ONE PRINTS - `docs/gotchas.md`
+// 102, written about exactly this on 2026-10-08.** Every break below edits text by regex, and
+// a regex goes stale the moment the code it quotes is re-indented or re-worded. So each one
+// must CHANGE something, or the run stops here and says so loudly instead of reporting a clean
+// pass over a file it never touched. This is the half the `--break=`-to-env-var fix did not
+// cover: that one made the switch ARRIVE, this one makes it BITE.
+const sabotage = (text, from, to, what) => {
+  const out = text.replace(from, to);
+  if (out === text) {
+    throw new Error(`CONFIRM_BREAK=${BREAK} MATCHED NOTHING (${what}). The sabotage did not land, so `
+      + `a green here would mean nothing. Re-read the pattern against the file - docs/gotchas.md 102.`);
+  }
+  return out;
+};
+
 if (BREAK === "no-ask") {
-  detail = detail.replace(/<ConfirmTap\s+className="btn ghost"[\s\S]*?onConfirm=\{\(\) => setStatus\("cancelled"\)\}\s*\/>/,
-    `<button className="btn ghost" onClick={() => setStatus("cancelled")}>{t("Cancel the job")}</button>`);
+  detail = sabotage(detail, /<ConfirmTap\s+className="btn ghost"\s+disabled=\{busy\}\s+label=\{t\("Cancel the job"\)\}[\s\S]*?onConfirm=\{\(\) => setStatus\("cancelled"\)\}\s*\/>/,
+    `<button className="btn ghost" onClick={() => setStatus("cancelled")}>{t("Cancel the job")}</button>`,
+    "the cancel ConfirmTap in BookingDetail.jsx");
 }
-if (BREAK === "nameless") detail = detail.replace('t("Cancel {job}?", { job })', 't("Cancel this job?")');
-if (BREAK === "no-spanish") spanish = spanish.replace(/\n\s*"Yes, cancel it": "[^"]*",/, "");
+// THE TWO DECLINES, WHICH ARE THE SAME WRITE ON TWO SCREENS. The job record's is anchored on
+// the `icon={<X` it carries, because `className="btn ghost"` alone also matches the cancellation
+// four lines above it - the kind of near-miss that makes a sabotage hit the wrong control.
+if (BREAK === "no-ask-decline") {
+  detail = sabotage(detail, /<ConfirmTap\s+className="btn ghost"\s+disabled=\{busy\}\s+icon=\{<X[\s\S]*?onConfirm=\{\(\) => respond\("decline"\)\}\s*\/>/,
+    `<button className="btn ghost" onClick={() => respond("decline")}>{t("Decline")}</button>`,
+    "the decline ConfirmTap in BookingDetail.jsx");
+}
+if (BREAK === "no-ask-card-decline") {
+  request = sabotage(request, /<ConfirmTap\s+className="btn sm ghost"[\s\S]*?onConfirm=\{\(\) => onDecline\(booking\)\}\s*\/>/,
+    `<button className="btn sm ghost" onClick={() => onDecline(booking)}>{t("Decline")}</button>`,
+    "the decline ConfirmTap in RequestCard.jsx");
+}
+if (BREAK === "nameless") detail = sabotage(detail, 't("Cancel {job}?", { job })', 't("Cancel this job?")', "the email-free cancel question");
+if (BREAK === "no-spanish") spanish = sabotage(spanish, /\n\s*"Yes, decline it": "[^"]*",/, "", 'the Spanish entry for "Yes, decline it"');
 if (BREAK === "gendered") {
-  spanish = spanish.replace('"{name}’s {service} at {time}": "{service} de {name}, {time}",',
-    '"{name}’s {service} at {time}": "el {service} de {name} de las {time}",');
+  spanish = sabotage(spanish, '"{name}’s {service} at {time}": "{service} de {name}, {time}",',
+    '"{name}’s {service} at {time}": "el {service} de {name} de las {time}",',
+    "the Spanish job phrase");
 }
-if (BREAK === "no-focus") confirm = confirm.replace("if (asking) said.current?.focus();", "if (false) said.current?.focus();");
+if (BREAK === "no-focus") confirm = sabotage(confirm, "if (asking) said.current?.focus();", "if (false) said.current?.focus();", "ConfirmTap's focus effect");
 
 // EVERY `t("…")` IN THE THREE FILES, NOT ONLY THE ONES AN ATTRIBUTE MATCHER CAN REACH. The first
 // version of this check matched `question={t("…")}` and silently missed three of the five: the
@@ -63,7 +103,7 @@ if (BREAK === "no-focus") confirm = confirm.replace("if (asking) said.current?.f
 // inside ternaries, whose braces ended the match early). It reported "only 7 strings found", and
 // with a floor one lower it would have reported a confident green over three unchecked questions
 // — the matcher-shaped blind spot this repo keeps meeting.
-const asked = [...`${detail}\n${finalize}\n${confirm}`.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]);
+const asked = [...`${detail}\n${finalize}\n${confirm}\n${request}`.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]);
 const spanishKeys = new Set([...spanish.matchAll(/^\s*"((?:[^"\\]|\\.)*)":/gm)].map((m) => m[1]));
 
 // THE WORDING, DECLARED. The shapes below catch a control that stops asking; only a list catches
@@ -74,25 +114,35 @@ const QUESTIONS = [
   "Mark {job} as a no-show?",
   "Cancel {job}? The customer is emailed.",
   "Cancel {job}?",
+  // THE SAME TWO AGAIN FOR A DECLINE, WHICH IS A CANCELLATION UNDER A DIFFERENT LABEL -
+  // `respond-to-booking` writes `status: "cancelled"` and `declined_at`. Asked from the job
+  // record's pending bar AND from the request card on Today, with one wording between them.
+  "Decline {job}? The customer is emailed.",
+  "Decline {job}?",
   "Remove {job} from your records?",
   "Waive {job}? Nothing will be collected for it.",
 ];
-const ANSWERS = ["Yes, it’s done", "Yes, they didn’t show", "Yes, cancel it", "Yes, remove it", "Not yet"];
+const ANSWERS = ["Yes, it’s done", "Yes, they didn’t show", "Yes, cancel it", "Yes, decline it", "Yes, remove it", "Not yet"];
 
 test("1 · the consequential actions ask before they act", () => {
   // A DISCOVERY FLOOR, which stays a floor: more strings than this is the repo growing, and that
   // is never a fault. Fewer means the matcher has stopped reaching these files at all.
   assert.ok(asked.length >= 40, `only ${asked.length} t() strings found — the matcher has lost the files`);
-  for (const [what, onConfirm] of [
-    ["no-show", 'setStatus("no_show")'],
-    ["cancel", 'setStatus("cancelled")'],
-    ["remove", "softDelete"],
+  // FIVE ROWS ACROSS TWO FILES. The two declines are here because a decline IS a cancellation:
+  // `respond-to-booking` writes `status: "cancelled"` plus `declined_at` and emails the
+  // customer. A list keyed on BUTTON NAMES is what let both of them through the first time.
+  for (const [what, onConfirm, src, where] of [
+    ["no-show", 'setStatus("no_show")', detail, "BookingDetail.jsx"],
+    ["cancel", 'setStatus("cancelled")', detail, "BookingDetail.jsx"],
+    ["remove", "softDelete", detail, "BookingDetail.jsx"],
+    ["decline", 'respond("decline")', detail, "BookingDetail.jsx"],
+    ["decline on the request card", "onDecline(booking)", request, "RequestCard.jsx"],
   ]) {
     const esc = onConfirm.replace(/[()]/g, "\\$&");
-    assert.ok(new RegExp(`onConfirm=\\{(?:\\(\\) => )?${esc}`).test(detail),
-      `${what} is not wired through a ConfirmTap onConfirm`);
-    assert.ok(!new RegExp(`onClick=\\{\\(\\) => ${esc}`).test(detail),
-      `${what} still writes straight from an onClick`);
+    assert.ok(new RegExp(`onConfirm=\\{(?:\\(\\) => )?${esc}`).test(src),
+      `${what} is not wired through a ConfirmTap onConfirm in ${where}`);
+    assert.ok(!new RegExp(`onClick=\\{(?:\\(\\) => )?${esc}`).test(src),
+      `${what} still writes straight from an onClick in ${where}`);
   }
 });
 
@@ -131,9 +181,16 @@ test("5 · the question takes focus when it opens, and hands it back", () => {
     "the question is not focusable, so focusing it would do nothing");
 });
 
-test("6 · the cancel question only promises an email when one will be sent", () => {
-  // `update-booking` emails only a booking that carries an address, so the sentence has to ask.
-  assert.match(detail, /question=\{booking\.customer_email\s*\n?\s*\?\s*t\("Cancel \{job\}\? The customer is emailed\."/,
-    "the cancel question does not depend on the booking having an email address");
-  assert.ok(asked.includes("Cancel {job}?"), "there is no email-free form of the cancel question");
+test("6 · the cancel and decline questions only promise an email when one will be sent", () => {
+  // `update-booking` and `respond-to-booking` BOTH send only to a booking that carries an
+  // address - `if (booking.customer_email)` in each - so all three sentences have to ask.
+  for (const [what, word, src, where] of [
+    ["cancel", "Cancel", detail, "BookingDetail.jsx"],
+    ["decline", "Decline", detail, "BookingDetail.jsx"],
+    ["decline on the request card", "Decline", request, "RequestCard.jsx"],
+  ]) {
+    assert.match(src, new RegExp(`question=\\{booking\\.customer_email\\s*\\n?\\s*\\?\\s*t\\("${word} \\{job\\}\\? The customer is emailed\\."`),
+      `the ${what} question in ${where} does not depend on the booking having an email address`);
+    assert.ok(asked.includes(`${word} {job}?`), `there is no email-free form of the ${what} question`);
+  }
 });

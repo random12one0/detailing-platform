@@ -4841,6 +4841,21 @@ button.warn-box:hover { border-color: var(--fog-2); }
   to   { opacity: 0; max-height: 0; padding-block: 0; margin-block: 0; border-width: 0; }
 }
 
+/* **ROADMAP 4.1 - A QUESTION IS NOT A BUTTON, AND `.btnrow` ONLY HOLDS BUTTONS.**
+   It is a no-wrap flex whose children are `flex: 1`, so ConfirmTap's question -
+   which replaces in place, by design, rather than opening below - would be asked
+   inside half of a 320px card: a sentence naming a customer, a service and a time
+   in about 140px. It takes the whole row instead.
+   **And "Quote" goes while the question is up**, for the same reason the control
+   already removes the button that asked: there is nothing left to press through,
+   and a 50/50 row whose other half has become a paragraph reads as a broken card.
+   Scoped to `.reqcard`: every other `.btnrow` in the product - the job card, the
+   tour card - is untouched, which `grep -n "\.btnrow" app/src/theme.css` is the
+   check for. */
+.reqcard .btnrow { flex-wrap: wrap; }
+.reqcard .btnrow > .stack { flex: 1 0 100%; }
+.reqcard .btnrow:has(> .stack) > .btn { display: none; }
+
 /* THE PROGRESS RULE — the one new MARK in the product, used on one screen.
    Seven segments of a 2px rule: --hairline track, --accent fill, --sp-1 gaps,
    small rounding.

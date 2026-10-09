@@ -9659,6 +9659,95 @@ requested.
   and the Restore button beside Suspend, which is still a `window.confirm` — **left deliberately, because by this item's own ruling 3 an undo does not get a
   confirmation at all**, so whether it keeps one is a question rather than a build.
 
+  ***A DECLINE IS A CANCELLATION, AND IT WAS THE LAST UNGATED PATH TO ONE — TWO OF THEM. BUILT AND PRESSED 2026-10-08. THE BOX STAYS `[ ]`.***
+  **The measurement first, because it is what overturns a previous session's call.** `supabase/functions/respond-to-booking/index.ts:92` writes
+  `update = { status: "cancelled", declined_at: ... }`, and `:167` sends the customer an email when the booking carries an address. That is the same
+  write and the same letter as "Cancel the job", which has asked since 2026-10-06. This record's own code says so in its own words —
+  `BookingDetail.jsx`, the `cancelled` branch: *"A decline is stored as a cancellation so the slot frees and every existing filter is right about it."*
+  **`cancel` is one of the seven actions this item's Done-when names.** So "Decline" was a seven-action write with no step in front of it.
+  **THE 2026-10-06 FRESH-EYES REVIEW FILED THIS AS "Adjacent, outside the seven and not counted as gaps", AND THAT IS OVERTURNED HERE RATHER THAN
+  QUIETLY IGNORED** — CLAUDE.md's rule is that repeating a change a previous pass chose not to make, without saying why it is safe now, is how a
+  deferred decision becomes an accidental one. **The reason it is safe now is that the classification was a mistake of FACT, not a judgement:** the
+  seven are state changes, the review read them as seven BUTTONS, and a decline reaches the `cancelled` state under a different label. **The same
+  review also found only ONE of the two declines** — it named `RequestCard.jsx:111` and never saw `BookingDetail.jsx`'s, in the pending bar, at all.
+  **What it is.** Both declines now ask through the same `ConfirmTap` and the same `jobPhrase` the other five questions use, so no screen can name a job
+  its own way: *"Decline Rae Request’s Full Interior Detail at 9:00 AM? The customer is emailed."*, and — for a booking with no address, where
+  `respond-to-booking` sends nothing — *"Decline Nora Noemail’s Full Interior Detail at 1:00 PM?"*, promising nothing. Answer *"Yes, decline it"*.
+  Spanish in the same edit (three keys; `appEs.js` has **0 duplicate keys across 2255**, measured with the catalogue's own key regex because
+  `tests/spanish.test.mjs` loads `.env`). **The request card needed three scoped CSS lines and no more:** `.btnrow` is a no-wrap flex whose children are
+  `flex: 1`, so the question would have been asked inside half of a 320px card — it takes the row, and "Quote" goes while it is up, for the reason the
+  control already removes the button that asked. Scoped to `.reqcard`; every other `.btnrow` is untouched.
+  **THE CARD ON TODAY IS NO LONGER "NOT SEEN", WHICH THIS ENTRY HAS SAID SINCE 2026-09-20.** `demo-detail` has no job on Today in a completable state, so
+  that surface went unmeasured for eighteen days. The fixture puts one there and it was photographed asking
+  *"Mark Deb Doneday’s Full Interior Detail at 9:00 PM as done?"* at every width and in both languages, with the row read from the database before and
+  after each tap. It behaves exactly as the job record's does.
+  **PRESSED: 271 of 271 rows pass, 0 fail.** 1440, 768, 392 and 320 in English, 1440 and 392 in Spanish, and 392 with `?lite=1`; **console 0 errors at
+  every one.** On a flagged throwaway business (`is_demo`, slug `zz-41-decline-fixture`, four bookings, an owner login on `fixture.test` which
+  `send-email` refuses before the provider — **never `demo-detail`**), with the ref `kguqylyzgyzfktkfnhjb` asserted before the first query and the run
+  refusing to start otherwise. Every refusal pass reads the row before and after: **nothing is ever written by a first tap**, "Not yet" puts the button
+  back, focus lands on the question (`P`/`alert`, not an answer and not the body) and returns to the button that asked. **The write half was pressed
+  once each:** the record `pending → cancelled` with `declined_at` set, and the card the same. The business, its bookings and the login were deleted and
+  **read back gone** in the same run. **The press script is scratch and is NOT in the repo** — so *271 of 271* cannot be re-taken by anybody else, and
+  the re-runnable half is the pin below, which is the same division gap 7 settled.
+  **THE PIN IS EXTENDED, AND IT GREW A FIFTH FILE.** `tests/confirm-questions.test.mjs` now reads `RequestCard.jsx` too, declares both decline questions
+  and the new answer, asserts both declines are wired through an `onConfirm` and neither from a bare `onClick`, and asks of all three email sentences
+  whether they depend on `booking.customer_email`. `node --test tests/confirm-questions.test.mjs` — **6 pass, 0 fail**, credential-free.
+  **AND IT GAINED THE GUARD `docs/gotchas.md` 102 IS ABOUT, WHICH IT DID NOT HAVE.** Its five sabotages edit text by regex, and a regex goes stale the
+  moment the code it quotes is re-indented — at which point the sabotage matches nothing, the file is untouched, and the run prints the same green a
+  caught sabotage prints. Every break now goes through a `sabotage()` that throws if the replacement changed nothing. **Proved by breaking the guard:**
+  a copy with one pattern staled printed `CONFIRM_BREAK=no-ask-decline MATCHED NOTHING`; without the guard that same run printed **6 pass, 0 fail**.
+  **Seven sabotages, each arriving (`SABOTAGE ON` printed), each landing, each red on its own probe:** `no-ask`, `no-ask-decline`, `no-ask-card-decline`,
+  `nameless`, `no-spanish`, `gendered`, `no-focus`.
+  **BROKEN ON PURPOSE IN THE PRODUCT, FOUR TIMES, AND THE BREAK WAS PROVED TO LAND BEFORE EITHER COLOUR WAS BELIEVED** — `git diff --numstat` on the path
+  before and after each, which is `docs/gotchas.md` 102, and each file restored from a copy this session held (**never `git checkout`**, which is 97)
+  with its sha256 compared: the card's gate removed (**24 red rows**), the record's gate removed (**16**), the record's question made to always claim an
+  email (**2**), and the scoped CSS removed (**2** — "Quote" no longer hidden). **Two of those sabotages wrote a real cancellation on the first tap and
+  the harness said so by name** — *"card: NOTHING was written by the first tap — still cancelled, declined_at 2026-10-09T03:21:04"* — which is the
+  clearest statement available of what the step prevents. Nothing survived: the four files' diffs are byte-identical before and after.
+  **TWO FAULTS IN MY OWN HARNESS, FOUND BY RUNNING IT, FIXED AND SAID.** (1) Playwright's `getByRole(role, { name })` matches a **substring**, so
+  `name: "Decline"` also matched the answer *"Yes, decline it"* and the row asserting the button that asked had gone read RED on a correct screen — and
+  it read GREEN in Spanish purely by accident, because *"Sí, recházala"* does not contain *"Rechazar"*. Every lookup is `exact: true` now. **A locator
+  keyed on words, matching the wrong control, is this repo's own recurring subject.** (2) The first two sabotages were caught as a CRASH rather than a
+  verdict — with the gate removed the card really declines and animates out of the DOM, so a later read threw before the run reached the row that asks
+  whether anything was WRITTEN. The write check now runs first and nothing after the question may throw; that is the same lesson this entry already
+  recorded about the owner-invite sabotage on 2026-10-07.
+  **GATES:** the four credential-free suites **4 pass / 0 fail**; `tests/every-open-item-is-citable.test.mjs` **6/6**;
+  `tests/no-credentials-in-tracked-text.test.mjs` **1/1**; `node scripts/label-guard.mjs` **47 of 47 labels still present, 0 stale**;
+  `node scripts/american-english.mjs` **PASS, 13/13 pages, 5886 assertions, 0 British spellings**, both canaries caught;
+  `node --test tests/figures-carry-their-command.test.mjs` **9 pass / 0 fail**.
+  **ONE OBSERVATION, NOT A BUILD AND NOT MINE TO SETTLE:** while a question is up on a bar that also holds a primary button, **two accent fills are on the
+  screen at once** — *"Aceptar"* and *"Sí, recházala"* in `.manager-shots/4.1-decline/record-asking-392-es.png` — against this record's own comment
+  that *"at most ONE accent fill is ever on this screen"*. **It is pre-existing, from the 2026-10-06 sweep rather than from this change**: tapping
+  "Cancel the job" on a confirmed job already puts a filled *"Yes, cancel it"* on screen beside a filled "Mark completed". Changing it means changing
+  `ConfirmTap`'s `confirmClassName` default for every caller, which is a ruling.
+  **Screenshots at every width and language: `.manager-shots/4.1-decline/` (21 shots plus `rows.json`), kept out of git by `.git/info/exclude`.**
+  **STILL OPEN ON 4.1, unchanged by this and none of it buildable here:** the audit row's migration and publish (Andrew's), gap 8's
+  `audit_recorded: false`, and the Restore button beside Suspend. **The Done-when's first clause — *one press produces a step that names the record
+  before anything changes* — now holds for all seven actions and for every screen that reaches them, which is what this change closed.** The clause
+  that keeps the box open is the second: **nothing leaves an audit row, because `supabase/migrations/20261006050000_action_log.sql` has never been
+  applied and `update-booking` is unpublished.**
+
+  **AND A GATE THAT WAS ALREADY RED BEFORE THIS EDIT, BASELINED BEFORE IT RATHER THAN EXPLAINED AFTER IT.**
+  `node --test tests/sweep-methods-are-pinned.test.mjs` was run at the start of this sitting, on a clean `ROADMAP.md`
+  (`git status --porcelain ROADMAP.md` empty): **`numberedOpenItems` 48 against a declared 48 and `quoteCriteria` 35 against 35 — both agreeing now —
+  and `quoteFragments` 363 against a declared 362.** So it was red by exactly ONE fragment that is not mine. **Re-run after this entry was written, same
+  command: 380.** So of the 18 the gate now reports, **17 are this entry's own quoted sentences and 1 is the pre-existing one** — stated as a
+  subtraction anybody can check rather than left to be re-derived. **`DECLARED` is left alone**, for the reason the 2026-10-07 note above gives: editing it would fold somebody else's unexplained fragment in
+  behind a number I was entitled to move, which is `docs/gotchas.md` 93. Whoever added that fragment owns the move.
+
+  **ONE ADJACENT FINDING, NOT MINE, NOT FIXED, AND IT MATTERS MORE THAN IT LOOKS: `scripts/sweep-widths.mjs` HAS BEEN UNABLE TO GRADE ANYTHING SINCE
+  2026-10-07 EVENING.** CLAUDE.md's verification table makes it the instrument for *"A layout"*, so it was run for this change. It aborts at **every**
+  width, **between** surfaces, while navigating to the Calendar: `scripts/sweep-widths.mjs:2038` clicks `page.locator(".cal-cell").nth(1)`, and commit
+  **`1064383`** (*"ROADMAP 9.4: the month is a rectangle to the EYE now"*, 2026-10-07 20:07 -0700) added
+  `<div className="cal-cell other" aria-hidden="true" />` filler cells at `Calendar.jsx:522`. **October 2026 begins on a Thursday, so cells 0–3 are
+  hidden fillers and index 1 can never become visible.** Measured: `node scripts/sweep-widths.mjs 1440` aborts after 24 of 155 surfaces, and the script
+  correctly refuses to call any of it a result — *"VERDICT STANDS ON 0 of 24 measurement(s). NOTHING IS JUDGED."* The last receipt committed at `HEAD`
+  graded **pass at 2026-10-07T02:16:39Z**, eighteen hours before that commit. **So every layout change since then has gone unmeasured by its own named
+  gate, and the run says so loudly rather than printing a false clean, which is the only reason this was findable.** The fix looks like one selector
+  (`.cal-cell:not(.other)`); it is **not** done here because `scripts/` is watched by nothing and CLAUDE.md says to lend a script rather than edit it
+  underneath whoever owns it. **The layout this change actually touched was measured directly instead** — the request card at 320, 392, 768 and 1440 in
+  both languages, with the question's width asserted against the card's and screenshots kept.
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be

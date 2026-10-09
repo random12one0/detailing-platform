@@ -5,6 +5,47 @@ Claude Cowork decides what becomes work.
 
 ---
 
+## `sweep-widths.mjs` HAS GRADED NOTHING SINCE 2026-10-07 EVENING — found 2026-10-08
+
+**CLAUDE.md's verification table makes it the instrument for "A layout", and it
+cannot currently return a verdict at any width.** It aborts BETWEEN surfaces,
+while navigating to the Calendar:
+`scripts/sweep-widths.mjs:2038` clicks `page.locator(".cal-cell").nth(1)`, and
+commit `1064383` (*"ROADMAP 9.4: the month is a rectangle to the EYE now"*,
+2026-10-07 20:07 -0700) added
+`<div className="cal-cell other" aria-hidden="true" />` filler cells at
+`Calendar.jsx:522`. **October 2026 begins on a Thursday, so cells 0–3 are hidden
+fillers and index 1 can never become visible or stable.**
+
+**Measured**, not read: `node scripts/sweep-widths.mjs 1440` aborts after
+**24 of 155 surfaces**, deterministically, twice. The last receipt committed at
+`HEAD` graded **pass at 2026-10-07T02:16:39Z** — eighteen hours before that
+commit.
+
+**The script is not at fault for being quiet about it — it is loud**:
+*"VERDICT STANDS ON 0 of 24 measurement(s). NOTHING IS JUDGED; this run proves
+nothing."* That is the only reason this was findable at all, and it is why the
+ledger line *"320px IS A BROKEN INSTRUMENT"* is worth reading.
+
+**ONE OF THE ABORTS NOW IN THAT LEDGER IS MINE AND IS NOT THE INSTRUMENT'S
+FAULT**, said here because a ledger is only worth what its entries are: the
+first run of this sitting was started without `set -a; . ./.env; set +a`, so it
+aborted on `DEMO_OWNER_PW is not set` rather than on the calendar. **The "3 of
+its last 5" counts that one.** The calendar abort is the real one and it
+reproduced twice afterwards with credentials loaded.
+
+**Why it matters beyond one script:** every layout change merged since that
+commit has gone unmeasured by its own named gate, and a session running it today
+sees an abort rather than a red, which is easy to read as flakiness.
+
+**The fix looks like one selector** — `.cal-cell:not(.other)`, or the first cell
+that is not `aria-hidden`. **Not done when found**, because `scripts/` is watched
+by nothing at all and CLAUDE.md says to lend a script rather than edit it
+underneath whoever owns it. Found while verifying ROADMAP 4.1; that change's own
+layout was measured directly instead, at four widths in two languages.
+
+---
+
 ## INCIDENT — WE PUT TEN TEST MESSAGES IN THE PLATFORM'S OWN SUPPORT INBOX, 2026-09-20
 
 **Not a note in passing. An incident, logged as one**, because how a small one

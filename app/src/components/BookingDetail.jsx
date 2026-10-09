@@ -1035,9 +1035,30 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                     <MessageSquareQuote size={18} strokeWidth={2} />
                     {" "}{quotedAmount === null ? t("Send a quote") : t("Send a new quote")}
                   </button>
-                  <button className="btn ghost" disabled={busy} onClick={() => respond("decline")}>
-                    <X size={18} strokeWidth={2} /> {t("Decline")}
-                  </button>
+                  {/* **ROADMAP 4.1 - A DECLINE *IS* A CANCELLATION, WHICH IS WHY IT
+                      ASKS NOW.** `respond-to-booking` writes `status: "cancelled"`
+                      plus `declined_at` and emails the customer, so one touch of this
+                      made the same two things happen as "Cancel the job" in the branch
+                      below - which has asked since 2026-10-06 - while this one did not.
+                      The sweep that gated the other four read the seven actions as
+                      seven BUTTONS and filed this one as "adjacent"; it is the same
+                      state change under a different label, and it was the last ungated
+                      path to it. The comment under `cancelled` below says so in the
+                      product's own words: "a decline is stored as a cancellation".
+                      Same question shape as the cancellation, email clause included,
+                      because `respond-to-booking` sends only when the booking carries
+                      an address - the same condition `update-booking` uses. */}
+                  <ConfirmTap
+                    className="btn ghost"
+                    disabled={busy}
+                    icon={<X size={18} strokeWidth={2} />}
+                    label={t("Decline")}
+                    question={booking.customer_email
+                      ? t("Decline {job}? The customer is emailed.", { job })
+                      : t("Decline {job}?", { job })}
+                    confirmLabel={t("Yes, decline it")}
+                    onConfirm={() => respond("decline")}
+                  />
                 </>
               ) : cancelled ? (
                 <>

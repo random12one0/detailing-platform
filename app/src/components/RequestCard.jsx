@@ -27,6 +27,9 @@ import { dateLong, money, time12 } from "../lib/format.js";
 // translated text: once at the root works only until something is memoised.
 import { getAppLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+// ROADMAP 4.1 - the same control and the same phrase the job record asks with,
+// so the two surfaces cannot name the same job differently.
+import ConfirmTap, { jobPhrase } from "./ConfirmTap.jsx";
 
 export default function RequestCard({
   booking, lit = false, busy = false, leaving = false,
@@ -35,6 +38,13 @@ export default function RequestCard({
   useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const quoted = booking.quoted_at ? Number(booking.quoted_amount) : null;
+  // ROADMAP 4.1 - customer, service, time, composed by the one function the job
+  // record uses, so neither screen can drift into naming the job its own way.
+  const job = jobPhrase({
+    name: booking.customer_name,
+    service: services.join(" · "),
+    time: time12(booking.start_time),
+  });
 
   return (
     <div className={`card reqcard${lit ? " attend" : ""}${leaving ? " leaving" : ""}`}>
@@ -108,9 +118,25 @@ export default function RequestCard({
         <button className="btn sm" data-quote="" disabled={busy} onClick={() => onQuote(booking)}>
           <MessageSquareQuote size={18} strokeWidth={2} /> {quoted === null ? t("Quote") : t("Re-quote")}
         </button>
-        <button className="btn sm ghost" disabled={busy} onClick={() => onDecline(booking)}>
-          <X size={18} strokeWidth={2} /> {t("Decline")}
-        </button>
+        {/* **ROADMAP 4.1 - IT ASKS NOW, AND THIS IS THE SHARPEST OF THE TWO
+            DECLINES.** It is a 44px ghost button one `--sp-2` from "Quote" on a card
+            read one-handed, and it wrote `status: "cancelled"` plus `declined_at` and
+            emailed the customer on the first touch - a real message to a real person
+            telling them no, from a mis-aimed thumb. Quote is the press it is most
+            likely to be mistaken for, and Quote changes nothing until a number is
+            typed. The question takes the row rather than a third of it; see
+            `theme.css` ".reqcard .btnrow". */}
+        <ConfirmTap
+          className="btn sm ghost"
+          disabled={busy}
+          icon={<X size={18} strokeWidth={2} />}
+          label={t("Decline")}
+          question={booking.customer_email
+            ? t("Decline {job}? The customer is emailed.", { job })
+            : t("Decline {job}?", { job })}
+          confirmLabel={t("Yes, decline it")}
+          onConfirm={() => onDecline(booking)}
+        />
       </div>
     </div>
   );
