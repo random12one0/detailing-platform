@@ -110,10 +110,16 @@ export default function MailLog() {
 
         <Segmented label={t("Which emails")} value={which} options={FILTERS} onChange={setWhich} />
 
-        <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to
-          empty={which === "bad"
-            ? "Nothing has bounced, been refused or failed to send."
-            : "No email has been sent yet."} />
+        {/* ROADMAP 3.1a — the scroll bound lives on THIS wrapper, not on
+            `.rows` inside `EmailTrail`: see theme.css's note beside
+            `.mail-scroll` for why putting it on the flex column itself
+            stacked every row's text on the row above it. */}
+        <div className="mail-scroll">
+          <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to
+            empty={which === "bad"
+              ? "Nothing has bounced, been refused or failed to send."
+              : "No email has been sent yet."} />
+        </div>
 
         {/* A DEAD END NEEDS A WAY OUT. Moving the switch re-reads, so without
             this the only retry is picking the filter you are not on and coming

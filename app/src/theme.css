@@ -4307,6 +4307,30 @@ button.warn-box:hover { border-color: var(--fog-2); }
   color: var(--text); text-align: left; cursor: pointer; font: inherit;
 }
 .row-item:first-child { border-top: 0; }
+
+/* ROADMAP 3.1a — the mail log can hold up to 100 rows (CAP), and without a
+   bound of its own the list just grows until the ambient `.settings-body`
+   (shared by all 24 "more" screens) scrolls it with the browser's bare
+   scrollbar — a hole in this design punched by every OTHER screen's
+   container, not by anything MailLog drew. Bounding the list to its own box
+   keeps the scrolling, and the scrollbar, inside the screen it belongs to.
+   THE BOUND GOES ON A WRAPPER, NEVER ON `.rows` ITSELF: `.rows` is
+   `display: flex; flex-direction: column`, and turning that same element
+   into the `overflow: auto` scroll container collided with `.sub.clamp2`'s
+   `-webkit-line-clamp` — measured live, every row's text stacked on top of
+   the row above it. `.mail-scroll` is a plain block box wrapped around
+   `.rows` in `MailLog.jsx`, so the flex column keeps laying its children out
+   normally and only the wrapper clips and scrolls. */
+[data-mail-log] .mail-scroll {
+  max-height: min(60vh, 520px); overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: var(--fog-2) transparent;
+}
+[data-mail-log] .mail-scroll::-webkit-scrollbar { width: 8px; }
+[data-mail-log] .mail-scroll::-webkit-scrollbar-track { background: transparent; }
+[data-mail-log] .mail-scroll::-webkit-scrollbar-thumb {
+  background: var(--fog-2); border-radius: var(--r-pill);
+  border: 2px solid transparent; background-clip: content-box;
+}
 /* A ROW WHOSE TEXT IS LONGER THAN A NAME. Two lists have one — the FAQ, whose
    text is a whole QUESTION beside three controls (roadmap 3.2b), and the web
    address, whose text is a HOSTNAME beside two (roadmap 3.3). Everything else

@@ -8205,7 +8205,7 @@ requested.
   required`**. Screenshots of the detailer half as it stands, taken this run:
   `.manager-shots/3.1/detailer-*.png`.
 
-- [ ] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
+- [x] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
   it with overflow treatment that belongs to this design. Andrew named this
   one first, 2026-10-09; it is the one he can see without scrolling.
   Measured at `a07a2dc`: `app/src/screens/more/MailLog.jsx` is 129 lines and
@@ -8213,6 +8213,33 @@ requested.
   than half-built. **Done when:** the long list scrolls without a native bar
   drawn across this design, checked at 1440 and 392 with the widths named.
   *Andrew's review of 3.1, 2026-10-09. Slice 1 of 4.*
+
+  **DONE, 2026-10-09.** The list now sits in its own bounded box
+  (`max-height: min(60vh, 520px)`) with a themed scrollbar
+  (`scrollbar-color`/`::-webkit-scrollbar*`, matching `--fog-2`) instead of
+  overflowing into the shared `.settings-body` and drawing the browser's own
+  bar across all 24 "more" screens at once. **The bound had to go on a new
+  wrapper (`.mail-scroll`), not on `.rows` itself** — `.rows` is a flex
+  column, and making that same element the scroll container collided with
+  `.sub.clamp2`'s `-webkit-line-clamp`: every row's text painted on top of
+  the row above it, caught by screenshotting the LIVE page (a static harness
+  with the same markup showed the same thing, which is what sent the search
+  to the real cause rather than a fluke). Moving `overflow`/`max-height` to a
+  plain wrapper div around `EmailTrail` left `.rows` to lay out normally and
+  fixed it. **Verified against the real demo tenant** (`demo@detailplatform.com`,
+  Coastline Auto Detailing, 29 sent rows) at 1440×900 and 392×844: the box
+  clips at the stated height, scrolling it moves only the box
+  (`.settings-body`'s own `scrollTop` stays `0`), and no row overlaps another
+  at any scroll position. `node --test` on the four credential-free suites:
+  **34 passed, 0 failed.** **One thing I could not SEE directly: the headless
+  Chromium used for this check renders overlay scrollbars with zero layout
+  gutter, so the custom thumb color never composited into a screenshot even
+  while actively scrolling** — `scrollbar-width`/`scrollbar-color` and
+  `::-webkit-scrollbar-thumb` are standard CSS that real Chrome and Firefox
+  both honor, but that one visual detail is unconfirmed outside this
+  environment. The bounding and the no-overlap fix are the two live-measured
+  facts; the thumb's exact color is the one claim taken on the CSS spec
+  rather than on a screenshot.
 
 - [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
   No text may crowd or touch its neighbor. **Done when:** measured at 1440
