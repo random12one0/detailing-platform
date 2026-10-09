@@ -1,9 +1,9 @@
 {
-  "git_sha": "58f36d181fa6dc8206c5a2522dcf2c890825cb44",
-  "git_sha_started": "58f36d181fa6dc8206c5a2522dcf2c890825cb44",
+  "git_sha": "cb37b28f42e78d90cff5a2918d8a8dde03ee5e37",
+  "git_sha_started": "cb37b28f42e78d90cff5a2918d8a8dde03ee5e37",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:54:36.173Z",
+  "finished_at": "2026-10-09T20:55:29.051Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -18,7 +18,7 @@
     "broken_on_purpose": null
   },
   "check_id": "cors-rule",
-  "started_at": "2026-10-09T20:54:36.089Z",
+  "started_at": "2026-10-09T20:55:28.962Z",
   "status": "pass",
   "expected_targets": 8,
   "discovered_targets": 8,
