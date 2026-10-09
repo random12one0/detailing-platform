@@ -1369,6 +1369,11 @@ and how the wait ends.
     credential-free) and `node scripts/overcap-sentence.mjs` (31/31 over 1440, 392 and 320, console clean at
     each); both receipts grade PASS under `node scripts/receipt.mjs`.
 
+    **Andrew asked whether this belongs in Business → Photo gallery. It does not.** This slice fixes the two
+    existing pre-upload allowance refusals: a job record's `JobPhotos.jsx` and an expense receipt's
+    `ExpenseModal.jsx`. Business → Photo gallery is a different flow; its R2 move is 0.11b/0.11bc. No gallery
+    screen was changed or claimed by 0.11d1.
+
     ***CRITERION 3 WAS FALSE ON BOTH PATHS A PERSON WALKS, AND EVERY TEST OF IT PASSED.*** The criterion asks
     that an over-cap upload be refused *"with used space, limit and deletion guidance in the message"*. The
     SERVER's sentence says all three — `_shared/photoDoor.ts`'s `fullSentence`, which

@@ -54,8 +54,12 @@ import { readFileSync } from "node:fs";
 
 const CANARY = process.env.PIN_CANARY || "";
 
-const sh = (c) => {
-  try { return execFileSync("bash", ["-c", c], { encoding: "utf8", maxBuffer: 1 << 28 }); }
+// This runs on Windows as well as Unix. The former `bash -c` wrapper was not
+// an implementation detail: where bash is absent, its caught launch error
+// became an empty history, and the gate accused every open item instead of
+// naming the missing executable.
+const git = (args) => {
+  try { return execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 28 }); }
   catch (e) { return e.stdout || ""; }
 };
 
@@ -104,7 +108,7 @@ const bound = (id) =>
     : new RegExp(`(^|[^0-9.])${id.replace(".", "\\.")}([^0-9.]|$)`);
 
 function commitScope(ids) {
-  const raw = sh(`git log --format=%H%x1f%s%x1f%b%x1e`);
+  const raw = git(["log", "--format=%H%x1f%s%x1f%b%x1e"]);
   const commits = raw.split("\x1e").map((c) => c.trim()).filter(Boolean).map((c) => {
     const [sha, subj, body] = c.split("\x1f");
     return { sha, subj: subj || "", msg: `${subj || ""}\n${body || ""}` };
@@ -835,7 +839,8 @@ test("the two sweep methods are pinned, not described", async (t) => {
     // the very next commit — the churn `gotchas.md` 95 records about a figure
     // that moves every time anybody commits. NO_COMMIT_YET stays for a genuinely
     // long-lived exception; this handles the ordinary case with no upkeep.
-    const pending = sh("git diff -- ROADMAP.md") + sh("git diff --cached -- ROADMAP.md");
+    const pending = git(["diff", "--", "ROADMAP.md"])
+      + git(["diff", "--cached", "--", "ROADMAP.md"]);
     const brandNew = ids.filter((id) =>
       new RegExp(`^\\+.*\\b${id.replace(".", "\\.")}\\b`, "m").test(pending));
     const without = ids

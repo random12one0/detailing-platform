@@ -3254,3 +3254,11 @@ Re-run: the probe is a scratchpad script, not committed. It is reproducible
 from the gotchas entry and this paragraph — the ingredients are the intercept
 above, a random-noise canvas at `MAX_EDGE` for the file, and a budget of 10.0
 MB of 10.24 MB so that only 251 KB of room is left.
+
+## 2026-10-09 — pinned-sweep gate launch repair
+
+The belt's `sweep-pinned` gate was red because its test invoked `bash`, which
+is absent in this Windows workspace, then converted that launch failure into an
+empty git history. `tests/sweep-methods-are-pinned.test.mjs` now invokes `git`
+directly. Normal run: 8 passed, 0 failed. Deliberate controls remained live:
+`PIN_CANARY=scope` and `PIN_CANARY=fragment` each failed as required.

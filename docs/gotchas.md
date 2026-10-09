@@ -5208,3 +5208,19 @@ stylesheet, a config, a feature flag — can only observe the first. Ask the pag
 
 Related: 102 (prove the sabotage landed — the claim one level out from this one),
 107 (a false defect from a wait), 110 (a false defect from too broad a question).
+
+## 114 — A GATE THAT CATCHES ITS OWN LAUNCH ERROR AND RETURNS AN EMPTY POPULATION ACCUSES EVERYTHING ELSE
+
+**Measured 2026-10-09 in `tests/sweep-methods-are-pinned.test.mjs`.** The
+gate ran `bash -c "git log ..."` and caught every error by returning an empty
+string. This Windows workspace has no `bash`, so the missing executable became
+zero commits. The gate then reported every open item unnamed and failed its
+history floor — a real red result with no relationship to the item that had
+just run.
+
+The fix invokes `git` directly with argument arrays. The normal run now sees
+the history and passes; both existing negative controls still fail:
+`PIN_CANARY=scope` breaks the production boundary assertion and
+`PIN_CANARY=fragment` moves the declared figures. Do not wrap a required
+executable in an empty-result fallback: distinguish a failed command from an
+empty answer before using either as a measurement.
