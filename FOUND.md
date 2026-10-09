@@ -4414,3 +4414,26 @@ edit** or it falls back silently with no error anywhere.
 Not given a roadmap number because nothing is broken for a customer today; if
 anybody acts on it, number it in the 14.x series first so a sweep can report
 on it.
+
+## The door's "Reload this job" sentence is shown on three screens that are not a job — found 2026-10-09
+
+`DOOR_WORDS.unreadable` reads *"The photo service sent back something this
+screen cannot use. Reload this job and check before trying again."* It was
+written for `JobPhotos.jsx`, where "this job" is exactly right. **Since ROADMAP
+0.11 slice 4 the same sentence is also what the business-media path shows**, and
+that path runs on the Photo gallery, Business info (the logo and hero) and
+Site intake screens — **none of which is a job, and none of which has anything
+to reload called one.**
+
+**Seen on a real screen, not inferred**: `.manager-shots/media-door-clean-392.png`
+from `scripts/media-door-browser.mjs`, where it is rendered on "Photo gallery".
+
+Not fixed here because it is not ROADMAP 0.11b's — 0.11b is about which store
+the bytes go to — and because the fix is not a one-word edit: the string is
+shared with the job-photos path that it is correct for, so it needs either a
+second sentence or a screen-supplied noun, **and changing an English string
+means changing its Spanish key in `app/src/lib/strings/appEs.js` in the same
+edit** or it falls back to English with no error anywhere (`CLAUDE.md`).
+
+Worth folding into Andrew's 2026-10-09 ruling that the whole email-and-message
+wording needs a proper sitting rather than piecemeal edits.
