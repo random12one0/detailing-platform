@@ -4313,3 +4313,49 @@ returned over the wire, and dropped.
 **Not fixed here.** Printing a tax line means asking Stripe to preview the
 invoice before the charge, which is a change to the payment path, and the
 payment path is not what ROADMAP 0.4 is. It is one item, not a line in one.
+
+## Two month-old git worktrees live INSIDE the repo, and repo-wide scans read them first
+
+**Found by the supervisor 2026-10-08, by being bitten by it.**
+
+```
+.claude/worktrees/determined-satoshi-936e89   Sep 10, at 74c95c6, clean
+.claude/worktrees/pensive-bohr-c1e001         Sep 16, at 2a10b86, 1 dirty file
+```
+
+Both are registered worktrees (`git worktree list`) checked out at commits from
+**nearly a month ago**, and they sit *inside* the working tree. So every full
+copy of this repo's files exists two or three times on disk at different ages.
+
+**The cost is not disk space, it is that repo-wide scans silently read the stale
+copy.** Measured:
+
+```
+$ grep -rln "x-ballantyne" --include=*.html .
+./.claude/worktrees/determined-satoshi-936e89/app/dist/ex4/index.html
+./.claude/worktrees/determined-satoshi-936e89/docs/schemes/kinzie-styleguide.html
+./.claude/worktrees/determined-satoshi-936e89/docs/tenant-sites/x-ballantyne.html
+...
+```
+
+The real `docs/tenant-sites/x-ballantyne.html` is **not in the first five hits**.
+A `find . -name "<file>" | head -1` — an ordinary thing to write — returns a
+September copy. That is exactly how this repo's own gotchas happen: no error, no
+warning, a plausible answer from the wrong file. It bit this supervision pass
+while locating the example-site sources.
+
+**`git ls-files` and `git grep` are unaffected** (they only see tracked paths in
+*this* worktree), which is why nobody has hit it before: the documented commands
+here mostly use them. It is the ad-hoc `find`/`grep -r` that goes wrong, and
+that is what a session reaches for when improvising.
+
+**NOT FIXED, and deliberately not.** `pensive-bohr-c1e001` holds an uncommitted
+change to `scripts/adversary-probe.mjs`, and removing somebody's worktree
+destroys uncommitted work with nothing to undo it —
+`docs/gotchas.md` 97 is the same shape.
+
+**Recommendation:** check the dirty file is not wanted, then
+`git worktree remove .claude/worktrees/determined-satoshi-936e89` (that one is
+clean) and deal with the second separately. Until then, **exclude
+`.claude/worktrees` from any repo-wide scan** — `grep -r --exclude-dir=.claude`
+— or use `git grep`, which never sees them.
