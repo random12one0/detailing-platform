@@ -360,6 +360,28 @@ gallery switch stays off — see step 10.
 It is not in the public list and must not be: every action needs a signed-in
 person.
 
+*And this one can be checked the minute you have done it too, same as a2 and b:*
+`node scripts/photo-door-deployed.mjs --base=<the address from a2>`. It asks the
+six things that have to be true of the **running** program rather than of the
+version on this computer — it is there and switched on, it refuses anybody with
+no login, the address from a2 is attached to it, it hands back a filing name
+under **your** business and nobody else's, it turns away a request for another
+business and another business's file, and the web address it gives back is your
+address with that filing name on the end. **It reads only.** It cannot publish,
+cannot change a setting and cannot upload anything. Today it comes back red on
+the first two and says so in those words: *photo-door is not deployed*, and
+*no `R2_MEDIA_BASE`*.
+
+**DO a2 BEFORE c, AND THIS IS THE ONE ORDERING SURPRISE IN STEP 9.** Publishing
+the program on its own is not enough and it is not harmless-but-incomplete:
+until the web address from a2 is attached, the published program **refuses every
+logo and gallery request** with *"Public image storage is not set up on the
+server yet"*. Measured 2026-10-09 against the real program, not read off the
+source. Nothing breaks today, because the switch that would send real uploads to
+it is still off (step 10) — but if you publish in this order and then flip that
+switch, logos stop working with nothing anywhere to say why. a2, then c, then
+step 10.
+
 **d · Republish `delete-customer`.** `node scripts/deploy-functions.mjs delete-customer`
 It now removes a forgotten customer's photo files from both stores.
 

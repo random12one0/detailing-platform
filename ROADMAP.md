@@ -1230,6 +1230,91 @@ and how the wait ends.
   - An unauthenticated request can read an object through the configured public address.
 
 - [ ] **0.11bb — Publish photo-door with the production R2 configuration**
+
+  NEEDS ANDREW: publish `photo-door` (`node scripts/deploy-functions.mjs photo-door`, `FOR-ANDREW.md`
+  step 9c) — and bind the `business-media` public address FIRST (step 9a2, item 0.11ba), because the
+  published door refuses every media request until `R2_MEDIA_BASE` is set. Publishing is Andrew's by
+  standing rule and all four criteria are statements about a DEPLOYED function, so no session can meet
+  any of them.
+
+  ***EVERY CRITERION HERE CONTAINS THE WORD "DEPLOYED", SO WHAT WAS BUILDABLE IS THE CHECK — 2026-10-09,
+  commit `9890e04`.* Credentialed but READ-ONLY: nothing published, nothing deployed, no flag flipped, no
+  DDL, no row or R2 object written, no secret VALUE read. The box stays `[ ]` and that is correct.**
+
+  **WHAT THIS ITEM IS, SAID FIRST.** Criterion 1 is an act only Andrew performs. Criteria 2, 3 and 4 are
+  questions about the thing that answers on the internet after he performs it. **The door's LOGIC is
+  already proved and that is a different sentence**: `tests/photo-door-media.test.mjs` runs
+  `handlePhotoDoor` in memory with a sabotage pass, and every assertion in it is a statement about THIS
+  CHECKOUT. **22 of 39 edge functions were once running something else** (ROADMAP 0.6), so *"the source
+  mints a scoped key"* and *"the deployed door mints a scoped key"* are two claims and only the second is
+  what this item asks for. Until this commit nothing could ask the second.
+
+  **`scripts/photo-door-deployed.mjs` — six rules over the four criteria, 12 assertions, no secret value
+  of any kind.** Today, measured on `kguqylyzgyzfktkfnhjb` with the ref confirmed before the first call:
+  **2 FAIL** — `door-published` (photo-door is not among the **39** deployed functions) and
+  `secret-name-present` (`R2_MEDIA_BASE` is not a function secret) — and **4 UNJUDGEABLE reported by
+  name**, never folded into a pass, because there is no door to call. `node scripts/receipt.mjs
+  receipts/photo-door-deployed.json` grades **FAIL on those two recorded failures with every structural
+  rule green**. **No hold was written: a hold is a person's decision and this failure IS the item.**
+
+  **THE ONE NEW FACT, AND IT CHANGES THE ORDER OF ANDREW'S OWN LIST.** Publishing the door while
+  `R2_MEDIA_BASE` is unset meets criterion 1 and leaves criteria 2, 3 and 4 **unmeetable rather than
+  merely unmeasured**: `handlePhotoDoor` returns `503 "Public image storage is not set up on the server
+  yet."` for a media request **before any key is minted**, so there is no key to scope and no url to
+  derive. Measured against the production handler (the `no-base` stand-in mode), not read off the source.
+  Nothing breaks today — `MEDIA_VIA_DOOR` is `false`, so media still takes the old path — but publish in
+  the wrong order and then flip that flag and logos stop working with nothing anywhere to say why.
+  **`FOR-ANDREW.md` step 9c now carries that ordering in his words**, and a2 before c is the rule.
+
+  **IT DOES NOT RESTATE THE DOOR'S RULES, IT IMPORTS THEM.** `businessOwnsKey` decides whether a minted
+  key is the caller's, `publicUrl` decides what the configured address applied to that key looks like,
+  and `mediaBase` decides what counts as usable — all three loaded out of `_shared/photoKey.ts` and
+  `_shared/r2.ts`, so a change to the door's own rules moves this check with them rather than leaving two
+  copies to disagree.
+
+  **IT DELIBERATELY DOES NOT ASK ABOUT CONTENT DRIFT.** *"Published successfully"* here is: the slug
+  exists, it is ACTIVE, `verify_jwt` stays on, and it answers. **Whether the deployed bundle IS this
+  checkout is `scripts/deployed-inventory.mjs`'s question** and CLAUDE.md's table already requires it.
+  Re-implementing that comparison here would be a second copy of a rule that can disagree with the first.
+
+  **THE PASS PATH WAS OBSERVED, NOT INFERRED, AND SO WAS EVERY REFUSAL.** `judge()` is a PURE function of
+  an observed world, so the same six rules are aimed at a loopback stand-in as well as at the live
+  project. The `ok` mode serves the **production** `handlePhotoDoor` over `node:http` and **all six rules
+  pass against it** — which is the command that answers this item the day Andrew publishes. Then seven
+  wrong doors, one at a time, each differing in one way: no base → `base-live-on-door`; serves a caller
+  with no session → `door-published`; mints a key under another business → `caller-scoped-key`; serves
+  another business's `start`, and another business's `remove` → `refuses-another-business`; a url on a
+  stranger's host, and a url on `pub-….r2.dev` → `public-url-from-base`. Plus **four fabricated account
+  worlds** for the two rules loopback cannot have an opinion about — not deployed, deployed but not
+  ACTIVE, deployed with `verify_jwt` off, no `R2_MEDIA_BASE`. **11 of 11 caught**, and every stand-in is
+  interrogated for its own identity (`GET /whoami`) before any colour it produces is believed —
+  `docs/gotchas.md` 102, where three broken stand-ins failed to bind and the correct one from the
+  previous run answered all three probes.
+
+  **TWO FAULTS IN THE GATE ITSELF, FOUND BY RUNNING IT AND WORTH MORE THAN THE REFUSALS.**
+  **One ·** `open-door` printed `caught by door-published` while catching the wrong thing: the stand-in
+  substituted a token for the no-auth probe, so the probe answered **400 on a missing field** rather than
+  anything about authorization — a negative control that differs in two ways proves neither.
+  **Two ·** the `--break=` sabotage reached only the live half, where **four of the six rules are
+  UNJUDGEABLE today**, so four of the six sabotage values would have been switched off while printing
+  `11 of 11 caught` — the colour of one that landed, `docs/gotchas.md` 102 again. Aimed at the stand-in
+  as well, each sabotage now moves its own **named rule** from CAUGHT to MISSED: `accept-missing-door`,
+  `accept-open-door`, `accept-missing-secret`, `accept-unscoped-key`, `accept-stranger` (2 modes) and
+  `accept-foreign-url` (2 modes). **Certified on the findings list, never on the verdict word** — today's
+  verdict is FAIL in every mode because the UNJUDGEABLE rules hold it there, which is exactly the trap
+  `docs/gotchas.md` 105 describes.
+
+  **NOT PROVEN, SAID PLAINLY.** That Supabase's platform refuses a tokenless call the way the stand-in
+  does — there is no deployed function to ask. That the live door signs a real PUT R2 accepts; that is
+  0.11bc's first upload. **And no browser evidence, because there is no browser surface in this item**:
+  no page in this product publishes a function, and the upload flow this unblocks is 0.11bc's, behind a
+  flag that is still `false`. The live half also never signs in today: with no door deployed there is
+  nothing to call, so no session is created at all.
+
+  **WHAT TO RUN THE DAY IT IS PUBLISHED**, one command:
+  `node scripts/photo-door-deployed.mjs --base=<the address bound in Cloudflare>`. Six green and exit 0
+  is this item's four criteria met.
+
   Publish the existing photo-door function using the configured public R2 base and the existing business-media bucket integration. This makes the already-built authorization and key-minting path available, but leaves application traffic on the old path until the flag is enabled.
   Part 2 of 3 of item 0.11b, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
