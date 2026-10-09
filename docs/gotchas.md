@@ -5019,3 +5019,78 @@ every one of them is a check that cannot distinguish *not yet* from *not going
 to*. Ask the thing that knows.
 
 Related: 108 (same measurement, previous fault), 107, 103, 36.
+
+
+## 110 — "DOES THE PAGE OVERFLOW AT ALL" IS NOT THE TEST FOR "A NATIVE BAR IS DRAWN ACROSS THIS DESIGN", AND IT REDS ON A PAGE THAT IS CORRECT
+
+**Measured 2026-10-09**, verifying ROADMAP 3.1a — the mail log's long list,
+moved into its own bounded scroll box so the shared settings container stops
+drawing the browser's full-height bar.
+
+The obvious assertion is *the document must not overflow*. It fails. The
+document **does** overflow, at both widths, on a screen that is working
+perfectly: `scrollHeight` **912** against `clientHeight` **900** at 1440, and
+**922** against **844** at 392. The first version of the check asked exactly
+that question and printed a **false defect at both widths**, which is the
+direction that gets working code "fixed" (see 106, 107).
+
+**Neither number is the list.** `.settings-body` — the container that actually
+drew the bar — does not overflow and cannot scroll at 1440 (probed by setting
+`scrollTop` and reading it back, not by inspecting CSS), and **the 392 layout
+has no `.settings-body` at all**: it is a full `settings-page` whose own 78px of
+page scroll is the design. Beside those twelve and seventy-eight pixels, the
+list's own box holds **2,298px** and **3,284px** of scrollable content. A dozen
+pixels of ordinary page is not a bar drawn across a design.
+
+**Two separate traps in one assertion, and both are this repo's recurring
+shape:**
+
+* **`scrollHeight > clientHeight` is not "this scrolls".** An element can
+  overflow under `overflow: hidden` and scroll nowhere. The only honest probe
+  is to *move it*: set `scrollTop`, read it back, put it back.
+* **An element the check names may not exist at the width being measured.**
+  `.settings-body` is absent at 392, so `offsetWidth - clientWidth` on it was
+  `null`, `null === 0` was false, and the assertion reddened on **a missing
+  element rather than a wide one**. A null from a selector and a bad measurement
+  are the two sentences this whole file exists to keep apart.
+
+**THE FIX IS A COMPARISON, NOT A THRESHOLD, AND IT NEEDS NO INVENTED NUMBER:**
+the page's own overflow must be **smaller than the list's own scrollable
+height**. That is just *"the thing the page is scrolling is not this list"*, it
+survives the demo tenant's row count changing, and it is exactly what the
+sabotage breaks — unbound, the box stops scrolling at all (scrollable height
+**0**) and the page grows by **3,361px** instead. A fixed pixel budget would
+have been a number nobody could defend six months later.
+
+Related: 107 (false defect from a wait), 106 (a selector chosen from a word
+rather than a picture), 100 (a hit test cannot answer a legibility question).
+
+
+## 111 — A REPORT THAT ROUNDS WHAT THE RULE COMPARES MAKES A CAUGHT RED LOOK LIKE A BUG IN THE CHECK
+
+**Measured 2026-10-09**, same run as 110. The no-overlap rule was `gap >= 0`
+and the report printed `Math.round(gap)`. Under one sabotage it went red while
+printing its own evidence as **"tightest gap 0px"** — a line that says the
+assertion should have passed. The real value was about **-0.02px**: rows that
+sit flush by design, separated by a border rather than a gap, arriving as a
+fraction below zero on subpixel layout.
+
+**The damage is not the flake, it is the five minutes spent doubting the
+product.** A red whose printed evidence looks green reads as a broken
+instrument, and the next session's instinct is to relax the rule — which is
+how a check stops testing anything.
+
+**Two things, both cheap:** print the number at the precision the rule compares
+at (`toFixed(2)` here, not `Math.round`), and give a flush-by-design geometry an
+explicit tolerance with the reason written beside it. Real stacking — the
+regression this rule exists for, where every row painted on the one above it —
+is **tens** of pixels, not hundredths.
+
+**AND RELAXING THE RULE DISARMED NOTHING ONLY BECAUSE THE CANARY WAS ADDED IN
+THE SAME EDIT.** `gap >= 0` to `gap >= -0.5` is exactly the equality-to-floor
+move 95 is about: it widens what passes, and there was no sabotage aimed at it.
+`the-stacked-rows` (a snapshot with a -12px gap, which must flag) was written and
+run in the same edit, per CLAUDE.md's hard rule.
+
+Related: 95 (a relaxed assertion disarms its canary), 98 (an inequality carries
+slack), 93 (a number edited to make two things agree).

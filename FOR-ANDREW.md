@@ -930,6 +930,42 @@ still knows them.
 
 ## Urgent — two minutes when you next open your laptop
 
+- [ ] **DO · Ten seconds: open the Emails-we-sent screen and tell me whether
+  the scroll bar on that list looks right to you.** You are the only
+  instrument I have for this one.
+
+  **Where.** Open the app, click the gear, click **Emails we sent**. The list
+  underneath is long — 29 messages. Drag it with your mouse, or flick it on
+  your phone.
+
+  **What changed.** The list used to run off the bottom of the screen and make
+  the browser draw its own full-height grey bar down the side of every settings
+  screen — the thing you pointed at first. It now scrolls inside its own box
+  instead, and that box has a slim bar in the product's own grey rather than the
+  browser's.
+
+  **What I proved, so you only have to judge the look.** At laptop width and
+  phone width: the list is longer than its box and scrolls on its own; the
+  screen behind it does not move by a single pixel while you scroll; all 29
+  rows stay clear of each other at the top, the middle and the bottom; and when
+  I deliberately broke the fix, the old full-height bar came straight back —
+  which is how I know the fix is what is holding it off, rather than something
+  else having changed.
+
+  **What I could NOT check, and why it is yours.** **What the slim bar actually
+  looks like.** The browser this machine runs tests in draws scroll bars as a
+  thin overlay with no width at all, so the bar never appears in a screenshot —
+  it is invisible to every picture I can take. I tried three ways round it
+  (a real Chrome, a visible window, and switching the overlay off) and all
+  three are unavailable on this machine. So no session here, today or next
+  week, can tell you whether it looks right.
+
+  **What I need from you:** does that bar look like part of the product, or
+  still like the browser's? **If it looks wrong, say so in one line and that
+  becomes its own small job** — it does not reopen the work above. ROADMAP
+  3.1a; `DECISIONS.md`, "Ticking on structural proof when the appearance is
+  unmeasurable".
+
 - [ ] **DO · Open your password manager and search it for the backup key. You
   said this morning that you do not know where it is and that it was never
   written down. It was written down — twice — and I can tell you exactly

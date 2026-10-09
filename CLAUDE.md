@@ -94,6 +94,7 @@ set -a; . ./.env; set +a
 | **Anything a person reads — copy, a colour, a class, a whole screen** | `node scripts/contrast-insitu.mjs` (dev server + seed). **The credential-free gates measure token PAIRS, and a pair does not know which surface a label lands on** — `--fog-2` is 4.90:1 on `--ink-1` and 4.20:1 on `--ink-3`. The case is in the script's header |
 | **Either pass document's sweep figures, or anything that counts commits or quoted fragments** | `node --test tests/sweep-methods-are-pinned.test.mjs`. Credential-free, one `git log`, **0.6s**. **It holds the two sweep methods AS CODE, because a method written as prose produced eleven figures that cannot be re-taken** — *“for each item number, `git log --grep`”* is neither the 434 unique nor the 853 summed commits it was read as. In the same document the rule that WAS written down reproduced exactly at 36. Two `PIN_CANARY=` sabotages |
 | **A FIGURE — any count you are about to write into a document** | `node --test tests/figures-carry-their-command.test.mjs`. Credential-free, **3s**. **It enforces `docs/gotchas.md` 94 instead of trusting a session to remember it**, and the reason is measured: *the two people who knew the rule best broke it within an hour of writing it* — 93 was written about not editing a number to make two agree, and then 92's recorded 58 was edited to 53 to make two agree. Five buckets, a discovery floor, a canary injected every run, and **UNJUDGEABLE reported by name rather than folded into pass** |
+| **`MailLog.jsx`, `.mail-scroll`, or any list bounded inside its own scroll box** | `node scripts/mail-log-scroll.mjs` (dev server + seed + credentials). **ROADMAP 3.1b, 3.1c and 3.1d are all queued on this same screen**, and the bound is load-bearing: the shared `.settings-body` behind all 24 "more" screens is itself `overflow-y: auto`, so a list that stops bounding itself puts the browser's full-height bar back across every one of them. `--break=unbound` is that regression on purpose and prints it by name. **Its 2 UNJUDGEABLE lines are not failures and must not be "fixed"** — no browser here lays out a classic scrollbar gutter, so the thumb's appearance is Andrew's eyes and is recorded as unmeasurable rather than skipped |
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
 | An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` **and** `node scripts/deployed-inventory.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |
@@ -172,7 +173,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND NINE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND ELEVEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -712,6 +713,20 @@ Certify on the FINDINGS LIST (1 naming ex3, against 0), never on the verdict wor
 certifying ROADMAP 7.10. Twenty sittings unbroken; `grep -c "^## " docs/gotchas.md` run before
 writing this and again after, so the 105 above is a count rather than an increment.
 
+
+**109 → 111 on 2026-10-09, same edit, two entries, both by the supervisor and both found while proving
+ROADMAP 3.1a's scrollbar.** **110**, *"does the page overflow at all"* is not the test for *"a native bar
+drawn across this design"* — the document overflows by 12px at 1440 and 78px at 392 on a screen that is
+correct, and the first version of the check printed a **false defect at both widths** over a list whose own
+box holds 2,298px and 3,284px of scroll; the fix is a comparison (page overflow < the list's own scrollable
+height) rather than any invented pixel budget. It also carries the two traps underneath it: `scrollHeight >
+clientHeight` is not *"this scrolls"*, and `.settings-body` does not exist at 392, so the assertion reddened
+on a **missing element** rather than a wide one. **111**, the no-overlap report rounded what the rule
+compared — a caught red printed *"tightest gap 0px"* over a real -0.02px, so its own evidence said it should
+have passed. Relaxing that rule to a -0.5px tolerance is the equality-to-floor move 95 warns about, so
+`the-stacked-rows` was written and run **in the same edit**. Twenty-four sittings unbroken;
+`grep -c "^## " docs/gotchas.md` run before writing this and again after, so the 111 above is a count rather
+than an increment.
 
 **107 → 109 on 2026-10-09, same edit, two entries, both by the supervisor and both found on ONE
 number** — ROADMAP 2.1b's booking total. **108**, a `:not([aria-pressed=true])` locator with

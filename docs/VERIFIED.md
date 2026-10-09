@@ -3132,3 +3132,63 @@ first two versions of this walk each reported *"the price did not move"* for
 correctly, with no error and no console noise. Causes and fixes are
 `docs/gotchas.md` 108 and 109. The passing run above is the third instrument,
 and the two failures are what establish that it can see a difference at all.
+
+## ROADMAP 3.1a — the mail log scrolls in its own box, proved at 653bf3b
+
+**Supervision, 2026-10-09.** `node scripts/mail-log-scroll.mjs` (dev server +
+seed + `.env`, signs in as the demo tenant's owner, writes nothing):
+**PASS — 20 assertions, 0 failed, 2 UNJUDGEABLE**, at **1440x900** and
+**392x844**. Receipt `receipts/mail-log-scroll.json`; shots
+`.manager-shots/3.1a/scroll-<width>-<0|05|1>.png`. **Taken at `653bf3b`**,
+with the figures below read in that same run.
+
+**Proved, per width, both widths:**
+
+| What | 1440x900 | 392x844 |
+|---|---|---|
+| the list is longer than its box | `scrollHeight` 2818 vs `clientHeight` 520 | 3790 vs 506 |
+| the box scrolls on its own | asked 200, landed **200** | asked 200, landed **200** |
+| `.settings-body` moves while it scrolls | **0px** | not in this layout |
+| the document moves while it scrolls | **0px** | **0px** |
+| the page's own overflow, against the list's | 12px vs **2298px** | 78px vs **3284px** |
+| rows clear of each other at 0% / 50% / 100% | 29 rows, tightest **0.00px** | 29 rows, tightest **0.00px** |
+| `scrollbar-width` reaching the element | `thin` | `thin` |
+| `scrollbar-color` reaching the element | `rgb(123, 133, 138) rgba(0, 0, 0, 0)` | same |
+
+`rgb(123, 133, 138)` is `--fog-2` (`#7B858A`, `theme.css:61`) resolved — so the
+declaration reaches the element rather than a `var()` sitting on its fallback.
+
+**BROKEN ON PURPOSE, TWICE, AND THE FIRST BREAK REPRODUCES THE ORIGINAL
+DEFECT** — which is what makes the green mean anything.
+`--break=unbound` restores `max-height: none; overflow: visible` on the live
+page: **6 of 20 red**, and at 1440 the report prints **`.settings-body
+overflows true`** — the shared container behind all 24 "more" screens pushed
+past its height, which is the full-height browser bar Andrew pointed at. At 392
+the same sabotage grows the page by **3361px**. `--break=unstyled`
+(`scrollbar-width: auto; scrollbar-color: auto`) reds `rules-in-effect` at both
+widths. **Each sabotage is required to prove its own edit changed the computed
+style before the run is judged either colour** (`docs/gotchas.md` 102).
+
+**WHAT THIS DOES NOT PROVE, STATED AS NOT-PROVED RATHER THAN AS FINE: the
+thumb's appearance.** No browser on this machine lays out a classic scrollbar
+gutter — the `chrome` channel is not installed, `headless: false` dies with
+`spawn UNKNOWN`, `--disable-features=OverlayScrollbar` leaves the gutter at
+**0px** (probed both with the flag and without), and Firefox is not downloaded.
+An overlay scrollbar reserves no gutter and composites into no screenshot, so
+**the run records this UNJUDGEABLE by name, twice, rather than passing it.**
+Andrew's own eyes are the instrument; the ten-second look is in
+`FOR-ANDREW.md`. The reasoning behind closing the box on this is `DECISIONS.md`,
+"Ticking on structural proof when the appearance is unmeasurable".
+
+**ALSO FOUND BY THIS RUN AND NOT THIS ITEM'S — filed as ROADMAP 9.24.** A
+`user_tours` read refused **401** in the console at 1440 on a fresh sign-in,
+intermittently: present on one run, absent on the next, never at 392. The same
+read with a fully settled owner token answers **200** with the row present, so
+it is a race rather than a permission. 3.1a's own check reports it because the
+check reads the console honestly.
+
+**One honest property of the figures above:** the row count (29) and the
+`scrollHeight` numbers move as `demo-detail`'s own `email_sends` rows move. They
+are read fresh every run rather than written into the check's floor, so a later
+run quoting different numbers is not a contradiction — the **proportions** (29
+of 29 clear, 0 of 2 ancestors moving) are what survive the population changing.

@@ -837,7 +837,7 @@ and how the wait ends.
   **Whose job:** reading the quota is Andrew's, in the Google Cloud console. **Two
   gates, and this item is the second one** — do not close it on the first.
 
-- [ ] **0.16 — The site is "unrated" by web filters, and that is why some
+- [x] **0.16 — The site is "unrated" by web filters, and that is why some
   networks block it. NEW ROW, 2026-09-22 — recorded in `FOR-ANDREW.md` and
   tracked nowhere.** Symantec confirmed `detailingplatform.com` is **unrated**
   in those words, which is what gets a site blocked on school and office
@@ -848,9 +848,23 @@ and how the wait ends.
   **Nothing here is ours to build** — it is three submissions and a wait. It is
   listed so that "some networks block the site" is never re-diagnosed from
   scratch as a hosting or DNS fault.
-  **Waits on:** Andrew clearing two CAPTCHAs, then the filters' own review.
+  **Waited on** (cleared 2026-10-09): Andrew clearing two CAPTCHAs, then the
+  filters' own review.
   **Done when:** all three return a category other than unrated.
   `docs/services-and-secrets.md` § 7.
+
+  **ANDREW, 2026-10-09:** Done.
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
+  **CLOSED ON ANDREW'S RULING, AND THE WAIT LINE ABOVE WAS EDITED FOR A REASON —
+  supervisor, 2026-10-09.** It used to read `Waits on:`, which is one of the
+  literal phrases the dispatcher greps for to mean *leave this item alone*. So
+  his note arrived and every sweep would have gone on skipping the item anyway,
+  with nothing anywhere saying why. The words are kept and marked cleared rather
+  than deleted. **Nothing in this repo was ever the work here** — it was three
+  submissions to outside web filters and a wait, which is exactly the shape 0.14
+  says a dated decision of his may close.
 
 - [x] **0.1 — RESOLVED. The demo account's dual access is deliberate.**
   Andrew, 2026-09-16: *"I made one of them just be able to access both because
@@ -8205,7 +8219,7 @@ requested.
   required`**. Screenshots of the detailer half as it stands, taken this run:
   `.manager-shots/3.1/detailer-*.png`.
 
-- [ ] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
+- [x] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
   it with overflow treatment that belongs to this design. Andrew named this
   one first, 2026-10-09; it is the one he can see without scrolling.
   Measured at `a07a2dc`: `app/src/screens/more/MailLog.jsx` is 129 lines and
@@ -8251,6 +8265,64 @@ requested.
   list, confirm the surrounding settings body stays still, and read the
   console at both widths before this can be ticked again.
 
+  **SUPERVISOR RE-TICKED 2026-10-09, ON A MEASUREMENT RATHER THAN ON THE SOURCE,
+  AND THE ONE THING STILL UNSEEN IS NAMED AND HANDED TO ANDREW.** The check the
+  item never had now exists: `node scripts/mail-log-scroll.mjs` (dev server +
+  seed + `.env`), **20 assertions, 0 failed, 2 UNJUDGEABLE**, receipt
+  `receipts/mail-log-scroll.json`, shots `.manager-shots/3.1a/`.
+
+  **What reproduced, at 1440x900 and 392x844:** the list overflows its own box
+  (`scrollHeight` **2818** against `clientHeight` **520** at 1440; **3790**
+  against **506** at 392 — `min(60vh, 520px)` behaving as declared at both);
+  the box's own `scrollTop` is asked for 200 and lands on **200**; while it
+  moves, `.settings-body` moves **0px** and the document moves **0px**; and at
+  scroll 0%, 50% and 100%, all **29** rows keep a tightest gap of **0.00px**,
+  which is flush-by-border and not one row on top of another. The two standard
+  declarations are proved to REACH the element rather than to merely exist in a
+  stylesheet — computed `scrollbar-width: thin` and `scrollbar-color: rgb(123,
+  133, 138) rgba(0, 0, 0, 0)`, which is `--fog-2` resolved, not a `var()` stuck
+  on its fallback.
+
+  **The original defect is reproduced by the sabotage, which is the part that
+  makes the green mean something.** `--break=unbound` (`max-height: none;
+  overflow: visible` on the live page) reds 6 of the 20, and at 1440 it prints
+  **`.settings-body overflows true`** — the shared container behind all 24
+  "more" screens being pushed past its height, which is the bar Andrew saw. At
+  392 the same sabotage grows the page by **3361px**. `--break=unstyled` reds
+  `rules-in-effect` at both widths. Each sabotage proves its own edit landed
+  before the run is judged either colour (`docs/gotchas.md` 102).
+
+  **WHAT IS STILL NOT SEEN, AND WHY NO SESSION HERE WILL EVER SEE IT.** The
+  thumb's appearance. It needs a browser that lays out a classic scrollbar
+  gutter, and this machine has none: the `chrome` channel is not installed,
+  `headless: false` dies with `spawn UNKNOWN`, `--disable-features=
+  OverlayScrollbar` leaves the gutter at **0px** (probed both with the flag and
+  without), and Firefox is not downloaded. An overlay scrollbar reserves no
+  gutter and composites into no screenshot. The run records this as
+  **UNJUDGEABLE by name**, twice, instead of passing it. **Leaving the box open
+  for it would hand the belt an item no instrument here can close** — it was
+  already dispatched once and unticked once on exactly that. So the box is
+  ticked on the structural proof above, and the ten-second look is in
+  `FOR-ANDREW.md`: if the bar's look is wrong, that is a fresh slice, not this
+  one re-opened. *`DECISIONS.md`, "Ticking on structural proof when the
+  appearance is unmeasurable", 2026-10-09.*
+
+  **AND THEN I LOOKED AT THE PICTURES, WHICH THE TWENTY ASSERTIONS DID NOT DO,
+  AND FOUND TWO THINGS — FILED AS 3.1e, NOT REOPENED HERE.** The box is right;
+  its EDGES were never specified. A row is sliced 33px mid-sentence against the
+  card's top with no fade and no padding, and at 392 the box's bottom (808px)
+  runs 100px under the tab scrim and 32px under the tab bar. Both are
+  consequences of the box this item created, neither is "a native bar drawn
+  across this design", and neither was visible in any number I asserted. **That
+  gap is the finding worth keeping:** overflow, movement and row gaps all passed
+  while the screen's two edges were wrong.
+
+  **One red that is NOT this item's**, found by this run and filed as **9.24**:
+  a `user_tours` read refused **401** in the console at 1440 on a fresh
+  sign-in. It is intermittent — present on one run, absent on the next — and
+  the same read with a fully settled token answers **200**, so it is a race,
+  not a permission.
+
 - [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
   No text may crowd or touch its neighbor. **Done when:** measured at 1440
   and 392, with the widths named and the gaps stated as numbers rather than
@@ -8268,6 +8340,44 @@ requested.
   actual content, not a summary of it. **Done when:** a row opens the sent
   body, and a row whose body was never stored says so rather than opening
   empty. *Andrew's review of 3.1, 2026-10-09. Slice 4 of 4.*
+
+- [ ] **3.1e — the mail log's new scroll box has no edge treatment, and at
+  phone width its bottom is underneath the tab bar.** 3.1a bounded the list
+  correctly; what nobody specified is what its two edges should look like.
+  **Measured 2026-10-09 by the supervisor, at `653bf3b`, mid-scroll (50%), with
+  `.manager-shots/3.1a/scroll-*-05.png` as the pictures:**
+
+  **(a) Both edges are a hard cut.** `getComputedStyle(.mail-scroll)` reports
+  `mask-image: none`, `padding-top: 0px`, `padding-bottom: 0px`. At 1440 a row
+  is sliced **33px** by the top edge — the subject line's descenders are
+  visible above the cut with the sender's address orphaned beneath it, directly
+  under the Everything / Problems control. It reads as a rendering fault rather
+  than as a list you can scroll. No other scrolling surface in this product cuts
+  a row mid-sentence against a rounded card.
+
+  **(b) At 392 the box ends 808px down a 844px viewport, and the furniture
+  starts at 708.** `.tabscrim` spans **708–844** (a `linear-gradient` to
+  `rgb(11, 13, 14)`, `pointer-events: none`) and `.tabbar` spans **776–832**.
+  So **100px of the scroll box is painted over by the scrim and 32px of it is
+  behind the bar.** The last rows wash out and then disappear while still being
+  inside a box that says it is scrollable. **A hit test will not find this** —
+  the scrim is `pointer-events: none`, which is `docs/gotchas.md` 100 exactly.
+
+  **Why it happened, in one line:** `max-height: min(60vh, 520px)` takes no
+  account of fixed furniture, and this product already has the number —
+  **`--tabclear`, `calc(96px + var(--safe-b))`**, which `.app-main` already uses
+  as its bottom padding.
+
+  **Fix:** subtract the clearance in the box's own `max-height` rather than
+  touching `--tabclear` itself — CLAUDE.md's rule about shared variables, and
+  `.app-main` depends on that value — and give the box a top and bottom fade so
+  a clipped row reads as "there is more" instead of as a broken row. **Done
+  when:** at 1440, 392 and 320, no row is cut by the box's top edge without a
+  fade over the cut; the box's bottom sits at or above `.tabscrim`'s top, stated
+  as two numbers rather than as "looks fine"; and the check is broken on purpose
+  by restoring the unclearanced `max-height` and catches it.
+  *Found by the supervisor, 2026-10-09, by looking at 3.1a's own screenshots
+  after its 20 assertions had passed. Slice 5 of 3.1.*
 
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
@@ -20461,6 +20571,33 @@ the dashboard or back office at phone width at all.
   five-against-seven count, both line shapes and the top-of-scroll numbers were
   read at the commit carrying this entry.*
 
+- [ ] **9.24 — the "has this person already skipped the guide" read is refused
+  401 on a fresh sign-in, so a skip on one browser can stop counting on
+  another.** `App.jsx:390` reads `user_tours` to honour a dismissal made on a
+  different device — the whole point of that row, since `localhost:5173` and
+  the live domain are separate localStorages. **Measured 2026-10-09 at 1440x900
+  while verifying 3.1a**: the browser's own request
+  `GET /rest/v1/user_tours?select=user_id&user_id=eq.<uid>` answered **401**,
+  and the console carried `Failed to load resource: the server responded with a
+  status of 401`. **It is a RACE, not a permission** — the identical read with
+  a fully settled owner token answers **200** with the row present (asked
+  directly of `kguqylyzgyzfktkfnhjb` the same sitting), and it did **not**
+  reproduce on the next run at the same width, nor at 392 on either run. The
+  effect is small and silent by design: the failure branch at `App.jsx:395`
+  comments *"offline, or the table is not there yet — the guide runs"*, so a
+  person who already skipped the tour elsewhere is shown it again, and every
+  console-reading check at 1440 can pick up a red that belongs to nothing it
+  was measuring. **Fix:** make that read wait for the session it needs rather
+  than firing beside it — the effect hangs on `session?.user?.id`, which is set
+  before the access token is necessarily attached to the REST client — and
+  distinguish a refused read from an absent row, because today both take the
+  same branch. **Done when:** twenty consecutive fresh sign-ins at 1440 and 392
+  produce zero 401s on `user_tours`, counted by a response listener rather than
+  by reading the console, and a deliberately refused read is shown to leave the
+  device flag alone instead of being read as "never skipped".
+  *Found by the supervisor, 2026-10-09, while proving 3.1a. It is not 3.1a's;
+  3.1a's own check reports it because the check reads the console honestly.*
+
 ## Wave 10 — Copy
 
 One pass, one list. All of it is the same defect: internal voice reaching
@@ -25587,3 +25724,28 @@ caught stale rather than checked in one night; see `docs/gotchas.md` §
 "A document about another document goes stale silently." **What it flags
 that this repo has not done:** `docs/archive/` is inside the agent's search space, which the report
 explicitly warns against — git history is the archive. Revisit at step 7.
+
+
+## Andrew asked for these
+
+- [ ] **99.1 — Let a detailer connect their Google Business profile**
+  A detailer links their Google Business account once, and from then on what they change in the back office keeps their Google listing in step - hours, services, photos, contact details - without them typing it twice. Andrew named this on 2026-10-09 as something that was always the plan and had never been written down anywhere.
+  Acceptance criteria:
+  - A detailer can connect their Google Business account from their own settings, and disconnect it again
+  - Changing hours or services in the back office updates the Google listing without anyone retyping them
+  - If Google refuses or the link breaks, the detailer is told in plain words and nothing is silently out of step
+  - Nothing is written to a real Google listing until Andrew has seen it work on a test account
+
+  **SUPERVISOR, 2026-10-09 — THE DEPENDENCY, AND DELIBERATELY NOT A BLOCK.**
+  Writing to a listing needs the `business.manage` scope, and **0.15** records
+  that scope sitting behind *two* Google gates with the quota still reading 0:
+  so the half of this that talks to Google cannot be finished today by anybody,
+  here or elsewhere. **It is NOT marked `Queued behind`, on purpose.** Parking
+  the whole item would idle it for weeks while the half that needs no Google at
+  all goes unbuilt — the connect / disconnect surface in the detailer's own
+  settings, the stored link, and the plain-words failure state for *"Google
+  refused"* and *"the link broke"*, all against a stub behind a flag. That is
+  the ending the task template already asks for. **A session taking this must
+  not call a real Google endpoint, must not start a paid anything, and ticks
+  nothing on the sync half** — it writes `NEEDS ANDREW: the business.manage
+  scope is still gated (0.15)` under the item and stops there.

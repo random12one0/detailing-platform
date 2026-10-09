@@ -331,6 +331,8 @@ were made more than once.
 - **The supervisor cuts an item up rather than sending it out a fourth time** — supervision 2026-10-09, after 3.1 was killed twice at ~50 minutes and 4.1 once the same night. Why the answer was four numbered slices and a `Queued behind` marker rather than more time or another attempt, why `0.4` is marked `Waits on:` while `0.4g` stays dispatchable, and why two credential-free gates were added instead of a new check.
 - **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
 
+- **Ticking on structural proof when the appearance is unmeasurable** — supervision 2026-10-09, after ROADMAP 3.1a was built correctly, ticked, unticked for an unseen scrollbar, and would have been dispatched a third time. Why the box is ticked on a measurement of the structural half plus a named UNJUDGEABLE, rather than left open for an appearance no browser on this machine can photograph — and the three things that were tried first. Also why `0.16`'s `Waits on:` had to be edited, not just its box ticked.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18624,3 +18626,90 @@ These six rulings replace stale asks and capture Andrew's direct product review.
   All time without turning those dividers into a filter, and let a row open a
   preview of the email as it was sent.
 
+## Ticking on structural proof when the appearance is unmeasurable
+
+**Supervision, 2026-10-09.** ROADMAP 3.1a — *replace the mail log's intrusive
+native-looking scroll bar* — was built by a Sonnet session, ticked, and then
+unticked by the previous supervision pass for a good reason: **the completion
+note said in its own words that the scrollbar had never been seen.** Headless
+Chromium draws overlay scrollbars with a zero-width layout gutter, so the
+custom thumb composited into no screenshot, and `scrollbar-width` /
+`::-webkit-scrollbar-*` had been taken on the CSS specification rather than on
+a measurement.
+
+**The decision: tick it, on a measurement of the structural half, with the
+unseen half named as UNJUDGEABLE and handed to Andrew's own eyes.**
+
+### What was tried first, because the obvious answer was to go and look
+
+Three ways, all of them dead ends on this machine, each tried rather than
+assumed:
+
+* **Real Chrome.** `channel: "chrome"` — *Chromium distribution 'chrome' is not
+  found*. Installing it is a download, which is not the supervisor's to do.
+* **Headed Chromium.** `headless: false` — `browserType.launch: spawn UNKNOWN`.
+  There is no window to open in this environment.
+* **Turning overlay scrollbars off.** `--disable-features=OverlayScrollbar`,
+  probed against a known-overflowing box both with the flag and without: the
+  gutter read **0px both times**. Firefox, which honours the two standard
+  properties and lays out a classic gutter, is not downloaded.
+
+So the appearance of that bar is not measurable here **by any session, today or
+next week** — which is the fact that decides this, because the alternative to
+ticking is not "somebody checks it later", it is the belt dispatching the item
+again and a fourth session rediscovering the same three dead ends.
+
+### What IS measured, and why it is enough to close the box
+
+`scripts/mail-log-scroll.mjs`, new with this ruling: **20 assertions, 0 failed,
+2 UNJUDGEABLE**, at 1440x900 and 392x844, receipt
+`receipts/mail-log-scroll.json`.
+
+The item's own words are *"without a native bar drawn across this design"*, and
+**the bar in question was never MailLog's own.** `.settings-col >
+.settings-body` is itself `overflow-y: auto` and is shared by all 24 "more"
+screens; a 29-row list pushed it past its height and the browser drew its bar
+down the side of the screen. That is structural and perfectly measurable: at
+1440 that container now **does not overflow and cannot scroll**, and while the
+list's own box is scrolled it moves **0px**. The sabotage proves the causal
+link rather than asserting it — `--break=unbound` puts `max-height: none;
+overflow: visible` back on the live page and the same assertion prints
+**`.settings-body overflows true`**, which is the defect Andrew reported.
+
+What remains unmeasured is one thing: whether the 8px themed thumb **looks**
+right. That is a taste judgement, it belongs to Andrew, and it takes him ten
+seconds. `FOR-ANDREW.md` carries it.
+
+### The rule this sets, and it is narrow on purpose
+
+**A box may be ticked on structural proof when, and only when, every one of
+these holds:** the criterion's measurable half is proved by a check that has
+been broken on purpose and caught it; the unmeasurable half is recorded as
+UNJUDGEABLE **by name** in the receipt rather than folded into the pass; the
+reason it cannot be measured is written down as something that was *tried*, not
+assumed; and the human look is filed in `FOR-ANDREW.md` as a concrete ten-second
+action. **It is not a licence to tick on reading the source** — that is exactly
+what the previous pass correctly refused, and it is still refused. The
+difference is a run with 20 assertions and two caught sabotages behind it.
+
+**What would reverse it:** Andrew looking at the bar and disliking it, in which
+case that is a new slice rather than this item re-opened; or a browser arriving
+on this machine that lays out a classic scrollbar gutter, in which case the
+appearance stops being unjudgeable and `mail-log-scroll.mjs` should grow the
+pixel assertion its header describes.
+
+### And a second, smaller ruling in the same pass: a cleared wait must have its PHRASE cleared too
+
+Andrew's own note on **0.16** — *"Done. The outside part of this is finished.
+It is no longer waiting on anybody"* — was sitting uncommitted in `ROADMAP.md`
+above an item that still read **`Waits on:`**. That string is one of the literal
+phrases the dispatcher greps for to mean *leave this item alone*. **So his
+unblocking would have changed nothing**: every sweep would have gone on skipping
+0.16, and nothing anywhere would have said why. The line is now marked
+`**Waited on** (cleared 2026-10-09)` — words kept, marker gone — and the box is
+ticked on his ruling.
+
+**The general form, because this will happen again:** when a person clears a
+blocker, the blocking PHRASE is part of what they cleared. A ticked box with a
+live blocking phrase under it is the quieter failure of the two, because it
+reads as progress while the item is invisible.
