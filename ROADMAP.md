@@ -2176,7 +2176,10 @@ and how the wait ends.
   AND IT REFUTES THIS ENTRY'S OWN PRECONDITION. THE DEMO TENANT HAS NO
   FIXTURES LEFT.** `set -a; . ./.env; set +a; node scripts/client-fixtures.mjs`
   — **13 rows, 0 marked, at every one of 320 / 392 / 768 / 1440 / 1920**, and
-  the sweep's own zero-targets guard (`client-fixtures.mjs:336`) fired by
+  the sweep's own zero-targets guard (`client-fixtures.mjs:405`, **and this
+  line said `:336` until 2026-10-09 — correct at `ee6f5e0` where it was
+  written, stale from `60a2b2c` when the fixture-supply block grew the file
+  by 69 lines**) fired by
   name: *"learn: no fixture row was discovered — every question below would be
   vacuous"*. 16 failures and `canary MISSED`, all one cause. `receipts/
   client-fixtures.json` is graded FAIL. **The instrument is sound; its subject
@@ -2307,7 +2310,10 @@ and how the wait ends.
   and written nowhere, on the same condition as the `is_test` injection that
   was already there, so it stops the day a real dropping reappears or the
   migration lands. **"Zero fixtures discovered is a failure" is unchanged and
-  is now enforced twice**: the guard at `client-fixtures.mjs:336` and a
+  is now enforced twice**: the guard at `client-fixtures.mjs:405` (**this line
+  said `:336` and was wrong the moment it was written — the same edit that
+  added the supply block moved the guard from 336 to 405 and cited the old
+  number anyway**) and a
   `--break=row` sabotage that switches the supply off. All four sabotages were
   run and all four bite, certified on their findings lists rather than on the
   verdict word (`docs/gotchas.md` 105): `row` 16 findings, one of them naming
@@ -2332,6 +2338,109 @@ and how the wait ends.
   of them on his own practice business, two browser-side filter sites, no node
   suite reachable by either), the screen is proved at five widths, and applying
   it today changes nothing he can see. The box stays open for the column.
+
+  Waits on: ~~0.3a~~ (done 2026-10-09, re-taken at `803f0cf`), 0.3b.
+  How the wait ends: 0.3b is ticked, and 0.3b is NEEDS ANDREW — the migration.
+  **Everything a session can build or prove for this item is built and proved.**
+  Split on 2026-10-09 because this entry is 169 lines
+  long and no single session was finishing it.
+
+- [x] **0.3a — Prove the client-fixtures UI path with a supplied fixture**
+  Verify the existing Clients filter, test-row toggle, badge, counts, responsive layouts, console, receipt grading, and sabotage guards while preserving all fixtures. This deliberately excludes changing the live database schema or applying the pending migration.
+  Part 1 of 2 of item 0.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The client-fixtures sweep passes across 320, 392, 768, 1440, and 1920 widths with a clean console
+  - A supplied fixture is hidden by default, appears only via the test-row control, and has a visible Test/DEMO mark
+  - Client masthead and gone-quiet counts exclude the fixture
+  - All four sabotages produce their expected findings, including the zero-fixture guard
+
+  **DONE 2026-10-09, RE-TAKEN AT `803f0cf` RATHER THAN READ OFF THE EARLIER
+  RECEIPT.** The evidence this slice was split out to hold already existed, but
+  it was taken at `60a2b2c` — three commits back — so it was re-run rather than
+  cited. `set -a; . ./.env; set +a; node scripts/client-fixtures.mjs`:
+  **PASS, 6/6 targets, 31 assertions, 0 failures, canary caught**, at
+  320 / 392 / 768 / 1440 / 1920, **console clean at all five widths**. Receipt
+  `receipts/client-fixtures.json` now records `git_sha` 803f0cf with
+  `head_moved: false`, and `node scripts/receipt.mjs` grades it
+  **1 valid · 0 stale · 0 failed**. Every width read: masthead «13 people» not
+  14, "gone quiet" **5** not 6, chip *"Show 1 test row"*, rows 13 → 14 on
+  pressing it, the **Test** mark `painted=true`, and the row gone again when
+  the chip is pressed off.
+
+  **ALL FOUR SABOTAGES RE-RUN AT `803f0cf` AND CERTIFIED ON THEIR FINDINGS
+  LISTS, NEVER ON THE VERDICT WORD** (`docs/gotchas.md` 105):
+  `--break=row` **16 findings**, the first naming the supply itself —
+  *"None was appended either, so this is the supply and not the screen"*;
+  `--break=column` **16 findings** from the same zero-fixture guard at
+  `client-fixtures.mjs:405`; `--break=paint` **5 findings**, one per width,
+  each reading `1/1 back, marked=1, painted=0, words=["Test"]` — the mark
+  present, correct, addressable and unreadable, which is the one failure a
+  DOM-only check cannot see; `--break=canary` caught by **three independent
+  grader rules** rather than by any status expression — *target counts
+  disagree: expected 6, discovered 5*, *only 30 assertions ran against a
+  declared minimum of 31*, and *canary did not fail*.
+
+  **AND THE SABOTAGES NO LONGER CLOBBER THE PASS RECEIPT — VERIFIED, NOT
+  ASSUMED.** `docs/gotchas.md` 117 is about exactly this, and its fix keys on
+  `dimensions.break`, which this script does not write; it writes
+  `dimensions.sabotage`. `scripts/receipt.mjs:465` reads **both**, so all
+  four reds landed in `receipts/client-fixtures.sabotage.json` and
+  `receipts/client-fixtures.json` stayed byte-stable at 3512 bytes throughout.
+  Nothing needed changing. **The clean sweep was then re-run LAST**, because the
+  sabotage runs overwrite the screenshots under `artifacts/client-fixtures/`
+  that the pass receipt names — a receipt whose artifacts came from a sabotage
+  is the stale-evidence trap one level down.
+
+  **`?lite=1` CHECKED SEPARATELY, BECAUSE THE SWEEP DOES NOT COVER IT.**
+  `main.jsx:47` makes `?lite=1` nothing but `.lite` on `<html>`, so a
+  targeted probe asked the two questions reduced motion could plausibly change
+  — is the chip there, and is the mark painted once revealed — at 1440 and 392:
+  `lite=true` read back off the live DOM (so the probe demonstrably reached
+  that state rather than silently no-opping), masthead «13 people», chip
+  *"Show 1 test row"*, hidden by default, revealed `painted: true`, **console
+  clean at both**. The lite screenshot is **byte-identical** to the normal one
+  at both widths (md5 `b8c1d3c7…` at 1440, `052f7456…` at 392, against a
+  different `a6f78db4…` for the default view, so the files do differ when the
+  screen does) — the expected result for a screen with no motion in it.
+
+  **Look at it** — local only, deliberately uncommitted:
+  `.manager-shots/0.3a-clients/` (1440 and 392, default and revealed, plus
+  320 revealed) and `.manager-shots/0.3a-lite/`.
+
+  **What this slice does NOT prove, in its own words:** that `customers.is_test`
+  exists. The receipt records `column_live: false` and
+  `fixtures_fabricated: true` on every run, and both are printed as warnings
+  rather than folded into the pass. That half is **0.3b** and it is Andrew's.
+
+- [ ] **0.3b — Apply the customer test-flag migration and revalidate live behavior**
+  Apply the existing migration that adds customers.is_test and flags the measured fixture rows, then rerun the already-built proof against real flagged data. This deliberately excludes deleting fixtures or rebuilding the already-proved UI and admin-demo behavior.
+  Part 2 of 2 of item 0.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The migration 20260924010000_a_fixture_is_not_a_customer.sql is applied by the authorized owner
+  - customers.is_test exists and the intended fixture rows are flagged without deleting any data
+  - The client-fixtures sweep passes using database-backed flagged fixtures, with no supplied-row fallback needed
+  - The migration's effect is confirmed not to alter real-client counts or fixture-dependent automated suites
+
+  NEEDS ANDREW: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`.
+  Changing the live database's structure is his alone — no session may do it,
+  not even a change it undoes immediately. **There is nothing left for a session
+  to build or prove here until it is applied**, and 0.3a proved the screen
+  against the exact data shape this migration produces, so the re-validation
+  this slice asks for is a re-run of one command and not new work.
+  The one-command row is in `FOR-ANDREW.md` § *"Waiting on you"* and was
+  rewritten on 2026-10-09; it is accurate as it stands.
+  **How anyone will know it landed:** `node scripts/client-fixtures.mjs` flips
+  `column_live` to `true` and `fixtures_fabricated` to `false` — it stops
+  supplying itself a row and measures real flagged ones — and
+  `node scripts/migration-drift.mjs` stops naming `customers.is_test` absent.
+  **Measured blast radius, so this is a small decision and not an open one:**
+  31 fixture rows flagged across six practice businesses, **0 on his own
+  `demo-detail`**, nothing deleted, the column `not null default false` so
+  every unflagged row behaves as today, and the filter applied in exactly two
+  browser-side places (`Clients.jsx:234` and `:415`) which no node suite can
+  reach. **Nothing breaks while it waits.**
 
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   **SUPERVISION REOPENED 2026-10-09.** The closing run proved the checkout and

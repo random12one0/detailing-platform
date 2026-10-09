@@ -1,9 +1,9 @@
 {
-  "git_sha": "60a2b2c9d283c619df8ecbc94d8dce79e9f471be",
-  "git_sha_started": "60a2b2c9d283c619df8ecbc94d8dce79e9f471be",
+  "git_sha": "803f0cfbf493c1b612ffb49b15a4df0de4960bb9",
+  "git_sha_started": "803f0cfbf493c1b612ffb49b15a4df0de4960bb9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T16:53:36.518Z",
+  "finished_at": "2026-10-09T21:59:23.095Z",
   "failures": [],
   "warnings": [
     "column_live=false: `customers.is_test` is NOT in the database yet — this check supplied it to the browser using the migration's own backfill predicate. The SCREEN is proved; the COLUMN is not, and will not be until Andrew applies supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql.",
@@ -55,7 +55,7 @@
     "sabotage": null
   },
   "check_id": "client-fixtures",
-  "started_at": "2026-10-09T16:53:10.019Z",
+  "started_at": "2026-10-09T21:58:53.179Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,

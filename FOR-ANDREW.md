@@ -1996,6 +1996,9 @@ still knows them.
   the row back with a **Test** mark on it that is actually visible. **The tick
   box is the whole of what is missing**, and adding it closes **both** of the
   jobs on our list about test rows in your lists (0.3 and 1.3).
+  **The job number for this command is now 0.3b**, because 0.3 was cut in two
+  on 2026-10-09: the screen half (0.3a) is finished and ticked, and this
+  command is the whole of what is left.
 
   **Nothing breaks while this waits** — the screen goes on looking exactly as it
   does today, which is already correct.

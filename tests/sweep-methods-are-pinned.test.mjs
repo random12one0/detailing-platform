@@ -302,7 +302,27 @@ const DECLARED = {
   // 52 raw, and this method's own count answers 57 at both. The session that
   // closed `0.11a` left this red; it is moved here with the cause named rather
   // than left to look like drift.
-  numberedOpenItems: 57,
+  // 57 -> 58, 2026-10-09, ROADMAP 0.3b. **ONE LEG AND IT IS ENTIRELY THIS
+  // EDIT'S**, which is the rare simple case here — HEAD reads 57 against the 57
+  // declared, so the suite was GREEN on arrival and nothing is inherited.
+  //
+  //   HEAD `803f0cf`  57   <- equals the declaration; green on arrival
+  //   worktree         58
+  //
+  // Taken by lifting this file's own `openItems` out and running it on
+  // `git show HEAD:ROADMAP.md` and on the working tree, then DIFFING THE ID
+  // SETS rather than the counts, as the 0.11a entry above does. **ARRIVED:
+  // exactly `0.3b` and nothing else. LEFT: nothing.**
+  //
+  // **AND THE SET DIFF CORRECTED THIS EDIT'S OWN ARITHMETIC, WHICH IS WHY THE
+  // RULE SAYS SETS AND NOT COUNTS.** 0.3 was cut into `0.3a` and `0.3b`, so
+  // the obvious reading is "+2 slices, -1 for ticking 0.3a, net +1" — right
+  // total, wrong legs. `0.3a` was created `[ ]` and ticked `[x]` inside the
+  // same uncommitted change, so it **never entered the open population** and
+  // contributes 0, not -1. The parent `0.3` was open at HEAD and stays open.
+  // A count of 58 is reachable by two different stories and only one of them is
+  // true; the id sets say which.
+  numberedOpenItems: 58,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
