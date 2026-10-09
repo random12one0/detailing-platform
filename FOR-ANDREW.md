@@ -442,11 +442,23 @@ It is called every night by a scheduled job with no signed-in person, exactly li
 `refresh-weather`, so it is in the public list and is deployed with the sign-in
 check off, which that nightly call needs.
 
-**f · Apply the nightly schedule, now that the program exists:**
+**f · Apply the nightly schedule, now that the program exists. TWO FILES, IN
+THIS ORDER:**
 `node scripts/apply-migrations.mjs 20261006060000_photo_reconcile_cron.sql`
-It seeds the job as *not reported yet* and schedules the call for 03:40 UTC.
-**Applied before step e it would email you a stopped-job alarm for a job that was
-never started.**
+`node scripts/apply-migrations.mjs 20261009120000_photo_reconcile_cron_timeout.sql`
+The first seeds the job as *not reported yet* and schedules the call for 03:40
+UTC. **Applied before step e it would email you a stopped-job alarm for a job
+that was never started.**
+
+**The second file was added 2026-10-09 and it is not optional.** The first one
+asks the database to make the nightly phone call but never says how long to wait
+for an answer, and the default wait is **five seconds**. This particular job
+reads every photograph in the whole store and every photo record in the
+database, so five seconds is nowhere near enough as soon as there are real
+photos — and this is not a guess: **the exact same missing setting broke your
+reminder emails for eighteen hours on 2026-09-13**, because the job was healthy
+and took ten seconds while the database gave up at five. The second file sets
+the wait to a minute. Nothing else about the schedule changes.
 
 **g · Last, apply the allowance number:**
 `node scripts/apply-migrations.mjs 20261006061000_photo_total_gb_ten.sql`
@@ -492,8 +504,11 @@ of objects with no record, records with no object and sizes that do not match, a
 `clean: false` is a number to look at, not an emergency. **Not proved until that
 morning:** that Cloudflare accepts the listing request, which no test short of the
 live bucket can show. If the job still shows as stopped on the back office's *Jobs
-that run on their own* list about a day after step f, the gateway is refusing it —
-tell us.
+that run on their own* list about a day after step f, **there are two things it
+can be and they look identical from outside**: the gateway refusing the
+anonymous call, or the database giving up on the call before the job finishes.
+The second one is what step f's second file prevents, so if you applied both
+files it is the gateway. Either way — tell us.
 
 ### Step 10 · Publish the website, last
 
