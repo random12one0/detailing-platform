@@ -1,0 +1,56 @@
+{
+  "git_sha": "51ef48b14761c6de2dbfbfc8dbc3413090984594",
+  "git_sha_started": "51ef48b14761c6de2dbfbfc8dbc3413090984594",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T19:08:00.793Z",
+  "failures": [],
+  "warnings": [
+    "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
+    "Gallery.jsx renders err.message untranslated, so the refusal is read in English at every width. The door's sentences are DOOR_WORDS and their Spanish is tests/spanish.test.mjs § 12's subject, not this item's."
+  ],
+  "artifacts": [
+    ".manager-shots/media-door-clean-1440.png",
+    ".manager-shots/media-door-clean-392.png",
+    ".manager-shots/media-door-clean-320.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11b",
+    "criteria": [
+      "1 · gallery publishing writes only to business-media in R2 — zero Supabase Storage UPLOADS observed",
+      "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url",
+      "3 · the key is minted for the caller's own business",
+      "4 · no Supabase Storage upload fallback remains on this path, asked of the live runtime"
+    ],
+    "widths": [
+      "1440",
+      "392",
+      "320"
+    ],
+    "public_base": "https://img.media.test/business",
+    "sabotage": null,
+    "intercepted": "three responses: the photo-door.js module (the flag flipped in flight), the undeployed photo-door function (its answer DERIVED by photo-rules.js's mediaPath and r2.ts's publicUrl), and the signed PUT plus the gallery_images insert (so nothing is written anywhere). Nothing in app/src is edited.",
+    "wrote_nothing": "no R2 object, no Supabase Storage object, no gallery_images row, no file on disk",
+    "unjudgeable": [
+      "That R2 accepts the signature, that Cloudflare serves the PUT, and that an unauthenticated visitor can read the url: no public address has been bound in Cloudflare yet (FOR-ANDREW.md step 9a2), so this run uses a test host through r2.ts's real reader. The DERIVATION is measured; the live address is Andrew's.",
+      "The branding and intake folders are not pressed in the browser — only gallery is. Both complete through the real handler in tests/photo-door-media-wire.test.mjs § 1, which declares its folder count from MEDIA_FOLDERS."
+    ]
+  },
+  "check_id": "media-door-browser",
+  "started_at": "2026-10-09T19:07:42.643Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 34,
+  "min_assertions": 22,
+  "assertion_floor": "11 per width (flag landed, zero storage calls, one PUT, the key, the stored url, the success sentence, the refusal present, the refusal's wording, its pixels, no PUT, no row) x 3 widths + 1 console = 34 when every width renders. A width whose screen never renders still books its assertions as failures rather than dropping out, so the count cannot silently fall below 22. --break=public-url adds one per width.",
+  "canary": {
+    "id": "the-pre-fix-reader",
+    "observed_failure": true,
+    "what": "readMediaStart before 0.11b tested public_url for 'https' and nothing else",
+    "rule": "another business's public_url is a perfectly good https url, so the pre-fix rule accepts it"
+  }
+}
