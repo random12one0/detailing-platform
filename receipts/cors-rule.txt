@@ -1,4 +1,4 @@
-cors rule · 2026-10-09T20:55:28.962Z
+cors rule · 2026-10-09T21:10:10.216Z
 origins derived: https://detailingplatform.com https://www.detailingplatform.com http://localhost:5173 http://127.0.0.1:5173 https://*.netlify.app https://*.netlify.live
 buckets derived: job-photos expense-receipts business-media
 PUT call sites: app/src/lib/photos.js:72 app/src/lib/receipts.js:81 app/src/lib/upload.js:74
