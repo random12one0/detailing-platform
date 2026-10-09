@@ -304,7 +304,24 @@ export function readReceiptFinish(resp, { expenseId, key }) {
  */
 export function readMediaStart(resp, { businessId, folder, fileId, type }) {
   const out = checkedStart(resp, mediaPath({ businessId, folder, id: fileId, type }));
-  if (typeof resp.public_url !== "string" || !/^https:\/\//.test(resp.public_url)) refuse("unreadable");
+  // **AND IT IS BOUND TO THE KEY, which it was not until 0.11b.** The line
+  // above makes the browser PUT only to the object it asked for; this one makes
+  // the row it writes afterwards NAME that same object. They are two separate
+  // fields of one answer, and until this was added a correct `key` beside
+  // another business's `public_url` was accepted — measured by
+  // `tests/photo-door-media-wire.test.mjs` § 6 against the real handler, which
+  // is the whole reason that suite exists. It is the sharper half of the two:
+  // a wrong `key` is a failed upload, a wrong `public_url` is a wrong image
+  // stored permanently in `gallery_images.image_url` or a brand's `logo_url`.
+  //
+  // `endsWith` is the whole check because the base is SERVER-side configuration
+  // (`R2_MEDIA_BASE`): the browser has never seen it and cannot be given it —
+  // a public address a page could read is a public address a page could be
+  // told. So what is checkable here is the object, and `r2.ts`'s `publicUrl`
+  // appends the key path-encoded, which for the closed key shape this product
+  // mints (`uuid/folder/uuid.ext`) is the key verbatim.
+  if (typeof resp.public_url !== "string" || !/^https:\/\//.test(resp.public_url)
+    || !resp.public_url.endsWith(`/${out.key}`)) refuse("unreadable");
   return { ...out, publicUrl: resp.public_url };
 }
 
