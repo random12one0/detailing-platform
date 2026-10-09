@@ -331,6 +331,18 @@ by name, as `R2_MEDIA_BASE`. **Until it is set, every logo or gallery upload on
 the new path answers *"Public image storage is not set up on the server yet"* and
 writes nothing** — which is why the switch for it is off, see step 10.
 
+*And we can now check your work the minute you have done it, in one command, with
+no keys and nothing of yours:* `node scripts/r2-public-base.mjs --base=<the
+address>`. It asks the six things that have to be true — the address exists, it is
+an `https` one, it is not Cloudflare's rate-limited `r2.dev` development host,
+a stranger can read a photograph through it, our pages are allowed to upload
+**with a file type**, and *nobody else* is allowed to upload. **It reads only.**
+It cannot bind the address, cannot set the CORS rule and cannot upload anything —
+those stay yours. Right now it comes back red on the first of the six and says so
+in those words: *no public address for business-media.* Written 2026-10-09 because
+until then nothing anywhere could tell a1 and a2 done from a1 and a2 forgotten, and
+the way that shows up later is a blocked upload with nothing to say why.
+
 **b · ~~Check the three Cloudflare keys are set as secrets on the functions.~~
 DONE — NOTHING FOR YOU TO DO HERE. Checked for you on 2026-10-09 and all three
 are there.** This step used to ask you to go and look, because
