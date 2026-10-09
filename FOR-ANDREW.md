@@ -325,11 +325,18 @@ by name, as `R2_MEDIA_BASE`. **Until it is set, every logo or gallery upload on
 the new path answers *"Public image storage is not set up on the server yet"* and
 writes nothing** — which is why the switch for it is off, see step 10.
 
-**b · Check the three Cloudflare keys are set as secrets on the functions**
-(`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`).
-`docs/services-and-secrets.md` says they were saved on 2026-09-22; it does not say
-they are on the functions. With one missing, each photo program answers *"Photo
-storage is not set up on the server yet"* and names nothing else.
+**b · ~~Check the three Cloudflare keys are set as secrets on the functions.~~
+DONE — NOTHING FOR YOU TO DO HERE. Checked for you on 2026-10-09 and all three
+are there.** This step used to ask you to go and look, because
+`docs/services-and-secrets.md` recorded that the keys were saved on 2026-09-22
+and nobody had ever confirmed they were attached to the programs that need them.
+They are. A check now asks the question for us, so it never has to be guessed at
+again: `node scripts/photo-release-order.mjs`. It reads the NAMES of the keys and
+never their values, which is the only way we would ever look at them.
+
+*One is still missing and it is the one you have not given us yet:* the public web
+address for `business-media` from step a2 above. Until that exists, the logo and
+gallery switch stays off — see step 10.
 
 **c · Publish `photo-door`.** `node scripts/deploy-functions.mjs photo-door`
 It is not in the public list and must not be: every action needs a signed-in
@@ -370,6 +377,19 @@ recommendation is to leave it until you have more than a handful of real
 detailers, and then pick the number from what they actually use.
 
 **Unlocks ROADMAP 0.11.**
+
+**AFTER EACH STEP ABOVE, ONE COMMAND SAYS WHETHER THE ORDER HELD:**
+`node scripts/photo-release-order.mjs`. It only reads — it publishes nothing,
+applies nothing and changes nothing. It is here because the order of these steps
+matters more than any single one of them, and until 2026-10-09 nothing checked
+it: doing step g before step c would put a 10 GB promise on a detailer's screen
+with nothing behind it, and finishing everything but forgetting the two switches
+in step 10 leaves photos going the old way with nothing to say so. The command
+prints a line per rule and tells you which step is out of place. One line in it
+will always read `????` next to `bucket-cors` — that is step a1, the Cloudflare
+rule, which only you can see; it is printed rather than hidden so nobody mistakes
+it for something that was checked.
+
 **Then, the morning after:** one read tells you the first night's reconcile ran
 and what it found. In the Supabase SQL editor (it only reads):
 `select ran_at, detail from job_heartbeats where job = 'photo-reconcile';`
