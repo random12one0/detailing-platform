@@ -5281,3 +5281,54 @@ instrument, and it is the one every example reaches for first.
 measured in the same run, where a `hasNotText: /^\d+ added$/` filter correctly excluded a counter
 rendering as `1 ADDED`. So a locator and an assertion in the same block were reading two different
 strings off one element, and only the assertion was wrong.
+
+## 116 — A CHARACTER CLASS BOUNDING A LIST TRUNCATES ON THE FIRST DELIMITER *INSIDE* A VALUE, AND EVERY RULE DOWNSTREAM THEN REPORTS CLEANLY ON THE SHORT LIST
+
+Measured 2026-10-09 building `scripts/cors-rule.mjs` for ROADMAP 0.11c. The job was
+to read the product's own list of platform hosts out of `app/src/lib/host.js` and hold
+`FOR-ANDREW.md` step 9a1 against it, so the CORS rule Andrew pastes cannot drift from
+the addresses the app actually uploads from.
+
+The parse bounded the array with a negated character class, which is the obvious way
+to write it:
+
+```js
+hostSrc.match(new RegExp(name + "\s*=\s*(?:new Set\()?\[([^\]]*)\]"))
+```
+
+`PLATFORM_HOSTS` holds five entries and one of them is **`"[::1]"`** — the IPv6
+loopback. `[^\]]*` stops at the `]` **inside that string**, so the match ended
+mid-value and the list came back with **four hosts of five**. Nothing threw, nothing
+was empty, and no rule reported a problem: the check then asked its questions of a
+four-item population and printed `4 hosts` in its own evidence line, which reads
+exactly like a correct count.
+
+**The fix is to bound on the token that actually closes the construct** — `])` for a
+`new Set([…])`, `];` for an array — rather than on "the first `]`":
+
+```js
+hostSrc.match(new RegExp(name + "\s*=\s*(?:new Set\()?\[([\s\S]*?)\]" + close))
+```
+
+**Two things make this worse than an ordinary regex bug.**
+
+**It fails toward a SHORT POPULATION, not an error** — the same direction as entry 89's
+`"1.3 —"` matching `"11.3 —"`: the verdict is computed correctly over the wrong set.
+A dropped origin here is an upload that works from one address and is blocked from
+another, with a correct program and nothing anywhere to say why.
+
+**And the evidence line is not evidence.** The run printed *"5 hosts"* only after the
+fix; before it, it printed *"4 hosts"* in the same confident tone. **A count a check
+derives from its own parse cannot validate that parse.** The only thing that caught it
+was reading the printed list against the file by eye — which is why the same script now
+declares how many `bucket:` entries the source table has (`declared`) and reddens when
+fewer resolve, instead of shrinking its population silently. That half was found the
+same way, one minute apart: the bucket resolver looked in `photoDoor.ts` alone, missed
+`TENANT_PUBLIC_BUCKET` in `photoKey.ts`, resolved **2 of 3** buckets and printed
+**"step 9a1 names all 2 buckets"** as a PASS over a three-bucket table.
+
+**So: any check that derives a population by parsing must declare the size it expected
+from the source, not from its own match.** `grep -c` the construct, count the entries
+by hand once, or read a `declared` count out of the text — and fail when the two
+disagree. A parse that quietly returns fewer items is indistinguishable from a healthy
+one.

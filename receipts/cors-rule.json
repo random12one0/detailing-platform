@@ -1,40 +1,36 @@
 {
-  "git_sha": "d9be87f63326a01e779a15aa1bb39f6b5f191110",
-  "git_sha_started": "d9be87f63326a01e779a15aa1bb39f6b5f191110",
+  "git_sha": "58f36d181fa6dc8206c5a2522dcf2c890825cb44",
+  "git_sha_started": "58f36d181fa6dc8206c5a2522dcf2c890825cb44",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:52:05.501Z",
-  "failures": [
-    "product-declares-origins: host.js yielded 0 hosts and 2 suffixes, and CLAUDE.md's dev port read as 5173 — the origin list cannot be derived, so nothing below was really asked"
-  ],
-  "warnings": [
-    "UNJUDGEABLE step-names-every-origin: the origin list could not be derived from the product, so the document cannot be held against it"
-  ],
+  "finished_at": "2026-10-09T20:54:36.173Z",
+  "failures": [],
+  "warnings": [],
   "artifacts": [
     "receipts/cors-rule.txt"
   ],
   "dimensions": {
     "rules": 8,
-    "origins_derived": 0,
+    "origins_derived": 6,
     "buckets_derived": 3,
     "put_call_sites": 3,
     "get_call_sites": 1,
-    "broken_on_purpose": "no-origins"
+    "broken_on_purpose": null
   },
   "check_id": "cors-rule",
-  "started_at": "2026-10-09T20:52:05.418Z",
-  "status": "fail",
+  "started_at": "2026-10-09T20:54:36.089Z",
+  "status": "pass",
   "expected_targets": 8,
   "discovered_targets": 8,
   "attempted_targets": 8,
   "completed_targets": 8,
   "skipped_targets": 0,
-  "assertions_executed": 11,
+  "assertions_executed": 17,
   "min_assertions": 14,
   "canary": {
     "id": "www-origin-dropped + bucket-unresolved",
-    "observed_failure": false,
-    "www_origin_dropped": false,
+    "observed_failure": true,
+    "www_origin_dropped": true,
     "bucket_unresolved": true
   }
 }

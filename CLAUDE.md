@@ -95,6 +95,7 @@ set -a; . ./.env; set +a
 | **Either pass document's sweep figures, or anything that counts commits or quoted fragments** | `node --test tests/sweep-methods-are-pinned.test.mjs`. Credential-free, one `git log`, **0.6s**. **It holds the two sweep methods AS CODE, because a method written as prose produced eleven figures that cannot be re-taken** — *“for each item number, `git log --grep`”* is neither the 434 unique nor the 853 summed commits it was read as. In the same document the rule that WAS written down reproduced exactly at 36. Two `PIN_CANARY=` sabotages |
 | **A FIGURE — any count you are about to write into a document** | `node --test tests/figures-carry-their-command.test.mjs`. Credential-free, **3s**. **It enforces `docs/gotchas.md` 94 instead of trusting a session to remember it**, and the reason is measured: *the two people who knew the rule best broke it within an hour of writing it* — 93 was written about not editing a number to make two agree, and then 92's recorded 58 was edited to 53 to make two agree. Five buckets, a discovery floor, a canary injected every run, and **UNJUDGEABLE reported by name rather than folded into pass** |
 | **`MailLog.jsx`, `.mail-scroll`, or any list bounded inside its own scroll box** | `node scripts/mail-log-scroll.mjs` (dev server + seed + credentials). **ROADMAP 3.1b, 3.1c and 3.1d are all queued on this same screen**, and the bound is load-bearing: the shared `.settings-body` behind all 24 "more" screens is itself `overflow-y: auto`, so a list that stops bounding itself puts the browser's full-height bar back across every one of them. `--break=unbound` is that regression on purpose and prints it by name. **Its 2 UNJUDGEABLE lines are not failures and must not be "fixed"** — no browser here lays out a classic scrollbar gutter, so the thumb's appearance is Andrew's eyes and is recorded as unmeasurable rather than skipped |
+| **`app/src/lib/host.js`, the photo upload transport, or `FOR-ANDREW.md` step 9a1** | `node scripts/cors-rule.mjs`. Credential-free, no network, six filesystem reads. **The CORS rule Andrew pastes into Cloudflare is the only thing that decides whether an upload is allowed, and until 2026-10-09 it was a sentence saying *"your website's address"* — the product runs on SIX origins and that named one of them.** It derives the rule from the product (origins from `host.js`, methods from the three PUT call sites and `publishToGallery`'s signed GET, buckets from `photoDoor.ts`'s STORES) and reddens when the document stops matching. Eight `--break=` switches and two canaries; **both canaries are load-bearing and that is measured** — relaxing the origin rule from every-to-any made `--break=drop-www` report `0 failed` |
 | Color or ground tokens | `node scripts/accent-sweep.mjs` |
 | An edge function | `node scripts/deploy-functions.mjs …` then `node scripts/check-deployed.mjs` **and** `node scripts/deployed-inventory.mjs` |
 | A layout | `node scripts/sweep-widths.mjs` (needs dev server + seed) |
@@ -173,7 +174,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND FIFTEEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND SIXTEEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -787,3 +788,12 @@ is `text-transform: uppercase`, so an assertion comparing a composed sentence ag
 same block was reading `textContent` and getting it right. `grep -c "^## " docs/gotchas.md` run before
 writing this and again after, so the 115 above is a count rather than an increment — and the pointer at the
 top of this file was corrected in the same edit, which is the half that keeps going undone.
+
+**115 → 116 on 2026-10-09, same edit** — a negated character class bounding a list truncates on the
+first delimiter *inside* a quoted value: `[^\]]*` over `PLATFORM_HOSTS` stopped at the `]` in
+`"[::1]"` and read **four hosts of five**, after which every rule reported cleanly on the four and the
+run's own evidence line printed `4 hosts` in exactly the tone it printed `5` after the fix. **A count
+a check derives from its own parse cannot validate that parse.** Found twice in one minute, the second
+time as a bucket resolver that looked in one file, resolved **2 of 3** and printed *"names all 2
+buckets"* as a PASS over a three-bucket table. `grep -c "^## " docs/gotchas.md` run before writing this
+and again after, so the 116 above is a count rather than an increment.

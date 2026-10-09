@@ -1332,6 +1332,10 @@ and how the wait ends.
   - The deployed door returns public URLs derived from the configured public R2 address.
 
 - [ ] **0.11bc — Enable the media door and verify live upload flows**
+  **BELT PARKED after 3 attempts, 2026-10-09 20:40:45.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T20-40-39-007Z-0.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
 
   NEEDS ANDREW: bind `business-media`'s public address in Cloudflare (`FOR-ANDREW.md` step 9a2, item
   0.11ba) and then publish `photo-door` (step 9c, item 0.11bb), **in that order** — 0.11bb measured that a
@@ -1437,6 +1441,86 @@ and how the wait ends.
   - The app never ships before photo-door, and the live upload switch and photo_total_gb change from 1 to 10 occur in the same release.
   - The photo-reconcile cron entry is installed like refresh-weather, while photo-door retains JWT verification and photo-reconcile is publicly callable by cron.
 
+  ***CRITERION 1'S OTHER HALF IS NOW CHECKED, AND IT WAS WRONG - 2026-10-09, attempt 2. Commits
+  `d9be87f` and `58f36d1`. Credential-free: no network, no database, no deploy, no flag, no DDL, no
+  secret touched. The box stays `[ ]`: three of the four criteria are acts only Andrew performs.***
+
+  **THE PREVIOUS ATTEMPT PUT CRITERION 1 DOWN AS UNJUDGEABLE AND IT WAS HALF RIGHT.** Reading
+  Cloudflare's CORS rules needs a credential this repo does not have, and the two private buckets
+  cannot be probed anonymously, so **the DASHBOARD half is unjudgeable and stays that way** -
+  `photo-release-order.mjs`'s `bucket-cors` still prints it by name on every run. **But the dashboard
+  is not what decides whether uploads are allowed. The sentence Andrew executes decides that**, and
+  nothing checked the sentence. If step 9a1 names the wrong origins, Cloudflare ends up configured
+  exactly as asked and every upload is still blocked, with a correct program and nothing anywhere
+  to say why.
+
+  **IT NAMED ONE OF SIX. MEASURED BEFORE THE FIX.** Step 9a1 said *"Allow your website's address to
+  GET and PUT with the `Content-Type` header. Also allow `http://localhost:5173` while testing, and
+  any preview address you use."* The product's own platform-host list (`app/src/lib/host.js`,
+  which exists to answer *"is this browser on one of ours"*) yields **six origins**, and that
+  sentence named **`http://localhost:5173` alone**. The two that matter:
+  **`https://www.detailingplatform.com` is a SEPARATE ORIGIN** a browser will not share a CORS rule
+  with, so a detailer who lands on `www.` would have had every upload blocked while the apex worked;
+  and ***"any preview address you use"* is not executable** - nobody can type a hostname Netlify has
+  not generated yet, which is why the product matches `.netlify.app` and `.netlify.live` by suffix.
+
+  **Step 9a1 now carries the exact JSON block, three times, one per bucket, with the reason for each
+  line in his words and an instruction to tell us rather than drop a line Cloudflare refuses.**
+
+  **`scripts/cors-rule.mjs` - 8 rules, 0 failed, 0 unjudgeable, 17 assertions against a declared floor
+  of 14; `node scripts/receipt.mjs` grades the receipt PASS.** Nothing in it states an origin, a
+  method, a header or a bucket of its own: origins come from `host.js` plus `CLAUDE.md`'s own
+  `dev server on :5173` line, PUT from the three `method: "PUT"` upload call sites
+  (`photos.js:72`, `receipts.js:81`, `upload.js:74`), **GET from the one caller that needs it** -
+  `publishToGallery` (`photos.js:123`) fetches a signed job photo IN THE BROWSER to copy it into the
+  public bucket, and every other read of a photo is an `<img src>`, which needs no CORS rule at all -
+  and the three buckets from `photoDoor.ts`'s `STORES`. So a re-wording moves the requirement with
+  the product rather than falsifying the check (`label-guard.mjs`'s failure avoided by holding no
+  spelling at all).
+
+  **BROKEN ON PURPOSE TEN TIMES, IN TWO PLACES, AND THE TWO CODE SABOTAGES ARE THE INTERESTING ONES.**
+  The eight `--break=` switches each redden their own rule **by name on the findings list** rather than
+  on the verdict word (`docs/gotchas.md` 105), each printing the rule's verdict BEFORE the edit (102),
+  and `--break=no-origins` correctly cascades `step-names-every-origin` to **UNJUDGEABLE rather than
+  pass** - a failed read is not an empty one. An unrecognised `--break=` exits 1 before `judge()` and
+  writes no receipt. Then `judge()` itself was sabotaged twice, each time proving a canary is
+  load-bearing: **relaxing the origin rule from every-to-any made `--break=drop-www` print `0 failed`**
+  (gotchas 95 exactly - equality to floor disarms the sabotage aimed at it) and removing the bucket
+  population guard left the findings list empty too. **Both runs went red on the CANARY alone**, which
+  is the whole reason there are two. Every edit was confirmed landed with `git diff --numstat` first
+  (102), and the file was restored from a pristine copy **outside the repo** (97), not with
+  `git checkout`.
+
+  **TWO FAULTS IN THE CHECK'S OWN FIRST VERSION, BOTH CAUGHT BY RUNNING IT, AND THEY ARE NOW
+  `docs/gotchas.md` 116.** The host parse bounded the list with `[^\]]*` and `PLATFORM_HOSTS` contains
+  **`"[::1]"`**, so it stopped at the `]` inside that value and read **four hosts of five** - silently,
+  with its own evidence line printing `4 hosts` in the same tone it prints `5` now. And the bucket
+  resolver looked in `photoDoor.ts` alone, missed `TENANT_PUBLIC_BUCKET` in `photoKey.ts`, resolved
+  **2 of 3** and printed ***"step 9a1 names all 2 buckets"* as a PASS over a three-bucket table** -
+  over `business-media`, the bucket step 9a1 only learned about on 2026-10-08. **A count a check
+  derives from its own parse cannot validate that parse**, so the bucket rule now reads how many
+  `bucket:` entries the table DECLARES and reddens when fewer resolve.
+
+  **ONE JUDGEMENT CALL, STATED RATHER THAN HIDDEN.** `host.js` lists five hosts and the fifth is
+  `[::1]`, the IPv6 loopback. It is excluded from the paste block on purpose - nobody types it into
+  an address bar, and handing Andrew an origin a dashboard may refuse is a dead end given to the one
+  person who cannot debug it. The parse still FINDS it (5 hosts) and the exclusion is carried in
+  `excluded` so it is visible rather than being a parse that quietly dropped one.
+
+  **NOT PROVEN, SAID PLAINLY.** That the rule is actually set in Cloudflare - this judges the
+  instruction, not the dashboard, and a green means *"doing exactly what the document says is now
+  enough"*, which was not true this morning. That Cloudflare accepts a `*` inside an `AllowedOrigins`
+  entry: the two preview lines are written that way because the product matches those hosts by suffix,
+  and if the dashboard refuses the form, step 9a1 now tells him to say so rather than delete the line.
+  **No browser evidence, and here that is an absent subject rather than a skipped check:** this piece
+  ships no screen and changes no pixel - one credential-free command-line gate and one paragraph of
+  `FOR-ANDREW.md`, neither reachable from a page. The 1440/392 press that belongs to this item is
+  0.11d's first upload, where a missing CORS rule shows as a blocked preflight.
+
+  **WHAT IS STILL OPEN IS UNCHANGED AND IT IS ALL ANDREW'S.** Criteria 1 (the dashboard), 3 and 4 are
+  acts a session cannot perform; criterion 2 was measured and met on 2026-10-09.
+
+
   ***THE ORDER IS NOW CHECKABLE, AND CRITERION 2 IS MET - 2026-10-09. Commits `9ee958f` and `e67f1c9`.
   Credentialed but READ-ONLY: nothing deployed, nothing applied, no flag flipped, no DDL, no write to the live
   database or to R2, no secret value touched. The box stays `[ ]`: three of the four criteria are acts only Andrew
@@ -1523,7 +1607,8 @@ and how the wait ends.
   gate and a node test suite, neither reachable from a page. The 1440/392 press that would belong to this item is
   0.11d's, after the door is published.
 
-  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 - the CORS rule on all three buckets (9a1), a public web address
+  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 - **9a1 is now a JSON block to paste rather than a sentence to
+  interpret, and `node scripts/cors-rule.mjs` prints it** - the CORS rule on all three buckets (9a1), a public web address
   for `business-media` (9a2, a decision rather than a publish), publish `photo-door`, `delete-customer` and
   `photo-reconcile` (9c-9e), apply the cron migration and then the allowance migration (9f-9g), then publish the
   website (step 10) and have a session flip `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`. **Step 9b is now done and

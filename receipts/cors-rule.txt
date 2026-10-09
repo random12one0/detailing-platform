@@ -1,12 +1,12 @@
-cors rule · 2026-10-09T20:52:05.418Z
-origins derived: 
+cors rule · 2026-10-09T20:54:36.089Z
+origins derived: https://detailingplatform.com https://www.detailingplatform.com http://localhost:5173 http://127.0.0.1:5173 https://*.netlify.app https://*.netlify.live
 buckets derived: job-photos expense-receipts business-media
 PUT call sites: app/src/lib/photos.js:72 app/src/lib/receipts.js:81 app/src/lib/upload.js:74
 signed-GET call sites: app/src/lib/photos.js:123
-broken on purpose: no-origins
+broken on purpose: no
 
-FAIL  product-declares-origins
-    host.js yielded 0 hosts and 2 suffixes, and CLAUDE.md's dev port read as 5173 — the origin list cannot be derived, so nothing below was really asked
+PASS  product-declares-origins
+    6 origins derived from host.js (5 hosts, 2 suffixes) and the documented dev port 5173
 PASS  product-needs-put
     3 PUT-with-Content-Type upload call sites: app/src/lib/photos.js:72, app/src/lib/receipts.js:81, app/src/lib/upload.js:74
 PASS  product-needs-get
@@ -17,17 +17,24 @@ PASS  step-names-both-methods
     step 9a1 names GET and PUT, the two methods the product makes
 PASS  step-names-content-type
     step 9a1 names the Content-Type header
-UNJUDGEABLE  step-names-every-origin
-    the origin list could not be derived from the product, so the document cannot be held against it
+PASS  step-names-every-origin
+    step 9a1 names all 6 origins host.js calls ours: https://detailingplatform.com, https://www.detailingplatform.com, http://localhost:5173, http://127.0.0.1:5173, https://*.netlify.app, https://*.netlify.live
 PASS  step-forbids-wildcard-origin
     step 9a1 does not ask for a wildcard origin
 
-canary www-origin-dropped caught: false
+canary www-origin-dropped caught: true
 canary bucket-unresolved caught: true
 
 [
   {
-    "AllowedOrigins": [],
+    "AllowedOrigins": [
+      "https://detailingplatform.com",
+      "https://www.detailingplatform.com",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://*.netlify.app",
+      "https://*.netlify.live"
+    ],
     "AllowedMethods": [
       "GET",
       "PUT"
