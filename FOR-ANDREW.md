@@ -1784,40 +1784,6 @@ still knows them.
   **Nothing breaks while this waits** — the screen simply goes on showing all
   sixteen, exactly as it does today.
 
-- [ ] **DO · Open seven emails in your own inbox and tell us whether they read
-  right. It is thirty seconds each and it is the last thing standing between
-  ROADMAP 3.4 and done.**
-
-  **The seven:** booking confirmed, request accepted, appointment reminder,
-  quote, receipt, cancelled, rescheduled.
-
-  **Why it has to be you.** We have now rendered all sixteen emails the product
-  sends, in English and Spanish — sixty-four documents, read one at a time — and
-  written up what we found. **What nobody here can do is receive one.** A real
-  send costs one of your eighty a day and lands in your inbox, and the question
-  is whether it arrives looking right in a real mail app, which a rendered file
-  cannot answer. Every fixture we use goes to an address that cannot receive
-  anything, on purpose.
-
-  **What we already found by reading, so you are not checking from scratch.**
-  The **rescheduled** email is the one to look at hardest. It shows the old time
-  and the new time one under the other, and the only thing marking which is
-  which is a **line through the old one**. In the plain-text copy that every
-  mail app can fall back to, the line disappears and you get two dates and no
-  words. If your mail app shows you that version, you will see the problem
-  immediately. **The fix is one word — "Was" — and it is not applied, because
-  adding words to a customer's email is yours to approve.**
-
-  **Also worth a glance:** the **"your maintenance is due"** email prints its
-  date as *12 October 2026* rather than *October 12, 2026*, and in Spanish it
-  prints that English date inside a Spanish sentence. **The product itself
-  formats it correctly** — that wrong date is in our own test fixture, not in
-  what a customer would get — but it means nobody has ever looked at that line
-  as a customer will actually see it.
-
-  **Nothing breaks while this waits.** Full write-up:
-  `docs/3.4-rendering-findings-2026-09-24.md`, folding into ROADMAP 3.4.
-
 - [x] **DECIDED · The day squares stay as they are. 2026-09-24 — nothing
   needed from you.**
 
@@ -2407,27 +2373,13 @@ once, which is still more than any script here can do.
 
 ## Recorded — nothing needed from you yet
 
-- **WAIT · Texting wording will be settled when the deferred phone-number item
-  resumes — corrected 2026-10-09.** We can send a text when someone
-  books and another the day before their appointment, with a way for them to
-  reply and confirm. Nobody is allowed to build any of it yet, because you
-  asked to pick the exact wording first, and that is a deliberate pause, not
-  something stuck.
-
-  **Nothing is being asked of you now.** When 0.14 resumes, decide what the booking-confirmation text says, and
-  what the day-before reminder text says, including the line that asks them
-  to reply to confirm. The plan for all of this is already written down,
-  waiting for your words, in `TEXTING.md`.
-
-  **Recommendation:** two short texts are enough. Something like *"Your
-  detail is booked for [day] at [time]. Reply C to confirm."* for the
-  reminder, and a plain one-line confirmation for the first text. You can
-  always change the wording later — the point is picking something so the
-  work can start.
-
-  **Why it matters beyond texting:** the fix-list item for "customers only
-  ever get email, never text" cannot even begin until this is settled. It is
-  not a second wait — it is the same one.
+- **WAIT · Texting is approved and planned; finish its setup when this work
+  resumes — decided 2026-10-09.** This is no longer a wording decision or a
+  question about whether the product will text. It will. You already started
+  the supplier setup and asked to be reminded to return to it. When 0.14
+  resumes, finish the number/carrier setup; then the team can settle the exact
+  confirmation and reminder words as part of the broader email-and-text design
+  review recorded under ROADMAP 3.4.
 
 ### The six emails of 2026-09-23 — moved here 2026-10-07 because it was the
 ### first thing on the page a fortnight later
@@ -2788,7 +2740,7 @@ once, which is still more than any script here can do.
   refuse a request that carries no key at all, so before you ran that line
   they genuinely could not be watched. They are not decorative.
 
-- [ ] **DO · Sign up for text messaging and register the number.**
+- [ ] **DO · Finish the text-messaging setup and register the number.**
   **Telnyx, about $0.0040 a message** — roughly half Twilio's real cost. One
   number for everybody, which is what you asked for. **Under $5/month** at a
   few hundred reminders.

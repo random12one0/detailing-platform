@@ -326,6 +326,7 @@ were made more than once.
 
 - **The belt does not dispatch an Andrew-only hold, and a permanently-red receipt census is not a gate** — supervision on 2026-10-08 after 0.11 stayed first in the ready shortlist despite having no code left, and 2.15 was selected three times despite requiring Andrew's iPhone. Adds the standard `NEEDS ANDREW` marker to both, removes the full receipt census from per-item gates, and corrects the stale claim that triage had moved off Codex.
 - **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
+- **Andrew's second dashboard decisions of 2026-10-09** — hold and end-to-end test the fixtures before switching 0.3/1.3; show each price change on its first causative click; texting is planned and awaits setup, not approval; redesign email/text policy rather than sending every template; rethink the back office substantially from scratch; and keep 3.1's mail log while adding integrated overflow, spacing, time groups and message previews.
 
 - **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
 
@@ -18528,4 +18529,29 @@ answer, 0 console errors at both widths, `tests/confirm-questions.test.mjs` 6/6
 with its sabotage biting the right control. **This is one defect inside work that
 is otherwise sound**, and it is filed that way so nobody reads it as a verdict on
 the item.
+
+## Andrew's second dashboard decisions of 2026-10-09
+
+These six rulings replace stale asks and capture Andrew's direct product review.
+
+- **0.3 and 1.3:** keep the demo accounts and fixtures for now. Hold the
+  already-built filter switch until the full system has been proved end to end;
+  there are no real customers, so the present counts are not a reason to rush it.
+- **2.1b:** the displayed price changes on the first click that changes money —
+  including the first product/service selection — and on every later
+  price-changing choice. A date-before-time fix is only one case of that rule.
+- **3.3:** SMS is part of the planned product. No further approval is needed;
+  Andrew needs a reminder to finish the supplier/number setup he already began.
+- **3.4:** do not spend the shared mail allowance sending every template merely
+  to prove one common pipe. The email-and-text system needs a deliberate product
+  review: which messages exist, when they go, and how the detailer learns that
+  email failed so another channel can be used.
+- **0.4 / 9.12:** the visible build-start button is not approval of the back
+  office around it. Andrew rejected that direction and wants the back office's
+  design, implementation and tab contents reconsidered substantially from
+  scratch.
+- **3.1:** keep the new detailer mail-log tab. Clean up the intrusive scrollbar
+  and any crowded text, divide the long list visibly into Today / This month /
+  All time without turning those dividers into a filter, and let a row open a
+  preview of the email as it was sent.
 

@@ -886,6 +886,12 @@ and how the wait ends.
   *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
 - [ ] **0.3 — Test data: flag, don't delete.** ~~Awaiting Andrew's yes.~~
+  **ANDREW DECIDED 2026-10-09: HOLD AND TEST.** Keep every demo account and
+  fixture. Do not apply the client-fixture switch merely to make the lists look
+  clean; first verify the full system end to end with the fixtures still doing
+  their job. This is not waiting for another product decision. It stays open
+  until that end-to-end proof exists, then the already-built flag/filter path
+  can be judged on its evidence.
   **HE SAID YES ON 2026-09-20 — the title was four days stale, found by the
   stale-blocker pass 2026-09-24.** Evidence: `FOR-ANDREW.md` carries it ticked,
   *"Test detailers: flag, don't delete — 2026-09-20"*, and
@@ -958,7 +964,15 @@ and how the wait ends.
   § *"Waiting on you"*. **An entry that understates what is built costs as much
   as one that overstates it, because nobody goes looking.**
 
-- [x] **0.4 — The legal pages. A lawyer is not the only option.**
+- [ ] **0.4 — The legal pages. A lawyer is not the only option.**
+  **SUPERVISION REOPENED 2026-10-09.** The closing run proved the checkout and
+  proved that the live server refused the button with `400 "Unknown action"`;
+  it did **not** reproduce the working case. A refusal is proof of refusal, not
+  proof that the product sends the notice and records the date. Andrew also
+  rejected the new back-office treatment and asked for that whole tool to be
+  reconsidered under 9.12. Keep this open until the success path can be
+  reproduced after the owner-controlled apply/publish work, and do not treat
+  the rejected button layout as an approved design.
   **ANDREW DECIDED 2026-10-09: do the strongest honest version we can without
   hiring a lawyer.** The remaining build-start sentence is not a request for
   another decision. The best fix is to make the promise true: record the day
@@ -1829,6 +1843,11 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   *A2 1.4*
 
 - [ ] **1.3 — Test accounts appear in production lists and counts.**
+  **ANDREW DECIDED 2026-10-09: KEEP THEM AS THEY ARE FOR NOW.** There are no
+  real accounts and he still needs the demos. The built flag/filter remains the
+  launch path, not a task for him today; revisit it when the product is nearly
+  ready or the first real accounts are coming. The current "gone quiet" number
+  is not a present product concern because it contains no real customers.
   Back office "Everyone" shows 16 rows of which 15 are tests; the client list
   carries "Smoke TPMOY" with a broken number "(555) 014-2"; "9 gone quiet"
   counts them.
@@ -2359,6 +2378,13 @@ the wrong service, and never book a job we cannot reach.
   `calculate-booking`'s own header says otherwise. Found 2026-09-21 answering
   a question about 2.1; not a fault, and nobody is asking for it to change
   today.** `whenContextFor` (`_shared/pricing.ts`) opens with
+  **ANDREW OVERRULED THE NARROW DONE-WHEN ON 2026-10-09.** The price must change
+  on the **first click that changes price** — including the first product or
+  service choice — and after every later price-changing choice. Waiting for a
+  date, time, or a later step is not acceptable. The existing day-before-time
+  fix may be one correct case; it does not close this broader interaction until
+  the booking flow is walked from its first priced selection and every change
+  is observed in the displayed total.
   `if (!bookingDate || !startTime) return {}`, so no price rule can match on
   a day alone. Measured on the demo at 320: picking Saturday 26 September and
   no time left the bar at **$65**; picking 8:00 AM took it to **$95**.
@@ -7412,6 +7438,15 @@ the wrong service, and never book a job we cannot reach.
 requested.
 
 - [ ] **3.1 — The owner cannot tell whether emails arrived.**
+  **ANDREW REVIEWED THE NEW DETAILER MAIL LOG 2026-10-09: KEEP IT, THEN FINISH
+  FOUR UI DETAILS.** He likes the tab and says it shows the sent mail clearly.
+  Before this item closes: replace the intrusive native-looking scroll bar with
+  overflow treatment integrated into this design; check that no text crowds or
+  touches neighboring content; divide the long Everything list into visible
+  time groups such as **Today / This month / All time** without making those
+  dividers another filter; and let a row open a preview of the email as sent,
+  with its actual content. These are additions to the still-open item, not a
+  rejection of the delivery-list work already built.
   **ANDREW DECIDED 2026-10-09: both audiences get the view.** Andrew gets the
   platform-wide list in `/admin`; each detailer gets a business-wide delivery
   list in their own dashboard, in addition to the customer-specific trail that
@@ -8095,6 +8130,10 @@ requested.
   *A2 3.2*
 
 - [ ] **3.3 — Customers only ever get email, never text.**
+  **ANDREW DECIDED 2026-10-09: TEXTING IS PART OF THE PRODUCT.** This is not a
+  false marketing claim and no further yes/no decision is required. The
+  remaining owner action is finishing the texting supplier/number setup already
+  recorded in `FOR-ANDREW.md`; the product work remains open behind that setup.
   Settings lists confirmation, reminder and thank-you as email only, while the
   home page promises "Confirmation when they book, reminder before you drive
   out."
@@ -8140,17 +8179,22 @@ requested.
   webhook. **3.3 is the two product messages, their switches and the reply.**
   0.13 can be finished while 3.3 is untouched; 3.3 cannot start until it is.
   *A2 3.1, A2 Part 8 item 1 — A2 calls this the single biggest cut to no-shows*
-  **NEEDS ANDREW: checked 2026-10-08, still blocked, nothing built.** 0.13 has
-  not shipped — the Telnyx account has zero numbers, no webhook, and
-  `TEXTING.md` itself says, in its own words, not to build `send-sms` or the
-  inbound webhook until Andrew settles what the texts actually say. That is a
-  stronger instruction than "stub the outside service behind a flag" — it says
-  not to build those pieces at all, flag or no flag — so nothing was written
-  for 3.3 this round, not even the settings toggle, because a toggle for a
-  send path that does not exist is not a toggle. **The one decision that
-  unblocks this is in `FOR-ANDREW.md`'s Recorded section.**
+  **WAITING ON THE RECORDED TEXTING SETUP, NOT ON ANDREW'S APPROVAL.** 0.13 has
+  not shipped — the Telnyx account has zero numbers and no webhook — so nothing
+  was written for 3.3 this round, not even a settings toggle for a send path
+  that does not exist. Andrew has now settled the product question: texting is
+  planned. `TEXTING.md` must be updated when this resumes so its old wording
+  hold cannot be mistaken for a current owner decision.
 
 - [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
+  **ANDREW DECIDED 2026-10-09: DEFER AND REDESIGN THE COMMUNICATION SYSTEM.**
+  Do not ask him to open seven messages and do not spend the shared allowance
+  sending every template merely to tick this box. Email uses one delivery pipe,
+  so sixteen provider sends are not useful proof by themselves. The unresolved
+  work is larger and more important: decide which emails and texts should exist,
+  when they go, and how a detailer is told that an email failed so they can use
+  another channel. Rendering evidence below remains useful, but it does not
+  settle that product design.
   Carried from the old roadmap, and it is the same job A1 § 10 asks for in its
   lifecycle matrix.
   **Done when** ~~confirmation, acceptance, reminder, quote, receipt,
@@ -19155,6 +19199,12 @@ the dashboard or back office at phone width at all.
   on that receipt** while the surface its own finding named is missing from it.
 
 - [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
+  **ANDREW REJECTED THE CURRENT DIRECTION 2026-10-09.** This is no longer a
+  stepped-past tidy-up. Reconsider the back office substantially from scratch:
+  its design, implementation, what belongs on each tab, and the purpose of each
+  surface. Do not preserve the current tabs or furniture by default, and do not
+  treat the build-start button added under 0.4 as approved merely because it is
+  visible. This needs a deliberate design pass before more incremental polish.
   Default to real accounts; replace the three-column card wall with a list —
   detailer, status, setup, last booking, earned, customers, primary warning,
   action; open detail in a side panel. "One thing needs you" is good; the

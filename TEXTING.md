@@ -2,16 +2,18 @@
 
 ---
 
-## PARKED — 2026-09-22. DESIGNED AND DELIBERATELY NOT BUILT.
+## APPROVED IN PRINCIPLE 2026-10-09; SETUP AND PRODUCT REVIEW STILL OPEN
 
-**This is a deliberate pause, not unfinished work.** The design below is
-finished and is meant to survive the pause. **Andrew wants to decide what the
-messages actually say — the wording and the content — before any of it is
-written**, and that is the right order: the hard part of texting a stranger is
-what the text says, not the code that carries it.
+**Andrew has decided that this product will send SMS.** The old wording hold is
+over and must not be presented to him as another yes/no decision. He already
+started the outside setup and asked to be reminded to finish it.
 
-**Do not build the consent checkbox, the privacy paragraph, `send-sms`, or the
-inbound webhook** until he has settled the message content and unparked this.
+**Do not mistake approval for readiness to build blindly.** The number/carrier
+setup is unfinished, and Andrew wants the complete email-and-text system thought
+through deliberately: which messages exist, when they go, their exact words,
+and how a detailer learns an email failed so another channel can be used. Keep
+the consent and security boundaries below; resume implementation only as part
+of that review and the 0.14 setup work.
 
 **Where the 10DLC registration actually stands.** The brand *"Andrew's Auto
 Detail & Car Wash"* — brand id `4b2001a0-c7e7-ede3-76fa-a67ec4841df8`, TCR ID
