@@ -2460,6 +2460,10 @@ export const appEs = {
   "Removing them from your records": "Quitarlos de tus registros",
   "Deleting their information": "Eliminar su información",
   "Delete for good": "Eliminar definitivamente",
+  // ROADMAP 0.3. A flagged test row gets this sentence where the delete button
+  // would be, and the same sentence as the refusal if anything ever presses it.
+  "This is a test row, not a person. Automated checks sign into these, so it cannot be deleted here.":
+    "Esta es una fila de prueba, no una persona. Las comprobaciones automáticas inician sesión en estas, así que no se puede eliminar aquí.",
   "The {count} job stays as an anonymous entry, so your takings and your accountant export do not change.":
     "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
   "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":

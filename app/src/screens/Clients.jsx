@@ -318,6 +318,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // SERVER decides everything else, including whether this person may do it.
   const forget = async (customer) => {
     setForgetError("");
+    // ROADMAP 0.3 — FLAG, DON'T DELETE. Belt as well as braces: the control
+    // below is not rendered on a flagged row, and this is the half that
+    // survives somebody rendering it again, or a second call site arriving.
+    // About sixty checks in `tests/` sign into these rows, and a check that
+    // cannot run prints something that looks very like a pass, so deleting one
+    // takes the net away silently. Inert until `customers.is_test` exists
+    // (0.3b), exactly like the `!c.is_test` filter at the top of this screen.
+    if (customer?.is_test) {
+      setForgetError(t("This is a test row, not a person. Automated checks sign into these, so it cannot be deleted here."));
+      setForgetting(null);
+      return;
+    }
     setForgetting("going");
     try {
       await api.deleteCustomer(business.id, customer.id);
@@ -1000,10 +1012,22 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                       "The {count} job stays as an anonymous entry, so your takings and your accountant export do not change.",
                       "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.")}
                   </p>
+                  {/* ROADMAP 0.3 — THE RULING MEETS AN ACTUAL DELETE
+                      BUTTON. The chip at the top of this screen reveals the
+                      flagged fixture rows on purpose; two presses later this
+                      control erased one for good, and roughly sixty checks
+                      sign into those rows. So a flagged row gets the reason
+                      instead of the button, and `forget()` refuses it anyway.
+                      Nothing is hidden from the detailer: the fold still
+                      opens and still says what deleting would do. */}
+                  {open.is_test ? (
+                    <p className="quiet" style={{ margin: 0 }}>{t("This is a test row, not a person. Automated checks sign into these, so it cannot be deleted here.")}</p>
+                  ) : (
                   <button className="btn danger" disabled={forgetting === "going"}
                     onClick={() => { setForgetError(""); setForgetting("going"); forget(open); }}>
                     {forgetting === "going" ? t("Deleting…") : t("Delete for good")}
                   </button>
+                  )}
                 </details>
               </div>
             )}
