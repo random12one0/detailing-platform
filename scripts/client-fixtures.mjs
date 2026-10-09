@@ -5,6 +5,7 @@
 //   node scripts/client-fixtures.mjs --break=column  # sabotage: no is_test at all
 //   node scripts/client-fixtures.mjs --break=paint   # sabotage: the mark goes invisible
 //   node scripts/client-fixtures.mjs --break=canary  # sabotage: drop the canary
+//   node scripts/client-fixtures.mjs --break=row     # sabotage: supply no fixture row
 //   node scripts/receipt.mjs receipts/client-fixtures.json
 //
 // Dev server on :5173 and the seeded demo business. No credentials.
@@ -36,6 +37,44 @@
 // the other half, and it cannot see an added column at all (CLAUDE.md:
 // FUNCTIONS ONLY), so the honest answer is Andrew applying it and this sweep
 // then printing `column_live: true` with the injection doing nothing.
+//
+// ---------------------------------------------------------------------------
+// **AND THE FIXTURE ROW IS SUPPLIED BY THIS CHECK TOO, FOR THE SAME REASON AND
+// ON THE SAME CONDITION. ADDED 2026-10-09 BECAUSE THE OLD VERSION STOPPED
+// BEING ABLE TO MEASURE ANYTHING AT ALL.**
+// ---------------------------------------------------------------------------
+// This sweep used to depend on a fixture **another check happened to leave
+// behind** — the three droppings the migration header names (`zone-muew68al`,
+// `ROADMAP 2.8 selected 2026-09-23`, `ROADMAP 2.8 Address Test 2026-09-23`).
+// **They are gone.** Measured 2026-10-09 at `ee6f5e0`: `demo-detail` holds 13
+// customers, all of them `@example.com` seeded personas, which the backfill
+// deliberately does not catch. So `expect.fixtures` was 0, the zero-targets
+// guard below fired correctly, and **the run was 16 red lines with no defect
+// anywhere in the product** — the instrument was sound and its subject had
+// evaporated.
+//
+// **A CHECK WHOSE SUBJECT IS SOMEBODY ELSE'S LITTER IS A CHECK WITH AN EXPIRY
+// DATE NOBODY IS TOLD ABOUT.** It passed for as long as the demo tenant
+// happened to be dirty and went vacuous the moment it got cleaned, which is
+// the wrong way round: a tidy database should not break the check that proves
+// untidy ones are handled. So the row is supplied here, and the sweep is
+// repeatable for ever instead of until the next cleanup.
+//
+// **IT IS FABRICATED IN THE BROWSER, NOT INSERTED IN THE DATABASE — NOTHING IS
+// WRITTEN ANYWHERE.** It is appended to the intercepted `customers` response
+// on the way past, so it exists only inside the page under measurement. That
+// is deliberate and not laziness: a check about droppings that leaves a
+// dropping behind when it is killed mid-run is the joke that writes itself,
+// and `finally` does not run on SIGTERM (`docs/gotchas.md` 90), so there is no
+// teardown that can be trusted to clean up a real row.
+//
+// **AND IT IS CONDITIONAL, exactly like the column injection above:** it is
+// added **only when the response carries no fixture of its own**. The day a
+// real dropping reappears, or the day the migration lands and flags one, this
+// stops happening and the sweep measures the real rows. The receipt records
+// `fixtures_fabricated` so a reader can always tell which of the two states
+// produced the numbers. What is fabricated is the ROW; every question below is
+// still asked of the product's own rendering, filtering and counting of it.
 //
 // ---------------------------------------------------------------------------
 // WHAT IT ASKS, SIX TIMES AT EACH OF FIVE WIDTHS
@@ -104,7 +143,29 @@ const check = (target, name, cond, detail = "") => {
 // What the database actually holds, read once through the same interception
 // the browser sees. `expect` is computed from the rows, never typed in: a
 // seed that gains or loses a fixture must move the target, not break the run.
-const expect = { total: 0, fixtures: 0, real: 0, names: [], columnLive: false };
+const expect = {
+  total: 0, fixtures: 0, real: 0, names: [], columnLive: false, fabricated: false,
+};
+
+// THE SUPPLIED FIXTURE. Read the long block in the header before changing a
+// field here; three of them are load-bearing.
+//
+//   · the EMAIL must satisfy `RESERVED` — that is what makes the injected
+//     column flag it, so the row is a fixture by the migration's own rule
+//     rather than by this file's opinion.
+//   · the PHONE must match no completed booking, so the row counts as "gone
+//     quiet". That is what makes `quietAll` differ from `quietReal` and keeps
+//     the `learn` guard below meaningful.
+//   · the NAME is deliberately one of the longest in the list, because `.c-who`
+//     ellipsises and 320 is the width the mark's position was decided by. A
+//     short name would stop exercising that.
+const FABRICATED = {
+  id: "00000000-0003-0000-0000-00000000f1x7",
+  name: "ROADMAP 0.3 supplied fixture row",
+  email: "sweep@client-fixtures.test",
+  phone: "(555) 000-0199",
+  is_test: true,
+};
 
 /**
  * Read the list exactly as a person sees it.
@@ -199,6 +260,14 @@ async function openClients(browser, size, label) {
     const rows = BREAK === "column"
       ? body
       : body.map((c) => ({ ...c, is_test: c.is_test ?? RESERVED(c.email) }));
+    // ONLY IF THE RESPONSE BROUGHT NONE. `business_id` is copied off a real
+    // row rather than typed in, so the fabricated row belongs to whichever
+    // tenant is signed in and this cannot silently measure the wrong one; with
+    // no rows to copy from there is nothing to belong to and nothing is added.
+    if (BREAK !== "row" && BREAK !== "column" && rows.length && !rows.some((c) => c.is_test)) {
+      rows.push({ ...rows[0], ...FABRICATED, business_id: rows[0].business_id });
+      expect.fabricated = true;
+    }
     await route.fulfill({ response: res, json: rows });
   });
 
@@ -334,7 +403,12 @@ const canary = { id: "the-list-with-fixtures-showing", observed_failure: false, 
 // fixture this whole sweep is vacuous, and six green questions about an empty
 // set read exactly like six green questions about a working screen.
 if (expect.fixtures === 0) {
-  failures.push("learn: no fixture row was discovered — every question below would be vacuous");
+  failures.push("learn: no fixture row was discovered — every question below would be vacuous"
+    + (expect.fabricated
+      ? ". One WAS appended to the response and the screen did not mark it, which is a product "
+        + "defect rather than a stale seed"
+      : ". None was appended either, so this is the supply and not the screen — "
+        + "see the fixture-row block in this file's header"));
 }
 if (expect.quietAll === expect.quietReal && expect.fixtures > 0) {
   failures.push("learn: \"gone quiet\" is the same with fixtures shown and hidden — "
@@ -416,11 +490,20 @@ const { path } = writeReceipt({
         + "supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql."),
     "Nothing is written: the list is read, a chip is pressed twice, no row is created, changed "
     + "or deleted, and no fixture is removed from any tenant.",
+    `fixtures_fabricated=${expect.fabricated}: `
+    + (expect.fabricated
+      ? "the database supplied NO fixture of its own, so this check appended one to the "
+        + `intercepted response in the browser ("${FABRICATED.name}", ${FABRICATED.email}). It `
+        + "exists only inside the page under measurement and is written nowhere. The ROW is "
+        + "supplied; the screen's filtering, marking and counting of it are the product's own."
+      : "the database supplied its own fixture row and nothing was appended — these numbers are "
+        + "measured against real rows."),
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
   ],
   dimensions: {
     sizes: SIZES.map((s) => `${s.w}x${s.h}`),
     column_live: expect.columnLive,
+    fixtures_fabricated: expect.fabricated,
     expectations: {
       rows_in_table: expect.total,
       fixtures: expect.fixtures,

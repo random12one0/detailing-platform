@@ -1,36 +1,25 @@
 {
-  "git_sha": "ee6f5e0d73ad04b96c3d51e3fb2d9be045ac7568",
-  "git_sha_started": "ee6f5e0d73ad04b96c3d51e3fb2d9be045ac7568",
+  "git_sha": "bb58b1a9a9b47c4c903d67ea85e036b84339d709",
+  "git_sha_started": "bb58b1a9a9b47c4c903d67ea85e036b84339d709",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T16:45:28.144Z",
-  "failures": [
-    "learn: no fixture row was discovered — every question below would be vacuous",
-    "320x844: headcount — the masthead says 13, not 13 masthead reads «13 people»",
-    "320x844: chip — offers the 0 it will reveal chip reads null",
-    "320x844: revealed — every fixture comes back, marked and painted the chip was never found",
-    "392x844: headcount — the masthead says 13, not 13 masthead reads «13 people»",
-    "392x844: chip — offers the 0 it will reveal chip reads null",
-    "392x844: revealed — every fixture comes back, marked and painted the chip was never found",
-    "768x1024: headcount — the masthead says 13, not 13 masthead reads «13 people»",
-    "768x1024: chip — offers the 0 it will reveal chip reads null",
-    "768x1024: revealed — every fixture comes back, marked and painted the chip was never found",
-    "1440x900: headcount — the masthead says 13, not 13 masthead reads «13 people»",
-    "1440x900: chip — offers the 0 it will reveal chip reads null",
-    "1440x900: revealed — every fixture comes back, marked and painted the chip was never found",
-    "1920x1080: headcount — the masthead says 13, not 13 masthead reads «13 people»",
-    "1920x1080: chip — offers the 0 it will reveal chip reads null",
-    "1920x1080: revealed — every fixture comes back, marked and painted the chip was never found"
-  ],
+  "finished_at": "2026-10-09T16:49:56.349Z",
+  "failures": [],
   "warnings": [
     "column_live=false: `customers.is_test` is NOT in the database yet — this check supplied it to the browser using the migration's own backfill predicate. The SCREEN is proved; the COLUMN is not, and will not be until Andrew applies supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql.",
-    "Nothing is written: the list is read, a chip is pressed twice, no row is created, changed or deleted, and no fixture is removed from any tenant."
+    "Nothing is written: the list is read, a chip is pressed twice, no row is created, changed or deleted, and no fixture is removed from any tenant.",
+    "fixtures_fabricated=true: the database supplied NO fixture of its own, so this check appended one to the intercepted response in the browser (\"ROADMAP 0.3 supplied fixture row\", sweep@client-fixtures.test). It exists only inside the page under measurement and is written nowhere. The ROW is supplied; the screen's filtering, marking and counting of it are the product's own."
   ],
   "artifacts": [
+    "artifacts/client-fixtures/320x844-revealed.png",
     "artifacts/client-fixtures/320x844-default.png",
+    "artifacts/client-fixtures/392x844-revealed.png",
     "artifacts/client-fixtures/392x844-default.png",
+    "artifacts/client-fixtures/768x1024-revealed.png",
     "artifacts/client-fixtures/768x1024-default.png",
+    "artifacts/client-fixtures/1440x900-revealed.png",
     "artifacts/client-fixtures/1440x900-default.png",
+    "artifacts/client-fixtures/1920x1080-revealed.png",
     "artifacts/client-fixtures/1920x1080-default.png",
     "artifacts/client-fixtures/canary-showing.png"
   ],
@@ -43,28 +32,31 @@
       "1920x1080"
     ],
     "column_live": false,
+    "fixtures_fabricated": true,
     "expectations": {
-      "rows_in_table": 13,
-      "fixtures": 0,
+      "rows_in_table": 14,
+      "fixtures": 1,
       "real_people": 13,
-      "fixture_names": [],
+      "fixture_names": [
+        "ROADMAP 0.3 supplied fixture row"
+      ],
       "gone_quiet_real": 5,
-      "gone_quiet_with_fixtures": 5
+      "gone_quiet_with_fixtures": 6
     },
     "observed": [
-      "learn (signed-in): 13 rows, 0 marked []",
-      "quiet: real=5 with-fixtures=5",
-      "320x844: head «13 people» quiet=5 chip=null rows=13→n/a painted=n/a",
-      "392x844: head «13 people» quiet=5 chip=null rows=13→n/a painted=n/a",
-      "768x1024: head «13 people» quiet=5 chip=null rows=13→n/a painted=n/a",
-      "1440x900: head «13 people» quiet=5 chip=null rows=13→n/a painted=n/a",
-      "1920x1080: head «13 people» quiet=5 chip=null rows=13→n/a painted=n/a"
+      "learn (signed-in): 14 rows, 1 marked [\"ROADMAP 0.3 supplied fixture row\"]",
+      "quiet: real=5 with-fixtures=6",
+      "320x844: head «13 people» quiet=5 chip=\"Show 1 test row\" rows=13→14 painted=[true]",
+      "392x844: head «13 people» quiet=5 chip=\"Show 1 test row\" rows=13→14 painted=[true]",
+      "768x1024: head «13 people» quiet=5 chip=\"Show 1 test row\" rows=13→14 painted=[true]",
+      "1440x900: head «13 people» quiet=5 chip=\"Show 1 test row\" rows=13→14 painted=[true]",
+      "1920x1080: head «13 people» quiet=5 chip=\"Show 1 test row\" rows=13→14 painted=[true]"
     ],
     "sabotage": null
   },
   "check_id": "client-fixtures",
-  "started_at": "2026-10-09T16:45:06.657Z",
-  "status": "fail",
+  "started_at": "2026-10-09T16:49:27.851Z",
+  "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
@@ -75,9 +67,7 @@
   "assertion_floor": "5 widths x 6 questions + 1 canary = 31. Fixed by SIZES x the question list, never by what the run finds: a width where the chip is missing grades as six failures rather than dropping out, and a seed with no fixture in it fails `learn` rather than making every question below vacuous.",
   "canary": {
     "id": "the-list-with-fixtures-showing",
-    "observed_failure": false,
-    "problems": [
-      "a list with its fixtures switched ON still passed the hidden test"
-    ]
+    "observed_failure": true,
+    "problems": []
   }
 }
