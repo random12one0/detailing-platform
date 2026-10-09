@@ -8205,7 +8205,7 @@ requested.
   required`**. Screenshots of the detailer half as it stands, taken this run:
   `.manager-shots/3.1/detailer-*.png`.
 
-- [x] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
+- [ ] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
   it with overflow treatment that belongs to this design. Andrew named this
   one first, 2026-10-09; it is the one he can see without scrolling.
   Measured at `a07a2dc`: `app/src/screens/more/MailLog.jsx` is 129 lines and
@@ -8240,6 +8240,16 @@ requested.
   environment. The bounding and the no-overlap fix are the two live-measured
   facts; the thumb's exact color is the one claim taken on the CSS spec
   rather than on a screenshot.
+
+  **SUPERVISOR REOPENED 2026-10-09.** The acceptance criterion is visual — the
+  long list must scroll *without a native bar drawn across this design* — and
+  the completion note itself says the scrollbar treatment was not seen. No
+  item-specific check was broken on purpose, and no new screenshot or receipt
+  for 3.1a was committed. The wrapper and no-overlap behavior may be correct,
+  but source CSS and an unobserved browser claim do not prove this box. The
+  deep pass must look at the actual scrollbar at 1440 and 392, scroll the long
+  list, confirm the surrounding settings body stays still, and read the
+  console at both widths before this can be ticked again.
 
 - [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
   No text may crowd or touch its neighbor. **Done when:** measured at 1440
