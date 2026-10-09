@@ -327,6 +327,7 @@ were made more than once.
 - **The belt does not dispatch an Andrew-only hold, and a permanently-red receipt census is not a gate** — supervision on 2026-10-08 after 0.11 stayed first in the ready shortlist despite having no code left, and 2.15 was selected three times despite requiring Andrew's iPhone. Adds the standard `NEEDS ANDREW` marker to both, removes the full receipt census from per-item gates, and corrects the stale claim that triage had moved off Codex.
 - **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
 - **Andrew's second dashboard decisions of 2026-10-09** — hold and end-to-end test the fixtures before switching 0.3/1.3; show each price change on its first causative click; texting is planned and awaits setup, not approval; redesign email/text policy rather than sending every template; rethink the back office substantially from scratch; and keep 3.1's mail log while adding integrated overflow, spacing, time groups and message previews.
+- **Andrew's photo-release and Google decisions of 2026-10-09** — finish and tick 0.11a after the new wire test; deploy 0.11b now; release 0.11c to all customers now; keep tests and English / Spanish strings green before launch; and build 99.1's connection and error surface now while synchronization waits for Google's scope approval.
 
 - **The supervisor cuts an item up rather than sending it out a fourth time** — supervision 2026-10-09, after 3.1 was killed twice at ~50 minutes and 4.1 once the same night. Why the answer was four numbered slices and a `Queued behind` marker rather than more time or another attempt, why `0.4` is marked `Waits on:` while `0.4g` stays dispatchable, and why two credential-free gates were added instead of a new check.
 - **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
@@ -18713,3 +18714,29 @@ ticked on his ruling.
 blocker, the blocking PHRASE is part of what they cleared. A ticked box with a
 live blocking phrase under it is the quieter failure of the two, because it
 reads as progress while the item is invisible.
+
+## Andrew's photo-release and Google decisions of 2026-10-09
+
+These are Andrew's direct dashboard rulings, recorded together because they
+arrived after the photo item had been split into build, release and live-proof
+slices.
+
+- **0.11a:** fix the swallowed server-message bug, re-run the new wire test and
+  mark the build slice complete. The fix was already landed; supervision
+  re-ran the receipt-wire, reader and Spanish suites and ticked the slice.
+- **0.11b:** deploy the business-media work now. The decision is yes; the
+  remaining public address and CORS work is still in Andrew's Cloudflare
+  account, and the standing rule still makes the publish his action.
+- **0.11c:** release the coordinated photo move to all customers now. Follow
+  `FOR-ANDREW.md` step 9 in order; this ruling does not permit a session to
+  publish on Andrew's behalf.
+- **0.11d:** tests and translations are a launch gate. The code-side suites are
+  green; the real upload and reconcile proof still happen after the release.
+- **99.1:** build connect, disconnect and plain error states now. Synchronizing
+  hours, services and photos waits for Google's `business.manage` approval, and
+  nothing writes to a real listing before Andrew sees it on a test account.
+
+**Why this split matters:** treating approval as completion would falsely close
+live-release criteria; treating the Google dependency as a block would idle the
+entire buildable connection surface. The roadmap now says which half each
+decision moves.

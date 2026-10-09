@@ -747,7 +747,7 @@ and how the wait ends.
   Split on 2026-10-09 because this entry is 547 lines
   long and no single session was finishing it.
 
-- [ ] **0.11a — Route expense receipt uploads through the R2 photo door**
+- [x] **0.11a — Route expense receipt uploads through the R2 photo door**
   Complete the app-side receipt integration with the existing multi-store photo door, including upload, read, replacement and removal flows. This leaves business-media objects, coordinated deployment and live R2 verification to later pieces.
   Part 1 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -820,10 +820,16 @@ and how the wait ends.
   what replaces a press for the ON path is the paragraph above — the real reader run against the real handler, with the guard removed and
   seen to go red.
 
-  NEEDS ANDREW: publish `photo-door` and then flip `RECEIPTS_VIA_DOOR` to `true` in `app/src/lib/photo-door.js`, and add the CORS rule to
-  the `expense-receipts` bucket in Cloudflare. No receipt code remains to write: criteria 1 to 4 are built and proved in memory, and
-  criterion 1's *"no Supabase Storage fallback"* is only true in the live product once that flag is on, which needs the published door
-  first. `FOR-ANDREW.md` step 9 already names the flag beside the function and the CORS rule; the publish is his by standing rule.
+  **ANDREW DECIDED 2026-10-09: fix the bug, re-run the new test and mark this
+  slice complete. DONE.** The `doorError` fix was already on disk; supervision
+  re-ran `node --test tests/photo-door-receipt-wire.test.mjs
+  tests/photo-door.test.mjs tests/spanish.test.mjs` at `9649424` and got 17 of
+  17 test cases plus the Spanish suite's 83 checks green. The wire suite removes
+  six real guards one at a time and names the damage each removal must expose;
+  the reader suite separately restores the swallowed-5xx bug and catches it.
+  Activation is not part of this build slice: publishing `photo-door`, adding
+  CORS and flipping `RECEIPTS_VIA_DOOR` remain in 0.11c's coordinated release,
+  where they cannot happen out of order.
 
 - [ ] **0.11b — Move business media and intake images to public R2 storage**
   Move gallery copies, logos and site-intake images from Supabase Storage to the business-media R2 bucket using the required public R2 address. This does not deploy the accumulated work or change the allowance.
@@ -910,6 +916,12 @@ and how the wait ends.
   day of the switch is written permanently into every row made after it. **`FOR-ANDREW.md` already carries all four** — step 9a2 is the
   address, 9c is the publish, and the `MEDIA_VIA_DOOR` bullet after step 9 names the flag and the CORS rule — so no row was added rather
   than a duplicate written.
+
+  **ANDREW DECIDED 2026-10-09: deploy this now.** That clears the product
+  decision, not the account work: the public `business-media` address and its
+  CORS rule still have to be set in Andrew's Cloudflare account, and the
+  standing rule still makes the actual publish Andrew's action. `FOR-ANDREW.md`
+  step 9 is now marked as an approved, do-now release rather than a proposal.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
@@ -1015,6 +1027,12 @@ and how the wait ends.
   those acts and a session cannot perform any of them; criterion 2 is met and measured. **After each step, run
   `node scripts/photo-release-order.mjs`** - it is the only thing that will say whether the order held, and it
   reddens on both the step done too early and the step forgotten.
+
+  **ANDREW DECIDED 2026-10-09: release this to all customers now.** The release
+  is authorized, but supervision did not perform it: publishing remains
+  Andrew's action and must follow `FOR-ANDREW.md` step 9 in order. His later
+  instruction on 0.11d is also a release gate: the photo tests and English /
+  Spanish strings must be green before the website is published.
 
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
   Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
@@ -1134,6 +1152,13 @@ and how the wait ends.
   `FOR-ANDREW.md`**: step 9 a-to-h already carries all of it in his own words, and 0.11c's entry checked it
   line by line, so a row here would be a duplicate. After each of his steps, run
   `node scripts/photo-release-order.mjs` — it is the only thing that says whether the order held.
+
+  **ANDREW DECIDED 2026-10-09: fix the tests and translations before
+  launching.** The code-side condition is green now: supervision re-ran the
+  receipt wire, photo-door reader and Spanish suites together at `9649424` and
+  all 17 test cases plus the Spanish suite's 83 checks passed. The launch still
+  waits on 0.11c's ordered release; 0.11d2 and 0.11d3 remain the required live
+  proof after it.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
@@ -26235,3 +26260,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   not call a real Google endpoint, must not start a paid anything, and ticks
   nothing on the sync half** — it writes `NEEDS ANDREW: the business.manage
   scope is still gated (0.15)` under the item and stops there.
+
+  **ANDREW DECIDED 2026-10-09: build the connection, disconnection and plain
+  error messages now; add synchronization when Google approves the scope.**
+  That confirms the split above and removes any product-decision blocker from
+  the buildable half. It does not authorize a real Google write or make the
+  gated synchronization criterion complete.

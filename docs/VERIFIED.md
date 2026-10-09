@@ -3192,3 +3192,20 @@ check reads the console honestly.
 are read fresh every run rather than written into the check's floor, so a later
 run quoting different numbers is not a contradiction — the **proportions** (29
 of 29 clear, 0 of 2 ancestors moving) are what survive the population changing.
+
+## 2026-10-09 — ROADMAP 0.11a reverified and closed on Andrew's ruling
+
+At `9649424`, supervision ran:
+
+```text
+node --test tests/photo-door-receipt-wire.test.mjs tests/photo-door.test.mjs tests/spanish.test.mjs
+```
+
+Result: 17 of 17 Node test cases passed; the Spanish suite separately printed
+83 passed and 0 failed. The receipt-wire suite runs the real app receipt module
+against the real photo-door handler in memory, then removes six production
+guards one at a time and requires the matching damage to appear. The reader
+suite separately restores the exact `s >= 500` branch that swallowed the
+server's useful sentence and requires that sabotage to be named. This proves
+the build slice and its regression net; it does not claim that R2 is published
+or that Cloudflare accepts a real upload. Those remain 0.11c and 0.11d.

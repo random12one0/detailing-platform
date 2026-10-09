@@ -279,6 +279,12 @@ still be named, and step 9d is where it goes.
 
 ### Step 9 · The photos — ROADMAP 0.11, in this order and in one sitting
 
+**DECIDED 2026-10-09: do this release now, for all customers.** This is no
+longer waiting for a product decision. It is still your publish: follow the
+steps below in order, run `node scripts/photo-release-order.mjs` after each one,
+and do not publish the website until the photo tests and both English and
+Spanish strings are green.
+
 Everything for it is built and committed and none of it is live. **The reason for
 "one sitting" is a rule from the design** (`docs/the-photo-allowance.md` § 2): the
 allowance goes from 1 GB to 10 GB **in the same change that switches uploads to
