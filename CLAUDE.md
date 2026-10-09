@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND TWO specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THREE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -685,3 +685,12 @@ the file was untouched and the run's `pass 18 / fail 0` was an ordinary clean ru
 same output a caught sabotage produces. **Prove the break landed with `git diff --numstat` before
 believing either colour.** Found by the supervisor, on itself, while verifying 0.11 slice 4.
 Seventeen sittings unbroken; `grep -c "^## " docs/gotchas.md` run before writing this.
+
+**102 → 103 on 2026-10-08, same edit** — a reveal that is *reversible by design* reads as
+`opacity: 0` from the top of the page, so nine of `/terms`'s eleven clauses measured as blank on a
+page that was rendering perfectly. **It is the INVERSE of the reveal entry already in this file and
+that entry's rule makes it worse**: waiting for `opacity === "1"` waits for ever. Read a reversible
+reveal from where the reader is standing, and measure the TAIL separately. Found while verifying
+ROADMAP 0.4's one added clause, and nearly written up as a defect in that clause.
+Eighteen sittings unbroken; `grep -c "^## " docs/gotchas.md` run before writing this, and again
+after, which is how the 103 above is a count rather than an increment.

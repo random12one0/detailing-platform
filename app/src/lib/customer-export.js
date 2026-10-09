@@ -33,10 +33,22 @@
 // The customer list with every field the row holds, plus the three figures
 // the Clients screen computes from bookings — visits, spend and last visit —
 // because a customer list that cannot answer *"who is my best customer"* is
-// the subset the pages do not promise. **Photos are NOT in it**, and there is
-// still no photo export anywhere in this product; `/pricing` promises those
-// too and that half remains unkept. Said here rather than left to be
-// discovered.
+// the subset the pages do not promise. **Photos are NOT in it** — they are a
+// separate button on a separate screen, `lib/photo-export.js` from
+// Business → Photos.
+//
+// **THAT SENTENCE USED TO END "and there is still no photo export anywhere in
+// this product; `/pricing` promises those too and that half remains unkept",
+// AND IT STOPPED BEING TRUE ON 2026-09-21 — `photo-export.js` quotes it in its
+// own opening lines as the thing it closes.** It was still sitting here on
+// 2026-10-08, three weeks later, which is the failure ROADMAP 0.1 was just
+// corrected for in the other direction: *an entry that understates what is
+// built costs as much as one that overstates it, because nobody goes looking.*
+// A reader of this header would have concluded half of a live public promise
+// was unkept and either re-built it or re-escalated it. Corrected rather than
+// quietly deleted, because the shape of the rot is the useful part: **a
+// recorded gap needs re-reading the day it is closed, and nothing here ever
+// asks it to be.** `tests/legal-promises.test.mjs` is what asks now.
 
 import { localDate } from "./format.js";
 import { amount, q, slug } from "./accountant-export.js";

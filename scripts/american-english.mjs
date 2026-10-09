@@ -94,9 +94,21 @@ const started_at = new Date().toISOString();
 // EVERY PAGE A STRANGER CAN REACH WITHOUT SIGNING IN. Declared, so a page
 // that stops existing is a discovered-vs-expected mismatch the receipt
 // refuses, rather than a quietly shorter list.
+//
+// **`/terms` AND `/privacy` WERE MISSING UNTIL 2026-10-08, AND THE LINE ABOVE
+// IS WHAT MAKES THAT A DEFECT RATHER THAN A SCOPE CHOICE.** Both are public
+// routes in `main.jsx` and both are linked in the footer of every page this
+// list already reads, so the declaration did not match its own stated
+// population. Found by running this check after editing `/terms` for ROADMAP
+// 0.4 and noticing the page just edited was not in the 11 it reported on —
+// **the gate that catches a word spelled wrong for the audience was not
+// reading the two pages whose entire job is to be read.** 11 → 13;
+// `expected_targets` is `PAGES.length`, so the receipt followed on its own.
 const PAGES = [
   ["home", "/"],
   ["pricing", "/pricing"],
+  ["terms", "/terms"],
+  ["privacy", "/privacy"],
   ["examples", "/examples/"],
   ["ex1", "/ex1/"],
   ["ex1-prices", "/ex1/prices.html"],

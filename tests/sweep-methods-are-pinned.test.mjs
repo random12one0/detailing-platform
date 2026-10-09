@@ -295,7 +295,20 @@ const DECLARED = {
   // item leaving. Measured both sides: `git show HEAD:ROADMAP.md` in place gives
   // 8 pass / 0 fail at 33/318, and the working copy — 8 added lines, ROADMAP.md
   // only, `git diff --numstat` — gives 34/320.
-  quoteCriteria: 34,
+  // 34 -> 35, 2026-10-08, ROADMAP 0.4's round: **0.4 ENTERS the population, and it
+  // enters on `NAMES_A_FILE` rather than on quotes.** Its Done-when zone held
+  // double-quoted fragments already (*"every promise"*, twice) but named no file
+  // at all, so `NAMES_A_FILE` was false and `continue` kept the whole item out.
+  // The write-up appended under that Done-when names `FOR-ANDREW.md`,
+  // `lib/customer-export.js`, `lib/photo-export.js` and others, so the zone
+  // crosses the threshold and **all 21 of its fragments arrive at once** — which
+  // is why `quoteFragments` moves by 21 on a single-item change. Second move
+  // caused by prose arriving rather than an item leaving (the first was 0.13).
+  // Measured both ends by running this file against `git show HEAD:ROADMAP.md`
+  // in place (34/320, 8 pass / 0 fail) and against this tree (35/341), with the
+  // working copy saved and restored byte-for-byte around it — `cmp -s`, not
+  // `git checkout` (`docs/gotchas.md` 97).
+  quoteCriteria: 35,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -482,7 +495,47 @@ const DECLARED = {
   // `FRAGMENT_RE` only takes `"…"`. Moved in the same edit as the prose, and the
   // delta attributed by running this file against `git show HEAD:ROADMAP.md`
   // first (33/318, green) rather than by accepting what the run returned.
-  quoteFragments: 320,
+  // 320 -> 341, 2026-10-08, ROADMAP 0.4's round. **+21 from ONE item, because
+  // 0.4 entered the criteria population whole** — see `quoteCriteria` above; none
+  // of these is a fragment added to an item already being counted. Named rather
+  // than counted, which is this constant's own rule, and **the two that are
+  // parser artifacts rather than quotations are named as such instead of being
+  // quietly included in a total**:
+  //
+  //     "every promise" (x2)                        already in the zone at HEAD; they
+  //                                                 only start counting now
+  //     "NOTE - The legal pages name you personally"  the FOR-ANDREW section carrying
+  //                                                 Andrew's answer on the entity
+  //     "doesn't a DBA cost money"                   Andrew's words, 2026-09-20
+  //     "WHOLE AGREEMENT"                            what the terms call themselves
+  //     "Sales tax" / "What you pay" / "Ending it" (x2) / "Done when" / "DONE WHEN"
+  //                                                 clause and section names
+  //     "cannot be changed underneath you"           the clause a tax line reads as
+  //                                                 a breach of
+  //     "as cancelling"                              the British spelling found live
+  //     "by asking" / "You export them and go" / "and your photos are yours"
+  //                                                 the three export promises
+  //     "Export my customers" / "Export my photos"   the two buttons behind them
+  //     "Do you own a domain?"                       the brief question behind the
+  //                                                 one hole in the domain promise
+  //
+  //     "* says **"                                  ARTIFACT: FRAGMENT_RE pairs the
+  //                                                 closing quote of one italicised
+  //                                                 quotation with the opening quote
+  //                                                 of the next, across the markdown
+  //                                                 emphasis between them
+  //     " -- supabase/functions | grep -vE "         ARTIFACT: the same pairing inside
+  //                                                 a runnable shell command in a
+  //                                                 fence, between `"fetch("` and the
+  //                                                 next quoted argument
+  //
+  // So 19 are real quotations and 2 are the regex meeting markdown and a shell
+  // line. **Said out loud because a +21 with no names is exactly what this
+  // constant exists to stop**, and because a reader re-deriving it by hand would
+  // count 19 and think the pin had drifted. Delta attributed by running this file
+  // against `git show HEAD:ROADMAP.md` first (34/320, green) rather than by
+  // accepting what the run returned.
+  quoteFragments: 341,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

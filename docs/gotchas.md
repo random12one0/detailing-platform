@@ -4703,3 +4703,56 @@ a measurement of the product lying. This one is **the instrument that verifies i
 in the direction that always feels like success: the number you were hoping for. A session following
 § 95 to the letter, with no idea its edit silently no-op'd, records *"broken on purpose, caught"* or
 *"broken on purpose, survived"* from the identical output — and both write-ups are fiction.
+
+
+## 103. A REVEAL THAT IS *REVERSIBLE* READS AS `opacity: 0` FROM THE WRONG SCROLL POSITION, SO A CORRECT PAGE MEASURES AS A BLANK ONE
+
+**Found 2026-10-08 on `/terms`, while verifying ROADMAP 0.4's one added clause — and it very nearly
+went into the write-up as a defect in that clause.**
+
+The measurement: scroll the whole page in 300px steps so every reveal fires, return to the top,
+settle 2.5 seconds, then read `getComputedStyle(row).opacity` for all eleven clauses. The answer:
+
+```
+What this is               row=1
+What you pay               row=1
+Sales tax                  row=0      ← the clause just added
+The twelve-month plan      row=0
+... every remaining clause row=0
+```
+
+Three clauses deep and everything below it invisible, on the page just edited. It reads exactly
+like a broken render, and the first reading of it was *"my clause is dim"*.
+
+**Nothing was wrong.** `thread.js`'s reveal is **position-driven and deliberately REVERSIBLE** —
+its own comment says so: *"an element is hidden ONLY while its top is still below 82% of the
+screen… Land anywhere, reload anywhere, follow a link into the middle of the page and everything
+you can actually read is already in its end state."* Scrolling back to the top legitimately
+re-hides everything below the fold. **`opacity: 0` at `scrollY = 0` is the design working.**
+
+**THIS IS THE INVERSE OF THE REVEAL ENTRY ALREADY IN THIS FILE AND THE RULE THERE MAKES THIS ONE
+WORSE.** That entry is *“A crop of the exact right element can still be an empty picture, and file
+size will not tell you”* — **UNNUMBERED**, so it is cited by its title rather than by a § number
+this session would have had to invent (§ 92: a note citing a number it did not check).
+
+That entry is a screenshot taken *too soon*, before `.in` lands — a false PASS, fixed by waiting for
+`opacity === "1"`. This one is a false FAIL, and waiting for `opacity === "1"` from the top of the
+page waits for ever on a page that is behaving perfectly. **The two faults share a mechanism and
+have opposite fixes, which is why reaching for the recorded one is actively unsafe here.**
+
+**THE RULE: read a reversible reveal from where the READER would be standing, never from a fixed
+scroll position.** Put the element in the reading zone, settle past the transition, then measure:
+
+```js
+await page.evaluate((i) => document.querySelectorAll("dt")[i]
+  .closest("div").scrollIntoView({ block: "center", behavior: "instant" }), i);
+await page.waitForTimeout(900);          // past the transition, not past an observer
+```
+
+**And measure the TAIL separately, because it is a different question.** Park at
+`document.documentElement.scrollHeight` and read the LAST element: `thread.js` carries an easing of
+the reveal line over the final stretch precisely because *"the second pricing card, three of the
+terms and the whole footer were on screen and permanently invisible"* before it existed. Anything
+that makes a page longer — one added clause will do it — lands in that stretch. Measured both ways
+at 1440, 392 and 320: all eleven clauses reach opacity 1 in the reading zone, and "Ending it"
+reaches 1 at maximum scroll.

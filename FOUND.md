@@ -4233,3 +4233,42 @@ CHECK that would have caught this on all three pages at once, and fixing
 this by hand now would remove the one canary that check has ready-made to
 prove itself against before anything is patched. Fix it once 7.18 exists
 and can confirm the fix rather than the other way round.
+---
+
+## The payment screen prints a total that does not include sales tax, and the subscription is created with `automatic_tax` ON — 2026-10-08
+
+Found by ROADMAP 0.4's re-run of *"compare `/pricing`'s claims against the
+terms"*, which is why it is here rather than in that item: the PROMISE is
+fine, the SCREEN is not.
+
+**The two halves.** `/pricing` § *"What you will be charged"* says **"plus
+sales tax in the states that charge it"** — a real commitment, kept in code:
+`platform-billing/index.ts` creates every subscription with
+`automatic_tax: { enabled: true }`. **And the word "tax" does not appear
+anywhere in `screens/more/Billing.jsx`** — measured, `grep -in "tax"` returns
+nothing. The figure a detailer reads before pressing the button is
+`firstChargeCents`, which is `setup_cents + recurring_cents` and nothing else.
+
+**So the screen states one number and Stripe may charge another**, which is
+the repo's own sharpest rule, on the detailer's side of the product rather
+than the customer's — `scripts/surcharge-visible.mjs` exists for exactly this
+failure on the booking page and nothing watches the billing screen.
+
+**WHY IT IS NOT AN EMERGENCY AND WHY THAT IS THE DANGEROUS PART.** Stripe Tax
+charges nothing in a state where no tax REGISTRATION has been added, so with no
+registrations the tax line is $0 and the screen is accidentally correct. **The
+day a registration is added, the screen silently starts understating the
+charge, and nothing in this repo will say so.** DECISIONS records the plan to
+add California on 1 Jan 2027 (SB 122). **Whether a registration exists in
+Stripe today was NOT checked** — that is a dashboard fact needing a credential,
+and this session had none; the conditional above holds either way.
+
+**There is a second, quieter half.** `platform-billing` already returns
+`tax_off` — a diagnostic saying tax is NOT being calculated because the Stripe
+account has no head-office address — and **nothing in `app/src` reads it**
+(`grep -rn "tax_off" app/src`: no matches). A real signal is being computed,
+returned over the wire, and dropped.
+
+**Not fixed here.** Printing a tax line means asking Stripe to preview the
+invoice before the charge, which is a change to the payment path, and the
+payment path is not what ROADMAP 0.4 is. It is one item, not a line in one.

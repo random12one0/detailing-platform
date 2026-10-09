@@ -1045,6 +1045,211 @@ and how the wait ends.
   exactly as written for that reason: *"a vague promise is still a promise and
   would be harder for the next person to spot."*
 
+  ---
+
+  **WORKED 2026-10-08. THE TWO QUESTIONS PARKED FOR ANDREW ARE BOTH ANSWERED,
+  THE EXPORT PROMISE IS KEPT IN BOTH NOUNS, AND THE RE-RUN FOUND A NEW PROMISE
+  WITH NOTHING BEHIND IT. THE BOX STAYS OPEN FOR THAT ONE AND NOTHING ELSE.**
+
+  > **The headline is not the new fault, it is that three separate documents
+  > were still calling a kept promise unkept, eighteen days after it was
+  > kept** — this entry, a row in `FOR-ANDREW.md`, and the header of
+  > `lib/customer-export.js`, which `lib/photo-export.js` quotes by name as the
+  > thing it closed. Nothing anywhere asked. That is the same failure 0.1 was
+  > corrected for last night, in the same direction: *an entry that understates
+  > what is built costs as much as one that overstates it, because nobody goes
+  > looking.*
+
+  **ANDREW'S TWO QUESTIONS, BOTH ANSWERED, NEITHER BY THIS SESSION.**
+  - **The `ENTITY` line — ANSWERED 2026-09-20, recorded in `FOR-ANDREW.md`
+    § *"NOTE · The legal pages name you personally"*.** His words: *"I'm not
+    even a registered business yet. I'm waiting until I'm 18"*, and on the DBA,
+    *"doesn't a DBA cost money"*. **So the pages are right as they stand** — a
+    sole trader's terms are a contract with the person, which is what he is
+    today — and the line is re-answered in December 2026 with the name and the
+    kind. **Nothing is changed here**, and the criterion is met because he
+    answered it, not because somebody guessed.
+  - **The export promise — ANSWERED AND BUILT.** He ruled it a build item on
+    2026-09-20 (`docs/MANAGER-CLOSE-2026-09-21.md` § 2).
+    `lib/customer-export.js` landed 2026-09-20 and `lib/photo-export.js` on
+    2026-09-21, the second covering **both** kinds of photo — `job_photos` and
+    `gallery_images` — which is what makes the pricing page's three nouns true
+    rather than two of them.
+
+  **WHAT THE RE-RUN FOUND, AND IT IS ONE SENTENCE AGAIN.**
+
+  > **`/pricing` and the terms both promise a detailer is told on the day work
+  > starts on their website. There is no such day in the product.** No column
+  > marks a build as started, no email says it, no screen shows it — and that
+  > sentence is what ends their right to a refund on the largest single charge
+  > in the product.
+
+  **Parked exactly as written on both pages and deliberately NOT softened**,
+  which is this item's own standing ruling about the export clause. Removing it
+  is not the neutral option either: it would leave a fee that stops being
+  refundable on a day the detailer never hears about. **Build it or remove it,
+  and both are Andrew's.** `FOR-ANDREW.md` carries it as a DECIDE with the
+  recommendation (send the notice — one button, one email, and he gets the date
+  written down on the day). **NEEDS ANDREW: whether the build-start notice gets
+  built or the sentence comes off both pages. It is the only thing holding this
+  box open.**
+
+  **AND A THIRD COMMITMENT `/pricing` HAS BEEN MAKING IN PUBLIC WHILE THE
+  "WHOLE AGREEMENT" SAID NOTHING — FIXED.** Exactly the build-fee-and-domain
+  shape from 2026-09-20, found the same way: reading `/pricing`'s eight
+  disclosure clauses against the terms' ten, one at a time. `/pricing` § *"What
+  you will be charged"* says **"plus sales tax in the states that charge it"**;
+  the word "tax" did not appear in `legal.js` anywhere. **It is real** —
+  `platform-billing/index.ts` creates every subscription with
+  `automatic_tax: { enabled: true }` — so writing it down invents nothing. A
+  § "Sales tax" clause was added directly after § "What you pay", because the
+  clause above it promises the figure *"cannot be changed underneath you"* and a
+  tax line reads as a breach of that sentence unless it is named beside it.
+  `EFFECTIVE` moved to 8 October 2026, which is that file's own rule.
+
+  **WHAT WAS DELIBERATELY NOT CLAIMED IN THAT CLAUSE, because it would have been
+  the invention `legal.js` exists to refuse: that the tax is shown before the
+  charge. IT IS NOT.** `grep -in "tax" app/src/screens/more/Billing.jsx` returns
+  **nothing** — the screen prints `firstChargeCents`, which is setup plus
+  recurring and no tax. **So the screen states one number and Stripe may charge
+  another**, which is this repo's sharpest rule arriving on the detailer's side
+  of the product, where `surcharge-visible.mjs` has no equivalent. It is $0
+  today only because Stripe Tax charges nothing where no registration exists;
+  **the day one is added the screen silently understates the charge.** Whether a
+  registration exists in Stripe today was **not checked** — a dashboard fact
+  needing a credential this session did not use. Written to `FOUND.md` as its
+  own item rather than folded into this one.
+
+  **A BRITISH SPELLING, LIVE ON `/terms` SINCE 2026-09-20, PUT THERE BY THIS
+  ITEM'S OWN CORRECTION — AND WHY NOTHING CAUGHT IT IS WORTH MORE THAN THE
+  LETTER.** § "Ending it" said *"as cancelling"* while § Renewals four
+  paragraphs above it and `/pricing` both say *"Canceling"*. **The same two
+  clauses that were made to agree on the SUBSTANCE on 2026-09-20 were left
+  disagreeing on the SPELLING, in the same edit that fixed them.**
+
+  `scripts/american-english.mjs` is the only gate that can catch this — it reads
+  the FINISHED page, and a source scan once printed clean over "Aluminium
+  tanks". **Its page list did not include `/terms` or `/privacy`, while
+  declaring itself in its own comment to be *"every page a stranger can reach
+  without signing in"*.** Both are public routes in `main.jsx` and both are
+  linked in the footer of every page it already read. **A declared population
+  that does not match its own stated definition is this repo's recurring fault,
+  and here it meant the two pages whose entire job is to be read were the two it
+  was not reading.** Added, **11 → 13 pages** (`node
+  scripts/american-english.mjs`); `expected_targets` is `PAGES.length`, so the
+  receipt followed on its own — **and it found the word on its first run over
+  them.** Fixed; the re-run reads **13/13 pages, 5,887 assertions, 0 British
+  spellings**, graded `PASS` by `node scripts/receipt.mjs
+  receipts/american-english.json`. Both its sabotages were re-run after the
+  population widened (`--break=mute`, `--break=lax`) and both still bite.
+
+  **THE PROCESSOR LIST: RE-RUN, AND NOTHING NEW RECEIVES PERSONAL DATA.** The
+  method is this item's own — list every external host the edge functions call.
+  **15 distinct literal hosts** at `96c6b06`:
+
+  ```bash
+  git grep -hoE 'https?://[A-Za-z0-9._%-]+' -- supabase/functions | sed -E 's#https?://##' | sort -u | wc -l
+  ```
+
+  Six are processors and all six are already named on `/privacy` (Resend,
+  Geoapify, the US National Weather Service, Google's translation service, and
+  Stripe twice). **The other nine were checked and found NOT to be, and the
+  reasons are recorded rather than the verdict** — `www.geoapify.com` and
+  `www.openstreetmap.org` are the attribution links Geoapify's licence requires
+  us to PRINT and this product never fetches; `venmo.com`, `cash.app` and
+  `paypal.me` carry the DETAILER's own handle into a link their customer may
+  tap, with nothing about the customer in the URL and no request made from here;
+  `esm.sh` appears only inside a comment recording that it is no longer used;
+  and three are this product's own site or documentation examples. **Two more
+  were followed to their source and are also clean:** `verify-domain` fetches
+  the DETAILER'S OWN host, and `watch-jobs` POSTs an **empty body** to a
+  healthchecks.io URL that arrives entirely from a secret — it learns that a
+  scheduled job ran and nothing about any person.
+
+  **VERIFIED ONE BY ONE, WHICH IS WHAT THE "DONE WHEN" ASKS FOR.**
+
+  | Promise | Where | What backs it |
+  |---|---|---|
+  | a copy of your data "by asking" | terms | `customersCsv` + `photosCsv` |
+  | "You export them and go" | `/pricing`, home | "Export my customers" (Clients), "Export my photos" (Gallery) |
+  | "and your photos are yours" | `/pricing` | `photo-export.js` — **both** `job_photos` and `gallery_images` |
+  | cancelling without an email | terms ×2, `/pricing` | `data-billing-cancel` → one confirm → `api.billingCancel`. No email anywhere in the path |
+  | the build fee, charged once | terms, `/pricing` | `add_invoice_items` — appended to the FIRST invoice, not folded into the recurring price |
+  | the domain is in your name | terms, `/pricing`, home | **structural**: `business_domains` stores a hostname and `verify-domain` proves it by fetching `/platform-host.txt` from a host the detailer already controls. No registrar credential exists in this repo and nothing here could buy one |
+  | figures copied at signup, never read again | terms | `planFor` has 5 call sites, all in `platform-billing` quote/subscribe. **`stripe-webhook` — the renewal path — contains none of `planFor`, `recurring_cents` or `PRICES`** |
+  | sales tax | `/pricing`, terms (new) | `automatic_tax: { enabled: true }` |
+  | **told on the day work starts** | `/pricing`, terms | **NOTHING. The one open row** |
+
+  **The domain row has one hole and it is outside the code**, said rather than
+  glossed: the website brief asks *"Do you own a domain?"*, so some detailers
+  will not, and nothing in this repo says who buys it or in whose name. A
+  `FOR-ANDREW.md` NOTE carries the one rule that closes it — register it in
+  theirs.
+
+  **AND THE HAND PASS IS NOW A CHECK, BECAUSE THE HAND PASS DEMONSTRABLY DOES
+  NOT HOLD.** `tests/legal-promises.test.mjs` — credential-free, no browser,
+  under a second. It holds the PAIRS, because both halves of a promise move and
+  they move in different files on different days: copy is reworded by one
+  person, the capability is deleted by another, and neither opens the other
+  file.
+
+  **16 rows, 2 of them unbacked and printed BY NAME on every run including a
+  green one, 9 outbound call sites, 15 hosts** — all four are **equalities, not
+  ceilings** (`docs/gotchas.md` 98: a ceiling with room in it means the next one
+  lands with nothing going red). The call-site count is the net under the one
+  hole the host scan structurally has: **a host built from a variable is
+  invisible to a string scan, which is exactly how `api.deepl.com` stayed off
+  `/privacy`**, so a new outbound call reddens the run and whoever added it has
+  to say what host it reaches.
+
+  ```bash
+  node --test tests/legal-promises.test.mjs     # 7 passed, 0 failed
+  git grep -n "fetch(" -- supabase/functions | grep -vE "^[^:]+:[0-9]+:[[:space:]]*(//|\*)" | wc -l   # 9
+  ```
+
+  **FIVE SABOTAGES, EVERY ONE WATCHED TO GO RED, SO EVERY ASSERTION IN THE FILE
+  HAS BEEN SEEN TO FAIL.** `LEGAL_BREAK=rename` reddens § 2 only; `=unbacked`
+  § 3 only; `=host` § 5 only; `=debt` § 4 only; `=call` § 6 only — **6 passed /
+  1 failed each time, and each prints what it changed**, which is
+  `docs/gotchas.md` 102 written the night before: a sabotage that silently never
+  applied produces the same green as one that was caught. § 4's switch exists
+  because that equality is the whole point of the file, and `docs/gotchas.md` 95
+  is about a sabotage that cannot reach its own assertion.
+
+  **LOOKED AT, NOT ASSUMED.** `/terms` and `/privacy` at **1440, 392 and 320**,
+  plus `/terms?lite=1` at all three — nine views, **console clean at every one,
+  0 errors and 0 warnings**. The terms page now carries **11 clauses** (was 10),
+  the tax clause renders exactly once, "cancelling" is gone from the rendered
+  DOM, and the effective date reads on the page. Shots are FILES under
+  `.manager-shots/0.4-terms/`, per `docs/gotchas.md` 99.
+
+  **One measurement lied on the way and it is now `docs/gotchas.md` 103** (count
+  re-run with `grep -c "^## " docs/gotchas.md` before AND after; `CLAUDE.md`
+  moved 102 → 103 in the same edit). Read from the top of the page, nine of the
+  eleven clauses measure `opacity: 0` and it reads as a blank page — but
+  `thread.js`'s reveal is **reversible by design**. Re-measured where a reader
+  would be standing: **all 11 clauses reach opacity 1 at all three widths, and
+  "Ending it" reaches 1 at maximum scroll**, which is the case one added clause
+  pushes down and which `thread.js`'s own comment says once left *"three of the
+  terms"* permanently invisible.
+
+  **NOT DONE, AND SAID PLAINLY.** No lawyer, per the standing ruling, which must
+  never hold this box open. **`node scripts/deployed-inventory.mjs` was NOT
+  run** — it needs credentials this session did not use, and no edge function
+  was touched. **A skipped check reads exactly like a passing one, so it is
+  named here rather than left out.** `contrast-insitu.mjs` was also not run; the
+  new clause's computed colors were read off the live DOM instead and are
+  **identical** to the ten existing clauses on the same surface
+  (`rgb(147,156,161)` body, `rgb(242,241,236)` heading), which is a stronger
+  statement for this one change and a weaker one for anything else.
+
+  **WHY THE BOX IS NOT TICKED.** Every other clause of the "Done when" is met:
+  both of Andrew's questions are answered, every enumerated promise has the code
+  or the row behind it pointed at, and the re-run of the method is done. **The
+  re-run turned up one promise with nothing behind it**, and the criterion says
+  *plus anything a re-run of the same method turns up*. One sentence on two
+  pages, one decision from Andrew, and this closes.
+
 - [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED. The count is NOT
   typed here — `node scripts/deployed-inventory.mjs` is the number. Nobody knew. Found 2026-09-20, when it was 22 of 39.**
   **Placed in Wave 0 because it undermines every other item in this file.** A

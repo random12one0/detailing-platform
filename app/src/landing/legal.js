@@ -43,7 +43,11 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 // the domain, both of which `/pricing` had been promising in public while this
 // document stayed silent. Moved when the words move, which is the rule two
 // lines up.
-export const EFFECTIVE = "20 September 2026";
+// **8 OCTOBER 2026, because the words moved again** — ROADMAP 0.4's re-run of
+// that same method found a THIRD commitment `/pricing` makes in public and
+// this document never mentioned, and the § "Sales tax" clause below is it.
+// One clause added, nothing else in either document touched.
+export const EFFECTIVE = "8 October 2026";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
@@ -59,6 +63,31 @@ export const TERMS = {
      "A booking system for a detailing business, and on the website plan the website in front of it. You run your own business on it: your prices, your hours, your customers. We host it."],
     ["What you pay",
      "Whatever the pricing page said on the day you signed up, and that price stays yours for as long as the account stays open. It cannot be changed underneath you: the figures are copied onto your subscription the day you agree to them and are never read again."],
+    // ── ADDED 2026-10-08, ROADMAP 0.4 ────────────────────────────────────
+    // **THE THIRD COMMITMENT `/pricing` HAS BEEN MAKING IN PUBLIC WHILE THIS
+    // DOCUMENT STAYED SILENT**, found by the same method as the build fee and
+    // the domain on 2026-09-20: reading `/pricing`'s eight disclosure clauses
+    // against this file's ten, one at a time. `PricingPage.jsx` § *"What you
+    // will be charged"* says *"plus sales tax in the states that charge it"*.
+    // This file said nothing about tax anywhere, in a document whose own lede
+    // calls itself "the whole agreement" — and the clause immediately above
+    // promises the figure *"cannot be changed underneath you"*, which is the
+    // sentence a tax line looks like a breach of unless it is named.
+    //
+    // **IT IS REAL AND IT IS ONE LINE OF CODE**: `platform-billing/index.ts`
+    // creates every subscription with `automatic_tax: { enabled: true }`, and
+    // falls back to a subscription without it only when Stripe refuses for a
+    // missing head-office address. So this invents nothing; it writes down
+    // what the product already does and `/pricing` already promises.
+    //
+    // **WHAT IS DELIBERATELY NOT CLAIMED HERE.** Not that the amount is shown
+    // before the charge — **it is not.** `Billing.jsx` prints a total built
+    // from `firstChargeCents` (setup + recurring) and the word "tax" does not
+    // appear on that screen at all. Saying "shown before you pay" would have
+    // been the invention this file exists to refuse. That gap is its own
+    // finding; it is in `FOUND.md` and under ROADMAP 0.4, not softened here.
+    ["Sales tax",
+     "The figures on the pricing page are before tax. In a state that charges sales tax on software, the tax is worked out by Stripe and added to the invoice on top of the price; in a state that does not, there is nothing to add. It is not part of the price above, and the tax itself is the state's rather than ours."],
     ["The twelve-month plan",
      "Only the annual-paid-monthly plan carries a commitment. Leaving it early costs half of the months still to run, charged that day. The other two plans have no term and no exit fee. The exact numbers, and a worked example, are on the pricing page before you are ever asked for a card."],
     ["Renewals",
@@ -103,8 +132,21 @@ export const TERMS = {
     //
     // Deletion genuinely is by asking, which the privacy page already says.
     // The two are now separated instead of being run together.
+    // **AND "cancelling" → "canceling" ON 2026-10-08, WHICH IS THE SAME TWO
+    // CLAUSES DISAGREEING AGAIN ONE LEVEL DOWN.** § Renewals four paragraphs up
+    // has said "Canceling" since the day it was written and `/pricing` says
+    // "Canceling stops the next charge"; this clause said "cancelling", which is
+    // British and is the one spelling rule CLAUDE.md calls an absolute. It was
+    // live from 2026-09-20, written into this clause by 0.4's own correction.
+    //
+    // **Nothing in the repo could see it, and that is the finding worth more
+    // than the letter.** `scripts/american-english.mjs` reads the FINISHED page
+    // and is the only gate that can catch this — and its page list did not
+    // include `/terms` or `/privacy`, despite declaring itself "every page a
+    // stranger can reach without signing in". Both pages were added to it in
+    // the same edit as this fix; it found this word on its first run over them.
     ["Ending it",
-     "Closing your account is the same one button in your own settings as cancelling, and it is never behind an email to us. That stops the billing and leaves your data where it is. If you also want it deleted, email us and we will delete it."],
+     "Closing your account is the same one button in your own settings as canceling, and it is never behind an email to us. That stops the billing and leaves your data where it is. If you also want it deleted, email us and we will delete it."],
   ],
 };
 

@@ -1519,6 +1519,72 @@ still knows them.
   so it needs the card side working — the same connected-account step already
   on this list. **Nothing can start before your answer, and nothing is stuck
   behind it either**: everything else on the list moves without this.
+- [ ] **DECIDE · Your pricing page promises a detailer you will tell them the
+  day work starts on their website. Nothing in the product can tell them.**
+
+  **The sentence, on `/pricing` and in your terms, word for word:** *"It stops
+  being refundable once work on your site begins, and you are told on the day
+  that happens."*
+
+  **What is actually there.** Nothing. There is no place in the product that
+  records a website build as having started — not a date, not a switch, not a
+  note — and no email anywhere that says it. The website brief a detailer
+  fills in records the day THEY finished it and nothing about what you do next.
+  So the day the build fee stops being refundable is a day nobody is told
+  about, including you.
+
+  **Why this matters more than it looks.** That sentence is not decoration. It
+  is the thing that ends their right to a refund on the largest single charge
+  in the product. A fee that quietly stops being refundable on an unannounced
+  day is the shape of complaint that gets a card payment reversed, and the page
+  promising the notice is the page they will quote back.
+
+  **Your two honest options, and they are both small.**
+
+  1. **Send the notice.** One email, one button you press when you sit down to
+     start their site: *"We've started on your website today."* That also gives
+     you the date the fee stopped being refundable, written down, on the day.
+     **This is the recommendation** — it keeps a promise you are already making
+     and it costs one screen and one email.
+  2. **Take the sentence off both pages.** Cheaper, and worse: it leaves a fee
+     that becomes non-refundable at a moment the detailer cannot see, which is
+     the thing the sentence was protecting them from. If you pick this, say so
+     and it is done in one edit.
+
+  **What was deliberately NOT done.** The sentence was left exactly as written
+  on both pages rather than softened into something vaguer. That is the same
+  call made about your export promise on 20 September, for the same reason: a
+  vague promise is still a promise, and it is much harder for the next person
+  to notice it is unkept.
+
+  **Nothing is on fire.** No website build has been sold, there are no paying
+  subscriptions, and nobody has agreed to either document. This blocks your
+  first website-plan customer, not today.
+
+- [ ] **NOTE · Three of your pages promise the domain is in the detailer's
+  name. If you ever buy one FOR somebody, it has to go in theirs, not yours.**
+
+  **Nothing is wrong and nothing is asked of you today.** This is one fact
+  written down because the only way the promise can break is a thing you would
+  do outside the product, where no check can see it.
+
+  **What the pages say.** Your terms: *"The domain is in your name. If you
+  leave, it leaves with you."* `/pricing` and the home page both say the same.
+
+  **Why the product itself cannot break it.** There is no way for this software
+  to own a domain. All it stores is the address a detailer tells it, and all it
+  does is knock on that address to confirm it points here. There is no registrar
+  account, no credit card, and nothing anywhere that could buy one. So for a
+  detailer who already has a domain, the promise is kept by the fact that it was
+  never yours to begin with.
+
+  **The one case that is yours.** The website brief asks *"Do you own a
+  domain?"*, so some detailers will not. If you buy one for them, **register it
+  in their name, not on your own account** — otherwise all three pages are
+  saying something untrue for that detailer, and they will only find out on the
+  day they leave. Nothing in the repository says who buys it or in whose name,
+  which is why it is here.
+
 - [ ] **DECIDE · How long may a detailer's own words be? Right now the answer is
   "as long as they like", and that is not a decision anybody made.**
 
@@ -1980,12 +2046,29 @@ still knows them.
   download in the product was the accountant's jobs-and-expenses file, which
   has no customer list in it at all.
 
-  **THE PART THAT IS STILL NOT TRUE, and you should know it rather than find
+  ~~**THE PART THAT IS STILL NOT TRUE, and you should know it rather than find
   it.** That same sentence says *"Your customers, their numbers **and your
   photos** are yours."* **There is no photo export.** Not a smaller one — none
   at all. The two honest ways out are to build it or to take the word
   "photos" out of that sentence, and both are yours. Nothing else on the
-  promise is outstanding.
+  promise is outstanding.~~
+
+  **CLOSED — THE PHOTO EXPORT WAS BUILT, AND THIS PARAGRAPH SAT HERE SAYING
+  OTHERWISE FOR EIGHTEEN DAYS.** There is a second button, **"Export my
+  photos"** on Business → Photos, and it hands over both kinds — the before and
+  after shots on real jobs AND the marketing gallery on your public site — with
+  a list saying which is which. So the whole sentence on your pricing page is
+  now true: customers, their numbers, and the photos.
+
+  **Why you are being told about a three-week-old fix.** Because nothing
+  noticed. The same stale claim was in three places at once on 2026-10-08 —
+  this row, the roadmap item, and a note inside the code — all of them saying a
+  promise was unkept that had been kept since 21 September. **Anyone reading
+  any of the three would have gone and built it a second time, or come to you
+  about a problem you no longer had.** That is the reason the check described
+  at the bottom of ROADMAP 0.4 now exists: it reads every promise on the four
+  public pages and goes red when either the promise or the thing behind it
+  moves, so this cannot happen again quietly.
 
   **It reaches nobody until you publish.** Like everything else this week, it
   is in the repository and not on the live site.
