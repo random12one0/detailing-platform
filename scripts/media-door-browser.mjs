@@ -203,8 +203,73 @@ const WIDTHS = [
   { label: "320", width: 320, height: 720 },   // the narrowest supported width
 ];
 
+// ── THE THREE PLACES A BUSINESS IMAGE IS UPLOADED, AND THE TWO PRESSED HERE ─
+// `grep -n uploadBusinessPhoto app/src` finds exactly three call sites, one per
+// folder in `MEDIA_FOLDERS`: `Gallery.jsx` (gallery), `BusinessInfo.jsx`
+// (branding, twice — the logo tile and the cover tile) and `SiteIntake.jsx`
+// (intake). **Criterion 1 names all three in its own words** — *"gallery
+// publishing, logo uploads and intake-photo uploads"* — and the first version
+// of this gate pressed only the first, which its own receipt said out loud.
+//
+// **BRANDING IS THE ONE ADDED NEXT, AND NOT BECAUSE IT WAS THE EASIER ONE.**
+// There are exactly two permanent records a wrong `public_url` can land in:
+// `gallery_images.image_url` and a brand's `logo_url`. The second is the one
+// every page of a tenant's site renders, and it is the one 0.11b's own
+// write-up names beside the first. **Intake writes no row at all** —
+// `SiteIntake.jsx` says so in its own words, *"nothing is published from here —
+// no `gallery_images` row is made"* — so it is the only one of the three where
+// a wrong url cannot become permanent. It is also the only one with no address
+// of its own: the photos question is a step inside the website brief, behind
+// earlier required answers. So it stays unpressed, named in the receipt by
+// name rather than folded into the pass.
+//
+// Each flow DECLARES how many file pickers its screen has, as an equality
+// rather than a floor: a new picker on either screen reddens this run instead
+// of slipping past it (`docs/gotchas.md` 98).
+const FLOWS = [
+  {
+    key: "gallery",
+    screen: "Photo gallery",
+    url: "/app?settings=gallery",
+    folder: "gallery",
+    inputs: 1,
+    // WHERE THE URL BECOMES PERMANENT, and for the gallery it happens by
+    // itself: `publishToGallery` inserts the row as part of the upload.
+    table: "gallery_images",
+    field: "image_url",
+    okWords: /added/i,
+    save: null,
+  },
+  {
+    key: "branding",
+    screen: "Business info",
+    url: "/app?settings=info",
+    folder: "branding",
+    inputs: 2,
+    // **AND FOR THE LOGO IT DOES NOT HAPPEN BY ITSELF**, which is the one real
+    // difference between the two flows and is the product's own design:
+    // `BusinessInfo.jsx`'s `upload` puts the url in React state and says
+    // *"Photo uploaded. Press Save to keep it."* The url reaches the row only
+    // when Save is pressed, so this run presses it — otherwise the half of
+    // criterion 2 that matters here, *what gets stored*, is never asked.
+    table: "business_branding",
+    field: "logo_url",
+    okWords: /press save/i,
+    save: "Save",
+  },
+];
+
+// **EVERY WRITE TO THESE FOUR TABLES IS ANSWERED HERE AND NEVER REACHES THE
+// DATABASE.** The gallery needed one of them; Save needs the other three,
+// because `persist()` updates `businesses` and `business_settings` alongside
+// `business_branding` — so pressing Save without this list would rewrite three
+// real rows on the demo tenant on every width. The bodies are kept, because
+// the body is the evidence; the row would only be cleanup. GETs continue to
+// the real database, which is what lets the screens render.
+const WRITE_TABLES = ["gallery_images", "business_branding", "businesses", "business_settings"];
+
 let passed = 0, assertions = 0, completed = 0;
-const expectedTargets = WIDTHS.length;
+const expectedTargets = FLOWS.length * WIDTHS.length;
 const failures = [];
 const findings = [];
 const artifacts = [];
@@ -286,8 +351,8 @@ const signedIn = await (async () => {
 })();
 
 try {
-  for (const w of WIDTHS) {
-    console.log(`  ${w.label}x${w.height}`);
+  for (const flow of FLOWS) for (const w of WIDTHS) {
+    console.log(`  ${flow.screen} (${flow.folder}) at ${w.label}x${w.height}`);
     const ctx = await browser.newContext({
       viewport: { width: w.width, height: w.height },
       deviceScaleFactor: 1,
@@ -303,12 +368,17 @@ try {
     // because the entry can already be in the cache by then; this removes the
     // cache from the question entirely.
     await (await ctx.newCDPSession(page)).send("Network.setCacheDisabled", { cacheDisabled: true });
+    // THE LABEL CARRIES THE FLOW AS WELL AS THE WIDTH. With two screens in the
+    // run, a line reading only "320" cannot be acted on — and the console is
+    // read once at the end across every context, so the label is the only
+    // thing that says which screen said it.
+    const at = `${flow.key} ${w.label}`;
     page.on("console", (m) => {
       if (m.type() === "error" || m.type() === "warning") {
-        consoleNoise.push(`${w.label} · ${m.type()} · ${m.text().slice(0, 200)}`);
+        consoleNoise.push(`${at} · ${m.type()} · ${m.text().slice(0, 200)}`);
       }
     });
-    page.on("pageerror", (e) => consoleNoise.push(`${w.label} · pageerror · ${String(e.message).slice(0, 200)}`));
+    page.on("pageerror", (e) => consoleNoise.push(`${at} · pageerror · ${String(e.message).slice(0, 200)}`));
 
     // What the run watches rather than what it stubs: every object-storage call
     // and every PUT, so "no fallback" is answered by the wire and not by a grep.
@@ -323,7 +393,7 @@ try {
     // `docs/gotchas.md` 110's shape: a question broader than the rule, failing
     // toward a FALSE DEFECT. Reads are still recorded, separately, so the
     // receipt can say they happened rather than hiding them.
-    const seen = { writes: [], reads: [], puts: [], inserts: [], doorBodies: [] };
+    const seen = { writes: [], reads: [], puts: [], rows: [], doorBodies: [] };
     page.on("request", (r) => {
       const u = r.url();
       if (/\/storage\/v1\/object\//.test(u)) {
@@ -398,6 +468,26 @@ try {
     // ── 3 · THE PUT, THE OLD BUCKET, AND THE ROW ─────────────────────────
     await page.route(`${PUT_HOST}/**`, (route) => route.fulfill({ status: 200, body: "" }));
 
+    // **AND THE PUBLIC BASE IS ANSWERED TOO, WHICH WAS FOUND BY THE CONSOLE
+    // RATHER THAN REASONED ABOUT.** `BusinessInfo.jsx`'s tile IS the preview —
+    // `<img src={url}>` on the url the door just returned — so the moment the
+    // logo upload succeeds the browser fetches `img.media.test` and prints
+    // `ERR_NAME_NOT_RESOLVED`. That host is deliberately fake, because **no
+    // public address has been bound in Cloudflare yet** and inventing one that
+    // looked real would be the worse lie; so the noise is this gate's own and
+    // not the product's, and the honest fix is to answer the request rather
+    // than to filter the console. Filtering is what would have been wrong: the
+    // console assertion below is the only thing in this run that would catch a
+    // real error on either screen, and a filter keyed on "failed to load"
+    // would have swallowed it.
+    //
+    // Worth keeping in mind for 0.11ba: the logo preview is the FIRST thing a
+    // wrong bound address breaks, and it breaks visibly, on the screen that
+    // sets it.
+    await page.route(`${RAW_BASE}**`, (route) => route.fulfill({
+      status: 200, contentType: "image/png", body: PNG,
+    }));
+
     // **THE OLD PATH IS ANSWERED RATHER THAN ALLOWED, AND THIS WAS ADDED AFTER
     // IT BIT.** Before it existed, the run that discovered the cache trap above
     // went down the Supabase Storage path at all three widths and **really
@@ -415,16 +505,26 @@ try {
       }
       return route.continue();
     });
-    await page.route("**/rest/v1/gallery_images*", async (route) => {
+    // **EVERY WRITE TO THE FOUR TABLES IN `WRITE_TABLES` IS ANSWERED HERE,
+    // 201, WITHOUT REACHING THE DATABASE** — which is why this run writes no
+    // row anywhere. The body is the evidence; the row would only be cleanup.
+    //
+    // It was one table until the branding flow was added, and the widening is
+    // not tidiness: `BusinessInfo.jsx`'s Save runs `persist()`, which updates
+    // `businesses` and `business_settings` in the same `Promise.all` as the
+    // `business_branding` upsert carrying `logo_url`. Pressing Save with only
+    // `gallery_images` answered would have rewritten two real rows on the demo
+    // tenant at every width — six writes to the live database by a gate whose
+    // header promises it writes nothing.
+    //
+    // Anything NOT in that list continues, and so does every GET, which is
+    // what lets both screens render from the real tenant.
+    await page.route("**/rest/v1/**", async (route) => {
       const req = route.request();
-      if (req.method() === "POST") {
-        seen.inserts.push(req.postData() || "");
-        // 201 WITHOUT REACHING THE DATABASE, which is why this run writes no
-        // row anywhere. The body above is the evidence; the row would only be
-        // cleanup.
-        return route.fulfill({ status: 201, contentType: "application/json", body: "[]" });
-      }
-      return route.continue();
+      const table = new URL(req.url()).pathname.replace(/^\/rest\/v1\//, "").split("?")[0];
+      if (req.method() === "GET" || !WRITE_TABLES.includes(table)) return route.continue();
+      seen.rows.push({ table, method: req.method(), body: req.postData() || "" });
+      return route.fulfill({ status: 201, contentType: "application/json", body: "[]" });
     });
 
     // **ONE NAVIGATION, AND THE SIGN-IN HAPPENED BEFORE THE ROUTES EXISTED.**
@@ -443,7 +543,7 @@ try {
     // a document running the untouched module.** Logging in once up front and
     // navigating once per width removes the second load, and the executed-copy
     // proof below is what tells us it stayed removed.
-    await page.goto(`${BASE_URL}/app?settings=gallery`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}${flow.url}`, { waitUntil: "domcontentloaded" });
     // `state: "attached"`, NOT the default. The gallery's file input is
     // `hidden` behind a `<label>` — the pattern three screens here use — and
     // Playwright's "visible" means a non-empty box, so the default wait times
@@ -453,52 +553,79 @@ try {
     await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 30000 });
     await page.waitForTimeout(900);
 
+    // HOW MANY PICKERS THIS SCREEN HAS, AS AN EQUALITY. `BusinessInfo.jsx`
+    // uploads to `branding` from TWO tiles — the logo and the cover — and
+    // `Gallery.jsx` from one. A third appearing on either screen is a flow
+    // this run presses no part of, and an inequality here would let it arrive
+    // silently (`docs/gotchas.md` 98).
+    const pickers = page.locator('input[type="file"]');
+    const pickerCount = await pickers.count();
+    check(`${at} · the screen has exactly ${flow.inputs} file picker${flow.inputs === 1 ? "" : "s"}`,
+      pickerCount === flow.inputs, `${pickerCount}`);
+    // THE FIRST ONE, EXPLICITLY. With two on the screen a bare selector is a
+    // Playwright strict-mode error rather than a measurement, and the first is
+    // the logo — the tile whose url every page of a tenant's site renders.
+    const picker = pickers.first();
+
     // READ OUT OF THE PAGE, not off this script's own counters. `flagSeen` and
     // `flagLanded` describe what was SERVED; this describes what RAN.
     const ranProof = await page.evaluate(() => globalThis.__mediaFlagProof ?? 0);
-    check(`${w.label} · the flag substitution landed in the module the browser RAN`,
+    check(`${at} · the flag substitution landed in the module the browser RAN`,
       BREAK === "unbound" ? (flagSeen > 0 && ranProof === 0) : ranProof > 0,
       `served ${flagSeen}, rewritten ${flagLanded}, executed ${ranProof}`);
     if (BREAK === "public-url") {
-      check(`${w.label} · SABOTAGE: the public_url guard was really removed from the module`,
+      check(`${at} · SABOTAGE: the public_url guard was really removed from the module`,
         guardLanded > 0, `landed ${guardLanded}`);
     }
 
     // ── THE CASE THAT WORKS ──────────────────────────────────────────────
     mode = "ok";
-    await page.setInputFiles('input[type="file"]', { name: "shot.png", mimeType: "image/png", buffer: PNG });
+    await picker.setInputFiles({ name: "shot.png", mimeType: "image/png", buffer: PNG });
     await page.waitForTimeout(1500);
 
-    check(`${w.label} · ZERO Supabase Storage UPLOADS — there is no fallback left`,
+    check(`${at} · ZERO Supabase Storage UPLOADS — there is no fallback left`,
       seen.writes.length === 0, seen.writes.slice(0, 2).join(" | "));
-    check(`${w.label} · the browser PUT to the door's signed url`, seen.puts.length === 1, `${seen.puts.length} PUTs`);
+    check(`${at} · the browser PUT to the door's signed url`, seen.puts.length === 1, `${seen.puts.length} PUTs`);
 
     const okKey = seen.doorBodies.length
       ? mediaPath({ businessId: biz, folder: seen.doorBodies[0].folder, id: seen.doorBodies[0].file_id, type: seen.doorBodies[0].content_type })
       : null;
-    check(`${w.label} · the key is this business's own <id>/gallery/<file>.png`,
-      !!okKey && okKey.startsWith(`${biz}/gallery/`) && okKey.endsWith(".png"), String(okKey));
-    check(`${w.label} · the url stored in gallery_images is publicUrl(base, key) for the key that was PUT`,
-      seen.inserts.length === 1 && okKey !== null
-        && JSON.parse(seen.inserts[0]).image_url === publicUrl(PUB_BASE, okKey),
-      seen.inserts.length ? String(JSON.parse(seen.inserts[0]).image_url) : "no insert");
+    check(`${at} · the key is this business's own <id>/${flow.folder}/<file>.png`,
+      !!okKey && okKey.startsWith(`${biz}/${flow.folder}/`) && okKey.endsWith(".png"), String(okKey));
 
     const okBox = page.locator(".ok-box").first();
-    check(`${w.label} · the screen says the photo was added`,
-      await okBox.count() > 0 && /added/i.test(((await okBox.innerText().catch(() => "")) || "")),
+    check(`${at} · the screen says what happened in its own words`,
+      await okBox.count() > 0 && flow.okWords.test(((await okBox.innerText().catch(() => "")) || "")),
       (await okBox.innerText().catch(() => "")) || "no ok-box");
+
+    // **AND FOR THE LOGO, SAVE IS PART OF THE MEASUREMENT.** The gallery's row
+    // is written by the upload itself; the logo's is written only when the
+    // person presses Save, so without this press criterion 2's *what gets
+    // stored* half is never asked of this flow at all.
+    if (flow.save) {
+      await page.getByRole("button", { name: flow.save, exact: true }).first().click();
+      await page.waitForTimeout(1500);
+    }
+
+    const rowsFor = () => seen.rows.filter((r) => r.table === flow.table);
+    const stored = rowsFor();
+    let storedUrl = null;
+    try { storedUrl = stored.length ? JSON.parse(stored[0].body)[flow.field] : null; } catch { storedUrl = "unparseable"; }
+    check(`${at} · the url stored in ${flow.table}.${flow.field} is publicUrl(base, key) for the key that was PUT`,
+      stored.length === 1 && okKey !== null && storedUrl === publicUrl(PUB_BASE, okKey),
+      stored.length ? String(storedUrl) : "no row written");
 
     // ── THE CASE THAT IS REFUSED — the 0.11b fault ───────────────────────
     mode = "theirs";
-    const putsBefore = seen.puts.length, insertsBefore = seen.inserts.length;
-    await page.setInputFiles('input[type="file"]', { name: "second.png", mimeType: "image/png", buffer: PNG });
+    const putsBefore = seen.puts.length, rowsBefore = rowsFor().length;
+    await picker.setInputFiles({ name: "second.png", mimeType: "image/png", buffer: PNG });
     await page.waitForTimeout(1500);
 
     const box = page.locator(".error-box").first();
     const present = await box.count() > 0 && await box.isVisible().catch(() => false);
-    check(`${w.label} · another business's public_url is refused, on the screen`, present);
+    check(`${at} · another business's public_url is refused, on the screen`, present);
     const said = present ? (await box.innerText()).trim() : "";
-    check(`${w.label} · and it is the sentence the product composes`, said === DOOR_WORDS.unreadable, JSON.stringify(said));
+    check(`${at} · and it is the sentence the product composes`, said === DOOR_WORDS.unreadable, JSON.stringify(said));
 
     if (present) {
       // ITS PIXELS ARE PAINTED. The scroll comes FIRST: `elementFromPoint` is
@@ -516,17 +643,27 @@ try {
         if (!hit) return "nothing-at-centre";
         return (el === hit || el.contains(hit) || hit.contains(el)) ? "painted" : `covered-by-${hit.className || hit.tagName}`;
       });
-      check(`${w.label} · its pixels are painted at its own centre`, painted === "painted", painted);
+      check(`${at} · its pixels are painted at its own centre`, painted === "painted", painted);
     } else {
-      check(`${w.label} · its pixels are painted at its own centre`, false, "no refusal box to hit-test");
+      check(`${at} · its pixels are painted at its own centre`, false, "no refusal box to hit-test");
     }
 
-    check(`${w.label} · NOTHING WAS PUT — the refusal happened before any byte left`,
+    check(`${at} · NOTHING WAS PUT — the refusal happened before any byte left`,
       seen.puts.length === putsBefore, `${seen.puts.length - putsBefore} extra PUTs`);
-    check(`${w.label} · NOTHING WAS STORED — no row carried the other business's url`,
-      seen.inserts.length === insertsBefore, `${seen.inserts.length - insertsBefore} extra inserts`);
+    check(`${at} · NOTHING WAS STORED — no second row was written`,
+      rowsFor().length === rowsBefore, `${rowsFor().length - rowsBefore} extra rows`);
+    // **AND THE OTHER BUSINESS'S ID IS NOWHERE IN ANY ROW THIS SCREEN TRIED TO
+    // WRITE.** The assertion above says no SECOND row went; this one says the
+    // first one did not carry it either, across every table Save touches. It
+    // is the claim the item is actually about — a wrong `key` is a failed
+    // upload, a wrong `public_url` is somebody else's image stored for good —
+    // and asking it of every recorded body means a future screen that stores
+    // the url somewhere new is covered without this script being edited.
+    const leaked = seen.rows.filter((r) => r.body.includes(OTHER_BIZ));
+    check(`${at} · and no row body anywhere named ${OTHER_BIZ.slice(0, 8)}…`,
+      leaked.length === 0, leaked.map((r) => r.table).join(", "));
 
-    const shot = path.join(SHOTS, `media-door-${BREAK || "clean"}-${w.label}.png`);
+    const shot = path.join(SHOTS, `media-door-${BREAK || "clean"}-${flow.key}-${w.label}.png`);
     await page.screenshot({ path: shot });
     artifacts.push(path.relative(REPO, shot).replace(/\\/g, "/"));
     console.log(`    shot  ${path.relative(REPO, shot)}`);
@@ -568,11 +705,12 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 22,
-  assertion_floor: "11 per width (flag landed, zero storage calls, one PUT, the key, the stored url, the success "
-    + "sentence, the refusal present, the refusal's wording, its pixels, no PUT, no row) x 3 widths + 1 console = 34 "
-    + "when every width renders. A width whose screen never renders still books its assertions as failures rather "
-    + "than dropping out, so the count cannot silently fall below 22. --break=public-url adds one per width.",
+  min_assertions: 52,
+  assertion_floor: "13 per flow-and-width (the picker count, the flag landed, zero storage uploads, one PUT, the "
+    + "key's folder, the success sentence, the stored url, the refusal present, the refusal's wording, its pixels, "
+    + "no PUT, no second row, no row body naming the other business) x 2 flows x 3 widths + 1 console = 79 when "
+    + "every screen renders. A screen that renders but refuses nothing still books its assertions as failures "
+    + "rather than dropping out, so the count cannot silently fall below 52. --break=public-url adds one per pair.",
   canary: {
     id: "the-pre-fix-reader",
     observed_failure: preFixWouldAccept,
@@ -584,31 +722,44 @@ const { path: receiptPath } = writeReceipt({
   dimensions: {
     roadmap: "0.11b",
     criteria: [
-      "1 · gallery publishing writes only to business-media in R2 — zero Supabase Storage UPLOADS observed",
-      "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url",
-      "3 · the key is minted for the caller's own business",
-      "4 · no Supabase Storage upload fallback remains on this path, asked of the live runtime",
+      "1 · gallery publishing AND logo uploads write only to business-media in R2 — zero Supabase Storage UPLOADS "
+      + "observed on either screen. Intake is the third flow and is not pressed here; see unjudgeable",
+      "2 · the public url is derived by r2.ts's mediaBase + publicUrl and is what reaches gallery_images.image_url "
+      + "and business_branding.logo_url — the two permanent records a wrong public_url can land in",
+      "3 · the key is minted for the caller's own business, under the folder the screen asked for",
+      "4 · no Supabase Storage upload fallback remains on either path, asked of the live runtime",
     ],
+    flows: FLOWS.map((f) => `${f.key} · ${f.screen} · ${f.url} · ${f.inputs} picker(s) · stores ${f.table}.${f.field}`),
     widths: WIDTHS.map((w) => w.label),
     public_base: PUB_BASE,
     sabotage: BREAK || null,
     intercepted: "three responses: the photo-door.js module (the flag flipped in flight), the undeployed "
       + "photo-door function (its answer DERIVED by photo-rules.js's mediaPath and r2.ts's publicUrl), and the "
-      + "signed PUT plus the gallery_images insert (so nothing is written anywhere). Nothing in app/src is edited.",
-    wrote_nothing: "no R2 object, no Supabase Storage object, no gallery_images row, no file on disk",
+      + "signed PUT plus every write to " + WRITE_TABLES.join(", ") + " (so nothing is written anywhere — the last "
+      + "three are what BusinessInfo's Save touches). Nothing in app/src is edited.",
+    wrote_nothing: "no R2 object, no Supabase Storage object, no gallery_images row, no business_branding row, no "
+      + "businesses or business_settings update, no file on disk",
     unjudgeable: [
       "That R2 accepts the signature, that Cloudflare serves the PUT, and that an unauthenticated visitor can read "
       + "the url: no public address has been bound in Cloudflare yet (FOR-ANDREW.md step 9a2), so this run uses a "
       + "test host through r2.ts's real reader. The DERIVATION is measured; the live address is Andrew's.",
-      "The branding and intake folders are not pressed in the browser — only gallery is. Both complete through the "
-      + "real handler in tests/photo-door-media-wire.test.mjs § 1, which declares its folder count from MEDIA_FOLDERS.",
+      "The INTAKE folder is not pressed in the browser — gallery and branding are. It is the third and last of the "
+      + "three uploadBusinessPhoto call sites, it has no address of its own (the photos question is a step inside "
+      + "the website brief, behind earlier required answers, reachable only by ?brief=1 plus stepping), and it is "
+      + "the only one of the three that writes NO row, so a wrong public_url cannot become permanent through it. "
+      + "It completes through the real handler in tests/photo-door-media-wire.test.mjs section 1, which declares "
+      + "its folder count from MEDIA_FOLDERS so a fourth folder reddens.",
     ],
   },
   warnings: [
     "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the "
     + "RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
-    "Gallery.jsx renders err.message untranslated, so the refusal is read in English at every width. The door's "
-    + "sentences are DOOR_WORDS and their Spanish is tests/spanish.test.mjs § 12's subject, not this item's.",
+    "Gallery.jsx and BusinessInfo.jsx both render err.message untranslated, so the refusal is read in English at "
+    + "every width on both screens. The door's sentences are DOOR_WORDS and their Spanish is tests/spanish.test.mjs "
+    + "section 12's subject, not this item's.",
+    "The sentence those two screens show is DOOR_WORDS.unreadable, which says 'Reload this job' on screens that are "
+    + "not a job. Found 2026-10-09, written up in FOUND.md, not this item's to fix — 0.11b is about which store the "
+    + "bytes go to, and the string is shared with JobPhotos.jsx where it is correct.",
   ],
 });
 console.log(`\nreceipt  ${receiptPath}  —  validate: node scripts/receipt.mjs`);
