@@ -1441,6 +1441,74 @@ and how the wait ends.
   - The app never ships before photo-door, and the live upload switch and photo_total_gb change from 1 to 10 occur in the same release.
   - The photo-reconcile cron entry is installed like refresh-weather, while photo-door retains JWT verification and photo-reconcile is publicly callable by cron.
 
+  ***THE FORGETTING PROGRAM IS NOW PART OF THE RELEASE ORDER, AND IT IS 0 OF 3 - 2026-10-09, attempt 3.
+  Commits `2de18ba` and `2cc8f60`. Credential-free except one READ-ONLY credentialed run: nothing deployed,
+  nothing applied, no flag flipped, no DDL, no write to the database or to R2, no secret value touched. The box
+  stays `[ ]` and SO DO ALL THREE SLICES - every one of 0.11ca, 0.11cb and 0.11cc is an act only Andrew
+  performs, and that is now written under each of them rather than left for a fourth session to rediscover.***
+
+  **THE RELEASE PUBLISHES THREE FUNCTIONS AND THE GATE JUDGED TWO.** `photo-door` and `photo-reconcile` each
+  had rules; **`delete-customer` (step 9d) had none** - and it is the only one of the three whose lateness is
+  silent and permanent. Since 0.11 slice 3 it removes a forgotten customer's photos from Supabase Storage
+  **and** from R2. Publish the door (9c), skip 9d, and pressing *forget this customer* deletes the
+  `job_photos` rows and leaves the objects in R2 - **and the rows that named those objects are the thing just
+  deleted, so the files are unreachable by anything afterwards.** Nothing refuses, nothing logs it, and the
+  only thing that would ever notice is the nightly reconcile counting orphans into a heartbeat row.
+
+  **IT IS NOT HYPOTHETICAL. MEASURED, `node scripts/photo-release-order.mjs` at `63b72ee`: the deployed
+  `delete-customer` bundle is 5,700,534 bytes and carries 0 of 3 R2 markers.** The live forgetting program is
+  the pre-0.11 one, so this is waiting on the day the door is published and on nothing else.
+
+  **`forget-reaches-r2`, rule ten, criterion 3. 10 rules, 0 failed, 1 UNJUDGEABLE (`bucket-cors`), 12
+  assertions against a floor raised 9 to 10; `node scripts/receipt.mjs` grades the receipt PASS.** The markers
+  are parsed out of the product - the identifiers `delete-customer` imports from `_shared/forgetPhotos.ts` and
+  `_shared/r2.ts`, by MODULE PATH - with a count guard that throws when the parse resolves fewer than the
+  product has (`docs/gotchas.md` 116, which this item wrote). **Every marker, not any** (95): one of three
+  present is what a relaxed rule reads as the R2 version. An unreadable bundle stays `null` and reads
+  **unjudgeable**, never *"no R2 in it"*.
+
+  **ONE-DIRECTIONAL, AND THAT IS HONEST RATHER THAN A GAP.** Republishing `delete-customer` EARLY is harmless:
+  it still removes from Supabase Storage, and R2 simply holds nothing yet. Only late is a fault. So the rule
+  reds in the legitimate window between step 9c and step 9d, which is this gate's existing idiom -
+  `allowance-with-switch` does the same between 9c and 9g. A red here means *do the next step*, not *you broke
+  something*, and the sentence says which step.
+
+  **NOT A DUPLICATE OF `deployed-inventory.mjs`, AND THE DIFFERENCE IS THE POINT.** That script names every
+  function whose bundle differs and today names about twenty, so a session reads a list rather than a fault.
+  This reddens only when the R2 capability is MISSING while the door is LIVE - the one drift that loses
+  somebody's photos - and names the command that fixes it.
+
+  **BROKEN ON PURPOSE AND THE OLD MACHINERY RE-PROVED.** `--break=forget-stale` reddens it **by name on the
+  findings list** (105) and prints its pre-edit verdict (102). It moves two fields and reddens two rules by
+  design, which is declared: a sabotage that only emptied the markers would be judged in a world where this
+  rule is vacuous and would print a green it had not earned. `--break=cron-early` was re-run afterwards to
+  prove that adding a rule did not disarm the existing switches. Two new test worlds - the door live with 0 of
+  3 markers, and with 1 of 3 - each redden exactly this rule and no other; the blind world answers
+  `unjudgeable`; and a two-sabotage parser test holds the marker list against the real source. **8 of 8 tests,
+  credential-free, no network, 0.2s.**
+
+  **TWO CORRECTIONS MADE IN THE SAME SITTING.** `photo-reconcile`'s own header said it was **NOT** yet in
+  `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs` and sent the reader to `FOR-ANDREW.md` to have the line
+  added. It has been in that list since the line was written, so the instruction was for work already done -
+  the same shape as the struck step 9b, and a session acting on it would have gone looking for a job that was
+  finished. And `FOR-ANDREW.md` step 9d was one line with no stake in it; it now says, in his words, what is
+  lost if the step is skipped.
+
+  **NOT PROVEN, SAID PLAINLY.** That the Cloudflare CORS rules are set - unchanged, and `bucket-cors` prints
+  UNJUDGEABLE by name on every run; 0.11d's first browser upload is the only proof there is. That R2 accepts
+  these signatures. That the deployed bundle's 0 of 3 is drift rather than a bundle format this parse cannot
+  read - the three identifiers are present in the checkout and absent from a 5.7 MB body that was read in
+  full, which is strong but is not the same as having watched the R2 version's own bundle carry them. **And no
+  browser evidence, which here is an absent subject rather than a skipped check:** this piece ships no screen
+  and moves no pixel - one command-line gate, one node suite and two paragraphs of prose, none of them
+  reachable from a page.
+
+  **NEEDS ANDREW: `FOR-ANDREW.md` step 9, in order, which is the entire content of 0.11ca, 0.11cb and 0.11cc.**
+  Nothing in those three slices is buildable by a session: setting a CORS rule in Cloudflare, publishing a
+  function, applying a migration and publishing the website are all his by standing rule. **After each step,
+  run `node scripts/photo-release-order.mjs`** - it now reddens on ten things, including the step done too
+  early, the step forgotten, and step 9d left behind after 9c.
+
   ***CRITERION 1'S OTHER HALF IS NOW CHECKED, AND IT WAS WRONG - 2026-10-09, attempt 2. Commits
   `d9be87f` and `58f36d1`. Credential-free: no network, no database, no deploy, no flag, no DDL, no
   secret touched. The box stays `[ ]`: three of the four criteria are acts only Andrew performs.***
@@ -1622,6 +1690,74 @@ and how the wait ends.
   Andrew's action and must follow `FOR-ANDREW.md` step 9 in order. His later
   instruction on 0.11d is also a release gate: the photo tests and English /
   Spanish strings must be green before the website is published.
+
+  Waits on: 0.11ca, 0.11cb, 0.11cc. How the wait ends: those pieces are ticked.
+  Split on 2026-10-09 because this entry is 192 lines
+  long and no single session was finishing it.
+
+- [ ] **0.11ca — Configure R2 CORS and verify function secrets**
+  Apply the exact CORS configuration to all three photo-related buckets and confirm the required R2 secrets are present without exposing values. This leaves publishing functions, migrations, cron installation, app deployment, and switches to later pieces.
+  Part 1 of 3 of item 0.11c, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - All three buckets have the prescribed GET/PUT CORS rule, including production, localhost, and preview origins.
+  - R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY are confirmed present without logging their values.
+  - The CORS instruction gate and receipt pass, while dashboard-only verification remains explicitly recorded.
+
+  **NEEDS ANDREW: both halves of this slice are his, and the buildable part is already done - 2026-10-09.**
+  Setting a CORS rule needs the Cloudflare dashboard, which no credential in this repo can reach and must not
+  acquire. **What a session CAN do was done:** step 9a1 is now an exact JSON block to paste, three times, one
+  per bucket, derived from the product rather than written from memory - `node scripts/cors-rule.mjs` prints
+  it and reddens if the document stops matching (8 rules, 0 failed, receipt PASS). **And criterion 2 is MET
+  and measured:** `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` are all present on the
+  functions, read by NAME with no value bound, compared, printed or written. Step 9b is struck from his list.
+  **So what is left of this slice is one paste into three buckets, and `bucket-cors` stays UNJUDGEABLE until
+  0.11d's first browser upload, where a missing rule shows as a blocked preflight.**
+
+- [ ] **0.11cb — Publish the R2 functions in release order**
+  Publish photo-door, delete-customer, and photo-reconcile, preserving photo-door JWT verification and allowing photo-reconcile to be called by cron. This leaves database/cron changes and the app upload switch untouched.
+  Part 2 of 3 of item 0.11c, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - photo-door is published with JWT verification retained.
+  - delete-customer and photo-reconcile are published.
+  - photo-reconcile is publicly callable for its cron invocation.
+  - The release-order check confirms the app has not shipped before photo-door.
+
+  **NEEDS ANDREW: every criterion here is a publish, and publishing is his - 2026-10-09.** A session cannot
+  perform any of the three, by standing rule. **What is built instead is the order check around them:**
+  `node scripts/photo-release-order.mjs` judges `door-keeps-jwt` (photo-door absent from `PUBLIC_FUNCTIONS`
+  and, once live, deployed with `verify_jwt=true`), `reconcile-public-for-cron` (present in that list, so the
+  nightly anonymous call is not refused at the gateway), `app-shipped-before-door` against the published
+  bundle, and - added 2026-10-09 - `forget-reaches-r2`, which reddens if `delete-customer` is left on its old
+  version after the door goes live. **Measured today: all three functions' repo-side settings are correct and
+  the deployed `delete-customer` carries 0 of 3 R2 markers**, so step 9d is not optional and the gate will say
+  so. The steps are `FOR-ANDREW.md` 9c, 9d and 9e, in that order, with step 9a2 before 9c.
+
+- [ ] **0.11cc — Install cron and apply coordinated allowance release**
+  Install the photo-reconcile cron entry, apply the required migrations, publish the app, and perform the upload routing and 1 GB-to-10 GB allowance change as one coordinated release. This leaves only post-release proof and drift observation.
+  Part 3 of 3 of item 0.11c, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The photo-reconcile cron entry is installed in the same manner as refresh-weather.
+  - The required cron and allowance migrations are applied.
+  - The app is published only after photo-door is live.
+  - RECEIPTS_VIA_DOOR and MEDIA_VIA_DOOR are switched and photo_total_gb changes from 1 to 10 in the same release.
+  - The release-order gate passes for the completed release state.
+
+  **NEEDS ANDREW: a cron install, two migrations and a publish - all four are his - 2026-10-09.** Applying a
+  migration changes the live database's structure and publishing the website is his alone; a session does
+  neither. **What is built is everything around them:** the cron migration exists and is shaped exactly like
+  `refresh-weather`'s (`20261006060000_photo_reconcile_cron.sql`, daily at 03:40 UTC, seeded `seeded: true` so
+  the dead-man's switch does not read it as green), the allowance migration moves 1 to 10 and **only** from
+  the default, and `node scripts/photo-release-order.mjs` holds `cron-after-reconcile`,
+  `allowance-before-switch` and `allowance-with-switch` - which redden on the step done early AND on the step
+  forgotten, in both directions. **`tests/photo-release-order.test.mjs` asserts the correct COMPLETED world
+  green**, which is the half that matters here: a gate that only knows how to pass *"nothing has happened
+  yet"* would redden the day he does every step right and be switched off that day. The steps are
+  `FOR-ANDREW.md` 9f, 9g and 10, then a session flips `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`. **His 0.11d
+  instruction is a gate on step 10: the photo tests and the English / Spanish strings must be green before the
+  website is published.**
 
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
   Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
