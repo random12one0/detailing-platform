@@ -2891,3 +2891,43 @@ was the belt's cheap triage pass.**
   remaining acceptance step is his physical-phone keyboard walk. Both now carry
   the belt's existing `NEEDS ANDREW` marker. No product claim was ticked from
   these source checks.
+
+## 2026-10-08 — supervisor: ROADMAP 0.4's `/terms` change reproduced in a browser, at `f88c3e7`
+
+**The triage pass escalated exactly one thing: 0.4 changed a page a stranger can read
+and nobody had opened it.** This is that pass. Chromium, the real dev server on
+`:5173`, two widths, scrolled the way a reader scrolls rather than jumped to the
+bottom.
+
+| proven | figure | invalidated by a change to |
+|---|---|---|
+| The **Sales tax** clause renders, and renders **immediately after "What you pay"** | at **1440** and **392**, order index 2 of 11 both times | `app/src/landing/legal.js`, `app/src/landing/LegalPage.jsx` |
+| **All eleven clauses reach `opacity: 1`** once a reader has scrolled to the end | 11 of 11 at both widths, tail row `Ending it` at `1`, `visibility: visible`, 137px tall at 1440 and 189px at 392 | same, plus `app/src/landing/thread.js`, `landing.css` |
+| **No British spelling survives on the finished page** | `cancelling\|whilst\|organis\|colour\|licence\|cheque\|centre` → **0 matches**; `canceling` present **twice** (§ Renewals, § Ending it) | `app/src/landing/legal.js` |
+| **Console clean** | **0** errors and **0** warnings at both widths, including `pageerror` | any of the above |
+| The new clause is **typographically identical to the ten around it** | all 11 `dd` elements group into **one** colour/size bucket, `rgb(147, 156, 161) / 14.5px` | `app/src/landing/landing.css`, `theme.css` |
+| Nothing is painted over the new clause | `elementFromPoint` at its top-left returns the clause's own `DD`, and its box does not overflow the viewport at either width | same |
+| `EFFECTIVE` moved with the words | the page prints **"Effective 8 October 2026"** | `app/src/landing/legal.js` |
+
+Shots: `.manager-shots/supervision-2026-10-08-terms/` — `terms-tail-1440.png`,
+`terms-tail-392.png`, `terms-salestax-1440.png`, `terms-salestax-392.png`,
+`salestax-centered-1440.png`. Written as FILES, per `docs/gotchas.md` 99.
+
+**`docs/gotchas.md` 103 reproduced independently, which is the part worth keeping.**
+Read from the top of the page, **all eleven clauses measure `opacity < 1`** — a
+correct page measuring as entirely blank. The same eleven measure `1` after an
+ordinary scroll to the end. A supervisor who had jumped straight to a measurement
+would have escalated a perfect page as eleven broken clauses; the entry written
+the night before is what stopped that.
+
+**The measuring script was broken on purpose before either colour was believed**
+(`docs/gotchas.md` 102): pointing the order assertion at `Renewals` instead of
+`Sales tax` flipped `salesTaxRightAfterWhatYouPay` to `false` at **both** widths,
+and the change was confirmed present in the file before the run.
+
+**NOT proven here, and named rather than omitted:** 320px and `?lite=1` (the 0.4
+worker's own nine views covered them; this pass re-took only the two widths the
+escalation named), and contrast as a ratio — colour PARITY with the existing ten
+clauses was measured, which is a weaker claim than `contrast-insitu.mjs` makes.
+**0.4's box stays open**, and not for anything on this page: the open half is
+Andrew's decision about the "told on the day" build-start notice.
