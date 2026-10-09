@@ -1034,8 +1034,87 @@ and how the wait ends.
   reach R2 at all. Every criterion has to go through the two functions, and neither is running. So the item is cut
   rather than attempted whole, and an unnumbered sub-task is invisible to every sweep here.
 
-  - [ ] **0.11d1 — The over-cap refusal a person actually sees.** Criterion 3's second half, on the two paths a
-    detailer really takes, independent of R2 and provable in a browser today.
+  - [x] **0.11d1 — The over-cap refusal a person actually sees.** Criterion 3's second half, on the two paths a
+    detailer really takes, independent of R2 and provable in a browser today. **DONE 2026-10-09**, commits
+    `b034a39`, `f312d61`, `bd66b1f`. How it was checked: `node tests/overcap-refusal.test.mjs` (21/21,
+    credential-free) and `node scripts/overcap-sentence.mjs` (31/31 over 1440, 392 and 320, console clean at
+    each); both receipts grade PASS under `node scripts/receipt.mjs`.
+
+    ***CRITERION 3 WAS FALSE ON BOTH PATHS A PERSON WALKS, AND EVERY TEST OF IT PASSED.*** The criterion asks
+    that an over-cap upload be refused *"with used space, limit and deletion guidance in the message"*. The
+    SERVER's sentence says all three — `_shared/photoDoor.ts`'s `fullSentence`, which
+    `tests/photo-door-server.test.mjs` and `tests/photo-door-contract.test.mjs` both assert to the character.
+    **Nobody is ever shown it.** The client checks `roomFor` BEFORE it calls the door, and that order is
+    deliberate and correct — an upload that succeeds and is then refused has already spent the bytes — so on
+    the path a detailer actually walks **the door is never asked and its sentence is never reached.** What
+    they were shown instead:
+
+    | where | what it said | used | limit | what frees room |
+    |---|---|---|---|---|
+    | job record, `JobPhotos.jsx` | "Photo storage is full. Remove some photos to add more." | no | no | yes |
+    | an expense, `ExpenseModal.jsx` | "Expense saved, but photo storage is full so the receipt was not attached." | no | no | **no** |
+    | the server, unreachable here | "Photo storage is full: 9.0 MB of 10.2 MB used. Delete old job photos to make room." | yes | yes | yes |
+
+    **So the criterion was satisfied by a sentence nobody is shown** — this repo's own most repeated fault one
+    level out: the check passes, and the thing it describes never happens where it counts. And no post-release
+    R2 testing would ever have caught it, because the server's half is right.
+
+    **A SECOND FAULT UNDERNEATH IT, FOUND ON THE WAY.** The job-record sentence was a bare English literal, not
+    passed through `t()`, on a screen whose standing warning line one element below IS translated and carries
+    nearly the same words. A Spanish dashboard showed the two in different languages at once.
+
+    **THE FIX IS ONE FUNCTION AND IT IS NOT THE SERVER'S STRING.** `photo-rules.js` gains `fullWords()`:
+    *"Photo storage is full: 9.0 MB of 10.2 MB used. Remove some photos to add more."* It says "Remove some
+    photos" rather than the server's "Delete old job photos" because it is shown beside the thing being
+    refused and matches `budgetWords` an element below it. Both sites use it; `receipts.js` attaches the
+    budget to the `BUDGET_FULL` error because `ExpenseModal` has none of its own to read; **the expense
+    sentence reuses the existing `{reason}` wrapper**, so the catalogue gains one string rather than two, with
+    its Spanish key in the same edit. An unknown cap still falls back to the plain sentence — inventing
+    "0.0 MB of 0.0 MB" out of a failed read is the one thing that file refuses everywhere else.
+
+    **AND `budgetWords`' DEFAULT TRANSLATOR ONLY EVER REPLACED `{percent}`**, which was right while it was
+    the only caller and would have printed a literal "{used} of {limit}" for the next one. Generalised in the
+    same edit.
+
+    **MB IS THE RIGHT UNIT AT BOTH SETTINGS AND NO GB FORMATTER IS OWED.** The per-business share is
+    `photo_total_bytes() / 100` — **10.24 MB today, 102.4 MB after the 10 GB change** — so a business never
+    sees a GB figure and `mb()` stays the one formatter.
+
+    **BROKEN ON PURPOSE, SEVEN TIMES, IN TWO PLACES, EACH CERTIFIED ON THE FINDINGS LIST NAMING ITS OWN RULE
+    RATHER THAN ON THE VERDICT WORD** (`docs/gotchas.md` 105). In the test: `sentence` 3 red, `job-literal`
+    2, `expense-plain` 2, `budget-link` 1, `population` 1, `blunt-judge` 3 — that last one is the important
+    one, because it blinds `judge()` and the three canaries are what notice, which is the only thing that
+    proves they are live rather than decoration. **The switch is `OVERCAP_BREAK`, an env var and not a flag**:
+    `node --test <file> --break=x` never reaches the file's argv (`docs/gotchas.md` 104), and it was proved
+    to redden under `node --test` and under a direct run. In the browser gate: `--break=wrong-figures` 9 red
+    across three widths; an unrecognised `--break` exits 2 and writes no receipt, so it cannot be mistaken
+    for a catch.
+
+    **`budget-link` IS THE SABOTAGE WORTH READING TWICE.** `ExpenseModal` holds no budget, so if
+    `receipts.js` ever stops attaching one, `fullWords` falls back to the plain sentence and the screen
+    quietly stops naming the numbers — with no error, nothing red, and the wiring assertions still perfectly
+    green. That is the same silent shape as the fault this slice fixed, one step along.
+
+    **THE BROWSER GATE PRINTED A FALSE DEFECT ON ITS FIRST RUN AND THE SCREENSHOT REFUTED IT.** *"320 · its own
+    centre is not covered by anything"* went red over a screen rendering perfectly: `elementFromPoint` is
+    viewport-relative and returns `null` below the fold, the photos section sits far down a job record at
+    320x720, and `null` was being read as *"covered by something"*. **1440 and 392 passed because the box
+    happened to be in view, which is exactly what made it look like a real narrow-width bug.** The scroll now
+    happens before the hit test and `offscreen` is reported as its own fact, never folded in with `covered`.
+    `docs/gotchas.md` 110's shape, and a false defect is the direction that gets working code "fixed".
+
+    **WHAT THE BROWSER RUN INTERCEPTS, AND WHY THAT IS NOT A STUB.** Only the `job_photo_budget` answer, in
+    the shape the RPC really gives it — because the cap **cannot be filled today**: `job_photos` holds 0 rows
+    and job photos upload through `photo-door`, which is undeployed, so no photo can be stored in order to
+    run the allowance down. Everything after that answer is the product's own: `roomFor` decides,
+    `fullWords` composes, `t` translates, `JobPhotos.jsx` renders. **Nothing in `app/src` is patched and no
+    product branch is bypassed.** Screenshots at all three widths are under `.manager-shots/`
+    (`overcap-1440.png`, `overcap-392.png`, `overcap-320.png`).
+
+    **NOT PROVEN, SAID PLAINLY.** The expense path's rendering — `tests/overcap-refusal.test.mjs` § 3 proves
+    its wiring and the sentence it composes, but no browser run opened an expense sheet over its cap. The
+    Spanish rendering of either sentence: the key and its placeholders are asserted by
+    `tests/spanish.test.mjs`, which is not the same as having looked at it.
   - [ ] **0.11d2 — The real upload and the authoritative size.** Criteria 1 and 2: a browser PUT to a presigned
     R2 URL with zero requests to `/storage/v1/object` on the job-photo path, and a client that LIES about its
     size (`claimed_bytes` 1 against a real body) still recorded at R2's `head` figure. **Blocked on the
@@ -1045,6 +1124,16 @@ and how the wait ends.
     mismatches. The arithmetic is already pure and proved in memory (`tests/photo-reconcile.test.mjs`); what is
     unproved is that a CRON call reaches it and the row lands. **Blocked on the release**: the function is
     undeployed and the cron entry is not installed.
+
+  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 — the release itself. **0.11d2 and 0.11d3 cannot begin until
+  it is done**, and not for want of effort: they need a real upload through a presigned R2 URL and a real
+  `photo-reconcile` run, and today `photo-door` and `photo-reconcile` are undeployed, both door flags are
+  `false`, `photo_total_gb` is 1 and there is no cron entry. **`.env` holds no R2 credential either** — only
+  the three `R2_*` names exist and only as edge-function secrets — so nothing local can head an object, list a
+  bucket or reach R2 at all, and every criterion has to go through those two functions. **No row was added to
+  `FOR-ANDREW.md`**: step 9 a-to-h already carries all of it in his own words, and 0.11c's entry checked it
+  line by line, so a row here would be a duplicate. After each of his steps, run
+  `node scripts/photo-release-order.mjs` — it is the only thing that says whether the order held.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
