@@ -239,6 +239,9 @@ const FLOWS = [
     field: "image_url",
     okWords: /added/i,
     save: null,
+    // HOW MANY ROWS THE REFUSAL LEAVES BEHIND. Zero here: the gallery's insert
+    // is part of the upload, so a refused upload must write nothing at all.
+    refusalRows: 0,
   },
   {
     key: "branding",
@@ -256,6 +259,10 @@ const FLOWS = [
     field: "logo_url",
     okWords: /press save/i,
     save: "Save",
+    // ONE here, and it is deliberate rather than tolerated: Save is pressed
+    // again after the refusal so the sabotage can observe the url that would
+    // have been stored. See the paragraph at that press.
+    refusalRows: 1,
   },
 ];
 
@@ -648,10 +655,36 @@ try {
       check(`${at} · its pixels are painted at its own centre`, false, "no refusal box to hit-test");
     }
 
+    // **AND SAVE IS PRESSED AGAIN, WHICH IS WHAT MAKES THE SABOTAGE BITE ON
+    // THIS FLOW.** Found by running `--break=public-url` and reading which
+    // lines went red: on the gallery it named the stored row, on the logo it
+    // named only the PUT — because the logo's row is written by Save and
+    // nothing here had pressed it after the refusal. So the sharpest damage
+    // this item is about, *another business's url sitting in `logo_url` for
+    // good*, was the one thing the sabotage could not observe. That is
+    // `docs/gotchas.md` 95 and this item's own recorded lesson — a sabotage
+    // must declare what becomes OBSERVABLE, not merely that something was
+    // rejected — met from a third direction: the guard was really gone, the
+    // run really went red, and the assertion that mattered most was silent.
+    //
+    // It comes AFTER the hit-test above, deliberately: Save replaces
+    // `.error-box` with its own "Saved." and there would be nothing left to
+    // measure. In the clean run this writes the url the person already had; in
+    // the sabotaged run it writes the other business's, and `leaked` says so.
+    if (flow.save) {
+      await page.getByRole("button", { name: flow.save, exact: true }).first().click();
+      await page.waitForTimeout(1500);
+    }
+
     check(`${at} · NOTHING WAS PUT — the refusal happened before any byte left`,
       seen.puts.length === putsBefore, `${seen.puts.length - putsBefore} extra PUTs`);
-    check(`${at} · NOTHING WAS STORED — no second row was written`,
-      rowsFor().length === rowsBefore, `${rowsFor().length - rowsBefore} extra rows`);
+    // DECLARED PER FLOW, because the two flows legitimately differ: the
+    // gallery's refusal must write NO row, and the logo's Save press above
+    // writes exactly one by design. An inequality here would hide a second
+    // gallery insert (`docs/gotchas.md` 98).
+    check(`${at} · ${flow.refusalRows === 0 ? "NOTHING WAS STORED — no row was written" : "exactly the one row the Save press wrote"}`,
+      rowsFor().length === rowsBefore + flow.refusalRows,
+      `${rowsFor().length - rowsBefore} rows, expected ${flow.refusalRows}`);
     // **AND THE OTHER BUSINESS'S ID IS NOWHERE IN ANY ROW THIS SCREEN TRIED TO
     // WRITE.** The assertion above says no SECOND row went; this one says the
     // first one did not carry it either, across every table Save touches. It
