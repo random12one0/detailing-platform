@@ -95,7 +95,14 @@ const RESERVED = (email) => {
 };
 
 const FABRICATED = {
-  id: "00000000-0003-0000-0000-00000000f1x7",
+  // **A VALID UUID, AND `client-fixtures.mjs`'s IS NOT.** Its fabricated id
+  // ends `f1x7`; `x` is not hex. That is harmless there because that sweep
+  // never opens the record, and it is not harmless here: opening one makes the
+  // screen ask the server for that customer's emails, and PostgREST answers
+  // **400 invalid input syntax for type uuid** on the id it was handed. The
+  // first run of this gate reported that 400 as console noise at both widths
+  // and it was THIS FILE'S fault, not the product's.
+  id: "00000000-0003-0000-0000-0000000f1c70",
   name: "ROADMAP 0.3 supplied fixture row",
   email: "sweep@fixture-not-deletable.test",
   phone: "(555) 000-0199",
@@ -131,14 +138,21 @@ const READ_REFUSAL = () => {
     .find((el) => /test row, not a person/i.test(el.textContent || ""));
   let painted = false;
   if (p) {
+    // **SCROLL IT INTO VIEW FIRST, AND THE FIRST VERSION DID NOT.**
+    // `elementFromPoint` takes VIEWPORT coordinates and answers about whatever
+    // is at them — and the destructive fold is the LAST thing in the record, so
+    // at 392 it sits below the viewport and clamping the probe point to the
+    // bottom edge measured a different element entirely. It reported
+    // `painted=false` at 392 and `true` at 1440 over a sentence that renders
+    // identically at both. The sibling sweep `client-fixtures.mjs` carries this
+    // same lesson in its own words; this is the second time it has been learnt
+    // on this screen.
+    p.scrollIntoView({ block: "center", inline: "nearest" });
     const r = p.getBoundingClientRect();
-    const cs = getComputedStyle(p);
-    const mid = document.elementFromPoint(
-      Math.min(window.innerWidth - 2, Math.max(2, r.left + r.width / 2)),
-      Math.min(window.innerHeight - 2, Math.max(2, r.top + 8)),
-    );
-    painted = r.width > 0 && r.height > 0
-      && cs.visibility !== "hidden" && Number(cs.opacity) > 0.5
+    const vis = typeof p.checkVisibility !== "function"
+      || p.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+    const mid = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    painted = r.width > 6 && r.height > 6 && vis
       && !!mid && (mid === p || p.contains(mid) || mid.contains(p));
   }
   return { fold: true, danger, refusal: p ? (p.textContent || "").trim() : null, painted };
@@ -241,6 +255,10 @@ mkdirSync(ART, { recursive: true });
 const expected = SIZES.length;
 let discovered = 0; let attempted = 0; let completed = 0;
 const canary = {
+  // The grader requires an `id` and reds without one (`receipt.mjs:308`), which
+  // is how the first `--break=canary` run was caught for the WRONG reason: it
+  // printed `canary has no id` and never reached the rule that matters.
+  id: "the-prefix-delete-button-back-in-the-fold",
   what: "the pre-fix shape put back: a `Delete for good` button injected into the flagged row's "
     + "own fold, which the refusal assertion must then report as a failure",
   observed_failure: false,

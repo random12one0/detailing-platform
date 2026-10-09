@@ -1,0 +1,50 @@
+{
+  "git_sha": "c6471ff4528b6e7b183133760d3d95e7fbd75ea5",
+  "git_sha_started": "c6471ff4528b6e7b183133760d3d95e7fbd75ea5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T22:24:01.489Z",
+  "failures": [],
+  "warnings": [
+    "column_live=false: `customers.is_test` is NOT in the database yet, so this refusal is INERT in production today — as inert as the `!c.is_test` filter beside it, and switched on by the same one command (ROADMAP 0.3b, Andrew's). The SCREEN is proved; the COLUMN is not.",
+    "fixtures_fabricated=true: the database supplied NO flagged row, so one was appended to the intercepted response in the browser (\"ROADMAP 0.3 supplied fixture row\") and is written nowhere. The demo tenant cannot hold one: `seed-demo.mjs:92` deletes the business and the customer rows cascade.",
+    "Nothing is written: no row is created, changed or deleted, and neither delete button is ever pressed."
+  ],
+  "artifacts": [
+    "artifacts/fixture-not-deletable/refused-1440x900.png",
+    "artifacts/fixture-not-deletable/works-1440x900.png",
+    "artifacts/fixture-not-deletable/refused-392x844.png",
+    "artifacts/fixture-not-deletable/works-392x844.png",
+    "artifacts/fixture-not-deletable/canary-prefix-button.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "column_live": false,
+    "fixtures_fabricated": true,
+    "observed": [
+      "1440x900: 14 rows, 1 flagged · flagged record danger=[] refusal painted=true · real record danger=[\"Delete for good\"]",
+      "392x844: 14 rows, 1 flagged · flagged record danger=[] refusal painted=true · real record danger=[\"Delete for good\"]"
+    ],
+    "sabotage": null
+  },
+  "check_id": "fixture-not-deletable",
+  "started_at": "2026-10-09T22:23:46.909Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 13,
+  "assertion_floor": "2 widths x 6 questions + 1 canary = 13. Fixed by SIZES x the question list, never by what the run finds: a width with no flagged row on it grades as two `learn` failures rather than dropping out, which is 0.3's own rule that zero fixtures discovered is a failure.",
+  "canary": {
+    "id": "the-prefix-delete-button-back-in-the-fold",
+    "what": "the pre-fix shape put back: a `Delete for good` button injected into the flagged row's own fold, which the refusal assertion must then report as a failure",
+    "observed_failure": true,
+    "problems": []
+  }
+}
