@@ -841,6 +841,90 @@ and how the wait ends.
   - All business-media keys are minted and authorized for the caller's business.
   - Tests prove there is no remaining Supabase Storage upload fallback for these media flows.
 
+  ***THE BROWSER EVIDENCE THE RUN BELOW CALLED UNREACHABLE WAS TAKEN, 2026-10-09. Commit `27c1a3d`.
+  34 passed / 0 failed, 3/3 widths, console clean at every one. Nothing deployed, no flag flipped on disk, no migration,
+  nothing written to any store. The box stays `[ ]` and the reason is at the bottom of this block, not in it.***
+
+  **WHAT WAS NOT COVERED, AND IT IS THE ONE THING THE RUN BELOW NAMED AS IMPOSSIBLE.** Its words: *"no browser evidence for
+  the branch that changed, which is not a skipped check but an unreachable one: `readMediaStart` is only called when
+  `MEDIA_VIA_DOOR` is `true`, the flag is `false`, and `photo-door` has never been deployed, so there is no 1440 or 392 press
+  to make."* **Both halves of that are true and neither one makes it unreachable.** The flag and the door are not facts about
+  the disk; they are two RESPONSES this browser receives, and a response is the one thing a browser script can supply. 0.11d1
+  had already proved the shape on the sibling screen four hours earlier — it could not fill the photo cap, so it answered the
+  single thing it could not arrange and let the product do everything after it. This is that move with three answers instead
+  of one, and it matters because this item is tagged **security**: the fault it fixed is a cross-tenant one, and every other
+  line of proof it carries is two modules run against each other in memory.
+
+  **`scripts/media-door-browser.mjs` — `node scripts/media-door-browser.mjs` → 34 passed, 0 failed, 3/3 widths, receipt
+  graded `PASS` by `node scripts/receipt.mjs` with its canary failing as required.** Dev server + the seeded demo tenant +
+  the owner login. Three responses are intercepted and **nothing in `app/src` is edited — `git status` is the proof of that
+  rather than this sentence**: the `photo-door.js` module Vite serves, with the one `MEDIA_VIA_DOOR` literal rewritten in
+  flight, which is the exact edit `FOR-ANDREW.md`'s own bullet asks Andrew for; the undeployed `photo-door` function, whose
+  answer is **DERIVED** by `photo-rules.js`'s own `mediaPath()` and `r2.ts`'s own `mediaBase()` + `publicUrl()`, wired as
+  `photo-door/index.ts` line 133 wires them, because criterion 2 is about that derivation and a template string would test
+  nothing; and the signed PUT plus the `gallery_images` insert, answered locally so **no object and no row is written
+  anywhere**. Everything between those is the product's own — `Gallery.jsx` presses, `upload.js` reads the flag, `mediaExtForType`
+  gates the type, `readMediaStart` judges the answer, `doorError` maps the status, `Gallery.jsx` renders the sentence.
+
+  At **1440, 392 and 320** it asks the case that works and the case that is refused. The case that works: **zero Supabase
+  Storage UPLOADS** — criterion 4 asked of the live runtime rather than of the source, which is the only place a fallback
+  could still hide; exactly one PUT, to the door's signed url; a key under **this** business's own folder; and the url that
+  reaches `gallery_images.image_url` being **exactly `publicUrl(base, key)` for the key that was really PUT**. The case that
+  is refused is **the 0.11b fault itself** — a door answer carrying a correct `key` beside **another business's
+  `public_url`** — refused on the screen in the product's own sentence, with **its pixels hit-tested at its own centre** after
+  being scrolled into view (`docs/gotchas.md` 100, and the scroll-first order 0.11d1 paid for at 320), and **no PUT and no row
+  behind it**.
+
+  **TWO SABOTAGES, BOTH ON THE REAL TEXT, BOTH ASSERTED TO HAVE LANDED BEFORE ANY COLOUR IS BELIEVED** (`docs/gotchas.md`
+  102), and **both declare what becomes OBSERVABLE rather than merely that something was rejected** — which is this item's own
+  recorded lesson, that five of six sabotages once passed while testing nothing because a removed guard still ends in *a*
+  rejection. `--break=unbound` leaves the flag off, which is the state of the repo today: **15 red across the three widths**,
+  the uploads assertion naming the real `POST …/storage/v1/object/business-media/…` it saw, and the executed-copy proof
+  asserted ABSENT rather than present. `--break=public-url` removes the `endsWith` condition this item added, from the module
+  text the browser runs: **15 red across the three widths**, and the damage is named — the refusal does not happen, the
+  browser **PUTs**, and **a row carrying another business's url is stored**. An unrecognised `--break=` exits 2 and writes no
+  receipt (`gotchas` 105).
+
+  **FOUR FALSE STARTS, AND THREE OF THEM GENERALISE, SO THEY ARE WRITTEN INTO THE SCRIPT RATHER THAN TIDIED AWAY.**
+  (a) `waitForSelector` on the gallery's `hidden` file input timed out for 30 seconds and printed a finding about the
+  PRODUCT — `docs/gotchas.md` 107, met on the first run, by a script whose header already cited it.
+  (b) **`route.fetch()` PUTS THE ORIGINAL RESPONSE IN THE BROWSER'S OWN CACHE**, so the rewritten module ran on navigation one
+  and the **untouched** module ran on navigation two — `served 1, executed 0` — while the script's own *"the edit landed"*
+  counter stayed green off navigation one's count. That is **`gotchas` 102 from a new direction: the edit really did land, in
+  a copy nothing executed.** The assertion now reads a counter incremented **inside the rewritten text**, out of the page, so
+  it answers *what RAN* instead of *what was served*. **It is a new entry — `docs/gotchas.md` 113.**
+  (c) Chromium's per-renderer memory cache is not covered by `Network.setCacheDisabled` either, so the second navigation
+  needed **no request at all**; the sign-in moved to a pre-pass and every width now navigates exactly ONCE.
+  (d) Counting all `/storage/v1/object/` traffic printed a **false defect at all three widths** over a public GET of a
+  pre-existing gallery image — the very thing `upload.js`'s header promises keeps working (*"rows written before the switch
+  keep working afterwards"*). It counts **writes** now and records reads separately rather than hiding them. `gotchas` 110's
+  shape: a question broader than the rule, failing toward a false defect.
+
+  **AND IT REALLY WROTE SOMETHING ONCE, WHICH IS RECORDED RATHER THAN QUIETLY CLEANED UP.** The run that discovered (b) went
+  down the OFF path at all three widths and **uploaded six 70-byte objects into the live `business-media` bucket**, two per
+  width. They were deleted and the prefix was listed **empty** afterwards, and one `gallery_images` row from a throwaway
+  diagnostic was deleted with them. **A gate that writes to a live store when it fails cannot be run twice in a row**, and
+  `--break=unbound` sends it down that path on purpose every time — so the old path is now answered by the gate itself, the
+  attempt is recorded as the finding, and no byte leaves. Confirmed after every run since: **zero objects under the demo
+  tenant's gallery prefix, zero `gallery_images` rows.**
+
+  **THE OTHER SUITES ARE UNMOVED.** `node --test tests/photo-door-media-wire.test.mjs tests/photo-door-media.test.mjs
+  tests/photo-door.test.mjs tests/photo-key-isolation.test.mjs tests/photo-call-sites.test.mjs` → **41 pass, 0 fail**. The
+  four credential-free gates → **4 pass**; `no-credentials-in-tracked-text` and `every-open-item-is-citable` → **7 pass, 0
+  fail**. No file under `app/src` was changed, so there is nothing for a rebuild to tell us that these do not.
+
+  **WHAT THIS DOES NOT PROVE, SAID PLAINLY, AND IT IS WHY THE BOX IS STILL `[ ]`.** That R2 accepts the signature; that
+  Cloudflare serves the PUT; that an unauthenticated visitor can read the url — **nobody has bound a public address**, so
+  criterion 2's *"remain usable by unauthenticated visitors"* still has no subject and this run uses a test host **through
+  `r2.ts`'s real reader**, which measures the derivation and not the address. Only the **gallery** folder is pressed in a
+  browser; `branding` and `intake` complete through the real handler in `tests/photo-door-media-wire.test.mjs` § 1, which
+  declares its folder count from `MEDIA_FOLDERS` so a fourth would redden. And `photo-door` is still not deployed and
+  `MEDIA_VIA_DOOR` is still `false` on disk — by the standing rule that *a feature whose server is not running stays open
+  even when publication is deliberately deferred*, that alone keeps this item open. One honest observation that is not this
+  item's to fix: `Gallery.jsx` renders `err.message` untranslated, so the door's refusals are read in **English** at every
+  width whatever the dashboard's language. The sentences are `DOOR_WORDS` and their Spanish is
+  `tests/spanish.test.mjs` § 12's subject; 0.11a already recorded the same bargain for the 503.
+
   ***THE TWO HALVES WERE RUN AGAINST EACH OTHER FOR THE FIRST TIME, 2026-10-09, AND IT FOUND ONE. Commit `d7b2356`.
   Credential-free, no network, no database, no R2, no browser. Nothing deployed, nothing applied, no flag flipped. The box stays `[ ]`.***
 
