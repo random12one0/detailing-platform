@@ -1,0 +1,54 @@
+{
+  "git_sha": "eed39430dc67ec26574af2fb2fe5b2f57f452bce",
+  "git_sha_started": "eed39430dc67ec26574af2fb2fe5b2f57f452bce",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T21:19:15.726Z",
+  "failures": [],
+  "warnings": [
+    "This is 0.11d2's CLIENT half only. The R2 halves of both criteria stay open and are listed under unjudgeable.",
+    "No job_photos row is written, so the photo does not appear in the list afterwards; the press is judged on the wire and on the absence of a refusal, not on the list.",
+    "Supabase Storage READS are recorded separately and are not counted as uploads."
+  ],
+  "artifacts": [
+    "D:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\job-photo-wire-1440.png",
+    "D:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\job-photo-wire-392.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11d2",
+    "criteria": [
+      "no upload request reaches Supabase Storage (client half of criterion 1)",
+      "the client cannot state the recorded size (client half of criterion 2)"
+    ],
+    "widths": [
+      "1440",
+      "392"
+    ],
+    "job": "6bf5bde4-fe02-417d-9d81-8c3ee2fa3802",
+    "fixture_bytes": 402,
+    "door_states_bytes": 7777777,
+    "sabotage": null,
+    "intercepted": "photo-door, the signed PUT, and /storage/v1/object — the door is undeployed and there is no R2 credential here, so these are the responses that cannot be arranged",
+    "unjudgeable": [
+      "that R2 accepts a signature it minted itself — needs the release and an R2 credential",
+      "that R2's head states the stored object's real length, and that job_photos.bytes equals it — needs a real object in a real bucket; proved in memory by tests/photo-door-server.test.mjs 11 and 13"
+    ]
+  },
+  "check_id": "job-photo-wire",
+  "started_at": "2026-10-09T21:19:03.127Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 12,
+  "assertion_floor": "7 per width (input, module-ran, start+finish, one PUT, body==claim, no Storage write, no size at finish, server's figure accepted) x 2 widths + 1 console = 15 when both widths press. A width whose screen never renders books its checks as failures rather than dropping out, so the count cannot silently fall below 12.",
+  "canary": {
+    "id": "the-two-faults-in-one-log",
+    "observed_failure": true,
+    "what": "a wire log with one Supabase Storage POST and a finish body naming bytes, put through the real judge()",
+    "rule": "storageWrites === 0 && no size key at finish"
+  }
+}
