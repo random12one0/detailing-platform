@@ -87,8 +87,26 @@ test("4 · what a failed call becomes", () => {
   // The door's own 404s ("Booking not found", "Photo not found") are the door speaking.
   assert.equal(doorError(http(404, "Booking not found", { error: "Booking not found" })).message, "Booking not found");
   assert.equal(doorError(http(400, "Unknown action")).message, DOOR_WORDS.missing);
+  // A 5xx with NO sentence of its own — a gateway, a platform, a crash before
+  // the door ran — is the generic line, which is what that line is for.
   assert.equal(doorError(http(500, "boom")).message, DOOR_WORDS.failed);
   assert.equal(doorError(http(503, "boom")).message, DOOR_WORDS.failed);
+  assert.equal(doorError(http(502, "Request failed (502)", { code: "BAD_GATEWAY" })).message, DOOR_WORDS.failed);
+  // **A 5xx THAT CARRIES ONE IS THE DOOR SPEAKING — 0.11a, 2026-10-09.** Six
+  // sentences the server writes for a detailer were unreachable until this
+  // branch learned `!spoke`: three of them say storage is NOT SET UP, and
+  // "try again in a minute" sends somebody round that loop for ever.
+  for (const sentence of [
+    "Photo storage is not set up on the server yet.",
+    "Receipt storage is not set up on the server yet.",
+    "Public image storage is not set up on the server yet.",
+    "Could not check your photo storage. Nothing was saved. Try again in a minute.",
+    "Could not save the receipt. Try again.",
+    "Could not save the photo. Try again.",
+  ]) {
+    assert.equal(doorError(http(sentence.startsWith("Could not save") ? 500 : 503, sentence, { error: sentence })).message,
+      sentence, `a 5xx sentence meant for a detailer was replaced: ${sentence}`);
+  }
   // The over-the-cap refusal is the server's sentence and must arrive untouched.
   const cap = "Photo storage is full: 10.0 of 10.2 MB used. Delete old job photos to make room.";
   assert.equal(doorError(http(409, cap)).message, cap);
@@ -120,16 +138,21 @@ test("5 · SABOTAGE — each guard, removed, is seen", async () => {
   const httpRefused = (m) => { try { m.readStart({ upload_url: "http://x.example/p", key: KEY }, ctx); return false; } catch { return true; } };
   const mapRefused = (m) => { try { m.readUrls({}); return false; } catch { return true; } };
   const notFoundNamed = (m) => m.doorError(Object.assign(new Error("x"), { status: 404 })).message === DOOR_WORDS.missing;
+  // 0.11a. A 503 carrying the door's own sentence must arrive as that sentence.
+  const sent = "Could not check your photo storage. Nothing was saved. Try again in a minute.";
+  const serverSpoke = (m) => m.doorError(Object.assign(new Error(sent), { status: 503, body: { error: sent } })).message === sent;
 
   // The control: unmodified, every probe is refused.
   const real = await build("control", "export const DOOR =", "export const DOOR =");
-  assert.ok(zeroRefused(real) && foreignKeyRefused(real) && httpRefused(real) && mapRefused(real) && notFoundNamed(real));
+  assert.ok(zeroRefused(real) && foreignKeyRefused(real) && httpRefused(real) && mapRefused(real)
+    && notFoundNamed(real) && serverSpoke(real));
 
   assert.ok(!zeroRefused(await build("zero", "p.bytes <= 0", "false")), "zero-bytes guard removed must be seen");
   assert.ok(!foreignKeyRefused(await build("key", "resp.key !== want", "false")), "key-equality guard removed must be seen");
   assert.ok(!httpRefused(await build("https", '!/^https:\\/\\//.test(resp.upload_url)', "false")), "https guard removed must be seen");
   assert.ok(!mapRefused(await build("map", "|| !isObject(resp.urls)) refuse", "|| false) refuse")), "urls-map guard removed must be seen");
   assert.ok(!notFoundNamed(await build("notfound", "if ((s === 404 && !spoke) ||", "if (false ||")), "404 -> 'not set up' removed must be seen");
+  assert.ok(!serverSpoke(await build("fivexx", "s >= 500 && !spoke", "s >= 500")), "a 5xx sentence swallowed must be seen");
 });
 
 test("6 · the app has ONE way in, and a preview tab on Looking may only read", () => {

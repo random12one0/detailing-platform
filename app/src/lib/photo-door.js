@@ -202,7 +202,21 @@ export function doorError(err) {
   // function. Found by running the server half's answers through these readers.
   const spoke = typeof err?.body?.error === "string" && err.body.error !== "";
   if ((s === 404 && !spoke) || (s === 400 && /unknown action/i.test(err?.message ?? ""))) return new Error(DOOR_WORDS.missing);
-  if (typeof s === "number" && s >= 500) return new Error(DOOR_WORDS.failed);
+  // **A 5xx THAT CARRIES A SENTENCE IS THE DOOR SPEAKING TOO — 0.11a, 2026-10-09.**
+  // This read `s >= 500` with no `!spoke`, so EVERY 5xx became the generic
+  // retry line, and **six distinct sentences the server writes for a detailer
+  // were never reachable**: "Photo storage is not set up on the server yet.",
+  // "Receipt storage is not set up…", "Public image storage is not set up…",
+  // "Could not check your photo storage. Nothing was saved…", "Could not save
+  // the receipt. Try again." and "Could not save the photo. Try again." — the
+  // first three are configuration, and "try again in a minute" sends a detailer
+  // round that loop for ever. It is the SAME fault as the 404 branch above,
+  // which was already corrected this way; found by running `receipts.js`
+  // against the real handler (`tests/photo-door-receipt-wire.test.mjs` § 4),
+  // never by reading either file. A 5xx with NO sentence — a gateway, a
+  // platform, a crash before the door ran — is still the generic line, which is
+  // what that line is for.
+  if (typeof s === "number" && s >= 500 && !spoke) return new Error(DOOR_WORDS.failed);
   if (typeof s === "number") return err;
   if (err instanceof TypeError) return new Error(DOOR_WORDS.unreachable);
   return err instanceof Error ? err : new Error(String(err));
