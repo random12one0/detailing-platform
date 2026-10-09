@@ -335,6 +335,7 @@ were made more than once.
 - **Ticking on structural proof when the appearance is unmeasurable** — supervision 2026-10-09, after ROADMAP 3.1a was built correctly, ticked, unticked for an unseen scrollbar, and would have been dispatched a third time. Why the box is ticked on a measurement of the structural half plus a named UNJUDGEABLE, rather than left open for an appearance no browser on this machine can photograph — and the three things that were tried first. Also why `0.16`'s `Waits on:` had to be edited, not just its box ticked.
 
 - **Routing the belt on the top of an entry, not all 1,249 words of it** — supervision 2026-10-09, after measuring that 24 of 57 open items (42%) took the single most expensive rule in the config, and that *2.15 — the sticky footer can cover the last choice* ran at opus/xhigh because the word "migration" appears somewhere in its entry. Why the answer was a character window rather than matching on the heading, why a rule for irreversible state had to be added in the same edit, and why under-routing is the safe direction here.
+- **An unmeasured gate is not a passing gate** — supervision 2026-10-09, after proving from `state.json` that `sweep-pinned` was configured as the belt's 8th gate while the cached baseline held only 7 names, so its red was announced as *"these were passing at baseline"* and blamed on three consecutive items. Why the fix requires a measured `true` rather than merely "not `false`", why a baseline that does not name every configured gate now forces a re-measure, why the no-baseline-at-all case deliberately keeps its old ruling, and why 0.11b got two of its three attempts back instead of staying parked.
 
 <!-- INDEX:END -->
 
@@ -18802,3 +18803,67 @@ file.
 shortlisting, all of which still read the whole entry — correctly, because an
 item's meaning does live in all of it. This is about one question only: how
 much to spend on it.
+
+## An unmeasured gate is not a passing gate
+
+**The observation, and it is the reason this supervision was called in at all.**
+Three items in a row were recorded as failures — 0.11b attempt 2, 0.11b attempt
+3, and item 0 — each with the line *"GATES REGRESSED: sweep-pinned — these were
+passing at baseline"*. The third of those **parked 0.11b after 3 attempts.**
+
+`sweep-pinned` had never been measured at baseline. `state.json`'s
+`gateBaseline` held **7** names, taken at 16:40; `belt.config.json`'s `gates`
+holds **8**, `sweep-pinned` last. The gate was added after the baseline was
+taken, and the baseline has a 12-hour TTL, so nothing re-measured it.
+
+The belt's judgement read:
+
+```js
+results.filter((g) => !g.ok && baseline?.[g.name] !== false)
+```
+
+An absent name is `undefined`, and `undefined !== false`, so **a gate that was
+never measured satisfied the test for "was passing"**. This is the repo's own
+signature failure — a did-not-run reading as a pass — one level out: the false
+pass was not reported to a person, it was used as the baseline against which a
+real red was blamed on whichever item happened to be running.
+
+**Two changes, because the hole has two walls.** `regressions()` now requires a
+measured `=== true`; and `ensureBaseline()` re-measures whenever the cached
+baseline does not name every configured gate, which is what stops this recurring
+the next time somebody appends to `gates`. Either alone leaves the other open:
+the first would have gone on never measuring `sweep-pinned`, and the second
+would still mis-blame any gate added mid-cycle before the next measurement.
+
+**The judgement call: the first version of the fix was too wide, and the belt's
+own canary caught it.** Making the test `=== true` unconditionally also changed
+the case where there is **no baseline at all**, and a pre-existing assertion —
+*"CANARY — with no baseline at all a red check still counts"* — went red.
+That assertion encodes a deliberate and defensible ruling: with nothing measured
+anywhere, err toward reporting the red. So no-baseline keeps its old behaviour
+and only the **partially** measured case changed. **This is `gotchas.md` 95 from
+the lucky side**: a canary aimed at an assertion caught the assertion's shape
+being changed under it, which is the whole reason that rule exists. Found by
+running the self-check, not by reading the diff.
+
+Both new assertions were then broken on purpose and watched to fail (`gotchas`
+102 — each sabotage's landing asserted by line count first):
+
+| state | self-check |
+|---|---|
+| fixed | **335 assertions pass, 3 canaries** |
+| `!== false` restored | FAIL — *a gate ABSENT from the baseline was never measured* |
+| `baselineCoversGates` forced `true` | FAIL — *a baseline missing a configured gate does not cover it* |
+
+**And 0.11b's attempt count was moved 3 → 1 rather than left parked.** Its
+attempt 1 was a genuine `progress` run; attempts 2 and 3 failed only on the
+phantom. Leaving the park in place would have retired a security item on a
+measurement that never happened. **0.11 was deliberately left at 3** — its three
+attempts were real `progress` runs with every gate green, so it is out of
+attempts honestly and a supervisor cutting it up is the right next move, which
+is the ruling already recorded under *"The supervisor cuts an item up rather
+than sending it out a fourth time"*.
+
+**Easiest to change later:** both edits are one expression each, and the attempt
+count is a number in `state.json`. Nothing about the gate list, the cadence or
+the model rules was touched, because nothing I measured pointed at them.

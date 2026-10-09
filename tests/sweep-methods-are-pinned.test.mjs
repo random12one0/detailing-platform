@@ -60,7 +60,21 @@ const CANARY = process.env.PIN_CANARY || "";
 // naming the missing executable.
 const git = (args) => {
   try { return execFileSync("git", args, { encoding: "utf8", maxBuffer: 1 << 28 }); }
-  catch (e) { return e.stdout || ""; }
+  catch (e) {
+    // A FAILED LAUNCH IS NOT AN EMPTY ANSWER -- `gotchas.md` 114, whose own first
+    // fix changed only WHICH executable was wrapped in this fallback and left the
+    // fallback itself in place. Proved by substituting a missing executable: the
+    // run reddened with "0 commits name an open item, floor 339", which reads as
+    // a rewritten history or a broken regex and says nothing about git. If the
+    // process never ran, `status` is null/undefined; say so instead of measuring.
+    if (e.status === undefined || e.status === null) {
+      throw new Error(
+        `git could not RUN (${e.code || e.message}). This is a launch failure, ` +
+        `not an empty history -- do not read the figures below it.`
+      );
+    }
+    return e.stdout || "";
+  }
 };
 
 // ===========================================================================

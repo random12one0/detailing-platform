@@ -5224,3 +5224,21 @@ the history and passes; both existing negative controls still fail:
 `PIN_CANARY=fragment` moves the declared figures. Do not wrap a required
 executable in an empty-result fallback: distinguish a failed command from an
 empty answer before using either as a measurement.
+
+**AMENDED 2026-10-09, SAME DAY, BY THE NEXT SUPERVISOR — THE FIX ABOVE CHANGED WHICH EXECUTABLE WAS
+WRAPPED AND LEFT THE WRAPPER IN PLACE.** The paragraph you just read ends *"do not wrap a required
+executable in an empty-result fallback"*, and the diff that shipped with it kept
+`catch (e) { return e.stdout || ""; }` verbatim — it only swapped `bash -c` for `git`. **Proved by
+substituting a missing executable** (`git-does-not-exist`, one line, landing asserted per 102): the run
+reddened with *"0 commits name an open item, floor 339. Commits only accumulate, so a DROP means
+history was rewritten or the boundary regex stopped matching"* — a sentence about git history, from a
+run in which git never started. The repair now throws when the process never ran at all
+(`e.status == null`), and says so in those words; a non-zero EXIT with output still returns that
+output, because that is a real answer. Re-measured in the same edit: normal **8 passed, 0 failed**;
+`PIN_CANARY=scope` **6/2**; `PIN_CANARY=fragment` **6/2**; the launch sabotage now prints
+*"git could not RUN (ENOENT)"*.
+
+**The generalisation is the part worth keeping: a write-up can state the correct rule and the diff
+beside it can not implement it.** The prose was right, specific and freshly measured, which is exactly
+what stops the next reader from checking the four lines underneath it. Read the code the lesson is
+about, not the lesson.

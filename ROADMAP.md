@@ -832,6 +832,21 @@ and how the wait ends.
   where they cannot happen out of order.
 
 - [ ] **0.11b — Move business media and intake images to public R2 storage**
+
+  **SUPERVISION 2026-10-09 — UNPARKED. TWO OF ITS THREE ATTEMPTS WERE SPENT ON A GATE THAT HAD NEVER
+  BEEN MEASURED.** Attempts 2 and 3 were both recorded `gate-regression` on `sweep-pinned`, under the
+  line *"these were passing at baseline"*. That gate was configured as the belt's 8th and the cached
+  baseline held only 7 names, so it was never measured at all, and an absent name was being read as a
+  pass. **Nothing those two attempts did caused the red.** Attempt 1 was a genuine `progress` run, so
+  the attempt count is back to 1 and this item is eligible again. Its two existing negative controls
+  were re-run after the gate was repaired: normal **8 passed, 0 failed**, `PIN_CANARY=scope` **6/2**,
+  `PIN_CANARY=fragment` **6/2**. The belt-side fix and its two new canaries are in `DECISIONS.md`,
+  *"An unmeasured gate is not a passing gate"*; the gate's own second fault is `docs/gotchas.md` 114's
+  amendment. **The work recorded in this entry below was never in question** — the browser evidence at
+  1440, 392 and 320 stands, and `scripts/r2-public-base.mjs` was re-run by this supervisor and
+  reproduces its figures exactly (6 rules, 1 failed, 5 UNJUDGEABLE, 29 assertions; 8 of 8 canaries
+  caught normally, and under `--break=accept-get-only` the named 1 MISSED). **What it is actually
+  waiting on is Andrew binding a public address** — `FOR-ANDREW.md` step 9a2 — which no session can do.
   **BELT PARKED after 3 attempts, 2026-10-09 19:38:36.** The belt could not
   finish this and moved on rather than looping. The last attempt's full output
   is at `belt/runs/2026-10-09T19-38-31-736Z-0.11b.md`. Needs a person or a different

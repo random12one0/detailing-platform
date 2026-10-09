@@ -3262,3 +3262,47 @@ is absent in this Windows workspace, then converted that launch failure into an
 empty git history. `tests/sweep-methods-are-pinned.test.mjs` now invokes `git`
 directly. Normal run: 8 passed, 0 failed. Deliberate controls remained live:
 `PIN_CANARY=scope` and `PIN_CANARY=fragment` each failed as required.
+
+## 2026-10-09 — supervision: the pinned-sweep launch fallback, and /terms looked at
+
+**`tests/sweep-methods-are-pinned.test.mjs` — the launch-failure fallback the
+same-day repair left behind.** That repair swapped `bash -c` for `git` and kept
+`catch (e) { return e.stdout || "" }`, so a launch failure was still measured as
+an empty history. Substituting `git-does-not-exist` (one line, landing asserted
+with `diff`) reddened the run with *"0 commits name an open item, floor 339"* —
+a claim about rewritten history from a run where git never started. The helper
+now throws when the process never ran (`e.status == null`) and keeps the output
+of a real non-zero exit.
+
+Measured in the same edit, at `68f2f38` plus this change:
+
+| run | result |
+|---|---|
+| normal | **8 passed, 0 failed** |
+| `PIN_CANARY=scope` | **6 passed, 2 failed** |
+| `PIN_CANARY=fragment` | **6 passed, 2 failed** |
+| `git` replaced by a missing executable | **`git could not RUN (ENOENT)`**, named as a launch failure |
+
+Re-run: `node --test tests/sweep-methods-are-pinned.test.mjs`, then the same
+with each `PIN_CANARY` value. The launch sabotage is one `sed` substitution of
+the executable name in the `git` helper.
+
+**`scripts/r2-public-base.mjs` (ROADMAP 0.11ba) reproduces its recorded canary
+figures exactly.** Credential-free, no `--base`: **6 rules asked, 1 failed, 5
+UNJUDGEABLE, 29 assertions**, the failure being that no public address is bound
+(Andrew's step 9a2) and the five unjudgeable rules named rather than folded into
+a pass. `--break=accept-get-only`: **7 of 8 canaries caught, 1 MISSED — mode
+`cors-get-only` went UNNOTICED by `cors-allows-our-pages`**, which is the
+repaired negative control doing its job. The verdict word is `FAIL` either way,
+so the distinguishing signal is the canary line, not the status — `gotchas` 105.
+
+**`/terms` looked at, 2026-10-09, dev server at `localhost:5173`.** 1440x900 and
+392x844: **console CLEAN at both** (errors and warnings, plus `pageerror`),
+**3372** characters of body text at 1440 and **3346** at 392, and **11 clauses
+present** — they are `<dt>` elements under one `h1.disp`, which is recorded here
+because this session's first probe counted `h2, h3` and got **0**, then nearly
+wrote that up as a blank page. `gotchas` 106: the selector came from the word
+"heading" rather than from the page. Shots
+`.manager-shots/supervision-2026-10-09/terms-{1440,392}-{top,tail}.png`.
+This says the page renders and is quiet; it does not re-close ROADMAP 0.4, which
+`a07a2dc` reopened for proving the checkout rather than the product.
