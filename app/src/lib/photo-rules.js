@@ -79,10 +79,18 @@ export function budgetState(b) {
   return { state: "ok", share };
 }
 
+// THE DEFAULT TRANSLATOR FILLS *ANY* PLACEHOLDER, NOT JUST `{percent}`.
+// It used to be `s.replace("{percent}", v.percent)`, which was right while
+// `budgetWords` was the only caller and silently wrong for the next one:
+// `fullWords` below names two numbers, and a hard-coded placeholder would have
+// left a literal "{used} of {limit}" in a sentence shown to a detailer — in a
+// default path nobody exercises, because the app always passes `t`.
+const fill = (s, v) => (v ? s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? String(v[k]) : m)) : s);
+
 // Null when there is nothing worth saying. An empty section is not drawn
 // (screen designs §1a), and "you have used 3% of your photos" is noise.
 // `tr` is the caller's translator; the default fills placeholders in English.
-export function budgetWords(b, tr = (s, v) => (v ? s.replace("{percent}", v.percent) : s)) {
+export function budgetWords(b, tr = fill) {
   const { state, share } = budgetState(b);
   if (state === "full") return tr("Photo storage is full. Remove some photos to add more.");
   if (state === "near") return tr("Photo storage is {percent}% full.", { percent: Math.round(share * 100) });
@@ -97,6 +105,49 @@ export function roomFor(bytes, b) {
 }
 
 export const mb = (bytes) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+// ---------------------------------------------------------------------------
+// THE REFUSAL IS A DIFFERENT SENTENCE FROM THE WARNING — ROADMAP 0.11d1
+//
+// `budgetWords` above is the standing line on the screen. This is what a person
+// is told at the moment an upload is REFUSED, and 0.11d's third criterion is
+// specific about it: *"an over-cap upload is refused with used space, limit and
+// deletion guidance in the message."*
+//
+// **THE SERVER ALREADY SAYS ALL THREE AND NOBODY EVER SEES IT.**
+// `_shared/photoDoor.ts`'s `fullSentence` reads "Photo storage is full: 9.0 MB
+// of 10.2 MB used. Delete old job photos to make room." — used, limit,
+// guidance. But the client checks `roomFor` BEFORE it calls the door, and that
+// order is deliberate (an upload that succeeds and is then refused has already
+// spent the bytes), so on the path a detailer actually walks the door is never
+// asked and its sentence is never reached. What they were shown instead named
+// neither number: "Photo storage is full. Remove some photos to add more." on
+// the job record, and "Expense saved, but photo storage is full so the receipt
+// was not attached." on an expense — that second one naming nothing at all that
+// frees room.
+//
+// So the criterion was satisfied by a sentence nobody is shown, which is this
+// repo's own most repeated fault one level out: the check passes, and the thing
+// it describes never happens where it counts.
+//
+// IT IS NOT THE SERVER'S STRING AND MUST NOT BE MADE INTO ONE. The server says
+// "Delete old job photos" because one door answers for job photos, receipts and
+// business media alike; this is shown beside the thing being refused, so it says
+// "Remove some photos", matching `budgetWords` an element below it.
+// ---------------------------------------------------------------------------
+
+/** What a person is told when an upload is refused for want of room: what is
+ *  used, what the limit is, and what frees room. Falls back to the plain
+ *  sentence when the cap is unknown, because inventing "0.0 MB of 0.0 MB" out
+ *  of a failed read is the one thing this file refuses everywhere else. */
+export function fullWords(b, tr = fill) {
+  const { used_bytes = 0, cap_bytes = 0 } = b ?? {};
+  if (!(cap_bytes > 0) || !Number.isFinite(used_bytes)) {
+    return tr("Photo storage is full. Remove some photos to add more.");
+  }
+  return tr("Photo storage is full: {used} of {limit} used. Remove some photos to add more.",
+    { used: mb(used_bytes), limit: mb(cap_bytes) });
+}
 
 // The three kinds, in the order a job happens. `damage` is not a nicety:
 // "that scratch was already there" is the conversation this feature exists to

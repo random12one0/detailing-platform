@@ -20,8 +20,8 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import {
-  KINDS, addPhoto, budgetFor, budgetWords, mb, publishToGallery, removePhoto,
-  roomFor, signedUrls,
+  KINDS, addPhoto, budgetFor, budgetWords, fullWords, mb, publishToGallery,
+  removePhoto, roomFor, signedUrls,
 } from "../lib/photos.js";
 
 export default function JobPhotos({ booking }) {
@@ -63,7 +63,11 @@ export default function JobPhotos({ booking }) {
         // ORIGINAL size, which is the pessimistic end — the resize will land
         // it far lower, so this never lets somebody through who should not be.
         if (!roomFor(file.size, budget)) {
-          setError("Photo storage is full. Remove some photos to add more.");
+          // NAMES THE TWO NUMBERS, AND GOES THROUGH `t` — ROADMAP 0.11d1. This
+          // was a bare English literal naming neither, on a screen whose
+          // standing warning line one element below IS translated, so a Spanish
+          // dashboard showed nearly the same words in two languages at once.
+          setError(fullWords(budget, t));
           break;
         }
         await addPhoto({ file, businessId: business.id, bookingId: booking.id, kind: kindRef.current });

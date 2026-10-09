@@ -96,6 +96,11 @@ export async function addReceipt({ file, businessId, expenseId }) {
   if (!roomFor(blob.size, budget)) {
     const e = new Error("full");
     e.code = "BUDGET_FULL";
+    // THE NUMBERS TRAVEL WITH THE REFUSAL — ROADMAP 0.11d1. The screen has to
+    // name what is used and what the limit is, and this is the only place that
+    // holds them: it read the budget one line above to make this very decision,
+    // and `ExpenseModal` has no budget of its own to read.
+    e.budget = budget;
     throw e;
   }
   // THE FIRST FOLDER IS THE BUSINESS ID, and that is not a convention: the

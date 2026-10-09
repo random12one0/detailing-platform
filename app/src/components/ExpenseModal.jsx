@@ -24,6 +24,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
 import Sheet from "./Sheet.jsx";
 import { addReceipt } from "../lib/receipts.js";
+import { fullWords } from "../lib/photo-rules.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -160,7 +161,13 @@ export default function ExpenseModal({ onClose, onSaved }) {
         // Spanish dashboard gets a Spanish sentence; anything not in the
         // catalogue passes through unchanged, which is `t()`'s own behaviour.
         setError(e?.code === "BUDGET_FULL"
-          ? t("Expense saved, but photo storage is full so the receipt was not attached.")
+          // ROADMAP 0.11d1 — THE REASON IS NOW THE FULL SENTENCE. It was a
+          // standalone string naming neither the space used, nor the limit, nor
+          // what frees room, which is all three things 0.11d's criterion 3 asks
+          // of it. It reuses the `{reason}` wrapper below rather than inventing
+          // a second string, so the catalogue gains one sentence, not two.
+          ? t("Expense saved, but the receipt did not attach. {reason}",
+              { reason: fullWords(e.budget, t) })
           : e?.message
             ? t("Expense saved, but the receipt did not attach. {reason}", { reason: t(e.message) })
             : t("Expense saved, but the receipt did not upload."));

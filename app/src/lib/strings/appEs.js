@@ -1287,6 +1287,8 @@ export const appEs = {
     "Foto subida. Presiona Guardar para conservarla.",
   "Photo storage is full. Remove some photos to add more.":
     "El almacenamiento de fotos está lleno. Quita algunas fotos para agregar más.",
+  "Photo storage is full: {used} of {limit} used. Remove some photos to add more.":
+    "El almacenamiento de fotos está lleno: {used} de {limit} usados. Quita algunas fotos para agregar más.",
 
   // Reviews, questions and campaign links.
   "Add review": "Agregar reseña",
