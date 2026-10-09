@@ -1,0 +1,38 @@
+THE STAND-IN — the three network probes against a loopback bucket, seven modes.
+  ok                    all three probes pass, as they must
+  no-object             caught by anonymous-read: GET returned 404, not 200 — no readable object at biz/branding/logo.webp
+  parked-page           caught by anonymous-read: GET returned 200 but content-type is "text/html", not an image
+  no-cors               caught by cors-allows-our-pages: https://detailingplatform.com: allow-origin is "(none)" — this page is not permitted; https://www.detailingplatform.com: allow-origin is "(none)" — this page is not permitted; http://localhost:5173: allow-origin is "(none)" — this page is not permitted
+  cors-get-only         caught by cors-allows-our-pages: https://detailingplatform.com: allow-methods is "get, head" — PUT is not permitted; https://www.detailingplatform.com: allow-methods is "get, head" — PUT is not permitted; http://localhost:5173: allow-methods is "get, head" — PUT is not permitted
+  cors-no-content-type  caught by cors-allows-our-pages: https://detailingplatform.com: allow-headers is "x-amz-meta-x" — Content-Type is not permitted; https://www.detailingplatform.com: allow-headers is "x-amz-meta-x" — Content-Type is not permitted; http://localhost:5173: allow-headers is "x-amz-meta-x" — Content-Type is not permitted
+  cors-wildcard         caught by cors-refuses-a-stranger: allow-origin is "*" — any page on the internet may PUT with a presigned URL
+  a blank base          caught by base-usable: reported R2_MEDIA_BASE missing
+  an http base          caught by base-usable: reported R2_MEDIA_BASE missing
+
+CANARIES CAUGHT: 8 of 8 handed-over defects. None missed.
+
+THE REAL ADDRESS — 0.11ba's four criteria, asked of business-media's public base.
+  FAIL  base-configured          no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2).
+        0.11ba criteria 1+2 — a public address is bound and its value is available for R2_MEDIA_BASE
+  UNJU  base-usable              nothing to judge: no address was supplied
+        0.11ba criterion 2 — the value is one the door's own mediaBase() accepts
+  UNJU  base-not-dev-address     nothing to judge: no usable address
+        0.11ba criterion 1 — the bound address is not the rate-limited r2.dev development host
+  UNJU  anonymous-read           nothing to judge: no address to GET through
+        0.11ba criterion 4 — an unauthenticated request reads an object through the address
+  UNJU  cors-allows-our-pages    nothing to judge: no address to send a preflight to
+        0.11ba criterion 3 — CORS permits the browser upload flow
+  UNJU  cors-refuses-a-stranger  nothing to judge: no address to send a preflight to
+        0.11ba criterion 3 — and permits it to nobody else
+
+6 rules asked, 1 failed, 5 UNJUDGEABLE, 29 assertions.
+UNJUDGEABLE, by name — not folded into the pass:
+  base-usable: nothing to judge: no address was supplied
+  base-not-dev-address: nothing to judge: no usable address
+  anonymous-read: nothing to judge: no address to GET through
+  cors-allows-our-pages: nothing to judge: no address to send a preflight to
+  cors-refuses-a-stranger: nothing to judge: no address to send a preflight to
+FAILED:
+  base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2).
+
+FAIL — 1 failed, 5 unjudgeable, 0 canaries missed.
