@@ -572,7 +572,30 @@ const DECLARED = {
   // with a nonsense entry in it and is 11 with none. The regex is not wrong; a
   // quotation that spans a line break is simply invisible to it, and anybody
   // adding one here should keep each quotation on one line.
-  quoteFragments: 350,
+  //
+  // 350 -> 357, 2026-10-08, in the same edit as ROADMAP 2.15's second pass.
+  // **+7, all seven in 2.15's zone and all seven genuine quotations** — named
+  // rather than totalled, and enumerated by running this file's own
+  // `FRAGMENT_RE` over the added lines (`git diff ROADMAP.md | grep '^+'`)
+  // rather than by accepting what the run returned:
+  //
+  //     "the two steps in the whole flow with a text box"   the walk's old scope,
+  //                                 quoted as the thing that was wrong
+  //     "What are you bringing?"            the three labels the walk was
+  //     "Year or estimate"                  sending him to tap, each quoted
+  //     "Anything we should know?"          beside
+  //     "What are you bringing? (optional)" the string the screen actually
+  //     "Year or estimate (optional)"       carries — a before/after table, so
+  //     "Anything we should know? (optional)"  every row is two fragments
+  //
+  // `quoteCriteria` does NOT move and `numberedOpenItems` does not either: the
+  // block adds fragments to 2.15's existing criterion and no new item.
+  // **AND THE PREVIOUS ENTRY'S CLOSING WARNING EARNED ITS PLACE WITHIN A DAY.**
+  // The first draft of that block wrapped the first quotation above across a
+  // line break, so `FRAGMENT_RE` could not see it and the delta measured +6 for
+  // seven quotations. Re-flowed to one line, which is what the line above asks
+  // for; the +7 is the count with nothing invisible in it.
+  quoteFragments: 357,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

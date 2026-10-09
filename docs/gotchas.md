@@ -4756,3 +4756,44 @@ terms and the whole footer were on screen and permanently invisible"* before it 
 that makes a page longer — one added clause will do it — lands in that stretch. Measured both ways
 at 1440, 392 and 320: all eleven clauses reach opacity 1 in the reading zone, and "Ending it"
 reaches 1 at maximum scroll.
+
+## 104. `node --test <file> --break=x` DOES NOT PASS THE FLAG TO THE FILE, SO A TEST-FILE SABOTAGE SWITCHED ON THE OBVIOUS WAY IS SWITCHED OFF
+
+**Measured on Node v24.18.0, 2026-10-08, by printing `process.argv` from inside a test**: under
+`node --test`, node spawns the test file as a child process whose argv is exactly
+`[node, <the test file>]` — **every extra argument is consumed by the test runner and nothing
+reaches the file.** `--break=x`, `-- --break=x`, trailing or not: the file sees none of it.
+
+**This is entry 102 with a different cause and the same output.** A `--break=` that never arrives
+leaves the test asserting the truth, so it passes — and *"pass 6, fail 0"* with the defect
+switched on is byte-for-byte what a caught sabotage prints. Three sabotages in
+`tests/keyboard-boxes-declared.test.mjs` were "verified" that way before anybody checked whether
+the flag had landed.
+
+**TWO SWITCHES ALREADY IN `tests/` ARE AFFECTED, AND ONE OF THEM IS NAMED IN `CLAUDE.md`.**
+`no-credentials-in-tracked-text.test.mjs`'s `--break=md-only` and `retry-safety.test.mjs`'s
+`--break=` both read `process.argv`. Both files' own headers document the DIRECT form
+(`node tests/<file>`), which works — when a file is run directly, `node:test` runs in-process and
+argv is the command line. **But `CLAUDE.md`'s verification table prescribes
+`node --test tests/no-credentials-in-tracked-text.test.mjs` and mentions `--break=md-only` in the
+same breath**, so appending the flag to the command the rulebook gives you is the natural move and
+it does nothing. Measured both ways, same machine, same minute:
+
+| | population | result |
+|---|---|---|
+| `node --test tests/no-credentials-in-tracked-text.test.mjs --break=md-only` | — | **pass 1, fail 0** — the flag never arrived |
+| `node tests/no-credentials-in-tracked-text.test.mjs --break=md-only` | 170 files | **14 passed, 6 failed** — the sabotage bites |
+| `node tests/no-credentials-in-tracked-text.test.mjs` | 1076 files | 20 passed, 0 failed |
+
+**THE RULE: a sabotage in a test file is an ENV VAR, or it is documented with the direct
+invocation and never with `node --test`.** An env var crosses the process boundary; a flag does
+not. `tests/keyboard-boxes-declared.test.mjs` reads both — `process.env.BREAK` first, the flag as
+well — so either invocation works and the documented one is the env form.
+
+**And the second half, which cost the same half hour again in the same sitting: an edit that lands
+is not an edit that is enough.** The anchor assertion from entry 102 passed for all three of those
+sabotages, and one still did not bite, because the injection replaced the FIRST occurrence of its
+anchor and `StepLocation.jsx` writes the address label twice — once as the visible `<span>`, once
+as the field's `label` prop. **Replace every occurrence, and read the failure line rather than the
+exit code**: a green run proves nothing about a sabotage, and "the anchor was found" proves only
+that something changed.

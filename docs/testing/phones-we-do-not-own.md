@@ -177,10 +177,10 @@ whole flow with a text box" — it was four.**
 3. Scroll the page down, then up. **Watch the bottom of the screen as Safari's
    address bar hides and comes back.** Anything cut off, jumping, or covered?
 4. **The vehicle step — the first text boxes in the flow.** Tap **"What are you
-   bringing?"** and type three letters. The keyboard comes up. **Can he still
+   bringing? (optional)"** and type three letters. The keyboard comes up. **Can he still
    see what he is typing, AND the button he needs next?** Then, with the
    keyboard still up, **scroll** — does the page fight him? — and dismiss it:
-   **is the layout where it was before?** Tap **"Year or estimate"** and ask the
+   **is the layout where it was before?** Tap **"Year or estimate (optional)"** and ask the
    same thing. *Both boxes sit above the fold, and the four dirtiness chips
    under them are the controls ROADMAP 2.15 measured the footer covering 21px
    of, so this is the step where this item's only reproduced fault lived.*
@@ -192,7 +192,11 @@ whole flow with a text box" — it was four.**
    them.** Tap each of the four in turn. **With the keyboard up, can he see the
    box he is typing in AND the button he needs next?** — this step was added
    2026-09-25 because ROADMAP 2.15 needs exactly it; the notes box
-   (*"Anything we should know?"*) was added 2026-10-08, having been missed.
+   (*"Anything we should know? (optional)"*) was added 2026-10-08, having been
+   missed. **The three labels that end in "(optional)" are quoted here with it,
+   because the screen carries it and he is following this literally, one-handed,
+   in a driveway** — `tests/keyboard-boxes-declared.test.mjs` holds every quoted
+   label against the string the product renders.
 8. **The review step — the promo box, and the tightest gap in the flow.** Tap
    **"Have a code?"**. **The button he needs next is "Apply", immediately beside
    it.** Same two questions. *Ask this one even if the others were fine: this

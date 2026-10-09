@@ -5871,6 +5871,82 @@ the wrong service, and never book a job we cannot reach.
   block**, which is the same answer 2026-09-23 reached: what this item needed
   was not a build.
 
+  ---
+
+  ### THE COUNT NOW HAS A CHECK BEHIND IT, AND THE WALK WAS QUOTING THREE LABELS THE SCREEN DOES NOT CARRY — 2026-10-08, second pass.
+
+  **THE BLOCK ABOVE CORRECTED A COUNT WITH PROSE, AND PROSE IS WHAT WENT STALE
+  THE FIRST TIME.** The walk's
+  *"the two steps in the whole flow with a text box"* was a sentence nobody had
+  ever counted, and replacing it with a better
+  sentence leaves the next person to add a box no reason to notice. So two
+  things were done: the count was **re-taken** rather than inherited, and it was
+  **declared in a check** that reddens when the document and the product stop
+  agreeing.
+
+  **RE-TAKEN, NOT TRUSTED.** One walk of all seven steps at 392x844 on
+  `demo-detail`, enumerating every `input`/`textarea` that is painted and is not
+  a checkbox, radio, button or `hidden` field, with the distance from each box to
+  `.bk-bar` read off the same frame. Console clean at every step. It reproduces
+  the block above exactly — **8 boxes on 4 of 7 steps, same pixel positions** —
+  and it answers the one question a hand count of the source could not:
+  `StepVehicle.jsx` renders `VehicleField` **twice**, and those are two mutually
+  exclusive branches (one per car in the multi-vehicle loop, or one for a single
+  car), **not two boxes on screen**. Steps 1, 2 and 5 carry none; step 4's two
+  faucet/power controls are checkboxes and raise nothing.
+
+  **THREE OF THE LABELS IT SENDS HIM TO TAP ARE NOT WHAT THE SCREEN SAYS**, and
+  that matters because he is following this literally, one-handed, in a driveway:
+
+  | § 5 said | the screen says |
+  |---|---|
+  | "What are you bringing?" | **"What are you bringing? (optional)"** |
+  | "Year or estimate" | **"Year or estimate (optional)"** |
+  | "Anything we should know?" | **"Anything we should know? (optional)"** |
+
+  Fixed in the walk, which is the document he follows. **The table in the block
+  above quotes the same three short and is left as written rather than edited
+  underneath, because the correction is the useful part** — this is
+  `label-guard.mjs`'s own trap (45 controls here are addressed by the WORDS on
+  them) one level out, in a document instead of a check.
+
+  **BUILT: `tests/keyboard-boxes-declared.test.mjs`** — six tests, credential-
+  free, eleven filesystem reads, **0.2s**, no dev server and no quote spent. It
+  declares all eight boxes by hand the way `CEILINGS` does in
+  `bk-bar-clearance.mjs`, because a check that derives its own expectation from
+  what it finds agrees with whatever it finds. A ninth box fails test 1 by name
+  and file; a step that gains one and is not added to § 5 fails test 3; a renamed
+  label fails test 4; the two deliberate exclusions (the 2.21 honeypot, the
+  checkboxes) are asserted present and still excluded rather than silently
+  filtered, and the three boxes the walk names in prose without quoting a label
+  are **reported by name rather than folded into the pass**. Test 5 holds this
+  item's own amended `Done when` to all four steps.
+
+  **BROKEN ON PURPOSE, THREE WAYS, AND TWO OF THE THREE DID NOT BITE ON THE
+  FIRST ATTEMPT — THE REASON IS NOW `docs/gotchas.md` 104.** `node --test <file>
+  --break=x` **does not pass the flag to the file**: node consumes every extra
+  argument and the child's argv is `[node, <file>]`, measured by printing it from
+  inside a test. All three sabotages printed **pass 6, fail 0** with the defect
+  switched on, which is byte-for-byte what a caught sabotage prints — entry 102
+  with a different cause. **Two switches already in `tests/` are affected and one
+  of them is named in `CLAUDE.md`'s verification table**, whose row prescribes
+  `node --test` and mentions `--break=md-only` in the same breath: proved both
+  ways on the same minute, the flag form printed *pass 1, fail 0* and the direct
+  form *14 passed, 6 failed* over a 170-file population instead of 1076. That
+  row now says so. And the third sabotage landed and was still not enough — it
+  replaced the FIRST occurrence of its anchor, and `StepLocation.jsx` writes the
+  address label twice. **With both fixed, all three bite and the clean run is
+  6/6.**
+
+  **THE BOX STAYS OPEN AND THE REASON HAS NOT MOVED SINCE 2026-09-20.** The
+  on-screen keyboard is unmeasured and unmeasurable here, and the new check says
+  so in its own header: a green from it is an answer about the WALK's
+  population, never about the keyboard. **Nothing in `app/src` was touched** —
+  the third sitting in a row to reach that answer. What is executable now that
+  was not: § 5 asks all four steps, in flow order, at the right URL, naming the
+  labels the screen actually carries, and a rename or a ninth box reddens a check
+  instead of quietly widening the gap between the walk and the product.
+
 - [x] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for
