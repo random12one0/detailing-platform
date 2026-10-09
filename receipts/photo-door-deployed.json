@@ -1,9 +1,9 @@
 {
-  "git_sha": "08cecb6fae52bd9ac57d6a7af3ecdc5324186d4b",
-  "git_sha_started": "08cecb6fae52bd9ac57d6a7af3ecdc5324186d4b",
+  "git_sha": "5163e0a9ae2ba214ffd669f4235b337fca602c6f",
+  "git_sha_started": "5163e0a9ae2ba214ffd669f4235b337fca602c6f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:18:18.406Z",
+  "finished_at": "2026-10-09T20:21:52.694Z",
   "failures": [
     "door-published: photo-door is not deployed on this project. Publishing is Andrew's: FOR-ANDREW.md step 9 (`node scripts/deploy-functions.mjs photo-door`). Nothing below can be judged until it is.",
     "secret-name-present: R2_MEDIA_BASE is not among this project's function secrets. It is the public address for business-media, it has no default, and it cannot exist until 0.11ba binds one in Cloudflare."
@@ -26,7 +26,7 @@
     "base_source": "none"
   },
   "check_id": "photo-door-deployed",
-  "started_at": "2026-10-09T20:18:17.930Z",
+  "started_at": "2026-10-09T20:21:52.069Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,

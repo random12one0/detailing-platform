@@ -94,6 +94,17 @@
 //
 // **No browser.** There is no page in this product that publishes a function.
 // The browser proof of this path is 0.11bc's first real upload.
+//
+// ---------------------------------------------------------------------------
+// THE STAND-IN'S PLATFORM GATE IS MEASURED, NOT IMAGINED
+// ---------------------------------------------------------------------------
+// The loopback door answers a tokenless POST `401 {"message":"Missing
+// authorization header"}` before the handler is reached, because that is what
+// Supabase does. **Measured 2026-10-09 against a function that IS deployed**:
+// 17 of this project's 39 functions carry `verify_jwt`, and a tokenless POST
+// to one of them returned `401 UNAUTHORIZED_NO_AUTH_HEADER / "Missing
+// authorization header"`. So `door-published`'s no-auth half is aimed at a
+// refusal this platform really produces, rather than at one invented here.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import http from "node:http";

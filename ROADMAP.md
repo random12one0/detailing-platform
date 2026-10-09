@@ -1304,9 +1304,16 @@ and how the wait ends.
   verdict is FAIL in every mode because the UNJUDGEABLE rules hold it there, which is exactly the trap
   `docs/gotchas.md` 105 describes.
 
-  **NOT PROVEN, SAID PLAINLY.** That Supabase's platform refuses a tokenless call the way the stand-in
-  does — there is no deployed function to ask. That the live door signs a real PUT R2 accepts; that is
-  0.11bc's first upload. **And no browser evidence, because there is no browser surface in this item**:
+  **ONE "NOT PROVEN" LINE WAS CORRECTED BY MEASURING IT RATHER THAN BY LEAVING IT.** The first draft of
+  this entry said *"that Supabase's platform refuses a tokenless call the way the stand-in does — there
+  is no deployed function to ask."* **There are 17.** A tokenless POST to one of this project's deployed
+  `verify_jwt` functions answers `401 UNAUTHORIZED_NO_AUTH_HEADER / "Missing authorization header"`,
+  which is exactly the refusal the stand-in produces and exactly what `door-published`'s no-auth half
+  asks for. Kept rather than quietly replaced: *"there is nothing to ask"* was false while 17 things to
+  ask were sitting in the same listing the gate already reads.
+
+  **NOT PROVEN, SAID PLAINLY.** That the live door signs a real PUT R2 accepts; that is 0.11bc's first
+  upload. **And no browser evidence, because there is no browser surface in this item**:
   no page in this product publishes a function, and the upload flow this unblocks is 0.11bc's, behind a
   flag that is still `false`. The live half also never signs in today: with no door deployed there is
   nothing to call, so no session is created at all.
