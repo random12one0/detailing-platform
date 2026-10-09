@@ -1231,7 +1231,8 @@ still knows them.
   **Nothing breaks while this waits.** No real money moves either way.
 
 
-- [ ] **SWITCH · Publish `platform-billing`, so a detailer whose page went
+- [~] **WAIT · Publish `platform-billing` only after every payment scenario in
+  ROADMAP 12.1 has been tested completely, so a detailer whose page went
   offline for not paying gets it back when they pay (ROADMAP 12.1).** Added
   2026-10-06.
 
@@ -1249,6 +1250,9 @@ still knows them.
 
   **Nobody is affected today** — there are no paying detailers yet. It matters
   the first time a real card fails.
+
+  **Andrew decided 2026-10-09:** testing comes first; this publish does not go
+  out on the strength of the code-only fix.
 
 - [ ] **SWITCH · One database change, so a detailer's browser can no longer
   rewrite its own bookings behind the dashboard's back (ROADMAP 8.10d).**
@@ -1319,7 +1323,7 @@ still knows them.
   **Nothing to decide.** DECISIONS.md says how to undo it.
 
 
-- [ ] **SWITCH · Seven functions to publish so that tapping a job
+- [~] **NEXT REGULAR UPDATE · Seven functions to publish so that tapping a job
   notification opens the job instead of a "page does not exist" screen.**
 
   **What this is.** When a booking comes in, is cancelled, moved, accepted or
@@ -1340,6 +1344,9 @@ still knows them.
   **Nothing to decide.** Once they are live, tap the next job notification you
   get; it should open that job. If it does, tell a session and it ticks
   ROADMAP 14.34.
+
+  **Andrew decided 2026-10-09:** hold this for the next ordinary update cycle;
+  do not make a special publish for it.
 
   **One of the seven now carries a second fix (2026-10-06):**
   `send-owner-reminders` also gives the "your maintenance is due" email your
@@ -1481,8 +1488,8 @@ still knows them.
   there is correct, not missing.
 
 
-- [ ] **DECIDE · Do you want a deposit at booking, and if so, four things only
-  you can settle. Nothing is built and nothing is waiting on code.**
+- [ ] **DECIDE · One question first: should a customer have to pay part of the
+  job price when they book? Nothing is built.**
 
   **What this is.** A deposit means the customer pays something at the moment
   they book, and it comes off what they owe on the day. It is on the list as a
@@ -1490,7 +1497,13 @@ still knows them.
   written down about what "done" would even look like** — because nobody can
   write that until you answer these.
 
-  **The four questions, and none of them is technical:**
+  **You said the earlier version was not understandable. Do not answer four
+  design questions first. Answer yes or no to deposits.** Recommendation:
+  **yes, but optional for each detailer, and only after every payment scenario
+  in ROADMAP 12.1 has been tested.** If yes, the recommended defaults below are
+  enough to build without another design round.
+
+  **The four details already have recommended defaults:**
   1. **Who sets the amount?** You, once, for everybody — or each detailer for
      their own business?
   2. **A percentage or a fixed amount?** "20% of the quote" or "$25".
@@ -1529,8 +1542,8 @@ still knows them.
   so it needs the card side working — the same connected-account step already
   on this list. **Nothing can start before your answer, and nothing is stuck
   behind it either**: everything else on the list moves without this.
-- [ ] **DECIDE · Your pricing page promises a detailer you will tell them the
-  day work starts on their website. Nothing in the product can tell them.**
+- [x] **DECIDED 2026-10-09 · Keep the promise and build the notice when work
+  starts on a website.**
 
   **The sentence, on `/pricing` and in your terms, word for word:** *"It stops
   being refundable once work on your site begins, and you are told on the day
@@ -1549,7 +1562,12 @@ still knows them.
   day is the shape of complaint that gets a card payment reversed, and the page
   promising the notice is the page they will quote back.
 
-  **Your two honest options, and they are both small.**
+  **Decision recorded.** Andrew asked for the best fix rather than another
+  legal choice. Build the first option below: one explicit start action, a
+  dated record, and a plain notice to the detailer. Do not remove or weaken the
+  refund-boundary sentence merely because its wording was confusing.
+
+  **The two options that were considered:**
 
   1. **Send the notice.** One email, one button you press when you sit down to
      start their site: *"We've started on your website today."* That also gives
@@ -2333,14 +2351,14 @@ once, which is still more than any script here can do.
 
 ## Recorded — nothing needed from you yet
 
-- **DECIDE · Texting customers is ready to start, except for one sentence
-  only you can write — checked 2026-10-08.** We can send a text when someone
+- **WAIT · Texting wording will be settled when the deferred phone-number item
+  resumes — corrected 2026-10-09.** We can send a text when someone
   books and another the day before their appointment, with a way for them to
   reply and confirm. Nobody is allowed to build any of it yet, because you
   asked to pick the exact wording first, and that is a deliberate pause, not
   something stuck.
 
-  **What you need to decide:** what the booking-confirmation text says, and
+  **Nothing is being asked of you now.** When 0.14 resumes, decide what the booking-confirmation text says, and
   what the day-before reminder text says, including the line that asks them
   to reply to confirm. The plan for all of this is already written down,
   waiting for your words, in `TEXTING.md`.

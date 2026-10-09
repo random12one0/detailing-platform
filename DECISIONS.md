@@ -325,6 +325,7 @@ were made more than once.
 - **The belt commits nothing it did not write, and only one belt runs at a time** - the supervisor's ruling, 2026-10-08, after two belt instances shared this working tree and the second one's checkpoint committed the first one's twenty live files. Removes `checkpointDirtyTree` and puts a real lock on `belt.pid`, which was written and never read. Also swaps the triage role off Codex, which cannot read this repo on Windows at all. What would reverse each is inside.
 
 - **The belt does not dispatch an Andrew-only hold, and a permanently-red receipt census is not a gate** — supervision on 2026-10-08 after 0.11 stayed first in the ready shortlist despite having no code left, and 2.15 was selected three times despite requiring Andrew's iPhone. Adds the standard `NEEDS ANDREW` marker to both, removes the full receipt census from per-item gates, and corrects the stale claim that triage had moved off Codex.
+- **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
 
 <!-- INDEX:END -->
 
@@ -18454,3 +18455,32 @@ would be a real regression detector and should replace the removed census when i
 exists. 0.11 leaves the blocked set when Andrew has made the named account changes
 and authorised the publish; 2.15 leaves it when his physical-phone result is written
 into its entry.
+
+## Andrew's dashboard decisions of 2026-10-09
+
+These are owner rulings, not supervisor inventions. The matching roadmap and owner
+rows carry the executable version so later sessions do not have to reconstruct a
+decision from a side channel.
+
+- **0.13:** no decision is needed now. It waits for 0.14's deferred phone number.
+- **0.4:** use the best honest no-lawyer path. Keep the visible refund boundary by
+  making the promised build-start record and notice real.
+- **2.1:** Andrew wants the finished pricing fix published before launch, now. He
+  still performs the publish under the standing rule.
+- **2.15:** the physical-phone keyboard walk is required before release, not during
+  the ordinary build queue.
+- **3.1:** both Andrew and detailers should see delivery history. Andrew gets the
+  platform-wide view; each detailer gets only their own business-wide view.
+- **6.4:** finish the retry work in ordinary order. It is not urgent while nobody
+  uses the site, but remains a before-release defect.
+- **12.1:** test every payment scenario completely before publishing the billing
+  change. The test credential enables proof; it is not permission to ship early.
+- **12.3:** ask first whether deposits should exist. Recommendation remains an
+  optional per-detailer percentage, one value per business, refunded inside the
+  existing cancellation window, after 12.1 is completely tested.
+- **14.34:** include the notification-link fix in the next regular update, then do
+  the real-phone notification tap. No special release.
+
+**0.11 was also authorized to proceed immediately.** That does not remove the two
+Cloudflare account actions only Andrew can perform or authorize a session to deploy;
+it means the prepared photo move is not parked for a later product decision.

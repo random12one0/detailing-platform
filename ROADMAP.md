@@ -183,7 +183,7 @@ THEM TOGETHER.** Written out so nobody picks one up and discovers the wall:
 |---|---|---|
 | **0.11** | Photo storage → R2 | **YES. This is the one to do.** Buckets, keys and design all exist |
 | 0.12 | Transactional email → ZeptoMail | **No** — Zoho refuses the domain, so no token exists. Chase support, then build |
-| 0.13 | SMS send path + Telnyx webhook | **No** — Andrew parked it until the message wording is settled (`TEXTING.md`) |
+| 0.13 | SMS send path + Telnyx webhook | **No** — queued behind 0.14; there is no phone number yet |
 | 0.14 | 10DLC campaign registration | **No, deliberately** — costs money monthly and waits for launch |
 | 0.15 | Google OAuth consent verification | **No** — waits on Google, detected by the quota, not by an email |
 | 0.16 | Web-filter categorisation | **No** — CAPTCHAs only Andrew can clear |
@@ -735,6 +735,10 @@ and how the wait ends.
   remains for the belt to write, and another worker cannot make those account and
   publishing decisions on Andrew's behalf.
 
+  **ANDREW DECIDED 2026-10-09: proceed immediately.** This authorizes the move;
+  it does not make the account-only address and CORS steps executable by the
+  belt, and it does not relax the standing rule that Andrew performs publishes.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
@@ -775,10 +779,13 @@ and how the wait ends.
   in this product's own rows** — not read off the Telnyx dashboard.
   **What failing looks like:** a message that sends and leaves no delivery row,
   which is the shape every email fault in this repo has had.
-  **Queued behind two things, both named:** 0.14 (there is no number yet) and
-  Andrew settling what the messages say (`TEXTING.md`). **Not stalled — queued.**
-  **NEEDS ANDREW: the message wording (`TEXTING.md`), and 0.14 before there is a
-  number to send from.** Added by the supervisor 2026-10-08, because the prose
+  **Queued behind one thing:** 0.14 (there is no number yet). Message wording
+  can be settled when that deferred item resumes. **Not stalled — queued.**
+  **WAITING ON 0.14, NOT ON ANDREW: there is no number to send from.** Andrew
+  corrected this on 2026-10-09: 0.14 is deliberately deferred, so 0.13 must not
+  ask him for a decision now. Message wording can be settled when 0.14 resumes;
+  it is not a present blocker that needs an answer. Added by the supervisor
+  2026-10-08, because the prose
   above was not enough: the belt's planner picked this item at `23:49:52` saying
   *"0.13 is fully specified and finishable today"* while its own skip list on the
   same line showed `0.14(DEFERRED ON PURPOSE)`, and dispatched a worker that could
@@ -952,6 +959,12 @@ and how the wait ends.
   as one that overstates it, because nobody goes looking.**
 
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
+  **ANDREW DECIDED 2026-10-09: do the strongest honest version we can without
+  hiring a lawyer.** The remaining build-start sentence is not a request for
+  another decision. The best fix is to make the promise true: record the day
+  work starts and send the detailer a plain notice that day. That preserves the
+  visible refund boundary instead of quietly removing the notice while keeping
+  the non-refundable cutoff.
   Both audits (A1 P3-09, A2 6.6) flag that terms and privacy say Andrew wrote
   them, are not lawyer-reviewed, and are in his personal name. He asked whether
   a paid lawyer is really required.
@@ -1095,9 +1108,8 @@ and how the wait ends.
   refundable on a day the detailer never hears about. **Build it or remove it,
   and both are Andrew's.** `FOR-ANDREW.md` carries it as a DECIDE with the
   recommendation (send the notice — one button, one email, and he gets the date
-  written down on the day). **NEEDS ANDREW: whether the build-start notice gets
-  built or the sentence comes off both pages. It is the only thing holding this
-  box open.**
+  written down on the day). **DECIDED 2026-10-09: build the notice and dated
+  record.** It is the only thing holding this box open.
 
   **AND A THIRD COMMITMENT `/pricing` HAS BEEN MAKING IN PUBLIC WHILE THE
   "WHOLE AGREEMENT" SAID NOTHING — FIXED.** Exactly the build-fee-and-domain
@@ -1786,6 +1798,9 @@ A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
 - [ ] **2.1 — The total rises after the customer has picked the time.**
+  **ANDREW DECIDED 2026-10-09: publish this before launch, now.** The code is
+  still not live and publishing remains Andrew's manual action; this records
+  authorization and removes any question about waiting for launch.
   **THE FIX IS WRITTEN AND IT IS NOT LIVE (measured 2026-10-06). Nothing a
   customer sees has changed. The only thing standing between here and a
   customer being shown the right price is Andrew pressing publish on
@@ -5555,6 +5570,9 @@ the wrong service, and never book a job we cannot reach.
   where it would fail if it could.
 
 - [ ] **2.15 — The sticky footer can cover the last choice.**
+  **ANDREW DECIDED 2026-10-09: the real-phone keyboard walk happens before
+  release, not now.** Keep this open and out of the belt's build queue until
+  that pre-release physical-phone check is performed.
   **Fix:** bottom padding and a shorter footer; test with browser chrome and
   the on-screen keyboard up.
   *A1 P2-08*
@@ -7269,6 +7287,10 @@ the wrong service, and never book a job we cannot reach.
 requested.
 
 - [ ] **3.1 — The owner cannot tell whether emails arrived.**
+  **ANDREW DECIDED 2026-10-09: both audiences get the view.** Andrew gets the
+  platform-wide list in `/admin`; each detailer gets a business-wide delivery
+  list in their own dashboard, in addition to the customer-specific trail that
+  already exists. A detailer still sees only their business.
   The dashboard says "Reminder sent to customer"; the back office says Resend
   delivery/bounce tracking is "confirmed possible" and not wired.
   **Fix:** store and display Resend events for `sent`, `delivered`,
@@ -12283,6 +12305,10 @@ most corroborated finding in the set.
   is **clean**.
 
 - [ ] **6.4 — Weak signal and retry behavior is unknown.**
+  **ANDREW DECIDED 2026-10-09: finish this in the ordinary queue; do not raise
+  its priority.** Nobody is using the site now, so the remaining retry and
+  publish work must be completed before release but does not jump ahead of
+  earlier roadmap work.
   Detailers work in driveways.
   **Fix:** test current-day viewing after signal loss, safe retry on an
   interrupted update, no duplicate bookings or duplicate actions after retry,
@@ -19903,6 +19929,10 @@ Stripe account. Detailers bring their own Standard accounts over OAuth, so
 their age is not Andrew's problem.
 
 - [ ] 12.1 Subscription billing end to end: sign-up → pay → renew → failed
+  **ANDREW DECIDED 2026-10-09: do not publish the billing change until every
+  payment scenario in this item has been tested completely.** The test-mode
+  credential step is still needed to perform those tests; the publish is held
+  behind the completed walk, not merely behind code review.
   payment retries → page offline → back when paid. Sandbox proves all of it.
   *A2 5.8*
   **Done when** (written 2026-09-25; this item had none): in Stripe **sandbox**,
@@ -20007,6 +20037,14 @@ their age is not Andrew's problem.
   (`FOR-ANDREW.md`, shipping order); nothing is blocked on code.
 - [ ] **12.3 Optional deposit at booking. NEEDS ANDREW — and it is the only open
   item in this file with no acceptance criterion, deliberately.** *A2 Part 8 item 2*
+
+  **REPHRASED 2026-10-09 because the four-part question was not understandable.**
+  First decide one plain thing: **should a customer have to pay part of the job
+  price when they book?** Recommendation: **yes, as an optional setting each
+  detailer may turn on**, but do not build it until 12.1 has proved every payment
+  scenario. If yes, use the existing recommendation below as the default design:
+  one percentage per business, returned when the customer cancels within that
+  business's existing cancellation window.
 
   **WHY THERE IS NO `Done when` HERE AND WRITING ONE WOULD BE WRONG.** Four
   things are unsettled and every one of them is a product decision rather than a
@@ -24194,6 +24232,11 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 - [ ] **14.34 — Every owner push notification this product sends points at
   `/admin/job/<id>`, and there is no such route.** Found 2026-10-06 while
   resolving which screen 3.1's list belongs on — not by looking for it.
+
+  **DEFERRED ON PURPOSE — ANDREW DECIDED 2026-10-09:** hold the already-written
+  source fix for the next regular update cycle. Do not publish these seven functions as a special
+  release; include them in the next ordinary publish and perform the real-phone
+  notification tap then.
 
   **MEASURED, in four steps, because each one alone would be a guess:**
   1. **12 call sites** emit `url: \`/admin/job/${...}\`` — `accept-quote`,
