@@ -832,6 +832,10 @@ and how the wait ends.
   where they cannot happen out of order.
 
 - [ ] **0.11b — Move business media and intake images to public R2 storage**
+  **BELT PARKED after 3 attempts, 2026-10-09 19:38:36.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T19-38-31-736Z-0.11b.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   Move gallery copies, logos and site-intake images from Supabase Storage to the business-media R2 bucket using the required public R2 address. This does not deploy the accumulated work or change the allowance.
   Part 2 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1115,6 +1119,92 @@ and how the wait ends.
   long and no single session was finishing it.
 
 - [ ] **0.11ba — Bind the public R2 address and configure business-media CORS**
+  NEEDS ANDREW: bind a public web address to the `business-media` R2 bucket in Cloudflare and add the CORS
+  rule to it, because all four of this item's criteria are acts inside his Cloudflare account and nothing in
+  this checkout can reach it — there is no Cloudflare credential in `.env` and acquiring one is forbidden.
+  `FOR-ANDREW.md` steps 9a1 and 9a2 already carry both halves in his own words; no row was added rather than
+  a duplicate written.
+
+  ***WHAT WAS BUILT — 2026-10-09, commits `301e872` and `ead5248`. CREDENTIAL-FREE: no `.env`, no Cloudflare
+  call, nothing bound, no CORS rule set, nothing deployed, no key touched, no byte written to R2 or to the
+  database. The box stays `[ ]` and must: no address exists, so three of the four criteria have no subject.***
+
+  **THE FINDING, AND IT CHANGES WHOSE JOB THIS IS.** `scripts/photo-release-order.mjs` has reported the
+  Cloudflare CORS rules as UNJUDGEABLE on every run since 0.11c, with the reason attached: *"Reading them
+  needs a Cloudflare credential this program does not have and must not acquire."* **That is true of the
+  Cloudflare API and false of the thing itself.** A public bucket address answers the public internet, so the
+  two criteria that read as account questions are both answerable by anyone with an HTTP client — criterion 4
+  is a plain GET, and criterion 3 is the preflight (`OPTIONS` with `Origin` and
+  `Access-Control-Request-Method: PUT`) that a browser sends to the bucket before every upload and that the
+  bucket answers to anybody who asks. **What made them unjudgeable was never the missing credential. It is
+  that nobody has bound an address**, which is this item — and those are different sentences, because one of
+  them ends when Andrew spends two minutes in his dashboard and the other never ends.
+
+  **`scripts/r2-public-base.mjs` — six rules over the four criteria, 29 assertions against a declared floor
+  of 24, no credential of any kind.** Today, measured at `ead5248`: **1 FAIL** — `base-configured`, no public
+  address for `business-media` anywhere — and **5 UNJUDGEABLE reported by name**, never folded into a pass,
+  because there is no address to GET through or preflight. Exit 1; `node scripts/receipt.mjs
+  receipts/r2-public-base.json` grades **FAIL on that one recorded failure with every structural rule green**
+  (counts agree, canary fired, artifact present, floor cleared). **No hold was written: a hold is a person's
+  decision and this failure is the item.** Two rules the criteria do not state are asked anyway and both come
+  from Andrew's own step 9a2: the address must be `https` (the door's `mediaBase()` refuses anything else, so
+  an `http` answer would be a logo blocked as mixed content rather than a configuration mistake), and it must
+  **not** be a `*.r2.dev` development host, because the host is written into `gallery_images.image_url` one
+  row per photograph and changing it later breaks them rather than moving them.
+
+  **IT DOES NOT RESTATE THE DERIVATION, IT IMPORTS IT.** `mediaBase` and `publicUrl` are loaded out of
+  `supabase/functions/_shared/r2.ts` through `module.stripTypeScriptTypes()` — the parser that actually throws
+  (`docs/gotchas.md` 101) — so a change to the door's own rule for a usable base moves this check with it. The
+  CORS origins are not a list somebody typed either: each one is asserted to be ours by `host.js`'s own
+  `isPlatformHost`, so renaming the platform's domain reddens this instead of quietly probing a host we no
+  longer serve from.
+
+  **THE PASS PATH WAS OBSERVED, NOT INFERRED, AND SO WAS EVERY REFUSAL.** Three of the six rules have no
+  subject today, so they were run against an https stand-in bucket on loopback (a self-signed cert, because
+  `mediaBase()` is https-only). Correctly configured: **6 of 6 PASS, exit 0** — which is the command that
+  answers this item the day the address exists. Each refusal was then produced on a fresh port **with the
+  mode proved to have landed before the gate ran**: GET-only CORS → `cors-allows-our-pages` names all three
+  origins and the methods it was offered; `*` → `cors-refuses-a-stranger`; a parked HTML page served as 200 →
+  `anonymous-read` ("200 but content-type is text/html, not an image"); an `http` base → `base-usable`; a
+  `pub-….r2.dev` host → `base-not-dev-address`.
+
+  **AND THE FIRST ATTEMPT AT THOSE REFUSALS WAS A FALSE PASS, WHICH IS WORTH MORE THAN THE REFUSALS.** Three
+  broken stand-ins were started on the same port after a `pkill` that never killed anything; each one failed
+  to bind, died silently, and **the correct bucket from the previous run answered all three probes**. The
+  output was `PASS` three times over three deliberately broken configurations — `docs/gotchas.md` 102 exactly,
+  and the reason the port is now interrogated for its actual behaviour before any colour is believed.
+
+  **EIGHT HANDED-OVER DEFECTS ON EVERY RUN, BECAUSE THREE PROBES WITH NO SUBJECT ARE THREE PROBES NOBODY HAS
+  SEEN WORK.** Every run first aims the same three network probes at a loopback stand-in in seven modes — one
+  correct, and six broken in the six ways that matter (no object, a parked HTML page, no CORS at all, GET-only
+  CORS, CORS without `Content-Type`, and `*`) — plus the two bases `mediaBase()` must refuse. **8 of 8 caught.**
+  The receipt's `observed_failure` is false the moment one goes unnoticed, and the missed mode is named against
+  the rule that should have caught it.
+
+  **ONE OF THE SIX SABOTAGES DID NOT LAND, AND IT PRINTED THE COLOUR OF ONE THAT DID.**
+  `--break=accept-get-only` read `FAIL -> FAIL` with `8 of 8 caught` — byte-identical to a caught sabotage.
+  The break had landed; the control could not show it. The `cors-get-only` mode offered neither `PUT` nor
+  `Content-Type`, so relaxing the method test left the rule failing on the header instead. **A negative control
+  must differ in exactly one way.** With `content-type` added the sabotage reads `FAIL -> PASS` and
+  `7 of 8 caught, 1 MISSED: mode "cors-get-only" went UNNOTICED by cors-allows-our-pages`. All six are now
+  measured as a before-and-after on the **named rule**, never on the verdict word (`docs/gotchas.md` 105):
+  `accept-missing-base`, `accept-http`, `accept-dev-address`, `accept-get-only`, `accept-wildcard` and
+  `accept-any-type` each flip their own rule `FAIL -> PASS` and nothing else.
+
+  **NOT PROVEN, SAID PLAINLY.** That Cloudflare's R2 answers these probes the way the stand-in does — no
+  address exists to ask. That a real object reads: `anonymous-read` stays UNJUDGEABLE by name until somebody
+  passes `--key=<business>/branding/<file>.webp` for an object that is really there, because criterion 4 is
+  about reading a real object and inventing a key proves only that the host answers. **And no browser
+  evidence, because there is no browser surface in this item**: binding an address and setting a CORS rule
+  are Cloudflare dashboard acts with no page in this product, and the upload flow they unblock is 0.11bc's
+  (`MEDIA_VIA_DOOR` is still `false` and `photo-door` is still unpublished, both measured by
+  `photo-release-order.mjs`). The CORS rule's real browser proof is 0.11bc's first upload: a missing rule
+  shows there as a blocked preflight.
+
+  **WHAT TO RUN THE DAY THE ADDRESS EXISTS**, one command, no credentials:
+  `node scripts/r2-public-base.mjs --base=<the address> --key=<business>/branding/<file>.webp`. All six green
+  and exit 0 is this item's four criteria met.
+
   In Cloudflare, bind the chosen public web address for the business-media bucket and add the required CORS rule. This establishes the permanent public URL base but does not publish the function or enable the application path.
   Part 1 of 3 of item 0.11b, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
