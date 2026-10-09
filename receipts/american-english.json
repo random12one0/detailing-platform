@@ -1,9 +1,9 @@
 {
-  "git_sha": "2de18baffff9a5843300b7f0f3fd64dbd94cce88",
-  "git_sha_started": "2de18baffff9a5843300b7f0f3fd64dbd94cce88",
+  "git_sha": "70985d1112ac89b3520ccb7c91300a73eb704efb",
+  "git_sha_started": "70985d1112ac89b3520ccb7c91300a73eb704efb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T21:06:02.304Z",
+  "finished_at": "2026-10-09T21:36:27.330Z",
   "failures": [],
   "warnings": [
     "bare \"wing\" is NOT in the word list — a wing is a real part of an American car — and one of the 36 instances found by hand was exactly that. This check would not have found it.",
@@ -18,7 +18,7 @@
     "strings_read": 5486
   },
   "check_id": "american-english",
-  "started_at": "2026-10-09T21:05:36.043Z",
+  "started_at": "2026-10-09T21:36:01.131Z",
   "status": "pass",
   "expected_targets": 13,
   "discovered_targets": 13,
