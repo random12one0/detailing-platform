@@ -1026,6 +1026,26 @@ and how the wait ends.
   - A cross-business key is refused, and an over-cap upload is refused with used space, limit and deletion guidance in the message.
   - A cron-triggered photo-reconcile run records numeric drift in job_heartbeats, including orphan objects, missing objects, size mismatches, unknown sizes and tenant-prefix mismatches.
 
+  ***CUT INTO THREE NUMBERED SLICES — 2026-10-09.*** Every one of the four criteria describes the RELEASED
+  system, and the release has not happened: `photo-door` and `photo-reconcile` are undeployed, both door flags
+  are `false`, `photo_total_gb` is 1 and there is no reconcile cron entry (measured by
+  `node scripts/photo-release-order.mjs`, 0.11c). **And `.env` holds no R2 credential** — only the three
+  `R2_*` names exist, and only as edge-function secrets — so nothing local can head an object, list a bucket or
+  reach R2 at all. Every criterion has to go through the two functions, and neither is running. So the item is cut
+  rather than attempted whole, and an unnumbered sub-task is invisible to every sweep here.
+
+  - [ ] **0.11d1 — The over-cap refusal a person actually sees.** Criterion 3's second half, on the two paths a
+    detailer really takes, independent of R2 and provable in a browser today.
+  - [ ] **0.11d2 — The real upload and the authoritative size.** Criteria 1 and 2: a browser PUT to a presigned
+    R2 URL with zero requests to `/storage/v1/object` on the job-photo path, and a client that LIES about its
+    size (`claimed_bytes` 1 against a real body) still recorded at R2's `head` figure. **Blocked on the
+    release**: there is no door to presign and no R2 credential here to measure against.
+  - [ ] **0.11d3 — The cron-triggered reconcile and its five drift numbers.** Criterion 4: a `photo-reconcile`
+    run stamping `job_heartbeats` with orphans, missing, mismatches, unknown sizes and tenant-prefix
+    mismatches. The arithmetic is already pure and proved in memory (`tests/photo-reconcile.test.mjs`); what is
+    unproved is that a CRON call reaches it and the row lands. **Blocked on the release**: the function is
+    undeployed and the cron entry is not installed.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
