@@ -5139,3 +5139,72 @@ them is true at a time.
 
 Related: 108 (ask the element whether the press landed), 107 (a false defect
 from a wait), 106 (a refutation deserves more scepticism than a confirmation).
+
+## 113 — A SCRIPTED REWRITE CAN LAND IN THE RESPONSE AND STILL NOT BE WHAT EXECUTED: `route.fetch()` SEEDS THE BROWSER'S OWN CACHE WITH THE ORIGINAL
+
+**Measured 2026-10-09 building `scripts/media-door-browser.mjs` for ROADMAP 0.11b.**
+
+To press a branch that is behind an off-by-default flag, the obvious move is to
+rewrite the module Vite serves rather than edit the file:
+
+```js
+await page.route("**/src/lib/photo-door.js*", async (route) => {
+  const resp = await route.fetch();                 // <-- THE BUG
+  const src = await resp.text();
+  await route.fulfill({ response: resp, body: src.replace(FLAG_OFF, FLAG_ON) });
+});
+```
+
+That works, once. **`route.fetch()` performs the request through the BROWSER's
+network stack, so the ORIGINAL response is what lands in the browser's cache.**
+`fulfill` then serves the rewritten body for that one request, and **the next
+navigation reads the original straight out of cache with no request to
+intercept** — no route callback, no counter moving, nothing to notice.
+
+Measured, with a counter incremented at module scope inside the rewritten text:
+
+```
+after nav 1 — served: 1   executed: 1
+after nav 2 — served: 1   executed: 0
+```
+
+**So the press happened on a document running the untouched module, and the
+screen was measured on the wrong branch.** It fails toward whichever answer the
+unmodified code gives, which here was a FALSE DEFECT at all three widths.
+
+**WHY IT SURVIVES A `gotchas` 102 CHECK.** 102's rule is *prove the break
+landed*. It did land: the substitution matched, the body served contained it,
+`git diff` would have shown it if it had been a file. **102 asks about the edit;
+this asks about the EXECUTION, and they are different questions.** A counter kept
+in the script answers the first and reads green off navigation one's count for
+ever.
+
+**THE ASSERTION HAS TO COME OUT OF THE PAGE.** Sign the rewrite and read the
+signature back:
+
+```js
+const FLAG_ON = "export const FLAG = true;\n"
+  + "globalThis.__proof = (globalThis.__proof || 0) + 1;";
+// ...
+const ran = await page.evaluate(() => globalThis.__proof ?? 0);
+```
+
+It exists only if the rewritten text was evaluated, and it resets per document,
+so a cached copy shows as a zero rather than inheriting an earlier green.
+
+**AND TWO FIXES THAT LOOK SUFFICIENT AND ARE NOT.** `cache-control: no-store` on
+the fulfilled response does not help — the entry can already be in the cache by
+then. **`Network.setCacheDisabled` over CDP does not close it either:**
+Chromium's per-renderer memory cache sits outside it, and with the HTTP cache
+disabled the second navigation still needed **no request at all**. What actually
+works is removing the second navigation: sign in once in a throwaway context,
+save `storageState`, and give every measured context **exactly one `goto`**.
+Fetch the source with node's own `fetch` instead of `route.fetch()`, so the
+original never enters the browser at all.
+
+**THE GENERAL SHAPE, which is the part worth keeping:** *"I served it"* and
+*"it ran"* are two claims, and a script that intercepts anything — a module, a
+stylesheet, a config, a feature flag — can only observe the first. Ask the page.
+
+Related: 102 (prove the sabotage landed — the claim one level out from this one),
+107 (a false defect from a wait), 110 (a false defect from too broad a question).

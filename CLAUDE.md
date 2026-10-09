@@ -173,7 +173,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND TWELVE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THIRTEEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -767,3 +767,14 @@ both widths and in both languages, over a screen composing the sentence perfectl
 generalises is not the fixture: it is asking the sheet's own label whether it holds the file before
 pressing Save. Twenty-five sittings unbroken; `grep -c "^## " docs/gotchas.md` run before writing
 this and again after, so the 112 above is a count rather than an increment.
+
+**112 → 113 on 2026-10-09, same edit** — a scripted rewrite can land in the response and still not be what
+EXECUTED: `route.fetch()` performs its request through the BROWSER, so the ORIGINAL lands in the browser's
+cache and the next navigation runs it with **no request to intercept**. Measured `served 1, executed 1` on
+navigation one and `served 1, executed 0` on navigation two, so a flag-gated branch was pressed on a document
+running the untouched module and printed a **false defect at three widths**. **It survives a 102 check, because
+102 asks whether the EDIT landed and this asks whether it RAN** — sign the rewrite and read the signature out
+of the page. `cache-control: no-store` does not close it and neither does `Network.setCacheDisabled`;
+Chromium's per-renderer memory cache sits outside both, so the fix is one `goto` per context. Found by this
+session, on itself, building 0.11b's browser gate. Twenty-six sittings unbroken; `grep -c "^## " docs/gotchas.md`
+run before writing this and again after, so the 113 above is a count rather than an increment.
