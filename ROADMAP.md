@@ -1125,7 +1125,7 @@ and how the wait ends.
   `FOR-ANDREW.md` steps 9a1 and 9a2 already carry both halves in his own words; no row was added rather than
   a duplicate written.
 
-  ***WHAT WAS BUILT — 2026-10-09, commits `301e872` and `ead5248`. CREDENTIAL-FREE: no `.env`, no Cloudflare
+  ***WHAT WAS BUILT — 2026-10-09, commits `301e872` and `ead5248bd53e`. CREDENTIAL-FREE: no `.env`, no Cloudflare
   call, nothing bound, no CORS rule set, nothing deployed, no key touched, no byte written to R2 or to the
   database. The box stays `[ ]` and must: no address exists, so three of the four criteria have no subject.***
 
@@ -1141,7 +1141,7 @@ and how the wait ends.
   them ends when Andrew spends two minutes in his dashboard and the other never ends.
 
   **`scripts/r2-public-base.mjs` — six rules over the four criteria, 29 assertions against a declared floor
-  of 24, no credential of any kind.** Today, measured at `ead5248`: **1 FAIL** — `base-configured`, no public
+  of 24, no credential of any kind.** Today, measured at `ead5248bd53e`: **1 FAIL** — `base-configured`, no public
   address for `business-media` anywhere — and **5 UNJUDGEABLE reported by name**, never folded into a pass,
   because there is no address to GET through or preflight. Exit 1; `node scripts/receipt.mjs
   receipts/r2-public-base.json` grades **FAIL on that one recorded failure with every structural rule green**
