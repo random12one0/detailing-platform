@@ -1987,6 +1987,15 @@ still knows them.
   notices. **Think of it as fitting the filter before the dirt arrives, rather
   than as clearing up dirt.** That is also why it is no longer urgent.
 
+  **IT ALSO SWITCHES ON A REFUSAL, ADDED 2026-10-09.** Until today, if you
+  pressed *"Show test rows"* and opened one of them, the record offered
+  **"Delete for good"** — and pressing it would have erased that row for good.
+  About sixty automated checks sign into rows like that, and a check that
+  cannot run looks exactly like one that passed, so one press could have taken
+  the safety net away quietly. The screen now shows the reason instead of the
+  button on a test row. **Like the rest of this screen, it does nothing until
+  you run the command above**, because it has no tick box to read yet.
+
   **It is safe to run twice** — it skips work it has already done. It touches
   only `kguqylyzgyzfktkfnhjb`, the development database, never your real
   business.
