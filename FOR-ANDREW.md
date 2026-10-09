@@ -125,10 +125,19 @@ node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql
 ```
 
 1. **`20260924010000_a_fixture_is_not_a_customer.sql`** — a "test row" tick on
-   customers, so your Clients list hides the three leftovers from automated checks
-   and the "gone quiet" figure reads 5 instead of 8. Nothing is deleted.
+   customers, so your Clients list can keep the leftovers from automated checks
+   out of the list and out of the figures at the top of it. Nothing is deleted.
+   **You will see no change on your own practice business, and that is expected.**
+   This line used to promise that the "gone quiet" figure would drop from 8 to 5;
+   that was true on 2026-09-24 and is not true now. Measured 2026-10-09: your
+   practice business has **13 customers and not one of them is a fake**, the three
+   leftovers are gone from the database, and the headline already reads **5**. The
+   command still ticks **31 fake rows on six other practice businesses you never
+   open**. Think of it as fitting the filter before the dirt arrives.
    **Unlocks ROADMAP 1.3 and the client-list half of 0.3.** The screen is already
-   written and appears with the website publish (step 11).
+   written and appears with the website publish (step 11). The full version of
+   this row, with how you will know it worked, is under *"Waiting on you"* as
+   job **0.3b**.
 2. **`20261006010000_an_email_row_knows_its_booking.sql`** — lets the record of
    each email say which booking it was about. **Unlocks ROADMAP 3.1.**
    **This one must be applied before `send-email` is published** (step 6):
