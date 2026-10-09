@@ -1,9 +1,9 @@
 {
-  "git_sha": "e063d8c84677dd036415fb5091a557436cc58812",
-  "git_sha_started": "e063d8c84677dd036415fb5091a557436cc58812",
+  "git_sha": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
+  "git_sha_started": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T02:14:29.483Z",
+  "finished_at": "2026-10-09T04:57:24.214Z",
   "failures": [
     "32 function(s) are running something other than this checkout: address-suggest, unsubscribe, resend-webhook, send-email, delete-customer, send-invoice, send-owner-reminders, create-booking, platform-admin, accept-quote, create-business, invite-user, plan-link, preview-emails, reschedule-booking, respond-to-booking, send-campaign, watch-jobs, cancel-booking, update-booking, report-problem, platform-billing, stripe-webhook, get-booking-receipt, accept-invite, available-slots, pay-booking, track-visit, validate-promo-code, calculate-booking, booking-ics, connect-account",
     "address-suggest: 1 file(s) differ - _shared/rateLimit.ts (newest commit is 23.9d after the deploy)",
@@ -14,7 +14,7 @@
     "send-invoice: 6 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/sendInvoiceClaim.ts, _shared/strings/es.ts (newest commit is 16.6d after the deploy)",
     "send-owner-reminders: 5 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/maintenance.ts, _shared/strings/es.ts (newest commit is 16.5d after the deploy)",
     "create-booking: 6 file(s) differ - index.ts, _shared/pricing.ts, _shared/rateLimit.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 16.5d after the deploy)",
-    "platform-admin: 8 file(s) differ - index.ts, _shared/newBusiness.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/platformNet.js, _shared/emailList.js, _shared/strings/es.ts, _shared/nameLimit.js (newest commit is 16.5d after the deploy)",
+    "platform-admin: 9 file(s) differ - index.ts, _shared/newBusiness.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/platformBrand.ts, _shared/platformNet.js, _shared/emailList.js, _shared/strings/es.ts, _shared/nameLimit.js (newest commit is 16.5d after the deploy)",
     "accept-quote: 5 file(s) differ - index.ts, _shared/rateLimit.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 16.5d after the deploy)",
     "create-business: 6 file(s) differ - index.ts, _shared/newBusiness.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/strings/es.ts, _shared/nameLimit.js (newest commit is 16.5d after the deploy)",
     "invite-user: 4 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/strings/es.ts (newest commit is 16.5d after the deploy)",
@@ -93,7 +93,7 @@
     "widest_gap_days": 23.9
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-09T02:13:06.617Z",
+  "started_at": "2026-10-09T04:55:55.869Z",
   "status": "fail",
   "expected_targets": 41,
   "discovered_targets": 41,

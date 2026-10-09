@@ -174,6 +174,37 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
     .single();
   const founding = business?.plan_tier === "founding";
 
+  // ══ ROADMAP 0.4 — THE DAY THE BUILD FEE STOPPED BEING REFUNDABLE ═══════
+  //
+  // The detailer is emailed on that day by the back office; this read is so
+  // the date is still findable a year later on the screen they return to,
+  // which is the same argument the "Committed until" row on `Billing.jsx`
+  // makes. An email gets deleted; a refund boundary should not go with it.
+  //
+  // **IT IS A SECOND ROUND TRIP RATHER THAN ONE MORE COLUMN ON THE SELECT
+  // ABOVE, AND THAT IS NOT TIDINESS — IT IS THE CANCEL BUTTON.** A PostgREST
+  // select naming a column that does not exist fails the WHOLE query, and
+  // `site_build_started_at` arrives in a migration **nobody has applied yet**:
+  // applying is Andrew's, this repo has no applied-migrations ledger, and
+  // `migration-drift.mjs` exists because two migrations had already never run.
+  // Widened in place, a deploy that landed before the migration would answer
+  // this screen with no plan, no card, no invoices and **no cancel button** —
+  // and being able to cancel online is the statute this file's own header is
+  // built around (`Billing.jsx`: *"it stays ONE press behind one confirm"*).
+  // On its own, a missing column costs one absent row and nothing else.
+  //
+  // `null` is therefore reported for BOTH "no build has started" and "that
+  // read failed", which is a silence this repo normally refuses. It is
+  // accepted here, in these words, because the two produce the same CORRECT
+  // screen — a row that is not drawn — and because the thing that actually
+  // reports an unapplied migration is `migration-drift.mjs`, which names this
+  // column and this file. A screen is the wrong place to learn it.
+  const { data: buildRow } = await supabase
+    .from("businesses")
+    .select("site_build_started_at")
+    .eq("id", businessId)
+    .maybeSingle();
+
   // AND THE LIST FIGURE BESIDE EACH FOUNDING ONE — the owner's ask, 2026-09-05:
   // *"it should visually show like the discount price vs the regular price for
   // the founder spots."* He is right, and the landing page has done it since
@@ -220,6 +251,9 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
   return json({
     subscription: sub,
     founding,
+    // ROADMAP 0.4. Null until the back office sends the notice — and also
+    // null if that column is not in the database yet. See the read above.
+    site_build_started_at: buildRow?.site_build_started_at ?? null,
     quotes,
     invoices: invoices ?? [],
     // What cancelling costs TODAY, from the snapshotted figures on the row.

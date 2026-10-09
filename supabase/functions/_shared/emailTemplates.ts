@@ -1587,6 +1587,92 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData, lang?: unk
 }
 
 // ---------------------------------------------------------------------------
+// 16b · DETAILER — WORK HAS STARTED ON YOUR WEBSITE (roadmap 0.4)
+//
+// **THE ONLY EMAIL IN THIS PRODUCT THAT EXISTS TO END A RIGHT**, and that is
+// why it is a template of its own rather than a `platformAlertEmail` the back
+// office types a sentence into.
+//
+// `/pricing` and `/terms` both say: *"It stops being refundable once work on
+// your site begins, and you are told on the day that happens."* On 2026-10-08
+// that promise had nothing behind it — no column, no email, no screen — so a
+// fee stopped being refundable on a day the detailer never heard about.
+// Andrew ruled on 2026-10-09 to make the promise true. This is the notice.
+//
+// **IT NAMES THE FIGURE WHEN THE FIGURE IS KNOWN AND NEVER INVENTS ONE.**
+// `setupCents` comes off the subscription snapshot — the number they actually
+// agreed to — and is null for a business that has not been through checkout,
+// which is every business today. A null prints the clause without an amount
+// rather than printing a price from the config file, because the config file
+// is not what anybody was charged (`20260905000000_platform_billing.sql`).
+//
+// **AND IT SAYS WHAT HAS *NOT* CHANGED, which is the sentence a detailer
+// needs most.** The same rule as the billing emails' *"nothing has been
+// deleted"*: an email whose whole subject is a right expiring reads, without
+// that line, as though the subscription had changed too. It has not — the
+// monthly price, the commitment and the cancel button are all untouched, and
+// the one thing this email ends is a refund on a one-off fee.
+// ---------------------------------------------------------------------------
+
+export interface BuildStartedData {
+  businessName: string;
+  /** YYYY-MM-DD in the DETAILER's own timezone — the day they are being told about. */
+  dateStr: string;
+  /** The build fee they agreed to, or null when there is no subscription to read it off. */
+  setupCents: number | null;
+  billingUrl: string;
+}
+
+export function buildStartedEmail(brand: TenantBrand, b: BuildStartedData, lang?: unknown): Mail {
+  const tt = T(lang);
+  const dateLong = formatDateLong(b.dateStr, lang);
+  // **NO FEE MEANS NO REFUND CLAUSE, AND THE FIRST DRAFT GOT THIS WRONG.** It
+  // printed *"the one-off fee to build your site is no longer refundable"* with
+  // the amount left out whenever `setupCents` was null — and null means there is
+  // no subscription row, or a `setup_cents` of 0. **Nobody in that state has
+  // been charged a build fee at all**, so the sentence would have ended a
+  // refund right that never existed, in an email sent by the item whose entire
+  // job is to stop the product promising things it does not do. Caught by
+  // reading the rendered text of both branches side by side, which is why
+  // `render-emails.mjs` draws both.
+  const fee = b.setupCents !== null && b.setupCents > 0 ? money(b.setupCents / 100) : null;
+  const blocks = [
+    labBlock(tt("Your website")),
+    headlineBlock(tt("We have started building your website")),
+    proseBlock(tt("Work on {business}'s website began today, {date}. There is nothing for you to do — we will email you again when there is something to look at.",
+      { business: esc(b.businessName), date: esc(dateLong) })),
+    // THE WHOLE REASON THIS EMAIL IS SENT, in the terms' own words with the
+    // date and the figure filled in — and only where there is a figure.
+    fee
+      ? proseBlock(tt("From today the {amount} fee to build your site is no longer refundable. That is the only thing that changes.",
+        { amount: esc(fee) }), 16)
+      : "",
+    // WHAT HAS NOT CHANGED. The same rule as the billing emails' *"nothing has
+    // been deleted"* — and it is said only to somebody who HAS a subscription,
+    // because a reassurance about a thing you do not have is its own small lie.
+    fee
+      ? fineBlock(tt("Your subscription is untouched: the same price, the same renewal date, and the same one button to cancel in your own account whenever you want."))
+      : "",
+    factsBlock([
+      [tt("Work started"), esc(dateLong)],
+      ...(fee ? [[tt("Build fee"), esc(fee)] as [string, string]] : []),
+    ]),
+    // THE DATE IS ON THEIR OWN SCREEN TOO, because an email is a thing that
+    // gets deleted and this date is the boundary of a refund right. The
+    // billing page prints it from the same column this email was sent from.
+    buttonBlock(brand, tt("See it on your billing page"), b.billingUrl),
+  ].filter(Boolean);
+
+  return mail(
+    tt("Work has started on {business}'s website", { business: b.businessName }),
+    shell(brand, blocks, fee
+      ? tt("The build fee is no longer refundable from today. Nothing else changes.")
+      : tt("Nothing for you to do — we will email you again when there is something to look at."), { lang }),
+  );
+}
+
+
+// ---------------------------------------------------------------------------
 // 17 · CUSTOMER — YOUR WARRANTY HAS A DEADLINE (roadmap 2.23)
 //
 // **THE ONLY EMAIL IN THIS PRODUCT THAT ESCALATES.** Every other reminder

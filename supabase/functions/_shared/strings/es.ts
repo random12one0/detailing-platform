@@ -414,6 +414,23 @@ export const es: Record<string, string> = {
   "Nothing has been deleted. Open your billing page to bring it back.":
     "No se borró nada. Abre tu página de facturación para recuperarla.",
   "We'll try again over the next two weeks.": "Lo volveremos a intentar durante las próximas dos semanas.",
+  // ── 15b · The platform telling a detailer their build has started (0.4) ─
+  "Your website": "Tu sitio web",
+  "We have started building your website": "Empezamos a construir tu sitio web",
+  "Work on {business}'s website began today, {date}. There is nothing for you to do — we will email you again when there is something to look at.":
+    "El trabajo en el sitio web de {business} empezó hoy, {date}. No tienes que hacer nada: te escribiremos otra vez cuando haya algo que ver.",
+  "Nothing for you to do — we will email you again when there is something to look at.":
+    "No tienes que hacer nada: te escribiremos otra vez cuando haya algo que ver.",
+  "From today the {amount} fee to build your site is no longer refundable. That is the only thing that changes.":
+    "A partir de hoy, la tarifa de {amount} para construir tu sitio ya no es reembolsable. Eso es lo único que cambia.",
+  "Your subscription is untouched: the same price, the same renewal date, and the same one button to cancel in your own account whenever you want.":
+    "Tu suscripción no cambia: el mismo precio, la misma fecha de renovación y el mismo botón para cancelar en tu cuenta cuando quieras.",
+  "Work started": "El trabajo empezó",
+  "Build fee": "Tarifa de construcción",
+  "See it on your billing page": "Verlo en tu página de facturación",
+  "Work has started on {business}'s website": "Empezó el trabajo en el sitio web de {business}",
+  "The build fee is no longer refundable from today. Nothing else changes.":
+    "La tarifa de construcción ya no es reembolsable a partir de hoy. Nada más cambia.",
   // ── 16 · The platform telling its owner somebody signed up ─────────────
   "New detailer": "Nuevo detallador",
   "{business} just signed up": "{business} se acaba de registrar",

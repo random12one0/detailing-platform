@@ -781,6 +781,24 @@ export default function Billing() {
               <span className="v">{dateLong(`${sub.term_ends_on}T12:00:00Z`)}</span>
             </div>
           )}
+          {/* ROADMAP 0.4 — THE DAY THE BUILD FEE STOPPED BEING REFUNDABLE.
+              `/terms` and `/pricing` both say they are told on the day work on
+              their site begins, and they are: the back office emails them in
+              the same press that records this date. **The email is the notice
+              and this row is the record** — an email gets deleted, and this is
+              the boundary of a refund right on the largest single charge in
+              the product, so it has to still be findable on the screen a
+              detailer returns to. Same argument as "Committed until" above.
+
+              ABSENT RATHER THAN "NOT STARTED": a detailer on the booking plan
+              has no build, and a row reading "not started" on their screen
+              would be a sentence about a thing they never bought. */}
+          {data.site_build_started_at && (
+            <div>
+              <span className="quiet">{t("Work on your site started")}</span>
+              <span className="v">{dateLong(data.site_build_started_at)}</span>
+            </div>
+          )}
           <div>
             <span className="quiet">{t("Card")}</span>
             <span className="v">

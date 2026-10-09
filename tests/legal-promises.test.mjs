@@ -6,6 +6,13 @@
 //   LEGAL_BREAK=host     node --test tests/legal-promises.test.mjs   # sabotage 3
 //   LEGAL_BREAK=debt     node --test tests/legal-promises.test.mjs   # sabotage 4
 //   LEGAL_BREAK=call     node --test tests/legal-promises.test.mjs   # sabotage 5
+//   LEGAL_BREAK=notice   node --test tests/legal-promises.test.mjs   # sabotage 6
+//
+// AN ENV VAR AND NOT A FLAG, and that is not a style choice: `node --test <file>
+// --break=x` does NOT pass the flag to the file — node consumes every extra
+// argument and the child's argv is just `[node, <file>]`, so a flag-shaped
+// switch here is silently switched off and prints the same green a caught
+// sabotage prints. `docs/gotchas.md` 104.
 //
 // Credential-free, no browser, no dev server. Six filesystem reads and one
 // dynamic import of `legal.js`, well under a second.
@@ -45,6 +52,9 @@
 //   4. The UNBACKED rows are exactly `UNBACKED_IDS`. Also an equality, and this
 //      is the row that matters: a promise with nothing behind it is **reported by
 //      name** rather than folded into a pass, and a SECOND one reddens the run.
+//      **`UNBACKED_IDS` IS EMPTY SINCE 2026-10-09** — the two build-start rows
+//      were the debt and are backed now — so it is no longer "the declared debt
+//      has not grown" but "there is none", and the next one reddens on arrival.
 //   5. Every external host the edge functions name is classified, and every one
 //      classified as a processor is named on `/privacy` by the string declared
 //      beside it.
@@ -86,7 +96,9 @@
 //     `LEGAL_BREAK=host` injects an unclassified host into § 5's input.
 //     `LEGAL_BREAK=debt` marks a backed promise unbacked, so § 4's equality has
 //     been SEEN to fail — and `LEGAL_BREAK=call` adds one outbound call site, so
-//     § 6's has too. **Every assertion in this file has been watched to go red**,
+//     § 6's has too. `LEGAL_BREAK=notice` hides the build-start email template,
+//     which is the half `unbacked` cannot reach and the one that was this item's
+//     entire open debt until 2026-10-09. **Every assertion in this file has been watched to go red**,
 //     which is the only reason a green run here means anything.
 //     **Each was run and each reddened; the counts are in ROADMAP 0.4.**
 //     `docs/gotchas.md` 102 — a sabotage is only evidence once you have seen it
@@ -194,29 +206,49 @@ const LEDGER = [
     backing: [["supabase/functions/platform-billing/index.ts", "add_invoice_items"]],
   },
   {
-    // ── THE ONE WITH NOTHING BEHIND IT, FOUND 2026-10-08 ──────────────────
-    // **This is the notice that ends a refund right, and the product cannot
-    // send it.** There is no "work has started" event anywhere:
-    // `site_intake` has `submitted_at` for the detailer pressing the last
-    // button and nothing at all for the build beginning, no email template
-    // names it, and no screen shows it. Both pages promise it.
+    // ── RESOLVED 2026-10-09, AND IT WAS THE ONE WITH NOTHING BEHIND IT ────
+    // Found unbacked 2026-10-08: *"`/pricing` and the terms both promise a
+    // detailer is told on the day work starts on their website. There is no
+    // such day in the product."* No column marked a build as started, no email
+    // said it, no screen showed it — and that sentence is what ends their
+    // right to a refund on the largest single charge here.
     //
-    // **Parked exactly as written and deliberately NOT softened**, which is the
-    // ruling 0.4 already made about the export clause: *a vague promise is
-    // still a promise and would be harder for the next person to spot.*
-    // Removing it is not neutral either — it would leave a fee that stops being
-    // refundable on a day the detailer is never told. Build it or remove it,
-    // and both are Andrew's. `FOR-ANDREW.md`.
+    // **Andrew ruled on 2026-10-09 to make the promise true rather than to
+    // delete it**, which is this item's own standing rule about the export
+    // clause: *a vague promise is still a promise and would be harder for the
+    // next person to spot*, and removing it is not the neutral option either —
+    // it would leave a fee that stops being refundable on a day the detailer
+    // never hears about.
+    //
+    // **FOUR HALVES, AND THE PAIR IS WHY THEY ARE ALL LISTED.** The notice is
+    // an email template, something has to SEND it, the day has to be WRITTEN
+    // DOWN, and the detailer has to be able to find the date again after the
+    // email is deleted. Any one of them deleted by somebody refactoring makes
+    // the sentence false again, and none of them is in the file the sentence
+    // lives in.
     id: "buildfee-notice", where: "pricing",
     phrase: "It stops being refundable once work on your site begins, and you are told on the day that happens.",
-    unbacked: true,
-    why: "nothing in the product marks a build as started or tells anybody: no column, no email, no screen",
+    backing: [
+      ["supabase/functions/_shared/emailTemplates.ts", "export function buildStartedEmail"],
+      ["supabase/functions/platform-admin/index.ts", 'action === "build_start"'],
+      ["supabase/functions/platform-admin/index.ts", "buildStartedEmail(platformBrand("],
+      ["supabase/migrations/20261008010000_site_build_start.sql", "add column if not exists site_build_started_at"],
+      ["app/src/screens/more/Billing.jsx", "data.site_build_started_at"],
+    ],
   },
   {
+    // The same promise in the terms. One fault, two pages — and now one fix,
+    // two pages. The back office's own button is pinned here rather than on
+    // the row above so that both rows do not depend on the identical list:
+    // a screen with no way to press it is a notice nobody can send.
     id: "buildfee-notice-terms", where: "terms",
     phrase: "you are told on the day that happens",
-    unbacked: true,
-    why: "the same promise as buildfee-notice, in the terms. One fault, two pages",
+    backing: [
+      ["supabase/functions/_shared/emailTemplates.ts", "export function buildStartedEmail"],
+      ["supabase/functions/platform-admin/index.ts", 'action === "build_start"'],
+      ["supabase/migrations/20261008010000_site_build_start.sql", "add column if not exists site_build_started_at"],
+      ["app/src/admin/AdminPage.jsx", "Tell them work has started"],
+    ],
   },
 
   // ── SALES TAX — ADDED TO THE TERMS 2026-10-08, ROADMAP 0.4 ──────────────
@@ -284,7 +316,11 @@ const LEDGER = [
 
 // Declarations, not derivations. An equality on each — `docs/gotchas.md` 98.
 const DECLARED_ROWS = 16;
-const UNBACKED_IDS = ["buildfee-notice", "buildfee-notice-terms"];
+// EMPTY SINCE 2026-10-09, AND IT STAYS AN EQUALITY FOR EXACTLY THAT REASON —
+// `docs/gotchas.md` 98. The two build-start rows were the debt; they are backed
+// now, so § 4 prints "0 promise(s) with nothing behind them" and the NEXT unkept
+// promise reddens the run on arrival instead of fitting into a ceiling.
+const UNBACKED_IDS = [];
 const FETCH_SITES = 9;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -367,6 +403,15 @@ const fileText = (p) => {
   if (BREAK === "unbacked" && p.endsWith("photo-export.js")) {
     console.log("  SABOTAGE unbacked: hiding photosCsv from app/src/lib/photo-export.js");
     return body.replace(/export function photosCsv/g, "function hidden");
+  }
+  // Sabotage 6 is aimed at the pair that was the whole of this item's open debt
+  // until 2026-10-09 — the build-start notice. It hides the email template, so
+  // § 3 must redden naming BOTH build-start rows: a notice the product cannot
+  // compose is the fault those two rows carried for eighteen days, and the
+  // reason it is a sabotage of its own is that `unbacked` above cannot reach it.
+  if (BREAK === "notice" && p.endsWith("emailTemplates.ts")) {
+    console.log("  SABOTAGE notice: hiding buildStartedEmail from _shared/emailTemplates.ts");
+    return body.replace(/export function buildStartedEmail/g, "function hidden");
   }
   return body;
 };

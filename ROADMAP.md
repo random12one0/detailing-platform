@@ -958,7 +958,7 @@ and how the wait ends.
   § *"Waiting on you"*. **An entry that understates what is built costs as much
   as one that overstates it, because nobody goes looking.**
 
-- [ ] **0.4 — The legal pages. A lawyer is not the only option.**
+- [x] **0.4 — The legal pages. A lawyer is not the only option.**
   **ANDREW DECIDED 2026-10-09: do the strongest honest version we can without
   hiring a lawyer.** The remaining build-start sentence is not a request for
   another decision. The best fix is to make the promise true: record the day
@@ -1266,6 +1266,131 @@ and how the wait ends.
   re-run turned up one promise with nothing behind it**, and the criterion says
   *plus anything a re-run of the same method turns up*. One sentence on two
   pages, one decision from Andrew, and this closes.
+
+  ---
+
+  **CLOSED 2026-10-09. THE LAST PROMISE WITH NOTHING BEHIND IT NOW HAS
+  SOMETHING BEHIND IT: the detailer is emailed on the day work starts, and that
+  day is written down where neither they nor we can move it.**
+
+  > **The build is four pieces because the promise is four pieces.** *"You are
+  > told"* is an email; *"on the day that happens"* is a recorded day; somebody
+  > has to DO both in one press; and the date has to still be findable after
+  > the email is deleted, because it is the boundary of a refund right. Three
+  > of the four live in different files from the sentence that promises them,
+  > which is why `tests/legal-promises.test.mjs` now pins all four as the
+  > backing of those two rows.
+
+  **WHAT WAS BUILT.**
+  - `supabase/migrations/20261008010000_site_build_start.sql` —
+    `businesses.site_build_started_at`. **On `businesses` and not on
+    `platform_subscriptions`**, which was the first candidate because the
+    contractual neighbours (`setup_cents`, `consented_at`,
+    `exit_fee_charged_cents`) are there: refused because **there are zero
+    subscription rows**, so the first site Andrew builds by hand is for a
+    business that never went through checkout and a column on the subscription
+    could not record it. **And not on `site_intake`**, which looks like the
+    subject and carries an unrestricted owner UPDATE policy — *a record its
+    subject can edit is not a record*, 4.4 stage 2's own sentence.
+  - `buildStartedEmail` in `_shared/emailTemplates.ts`, with its Spanish keys
+    in `_shared/strings/es.ts`.
+  - `platform-admin` action `build_start`, and the button that presses it.
+  - The date on the detailer's own billing screen, and a `Build started` row in
+    the back office that reads **"not started"** until it is done.
+
+  **THE EMAIL GOES BEFORE THE COLUMN IS WRITTEN, AND A FAILED SEND CHANGES
+  NOTHING.** Every other send in this product is best-effort, because an email
+  failure must never fail a booking. This one inverts that: a stamp with no
+  notice is *precisely* the defect being removed, so the order is send, check,
+  then stamp. The other order can only fail as "told, not recorded", and
+  between the two that is the one to prefer — the admin log and Resend both
+  still have it. **A second press is refused** rather than re-stamping, with
+  the recorded date in the answer.
+
+  **THE FIRST DRAFT INVENTED A PROMISE, IN THE ITEM WHOSE WHOLE JOB IS TO STOP
+  THAT, AND IT IS RECORDED RATHER THAN QUIETLY FIXED.** The template printed
+  *"the one-off fee to build your site is no longer refundable"* with the
+  amount omitted whenever `setup_cents` was null — and null means **no
+  subscription at all**, i.e. nobody charged a build fee. It would have ended a
+  refund right that never existed. Caught by **reading the rendered text of
+  both branches side by side**, which is why `render-emails.mjs` draws both
+  (`platform-build-started`, `platform-build-started-nofee`, 32 → **34**). The
+  no-fee email now carries no refund sentence and no *"your subscription is
+  untouched"* line — a reassurance about a thing you do not have is its own
+  small lie.
+
+  **ONE MORE THING THE COLUMN FORCED, AND IT IS THE CANCEL BUTTON.** The first
+  cut added `site_build_started_at` to the selects that were already there. A
+  PostgREST select naming a column that does not exist **fails the whole
+  query** — and this migration is unapplied, because applying is Andrew's.
+  Widened in place, a deploy landing before the migration would have answered
+  the detailer's billing screen with no plan, no card, no invoices and **no
+  cancel button**, which is the statute `Billing.jsx`'s own header is built
+  around; in `platform-admin` it would have taken `note`, `suspend`, `restore`,
+  `export`, `tier`, `resend_invite` and `impersonate` down with it. All three
+  reads are now standalone: one absent row, never a dead screen, and
+  `build_start` reads the column itself and **refuses in words** naming the
+  unapplied migration rather than proceeding.
+
+  **LOOKED AT, NOT ASSUMED — and the refused case was pressed, not reasoned
+  about.** Shots are FILES under `.manager-shots/0.4-buildstart/`, per
+  `docs/gotchas.md` 99.
+  - **The email, 12 views**: both branches, light and dark, at 1440 / 392 /
+    320. **Console clean at every one, 0 errors and 0 warnings, and
+    `scrollWidth` equal to the viewport at all three widths.** The fee branch
+    carries the refund clause and the subscription line; the no-fee branch
+    carries neither — asserted in the run, not eyeballed.
+  - **The back office at 1440 and 392**, signed in as a real platform admin the
+    run made and dropped (`platform_admins` read before and after: unchanged,
+    `["demo@demo.com","demo@detailplatform.com"]` both times). The button
+    measures **171 x 44** at both widths — on the 44px floor, not under it —
+    the row reads **"Build started · not started"**, the confirm question reads
+    in full, and `scrollWidth` equals the viewport at both.
+  - **AND IT WAS PRESSED.** Against the LIVE `platform-admin` bundle the answer
+    is **"Unknown action", 400** — correct, because the server half is in this
+    checkout and **is not deployed**. That is ROADMAP 9.18 (d) working: a
+    screen ahead of its server half now fails by naming what it asked for.
+    The only console error in the run is that deliberate press.
+
+  **THE GATE, AND EVERY ASSERTION IN IT HAS BEEN SEEN TO FAIL.**
+  `tests/legal-promises.test.mjs` — **7 passed, 0 failed**, and
+  **`UNBACKED_IDS` is now `[]`**, kept as an EQUALITY (`docs/gotchas.md` 98) so
+  the next unkept promise reddens on arrival instead of fitting into a ceiling.
+  § 4 prints *"0 promise(s) with nothing behind them"* on every run.
+  **A sixth sabotage was added** because the five existing ones cannot reach the
+  new pairs: `LEGAL_BREAK=notice` hides `buildStartedEmail`, and § 3 reddens
+  **naming both build-start rows by id**. All six re-run after the change —
+  `rename`, `unbacked`, `host`, `debt`, `call`, `notice` — **6 passed / 1 failed
+  each**, each printing what it changed (`docs/gotchas.md` 102). `debt` is the
+  one that matters here: with the declared list empty it still goes red at
+  *1 unbacked now, 0 declared*. **An env var and not a flag** —
+  `docs/gotchas.md` 104.
+
+  ```
+  node --test tests/legal-promises.test.mjs                      # 7 passed, 0 failed
+  LEGAL_BREAK=notice node --test tests/legal-promises.test.mjs   # 6 passed, 1 failed
+  node scripts/render-emails.mjs                                 # 34 emails, exit 0
+  node scripts/receipt.mjs receipts/render-emails.json           # PASS 34/34, 171 assertions
+  node scripts/render-emails.mjs --lang=es --out=email-preview-es  # exit 0, 184 English sentences searched
+  ```
+
+  **NOT DONE, AND NAMED RATHER THAN LEFT OUT.** No lawyer, per the standing
+  ruling, which must never hold this box open. **The migration is NOT applied
+  and must not be** — `node scripts/migration-drift.mjs` names it in those
+  words: *`businesses  1 COLUMN(S) ABSENT — site_build_started_at`*, which is
+  also the proof the drift script can see it. (Two other columns were already
+  absent before this work: `business_users.lang` and `customers.is_test`.)
+  **`node scripts/deployed-inventory.mjs` WAS run**: `platform-admin` and
+  `platform-billing` both already read **DIFFERS, running copy 17.5 days old**
+  BEFORE this change, and now differ for one more reason. **Not deployed —
+  publishing is Andrew's.** `FOR-ANDREW.md` carries the order: the migration
+  first, then those two functions. **`contrast-insitu.mjs` was NOT run** — no
+  color, token or class was touched, and the one new control reuses `.pa-btn`
+  unchanged.
+
+  **The copy on `/terms` and `/pricing` was NOT touched**, so `EFFECTIVE` did
+  not move and neither page needed re-measuring: the promise was made true
+  rather than reworded, which is this item's own standing rule.
 
 - [ ] **0.6 — WHAT IS RUNNING IS NOT WHAT IS COMMITTED. The count is NOT
   typed here — `node scripts/deployed-inventory.mjs` is the number. Nobody knew. Found 2026-09-20, when it was 22 of 39.**

@@ -1545,6 +1545,45 @@ still knows them.
 - [x] **DECIDED 2026-10-09 · Keep the promise and build the notice when work
   starts on a website.**
 
+  **BUILT 2026-10-09, AND IT NEEDS TWO THINGS FROM YOU BEFORE IT WORKS —
+  IN THIS ORDER.** The notice, the dated record and the button all exist in
+  the code now. They do nothing until:
+
+  1. **Apply the one new database change** (`supabase/migrations/20261008010000_site_build_start.sql`).
+     It adds one date to each detailer: the day work started on their website.
+     Applying it is yours, as always. `node scripts/migration-drift.mjs` names
+     it as missing until you do, in exactly those words.
+  2. **Then publish `platform-admin` and `platform-billing`.** In that order —
+     the button is in your back office and the server half it presses is in
+     `platform-admin`. **Pressed before you publish, it answers "Unknown
+     action" and does nothing**, which is what it did when this was tested
+     today, on purpose, to see the failure.
+
+  **IF YOU DO IT THE OTHER WAY ROUND — publish first, apply second — nothing
+  breaks for a detailer.** That was built for deliberately: the billing screen
+  reads the new date on its own rather than alongside the plan and the card, so
+  a missing date costs one absent line and never the cancel button.
+
+  **WHAT YOU WILL SEE.** In the back office, open a detailer: a new line that
+  reads **Build started · not started**, and a button, **"Tell them work has
+  started"**. Press it on the day you actually sit down to build their site. It
+  asks once — *"Email them that work on their website started today? That is
+  the day their build fee stops being refundable, and it cannot be changed
+  afterwards"* — and then it emails them and writes the date down. **It refuses
+  a second press**, because that date is the refund deadline and a stray click
+  must not move it.
+
+  **WHAT THEY GET.** A plain email: work began today, the date, nothing for
+  them to do, and — only if they were actually charged a build fee — that the
+  fee stops being refundable from today and **nothing else about their
+  subscription changes**. The date then also sits on their own billing screen,
+  because an email gets deleted and this one ends a right.
+
+  **A detailer who was never charged a build fee is told work started and is
+  told nothing about refunds**, which is the honest version: there is no fee to
+  stop being refundable. The first draft said there was, for everybody, and
+  that was caught by reading both versions of the email side by side.
+
   **The sentence, on `/pricing` and in your terms, word for word:** *"It stops
   being refundable once work on your site begins, and you are told on the day
   that happens."*

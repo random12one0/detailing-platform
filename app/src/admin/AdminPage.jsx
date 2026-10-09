@@ -1264,6 +1264,16 @@ function Business({ row, detail, onClose, reload }) {
                      ? (book.mode === "request" ? "Takes requests, you answer" : "Taking bookings")
                      : book.reasons.join(", ")} />
               <Row k="Website" v={row.site_url ? (row.domain_verified ? "verified" : "not verified") : "none yet"} />
+              {/* ROADMAP 0.4 — THE DAY THEIR BUILD FEE STOPPED BEING
+                  REFUNDABLE. /terms and /pricing both promise they are told on
+                  it, so it is a fact about a contract rather than about a task
+                  list, and it is printed whether or not it has happened: "not
+                  started" is the answer to "have I told them yet", and a row
+                  that appears only once it is set cannot answer that. */}
+              <Row k="Build started"
+                   v={row.site_build_started_at
+                     ? dateLong(localDate(row.site_build_started_at, row.timezone))
+                     : "not started"} />
             </div>
           </div>
 
@@ -1272,6 +1282,27 @@ function Business({ row, detail, onClose, reload }) {
               <a className="pa-btn" href={row.site_url} target="_blank" rel="noreferrer">Their site</a>
             )}
             <a className="pa-btn" href={`/book/${row.slug}`} target="_blank" rel="noreferrer">Their booking page</a>
+            {/* ROADMAP 0.4 — THE NOTICE THE TERMS PROMISE, AND IT IS ONE PRESS.
+                It emails the detailer that work began today and writes the day
+                down; the server sends first and only stamps the column if the
+                send worked, so a failure here has changed nothing and the
+                button comes back.
+
+                IT ASKS IN PLACE, like Suspend beside it, because this is the
+                one button on this screen that ENDS SOMETHING for a detailer —
+                their right to a refund on the largest single charge in the
+                product — and because the server refuses a second press, so a
+                stray tap is not undone by pressing it again. The question
+                names the consequence rather than the action: "mark it
+                started" is a word about our task list, and what actually
+                happens is that their refund window closes. */}
+            {!row.site_build_started_at && (
+              <ConfirmTap className="pa-btn" confirmClassName="pa-btn pa-danger"
+                          disabled={busy === "build_start"} label="Tell them work has started"
+                          question={`Email ${row.name} that work on their website started today? That is the day their build fee stops being refundable, and it cannot be changed afterwards.`}
+                          confirmLabel="Yes, email them today's date" cancelLabel="Not yet"
+                          onConfirm={() => act({ action: "build_start" })} />
+            )}
             {row.owner_email && <a className="pa-btn" href={`mailto:${row.owner_email}`}>Email them</a>}
             {row.status === "paused"
               ? <button className="pa-btn" type="button" disabled={busy === "restore"}
@@ -1504,6 +1535,7 @@ const ADMIN_EVENT_WORDS = {
   promo_off: "Turned a promo code off",
   resend_invite: "Sent an owner invite",
   site: "Set their website address",
+  build_start: "Told them work has started",
   tier: "Changed their plan",
 };
 

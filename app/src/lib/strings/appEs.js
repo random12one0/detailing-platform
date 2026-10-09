@@ -2034,6 +2034,7 @@ export const appEs = {
   "Why, in a sentence": "Por qué, en una frase",
   "Why": "Por qué",
   "Will show as": "Se va a ver como",
+  "Work on your site started": "El trabajo en tu sitio empezó",
   "Write my own": "Escribir el mío",
   "Yelp review link": "Enlace de reseña de Yelp",
   "Yes, cancel it": "Sí, cancélala",

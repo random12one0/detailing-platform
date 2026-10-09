@@ -35,7 +35,10 @@ import { dateStrIn, localToDate } from "../_shared/tz.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
-import { inviteEmail } from "../_shared/emailTemplates.ts";
+import { buildStartedEmail, inviteEmail } from "../_shared/emailTemplates.ts";
+// ROADMAP 0.4 — the build-start notice is the platform speaking, not the
+// tenant, so it rides the house brand like the two billing emails do.
+import { PLATFORM_NAME, platformBrand } from "../_shared/platformBrand.ts";
 // ROADMAP 9.14 — a plain .js module so the one figure that must never be wrong
 // is runnable by node from tests/. See its header; brandColor.js is the
 // precedent for a .js file in _shared imported by a Deno function.
@@ -254,6 +257,21 @@ Deno.serve(async (req) => {
       const { data: domAll } = await supabase.from("business_domains")
         .select("business_id, domain, verified_at");
 
+      // ROADMAP 0.4 — WHO HAS BEEN TOLD THEIR BUILD STARTED, as its own read
+      // for the reason the per-business guard below states: the column arrives
+      // in a migration nobody has applied yet, and on the select above it
+      // would blank the ENTIRE back-office list rather than one row of it.
+      //
+      // **A FAILED READ HERE PRINTS "not started" AND THAT IS SAID OUT LOUD
+      // RATHER THAN LEFT TO BE DISCOVERED.** It is accepted only because the
+      // consequence is bounded: the worst it can do is offer the button for a
+      // detailer who has already been told, and `build_start` reads the column
+      // itself and refuses in words — so the mistake cannot reach anybody's
+      // inbox. `migration-drift.mjs` is what actually reports the migration.
+      const { data: startAll } = await supabase.from("businesses")
+        .select("id, site_build_started_at");
+      const startById = new Map((startAll ?? []).map((r) => [r.id, r.site_build_started_at ?? null]));
+
       // THE SEVEN-STEP SETUP PROGRESS, PER BUSINESS, AND IT IS HERE BECAUSE
       // THE LIST HAS A FILTER FOR IT. "Setup unfinished" is one of the four
       // filters the spec names, and a filter whose input the server never
@@ -426,6 +444,10 @@ Deno.serve(async (req) => {
             return (ds.find((d) => d.verified_at) ?? ds[0])?.domain ?? null;
           })(),
           domain_verified: (domAll ?? []).some((d) => d.business_id === b.id && d.verified_at),
+          // ROADMAP 0.4 — the day their build fee stopped being refundable.
+          // Null means they have not been told; see `startById` above for the
+          // one other thing a null can mean and why that is bounded.
+          site_build_started_at: startById.get(b.id) ?? null,
           // The INPUTS to `setupProgress`, never its answer — see above.
           // ROADMAP 9.1, and READ THIS BEFORE ADDING A COMMENT INSIDE THE
           // OBJECT BELOW. `scripts/setup-inputs-contract.mjs` reads these keys
@@ -874,14 +896,27 @@ Deno.serve(async (req) => {
     // left out of it answers "Unknown action", which is the honest failure;
     // the fault this replaces was a misleading one.
     const BUSINESS_ACTIONS = new Set([
-      "note", "suspend", "restore", "site", "export", "tier", "resend_invite", "impersonate",
+      "note", "suspend", "restore", "site", "build_start", "export", "tier", "resend_invite",
+      "impersonate",
     ]);
     if (!BUSINESS_ACTIONS.has(action)) return json({ error: "Unknown action" }, 400);
 
     const id = String(body.business_id || "");
     if (!id) return json({ error: "business_id is required" }, 400);
     const { data: biz } = await supabase
-      .from("businesses").select("id, name, slug, status, plan_tier, site_url").eq("id", id).maybeSingle();
+      .from("businesses")
+      // `contact_email` and `timezone` are here for `build_start` (ROADMAP
+      // 0.4), which addresses and dates its notice from them.
+      // **`site_build_started_at` IS DELIBERATELY NOT ON THIS SELECT.** It
+      // arrives in a migration nobody has applied yet — applying is Andrew's
+      // — and a PostgREST select naming a column that is not there fails the
+      // WHOLE query. This one guards every business-scoped action in the back
+      // office, so a deploy landing before the migration would answer `note`,
+      // `suspend`, `restore`, `export`, `tier`, `resend_invite` and
+      // `impersonate` with "No such business". `build_start` reads the column
+      // on its own and refuses in words if it cannot.
+      .select("id, name, slug, status, plan_tier, site_url, contact_email, timezone")
+      .eq("id", id).maybeSingle();
     if (!biz) return json({ error: "No such business" }, 404);
 
     if (action === "note") {
@@ -932,6 +967,98 @@ Deno.serve(async (req) => {
       if (error) throw error;
       await logIt(admin, "site", biz, { from: biz.site_url ?? null, to: full });
       return json({ success: true, site_url: full });
+    }
+
+    // ══ ROADMAP 0.4 — TELL THEM WORK HAS STARTED, AND WRITE DOWN THE DAY ══
+    //
+    // `/pricing` and `/terms` both say the build fee *"stops being refundable
+    // once work on your site begins, and you are told on the day that
+    // happens."* Nothing in the product marked a build as started and nothing
+    // told anybody, so that fee stopped being refundable on a day the detailer
+    // never heard about. Andrew ruled on 2026-10-09 to make the promise true.
+    //
+    // **THE EMAIL GOES BEFORE THE COLUMN IS WRITTEN, AND THAT ORDER IS THE
+    // WHOLE POINT.** Every other send in this product is best-effort, because
+    // an email failure must never fail a booking. This one is the opposite:
+    // the stamp is the refund deadline and the email is the notice the terms
+    // promise, so a stamp with no notice is precisely the defect this action
+    // exists to remove. A failed send therefore changes NOTHING and says so —
+    // he presses it again. The reverse order can only fail the other way,
+    // leaving a detailer told about a date we did not record, and between the
+    // two that is the one to prefer: he still has this log row and Resend's.
+    //
+    // **IT REFUSES A SECOND PRESS** rather than re-stamping. The date is a
+    // contractual boundary and a stray double-click must not move it; the
+    // answer names the date already recorded so the screen can print it.
+    if (action === "build_start") {
+      // READ ON ITS OWN, AND A FAILED READ REFUSES RATHER THAN PROCEEDS. "I
+      // could not find out whether this was already done" and "it has not been
+      // done" are opposite facts, and treating the first as the second would
+      // send a second notice and overwrite a recorded refund deadline. The
+      // likely cause is named in the answer, because it is the one somebody
+      // can act on: the migration has not been applied.
+      const { data: startRow, error: startErr } = await supabase
+        .from("businesses").select("site_build_started_at").eq("id", id).maybeSingle();
+      if (startErr) {
+        return json({
+          error: `Could not tell whether this has already been done, so nothing was sent and nothing was recorded: ${startErr.message}. If that says the column does not exist, the migration adding \`businesses.site_build_started_at\` has not been applied yet.`,
+        }, 500);
+      }
+      if (startRow?.site_build_started_at) {
+        return json({
+          error: "Work on this site is already recorded as started, and that date is what ends their refund right — it is not changed from here.",
+          site_build_started_at: startRow.site_build_started_at,
+        }, 409);
+      }
+      const to = String(biz.contact_email ?? "").trim();
+      // THE OWNER'S OWN ADDRESS, NOT `notification_emails`, for the reason
+      // `stripe-webhook`'s `tell()` gives: that list is where BOOKING alerts
+      // go and may well be a shared inbox or a member of staff. A fee becoming
+      // non-refundable is not their team's business.
+      if (!to.includes("@")) {
+        return json({ error: "This business has no contact email, so nobody can be told. Nothing was recorded." }, 400);
+      }
+
+      // THE FIGURE THEY AGREED TO, OR NOTHING. `setup_cents` is the snapshot
+      // taken at checkout and is the only number anybody was actually charged;
+      // there is no subscription row at all for a business set up by hand, and
+      // for that one the email states the clause without an amount rather than
+      // quoting a price out of the config file.
+      const { data: sub } = await supabase
+        .from("platform_subscriptions").select("setup_cents").eq("business_id", id).maybeSingle();
+      const setupCents = typeof sub?.setup_cents === "number" && sub.setup_cents > 0 ? sub.setup_cents : null;
+
+      // THE DAY IN THEIR ZONE, not ours. "Today" on a Pacific evening is
+      // tomorrow in UTC, and the date in this email is the one the refund
+      // boundary is stated as.
+      const dateStr = dateStrIn(String(biz.timezone || "America/Los_Angeles"));
+      const mail = buildStartedEmail(platformBrand(PLATFORM_URL), {
+        businessName: String(biz.name ?? "your business"),
+        dateStr,
+        setupCents,
+        billingUrl: `${PLATFORM_URL}/app?settings=billing`,
+      }, await recipientLang(to, id));
+      const sent = await sendTenantEmail({
+        businessId: id, to, subject: mail.subject, html: mail.html, text: mail.text,
+        senderName: PLATFORM_NAME,
+      });
+      if (!sent) {
+        return json({ error: "The notice did not go out, so nothing was recorded. Try again in a minute." }, 502);
+      }
+
+      const startedAt = new Date().toISOString();
+      const { error } = await supabase.from("businesses")
+        .update({ site_build_started_at: startedAt }).eq("id", id);
+      // SAID RATHER THAN SWALLOWED. The detailer has the email; what is
+      // missing is our copy of the date, and he is the only one who can see
+      // this sentence and fix it.
+      if (error) {
+        return json({
+          error: `They were emailed, but the date did not save: ${error.message}. The notice has gone out — tell somebody before pressing this again.`,
+        }, 500);
+      }
+      await logIt(admin, "build_start", biz, { started_at: startedAt, emailed: to, setup_cents: setupCents });
+      return json({ success: true, site_build_started_at: startedAt, emailed: to });
     }
 
     // ITEM H — EVERYTHING THEY OWN, AS ONE FILE.

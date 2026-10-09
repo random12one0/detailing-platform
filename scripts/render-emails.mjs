@@ -546,6 +546,28 @@ const EMAILS = [
     { kind: "suspended", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
     LANG,
   )],
+  // ROADMAP 0.4 — THE NOTICE THAT ENDS A REFUND RIGHT. `/pricing` and `/terms`
+  // both promise a detailer is told on the day work on their website starts,
+  // and until 2026-10-09 no template said it. It is rendered here for the
+  // reason the billing pair is: the sentence that matters most — *the
+  // subscription is untouched, this ends one refund on one one-off fee* — is
+  // exactly the kind of promise that reads as present in the code and turns out
+  // to be missing on the page.
+  //
+  // THE AMOUNT IS PRESENT HERE AND ABSENT IN THE ROW BELOW IT ON PURPOSE: the
+  // figure comes off the subscription snapshot and there is no subscription at
+  // all for a business set up by hand, which is every business today. Both
+  // branches are drawn so neither ships unlooked-at.
+  ["platform-build-started", "Detailer · work has started on their website", () => T.buildStartedEmail(
+    platformBrand(PLATFORM),
+    { businessName: "Ridgeline Auto Detail", dateStr: daysOut(0), setupCents: 60000, billingUrl: `${PLATFORM}/app?settings=billing` },
+    LANG,
+  )],
+  ["platform-build-started-nofee", "Detailer · work has started, no fee on file", () => T.buildStartedEmail(
+    platformBrand(PLATFORM),
+    { businessName: "Ridgeline Auto Detail", dateStr: daysOut(0), setupCents: null, billingUrl: `${PLATFORM}/app?settings=billing` },
+    LANG,
+  )],
   // ROADMAP 8.6 — THE THIRD EMAIL THE PLATFORM SENDS IN ITS OWN NAME, and the
   // first that goes to the OWNER rather than to a detailer. It is rendered
   // here for the same reason as the other twenty-five: this script is the only
@@ -640,7 +662,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // are constructed, so a naive source parse returns 54. Declaring it separately
 // is the point - delete a template from that list and the two numbers stop
 // agreeing.
-const EXPECTED_EMAILS = 32;
+const EXPECTED_EMAILS = 34;
 
 // **EVERY TEMPLATE THE PRODUCT EXPORTS HAS TO BE IN `EMAILS`, AND UNTIL
 // 2026-09-13 NOTHING SAID SO.** That list is hand-maintained. A seventeenth

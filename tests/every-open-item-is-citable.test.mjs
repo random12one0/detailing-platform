@@ -141,7 +141,12 @@ const OPEN_FLOOR = 40;
 // it describes is correct — but "the output was printed" and "the output was read"
 // are two different things, and this repo's oldest lesson is about exactly that
 // gap. Caught on the next command rather than by anybody else.
-const CROSS_FILE_OVERLAP = 14;
+// **14 → 13 ON 2026-10-09, AND IT SHRANK BY A CLOSURE RATHER THAN BY A
+// RENUMBERING**, which is the other of the two reasons the message above names.
+// `0.4` was ticked — the build-start notice, the last promise on a public page
+// with nothing behind it — so it left the OPEN set and took its collision with
+// `docs/roadmap.md` 0.4 with it. Nothing was renumbered and no citation moved.
+const CROSS_FILE_OVERLAP = 13;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 

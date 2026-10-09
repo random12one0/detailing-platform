@@ -1,28 +1,28 @@
 {
-  "git_sha": "e2dedf4dd5331284cca872aef4b695d3522ddb31",
-  "git_sha_started": "e2dedf4dd5331284cca872aef4b695d3522ddb31",
+  "git_sha": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
+  "git_sha_started": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-08T06:02:44.716Z",
+  "finished_at": "2026-10-09T04:40:09.565Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/AppData/Local/Temp/rt-en/index.html"
+    "email-preview-es/index.html"
   ],
   "dimensions": {
     "accent": "#38E08B",
     "rot_patterns": 4,
-    "out": "C:/Users/rando/AppData/Local/Temp/rt-en"
+    "out": "email-preview-es"
   },
   "check_id": "render-emails",
-  "started_at": "2026-10-08T06:02:44.561Z",
+  "started_at": "2026-10-09T04:40:09.345Z",
   "status": "pass",
-  "expected_targets": 32,
-  "discovered_targets": 32,
-  "attempted_targets": 32,
-  "completed_targets": 32,
+  "expected_targets": 34,
+  "discovered_targets": 34,
+  "attempted_targets": 34,
+  "completed_targets": 34,
   "skipped_targets": 0,
-  "assertions_executed": 161,
+  "assertions_executed": 171,
   "min_assertions": 100,
   "canary": {
     "id": "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",
