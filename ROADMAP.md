@@ -5786,6 +5786,91 @@ the wrong service, and never book a job we cannot reach.
   size can reproduce it** — a keyboard shrinks the VISUAL viewport and leaves the
   LAYOUT viewport alone, which is why `resize_window` cannot stand in.
 
+  ---
+
+  ### THE DONE-WHEN NAMED TWO STEPS AND THERE ARE FOUR — 2026-10-08. COUNTED, NOT READ.
+
+  **THE WALK THIS ITEM CLOSES ON WOULD HAVE ANSWERED HALF THE QUESTION, AND THE
+  SENTENCE THAT CAUSED IT IS ONE THIS ITEM WROTE ITSELF.** § 5 of
+  `docs/testing/phones-we-do-not-own.md` declared the address step and the
+  details step *"the two steps in the whole flow with a text box above the
+  fold"*, and the `Done when` above was scoped from that sentence. **Nobody had
+  ever counted the boxes.**
+
+  Counted 2026-10-08 at **392x844 on `demo-detail`**, one walk of all seven
+  steps, console clean, by enumerating every `input`/`textarea` that is not a
+  checkbox, radio, button or hidden field — the controls that actually raise a
+  keyboard. **Four of the seven steps carry one, and they hold eight boxes:**
+
+  | flow step | boxes that raise the keyboard | y at 392x844 | clears the 73px bar by |
+  |---|---|---|---|
+  | 3 **Vehicle** | "What are you bringing?" (combobox), "Year or estimate" | 455..503, 554..602 | 268px, 169px |
+  | 4 **Location** | "Where should we come?" | 491..539 | 232px |
+  | 6 **Details** | "Your name", the phone and email boxes, **"Anything we should know?"** (textarea) | 172..600 | 551px … 171px |
+  | 7 **Review** | **"Have a code?"** | 611..659 | **112px** |
+
+  **THE TWO OMITTED STEPS ARE THE TWO WITH THE MOST AT STAKE, WHICH IS WHY THIS
+  IS WORTH A BLOCK RATHER THAN AN EDIT.**
+  * **Step 3 is where this item's ONLY REPRODUCED FAULT WAS MEASURED.** The
+    2026-09-25 table above records the footer covering
+    *"21px of Light, Moderate, Heavy, Extreme"* and a real press
+    *"landing on the footer"*.
+    Those four chips are the dirtiness choice, and they sit on the **vehicle**
+    step — directly under its two text boxes. The step this item proved a fault
+    on was not in its own closing criterion.
+  * **Step 7 carries the tallest bar in the flow** — 112px against 73px
+    everywhere else once a plan name is attached (`receipts/bk-bar-clearance.json`,
+    2026-10-08, 392x844 long-plan sweep) — so it is where a bar that moves on
+    the keyboard covers the most. Its promo box clears the bar by **112px**, the
+    tightest gap of the eight, dropping to ~73px once the bar is 112px tall.
+    And the button beside it is **"Apply"**, which makes it the walk's own test
+    verbatim: *the box he is typing in AND the button he needs next*.
+  * Even inside the two steps it named, the walk undercounted: it said *"name,
+    phone and email"* and **missed the notes textarea**, the lowest and tallest
+    box on that step.
+
+  **AND THE QUESTION ITSELF WAS ONE-DIRECTIONAL. THE CODE PREDICTS THE OTHER
+  FAULT.** Measured in the source, 2026-10-08: **nothing in `app/src` references
+  `visualViewport`** (zero hits, so no code of ours moves the bar when the
+  keyboard opens); the viewport meta is `width=device-width, initial-scale=1.0,
+  viewport-fit=cover` with **no `interactive-widget`**, so the default
+  `resizes-visual` applies; and `.bk-bar` is **`position: sticky; bottom: 0`**
+  (`booking.css:1091`), anchored to the layout viewport — which a keyboard does
+  not shrink. **So on Chrome the predicted behaviour is not "the bar rides up
+  over the field" but its opposite: the bar sits BEHIND the keyboard and the
+  button he needs next is unreachable until he dismisses it.** iOS Safari is the
+  browser that does unpredictable things to a bottom bar with the keyboard up,
+  and Andrew's phone is an iPhone, so **this remains a phone question and is
+  still not measurable here.** What changed is that the walk now asks for
+  **either** answer; a run that only looked for the bar riding up could have
+  seen the bar vanish under the keyboard and called it a pass.
+
+  **AMENDED `Done when`:** one run on a real phone, keyboard raised, on **all
+  four** steps that have a text box — **3 (vehicle), 4 (address), 6 (name,
+  phone, email, notes) and 7 (promo)** — answering **both** directions: does the
+  pinned bar ride up and cover the field, **or** does it disappear behind the
+  keyboard and leave the next button unreachable? **Either answer written here
+  closes it; "neither happened, at all four" is a close.** The walk is § 5 steps
+  4, 5, 7 and 8 — **renumbered into flow order in the same edit**, because it
+  asked for name/phone/email *before* the date step and the flow is Services,
+  Extras, Vehicle, Location, When, Details, Review (`core.js`, `stepsFor`):
+  following it literally, he had to do step 8's work to reach step 7. **§ 5 is
+  still eighteen numbered steps and name/phone/email is still step 7**, so every
+  figure elsewhere that cites this walk is still true — checked, because
+  renumbering a walk has silently falsified a criterion in this repo before.
+  **Its URL was also wrong**: it said `/<the demo tenant>/book` and the route is
+  `/book/<slug>`.
+
+  **WHAT DID NOT CHANGE, SO NOBODY RE-OPENS IT.** The clearance half is still
+  green and was re-read, not assumed: `receipts/bk-bar-clearance.json`, run
+  2026-10-08T05:50, `bar-clear`, `reserve-tracks` and `nothing-at-rest` pass on
+  all three sweeps at all five widths; its three failures are all `legal` at 320
+  on step 5 and all three are on the declared expected list in
+  `scripts/lib/expectedFailures.mjs` — the calendar red that belongs to another
+  item, not a 2.15 regression. **Nothing in `app/src` was touched by this
+  block**, which is the same answer 2026-09-23 reached: what this item needed
+  was not a build.
+
 - [x] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for

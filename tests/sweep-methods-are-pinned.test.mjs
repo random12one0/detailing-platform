@@ -535,7 +535,44 @@ const DECLARED = {
   // count 19 and think the pin had drifted. Delta attributed by running this file
   // against `git show HEAD:ROADMAP.md` first (34/320, green) rather than by
   // accepting what the run returned.
-  quoteFragments: 341,
+  //
+  // 341 -> 350, 2026-10-08, in the same edit as ROADMAP 2.15's scope correction.
+  // **+9, and all nine are in 2.15's own `Done when` zone** — measured by running
+  // this file's own quote sweep over that one item at `git show HEAD:ROADMAP.md`
+  // (2) and this tree (11), not by accepting what the run returned. The amended
+  // criterion names four steps where the old one named two, and it quotes each
+  // box the phone walk now has to be tapped on, which is where eight of the nine
+  // come from:
+  //
+  //     "What are you bringing?"    the vehicle step's two boxes, neither of
+  //     "Year or estimate"          which the old criterion knew existed
+  //     "Where should we come?"     the address box (step 4, already covered)
+  //     "Your name"                 the details step, already covered
+  //     "Anything we should know?"  the notes textarea on that step, MISSED by
+  //                                 the old criterion's "name, phone and email"
+  //     "Have a code?"              the review step's promo box, the tightest
+  //                                 box-to-bar gap in the flow and not covered
+  //     "21px of Light, Moderate, Heavy, Extreme"   quoted from this item's own
+  //     "landing on the footer"                     2026-09-25 fault table, to
+  //                                 show the one reproduced fault sat on a step
+  //                                 the criterion did not name
+  //
+  // The ninth is the amended criterion's closing phrase, "neither happened, at
+  // all four". `quoteCriteria` does NOT move: 2.15's `Done when` was already in
+  // that population with 2 fragments, so this adds fragments to an existing
+  // criterion rather than a new one — which is the shape this pair should have
+  // and is the cross-check that the move is what it claims.
+  //
+  // **ONE OF THE NINE ONLY COUNTS BECAUSE THE PROSE WAS REFLOWED, AND THAT IS
+  // WORTH A LINE.** `FRAGMENT_RE`'s character class excludes the newline, so a
+  // quotation wrapped
+  // across two lines cannot match — and its closing quote then pairs with the
+  // NEXT fragment's opening quote, so the sweep recorded `* and a real press *`
+  // as a fragment while the real one beside it went uncounted. The count was 10
+  // with a nonsense entry in it and is 11 with none. The regex is not wrong; a
+  // quotation that spans a line break is simply invisible to it, and anybody
+  // adding one here should keep each quotation on one line.
+  quoteFragments: 350,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

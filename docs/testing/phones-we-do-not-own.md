@@ -157,26 +157,65 @@ and sends him the `Network:` URL Vite prints. **Phone and PC on the same Wi-Fi.*
 2. **Settings → Accessibility → Motion → Reduce Motion ON.** Leave it on for the
    whole walk; turn it off at the end.
 
-**The booking page, as a customer (8 min).** `/<the demo tenant>/book`
+**The booking page, as a customer (8 min).** `/book/<the demo tenant's slug>` —
+for the seeded demo that is `/book/demo-detail`. **The slug comes AFTER `/book`;
+this line had it the other way round until 2026-10-08.** The wrong way round
+does not error — measured 2026-10-08, `/demo-detail/book` returns HTTP **200**
+and renders the app's own *"That page does not exist."* screen, so a mistyped
+address looks like a broken product rather than a broken link.
+
+**THE KEYBOARD QUESTION IS ASKED FOUR TIMES, NOT TWICE, AND THE STEPS BELOW ARE
+IN THE ORDER THE FLOW ACTUALLY PUTS THEM.** Counted at 392x844 on `demo-detail`,
+2026-10-08: **four of the seven steps carry a box that raises the keyboard, and
+they hold eight boxes between them.** The order is Services, Extras, Vehicle,
+Location, When, Details, Review (`core.js`, `stepsFor`), so the vehicle boxes
+come BEFORE the address and the date comes BEFORE name-and-phone. **The previous
+version of this walk asked for name/phone/email before the date, which the flow
+does not allow, and declared the address and details steps "the two steps in the
+whole flow with a text box" — it was four.**
 
 3. Scroll the page down, then up. **Watch the bottom of the screen as Safari's
    address bar hides and comes back.** Anything cut off, jumping, or covered?
-4. Tap the **address** box. The keyboard comes up. **Can he still see what he is
-   typing, and the button he needs next?** Type three letters of a real address.
-5. With the keyboard still up, **scroll**. Does the page fight him?
-6. Dismiss the keyboard. **Is the layout where it was before?**
-7. **Now the same two questions on the step that asks for name, phone and
-   email.** Tap each box in turn. **With the keyboard up, can he see the box he
-   is typing in AND the button he needs next?** — added 2026-09-25 because
-   ROADMAP 2.15 needs exactly this and the walk did not ask for it. **These are
-   the two steps in the whole flow with a text box above the fold**, and 2.15's
-   open half is whether the pinned bar rides up on the keyboard and covers the
-   field.
-8. Pick a **date**, then a **time**. On the date step the total can change —
+4. **The vehicle step — the first text boxes in the flow.** Tap **"What are you
+   bringing?"** and type three letters. The keyboard comes up. **Can he still
+   see what he is typing, AND the button he needs next?** Then, with the
+   keyboard still up, **scroll** — does the page fight him? — and dismiss it:
+   **is the layout where it was before?** Tap **"Year or estimate"** and ask the
+   same thing. *Both boxes sit above the fold, and the four dirtiness chips
+   under them are the controls ROADMAP 2.15 measured the footer covering 21px
+   of, so this is the step where this item's only reproduced fault lived.*
+5. **The address step.** Tap **"Where should we come?"** and type three letters
+   of a real address. **Same two questions.**
+6. Pick a **date**, then a **time**. On the date step the total can change —
    **does it say why, on screen, without scrolling?**
+7. **The step that asks for name, phone and email — and the notes box under
+   them.** Tap each of the four in turn. **With the keyboard up, can he see the
+   box he is typing in AND the button he needs next?** — this step was added
+   2026-09-25 because ROADMAP 2.15 needs exactly it; the notes box
+   (*"Anything we should know?"*) was added 2026-10-08, having been missed.
+8. **The review step — the promo box, and the tightest gap in the flow.** Tap
+   **"Have a code?"**. **The button he needs next is "Apply", immediately beside
+   it.** Same two questions. *Ask this one even if the others were fine: this
+   step carries the tallest bar in the flow — 112px against 73px everywhere
+   else once a plan name is attached — so it is where a bar that moves on the
+   keyboard would cover the most.*
 9. Reach the **fixed bar at the bottom**. **One-handed, thumb only: can he press
    it without shifting his grip?**
 10. Complete the booking. On the confirmation, **press every link once.**
+
+> **WHAT "WRONG" LOOKS LIKE AT STEPS 4, 5, 7 AND 8 — BOTH DIRECTIONS, BECAUSE
+> THE CODE PREDICTS THE SECOND ONE.** 2.15 asks whether the bar **rides up and
+> covers the field**. Measured in the source 2026-10-08: nothing in `app/src`
+> references `visualViewport` (zero hits), the viewport meta sets no
+> `interactive-widget` so the default `resizes-visual` applies, and `.bk-bar` is
+> `position: sticky; bottom: 0` — anchored to the layout viewport, which the
+> keyboard does not shrink. **So on Chrome the predicted behaviour is the
+> opposite fault: the bar sits BEHIND the keyboard and the button he needs next
+> is unreachable without dismissing it first.** iOS Safari is the one that does
+> unpredictable things to a bottom bar with the keyboard up, which is exactly
+> why this is on a phone and not in a script. **Report whichever happens — "the
+> bar vanished under the keyboard" and "the bar jumped up over the box" are
+> different answers and both close 2.15.**
 
 **The dashboard, as the detailer (8 min).** `/app`, signed in as the demo owner —
 whoever starts the server sends him the address; the password is not written down
