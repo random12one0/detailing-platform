@@ -2339,11 +2339,21 @@ and how the wait ends.
   suite reachable by either), the screen is proved at five widths, and applying
   it today changes nothing he can see. The box stays open for the column.
 
-  Waits on: ~~0.3a~~ (done 2026-10-09, re-taken at `803f0cf`), 0.3b.
+  Waits on: ~~0.3a~~ (done 2026-10-09, re-taken at `803f0cf`), 0.3b,
+  ~~0.3c~~ (done 2026-10-09).
   How the wait ends: 0.3b is ticked, and 0.3b is NEEDS ANDREW — the migration.
-  **Everything a session can build or prove for this item is built and proved.**
   Split on 2026-10-09 because this entry is 169 lines
   long and no single session was finishing it.
+
+  **AND "EVERYTHING A SESSION CAN BUILD OR PROVE FOR THIS ITEM IS BUILT AND
+  PROVED" WAS NOT TRUE WHEN IT WAS WRITTEN — 2026-10-09, the third attempt.**
+  That sentence stood here and in 0.3b, and it was the reason to stop looking.
+  Two things were found by looking anyway, and they are **0.3c** below:
+  **the screen built to reveal a flagged fixture let you delete one in two
+  presses**, and **the copy Andrew ships from still promised a change that can
+  no longer happen**. The sentence is removed rather than softened. What is
+  true is narrower and is the only form worth writing: *the column is Andrew's
+  and nothing else is known to be outstanding.*
 
 - [x] **0.3a — Prove the client-fixtures UI path with a supplied fixture**
   Verify the existing Clients filter, test-row toggle, badge, counts, responsive layouts, console, receipt grading, and sabotage guards while preserving all fixtures. This deliberately excludes changing the live database schema or applying the pending migration.
@@ -2426,7 +2436,9 @@ and how the wait ends.
   NEEDS ANDREW: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`.
   Changing the live database's structure is his alone — no session may do it,
   not even a change it undoes immediately. **There is nothing left for a session
-  to build or prove here until it is applied**, and 0.3a proved the screen
+  to build or prove ON THIS SLICE until it is applied** — but that is a claim
+  about the COLUMN and it was read as a claim about the item, which is how 0.3c
+  below went unfound for three attempts. 0.3a proved the screen
   against the exact data shape this migration produces, so the re-validation
   this slice asks for is a re-run of one command and not new work.
   The one-command row is in `FOR-ANDREW.md` § *"Waiting on you"* and was
@@ -2441,6 +2453,94 @@ and how the wait ends.
   every unflagged row behaves as today, and the filter applied in exactly two
   browser-side places (`Clients.jsx:234` and `:415`) which no node suite can
   reach. **Nothing breaks while it waits.**
+
+- [x] **0.3c — A flagged fixture cannot be deleted from the screen that reveals
+  it.** Part 3 of 3 of item 0.3, found and closed 2026-10-09 on the third
+  attempt, after two attempts had recorded that nothing buildable was left.
+
+  **THE FAULT, AND IT IS THIS ITEM'S OWN TITLE.** 0.3 is *flag, DON'T delete*,
+  because about sixty checks in `tests/` sign into seeded rows and **a check
+  that cannot run prints something that looks very like a pass** — so deleting
+  one does not break anything loudly, it takes the net away quietly.
+  `Clients.jsx` already hid flagged rows and offered a chip to reveal them.
+  **The record that opens when you press a revealed row carried `Delete for
+  good`** (`Clients.jsx:323` -> `api.deleteCustomer` -> the `delete-customer`
+  edge function -> `forget_customer`), which **hard-deletes the customer row**
+  and cascades its plan memberships, maintenance deadlines and job photos
+  (`20260907001000_forget_customer.sql:109`). Two presses, from the one screen
+  built to show the flagged rows. Nothing refused it and nothing checked it.
+
+  **FIXED IN TWO PLACES, ON PURPOSE.** `forget()` refuses a flagged row before
+  it calls the server — the half that survives somebody rendering the button
+  again or a second call site arriving — and the fold renders the reason
+  instead of the button. The Spanish key moved in the same edit. **It is inert
+  in production today, exactly as inert as the `!c.is_test` filter beside it,
+  and switched on by the same one command (0.3b).** That is the correct
+  ordering and not a gap: a guard that reads a column cannot act before the
+  column exists, and both halves of this screen now activate together.
+
+  **PROVED, at `80b3bec`:** `set -a; . ./.env; set +a; node
+  scripts/fixture-not-deletable.mjs` — **PASS, 2/2 targets, 17 assertions, 0
+  failures, canary caught**, at 1440 and 392, **console clean at both**.
+  Receipt `receipts/fixture-not-deletable.json`, graded by
+  `scripts/receipt.mjs` **1 valid / 0 stale / 0 failed**. The gate asks both
+  halves: the flagged row is **REFUSED** (no danger button, the reason present
+  AND painted) and a real customer's record still **WORKS** (fold opens,
+  `Delete for good` still offered). **The second is what keeps the first
+  honest** — *"no delete button found"* is also what a wrong selector, an
+  unopened fold and a record that never opened all report.
+
+  **ALL FOUR SABOTAGES BITE, CERTIFIED ON THEIR FINDINGS LISTS AND NEVER ON
+  THE VERDICT WORD** (`docs/gotchas.md` 105): `--break=guard` **2 findings**,
+  both naming `Delete for good` back on a flagged row — the original defect
+  reproduced, not a proxy for it; `--break=paint` **2 findings**,
+  `painted=false` while the sentence is present and correct; `--break=row`
+  **0/2 targets**, the zero-fixture guard by name at both widths with *"None
+  was appended either, so this is the supply and not the screen"*;
+  `--break=canary` **canary MISSED**, caught by the grader's canary rule by
+  name. **The first canary run was caught for the WRONG reason** — `canary has
+  no id` (`receipt.mjs:308`) — which is `docs/gotchas.md` 105 exactly, so an
+  `id` was added and it was re-run until the rule that matters was the one
+  that fired.
+
+  **TWO FAULTS IN THE GATE'S FIRST RUN WERE THE GATE'S, NOT THE PRODUCT'S, and
+  both are written into the script rather than quietly fixed.** Its fabricated
+  row's id was copied from `client-fixtures.mjs`, whose id ends `f1x7` — `x` is
+  not hex; harmless there because that sweep never opens a record, and here it
+  made the screen ask the server for that customer's emails and PostgREST
+  answer **400 invalid input syntax for type uuid**, which the first run
+  reported as console noise at both widths. And the paint probe did not
+  `scrollIntoView`: the destructive fold is the LAST thing in the record, so at
+  392 it sat below the viewport and the clamped probe point measured a
+  different element — `painted=false` at 392 and `true` at 1440 over a sentence
+  that renders identically at both. **`client-fixtures.mjs` carries that same
+  lesson in its own words; this is the second time it has been learnt on this
+  screen.**
+
+  **AND ONE COPY FAULT THE SCREENSHOT FOUND, not the assertions.** The fold
+  still explained what deleting WOULD do above a sentence saying it cannot be
+  done, the second paragraph reading *"The 0 jobs stay as anonymous entries"* —
+  `docs/screen-rules.md`'s exhaustion test failing in its own words. A flagged
+  row now gets the reason and nothing else.
+
+  **WHY THE DEMO TENANT KEEPS LOSING ITS FIXTURES, measured rather than
+  guessed, and it ends three attempts of rediscovery.** `scripts/seed-demo.mjs`
+  is *"idempotent: deletes and recreates the demo business"* — `:92` deletes it
+  by slug and `customers.business_id` is `on delete cascade`
+  (`20260827000200_tenant_data.sql:204`), so **every seed takes every customer
+  row on `demo-detail` with it**, droppings included. That is where the three
+  rows this item was written about went between 2026-09-24 and 2026-10-09.
+  **It is a program, not bad luck, and it will happen again**, so the supplied
+  fixture row in both gates is permanent until the migration lands rather than
+  a workaround awaiting better data.
+
+  **What this slice does NOT prove:** that the refusal ever fires in
+  production. It cannot until `customers.is_test` exists (0.3b). What is proved
+  is the screen, against the exact data shape that migration produces.
+
+  **Look at it** — local only, deliberately uncommitted:
+  `.manager-shots/0.3c-refusal/` (1440 and 392, the refused record and the real
+  customer's record that still offers the button, plus the canary).
 
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   **SUPERVISION REOPENED 2026-10-09.** The closing run proved the checkout and

@@ -1004,6 +1004,14 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 {forgetError && <div className="error-box">{forgetError}</div>}
                 <details className="disclose">
                   <summary>{t("Deleting their information")}</summary>
+                  {/* A TEST ROW GETS THE REASON AND NOTHING ELSE. The two
+                      paragraphs below describe what deleting WOULD do, and on
+                      a row that cannot be deleted they are two sentences
+                      answering a question nobody can ask — the second of them
+                      reading "The 0 jobs stay as anonymous entries", which is
+                      the exhaustion test failing in `docs/screen-rules.md`'s
+                      own words. */}
+                  {!open.is_test && (<>
                   <p className="quiet" style={{ margin: "0 0 10px" }}>
                     {t("Their name, number, address and any notes come off every job, and their photos are deleted. This cannot be undone.")}
                   </p>
@@ -1012,6 +1020,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                       "The {count} job stays as an anonymous entry, so your takings and your accountant export do not change.",
                       "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.")}
                   </p>
+                  </>)}
                   {/* ROADMAP 0.3 — THE RULING MEETS AN ACTUAL DELETE
                       BUTTON. The chip at the top of this screen reveals the
                       flagged fixture rows on purpose; two presses later this

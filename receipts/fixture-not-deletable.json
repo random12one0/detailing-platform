@@ -1,9 +1,9 @@
 {
-  "git_sha": "c6471ff4528b6e7b183133760d3d95e7fbd75ea5",
-  "git_sha_started": "c6471ff4528b6e7b183133760d3d95e7fbd75ea5",
+  "git_sha": "80b3becbc145fa6a1ef2f8d0899bb847ca39c65a",
+  "git_sha_started": "80b3becbc145fa6a1ef2f8d0899bb847ca39c65a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T22:24:01.489Z",
+  "finished_at": "2026-10-09T22:26:01.361Z",
   "failures": [],
   "warnings": [
     "column_live=false: `customers.is_test` is NOT in the database yet, so this refusal is INERT in production today — as inert as the `!c.is_test` filter beside it, and switched on by the same one command (ROADMAP 0.3b, Andrew's). The SCREEN is proved; the COLUMN is not.",
@@ -31,7 +31,7 @@
     "sabotage": null
   },
   "check_id": "fixture-not-deletable",
-  "started_at": "2026-10-09T22:23:46.909Z",
+  "started_at": "2026-10-09T22:25:47.564Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
