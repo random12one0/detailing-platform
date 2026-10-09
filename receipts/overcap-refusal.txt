@@ -1,0 +1,10 @@
+ROADMAP 0.11d1 — the over-cap refusal, judged
+budget: 9.0 MB used of 10.2 MB
+
+NOW   Photo storage is full: 9.0 MB of 10.2 MB used. Remove some photos to add more.
+WAS   Photo storage is full. Remove some photos to add more.
+      judged: {"names_used":false,"names_limit":false,"names_relief":true}
+WAS   Expense saved, but photo storage is full so the receipt was not attached.
+      judged: {"names_used":false,"names_limit":false,"names_relief":false}
+WAS   Photo storage is full: 0.0 MB of 0.0 MB used. Remove some photos to add more.
+      judged: {"names_used":false,"names_limit":false,"names_relief":true}

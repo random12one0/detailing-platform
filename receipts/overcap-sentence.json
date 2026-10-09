@@ -1,0 +1,52 @@
+{
+  "git_sha": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
+  "git_sha_started": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T18:10:46.481Z",
+  "failures": [],
+  "warnings": [
+    "The expense path's copy of this sentence is not on this screen; tests/overcap-refusal.test.mjs § 3 covers its wiring.",
+    "photo-door is not deployed, so its own 503 noise is filtered from the console check and nothing else is."
+  ],
+  "artifacts": [
+    ".manager-shots/overcap-1440.png",
+    ".manager-shots/overcap-392.png",
+    ".manager-shots/overcap-320.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11d1",
+    "criterion": "an over-cap upload is refused with used space, limit and deletion guidance in the message",
+    "expected_sentence": "Photo storage is full: 9.0 MB of 10.2 MB used. Remove some photos to add more.",
+    "budget": {
+      "used": "9.0 MB",
+      "cap": "10.2 MB"
+    },
+    "widths": [
+      "1440",
+      "392",
+      "320"
+    ],
+    "job": "6bf5bde4-fe02-417d-9d81-8c3ee2fa3802",
+    "sabotage": null,
+    "intercepted": "job_photo_budget only — the cap cannot be filled today because photo-door is not deployed",
+    "unjudgeable": []
+  },
+  "check_id": "overcap-sentence",
+  "started_at": "2026-10-09T18:10:31.087Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 31,
+  "min_assertions": 20,
+  "assertion_floor": "10 per width (input, present, used, limit, relief, exact, in-viewport, uncovered, painted, unclipped) x 3 widths + 1 console = 31 when every width renders. A width whose screen never renders books its first two as failures rather than dropping out, so the count cannot silently fall below 20.",
+  "canary": {
+    "id": "the-pre-fix-sentence",
+    "observed_failure": true,
+    "what": "'Photo storage is full. Remove some photos to add more.' — what the screen said before 0.11d1",
+    "rule": "names_used + names_limit"
+  }
+}

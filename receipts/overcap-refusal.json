@@ -1,0 +1,53 @@
+{
+  "git_sha": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
+  "git_sha_started": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-09T18:11:58.544Z",
+  "failures": [],
+  "warnings": [
+    "The server's own fullSentence is unreachable on these two paths by design; it has its own checks."
+  ],
+  "artifacts": [
+    "receipts/overcap-refusal.txt"
+  ],
+  "dimensions": {
+    "roadmap": "0.11d1",
+    "criterion": "an over-cap upload is refused with used space, limit and deletion guidance in the message",
+    "sentence": "Photo storage is full: 9.0 MB of 10.2 MB used. Remove some photos to add more.",
+    "budget_mb": {
+      "used": "9.0 MB",
+      "cap": "10.2 MB"
+    },
+    "refusers": [
+      "app/src/components/JobPhotos.jsx",
+      "app/src/lib/receipts.js"
+    ],
+    "canaries": [
+      "the-old-job-sentence",
+      "the-old-expense-sentence",
+      "invented-zeros"
+    ],
+    "sabotage": null,
+    "unjudgeable": [
+      "whether the sentence is readable where it lands — that is the browser's half"
+    ]
+  },
+  "check_id": "overcap-refusal",
+  "started_at": "2026-10-09T18:11:58.450Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "7 in §1 + 1 in §2 + (2 sites x 2 questions) + 2 chain in §3 + 4 in §4 + 3 in §5 = 21. Every check() runs unconditionally - no early return, no conditional section, and the only multiplier is SITES.length, which expected_targets declares as 2 and §2 asserts as an equality. So the count is fixed by the question list and cannot fall without a diff somebody has to justify: a tripwire on the code, not a run-time check.",
+  "canary": {
+    "id": "the-old-job-sentence",
+    "observed_failure": true,
+    "what": "the pre-fix job-record sentence, which names neither the space used nor the limit",
+    "rule": "names_used + names_limit"
+  }
+}
