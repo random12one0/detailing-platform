@@ -193,6 +193,10 @@ correctly waiting.** None of the five is forgotten; each says what it waits on
 and how the wait ends.
 
 - [ ] **0.11 — Move photo storage to Cloudflare R2.** Buckets already exist and
+  **BELT PARKED after 3 attempts, 2026-10-09 17:19:27.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T17-19-22-341Z-0.11.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   already match the code names. **The allowance goes from 1 GB to 10 GB IN THE
   SAME CHANGE as the upload switch, never a commit earlier**, so the screen
   never promises storage that does not exist. **And the move loses the
@@ -830,6 +834,82 @@ and how the wait ends.
   - Public media URLs are derived from the configured public R2 address and remain usable by unauthenticated visitors.
   - All business-media keys are minted and authorized for the caller's business.
   - Tests prove there is no remaining Supabase Storage upload fallback for these media flows.
+
+  ***THE TWO HALVES WERE RUN AGAINST EACH OTHER FOR THE FIRST TIME, 2026-10-09, AND IT FOUND ONE. Commit `d7b2356`.
+  Credential-free, no network, no database, no R2, no browser. Nothing deployed, nothing applied, no flag flipped. The box stays `[ ]`.***
+
+  **WHAT WAS NOT COVERED, AND IT IS NOT WHAT 0.11a's GAP WAS.** `tests/photo-door-media.test.mjs` § 14, 15 and 16 already RUN the real
+  `app/src/lib/upload.js`, so *"the app is only read, never run"* was false here — that is why this is a narrow addition rather than a
+  rewrite. The gap was one level in: **the door those sections run against is written by hand in the test.** `globalThis.__door` returns a
+  literal object the test composes, so every claim that the app's request body is a body the real door PARSES, and that the real door's
+  answer is one the app ACCEPTS, was still two files read side by side. That is the seam both of 0.11's recorded faults lived in, and a
+  person found both.
+
+  **`tests/photo-door-media-wire.test.mjs` — 11 tests, `node --test tests/photo-door-media-wire.test.mjs` → 11 pass, 0 fail, 0.56s.**
+  `api.photoDoor` is stubbed to serialise the app's body into a `Request`, call the REAL `handlePhotoDoor` against an in-memory world,
+  and rebuild **exactly what `book/core.js`'s `postFunction` throws** — `new Error(data.error)` carrying `.status` and `.body`.
+  `upload.js` is copied beside four stub siblings **with its own text untouched**; the stubs are only the transport and the old path's
+  Supabase client, while `photo-rules.js` and `photo-door.js` are the real modules re-exported with the flag overridden. **And the public
+  address is the real derivation too** — `mediaUrl` is `r2.ts`'s own `mediaBase` + `publicUrl`, wired exactly as
+  `photo-door/index.ts` wires it, because criterion 2 is about that derivation and a hand-built url cannot test it.
+  What it asks, against the four criteria: **all three folders** — `gallery`, `branding` and `intake` — complete through the real door
+  with **zero** Supabase Storage calls, the count declared from `MEDIA_FOLDERS` so a fourth folder reddens rather than slips through
+  (`intake`, the one `SiteIntake.jsx` calls, had never been pressed by anything); the key the door mints equals what the app's own
+  `mediaPath` mints for the same inputs, both called, neither restated; the stored url is `publicUrl(base, key)` for the key that was
+  really PUT; an unconfigured public address is a 503 **in the server's own words** with nothing uploaded, which is the live state today;
+  the 10 MB ceiling refuses in words and the claimed length is **signed into the URL**, which is this store's only server-side ceiling
+  because it has no `finish`; a client that under-claims produces a signature mismatch; the five types the bucket takes all complete and a
+  sixth is refused **before a door call is spent**; another business is 401; a tampered key is refused **before the PUT**; `remove` takes
+  the caller's own object and 404s another business's **with that object still there afterwards**; `settings` is required on **both**
+  actions; and with the flag OFF the old bucket path is byte-for-byte what it was, with a down door failing in words and **never** reopening
+  the bucket.
+
+  **THE FAULT IT FOUND, AND IT IS THE FIELD THAT GETS STORED.** `readMediaStart` checked `public_url` for `https` and nothing else. The
+  line above it makes the browser PUT only to the object it asked for; **nothing made the url it writes afterwards NAME that object.** A door
+  answer carrying the correct `key` beside **another business's `public_url`** was accepted, and that url is written permanently into
+  `gallery_images.image_url` and a brand's `logo_url` — so a wrong `key` is a failed upload, while a wrong `public_url` is the wrong
+  image stored for good. The fix is one condition in the shared reader, `!resp.public_url.endsWith(\`/${out.key}\`)`.
+  **And the half that is NOT checkable in the browser is written down rather than left as a gap:** a url for the right object on a different
+  HOST is still accepted, because `R2_MEDIA_BASE` is server-side configuration the page has never seen and cannot be given. That half is
+  checked against the real derivation in § 2 instead, and § 6 carries an assertion that reddens if somebody later adds a host check and
+  leaves this note stale.
+
+  **SIX SABOTAGES, EACH ON THE REAL TEXT, EACH ASSERTED TO HAVE LANDED BEFORE THE COLOUR IS BELIEVED** (`docs/gotchas.md` 102): the key
+  check, the public-url binding, the image-type gate, the failed-PUT check, `remove` falling through to the bucket, and the removal
+  confirmation. All six caught. **And the first version of that section was itself a lie worth recording:** it asserted only that the
+  sabotaged probe REJECTED, and **five of six passed that way while testing nothing** — removing the image-type gate still ends in a
+  rejection, the door's own *"A business image must be …"* instead of the app's sentence, so a reject-against-reject comparison sees no
+  difference. Each sabotage now declares **what becomes observable** — the PUT that goes into business B, the url that gets stored, the door
+  call that is spent — which is `docs/gotchas.md` 95's general case met from a new direction.
+
+  **THE OTHER SUITES ARE UNMOVED.** `node --test tests/photo-door.test.mjs tests/photo-door-media.test.mjs
+  tests/photo-door-receipt-wire.test.mjs tests/photo-door-server.test.mjs tests/photo-door-receipts.test.mjs
+  tests/photo-key-isolation.test.mjs tests/photo-call-sites.test.mjs tests/job-photos.test.mjs tests/spanish.test.mjs` → **75 pass, 0
+  fail**, and the isolation suite's own line reads 83 passed, 0 failed. The canaries aimed at the function that changed were re-run in the same
+  edit (`CLAUDE.md` hard rule, `docs/gotchas.md` 95), and what they do and do not reach is worth stating exactly:
+  `tests/photo-door.test.mjs` § 5 sabotages `checkedStart`'s `resp.key !== want` and the `https` test on **`upload_url`** — not on
+  `public_url` — and both targets are still unique and still caught, which the suite proves by its own uniqueness assertion rather than by
+  being read. **No canary anywhere was aimed at `public_url`**, which is part of why the fault survived; the new suite's
+  *the public-url binding* sabotage is the first one, and it is aimed at `photo-door.js`'s own text rather than at a copy. The four credential-free gates → 4 pass; `no-credentials-in-tracked-text` and
+  `every-open-item-is-citable` → 7 pass, 0 fail. `npm run build --prefix app` → built in 5.22s, which is the only thing here that proves
+  the edited module still bundles into the screens that import it.
+
+  **NOT PROVEN, SAID PLAINLY.** That R2 accepts these signatures; that Cloudflare serves the PUT; that a public address exists at all —
+  **nobody has bound one**, so criterion 2's *"remain usable by unauthenticated visitors"* has no subject yet; that the TypeScript compiles
+  (node only strips types). **And no browser evidence for the branch that changed**, which is not a skipped check but an unreachable one:
+  `readMediaStart` is only called when `MEDIA_VIA_DOOR` is `true`, the flag is `false`, and `photo-door` has never been deployed, so
+  there is no 1440 or 392 press to make. The OFF path is byte-for-byte unchanged and was pressed on 2026-10-08; what replaces a press for the
+  ON path is the paragraph above — the real reader run against the real handler, with the guard removed and seen to let business B's url
+  through.
+
+  NEEDS ANDREW: bind a public web address for `business-media` in Cloudflare and give us the value for `R2_MEDIA_BASE`, publish
+  `photo-door`, add the CORS rule to `business-media`, and then flip `MEDIA_VIA_DOOR` to `true` in `app/src/lib/photo-door.js`. No
+  media code remains to write: criteria 3 and 4 are built and proved in memory, criterion 1's *"write only to business-media in R2"* and
+  criterion 2's *"usable by unauthenticated visitors"* are only true in the live product once the address exists and the flag is on, and the
+  address is a decision rather than a publish because `gallery_images.image_url` stores an ABSOLUTE url and whatever host is live on the
+  day of the switch is written permanently into every row made after it. **`FOR-ANDREW.md` already carries all four** — step 9a2 is the
+  address, 9c is the publish, and the `MEDIA_VIA_DOOR` bullet after step 9 names the flag and the CORS rule — so no row was added rather
+  than a duplicate written.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
