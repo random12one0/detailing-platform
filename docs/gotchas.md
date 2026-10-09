@@ -4655,3 +4655,51 @@ EXACTLY LIKE A PASSING ONE”, with the skip inside the tool rather than inside 
 only reason it was caught is that § 95's rule was followed: a copy was broken on purpose before the
 result was believed. **It had been quoted as evidence in ROADMAP 9.18 (d) the previous night**, and
 that entry is corrected rather than edited quietly.
+
+## 102. A SABOTAGE THAT SILENTLY FAILED TO APPLY IS INDISTINGUISHABLE FROM A SABOTAGE THE CHECK CAUGHT, AND THE REPORT READS GREEN EITHER WAY
+
+**Measured 2026-10-08, by the supervisor, on itself, twice in four minutes.**
+
+§ 95's rule is to break a thing on purpose before trusting it. The rule says nothing about
+proving the break landed, and that is the hole.
+
+Verifying ROADMAP 0.11 slice 4, the end anchor was removed from `MEDIA_KEY` in
+`supabase/functions/_shared/photoKey.ts` with a scripted string replacement, and the suites were
+re-run:
+
+```
+ℹ pass 18
+ℹ fail 0
+```
+
+Read in the obvious direction that is *"the guard survives a missing anchor"* — a serious finding
+about a security guard. **It was nothing of the kind. The replacement never matched**: the target
+string was written with the wrong level of backslash escaping for a heredoc, the script raised its
+own `AssertionError`, the file was never touched, and the 18 passes were an unmodified repo passing
+normally. **The sabotage and the clean run produce the same numbers**, because a sabotage that did
+not happen is just a clean run.
+
+The same thing happened again in the same sitting on a different file: a floor of **44** was set on
+`belt.mjs --self-check` while **46** assertions existed, an assertion was then disabled on purpose,
+and the run printed `self-check passed — 45 assertions`. The sabotage landed perfectly and the
+guard let it through, because the declared floor had two assertions of slack in it — § 98, arriving
+by a different road.
+
+**THE RULE: a sabotage is not evidence until the file is proved to have changed.** One command,
+between the break and the re-run:
+
+```bash
+git diff --numstat <the file you sabotaged>     # 1 1 <path>  — it landed
+                                                # (no output) — it did NOT, and your green is a lie
+```
+
+Then restore from a copy taken before the edit and prove *that* with the same command, so the
+sabotage cannot be left in the tree. **Assert the target count inside the script too** (`assert
+s.count(target) == 1`) — that is what caught the first one, and it only caught it because the
+assertion was there; without it the script would have written the file unchanged and said nothing.
+
+**Why this is its own entry rather than a line under § 95.** Every other failure in this document is
+a measurement of the product lying. This one is **the instrument that verifies instruments** lying,
+in the direction that always feels like success: the number you were hoping for. A session following
+§ 95 to the letter, with no idea its edit silently no-op'd, records *"broken on purpose, caught"* or
+*"broken on purpose, survived"* from the identical output — and both write-ups are fiction.

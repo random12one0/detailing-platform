@@ -2801,3 +2801,70 @@ that injected defect, the canary goes green, the run reports FAIL and
 | **it really covers, not just overlaps** | `elementFromPoint` at the bar's centre returns the bar in all 16 | 2026-09-18 | `.jobbar`'s `z-index`, any new stacking context |
 | **the sheet and the desk's record were not harmed** | 8 of the 16 targets are those two, all green | 2026-09-18 | `.sheet-body`, `.record-body` |
 | **the console is clean at every size** | 2 distinct messages, both React Router v7 future-flag deprecations from the library | 2026-09-18 | `react-router-dom` |
+
+## 2026-10-08 — supervision pass: ROADMAP 0.11 slice 4 reproduced, four belt faults fixed
+
+**At HEAD `1a13886`.** The supervisor was called in after 97 minutes. **Nothing was ticked by
+either belt run in that window** (`tallyDelta` 0/0 on both), so **nothing was unticked**: the list
+is **48 open, 121 done**, counted with `grep -c '^- \[ \]' ROADMAP.md` and `grep -c '^- \[x\]'`,
+which matched what the belt reported.
+
+### ROADMAP 0.11 slice 4 — reproduced, and the box is correctly still open
+
+Slice 4 landed as the code in `662cd34` plus the write-up in `1a13886`. What was checked, by
+running it rather than reading it:
+
+* **The four credential-free suites: 4 pass, 0 fail**, 938ms.
+  `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs`
+* **The six suites slice 4 touches: 53 pass, 0 fail**, 914ms.
+  `node --test tests/photo-key-isolation.test.mjs tests/photo-call-sites.test.mjs tests/photo-door-media.test.mjs tests/photo-door-server.test.mjs tests/job-photos.test.mjs tests/sweep-methods-are-pinned.test.mjs`
+* **THE WIDENING OF THE TENANT GUARD WAS SABOTAGED INDEPENDENTLY, NOT TAKEN ON TRUST.** Slice 4
+  deliberately widens `supabase/functions/_shared/photoKey.ts` to admit a second key shape for the
+  public `business-media` bucket — and `CLAUDE.md` says that file may only be widened on purpose,
+  never loosened to make a run go green. The **end anchor was removed from `MEDIA_KEY`**, which is
+  the classic traversal hole, and
+  `node --test tests/photo-door-media.test.mjs tests/photo-key-isolation.test.mjs` went from
+  **18 pass / 0 fail** to **17 pass / 1 fail**. Restored and confirmed byte-clean with
+  `git diff --numstat` both ways. **The design holds up on reading too:** one anchored pattern per
+  store, a closed literal folder list, a closed extension list taken from the bucket's own
+  `allowed_mime_types` in `20260827001000_phase2_cleanup_and_storage.sql`, and `"private"` as the
+  default so every existing caller is byte-for-byte unchanged.
+* **NOT proven, and the slice says so itself:** no browser, no R2 call, no deploy, nothing applied
+  to the live database. **That is why the box is right to stay `[ ]`** and the supervisor left it
+  alone. Slices 4's app half, 5's app half and the publish remain.
+
+**The one thing that nearly went into this file as a false proof** is written up as
+`docs/gotchas.md` **102**: the first attempt at that sabotage silently never applied, and printed
+`18 pass / 0 fail` — identical to a clean run, and readable as *"the guard survives a missing
+anchor"*. It was only caught because the script asserted its own target count.
+
+### The belt itself — four faults, each measured, each fixed
+
+Full reasoning and what would reverse each: `DECISIONS.md` § *"The belt commits nothing it did not
+write, and only one belt runs at a time"*.
+
+1. **Two belt instances shared this working tree.** `belt.pid` was written and never read.
+   `BELT START 23:49:30` dispatched 0.13 while the `23:11:28` instance's worker was 38 minutes into
+   a 43-minute 0.11 job. **Fixed:** a real lock. **Proved against the genuinely running belt** —
+   `node belt.mjs --dry-run` now prints *"belt is already running as pid 37984"* and dispatches
+   nothing, while `--status` is untouched and still answers.
+2. **The checkpoint committed another worker's live work.** `git add -A` + a bare `git commit`
+   produced `662cd34`, twenty files of 0.11 slice 4 under a message naming 0.13. **Fixed:** the
+   commit is gone; the already-dirty paths are recorded by name in the run record instead
+   (`dirtyPathsBefore`, `notThisItem`).
+3. **The Codex triage role cannot read this repo at all.** Its sandbox rejects the shell on this
+   machine — `CreateProcess ... rejected: blocked by policy`, `log.md` line 10 — so it escalated
+   **3 of 3** times at ~25k tokens each, which inverts the cadence it exists to protect.
+   **Fixed:** switched to the `claude`/`sonnet` spare already in the config.
+4. **`blockedBy` did not recognise 0.13's prose.** **Fixed:** `"Queued behind"` added — it occurs
+   exactly once in `ROADMAP.md`, so `--status` moved from *35 eligible (27 ready)* to
+   *34 eligible (26 ready)*, measured before and after. 0.13 also gained the standard
+   `NEEDS ANDREW:` phrase.
+
+**`node belt.mjs --self-check`: 46 assertions, 0 fail**, up from 40 — four new ones for the lock,
+plus the pass line's count **derived instead of hardcoded**. It printed the literal `40 assertions`
+with 44 running, which is this repo's own stale-derived-tally gotcha living inside the checker.
+**Both new guards were broken on purpose and both bit:** reading `EPERM` as *dead* (the exact bug
+that lets a second belt start) fails its assertion by name, and disabling one assertion fails the
+floor with *"only 45 assertions ran, floor is 46"*. **The floor was wrong first** — set at 44 with
+46 present, it passed a real sabotage at 45 before being corrected to equal the true count.

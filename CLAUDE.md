@@ -171,7 +171,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND ONE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND TWO specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -680,3 +680,8 @@ zero**, and a preview is a real URL Andrew can open on his phone.
 
 The example tenant sites are a localhost thing: `build-examples.mjs --dev`,
 then `localhost:5173/ex1` … `/ex5`.
+**101 → 102 on 2026-10-08, same edit** — a sabotage whose scripted edit silently never matched;
+the file was untouched and the run's `pass 18 / fail 0` was an ordinary clean run, which is the
+same output a caught sabotage produces. **Prove the break landed with `git diff --numstat` before
+believing either colour.** Found by the supervisor, on itself, while verifying 0.11 slice 4.
+Seventeen sittings unbroken; `grep -c "^## " docs/gotchas.md` run before writing this.

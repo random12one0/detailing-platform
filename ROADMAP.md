@@ -772,6 +772,14 @@ and how the wait ends.
   which is the shape every email fault in this repo has had.
   **Queued behind two things, both named:** 0.14 (there is no number yet) and
   Andrew settling what the messages say (`TEXTING.md`). **Not stalled — queued.**
+  **NEEDS ANDREW: the message wording (`TEXTING.md`), and 0.14 before there is a
+  number to send from.** Added by the supervisor 2026-10-08, because the prose
+  above was not enough: the belt's planner picked this item at `23:49:52` saying
+  *"0.13 is fully specified and finishable today"* while its own skip list on the
+  same line showed `0.14(DEFERRED ON PURPOSE)`, and dispatched a worker that could
+  not possibly finish. **An item that is queued says so in the phrase every tool
+  here already looks for, not only in a sentence a reader has to interpret.**
+  `DECISIONS.md` § "The belt commits nothing it did not write" ruling 4.
 - [ ] **0.14 — The 10DLC campaign registration. DEFERRED ON PURPOSE — this is
   a decision, not an oversight.** Brand
   `4b2001a0-c7e7-ede3-76fa-a67ec4841df8` (TCR `BMKZFBT`) is **VERIFIED** —

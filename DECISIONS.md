@@ -321,6 +321,9 @@ were made more than once.
 
 - **Content passing under the sticky header mid-scroll is normal; what is graded is the end of scrolling** — the manager's ruling, 2026-10-08, standing in for Andrew under `MANAGER.md`. `bk-bar-clearance` prints *"(2 at the top; page scrolled)"* on two screens at 320 and 392 and does not grade it; that stays ungraded **as a declared hold rather than a fault**, because mid-scroll overlap is what a sticky header does, and the two things that matter — the END of scrolling and where a focused control comes to rest — are graded by this check and by `keyboard-walk`. ROADMAP 9.22. What would reverse it is inside.
 
+
+- **The belt commits nothing it did not write, and only one belt runs at a time** - the supervisor's ruling, 2026-10-08, after two belt instances shared this working tree and the second one's checkpoint committed the first one's twenty live files. Removes `checkpointDirtyTree` and puts a real lock on `belt.pid`, which was written and never read. Also swaps the triage role off Codex, which cannot read this repo on Windows at all. What would reverse each is inside.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18309,3 +18312,102 @@ those is a different fault and gets its own item with the measurement attached.
 
 **WHERE IT IS CITED:** ROADMAP **9.22**, which carries the measurement and names
 this ruling rather than repeating it.
+
+
+## The belt commits nothing it did not write, and only one belt runs at a time
+
+**The supervisor's ruling, 2026-10-08**, from the supervision pass called in at
+`2026-10-09 00:01` — four faults in the belt itself, all four measured in its own log
+and in `git log`, none of them in the product.
+
+**WHAT HAPPENED, in the order it happened.** `log.md` carries both instances plainly:
+
+```
+2026-10-08 23:11:28  BELT START   -> ITEM 0.11, worker claude/opus, finished 23:54:56 (43.3 min)
+2026-10-08 23:49:30  BELT START   -> ITEM 0.13, worker claude/sonnet, finished 23:52:00
+2026-10-08 23:49:54    checkpointed 20 already-dirty file(s) so this item's diff is honest
+```
+
+A second belt started while the first one's worker was **thirty-eight minutes into a
+forty-three minute job**, and the first thing it did was commit that worker's
+work-in-progress. `662cd34` — *"Belt checkpoint before 0.13: 20 files were already
+dirty"* — is twenty files of ROADMAP 0.11 slice 4, under a message naming an item whose
+content is not in it. The 0.11 session caught it and recorded the collision at
+`ROADMAP.md` line 654; `1a13886`'s message is the correction.
+
+**RULING 1 — `belt.pid` is a lock, not only a sign.** It was written at startup and
+**never read**, so nothing anywhere stopped a second instance. One `pidAlive` call
+refuses it now. Placed after the `--status` / `--preflight` / `--agents` / `--supervise`
+branches, so every read-only flag is untouched; only a run that would dispatch a worker
+takes the lock. `--force-unlock` exists for a genuinely dead process, and a stale pid
+whose process is gone is taken over with a logged line rather than wedging the belt.
+**What would reverse it:** a belt redesigned to work one git worktree per instance, which
+is what the 0.11 session did by hand (`dp-lane-a/patches`, its own dev server on 5174)
+and the only arrangement under which two of these are actually safe.
+
+**RULING 2 — the checkpoint commit is gone.** It ran `git add -A` and a bare
+`git commit`. `CLAUDE.md` forbids exactly that in a hard rule it has corrected **four
+times**, and every one of those corrections describes this incident: `git add -A`
+publishes everybody's work into the shared index, a bare commit takes the whole index,
+and the next `--amend` deletes the swept-up edit out of history altogether. Its stated
+reason — *"so this item's diff is honest"* — is the part worth keeping, and it did not
+even achieve that: the 0.11 run's recorded `2 commits · 21 files` **includes the other
+instance's checkpoint**, because the attribution is `headBefore..headAfter` and the
+checkpoint landed inside that window. `belt.mjs` now records the already-dirty paths by
+name in the run record (`dirtyPathsBefore`) and flags any that turn up inside the item's
+own diff (`notThisItem`), which answers the same question and touches nobody's work.
+**What would reverse it:** nothing short of the worktree-per-instance design above;
+with the lock in place the tree is only ever dirty because a *person* left it that way,
+and committing a person's half-finished work is worse, not better.
+
+**RULING 3 — the triage role moves off Codex, because it cannot read this repo.**
+`log.md` line 10 has the reason in the tool's own words: `exec_command failed:
+CreateProcess ... Rejected("powershell.exe -Command 'Get-Content CLAUDE.md'") rejected:
+blocked by policy`.
+
+Codex's sandbox on this Windows machine rejects the shell outright, so the triage pass
+never saw a diff, a receipt, the roadmap or the rulebook. **It escalated three times out
+of three** — at roughly 25,000 tokens a cycle — and the latest report says so honestly:
+*"The workspace policy rejected every filesystem command… I could not inspect diffs…
+without fabricating evidence."* **That honesty is the only reason this was findable**,
+and it is still a dead role: triage exists so the expensive deep pass runs only when
+needed, and a pass that always escalates means the deep pass always runs. It **exits 0**
+while reading nothing, so the configured "CLI missing, fall back" path never fired.
+This is the role-level form of the gate that passes while testing nothing.
+Switched to the `claude`/`sonnet` spare that was already sitting unused in the config.
+**Do not read the planner's success as evidence Codex can read here** — the planner gets
+its shortlist inside the prompt and never touches the filesystem, which is why it is the
+one Codex role that works. **What would reverse it:** Codex gaining working sandbox
+support on Windows, checked by watching a triage pass actually quote a diff.
+
+**RULING 4 — `blockedBy` gains "Queued behind".** The planner picked **0.13** with the
+reason *"0.13 is fully specified and finishable today"*, while its own skip list on the
+same line showed `0.14(DEFERRED ON PURPOSE)` — and 0.13's entry says it is *"Queued
+behind two things, both named: 0.14 (there is no number yet) and Andrew settling what the
+messages say"*. It needs a phone number nobody has bought and wording only Andrew can
+settle; it was never finishable. None of the seven existing blocked phrases matched its
+prose. **"Queued behind" occurs exactly once in `ROADMAP.md`, on that item**, so the
+addition skips one item and nothing else — measured before and after: `--status` went
+from *35 eligible (27 ready)* to *34 eligible (26 ready)*. The item itself also gains the
+standard `NEEDS ANDREW:` phrase so it is self-describing to any tool, not only to this
+regex list. **Being too cautious in this list is the quieter failure** — it looks like
+progress while the belt idles — which is why this was checked by counting rather than
+by adding the phrase that felt safest.
+
+**WHAT WAS NOT CHANGED, deliberately.** `verdictOf` called the 0.13 run **"progress"** on
+zero commits, an unticked box and two dirty files — and those two dirty files were almost
+certainly the *other* worker's. That reads like a defect in the verdict, and it is not:
+with the lock in place a run can no longer measure another worker's tree, and uncommitted
+work by the item's own worker is a reasonable thing to call progress. Changing the shape
+of that assertion would have disarmed canaries aimed at it (`CLAUDE.md`'s rule on exactly
+that), for no observed fault. **One more left alone:** the `receipts` gate is red on every
+run, and correctly so — it is red at baseline, `regressed` is empty, and the belt never
+blames it on an item. The staleness it reports is a real repo condition and is already
+written up; the gate is working.
+
+**WHAT WOULD REVERSE ALL FOUR:** a belt whose instances no longer share one working tree.
+Every one of these faults is a symptom of two writers in one directory, and the lock is a
+guard against that rather than a solution to it.
+
+**WHERE IT IS CITED:** `belt/log.md` under SUPERVISOR CHANGES, `docs/VERIFIED.md`, and
+`docs/gotchas.md` **102**, which came out of verifying this pass's own work.

@@ -286,7 +286,16 @@ const DECLARED = {
   // 34 -> 33, 2026-10-08: net -1 across two legs. The other lane's work took it
   // to 35; ticking 9.7 and 9.11 took two items' criteria out, and 9.23 enters
   // nothing because it is filed ticked. Seventh move for the same reason.
-  quoteCriteria: 33,
+  // 33 -> 34, 2026-10-08, the supervisor's pass, and for ONCE not a tick:
+  // **0.13 ENTERS the population.** `NAMES_A_FILE` was already true for its zone
+  // (it has quoted `TEXTING.md` since 2026-09-25) but the zone held ZERO
+  // double-quoted fragments, so `if (n)` kept it out. The supervisor's note on
+  // 0.13 adds two (named at `quoteFragments` below), so the item crosses the
+  // threshold. Eighth move, first one caused by prose arriving rather than an
+  // item leaving. Measured both sides: `git show HEAD:ROADMAP.md` in place gives
+  // 8 pass / 0 fail at 33/318, and the working copy — 8 added lines, ROADMAP.md
+  // only, `git diff --numstat` — gives 34/320.
+  quoteCriteria: 34,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -461,7 +470,19 @@ const DECLARED = {
   // wraps across a line in the markdown, and the fragment rule excludes a newline,
   // so it is not in this population. **Written out because +1 where +2 looks right
   // is exactly the gap a bare count hides.** Measured on this tree (318).
-  quoteFragments: 318,
+  // 318 -> 320, 2026-10-08, the supervisor's pass. THE TWO FRAGMENTS, NAMED
+  // RATHER THAN COUNTED, both inside 0.13's Done-when zone and both added by the
+  // note recording why the belt's planner dispatched a queued item:
+  //
+  //     "0.13 is fully specified and finishable today"   the planner's own reason, quoted from belt/log.md
+  //     "The belt commits nothing it did not write"      the DECISIONS.md section the note cites
+  //
+  // Nothing else in that edit is countable here: `0.14(DEFERRED ON PURPOSE)` and
+  // the new `NEEDS ANDREW:` phrase are backticked or bold, not double-quoted, and
+  // `FRAGMENT_RE` only takes `"…"`. Moved in the same edit as the prose, and the
+  // delta attributed by running this file against `git show HEAD:ROADMAP.md`
+  // first (33/318, green) rather than by accepting what the run returned.
+  quoteFragments: 320,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
