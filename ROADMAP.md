@@ -921,6 +921,101 @@ and how the wait ends.
   - The app never ships before photo-door, and the live upload switch and photo_total_gb change from 1 to 10 occur in the same release.
   - The photo-reconcile cron entry is installed like refresh-weather, while photo-door retains JWT verification and photo-reconcile is publicly callable by cron.
 
+  ***THE ORDER IS NOW CHECKABLE, AND CRITERION 2 IS MET - 2026-10-09. Commits `9ee958f` and `e67f1c9`.
+  Credentialed but READ-ONLY: nothing deployed, nothing applied, no flag flipped, no DDL, no write to the live
+  database or to R2, no secret value touched. The box stays `[ ]`: three of the four criteria are acts only Andrew
+  performs.***
+
+  **WHAT THIS ITEM IS, SAID FIRST.** Every one of the four criteria names an ACTION - set a CORS rule, publish
+  three functions, ship the app, install a cron entry, apply a migration. All of those are Andrew's by standing
+  rule and none is buildable by a session. `FOR-ANDREW.md` step 9 a-to-h already carries them in order and in his
+  words, and was read line by line this session: it is executable as written, so no row was added rather than a
+  duplicate written. **What WAS buildable is the thing none of those steps had: a check that the order was kept.**
+
+  **UNTIL THIS, CRITERION 3 WAS ENFORCED BY PROSE ALONE.** *"The app never ships before photo-door, and the live
+  upload switch and photo_total_gb change from 1 to 10 occur in the same release"* was held up by step 9's
+  ordering and two comments in `app/src/lib/photo-door.js` saying *"flip this once published"*. Nothing went red
+  either way, and `FOR-ANDREW.md` says so in its own words: ***"If you publish and nobody flips them, nothing
+  breaks and nothing says so."*** That sentence is true in both directions and **the other direction is worse**: a
+  flag flipped BEFORE the door is published takes receipts and logos - two features that work today - and answers
+  every upload with *"storage is not set up on the server yet"*, with nothing anywhere to say why.
+
+  **`scripts/photo-release-order.mjs` - nine rules over the four criteria, judged against the real world rather
+  than the documents. 9 rules, 0 failed, 1 UNJUDGEABLE, 11 assertions against a declared floor of 9; the receipt
+  grades PASS under `node scripts/receipt.mjs`.** Measured on `kguqylyzgyzfktkfnhjb`, ref confirmed before the
+  first query. What it found: `photo-door` and `photo-reconcile` both undeployed (39 functions live),
+  `photo_total_gb` **1**, both flags `false`, **no `photo-reconcile` cron entry**, and the published bundle
+  (`assets/index-CfUTS91_.js`, 1,239,047 bytes) carrying **0 of the 4 door markers**. **Nothing has jumped the
+  gun, and that is now a measurement rather than an assumption.**
+
+  **CRITERION 2 IS MET, AND IT HAD BEEN RECORDED AS *NOT PROVEN* SINCE 2026-10-06.** This entry has said four
+  times that `docs/services-and-secrets.md` *"says they were saved on 2026-09-22, not that they are on the
+  functions"*, and `FOR-ANDREW.md` step 9b asks Andrew to go and check. **All three are present**:
+  `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`. The listing is mapped to `.name` on the line that
+  receives it, so **no value was ever bound, compared, printed or written to the receipt** - which is the
+  criterion's own second clause. `R2_MEDIA_BASE` is **absent**, exactly as 0.11b's blocker says, and the rule only
+  owes it once `MEDIA_VIA_DOOR` is on. **Step 9b can be struck from Andrew's list.**
+
+  **THE TWO HALVES OF CRITERION 3, BECAUSE ONE OF THEM HAS NO FLAG.** Receipts and media sit behind
+  `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`, so *"did the app ship early"* is a question about a source file.
+  **Job photos have no flag** - slice 1 re-pointed them unconditionally - so for them it is a question about the
+  PUBLISHED BUNDLE, which no source file can answer. `app-shipped-before-door` fetches the live bundle and looks
+  for four markers that are only in it if the door path shipped. A body under 100,000 bytes is refused rather than
+  read as *"no markers present"*, because `_redirects` returns 200 with the SPA shell for every unmatched path
+  (CLAUDE.md "Publishing").
+
+  **THE MARKERS ARE PARSED OUT OF THE PRODUCT, AND THE FIRST VERSION OF THIS CHECK WAS WRONG IN EXACTLY THE WAY
+  THIS REPO KEEPS BEING WRONG.** It hardcoded three *"... is not set up on the server yet"* sentences - and **two
+  of them are the SERVER's**, written by `_shared/photoDoor.ts`, which have never been in the app bundle at all.
+  It would have found 0 of 3 for ever and read as green **on the one rule that can catch job photos shipping
+  early**. It was caught because the source guard threw on the first run. The markers are now read from
+  `photo-door.js` by KEY - the door's slug plus three `DOOR_WORDS` sentences - so a re-wording moves the marker
+  with the product and a missing key throws. That is `label-guard.mjs`'s failure removed by not holding a spelling
+  at all.
+
+  **MOST OF THESE RULES ARE VACUOUS TODAY AND THAT IS HANDLED RATHER THAN NOTED.** The pre-release world satisfies
+  eight of the nine by not having started. So `judge()` is a PURE function of an observed world and
+  **`tests/photo-release-order.test.mjs` (7 tests, credential-free, no network, 0.22s) drives it over the worlds
+  the live gate cannot reach**: the **correct POST-release world, asserted GREEN** - a gate that only knows how to
+  pass *"nothing has happened yet"* would redden the day Andrew does every step right, and be switched off that
+  day - **twelve violation worlds, each reddening EXACTLY the rules it should and no others**, covering all eight
+  failable rules; and a **blind** world where every rule needing a reading answers `unjudgeable` and never `pass`,
+  with one missing reading proved not to blind the others. Every run of the script also re-judges one synthetic
+  broken world as its canary, and the canary is `allowance-with-switch` on purpose: it is the rule that cannot
+  fire until the day of the release, so it is the one most likely to be decoration.
+
+  **BROKEN ON PURPOSE, SIXTEEN TIMES, IN TWO PLACES.** Eight `--break=` switches corrupt the observed world and
+  all eight are caught, **each certified on the FINDINGS LIST naming its own rule rather than on the verdict
+  word** (`docs/gotchas.md` 105) and **each asserted to have been `pass` BEFORE the edit** (102). An unrecognised
+  `--break=` exits 1 *without reaching `judge()`* and writes no receipt, so it cannot be mistaken for a caught
+  sabotage - which is 105's trap met head-on. Eight more sabotages on the real `judge()` text took the suite from
+  7 pass to between 1 and 3 fail, **with `git diff --numstat` proving each edit landed first**; one earlier attempt
+  silently never matched and printed a blank numstat, which is 102 working on this session. The file was restored
+  from a pristine copy **outside the repo** rather than with `git checkout` (97) and re-run byte-identical at 7
+  pass / 0 fail.
+
+  **WHAT IT CANNOT SEE, AND IT IS CRITERION 1.** `bucket-cors` is **UNJUDGEABLE** and printed by name on every
+  run, never folded into the pass: reading the CORS rules needs a Cloudflare credential this program does not have
+  and must not acquire, and no bucket can be probed anonymously either - `job-photos` and `expense-receipts` are
+  private and `business-media` has no public address yet. **The real proof is 0.11d's first browser upload**, where
+  a missing rule shows as a blocked preflight. It is recorded as unanswerable with its reason, not skipped:
+  `skipped_targets` is 0 because nothing was passed over.
+
+  **NOT PROVEN, SAID PLAINLY.** That Cloudflare's CORS rules are set (above); that R2 accepts these signatures;
+  that the TypeScript compiles. **And no browser evidence, which here is not a skipped check but an absent
+  subject:** this item ships no screen and changes no pixel - the two files added are a credentialed command-line
+  gate and a node test suite, neither reachable from a page. The 1440/392 press that would belong to this item is
+  0.11d's, after the door is published.
+
+  NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 - the CORS rule on all three buckets (9a1), a public web address
+  for `business-media` (9a2, a decision rather than a publish), publish `photo-door`, `delete-customer` and
+  `photo-reconcile` (9c-9e), apply the cron migration and then the allowance migration (9f-9g), then publish the
+  website (step 10) and have a session flip `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`. **Step 9b is now done and
+  can be struck: all three R2 secrets are confirmed present on the functions.** Three of the four criteria ARE
+  those acts and a session cannot perform any of them; criterion 2 is met and measured. **After each step, run
+  `node scripts/photo-release-order.mjs`** - it is the only thing that will say whether the order held, and it
+  reddens on both the step done too early and the step forgotten.
+
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
   Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
   Part 4 of 4 of item 0.11, split out so it can be
