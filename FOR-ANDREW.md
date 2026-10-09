@@ -1065,6 +1065,42 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **One thing to decide, and it is a small one: the mail log's four
+  finishing touches are now four separate jobs instead of one.** 2026-10-09,
+  from the supervisor. **Nothing for you to do unless you disagree.**
+
+  **What happened.** You looked at the new mail log on the 9th, said keep it,
+  and asked for four things: get rid of the ugly scroll bar, stop text
+  crowding, group the long list into Today / This month / All time, and let a
+  row open the actual email that was sent. The program then tried to do all
+  four in one go, three times. Twice it was cut off part-way through with
+  almost nothing saved, and once with nothing at all. About two and a half
+  hours went into those two attempts and produced one commit between them.
+
+  **What I changed.** Those four are now four separate jobs on the list, so
+  each one gets its own run and gets saved on its own. The big combined job is
+  marked "do not take this whole" so it stops being picked up as one piece.
+  Nothing was dropped and nothing was added — it is the same four things you
+  asked for, in four pieces.
+
+  **Why you might care.** The list now reads as five open items where it read
+  as one, so the count went up without any new work appearing. That is
+  bookkeeping, not slippage. **If you would rather see them as one line on the
+  list, say so and I will put them back** — but they will keep being attempted
+  together and cut off part-way if I do.
+
+- [ ] **Still waiting on you from the 8th: the build-start notice cannot be
+  finished until you apply one database change and publish one function.**
+  Re-stated here because the program has now picked that item up twice and
+  could not finish it either time — there is nothing a session can do to close
+  it. The item is `0.4`; the file is
+  `supabase/migrations/20261008010000_site_build_start.sql`, and the function
+  is `platform-admin`. **I have not applied or published anything** — both are
+  yours. Everything else on that item is built, and I found and wrote up one
+  real defect in it that *can* be fixed without you (`0.4g`: pressing the
+  button twice quickly could send the notice twice and move the recorded date,
+  which matters because that date is what ends somebody's refund right).
+
 - [x] **DECIDED · The demo owner's login comes off the page the site serves
   (`app/public/map.html`, line 303); the password is left alone. 2026-10-06 —
   nothing needed from you.** The manager took my recommendation below. **The page

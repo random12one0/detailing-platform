@@ -328,6 +328,7 @@ were made more than once.
 - **Andrew's dashboard decisions of 2026-10-09** — 0.13 waits on the deferred phone-number item rather than asking him now; 0.4 proceeds without a lawyer and keeps the build-start promise by making it true; 2.1 may publish before launch; 2.15's physical-phone walk is a pre-release gate; 3.1 serves both Andrew and each detailer within their scopes; 6.4 stays ordinary priority; 12.1 publishes only after complete payment testing; 12.3 is reduced to one plain deposit question; and 14.34 waits for the next regular update.
 - **Andrew's second dashboard decisions of 2026-10-09** — hold and end-to-end test the fixtures before switching 0.3/1.3; show each price change on its first causative click; texting is planned and awaits setup, not approval; redesign email/text policy rather than sending every template; rethink the back office substantially from scratch; and keep 3.1's mail log while adding integrated overflow, spacing, time groups and message previews.
 
+- **The supervisor cuts an item up rather than sending it out a fourth time** — supervision 2026-10-09, after 3.1 was killed twice at ~50 minutes and 4.1 once the same night. Why the answer was four numbered slices and a `Queued behind` marker rather than more time or another attempt, why `0.4` is marked `Waits on:` while `0.4g` stays dispatchable, and why two credential-free gates were added instead of a new check.
 - **The supervisor names a composition defect and does not fix it** — supervision 2026-10-08, after measuring two identical accent fills ("Accept" and "Yes, decline it") on both of `cfd8932`'s Decline surfaces. Recorded as ROADMAP 4.1 (f) with a recommendation rather than patched in place. Why the one-word fix was the wrong move is inside.
 
 <!-- INDEX:END -->
@@ -18487,6 +18488,74 @@ decision from a side channel.
 **0.11 was also authorized to proceed immediately.** That does not remove the two
 Cloudflare account actions only Andrew can perform or authorize a session to deploy;
 it means the prepared photo move is not parked for a later product decision.
+
+## The supervisor cuts an item up rather than sending it out a fourth time
+
+Supervision 2026-10-09. Four judgment calls, each from something measured in
+the interval rather than from a preference about how work should be organised.
+
+**1 — 3.1 becomes four numbered slices and the umbrella stops being
+dispatchable.** The record: 3.1 was dispatched three times, killed at ~50
+minutes twice (0 commits, then 1), and 4.1 died the same way the same night.
+The tempting reads are both wrong. *"Give it more time"* is wrong because the
+belt's cap was already 90 minutes and nothing ever reached it — the kills came
+at 50.0 minutes from something outside the program. *"Try again at lower
+effort"* is wrong because that is what attempt 2 was. **An item that cannot be
+finished in one run is not made finishable by being sent out again.** So the
+four UI details Andrew asked for on 2026-10-09 are now `3.1a`–`3.1d`, each its
+own `- [ ]` box, and the umbrella carries `Queued behind` so the dispatcher
+skips it and takes a slice. Measured before cutting: `MailLog.jsx` is 129 lines
+and contains no `overflow`, `scroll`, `preview` or time-group text at all, so
+all four are unbuilt, none is half-built, and they are genuinely independent —
+which is what makes slicing honest here rather than cosmetic.
+
+**Why numbered and not sub-bullets.** An indented `- [ ]` is invisible to
+`every-open-item-is-citable`, which keys on `^- \[ \] (\d+\.\d+[a-z]?)`. A
+sub-task nothing can report on is the failure that file exists to prevent, so
+the numbering is part of the work. `0.4 (g)` was written first and was wrong
+for the same reason: it parses as plain `0.4` and **duplicated its own
+parent**, which makes a citation pick one of the two at random. It is `0.4g`.
+
+**2 — `0.4` is marked `Waits on:` and `0.4g` is not.** The open half of 0.4
+needs Andrew to apply a migration and publish a function; no session can close
+it, and the belt dispatched it twice anyway. Marking it stops that. But
+`blockedBy` is the quieter failure in the cautious direction — it looks like
+progress while the belt starves — so the buildable half was separated out
+first rather than parked with the rest. `0.4g` is a real defect (a read → send
+→ update sequence whose refusal is a read-then-check, so two overlapping
+presses both send and the later write decides a contractual refund date) and it
+is fixable today without Andrew.
+
+**3 — two gates added, and deliberately no new check written.**
+`every-open-item-is-citable` was **already red at HEAD** when this pass
+started: `a07a2dc` reopened `0.4`, which put it back into the open set and
+raised the declared cross-file overlap from 13 to 14 without moving the
+constant. It sat red for a whole supervision interval because that test was
+not one of the belt's gates, despite `CLAUDE.md` listing it as
+run-before-you-finish. `landing-pricing` was missing from the gates for the
+same reason — `CLAUDE.md` names four credential-free suites and the list
+carried three. **Both are now gates.** Nothing new was built: the checks
+existed and were simply not being run, which is a cheaper fault to fix and a
+more embarrassing one to have.
+
+**4 — nothing was unticked, and that is a finding rather than a formality.**
+The three escalated items were all already `[ ]`. 2.1b's priced dimensions were
+walked and all pass (10 of 10 priced clicks move the total, at 1440 and 392, 0
+console errors), so the temptation was to tick it — refused, because the travel
+zone and the date/time surcharge were **not reached** by the walk and the
+correct sentence for those is *not compared*, never *fine*. The four clicks
+that did not move the total are the condition chips, which `core.js` calls
+*"INFORMATION, never arithmetic"* and `pricing.ts` never reads: **a
+deliberately unpriced control must not be recorded as a pricing defect**, and
+it very nearly was.
+
+**And the cost of getting there is the part to read.** Two separate instrument
+faults, both printing the *same* false defect over a page that was pricing
+correctly, the second appearing only after the first was fixed —
+`docs/gotchas.md` 108 and 109. A false defect is the direction that gets
+working code changed. The rule that saved it was cheap: **verify the click
+landed before judging what it caused**, so *"the control did not respond"* and
+*"it responded and the price held"* stop being the same measurement.
 
 ## The supervisor names a composition defect and does not fix it
 

@@ -239,7 +239,25 @@ const DECLARED = {
   // and the whole -1 is that one tick. 3.1's own work this sitting ticked
   // NOTHING, so it contributes 0 to this figure. Recorded as theirs rather than
   // absorbed silently, the way the fragments ledger below splits its legs.
-  numberedOpenItems: 47,
+  // 47 -> 53, 2026-10-09, SUPERVISOR, AND THE SIX ARE NOT ALL MINE — the split
+  // matters more than the total. **Five are items this edit creates**: `0.4g`
+  // (the build-start notice can be sent twice and the recorded refund date is
+  // decided by a race) and `3.1a`-`3.1d` (Andrew's four mail-log details, cut
+  // into dispatchable slices after 3.1 was killed twice at ~50 minutes).
+  // **The sixth was ALREADY RED AT HEAD and is nobody's new work**: this
+  // file's own `openItems` reads **48** at `a07a2dc` against the 47 declared
+  // above, because that commit UNTICKED 0.4 and put it back in the open
+  // population without moving this constant. Measured with this file's own
+  // parser over `git show a07a2dc:ROADMAP.md`, not with a looser grep — a bare
+  // `grep -c '^- [ ]'` gives a different population because `openItems` also
+  // takes an id from a heading within five lines.
+  // **So the ledger is 47 declared -> 48 actual at HEAD -> 53 with this edit's
+  // five.** Recorded as two legs rather than absorbed into one number, which
+  // is what the assertion message asks for and what the fragments ledger below
+  // already does. **The same re-opening left `CROSS_FILE_OVERLAP` stale by one
+  // in `every-open-item-is-citable` too** — one re-tick, two declared figures,
+  // neither moved, and neither test was a belt gate. One is now.
+  numberedOpenItems: 53,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -330,7 +348,15 @@ const DECLARED = {
   // above: `0914a14` ticked ROADMAP 0.4, and a ticked item's criteria leave the
   // population with it. Already red on arrival; 3.1's block this sitting adds
   // no Done-when of its own, so it contributes 0 here too.
-  quoteCriteria: 35,
+  // 35 -> 37, 2026-10-09, SUPERVISOR. Two legs, and NEITHER is a new Done-when
+  // of mine: inserting an item ENDS the previous entry's criterion zone, which
+  // `zoneFor` runs from an item's line to the next `- [ ]` or heading. `0.4g`
+  // lands inside what was 0.4's zone and `3.1a` at the foot of 3.1's, so both
+  // parents' zones are re-cut and the five new entries bring their own. This is
+  // the same mechanic the 254 -> 277 note below describes, seen from the other
+  // side: a figure here moves when an entry's BOUNDARY moves, not only when its
+  // prose does. Re-taken at this edit's tree with the canary off.
+  quoteCriteria: 37,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -677,7 +703,12 @@ const DECLARED = {
   // causes. That is precisely the "correct by coincidence" trap the
   // `numberedOpenItems` ledger above warns about, and the only thing that
   // caught it was re-measuring each leg separately after the draft changed.
-  quoteFragments: 376,
+  // 376 -> 408, 2026-10-09, SUPERVISOR. Same single cause as `quoteCriteria`
+  // above — five inserted items re-cut two existing criterion zones and add
+  // five more — so this is one change counted in two places, not two changes.
+  // 32 fragments, which is the order of movement this figure has shown before
+  // on a single-item edit (the 254 -> 277 note records 21 for one item).
+  quoteFragments: 408,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

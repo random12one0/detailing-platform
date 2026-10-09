@@ -973,6 +973,46 @@ and how the wait ends.
   reconsidered under 9.12. Keep this open until the success path can be
   reproduced after the owner-controlled apply/publish work, and do not treat
   the rejected button layout as an approved design.
+  **Waits on:** Andrew applying the `site_build_started_at` migration and
+  publishing `platform-admin`. **Nothing a session can do closes this box** —
+  the belt dispatched it twice while its success path was unreachable. The
+  buildable half is **0.4g** below, which is a separate item and is not
+  blocked.
+  **SUPERVISOR READ THE CODE 2026-10-09 AND ANSWERED THE TWO QUESTIONS THE
+  TRIAGE PASS ESCALATED. One is settled in the code's favour; one is a real
+  defect, below as 0.4 (g).**
+  **`contact_email` IS the right recipient — settled, do not re-open it.** The
+  escalation suspected it was the business's public address. It is not: the
+  detailer's own screen puts it under the heading **"Only you see these"** with
+  the help text *"Where we email you about new bookings"*
+  (`app/src/screens/more/BusinessInfo.jsx`), and it is already the recipient
+  `stripe-webhook` uses for every billing email, which is the precedent the
+  handler's own comment cites. A build-fee notice is the same class of message
+  as a billing one, so it goes to the same place. **The rejection of
+  `notification_emails` was also correct** — that list may be a shared inbox.
+- [ ] **0.4g — the build-start notice can be sent twice and the recorded
+  refund date is decided by a race.** Found by the supervisor 2026-10-09 by
+  reading `supabase/functions/platform-admin/index.ts`; **not reproduced
+  live, because the function is not deployed and the migration is not
+  applied** — it is a code reading, and it is filed as one.
+  `build_start` does **read → send → update** as three separate statements:
+  it selects `site_build_started_at`, refuses with 409 if it is set, emails,
+  then writes the stamp. **The refusal is a read-then-check, not a conditional
+  write.** Two presses that overlap — two back-office tabs, or a retry after a
+  slow response — both read `null`, both pass the guard, and **both send the
+  notice**; the second `update` then overwrites the first stamp, so the date
+  that ends a refund right is whichever write landed last. The in-tab guard
+  (`disabled={busy === "build_start"}`) covers one tab and nothing else.
+  **Fix, and it is small:** make the write conditional —
+  `.update({...}).eq("id", id).is("site_build_started_at", null).select()` —
+  and treat an empty result as the 409 the handler already means to return.
+  That cannot stop the duplicate email, because the send deliberately precedes
+  the write; it does stop the recorded contractual date from moving, which is
+  the half that matters. **Do not reorder the send and the write to fix this**
+  — the handler's comment explains at length why the email goes first, and
+  that reasoning is sound and was deliberate.
+  **Done when:** two overlapping presses produce one stamp, the first one, and
+  the loser gets the 409 naming the date already recorded.
   **ANDREW DECIDED 2026-10-09: do the strongest honest version we can without
   hiring a lawyer.** The remaining build-start sentence is not a request for
   another decision. The best fix is to make the promise true: record the day
@@ -2385,6 +2425,34 @@ the wrong service, and never book a job we cannot reach.
   fix may be one correct case; it does not close this broader interaction until
   the booking flow is walked from its first priced selection and every change
   is observed in the displayed total.
+  **SUPERVISOR WALKED IT 2026-10-09 AND THE PRICED DIMENSIONS ALL PASS, BUT THE
+  WALK IS NOT COMPLETE — READ WHICH HALF.** Measured at 1440 and 392 on
+  `demo-detail` at commit `a07a2dc`, **0 console errors at both widths**, with
+  `.manager-shots/2-1b-price-walk.json` as the receipt. **10 of 10 priced
+  clicks moved the total immediately**, the first one included: the bar reads
+  *"Choose a service to start"* with no figure, and the FIRST service click
+  takes it to `$65` — which is the exact thing Andrew's ruling demands. Then
+  `+ Interior Refresh` → `$160`, add-on `Pet hair removal` → `$105`, add-on
+  `Engine bay clean` → `$160`, vehicle size `Large` → `$190`, `Medium` → `$175`,
+  each at both widths. **The four clicks that did NOT move the total are the
+  condition chips (Light/Moderate/Heavy/Extreme), and that is correct, not a
+  fault** — `core.js` calls condition *"INFORMATION, never arithmetic: the
+  trade prices condition after inspection"* and `grep condition
+  _shared/pricing.ts` returns nothing, so the server never reads it. Do not
+  "fix" it.
+  **WHAT IS STILL UNWALKED, STATED AS UNWALKED RATHER THAN AS FINE:** the
+  **travel zone** on *Pick a place* and the **date/time** surcharge on *When*.
+  The walk could not reach them because *Pick a place* holds Continue until an
+  address or a drop-off choice is supplied, and the scripted `Drop it off`
+  click timed out against `.bk-pick`, which is not that control's class. The
+  day-before-time case was already proved under 2.1; **the travel zone has
+  been compared by nobody.** That is what is left of this item.
+  **AND THE INSTRUMENT LIED TWICE BEFORE IT TOLD THE TRUTH, BOTH TIMES TOWARD A
+  FALSE DEFECT** — `docs/gotchas.md` 108 and 109. The first version printed
+  *"price did not move"* for `+ Interior Refresh` at both widths on a page that
+  was moving it correctly, and the second printed the same thing for a
+  different reason. Anybody re-running this starts from those two entries, or
+  pays for them again.
   `if (!bookingDate || !startTime) return {}`, so no price rule can match on
   a day alone. Measured on the demo at 320: picking Saturday 26 September and
   no time left the bar at **$65**; picking 8:00 AM took it to **$95**.
@@ -7447,6 +7515,21 @@ requested.
   dividers another filter; and let a row open a preview of the email as sent,
   with its actual content. These are additions to the still-open item, not a
   rejection of the delivery-list work already built.
+  **SUPERVISOR CUT THOSE FOUR INTO NUMBERED SLICES 2026-10-09, AND THE REASON
+  IS THE DISPATCH RECORD RATHER THAN TIDINESS.** 3.1 has been sent out three
+  times and killed at ~50 minutes twice in a row (0 commits, then 1), and 4.1
+  died the same way the same night. **An item that cannot be finished inside
+  one run is not made finishable by being sent out again**, and an unnumbered
+  sub-task is uncheckable by every sweep here. Measured at `a07a2dc`:
+  `app/src/screens/more/MailLog.jsx` is **129 lines**, and
+  `grep -nE "Today|This month|All time|preview|overflow|scroll"` against it
+  returns **nothing** — so all four of Andrew's details are unbuilt, none is
+  half-done, and they are genuinely independent of each other.
+  **Take ONE slice per run and commit it. Do not take 3.1 whole.** The four
+  are numbered **3.1a**, **3.1b**, **3.1c** and **3.1d** at the foot of this
+  entry, each its own citable box. **Queued behind 3.1a–3.1d:** this umbrella
+  box is deliberately not dispatchable, because sending it out whole is what
+  produced two 50-minute kills and one commit.
   **ANDREW DECIDED 2026-10-09: both audiences get the view.** Andrew gets the
   platform-wide list in `/admin`; each detailer gets a business-wide delivery
   list in their own dashboard, in addition to the customer-specific trail that
@@ -8121,6 +8204,33 @@ requested.
   real wire this run, the deployed function still answers **400 `business_id is
   required`**. Screenshots of the detailer half as it stands, taken this run:
   `.manager-shots/3.1/detailer-*.png`.
+
+- [ ] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
+  it with overflow treatment that belongs to this design. Andrew named this
+  one first, 2026-10-09; it is the one he can see without scrolling.
+  Measured at `a07a2dc`: `app/src/screens/more/MailLog.jsx` is 129 lines and
+  contains no `overflow` or `scroll` rule at all, so this is unbuilt rather
+  than half-built. **Done when:** the long list scrolls without a native bar
+  drawn across this design, checked at 1440 and 392 with the widths named.
+  *Andrew's review of 3.1, 2026-10-09. Slice 1 of 4.*
+
+- [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
+  No text may crowd or touch its neighbor. **Done when:** measured at 1440
+  and 392, with the widths named and the gaps stated as numbers rather than
+  as "looks fine". *Andrew's review of 3.1, 2026-10-09. Slice 2 of 4.*
+
+- [ ] **3.1c — the long Everything list needs visible time groups.** Today /
+  This month / All time. **DIVIDERS, NOT ANOTHER FILTER** — Andrew said that
+  twice in one sentence and it is the part most likely to be got wrong: the
+  groups label the list in place, they do not add a control that hides rows.
+  **Done when:** one scroll of the Everything list crosses labelled group
+  boundaries and no new filter control exists.
+  *Andrew's review of 3.1, 2026-10-09. Slice 3 of 4.*
+
+- [ ] **3.1d — a mail-log row opens a preview of the email as sent**, with its
+  actual content, not a summary of it. **Done when:** a row opens the sent
+  body, and a row whose body was never stored says so rather than opening
+  empty. *Andrew's review of 3.1, 2026-10-09. Slice 4 of 4.*
 
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already

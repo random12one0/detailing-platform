@@ -172,7 +172,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND SEVEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND NINE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -712,6 +712,18 @@ Certify on the FINDINGS LIST (1 naming ex3, against 0), never on the verdict wor
 certifying ROADMAP 7.10. Twenty sittings unbroken; `grep -c "^## " docs/gotchas.md` run before
 writing this and again after, so the 105 above is a count rather than an increment.
 
+
+**107 → 109 on 2026-10-09, same edit, two entries, both by the supervisor and both found on ONE
+number** — ROADMAP 2.1b's booking total. **108**, a `:not([aria-pressed=true])` locator with
+`.nth(i)` in a loop re-resolves against a list the previous click just shortened, so the label
+printed is not the element clicked; **109**, "the text stopped changing" returns on the
+**pre-update plateau**, which is byte-identical to a settled reading. **Both printed the same false
+defect — *"the price did not move"* at two widths — over a page pricing correctly**, and the second
+appeared only after the first was fixed. A false defect is the direction that gets working code
+"fixed". The fix in both cases is to ask the thing that knows: verify the click's `aria-pressed`
+flipped, and settle on the request count rather than on the rendering. Twenty-three sittings
+unbroken; `grep -c "^## " docs/gotchas.md` run before writing this and again after, so the 109
+above is a count rather than an increment.
 
 **106 → 107 on 2026-10-08, same edit** — `page.waitForSelector` defaults to `state: "visible"`, and
 Playwright's "visible" means a non-empty bounding box, so **a loading container is invisible for

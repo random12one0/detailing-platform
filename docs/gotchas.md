@@ -4939,3 +4939,83 @@ are asserting a presence rather than a sight, say so.
 
 Related: 100 (a hit test answers *"can this be pressed"*, never *"can this be
 read"*), and 36's family — computed is not painted, painted is not visible.
+
+## 108 — A `:not([aria-pressed=true])` LOCATOR PLUS `.nth(i)` IN A LOOP RE-RESOLVES AGAINST A LIST YOUR OWN PREVIOUS CLICK JUST SHORTENED, SO THE LABEL YOU PRINT IS NOT THE ELEMENT YOU CLICKED
+
+Found by the supervisor 2026-10-09 walking ROADMAP 2.1b, and it printed a
+**false defect** — *"the price did not move"* — at two widths, with no error
+and no console noise, over a booking page that was pricing perfectly.
+
+The walk did this:
+
+```js
+const picks = page.locator(".bk-pick:not([aria-pressed=true])");
+for (let i = 0; i < await picks.count(); i++) {
+  const el = picks.nth(i);
+  const label = await el.innerText();   // read now
+  await el.click();                     // and the list changes underneath
+}
+```
+
+A Playwright locator is a **query, not a snapshot**. Clicking item 0 sets its
+`aria-pressed` to `true`, which **removes it from this locator's own result
+set**, so every later index points one element further along than it did when
+the loop was planned. The printed label belongs to the element at that index
+*now*; the click landed on a different one. The count is stale too.
+
+**The tell is that it fails toward a false defect**, which is the direction
+that gets working code "fixed" — the same hazard as 107 and the inverse of a
+missed bug. A refutation is cheap to produce and expensive to believe (106).
+
+**The fix is to stop asking the question by position.** Click by a stable
+identity — `page.locator(".bk-pick", { hasText: "Express Wash" })` — and then
+**verify the click landed before judging its effect**: read `aria-pressed`
+before and after and require it to have flipped. That one extra read splits
+*"the control did not respond"* from *"the control responded and the price did
+not move"*, which are opposite findings that a bare before/after on the price
+cannot tell apart. Report the first as **no verdict possible**, never as a pass
+and never as a defect.
+
+Related: 106 (a selector chosen from the word rather than the picture), 98 (a
+declaration asserted with an inequality carries slack).
+
+## 109 — "THE TEXT STOPPED CHANGING" IS NOT A SETTLED MEASUREMENT: IT RETURNS ON THE PRE-UPDATE PLATEAU, WHICH LOOKS IDENTICAL TO A FINISHED ONE
+
+Found in the same sitting as 108, on the same measurement, after 108 was
+already fixed — so the first correct-looking run still printed the same false
+defect for an entirely different reason. **Two instrument faults in a row on
+one number, both toward a false defect.**
+
+The booking bar quotes over the network. The check was:
+
+```js
+// WRONG — stable means "finished" only if it ever started
+let last = await bar(page);
+for (;;) { await wait(200); const now = await bar(page);
+           if (now === last) return now; last = now; }
+```
+
+For the few hundred milliseconds after a click, the request is **in flight and
+the bar still shows the old figure**. That plateau is byte-identical to a
+settled one, so the loop returns the *previous* price and the comparison
+`before !== after` is false. Lengthening the wait only moves the odds; it does
+not make the signal mean anything, and a fixed `waitForTimeout(2000)` that
+happens to work is luck that will be shortened by the next person tuning the
+run time.
+
+**Settle on the WORK, not on the rendering.** Count the requests:
+
+```js
+page.on("request",        (r) => isQuote(r.url()) && pending++);
+page.on("requestfinished",(r) => isQuote(r.url()) && pending--);
+page.on("requestfailed",  (r) => isQuote(r.url()) && pending--);
+// settled := pending === 0, then the text holds still across one more tick
+```
+
+With that, the same walk returned `$65 → $160` where it had twice reported no
+change. **The repo already knows this shape**: 103 reads a reversible reveal
+from where the reader stands, 107 waits for *attached* rather than *visible* —
+every one of them is a check that cannot distinguish *not yet* from *not going
+to*. Ask the thing that knows.
+
+Related: 108 (same measurement, previous fault), 107, 103, 36.

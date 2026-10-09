@@ -146,7 +146,23 @@ const OPEN_FLOOR = 40;
 // `0.4` was ticked — the build-start notice, the last promise on a public page
 // with nothing behind it — so it left the OPEN set and took its collision with
 // `docs/roadmap.md` 0.4 with it. Nothing was renumbered and no citation moved.
-const CROSS_FILE_OVERLAP = 13;
+// **13 → 14 ON 2026-10-09, AND IT GREW BY A RE-OPENING — the exact mirror of
+// the closure logged directly above, which is why both are kept.** Supervision
+// commit `a07a2dc` unticked `0.4` (its live evidence reproduced only
+// `400 Unknown action`, which proves a refusal and not the notice), so `0.4`
+// re-entered the OPEN set and brought its collision with `docs/roadmap.md`
+// `0.4` back with it. Nothing was renumbered and no citation moved.
+//
+// **AND THIS TEST WAS LEFT RED FOR THE WHOLE INTERVAL, WHICH IS THE PART WORTH
+// READING.** The re-opening moved the population and did not move this
+// constant, so the declared figure was wrong from `a07a2dc` until a supervisor
+// re-ran it by hand — measured, not inferred: replaying HEAD's two documents
+// through this file's own two regexes returns 14 against a declared 13.
+// Nothing reported it, because `every-open-item-is-citable` was **not one of
+// the belt's gates** despite `CLAUDE.md` listing it as run-before-you-finish.
+// It is a gate as of the same day. **A count that is only checked when
+// somebody remembers is not a check.**
+const CROSS_FILE_OVERLAP = 14;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 

@@ -3084,3 +3084,51 @@ question is open — "Accept" and "Yes, decline it"**, 101px apart on the card a
 155px apart on the record. Measured as computed `backgroundColor` of every
 visible button, not read off a screenshot. See ROADMAP 4.1 (f) and `DECISIONS.md`
 § *"The supervisor names a composition defect and does not fix it"*.
+
+## ROADMAP 2.1b — the booking total moves on the first price-changing click, and on every later priced one
+
+**Proved 2026-10-09 by the supervisor, at commit `a07a2dc`**, against the
+`demo-detail` tenant on `localhost:5173`. Receipt:
+`.manager-shots/2-1b-price-walk.json`; screenshots `.manager-shots/2-1b-*.png`.
+Instrument: `.supervisor/walk4.mjs` (not committed — it is reproduced by the
+method below, which is the part that transfers).
+
+**Method, so the figures can be re-taken.** Open `/book/demo-detail`, read
+`.bk-bar .total`, and for each priced control: record the bar, click by **stable
+text** (never by index — `docs/gotchas.md` 108), require the element's
+`aria-pressed` to have flipped, then read the bar again **once no
+`calculate-booking` request is in flight** (never on text stability — 109).
+
+| Click | Before | After |
+|---|---|---|
+| (at rest) | *"Choose a service to start"*, no figure | — |
+| Express Wash | *Choose a service to start* | **$65** |
+| + Interior Refresh | $65 | **$160** |
+| add-on Pet hair removal | $65 | **$105** |
+| add-on Engine bay clean | $105 | **$160** |
+| vehicle size Large | $160 | **$190** |
+| vehicle size Medium | $190 | **$175** |
+
+**10 of 10 priced clicks moved the total**, at **1440 and 392**, with **0
+console errors at both widths** — a proportion rather than a bare count, so it
+survives the demo's service list changing. The first service click is the one
+Andrew's 2026-10-09 ruling turns on, and it moves.
+
+**What this does NOT prove, stated as not-proved rather than as fine:** the
+**travel zone** on *Pick a place* and the **date/time** surcharge on *When*
+were **not reached** — *Pick a place* holds Continue until an address or
+drop-off is supplied. The day-before-time case was proved earlier under 2.1;
+**the travel zone has been compared by nobody.** 2.1b stays open on that.
+
+**The four clicks that did not move the total are correct and must not be
+"fixed":** the condition chips. `app/src/book/core.js` calls condition
+*"INFORMATION, never arithmetic: the trade prices condition after
+inspection"*, and `grep condition supabase/functions/_shared/pricing.ts`
+returns nothing — the server never reads it.
+
+**Broken on purpose, twice, which is why the green is worth anything.** The
+first two versions of this walk each reported *"the price did not move"* for
+`+ Interior Refresh` at both widths — a **false defect** over a page pricing
+correctly, with no error and no console noise. Causes and fixes are
+`docs/gotchas.md` 108 and 109. The passing run above is the third instrument,
+and the two failures are what establish that it can see a difference at all.

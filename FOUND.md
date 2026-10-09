@@ -4380,3 +4380,37 @@ destroys uncommitted work with nothing to undo it —
 clean) and deal with the second separately. Until then, **exclude
 `.claude/worktrees` from any repo-wide scan** — `grep -r --exclude-dir=.claude`
 — or use `git grep`, which never sees them.
+
+## "Only you see these" is printed on every customer's booking confirmation
+
+Found 2026-10-09 by the supervisor, while answering a different question (is
+`businesses.contact_email` the right recipient for 0.4's build-start notice —
+it is). **Parked, not fixed: it is a wording fault, not a leak, and the fix is
+a judgment call about which half to change.**
+
+`app/src/screens/more/BusinessInfo.jsx` puts `contact_email` under a group
+headed **"Only you see these"**, with the help text *"Where we email you about
+new bookings."* Both sentences read as a promise of privacy. The same value is
+then:
+
+- set as `reply_to` on tenant email to customers — `send-email/index.ts:272`,
+  `if (!fromPlatform && business.contact_email) payload.reply_to = …`
+- written into the calendar invite the customer downloads as the organiser's
+  address — `booking-ics/index.ts:98`, `organizerEmail: business.contact_email`
+- printed on the booking receipt — `get-booking-receipt/index.ts:225`
+
+**Neither behaviour is wrong.** A customer replying to a confirmation *should*
+reach the detailer, and an ICS organiser needs an address. **The label is what
+is wrong**, and it is the detailer's own data: somebody who reads "only you see
+these" may put a private address there and would be surprised to find it on a
+stranger's calendar entry.
+
+**Recommendation:** change the words, not the plumbing — say that this is the
+address customers see when they reply. Changing the plumbing would break
+replies, and hiding the address would break the ICS file. **It is an English
+string, so its Spanish key in `app/src/lib/strings/appEs.js` moves in the same
+edit** or it falls back silently with no error anywhere.
+
+Not given a roadmap number because nothing is broken for a customer today; if
+anybody acts on it, number it in the 14.x series first so a sweep can report
+on it.
