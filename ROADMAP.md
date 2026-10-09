@@ -1432,6 +1432,10 @@ and how the wait ends.
   - Live tests show no Supabase Storage upload fallback for these three media flows.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
+  **BELT PARKED after 3 attempts, 2026-10-09 21:10:49.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T21-10-44-582Z-0.11c.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
   Part 3 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1897,6 +1901,70 @@ and how the wait ends.
     unproved is that a CRON call reaches it and the row lands. **Blocked on the release**: the function is
     undeployed and the cron entry is not installed.
 
+    - [x] **0.11d3a — The cron's own call, answered by the real handler. DONE 2026-10-09**, commits `70985d1`
+      and `9535942`. How it was checked: `node tests/photo-cron-call.test.mjs` — **37 of 37, credential-free,
+      no network, no dev server**, receipt graded PASS by `node scripts/receipt.mjs`, and seven sabotages each
+      caught and certified on the FINDINGS LIST naming its own rule rather than on the verdict word
+      (`docs/gotchas.md` 105).
+
+      ***THE CRON WOULD HAVE BEEN ABANDONED AFTER FIVE SECONDS, AND THE ONLY SYMPTOM WOULD HAVE BEEN A
+      STOPPED-JOB EMAIL.*** `20261006060000_photo_reconcile_cron.sql` schedules the call with
+      `net.http_post(url, headers, body)` and passes **no `timeout_milliseconds`**. pg_net's default is
+      **5,000 ms**, and nobody chooses it — it is what you get for not passing the argument. **That is, to the
+      argument, `20260913001000_cron_http_timeout.sql`'s own fault three weeks earlier**, in its own words:
+      *"Nobody chose five — `timeout_milliseconds` was simply never passed."* 37 of the last 48 calls to
+      `send-owner-reminders` were `timed_out = true` against a healthy function taking **9,735 ms**, and owner
+      reminders, customer reminders and finalize-payment emails did not go out for eighteen hours.
+
+      **And `photo-reconcile` is the worst candidate for a five-second budget in the project.** It lists the
+      WHOLE `job-photos` bucket from Cloudflare, 1,000 objects a page, then reads the whole `job_photos` table,
+      1,000 rows a page, then two RPCs, then stamps. It is fast today because the bucket is empty; its cost
+      scales with every photograph the platform ever stores, and the sweep that broke *"crossed five seconds on
+      its own, with nobody changing it."*
+
+      **THE FAILURE IS INVISIBLE IN THE PLACE A PERSON WOULD LOOK.** `cron.job_run_details` says `succeeded`,
+      because `net.http_post` only QUEUES the request; the truth lives in `net._http_response`, which nobody
+      reads unless they already suspect. So the first visible sign is the dead man's switch emailing Andrew
+      that `photo-reconcile` has stopped — **25 hours later, for a job that may well have run.** Repaired by
+      `20261009120000_photo_reconcile_cron_timeout.sql`, 60,000 ms: twice the 30,000 the sweep and the watcher
+      were given, because their work scales with open jobs and this one's scales with every object in the
+      bucket, and far inside the heartbeat's own 90,000-second staleness window. **Rescheduled rather than
+      edited** — migrations are append-only and `cron.schedule` on an existing name replaces it, the pattern
+      `20260913001000` and `20260906006000` both used.
+
+      **THE GAP IT CLOSES IS THE MIDDLE OF CRITERION 4, AND TWO CHECKS ALREADY STOOD EITHER SIDE OF IT.**
+      `tests/photo-reconcile.test.mjs` runs the handler — with a request **it wrote itself**,
+      `new Request("https://x.test/", { method: "POST", body: "{}" })`, which says nothing about the call
+      pg_cron makes. `tests/photo-reconcile-sql.test.mjs` runs the migration on PGlite and reads the schedule
+      back; **its own header names what it stops short of** — *"that pg_cron runs the entry **or that the
+      function answers it**."* This file derives the request from the migration's own `net.http_post` arguments
+      — url, headers and body parsed out of the SQL, nothing retyped — builds it as pg_net sends it (POST, that
+      `Content-Type`, body `{}`, **no `Authorization` header**) and hands it to the real
+      `handlePhotoReconcile`, which answers 200 `ran: true` and stamps **all five drift numbers**: orphans 2,
+      missing 1, mismatched 1, unknown sizes 1, misfiled 1, `clean: false`, against a fixture holding one of
+      every kind. The artifact `receipts/photo-cron-call.txt` prints that row and both cron statements side by
+      side, so the five numbers can be read rather than taken on trust.
+
+      **AND IT ASKS A SECURITY QUESTION BEFORE IT ASKS A PLUMBING ONE.** The cron URL's project ref is held
+      against the ref every cron entry already installed and working uses, and against
+      `adtlnvihwrcqcasqcjwd` by name — a cron migration pointed at the wrong ref would call a function in
+      **Andrew's real business**, and the sabotage `CRON_BREAK=wrong-ref` is that, caught. The slug is held
+      against production's own `JOB` constant and against the function directory existing, because a typo
+      there installs perfectly and then runs nothing for ever.
+
+      **THE SWITCH IS `CRON_BREAK`, AN ENV VAR AND NOT A FLAG** (`docs/gotchas.md` 104). `no-timeout` 3 red —
+      the defect above, exactly as it was; `wrong-ref` 2; `wrong-slug` 2; `hourly` 2 — a cadence more frequent
+      than the handler's own `MIN_INTERVAL_MS`, which would answer `skipped: too_soon` for every run but the
+      first while the heartbeat went stale; `one-drift` 6; `limit` 15; `blunt-judge` 1, and that last is the
+      important one, because it blinds `judge()` and the canary is the only thing that notices. An
+      unrecognised `CRON_BREAK` exits 2 and writes no receipt.
+
+      **FOUR THINGS IT DOES NOT PROVE, in the receipt as UNJUDGEABLE by name rather than folded into the
+      pass:** that pg_cron fires the entry (step 9f installs it), that the gateway admits the anonymous call
+      (`photo-reconcile` is undeployed), that R2 answers the listing (no R2 credential exists outside the
+      edge-function secrets) and that `note_heartbeat` writes the row in the live database (`stamp` is
+      in-memory here). **So 0.11d3 stays open** — this is its buildable half, not the whole of it.
+
   NEEDS ANDREW: perform `FOR-ANDREW.md` step 9 — the release itself. **0.11d2 and 0.11d3 cannot begin until
   it is done**, and not for want of effort: they need a real upload through a presigned R2 URL and a real
   `photo-reconcile` run, and today `photo-door` and `photo-reconcile` are undeployed, both door flags are
@@ -1907,12 +1975,63 @@ and how the wait ends.
   line by line, so a row here would be a duplicate. After each of his steps, run
   `node scripts/photo-release-order.mjs` — it is the only thing that says whether the order held.
 
+  **STEP 9f IS TWO FILES NOW, 2026-10-09 (`9535942`).** 0.11d3a found that the cron entry passed no
+  `timeout_milliseconds`, so `20261009120000_photo_reconcile_cron_timeout.sql` is applied straight after
+  `20261006060000_photo_reconcile_cron.sql`. `FOR-ANDREW.md` step 9f carries both commands and says why in his
+  own terms; **step 9's closing note was also corrected**, because it attributed a still-stopped job to the
+  gateway refusing the anonymous call and a five-second abandonment produces the identical symptom.
+
+  **0.11d2's CLIENT HALF IS ALREADY PROVED and the slice box does not show it — recorded here so nobody
+  re-takes it.** `node scripts/job-photo-wire.mjs`, 2026-10-09, receipt graded PASS at `08f0f11`: a real
+  402-byte PNG pressed into the job record's own file input at 1440 and 392, **17 assertions, 0 failed,
+  console clean at both**. On the network rather than from source: exactly one PUT, to the URL `start` handed
+  out, with a body whose length equals the `claimed_bytes` declared; **nothing reaches
+  `/storage/v1/object`**; and the `finish` request names **no size of any kind** — not `bytes`, `size`,
+  `claimed_bytes`, `content_length`, `contentLength` or `byte_length` — which is the entire reason
+  *"regardless of the client's claimed size"* can hold. Two sabotages, both caught at both widths. The full
+  write-up is in `docs/VERIFIED.md`; what is still unproved is only R2's own half — that it accepts a
+  signature it minted and that `head` states the stored length.
+
   **ANDREW DECIDED 2026-10-09: fix the tests and translations before
   launching.** The code-side condition is green now: supervision re-ran the
   receipt wire, photo-door reader and Spanish suites together at `9649424` and
   all 17 test cases plus the Spanish suite's 83 checks passed. The launch still
   waits on 0.11c's ordered release; 0.11d2 and 0.11d3 remain the required live
   proof after it.
+
+  Waits on: 0.11da, 0.11db, 0.11dc. How the wait ends: those pieces are ticked.
+  Split on 2026-10-09 because this entry is 152 lines
+  long and no single session was finishing it.
+
+- [ ] **0.11da — 0.11d1 — Verify visible over-cap refusal on job and expense paths**
+  Verify the two existing pre-upload refusal flows show used space, limit, and deletion guidance to detailers, including translations and responsive browser rendering. This does not test deployed R2 uploads or the scheduled reconciliation.
+  Part 1 of 3 of item 0.11d, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Job-photo and expense-receipt over-cap refusals show used space, limit, and removal guidance.
+  - English and Spanish render correctly on the affected screens.
+  - Browser checks pass at the specified desktop and mobile widths with no console errors.
+  - Credential-free refusal and translation tests pass.
+
+- [ ] **0.11db — 0.11d2 — Verify live R2 upload path and authoritative object size**
+  After release, exercise a real browser upload through the deployed photo door and presigned R2 URL. Confirm the job-photo route avoids Supabase Storage and persists R2’s HEAD-reported size rather than a client claim; this excludes reconciliation cron proof.
+  Part 2 of 3 of item 0.11d, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A real job-photo upload succeeds through a presigned R2 URL.
+  - No job-photo upload request reaches Supabase Storage’s object endpoint.
+  - A deliberately false claimed size is ignored.
+  - The persisted job_photos.bytes exactly matches R2 HEAD size.
+
+- [ ] **0.11dc — 0.11d3 — Verify scheduled reconcile records all live drift categories**
+  After release and cron installation, trigger the deployed photo-reconcile schedule and inspect its heartbeat result. Confirm the live run records the five required numeric drift categories; this does not re-test upload behavior or UI allowance messaging.
+  Part 3 of 3 of item 0.11d, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A cron-triggered request reaches the deployed photo-reconcile function.
+  - A job_heartbeats record is written by the reconcile run.
+  - The heartbeat records numeric orphan, missing-object, size-mismatch, unknown-size, and tenant-prefix-mismatch drift values.
+  - The recorded values correspond to intentionally created live drift conditions.
 
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
