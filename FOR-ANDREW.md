@@ -422,6 +422,21 @@ step 10.
 **d · Republish `delete-customer`.** `node scripts/deploy-functions.mjs delete-customer`
 It now removes a forgotten customer's photo files from both stores.
 
+**THIS IS THE ONE STEP IN STEP 9 YOU CANNOT UNDO BY DOING IT LATE, so it is worth
+one paragraph.** When somebody asks to be forgotten, the program deletes the
+record of their photos and the photo files themselves, in that order. The version
+running right now can only reach the old photo store. Once you have done step c,
+new photos go to the new store — so if you publish c and never do d, pressing
+*forget this customer* deletes the record of their photos and **leaves the photos
+themselves sitting in the new store, with nothing left anywhere that knows where
+they are.** Nothing shows an error, nothing is written down, and the files cannot
+be found again afterwards to delete them by hand. It is a person asking you to
+destroy pictures of their car and being told yes.
+
+*Measured 2026-10-09, not assumed:* the version of this program that is live today
+is the old one. `node scripts/photo-release-order.mjs` now asks this question on
+every run and goes red, naming this step, if c is done and d is not.
+
 **e · Publish `photo-reconcile`.** `node scripts/deploy-functions.mjs photo-reconcile`
 It is called every night by a scheduled job with no signed-in person, exactly like
 `refresh-weather`, so it is in the public list and is deployed with the sign-in
