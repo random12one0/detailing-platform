@@ -255,7 +255,15 @@ function corsFor(mode, origin, ours) {
   }
   if (!ours) return {};
   if (mode === "cors-get-only") {
-    return { "access-control-allow-origin": origin, "access-control-allow-methods": "GET, HEAD" };
+    // **IT CARRIES `content-type` DELIBERATELY, AND THE FIRST VERSION DID NOT.**
+    // A negative control must differ in exactly ONE way. Without this header
+    // the mode is broken twice over — no PUT and no Content-Type — so
+    // `--break=accept-get-only` relaxed the method test and the rule went on
+    // failing on the header instead: the sabotage printed FAIL -> FAIL and
+    // `8 of 8 caught`, which is byte-identical to a sabotage that was caught.
+    // Found by running it (`docs/gotchas.md` 102, from the other side: the
+    // break landed and the control could not show it).
+    return { "access-control-allow-origin": origin, "access-control-allow-methods": "GET, HEAD", "access-control-allow-headers": "content-type" };
   }
   if (mode === "cors-no-content-type") {
     return { "access-control-allow-origin": origin, "access-control-allow-methods": "GET, PUT", "access-control-allow-headers": "x-amz-meta-x" };

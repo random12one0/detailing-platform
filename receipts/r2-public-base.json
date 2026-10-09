@@ -1,9 +1,9 @@
 {
-  "git_sha": "6921c7a4ecb9ba81e3e820d3c386d60050efa91c",
-  "git_sha_started": "6921c7a4ecb9ba81e3e820d3c386d60050efa91c",
+  "git_sha": "301e87256b4079f9c18f2044b8a260e0577e87b4",
+  "git_sha_started": "301e87256b4079f9c18f2044b8a260e0577e87b4",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T19:47:12.372Z",
+  "finished_at": "2026-10-09T19:50:46.111Z",
   "failures": [
     "base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2)."
   ],
@@ -30,7 +30,7 @@
     "base_source": "none"
   },
   "check_id": "r2-public-base",
-  "started_at": "2026-10-09T19:47:12.152Z",
+  "started_at": "2026-10-09T19:50:45.872Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
