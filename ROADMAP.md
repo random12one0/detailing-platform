@@ -739,6 +739,118 @@ and how the wait ends.
   it does not make the account-only address and CORS steps executable by the
   belt, and it does not relax the standing rule that Andrew performs publishes.
 
+  Waits on: 0.11a, 0.11b, 0.11c, 0.11d. How the wait ends: those pieces are ticked.
+  Split on 2026-10-09 because this entry is 547 lines
+  long and no single session was finishing it.
+
+- [ ] **0.11a — Route expense receipt uploads through the R2 photo door**
+  Complete the app-side receipt integration with the existing multi-store photo door, including upload, read, replacement and removal flows. This leaves business-media objects, coordinated deployment and live R2 verification to later pieces.
+  Part 1 of 4 of item 0.11, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Every expense-receipt upload uses the photo-door start/finish protocol with no Supabase Storage fallback.
+  - Receipt reads and removals use photo-door URLs and removal actions.
+  - The client cannot choose another business's key, expense or bucket.
+  - Receipt tests cover the 5 MB limit, over-cap messaging, replacement and deletion.
+
+  ***THE TWO HALVES WERE RUN AGAINST EACH OTHER FOR THE FIRST TIME, 2026-10-09, AND IT FOUND ONE. Commit `5a1a66e`.
+  Credential-free, no network, no database, no R2, no browser. Nothing deployed, nothing applied, no flag flipped. The box stays `[ ]`.***
+
+  **WHAT WAS NOT COVERED, MEASURED NOT ASSUMED.** `grep -rn "receipts.js\|addReceipt\|removeReceipt\|signedReceiptUrl" tests/ scripts/
+  --include=*.mjs` at `dcf79dc` returned **nothing**: `app/src/lib/receipts.js` had never been executed by anything. The server suite
+  (`tests/photo-door-receipts.test.mjs`, 13 pass) drives `_shared/photoDoor.ts` and never sees `app/src`; `tests/photo-door.test.mjs`
+  drives the app's readers against answers **written by hand in the test**. So criterion 4 of this item — *receipt tests cover the 5 MB
+  limit, over-cap messaging, replacement and deletion* — had the server half only, and *"the app's bodies match the bodies the door
+  parses"* was a reading of two files side by side. **This item's own history says what that costs:** two of its recorded faults are this
+  exact seam (a 404 the app read as "not deployed" when it was the door's own *"Booking not found"*; `job_photo_budget()` answering no
+  rows to the service role) and **both were found by a person, not a test.**
+
+  **`tests/photo-door-receipt-wire.test.mjs` — 10 tests, `node --test tests/photo-door-receipt-wire.test.mjs` → 10 pass, 0 fail.**
+  `api.photoDoor` is stubbed to serialise the app's body into a `Request`, call the REAL `handlePhotoDoor` against an in-memory world,
+  and rebuild **exactly what `book/core.js`'s `postFunction` throws** — `new Error(data.error)` carrying `.status` and `.body`, which is
+  all three fields the app's refusals key on. `receipts.js` is copied beside five stub siblings **with its own text untouched** and run;
+  the stubs are `shrink` (needs a canvas) and `budgetFor` (needs a database), and `SIGNED_FOR` is **parsed out of the real `photos.js`**
+  rather than restated, so the expiry cannot drift.
+  What it asks: the order is start → one PUT → finish, with **zero** Supabase calls; the declared `claimed_bytes` equals the size of the
+  blob really PUT (900,000-byte file, 300,000-byte blob, so claiming the wrong one is visible); the stored `receipt_bytes` is **the size
+  R2 reported**, not the claim; an under-claim is caught at finish, the object deleted and no row written; the 5 MB ceiling and the
+  over-cap sentence arrive **as the server wrote them**, naming 9.9 MB of 10.0 MB used and *"Delete old job photos to make room"*; an
+  unreadable allowance is a 503 refusal, never "no limit"; a second receipt is 409 and replacement is remove-then-add; remove takes the
+  object **and** the five columns; another business's expense 404s with nothing uploaded; a `start` answer naming another business's key
+  is refused **before** the PUT; `urls` is **one** request for a list and two for `DOOR_BATCH + 1`; a mixed-business list is refused
+  before it is sent; and with the flag OFF the old path is byte-for-byte what it was, including `createSignedUrls` plural for a list.
+  **Six sabotages on the real `receipts.js` text**, each one string edit, **each edit asserted to have LANDED before the colour is
+  believed** (`docs/gotchas.md` 102): the claim swapped to the picked file's size, the key check removed, the finish check removed,
+  remove falling through to the old store, the mixed-business guard, and the old path's allowance check. All six caught.
+
+  **THE FAULT IT FOUND, AND IT IS IN PRODUCTION CODE ON EVERY STORE.** `doorError` read `if (typeof s === "number" && s >= 500)` and
+  returned the app's own generic line, so **every 5xx the door answers became *"The photo service had a problem. Try again in a minute."*
+  and six sentences the server writes for a detailer were unreachable**: *"Photo storage is not set up on the server yet."*, *"Receipt
+  storage is not set up on the server yet."*, *"Public image storage is not set up on the server yet."*, *"Could not check your photo
+  storage. Nothing was saved. Try again in a minute."*, *"Could not save the receipt. Try again."* and *"Could not save the photo. Try
+  again."* — **the first three are configuration, and "try again in a minute" sends a detailer round that loop for ever.** It is the SAME
+  fault as the 404 branch directly above it, which had already been corrected this way, and the fix is one word: `&& !spoke`. A 5xx with
+  no sentence of its own — a gateway, the platform, a crash before the door ran — is still the generic line, which is what that line is
+  for. **It is a root fix in the shared reader, so job photos, receipts and business media all get it.**
+  **The canary aimed at that branch was re-run in the same edit** (`CLAUDE.md` hard rule, `docs/gotchas.md` 95): `tests/photo-door.test.mjs`
+  § 4 now declares all six sentences plus a 502 with no sentence, and § 5 carries a new sabotage, `s >= 500 && !spoke` → `s >= 500`, which
+  is seen. `node --test tests/photo-door-receipt-wire.test.mjs tests/photo-door.test.mjs` → **16 pass, 0 fail**.
+
+  **ONE HONEST CONSEQUENCE, SAID RATHER THAN BURIED:** a 503 now arrives in **English** where it used to arrive as a translated
+  `DOOR_WORDS` line. That is the bargain every other status here already makes — 400, 403, 404, 409, 413 and 422 have always shown the
+  server's own English — and a translated sentence that says the wrong thing is worse than a true one in the wrong language. Translating
+  the door's sentences is its own item and is not folded in here. `node --test tests/spanish.test.mjs` → 1 pass (it reads `DOOR_WORDS`,
+  which is unchanged).
+
+  **THE OTHER SUITES ARE UNMOVED.** `node --test tests/photo-door-server.test.mjs tests/photo-door-receipts.test.mjs
+  tests/photo-door-media.test.mjs tests/job-photos.test.mjs tests/photo-call-sites.test.mjs tests/photo-key-isolation.test.mjs` → **58
+  pass, 0 fail**, and the isolation suite's own line reads **83 passed, 0 failed**. The four credential-free gates → 4 pass;
+  `no-credentials-in-tracked-text` → 0 fail; `every-open-item-is-citable` → 0 fail; `label-guard` → exit 0, no stale labels.
+  `node scripts/deployed-inventory.mjs` (credentialed, read-only, ref confirmed `kguqylyzgyzfktkfnhjb`) → **41 functions in the repo, 39
+  deployed, 2 never deployed** (`photo-door`, `photo-reconcile`) — unchanged, because nothing under `supabase/functions/` was touched.
+
+  **NOT PROVEN, SAID PLAINLY.** That R2 accepts these signatures; that Cloudflare serves the PUT; that the `expenses` update lands against
+  the real database; that the TypeScript compiles (node only strips types). **And no browser evidence for the branch that changed**, which
+  is not a skipped check but an unreachable one: a 5xx carrying a sentence can only come from the door, `photo-door` has never been
+  deployed, and `RECEIPTS_VIA_DOOR` is `false`. The OFF path was pressed at four frames on 2026-10-07 and is byte-for-byte unchanged here;
+  what replaces a press for the ON path is the paragraph above — the real reader run against the real handler, with the guard removed and
+  seen to go red.
+
+  NEEDS ANDREW: publish `photo-door` and then flip `RECEIPTS_VIA_DOOR` to `true` in `app/src/lib/photo-door.js`, and add the CORS rule to
+  the `expense-receipts` bucket in Cloudflare. No receipt code remains to write: criteria 1 to 4 are built and proved in memory, and
+  criterion 1's *"no Supabase Storage fallback"* is only true in the live product once that flag is on, which needs the published door
+  first. `FOR-ANDREW.md` step 9 already names the flag beside the function and the CORS rule; the publish is his by standing rule.
+
+- [ ] **0.11b — Move business media and intake images to public R2 storage**
+  Move gallery copies, logos and site-intake images from Supabase Storage to the business-media R2 bucket using the required public R2 address. This does not deploy the accumulated work or change the allowance.
+  Part 2 of 4 of item 0.11, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Gallery publishing, logo uploads and intake-photo uploads write only to business-media in R2.
+  - Public media URLs are derived from the configured public R2 address and remain usable by unauthenticated visitors.
+  - All business-media keys are minted and authorized for the caller's business.
+  - Tests prove there is no remaining Supabase Storage upload fallback for these media flows.
+
+- [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
+  Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
+  Part 3 of 4 of item 0.11, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The job-photos bucket CORS permits the production app, localhost development and applicable preview origins to GET and PUT with Content-Type.
+  - The required R2 function secrets are present without their values being printed or logged.
+  - The app never ships before photo-door, and the live upload switch and photo_total_gb change from 1 to 10 occur in the same release.
+  - The photo-reconcile cron entry is installed like refresh-weather, while photo-door retains JWT verification and photo-reconcile is publicly callable by cron.
+
+- [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
+  Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
+  Part 4 of 4 of item 0.11, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A real upload succeeds through a presigned R2 URL and no upload request reaches Supabase Storage.
+  - The resulting job_photos.bytes value exactly equals the size reported by R2, regardless of the client's claimed size.
+  - A cross-business key is refused, and an over-cap upload is refused with used space, limit and deletion guidance in the message.
+  - A cron-triggered photo-reconcile run records numeric drift in job_heartbeats, including orphan objects, missing objects, size mismatches, unknown sizes and tenant-prefix mismatches.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**

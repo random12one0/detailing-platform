@@ -257,7 +257,27 @@ const DECLARED = {
   // already does. **The same re-opening left `CROSS_FILE_OVERLAP` stale by one
   // in `every-open-item-is-citable` too** — one re-tick, two declared figures,
   // neither moved, and neither test was a belt gate. One is now.
-  numberedOpenItems: 53,
+  //
+  // 53 -> 58, 2026-10-09, ROADMAP 0.11a. TWO LEGS, BOTH MEASURED PER REVISION,
+  // and only one of them is this edit's:
+  //
+  //   HEAD `dcf79dc`  54   <- 53 declared, so already RED on arrival
+  //   worktree        58
+  //
+  // Taken by lifting this file's own `openItems` out and running it on
+  // `git show HEAD:ROADMAP.md` and on the working tree, then DIFFING THE ID
+  // SETS rather than the counts: the four new ids are exactly `0.11a`, `0.11b`,
+  // `0.11c`, `0.11d` and nothing else moved. **The inherited +1 is the 3.1
+  // slicing**, recorded in the `quoteFragments` ledger below by the session
+  // that found it red and deliberately left it for whoever caused it. Both legs
+  // now have a named cause, which is what this file asks for, so the constant
+  // moves to the whole 58 rather than to 57 — a partial move would report a
+  // population that is not the one in the file.
+  // **`quoteCriteria` is STILL RED at 36 against 37 and is NOT touched here**,
+  // for that same session's reason: its cause is the 3.1 slicing, not this edit,
+  // and a constant moved to whatever the run returned is this file's own
+  // forbidden move.
+  numberedOpenItems: 58,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
