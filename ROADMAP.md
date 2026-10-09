@@ -7689,6 +7689,15 @@ requested.
   webhook. **3.3 is the two product messages, their switches and the reply.**
   0.13 can be finished while 3.3 is untouched; 3.3 cannot start until it is.
   *A2 3.1, A2 Part 8 item 1 — A2 calls this the single biggest cut to no-shows*
+  **NEEDS ANDREW: checked 2026-10-08, still blocked, nothing built.** 0.13 has
+  not shipped — the Telnyx account has zero numbers, no webhook, and
+  `TEXTING.md` itself says, in its own words, not to build `send-sms` or the
+  inbound webhook until Andrew settles what the texts actually say. That is a
+  stronger instruction than "stub the outside service behind a flag" — it says
+  not to build those pieces at all, flag or no flag — so nothing was written
+  for 3.3 this round, not even the settings toggle, because a toggle for a
+  send path that does not exist is not a toggle. **The one decision that
+  unblocks this is in `FOR-ANDREW.md`'s Recorded section.**
 
 - [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
   Carried from the old roadmap, and it is the same job A1 § 10 asks for in its

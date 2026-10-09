@@ -2277,6 +2277,28 @@ once, which is still more than any script here can do.
 
 ## Recorded — nothing needed from you yet
 
+- **DECIDE · Texting customers is ready to start, except for one sentence
+  only you can write — checked 2026-10-08.** We can send a text when someone
+  books and another the day before their appointment, with a way for them to
+  reply and confirm. Nobody is allowed to build any of it yet, because you
+  asked to pick the exact wording first, and that is a deliberate pause, not
+  something stuck.
+
+  **What you need to decide:** what the booking-confirmation text says, and
+  what the day-before reminder text says, including the line that asks them
+  to reply to confirm. The plan for all of this is already written down,
+  waiting for your words, in `TEXTING.md`.
+
+  **Recommendation:** two short texts are enough. Something like *"Your
+  detail is booked for [day] at [time]. Reply C to confirm."* for the
+  reminder, and a plain one-line confirmation for the first text. You can
+  always change the wording later — the point is picking something so the
+  work can start.
+
+  **Why it matters beyond texting:** the fix-list item for "customers only
+  ever get email, never text" cannot even begin until this is settled. It is
+  not a second wait — it is the same one.
+
 ### The six emails of 2026-09-23 — moved here 2026-10-07 because it was the
 ### first thing on the page a fortnight later
 
