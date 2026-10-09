@@ -3306,3 +3306,49 @@ wrote that up as a blank page. `gotchas` 106: the selector came from the word
 `.manager-shots/supervision-2026-10-09/terms-{1440,392}-{top,tail}.png`.
 This says the page renders and is quiet; it does not re-close ROADMAP 0.4, which
 `a07a2dc` reopened for proving the checkout rather than the product.
+
+**ROADMAP 0.11d2's CLIENT HALF IS PROVED; ITS R2 HALF IS NOT. 2026-10-09,
+`scripts/job-photo-wire.mjs`, receipt graded PASS at `08f0f11`.** Dev server +
+the seeded demo tenant, a real 402-byte 16x16 PNG pressed into the job record's
+own file input at **1440 and 392**: **17 assertions, 0 failed, 2/2 widths,
+console clean at both**. What it establishes, on the network rather than from
+source:
+
+- **every byte of a job photo leaves through the door's presigned URL** —
+  exactly one PUT, to the URL `start` handed out, with a body whose length
+  equals the `claimed_bytes` the client declared;
+- **nothing reaches `/storage/v1/object`** during the whole press. Supabase
+  Storage READS are recorded separately and are not counted as uploads, because
+  folding the two together would fail toward a false defect;
+- **the `finish` request names no size of any kind** — not `bytes`, `size`,
+  `claimed_bytes`, `content_length`, `contentLength` or `byte_length`. This is
+  the client half of criterion 2 and the entire reason *"regardless of the
+  client's claimed size"* can hold: the browser states its size once, at
+  `start`, where it is used to refuse early, and is never given a second chance
+  to tell the server how big its file is;
+- **the client accepts the door's figure without a cross-check** — `finish` is
+  answered with `bytes: 7777777`, a figure matching neither the claim nor the
+  body, and `readFinish` takes it.
+
+**Broken on purpose twice, and certified on the FINDINGS LIST naming its own
+rule rather than on the verdict word** (`gotchas` 105).
+`--break=storage-fallback` puts a second door back — a Supabase Storage upload
+of the same blob after the signed PUT — and reddens **2**, naming the POST at
+both widths. `--break=client-size` makes the browser state `bytes` at `finish`
+as well and reddens **2**. An unrecognised `--break=` exits **2** and writes no
+receipt. Both rewrites happen to the RESPONSE, fetched in node and returned
+`no-store`, never with `route.fetch()` (`gotchas` 113), and **they sign
+themselves**: the run asserts `served 1, landed 1, executed 1` per width, so a
+rewrite that landed in a copy nothing ran cannot pass as green (`gotchas` 102).
+Nothing in `app/src` was edited; `git status` showed only this session's two new
+files.
+
+**WHAT THIS DOES NOT SAY, and the receipt names both as UNJUDGEABLE rather than
+folding them into the pass:** that R2 accepts a signature R2 itself minted, and
+that `head` states the stored object's real length so `job_photos.bytes` equals
+it. Both need the release — `photo-door` is undeployed and `.env` holds no R2
+credential, only the three `R2_*` NAMES as edge-function secrets, so nothing
+here can head an object or list a bucket. The server's side of that arithmetic
+is proved in memory by `tests/photo-door-server.test.mjs` §§ 11 and 13, which
+are statements about this checkout and not about what is answering on the
+internet. **0.11d stays open.**
