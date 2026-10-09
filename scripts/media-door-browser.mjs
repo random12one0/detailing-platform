@@ -8,7 +8,13 @@
 //
 // Dev server + the seeded demo tenant + credentials (the owner login only).
 // **IT WRITES NOTHING ANYWHERE**: no R2 object, no Supabase Storage object, no
-// `gallery_images` row, no migration, no deploy, no flag flipped on disk.
+// `gallery_images` or `business_branding` row, no `businesses` or
+// `business_settings` update, no migration, no deploy, no flag flipped on disk.
+//
+// **TWO OF THE THREE UPLOAD FLOWS, AT THREE WIDTHS EACH.** `Gallery.jsx`'s
+// gallery and `BusinessInfo.jsx`'s logo. Intake is the third and is not pressed
+// here; the FLOWS table below says why, and the receipt names it rather than
+// folding it into the pass.
 //
 // ---------------------------------------------------------------------------
 // WHY THIS EXISTS: 0.11b's FIRST ATTEMPT CALLED BROWSER EVIDENCE UNREACHABLE
@@ -51,47 +57,74 @@
 //       exactly as `photo-door/index.ts` line 133 wires them. Criterion 2 is
 //       about that derivation, so a template string here would test nothing.
 //
-//   3 · the signed PUT, and the `gallery_images` insert. The PUT answers 200
-//       because R2 is not ours to spend; the insert answers 201 **without
-//       reaching the database**, which is why no row is written — and its
-//       request body is read, because the url in it is the permanent record
-//       this whole item is about.
+//   3 · the signed PUT, and every write to the four tables in `WRITE_TABLES`.
+//       The PUT answers 200 because R2 is not ours to spend; each write answers
+//       201 **without reaching the database**, which is why no row is written —
+//       and the request body is read, because the url in it is the permanent
+//       record this whole item is about. **Four tables rather than one because
+//       the logo's row is written by Save**, and `BusinessInfo.jsx`'s
+//       `persist()` updates `businesses` and `business_settings` in the same
+//       `Promise.all`; answering only `gallery_images` would have rewritten two
+//       real rows on the demo tenant at every width.
 //
-// Everything else is the product: `Gallery.jsx` presses, `upload.js` reads the
-// flag and mints the file id, `readMediaStart` judges the answer, `doorError`
-// maps the status, and `Gallery.jsx` renders the sentence into `.error-box`.
+//   And one more that is this gate's own noise rather than the product's: a GET
+//   of the public base. The logo tile IS the preview, so the successful upload
+//   makes the browser fetch a host that is deliberately fake — see the route.
+//
+// Everything else is the product: `Gallery.jsx` and `BusinessInfo.jsx` press,
+// `upload.js` reads the flag and mints the file id, `readMediaStart` judges the
+// answer, `doorError` maps the status, and each screen renders the sentence
+// into its own `.error-box`.
 //
 // ---------------------------------------------------------------------------
-// WHAT IT ASKS AT EACH WIDTH — the case that works AND the case that is refused
+// WHAT IT ASKS PER FLOW AND WIDTH — the case that works AND the one refused
 // ---------------------------------------------------------------------------
+// Thirteen assertions, identical in shape on both screens, x 2 flows x 3
+// widths, plus the console read once across every context = 79.
+//
 //   THE CASE THAT WORKS (a 1x1 PNG, the kind of file a detailer picks):
-//     1. the flag substitution landed in the module the browser ran;
-//     2. the browser PUT to the door's signed url and to nothing else;
+//     1. the screen has exactly the number of file pickers its flow DECLARES —
+//        1 on the gallery, 2 on Business info (the logo tile and the cover).
+//        An equality, so a third picker is a flow this run presses no part of
+//        and says so, rather than arriving silently (`docs/gotchas.md` 98);
+//     2. the flag substitution landed in the module the browser RAN;
 //     3. ZERO Supabase Storage UPLOADS happened — criterion 4 asked of the live
 //        runtime rather than of the source, which is the only place a fallback
 //        could still be hiding. **Uploads, not traffic:** a public GET of an
 //        image stored before the switch is the thing `upload.js` promises keeps
 //        working, and counting those printed a false defect at all three widths;
-//     4. the key the door minted is this business's own `<biz>/gallery/<id>.png`;
-//     5. the url that reached `gallery_images.image_url` is EXACTLY
-//        `publicUrl(R2_MEDIA_BASE, key)` for the key that was really PUT;
-//     6. the screen says the photo was added.
+//     4. the browser PUT to the door's signed url and to nothing else;
+//     5. the key the door minted is this business's own `<biz>/<folder>/<id>.png`
+//        for the folder THIS screen asked for;
+//     6. the screen says what happened in its own words;
+//     7. the url that reached the permanent record is EXACTLY
+//        `publicUrl(R2_MEDIA_BASE, key)` for the key that was really PUT —
+//        `gallery_images.image_url` for the gallery, `business_branding.logo_url`
+//        for the logo. **On the logo that means Save is pressed**, because
+//        `BusinessInfo.jsx` only puts the url in React state and says "Press
+//        Save to keep it"; without the press this criterion is never asked of
+//        that flow at all.
 //
 //   THE CASE THAT IS REFUSED — **the 0.11b fault itself**: a door answer
 //   carrying the correct `key` beside ANOTHER BUSINESS's `public_url`. That is
 //   the one this item fixed, and it is the sharper of the two fields: a wrong
 //   `key` is a failed upload, a wrong `public_url` is the wrong image stored
 //   permanently in `gallery_images.image_url` or a brand's `logo_url`.
-//     7. the refusal is on the screen;
-//     8. it is the sentence the product composes, not a stack trace;
-//     9. its PIXELS ARE PAINTED — hit-tested at its own centre after being
+//     8. the refusal is on the screen;
+//     9. it is the sentence the product composes, not a stack trace;
+//    10. its PIXELS ARE PAINTED — hit-tested at its own centre after being
 //        scrolled into view, because "is it there" and "can it be read" are
 //        different questions (`docs/gotchas.md` 100) and the scroll has to come
 //        first or a box below the fold reads as covered (`gotchas` 110's shape,
 //        which 0.11d1 met at 320);
-//    10. NOTHING WAS PUT — the refusal happened before any byte left;
-//    11. NOTHING WAS STORED — no `gallery_images` insert was attempted, so the
-//        wrong url never became permanent.
+//    11. NOTHING WAS PUT — the refusal happened before any byte left;
+//    12. the rows left behind are exactly the number the flow DECLARES — none
+//        for the gallery, whose insert is part of the upload, and one for the
+//        logo, from the deliberate second Save press;
+//    13. and NO ROW BODY ANYWHERE named the other business, across every table
+//        Save touches. That is the claim the item is actually about, and on the
+//        logo it is the one the sabotage was silent on until the second Save
+//        press existed — see the paragraph at it.
 //
 // ---------------------------------------------------------------------------
 // THE TWO SABOTAGES, AND BOTH ARE ON THE REAL TEXT
@@ -104,8 +137,17 @@
 //
 // `--break=public-url` removes the `endsWith` condition 0.11b added, from the
 // module text the browser runs — not from a copy. The refusal case then goes
-// through: the browser PUTs, and **another business's url is stored**. That is
-// the fault itself, on a real screen.
+// through: the browser PUTs, and **another business's url is stored** — named
+// as `gallery_images` on one screen and `business_branding` on the other. That
+// is the fault itself, on a real screen.
+//
+// **AND ON THE LOGO IT NAMED NOTHING UNTIL THE SECOND SAVE PRESS EXISTED**,
+// which was found by running it and reading which lines went red rather than
+// by reasoning about it. The guard was really gone, the run really went red on
+// the PUT, and the assertion that mattered most — the url stored for good —
+// was silent, because that row is written by Save and nothing pressed Save
+// after the refusal. A sabotage that reddens on the wrong assertion looks
+// exactly like one that works.
 //
 // **BOTH ARE ASSERTED TO HAVE LANDED BEFORE ANY COLOUR IS BELIEVED** and both
 // declare WHAT BECOMES OBSERVABLE rather than merely "it rejected"
