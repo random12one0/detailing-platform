@@ -295,12 +295,49 @@ nothing behind it is a promise the platform cannot keep.
 IS A DECISION ONLY YOU CAN MAKE.**
 
 **a1 · The CORS rule, on all THREE buckets:** `job-photos`, `expense-receipts`
-and `business-media`. Allow your website's address to GET and PUT with the
-`Content-Type` header. Also allow `http://localhost:5173` while testing, and any
-preview address you use. **Without it every upload is blocked by the browser even
-though the program works.** *This line named only `job-photos` until 2026-10-08;
-receipts and the logo-and-gallery bucket need the same rule and would have failed
-with a program that was working perfectly.*
+and `business-media`. **Without it every upload is blocked by the browser even
+though the program works.**
+
+**Paste this exact block into each of the three buckets' CORS settings.** It is
+the same block all three times. It allows GET and PUT with the `Content-Type`
+header, from the six addresses the product actually runs on:
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "https://detailingplatform.com",
+      "https://www.detailingplatform.com",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://*.netlify.app",
+      "https://*.netlify.live"
+    ],
+    "AllowedMethods": ["GET", "PUT"],
+    "AllowedHeaders": ["Content-Type"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+*Why six and not one, since they are all "your website".* **A browser treats
+`detailingplatform.com` and `www.detailingplatform.com` as two different
+places**, so one of them being missing blocks uploads for whoever happens to
+land on that one. The two `localhost` lines are the test setup on this machine.
+The two `netlify` lines are the temporary addresses a preview gets — they are
+generated fresh each time and cannot be listed one by one, which is why they are
+written with a `*`. **If Cloudflare refuses a line, paste the rest and tell us
+which one** — do not drop a line quietly, because the only symptom is an upload
+that fails from one address and works from another.
+
+*And this block is not typed from memory — it is produced from the product, so
+it cannot drift:* `node scripts/cors-rule.mjs` prints it and checks that this
+very step still names every address, both methods, the header and all three
+buckets. **It came back red the day it was written**: this step said *"your
+website's address"* and *"any preview address you use"*, which named one of the
+six addresses and left the other five to be guessed. *The step named only
+`job-photos` until 2026-10-08; receipts and the logo-and-gallery bucket need the
+same rule and would have failed with a program that was working perfectly.*
 
 **a2 · Give `business-media` a public web address, and tell us what it is.**
 This is the one thing in the whole photo job that nobody but you can do, and it

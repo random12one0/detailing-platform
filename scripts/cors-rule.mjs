@@ -367,15 +367,28 @@ if (invokedDirectly) {
   // the exact omission that was live this morning.
   const canaryWorld = structuredClone(w);
   canaryWorld.step = canaryWorld.step.replace("https://www.detailingplatform.com", "x");
-  const canaryRule = judge(canaryWorld).find((r) => r.rule === "step-names-every-origin");
-  const canaryCaught = canaryRule.verdict === "fail";
+  const originCanary = judge(canaryWorld).find((r) => r.rule === "step-names-every-origin");
+
+  // AND A SECOND ONE, BECAUSE THE FIRST SABOTAGE OF THIS FILE PROVED THE
+  // POPULATION GUARD WAS DECORATION TODAY. `step-names-three-buckets` fails
+  // when a `bucket:` entry does not resolve to a name — which is the bug this
+  // script shipped with for one run — and that branch cannot fire while the
+  // repo is healthy, so nothing would notice it being removed. Re-judged every
+  // run against a world where one of the three went unresolved.
+  const popWorld = structuredClone(w);
+  popWorld.buckets = popWorld.buckets.slice(0, -1);
+  const popCanary = judge(popWorld).find((r) => r.rule === "step-names-three-buckets");
+
+  const canaryCaught = originCanary.verdict === "fail" && popCanary.verdict === "fail";
 
   const failures = results.filter((r) => r.verdict === "fail");
   const unjudgeable = results.filter((r) => r.verdict === "unjudgeable");
   const assertions = results.reduce((n, r) => n + r.asked, 0) + 1; // +1 for the canary
 
   console.log('\ncanary "www-origin-dropped": a step 9a1 missing the www origin was '
-    + (canaryCaught ? "CAUGHT" : "NOT caught"));
+    + (originCanary.verdict === "fail" ? "CAUGHT" : "NOT caught"));
+  console.log('canary "bucket-unresolved": a world where one of the three buckets did not '
+    + "resolve was " + (popCanary.verdict === "fail" ? "CAUGHT" : "NOT caught"));
   console.log("\n" + results.length + " rules · " + failures.length + " failed · "
     + unjudgeable.length + " unjudgeable · " + assertions + " assertions");
   console.log("\nthe rule, derived and ready to paste on all " + w.buckets.length + " buckets ("
@@ -393,7 +406,8 @@ if (invokedDirectly) {
     "",
     ...results.map((r) => r.verdict.toUpperCase() + "  " + r.rule + "\n    " + r.says),
     "",
-    "canary caught: " + canaryCaught,
+    "canary www-origin-dropped caught: " + (originCanary.verdict === "fail"),
+    "canary bucket-unresolved caught: " + (popCanary.verdict === "fail"),
     "",
     corsJson(w),
   ].join("\n") + "\n");
@@ -422,7 +436,12 @@ if (invokedDirectly) {
       get_call_sites: w.transport.get.length,
       broken_on_purpose: brk || null,
     },
-    canary: { id: "www-origin-dropped", observed_failure: canaryCaught },
+    canary: {
+      id: "www-origin-dropped + bucket-unresolved",
+      observed_failure: canaryCaught,
+      www_origin_dropped: originCanary.verdict === "fail",
+      bucket_unresolved: popCanary.verdict === "fail",
+    },
   });
   console.log("\nreceipt: " + path.relative(REPO, rp) + " (" + receipt.status + ")");
   process.exit(failures.length === 0 && canaryCaught ? 0 : 1);
