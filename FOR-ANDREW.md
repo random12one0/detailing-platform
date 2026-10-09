@@ -1822,19 +1822,33 @@ still knows them.
   node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql
   ```
 
-  **What it does, in plain words.** Your Clients screen currently lists sixteen
-  people for the practice business, and three of them are not people — they are
-  left over from automated checks, with names like *zone-muew68al* and phone
-  numbers like *(555) 013-3* that no phone can ring. They also sit inside the
-  headline figure at the top of the screen: it says **8 have gone quiet** when
-  the true answer for real customers is **5**. This command adds one tick box to
-  every customer, ticks it on the rows that are obviously fixtures, and **the
-  screen then hides them by default** — with a small chip saying *"Show 3 test
-  rows"* if you ever want to look.
+  **WHAT IT DOES, IN PLAIN WORDS — AND THIS ROW WAS REWRITTEN ON 2026-10-09,
+  BECAUSE IT WAS DESCRIBING A SCREEN THAT NO LONGER LOOKS LIKE THAT.** The
+  command adds one tick box to every customer and ticks it on the rows that are
+  obviously left over from automated checks, so your Clients screen can keep
+  them out of the list and out of the figures at the top of it, with a small
+  chip to bring them back if you ever want to look.
 
   **NOTHING IS DELETED, and that is your own ruling being followed.** About
-  sixty automated checks sign into these fake accounts; a check that cannot run
+  sixty automated checks sign into these fake rows; a check that cannot run
   looks exactly like one that passed. Every row stays exactly where it is.
+
+  **WHAT CHANGED, AND READ IT BEFORE YOU RUN ANYTHING: THE PRACTICE BUSINESS IS
+  ALREADY CLEAN.** This row used to tell you your Clients screen listed sixteen
+  people with three fakes among them, and that the headline said *"8 have gone
+  quiet"* when the true answer was 5. **That was true on 2026-09-24 and it is
+  not true now.** Measured on 2026-10-09: the practice business has **thirteen
+  customers and not one of them is a fake**. The three leftovers this row was
+  written about are gone from the database, and the headline already reads the
+  right number, **5**, without the command having been run.
+
+  **So running it today would change nothing you can see.** It would still tick
+  **31 fake rows spread over six other practice businesses** — the ones only the
+  automated checks ever open, which you never look at. It is still worth having
+  in place, because the next check that leaves a row behind would then be kept
+  out of your list automatically instead of sitting in it until somebody
+  notices. **Think of it as fitting the filter before the dirt arrives, rather
+  than as clearing up dirt.** That is also why it is no longer urgent.
 
   **It is safe to run twice** — it skips work it has already done. It touches
   only `kguqylyzgyzfktkfnhjb`, the development database, never your real
@@ -1842,19 +1856,21 @@ still knows them.
 
   **How you will know it worked:** `node scripts/migration-drift.mjs` says
   `customers.is_test` is absent today and will stop saying it. And
-  `node scripts/client-fixtures.mjs` keeps passing either way, printing
-  `column_live: true` afterwards instead of `false`.
+  `node scripts/client-fixtures.mjs` will print `column_live: true` instead
+  of `false`, and `fixtures_fabricated: false` instead of `true` — it will
+  be measuring a real ticked row rather than supplying itself a pretend one.
 
   **AND IT FINISHES TWO THINGS ON THE LIST RATHER THAN ONE — found 2026-10-03.**
-  The screen that hides the test rows **is already written**. It was built, and
-  then it quietly stopped working, because the tick box it looks for was never
-  added — so it looks at every customer, finds no tick, and shows them all.
-  **Running this one command is the whole of what is missing**, and it closes
-  **both** of the two jobs on our list about test rows in your lists (0.3 and
-  1.3). **Nothing else is needed for either of them.**
+  The screen that hides the test rows **is already written**, and it is now also
+  proved: on 2026-10-09, at every screen width from a narrow phone to a desk
+  monitor, the list keeps the fake row out, the headline counts thirteen people
+  and not fourteen, *"gone quiet"* says five and not six, and the chip brings
+  the row back with a **Test** mark on it that is actually visible. **The tick
+  box is the whole of what is missing**, and adding it closes **both** of the
+  jobs on our list about test rows in your lists (0.3 and 1.3).
 
-  **Nothing breaks while this waits** — the screen simply goes on showing all
-  sixteen, exactly as it does today.
+  **Nothing breaks while this waits** — the screen goes on looking exactly as it
+  does today, which is already correct.
 
 - [x] **DECIDED · The day squares stay as they are. 2026-09-24 — nothing
   needed from you.**

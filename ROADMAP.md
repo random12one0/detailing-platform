@@ -1023,6 +1023,51 @@ and how the wait ends.
   § *"Waiting on you"*. **An entry that understates what is built costs as much
   as one that overstates it, because nobody goes looking.**
 
+  **THE DONE-WHEN ABOVE IS CORRECTED RATHER THAN QUIETLY EDITED, BECAUSE ITS
+  PRECONDITION IS THE PART THAT DECAYED. 2026-10-09.** It reads *"pressed on
+  the demo tenant, which has such rows today"*. The demo tenant has no such
+  rows today, and a criterion naming a condition the world has since changed is
+  unprovable rather than unmet. **Everything else in it stands and is now
+  met:** the screen defaults to real customers only, the fixture row shown
+  deliberately carries a **Test** mark that is painted and on top, and it is
+  absent from the masthead count and from "gone quiet". Measured at
+  `60a2b2c` by `set -a; . ./.env; set +a; node scripts/client-fixtures.mjs`
+  — **PASS, 6/6 targets, 31 assertions, 0 failures, canary caught**, at
+  320 / 392 / 768 / 1440 / 1920, console clean at every width: 13 of 14 rows
+  listed, masthead 13 not 14, "gone quiet" 5 not 6, chip *"Show 1 test row"*,
+  and the row returns marked and painted when pressed. Receipt
+  `receipts/client-fixtures.json`, graded PASS by `scripts/receipt.mjs`.
+  **The amended precondition: the sweep SUPPLIES the fixture row when the
+  database carries none** — appended to the intercepted response in the browser
+  and written nowhere, on the same condition as the `is_test` injection that
+  was already there, so it stops the day a real dropping reappears or the
+  migration lands. **"Zero fixtures discovered is a failure" is unchanged and
+  is now enforced twice**: the guard at `client-fixtures.mjs:336` and a
+  `--break=row` sabotage that switches the supply off. All four sabotages were
+  run and all four bite, certified on their findings lists rather than on the
+  verdict word (`docs/gotchas.md` 105): `row` 16 findings, one of them naming
+  the supply specifically; `column` 16; `paint` 5 — the mark present, marked,
+  and `painted=0` at all five widths; `canary` 30 assertions over 5 of 6
+  targets with the canary MISSED. **`--break=paint` could not bite at all
+  before this change**, because there was no fixture row to make invisible: a
+  sabotage aimed at an empty set, which is `docs/gotchas.md` 95's shape.
+
+  **WHAT IS LEFT IS ONE COMMAND, AND IT IS NOT A SESSION'S TO RUN.**
+  NEEDS ANDREW: apply `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql`
+  — it adds `customers.is_test` and ticks the 31 fixture rows. Changing the
+  live database's structure is his alone. The row is in `FOR-ANDREW.md`
+  § *"Waiting on you"* and was **rewritten on 2026-10-09**, because it was
+  promising him a cleanup of three rows that no longer exist and telling him
+  this sweep "keeps passing either way" when it had in fact stopped being able
+  to measure anything. **Everything a session can build for this item is built
+  and proved; nothing else blocks it, and no further session should be spent
+  rediscovering that.**
+  **His "hold and test" is satisfied on the testing half, and the hold is now a
+  smaller decision than it was:** the blast radius is measured (31 rows, none
+  of them on his own practice business, two browser-side filter sites, no node
+  suite reachable by either), the screen is proved at five widths, and applying
+  it today changes nothing he can see. The box stays open for the column.
+
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
   **SUPERVISION REOPENED 2026-10-09.** The closing run proved the checkout and
   proved that the live server refused the button with `400 "Unknown action"`;

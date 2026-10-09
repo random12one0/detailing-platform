@@ -708,7 +708,29 @@ const DECLARED = {
   // five more — so this is one change counted in two places, not two changes.
   // 32 fragments, which is the order of movement this figure has shown before
   // on a single-item edit (the 254 -> 277 note records 21 for one item).
-  quoteFragments: 408,
+  //
+  // 408 -> 414, 2026-10-09, ROADMAP 0.3. Two blocks appended to 0.3's entry —
+  // the end-to-end measurement Andrew asked for, and the Done-when correction
+  // — quote the criterion and the sweep's own output back ("pressed on the
+  // demo tenant, which has such rows today", "learn: no fixture row was
+  // discovered", "Show 1 test row", "gone quiet", "the true answer for real
+  // customers", "Waiting on you"). Seven fragments by the run, +6 against this
+  // constant; no item was added or closed, which is why `numberedOpenItems`
+  // and `quoteCriteria` are untouched by this edit.
+  //
+  // **AND THE OTHER TWO FIGURES WERE ALREADY MOVED WHEN THIS EDIT ARRIVED, SO
+  // THEY ARE DELIBERATELY LEFT RED RATHER THAN SWEPT UP WITH IT.** Measured in
+  // a detached worktree at `ee6f5e0`, before any of 0.3's edits existed: this
+  // file already failed 3 of 8 there, reporting `numberedOpenItems` 54 (from
+  // 53), `quoteCriteria` 36 (from 37) and `quoteFragments` 407 (from 408), and
+  // test 3b already named `3.1b` and `3.1c` as items no commit mentions. Those
+  // belong to the 3.1 slicing in `ee6f5e0`/`8557c5d`/`653bf3b`. **Moving them
+  // here would be this file's own forbidden move** — a constant updated to
+  // whatever the run returned without anybody asking what moved — so only the
+  // leg whose cause is known is moved, and the rest stays visible for whoever
+  // caused it. The figure above was re-measured at 414 AFTER 0.3's blocks were
+  // in the tree, not predicted from 407 + 7.
+  quoteFragments: 414,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
