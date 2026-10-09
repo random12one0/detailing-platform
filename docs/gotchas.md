@@ -5094,3 +5094,48 @@ run in the same edit, per CLAUDE.md's hard rule.
 
 Related: 95 (a relaxed assertion disarms its canary), 98 (an inequality carries
 slack), 93 (a number edited to make two things agree).
+
+## 112 — TWO CALLERS OF THE SAME CAP CHECK MEASURE DIFFERENT BYTES, SO A FILE SIZED TO BREACH ONE OF THEM LEGITIMATELY FITS THROUGH THE OTHER — AND THE CORRECT REFUSAL READS AS A MISSING ONE
+
+Found by the supervisor, 2026-10-09, closing the two gaps ROADMAP 0.11d1 wrote
+down as unproven.
+
+The photo allowance is checked in two places and **they do not weigh the same
+object**:
+
+| caller | what it measures | why |
+|---|---|---|
+| `JobPhotos.jsx` | `file.size` — the ORIGINAL the person picked | pessimistic on purpose: the resize lands it lower, so nobody gets through who should not |
+| `receipts.js` | `blob.size` — the SHRUNK blob | the door checks `claimed_bytes` against what R2 really stored, so the number sent has to be the blob really going up |
+
+Both are right. But a probe that provokes a refusal with **a 1×1 PNG padded to
+2 MB** breaches the first and sails through the second: `shrink()` resizes it to
+a few hundred bytes, and against 1.24 MB of room it **fits**. The expense sheet
+then saves normally, closes, and shows nothing — which is exactly what "the
+product failed to show its refusal" looks like.
+
+**It printed a false defect at both widths and in both languages — 8 of 22
+checks — over a screen that was composing the sentence perfectly.** False
+defects are the direction that gets working code "fixed" (see 106, 107, 109).
+
+**TWO FIXES, AND THE FIRST ONE IS THE ONE WORTH COPYING.**
+
+1. **Ask the thing that knows, before pressing.** The sheet's own label reads
+   *"Add a photo of the receipt"* until it holds a file and *"Receipt attached
+   — choose another"* once it does. Asserting that flip — 108's shape — turns
+   *"no refusal appeared"* into *"the file never counted"*, which is a different
+   investigation. Without it the run accuses the product.
+2. **Size the provocation against the byte the caller actually weighs.** A
+   canvas of RANDOM NOISE at `MAX_EDGE` does not compress, so the shrunk blob
+   stays ~8.8 MB; and the intercepted budget was moved to **10.0 MB of 10.24
+   MB** so only 251 KB of room is left. Two figures that still format
+   differently — `9.0 MB` of `10.24 MB` leaves 1.24 MB, which a resized receipt
+   genuinely fits inside.
+
+**The general rule: before sizing a fixture to breach a limit, read which
+expression the limit is applied to in the caller you are exercising.** "The
+file is bigger than the room" is not one fact here; it is two, and only one of
+them is true at a time.
+
+Related: 108 (ask the element whether the press landed), 107 (a false defect
+from a wait), 106 (a refutation deserves more scepticism than a confirmation).

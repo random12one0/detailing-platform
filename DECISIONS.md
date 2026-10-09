@@ -334,6 +334,8 @@ were made more than once.
 
 - **Ticking on structural proof when the appearance is unmeasurable** — supervision 2026-10-09, after ROADMAP 3.1a was built correctly, ticked, unticked for an unseen scrollbar, and would have been dispatched a third time. Why the box is ticked on a measurement of the structural half plus a named UNJUDGEABLE, rather than left open for an appearance no browser on this machine can photograph — and the three things that were tried first. Also why `0.16`'s `Waits on:` had to be edited, not just its box ticked.
 
+- **Routing the belt on the top of an entry, not all 1,249 words of it** — supervision 2026-10-09, after measuring that 24 of 57 open items (42%) took the single most expensive rule in the config, and that *2.15 — the sticky footer can cover the last choice* ran at opus/xhigh because the word "migration" appears somewhere in its entry. Why the answer was a character window rather than matching on the heading, why a rule for irreversible state had to be added in the same edit, and why under-routing is the safe direction here.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18740,3 +18742,63 @@ slices.
 live-release criteria; treating the Google dependency as a block would idle the
 entire buildable connection surface. The roadmap now says which half each
 decision moves.
+
+## Routing the belt on the top of an entry, not all 1,249 words of it
+
+**Supervision, 2026-10-09.** The belt chooses a model and an effort level by
+matching plain regular expressions against an item's text, first match wins.
+It was matching against the WHOLE entry.
+
+**What that costs, measured on this project's 57 open items rather than
+argued.** The median open entry is **1,249 words** and the longest is
+**10,012**. Against text that long a word-anywhere rule is close to a
+tautology: **24 of 57 items (42%) took rule 0 — opus at xhigh effort, the most
+expensive setting in the config** — 47 of 57 took some opus rule, and only 5
+ever reached a sonnet rule.
+
+**The worked example is the whole argument.** *2.15 — "The sticky footer can
+cover the last choice"* is bottom padding on a fixed footer. It was dispatched
+at **opus/xhigh**, three times, because the word **"migration"** appears
+somewhere inside its entry. Nothing about the item is a migration.
+
+**The decision: match the rules against the first 1,200 characters**
+(`modelRouteChars` in `belt.config.json`; 0 keeps the old behaviour, and every
+caller that does not set it is unchanged). The resulting split over the same 57
+items is **7 xhigh / 26 opus-high / 24 sonnet**, which follows what the items
+are.
+
+**Why not the heading alone, which is the obvious answer.** It is one line, and
+**47 of 57 items change class on it** — including several that genuinely need
+the strong model and do not say so in any rule's words (0.11b moves media
+between buckets; its heading reads "Move business media and intake images to
+public R2"). 1,200 characters is the heading plus the opening statement. It
+also suits this repo specifically: resolutions here are PREPENDED above the
+original body, so the top of an entry is its live state rather than its oldest
+text.
+
+**A rule for irreversible state was added in the same edit, because the change
+would otherwise have made one item worse.** *4.1 — "One tap completes a job,
+with no confirmation and no undo"* was reaching opus accidentally, on
+"migration". On the top of its entry it would have fallen to sonnet, and
+nothing in the rule list spoke to undo, data loss or an audit record. The new
+rule — `undo|irreversible|cannot be undone|no confirmation|data loss|destructive|audit (trail|record)`
+→ opus/high — puts it back on purpose instead of by accident.
+
+**Why under-routing is the safe direction here, and over-routing is not.** A
+retry always escalates: *attempt 2 — never the same model twice*. So guessing
+too cheap costs one run. Guessing too dear cost **three 50-minute timeouts in
+one night** (4.1, and 3.1 twice), all on items routed by that first rule.
+
+**Broken on purpose before it was trusted.** Three assertions were added to
+`belt.mjs --self-check` — a rule word buried past the window must not decide,
+the same word at the top must still decide, and an unset window must still read
+the whole entry. Clean: **296 assertions pass**. With the matched text forced
+back to the full entry, **the buried-word assertion fails by name and the other
+two hold** — and the sabotage was proved to have landed before either colour
+was believed (`docs/gotchas.md` 102), by counting the edited expression in the
+file.
+
+**What this does not do.** It does not touch readiness, blocking or
+shortlisting, all of which still read the whole entry — correctly, because an
+item's meaning does live in all of it. This is about one question only: how
+much to spend on it.

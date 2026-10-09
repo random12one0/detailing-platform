@@ -3209,3 +3209,48 @@ suite separately restores the exact `s >= 500` branch that swallowed the
 server's useful sentence and requires that sabotage to be named. This proves
 the build slice and its regression net; it does not claim that R2 is published
 or that Cloudflare accepts a real upload. Those remain 0.11c and 0.11d.
+
+## 2026-10-09 — ROADMAP 0.11d1's two declared gaps, closed in a browser
+
+At `ccc1e9c`, supervision opened the real screens rather than reading them.
+0.11d1 was ticked with two things written down as unproven: the expense sheet's
+rendering of the over-cap refusal, and the Spanish rendering of either
+sentence. Both are now measured.
+
+Four cases — job record and expense sheet × English and Spanish — at 1440×900
+and 392×844. **22 of 22 checks, console clean at every width and language.**
+Each sentence was compared to the character against the string composed from
+`appEs`, hit-tested at its own centre (`docs/gotchas.md` 100), and checked for
+clipping. What the screens said:
+
+```text
+job/es      El almacenamiento de fotos está lleno: 10.0 MB de 10.2 MB usados.
+            Quita algunas fotos para agregar más.
+expense/es  Gasto guardado, pero el recibo no se adjuntó. El almacenamiento de
+            fotos está lleno: 10.0 MB de 10.2 MB usados. Quita algunas fotos
+            para agregar más.
+```
+
+Method: one intercept, the `job_photo_budget` answer, in the shape the RPC
+really gives it — the same one this slice's own gate uses, because the cap
+cannot be filled while `photo-door` is unpublished. Everything after it is the
+product's: `roomFor` decides, `fullWords` composes, `t` translates. Nothing in
+`app/src` was patched. The run inserted one `expenses` row per press into
+`demo-detail` (the sheet's own order: the number is saved before the paper is
+attached) and deleted all four afterwards.
+
+Screenshots, local only: `.manager-shots/sup-overcap-{job,expense}-{en,es}-{1440,392}.png`.
+
+**What this does NOT claim.** Nothing about R2, the door being published, or a
+real upload. It also does not re-prove 320 — the slice's own gate covers that
+width for the job path, and this run added 1440 and 392 for the paths that had
+never been opened.
+
+**The first run of this probe printed 8 false defects** and the reason is now
+`docs/gotchas.md` 112: the two callers of the cap weigh different bytes, so the
+fixture that breaches one legitimately fits through the other.
+
+Re-run: the probe is a scratchpad script, not committed. It is reproducible
+from the gotchas entry and this paragraph — the ingredients are the intercept
+above, a random-noise canvas at `MAX_EDGE` for the file, and a budget of 10.0
+MB of 10.24 MB so that only 251 KB of room is left.

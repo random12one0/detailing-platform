@@ -1,9 +1,9 @@
 {
-  "git_sha": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
-  "git_sha_started": "f312d61f079a4fe124e693c09cba1a78f1e33b05",
+  "git_sha": "ccc1e9c9e16dd9935e424fa2059ab8d424cac0ae",
+  "git_sha_started": "ccc1e9c9e16dd9935e424fa2059ab8d424cac0ae",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T18:11:58.544Z",
+  "finished_at": "2026-10-09T18:39:07.746Z",
   "failures": [],
   "warnings": [
     "The server's own fullSentence is unreachable on these two paths by design; it has its own checks."
@@ -34,7 +34,7 @@
     ]
   },
   "check_id": "overcap-refusal",
-  "started_at": "2026-10-09T18:11:58.450Z",
+  "started_at": "2026-10-09T18:39:07.660Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,

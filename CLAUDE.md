@@ -173,7 +173,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND ELEVEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND TWELVE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -758,3 +758,12 @@ reproduces to the pixel. **A refutation deserves more scepticism than a confirma
 confirming costs nothing and refuting overwrites a correct record. Found by the supervisor, on
 itself, while re-checking ROADMAP 7.10. Twenty-one sittings unbroken; `grep -c "^## " docs/gotchas.md`
 run before writing this and again after, so the 106 above is a count rather than an increment.
+
+**111 → 112 on 2026-10-09, same edit, by the supervisor** — the photo cap is checked in two
+callers that weigh DIFFERENT BYTES: `JobPhotos` the original file, `receipts.js` the shrunk blob.
+A 1×1 PNG padded to 2 MB breaches the first and legitimately FITS through the second, so a correct
+refusal that never fired printed as *"the product shows no refusal"* — **8 false defects of 22, at
+both widths and in both languages, over a screen composing the sentence perfectly.** The fix that
+generalises is not the fixture: it is asking the sheet's own label whether it holds the file before
+pressing Save. Twenty-five sittings unbroken; `grep -c "^## " docs/gotchas.md` run before writing
+this and again after, so the 112 above is a count rather than an increment.

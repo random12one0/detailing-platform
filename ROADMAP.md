@@ -1129,10 +1129,31 @@ and how the wait ends.
     product branch is bypassed.** Screenshots at all three widths are under `.manager-shots/`
     (`overcap-1440.png`, `overcap-392.png`, `overcap-320.png`).
 
-    **NOT PROVEN, SAID PLAINLY.** The expense path's rendering — `tests/overcap-refusal.test.mjs` § 3 proves
-    its wiring and the sentence it composes, but no browser run opened an expense sheet over its cap. The
-    Spanish rendering of either sentence: the key and its placeholders are asserted by
-    `tests/spanish.test.mjs`, which is not the same as having looked at it.
+    **~~NOT PROVEN, SAID PLAINLY.~~ BOTH GAPS CLOSED BY THE SUPERVISOR, 2026-10-09, IN A BROWSER.** They were
+    named honestly here and that is why they got closed: the expense path's rendering (wiring proved by
+    `tests/overcap-refusal.test.mjs` § 3, never opened on a screen) and the Spanish rendering of either
+    sentence (the key asserted by `tests/spanish.test.mjs`, which is not the same as having looked).
+    **Four cases — job record and expense sheet × English and Spanish — at 1440 and 392, 22 of 22 checks,
+    console clean at every one.** Same single intercept this slice's own gate uses (the `job_photo_budget`
+    answer); nothing in `app/src` patched. Each sentence was matched **to the character** against the string
+    composed from the catalogue, hit-tested at its own centre, and checked for clipping:
+
+    - job record, Spanish — *"El almacenamiento de fotos está lleno: 10.0 MB de 10.2 MB usados. Quita algunas
+      fotos para agregar más."*
+    - expense sheet, Spanish — *"Gasto guardado, pero el recibo no se adjuntó."* + the same sentence, with
+      the sheet still open and **Cerrar** under it.
+    - the English pair, identical but for the words.
+
+    Screenshots: `.manager-shots/sup-overcap-{job,expense}-{en,es}-{1440,392}.png` — eight files, local only.
+    The run wrote one `expenses` row per press into `demo-detail` and deleted all four afterwards.
+
+    **AND IT PRINTED A FALSE DEFECT FIRST, WHICH IS NOW `docs/gotchas.md` 112.** The two callers of the cap
+    weigh **different bytes** — `JobPhotos` the original file a person picked, `receipts.js` the SHRUNK blob —
+    so a 1×1 PNG padded to 2 MB breaches the first and **legitimately fits** through the second. The expense
+    sheet saved and closed exactly as a sheet that failed to refuse would, and 8 of 22 checks accused a screen
+    that was composing the sentence perfectly. The fix worth copying is not the fixture (noise at `MAX_EDGE`,
+    and 10.0 of 10.24 MB so only 251 KB is left): it is **asking the sheet's own label whether it holds the
+    file before pressing Save**, which turns *"no refusal appeared"* into *"the file never counted."*
   - [ ] **0.11d2 — The real upload and the authoritative size.** Criteria 1 and 2: a browser PUT to a presigned
     R2 URL with zero requests to `/storage/v1/object` on the job-photo path, and a client that LIES about its
     size (`claimed_bytes` 1 against a real body) still recorded at R2's `head` figure. **Blocked on the

@@ -277,7 +277,14 @@ const DECLARED = {
   // for that same session's reason: its cause is the 3.1 slicing, not this edit,
   // and a constant moved to whatever the run returned is this file's own
   // forbidden move.
-  numberedOpenItems: 58,
+  // 58 -> 57, 2026-10-09, SUPERVISOR. **One cause, one commit, and it is not
+  // mine:** `ccc1e9c` ticked `0.11a`, so one numbered open item left the
+  // population. Nothing else moved — `git show HEAD:ROADMAP.md | grep -cE
+  // "^- \[ \] \*{0,2}[0-9]"` and the same against the working tree both answer
+  // 52 raw, and this method's own count answers 57 at both. The session that
+  // closed `0.11a` left this red; it is moved here with the cause named rather
+  // than left to look like drift.
+  numberedOpenItems: 57,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -376,7 +383,14 @@ const DECLARED = {
   // the same mechanic the 254 -> 277 note below describes, seen from the other
   // side: a figure here moves when an entry's BOUNDARY moves, not only when its
   // prose does. Re-taken at this edit's tree with the canary off.
-  quoteCriteria: 37,
+  // 37 -> 36, 2026-10-09, SUPERVISOR. **The same single cause as
+  // `numberedOpenItems` directly above:** `ccc1e9c` ticked `0.11a`, and a
+  // closed item takes its Done-when zone out of the population with it. One
+  // item left, both legs moved by exactly one, and the previous note above
+  // already predicted this figure would have to move once its cause was named
+  // — it had been left red on purpose, which is the right call and is why this
+  // is a move with a reason rather than a fit to the output.
+  quoteCriteria: 36,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
