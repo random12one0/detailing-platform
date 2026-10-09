@@ -1,9 +1,9 @@
 {
-  "git_sha": "251ebd75824872e8e5b0298440cde8a6a14bcff9",
-  "git_sha_started": "251ebd75824872e8e5b0298440cde8a6a14bcff9",
+  "git_sha": "71a8120f88074a82ddfbf195f6ddcbfc626c19ce",
+  "git_sha_started": "71a8120f88074a82ddfbf195f6ddcbfc626c19ce",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:34:14.007Z",
+  "finished_at": "2026-10-09T20:39:52.395Z",
   "failures": [],
   "warnings": [
     "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
@@ -49,7 +49,7 @@
     ]
   },
   "check_id": "media-door-browser",
-  "started_at": "2026-10-09T20:33:09.573Z",
+  "started_at": "2026-10-09T20:38:50.755Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,

@@ -4437,3 +4437,37 @@ edit** or it falls back to English with no error anywhere (`CLAUDE.md`).
 
 Worth folding into Andrew's 2026-10-09 ruling that the whole email-and-message
 wording needs a proper sitting rather than piecemeal edits.
+
+## The website brief shows its photo error ALL CAPS in an eyebrow style
+
+**Found 2026-10-09 while building ROADMAP 0.11bc1's browser press of the intake
+flow. Seen at 1440, 392 and 320**, in `.manager-shots/media-door-clean-intake-1440.png`
+and its two siblings (the `--break=public-url` shots do NOT show it — with the
+guard gone there is no refusal to render, which is the sabotage working).
+
+`SiteIntake.jsx`'s `Photos` control renders its upload error as
+`<span className="label">{err}</span>`. `.label` is the product's **eyebrow**
+style — `theme.css:422`: `text-transform: uppercase`, `letter-spacing: 0.22em`,
+`color: var(--text-muted)`. So a full twenty-word sentence lands as
+
+> THE PHOTO SERVICE SENT BACK SOMETHING THIS SCREEN CANNOT USE. RELOAD THIS JOB
+> AND CHECK BEFORE TRYING AGAIN.
+
+in muted grey with a quarter-em of tracking. It is **the least readable text on
+the screen wearing the quietest colour on the screen**, and it is the only thing
+telling a detailer their photograph did not upload. Every other screen in this
+product puts the same class of message in `.error-box`.
+
+**The sibling in the same control has the same problem for a better reason**:
+`{files.length} added` is a counter, and a counter IS what `.label` is for. So
+the fix is not "stop using `.label` here" — it is that the error needs its own
+surface, and the two currently share one.
+
+Not fixed here because it is not ROADMAP 0.11bc's — that item is about which
+store the bytes go to — and because it is a design call about which surface an
+error on a step of the brief gets, not a one-word edit. It sits beside the
+entry above it: the sentence those screens show is `DOOR_WORDS.unreadable`,
+which says *"Reload this job"* on a screen that is not a job.
+
+**It is also the thing that made the gate print six false defects** before the
+cause was read, which is written up as `docs/gotchas.md` 115.

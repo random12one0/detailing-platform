@@ -173,7 +173,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND THIRTEEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND FIFTEEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -778,3 +778,12 @@ of the page. `cache-control: no-store` does not close it and neither does `Netwo
 Chromium's per-renderer memory cache sits outside both, so the fix is one `goto` per context. Found by this
 session, on itself, building 0.11b's browser gate. Twenty-six sittings unbroken; `grep -c "^## " docs/gotchas.md`
 run before writing this and again after, so the 113 above is a count rather than an increment.
+
+**113 → 115 on 2026-10-09, same edit, and the pointer above was TWO stale rather than one.** 114 was added
+by another session without moving the line, which is the exact drift this line's own rule is about, and the
+0.11bb write-up had already spotted it and left it. 115 is `innerText` returning what CSS RENDERED: `.label`
+is `text-transform: uppercase`, so an assertion comparing a composed sentence against `innerText` printed
+**six false defects** over a screen rendering it correctly, and Playwright's own `hasNotText` filter in the
+same block was reading `textContent` and getting it right. `grep -c "^## " docs/gotchas.md` run before
+writing this and again after, so the 115 above is a count rather than an increment — and the pointer at the
+top of this file was corrected in the same edit, which is the half that keeps going undone.

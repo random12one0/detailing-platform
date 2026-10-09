@@ -5242,3 +5242,42 @@ output, because that is a real answer. Re-measured in the same edit: normal **8 
 beside it can not implement it.** The prose was right, specific and freshly measured, which is exactly
 what stops the next reader from checking the four lines underneath it. Read the code the lesson is
 about, not the lesson.
+
+## 115 · `innerText` RETURNS WHAT CSS RENDERED, SO A SENTENCE ASSERTION REDDENS OVER A SCREEN COMPOSING IT CORRECTLY
+
+**Measured 2026-10-09 building ROADMAP 0.11bc1's intake half, and it printed SIX FALSE DEFECTS before it
+was read** — the direction that gets working code "fixed".
+
+The website brief's photo control puts its error sentence in a `<span className="label">`. `theme.css:422`
+gives `.label` `text-transform: uppercase`. So:
+
+```js
+await box.innerText()    // "THE PHOTO SERVICE SENT BACK SOMETHING THIS SCREEN CANNOT USE. RELOAD…"
+await box.textContent()  // "The photo service sent back something this screen cannot use. Reload…"
+```
+
+The assertion was `said === DOOR_WORDS.unreadable`, and it failed at 1440, 392 and 320 on a screen
+rendering the right sentence in the right place. The same fault reddened the counter assertion in the
+same run: `/^1 added$/` against `"1 ADDED"`.
+
+**It is not only `uppercase`.** `capitalize` and `lowercase` do it too, and this repo already uses
+`capitalize` on the expense categories (entry at line 278). A `::first-letter` rule, `content` from a
+pseudo-element and `hyphens` all move `innerText` as well.
+
+**THE TELL IS THAT IT FAILS ON A STRING YOU CAN SEE IS RIGHT.** The report printed the whole sentence,
+correct word for word, and called it wrong — which reads as a product bug until somebody notices the case.
+
+**THE RULE.** Compare an authored string against `textContent`, with the whitespace collapsed by hand:
+
+```js
+((await box.textContent()) || "").replace(/\s+/g, " ").trim()
+```
+
+`innerText` is right only when the question is *"what does a person SEE"* — a visibility check, an
+is-it-hidden check, a layout read. For *"did the product compose this sentence"* it is the wrong
+instrument, and it is the one every example reaches for first.
+
+**And Playwright's own `hasText`/`hasNotText` filters match against `textContent`, not `innerText`** —
+measured in the same run, where a `hasNotText: /^\d+ added$/` filter correctly excluded a counter
+rendering as `1 ADDED`. So a locator and an assertion in the same block were reading two different
+strings off one element, and only the assertion was wrong.

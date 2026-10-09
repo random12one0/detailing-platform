@@ -1333,12 +1333,73 @@ and how the wait ends.
 
 - [ ] **0.11bc — Enable the media door and verify live upload flows**
 
+  NEEDS ANDREW: bind `business-media`'s public address in Cloudflare (`FOR-ANDREW.md` step 9a2, item
+  0.11ba) and then publish `photo-door` (step 9c, item 0.11bb), **in that order** — 0.11bb measured that a
+  door published before the address is bound refuses every media request. Slices 2 and 3 cannot start
+  until both are done; slice 1 did not need either and is finished.
+
   ***CUT INTO THREE NUMBERED SLICES — 2026-10-09. This item was sent out and killed twice. The dispatcher's
   own rule says an unnumbered sub-task is invisible to every sweep here, so the numbering is the work and not
   bookkeeping. Slice 1 is the only one of the three that is buildable today; 2 and 3 both wait on acts only
   Andrew performs.***
 
-  - [ ] **0.11bc1 — The INTAKE flow pressed through the door in a real browser.**
+  - [x] **0.11bc1 — The INTAKE flow pressed through the door in a real browser.**
+
+    ***DONE 2026-10-09, commit `71a8120`. 118 passed, 0 failed, 118 assertions, 9/9 widths, console clean at
+    every one; the receipt grades PASS under `node scripts/receipt.mjs`. Credentialed and READ-ONLY: no R2
+    object, no Supabase Storage object, no `site_intake` upsert, no row anywhere, no deploy, no flag flipped
+    on disk, no DDL, no secret value touched.***
+
+    **WHAT CHANGED, SAID FIRST.** `scripts/media-door-browser.mjs` pressed two of criterion 1's three flows
+    and **named the third UNJUDGEABLE in its own receipt**, with three reasons. Two of them were true and
+    **neither was about reachability** — *"it writes no row"* and *"it has no address of its own"* describe
+    what there is to MEASURE, not whether a browser can press it. That is 0.11b's own recorded mistake about
+    the flag, met a second time in the same file: a true sentence read as a wall.
+
+    **SO THE TWO ASSERTIONS THAT HAD NO SUBJECT WERE GIVEN THE RIGHT ONE RATHER THAN SKIPPED**, and the
+    count per flow-and-width stayed at 13. With no row to inspect, assertion 7 flips from *the stored url is
+    the right one* to **its absence, asserted**: no recorded row body across any of the five answered tables
+    carries a media url. And assertion 12 — *what the refusal left behind* — becomes the brief's own counter,
+    which is the thing a person reads: `Photos`'s `pick` pushes a file name onto `files` only after the
+    upload came back clean, so **a refused photograph that still reads "2 added" is a detailer told their
+    picture is on the pile when no byte left.** That is this flow's version of *no row was written*.
+
+    **BOTH SABOTAGES BITE IT, AT ALL THREE WIDTHS, AND THE SECOND ONE MOVES THAT COUNTER.** `--break=unbound`
+    (the repo's state today, flag off) sends the press down the Supabase Storage path and reddens 7 lines per
+    width, naming the POST with the real `…/intake/…png` key — **the original condition reproduced**, which
+    is what makes the green mean something. `--break=public-url` removes the `endsWith` guard from the module
+    text the browser RUNS and reddens 5 per width: the refusal is gone from the screen, a byte leaves, and the
+    counter reads **2 added**. 52 / 66 and 79 / 48 against a clean 118 / 0, and the public-url run asserts the
+    guard was really removed before any colour is believed (`docs/gotchas.md` 102).
+
+    **THE STEP NUMBER IS THE ONE THING SUPPLIED, AND IT IS READ OUT OF THE PRODUCT.** The brief opens on
+    whichever step the detailer left off at, so the `site_intake` GET is answered with an EMPTY `answers` and
+    `step = STEPS.findIndex(x => x.key === "show")` — **10 of 21 today, and a literal would send the run to
+    the wrong screen the next time a step is inserted before it.** `-1` exits 2 rather than being clamped,
+    because `SiteIntake.jsx`'s own `Math.min` would turn a missing step into step 0 silently. Everything after
+    that is the product: a chip is pressed because the picker does not exist until the question is answered.
+    `site_intake` joined `WRITE_TABLES` in the same edit — the brief has ONE debounced writer and every answer
+    goes through it, so without that entry this run would have upserted over the demo tenant's real brief row
+    three times, from a gate whose header promises it writes nothing.
+
+    **SIX FALSE DEFECTS FIRST, AND THE CAUSE IS NOW `docs/gotchas.md` 115.** The refusal-sentence assertion
+    and the counter assertion both reddened at 1440, 392 and 320 on a screen rendering perfectly:
+    **`innerText` returns what CSS RENDERED**, and `theme.css:422` gives `.label` `text-transform: uppercase`,
+    so the comparison was against `"THE PHOTO SERVICE SENT BACK SOMETHING…"` and `"1 ADDED"`. A false defect
+    is the direction that gets working code "fixed". The locator in the same block was already right by
+    accident — Playwright's `hasNotText` matches `textContent` — so one element was being read as two
+    different strings three lines apart.
+
+    **ONE REAL SCREEN FAULT FOUND AND PARKED, NOT FIXED.** The brief puts its upload error in `.label`, the
+    product's EYEBROW style — uppercase, 0.22em tracking, `--text-muted` — so a twenty-word sentence is the
+    least readable text on the screen wearing the quietest colour on it, while every other screen here uses
+    `.error-box`. Photographed at all three widths; `FOUND.md`. Not this item's: 0.11bc is about which store
+    the bytes go to, and which surface a brief-step error gets is a design call.
+
+    **WHAT THIS DOES NOT PROVE, SAID PLAINLY.** That R2 accepts the signature, that Cloudflare serves the PUT,
+    and that an anonymous visitor can read the url. No address is bound, so the url is derived through
+    `r2.ts`'s real `mediaBase` + `publicUrl` against a deliberately fake host: **the derivation is measured,
+    the live address is slice 3's and is Andrew's.**
     The third of the three `uploadBusinessPhoto` call sites. `scripts/media-door-browser.mjs` presses the
     gallery and the logo at three widths each and names **intake UNJUDGEABLE in its own receipt**, so
     criterion 1's third clause — *"intake-photo uploads"* — has never been asked of a running browser.
