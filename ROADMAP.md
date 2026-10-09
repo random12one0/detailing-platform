@@ -841,6 +841,109 @@ and how the wait ends.
   - All business-media keys are minted and authorized for the caller's business.
   - Tests prove there is no remaining Supabase Storage upload fallback for these media flows.
 
+  ***THE LOGO FLOW IS NOW PRESSED IN A BROWSER TOO, 2026-10-09. Commits `bab2979`, `b2da470`, `edbc716`.
+  79 passed / 0 failed, 6/6 flow-and-width pairs, console clean at every one, receipt graded `PASS` by
+  `node scripts/receipt.mjs` with its canary failing as required. Nothing deployed, no flag flipped on disk, no
+  migration, no object and no row written anywhere. The box stays `[ ]` and the reason is unchanged.***
+
+  **WHAT WAS NOT COVERED, AND THE RUN BELOW SAID SO IN ITS OWN RECEIPT.** Its words: *"the branding and intake
+  folders are not pressed in the browser — only gallery is."* **Criterion 1 names all three flows** — *"gallery
+  publishing, logo uploads and intake-photo uploads"* — so a browser gate pressing one of three was proving a third
+  of the criterion it was written for. `grep -n uploadBusinessPhoto app/src` finds exactly three call sites, one per
+  folder in `MEDIA_FOLDERS`: `Gallery.jsx` (gallery), `BusinessInfo.jsx` (branding, from two tiles — the logo and
+  the cover) and `SiteIntake.jsx` (intake).
+
+  **BRANDING IS THE ONE ADDED, AND NOT BECAUSE IT WAS THE EASIER ONE.** There are exactly two permanent records a
+  wrong `public_url` can land in — `gallery_images.image_url` and a brand's `logo_url` — and the second is the one
+  every page of a tenant's site renders. It is also the flow where **the row is not written by the upload**:
+  `BusinessInfo.jsx` puts the url in React state and says *"Photo uploaded. Press Save to keep it."*, so the gate
+  presses Save, which is the only way criterion 2's *what gets stored* half gets asked of this flow at all.
+
+  **`scripts/media-door-browser.mjs` — `node scripts/media-door-browser.mjs` -> 79 passed, 0 failed, 79 assertions,
+  6/6.** Two flows x three widths (**1440, 392, 320**) x **13 assertions each**, plus the console read once across
+  every context. The thirteen: the screen's declared picker count, the flag substitution landed in the module the
+  browser RAN, **zero Supabase Storage UPLOADS**, exactly one PUT to the door's signed url, the key under **this**
+  business's own `<id>/<folder>/` folder, the success sentence in the product's own words, **the stored url being
+  exactly `publicUrl(base, key)` for the key that was really PUT** — `gallery_images.image_url` for the gallery and
+  `business_branding.logo_url` for the logo — then the refusal on the screen, its wording, **its pixels hit-tested
+  at its own centre** after being scrolled into view, no PUT, no extra row, and **no row body anywhere naming the
+  other business**.
+
+  **THE PICKER COUNT IS DECLARED AS AN EQUALITY** — 1 on the gallery, 2 on Business info — so a third picker
+  arriving on either screen reddens this run rather than adding an unpressed flow silently (`docs/gotchas.md` 98).
+
+  **PRESSING SAVE MEANT WIDENING WHAT THE GATE ANSWERS FROM ONE TABLE TO FOUR, AND THAT IS NOT TIDINESS.**
+  `BusinessInfo.jsx`'s Save runs `persist()`, which updates `businesses` and `business_settings` in the same
+  `Promise.all` as the `business_branding` upsert carrying `logo_url`. Pressing Save with only `gallery_images`
+  answered would have **rewritten two real rows on the demo tenant at every width** — six writes to the live
+  database by a gate whose own header promises it writes nothing. Every non-GET to those four tables is now answered
+  201 locally and its body kept, because the body is the evidence; GETs continue to the real tenant, which is what
+  lets both screens render.
+
+  **THE SABOTAGE COULD NOT SEE THE DAMAGE THAT MATTERS ON THIS FLOW, AND THAT WAS FOUND BY RUNNING IT RATHER THAN
+  BY READING IT.** `--break=public-url` removes the `endsWith` condition this item added, from the module text the
+  browser runs. On the gallery it named the stored row. **On the logo it named only the PUT** — because the logo's
+  row is written by Save and nothing pressed Save after the refusal, so *another business's url sitting in
+  `logo_url` for good*, the sharpest thing this item is about, was the one claim the sabotage was silent on. The
+  guard was really gone, the run really went red, and the assertion that mattered most said nothing. That is
+  `docs/gotchas.md` 95 and this item's own recorded lesson met from a third direction. Save is now pressed again
+  after the refusal's hit-test (after, because Save replaces `.error-box` with its own *"Saved."*), and the
+  rows-after-refusal count is declared per flow as an equality: **0 for the gallery**, whose insert is part of the
+  upload, and **1 for the logo**, whose Save press is deliberate.
+
+  **BOTH SABOTAGES, RE-RUN AT `b2da470`, BOTH RED ON BOTH FLOWS.** `--break=public-url` -> **52 passed, 33 failed,
+  85 assertions**, naming `business_branding` at all three widths where it named nothing before. `--break=unbound`
+  leaves the flag off, which is the state of the repo today -> **34 passed, 45 failed, 79 assertions**, naming the
+  real `POST .../storage/v1/object/business-media/...` it saw at every width on **both** flows, the `branding/`
+  folder included, and asserting the executed-copy proof ABSENT rather than present. **That second figure was
+  written as 27/58 in commit `b2da470`'s message before it had been measured, and `edbc716` is the correction** —
+  `docs/gotchas.md` 94, corrected in the open rather than edited quietly (93).
+
+  **ONE FINDING FROM THE CONSOLE RATHER THAN FROM READING.** `BusinessInfo.jsx`'s tile **is** the preview —
+  `<img src={url}>` on the url the door just returned — so the moment the logo upload succeeded the browser fetched
+  the test host and printed `ERR_NAME_NOT_RESOLVED` at all three widths. That host is deliberately fake because
+  **nobody has bound a real public address**, so the noise is the gate's own and not the product's; it is
+  **answered rather than filtered**, because the console assertion is the only thing in the run that would catch a
+  real error on either screen and a filter keyed on *"failed to load"* would have swallowed it. **Worth carrying
+  into 0.11ba: the logo preview is the first thing a wrong bound address breaks, and it breaks visibly, on the
+  screen that sets it.**
+
+  **INTAKE IS THE THIRD FLOW AND IS STILL NOT PRESSED IN A BROWSER, NAMED IN THE RECEIPT RATHER THAN FOLDED INTO
+  THE PASS.** It has no address of its own — the photos question is a step inside the website brief, behind earlier
+  required answers, reachable only by `?brief=1` plus stepping — and it is **the only one of the three that writes
+  no row at all** (`SiteIntake.jsx`'s own words: *"nothing is published from here — no `gallery_images` row is
+  made"*), so a wrong `public_url` cannot become permanent through it. It completes through the real handler in
+  `tests/photo-door-media-wire.test.mjs` § 1, which declares its folder count from `MEDIA_FOLDERS` so a fourth
+  folder reddens.
+
+  **NOTHING WAS WRITTEN, CONFIRMED AFTER EVERY RUN INCLUDING THE SABOTAGES.** Zero objects under the demo tenant's
+  `business-media` prefix, zero `gallery_images` rows, `business_branding.logo_url` still `null`, and `git status`
+  showing nothing under `app/src` changed.
+
+  **THE OTHER SUITES ARE UNMOVED.** `node --test tests/photo-door-media-wire.test.mjs tests/photo-door-media.test.mjs
+  tests/photo-door.test.mjs tests/photo-key-isolation.test.mjs tests/photo-call-sites.test.mjs` -> **41 pass, 0
+  fail**. The four credential-free gates -> **4 pass, 0 fail**; `no-credentials-in-tracked-text` -> **1 pass, 0
+  fail**; `every-open-item-is-citable` -> **6 pass, 0 fail** after the fix in the next paragraph. No file under
+  `app/src` was changed, so there is nothing for a rebuild to tell us that these do not.
+
+  **AND THE CITABLE GATE CAUGHT SOMETHING THAT WAS NOT THIS ITEM'S AND IS WORTH READING — commit `8a25311`.** It
+  went red naming `0.11ba`, `0.11bb` and `0.11bc` as *items with no identifier*. They have identifiers; **its parser
+  could not read them.** The grammar was one optional letter after the number, and a two-letter suffix defeats it:
+  the word boundary after `0.11b` fails on the following `a`, the optional letter backtracks away, and `0.11` fails
+  the same boundary. **It would have read `0.11d1` as unnumbered too**; nothing noticed only because that one is
+  ticked and this check looks at open items. That is the check's own subject happening to the check — a parser whose
+  grammar is narrower than the numbers in use reports real items as naked ones, and a session reading the red edits
+  the roadmap instead of the regex. Widened in all three places; the cross-file overlap is still the declared 14,
+  and `CITABLE_CANARY=1` was re-run in the same edit (3 pass / 3 fail, still caught) per the shape-change rule.
+
+  **WHAT THIS STILL DOES NOT PROVE, AND IT IS WHY THE BOX IS STILL `[ ]`.** Unchanged from the run below: that R2
+  accepts the signature, that Cloudflare serves the PUT, that an unauthenticated visitor can read the url. **Nobody
+  has bound a public address**, so criterion 2's *"remain usable by unauthenticated visitors"* still has no subject,
+  and this run uses a test host **through `r2.ts`'s real reader** — the derivation is measured, the live address is
+  Andrew's. `photo-door` is still not deployed and `MEDIA_VIA_DOOR` is still `false` on disk. **The three slices
+  below are the whole of what is left and every one of them is Andrew's**: `0.11ba` is his Cloudflare account,
+  `0.11bb` is a publish, and `0.11bc` cannot happen before either. There is no buildable media code left to write.
+
   ***THE BROWSER EVIDENCE THE RUN BELOW CALLED UNREACHABLE WAS TAKEN, 2026-10-09. Commit `27c1a3d`.
   34 passed / 0 failed, 3/3 widths, console clean at every one. Nothing deployed, no flag flipped on disk, no migration,
   nothing written to any store. The box stays `[ ]` and the reason is at the bottom of this block, not in it.***
@@ -1006,6 +1109,40 @@ and how the wait ends.
   CORS rule still have to be set in Andrew's Cloudflare account, and the
   standing rule still makes the actual publish Andrew's action. `FOR-ANDREW.md`
   step 9 is now marked as an approved, do-now release rather than a proposal.
+
+  Waits on: 0.11ba, 0.11bb, 0.11bc. How the wait ends: those pieces are ticked.
+  Split on 2026-10-09 because this entry is 176 lines
+  long and no single session was finishing it.
+
+- [ ] **0.11ba — Bind the public R2 address and configure business-media CORS**
+  In Cloudflare, bind the chosen public web address for the business-media bucket and add the required CORS rule. This establishes the permanent public URL base but does not publish the function or enable the application path.
+  Part 1 of 3 of item 0.11b, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A public address is bound to the business-media R2 bucket.
+  - The chosen address value is available for R2_MEDIA_BASE configuration.
+  - business-media CORS permits the browser upload flow.
+  - An unauthenticated request can read an object through the configured public address.
+
+- [ ] **0.11bb — Publish photo-door with the production R2 configuration**
+  Publish the existing photo-door function using the configured public R2 base and the existing business-media bucket integration. This makes the already-built authorization and key-minting path available, but leaves application traffic on the old path until the flag is enabled.
+  Part 2 of 3 of item 0.11b, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - photo-door is published successfully.
+  - The deployed function has the configured R2_MEDIA_BASE value.
+  - A deployed-door request mints a caller-business-scoped media key.
+  - The deployed door returns public URLs derived from the configured public R2 address.
+
+- [ ] **0.11bc — Enable the media door and verify live upload flows**
+  Set MEDIA_VIA_DOOR to true in the application, then verify gallery, branding/logo, and intake-photo uploads use the deployed door and public R2 URLs. This is the final traffic switch and live proof; it does not deploy unrelated accumulated work or change the allowance.
+  Part 3 of 3 of item 0.11b, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Gallery publishing, logo uploads, and intake-photo uploads write only to business-media in R2.
+  - Each stored media URL uses the configured public R2 address and is readable without authentication.
+  - Cross-business media keys and URLs are refused before an object or row is written.
+  - Live tests show no Supabase Storage upload fallback for these three media flows.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
