@@ -3139,7 +3139,7 @@ and the two failures are what establish that it can see a difference at all.
 seed + `.env`, signs in as the demo tenant's owner, writes nothing):
 **PASS — 20 assertions, 0 failed, 2 UNJUDGEABLE**, at **1440x900** and
 **392x844**. Receipt `receipts/mail-log-scroll.json`; shots
-`.manager-shots/3.1a/scroll-<width>-<0|05|1>.png`. **Taken at `653bf3b`**,
+`.manager-shots/3.1a/scroll-<width>-<0|05|1>.png` — **six files, and they are LOCAL ONLY**: `.manager-shots/` is in `.git/info/exclude`, so they exist on the machine that ran this and nowhere else. Re-run the script to regenerate them; the figures in this entry are what transfers. **Taken at `653bf3b`**,
 with the figures below read in that same run.
 
 **Proved, per width, both widths:**
