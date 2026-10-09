@@ -730,6 +730,11 @@ and how the wait ends.
   **SLICES LEFT:** **4's publish, its public-address decision and its one-word flag flip**; **5's publish and its one-word flag
   flip**. No slice has code left to write.
 
+  **NEEDS ANDREW: choose the permanent public address for `business-media`, add
+  the bucket CORS rules, then publish and flip the two prepared flags.** No code
+  remains for the belt to write, and another worker cannot make those account and
+  publishing decisions on Andrew's behalf.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**

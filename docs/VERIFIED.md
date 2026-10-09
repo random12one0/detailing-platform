@@ -2886,6 +2886,8 @@ was the belt's cheap triage pass.**
   `cb59887`. That proves the repo-wide receipt command is a useful census and a
   useless per-item regression gate while the belt stores only a pass/fail baseline:
   it begins false and cannot turn false again.
-- ROADMAP 2.15 remains open. Its only remaining acceptance step is a physical-phone
-  keyboard walk by Andrew, so it now carries the belt's existing `NEEDS ANDREW`
-  marker. No product claim was ticked from these source checks.
+- ROADMAP 0.11 and 2.15 remain open. 0.11 says no code remains and waits on
+  Andrew's media address, Cloudflare CORS, publish and flag flips; 2.15's only
+  remaining acceptance step is his physical-phone keyboard walk. Both now carry
+  the belt's existing `NEEDS ANDREW` marker. No product claim was ticked from
+  these source checks.
