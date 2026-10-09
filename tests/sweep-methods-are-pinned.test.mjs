@@ -231,7 +231,15 @@ const DECLARED = {
   // 49 -> 48, 2026-10-08: the other lane filed one (50) and this edit TICKED
   // TWO — 9.7 and 9.11, both on the manager's own press. 9.23 was filed `[x]`
   // and so was never an open item. Net -1, and the legs are what matter.
-  numberedOpenItems: 48,
+  // 48 -> 47, 2026-10-08, AND IT IS NOT THIS EDIT'S: `0914a14` ticked ROADMAP
+  // 0.4 (the legal pages) and did not move this constant, so **the suite was
+  // already red when this sitting opened** — 47 found against 48 declared,
+  // before anything here was touched. Measured per revision with
+  // `git show <c>:ROADMAP.md | grep -c '^- [ ]'`: `c07f8a1` 48, `0914a14` 47,
+  // and the whole -1 is that one tick. 3.1's own work this sitting ticked
+  // NOTHING, so it contributes 0 to this figure. Recorded as theirs rather than
+  // absorbed silently, the way the fragments ledger below splits its legs.
+  numberedOpenItems: 47,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -318,7 +326,11 @@ const DECLARED = {
   // same shape as 0.13 and 3.1 above. `numberedOpenItems` does not move: 7.10
   // was already numbered, already open, and is still open — its third clause
   // needs a ruling from Andrew.
-  quoteCriteria: 36,
+  // 36 -> 35, 2026-10-08, SAME CAUSE AND SAME COMMIT AS `numberedOpenItems`
+  // above: `0914a14` ticked ROADMAP 0.4, and a ticked item's criteria leave the
+  // population with it. Already red on arrival; 3.1's block this sitting adds
+  // no Done-when of its own, so it contributes 0 here too.
+  quoteCriteria: 35,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -640,7 +652,32 @@ const DECLARED = {
   // Both ends measured by running THIS FILE — 380 in the worktree at `cfd8932`,
   // 382 in this tree — with `ROADMAP.md` the only document changed between them
   // (`git diff --numstat ROADMAP.md` -> 147 added, 0 removed).
-  quoteFragments: 382,
+  // **382 -> 376, 2026-10-08, AND THE NET -6 IS THREE LEGS PULLING TWO WAYS, SO
+  // THE NET IS THE LEAST INFORMATIVE THING ABOUT IT.** Each leg measured by
+  // running THIS FILE at that tree, never inferred from a diff:
+  //
+  //     382   declared, taken at the 7.10 round above
+  //     363   `0914a14` ticked ROADMAP 0.4, and the ticked item's quoted
+  //           fragments left the population with it            (-19, not ours)
+  //     373   `ed8d4ec`, 3.1's detailer-half build write-up     (+10)
+  //     376   3.1's re-verification block, this edit            ( +3, ours)
+  //
+  // The -19 is the one that matters to a reader: **this constant was ALREADY RED
+  // when the sitting opened** — 363 against a declared 382, with `ROADMAP.md`
+  // clean at `0914a14`, which is how it was found at all. `ed8d4ec` then added
+  // its block without moving the declaration either, so the red survived a
+  // commit. Both are recorded as theirs rather than absorbed, the way this
+  // ledger's earlier entries split their legs.
+  //
+  // **A near miss worth one line, because it nearly went into this comment as
+  // fact:** an intermediate reading of 382 was taken while a LONGER draft of
+  // this round's block was in the tree, and it matched the declared 382
+  // exactly. Written up at that moment it would have read *"unchanged, nothing
+  // moved"* — over a population that had lost 19 and gained 19 from unrelated
+  // causes. That is precisely the "correct by coincidence" trap the
+  // `numberedOpenItems` ledger above warns about, and the only thing that
+  // caught it was re-measuring each leg separately after the draft changed.
+  quoteFragments: 376,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

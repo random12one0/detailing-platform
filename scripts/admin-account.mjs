@@ -72,11 +72,28 @@ export async function makeAdmin(URL_, KEY, email = "shoot-admin@detailplatform.c
 
 // NEVER THROWS. It runs in a `finally`, so an error here would replace the
 // real failure with this one and the run would report the wrong thing.
+// **AND IT TAKES EITHER THE ID OR THE WHOLE ACCOUNT, BECAUSE THE WRONG ONE USED
+// TO BE SILENT — found 2026-10-08 while verifying ROADMAP 3.1.** A scratch probe
+// called `dropAdmin(U, K, acct)` instead of `acct.id`. The old guard was
+// `if (!id) return;`, an object is truthy, so the DELETE went to
+// `platform_admins?user_id=eq.[object Object]` — **200, nothing deleted** — and
+// the run reported a clean teardown. A standing `platform_admins` row for an
+// account whose password nobody holds is exactly the thing the header above is
+// about, and it survived on the live platform project until somebody counted the
+// rows. Every script in `scripts/` passes `acct.id` correctly (`grep -rn
+// "dropAdmin(" scripts/`), so nothing shipped was leaking — this closes the hole
+// for the next caller rather than fixing a caller. It still NEVER THROWS, so the
+// unusable case prints instead: a silent return here is the failure being
+// repeated one level down.
 export async function dropAdmin(URL_, KEY, id) {
-  if (!id) return;
+  const uid = typeof id === "string" ? id : id?.id;
+  if (!uid) {
+    if (id) console.error("dropAdmin: no usable id — THE ADMIN ROW WAS NOT REMOVED. Pass acct.id or acct.");
+    return;
+  }
   const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
   try {
-    await fetch(`${URL_}/rest/v1/platform_admins?user_id=eq.${id}`, { method: "DELETE", headers: H });
-    await fetch(`${URL_}/auth/v1/admin/users/${id}`, { method: "DELETE", headers: H });
+    await fetch(`${URL_}/rest/v1/platform_admins?user_id=eq.${uid}`, { method: "DELETE", headers: H });
+    await fetch(`${URL_}/auth/v1/admin/users/${uid}`, { method: "DELETE", headers: H });
   } catch { /* the row is what matters and it went first */ }
 }

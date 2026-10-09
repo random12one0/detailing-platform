@@ -8008,6 +8008,85 @@ requested.
   on the real rows; the third is what makes `booking_id` start arriving. **The
   booking LINK is still his call and nothing is built toward it.**
 
+
+  ***RE-VERIFIED INDEPENDENTLY 2026-10-08 AT `ed8d4ec`, BECAUSE THE RUNS ABOVE
+  WERE TAKEN WHILE `app/src` MOVED UNDER THEM.*** The collision recorded above
+  was a `git stash`, and CLAUDE.md's rule is that a browser measurement taken
+  while that tree moves is worth nothing — **including the ones that came back
+  green**. So every browser figure in this entry was taken again, in a field
+  confirmed clear first (no `mail-log` process, no stray Chromium, dev server
+  re-checked as serving the current `theme.css` rather than a stale copy).
+  Nothing was deployed, applied, or written to `email_sends`.
+
+  **The walk reproduced exactly: `node scripts/mail-log.mjs` PASS twice over,
+  25 targets, 103 assertions, all three canaries caught**, graded PASS by
+  `node scripts/receipt.mjs receipts/mail-log.json`, against **29 real
+  `demo-detail` rows — 21 skipped, 4 bounced, 4 delivered** (printed as the
+  run's first observed line every time). **All six sabotages were re-run and
+  all six still bite**, each reporting that it landed before its colour was
+  read — `noaddr` 30 findings, `foreign` 30, `collapse` 10, `clip` 5,
+  `failempty` 5, `filter` 5, each caught by the rule aimed at it and certified
+  on the findings list rather than the verdict word (`docs/gotchas.md` 105).
+  **The latent race noted above did not recur once across eight browser runs.**
+
+  **AND TWO GATES THE BLOCK ABOVE LISTS AS "NOT RUN" WERE RUN, WHICH CHANGES
+  WHAT IS CLAIMED RATHER THAN CONFIRMING IT.** `american-english.mjs` passes
+  **13 of 13 pages** and `contrast-insitu.mjs` passes **56 of 56 screen/width
+  combinations, 0 failing styles, canary caught on all 56** — **and NEITHER
+  WALKS THE GEAR.** Their populations are the five tabs and the public pages;
+  no settings screen is in either, so **they are green about this screen in the
+  sense that they never looked at it.** Said plainly because "all gates green"
+  would otherwise read as coverage. What stands instead: the new copy was read
+  by hand and holds no British spelling, and the screen introduces **no new
+  colour pair at all** — `.row-item`, `.sub`, `.quiet`, `.segmented`,
+  `.error-box` and `--bad` are all already measured elsewhere, and the one new
+  CSS rule changes wrapping, not colour.
+
+  **`sweep-widths.mjs` WAS RUN RATHER THAN CITED, AND IT CONFIRMS THE NOTE
+  ABOVE BY MEASUREMENT:** *"VERDICT STANDS ON 0 of 120 measurements; NOTHING IS
+  JUDGED"*, aborting at **24 of 154 surfaces** on `.cal-cell` `nth(1)`, an
+  `aria-hidden` filler cell on the Calendar. Its own ledger dates the first
+  `cal-cell` abort to **2026-10-09T03:32Z**, hours before any of this work, and
+  the defect is already written up with its one-selector fix at `FOUND.md:34`
+  and `ROADMAP.md:9953`. So the `GEAR_ROWS` row remains correct and inert, and
+  **`mail-log.mjs` is the only instrument measuring this screen's geometry** —
+  `fix/fit` asserts no sideways scroll and every row inside the viewport at all
+  five widths, down to 320.
+
+  **`tests/sweep-methods-are-pinned.test.mjs` IS NOW MOVED RATHER THAN LEFT
+  RED.** The block above correctly measured it as red-on-arrival and not its
+  fault; it was still red afterwards. `0914a14` ticked ROADMAP 0.4 and did not
+  move the constant: `numberedOpenItems` 48 → **47** and `quoteCriteria` 36 →
+  **35** are entirely that tick, and 3.1 ticks nothing, so 3.1 contributes 0 to
+  both. `quoteFragments` goes **382 → 376**, and the net is the least
+  informative thing about it — three legs, each measured by running the file at
+  that tree: **−19** from 0.4's tick, **+10** from this item's build write-up at
+  `ed8d4ec`, **+3** from this block. **A near miss is recorded in the constant's
+  own ledger rather than tidied away:** an intermediate reading taken while a
+  longer draft of this block was in the tree came to **exactly the declared
+  382**, and written up at that moment it would have said *"unchanged"* over a
+  population that had lost nineteen and gained nineteen from unrelated causes —
+  the "correct by coincidence" case that ledger warns about, caught only by
+  re-measuring each leg after the draft changed. Suite now **8 of 8**, with both
+  `PIN_CANARY=scope` and `PIN_CANARY=fragment` re-run against the new values and
+  **both still red (6 pass, 2 fail)**.
+
+  **`deployed-inventory.mjs` exits 1 naming 32 of 39 functions not running this
+  checkout, widest gap 23.9 days — reported and left, and NONE of them matters
+  here:** this screen invokes no edge function at all, which is the whole point
+  of the data path above. Gates re-run after the edits: the four credential-free
+  suites **4 of 4**, `every-open-item-is-citable` **6 of 6**,
+  `figures-carry-their-command` **9 of 9**, `no-credentials-in-tracked-text`
+  **1 of 1**, `label-guard` clean at **47 of 47**, and `i18n-survey` finds
+  **0** unkeyed English strings in the new screen.
+
+  **THE BOX STAYS UNTICKED, AND NOT BECAUSE OF THIS HALF.** 3.1's Done-when
+  names *"the back office"*, and that list still cannot draw a row until Andrew
+  applies `20261006010000` and publishes `platform-admin` — asked through the
+  real wire this run, the deployed function still answers **400 `business_id is
+  required`**. Screenshots of the detailer half as it stands, taken this run:
+  `.manager-shots/3.1/detailer-*.png`.
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.

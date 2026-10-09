@@ -1,13 +1,13 @@
 {
-  "git_sha": "3843f6b9296736772c98e9f905eb42c0bf617cae",
-  "git_sha_started": "3843f6b9296736772c98e9f905eb42c0bf617cae",
+  "git_sha": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
+  "git_sha_started": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T03:32:34.977Z",
+  "finished_at": "2026-10-09T06:33:11.480Z",
   "failures": [
     {
       "target": "(not a per-surface geometry finding)",
-      "count": 6,
+      "count": 10,
       "captured": [
         "job record · finished NOT MEASURED — no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
         "job record · finalize NOT MEASURED — no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
@@ -35,7 +35,7 @@
         "expected-count 360px: NOT GRADED — the width aborted after 24 of 42 surfaces (locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable). The 18 it never reached are unmeasured, not clean.",
         "expected-count 320px: NOT GRADED — the width aborted after 24 of 154 surfaces (locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable). The 130 it never reached are unmeasured, not clean."
       ],
-      "why": "6 problem(s) raised, 25 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
+      "why": "10 problem(s) raised, 25 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
     }
   ],
   "warnings": [],
@@ -58,7 +58,7 @@
     ]
   },
   "check_id": "sweep-widths-1920-1440-392-360-320",
-  "started_at": "2026-10-09T03:28:00.557Z",
+  "started_at": "2026-10-09T06:28:48.955Z",
   "status": "fail",
   "expected_targets": 422,
   "discovered_targets": 0,
@@ -161,7 +161,7 @@
       }
     ]
   },
-  "assertions_executed": 42943,
+  "assertions_executed": 42811,
   "min_assertions": 480,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",

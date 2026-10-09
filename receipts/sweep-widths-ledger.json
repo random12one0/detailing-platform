@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-10-09T03:36:39.444Z",
+  "updated_at": "2026-10-09T06:33:11.356Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -1566,6 +1566,61 @@
       "measured": 24,
       "declared": 3,
       "expected": 155,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-09T06:33:11.338Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 24,
+      "declared": 3,
+      "expected": 41,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-09T06:33:11.338Z",
+      "sha": "",
+      "width": 392,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 24,
+      "declared": 3,
+      "expected": 42,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-09T06:33:11.338Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 24,
+      "declared": 3,
+      "expected": 154,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-09T06:33:11.338Z",
+      "sha": "",
+      "width": 1920,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 24,
+      "declared": 3,
+      "expected": 158,
+      "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
+    },
+    {
+      "at": "2026-10-09T06:33:11.338Z",
+      "sha": "",
+      "width": 360,
+      "mode": "default",
+      "outcome": "aborted",
+      "measured": 24,
+      "declared": 3,
+      "expected": 42,
       "error": "locator.click: Timeout 15000ms exceeded. | - waiting for locator('.cal-cell').nth(1) | - locator resolved to <div aria-hidden=\"true\" class=\"cal-cell other\"></div> | 2 × waiting for element to be visible, enabled and stable"
     }
   ]
