@@ -1,0 +1,28 @@
+photo release order · 2026-10-09T17:44:46.264Z · project kguqylyzgyzfktkfnhjb
+photo-door deployed: false · photo-reconcile deployed: false
+photo_total_gb: 1 · flags: {"RECEIPTS_VIA_DOOR":false,"MEDIA_VIA_DOOR":false}
+live bundle: assets/index-CfUTS91_.js
+R2 secrets present (names only): R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+R2_MEDIA_BASE set: false
+broken on purpose: no
+
+PASS  app-flag-before-door (criterion 3)
+    photo-door is not deployed and no *_VIA_DOOR flag is true
+PASS  app-shipped-before-door (criterion 3)
+    photo-door is not deployed and the published bundle carries none of the 4 door markers
+PASS  allowance-before-switch (criterion 3)
+    photo_total_gb is 1 and photo-door is not deployed
+PASS  allowance-with-switch (criterion 3)
+    photo-door is not deployed, so there is no switch for the allowance to accompany yet
+PASS  door-keeps-jwt (criterion 4)
+    photo-door is absent from PUBLIC_FUNCTIONS and is not deployed
+PASS  reconcile-public-for-cron (criterion 4)
+    photo-reconcile is in PUBLIC_FUNCTIONS and is not deployed yet
+PASS  r2-secrets-present (criterion 2)
+    all 3 required R2 secret(s) are set on the functions (names read, no value touched)
+PASS  cron-after-reconcile (criterion 4)
+    neither photo-reconcile nor its cron entry is installed, which is the right pre-release pair
+UNJUDGEABLE  bucket-cors (criterion 1)
+    the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this program does not have and must not acquire; the buckets are unreachable anonymously (two are private, the third has no public address yet). 0.11d's first browser upload is the proof
+
+canary caught: true
