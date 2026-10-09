@@ -595,7 +595,21 @@ const DECLARED = {
   // line break, so `FRAGMENT_RE` could not see it and the delta measured +6 for
   // seven quotations. Re-flowed to one line, which is what the line above asks
   // for; the +7 is the count with nothing invisible in it.
-  quoteFragments: 357,
+  // 357 -> 362, 2026-10-08, ROADMAP 3.1's round: **prose arriving, not an item
+  // leaving.** The live-database block appended under 3.1's Done-when carries
+  // eight double-quoted strings by `FRAGMENT_RE`'s own pattern -- the two `curl`
+  // header strings, twice each, plus "businesses", "100 most recent.",
+  // "bookingId" and "email_list" -- and FIVE of them land inside the zone this
+  // method slices. Two of the block's other quotations are invisible for the
+  // reasons already recorded above: one runs past 70 characters and one wraps
+  // across a line break, which is the caveat the entry two above this one is
+  // about. `quoteCriteria` does not move and neither does `numberedOpenItems`:
+  // 3.1 was already in the population and nothing was ticked.
+  // **Both ends measured by running THIS FILE, not by arithmetic**: green at 357
+  // against `e063d8c` before the block was written, red at 362 after, with
+  // ROADMAP.md the only file changed in between (`git diff --numstat ROADMAP.md`
+  // -> 116 added, 0 removed).
+  quoteFragments: 362,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;

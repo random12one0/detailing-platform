@@ -7511,6 +7511,131 @@ requested.
   `platform-admin` (both already in `FOR-ANDREW.md`'s publish-and-apply list),
   then the back-office System health tab is opened and a real send is seen.
 
+  ***ASKED OF THE LIVE DATABASE 2026-10-08 AT `e063d8c` — TWO OF THE THREE
+  THINGS THE SERVER HALF SAID IT COULD NOT PROVE ARE NOW PROVEN, THE DONE-WHEN'S
+  EVIDENCE TURNS OUT TO BE ALREADY SITTING IN THE TABLE, AND THE FINISHING
+  RECIPE ABOVE IS SHORT BY ONE PUBLISH.*** Nothing was deployed, nothing was
+  applied, nothing was written to `email_sends`, and the box stays unticked.
+
+  **1 · THE `businesses(name)` EMBED IS ACCEPTED BY THE LIVE POSTGREST.** The
+  server half listed this first among what its test could not ask. It can be
+  asked with one read:
+
+  ```bash
+  set -a; . ./.env; set +a
+  curl -s "$SUPABASE_URL/rest/v1/email_sends?select=id,subject,to_email,status,detail,sent_at,businesses(name)&limit=1" \
+    -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+  ```
+
+  **200**, and the row carries `"businesses":{"name":"…"}`. Add `booking_id` to
+  that same `select` and it is **400, code `42703`, message `column
+  email_sends.booking_id does not exist`** — the migration is still unapplied,
+  which `node scripts/migration-drift.mjs` names in the same breath as
+  `email_sends_booking_idx`.
+
+  **2 · AND THE PRODUCTION MODULE TURNS THAT REAL ERROR INTO THE RIGHT
+  SENTENCE.** `emailList()` was imported unmodified and run against the live
+  database through the same `@supabase/supabase-js` the deployed function uses:
+  **status 500, body `{ error: "the database change that lets each email record
+  its booking has not been applied yet" }`, and no `rows` key at all.** So on
+  the day Andrew publishes the function before applying the change, the screen
+  says *apply the migration* rather than *the database did not answer*, and
+  cannot fall through to *no email has been sent yet*. **The suite could only
+  simulate that error object; this is the one Postgres actually sends.**
+
+  **3 · 3.1'S DONE-WHEN ALREADY HAS ITS EVIDENCE. NO NEW SEND IS NEEDED.**
+
+  ```bash
+  curl -s "$SUPABASE_URL/rest/v1/email_sends?select=status&order=sent_at.desc,id.desc" \
+    -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+    | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const r=JSON.parse(s);const t={};for(const x of r)t[x.status]=(t[x.status]||0)+1;console.log(r.length,JSON.stringify(t));console.log(r.map((x,i)=>[i+1,x.status]).filter(([,st])=>st==='bounced'||st==='delivered').slice(0,8).join(' | '))})"
+  ```
+
+  **225 rows** — skipped 182, failed 16, sent 10, refused 9, bounced 4,
+  delivered 4 — and **in the newest 100, the window this list asks for, the four
+  bounced rows sit at ranks 7, 8, 11, 12 and the four delivered at 9, 10, 13,
+  14.** They are Resend's own simulator addresses, and each bounced row carries
+  the provider's own reason capped at 200 characters. **The deliberately bounced
+  test message 3.1 asks for was sent on 2026-10-06 and is in the table waiting
+  to be displayed.** What is missing is the function that can serve it, not the
+  evidence.
+
+  **4 · AND THE REAL ROWS WERE DRAWN, WHICH THE FIXTURE WALK CANNOT DO.**
+  `scripts/email-list-admin.mjs` feeds the screen eight invented rows, so two
+  things had never been seen at all: **the *"100 most recent."* line, which only
+  draws at `MAIL_CAP` rows**, and real strings — a 200-character provider
+  reason, a 70-character subject. Today's real 100 were read read-only and
+  answered inside the browser at 1920 / 1440 / 768 / 392 / 320: **100 rows at
+  every width, 0 outside the viewport, no sideways scroll at any width, the cap
+  line present at all five, 96 rows drawn red, 0 console errors or warnings**,
+  with a canary — a row forced 400px wider than the viewport — caught.
+  Screenshots are in `.manager-shots/3.1/`. **The instrument is not kept**: it
+  was a scratch probe that read 100 rows over REST and fulfilled the
+  `email_list` request inside Playwright, and re-taking these numbers means
+  rebuilding it. The figures move as the 100 newest rows move.
+
+  **5 · WHAT ANDREW WILL ACTUALLY SEE, SO HE DOES NOT READ IT AS BREAKAGE.**
+  **Of the newest 100 rows, 96 draw red** — and 86 of those say *"Not sent ·
+  that address cannot receive email"*. That is the **seeded test tenants'
+  `@example.com` addresses**, which `send-email` refuses on purpose because
+  sending to a reserved domain damages the sending domain's reputation. **It is
+  the fixture data talking, not the product failing**, and the **Problems**
+  switch is about nine tenths the same rows. The four bounces and four
+  deliveries are near the top of both views, which is the thing he is actually
+  looking for. Same command as § 3 for the tally.
+
+  **6 · THE FINISHING RECIPE ABOVE IS SHORT BY ONE PUBLISH — CORRECTED HERE
+  RATHER THAN EDITED AWAY.** It reads *"Andrew applies change 2 and publishes
+  `platform-admin`"*. **That makes the LIST WORK and leaves every row's
+  `booking_id` null for ever**, because hops 2 and 3 live in **`send-email`**
+  and hop 1 lives in whichever **booking sender** composed the mail. There are
+  ten of those — `create-booking`, `respond-to-booking`, `cancel-booking`,
+  `reschedule-booking`, `update-booking`, `accept-quote`, `send-invoice`,
+  `send-owner-reminders`, `stripe-webhook`, `photo-door` — found with
+  `grep -rn "bookingId" supabase/functions/ --include=*.ts`, and all ten plus
+  `send-email` are in today's `node scripts/deployed-inventory.mjs` list of
+  functions not running this checkout (`photo-door` has never been deployed at
+  all). **And the ORDER matters more than the completeness: publishing
+  `send-email` before the migration is applied makes `record()`'s insert fail on
+  every send, and `record()` is best-effort, so the record of every email would
+  silently stop being written.** `FOR-ANDREW.md` step 2.2 already says this and
+  its step order is correct; it is repeated here because this entry is where
+  somebody will read the recipe.
+
+  **STILL NOT PROVEN, AND IT CANNOT BE FROM HERE:** a real non-null
+  `booking_id` has never existed, because nothing can write one until
+  `send-email` is published; and the deployed `platform-admin` is still not this
+  one — asked `{action:"email_list"}` through the real wire this run it answers
+  **400 `business_id is required`**, and the screen correctly reads that as
+  *failed* rather than empty (`node scripts/email-list-admin.mjs`, its one
+  un-rewritten target).
+
+  **NEEDS ANDREW: apply `20261006010000` (FOR-ANDREW step 2), publish
+  `platform-admin` (step 3), and publish `send-email` and the ten booking
+  senders (steps 6 and 7) — in that order.** After the first two the list works
+  on 225 real rows; the third is what makes `booking_id` start arriving.
+  **The booking LINK is still his call and nothing is built toward it** —
+  `/admin/job/:id` is not a route and `/job/:id` is the detailer's own screen,
+  which will not open for him.
+
+  **Gates this run, every one re-run file by file after the edits rather than
+  quoted from the entry above — which is how the first draft of this line came
+  to claim 18 for a suite that has 9:** the four credential-free suites 4 of 4;
+  `email-list` 9 of 9; `email-row-knows-its-booking` 9 of 9;
+  `no-credentials-in-tracked-text` 1 of 1; `every-open-item-is-citable` 6 of 6;
+  `figures-carry-their-command` 9 of 9; `sweep-methods-are-pinned` 8 of 8 **after
+  its `quoteFragments` moved 357 -> 362 in the same edit as this block**, with
+  both `PIN_CANARY=` sabotages re-run against the new value and both still red;
+  `queue-rows-still-belong` 15 of 15 with `.env` loaded — it is 13 of 15 without,
+  and says so by name rather than skipping; `node scripts/label-guard.mjs` clean;
+  `node scripts/email-list-admin.mjs` 16 of 16 targets and 93 assertions with both
+  canaries caught, graded PASS by `node scripts/receipt.mjs
+  receipts/email-list-admin.json`. **Not run, and why:** `american-english.mjs`
+  and `contrast-insitu.mjs` read the finished product pages and no product copy
+  changed; `migration-drift.mjs` and `deployed-inventory.mjs` were run and are
+  the source of § 1 and § 6 rather than gates that passed — both exit 1, by
+  design, and must.
+
 - [~] **3.2 — DEFERRED by Andrew to ~Dec 2026. Email capped at 100 a day, shared with Andrew's real business.**
   Back office shows "Email today 0 of 100", and `AdminPage.jsx:360` already
   knows the cap is shared with andrewsdetail.com.

@@ -1,9 +1,9 @@
 {
-  "git_sha": "c750236de9ce53d06c7d65bca0bfddc2f0e8a890",
-  "git_sha_started": "c750236de9ce53d06c7d65bca0bfddc2f0e8a890",
+  "git_sha": "e063d8c84677dd036415fb5091a557436cc58812",
+  "git_sha_started": "e063d8c84677dd036415fb5091a557436cc58812",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-08T03:26:55.577Z",
+  "finished_at": "2026-10-09T02:13:11.140Z",
   "failures": [
     "3 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), action_log_is_append_only (declared by 20261006050000_action_log.sql)",
     "3 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql), action_log (declared by 20261006050000_action_log.sql), send_invoice_attempts (declared by 20261006062000_send_invoice_attempts.sql)",
@@ -80,7 +80,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-08T03:26:50.145Z",
+  "started_at": "2026-10-09T02:13:05.364Z",
   "status": "fail",
   "expected_targets": 360,
   "discovered_targets": 344,

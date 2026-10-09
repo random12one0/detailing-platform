@@ -165,6 +165,16 @@ maintenance email's legal footer (0.7); the push-notification links pointing at
 the job page instead of a page that does not exist (14.34).
 **Then:** `node scripts/deployed-inventory.mjs` should stop naming all four.
 
+**When you open the "Email we sent" list, nearly every row on the first screen
+will be red, and that is the fake test accounts rather than anything broken.**
+The seeded practice detailers use `@example.com` addresses, which are reserved
+by the internet standards and can never receive mail, so the program refuses to
+send to them on purpose and records each one as *"Not sent - that address cannot
+receive email"*. **The rows worth looking at are near the top**: a handful that
+say *Bounced* in red with the provider's own reason, and a handful that say
+*Delivered*. Counts and the command that produces them are in `ROADMAP.md` under
+3.1.
+
 ### Step 4 · Apply the two changes written after that list
 
 Both are finished and tested on a throwaway database, and **the program works

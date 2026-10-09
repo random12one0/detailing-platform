@@ -1,9 +1,9 @@
 {
-  "git_sha": "247a818bd05d0d2ddc5a857e0a18fbb5378f4a87",
-  "git_sha_started": "247a818bd05d0d2ddc5a857e0a18fbb5378f4a87",
+  "git_sha": "e063d8c84677dd036415fb5091a557436cc58812",
+  "git_sha_started": "e063d8c84677dd036415fb5091a557436cc58812",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-07T00:59:07.296Z",
+  "finished_at": "2026-10-09T02:21:37.980Z",
   "failures": [],
   "warnings": [
     "The rows are injected by answering `email_list` IN THE BROWSER. Nothing is written to `email_sends`. It measures the DISPLAY. The server action that feeds it did not exist when this was written.",
@@ -68,7 +68,7 @@
     ]
   },
   "check_id": "email-list-admin",
-  "started_at": "2026-10-07T00:57:25.190Z",
+  "started_at": "2026-10-09T02:19:44.379Z",
   "status": "pass",
   "expected_targets": 16,
   "discovered_targets": 16,
