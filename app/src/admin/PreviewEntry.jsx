@@ -36,11 +36,17 @@ export default function PreviewEntry() {
       if (used.current) return;
       const q = new URLSearchParams(window.location.hash.slice(1));
       const token = q.get("token");
-      if (!token) return;
+      const at = q.get("at"), rt = q.get("rt");
+      if (!token && !(at && rt)) return;
       used.current = true;
       try { sessionStorage.setItem("dp.preview.who", q.get("who") || ""); } catch { /* private mode */ }
       setPreviewMode("look");   // every preview starts unable to change anything
-      supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" }).then(({ error: e }) => {
+      // ROADMAP 4.3c: `at`/`rt` is a session the server already exchanged and
+      // marked read-only; `token` is the older server's one-time link token.
+      const enter = at && rt
+        ? supabase.auth.setSession({ access_token: at, refresh_token: rt })
+        : supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" });
+      enter.then(({ error: e }) => {
         if (e) { setError(e.message); return; }
         // replace, not push: the token is spent, so Back must not return here.
         nav("/app", { replace: true });

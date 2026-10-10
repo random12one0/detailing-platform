@@ -5,6 +5,7 @@
 //   node --test tests/support-sessions-edge.test.mjs
 //   BREAK=fail-open node tests/support-sessions-edge.test.mjs   # a failed marker read ALLOWS the write
 //   BREAK=no-gate   node tests/support-sessions-edge.test.mjs   # requireMember stops asking
+//   BREAK=unmarked  node tests/support-sessions-edge.test.mjs   # impersonate hands over a session with no id
 //
 // Edge functions run as the service role, so the database rules in
 // 20261010030000_support_sessions_read_only.sql never see their writes. Every function that
@@ -98,6 +99,21 @@ test("4.3c · edge functions refuse a read-only support session; the owner's own
   const door = stripComments(readFileSync(`${FN}/_shared/photoDoor.ts`, "utf8"));
   check("photo-door lets a support session through for `urls` only", /requireMember\(req, businessId, \{ allowSupport: action === "urls" \}\)/.test(door));
 
+  // 4. impersonate marks the session BEFORE handing it over, and refuses without an id.
+  let pa = stripComments(readFileSync(`${FN}/platform-admin/index.ts`, "utf8"));
+  if (BREAK === "unmarked") pa = pa.replace("if (exErr || !session || !sid)", "if (exErr || !session)");
+  const imp = pa.slice(pa.indexOf('action === "impersonate"'));
+  const at = (s) => imp.indexOf(s);
+  check("impersonate exchanges the link on a fresh client, not the shared service-role one", /createClient\(SUPABASE_URL, anon/.test(imp) && at("verifyOtp(") > 0);
+  check("impersonate refuses when the token carries no session id", imp.includes("if (exErr || !session || !sid) return json({ error: fail }, 500)"));
+  check("the marker is written before the tokens are returned", at('from("support_sessions").insert') > 0 && at('from("support_sessions").insert') < at("access_token: session.access_token"));
+  check("a marker that did not land ends the session and hands nothing over", /if \(markErr\) \{[^}]*signOut\(session\.access_token[\s\S]*?return json\(\{ error: fail \}, 500\)/.test(imp));
+  check("the audit row is still written before the link is made", imp.indexOf('logIt(admin, "impersonate"') < at("generateLink("));
+  const entry = readFileSync("app/src/admin/PreviewEntry.jsx", "utf8");
+  check("the preview door takes the server's session with setSession", /setSession\(\{ access_token: at, refresh_token: rt \}\)/.test(entry));
+  const client = readFileSync("app/src/lib/supabase.js", "utf8");
+  check("the browser guard also covers auth.updateUser in a preview tab", /supabase\.auth\.updateUser = \(\.\.\.args\) => \{ guardWrite\(\);/.test(client));
+
   // CANARY, every run: a function that checks the user itself and forgets the support question.
   const canary = classify("canary", `const { data } = await supabase.auth.getUser(token); await supabase.from("x").insert({});`);
   const canaryCaught = canary === "UNGUARDED getUser";
@@ -113,8 +129,8 @@ test("4.3c · edge functions refuse a read-only support session; the owner's own
     completed_targets: userAuth.filter((u) => !/UNGUARDED|WITHOUT/.test(u.verdict)).length,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 7 + EXPECTED_USER_AUTH + 3,
-    assertion_floor: "structural: six decision cases, one gate check, one per discovered function, three fixed checks",
+    min_assertions: 7 + EXPECTED_USER_AUTH + 3 + 7,
+    assertion_floor: "structural: six decision cases, one gate check, one per discovered function, three fixed checks, seven on the impersonate hand-over",
     failures,
     canary: { id: "unguarded-getUser", observed_failure: canaryCaught },
     artifacts: ["supabase/functions/_shared/supportSession.ts"],

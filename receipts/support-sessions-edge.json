@@ -1,9 +1,9 @@
 {
-  "git_sha": "4b3b21df5ca7f70721e5d4daad467ed12b94ac26",
-  "git_sha_started": "4b3b21df5ca7f70721e5d4daad467ed12b94ac26",
+  "git_sha": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
+  "git_sha_started": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:38:45.312Z",
+  "finished_at": "2026-10-10T15:40:31.662Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -35,16 +35,16 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-10T15:38:45.237Z",
+  "started_at": "2026-10-10T15:40:31.588Z",
   "status": "pass",
   "expected_targets": 21,
   "discovered_targets": 21,
   "attempted_targets": 21,
   "completed_targets": 21,
   "skipped_targets": 0,
-  "assertions_executed": 32,
-  "min_assertions": 31,
-  "assertion_floor": "structural: six decision cases, one gate check, one per discovered function, three fixed checks",
+  "assertions_executed": 39,
+  "min_assertions": 38,
+  "assertion_floor": "structural: six decision cases, one gate check, one per discovered function, three fixed checks, seven on the impersonate hand-over",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true

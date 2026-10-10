@@ -1313,10 +1313,18 @@ function Business({ row, detail, onClose, reload }) {
                       setBusy("impersonate");
                       try {
                         const out = await call({ action: "impersonate", business_id: row.id });
-                        const token = new URL(out.url).searchParams.get("token");
-                        if (!token) throw new Error("The server did not send back a usable link.");
-                        tab.location.replace(
-                          `/preview#token=${encodeURIComponent(token)}&who=${encodeURIComponent(row.name)}`);
+                        const who = `who=${encodeURIComponent(row.name)}`;
+                        // ROADMAP 4.3c: the server now signs in itself and marks the session
+                        // read-only, so it sends a session (`at`/`rt`). The `url` arm is the
+                        // older server, kept so the app and the function can be published in
+                        // either order; it opens today's unmarked session, no worse than before.
+                        if (out.access_token && out.refresh_token) {
+                          tab.location.replace(`/preview#at=${encodeURIComponent(out.access_token)}&rt=${encodeURIComponent(out.refresh_token)}&${who}`);
+                        } else {
+                          const token = out.url && new URL(out.url).searchParams.get("token");
+                          if (!token) throw new Error("The server did not send back a usable link.");
+                          tab.location.replace(`/preview#token=${encodeURIComponent(token)}&${who}`);
+                        }
                       } catch (e) { tab.close(); window.alert(e.message); }
                       setBusy("");
                     }}>

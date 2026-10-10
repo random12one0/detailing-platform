@@ -111,4 +111,8 @@ if (isPreviewTab) {
     }
     return b;
   };
+  // ROADMAP 4.3c: the Auth API is a write no database rule can see (a password
+  // or profile change on the owner's account), so a stray click stops here too.
+  const updateUser = supabase.auth.updateUser.bind(supabase.auth);
+  supabase.auth.updateUser = (...args) => { guardWrite(); return updateUser(...args); };
 }

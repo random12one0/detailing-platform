@@ -27,7 +27,9 @@
 // the detailer's screens — *open their dashboard as them* is why those exist.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { supabase } from "../_shared/db.ts";
+import { SUPABASE_URL, supabase } from "../_shared/db.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.58.0";
+import { sessionIdOf } from "../_shared/supportSession.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
@@ -1175,7 +1177,35 @@ Deno.serve(async (req) => {
       // GENERATED, NOT SENT. `generateLink` returns the URL without emailing
       // it, so the detailer is never told that somebody looked — which is a
       // deliberate choice and the reason the audit row above is not optional.
-      return json({ success: true, url: link?.properties?.action_link, as: email });
+
+      // ROADMAP 4.3c: THE SERVER USES THE LINK ITSELF AND MARKS THE SESSION
+      // READ-ONLY BEFORE THE BROWSER EVER HOLDS IT. The session's id goes into
+      // `support_sessions`, which every write rule in the database and every
+      // edge function's member check asks about. It fails closed, the same
+      // rule as the audit row above: no session id, or a marker that did not
+      // land, and nothing is handed over. A fresh client, so the exchange can
+      // never sign the shared service-role client in as the owner.
+      const fail = "Could not open their dashboard read-only, so this was not done.";
+      const hashed = link?.properties?.hashed_token;
+      if (!hashed) return json({ error: fail }, 500);
+      const anon = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!anon) return json({ error: fail }, 500);
+      const { data: ex, error: exErr } = await createClient(SUPABASE_URL, anon, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      }).auth.verifyOtp({ token_hash: hashed, type: "magiclink" });
+      const session = ex?.session;
+      const sid = session ? sessionIdOf(session.access_token) : null;
+      if (exErr || !session || !sid) return json({ error: fail }, 500);
+      const { error: markErr } = await supabase.from("support_sessions").insert({
+        session_id: sid, user_id: session.user.id, business_id: id, admin_id: admin.id,
+      });
+      if (markErr) {
+        // The session exists but is unmarked: end it rather than leave it about.
+        await supabase.auth.admin.signOut(session.access_token, "local").catch(() => {});
+        console.error("platform-admin: support marker not written:", markErr.message);
+        return json({ error: fail }, 500);
+      }
+      return json({ success: true, access_token: session.access_token, refresh_token: session.refresh_token, as: email });
     }
 
     return json({ error: "Unknown action" }, 400);
