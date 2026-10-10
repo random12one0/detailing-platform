@@ -1238,6 +1238,17 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DO · Restore the belt worker's Claude Code login and accept this
+  workspace's trust prompt.** Added 2026-10-10 by supervision.
+
+  The two latest worker dispatches (`0` and `0.3b`) both stopped in under a
+  minute before a tool call, edit, or command. Claude Code said `Not logged in`
+  and that `C:\Users\rando\Downloads\claude\detailing-platform` has not been
+  trusted. Open Claude Code interactively in that exact backslash-spelled
+  folder, run `/login`, and accept its trust prompt. Then `node belt.mjs
+  --once` should reach the worker instead of failing immediately. Do not put
+  credentials into the repository or alter the trust file by hand.
+
 - [ ] **One thing to decide, and it is a small one: the mail log's four
   finishing touches are now four separate jobs instead of one.** 2026-10-09,
   from the supervisor. **Nothing for you to do unless you disagree.**
