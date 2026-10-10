@@ -4120,10 +4120,36 @@ the wrong service, and never book a job we cannot reach.
   name of a fix. It removes itself once the function is published;
   `deployed-inventory.mjs` is what says when.
 
-- [ ] **2.1b — The quote cannot price a day until a TIME is also picked, and
+- [x] **2.1b — The quote cannot price a day until a TIME is also picked, and
   `calculate-booking`'s own header says otherwise. Found 2026-09-21 answering
   a question about 2.1; not a fault, and nobody is asking for it to change
-  today.** `whenContextFor` (`_shared/pricing.ts`) opens with
+  today.**
+  **DONE 2026-10-10 — THE LAST UNWALKED PIECE, THE TRAVEL AREA, IS WALKED AND
+  EVERY CLICK MOVES THE TOTAL BY EXACTLY WHAT THE CONTROL SAYS.**
+  `node scripts/travel-price-walk.mjs` (dev server, no credentials) at commit
+  `18099e89`: **PASS, 3 of 3 targets (1440x900, 392x844, 320x844), 39
+  assertions, 0 failures, 0 console errors or warnings**, canary caught 3/3,
+  `receipt.mjs` graded the receipt valid. At every width: no figure before the
+  first service, `$65` on it (the card's own figure); `Beyond 15 miles · +$40`
+  `$65 → $105`; `Drop it off` `$105 → $65` and the area question disappears;
+  `We come to you` `$65 → $105` (the area is remembered); `Long Beach` `$105 →
+  $65`; and the refusal case, `Drop it off` with the free area, `$65 → $65`.
+  It asks for the EXACT delta read off the control, proves each click landed
+  (select value, card class — `docs/gotchas.md` 108) and waits on the quote
+  request count, not on the text (109). **Broken on purpose twice:**
+  `--break=canary` (the canary rewrites every quote to the free area) made the
+  receipt fail with `canary 0/3`; and taking `form.travelZone` out of
+  `quoteKey` in `core.js` (landed, `git diff --numstat` 1/1, then reverted
+  clean) reddened **12 of 39 at all three widths** — the area changed and the
+  bar did not, which is exactly the defect Andrew's ruling forbids.
+  **So the whole flow is now walked:** services, add-ons and vehicle size by
+  the supervisor below (10 of 10 moved, condition correctly does not); the
+  travel area and mode here; the day under 2.1c (clean live run, weekend rate
+  named on the day tap, 25/25). **The one known exception is 2.1d and stays
+  open there, not here:** booking TODAY, the rush fee arrives on the time tap
+  rather than the day tap — built, proved with a stand-in, and waiting only on
+  Andrew publishing `calculate-booking`.
+  `whenContextFor` (`_shared/pricing.ts`) opens with
   **ANDREW OVERRULED THE NARROW DONE-WHEN ON 2026-10-09.** The price must change
   on the **first click that changes price** — including the first product or
   service choice — and after every later price-changing choice. Waiting for a
