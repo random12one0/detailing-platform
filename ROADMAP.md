@@ -23761,6 +23761,8 @@ their age is not Andrew's problem.
   the updated roster** so the table and the document still agree afterwards.
   Closes A2 1.1 and A2 4.11.
 
+  NEEDS ANDREW: the trigger has not fired — no real detailer has signed up (44 sign-ins on 2026-10-10, every one a test or demo address; `docs/platform-admins.md` at `f5515acf`). The buildable half is done and proven: `scripts/admin-refuses.mjs`, receipt at `bb43496`, 6 of 6 account-and-width targets, 21 assertions, 0 failed, and `--break=let-in` caught with 6 failed. What clears it: about a week before the first real detailer is invited, Andrew gives `demo@demo.com` a real password himself in Supabase (Authentication → Users) and tells a session "take the demo detailer out of the back office"; that session removes the `demo@detailplatform.com` row, updates the roster in `docs/platform-admins.md`, and re-runs `admin-refuses` and `platform-admins-declared`. Both steps are his row in `FOR-ANDREW.md`. Until then the demo logins' back-office access is deliberate and must not be "fixed".
+
 ---
 
 ## Wave 13 — After the fixes
