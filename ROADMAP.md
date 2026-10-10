@@ -2554,7 +2554,7 @@ and how the wait ends.
   it did **not** reproduce the working case. A refusal is proof of refusal, not
   proof that the product sends the notice and records the date. Andrew also
   rejected the new back-office treatment and asked for that whole tool to be
-  reconsidered under 9.12. Keep this open until the success path can be
+  reconsidered under 9.12 (now 9.12a). Keep this open until the success path can be
   reproduced after the owner-controlled apply/publish work, and do not treat
   the rejected button layout as an approved design.
   **Waits on:** Andrew applying the `site_build_started_at` migration and
@@ -21526,7 +21526,40 @@ the dashboard or back office at phone width at all.
   a reason, which would at least be visible. **Clause 1 should not be read as met
   on that receipt** while the surface its own finding named is missing from it.
 
-- [ ] **9.12 — Back office: real detailers first, scannable, one action each.**
+- [x] **9.12 — Back office: real detailers first, scannable, one action each.**
+  **TICKED 2026-10-10 ON ITS WRITTEN DONE-WHEN — THE FOUR CASES AND REAL-FIRST.
+  THE FROM-SCRATCH REDESIGN ANDREW ASKED FOR ON 2026-10-09 IS NOT DONE AND IS
+  NOW 9.12a, directly below, so it stays numbered and in the queue.** Commit
+  `91fc1b4`. What changed: the call card's advice is picked by what we can
+  reach the detailer on (`actionFor` in `lib/attention.js`): a phone number
+  gets "Ring them" plus a tap-to-call button, an email gets "Email them", and
+  neither gets a sentence saying so. "Money at risk" lists only accounts
+  paying more than $0; a non-payer moves to a new "Not paying yet" card.
+  The Detailers line reads "No bookings yet" at 0 live bookings and
+  "N bookings, no customers on file" at 0 customers, instead of
+  "Booking · last one …". Real detailers sort first (a sort, so nothing is
+  hidden). "What to look at, in order" is deleted, because it repeated every
+  card above it. **How it was checked:** `node --test
+  tests/admin-preconditions.test.mjs` 6 pass, and `BREAK=ring|money|line|order`
+  each turn their own test red (env var, gotchas 104).
+  `node --env-file=.env scripts/admin-preconditions.mjs` against the live
+  platform list at 1440 and 392: **PASS, 18 assertions, 0 failed, console
+  clean, canary caught**, graded valid by `receipt.mjs` at `91fc1b4`.
+  `--lite` (the ?lite=1 path) also PASS 18/0. `--break=old` blinds the
+  inspector and the canary goes MISSED → FAIL. **The original defect,
+  reproduced:** with the pre-fix `AdminPage.jsx` (from `HEAD~1`) put back for
+  one run, **6 of the 9 questions went red at both widths, naming exactly the
+  audit's cases**: the duplicate card; "Counter Signup Test Detail" told to be
+  rung with no phone on file; the same account under "Money at risk · paying
+  nothing"; fixtures above the real account; and six rows such as "Roles Test
+  Detailing: Booking · last one 19 days ago" over 0 customers, or "ICS Phoenix:
+  No bookings · last one 19 days ago". The file was restored from `HEAD` after.
+  **Not covered:** 320px was not run. **Growth's group advice** ("Ring them and
+  finish it on the phone", `lib/growthLines.js`) still names a phone call for
+  a group, and the group can include accounts with no number. It is a
+  group line rather than a row, and Andrew ruled on Growth's five questions on
+  2026-10-06, so it was left alone and is named here for 9.12a.
+  **The original entry follows.**
   **ANDREW REJECTED THE CURRENT DIRECTION 2026-10-09.** This is no longer a
   stepped-past tidy-up. Reconsider the back office substantially from scratch:
   its design, implementation, what belongs on each tab, and the purpose of each
@@ -21561,6 +21594,24 @@ the dashboard or back office at phone width at all.
   audience the roadmap is sorted for, not merely five real complaints
   wearing a redesign's clothes. Do not pick this up on a quiet night because
   it looks meaty; it fails the first criterion before size is even asked.**
+
+- [ ] **9.12a — Back office redesigned from scratch, tab by tab.** Split out of
+  9.12 on 2026-10-10 so the redesign stays numbered after 9.12's four false
+  lines were fixed and ticked. **Andrew, 2026-10-09:** *"the back office needs
+  some serious … makeover and thought through, basically kind of starting from
+  scratch again on just design, implementation, … what should be on each tab.
+  So nothing really is going to stay."* Do not keep the current tabs or
+  layout just because they exist, and do not treat 0.4's build-start button
+  as approved. The audit's shape is the starting brief (A1 P3-01..P3-04): a
+  list rather than the three-column card wall (detailer, status, setup, last
+  booking, earned, customers, main warning, action), detail in a side panel,
+  and every issue shown once with who it is, what it costs and what to do
+  next. Also bring Growth's group advice into line with 9.12's rule: no
+  "Ring them" over an account with no phone number.
+  **Done when:** Andrew has looked at the rebuilt back office and accepted it.
+  `scripts/admin-preconditions.mjs` must also still pass, so none of 9.12's
+  false lines come back. **What failing looks like:** the same five tabs,
+  re-skinned.
 
 - [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
   proof of success.** "$0 went through it this month… it is the proof the

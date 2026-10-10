@@ -1,0 +1,117 @@
+{
+  "git_sha": "91fc1b4efd79b01a521c4de238fb7c9fd5b60927",
+  "git_sha_started": "91fc1b4efd79b01a521c4de238fb7c9fd5b60927",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T13:31:04.179Z",
+  "failures": [],
+  "warnings": [
+    "Reads the LIVE platform list, so the population is whatever kguqylyzgyzfktkfnhjb holds today; the >=1 floors on call rows, non-payers and 0-customer rows refuse an empty population rather than pass it.",
+    "Signs in as a throwaway platform admin created and deleted by this run."
+  ],
+  "artifacts": [
+    "artifacts/admin-preconditions/today-1440.png",
+    "artifacts/admin-preconditions/money-1440.png",
+    "artifacts/admin-preconditions/detailers-1440.png",
+    "artifacts/admin-preconditions/today-392.png",
+    "artifacts/admin-preconditions/money-392.png",
+    "artifacts/admin-preconditions/detailers-392.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "lite": true,
+    "observed": {
+      "1440 lite today": {
+        "rhythm": false,
+        "callRows": 1,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 0,
+        "bizRows": 0,
+        "demoBeforeReal": false,
+        "zeroCustRows": 0,
+        "badLine": []
+      },
+      "1440 lite money": {
+        "rhythm": false,
+        "callRows": 0,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 1,
+        "bizRows": 0,
+        "demoBeforeReal": false,
+        "zeroCustRows": 0,
+        "badLine": []
+      },
+      "1440 lite detailers": {
+        "rhythm": false,
+        "callRows": 0,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 0,
+        "bizRows": 17,
+        "demoBeforeReal": false,
+        "zeroCustRows": 6,
+        "badLine": []
+      },
+      "392 lite today": {
+        "rhythm": false,
+        "callRows": 1,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 0,
+        "bizRows": 0,
+        "demoBeforeReal": false,
+        "zeroCustRows": 0,
+        "badLine": []
+      },
+      "392 lite money": {
+        "rhythm": false,
+        "callRows": 0,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 1,
+        "bizRows": 0,
+        "demoBeforeReal": false,
+        "zeroCustRows": 0,
+        "badLine": []
+      },
+      "392 lite detailers": {
+        "rhythm": false,
+        "callRows": 0,
+        "ringNoTel": [],
+        "riskRows": 0,
+        "riskNoPay": [],
+        "notPayingRows": 0,
+        "bizRows": 17,
+        "demoBeforeReal": false,
+        "zeroCustRows": 6,
+        "badLine": []
+      }
+    }
+  },
+  "check_id": "admin-preconditions-lite",
+  "started_at": "2026-10-10T13:30:53.473Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "2 widths x 9 questions (3 Today, 2 Money, 4 Detailers), fixed by the code; a missing section reddens a question rather than dropping it.",
+  "canary": {
+    "id": "injected-ring-row-and-zero-customer-line",
+    "observed_failure": true,
+    "detail": "ringNoTel 0 -> 1; badLine 0 -> 1"
+  }
+}
