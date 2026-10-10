@@ -19720,6 +19720,29 @@ the dashboard or back office at phone width at all.
   **Folded in from `docs/9.1-findings-2026-09-23.md`, which is now deleted.**
   It existed untracked only because this file was held at the time.
 
+  Waits on: 9.1a, 9.1b. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 158 lines
+  long and no single session was finishing it.
+
+- [ ] **9.1a — Publish the prepared platform-admin function change**
+  Deploy the already-completed platform-admin payload widening so the live back office receives the same setup evidence as the dashboard. This piece does not certify a real account's displayed count after deployment.
+  Part 1 of 2 of item 9.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The intended platform-admin revision is published to the correct project.
+  - Deployment status confirms the live function revision matches the prepared change.
+  - No unrelated function or database-structure change is included.
+
+- [ ] **9.1b — Verify live setup counts match and close 9.1**
+  Using the same real detailer account, compare dashboard and back-office setup progress after the publish. This piece verifies the user-visible outcome and records the result; it does not alter the shared setup-progress implementation.
+  Part 2 of 2 of item 9.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The same account is checked in both dashboard and back office.
+  - Both surfaces show the identical completed-out-of-12 count.
+  - The comparison is recorded with sufficient account-safe evidence to support ticking 9.1.
+  - Any mismatch remains documented as an unresolved regression rather than marking the item complete.
+
 - [x] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,
