@@ -37,7 +37,8 @@
 // never reading bodies at all.
 
 import { chromium } from "../app/node_modules/playwright/index.mjs";
-import { writeReceipt } from "./receipt.mjs";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { REPO, writeReceipt } from "./receipt.mjs";
 
 const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
@@ -192,6 +193,11 @@ const verdict = b.above + p.above > 0
   : `NOT REPRODUCED: 0 refusals from above in ${expectedBurst} burst calls + ${PRESSES} presses; the product's own limiter refused ${p.product}`;
 console.log(`\n${verdict}`);
 
+// EVERY CALL, STATUS AND BODY, so a reader can attribute each refusal by hand.
+const LOG = `artifacts/address-429-repro/calls${BREAK ? "." + BREAK : ""}.json`;
+mkdirSync(`${REPO}/artifacts/address-429-repro`, { recursive: true });
+writeFileSync(`${REPO}/${LOG}`, JSON.stringify({ burst, presses }, null, 1));
+
 const status = failures.length ? "fail" : "pass";
 const { path } = writeReceipt({
   check_id: "address-429-repro",
@@ -210,6 +216,7 @@ const { path } = writeReceipt({
     "Phase 2 exhausts this machine's hourly address allowance (60/IP) on purpose; that is the positive control.",
     "One IP, one region, one evening. A ceiling keyed on many IPs, or only reached at higher concurrency than 100, would not show here.",
   ],
+  artifacts: [LOG],
   canary: { id: "product-refusal-seen-by-body", observed_failure: p.product > 0 && moved.address_ip > 0 },
   dimensions: { slug: SLUG, waves: WAVES, presses: PRESSES, break: BREAK, item: "14.15" },
   observed: { verdict, burst: b, presses: p, moved, preflights: seen.preflight, above_bodies: aboveBodies,
