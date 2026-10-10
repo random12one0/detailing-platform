@@ -11220,6 +11220,32 @@ requested.
   - An alternate-channel workflow is defined for each relevant failure state
 
 - [ ] **3.4f — Implement the approved communication changes**
+  **STATE 2026-10-10 — PART BUILT, the rest waits on Andrew (box stays open).**
+  **Built and proved** (`3e469e05`, `6d1e380b`): **S1**, the red line in a
+  job's pinned bar when the newest email about THAT booking to its address
+  bounced, was refused, was marked spam, or hit our daily limit — gone once a
+  later email is accepted and once the job's day has passed
+  (`app/src/lib/mailWarning.js`); and **D1**, the built-in *Booking confirmed*
+  text, with Spanish, offered on the job's Text sheet even to businesses whose
+  texts were saved before it existed. **Checked how:** `node --test
+  tests/job-mail-warning.test.mjs` 9/9 (a silenced rule: 4 red; a deleted
+  Spanish key: 1 red); `node scripts/job-mail-warning.mjs` 25/25 at 1440, 392
+  and 320 with the console clean, the canary caught, `--break=never` 12 red and
+  `--break=stale` 3 red; `receipt.mjs` grades it PASS. The email rows are
+  answered in the browser, so nothing was written to the database.
+  **Two places it differs from `docs/email-failure-recovery.md` S1, on purpose:**
+  the line says "the last email about this job" rather than naming its kind
+  (no row records the kind, and guessing it from a translated subject line is a
+  guess); and `failed` gets one neutral sentence, because the stored row cannot
+  tell F2 (their address) from F3 (our side) — the provider's status code is not
+  kept.
+  **Not built — waits on his answers:** S2, the Today list (3.4e answer 1); spam
+  reports stopping marketing and maintenance mail, and S4 the client-record
+  spam line (3.4e answer 2); the eight pushes obeying the alerts switch (3.4b
+  answer). Answer 3 is "decide when texting is built", so nothing waits on it.
+  **Buildable now and not yet built: S3**, the warning when the detailer's own
+  alert address bounces — the next slice for a session.
+  NEEDS ANDREW: answer the two DECIDE rows in `FOR-ANDREW.md` ("When an email does not arrive" — 3.4e, three yes/no; "Every message the product sends" — 3.4b, one yes/no). S2, the spam stop and the eight pushes are built only on those answers; recommendations are yes, yes, later, and yes.
   Build the agreed lifecycle and failure-recovery behavior in the application and backend. It deliberately excludes charged live-email proof, which is a separate controlled pass.
   Part 3 of 4 of item 3.4, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

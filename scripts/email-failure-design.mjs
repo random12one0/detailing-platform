@@ -174,7 +174,8 @@ export function judge(doc, p) {
   const miss9 = p.templateLabels.filter((l) => !has("*" + l + "*"));
   asked++;
   const confirmExists = p.templateLabels.some((l) => /booking confirmed|confirmed/i.test(l));
-  if (confirmExists) miss9.push("a confirmation text now exists, so § 4's \"There is no text for 'your booking is confirmed'\" is false — update the doc");
+  // 3.4f built it, so the tripwire now asks the doc to stop saying it is missing.
+  if (confirmExists && /There is no\s+text for/.test(doc)) miss9.push("a confirmation text now exists, so § 4's \"There is no text for 'your booking is confirmed'\" is false — update the doc");
   rule("doc-lists-every-text-template", miss9, p.templateLabels.length >= 5, `${p.templateLabels.length} templates`);
 
   // 10. every numbered state has a fallback row

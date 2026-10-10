@@ -53,8 +53,10 @@ Updated 2026-09-21.
 ## DECIDE · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 
 The plan for how a detailer finds out an email failed, and texts the customer
-instead, is written: `docs/email-failure-recovery.md`. Nothing is built yet;
-building it is ROADMAP 3.4f. Three yes-or-no answers, each with a
+instead, is written: `docs/email-failure-recovery.md`. **Built 2026-10-10,
+because it does not depend on these answers:** a red line on a job when an
+email about it did not arrive, and a ready-made "Booking confirmed" text to send
+instead. The three below are the rest of ROADMAP 3.4f. Three yes-or-no answers, each with a
 recommendation:
 
 1. **Show "Emails that did not arrive" on Today**, listing upcoming jobs whose

@@ -174,11 +174,11 @@ fallback is always *"tap Text on the job"*, and the work is making sure there is
 a sensible message to send.
 
 The built-in texts today (`app/src/lib/templates.js`) are *On my way*, *Running late*
-, *Confirm tomorrow*, *Job finished* and *Ask about access*. **There is no
-text for "your booking is confirmed"**, which is the single most important
-email to replace when it fails. **NEW: add a built-in *Booking confirmed* text**
-(date, time, address, and the booking link) in 3.4f, with its Spanish key in the
-same edit. Everything else maps to a template that exists or to *Write my own*.
+, *Confirm tomorrow*, *Job finished*, *Ask about access* and, since 3.4f
+(2026-10-10), *Booking confirmed* (date, time, address, and the booking link),
+because the confirmation is the single most important email to replace when it
+fails and none of the first five said it. Everything else maps to a template
+that exists or to *Write my own*.
 
 | State | What the detailer does | What the product does |
 |---|---|---|

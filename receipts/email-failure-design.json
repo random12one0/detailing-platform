@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
-  "git_sha_started": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
+  "git_sha": "6d1e380b37be5aa82ad3863550b2febf40c73187",
+  "git_sha_started": "6d1e380b37be5aa82ad3863550b2febf40c73187",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T12:25:23.455Z",
+  "finished_at": "2026-10-10T12:48:49.100Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE whether the design is right — that is Andrew's call on the three decisions in § 5",
@@ -18,14 +18,14 @@
     "break": null
   },
   "check_id": "email-failure-design",
-  "started_at": "2026-10-10T12:25:23.361Z",
+  "started_at": "2026-10-10T12:48:49.028Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
   "attempted_targets": 10,
   "completed_targets": 10,
   "skipped_targets": 0,
-  "assertions_executed": 50,
+  "assertions_executed": 51,
   "min_assertions": 40,
   "canary": {
     "id": "drop-state + new-status + sentence",
