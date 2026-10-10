@@ -1,0 +1,111 @@
+{
+  "git_sha": "c0ca28bc474c1ef1da70da8ff14416e714a5c600",
+  "git_sha_started": "c0ca28bc474c1ef1da70da8ff14416e714a5c600",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:13:58.859Z",
+  "failures": [],
+  "warnings": [
+    "Reads the LIVE platform (3 scheduled job heartbeats on it); the trouble, empty and quiet cases answer list through page.route(); nothing is written to the database.",
+    "Signs in as a throwaway platform admin created and deleted by this run.",
+    "The look itself (color, glow, motion) is not judged here; the screenshots are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-system/live-1440.png",
+    "artifacts/office-system/trouble-1440.png",
+    "artifacts/office-system/quiet-1440.png",
+    "artifacts/office-system/live-768.png",
+    "artifacts/office-system/trouble-768.png",
+    "artifacts/office-system/quiet-768.png",
+    "artifacts/office-system/live-390.png",
+    "artifacts/office-system/trouble-390.png",
+    "artifacts/office-system/quiet-390.png",
+    "artifacts/office-system/live-320.png",
+    "artifacts/office-system/trouble-320.png",
+    "artifacts/office-system/quiet-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x720"
+    ],
+    "lite": true,
+    "observed": {
+      "1440 lite live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "1440 lite trouble": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "768 lite live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "768 lite trouble": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "390 lite live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "390 lite trouble": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "320 lite live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "320 lite trouble": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      }
+    }
+  },
+  "check_id": "office-system-lite",
+  "started_at": "2026-10-10T22:12:54.601Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 100,
+  "min_assertions": 100,
+  "assertion_floor": "4 widths x 25 questions (live 10, trouble 9, empty 2, quiet 4) = 100, all fixed by the code; none is conditional on what the live platform holds.",
+  "canary": {
+    "id": "pushed-node-label-and-unlisted-broken-row",
+    "observed_failure": true,
+    "overlap": "overlaps 0 -> 1",
+    "agree": "not-working job:send-owner-reminders/job:accrue-plan-visits/watch/restore/email/stripe/netlify but Needs a look lists job:send-owner-reminders/email/job:accrue-plan-visits/watch/stripe/netlify; badge 1, broken 2"
+  }
+}

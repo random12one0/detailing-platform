@@ -1,9 +1,9 @@
 {
-  "git_sha": "7430331eb5750fca817d9b6882f1d1f11bf74a8d",
-  "git_sha_started": "7430331eb5750fca817d9b6882f1d1f11bf74a8d",
+  "git_sha": "c0ca28bc474c1ef1da70da8ff14416e714a5c600",
+  "git_sha_started": "c0ca28bc474c1ef1da70da8ff14416e714a5c600",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T21:37:33.901Z",
+  "finished_at": "2026-10-10T22:18:24.521Z",
   "failures": [],
   "warnings": [
     "Reads the LIVE platform list (17 rows at the last width, 3 no-phone and 3 with-phone accounts asked about); the existence questions refuse an empty population rather than pass it.",
@@ -83,7 +83,7 @@
     }
   },
   "check_id": "office-detailers",
-  "started_at": "2026-10-10T21:36:45.699Z",
+  "started_at": "2026-10-10T22:17:35.784Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,

@@ -78,25 +78,34 @@ Every email the product sends has been drawn in English and Spanish and read for
 
 **Recommendation:** drop the sending. It would only prove the same delivery pipe works sixteen more times. Say "drop it" and the two roadmap items get closed as "drawn and reviewed". If you do want real copies, name the inbox address and a session will send one of each, once.
 
-## LOOK · The rebuilt back office, first piece: Detailers (ROADMAP 9.12a, 2026-10-10)
+## LOOK AND DECIDE · The rebuilt back office, all four places (ROADMAP 9.12a, 2026-10-10)
 
-**Ten seconds.** Run the dev server, sign in at `/admin` as usual, then open
-`/admin/office`. You get the dark look you approved, with a side rail and the
-one place built so far, **Detailers**: a list with a health ring, a setup bar, a
-12-week bookings line, money earned and the main issue on every row. Click a
-row for the side panel. Press **Ctrl K** to find anyone. Switch to **Bubbles**
-at the top right.
+**Updated 2026-10-10: Today, Detailers, Money and System are all built now.**
+Run the dev server, sign in at `/admin` as usual, then open `/admin/office`. You
+get the dark look you approved, with a side rail (a bottom dock on a phone) and
+four places. **Today:** this month's money and the five things waiting on you.
+**Detailers:** one list, a health ring and setup bar on every row; click a row
+for the side panel, and press **Ctrl K** to find anyone. **Money:** what you kept,
+where it went, income by plan and the bills. **System:** how many checks are
+working, and only what is broken or never proven standing out.
 
-**Already proved, so you judge only the look:** every detailer is drawn, nothing
-overlaps at 1440, 768 or 390 wide, the console is silent, and an account with no
-phone number gets no Text or Call button. **Two things differ from the mockup on
-purpose:** the setup bar has 12 segments (the detailer's own screen counts 12
-steps, and the two must agree), and the health score is a rule of mine, starting
-at 50 with every point listed in the panel.
+**Already proved, so you judge only the look:** nothing overlaps at laptop,
+tablet and phone widths, the console is silent, and an account with no phone
+number gets no Text or Call button. Bills nobody typed in say "Not entered" and
+are never guessed. **On purpose, not like the mockup:** the setup bar has 12
+segments (the detailer's own screen counts 12 steps), the health score is a rule
+of mine with every point listed in the panel, and System leaves out the mockup's
+text-message, sign-in and website-uptime checks, because nothing feeds them yet.
 
-**If you dislike it:** say what, and it changes before Today, Money and System
-are built on the same pieces. The old five-tab `/admin` is untouched until the
-last piece lands. Nothing else is being asked of you.
+**What I need from you, two things:**
+1. **Do you accept the look?** If not, say what is wrong and it changes.
+2. **Where do the old screen's leftover jobs go?** Removing the old five tabs
+   would delete them otherwise: signing up a detailer, re-sending an invite,
+   exporting, the platform price editor, the mail list, and typing in last
+   month's bills. **My recommendation:** a sign-up button on the Detailers list;
+   invite and export in the detailer's side panel; the price editor and a month
+   switch on Money; the mail list on System. Say "go with that" or move any of
+   them. The old `/admin` stays untouched until you answer.
 
 ## DECIDED · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 
