@@ -2163,8 +2163,11 @@ still knows them.
   this file turns it into a choice.
 
 
-- [ ] **DO · Five minutes with your computer reading the screen out loud. No
-  install, nothing to download, no cost.**
+- [x] ~~**DO · Five minutes with your computer reading the screen out loud. No
+  install, nothing to download, no cost.**~~ **WITHDRAWN 2026-10-10 — you ruled
+  this is internal testing, not yours.** A browser check reads what a screen
+  reader would say instead (ROADMAP 14.24 part 3). Nothing for you to do; the
+  text below is kept only as history.
 
   **Why you and not us:** we can check that every button has a name in the code.
   **We cannot listen.** Nobody here can tell you whether it actually sounds right,

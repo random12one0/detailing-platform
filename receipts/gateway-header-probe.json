@@ -1,9 +1,9 @@
 {
-  "git_sha": "86f634a318b6c9ec2f75fa8fc96ae6714ee599aa",
-  "git_sha_started": "86f634a318b6c9ec2f75fa8fc96ae6714ee599aa",
+  "git_sha": "74848085a3905f720619af1b12fa095619fa9092",
+  "git_sha_started": "74848085a3905f720619af1b12fa095619fa9092",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T22:55:37.455Z",
+  "finished_at": "2026-10-10T23:51:20.598Z",
   "failures": [],
   "warnings": [
     "Two calls from one machine, one function, one evening. It says what the gateway did for this caller now, not for every path or every header (cf-connecting-ip was not forged).",
@@ -19,7 +19,7 @@
     "item": "14.18"
   },
   "check_id": "gateway-header-probe",
-  "started_at": "2026-10-10T22:55:35.057Z",
+  "started_at": "2026-10-10T23:51:18.026Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,

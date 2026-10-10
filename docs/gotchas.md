@@ -5448,3 +5448,9 @@ run the check and commit its receipt; if the run must happen before committing,
 record the tested diff explicitly and rerun after the commit before marking the
 item proved. Do not repair the SHA by hand: it is evidence, not metadata to
 make tidy.
+
+## 122. "Shown" by width is not shown: a label mid-fade has a box and no pixels
+
+Found by the supervisor 2026-10-10 on ROADMAP 9.12b. `scripts/office-coming-in.mjs` asks whether each timeline label is shown with `width > 0 && visibility !== "hidden"`. The pins fade in (`boPinIn`, `opacity` from 0, staggered delays), so a label caught mid-fade has a full box, passes that test, and paints nothing. **One copy of the check's own `fed-1440.png` and `fed-390.png` showed every stem and no label at all, under a run that printed 72 of 72.** A re-run a few minutes later painted them. Nobody looked at the screenshot the check itself saved.
+
+**The rule:** "is it visible" reads computed `opacity` up the ancestor chain (or the pixels), never only the box; and a check that saves a screenshot is not finished until somebody has opened it. Width-only visibility is the same failure as `docs/gotchas.md` 100 (hit test is not legibility) seen from the other side.

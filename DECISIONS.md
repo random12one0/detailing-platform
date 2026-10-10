@@ -345,6 +345,8 @@ were made more than once.
 
 - **A rejected look is checked against the mockup, not answered with "it exists"** — supervision 2026-10-10: Andrew's payment-timeline note was answered with a bare dot rail he had already rejected; the mockup's labeled timeline is now ROADMAP 9.12b. Same pass closed 6.1c as superseded by the new back office, on his own words.
 
+- **Phones first: every screen is designed at 390px before it is widened** — Andrew, 2026-10-10 23:20, rejecting 9.12b on his phone: 70-80% of looks are on a phone, nothing may look oddly sized, and the phone must carry everything the laptop shows. Same pass: 14.24 part 3 (screen-reader names) is a session's job, not his.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18982,3 +18984,13 @@ Supervision, 2026-10-10. Andrew rejected 9.12a's Money place asking for "a timel
 **6.1c closed as superseded, not done.** It asked Andrew to publish a restore-date panel in the OLD back office. He said on 2026-10-10 that the old screens no longer matter, and the new System place already shows the same restore date from the same heartbeat row, so it publishes and is verified with 9.12a. **What would reverse it:** 9.12a being abandoned and the old back office kept.
 
 **6.1a reworded, not removed.** Looking in his password manager is a task only he can do, but it is not a decision, so the marker now reads `NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED)`, the form already used elsewhere. The literal phrase stays because the belt skips on it.
+
+## Phones first: every screen is designed at 390px before it is widened
+
+Andrew, 2026-10-10 23:20, rejecting ROADMAP 9.12b (Money's "Coming in" timeline) after looking at it on a phone: *"the page will probably primarily be looked at in Mobile maybe like … 70% 80% of the time … nothing looks weird or sized weird … all that same information I could have access to on mobile compared to laptop … from this and also further on … stuff needs to be designed for mobile usage."*
+
+**The ruling, for every screen from now on, the back office included:** design at 390px first, then widen. A phone view is not a squeezed laptop view: it must look deliberate, nothing cut by an edge, nothing oddly sized, no large empty block, and it must show everything the 1440 view shows. Hiding information to make the phone fit is a defect, not a layout choice. "Nothing overlaps and nothing leaves its box" is the floor a check can measure; it is not the bar. 9.12b passed 72 of 72 such questions and he still rejected it.
+
+**How it is applied:** ROADMAP 9.12b reopened with phone-first criteria; the belt's task template now carries this rule so every visual item is built and screenshotted at 390 first; CLAUDE.md's Design absolutes carry one line pointing here.
+
+**14.24 part 3 is not Andrew's.** Same evening (23:23) he ruled that checking what a screen reader announces is internal testing with no business choice in it. The Narrator row in FOR-ANDREW.md is withdrawn and 14.24 part 3 now reads accessible names in a browser check. **What would reverse it:** a defect that only a real screen reader reproduces.

@@ -1,9 +1,9 @@
 {
-  "git_sha": "af45ecbdc221cb30b473bd40da1be3502a478a60",
-  "git_sha_started": "af45ecbdc221cb30b473bd40da1be3502a478a60",
+  "git_sha": "74848085a3905f720619af1b12fa095619fa9092",
+  "git_sha_started": "74848085a3905f720619af1b12fa095619fa9092",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T22:46:24.889Z",
+  "finished_at": "2026-10-10T23:50:04.338Z",
   "failures": [],
   "warnings": [
     "list is answered through page.route() with 12 fed subscriptions, 9 of them in the window; nothing is written to the database.",
@@ -375,7 +375,7 @@
     }
   },
   "check_id": "office-coming-in",
-  "started_at": "2026-10-10T22:45:03.783Z",
+  "started_at": "2026-10-10T23:48:14.771Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

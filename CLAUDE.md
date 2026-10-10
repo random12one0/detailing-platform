@@ -201,7 +201,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND TWENTY specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND TWENTY-TWO specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -621,6 +621,9 @@ Absolutes:
 - **Verify by looking**: screenshot 1920 / 1440x900 / 768x1024 / 392x844, read
   the console at each, in the normal path and `?lite=1`. 320px is the narrowest
   supported width and `sweep-widths.mjs` sweeps it by default.
+- **Phones first — Andrew, 2026-10-10.** 70-80% of looks at this product are on a phone. Design every
+  screen at 390px first, then widen; the phone shows everything the laptop shows, nothing is cut by an
+  edge or oddly sized, and "nothing overlaps" is the floor, not the bar. `DECISIONS.md`, "Phones first".
 - **A phone stays portrait.** Rotating it changes nothing — every `min-width`
   breakpoint that spends height carries `and (min-height: 500px)`.
 - **Anything that opens, animates in, and ships its exit in the same change.**
@@ -854,3 +857,7 @@ before and after.
 **120 → 121 on 2026-10-10, entry by another session (`806e4274`), pointer moved by the supervisor** — a
 receipt's `git_sha` can describe the tree BEFORE the fix it proves; 9.19, 9.26 and 9.25 all did it the same
 day. The entry landed without this line moving. `grep -c "^## " docs/gotchas.md` run before writing this: 121.
+
+**121 → 122 on 2026-10-10, same edit, by the supervisor** — a label "shown" by width and visibility can be mid-fade and paint
+nothing; one copy of 9.12b's own screenshots had no labels under a 72/0 run. The pointer at the top of this file said 120 and
+is now 122. `grep -c "^## " docs/gotchas.md` run before and after.
