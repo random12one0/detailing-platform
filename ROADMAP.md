@@ -11157,6 +11157,47 @@ requested.
   already do. Either way the amendment is Andrew's or the manager's, and **this
   entry records both halves rather than quietly picking one.**
 
+  Waits on: 3.4b, 3.4e, 3.4f, 3.4g. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 943 lines
+  long and no single session was finishing it.
+
+- [ ] **3.4b — Define the communication lifecycle**
+  Inventory the emails and texts that currently exist, their recipients, triggers, purpose, and timing. Decide the desired communication system and explicitly leave implementation and delivery testing to later pieces.
+  Part 1 of 4 of item 3.4, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A lifecycle matrix covers every current email and text path
+  - Each message has a documented purpose, audience, trigger, timing, and channel
+  - Messages to add, remove, merge, or defer are explicitly decided
+
+- [ ] **3.4e — Design email-failure recovery for detailers**
+  Specify how a detailer learns that an email failed and what alternate contact path they can use. This covers the product behavior and states, not the implementation of notifications or delivery-provider changes.
+  Part 2 of 4 of item 3.4, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Failure states and their source are documented
+  - The detailer-facing failure signal and its location are defined
+  - An alternate-channel workflow is defined for each relevant failure state
+
+- [ ] **3.4f — Implement the approved communication changes**
+  Build the agreed lifecycle and failure-recovery behavior in the application and backend. It deliberately excludes charged live-email proof, which is a separate controlled pass.
+  Part 3 of 4 of item 3.4, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Approved message, trigger, timing, and channel changes are implemented
+  - Approved email-failure visibility and alternate-channel behavior are implemented
+  - Relevant automated tests cover the changed communication paths
+
+- [ ] **3.4g — Review rendered templates and record delivery coverage**
+  Render every currently exported email template in English and Spanish for manager review, then deliberately perform one allowed sandbox send per sendable template. Record unsendable templates as NOT SENT with their reason rather than treating them as covered.
+  Part 4 of 4 of item 3.4, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Every exported template is rendered in English and Spanish and reviewed
+  - Each sendable template has one recorded sandbox delivery row
+  - Each unsendable template is named with its reason
+  - The template count is taken from the source file at the time of the pass
+
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
   CONTRADICTION DISSOLVED RATHER THAN BEING RESOLVED. Nothing was deleted; not a
