@@ -29,7 +29,7 @@
 // that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
-import { Bell, Building2, ChevronRight, CloudSun, CreditCard, KeyRound, LifeBuoy, LogOut, MailCheck, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
+import { Bell, Building2, ChevronRight, CloudSun, CreditCard, KeyRound, LifeBuoy, LogOut, MailCheck, MessageSquare, Smartphone, UserPlus, Users, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import SettingsHost from "./SettingsHost.jsx";
@@ -102,19 +102,6 @@ const TOUR_ROWS = {
   tour: "tourrow",
 };
 
-// Whether the signed-in person has a back office, remembered for the life of
-// the PAGE rather than of the menu — see the effect below for why that
-// distinction is the whole point. `uid: null` means nobody has been asked yet;
-// a failed ask is forgotten, so it is retried.
-//
-// **`ask` IS THE QUESTION, NOT THE ANSWER, and it is written BEFORE the
-// request leaves** — ROADMAP 9.17. It used to hold `yes`, written after the
-// answer came back, so two mounts close together (React.StrictMode runs this
-// effect twice on the dev server) each found nothing and each asked: two
-// `platform-admin` calls, two red 404 lines. Now the second mount finds the
-// first one's question in flight and waits on it.
-let adminSeen = { uid: null, ask: null };
-
 export default function GearMenu({ onClose, initial = null }) {
   useAppLocale();
   const {
@@ -131,66 +118,6 @@ export default function GearMenu({ onClose, initial = null }) {
   // gear, and this opens the row. Roadmap 2.20 stage 2.
   const [open, setOpen] = useState(initial);
   const [team, setTeam] = useState(null);
-  // ASKED ONCE, WHEN THE GEAR OPENS, and never on a dashboard load. Almost
-  // nobody is a platform admin, the answer never changes within a session,
-  // and the gear is a screen a detailer passes through rather than sits on.
-  // **A 404 IS THE ORDINARY ANSWER HERE**, not an error: it is what every
-  // detailer gets, and it means exactly one thing — draw no row.
-  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const jwt = data?.session?.access_token;
-        const uid = data?.session?.user?.id ?? null;
-        if (!jwt) return;
-        // **THE ANSWER SURVIVES THE GEAR CLOSING, and that is a defect fix
-        // rather than a saving.** `App.jsx` renders this menu conditionally,
-        // so closing it UNMOUNTS it and `isPlatformAdmin` goes back to false —
-        // the round trip below then ran again on every single reopen, and for
-        // as long as it was in flight the back-office row was missing from its
-        // own index. Lane C's tap sweep hit it twice in one clean run
-        // (docs/lane-b-handover-2026-09-13.md § H: a gear row that was in the
-        // index when the walk started and gone when its turn came), and it is
-        // the same thing Andrew sees — the only door to the back office is
-        // absent for a beat every time he opens settings, and absent entirely
-        // if the function is slow. The cache reduces that wait to a
-        // localStorage read.
-        //
-        // KEYED ON WHO IS SIGNED IN, because roadmap 8.18 lets two accounts
-        // swap without a page load, and a remembered `true` drawn for the
-        // wrong person would show a door the back office's own rule is built
-        // to keep invisible. A NO is remembered too, which is every detailer:
-        // they were each paying an edge-function call per gear open for an
-        // answer that cannot change.
-        //
-        // **THE 404 A DETAILER'S CONSOLE SHOWS HERE IS DESIGNED, ONE PER PAGE
-        // LOAD, AND CANNOT BE SILENCED FROM JAVASCRIPT** — Chrome logs every
-        // 4xx a fetch receives. `platform-admin` must answer 404 rather than
-        // `{admin:false}` (its own `whoami` comment says why), so the line
-        // stays. Recorded as expected console noise in `docs/gotchas.md`
-        // ("THE ONE RED 404 IN A CONSOLE THAT IS NOT A FAILURE");
-        // `scripts/gear-whoami.mjs` holds the count at exactly one.
-        if (adminSeen.uid !== uid) {
-          const ask = fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/platform-admin`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${jwt}`,
-            },
-            body: JSON.stringify({ action: "whoami" }),
-          }).then((res) => res.ok);
-          adminSeen = { uid, ask };
-          ask.catch(() => { if (adminSeen.ask === ask) adminSeen = { uid: null, ask: null }; });
-        }
-        const yes = await adminSeen.ask;
-        if (live && yes) setIsPlatformAdmin(true);
-      } catch { /* offline, or the function is down: draw no row, remember nothing */ }
-    })();
-    return () => { live = false; };
-  }, []);
 
 
   const load = useCallback(async () => {
@@ -272,19 +199,9 @@ export default function GearMenu({ onClose, initial = null }) {
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),
-    // **THE WAY THROUGH TO THE PLATFORM BACK OFFICE, for the one person who
-    // has one.** It sits beside *Switch business* because it is the same
-    // kind of act — leaving this business for another context — and it is
-    // absent for everybody else by the same rule that keeps a one-membership
-    // account from seeing a picker with one choice on it.
-    //
-    // The owner runs a detailing business AND the platform, so signing in
-    // lands him on HIS dashboard, which is right: that is the account he
-    // uses every morning. The back office is a door off it, not the front
-    // one.
-    ...(isPlatformAdmin
-      ? [["platform", "The website business", Shield, "Every detailer, and what they pay", null]]
-      : []),
+    // NO BACK-OFFICE ROW, for anybody — ROADMAP 99.3, Andrew 2026-10-10: he
+    // reaches it by typing /admin. So this menu asks the server nothing about
+    // who is a platform admin; `scripts/gear-whoami.mjs` holds that at zero.
   ].filter(([, , , , needs]) => !needs || (needs === "owner" ? owner : can(needs)));
 
   const account = (
@@ -420,15 +337,7 @@ export default function GearMenu({ onClose, initial = null }) {
             // must be unique across the whole product.
             data-tour={TOUR_ROWS[key]}
             aria-current={open === key ? "true" : undefined}
-            onClick={() => {
-              // A FULL NAVIGATION, not a settings screen. The back office is
-              // a different application on a different route — it does not
-              // share this shell, this tab bar or this business context, and
-              // pretending it is one more settings panel would put a second
-              // product inside a sheet.
-              if (key === "platform") { window.location.href = "/admin"; return; }
-              setOpen(key);
-            }}>
+            onClick={() => setOpen(key)}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>
             <span className="txt">
               <span className="name">{t(name)}</span>

@@ -635,8 +635,6 @@ export const appEs = {
   // ── THE GEAR ─────────────────────────────────────────────────────────────
   "Texts you send from a job": "Mensajes que mandas desde un trabajo",
   "Change your sign-in password": "Cambia tu contraseña de acceso",
-  "The website business": "El negocio del sitio web",
-  "Every detailer, and what they pay": "Cada detailer, y lo que paga",
   "Another account": "Otra cuenta",
   "this computer": "esta computadora",
   "Maps": "Mapas",
