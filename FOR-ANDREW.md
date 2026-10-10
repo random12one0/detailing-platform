@@ -78,31 +78,25 @@ Every email the product sends has been drawn in English and Spanish and read for
 
 **Recommendation:** drop the sending. It would only prove the same delivery pipe works sixteen more times. Say "drop it" and the two roadmap items get closed as "drawn and reviewed". If you do want real copies, name the inbox address and a session will send one of each, once.
 
-## READ · Back-office planning direction (ROADMAP 9.12a, 2026-10-10)
+## LOOK · The rebuilt back office, first piece: Detailers (ROADMAP 9.12a, 2026-10-10)
 
-You said the back office needs starting again, and that nothing on it is safe.
-**You also directed 2026-10-10 that the team research and plan the whole thing
-before implementation, rather than asking you to choose a preset tab layout.**
-Today it has five tabs: Today, Growth, Money, Detailers and System health.
-Rebuilding them without knowing what you want it for would give you the same
-five tabs in a new coat. Fixed already: Growth no longer says "Ring them" over
-a detailer with no phone number.
+**Ten seconds.** Run the dev server, sign in at `/admin` as usual, then open
+`/admin/office`. You get the dark look you approved, with a side rail and the
+one place built so far, **Detailers**: a list with a health ring, a setup bar, a
+12-week bookings line, money earned and the main issue on every row. Click a
+row for the side panel. Press **Ctrl K** to find anyone. Switch to **Bubbles**
+at the top right.
 
-**Recommended layout, change anything you like:**
+**Already proved, so you judge only the look:** every detailer is drawn, nothing
+overlaps at 1440, 768 or 390 wide, the console is silent, and an account with no
+phone number gets no Text or Call button. **Two things differ from the mockup on
+purpose:** the setup bar has 12 segments (the detailer's own screen counts 12
+steps, and the two must agree), and the health score is a rule of mine, starting
+at 50 with every point listed in the panel.
 
-1. **People** (replaces Today, Detailers and Growth): one list, real detailers
-   first. Each row: name, status, setup progress, last booking, money earned,
-   customers, the one thing wrong, and what to do about it. Click a row and
-   the full record opens in a panel beside the list. Anything that needs you
-   is marked in the list, so you do not open a row to find it.
-2. **Money**: what came in, what it cost to run the platform, what is left.
-   Says "not entered" instead of a profit when no costs are typed in.
-3. **System health**: emails, backups, errors. Only things that are broken or
-   unproven, with the last time each was checked.
-
-The next deliverable is a research-backed plan. It may choose tabs or a different
-structure, but it must explain the choice from the business workflows before any
-screen is rebuilt. Nothing is being asked of you here.
+**If you dislike it:** say what, and it changes before Today, Money and System
+are built on the same pieces. The old five-tab `/admin` is untouched until the
+last piece lands. Nothing else is being asked of you.
 
 ## DECIDED · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 

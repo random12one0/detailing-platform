@@ -1,0 +1,103 @@
+{
+  "git_sha": "4ebc2d073f7f5bbe2ab42c3d52dfd0e64bfe77a3",
+  "git_sha_started": "4ebc2d073f7f5bbe2ab42c3d52dfd0e64bfe77a3",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T21:03:08.811Z",
+  "failures": [],
+  "warnings": [
+    "Reads the LIVE platform list (17 rows at the last width, 3 no-phone and 3 with-phone accounts asked about); the existence questions refuse an empty population rather than pass it.",
+    "Signs in as a throwaway platform admin created and deleted by this run.",
+    "The look itself (color, glow, motion) is not judged here; the screenshots are the evidence for that.",
+    "run with --break=blind; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-detailers/list-1440.png",
+    "artifacts/office-detailers/panel-nophone-1440.png",
+    "artifacts/office-detailers/bubbles-1440.png",
+    "artifacts/office-detailers/full-1440.png",
+    "artifacts/office-detailers/list-768.png",
+    "artifacts/office-detailers/panel-nophone-768.png",
+    "artifacts/office-detailers/bubbles-768.png",
+    "artifacts/office-detailers/full-768.png",
+    "artifacts/office-detailers/list-390.png",
+    "artifacts/office-detailers/panel-nophone-390.png",
+    "artifacts/office-detailers/bubbles-390.png",
+    "artifacts/office-detailers/full-390.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844"
+    ],
+    "lite": false,
+    "break": "blind",
+    "observed": {
+      "1440 list": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      },
+      "1440 nophone": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      },
+      "768 list": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      },
+      "768 nophone": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      },
+      "390 list": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      },
+      "390 nophone": {
+        "phoneButtons": [],
+        "ringWords": [],
+        "overlaps": [],
+        "overflowX": false,
+        "explainers": [],
+        "oldTabs": 0
+      }
+    }
+  },
+  "check_id": "office-detailers",
+  "started_at": "2026-10-10T21:01:57.130Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 63,
+  "min_assertions": 57,
+  "assertion_floor": "3 widths x 19 questions (list 6, hit areas 2, no-phone 5, with-phone 2, keyboard 3, bubbles 2, filters 2), fixed by the code; a missing account of either kind reddens its own question rather than dropping it.",
+  "canary": {
+    "id": "injected-phone-button-and-overlapping-cell",
+    "observed_failure": false,
+    "detail": "phone buttons seen with one injected: 0; overlaps 0 -> 3"
+  }
+}
