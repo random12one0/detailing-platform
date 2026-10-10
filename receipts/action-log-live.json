@@ -1,0 +1,101 @@
+{
+  "git_sha": "d8952039902702f8f8698914d100ca478d045ad0",
+  "git_sha_started": "d8952039902702f8f8698914d100ca478d045ad0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:41:33.178Z",
+  "failures": [],
+  "warnings": [
+    "Suspend and owner-invite do not write action_log: suspend writes platform_admin_events (RLS-forced, but no append-only trigger), and an owner invite is a business_invites row. Not measured here.",
+    "5 action_log rows from this run are permanent by design (the table refuses DELETE); they name business d872fd64-67f9-4430-9edf-4e4256a4145b and hold no personal data."
+  ],
+  "artifacts": [
+    "scripts/action-log-live.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "table": "action_log",
+    "break": null,
+    "slug": "action-log-mv2bpy3r",
+    "catalog": {
+      "exists": true,
+      "rls": true,
+      "forced": true,
+      "policies": 0,
+      "triggers": "{action_log_no_truncate,action_log_no_update_delete}",
+      "browser_privilege": false
+    },
+    "business_id": "d872fd64-67f9-4430-9edf-4e4256a4145b",
+    "rows": [
+      {
+        "action": "job.complete",
+        "before": {
+          "status": "confirmed"
+        },
+        "after": {
+          "status": "completed"
+        },
+        "actor_role": "owner",
+        "created_at": "2026-10-10T11:41:26.401903+00:00"
+      },
+      {
+        "action": "job.cancel",
+        "before": {
+          "status": "confirmed"
+        },
+        "after": {
+          "status": "cancelled"
+        },
+        "actor_role": "owner",
+        "created_at": "2026-10-10T11:41:27.605349+00:00"
+      },
+      {
+        "action": "job.no_show",
+        "before": {
+          "status": "confirmed"
+        },
+        "after": {
+          "status": "no_show"
+        },
+        "actor_role": "owner",
+        "created_at": "2026-10-10T11:41:28.94618+00:00"
+      },
+      {
+        "action": "payment.waive",
+        "before": {
+          "payment_status": "pending"
+        },
+        "after": {
+          "payment_status": "waived"
+        },
+        "actor_role": "owner",
+        "created_at": "2026-10-10T11:41:30.215787+00:00"
+      },
+      {
+        "action": "job.delete",
+        "before": {
+          "deleted_at": null
+        },
+        "after": {
+          "deleted_at": "2026-10-10T11:41:31.045+00:00"
+        },
+        "actor_role": "owner",
+        "created_at": "2026-10-10T11:41:31.232585+00:00"
+      }
+    ]
+  },
+  "check_id": "action-log-live",
+  "started_at": "2026-10-10T11:41:21.255Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 34,
+  "min_assertions": 25,
+  "canary": {
+    "id": "an-action-never-pressed-has-no-row",
+    "observed_failure": true
+  }
+}

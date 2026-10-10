@@ -1,0 +1,58 @@
+{
+  "git_sha": "d8952039902702f8f8698914d100ca478d045ad0",
+  "git_sha_started": "d8952039902702f8f8698914d100ca478d045ad0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:41:59.156Z",
+  "failures": [
+    "1a · the table exists in the live database",
+    "1b · row-level security is on AND forced — rls false, forced false",
+    "1d · both append-only triggers are attached — triggers \"{}\"",
+    "1e · neither anon nor authenticated holds any privilege on it — browser_privilege null",
+    "4 · the read itself succeeded — 404 {\"code\":\"PGRST205\",\"details\":null,\"hint\":\"Perhaps you meant the table 'public.action_log'\",\"message\":\"Could not find the table 'public.action_log_never_applied'",
+    "4 · exactly 5 rows for this business — one per action, none for the write that moved nothing — 0 rows",
+    "4 · complete: one job.complete row, the owner as actor, status confirmed -> completed, stamped in this run — 0 row(s) for job.complete on this booking, expected exactly 1",
+    "4 · cancel: one job.cancel row, the owner as actor, status confirmed -> cancelled, stamped in this run — 0 row(s) for job.cancel on this booking, expected exactly 1",
+    "4 · no-show: one job.no_show row, the owner as actor, status confirmed -> no_show, stamped in this run — 0 row(s) for job.no_show on this booking, expected exactly 1",
+    "4 · waive: one payment.waive row, the owner as actor, payment_status pending -> waived, stamped in this run — 0 row(s) for payment.waive on this booking, expected exactly 1",
+    "4 · delete: one job.delete row, the owner as actor, deleted_at null -> <a time>, stamped in this run — 0 row(s) for job.delete on this booking, expected exactly 1",
+    "5d-f · a row to try UPDATE and DELETE on — no row was found, so the trigger could not be asked"
+  ],
+  "warnings": [
+    "Suspend and owner-invite do not write action_log: suspend writes platform_admin_events (RLS-forced, but no append-only trigger), and an owner invite is a business_invites row. Not measured here.",
+    "Up to 5 action_log rows from this run are permanent by design (the table refuses DELETE); they name business a2662d63-acca-475f-9784-8ca4926326ba and hold no personal data."
+  ],
+  "artifacts": [
+    "scripts/action-log-live.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "table": "action_log_never_applied",
+    "break": "no-table",
+    "slug": "action-log-mv2bqjpl",
+    "catalog": {
+      "exists": false,
+      "rls": false,
+      "forced": false,
+      "policies": 0,
+      "triggers": "{}",
+      "browser_privilege": null
+    },
+    "business_id": "a2662d63-acca-475f-9784-8ca4926326ba",
+    "rows": []
+  },
+  "check_id": "action-log-live",
+  "started_at": "2026-10-10T11:41:49.257Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 0,
+  "attempted_targets": 5,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 32,
+  "min_assertions": 25,
+  "canary": {
+    "id": "an-action-never-pressed-has-no-row",
+    "observed_failure": true
+  }
+}
