@@ -583,6 +583,18 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
 
 ## Start here — the routine release step that unblocks the most
 
+- [ ] **DECIDE · The job history works. One bookkeeping question (ROADMAP 4.1b).**
+  Checked today on a throwaway test business: completing a job, cancelling it,
+  marking a no-show, waiving payment and deleting a job each leave one permanent
+  record of who did it, what it was before, and when. Nobody can change or erase
+  those records, not even the program itself, and that was tested too. The same
+  to-do item also names **suspending a detailer** (your back office) and
+  **inviting a co-owner**. Those two already leave a record, but it can still be
+  changed, and making them permanent is already on the next two to-do items
+  (4.1c and 4.1d). **Recommendation: count this one done and leave those two
+  where they are already listed**, so the same work is not built twice. Say
+  "yes", or "no, do all seven in 4.1b".
+
 - [ ] **DO · Mail-log email previews (ROADMAP 3.1d) are built and await two routine release steps, in this order. No business decision is requested.**
   Clicking a row in "Emails we sent" now opens that email. It cannot show anything real until the
   database can hold the email's text. **1. Apply the new database change**
