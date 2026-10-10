@@ -1,0 +1,39 @@
+{
+  "git_sha": "49d85d67aa4f3d3eed6973a89e74bb5b78bdbbea",
+  "git_sha_started": "49d85d67aa4f3d3eed6973a89e74bb5b78bdbbea",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:31:38.396Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE whether each trigger and timing sentence is true — prose; only the push-switch claim is read against the code",
+    "UNJUDGEABLE whether the decisions are right — D3 is Andrew's, as a DECIDE row in FOR-ANDREW.md",
+    "UNJUDGEABLE the wording of Supabase's own sign-in mail — set in its dashboard, not in this repo"
+  ],
+  "artifacts": [
+    "receipts/communication-lifecycle.txt"
+  ],
+  "dimensions": {
+    "rules": 8,
+    "functions_read": 80,
+    "break": null
+  },
+  "check_id": "communication-lifecycle",
+  "started_at": "2026-10-10T12:31:38.336Z",
+  "status": "pass",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 125,
+  "min_assertions": 60,
+  "canary": {
+    "id": "drop-template + new-push + blank-cell + flip-switch",
+    "observed_failure": true,
+    "drop-template": true,
+    "new-push": true,
+    "blank-cell": true,
+    "flip-switch": true
+  }
+}

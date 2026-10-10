@@ -11161,7 +11161,23 @@ requested.
   Split on 2026-10-10 because this entry is 943 lines
   long and no single session was finishing it.
 
-- [ ] **3.4b — Define the communication lifecycle**
+- [x] **3.4b — Define the communication lifecycle** — **DONE 2026-10-10.**
+  The matrix is `docs/communication-lifecycle.md`: 13 customer emails, 9
+  detailer emails, 6 platform rows, 12 push alerts and 8 text rows, each with
+  audience, trigger, timing, channel, off-switch and a decision. **Decided:** no
+  message removed or merged (and why); ADD a built-in *Booking confirmed* text
+  (D1); the 3.4e signals (D2); CHANGE the 8 pushes that ignore the alerts switch
+  (D3, a DECIDE row in `FOR-ANDREW.md`); DEFER the "Booking updated" push (D4),
+  an email morning summary (D5) and all automatic texting (D6). **Checked
+  how:** `node scripts/communication-lifecycle.mjs` reads the code and asks the
+  page to name every exported email template (17 at `49d85d67`, not the 16 this
+  entry used to say), push title, sending function and built-in text, then
+  checks each row's cells and the push-switch claim against the code: 8 rules,
+  125 assertions, 4 canaries caught (`--break=drop-template`, `new-push`,
+  `blank-cell`, `flip-switch`). **The check found a gap while the page was being
+  written:** the "Send me a sample" email (`preview-emails`) was missing, and is
+  now O9. Trigger and timing sentences are prose and are marked UNJUDGEABLE in
+  the receipt. Implementation is 3.4f.
   Inventory the emails and texts that currently exist, their recipients, triggers, purpose, and timing. Decide the desired communication system and explicitly leave implementation and delivery testing to later pieces.
   Part 1 of 4 of item 3.4, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

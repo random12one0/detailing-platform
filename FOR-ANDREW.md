@@ -69,6 +69,21 @@ recommendation:
 
 Answer in one line, for example *"3.4e: yes, yes, later"*.
 
+## DECIDE · Every message the product sends, listed (ROADMAP 3.4b, 2026-10-10)
+
+Every email, push alert and text is now in one table, with who gets it, why,
+when, and what changes: `docs/communication-lifecycle.md`. It finds **no message
+to remove and none to merge**. One thing is yours to answer:
+
+1. **The "alerts" switch on the Notifications screen is ignored by 8 of the 12
+   alerts you get.** Turning it off stops only the phone you are holding; every
+   other device still buzzes for a cancelled job, a moved job, an edited job,
+   "starting soon", "wrapping up", "finalize payment", "still waiting on you"
+   and the morning summary. **Recommend yes: make all eight obey the switch.**
+   It is one check in four places.
+
+Answer in one line, for example *"3.4b: yes"*. Nothing is built until 3.4f.
+
 ## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
 > **DONE 2026-10-10, STEPS 1 TO 9 — NOTHING LEFT HERE FOR YOU.** Done by Claude
