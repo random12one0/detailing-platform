@@ -1,0 +1,42 @@
+{
+  "git_sha": "3e469e05ab8ef9aae25c28052dcda414f94a842c",
+  "git_sha_started": "3e469e05ab8ef9aae25c28052dcda414f94a842c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:46:35.347Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/job-mail-warning/1440x900-bounced.png",
+    "artifacts/job-mail-warning/1440x900-text-sheet.png",
+    "artifacts/job-mail-warning/392x844-bounced.png",
+    "artifacts/job-mail-warning/392x844-text-sheet.png",
+    "artifacts/job-mail-warning/320x844-bounced.png",
+    "artifacts/job-mail-warning/320x844-text-sheet.png",
+    "artifacts/job-mail-warning/report.txt"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
+    ],
+    "break": null,
+    "upcoming": "2026-10-13T20:30:00+00:00",
+    "past": "2026-10-06T17:00:00+00:00"
+  },
+  "check_id": "job-mail-warning",
+  "started_at": "2026-10-10T12:46:08.601Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 25,
+  "min_assertions": 24,
+  "canary": {
+    "id": "the-missing-line",
+    "observed_failure": true
+  }
+}
