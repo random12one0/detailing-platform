@@ -219,6 +219,11 @@ export interface WhenContext {
   weekday?: number | null;      // 0 = Sunday, business-local
   startTime?: string | null;    // "HH:MM", business-local
   leadHours?: number | null;    // hours from now until the job starts
+  // ROADMAP 2.1d — with a day and no hour: hours from now until the END of
+  // that day, the most notice any slot on it can give. Only ever compared
+  // with "fewer than", where it is exact: inside the window at the last
+  // minute means inside it at every minute.
+  latestLeadHours?: number | null;
 }
 
 // Which rules apply. Pure, and separate from computeQuote so both endpoints
@@ -227,8 +232,9 @@ export function matchPriceRules(rules: PriceRule[] | null | undefined, when: Whe
   const hm = (t: string) => String(t).slice(0, 5);
   return (rules ?? []).filter((r) => {
     if (r.kind === "lead_time") {
-      if (when.leadHours == null || r.within_hours == null) return false;
-      return when.leadHours < Number(r.within_hours);
+      const lead = when.leadHours ?? when.latestLeadHours;
+      if (lead == null || r.within_hours == null) return false;
+      return lead < Number(r.within_hours);
     }
     if (r.kind !== "time") return false;
     // A rule with neither a day nor a window applies to everything, which is
@@ -334,7 +340,21 @@ export function whenContextFor(
   //
   // `create-booking` and `preview-emails` are the other callers and neither
   // can reach this line with a date and no time — a booking has both.
-  if (!startTime) return { weekday: weekdayOf(bookingDate) };
+  //
+  // **AND A RUSH FEE THAT EVERY SLOT ON THE DAY CARRIES — ROADMAP 2.1d,
+  // 2026-10-10.** Booking today on the demo showed $95 on the day and $115 on
+  // ANY time tapped, first slot and last alike, because a `lead_time` rule
+  // declined with no hour. The day alone does answer it when even the last
+  // minute of the day is inside the window, so that is what is sent. A day
+  // only partly inside (tomorrow, mostly) is still more than the window away
+  // at its end, so the rule keeps waiting for the hour, as it must.
+  if (!startTime) {
+    const endOfDay = localDateTimeToInstant(tz, bookingDate, "23:59").getTime() + 60_000;
+    return {
+      weekday: weekdayOf(bookingDate),
+      latestLeadHours: (endOfDay - Date.now()) / 3_600_000,
+    };
+  }
   const start = localDateTimeToInstant(tz, bookingDate, String(startTime).slice(0, 5));
   return {
     weekday: weekdayOf(bookingDate),

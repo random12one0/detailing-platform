@@ -164,3 +164,45 @@ test("the Wednesday quote stays at $65 through both", () => {
   assert.equal(quoteFor(WEDNESDAY, "09:00").total, 65);
   assert.deepEqual(quoteFor(WEDNESDAY, null).adjustmentLines, []);
 });
+
+// ---------------------------------------------------------------------------
+// ROADMAP 2.1d — THE RUSH FEE ON A DAY EVERY SLOT OF WHICH CARRIES IT.
+// ---------------------------------------------------------------------------
+// Found 2026-10-10 booking the demo for today: $95 on the day, $115 the moment
+// ANY time was tapped, because `Short notice` (fewer than 24 hours) declined
+// with no hour. A day whose LAST minute is inside the window has every slot
+// inside it, so the day alone answers the rule. A day only partly inside —
+// tomorrow — must keep waiting for the hour, and its end is always more than
+// 24 hours away, so that half is deterministic too. Dates come from the clock
+// in UTC because the stand-in `localDateTimeToInstant` above reads times as UTC.
+const TODAY = new Date().toISOString().slice(0, 10);
+const TOMORROW = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+test("today with no time names the rush fee, because every slot today carries it", () => {
+  const when = whenContextFor(TZ, TODAY, null, localDateTimeToInstant, weekdayOf);
+  assert.equal(when.leadHours, undefined, "no hour was chosen, so no exact lead is claimed");
+  assert.ok(when.latestLeadHours > 0 && when.latestLeadHours <= 24,
+    `the end of today is ${when.latestLeadHours} hours away`);
+  assert.ok(matchPriceRules(RULES, when).some((r) => r.label === "Short notice"),
+    "the day alone must answer a rush fee every slot of it would carry");
+});
+
+test("today's quote does not move when a time is tapped — first, middle and last", () => {
+  const early = quoteFor(TODAY, null);
+  assert.ok(early.adjustmentLines.some((l) => l.label === "Short notice" && l.amount === 20),
+    "the $20 is named on the day");
+  for (const t of ["00:00", "12:00", "23:59"]) {
+    assert.equal(quoteFor(TODAY, t).total, early.total,
+      `today at ${t} must cost what today cost before the hour was chosen`);
+  }
+});
+
+test("tomorrow with no time does NOT name the rush fee — it depends on the hour", () => {
+  const when = whenContextFor(TZ, TOMORROW, null, localDateTimeToInstant, weekdayOf);
+  assert.ok(when.latestLeadHours > 24, `the end of tomorrow is ${when.latestLeadHours} hours away`);
+  assert.ok(!matchPriceRules(RULES, when).some((r) => r.label === "Short notice"),
+    "naming it on the day would charge the late slots tomorrow a fee they do not carry");
+  // And the hour still decides it: midnight tomorrow is under 24 hours away.
+  assert.ok(matchPriceRules(RULES, whenContextFor(TZ, TOMORROW, "00:00", localDateTimeToInstant, weekdayOf))
+    .some((r) => r.label === "Short notice"), "an early slot tomorrow still carries the fee on the tap");
+});
