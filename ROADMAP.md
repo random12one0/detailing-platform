@@ -21819,6 +21819,10 @@ the dashboard or back office at phone width at all.
   it looks meaty; it fails the first criterion before size is even asked.**
 
 - [ ] **9.12a — Back office redesigned from scratch, tab by tab.** Split out of
+  **BELT PARKED after 3 attempts, 2026-10-10 22:21:41.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-10T22-21-37-981Z-9.12a.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   9.12 on 2026-10-10 so the redesign stays numbered after 9.12's four false
   lines were fixed and ticked. **Andrew, 2026-10-09:** *"the back office needs
   some serious … makeover and thought through, basically kind of starting from
