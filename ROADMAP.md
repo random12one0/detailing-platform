@@ -21935,6 +21935,38 @@ the dashboard or back office at phone width at all.
   (`FOR-ANDREW.md` Part 2, step 2 — already named there), then type one real
   month of bills and read the figure against a calculator.
 
+  Waits on: 9.14a, 9.14b, 9.14c. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 287 lines
+  long and no single session was finishing it.
+
+- [ ] **9.14a — Apply the platform-costs migration to the intended database**
+  Run the existing hand-entered platform costs migration against the intended project, without changing its SQL. This establishes the table, constraints, RLS lock, grants, and trigger; it does not deploy application code or enter production costs.
+  Part 1 of 3 of item 9.14, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Migration 20261006020000_hand_entered_platform_costs.sql is recorded as applied
+  - platform_costs exists with the specified constraints and five categories
+  - Browser roles cannot select or insert platform_costs directly
+
+- [ ] **9.14b — Deploy the platform-admin function with cost actions**
+  Publish the already-built platform-admin function so platform_net and platform_cost_add are available to the admin screen. This piece does not create or modify cost records beyond any deployment smoke check.
+  Part 2 of 3 of item 9.14, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Deployed platform-admin recognizes platform_net
+  - Deployed platform-admin recognizes platform_cost_add
+  - Non-admin requests remain indistinguishable from the existing bare 404 behavior
+
+- [ ] **9.14c — Enter real monthly costs and verify the owner profit screen**
+  Use /admin to record one real month of platform bills, then compare the displayed revenue, categorized costs, and net against an independent calculation. This validates the integrated feature after the migration and function deployment, without adding edit or delete capability.
+  Part 3 of 3 of item 9.14, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A real cost entry saves through the admin form and appears in that month
+  - Displayed category costs and total costs match the entered bills
+  - Displayed paid revenue minus costs matches an independent calculation
+  - A month with no entered costs shows “Costs not entered” and no numeric net figure
+
 - [x] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*
