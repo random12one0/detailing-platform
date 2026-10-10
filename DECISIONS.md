@@ -341,6 +341,8 @@ were made more than once.
 - **An answer to a decision card does not do hand-work** — supervision 2026-10-09, after the belt spent nine Opus attempts (~$74) on 0.11b, 0.11c and 0.11d, every criterion of which is hand-work only Andrew can do, because he had answered a decision card about each and the override cleared every blocking phrase forever. Why his answer now buys ONE dispatch to prove it, why the entry is believed over the card once a session has worked the item, why matching the prose for "not a decision" was rejected, and how the canary was aimed at the new rule rather than the override above it.
 - **A support session is marked by its own session id, and Working becomes its own door** — ROADMAP 4.3a, 2026-10-10: a throwaway fixture proved the token carries `session_id` and the server can exchange the link itself, so Option 2 is chosen; Working moves to a second back-office button logged as `impersonate_work`; and the five layers 4.3c must refuse on are listed, including the Auth API, which no database rule reaches.
 
+- **Andrew's corrections of 2026-10-10** — four proposed communication changes are declined; the back office starts with research and a complete plan; and the existing read-only detail preview with its explicit unlock control replaces the invented second Working door.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18948,3 +18950,25 @@ instead is a product call nobody has made; if Andrew wants it gone, only that bu
 first question goes red), or a measurement that a marked session can still write through
 one of the four database-side layers after 4.3c builds the refusals. The fifth layer, the
 Auth API, is already known to be beyond any database rule and is 4.3c's to bound.
+
+## Andrew's corrections of 2026-10-10
+
+**Communication.** He declined all four proposed changes in ROADMAP 3.4: no
+Today list for undelivered email, no spam-triggered suppression, no automatic
+text when email fails, and no change to the eight alerts' switch behavior.
+Current behavior stays. The built job warning and ready-made confirmation text
+were not among those four proposals.
+
+**Back office.** The redesign begins with research and a complete plan, not a
+preselected three-tab layout or a screen rewrite. The plan may choose a different
+information architecture after it identifies the sole owner's overview,
+detailer-management, money, warning and action workflows. Implementation follows
+the plan, not the other way around.
+
+**Read-only detail preview.** Andrew already has the intended owner flow: open a
+detail page read-only, then explicitly unlock it only when he chooses to edit.
+Do not describe an imagined support-staff role or add a second Working button.
+The 4.3a decision that proposed `impersonate_work` is superseded. Remaining
+server-side enforcement must preserve and protect the existing preview/unlock
+flow; it must not silently make changes possible or remove the owner's explicit
+choice.

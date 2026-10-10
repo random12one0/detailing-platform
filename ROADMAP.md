@@ -11182,12 +11182,13 @@ requested.
   **STATE 2026-10-10 (checked, nothing built under this number):** 3.4b and 3.4e
   are ticked. 3.4f and 3.4g are open, and this parent has no work of its own left
   to do: it ticks when they tick. **3.4g is dispatchable by itself** (rendering is
-  done, the sends are its own job). **3.4f is blocked on Andrew's answers.**
-  NEEDS ANDREW: answer the two DECIDE rows in `FOR-ANDREW.md` ("When an email does
-  not arrive", 3.4e, three yes/no answers; "Every message the product sends",
-  3.4b, one yes/no) — 3.4f's own text says "approved" means those answers, so
-  building it before them is guessing on his behalf. Recommendations are on the
-  rows: 3.4e yes, yes, later; 3.4b yes.
+  done, the sends are its own job).
+  **ANDREW DECIDED 2026-10-10: decline all four proposed communication changes and
+  keep the current behavior.** This answers 3.4e's Today list, spam suppression,
+  and automatic-text proposals with **no**, and 3.4b's eight-alerts-switch proposal
+  with **no**. They are not blockers or deferred decisions. The only remaining
+  buildable scope in 3.4f is S3, the warning when a detailer's own alert address
+  bounces; it does not change any of those four decisions.
 
 - [x] **3.4b — Define the communication lifecycle** — **DONE 2026-10-10.**
   The matrix is `docs/communication-lifecycle.md`: 13 customer emails, 9
@@ -11258,13 +11259,14 @@ requested.
   guess); and `failed` gets one neutral sentence, because the stored row cannot
   tell F2 (their address) from F3 (our side) — the provider's status code is not
   kept.
-  **Not built — waits on his answers:** S2, the Today list (3.4e answer 1); spam
-  reports stopping marketing and maintenance mail, and S4 the client-record
-  spam line (3.4e answer 2); the eight pushes obeying the alerts switch (3.4b
-  answer). Answer 3 is "decide when texting is built", so nothing waits on it.
+  **Not built — declined by Andrew 2026-10-10:** S2, the Today list; spam reports
+  stopping marketing and maintenance mail and S4 the client-record spam line; the
+  eight pushes obeying the alerts switch; and automatic texting when a booking email
+  fails. Current behavior stays. These are not work for a session to revive.
   **Buildable now and not yet built: S3**, the warning when the detailer's own
   alert address bounces — the next slice for a session.
-  NEEDS ANDREW: answer the two DECIDE rows in `FOR-ANDREW.md` ("When an email does not arrive" — 3.4e, three yes/no; "Every message the product sends" — 3.4b, one yes/no). S2, the spam stop and the eight pushes are built only on those answers; recommendations are yes, yes, later, and yes.
+  **ANDREW DECIDED 2026-10-10:** the four decision-gated changes are declined;
+  do not ask again or build them as a later interpretation of this item.
   Build the agreed lifecycle and failure-recovery behavior in the application and backend. It deliberately excludes charged live-email proof, which is a separate controlled pass.
   Part 3 of 4 of item 3.4, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -12828,6 +12830,11 @@ requested.
   - The detail panel still distinguishes loading, empty, and populated history.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
+  **ANDREW CORRECTED THE DESIGN 2026-10-10:** the existing detail-page preview is
+  already read-only and deliberately has an explicit control to unlock changes when
+  he chooses. Do not invent a second Working button or a “support staff” workflow.
+  The remaining server work must protect that existing owner preview flow, not replace
+  it. The 4.3a Working-door decision below is superseded; `DECISIONS.md` records why.
   **BUILT 2026-10-10, NOT TICKED: on disk, not applied, not published.** Three commits. (1) `4b3b21d`: migration
   `20261010030000_support_sessions_read_only.sql` — `support_sessions` (no privilege for signed-in users),
   `is_support_session()` reading `auth.jwt() ->> 'session_id'`, three RESTRICTIVE write rules on every RLS table in
@@ -12843,15 +12850,16 @@ requested.
   `setSession`; the preview tab's guard also wraps `auth.updateUser`. `node --test
   tests/support-sessions-edge.test.mjs` (credential-free): 21 of 21 user-authenticating functions classified,
   `BREAK=fail-open`, `BREAK=no-gate`, `BREAK=unmarked` each red. App builds.
-  **NOT DONE, in this order:** (a) the Working door from the decision record — `impersonate_work` plus a second
-  back-office button, and the Looking tab's switch no longer offering Working (until then, flipping to Working in a
-  marked tab passes the browser guard and the server refuses the save); (b) end a support session after a fixed time
+  **NOT DONE, in this order:** (a) reconcile the server marker with the existing
+  read-only preview and its explicit unlock control; do not add `impersonate_work`, a
+  second button, or a new Working switch; (b) end a support session after a fixed time
   (layer E2); (c) the reauthentication-setting test on the fixture (layer E3). **Not browser-verified**: the refusal
   needs the migration applied and the functions published, and pressing it means minting an impersonation, which is
   4.3d's proof. Owner sessions are unchanged in the browser because nothing here is live.
-  NEEDS ANDREW: apply `20261010030000_support_sessions_read_only.sql` and then publish `platform-admin`,
-  `create-business` and the functions sharing `_shared/tenant.ts` (FOR-ANDREW.md, second migration list, row 3) —
-  routine release, no decision; a session can build (a) to (c) meanwhile.
+  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): apply
+  `20261010030000_support_sessions_read_only.sql` and then publish `platform-admin`,
+  `create-business` and the functions sharing `_shared/tenant.ts` (FOR-ANDREW.md,
+  second migration list, row 3); a session can reconcile (a) to (c) meanwhile.
   Build the selected session marker and the server-side authorization rules that reject mutations while that marker is active. Protection must be location/session-based, preserving the owner's ability to work in their own ordinary dashboard, and must cover every record-access layer used by the support view.
   Part 3 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -21743,13 +21751,14 @@ the dashboard or back office at phone width at all.
   a design ruling. The redesign itself was not started on purpose: it is a
   from-scratch rewrite of a 2,238-line screen whose purpose, tabs and contents
   Andrew said are all open, and its done-when is his acceptance.
-  **NEEDS ANDREW: what the back office is FOR and which tabs it has — a
-  one-line answer unblocks the build.** Rebuilding five tabs unseen and asking
-  him to accept the result is the "re-skinned" failure this entry names. The
-  row in FOR-ANDREW.md carries a recommended layout (one People list with a
-  side panel replacing Today, Detailers and Growth; Money; System health) that
-  he can approve or change. Slice order once he answers: (1) the People list
-  and side panel, (2) Money, (3) System health, (4) retire the old tabs.
+  **ANDREW DIRECTED 2026-10-10: plan before implementation.** Research how small
+  SaaS operators manage a business, then write a complete back-office plan before
+  changing a screen. The plan must begin from his workflows — overview, detailer
+  management, money, operational warnings and direct actions — and may replace the
+  five-tab layout entirely. It must compare tabs with other navigation shapes, name
+  what each view lets the sole owner do, and cite the research behind the choices.
+  **The first session writes that plan and stops; no UI rebuild starts until it
+  exists.** This is delegated design work, not another decision request.
 
 - [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
   proof of success.** "$0 went through it this month… it is the proof the

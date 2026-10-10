@@ -64,9 +64,11 @@ You already said go, and the live comparison ran. The same demo business shows *
 
 **Recommendation:** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
-## DECIDE · What the back office is for (ROADMAP 9.12a, 2026-10-10)
+## READ · Back-office planning direction (ROADMAP 9.12a, 2026-10-10)
 
 You said the back office needs starting again, and that nothing on it is safe.
+**You also directed 2026-10-10 that the team research and plan the whole thing
+before implementation, rather than asking you to choose a preset tab layout.**
 Today it has five tabs: Today, Growth, Money, Detailers and System health.
 Rebuilding them without knowing what you want it for would give you the same
 five tabs in a new coat. Fixed already: Growth no longer says "Ring them" over
@@ -84,11 +86,11 @@ a detailer with no phone number.
 3. **System health**: emails, backups, errors. Only things that are broken or
    unproven, with the last time each was checked.
 
-Answer in one line, for example *"9.12a: go with your layout"* or *"9.12a:
-People list yes, but keep Growth as its own tab"*. Then I build it one tab at
-a time, and you look at each before the next.
+The next deliverable is a research-backed plan. It may choose tabs or a different
+structure, but it must explain the choice from the business workflows before any
+screen is rebuilt. Nothing is being asked of you here.
 
-## DECIDE · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
+## DECIDED · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 
 The plan for how a detailer finds out an email failed, and texts the customer
 instead, is written: `docs/email-failure-recovery.md`. **Built 2026-10-10,
@@ -107,9 +109,10 @@ recommendation:
    booking email fails.** **Recommend yes, but decide it on the day texting is
    built**, because each text costs money.
 
-Answer in one line, for example *"3.4e: yes, yes, later"*.
+**Andrew answered 2026-10-10: no, no, no — keep things as they are.** The three
+proposals are declined and must not be re-presented as pending choices.
 
-## DECIDE · Every message the product sends, listed (ROADMAP 3.4b, 2026-10-10)
+## DECIDED · Every message the product sends, listed (ROADMAP 3.4b, 2026-10-10)
 
 Every email, push alert and text is now in one table, with who gets it, why,
 when, and what changes: `docs/communication-lifecycle.md`. It finds **no message
@@ -122,7 +125,8 @@ to remove and none to merge**. One thing is yours to answer:
    and the morning summary. **Recommend yes: make all eight obey the switch.**
    It is one check in four places.
 
-Answer in one line, for example *"3.4b: yes"*. Nothing is built until 3.4f.
+**Andrew answered 2026-10-10: no — keep things as they are.** The eight alerts
+continue with their present behavior; this is not a pending implementation choice.
 
 ## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
