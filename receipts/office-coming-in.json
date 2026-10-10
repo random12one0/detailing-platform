@@ -1,0 +1,393 @@
+{
+  "git_sha": "af45ecbdc221cb30b473bd40da1be3502a478a60",
+  "git_sha_started": "af45ecbdc221cb30b473bd40da1be3502a478a60",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:46:24.889Z",
+  "failures": [],
+  "warnings": [
+    "list is answered through page.route() with 12 fed subscriptions, 9 of them in the window; nothing is written to the database.",
+    "Signs in as a throwaway platform admin created and deleted by this run.",
+    "The look itself (glow, color, motion) is not judged here; the frozen copies in belt/shots/9.12b are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-coming-in/fed-1440.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/9.12b/after.html",
+    "artifacts/office-coming-in/empty-1440.png",
+    "artifacts/office-coming-in/fed-768.png",
+    "artifacts/office-coming-in/empty-768.png",
+    "artifacts/office-coming-in/fed-390.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/9.12b/after-phone.html",
+    "artifacts/office-coming-in/empty-390.png",
+    "artifacts/office-coming-in/fed-320.png",
+    "artifacts/office-coming-in/empty-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "observed": {
+      "1440 fed": {
+        "pins": [
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 11 Fed Alder",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Oct 14 Fed Birch",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  late",
+            "text": "$60 Oct 14 Fed Cedar",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low yr",
+            "text": "$600 Oct 14 Fed Dogwood",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 19 Fed Elm",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$120 Oct 23 Fed Ruby Ridge Auto Spa",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 27 Fed Gum",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Nov 1 Fed Hazel",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  yr",
+            "text": "$600 Nov 9 Fed Ivy",
+            "shown": true
+          }
+        ],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 284,
+          "right": 1264,
+          "scrolls": false
+        },
+        "words": [
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Today",
+          "Nov 9"
+        ]
+      },
+      "1440 empty": {
+        "pins": [],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 284,
+          "right": 1264,
+          "scrolls": false
+        },
+        "words": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ]
+      },
+      "768 fed": {
+        "pins": [
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 11 Fed Alder",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Oct 14 Fed Birch",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  late",
+            "text": "$60 Oct 14 Fed Cedar",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low yr",
+            "text": "$600 Oct 14 Fed Dogwood",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 19 Fed Elm",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$120 Oct 23 Fed Ruby Ridge Auto Spa",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 27 Fed Gum",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Nov 1 Fed Hazel",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  yr",
+            "text": "$600 Nov 9 Fed Ivy",
+            "shown": true
+          }
+        ],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 752,
+          "scrolls": false
+        },
+        "words": [
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Today",
+          "Nov 9"
+        ]
+      },
+      "768 empty": {
+        "pins": [],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 752,
+          "scrolls": false
+        },
+        "words": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ]
+      },
+      "390 fed": {
+        "pins": [
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 11 Fed Alder",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Oct 14 Fed Birch",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  late",
+            "text": "$60 Oct 14 Fed Cedar",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low yr",
+            "text": "$600 Oct 14 Fed Dogwood",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 19 Fed Elm",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$120 Oct 23 Fed Ruby Ridge Auto Spa",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 27 Fed Gum",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Nov 1 Fed Hazel",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  yr",
+            "text": "$600 Nov 9 Fed Ivy",
+            "shown": true
+          }
+        ],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 374,
+          "scrolls": true
+        },
+        "words": [
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Today"
+        ]
+      },
+      "390 empty": {
+        "pins": [],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 374,
+          "scrolls": false
+        },
+        "words": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ]
+      },
+      "320 fed": {
+        "pins": [
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 11 Fed Alder",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Oct 14 Fed Birch",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  late",
+            "text": "$60 Oct 14 Fed Cedar",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low yr",
+            "text": "$600 Oct 14 Fed Dogwood",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 19 Fed Elm",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$120 Oct 23 Fed Ruby Ridge Auto Spa",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin",
+            "text": "$60 Oct 27 Fed Gum",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin low",
+            "text": "$60 Nov 1 Fed Hazel",
+            "shown": true
+          },
+          {
+            "cls": "bo-pin  yr",
+            "text": "$600 Nov 9 Fed Ivy",
+            "shown": true
+          }
+        ],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 304,
+          "scrolls": true
+        },
+        "words": [
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Today"
+        ]
+      },
+      "320 empty": {
+        "pins": [],
+        "overlaps": [],
+        "outside": [],
+        "overflowX": false,
+        "box": {
+          "left": 16,
+          "right": 304,
+          "scrolls": false
+        },
+        "words": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ],
+        "inView": [
+          "Nothing renews in the next 30 days.",
+          "Today",
+          "Nov 9"
+        ]
+      }
+    }
+  },
+  "check_id": "office-coming-in",
+  "started_at": "2026-10-10T22:45:03.783Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 72,
+  "min_assertions": 72,
+  "assertion_floor": "4 widths x 18 questions (fed 12, empty 4, lite 2), all fixed by the code; none depends on what the live platform holds.",
+  "canary": {
+    "id": "label-pushed-onto-its-neighbor",
+    "observed_failure": true,
+    "overlap": "overlaps 0 -> 1"
+  }
+}
