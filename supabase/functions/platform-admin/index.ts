@@ -33,7 +33,7 @@ import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
 import { dateStrIn, localToDate } from "../_shared/tz.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
-import { businessById, getSettings } from "../_shared/tenant.ts";
+import { businessById, getSettings, supportSession } from "../_shared/tenant.ts";
 import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { buildStartedEmail, inviteEmail } from "../_shared/emailTemplates.ts";
 // ROADMAP 0.4 — the build-start notice is the platform speaking, not the
@@ -65,6 +65,9 @@ async function requireAdmin(req: Request): Promise<Admin | null> {
   const { data, error } = await supabase.auth.getUser(token);
   const user = data?.user;
   if (error || !user) return null;
+  // ROADMAP 4.3c: a support session opened on the demo business is the demo
+  // login, which IS a platform admin. A support session is never an admin session.
+  if (await supportSession(token)) return null;
   const { data: row } = await supabase
     .from("platform_admins").select("user_id").eq("user_id", user.id).maybeSingle();
   if (!row) return null;

@@ -26,6 +26,8 @@ import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { newDetailerAlert, platformAlertEmail } from "../_shared/emailTemplates.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
+import { supportSession } from "../_shared/tenant.ts";
+import { SUPPORT_READ_ONLY } from "../_shared/supportSession.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -37,6 +39,8 @@ Deno.serve(async (req) => {
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
     const user = userData?.user;
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
+    // ROADMAP 4.3c: a read-only support session must not create a business the owner would own.
+    if (await supportSession(token)) return json({ error: SUPPORT_READ_ONLY }, 403);
 
     const body = await req.json();
 

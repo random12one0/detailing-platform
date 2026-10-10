@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     // same as being the owner: the membership is checked against THIS
     // booking's business, so a detailer's session cannot open another
     // detailer's job either. Anyone else silently gets the customer's copy.
-    const audience = askedForOwner && await requireMember(req, booking.business_id)
+    const audience = askedForOwner && await requireMember(req, booking.business_id, { allowSupport: true })
       ? "owner"
       : "customer";
 

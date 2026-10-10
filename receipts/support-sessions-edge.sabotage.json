@@ -1,0 +1,55 @@
+{
+  "git_sha": "4b3b21df5ca7f70721e5d4daad467ed12b94ac26",
+  "git_sha_started": "4b3b21df5ca7f70721e5d4daad467ed12b94ac26",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:38:45.019Z",
+  "failures": [
+    "requireMember refuses a support session before reading membership gate@-1 membership@14710"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "supabase/functions/_shared/supportSession.ts"
+  ],
+  "dimensions": {
+    "break": "no-gate",
+    "functions": {
+      "booking-ics": "requireMember, opted in as read-only",
+      "connect-account": "requireMember, refused by default",
+      "create-booking": "requireMember, refused by default",
+      "create-business": "own getUser + supportSession",
+      "delete-customer": "requireMember, refused by default",
+      "forecast": "requireMember, opted in as read-only",
+      "invite-user": "requireMember, refused by default",
+      "owner-push-subscribe": "requireMember, refused by default",
+      "owner-push-unsubscribe": "requireMember, refused by default",
+      "photo-door": "requireMember via photoDoor (urls only)",
+      "platform-admin": "own getUser + supportSession",
+      "platform-billing": "requireMember, refused by default",
+      "preview-emails": "requireMember, opted in as read-only",
+      "report-problem": "requireMember, refused by default",
+      "respond-to-booking": "requireMember, refused by default",
+      "send-campaign": "requireMember, refused by default",
+      "send-invoice": "requireMember, refused by default",
+      "send-owner-reminders": "requireMember, refused by default",
+      "translate-content": "requireMember, refused by default",
+      "update-booking": "requireMember, refused by default",
+      "verify-domain": "requireMember, refused by default"
+    }
+  },
+  "check_id": "support-sessions-edge",
+  "started_at": "2026-10-10T15:38:44.937Z",
+  "status": "fail",
+  "expected_targets": 21,
+  "discovered_targets": 21,
+  "attempted_targets": 21,
+  "completed_targets": 21,
+  "skipped_targets": 0,
+  "assertions_executed": 32,
+  "min_assertions": 31,
+  "assertion_floor": "structural: six decision cases, one gate check, one per discovered function, three fixed checks",
+  "canary": {
+    "id": "unguarded-getUser",
+    "observed_failure": true
+  }
+}

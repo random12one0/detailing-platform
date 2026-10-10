@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const member = await requireMember(req, body.business_id ?? null);
+    const member = await requireMember(req, body.business_id ?? null, { allowSupport: true }); // 4.3c: renders, sends and stores nothing
     if (!member) return json({ error: "Unauthorized" }, 401);
 
     const { data: business } = await supabase

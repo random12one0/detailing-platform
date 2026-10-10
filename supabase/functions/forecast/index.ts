@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const businessId = String(body.business_id ?? "").trim() || null;
 
-    const member = await requireMember(req, businessId);
+    const member = await requireMember(req, businessId, { allowSupport: true }); // 4.3c: reads; writes only the shared weather cache
     if (!member) return json({ error: "not_found" }, 404);
 
     // **THE CACHE FIRST, AND IT IS WHY A SECOND VIEW COSTS NOTHING.** Andrew,

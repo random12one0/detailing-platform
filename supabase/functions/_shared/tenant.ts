@@ -9,6 +9,7 @@
 
 import { supabase } from "./db.ts";
 import { readFailed, retryRead } from "./retryRead.ts";
+import { isSupportSession } from "./supportSession.ts";
 
 export interface Business {
   id: string;
@@ -274,6 +275,10 @@ export function cleanPermissions(input: unknown): Permission[] {
   return PERMISSIONS.filter((p) => set.has(p));
 }
 
+/** ROADMAP 4.3c. Call only with a token getUser has already verified. */
+export const supportSession = (token: string) =>
+  isSupportSession(token, (sid) => supabase.from("support_sessions").select("session_id").eq("session_id", sid).maybeSingle());
+
 export type Member = { userId: string; businessId: string; role: string; permissions: string[] };
 
 // An owner has everything, always — the same fold `has_business_permission()`
@@ -285,15 +290,27 @@ export function can(member: Member, permission: Permission): boolean {
 // Verifies the request's JWT and returns the caller's membership in the
 // requested business, or null. When businessId is omitted and the user
 // belongs to exactly one business, that one is used.
+//
+// ROADMAP 4.3c: A READ-ONLY SUPPORT SESSION GETS NULL, unless the caller passes
+// `{ allowSupport: true }`. Null is every caller's existing refusal, so all of
+// them fail closed without being edited; only functions that change none of
+// the business's records opt in. Where null means "treat as the public"
+// (create-booking, track-visit), a support session reaches exactly as far as
+// anyone on the internet and no further.
 export async function requireMember(
   req: Request,
   businessId?: string | null,
+  opts: { allowSupport?: boolean } = {},
 ): Promise<Member | null> {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
   const { data: userData, error } = await supabase.auth.getUser(token);
   const user = userData?.user;
   if (error || !user) return null;
+  if (!opts.allowSupport && await supportSession(token)) {
+    console.warn("requireMember: refused a read-only support session");
+    return null;
+  }
 
   let q = supabase.from("business_users").select("business_id, role, permissions").eq("user_id", user.id);
   if (businessId) q = q.eq("business_id", businessId);
