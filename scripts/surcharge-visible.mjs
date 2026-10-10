@@ -4,6 +4,7 @@
 //   node scripts/surcharge-visible.mjs --headed        # watch it
 //   node scripts/surcharge-visible.mjs --break=canary  # sabotage: the canary is real
 //   node scripts/surcharge-visible.mjs --break=paint   # sabotage: the pixel test is real
+//   node scripts/surcharge-visible.mjs --stand-in=server  # page proof before a publish
 //   node scripts/receipt.mjs receipts/surcharge-visible.json
 //
 // Needs the dev server on :5173 (npm run dev --prefix app) and the seeded demo
@@ -129,6 +130,21 @@ const SIZES = [
 // walks each width twice.
 const PICKS = ["first", "last"];
 const CANARY_RUNS = 5;
+
+// ROADMAP 2.1d — THE RUSH FEE ON A SAME-DAY BOOKING. Booking the demo for
+// today showed $95 on the day and $115 on any time tapped, because the
+// server declined `Short notice` (a `lead_time` rule, within 24 hours —
+// `seed-demo.mjs`) until an hour was chosen. Every slot today is inside 24
+// hours, so the day alone answers it. The label is the tenant's own data,
+// not a translated string, so it is matched by name.
+//   same-day   TODAY: the rush fee is named and priced on the day tap, and
+//              the time tap does not move the bar. First and last slot.
+//   next-day   the first open day AFTER today — the case that must be
+//              REFUSED: its end is always more than 24 hours away, so the
+//              day tap must not name the rush fee whatever the clock says.
+// At his two verification widths and 320, the narrowest supported.
+const RUSH = /Short notice/;
+const RUSH_SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }, { w: 320, h: 844 }];
 
 const ART = fileURLToPath(new URL("../artifacts/surcharge-visible/", import.meta.url));
 
@@ -436,15 +452,34 @@ mkdirSync(ART, { recursive: true });
  * and `end_time` null, read off `business_settings` — and if one is ever
  * added, this goes red the same day.
  *
- * MIDDAY, because it is inside no plausible evening window and far from any
- * lead-time boundary on a day three or more days out.
+ * **23:59, NOT MIDDAY, SINCE 2.1d — 2026-10-10.** The fixed engine measures a
+ * day-only lead time to the END of the day, so the last minute of the day is
+ * what the deployed engine has to be asked for a `lead_time` rule to come out
+ * the way the fix answers it: today inside 24 hours, every later day outside.
+ * Midday made tomorrow carry the rush fee after noon, which the fix refuses.
+ * The cost: a windowed EVENING rule would match here and not in production.
+ * The demo has none, and `early-priced` reddens the day one is added.
+ *
+ * `stripRush` is canary flavour C, the 2.1d defect put back on the way past:
+ * a day-only answer loses its rush lines and their dollars from the total,
+ * which is what the unfixed server answers.
  */
-const standInServer = (page) => page.route("**/calculate-booking", async (route) => {
+const standInServer = (page, { stripRush = false } = {}) => page.route("**/calculate-booking", async (route) => {
   const req = route.request();
   let body;
   try { body = JSON.parse(req.postData() || "null"); } catch { body = null; }
   if (!body || !body.booking_date || body.start_time) return route.continue();
-  return route.continue({ postData: JSON.stringify({ ...body, start_time: "12:00" }) });
+  const postData = STANDIN === "server" ? JSON.stringify({ ...body, start_time: "23:59" }) : undefined;
+  if (!stripRush) return route.continue(postData ? { postData } : undefined);
+  const res = await route.fetch(postData ? { postData } : undefined);
+  let out;
+  try { out = await res.json(); } catch { return route.fulfill({ response: res }); }
+  if (out && out.quote && Array.isArray(out.quote.adjustments)) {
+    const rush = out.quote.adjustments.filter((a) => RUSH.test(a.label));
+    out.quote.adjustments = out.quote.adjustments.filter((a) => !RUSH.test(a.label));
+    out.quote.total -= rush.reduce((t, a) => t + Number(a.amount), 0);
+  }
+  return route.fulfill({ response: res, body: JSON.stringify(out) });
 });
 
 const stripAdjustments = (page) => page.route("**/calculate-booking", async (route) => {
@@ -534,6 +569,7 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
   };
   try {
     if (canary === "stripped" && BREAK !== "canary") await stripAdjustments(page);
+    else if (canary === "late-rush" && BREAK !== "canary") await standInServer(page, { stripRush: true });
     else if (STANDIN === "server") await standInServer(page);
 
     await page.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
@@ -580,6 +616,7 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
     // Any slot two days out starts more than 24 hours from now. The rush fee
     // on a same-day weekend booking is ROADMAP 2.1d, not hidden here.
     const wantWeekend = kind === "weekend";
+    const anyDay = kind === "same-day" || kind === "next-day";
     const now = new Date();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const tooSoon = [[0, now.getDate()], [tomorrow.getMonth() === now.getMonth() ? 0 : 1, tomorrow.getDate()]];
@@ -591,26 +628,31 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
       }
       await page.locator(".bk-cal .cell:not(.closed):not(.empty)").first()
         .waitFor({ state: "attached", timeout: 8000 }).catch(() => {});
-      day = await page.evaluate(({ wantWeekend, month, tooSoon }) => {
+      day = await page.evaluate(({ wantWeekend, month, tooSoon, kind, anyDay }) => {
         const grids = document.querySelectorAll(".bk-cal");
         const cells = [...grids[grids.length - 1].querySelectorAll(".cell")];
         const hits = [];
         for (let i = 0; i < cells.length; i++) {
           const col = i % 7;
           const isWeekend = col === 0 || col === 6;
-          if (isWeekend !== wantWeekend) continue;
+          if (!anyDay && isWeekend !== wantWeekend) continue;
           const c = cells[i];
           if (/closed|empty/.test(c.className) || !c.innerText.trim()) continue;
           const n = Number(c.innerText.trim());
+          // TODAY is `tooSoon[0]`. Same-day takes it or nothing — a closed
+          // today is a target that cannot be produced, graded as a failure.
+          if (kind === "same-day") { if (month === 0 && n === tooSoon[0][1]) return c.innerText.trim(); continue; }
+          if (kind === "next-day") { if (month === 0 && n <= tooSoon[0][1]) continue; return c.innerText.trim(); }
           if (wantWeekend && tooSoon.some(([m, d]) => m === month && d === n)) continue;
           hits.push(c.innerText.trim());
         }
         return hits.length ? (wantWeekend ? hits[0] : hits[hits.length - 1]) : null;
-      }, { wantWeekend, month, tooSoon });
+      }, { wantWeekend, month, tooSoon, kind, anyDay });
+      if (kind === "same-day") break;
     }
     if (!day) {
       throw new Error(
-        `no open ${wantWeekend ? "Saturday or Sunday" : "weekday"} in three months of the `
+        `no open ${kind === "same-day" ? "slot TODAY" : kind === "next-day" ? "day after today" : wantWeekend ? "Saturday or Sunday" : "weekday"} in three months of the `
         + "demo's calendar, so the case this target exists for cannot be produced. "
         + "Re-seed (node scripts/seed-demo.mjs) and check available-slots by hand.");
     }
@@ -725,6 +767,49 @@ function gradeWeekend(id, o, sink) {
 }
 
 /**
+ * ROADMAP 2.1d, today. FIVE assertions, all about the moment the DAY is tapped.
+ */
+function gradeSameDay(id, o, sink) {
+  const e = readable(o.early);
+  const rush = o.early.lines.filter((x) => RUSH.test(x.label));
+  sink(id, "rush-early", rush.length > 0,
+    `today is tapped and ${o.early.read ? o.early.read.chips : 0} times are listed, every one inside `
+    + `the rush window, and the page names «${o.early.lines.map((x) => x.text).join(" / ") || "nothing"}»`);
+  sink(id, "early-priced", o.early.bar !== null && o.early.bar === o.late.bar,
+    `the bar reads ${dollars(o.early.bar)} with today chosen and ${dollars(o.late.bar)} `
+    + "once a time is tapped");
+  const sum = o.early.lines.reduce((a, x) => a + x.cents, 0);
+  const rise = (o.early.bar ?? 0) - (o.base ?? 0);
+  sink(id, "early-adds-up", o.base !== null && o.early.bar !== null && rise === sum,
+    `the bar went ${dollars(o.base)} → ${dollars(o.early.bar)} on the day while the page named `
+    + `${(sum / 100).toFixed(2)}`);
+  sink(id, "early-visible", rush.length > 0 && e.hidden.length === 0,
+    e.hidden.map((x) => `«${x.text}» at y=${x.rect.y}..${x.rect.y + x.rect.h} against a bar at `
+      + `${o.early.read.barTop}; elementFromPoint says ${x.hit}`).join("; "));
+  sink(id, "early-painted",
+    rush.length > 0 && o.early.spreads.length === o.early.lines.length && e.blank.length === 0,
+    e.blank.map((x) => `«${x.l.text}» changes by ${x.s.delta.toFixed(2)} levels, under the `
+      + `${DELTA_FLOOR} floor`).join("; "));
+}
+
+/**
+ * The refused half of 2.1d. TWO assertions: the first open day after today
+ * must NOT be charged the rush fee on the day tap, and whatever it IS charged
+ * must be what it names.
+ */
+function gradeNextDay(id, o, sink) {
+  const rush = o.early.lines.filter((x) => RUSH.test(x.label));
+  sink(id, "no-rush-early", o.early.read !== null && rush.length === 0,
+    `the ${o.day} is more than 24 hours away at its end, and the day tap named `
+    + `«${rush.map((x) => x.text).join(" / ") || "(no read)"}»`);
+  const sum = o.early.lines.reduce((a, x) => a + x.cents, 0);
+  const rise = (o.early.bar ?? 0) - (o.base ?? 0);
+  sink(id, "early-adds-up", o.base !== null && o.early.bar !== null && rise === sum,
+    `the bar went ${dollars(o.base)} → ${dollars(o.early.bar)} on the day while the page named `
+    + `${(sum / 100).toFixed(2)}`);
+}
+
+/**
  * The control. THREE assertions, and it is the half nobody had run: a fix that
  * prices the day early must not start pricing days that carry no rule.
  */
@@ -743,10 +828,12 @@ function gradeWeekday(id, o, sink) {
 // ---------------------------------------------------------------------------
 const browser = await chromium.launch({ headless: !HEADED });
 const CANARIES = [
-  { flavour: "order", why: "the note put back below the chips" },
-  { flavour: "stripped", why: "the surcharge lines taken out of the server's answer" },
+  { flavour: "order", why: "the note put back below the chips", kind: "weekend", grade: gradeWeekend },
+  { flavour: "stripped", why: "the surcharge lines taken out of the server's answer", kind: "weekend", grade: gradeWeekend },
+  { flavour: "late-rush", why: "the rush fee held back until a time is tapped (2.1d)", kind: "same-day", grade: gradeSameDay },
 ];
-const expected = SIZES.length * PICKS.length + SIZES.length + CANARIES.length * CANARY_RUNS;
+const expected = SIZES.length * PICKS.length + SIZES.length
+  + RUSH_SIZES.length * PICKS.length + RUSH_SIZES.length + CANARIES.length * CANARY_RUNS;
 let discovered = 0, attempted = 0, completed = 0;
 const canary = {
   id: "below-the-chips-and-stripped-from-the-answer",
@@ -782,8 +869,38 @@ for (const size of SIZES) {
   completed++;
 }
 
+// ── ROADMAP 2.1d: TODAY, AND THE FIRST DAY AFTER IT ───────────────────────
+// A target that cannot be produced (today closed or fully booked) grades as
+// failures rather than dropping out, so the count cannot fall without a diff.
+const unproduced = (e) => ({ error: e.message, base: null, early: { bar: null, lines: [], spreads: [], read: null }, late: { bar: null, lines: [] } });
+for (const size of RUSH_SIZES) {
+  for (const pick of PICKS) {
+    const label = `${size.w}x${size.h} same-day, ${pick} slot`;
+    console.log(`  ${label}`);
+    discovered++; attempted++;
+    const o = await target(browser, size, {
+      pick, kind: "same-day", canary: null, label, stem: `${size.w}x${size.h}-today-${pick}`,
+    }).catch(unproduced);
+    gradeSameDay(label, o, check);
+    observed.push(`${label}: ${o.error ? `could not be produced — ${o.error}` : `no day ${dollars(o.base)} → today ${dollars(o.early.bar)} → time `
+      + `${dollars(o.late.bar)} · early «${o.early.lines.map((l) => l.text).join(" / ") || "nothing"}»`}`);
+    completed++;
+  }
+  const label = `${size.w}x${size.h} next-day refusal`;
+  console.log(`  ${label}`);
+  discovered++; attempted++;
+  const o = await target(browser, size, {
+    pick: "first", kind: "next-day", canary: null, label, stem: `${size.w}x${size.h}-nextday`,
+  }).catch(unproduced);
+  gradeNextDay(label, o, check);
+  observed.push(`${label}: ${o.error ? `could not be produced — ${o.error}` : `the ${o.day}: no day ${dollars(o.base)} → day ${dollars(o.early.bar)} → time `
+    + `${dollars(o.late.bar)} · early «${o.early.lines.map((l) => l.text).join(" / ") || "nothing"}»`
+    + ` · late «${o.late.lines.map((l) => l.text).join(" / ") || "nothing"}»`}`);
+  completed++;
+}
+
 // ── THE CANARIES, FIVE RUNS EACH, AT THE WIDTH THE DEFECT WAS MEASURED AT ──
-for (const { flavour, why } of CANARIES) {
+for (const { flavour, why, kind, grade } of CANARIES) {
   console.log(`  canary "${flavour}" x${CANARY_RUNS} — ${why}; it MUST fail`);
   for (let run = 1; run <= CANARY_RUNS; run++) {
     discovered++; attempted++;
@@ -794,12 +911,12 @@ for (const { flavour, why } of CANARIES) {
     // and the defect hides itself. Reproducing a defect means reproducing the
     // position it was in.
     const o = await target(browser, { w: 320, h: 844 }, {
-      pick: "first", kind: "weekend", canary: flavour,
+      pick: "first", kind, canary: flavour,
       label: `canary ${flavour} ${run}`, stem: `canary-${flavour}-${run}`,
     });
     // ITS FAILURES GO IN THE CANARY, NOT IN `failures` — a negative control
     // that reddens the run is a negative control nobody keeps.
-    gradeWeekend(`canary ${flavour} ${run}`, o, (t, name, cond, detail) => {
+    grade(`canary ${flavour} ${run}`, o, (t, name, cond, detail) => {
       assertions++;
       if (cond) return;
       problems.push(`${name} ${detail}`.trim());
@@ -841,16 +958,17 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  // 10 weekend x 9 + 5 control x 3 + 10 canary x 9. Lowering it is a visible
+  // 10 weekend x 9 + 5 control x 3 + 6 same-day x 5 + 3 next-day x 2 + 10 canary
+  // x 9 + 5 late-rush canary x 5. Lowering it is a visible
   // diff somebody has to justify, which is the only reason a floor exists.
-  min_assertions: 195,
+  min_assertions: 256,
   // **DECLARED BECAUSE THE FLOOR EQUALS THE COUNT, WHICH MEANS IT CANNOT BIND.**
   // `receipt.mjs` refuses a receipt that does not say why. Andrew raised this twice
   // before it was fixed: a floor set to exactly what a clean run executes moves with
   // the thing it is measuring, so the comparison can only ever come out true — the
   // same shape as a control that is quietly an instance of the fault.
   assertion_floor:
-    "10 weekend targets x 9 questions + 5 weekday controls x 3 + 10 canary runs x 9 = 195. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
+    "10 weekend targets x 9 questions + 5 weekday controls x 3 + 6 same-day targets x 5 + 3 next-day refusals x 2 + 10 weekend canary runs x 9 + 5 late-rush canary runs x 5 = 256. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: [
@@ -866,7 +984,8 @@ const { path } = writeReceipt({
     slug: SLUG,
     sizes: SIZES.map((s) => `${s.w}x${s.h}`),
     picks: PICKS,
-    kinds: ["weekend", "weekday control"],
+    kinds: ["weekend", "weekday control", "same-day", "next-day refusal"],
+    rush_sizes: RUSH_SIZES.map((s) => `${s.w}x${s.h}`),
     observed,
     delta_floor: DELTA_FLOOR,
     canary_runs: CANARY_RUNS,
