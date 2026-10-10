@@ -26479,7 +26479,43 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.18 — A caller with no forwarded-for header is not rate-limited at all
 
-- [ ] **Found 2026-09-23 by an absence, while building 6.2's outside checks.**
+> ## 2026-10-10 — DONE-WHEN ANSWERED: AN OUTSIDE CALLER IS COUNTED, WITH THE HEADER ABSENT AND WITH IT FORGED. THE LIMITS ARE ENFORCED, NOT ADVISORY.
+>
+> **`node scripts/gateway-header-probe.mjs`, two live calls to `available-slots`
+> from this machine, `rate_hits` read (service role, read-only) immediately before
+> the first and after each.** Call A sent no `x-forwarded-for`; call B sent
+> `x-forwarded-for: 203.0.113.18`, which is not the caller. **A moved one hit on
+> `(available-slots, <this machine's real address>)`. B moved one hit on the SAME
+> row, and nothing at all landed under 203.0.113.18** — so the gateway writes the
+> header itself for an outside caller whether or not they send one, and it
+> overwrites a forged one rather than appending to it (an appended value would
+> have put the forged address left-most and the row under it). Both calls answered
+> 200. Run twice with the script at its final commit (`86f634a3`): identical both
+> times; the receipt is `receipts/gateway-header-probe.json` (valid, 2/2 targets,
+> 5 assertions, canary seen).
+>
+> **The reader was proven before its silence could mean anything:** the script
+> writes a control row through `rate_take`, must read it back, deletes it, and
+> makes NO public call if it cannot. `--break=blind` (reader pointed at the wrong
+> bucket) goes red as UNJUDGEABLE with zero calls. `--break=blind-calls` (control
+> passes, the reads around the two calls are blinded) makes the same two calls
+> report *"NOT COUNTED ... per-IP limits are advisory"*, so the check can come out
+> the other way. Only the last sabotage's receipt is on disk
+> (`receipts/gateway-header-probe.sabotage.json`, `--break=blind`); the
+> `blind-calls` verdict is quoted from its run, not kept.
+>
+> **What this does NOT show, stated so a sweep does not "find" it:** one machine,
+> one function, one evening, and `cf-connecting-ip` was not forged (`ipOf` only
+> reads it when `x-forwarded-for` is blank, which the gateway never leaves blank
+> for an outside caller). A caller who arrives header-less from INSIDE the project
+> (`pg_net`, the 6.2 probe) is still uncounted on the code that is RUNNING —
+> `_shared/rateLimit.ts` is fixed in source (2026-10-06 below) and not published,
+> and publishing is Andrew's. So the fix is now insurance against an inside caller
+> and a gateway that one day stops writing the header, not a hole an outsider was
+> using. **14.15's unnamed ceiling is therefore NOT explained by this**: our
+> limiter does count an outside caller, as the item feared it might not.
+
+- [x] **Found 2026-09-23 by an absence, while building 6.2's outside checks.**
   The new monitor called `available-slots` about eight times through `pg_net`.
   `available-slots` is rate-limited on `LIMITS.publicCeiling` keyed by
   `ipOf(req)`, and `rate_take` counts the refused attempt as well as the

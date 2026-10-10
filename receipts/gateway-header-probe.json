@@ -1,0 +1,69 @@
+{
+  "git_sha": "86f634a318b6c9ec2f75fa8fc96ae6714ee599aa",
+  "git_sha_started": "86f634a318b6c9ec2f75fa8fc96ae6714ee599aa",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:55:37.455Z",
+  "failures": [],
+  "warnings": [
+    "Two calls from one machine, one function, one evening. It says what the gateway did for this caller now, not for every path or every header (cf-connecting-ip was not forged).",
+    "The deployed `available-slots` may still run the pre-fix `ipOf`; DIFFERS in deployed-inventory. A header-less call is only 'not counted' on the OLD code; on the fixed code it would land in available-slots:no-address."
+  ],
+  "artifacts": [
+    "artifacts/gateway-header-probe/calls.json"
+  ],
+  "dimensions": {
+    "function": "available-slots",
+    "forged": "203.0.113.18",
+    "break": "",
+    "item": "14.18"
+  },
+  "check_id": "gateway-header-probe",
+  "started_at": "2026-10-10T22:55:35.057Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 5,
+  "min_assertions": 4,
+  "canary": {
+    "id": "reader-sees-its-own-control-row",
+    "observed_failure": true
+  },
+  "observed": {
+    "verdict": "CLEAN — an outside caller is counted under the real address whether or not the header is sent or forged: absent header: COUNTED UNDER THE REAL ADDRESS; forged header: COUNTED UNDER THE REAL ADDRESS",
+    "control_seen": true,
+    "A": {
+      "label": "A (header absent)",
+      "sent_xff": null,
+      "status": 200,
+      "body_head": "{\"success\":true,\"days\":{\"2026-11-02\":{\"open\":false,\"slots\":[],\"dropoff_slots\":[]",
+      "outcome": "COUNTED UNDER THE REAL ADDRESS",
+      "rows_moved": [
+        {
+          "bucket": "available-slots",
+          "key": "<this machine>",
+          "delta": 1
+        }
+      ],
+      "real_key": "47.154.82.60"
+    },
+    "B": {
+      "label": "B (header forged)",
+      "sent_xff": "203.0.113.18",
+      "status": 200,
+      "body_head": "{\"success\":true,\"days\":{\"2026-11-02\":{\"open\":false,\"slots\":[],\"dropoff_slots\":[]",
+      "outcome": "COUNTED UNDER THE REAL ADDRESS",
+      "rows_moved": [
+        {
+          "bucket": "available-slots",
+          "key": "<this machine>",
+          "delta": 1
+        }
+      ],
+      "real_key": "47.154.82.60"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "git_sha": "3046060fd7626570e905447ec3170c7a546c98f5",
+  "git_sha_started": "3046060fd7626570e905447ec3170c7a546c98f5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:55:31.298Z",
+  "failures": [
+    "the reader sees the control row it just wrote"
+  ],
+  "warnings": [
+    "Two calls from one machine, one function, one evening. It says what the gateway did for this caller now, not for every path or every header (cf-connecting-ip was not forged).",
+    "The deployed `available-slots` may still run the pre-fix `ipOf`; DIFFERS in deployed-inventory. A header-less call is only 'not counted' on the OLD code; on the fixed code it would land in available-slots:no-address."
+  ],
+  "artifacts": [
+    "artifacts/gateway-header-probe/calls.blind.json"
+  ],
+  "dimensions": {
+    "function": "available-slots",
+    "forged": "203.0.113.18",
+    "break": "blind",
+    "item": "14.18"
+  },
+  "check_id": "gateway-header-probe",
+  "started_at": "2026-10-10T22:55:30.860Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 0,
+  "attempted_targets": 0,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 2,
+  "min_assertions": 4,
+  "canary": {
+    "id": "reader-sees-its-own-control-row",
+    "observed_failure": false
+  },
+  "observed": {
+    "verdict": "UNJUDGEABLE: the reader cannot see a row it wrote, so no public call was made",
+    "control_seen": false
+  }
+}
