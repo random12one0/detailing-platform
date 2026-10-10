@@ -1,13 +1,11 @@
 {
-  "git_sha": "9ce2a5a3c9456de4bd012b6a9baec891542c27e1",
-  "git_sha_started": "feac562b1a08250d93e1f716ae85d17237ff5e3f",
-  "head_moved": true,
+  "git_sha": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
+  "git_sha_started": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T09:18:00.797Z",
+  "finished_at": "2026-10-10T16:09:12.914Z",
   "failures": [],
-  "warnings": [
-    "run with --stand-in=server; the day-only quote was answered by the DEPLOYED function given an invented midday time, because the server half of this fix is not published. This receipt proves the PAGE, not the engine — tests/price-a-day.test.mjs proves the engine."
-  ],
+  "warnings": [],
   "artifacts": [
     "artifacts/surcharge-visible/1920x1080-first-day.png",
     "artifacts/surcharge-visible/1920x1080-first-time.png",
@@ -146,10 +144,10 @@
       "late-rush"
     ],
     "sabotage": null,
-    "stand_in": "server"
+    "stand_in": null
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-10-10T09:06:43.421Z",
+  "started_at": "2026-10-10T15:57:31.065Z",
   "status": "pass",
   "expected_targets": 39,
   "discovered_targets": 39,
@@ -208,23 +206,23 @@
       "stripped run 5: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 5: visible",
       "stripped run 5: painted",
-      "late-rush run 1: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 1: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
       "late-rush run 1: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
       "late-rush run 1: early-visible",
       "late-rush run 1: early-painted",
-      "late-rush run 2: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 2: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
       "late-rush run 2: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
       "late-rush run 2: early-visible",
       "late-rush run 2: early-painted",
-      "late-rush run 3: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 3: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
       "late-rush run 3: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
       "late-rush run 3: early-visible",
       "late-rush run 3: early-painted",
-      "late-rush run 4: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 4: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
       "late-rush run 4: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
       "late-rush run 4: early-visible",
       "late-rush run 4: early-painted",
-      "late-rush run 5: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 5: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
       "late-rush run 5: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
       "late-rush run 5: early-visible",
       "late-rush run 5: early-painted"
@@ -350,7 +348,7 @@
         "run": 1,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
           "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
           "early-visible",
           "early-painted"
@@ -361,7 +359,7 @@
         "run": 2,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
           "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
           "early-visible",
           "early-painted"
@@ -372,7 +370,7 @@
         "run": 3,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
           "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
           "early-visible",
           "early-painted"
@@ -383,7 +381,7 @@
         "run": 4,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
           "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
           "early-visible",
           "early-painted"
@@ -394,7 +392,7 @@
         "run": 5,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
           "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
           "early-visible",
           "early-painted"

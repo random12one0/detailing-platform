@@ -1,9 +1,9 @@
 {
-  "git_sha": "da64600fb90d062ee32e975a12bd3533d153cf3e",
-  "git_sha_started": "da64600fb90d062ee32e975a12bd3533d153cf3e",
+  "git_sha": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
+  "git_sha_started": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:46:03.124Z",
+  "finished_at": "2026-10-10T15:57:22.028Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -11,29 +11,27 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "function": "platform-admin",
-    "live_version": 63,
-    "live_updated_at": "2026-10-10T07:53:59.966Z",
+    "function": "calculate-booking",
+    "live_version": 64,
+    "live_updated_at": "2026-10-10T15:57:14.239Z",
     "present_commits": [
-      "99ed3922"
+      "2911d6e1"
     ],
     "absent_commits": [
-      "83a0a740",
-      "8bd5d24b",
-      "3e002b1d"
+      "8bd5d24b"
     ],
-    "present_lines_found": "39 of 39",
-    "absent_lines_absent": "42 of 42"
+    "present_lines_found": "11 of 11",
+    "absent_lines_absent": "23 of 23"
   },
   "check_id": "live-carries-commit",
-  "started_at": "2026-10-10T15:46:01.085Z",
+  "started_at": "2026-10-10T15:57:19.288Z",
   "status": "pass",
-  "expected_targets": 81,
-  "discovered_targets": 81,
-  "attempted_targets": 81,
-  "completed_targets": 81,
+  "expected_targets": 34,
+  "discovered_targets": 34,
+  "attempted_targets": 34,
+  "completed_targets": 34,
   "skipped_targets": 0,
-  "assertions_executed": 82,
+  "assertions_executed": 35,
   "min_assertions": 10,
   "canary": {
     "id": "never-written-sentence",

@@ -1188,7 +1188,13 @@ still knows them.
   from 40 failures to none. It is red today on purpose and the roadmap says
   why.
 
-- [ ] **PUBLISH · `calculate-booking` again, for the rush fee on same-day
+- [x] **DONE 2026-10-10 — you approved it at 09:32 and I published it and ran the test.**
+  Only `calculate-booking` went live (version 64), built from the commit holding this fix alone, so
+  none of the unfinished support-session work rode along. The six programs named below were NOT
+  published and do not need to be for this. Booking for today now reads $115 with "Short notice
+  · +$20" the moment today is tapped, at laptop and phone widths, and the live page check passes
+  with no stand-in. Nothing for you to do here.
+  *The original row, kept as history:* **PUBLISH · `calculate-booking` again, for the rush fee on same-day
   bookings (roadmap 2.1d).** Somebody booking for TODAY saw $95 when they
   tapped the day and $115 the moment they tapped any time, because the $20
   "Short notice" fee only showed up with the time. Every time slot today

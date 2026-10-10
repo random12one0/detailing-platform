@@ -3995,7 +3995,7 @@ the wrong service, and never book a job we cannot reach.
   - Weekday control remains green with no surcharge shown
   - ROADMAP.md records the clean passing result and item 2.1 is ticked
 
-- [ ] **2.1d — A same-day booking is told about the rush fee only when it taps
+- [x] **DONE 2026-10-10 — 2.1d — A same-day booking is told about the rush fee only when it taps
   a time, even when every time that day carries it.** Found 2026-10-10 running
   2.1c on a Saturday. A customer booking `demo-detail` for today saw **$95**
   (`Weekend rate · +$30`) on the day, then **$115** with
@@ -4017,8 +4017,26 @@ the wrong service, and never book a job we cannot reach.
   go behind the live copy again until Andrew publishes.
   **Done when:** booking today on the demo shows the rush fee and the full
   total the moment the day is tapped, and tapping a time does not move it.
-  NEEDS ANDREW: publish `calculate-booking` — the fix is built and proved, but the booking page asks the live copy of the pricing program, which still holds the rush fee back until a time is tapped. Six other functions that share the pricing file (`create-booking`, `preview-emails`, `reschedule-booking`, `send-invoice`, `update-booking`, `validate-promo-code`) go behind the live copy too and can ride along; none of them reaches the changed line with a day and no time.
-  **BUILT 2026-10-10, NOT TICKED — the live page cannot show it until that publish.**
+  **PUBLISHED AND PROVED LIVE 2026-10-10, ticked.** Andrew answered the publish question at 09:32
+  (*"Approve it and You do the test"*). **Published `calculate-booking` ONLY, as live v64, from a
+  throwaway worktree at `2911d6e1`, not from the checkout** — because the checkout's copy also carries
+  4.3c's unpublished support-session gate (`_shared/tenant.ts`, `_shared/supportSession.ts`, `8bd5d24b`),
+  which reads a table whose migration is not applied. Before the publish the live copy differed from
+  `2911d6e1` in `pricing.ts` alone (deployed-inventory named three files against HEAD; `git diff
+  2911d6e1 HEAD` over the import closure names the other two). The six other functions sharing
+  `pricing.ts` were NOT published; none of them reaches the changed line with a day and no time.
+  **Running copy:** `node scripts/live-carries-commit.mjs --fn=calculate-booking --present=2911d6e1
+  --absent=8bd5d24b` PASS — 11 of 11 fix lines present, 23 of 23 support-session lines absent, canary
+  read absent; `--break=swap` red (23 of 34 missing). **Live page, no stand-in:** `node
+  scripts/surcharge-visible.mjs` at `6f7a020b` PASS, 39 of 39 targets, 256 assertions, 0 failures, no
+  console noise, canaries order 5/5, stripped 5/5, late-rush 5/5, `receipt.mjs` valid. Today at 1440,
+  392 and 320, first and last slot: `$65 → today $115 → time $115`, `Weekend rate · +$30 / Short notice
+  · +$20` named on the day tap; the refusal (the 13th) `$65 → $65 → $65`, nothing named. The same
+  command FAILED 24 of 256 on these six targets before the publish (below). Before/after screenshots
+  at 390 and 1440 read `$95` then `$115` on the day tap, console clean at both.
+  **Still behind:** `deployed-inventory` now reads 33 of 41 not running this checkout; `calculate-booking`
+  differs only by the two 4.3c files, which is deliberate until 4.3c is applied and published.
+  **BUILT 2026-10-10 (history; published and ticked above).**
   `_shared/pricing.ts` (`2911d6e`): with a day and no time, `whenContextFor`
   now sends `latestLeadHours`, the hours to the END of that day, and
   `matchPriceRules` uses it for a `lead_time` rule only when no exact lead is
@@ -4148,7 +4166,8 @@ the wrong service, and never book a job we cannot reach.
   named on the day tap, 25/25). **The one known exception is 2.1d and stays
   open there, not here:** booking TODAY, the rush fee arrives on the time tap
   rather than the day tap — built, proved with a stand-in, and waiting only on
-  Andrew publishing `calculate-booking`.
+  Andrew publishing `calculate-booking`. **Superseded 2026-10-10: published as v64 and
+  proved live with no stand-in, 39/39; 2.1d is ticked.**
   `whenContextFor` (`_shared/pricing.ts`) opens with
   **ANDREW OVERRULED THE NARROW DONE-WHEN ON 2026-10-09.** The price must change
   on the **first click that changes price** — including the first product or
