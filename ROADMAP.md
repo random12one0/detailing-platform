@@ -14625,6 +14625,39 @@ most corroborated finding in the set.
   nobody has opened a nightly dump (the key lookup), the last-restore date in
   the back office (a publish), and MFA (Andrew's).
 
+  Waits on: 6.1a, 6.1b, 6.1c. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 194 lines
+  long and no single session was finishing it.
+
+- [ ] **6.1a — Confirm the backup key is available**
+  Andrew confirms only whether the nightly-backup key is present in the password manager. This does not expose or handle the key, run a restore, or change any production account.
+  Part 1 of 3 of item 6.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Andrew reports whether the key can be found using the documented password-manager search terms
+  - FOR-ANDREW.md is updated to reflect the reported result
+  - No key, token, password, or secret is recorded in the repository
+
+- [ ] **6.1b — Prove a nightly backup restores outside production**
+  Provide a safe, separate restore environment and use it to restore and inspect one encrypted nightly database copy. This covers the recovery path for the actual scheduled backups, not a rerun of the existing drill that creates and drops a schema in the live database.
+  Part 2 of 3 of item 6.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The restore target is local/throwaway or otherwise separate from the live Supabase project
+  - One nightly encrypted copy is decrypted and restored successfully
+  - Restored bookings, customers, settings, accounts, and storage files are checked against the backup artifacts
+  - The restore result is recorded with a receipt that proves the copy came back and updates the restore-drill heartbeat date
+
+- [ ] **6.1c — Publish and verify the visible restore-test status**
+  Release the already-built Back office System health Backups status to production and verify it in the live interface. This piece only exposes and validates the recorded recovery result; it does not add jobs, alerts, tables, or database structure.
+  Part 3 of 3 of item 6.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The Backups panel shows the last proved restore date and returned-record summary
+  - The no-record and older-than-90-days states display the specified non-green guidance
+  - The page is verified at desktop and mobile viewports with no browser-console defects beyond the documented React Router warnings
+  - The published view reads its expected date from the database rather than hard-coded page content
+
 - [x] **6.2 — The back office cannot prove the product is healthy.**
   Netlify connected but not read; Supabase needing wiring; email delivery not
   wired; no outage history. Successful jobs are prominent and green; missing
