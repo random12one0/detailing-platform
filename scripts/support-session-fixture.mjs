@@ -163,6 +163,20 @@ try {
     viaSql = r7[0]?.sid ?? null;
   }
   ask("auth-jwt-reads-session-id", !!sid1 && viaSql === sid1, `auth.jwt() ->> 'session_id' = ${short(viaSql)}`);
+
+  // 8 — A FINDING, NOT A PROPERTY: the Auth API is a write path no database rule
+  // reaches. The session edits its own user record (a label in user_metadata,
+  // never a password) and the change is read back with the service role. PASS
+  // here means the hole is real, and 4.3c has to close it somewhere other than RLS.
+  if (s1?.session) {
+    const c8 = fresh();
+    await c8.auth.setSession({ access_token: s1.session.access_token, refresh_token: s1.session.refresh_token }).catch(() => null);
+    const { error: ue } = await c8.auth.updateUser({ data: { support_fixture_probe: started_at } });
+    const { data: back } = await admin.auth.admin.getUserById(userId);
+    const landed = back?.user?.user_metadata?.support_fixture_probe === started_at;
+    ask("auth-api-write-reaches-past-rls", !ue && landed,
+      ue ? "updateUser refused: " + ue.message : `session wrote its own user record via the Auth API; read back ${landed ? "matches" : "does NOT match"}`);
+  } else ask("auth-api-write-reaches-past-rls", false, "no session to write with");
 } finally {
   if (userId) {
     const { error } = await admin.auth.admin.deleteUser(userId);
@@ -170,7 +184,7 @@ try {
   }
 }
 
-const QUESTIONS = 7;
+const QUESTIONS = 8;
 const failed = results.filter((r) => !r.ok);
 const artifact = "receipts/support-session-fixture.answers" + (BREAK ? "." + BREAK + ".sabotage" : "") + ".json";
 writeFileSync(artifact, JSON.stringify({ project: REF, break: BREAK || null, results }, null, 2) + "\n");
@@ -185,7 +199,7 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: results.length,
   min_assertions: QUESTIONS,
-  assertion_floor: "seven fixed questions, one assertion each; the count is set by the code, not by what the run found",
+  assertion_floor: "eight fixed questions, one assertion each; the count is set by the code, not by what the run found",
   failures: failed.map((f) => `${f.id}: ${f.detail}`),
   canary,
   artifacts: [artifact],

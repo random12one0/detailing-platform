@@ -25,17 +25,22 @@
     {
       "id": "refresh-keeps-session-id",
       "ok": false,
-      "detail": "refreshed token session_id 5b2bb258… vs original none"
+      "detail": "refreshed token session_id 2b712556… vs original none"
     },
     {
       "id": "second-login-gets-different-session-id",
       "ok": false,
-      "detail": "second session ccae2aae… vs first none"
+      "detail": "second session bd4cbea4… vs first none"
     },
     {
       "id": "auth-jwt-reads-session-id",
       "ok": false,
       "detail": "auth.jwt() ->> 'session_id' = none"
+    },
+    {
+      "id": "auth-api-write-reaches-past-rls",
+      "ok": true,
+      "detail": "session wrote its own user record via the Auth API; read back matches"
     }
   ]
 }

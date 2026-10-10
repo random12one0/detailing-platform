@@ -10,7 +10,7 @@
     {
       "id": "token-carries-session-id",
       "ok": true,
-      "detail": "claims present: aal, amr, app_metadata, aud, email, exp, iat, is_anonymous, iss, phone, role, session_id, sub, user_metadata; session_id 691ccf00…"
+      "detail": "claims present: aal, amr, app_metadata, aud, email, exp, iat, is_anonymous, iss, phone, role, session_id, sub, user_metadata; session_id 7a8a6e1a…"
     },
     {
       "id": "session-id-is-a-real-session",
@@ -25,7 +25,7 @@
     {
       "id": "refresh-keeps-session-id",
       "ok": true,
-      "detail": "refreshed token session_id 691ccf00… vs original 691ccf00…"
+      "detail": "refreshed token session_id 7a8a6e1a… vs original 7a8a6e1a…"
     },
     {
       "id": "second-login-gets-different-session-id",
@@ -35,7 +35,12 @@
     {
       "id": "auth-jwt-reads-session-id",
       "ok": true,
-      "detail": "auth.jwt() ->> 'session_id' = 691ccf00…"
+      "detail": "auth.jwt() ->> 'session_id' = 7a8a6e1a…"
+    },
+    {
+      "id": "auth-api-write-reaches-past-rls",
+      "ok": true,
+      "detail": "session wrote its own user record via the Auth API; read back matches"
     }
   ]
 }

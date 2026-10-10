@@ -1,34 +1,30 @@
 {
-  "git_sha": "51ecb12e01a01668b9cc3bcc22cd17d80b6cad1d",
-  "git_sha_started": "51ecb12e01a01668b9cc3bcc22cd17d80b6cad1d",
+  "git_sha": "87237ef1561c6a03bd98d7667955f5eb720d5482",
+  "git_sha_started": "87237ef1561c6a03bd98d7667955f5eb720d5482",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:15:35.495Z",
+  "finished_at": "2026-10-10T15:19:14.172Z",
   "failures": [
-    "token-carries-session-id: claims present: aal, amr, app_metadata, aud, email, exp, iat, is_anonymous, iss, phone, role, sub, user_metadata; session_id none",
-    "session-id-is-a-real-session: auth.sessions rows for (id, user): 0",
-    "refresh-keeps-session-id: refreshed token session_id 5b2bb258… vs original none",
-    "second-login-gets-different-session-id: second session ccae2aae… vs first none",
-    "auth-jwt-reads-session-id: auth.jwt() ->> 'session_id' = none"
+    "second-login-gets-different-session-id: second sign-in refused: Email link is invalid or has expired"
   ],
   "warnings": [],
   "artifacts": [
-    "receipts/support-session-fixture.answers.strip-sid.sabotage.json"
+    "receipts/support-session-fixture.answers.reuse.sabotage.json"
   ],
   "dimensions": {
-    "break": "strip-sid"
+    "break": "reuse"
   },
   "check_id": "support-session-fixture",
-  "started_at": "2026-10-10T15:15:33.668Z",
+  "started_at": "2026-10-10T15:19:11.561Z",
   "status": "fail",
-  "expected_targets": 7,
-  "discovered_targets": 7,
-  "attempted_targets": 7,
-  "completed_targets": 7,
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
   "skipped_targets": 0,
-  "assertions_executed": 7,
-  "min_assertions": 7,
-  "assertion_floor": "seven fixed questions, one assertion each; the count is set by the code, not by what the run found",
+  "assertions_executed": 8,
+  "min_assertions": 8,
+  "assertion_floor": "eight fixed questions, one assertion each; the count is set by the code, not by what the run found",
   "canary": {
     "id": "token-with-session-id-removed",
     "observed_failure": true,
