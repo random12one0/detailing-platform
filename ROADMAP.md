@@ -12809,6 +12809,30 @@ requested.
   - The detail panel still distinguishes loading, empty, and populated history.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
+  **BUILT 2026-10-10, NOT TICKED: on disk, not applied, not published.** Three commits. (1) `4b3b21d`: migration
+  `20261010030000_support_sessions_read_only.sql` — `support_sessions` (no privilege for signed-in users),
+  `is_support_session()` reading `auth.jwt() ->> 'session_id'`, three RESTRICTIVE write rules on every RLS table in
+  `public` (discovered from the catalog) and on `storage.objects`, and a refusal at the top of `accrue_plan_visits`
+  and `set_my_lang`; a later table is covered by calling `refuse_support_writes('<table>')`. Proved in PGlite, not
+  live: `PGLITE_DIR=<pglite folder> PGLITE_REQUIRED=1 node --test tests/support-sessions-sql.test.mjs` — 8 of 8
+  write paths refused for the listed session, 8 of 8 allowed for the same user's other session, marker table
+  refused to signed-in callers, cron unaffected; `BREAK=permissive` and `BREAK=no-marker` both red; receipt graded.
+  (2) `8bd5d24`: `requireMember` refuses a support session unless `{ allowSupport: true }`; only `booking-ics`,
+  `forecast`, `preview-emails` and photo-door's `urls` opt in; `create-business` and `platform-admin` refuse
+  for themselves. (3) `3e002b1`: `impersonate` exchanges the link on the server, refuses without a `session_id`,
+  writes the marker, signs the session out if the marker fails, and only then returns tokens; `PreviewEntry` uses
+  `setSession`; the preview tab's guard also wraps `auth.updateUser`. `node --test
+  tests/support-sessions-edge.test.mjs` (credential-free): 21 of 21 user-authenticating functions classified,
+  `BREAK=fail-open`, `BREAK=no-gate`, `BREAK=unmarked` each red. App builds.
+  **NOT DONE, in this order:** (a) the Working door from the decision record — `impersonate_work` plus a second
+  back-office button, and the Looking tab's switch no longer offering Working (until then, flipping to Working in a
+  marked tab passes the browser guard and the server refuses the save); (b) end a support session after a fixed time
+  (layer E2); (c) the reauthentication-setting test on the fixture (layer E3). **Not browser-verified**: the refusal
+  needs the migration applied and the functions published, and pressing it means minting an impersonation, which is
+  4.3d's proof. Owner sessions are unchanged in the browser because nothing here is live.
+  NEEDS ANDREW: apply `20261010030000_support_sessions_read_only.sql` and then publish `platform-admin`,
+  `create-business` and the functions sharing `_shared/tenant.ts` (FOR-ANDREW.md, second migration list, row 3) —
+  routine release, no decision; a session can build (a) to (c) meanwhile.
   Build the selected session marker and the server-side authorization rules that reject mutations while that marker is active. Protection must be location/session-based, preserving the owner's ability to work in their own ordinary dashboard, and must cover every record-access layer used by the support view.
   Part 3 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

@@ -287,8 +287,15 @@ node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_s
    The protection starts only when both this and `send-invoice` (step 6) are done;
    until then a detailer who presses the receipt button twice in a bad signal still
    sends two invoices, which is what happens now.
+3. **`20261010030000_support_sessions_read_only.sql`** — makes "Look at their
+   dashboard" truly read-only at the database, not just in the browser (ROADMAP
+   **4.3c**). Your own dashboard is untouched: the rule is on the support tab's
+   sign-in, not on you. **Apply it BEFORE publishing `platform-admin`**: the
+   other way round, "Look at their dashboard" refuses to open (on purpose, it
+   will not open a tab it cannot lock). Publishing the other functions first is
+   harmless. Proved on a throwaway copy of Postgres, not on the live one.
 
-**Then:** `node scripts/migration-drift.mjs` should stop naming both.
+**Then:** `node scripts/migration-drift.mjs` should stop naming all three.
 
 ### Step 5 · Publish the remaining 24, in one pass
 
