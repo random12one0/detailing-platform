@@ -1086,6 +1086,25 @@ still knows them.
   from 40 failures to none. It is red today on purpose and the roadmap says
   why.
 
+- [ ] **PUBLISH · `calculate-booking` again, for the rush fee on same-day
+  bookings (roadmap 2.1d).** Somebody booking for TODAY saw $95 when they
+  tapped the day and $115 the moment they tapped any time, because the $20
+  "Short notice" fee only showed up with the time. Every time slot today
+  carries that fee, so the program now says so the moment the day is tapped.
+  A day that is only partly within 24 hours still waits for the time, because
+  there it really does depend on the hour.
+
+  **I proved it on the real booking page with a stand-in** — at laptop and
+  phone widths, today reads $115 on the day tap and stays $115 on any time,
+  and a later day shows no rush fee. Your publish is the only thing between
+  this and real customers. Six other programs share the same pricing file and
+  will ride along (`create-booking`, `preview-emails`, `reschedule-booking`,
+  `send-invoice`, `update-booking`, `validate-promo-code`); that is expected
+  and changes nothing for them.
+
+  **How you will know it worked:** `node scripts/surcharge-visible.mjs` stops
+  failing on the six same-day targets and passes with no stand-in.
+
 ---
 
 ## Urgent — two minutes when you next open your laptop
