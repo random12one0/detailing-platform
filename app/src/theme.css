@@ -4325,6 +4325,15 @@ button.warn-box:hover { border-color: var(--fog-2); }
   max-height: min(60vh, 520px); overflow-y: auto; overscroll-behavior: contain;
   scrollbar-width: thin; scrollbar-color: var(--fog-2) transparent;
 }
+/* ROADMAP 3.1b — TEXT MAY NOT TOUCH ITS NEIGHBOR. `.row-item` pads 2px
+   sideways, so each row's icon sat 2px from where the scrollbar starts, while
+   the text beside the same icon keeps 12px (6px at a phone's width). The
+   clearance goes on the wrapper, not on `.row-item`, which every ruled list in
+   the product shares. And a subject is somebody's words: with no space in it
+   (`.nm` has no clip) it ran 327px under the icon at 392, so it may break
+   anywhere, the way `.addr` already can. Measured by `scripts/mail-log-gaps.mjs`. */
+[data-mail-log] .mail-scroll { padding-right: var(--sp-3); }
+[data-mail-log] .row-item .nm { overflow-wrap: anywhere; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar { width: 8px; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar-track { background: transparent; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar-thumb {

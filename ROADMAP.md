@@ -10051,10 +10051,24 @@ requested.
   inspect the thumb and scroll behavior at 1440 and 392 before relying on this
   tick. This does not reopen the already-filed edge defects 3.1b/3.1e.
 
-- [ ] **3.1b — text crowds or touches neighboring content in the mail log.**
+- [x] **3.1b — text crowds or touches neighboring content in the mail log.**
   No text may crowd or touch its neighbor. **Done when:** measured at 1440
   and 392, with the widths named and the gaps stated as numbers rather than
   as "looks fine". *Andrew's review of 3.1, 2026-10-09. Slice 2 of 4.*
+
+  **DONE 2026-10-10 — measured by `scripts/mail-log-gaps.mjs` (24 assertions, 0 failed; receipt `receipts/mail-log-gaps.json`).**
+  Widths 1440, 392 and 320 (the item names the first two). **Two real defects, found on the unfixed page and fixed:**
+  (1) each row's icon sat **2.34px (1440) / 2.00px (392, 320)** from the edge where the scrollbar starts, while the text beside
+  the same icon keeps 12px (6px on a phone) — now **14.34 / 14.00 / 14.00px** (`.mail-scroll { padding-right: var(--sp-3) }`);
+  (2) a subject with no space in it ran **327px (392) and 399px (320)** under its icon — now stops **10.81 / 11.28px** clear
+  (`.row-item .nm { overflow-wrap: anywhere }`, scoped to `[data-mail-log]`). **Already fine, and now stated as numbers:** lines of
+  different facts in a row 8.50px apart (floor 3), intro to control 12.00px, control to first row 28.00px, last row to the box's
+  bottom 17.00px. **Both defects reproduced on purpose:** `--break=unpadded` reads 2.34 / 2.00 / 2.00px and
+  `--break=unwrapped` reads -339px / -411px, both red; three canaries fail as required. Console 0 errors, 0 warnings at all three
+  widths. `mail-log-scroll.mjs` re-run after the change: 20 / 0.
+  **NOT measured, said plainly:** the icon-to-thumb gap is taken from the box's client edge because this machine draws no scrollbar
+  gutter (same limit as 3.1a) — so it is a derived distance, not a photograph; the "100 most recent" note and the error box (the
+  seed has 29 rows); and the row sliced by the box's own edges, which is 3.1e.
 
 - [ ] **3.1c — the long Everything list needs visible time groups.** Today /
   This month / All time. **DIVIDERS, NOT ANOTHER FILTER** — Andrew said that
