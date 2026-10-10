@@ -12798,7 +12798,7 @@ requested.
   sabotages (name arm dropped; name arm widened to rows that have an id) go red. The same file has 3 failures that
   also fail on the untouched HEAD (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
   row appears on Coastline's panel, because that needs the function published.
-  NEEDS ANDREW: publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this.
+  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this. This is an existing release step, not a question for Andrew.
   Update the platform-admin detail history query so it finds events recorded by either business ID or business name, allowing older sensitive events with a null business_id to appear. This improves audit completeness but does not provide server-side mutation enforcement.
   Part 2 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -22103,6 +22103,11 @@ the dashboard or back office at phone width at all.
   - `user_tours`: nothing in `app/src` reads it any more (only `seed-demo.mjs` deletes from
     it and `setup-prompts.mjs` blocks it). So **9.24's racing read no longer exists**. Dropping
     the table is still Andrew's migration.
+  **TRIAGE 2026-10-10 — Spanish-widening proof is not clean as claimed:**
+  `receipts/sweep-widths-320-1440-es.json` is a `fail`, records `locales: ["en"]`, and reaches
+  only 85 of 171 expected targets. The two named `Cancelar` overflows may be real (9.25), but
+  this receipt cannot prove the claimed Spanish 320/1440 clean pass. Deep verification must
+  inspect the `LANG_APP` handoff and reproduce both widths before relying on that part of 9.15a.
 
   Delete `app/src/components/Walkthrough.jsx`, `scripts/tour-runs.mjs`, the tour and
   guide walks in `scripts/sweep-widths.mjs` with their `tour · step` lines in
