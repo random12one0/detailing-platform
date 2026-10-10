@@ -136,8 +136,8 @@ export default function Sheet({
     // field after one character. Nothing about the sheet looked wrong; the
     // field simply would not hold the caret.
     //
-    // `Walkthrough.jsx` hit this precisely once before and fixed it the same
-    // way, and its comment says the same thing in its own words: *"`onGo` and
+    // The guided tour (retired in ROADMAP 9.15) hit this precisely once before and
+    // fixed it the same way, and its comment said the same thing in its own words: *"`onGo` and
     // `onClose` are inline arrows, so they are a new identity on EVERY render,
     // and in a dependency array that makes an effect re-run on every render."*
     // That fix never made it one file over.

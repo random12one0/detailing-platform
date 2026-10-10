@@ -4,7 +4,7 @@
 // (DECISIONS.md → "Roadmap 2.11, steps 3-5", Q1). He asked for a form AND,
 // SEPARATELY, a guided tour — *"they could, like, skip stuff or enter it
 // later"* — and screen designs §13 keeps them two on purpose. This file is
-// the form; `Walkthrough.jsx` is the tour.
+// the form; the tour was retired in ROADMAP 9.15.
 //
 // ═══════════════════════════════════════════════════════════════════════════
 // REBUILT 2026-09-10: IT WALKS THE REAL SETTINGS SCREENS NOW

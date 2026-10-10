@@ -184,7 +184,6 @@ const SCREEN = {
   ".pa-x": { screen: "the back office, a panel's own close control", jsx: "app/src/admin/AdminPage.jsx", cls: "pa-x" , reach: "unvisited" },
   ".pa-load": { screen: "the back office — a 3px progress strip pinned over the top edge, and it OUTRANKS the bar below it at z-index 50 against 30", jsx: "app/src/admin/AdminPage.jsx", cls: "pa-load" , reach: "unvisited" },
   ".split > .col-2": { screen: "Today, Calendar, Money and every settings host — the second column", jsx: "app/src/components/SettingsHost.jsx", cls: "col-2" , reach: "walked" },
-  ".tourcard": { screen: "the guided tour, over whichever dashboard screen it is on", jsx: "app/src/components/Walkthrough.jsx", cls: "tourcard" , reach: "walked-not-in-this-state" },
   ".intake:has(> .livesite) > .livesite": { screen: "the site intake screen's live preview", jsx: "app/src/screens/SiteIntake.jsx", cls: "livesite" , reach: "unvisited" },
   ".ld .nav": { screen: "every marketing page — landing, pricing, legal", jsx: "app/src/landing/LandingPage.jsx", cls: "nav" , reach: "unvisited" },
   ".ld .navmenu.on": { screen: "every marketing page, with the menu open", jsx: "app/src/landing/LandingPage.jsx", cls: "navmenu" , reach: "unvisited" },
@@ -213,8 +212,10 @@ const NO_HIT_TEST = [
   ".ld .stage",
   ".split > .col-2",
   ".topbar",
-  ".tourcard",
 ];
+// 8 -> 7 on 2026-10-10 (ROADMAP 9.15a): `.tourcard` left with the tour itself —
+// its CSS and the tour's component were deleted in the same edit, so it was retired
+// rather than covered.
 // 11 -> 8 on 2026-10-07: `.pa-top`, `.pa-x` and `.pa-load` came off in the same
 // edit as the check that covers them, which is what the equality above is for.
 // **The marketing surface is now the whole of the unvisited half**, and the

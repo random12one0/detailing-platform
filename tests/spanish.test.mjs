@@ -1048,7 +1048,6 @@ console.log("11. text that only exists after an action");
     ["components/BookingCard.jsx", "LIVE_LABEL", "app"],
     ["components/EmailTrail.jsx", "MAIL_STATE", "app"],
     ["components/FinalizeModal.jsx", "PAYMENT_LABELS", "app"],
-    ["components/Walkthrough.jsx", "TAB_NAMES", "app"],
     ["lib/emailMessages.js", "MESSAGE_KINDS", "app"],
     ["lib/moneyAdvanced.js", "DAY_NAMES", "app"],
     ["lib/periods.js", "PERIOD_KINDS", "app"],

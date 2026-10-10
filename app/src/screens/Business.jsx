@@ -149,9 +149,9 @@ const humanNotice = (mins) => {
   return t("{count} min notice", { count: mins });
 };
 
-// The settings rows the tour stops at. A tour name has to be unique across
-// the whole app (Walkthrough.jsx rule 2) and these are, so the row's own key
-// is the name.
+// The settings rows the guided tour used to stop at (retired in ROADMAP 9.15).
+// A `data-tour` name is unique across the whole app, so the row's own key is
+// the name.
 const TOUR_ROWS = {
   catalog: "catalog",
   hours: "hours",

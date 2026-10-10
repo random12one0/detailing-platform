@@ -3613,13 +3613,8 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .lite .spinner { animation: none; border-top-color: var(--hairline); }
 .lite .sheet, .lite .sheet-backdrop { animation: none; }
 .lite .sheet { transition: none; }
-/* FIRST RUN. The setup form's step slide, the walkthrough's dim and its
-   caption all render their END state instead — the hole is simply where it
-   is. The spotlight's own travel between targets is a transition and is
-   covered by the `* { transition-duration: 1ms }` line below; naming it here
-   as well would be two rules for one fact. */
-.lite .setupform, .lite .setupstep, .lite .tourline,
-.lite .spotlight, .lite .tourcard { animation: none; }
+/* FIRST RUN. The setup form's step slide renders its END state instead. */
+.lite .setupform, .lite .setupstep { animation: none; }
 .lite * { transition-duration: 1ms !important; }
 
 /* ---------------------------------------------------------------------
@@ -4905,8 +4900,8 @@ button.warn-box:hover { border-color: var(--fog-2); }
    **And "Quote" goes while the question is up**, for the same reason the control
    already removes the button that asked: there is nothing left to press through,
    and a 50/50 row whose other half has become a paragraph reads as a broken card.
-   Scoped to `.reqcard`: every other `.btnrow` in the product - the job card, the
-   tour card - is untouched, which `grep -n "\.btnrow" app/src/theme.css` is the
+   Scoped to `.reqcard`: every other `.btnrow` in the product - the job card among
+   them - is untouched, which `grep -n "\.btnrow" app/src/theme.css` is the
    check for. */
 .reqcard .btnrow { flex-wrap: wrap; }
 .reqcard .btnrow > .stack { flex: 1 0 100%; }
@@ -4986,57 +4981,6 @@ button.warn-box:hover { border-color: var(--fog-2); }
    in CSS: only a computed value can tell you a rule won. No `!important`;
    naming both classes says what is being overridden and stays readable. */
 .btn.sm.setupquit { align-self: flex-start; color: var(--text-muted); min-height: var(--tap); }
-
-/* THE SPOTLIGHT — the only overlay in the product that is not a sheet, and
-   one element rather than a mask (component inventory §1c). A 9999px spread
-   shadow dims everything OUTSIDE the box, so the box is the hole. It never
-   touches the target's own styles, which matters because the tour runs over
-   the live dashboard with the detailer's real data.
-
-   `.tourblock` is transparent and catches every pointer event, which is what
-   makes the lit element un-clickable: the alternative — letting the real +
-   be tapped while a caption points at it — opens New booking in the middle
-   of a tour with no good answer for what happens next.
-
-   THE HOLE TRAVELS BETWEEN STEPS rather than cutting, because the whole
-   point of a spotlight is that it is the same light moving. A transition,
-   not keyframes: the target can change before the last move has finished and
-   a transition retargets from where it is. The properties are named rather
-   than `all` — four of them, on one fixed element with no children, so the
-   layout cost is the element itself. */
-.tourblock { position: fixed; inset: 0; z-index: 60; }
-.spotlight {
-  position: fixed; pointer-events: none;
-  border-radius: var(--r-panel);
-  corner-shape: var(--corner);
-  box-shadow: 0 0 0 9999px var(--overlay);
-  transition: top var(--t-hover) var(--e-out), left var(--t-hover) var(--e-out),
-              width var(--t-hover) var(--e-out), height var(--t-hover) var(--e-out);
-  animation: dim-in var(--t-reveal) var(--e-out);
-}
-/* Out faster than in — law 4, and the same pair .sheet already keeps. */
-.tourblock.leaving .spotlight,
-.tourblock.leaving .tourcard { animation: dim-out var(--t-exit) var(--e-out) forwards; }
-@keyframes dim-in  { from { opacity: 0; } }
-@keyframes dim-out { to   { opacity: 0; } }
-
-/* The caption. Placed in JS against the measured hole (there is no CSS way to
-   ask "does this fit under that"), so this rule owns everything except top
-   and left. The panel surface a sheet takes, because it is over the page. */
-.tourcard {
-  position: fixed; width: min(340px, calc(100vw - 32px));
-  display: flex; flex-direction: column; gap: var(--sp-2);
-  background: var(--surface-lit); border: 1px solid var(--border);
-  border-radius: var(--r-panel); padding: var(--sp-4);
-  corner-shape: var(--corner);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
-  animation: arrive var(--t-reveal) var(--e-out);
-}
-.tourcard:focus-visible { outline: none; }
-.tourcard .btnrow { margin-top: var(--sp-1); }
-/* The sentence is the only thing that changes between steps, so it is the
-   only thing that moves. */
-.tourline { animation: step-fwd var(--t-exit) var(--e-out); }
 
 /* ═══════════════════════════════════════════════════════ PRINT (idea 45)
    The owner: *"maybe just having it so if someone presses control-P it will

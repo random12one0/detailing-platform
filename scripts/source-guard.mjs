@@ -138,7 +138,7 @@ export function watchSource() {
 // **A FROZEN BUILD CANNOT HOT-RELOAD, AND SAYING IT MIGHT HAVE IS WORSE THAN
 // SAYING NOTHING - measured 2026-09-13, lane C.** `sweep-booking-steps` was run
 // against a production bundle built from a separate git worktree and served on
-// its own port. Lane B saved `components/Walkthrough.jsx` while it ran, and
+// its own port. Lane B saved the guided tour's component while it ran, and
 // this printed *"the failures are very likely this rather than a defect"* over
 // a real finding: booking step 4 is 10px over the screen at 392x844. **A
 // bundle is bytes on disk; no edit in `app/src` reaches it.**

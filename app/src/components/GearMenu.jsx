@@ -92,9 +92,8 @@ function weatherNow(settings) {
     : t("{count} of {total} on", { count: on, total: WEATHER_KINDS.length });
 }
 
-// See the `settings` block in Walkthrough.jsx. Rows not listed here are not
-// guided, on purpose: a guide names the places and does not walk through a
-// form.
+// The rows the guided tour used to stop at. The tour was retired in ROADMAP
+// 9.15; the `data-tour` names stay as stable addresses for the rows.
 const TOUR_ROWS = {
   notifications: "notifications",
   billing: "billing",
@@ -400,7 +399,7 @@ export default function GearMenu({ onClose, initial = null }) {
             // The five rows the tour stops at, named by the row's own key —
             // `tourrow` for the tour's own door, because "tour" would be the
             // one name in the app that means two different things. A tour name
-            // must be unique across the whole product (Walkthrough.jsx rule 2).
+            // must be unique across the whole product.
             data-tour={TOUR_ROWS[key]}
             aria-current={open === key ? "true" : undefined}
             onClick={() => {
