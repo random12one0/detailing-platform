@@ -1,12 +1,12 @@
 {
-  "git_sha": "71a8120f88074a82ddfbf195f6ddcbfc626c19ce",
-  "git_sha_started": "71a8120f88074a82ddfbf195f6ddcbfc626c19ce",
+  "git_sha": "1e83adfb97f488daf2457c569361a74b8f49e1e9",
+  "git_sha_started": "1e83adfb97f488daf2457c569361a74b8f49e1e9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:39:52.395Z",
+  "finished_at": "2026-10-10T09:39:34.040Z",
   "failures": [],
   "warnings": [
-    "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
+    "This run rewrites MEDIA_VIA_DOOR in the RESPONSE, never in the file, and answers every press locally, so no object or row is written anywhere. A real upload against the deployed door is a separate act (0.11bc2).",
     "Gallery.jsx and BusinessInfo.jsx both render err.message untranslated, so the refusal is read in English at every width on both screens. The door's sentences are DOOR_WORDS and their Spanish is tests/spanish.test.mjs section 12's subject, not this item's.",
     "The sentence those two screens show is DOOR_WORDS.unreadable, which says 'Reload this job' on screens that are not a job. Found 2026-10-09, written up in FOUND.md, not this item's to fix — 0.11b is about which store the bytes go to, and the string is shared with JobPhotos.jsx where it is correct."
   ],
@@ -49,7 +49,7 @@
     ]
   },
   "check_id": "media-door-browser",
-  "started_at": "2026-10-09T20:38:50.755Z",
+  "started_at": "2026-10-10T09:38:30.438Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,

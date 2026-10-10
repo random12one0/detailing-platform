@@ -407,11 +407,14 @@ test("11 · the app's reader refuses an answer it cannot use", () => {
   }
 });
 
-test("12 · the app half is switched OFF, and there is no second way in", () => {
+test("12 · the app half is switched ON, and there is no second way in", () => {
   const src = readFileSync("app/src/lib/photo-door.js", "utf8");
-  assert.match(src, /export const MEDIA_VIA_DOOR = false;/,
-    "MEDIA_VIA_DOOR is not false. Logos and the marketing gallery work today; switching them over "
-    + "before photo-door is published and business-media has a public address breaks a working feature");
+  // Flipped 2026-10-10 (0.11bc2), after photo-door was published and
+  // business-media got its public address and CORS rule: the old assertion
+  // here held it OFF until then. Flipping back is a deliberate act, not drift.
+  assert.match(src, /export const MEDIA_VIA_DOOR = true;/,
+    "MEDIA_VIA_DOOR is not true. photo-door is published and business-media has its public address, "
+    + "so logos, the gallery and intake photos must go through the door and nowhere else");
   const up = readFileSync("app/src/lib/upload.js", "utf8");
   // ONE BRANCH ON THE FLAG PER FUNCTION, never a catch that falls back to the
   // old store: a fallback is a SECOND door, live exactly when the function is

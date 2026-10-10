@@ -255,7 +255,8 @@ test("6 · the repo's own flags and public list still match what PRE assumes", (
   assert.match(src, /export const RECEIPTS_VIA_DOOR = false;/,
     "RECEIPTS_VIA_DOOR is still false — if this fails, the flag was flipped: run "
     + "`node scripts/photo-release-order.mjs` and read app-flag-before-door before changing this line");
-  assert.match(src, /export const MEDIA_VIA_DOOR = false;/, "MEDIA_VIA_DOOR is still false");
+  // Flipped ON 2026-10-10 (0.11bc2) once the door was published and the address bound.
+  assert.match(src, /export const MEDIA_VIA_DOOR = true;/, "MEDIA_VIA_DOOR is true");
 
   const dep = readFileSync(path.join(REPO, "scripts/deploy-functions.mjs"), "utf8");
   const block = /const PUBLIC_FUNCTIONS = new Set\(\[([\s\S]*?)\]\)/.exec(dep);

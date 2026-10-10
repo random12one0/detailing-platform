@@ -129,8 +129,8 @@
 // ---------------------------------------------------------------------------
 // THE TWO SABOTAGES, AND BOTH ARE ON THE REAL TEXT
 // ---------------------------------------------------------------------------
-// `--break=unbound` leaves the flag alone, which is the state of the repo
-// today. The press then goes down the Supabase Storage path and assertion 3 —
+// `--break=unbound` forces the flag OFF in the module the browser runs (the repo
+// had it off on disk until 0.11bc2 flipped it). The press then goes down the Supabase Storage path and assertion 3 —
 // zero storage UPLOADS — reddens, naming the request it saw, and the executed-
 // copy proof is asserted ABSENT rather than present. That is the ORIGINAL
 // condition reproduced, which is what makes a green mean something.
@@ -420,7 +420,7 @@ const check = (name, ok, got = "") => {
 // One function so the sabotage and the ordinary run share it: a rewrite that
 // silently matches nothing is `docs/gotchas.md` 102, and it prints the same
 // green a real run prints.
-const FLAG_FROM = "export const MEDIA_VIA_DOOR = false;";
+const FLAG_FROM = /export const MEDIA_VIA_DOOR = (?:true|false);/;
 // **THE REWRITE SIGNS ITSELF, AND THE SIGNATURE IS READ OUT OF THE PAGE.**
 // "the body I served contained the edit" and "the module the browser ran
 // contained the edit" are different claims, and this script was wrong about
@@ -435,10 +435,12 @@ const GUARD_FROM = "|| !resp.public_url.endsWith(`/${out.key}`)";
 function rewriteDoorModule(src) {
   const landed = { flag: false, guard: true };
   let out = src;
-  if (BREAK !== "unbound") {
-    if (out.includes(FLAG_FROM)) { out = out.replace(FLAG_FROM, FLAG_TO); landed.flag = true; }
-  } else {
-    landed.flag = true;   // deliberately NOT flipped; the OFF path is the sabotage
+  // Matches either value, so the run means the same before and after the flag
+  // was flipped on disk (0.11bc2): a normal run forces ON and signs it, and
+  // `unbound` forces the module the browser RUNS to OFF.
+  if (FLAG_FROM.test(out)) {
+    out = out.replace(FLAG_FROM, BREAK === "unbound" ? "export const MEDIA_VIA_DOOR = false;" : FLAG_TO);
+    landed.flag = true;
   }
   if (BREAK === "public-url") {
     landed.guard = out.includes(GUARD_FROM);
@@ -999,8 +1001,8 @@ const { path: receiptPath } = writeReceipt({
     ],
   },
   warnings: [
-    "MEDIA_VIA_DOOR is still false on disk and photo-door is still undeployed. This run flips the flag in the "
-    + "RESPONSE, never in the file, so it measures the branch Andrew's flip will switch on and changes nothing.",
+    "This run rewrites MEDIA_VIA_DOOR in the RESPONSE, never in the file, and answers every press locally, so "
+    + "no object or row is written anywhere. A real upload against the deployed door is a separate act (0.11bc2).",
     "Gallery.jsx and BusinessInfo.jsx both render err.message untranslated, so the refusal is read in English at "
     + "every width on both screens. The door's sentences are DOOR_WORDS and their Spanish is tests/spanish.test.mjs "
     + "section 12's subject, not this item's.",

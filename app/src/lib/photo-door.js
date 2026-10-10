@@ -147,7 +147,10 @@ export const RECEIPTS_VIA_DOOR = false;
 // **AND NOTHING GOES RED IF IT IS LEFT `false` AFTER ALL THREE ARE TRUE** — the
 // old path keeps working, which is exactly why this comment and the row in
 // `FOR-ANDREW.md` exist.
-export const MEDIA_VIA_DOOR = false;
+// **ON since 2026-10-10 (ROADMAP 0.11bc2):** photo-door is published, business-media
+// has its public address and CORS rule. Turning it off again re-opens the old
+// Supabase Storage path for logos, gallery and intake photos.
+export const MEDIA_VIA_DOOR = true;
 /** The most keys one `urls` call may carry; `signedUrls` chunks to this. */
 export const DOOR_BATCH = 100;
 
