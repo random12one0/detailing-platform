@@ -18237,8 +18237,42 @@ rather than wording went to Andrew.
     judged, 0 unjudgeable. **The run is red, correctly,** for the four unapplied
     migrations and for **8.10d, the first thing this found.**
 
-- [ ] **8.10d — `authenticated` can write `bookings.weather` and `bookings.weather_at`;
+- [x] **8.10d — `authenticated` can write `bookings.weather` and `bookings.weather_at`;
   the column revoke in the weather migration never took effect.**
+  **DONE 2026-10-10, proved against the live grant.** The migration below was
+  applied in the 2026-10-10 catch-up (`0087d1dd`, FOR-ANDREW step 2, with
+  Andrew's go-ahead). Re-measured at `7dbe5b41`–`2120076c`, all against
+  `kguqylyzgyzfktkfnhjb`:
+  * `node scripts/migration-drift.mjs` — `public.bookings grants match
+    20261006040000_bookings_browser_updates_nothing.sql (2 claim(s))`, 165 of 165
+    grant statements judged, **no `bookings` or `weather` line**. The run is red
+    for one unrelated column, `email_sends.body_html` (3.1d's migration, not
+    applied); that is not this item.
+  * `node tests/owner-writes.test.mjs` — **68 passed, 0 failed**; the one line
+    that was red, "a direct owner UPDATE is refused", is green. Own throwaway
+    business, deleted at the end.
+  * **Browser, `node scripts/bookings-browser-write.mjs`, 17 of 17 at `2120076c`,
+    graded PASS by `receipt.mjs`.** Signed in as the demo owner at 1440 and 392,
+    the app's own client (`/src/lib/supabase.js`, the real session, which it
+    first proves can READ the row) is refused `42501` on a direct update of
+    `weather`/`weather_at` and of `admin_notes`, and the service role reads the
+    row back unchanged; **Edit → Private notes → Save**, through `update-booking`,
+    sticks and leaves `weather` alone. Console clean outside the probe; inside
+    it, only the probe's own two 403s. Canary `the-open-door` caught.
+    `--break=stuck` (the same probe aimed at `customers.notes`, which an owner
+    does write) is red on exactly the 4 refusal lines per width, 8;
+    `--break=nosave` (Back instead of Save) on exactly the save line, 2. Writes
+    one field on one demo booking and puts it back (checked: `null` again).
+  * `node --test tests/bookings-update-grant.test.mjs` — 11 of 11.
+  * Re-checked at today's `app/src`: every `from("bookings")` is still a read
+    except `BulkJobModal.jsx`'s insert, so nothing in the dashboard meets the
+    new refusal.
+  * **Not re-run on purpose:** `scripts/bookings-grant-drill.mjs`, because it
+    creates a scratch schema on the live database and that is DDL (the
+    2026-10-06 no-DDL ruling). The live grant itself is now the evidence.
+  * **Still open, and not this item:** the "Seen, not fixed" INSERT/DELETE note
+    at the bottom of this entry.
+
   *Found 2026-10-06 by 8.10c's first run against the live database.*
   `20260913010000_weather_cache.sql:87` runs `revoke update (weather, weather_at)
   on public.bookings from authenticated`. **A column-level revoke does nothing

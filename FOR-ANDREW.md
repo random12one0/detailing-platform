@@ -1586,9 +1586,12 @@ still knows them.
   **Andrew decided 2026-10-09:** testing comes first; this publish does not go
   out on the strength of the code-only fix.
 
-- [ ] **SWITCH · One database change, so a detailer's browser can no longer
+- [x] **SWITCH · One database change, so a detailer's browser can no longer
   rewrite its own bookings behind the dashboard's back (ROADMAP 8.10d).**
-  Added 2026-10-06.
+  Added 2026-10-06. **DONE 2026-10-10** — applied in the step 2 catch-up, then
+  proved: a signed-in demo owner's browser is refused when it tries to write a
+  booking directly, and saving a private note from the job record still works,
+  on a laptop screen and a phone screen. Nothing left for you here.
 
   **What this is.** A detailer's signed-in browser could change any field on
   its own bookings directly — the weather shown on a job, and everything else

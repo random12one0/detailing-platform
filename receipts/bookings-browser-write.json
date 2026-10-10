@@ -1,0 +1,38 @@
+{
+  "git_sha": "2120076cdd72d126d90d7ebbe819de7dd6d9bb5f",
+  "git_sha_started": "2120076cdd72d126d90d7ebbe819de7dd6d9bb5f",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T13:03:30.835Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/bookings-browser-write/1440x900-editing.png",
+    "artifacts/bookings-browser-write/1440x900-saved.png",
+    "artifacts/bookings-browser-write/392x844-editing.png",
+    "artifacts/bookings-browser-write/392x844-saved.png",
+    "artifacts/bookings-browser-write/report.txt"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "break": null,
+    "booking": "777f06b4-523c-4bca-a6a5-d9aad50232f6"
+  },
+  "check_id": "bookings-browser-write",
+  "started_at": "2026-10-10T13:03:14.490Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 16,
+  "canary": {
+    "id": "the-open-door",
+    "observed_failure": true
+  }
+}
