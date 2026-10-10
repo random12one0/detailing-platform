@@ -4334,6 +4334,17 @@ button.warn-box:hover { border-color: var(--fog-2); }
    anywhere, the way `.addr` already can. Measured by `scripts/mail-log-gaps.mjs`. */
 [data-mail-log] .mail-scroll { padding-right: var(--sp-3); }
 [data-mail-log] .row-item .nm { overflow-wrap: anywhere; }
+/* ROADMAP 3.1c — Today / This month / All time, drawn between rows as the
+   section eyebrow (`.label`'s own look). A divider only: it has no handler and
+   hides nothing. The row after it loses its hairline, as the first row does. */
+.mail-band {
+  font-family: var(--f-body); font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-muted); padding: var(--sp-4) 2px var(--sp-1);
+  border-top: 1px solid var(--hairline);
+}
+.mail-band:first-child { border-top: 0; padding-top: var(--sp-1); }
+.mail-band + .row-item { border-top: 0; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar { width: 8px; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar-track { background: transparent; }
 [data-mail-log] .mail-scroll::-webkit-scrollbar-thumb {

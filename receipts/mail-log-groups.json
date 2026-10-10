@@ -1,0 +1,140 @@
+{
+  "git_sha": "76108efad2be5f02f5d7be494a22e6a00f99b32d",
+  "git_sha_started": "76108efad2be5f02f5d7be494a22e6a00f99b32d",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:13:22.321Z",
+  "failures": [],
+  "warnings": [
+    "NOT COVERED: how the divider looks (structure only; see the screenshots), and the Problems view's dividers."
+  ],
+  "artifacts": [
+    ".manager-shots/3.1c/groups-1440.png",
+    ".manager-shots/3.1c/groups-392.png",
+    ".manager-shots/3.1c/groups-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "business": "demo-detail",
+    "item": "3.1c",
+    "break": null
+  },
+  "check_id": "mail-log-groups",
+  "started_at": "2026-10-10T11:13:12.782Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 17,
+  "assertion_floor": "3 widths x 5 + 2 canaries = 17, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "the-undivided-list",
+    "observed_failure": true
+  },
+  "canaries": [
+    {
+      "name": "the-undivided-list",
+      "flagged": true
+    },
+    {
+      "name": "the-added-filter",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [],
+  "sabotage": [],
+  "observed": [
+    {
+      "id": "1440/bands/visible",
+      "ok": true,
+      "detail": "painted dividers: [\"Today\",\"This month\",\"All time\"]"
+    },
+    {
+      "id": "1440/bands/placement",
+      "ok": true,
+      "detail": "29 rows, expected bands [\"Today\",\"This month\",\"All time\"] in order; every row sits under its own band"
+    },
+    {
+      "id": "1440/bands/one-scroll",
+      "ok": true,
+      "detail": "one pass down the box brought [\"Today\",\"This month\",\"All time\"] into view"
+    },
+    {
+      "id": "1440/no-new-filter",
+      "ok": true,
+      "detail": "2 controls outside the list (the original two), 0 inside dividers"
+    },
+    {
+      "id": "1440/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "392/bands/visible",
+      "ok": true,
+      "detail": "painted dividers: [\"Today\",\"This month\",\"All time\"]"
+    },
+    {
+      "id": "392/bands/placement",
+      "ok": true,
+      "detail": "29 rows, expected bands [\"Today\",\"This month\",\"All time\"] in order; every row sits under its own band"
+    },
+    {
+      "id": "392/bands/one-scroll",
+      "ok": true,
+      "detail": "one pass down the box brought [\"Today\",\"This month\",\"All time\"] into view"
+    },
+    {
+      "id": "392/no-new-filter",
+      "ok": true,
+      "detail": "2 controls outside the list (the original two), 0 inside dividers"
+    },
+    {
+      "id": "392/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "320/bands/visible",
+      "ok": true,
+      "detail": "painted dividers: [\"Today\",\"This month\",\"All time\"]"
+    },
+    {
+      "id": "320/bands/placement",
+      "ok": true,
+      "detail": "29 rows, expected bands [\"Today\",\"This month\",\"All time\"] in order; every row sits under its own band"
+    },
+    {
+      "id": "320/bands/one-scroll",
+      "ok": true,
+      "detail": "one pass down the box brought [\"Today\",\"This month\",\"All time\"] into view"
+    },
+    {
+      "id": "320/no-new-filter",
+      "ok": true,
+      "detail": "2 controls outside the list (the original two), 0 inside dividers"
+    },
+    {
+      "id": "320/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "canary/the-undivided-list",
+      "ok": true,
+      "detail": "a list with no dividers must NOT read as grouped"
+    },
+    {
+      "id": "canary/the-added-filter",
+      "ok": true,
+      "detail": "a third control on the screen must NOT read as 'no new filter'"
+    }
+  ]
+}

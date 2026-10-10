@@ -10070,13 +10070,27 @@ requested.
   gutter (same limit as 3.1a) — so it is a derived distance, not a photograph; the "100 most recent" note and the error box (the
   seed has 29 rows); and the row sliced by the box's own edges, which is 3.1e.
 
-- [ ] **3.1c — the long Everything list needs visible time groups.** Today /
+- [x] **3.1c — the long Everything list needs visible time groups.** Today /
   This month / All time. **DIVIDERS, NOT ANOTHER FILTER** — Andrew said that
   twice in one sentence and it is the part most likely to be got wrong: the
   groups label the list in place, they do not add a control that hides rows.
   **Done when:** one scroll of the Everything list crosses labelled group
   boundaries and no new filter control exists.
   *Andrew's review of 3.1, 2026-10-09. Slice 3 of 4.*
+
+  **DONE 2026-10-10 — measured by `scripts/mail-log-groups.mjs` (17 assertions, 0 failed; receipt `receipts/mail-log-groups.json`).**
+  `EmailTrail` takes a `groups` prop, switched on only by `MailLog`: a `.mail-band` divider (Today / This month / All time, by the
+  business's own calendar) is drawn in place between rows. No control was added — the screen still has exactly its original two
+  (Everything / Problems) and the dividers hold no button, link or input. Widths 1440, 392, 320. **The seed's 29 sends all fall in
+  one band (This month), so the check re-dates the answer IN THE BROWSER (6 now, 12 a day ago, 11 seventy days ago; nothing is
+  written to the database)**; placement is computed independently in Node from those rows, and every row sits under its own band
+  at all three widths. One pass down the box brings all three dividers into view. **Sabotage reproduces the pre-3.1c page:**
+  `--break=nobands` hides the dividers, lands (3 -> 0 painted) and fails 9 of 17; two canaries fail as required. Console 0 / 0.
+  Re-run after the change: `mail-log-gaps.mjs` 24/0, `mail-log-scroll.mjs` 20/0, `label-guard.mjs` clean, the four credential-free
+  suites 4/0. Spanish: "This month" added (`Este mes`); "Today" and "All time" were already keyed.
+  **NOT measured:** how the divider looks beyond the screenshot at `.manager-shots/3.1c/groups-*.png`; the Problems view's
+  dividers (same code path, not separately asserted). A divider reading "All time" sits above everything older than this month —
+  Andrew's own word; if "Earlier" reads better to him it is one string.
 
 - [ ] **3.1d — a mail-log row opens a preview of the email as sent**, with its
   actual content, not a summary of it. **Done when:** a row opens the sent

@@ -115,7 +115,7 @@ export default function MailLog() {
             `.mail-scroll` for why putting it on the flex column itself
             stacked every row's text on the row above it. */}
         <div className="mail-scroll">
-          <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to
+          <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to groups
             empty={which === "bad"
               ? "Nothing has bounced, been refused or failed to send."
               : "No email has been sent yet."} />

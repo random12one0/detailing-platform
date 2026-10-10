@@ -24,6 +24,7 @@
 // mark a bounce delivered however hard it tries. The service role writes every
 // row, from `send-email` and from Resend's own webhook.
 
+import { Fragment } from "react";
 import { AlertCircle, Check } from "lucide-react";
 import { localDate } from "../lib/format.js";
 import { appIntlLocale, t } from "../lib/appI18n.js";
@@ -56,6 +57,13 @@ export const MAIL_STATE = {
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
 
+// ROADMAP 3.1c — WHICH OF THREE BANDS A SEND FALLS IN, by the business's own
+// calendar (the same `localDate` the row's date uses, so a send never sits
+// under "Today" while its own line says yesterday). The list is already
+// newest-first, so a band is a run of neighbors and the labels are drawn in
+// place: a divider, never a control that hides anything.
+const band = (day, today) => (day === today ? "Today" : day.slice(0, 7) === today.slice(0, 7) ? "This month" : "All time");
+
 /**
  * `rows` is null while it loads and an array once it has, which is this
  * repo's rule everywhere: an empty list and a list nobody has fetched are
@@ -75,20 +83,30 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
  * raced. Same shape `Maintenance.jsx` already uses: `rows.length === 0 &&
  * !error`.
  *
+ * `groups` draws the Today / This month / All time dividers (ROADMAP 3.1c). Off
+ * on a client record and a job, where the list is a dozen rows or fewer.
+ *
  * `to` draws the RECIPIENT on its own line, for the business-wide list where
  * the address is the only thing identifying whose mail a row is. It is off on
  * a client record and on a job, where the address is already the button three
  * sections up and printing it twice is Part B row 18.
  */
-export default function EmailTrail({ rows, timezone, cap, empty, error = "", to = false }) {
+export default function EmailTrail({ rows, timezone, cap, empty, error = "", to = false, groups = false }) {
+  const today = localDate(new Date(), timezone);
+  let last = null;
   return (
     <>
       <div className={`rows${rows === null ? " refreshing" : ""}`}
         aria-busy={rows === null || undefined}>
         {(rows ?? []).map((m) => {
           const state = MAIL_STATE[m.status] ?? MAIL_STATE.sent;
+          const b = groups ? band(localDate(m.sent_at, timezone), today) : null;
+          const heading = b && b !== last;
+          last = b ?? last;
           return (
-            <div className="row-item" key={m.id} style={{ cursor: "default" }}>
+            <Fragment key={m.id}>
+              {heading && <div className="mail-band" role="heading" aria-level={3}>{t(b)}</div>}
+            <div className="row-item" style={{ cursor: "default" }}>
               <span className="txt">
                 <span className="nm">{m.subject}</span>
                 {/* `addr` RATHER THAN THE DEFAULT `.sub`: `.row-item .sub` is
@@ -136,6 +154,7 @@ export default function EmailTrail({ rows, timezone, cap, empty, error = "", to 
                   style={{ flexShrink: 0, alignSelf: "flex-start", marginTop: 3, color: "var(--bad)" }} />
               )}
             </div>
+            </Fragment>
           );
         })}
       </div>

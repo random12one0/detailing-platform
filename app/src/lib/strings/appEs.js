@@ -307,6 +307,7 @@ export const appEs = {
   "Whether each one arrived": "Si cada uno llegó",
   "Which emails": "Cuáles correos",
   "Problems": "Problemas",
+  "This month": "Este mes",
   "Every email this business has sent, newest first: your customers' mail and your own notifications. A customer's record shows only theirs.":
     "Todos los correos que este negocio ha enviado, lo más reciente primero: el correo de tus clientes y tus propios avisos. El expediente de un cliente muestra solo el suyo.",
   "No email has been sent yet.": "Todavía no se ha enviado ningún correo.",
