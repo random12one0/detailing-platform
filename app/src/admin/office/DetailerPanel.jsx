@@ -54,11 +54,14 @@ export default function DetailerPanel({ row, detail, ctx }) {
   const [busy, setBusy] = useState("");
   const [sure, setSure] = useState(false);
   const [err, setErr] = useState("");
-  const closeBtn = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
     const prev = document.activeElement;
-    closeBtn.current?.focus();
+    // The PANEL takes focus, not its Close button: opened by Enter (Ctrl K, or a row),
+    // the same keypress would otherwise press the button it just landed on and the
+    // panel would close as it opened (seen under ?lite=1, where mounting is instant).
+    panelRef.current?.focus();
     const onKey = (e) => { if (e.key === "Escape") close(); };
     window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("keydown", onKey); if (prev && prev.focus) prev.focus(); };
@@ -102,9 +105,9 @@ export default function DetailerPanel({ row, detail, ctx }) {
   return (
     <>
       <div className={`bo-scrim on${leaving ? " out" : ""}`} onClick={close} />
-      <aside className={`bo-panel on${leaving ? " out" : ""}`} role="dialog" aria-modal="true" aria-label={row.name}>
+      <aside ref={panelRef} tabIndex={-1} className={`bo-panel on${leaving ? " out" : ""}`} role="dialog" aria-modal="true" aria-label={row.name}>
         <div className="bo-pglow" style={{ "--pc": tone }} />
-        <button ref={closeBtn} type="button" className="bo-px" onClick={close} aria-label="Close">
+        <button type="button" className="bo-px" onClick={close} aria-label="Close">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
         <div className="bo-pscroll" key={row.id}>
