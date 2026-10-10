@@ -95,7 +95,10 @@ const LANGS = (argOf("--lang") || "en,es").split(",");
 // navigate away and nobody listed it. This script cannot see either; `tests/
 // sweep-tap-targets-leaving-door.test.mjs` holds both facts, without a browser. `--press-leaving-doors` restores the old behavior, for proving the
 // finding it removes.
-const LEAVES = new Set(["platform"]);
+// **EMPTY SINCE ROADMAP 99.3a (2026-10-10):** that row was removed from the gear
+// for everybody, so no gear row leaves the dashboard today. The mechanism stays for
+// the next one, and the leaving-door test still reddens if one appears unlisted.
+const LEAVES = new Set([]);
 const PRESS_LEAVING = process.argv.includes("--press-leaving-doors");
 const ARGS = { floor: FLOOR, cap: CAP, exceptions: EXCEPTIONS };
 
@@ -448,15 +451,6 @@ for (const width of WIDTHS) {
           await page.locator('[data-tour="gear"]').first().click();
           await settle(page, 1800);
         }
-        // THE PLATFORM DOOR IS DRAWN ONLY ONCE THE ADMIN CHECK HAS ANSWERED, which is
-        // after the index first paints — three narrowed runs read the index too early and
-        // never saw it, so the exemption above was never exercised. This walk signs in as
-        // the standing demo login, which is a platform admin; wait for the row so the
-        // index is read WITH it. If it never comes, the walk says so rather than
-        // proceeding as though the door did not exist.
-        await page.waitForSelector('.nav-row[data-settings-key="platform"]', { timeout: 8000 }).catch(() => {
-          if (!skips.some((x) => x.startsWith("the platform door was never drawn"))) skips.push("the platform door was never drawn within 8s of opening the gear, so the index was read without it");
-        });
       }],
     ]) {
       await open();

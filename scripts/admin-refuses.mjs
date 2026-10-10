@@ -6,7 +6,8 @@
 //
 // WHAT IT ASKS, per signed-in account (the demo owner and the demo staff
 // login) and per width (1440, 392, 320), each in a fresh browser context:
-//   - the gear menu draws "The website business" row  iff the account is on the roster;
+//   - the gear menu draws NO "The website business" row, for anybody (ROADMAP 99.3a:
+//     Andrew reaches the back office by typing /admin; it was drawn for the roster until then);
 //   - `/admin` opens the back office (`.pa-top`)        iff the account is on the roster,
 //     and otherwise the product's own 404 (`main.nf`) — never both, never neither;
 //   - the console holds nothing but the designed `platform-admin` 404 lines
@@ -124,7 +125,7 @@ try {
       await Promise.all(calls.map((r) => r.response()));
       await page.waitForTimeout(600);
       const rowShown = (await page.locator(`text=${ROW}`).count()) > 0;
-      ok(rowShown === acct.admin, `${tag}/gear-row-${acct.admin ? "drawn" : "absent"}`, `"${ROW}" shown: ${rowShown}`);
+      ok(!rowShown, `${tag}/gear-row-absent`, `"${ROW}" shown: ${rowShown}`);
 
       // /admin: `attached`, not the default `visible` (gotchas 107).
       await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });

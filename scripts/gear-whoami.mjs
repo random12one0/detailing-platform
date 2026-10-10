@@ -1,38 +1,38 @@
-// ROADMAP 9.17 — THE GEAR ASKS `platform-admin` WHO YOU ARE ONCE PER PAGE, AND
-// A NON-ADMIN STILL GETS A 404.
+// ROADMAP 99.3a — THE SETTINGS GEAR HAS NO BACK-OFFICE ROW, FOR ANYBODY, AND
+// OPENING IT ASKS `platform-admin` NOTHING.
 //
 //   set -a; . ./.env; set +a
-//   node scripts/gear-whoami.mjs                     # dev server on :5173
-//   node scripts/gear-whoami.mjs --break=late-cache  # sabotage: the pre-fix cache, restored in the page
+//   node scripts/gear-whoami.mjs              # dev server on :5173
+//   node scripts/gear-whoami.mjs --break=ask  # sabotage: the old door, put back in the page
+//
+// HISTORY. Until 2026-10-10 this script held ROADMAP 9.17: the gear asked
+// `whoami` once per page and drew "The website business" row for a platform
+// admin, and a non-admin's console carried one designed 404. Andrew ruled in
+// 99.3 that the row comes out and he reaches the back office by typing /admin,
+// so the question went with it. The old assertions (exactly one call, one 404)
+// would now fail only because the thing they tested was deleted; they are in
+// git history at 2095185b.
 //
 // WHAT IT ASKS, per account (staff = a non-admin, owner = a platform admin) and
-// per width (1440, 392, 320), each in a fresh browser context so the page-level
-// cache starts empty:
-//   - the FIRST gear open makes exactly ONE `platform-admin` POST — not two.
-//     The dev server runs React.StrictMode, which mounts the menu's effect
-//     twice; the pre-fix cache was written after the answer, so both mounts
-//     asked (item 9.17 measured 2 on the dev server, 1 on the bundle);
-//   - the second and third opens make ZERO;
-//   - the staff call is a 404 and the back-office row is not drawn; the owner's
-//     is a 200 and the row is drawn — the case that should work, beside the
-//     one that should be refused;
-//   - the console holds nothing but that one designed 404 line, counted by URL,
-//     for staff, and nothing at all for the owner.
-// And, with no browser: `platform-admin` `whoami` answers a non-admin AND an
-// anonymous caller with a 404 whose body says nothing about admins — never
-// `{admin:false}`, which would make a silent endpoint confirm itself. That is
-// ROADMAP 9.17 (b), asked of the DEPLOYED function, not of its source
-// (`tests/platform-admin.test.mjs` § 7 already reads the source).
+// per width (1440, 392, 320, and 392 under ?lite=1), each in a fresh context:
+//   - the gear index drew its rows (a DISCOVERY FLOOR: a gear that never opened
+//     must not read as a gear with no row in it);
+//   - three opens make ZERO `platform-admin` POSTs;
+//   - no row keyed "platform", and no "The website business" text;
+//   - the console holds no error or warning at all — the 404 line gotchas 120
+//     used to forgive here is gone with the question that caused it.
+// And, with no browser, the server's secrecy rule 99.3 keeps (its plan step 7):
+// `whoami` answers a non-admin AND an anonymous caller with a 404 whose body
+// says nothing about admins, and the owner with a 200. That is what /admin
+// itself still relies on to show "Page not found".
 //
-// THE SABOTAGE IS THE ORIGINAL DEFECT. `--break=late-cache` rewrites the served
-// GearMenu module so the cache is written only after the answer arrives —
-// the shape it had before this item — and requires the rewrite to SIGN itself
-// in the page before either colour is believed (docs/gotchas.md 102 and 113:
-// an edit that silently missed, or a rewrite that was served but not run,
-// prints an ordinary clean run). One `goto` per context, for the same reason.
+// THE SABOTAGE IS THE OLD DOOR. `--break=ask` rewrites the served GearMenu
+// module to make a `whoami` POST on mount and to draw a "platform" row, and
+// SIGNS itself in the page; a run where the rewrite did not land or did not run
+// exits 3 and proves nothing (docs/gotchas.md 102 and 113). One `goto` per
+// context for the same reason.
 //
-// It writes nothing to the database and spends no budget beyond six sign-ins
-// and nine edge-function calls.
+// It writes nothing to the database: eight sign-ins and three edge-function calls.
 
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
@@ -44,7 +44,7 @@ const { chromium } = createRequire(import.meta.url)(join(REPO, "app/node_modules
 
 const BASE = process.env.BASE_URL || "http://localhost:5173";
 const BREAK = (process.argv.slice(2).find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
-if (BREAK && BREAK !== "late-cache") { console.error(`unknown --break=${BREAK}; the only one is late-cache`); process.exit(2); }
+if (BREAK && BREAK !== "ask") { console.error(`unknown --break=${BREAK}; the only one is ask`); process.exit(2); }
 
 const { SUPABASE_URL, SUPABASE_ANON_KEY } = process.env;
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -61,14 +61,17 @@ const ACCOUNTS = [
   { label: "staff", admin: false, ...demoStaff() },
   { label: "owner", admin: true, ...demoOwner() },
 ];
-const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }, { w: 320, h: 720 }];
+const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }, { w: 320, h: 720 }, { w: 392, h: 844, lite: true }];
 const OPENS = 3;
-// Per account x width: first-open-one-call, reopens-zero, status, row, console = 5.
-const PER_RUN = 5;
+// The fewest rows any account's gear draws (staff: mail, templates, password,
+// device, report). A floor, not an equality: a new row is not a fault.
+const MIN_ROWS = 5;
+// Per account x size: rows drawn, asks nothing, row absent, console = 4.
+const PER_RUN = 4;
 // Live: staff 404, anonymous 404, owner 200 = 3. Canaries = 2.
 const EXPECTED_ASSERTIONS = ACCOUNTS.length * SIZES.length * PER_RUN + 3 + 2;
 const ROW = "The website business";
-const ART = join(REPO, ".manager-shots", "9.17");
+const ART = join(REPO, ".manager-shots", "99.3");
 mkdirSync(ART, { recursive: true });
 
 const failures = [], observed = [], artifacts = [], sabotage = [];
@@ -82,12 +85,10 @@ const ok = (cond, name, detail) => {
 };
 
 // THE RULES, as pure functions so the canaries bite the production rule.
-// A non-admin answer is right only if it is a 404 that names nothing.
 const silentRefusal = ({ status, text }) => status === 404 && !/admin/i.test(text);
-// The first open is right only at exactly one call: zero means the check saw nothing.
-const askedOnce = (n) => n === 1;
+const asksNothing = (perOpen) => perOpen.length === OPENS && perOpen.every((n) => n === 0);
 
-// ── (b) the deployed function, no browser ─────────────────────────────────
+// ── the deployed function, no browser ─────────────────────────────────────
 async function signIn({ email, password }) {
   const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: "POST",
@@ -116,12 +117,12 @@ async function whoami(bearer) {
   ok(owner.status === 200 && /"admin":\s*true/.test(owner.text), "live/owner-gets-200-admin-true", `${owner.status}`);
 }
 
-// ── (a) and (c) in the browser ────────────────────────────────────────────
+// ── the gear, in the browser ──────────────────────────────────────────────
 const browser = await chromium.launch();
 try {
   for (const acct of ACCOUNTS) {
-    for (const { w, h } of SIZES) {
-      const tag = `${acct.label}/${w}`;
+    for (const { w, h, lite } of SIZES) {
+      const tag = `${acct.label}/${w}${lite ? "-lite" : ""}`;
       const ctx = await browser.newContext({ viewport: { width: w, height: h } });
       const page = await ctx.newPage();
       const console_ = [];
@@ -134,19 +135,22 @@ try {
       });
 
       if (BREAK) {
-        let landed = 0;
+        const s = { tag, landed: 0, ran: false };
+        sabotage.push(s);
         await page.route("**/src/components/GearMenu.jsx*", async (route) => {
           const res = await route.fetch();
-          const body = await res.text();
-          const needle = "adminSeen = { uid, ask };";
-          landed = body.split(needle).length - 1;
-          const out = body.replace(needle, "await ask; adminSeen = { uid, ask }; globalThis.__gearBreak = true;");
-          await route.fulfill({ response: res, body: out, headers: { ...res.headers(), "cache-control": "no-store" } });
+          let body = await res.text();
+          const ask = /( {4}load\(\);\r?\n {2}\}, \[load\]\);)/;
+          const row = "].filter(([, , , , needs])";
+          s.landed = (ask.test(body) ? 1 : 0) + (body.split(row).length - 1);
+          body = body
+            .replace(ask, `    globalThis.__gearBreak = true; fetch(${JSON.stringify(SUPABASE_URL + "/functions/v1/platform-admin")}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "whoami" }) }).catch(() => {});\n$1`)
+            .replace(row, `].concat([["platform", ${JSON.stringify(ROW)}, Bell, "x", null]]).filter(([, , , , needs])`);
+          await route.fulfill({ response: res, body, headers: { ...res.headers(), "cache-control": "no-store" } });
         });
-        sabotage.push({ tag, get landed() { return landed; } });
       }
 
-      await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}/app${lite ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
       if (await page.locator("input[type=email]").count()) {
         await page.fill("input[type=email]", acct.email);
@@ -156,21 +160,24 @@ try {
       }
 
       const perOpen = [];
+      let rows = 0, platformRow = false;
       for (let i = 0; i < OPENS; i++) {
         const before = calls.length;
         await page.click('button[data-tour="gear"]');
         await page.waitForSelector('button[aria-label="Close settings"]', { timeout: 15000 });
-        // Settle on the REQUEST, never on the rendering (gotchas 109): wait for
-        // every call this open started to answer, then a quiet second for a
-        // sibling that left late.
-        await page.waitForTimeout(1200);
+        // Settle on the REQUEST, never on the rendering (gotchas 109): a quiet
+        // window long enough for the old ask (one round trip), then wait out
+        // anything that did leave.
+        await page.waitForTimeout(1500);
         await Promise.all(calls.slice(before).map((r) => r.response()));
-        await page.waitForTimeout(800);
         perOpen.push(calls.length - before);
         if (i === 0) {
-          const shot = join(ART, `${acct.label}-${w}.png`);
+          rows = await page.locator(".nav-row[data-settings-key]").count();
+          platformRow = (await page.locator('.nav-row[data-settings-key="platform"]').count()) > 0
+            || (await page.locator(`text=${ROW}`).count()) > 0;
+          const shot = join(ART, `gear-${acct.label}-${w}${lite ? "-lite" : ""}.png`);
           await page.screenshot({ path: shot });
-          artifacts.push(`.manager-shots/9.17/${acct.label}-${w}.png`);
+          artifacts.push(`.manager-shots/99.3/gear-${acct.label}-${w}${lite ? "-lite" : ""}.png`);
         }
         if (i < OPENS - 1) {
           await page.click('button[aria-label="Close settings"]');
@@ -179,28 +186,19 @@ try {
       }
 
       if (BREAK) {
-        const signed = await page.evaluate(() => globalThis.__gearBreak === true);
         const s = sabotage[sabotage.length - 1];
-        sabotage[sabotage.length - 1] = { tag, landed: s.landed, ran: signed };
-        if (s.landed !== 1 || !signed) {
-          console.error(`SABOTAGE DID NOT TAKE at ${tag}: replaced ${s.landed}, ran ${signed}. This run proves nothing (gotchas 102, 113).`);
+        s.ran = await page.evaluate(() => globalThis.__gearBreak === true);
+        if (s.landed !== 2 || !s.ran) {
+          console.error(`SABOTAGE DID NOT TAKE at ${tag}: needles replaced ${s.landed} of 2, ran ${s.ran}. This run proves nothing (gotchas 102, 113).`);
           process.exitCode = 3;
         }
       }
 
-      const statuses = await Promise.all(calls.map(async (r) => (await r.response())?.status() ?? null));
-      const rowShown = (await page.locator(`text=${ROW}`).count()) > 0;
-      ok(askedOnce(perOpen[0]), `${tag}/first-open-asks-once`, `${perOpen[0]} platform-admin call(s) on the first open`);
-      ok(perOpen.slice(1).every((n) => n === 0), `${tag}/reopens-ask-nothing`, `opens 2..${OPENS}: ${perOpen.slice(1).join(", ")}`);
-      const want = acct.admin ? 200 : 404;
-      ok(statuses.length > 0 && statuses.every((s) => s === want), `${tag}/answer-is-${want}`, `statuses ${JSON.stringify(statuses)}`);
-      ok(rowShown === acct.admin, `${tag}/back-office-row-${acct.admin ? "drawn" : "absent"}`, `row "${ROW}" shown: ${rowShown}`);
-      const designed = console_.filter((c) => c.url.includes("/functions/v1/platform-admin") && /404/.test(c.text));
-      const other = console_.filter((c) => !designed.includes(c));
-      const wantDesigned = acct.admin ? 0 : 1;
-      ok(designed.length === wantDesigned && other.length === 0, `${tag}/console`,
-        `${designed.length} designed platform-admin 404 line(s) (want ${wantDesigned}), ${other.length} other`
-        + (other.length ? `: ${other.slice(0, 3).map((c) => c.text).join(" | ")}` : ""));
+      ok(rows >= MIN_ROWS, `${tag}/gear-drew-its-rows`, `${rows} rows (floor ${MIN_ROWS})`);
+      ok(asksNothing(perOpen), `${tag}/gear-asks-nothing`, `platform-admin calls per open: ${perOpen.join(", ")}`);
+      ok(!platformRow, `${tag}/no-back-office-row`, `row keyed "platform" or "${ROW}" shown: ${platformRow}`);
+      ok(console_.length === 0, `${tag}/console-silent`,
+        `${console_.length} error/warning line(s)` + (console_.length ? `: ${console_.slice(0, 3).map((c) => c.text).join(" | ")}` : ""));
 
       await ctx.close();
     }
@@ -212,8 +210,8 @@ try {
 // ── THE CANARIES ──────────────────────────────────────────────────────────
 const c1 = silentRefusal({ status: 200, text: '{"admin":false}' });
 ok(!c1, "canary/admin-false", "a 200 `{admin:false}` must NOT read as a silent refusal");
-const c2 = askedOnce(2);
-ok(!c2, "canary/two-calls", "two calls on a first open (the pre-fix dev server) must NOT read as once");
+const c2 = asksNothing([1, 0, 0]);
+ok(!c2, "canary/one-call", "one call on the first open (the old gear) must NOT read as asking nothing");
 
 if (assertions !== EXPECTED_ASSERTIONS) {
   failures.push(`assertion count ${assertions} != declared ${EXPECTED_ASSERTIONS} — a run that never reached a width`);
@@ -232,15 +230,15 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: EXPECTED_ASSERTIONS,
-  assertion_floor: `2 accounts x 3 widths x ${PER_RUN} + 3 live + 2 canaries = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
+  assertion_floor: `2 accounts x 4 sizes x ${PER_RUN} + 3 live + 2 canaries = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
   failures,
   warnings: [
-    "Dev server only. The production bundle has no StrictMode and made 1 call before this fix (ROADMAP 9.17's table); it is not re-measured here.",
-    "The one staff 404 console line is DESIGNED and cannot be removed from JavaScript: Chrome logs every 4xx a fetch receives, and platform-admin must answer 404 rather than {admin:false}. docs/gotchas.md records it as expected noise.",
+    "Dev server only; the published bundle is not measured. The bundle still has the row until Andrew publishes.",
+    "/admin itself still asks whoami and a non-admin's console there shows one designed 404 (docs/gotchas.md 120); scripts/admin-refuses.mjs holds that screen, not this.",
   ],
   artifacts,
-  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), accounts: ACCOUNTS.map((a) => a.label), opens: OPENS, item: "9.17", break: BREAK },
-  canary: { id: "admin-false+two-calls", observed_failure: !c1 && !c2 },
+  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}${s.lite ? "-lite" : ""}`), accounts: ACCOUNTS.map((a) => a.label), opens: OPENS, item: "99.3a", break: BREAK },
+  canary: { id: "admin-false+one-call", observed_failure: !c1 && !c2 },
   sabotage, observed,
 });
 console.log(`receipt: ${path}`);

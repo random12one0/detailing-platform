@@ -4,8 +4,10 @@
 //   node --test tests/sweep-tap-targets-leaving-door.test.mjs
 //
 // Credential-free, no browser: two source reads. `scripts/sweep-tap-targets.mjs`
-// keeps a `LEAVES` set of gear-row keys it will not press (the platform door does
-// `window.location.href = "/admin"`, so there is no dashboard screen behind it).
+// keeps a `LEAVES` set of gear-row keys it will not press (the platform door did
+// `window.location.href = "/admin"`, so there was no dashboard screen behind it).
+// Since ROADMAP 99.3a that row is gone and BOTH lists are empty; test 1 proves the
+// reader still finds a door by planting one, so an empty answer is not a blind one.
 // That exemption can rot two ways the sweep itself cannot see:
 //   * a listed key stops navigating away  -> the sweep silently skips a real screen;
 //   * another row starts navigating away  -> the old no-subjects finding returns,
@@ -35,17 +37,19 @@ export const leavingKeys = (src) =>
   [...src.matchAll(/if \(key === "(\w+)"\) \{ window\.location\.href\s*=/g)].map((x) => x[1]).sort();
 
 test("the sweep's leaving-door exemption is the product's leaving doors", async (t) => {
-  await t.test("1 · the two lists are equal, and are not empty", () => {
-    const real = leavingKeys(GEAR);
-    assert.ok(real.length >= 1, "GearMenu has no leaving door at all; the shape moved, or the door was removed");
-    assert.deepEqual(exemptKeys(SWEEP), real);
+  await t.test("1 · the two lists are equal, and the reader can see a door when there is one", () => {
+    assert.deepEqual(exemptKeys(SWEEP), leavingKeys(GEAR));
+    const planted = GEAR.replace(`onClick={() => setOpen(key)}>`, `onClick={() => { if (key === "billing") { window.location.href = "/billing"; return; } setOpen(key); }}>`);
+    assert.notEqual(planted, GEAR, "the plant did not land; the onClick shape moved");
+    assert.deepEqual(leavingKeys(planted), ["billing"], "the reader is blind to the leaving-door shape");
   });
 
-  await t.test("2 · SABOTAGE — a new leaving row, or the platform door ceasing to leave, is seen", () => {
-    const added = GEAR.replace(`if (key === "tour")`, `if (key === "billing") { window.location.href = "/billing"; return; }\n              if (key === "tour")`);
+  await t.test("2 · SABOTAGE — a new leaving row, or a listed key that no longer leaves, is seen", () => {
+    const added = GEAR.replace(`onClick={() => setOpen(key)}>`, `onClick={() => { if (key === "billing") { window.location.href = "/billing"; return; } setOpen(key); }}>`);
     assert.notDeepEqual(exemptKeys(SWEEP), leavingKeys(added), "a new leaving row went unnoticed");
-    const removed = GEAR.replace(`window.location.href = "/admin"`, `setOpen(key)`);
-    assert.notDeepEqual(exemptKeys(SWEEP), leavingKeys(removed), "the platform door stopping was unnoticed");
+    const stale = SWEEP.replace("const LEAVES = new Set([]);", 'const LEAVES = new Set(["platform"]);');
+    assert.notEqual(stale, SWEEP, "the plant did not land; LEAVES moved");
+    assert.notDeepEqual(exemptKeys(stale), leavingKeys(GEAR), "a listed key that no longer leaves was unnoticed");
   });
 
   await t.test("3 · every gear row carries the data-settings-key the sweep reads it by", () => {

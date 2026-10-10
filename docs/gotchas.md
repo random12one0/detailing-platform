@@ -5412,24 +5412,24 @@ is exactly why only the sabotage lied. Settle past the transition (or read
 
 ## 120 — THE ONE RED 404 IN A CONSOLE THAT IS NOT A FAILURE
 
-**Expected console noise, recorded here so nobody files it again (ROADMAP
-9.17).** Opening the Settings gear as anybody who is not a platform admin logs
-`Failed to load resource: the server responded with a status of 404` for
-`/functions/v1/platform-admin` — **once per page load**, at every width, on the
-dev server and the bundle alike. It is `GearMenu.jsx` asking `whoami` and
-`platform-admin` answering a non-admin the way it answers everybody: a 404 that
+**REWRITTEN 2026-10-10 (ROADMAP 99.3a): THE GEAR NO LONGER MAKES IT. `/admin` STILL DOES.**
+Until that date, opening the Settings gear as anybody who was not a platform
+admin logged `Failed to load resource: the server responded with a status of
+404` for `/functions/v1/platform-admin`, once per page load, because
+`GearMenu.jsx` asked `whoami` to decide whether to draw the back-office row.
+Andrew had the row removed (he types `/admin`), so the gear now asks nothing and
+**any `platform-admin` line on the dashboard is a real fault** —
+`node scripts/gear-whoami.mjs` holds the gear at zero calls and a silent console,
+and `--break=ask` puts the old call and row back to prove it can see them.
+
+**The line still exists in one place, by design:** a signed-in non-admin who
+opens `/admin` (or `/admin/office`). The back office asks `whoami`, and
+`platform-admin` answers a non-admin the way it answers everybody: a 404 that
 says nothing, never `{admin:false}`, because a "no" would confirm the endpoint
 exists. Chrome logs every 4xx a `fetch` receives and JavaScript cannot silence
-it, so the line stays as long as the 404 does.
-
-**What is NOT expected, and is a real fault:** two of them on one page load
-(the dev server printed two before 9.17 — React.StrictMode mounted the effect
-twice and the cache was written after the answer), one on a REOPEN of the gear,
-a 404 from any other URL, or any 404 at all for a platform admin.
-`node scripts/gear-whoami.mjs` holds each of those, and `--break=late-cache`
-puts the pair back to prove it can see them. A console filter in another
-script should forgive this line BY URL and BY COUNT, as `owner-invite.mjs`
-does, never by the words "404" alone.
+it, so the screen shows "Page not found" and the console shows that one line.
+`node scripts/admin-refuses.mjs` holds it. A console filter should forgive it
+BY URL, BY COUNT and ON `/admin` only, never by the words "404" alone.
 
 ## 121 — A RECEIPT'S `git_sha` CAN DESCRIBE THE TREE BEFORE THE FIX IT CLAIMS TO PROVE
 
