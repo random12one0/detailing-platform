@@ -850,3 +850,7 @@ defect on; settled 800ms, it went red at both widths. `grep -c "^## " docs/gotch
 `platform-admin` `whoami` for a non-admin, once per page load, designed and unsilenceable. Recorded so nobody
 re-files ROADMAP 9.17; `scripts/gear-whoami.mjs` holds the count at one. `grep -c "^## " docs/gotchas.md` run
 before and after.
+
+**120 → 121 on 2026-10-10, entry by another session (`806e4274`), pointer moved by the supervisor** — a
+receipt's `git_sha` can describe the tree BEFORE the fix it proves; 9.19, 9.26 and 9.25 all did it the same
+day. The entry landed without this line moving. `grep -c "^## " docs/gotchas.md` run before writing this: 121.

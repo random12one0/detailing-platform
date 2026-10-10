@@ -3504,3 +3504,20 @@ by eye, last card fully legible. 1440 has no scrim, as designed.
 expected rejection: a delete that fails did not refuse"*; restored (`git status` empty) → 10 pass, 0
 fail. The browser half (`scripts/receipt-viewer.mjs`, writes to the demo tenant) was not re-run.
 3 of 3 reproduced.
+
+## Supervisor, 2026-10-10 (seventh pass) — 9.25, 9.26, 9.14c at `fb6d65ea`
+
+**9.25:** walked by a scratch script outside the repo (demo owner, headless Chromium, nothing
+stubbed): Business → Monthly plans → Add a plan, then Log a member, Spanish and English at 320, 392
+and 1440. Cancel's right edge against its row: never past it (closest −4px, English 320 plan form).
+Spanish 320 wraps both rows; page never wider than the viewport; console 0 errors/warnings at all
+six. **Caveat, gotchas 121:** the committed `sweep-widths-320*.json` receipts carry `git_sha`
+`38bf73b3`, the commit BEFORE the fix (`de72b29b`), so they cannot be re-taken at the revision they
+claim. This browser walk is the proof at a commit that holds the fix.
+**9.26:** `receipts/sweep-widths-320-es.sabotage.json` (SWEEP_SHORT_CANARY) is `fail` and names
+*"SHORT RUN: 320px measured 85 of 86 … Unreached: Money · Lifetime"*; the canary is in production
+code (`sweep-widths.mjs:1086`). The 320+1440 Spanish receipt reached 171 of 171 and was red only on
+the +6px Cancelar 9.25 then fixed. Same gotchas-121 caveat on SHAs.
+**9.14c:** live leftovers read (service key, `kguqylyzgyzfktkfnhjb` confirmed): `platform_costs`
+returns `[]`; `platform_admins` holds only the two deliberate demo logins, no throwaway admin.
+3 of 3 reproduced.
