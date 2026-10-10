@@ -50,9 +50,11 @@ Updated 2026-09-21.
 
 ---
 
-## DECIDE · Let a session compare the setup count on the live site (ROADMAP 9.1b, 2026-10-10)
+## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
 
-**Say "go" or "no".** The last open piece of the setup-count fix is looking at one account in the detailer dashboard and in the back office and checking both say the same "N of 12". That needs a session to sign in as the demo detailer and the demo admin on the live site. It only reads; it changes nothing. **Recommendation: go.** No password gets pasted anywhere. If you say no, 9.1 stays open. (The repo side is proven: 12 of 12 inputs are sent. And the fix IS on the live site — checked 2026-10-10 by reading the running back-office function itself, ROADMAP 9.1a. Only the side-by-side look at the two screens is left.)
+You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.
+
+**Recommendation:** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
 ## DECIDE · What the back office is for (ROADMAP 9.12a, 2026-10-10)
 

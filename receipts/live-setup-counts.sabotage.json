@@ -1,9 +1,9 @@
 {
-  "git_sha": "b3b5a6fbd0dea4e0910d400e6b6266b39346d375",
-  "git_sha_started": "b3b5a6fbd0dea4e0910d400e6b6266b39346d375",
+  "git_sha": "b2a2b1f8612f8a70e2ac6113156eb3937597268e",
+  "git_sha_started": "b2a2b1f8612f8a70e2ac6113156eb3937597268e",
   "head_moved": false,
   "environment": "production-read-only",
-  "finished_at": "2026-10-10T16:21:42.437Z",
+  "finished_at": "2026-10-10T16:25:07.236Z",
   "failures": [
     "counts agree 1440: dashboard 9 of 12; back office 10 of 12",
     "console dashboard-1440: 1 errors or warnings: error /: Refused to display '[URL] in a frame because it set 'X-Frame-Options' to 'deny'.",
@@ -93,7 +93,7 @@
     ]
   },
   "check_id": "live-setup-counts",
-  "started_at": "2026-10-10T16:21:24.033Z",
+  "started_at": "2026-10-10T16:24:36.476Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
