@@ -5430,3 +5430,21 @@ a 404 from any other URL, or any 404 at all for a platform admin.
 puts the pair back to prove it can see them. A console filter in another
 script should forgive this line BY URL and BY COUNT, as `owner-invite.mjs`
 does, never by the words "404" alone.
+
+## 121 — A RECEIPT'S `git_sha` CAN DESCRIBE THE TREE BEFORE THE FIX IT CLAIMS TO PROVE
+
+Found 2026-10-10 during triage of ROADMAP 9.19. The committed
+`receipts/scrim-clearance.json` says `git_sha` and `git_sha_started` are
+`cc27db13`, with `head_moved: false`; the stylesheet fix it is offered as proof
+of first lands in `4d566424`. A browser can of course be measuring uncommitted
+working-tree changes, but that is not what a receipt stamped clean at the parent
+commit says it measured. The recorded SHA then cannot recreate the claimed
+product state, and "measured at the commit that carries this paragraph" is
+false.
+
+**A receipt may certify a committed result only when its `git_sha` contains the
+code under test.** Commit the product change before the final clean run, then
+run the check and commit its receipt; if the run must happen before committing,
+record the tested diff explicitly and rerun after the commit before marking the
+item proved. Do not repair the SHA by hand: it is evidence, not metadata to
+make tidy.
