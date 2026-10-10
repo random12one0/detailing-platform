@@ -11189,6 +11189,18 @@ requested.
   with **no**. They are not blockers or deferred decisions. The only remaining
   buildable scope in 3.4f is S3, the warning when a detailer's own alert address
   bounces; it does not change any of those four decisions.
+  **CHECKED 2026-10-10 (3.4 worker): nothing left to build under this number.** 3.4b, 3.4e
+  and 3.4f are ticked; 3.4g's render half is done (`4e1198ce`) and its only open piece is
+  the send half. That piece conflicts with the 2026-10-09 ruling at the top of this entry
+  (*"do not spend the shared allowance sending every template merely to tick this box"*),
+  and `scripts/send-test-emails.mjs` mails a real inbox through the production relay, so a
+  session did not run it. Nothing was sent.
+  **NEEDS ANDREW: say whether 3.4g's sandbox-send half should still happen at all, and if so
+  name the inbox for `--to=`.** Recommendation: drop it. The rendering half already found the
+  faults (the reschedule label, the English dates, the Spanish gaps), and the sends would only
+  confirm one shared delivery pipe sixteen times. If dropped, 3.4g is amended to "rendered and
+  reviewed" and both 3.4g and 3.4 tick. His row is in `FOR-ANDREW.md` ("DECIDE · The test
+  emails").
 
 - [x] **3.4b — Define the communication lifecycle** — **DONE 2026-10-10.**
   The matrix is `docs/communication-lifecycle.md`: 13 customer emails, 9

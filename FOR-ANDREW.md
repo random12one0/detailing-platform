@@ -64,6 +64,12 @@ You already said go, and the live comparison ran. The same demo business shows *
 
 **Recommendation:** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
+## DECIDE · The test emails (ROADMAP 3.4 and 3.4g, 2026-10-10)
+
+Every email the product sends has been drawn in English and Spanish and read for mistakes; the faults that turned up were fixed. What is left is sending one real copy of each to an inbox, which uses part of the 100-a-day email allowance shared with your real business. You earlier said not to spend it just to tick a box, so no session sent anything.
+
+**Recommendation:** drop the sending. It would only prove the same delivery pipe works sixteen more times. Say "drop it" and the two roadmap items get closed as "drawn and reviewed". If you do want real copies, name the inbox address and a session will send one of each, once.
+
 ## READ · Back-office planning direction (ROADMAP 9.12a, 2026-10-10)
 
 You said the back office needs starting again, and that nothing on it is safe.
