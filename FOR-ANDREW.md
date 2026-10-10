@@ -581,9 +581,9 @@ whole reason these lines are here.
 **Everything else** open and waiting on you is in the rows below. The count of
 what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
 
-## Start here — the one decision that unblocks the most
+## Start here — the routine release step that unblocks the most
 
-- [ ] **DO · Mail-log email previews (ROADMAP 3.1d) are built and need two of your steps, in this order.**
+- [ ] **DO · Mail-log email previews (ROADMAP 3.1d) are built and await two routine release steps, in this order. No business decision is requested.**
   Clicking a row in "Emails we sent" now opens that email. It cannot show anything real until the
   database can hold the email's text. **1. Apply the new database change**
   `supabase/migrations/20261010010000_email_sends_keeps_the_body.sql` (it adds one empty column).

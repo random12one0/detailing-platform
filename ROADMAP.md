@@ -10106,9 +10106,9 @@ requested.
   392 and 320; `--break=blank` fails 6 and `--break=unsandboxed` fails 3, both landed; console clean. Re-run unchanged:
   `mail-log-gaps` 24/0, `mail-log-groups` 17/0, `mail-log-scroll` 20/0, `label-guard` clean, the four credential-free suites.
   **The body read is a browser stub** (the column is not in the live database), so the real stored-body path is
-  UNJUDGEABLE in the receipt. **Order of Andrew's steps is load-bearing:** migration first, `send-email` second — the
+  UNJUDGEABLE in the receipt. **The routine release order is load-bearing:** migration first, `send-email` second — the
   reverse silently stops every email being logged (the insert is best-effort and swallows its error).
-  NEEDS ANDREW: apply migration 20261010010000, then publish `send-email`; only then can a real stored email be opened and the box ticked. FOR-ANDREW.md carries the row.
+  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): apply migration 20261010010000, then publish `send-email`; only then can a real stored email be opened and the box ticked. FOR-ANDREW.md carries the runbook.
   **NOT measured:** `?lite=1`; the sheet's look beyond `.manager-shots/3.1d/*.png`; Spanish rendering of the subtitle date.
 
 - [ ] **3.1e — the mail log's new scroll box has no edge treatment, and at
