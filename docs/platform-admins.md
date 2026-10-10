@@ -153,6 +153,27 @@ exactly what nothing was watching for until now.
 
 ---
 
+## THE SCREEN AGREES WITH THIS FILE TOO — 2026-10-10, ROADMAP 12.4
+
+`scripts/admin-refuses.mjs` signs in as the demo owner and the demo staff login
+at 1440, 392 and 320. It asks whether `/admin` opens the back office and the
+gear draws "The website business" **iff the login is in the block above**, and
+whether everyone else gets the product's 404. **It reads its expectation from
+this file**, so when 12.4 takes `demo@detailplatform.com` out of the block and
+the table, the same run expects that login refused. Receipt at `bb43496`: 6 of 6
+targets, 21 assertions, 0 failed. `--break=let-in` (the server says "admin" to
+the staff login) was caught: 6 failed, every one a staff row.
+`demo@demo.com` is not signed in by it, because its password is Andrew's.
+
+NEEDS ANDREW: 12.4's trigger (the first real signup) has not fired. There
+were 44 logins on 2026-10-10, all test or demo addresses. When he chooses to
+act, he gives `demo@demo.com` a real password himself, and says the word for
+a session to remove the `demo@detailplatform.com` row, update this block, and
+move the checks that reach `/admin` as that login. No session changes a
+password.
+
+---
+
 ## WHAT THIS FILE IS NOT
 
 It does not grant anything, and editing it changes no access. It is the written

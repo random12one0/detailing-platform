@@ -1397,6 +1397,21 @@ still knows them.
   out, not write one down.** That is yours alone. This row exists so the
   choice is made with the word "public" in front of you.
 
+  **UPDATE 2026-10-10 (ROADMAP 12.4).** Checked today: **still no real
+  signup.** All 44 logins on the platform are test or demo addresses, and the
+  newest is from 2026-09-20. The code half is finished and proven: the back
+  office shows the ordinary "page does not exist" screen to anyone who isn't on
+  the list, and the "The website business" row only appears for people who
+  are. A new check (`scripts/admin-refuses.mjs`) proves both on a phone and a
+  laptop. When a login comes off the list, the same check expects it to be
+  refused, with no edits. **What is left is yours, and only when you choose to
+  do it.** (1) Give `demo@demo.com` a real password in Supabase →
+  Authentication → Users, and keep it in your password manager. (2) Tell a
+  session "take the demo detailer out of the back office". That is one row
+  removed, plus about sixty checks moved to your login. **My recommendation:**
+  do both the week before you invite the first real detailer, not now. Until
+  then, the demo logins are what lets every check run.
+
   **Where to look, so you are not taking this on trust:** the repository is
   `github.com/random12one0/detailing-platform` and its setting is
   Settings → General → Danger Zone. The note is on the `platform_admins`
