@@ -239,6 +239,8 @@ try {
 
     await page.keyboard.press("Control+k");
     await page.waitForSelector(".bo-pal", { timeout: 5000 });
+    // Typing before the input has focus loses the keystrokes (instant under lite).
+    await page.waitForFunction(() => document.activeElement?.closest?.(".bo-pal"), null, { timeout: 5000 });
     const probe = (rows.find((r) => !r.is_demo) ?? target).name;
     await page.keyboard.type(probe.slice(0, 6));
     await page.waitForTimeout(150);
