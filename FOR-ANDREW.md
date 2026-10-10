@@ -3203,6 +3203,6 @@ once, which is still more than any script here can do.
   exactly that on and off while testing. **Also known, nothing to do yet:** when
   a photo is deleted, Cloudflare can keep showing it for a while from its
   cache. A logo is unaffected (a new logo is a new file). A deleted gallery
-  photo could stay visible publicly for up to a few hours until the cache lets
+  photo stayed visible for at least two minutes in testing (the longest wait measured) until the cache lets
   go; closing that is a cache setting in Cloudflare, and it is queued in
   ROADMAP 0.11bc2.
