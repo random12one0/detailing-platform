@@ -87,7 +87,7 @@ export default function GoogleBusiness() {
 
           <div className="btnrow">
             {!link.connected && (
-              <button className="btn primary" disabled={busy === "start"} onClick={() => act("start")}>
+              <button className="btn oauth" disabled={busy === "start"} onClick={() => act("start")}>
                 {busy === "start" ? t("Connecting") : linked ? t("Connect again") : t("Connect Google")}
               </button>
             )}
