@@ -1,0 +1,135 @@
+{
+  "git_sha": "b746b75402c9406c3d918361fe99f2d4c3ed5312",
+  "git_sha_started": "b746b75402c9406c3d918361fe99f2d4c3ed5312",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T23:21:06.758Z",
+  "failures": [
+    "1440/future-not-late — \"Late-Check Future\" late=true, drawn as row \"\"",
+    "1440/later-not-late — \"Late-Check Later\" late=false, drawn as next-card",
+    "1440/exactly-one — 2 of 3 rows read Late",
+    "392/future-not-late — \"Late-Check Future\" late=true, drawn as row \"\"",
+    "392/later-not-late — \"Late-Check Later\" late=false, drawn as next-card",
+    "392/exactly-one — 2 of 3 rows read Late"
+  ],
+  "warnings": [],
+  "artifacts": [],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "business": "demo-detail",
+    "item": "14.24-2",
+    "break": "both-past"
+  },
+  "check_id": "late-flag-two-jobs",
+  "started_at": "2026-10-10T23:20:55.869Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 16,
+  "assertion_floor": "2 widths x 6 + staged-today + cleaned-up + 2 canaries = 16, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "both-read-late",
+    "observed_failure": true
+  },
+  "canaries": [
+    {
+      "name": "both-read-late",
+      "flagged": true
+    },
+    {
+      "name": "neither-reads-late",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [],
+  "sabotage": [],
+  "observed": [
+    {
+      "id": "staged-today",
+      "ok": true,
+      "detail": "read back 3 rows: Late-Check Past 2026-10-10 confirmed; Late-Check Future 2026-10-10 confirmed; Late-Check Later 2026-10-10 confirmed; today is 2026-10-10 Pacific"
+    },
+    {
+      "id": "1440/both-listed",
+      "ok": true,
+      "detail": "under \"Still to do\": 12:20 PMLateLate-Check Future in \"Still to do\" as row; 2:20 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Later7:20 PM – 8:20 PM$65Drop in \"Still to do\" as next-card"
+    },
+    {
+      "id": "1440/past-late",
+      "ok": true,
+      "detail": "\"Late-Check Past\" late=true"
+    },
+    {
+      "id": "1440/future-not-late",
+      "ok": false,
+      "detail": "\"Late-Check Future\" late=true, drawn as row \"\""
+    },
+    {
+      "id": "1440/later-not-late",
+      "ok": false,
+      "detail": "\"Late-Check Later\" late=false, drawn as next-card"
+    },
+    {
+      "id": "1440/exactly-one",
+      "ok": false,
+      "detail": "2 of 3 rows read Late"
+    },
+    {
+      "id": "1440/console",
+      "ok": true,
+      "detail": "0 unexpected; 0 known platform-admin whoami 404 (gotchas 120)"
+    },
+    {
+      "id": "392/both-listed",
+      "ok": true,
+      "detail": "under \"Still to do\": 12:20 PMLateLate-Check Future in \"Still to do\" as row; 2:20 PMLateLate-Check Past in \"Still to do\" as row; Late-Check Later7:20 PM – 8:20 PM$65Drop in \"Still to do\" as next-card"
+    },
+    {
+      "id": "392/past-late",
+      "ok": true,
+      "detail": "\"Late-Check Past\" late=true"
+    },
+    {
+      "id": "392/future-not-late",
+      "ok": false,
+      "detail": "\"Late-Check Future\" late=true, drawn as row \"\""
+    },
+    {
+      "id": "392/later-not-late",
+      "ok": false,
+      "detail": "\"Late-Check Later\" late=false, drawn as next-card"
+    },
+    {
+      "id": "392/exactly-one",
+      "ok": false,
+      "detail": "2 of 3 rows read Late"
+    },
+    {
+      "id": "392/console",
+      "ok": true,
+      "detail": "0 unexpected; 0 known platform-admin whoami 404 (gotchas 120)"
+    },
+    {
+      "id": "cleaned-up",
+      "ok": true,
+      "detail": "0 Late-Check rows remain; demo bookings 32 before, 32 after"
+    },
+    {
+      "id": "canary/both-read-late",
+      "ok": true,
+      "detail": "two rows that BOTH read Late must NOT read as 'exactly one'"
+    },
+    {
+      "id": "canary/neither-reads-late",
+      "ok": true,
+      "detail": "a past row that reads nothing must NOT read as 'the past one is Late'"
+    }
+  ]
+}
