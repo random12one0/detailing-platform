@@ -3521,3 +3521,21 @@ the +6px Cancelar 9.25 then fixed. Same gotchas-121 caveat on SHAs.
 **9.14c:** live leftovers read (service key, `kguqylyzgyzfktkfnhjb` confirmed): `platform_costs`
 returns `[]`; `platform_admins` holds only the two deliberate demo logins, no throwaway admin.
 3 of 3 reproduced.
+
+## Supervisor, 2026-10-10 (eighth pass) — 12.2, 14.17, 14.15 at `fab1069c`
+
+**12.2:** the published site itself, in Playwright, not the receipt: `https://detailingplatform.com/`
+serving `index-CT8xjH8F.js` (the bundle the receipt names). At 1440 and 392 the page text holds
+*"Log a card payment"* and not *"Take a card payment"*; at 392 the phrase is opacity 1, hit-tested on
+top, and the page is not wider than the viewport. Console at both: 0 errors, 1 warning — the manifest
+`icon.svg`, already parked in `FOUND.md`, not this item.
+**14.17:** `node --test tests/shared-resources-guard.test.mjs` 7 passed / 0 failed. Sabotage aimed at
+production code (`claimed()` in `scripts/lib/sharedResources.mjs` forced to `true`, landing proved by
+`git diff --numstat` 1/1): 2 passed / 5 failed. Restored; `git status` clean. Live half not re-run
+(credentialed); its receipt was read.
+**14.15:** receipt read against the entry: 370 of 370 targets, burst 300 × 400 `bad_query` and 0 × 429
+(by design — the 2-character query is refused before the limiter, so any 429 there could only come
+from above), 70 presses all 429 with body `busy`, per-IP counter +70. Sabotage receipt `--break=blind`
+is `fail` naming 70 unattributed. Consistent; closing as UNREPRODUCED stands.
+3 of 3 reproduced. Gate red on 14.15 and 14.17 was the belt's own stranded split (`line-24345a/b`),
+not either item — fixed in `08228259`.
