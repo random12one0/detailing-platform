@@ -146,6 +146,21 @@ export async function removeReceipt({ expense, businessId }) {
     readRemoved(await door(businessId, { action: "remove", expense_id: expense.id }));
     return;
   }
+  // THE FILE FIRST, AND ONLY THEN THE COLUMNS — ROADMAP 9.20, measured
+  // 2026-10-10 by `scripts/receipt-viewer.mjs --break=orphan`. The other order
+  // cleared the columns and then ignored the delete's answer, so a delete that
+  // failed left the photo in the bucket with nothing pointing at it: the screen
+  // looked finished, the allowance (which sums the COLUMNS) moved, and
+  // `photo-reconcile` never collects this bucket. This way round a failure
+  // changes nothing, and a retry after a half-done remove still completes.
+  const { data: gone, error: delErr } = await supabase.storage.from(BUCKET).remove([expense.receipt_path]);
+  if (delErr) throw delErr;
+  // A delete the bucket's policy refuses answers an empty list and NO error —
+  // reading is any member, deleting is the settings permission — so "nothing
+  // removed" only means "already gone" once the file is checked for.
+  if (!gone?.length && await stillStored(expense.receipt_path)) {
+    throw new Error("Removing a receipt needs the settings permission.");
+  }
   const { error } = await supabase.from("expenses")
     .update({
       receipt_path: null, receipt_bytes: null, receipt_width: null,
@@ -154,7 +169,13 @@ export async function removeReceipt({ expense, businessId }) {
     .eq("id", expense.id)
     .eq("business_id", businessId);
   if (error) throw error;
-  await supabase.storage.from(BUCKET).remove([expense.receipt_path]);
+}
+
+async function stillStored(key) {
+  const cut = key.lastIndexOf("/");
+  const name = key.slice(cut + 1);
+  const { data } = await supabase.storage.from(BUCKET).list(key.slice(0, cut), { search: name });
+  return (data ?? []).some((o) => o.name === name);
 }
 
 /** Private bucket, so every displayed receipt is a signed URL with an expiry. */

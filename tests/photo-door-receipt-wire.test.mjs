@@ -216,11 +216,21 @@ function world(over = {}) {
           if (!w.sbUploadError) w.objects.set(key, { bytes: blob.size });
           return { error: w.sbUploadError };
         },
+        // The real answer: the objects actually deleted. A delete the policy
+        // refuses is an EMPTY list with no error, which is the case that matters.
         remove: async (list) => {
           w.sbCalls.push({ bucket, removed: list });
-          for (const k of list) w.objects.delete(k);
-          return { error: null };
+          if (w.sbRemoveError) return { data: null, error: w.sbRemoveError };
+          if (w.sbRemoveRefused) return { data: [], error: null };
+          const gone = list.filter((k) => w.objects.delete(k)).map((name) => ({ name }));
+          return { data: gone, error: null };
         },
+        list: async (folder, opts) => ({
+          data: [...w.objects.keys()].filter((k) => k.startsWith(folder + "/"))
+            .map((k) => ({ name: k.slice(folder.length + 1) }))
+            .filter((o) => !opts?.search || o.name.includes(opts.search)),
+          error: null,
+        }),
         createSignedUrl: async (key) => {
           w.sbCalls.push({ bucket, signed: 1 });
           return { data: { signedUrl: `https://sb.test/${bucket}/${key}?one` }, error: null };
@@ -541,6 +551,29 @@ test("8 · FLAG OFF — today's path, unchanged, and ONE request for a list", as
   await mod3.removeReceipt({ expense: made, businessId: A });
   assert.equal(w3.objects.size, 0, "the object was left behind");
   assert.equal(w3.expenses.get(EXP_A).receipt_path, null);
+
+  // ROADMAP 9.20 — A DELETE THAT FAILS OR IS REFUSED CHANGES NOTHING. The first
+  // order cleared the columns and ignored the delete's answer, so the photo
+  // stayed in the bucket with nothing pointing at it and the allowance moved.
+  for (const [how, set, said] of [
+    ["fails", (w) => { w.sbRemoveError = new Error("Failed to fetch"); }, /Failed to fetch/],
+    ["is refused", (w) => { w.sbRemoveRefused = true; }, /^Removing a receipt needs the settings permission\.$/],
+  ]) {
+    const w5 = world();
+    const mod5 = await load(false);
+    const kept = await mod5.addReceipt({ file: picked("c.jpg", "image/jpeg", 900_000), businessId: A, expenseId: EXP_A });
+    set(w5);
+    await assert.rejects(() => mod5.removeReceipt({ expense: kept, businessId: A }), (e) => said.test(e.message), `a delete that ${how} did not refuse`);
+    assert.equal(w5.objects.size, 1, `a delete that ${how}: the object went`);
+    assert.equal(w5.expenses.get(EXP_A).receipt_path, kept.receipt_path, `a delete that ${how} cleared the columns anyway`);
+  }
+  // And a retry after a half-done remove (file gone, columns still set) completes.
+  const w6 = world();
+  const mod6 = await load(false);
+  const half = await mod6.addReceipt({ file: picked("d.jpg", "image/jpeg", 900_000), businessId: A, expenseId: EXP_A });
+  w6.objects.clear();
+  await mod6.removeReceipt({ expense: half, businessId: A });
+  assert.equal(w6.expenses.get(EXP_A).receipt_path, null, "a retry after the file was already gone did not clear the columns");
 
   // AND ONE REQUEST FOR A LIST ON THIS PATH TOO — ROADMAP 9.20 (c). The first
   // version looped a one-key helper, which is one round trip per row.
