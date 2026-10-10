@@ -1,9 +1,9 @@
 {
-  "git_sha": "4be6a25beef7e84e188e32fc10344a383ce28bff",
-  "git_sha_started": "4be6a25beef7e84e188e32fc10344a383ce28bff",
+  "git_sha": "7430331eb5750fca817d9b6882f1d1f11bf74a8d",
+  "git_sha_started": "7430331eb5750fca817d9b6882f1d1f11bf74a8d",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T13:40:08.567Z",
+  "finished_at": "2026-10-10T21:38:20.557Z",
   "failures": [],
   "warnings": [
     "Reads the LIVE platform list, so the population is whatever kguqylyzgyzfktkfnhjb holds today; the >=1 floors on call rows, non-payers and 0-customer rows refuse an empty population rather than pass it.",
@@ -99,7 +99,7 @@
     }
   },
   "check_id": "admin-preconditions",
-  "started_at": "2026-10-10T13:39:51.996Z",
+  "started_at": "2026-10-10T21:38:06.472Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
