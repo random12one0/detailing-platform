@@ -165,3 +165,108 @@ token returns a session. Which security-definer functions write. Which of the 19
 functions are pure reads. What `create-business` does with the caller. **The first two
 are quick to settle on a throwaway fixture and decide whether Option 2 is possible at
 all, so they come before any migration is written.**
+
+---
+
+## DECISION, 2026-10-10 (ROADMAP 4.3a): Option 2, Working is its own door, and five layers to refuse on
+
+**Both unknowns above are now measured, not believed.** The throwaway fixture
+(`node scripts/support-session-fixture.mjs`, 8 of 8 at `2d53244`) created a user with no
+business, exchanged a generated link **on the server**, and deleted the user. No token was
+printed or stored. One line per question is in `receipts/support-session-fixture.answers.json`:
+
+| Question | Answer |
+|---|---|
+| Does the access token carry a session id? | **Yes**: a `session_id` claim, and it names a real `auth.sessions` row for that user |
+| Can the server exchange the link itself? | **Yes**: `verifyOtp({ token_hash, type: "magiclink" })` on the server returns access and refresh tokens |
+| Is the link spent once the server uses it? | **Yes**: a second exchange answers *"Email link is invalid or has expired"* |
+| Does a refresh keep the same id? | **Yes**, so a marker keyed on it lasts the whole session |
+| Does the owner's next sign-in get a different id? | **Yes**, so marking one session cannot touch the owner's own login |
+| Can Postgres read it the way a policy would? | **Yes**: `auth.jwt() ->> 'session_id'` returns it |
+| Can the session write past every database rule? | **Yes, through the Auth API.** See layer E |
+
+Both sabotages ran red in the same commit: `--break=strip-sid` (the original unknown, a
+token with no id) failed 5 of 8, and `--break=reuse` failed 1 of 8.
+
+**THE APPROACH: Option 2, as written above.** `impersonate` writes the audit row, mints the
+link, exchanges it itself, **refuses to continue if the token has no `session_id`**, writes
+`support_sessions (session_id, user_id, business_id, admin_id, created_at)`, checks the row
+landed, and only then returns the tokens. `PreviewEntry.jsx` calls `setSession` instead of
+`verifyOtp`. `is_support_session()` is a security-definer function asking whether
+`auth.jwt() ->> 'session_id'` is listed. `support_sessions` is unreadable and unwritable by
+`authenticated` and `anon`. Option 1 (a sign-in hook) is dropped: it fails open when switched
+off, and `hook_custom_access_token_enabled` is `false` on this project today (read from the
+Management API's auth config, 2026-10-10), so it would also be one more dashboard setting
+nobody can diff.
+
+**THE WORKING SWITCH: it becomes its own door, opened from the back office and logged as its
+own action.** Today the switch is a browser flag (`lib/preview.js`). A server-marked session
+cannot be unlocked by flipping it, and it must not be: anything that lifts the mark from
+inside the preview tab is something a leaked support token can do too. So:
+
+- **Looking** is the only thing the existing button opens. Its session is marked and the
+  server refuses every write. In a Looking tab the switch no longer offers Working; in its
+  place it says that changes need the back office's other button.
+- **Working** is a second button in the back office, next to the first. It calls a new
+  action, `impersonate_work`, from the admin's own session (so `platform-admin` checks it is
+  a platform admin, which the preview tab cannot pass), writes its own audit row **before**
+  minting, and hands back a session that is **not** marked. Its banner says changes are saved
+  to that business. The audit history shows the two actions in different words.
+- A Working tab may still switch itself to Looking. That only removes ability, so the
+  browser guard is enough there.
+
+Why this and not removing Working: removing a capability is a product call, and nobody has
+asked for it to go. This keeps it, makes it a deliberate act from the admin's own login, and
+leaves it visible in the history. **If Andrew would rather Working went away entirely, 4.3c
+drops the second button and nothing else changes.** His 2026-10-09 note that the back office
+is to be rethought from scratch does not change this: the rule is about sessions, not
+screens, so it survives any redesign.
+
+**EVERY WRITE PATH 4.3c MUST REFUSE ON.** Discovered by `node scripts/support-write-paths.mjs`
+at `87237ef` (live catalog, read-only queries). The full list is
+`receipts/support-write-paths.list.json`, and 4.3c re-runs the script rather than trusting
+these counts.
+
+- **A. Data API tables: 36.** Every public table where `authenticated` holds the privilege
+  and a permissive policy lets it through. Refusal: one restrictive policy per command,
+  `using (not is_support_session())` and `with check (not is_support_session())`, generated
+  over **every** public table with RLS on, not just the 36, so a table added later is covered
+  the day it ships. The 13 table-and-command pairs that are granted but have no policy are
+  refused today by RLS's default, and the same generated rule covers them.
+- **B. storage.objects: 7 write policies** (business media insert, update and delete; expense
+  receipts insert and delete; job photos insert and delete). The same restrictive rule, on
+  `storage.objects`.
+- **C. Security-definer functions: 2 of the 14** that `authenticated` may call write in their
+  own body: `accrue_plan_visits()` and `set_my_lang(p_lang text)`. Each gets
+  `if is_support_session() then raise exception` as its first statement. None of the 14 uses
+  dynamic SQL, `perform`, a sequence or an outside call (checked against the catalog
+  2026-10-10), so the other 12 only read. The script names all 14, so a new writer shows up.
+- **D. Edge functions that authenticate a user: 21.** They run as the service role, so A to C
+  do not reach them. Refusal: `requireMember` refuses a support session **by default**, and a
+  function opts in to allow one. All 19 `requireMember` callers then fail closed without being
+  edited one by one; only reads opt in, and 4.3c reads each body before opting one in
+  (`booking-ics`, `forecast` and `preview-emails` write nothing in their own files;
+  `report-problem` sends an email). The two that call `getUser` themselves get their own
+  check: **`create-business` must refuse**, or a support session can create a new business
+  owned by the owner; **`platform-admin` must refuse too**, because the demo login is both a
+  platform admin and a detailer, so a support session opened on the demo business is a
+  platform-admin session. The other 20 functions authenticate no user (the public booking
+  page, webhooks and timed jobs), so a support session reaches no further there than anyone
+  on the internet.
+- **E. The Auth API: no database rule or edge function can refuse it.** Measured: the support
+  session changed its own user record through `updateUser`, and the change was read back. On
+  this project `security_update_password_require_reauthentication` is `false`, so the same
+  call can set a new password without the current one. The dashboard's Password screen asks
+  for the current password first, but only in the browser, and the browser guard does not
+  wrap `auth.updateUser` (`lib/supabase.js` wraps the four table verbs; `lib/api.js` wraps
+  edge-function calls). Email changes are protected: `mailer_secure_email_change_enabled` is
+  `true`, which needs both addresses to confirm. **4.3c's job here:** (1) add the auth calls to
+  the browser guard, so a stray click is stopped like every other write; (2) end a support
+  session on the server after a fixed time by deleting its `auth.sessions` row, which bounds
+  how long a leaked one is useful; (3) test on the fixture whether turning the
+  reauthentication setting on stops a password change from a session created minutes
+  earlier. If it does, switching it on is Andrew's, in the Supabase dashboard. If it does not,
+  this route stays a named limit of the support view rather than a hidden one.
+
+Realtime opens no channels (CLAUDE.md, "every realtime channel is private"), and GraphQL obeys
+the same grants and rules as layer A, so neither adds a path.
