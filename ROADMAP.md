@@ -23500,6 +23500,34 @@ their age is not Andrew's problem.
   behind the completed walk, not merely behind code review.
   payment retries → page offline → back when paid. Sandbox proves all of it.
   *A2 5.8*
+
+  NEEDS ANDREW: the Stripe TEST secret key (it starts `sk_test_`) on one line
+  of `.env` as `STRIPE_SECRET_KEY=`. Renew, failed-payment retries and the real
+  page-offline (walk steps 3–5) need a Stripe test clock, a test clock needs
+  that key in the shell, and today it lives only as a Supabase function secret,
+  which a session cannot read. Nothing else in this item is waiting: the walk
+  runs the whole chain the moment the key is there. FOR-ANDREW.md row "Put the
+  Stripe TEST secret key into `.env`".
+
+  **RE-WALKED 2026-10-10 at `de72b29` — "back when paid" NOW PASSES LIVE, AND
+  THE PUBLISH THE RULING ABOVE HELD HAD ALREADY HAPPENED.**
+  `node scripts/billing-walk.mjs`: **18 checks, 0 failed, 3 not measured**
+  (steps 3–5, no key), receipt graded FAIL by `receipt.mjs` because a half-run
+  must not pass. 6d and 6e, red on 2026-10-06, are green: a staged suspension
+  pays to restart and the public page comes back. Why: `node
+  scripts/deployed-inventory.mjs` names `platform-billing` **v62, running copy
+  11h old**, differing only in `_shared/tenant.ts` and `_shared/supportSession.ts`
+  — its `index.ts`, which holds the fix, is what is running. It went out in the
+  same round as `photo-door` and `delete-customer` (also 11h old), **before the
+  walk was complete, against the ruling above.** No paying detailers exist, so
+  nobody was affected, and the published change is the one this item's walk
+  proved. Sabotage re-run: `--break=page-stays-up` red on 6a (1 failed, page
+  read as up while the row said suspended); canary read as down. **The
+  sabotage receipt used to overwrite the honest one** (docs/gotchas.md 117) —
+  the script never recorded its break; it does now, so it lands in
+  `receipts/billing-walk.sabotage.json`. Teardown: no `billing-walk-*` and no
+  `paused` business left (REST read after the runs: `[]`).
+
   **Done when** (written 2026-09-25; this item had none): in Stripe **sandbox**,
   one account is walked through every transition in that chain, and **each one is
   observed in this product's own rows and on the actual booking page** — not
@@ -23532,6 +23560,8 @@ their age is not Andrew's problem.
     billing.test.mjs` was *requiring* that line. **Fixed in this checkout** (the
     line removed, the test inverted and broken on purpose — red with the line
     restored), **not yet live: NEEDS ANDREW to publish `platform-billing`.**
+    ***SUPERSEDED 2026-10-10: published (v62) and passing live; see the
+    re-walk above.***
   * **Renew, failed-payment retries, the real suspension: NOT MEASURED.** They
     need a Stripe test clock, which needs the sandbox secret key in the shell.
     **NEEDS ANDREW** — `FOR-ANDREW.md` § "Waiting on you", first row. The script

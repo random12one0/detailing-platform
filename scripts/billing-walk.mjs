@@ -428,7 +428,9 @@ const { path } = writeReceipt({
   artifacts,
   failures: [...failures, ...notMeasured.map((n) => `NOT MEASURED: ${n}`)],
   warnings: [...warnings, ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [])],
-  dimensions: { stripe_secret_key: SK ? "sandbox" : "absent", book_origin: BOOK_ORIGIN, slug: SLUG },
+  // `break` routes a sabotage run to billing-walk.sabotage.json (gotchas 117);
+  // without it the sabotage red overwrote the honest receipt, measured 2026-10-10.
+  dimensions: { stripe_secret_key: SK ? "sandbox" : "absent", book_origin: BOOK_ORIGIN, slug: SLUG, ...(BREAK ? { break: BREAK } : {}) },
 });
 console.log(`\n${assertions} checks, ${failures.length} failed, ${notMeasured.length} not measured → ${status.toUpperCase()}   (${path})`);
 process.exit(status === "pass" ? 0 : 1);

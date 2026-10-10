@@ -1,0 +1,64 @@
+{
+  "git_sha": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
+  "git_sha_started": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T19:07:45.359Z",
+  "failures": [
+    "6a · PAGE: the staged suspension really is offline on the page — page read: Billing Walk MPVC9B Detailing isn’t taking bookings online yet / They’re still setting this page up. Check back shortly,",
+    "NOT MEASURED: 3 · renew — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+    "NOT MEASURED: 4 · failed payment retries — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+    "NOT MEASURED: 5 · page offline after the retries run out — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock"
+  ],
+  "warnings": [
+    "step 6 started from a suspension this script WROTE (no test clock without a secret key); steps 6a onward are the deployed product",
+    "run with --break=page-stays-up; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/billing-walk/0-canary-nobody.png",
+    "artifacts/billing-walk/2e-paid.png",
+    "artifacts/billing-walk/6a-staged-offline.png",
+    "artifacts/billing-walk/6e-paid-again.png"
+  ],
+  "dimensions": {
+    "stripe_secret_key": "absent",
+    "book_origin": "https://detailingplatform.com",
+    "slug": "billing-walk-mpvc9b",
+    "break": "page-stays-up"
+  },
+  "check_id": "billing-walk",
+  "started_at": "2026-10-10T19:07:05.978Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 3,
+  "skip_allowlist": {
+    "reason": "renew, retries and the real suspension need a test clock, and a test clock needs the sandbox STRIPE_SECRET_KEY in the shell (FOR-ANDREW.md)",
+    "expires": "2026-10-20",
+    "skipped": [
+      {
+        "label": "3 · renew",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      },
+      {
+        "label": "4 · failed payment retries",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      },
+      {
+        "label": "5 · page offline after the retries run out",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      }
+    ]
+  },
+  "assertions_executed": 18,
+  "min_assertions": 15,
+  "canary": {
+    "id": "nonexistent-slug-reads-down",
+    "observed_failure": true
+  }
+}

@@ -1,12 +1,10 @@
 {
-  "git_sha": "05b6f0a85a3c1c45a8e1fa75f8e6633821ecd6ad",
-  "git_sha_started": "05b6f0a85a3c1c45a8e1fa75f8e6633821ecd6ad",
+  "git_sha": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
+  "git_sha_started": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-06T21:10:14.685Z",
+  "finished_at": "2026-10-10T19:08:24.980Z",
   "failures": [
-    "6d · ROW: the business is active again — businesses.status paused",
-    "6e · PAGE: the public booking page is reachable again once paid — page read: Page not found / This booking link doesn’t match a business.",
     "NOT MEASURED: 3 · renew — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
     "NOT MEASURED: 4 · failed payment retries — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
     "NOT MEASURED: 5 · page offline after the retries run out — needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock"
@@ -23,10 +21,10 @@
   "dimensions": {
     "stripe_secret_key": "absent",
     "book_origin": "https://detailingplatform.com",
-    "slug": "billing-walk-pp54ti"
+    "slug": "billing-walk-z62gke"
   },
   "check_id": "billing-walk",
-  "started_at": "2026-10-06T21:09:02.222Z",
+  "started_at": "2026-10-10T19:07:45.715Z",
   "status": "fail",
   "expected_targets": 3,
   "discovered_targets": 3,
@@ -35,7 +33,24 @@
   "skipped_targets": 3,
   "skip_allowlist": {
     "reason": "renew, retries and the real suspension need a test clock, and a test clock needs the sandbox STRIPE_SECRET_KEY in the shell (FOR-ANDREW.md)",
-    "expires": "2026-10-20"
+    "expires": "2026-10-20",
+    "skipped": [
+      {
+        "label": "3 · renew",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      },
+      {
+        "label": "4 · failed payment retries",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      },
+      {
+        "label": "5 · page offline after the retries run out",
+        "reason": "needs a sandbox STRIPE_SECRET_KEY in the shell, for a test clock",
+        "evidence": "looked for STRIPE_SECRET_KEY in the environment before the first step that needs it and it was not set, so the surface could not be tried"
+      }
+    ]
   },
   "assertions_executed": 18,
   "min_assertions": 15,

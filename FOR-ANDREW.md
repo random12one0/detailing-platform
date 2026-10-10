@@ -367,7 +367,8 @@ either way)**; and the sentence a long business name gets, which **step 7 needs*
 
 ### Step 6 · Publish `platform-billing`, alone
 
-The paid-restart fix (ROADMAP 12.1).
+The paid-restart fix (ROADMAP 12.1). **Already done — measured 2026-10-10,
+`platform-billing` v62 is running this fix; skip this step.**
 
 ```bash
 node scripts/deploy-functions.mjs platform-billing
@@ -1648,6 +1649,14 @@ still knows them.
   ROADMAP 12.1 has been tested completely, so a detailer whose page went
   offline for not paying gets it back when they pay (ROADMAP 12.1).** Added
   2026-10-06.
+
+  **ALREADY DONE, measured 2026-10-10.** This went out about 11 hours earlier,
+  in the same round as the photo functions, so it is live now — before every
+  scenario was tested, which is not what you asked for. Nobody was affected (no
+  paying detailers yet), and the billing walk now shows a paused page coming
+  back once paid. Nothing to do here, and step 6 of the publishing list is
+  done too. The only billing step still waiting on you is the test key row
+  above.
 
   **What this is.** Measured on the real booking page today: a detailer whose
   page was switched off for non-payment pays to restart, the billing record
