@@ -59,6 +59,7 @@ import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
 import Payments from "./Payments.jsx";
+import GoogleBusiness from "./GoogleBusiness.jsx";
 import Billing from "./Billing.jsx";
 import Hours from "./Hours.jsx";
 import BookingRules from "./BookingRules.jsx";
@@ -86,6 +87,9 @@ export const SCREENS = {
   // and they have to agree: here, the Business row, and `lib/setup.js`.
   faq: [Faq, "FAQ"],
   domain: [WebAddress, "Your web address"],
+  // ROADMAP 99.1 — under "Where customers come from": a Google listing is where
+  // a customer finds the business before they ever see the booking page.
+  google: [GoogleBusiness, "Google Business"],
   campaigns: [Campaigns, "Tracking links"],
   report: [ReportProblem, "Report a problem"],
   catalog: [Catalog, "Services & add-ons"],

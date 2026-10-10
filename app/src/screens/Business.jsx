@@ -47,7 +47,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   CalendarClock, ChevronRight, ClipboardList, Globe, HelpCircle, Images, ListChecks,
   QrCode,
-  MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
+  MapPin, MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -462,6 +462,10 @@ export default function Business({ onSetup, initial = null }) {
       // more obvious as not a campaign."* Nothing about the feature changed;
       // the word was doing the damage. A detailer who wants to know whether
       // Yelp is worth it does not go looking for a row called Campaign links.
+      // ROADMAP 99.1. A static summary on purpose: the connection lives behind
+      // an owner-only call, and an index that made it for every row would be a
+      // menu with a network request in it (GearMenu refuses the same).
+      ["google", "Google Business", MapPin, "Your listing on Google"],
       ["campaigns", "Tracking links", QrCode,
         // ROADMAP 5.4 — WHAT THIS ROW SAYS, AND WHY IT IS NOT "OPENS".
         // "21 opens" was three wrong things in one word: page loads rather

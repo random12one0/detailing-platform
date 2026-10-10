@@ -1517,6 +1517,32 @@ export const appEs = {
   "Closes": "Cierra",
   "Code": "Código",
   "Committed until": "Comprometido hasta",
+  // ROADMAP 99.1 — the Google Business screen.
+  "Google Business": "Google Business",
+  "Your listing on Google": "Tu ficha en Google",
+  "Google Business profile": "Perfil de Google Business",
+  "Connect the Google account that manages your business listing. You can disconnect it whenever you like.":
+    "Conecta la cuenta de Google que administra la ficha de tu negocio. Puedes desconectarla cuando quieras.",
+  "Connecting Google is not switched on yet. Nothing for you to do; we will tell you when it is.":
+    "La conexión con Google todavía no está activada. No tienes que hacer nada; te avisaremos cuando lo esté.",
+  "Only the owner can connect Google.": "Solo el dueño puede conectar Google.",
+  "Connected to {account}": "Conectado a {account}",
+  "your Google account": "tu cuenta de Google",
+  "Connected": "Conectado",
+  "Connecting": "Conectando",
+  "Connect Google": "Conectar Google",
+  "Connect again": "Conectar de nuevo",
+  "Disconnect Google": "Desconectar Google",
+  "Disconnect Google? Your Google listing stays exactly as it is.":
+    "¿Desconectar Google? Tu ficha en Google se queda tal como está.",
+  "Your hours, services and photos are not sent to Google yet. Until they are, update your listing on Google yourself. We will tell you when this starts.":
+    "Tu horario, servicios y fotos todavía no se envían a Google. Mientras tanto, actualiza tu ficha en Google tú mismo. Te avisaremos cuando esto empiece.",
+  "Google did not accept the link, so nothing is connected. Your Google listing has not been changed. Check that you signed in with the Google account that manages your business profile, then try again.":
+    "Google no aceptó la conexión, así que no hay nada conectado. Tu ficha en Google no ha cambiado. Revisa que hayas entrado con la cuenta de Google que administra el perfil de tu negocio y vuelve a intentarlo.",
+  "The link to Google stopped working. Your Google listing has not been changed, but it is no longer connected. Connect again to fix it.":
+    "La conexión con Google dejó de funcionar. Tu ficha en Google no ha cambiado, pero ya no está conectada. Conecta de nuevo para arreglarlo.",
+  "Could not reach Google just now. Nothing was changed. Try again in a minute.":
+    "No se pudo contactar con Google en este momento. No se cambió nada. Inténtalo de nuevo en un minuto.",
   "Connect Stripe": "Conectar Stripe",
   "Connect a Stripe account to take card payments.":
     "Conecta una cuenta de Stripe para aceptar pagos con tarjeta.",

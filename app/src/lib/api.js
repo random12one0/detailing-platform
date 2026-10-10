@@ -289,6 +289,11 @@ export const api = {
   connect: (businessId, action, extra = {}) =>
     callFn("connect-account", { business_id: businessId, action, ...extra }),
 
+  // ROADMAP 99.1 — the detailer's Google Business link. Owner-only on the
+  // server, 404 for anybody else; every action answers with one status object.
+  googleBusiness: (businessId, action, extra = {}) =>
+    callFn("google-business", { business_id: businessId, action, ...extra }),
+
   // ROADMAP 2.20 STAGE 3 — the CUSTOMER's end. Public: the booking's own
   // unguessable uuid is the credential, like the receipt it is pressed from.
   // Returns a `checkout.stripe.com` url to leave for; the server decides
