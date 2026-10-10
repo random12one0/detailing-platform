@@ -1,0 +1,76 @@
+{
+  "git_sha": "cc27db130c0575e644cbab76000deb2e45766317",
+  "git_sha_started": "cc27db130c0575e644cbab76000deb2e45766317",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T17:25:53.741Z",
+  "failures": [],
+  "warnings": [
+    "The worst fade opacity anywhere in a text line's box is used, so a pass is a floor on legibility, not a reading of the exact glyph pixels.",
+    "Lines that are under 4.5:1 with NO fade at all are listed by name and are not graded: that is the design's own contrast, not this item's.",
+    "Document scroller at phone and tablet widths only. At 1024+ the scrim is display:none."
+  ],
+  "artifacts": [
+    "artifacts/scrim-clearance/320x640-en-calendar-end.png",
+    "artifacts/scrim-clearance/320x640-en-calendar-legend.png",
+    "artifacts/scrim-clearance/320x640-en-clients-end.png",
+    "artifacts/scrim-clearance/320x640-es-calendar-end.png",
+    "artifacts/scrim-clearance/320x640-es-calendar-legend.png",
+    "artifacts/scrim-clearance/320x640-es-clients-end.png",
+    "artifacts/scrim-clearance/392x844-en-calendar-end.png",
+    "artifacts/scrim-clearance/392x844-en-clients-end.png",
+    "artifacts/scrim-clearance/392x844-es-calendar-end.png",
+    "artifacts/scrim-clearance/392x844-es-clients-end.png",
+    "artifacts/scrim-clearance/320x640-en-calendar-legend-old-geometry-.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x640",
+      "392x844"
+    ],
+    "langs": [
+      "en",
+      "es"
+    ],
+    "states": [
+      "calendar-end",
+      "calendar-legend",
+      "clients-end"
+    ],
+    "band_px": 40,
+    "max_alpha": 0.02,
+    "observed": [
+      "320x640 en calendar-end: fade over band 1%, worst line 6.20:1 («Mobile and drop-off both boo» 6.20→6.20)",
+      "320x640 en calendar-legend: fade over band 1%, worst line 6.53:1 («Booked» 6.62→6.62, «Done» 6.66→6.66, «Blocked» 6.53→6.53)",
+      "320x640 en clients-end: fade over band 1%, worst line 6.51:1 («8 months ago» 6.63→6.63, «(562) 555-0683» 6.59→6.59, «lifetime» 6.51→6.51)",
+      "320x640 es calendar-end: fade over band 1%, worst line 6.20:1 («Se puede agendar a domicilio» 6.20→6.20)",
+      "320x640 es calendar-legend: fade over band 1%, worst line 6.42:1 («Agendado» 6.64→6.64, «Terminados» 6.58→6.58, «Bloqueado» 6.42→6.42)",
+      "320x640 es clients-end: fade over band 1%, worst line 6.50:1 («hace 8 meses» 6.79→6.79, «(562) 555-0683» 6.60→6.60, «en total» 6.50→6.50)",
+      "392x844 en calendar-end: fade over band 1%, worst line 6.20:1 («Mobile and drop-off both boo» 6.20→6.20, «Set» 15.32→15.32)",
+      "392x844 en clients-end: fade over band 1%, worst line 6.38:1 («8 months ago» 6.78→6.78, «(562) 555-0683» 6.60→6.60, «lifetime» 6.38→6.38)",
+      "392x844 es calendar-end: fade over band 1%, worst line 6.20:1 («Se puede agendar a domicilio» 6.20→6.20)",
+      "392x844 es clients-end: fade over band 1%, worst line 6.38:1 («hace 8 meses» 6.78→6.78, «(562) 555-0683» 6.60→6.60, «en total» 6.38→6.38)"
+    ],
+    "not_the_scrim": [],
+    "sabotage": null
+  },
+  "check_id": "scrim-clearance",
+  "started_at": "2026-10-10T17:25:22.169Z",
+  "status": "pass",
+  "expected_targets": 11,
+  "discovered_targets": 11,
+  "attempted_targets": 11,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 33,
+  "min_assertions": 33,
+  "assertion_floor": "10 runs x 3 questions + 1 canary x 3 = 33 (320x640: 3 states x 2 languages, 392x844: 2 states x 2 languages, the legend state at 320 only). Fixed by the lists above, never by what the run finds: a state with no text in the band grades as a failed `subjects`, it does not drop out.",
+  "canary": {
+    "id": "the-pre-9.19-geometry-put-back",
+    "observed_failure": true,
+    "problems": [
+      "band-alpha the fade is 67% opaque over the last 40px of content (content stops 96px from the bottom; the fade is not allowed above 2%)",
+      "legibility «Booked» 6.78:1 → 1.92:1 under the fade; «Done» 6.65:1 → 1.91:1 under the fade; «Blocked» 6.49:1 → 1.90:1 under the fade"
+    ]
+  }
+}

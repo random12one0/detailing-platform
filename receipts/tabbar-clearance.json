@@ -1,9 +1,9 @@
 {
-  "git_sha": "aab51f96eb06b0577240eca592acc289aae3de55",
-  "git_sha_started": "aab51f96eb06b0577240eca592acc289aae3de55",
+  "git_sha": "cc27db130c0575e644cbab76000deb2e45766317",
+  "git_sha_started": "cc27db130c0575e644cbab76000deb2e45766317",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T03:50:06.781Z",
+  "finished_at": "2026-10-10T17:16:22.283Z",
   "failures": [],
   "warnings": [
     "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after — never the rect. A rect-only scan under-measures every control using the negative-inset pattern by its overhang and calls a legal control broken."
@@ -43,26 +43,24 @@
     "observed": [
       "320x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 45px",
       "320x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
-      "320x844 today: 5 visible control(s), bar top 776, worst reachable 46px",
+      "320x844 today: 6 visible control(s), bar top 776, worst reachable 46px",
       "392x844 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 776, worst reachable 45px",
       "392x844 business: 5 visible control(s), bar top 776, worst reachable 45px",
-      "392x844 today: 5 visible control(s), bar top 776, worst reachable 46px",
+      "392x844 today: 6 visible control(s), bar top 776, worst reachable 46px",
       "768x1024 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 956, worst reachable 45px",
       "768x1024 business: 5 visible control(s), bar top 956, worst reachable 45px",
-      "768x1024 today: 5 visible control(s), bar top 956, worst reachable 46px",
-      "1440x900 rules: 12 control(s) short of 44px for reasons OTHER than the bar — worst «None» at 42px, lost to {\"app-main\":4} (recorded, not this item's fault)",
-      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 309, worst reachable 41px",
+      "768x1024 today: 6 visible control(s), bar top 956, worst reachable 46px",
+      "1440x900 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 309, worst reachable 45px",
       "1440x900 business: 5 visible control(s), bar top 309, worst reachable 46px",
-      "1440x900 today: 5 visible control(s), bar top 309, worst reachable 46px",
-      "1920x1080 rules: 12 control(s) short of 44px for reasons OTHER than the bar — worst «None» at 42px, lost to {\"app-main\":4} (recorded, not this item's fault)",
-      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 399, worst reachable 41px",
+      "1440x900 today: 6 visible control(s), bar top 309, worst reachable 46px",
+      "1920x1080 rules: 12 visible control(s) (+29 inside closed folds, not measured), bar top 399, worst reachable 45px",
       "1920x1080 business: 5 visible control(s), bar top 399, worst reachable 46px",
-      "1920x1080 today: 5 visible control(s), bar top 399, worst reachable 46px"
+      "1920x1080 today: 6 visible control(s), bar top 399, worst reachable 46px"
     ],
     "sabotage": null
   },
   "check_id": "tabbar-clearance",
-  "started_at": "2026-09-24T03:49:22.924Z",
+  "started_at": "2026-10-10T17:15:34.914Z",
   "status": "pass",
   "expected_targets": 16,
   "discovered_targets": 16,

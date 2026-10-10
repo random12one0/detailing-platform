@@ -22601,9 +22601,52 @@ the dashboard or back office at phone width at all.
   throwaway platform admin created and dropped for the probe; `platform_admins`
   verified back to its two declared rows afterwards.*
 
-- [ ] **9.19 — The fade at the bottom of every dashboard screen is 40px taller
+- [x] **9.19 — The fade at the bottom of every dashboard screen is 40px taller
   than the gap left for it, so the last line of content is always under it.**
-  Found by DP Cowork during 9.4, 2026-10-07. **Filed, not fixed.**
+  Found by DP Cowork during 9.4, 2026-10-07. **FIXED 2026-10-10 — see the paragraph below; the original text follows it unedited.**
+
+  ***FIXED 2026-10-10, measured at the commit that carries this paragraph, with the numbers below taken from
+  `receipts/scrim-clearance.json` (PASS, 11 of 11 targets, 33 assertions, canary caught) and its sabotage twin.***
+  **The change is two lines in `app/src/theme.css`:** `--tabclear` is now `136px + safe-b` (was 96) and `.tabscrim`'s height
+  is `var(--tabclear)` with nothing added (was `+ 40px`). The strip is the same strip it always was — solid to 76px, fading
+  over the top 60px — so the look of the bar is untouched; what moved is **where the page stops**: the last pixel of content
+  now rests where the fade has already ended. Cost, stated plainly: **40px more empty ground under the last row** on phone and
+  tablet screens. Desktop (1024+) never had the strip and is unchanged.
+
+  **WHY RAISING `--tabclear` WAS SAFE HERE** (CLAUDE.md's shared-variable rule, in full). The only readers are `theme.css`'s
+  three (the page's bottom padding, the scrim's height, `html:has(.tabbar)`'s `scroll-padding-bottom`) and
+  `tabbar-clearance.mjs`'s canary. The padding and the scrim are *meant* to be the same number — raising it is how the
+  stylesheet's own comment becomes true. The scroll padding rises with it, so a focused control is now parked 40px higher,
+  which is further from the bar, not nearer. **2.32's finding stands and is not contradicted:** a reserve never fixed focus
+  parking, and this does not claim to — it fixes where the page ENDS. `--bk-bar-clear` is a different variable on pages with
+  no tab bar and is not touched. **Shrinking the strip instead was weighed and rejected:** fading 76→96 is a 20px edge, the
+  band `:1229` was written to avoid.
+
+  **THE GATE, `scripts/scrim-clearance.mjs` (done-when (b)) — it reads PIXELS, because the scrim is `pointer-events: none`.**
+  The fade's own opacity comes from a render with everything else hidden on a white ground; each text line in the last 40px
+  of content is graded with and without that fade. **Red on the build before the fix, for real:** `app/src/theme.css` was put
+  back byte-identical to `HEAD` (`git diff --numstat` empty, so the break landed) and the run reported **20 failures of 33
+  assertions** — the fade 67% opaque over the band at all ten states, the calendar legend **6.78:1 → 1.92:1 in English and
+  6.78:1 → 1.99:1 in Spanish at 320x640**, client rows 6.6:1 → 3.0:1, the calendar's bottom card 6.2:1 → 3.59:1. **Green after:**
+  fade 1% over the band everywhere, every line unchanged (legend 6.4–6.7:1, clients 6.4–6.8:1). `--break=old-geometry` puts
+  the old 96/136 pair back for the whole run (20 failures, receipt `scrim-clearance.sabotage.json`); the in-run canary does the
+  same on the legend and was caught; `--break=canary` drops it and the receipt refuses (10 of 11 targets, canary MISSED).
+  **Done-when (a):** at 320x640 in both languages, on the calendar legend and on Clients (text-dense, not the calendar) the
+  last 40px measures 6.4:1 or better — above 4.5:1 — against what is painted over it.
+  **A number that did NOT reproduce, said plainly:** DP Cowork's *1.47:1 in Spanish* — this run reads 1.95–1.99:1 for the
+  same legend pressed to the content line. Their English figure (1.92:1) reproduces. The gap is probably the scroll position
+  the legend was caught at (Spanish wraps deeper); the defect and its size are the same.
+  **Done-when (c):** `tabbar-clearance.mjs` **PASS, 16 of 16 targets, 48 assertions**, canary caught; `bk-bar-clearance.mjs`
+  **137 of 137 targets, 955 assertions, gate HELD, 0 outside the declared hold** (14.37's three rows still read *0 of N rows*
+  covered at the end of scrolling). **Which instrument covers which:** the hit-test ones (`tabbar-clearance`,
+  `bk-bar-clearance`) cover *can it be pressed*; `scrim-clearance` covers *can it be read* — the half gotchas 100 says no hit
+  test can see. **What it does not cover:** the exact glyph pixels (it takes the worst fade opacity anywhere in a line's box,
+  a floor), and any screen other than Calendar and Clients at 320 and 392 (the other tabs share the same shell strip, so the
+  geometry is the same, but they are not each pressed).
+  **Two instrument faults found and fixed while building it, kept because both printed a false defect:** the ground under text
+  here is dithered by a noise layer, so a "most common pixel" background was the TEXT's own colour (1.37:1 on a label that reads
+  6.5:1); and the page scrolls smoothly, so rects read in the same breath as `scrollBy` belong to a position the screenshot never
+  sees. **Screenshots** before and after, 320 and 390 and 1440, are in the belt's `shots/9.19/`.
 
   **IN PLAIN WORDS.** The tab bar at the bottom of the app is glass, so a strip
   of fading ground is painted behind it — otherwise the page's own words show

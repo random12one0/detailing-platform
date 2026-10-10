@@ -335,10 +335,16 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
 
   /* How much room the bottom of a phone screen owes the floating tab bar: the
-     bar's own box, the gap under it, and the home indicator below that. Read
-     by `.app-main`'s bottom padding AND by the scrim that covers the same
-     strip, because they are the same strip. */
-  --tabclear: calc(96px + var(--safe-b));
+     bar's own box, the gap under it, the home indicator below that, and the
+     whole of the fade above the bar. Read by `.app-main`'s bottom padding AND
+     by the scrim that covers the same strip, because they are the same strip.
+     136 = 68 (the bar's top edge) + 8 (solid ground above it) + 60 (the fade).
+     **IT WAS 96 UNTIL ROADMAP 9.19 while the scrim was `--tabclear + 40`**, so
+     the last 40px of every screen rested inside the fade (1.47:1 on the
+     calendar legend in Spanish at 320x640). The scrim is now exactly this
+     tall, so a page scrolled to its end stops where the fade has ended.
+     `scripts/scrim-clearance.mjs` is the gate that can see it. */
+  --tabclear: calc(136px + var(--safe-b));
 
   /* HOW FAR A CONTROL'S PRESSABLE AREA REACHES PAST ITS OWN BOX — ROADMAP
      2.32, 2026-09-23.
@@ -1146,7 +1152,10 @@ a { color: var(--accent-text); text-decoration: none; }
 
    ONE NUMBER, `--tabclear`, SHARED WITH `.app-main`'s BOTTOM PADDING. The
    space the page reserves and the space the ground covers are the same space;
-   two numbers is how one of them drifts. */
+   two numbers is how one of them drifts. 9.19: the scrim was written as
+   `--tabclear + 40px` here while this comment said they were the same, and
+   the page's last 40px sat under the fade for weeks. The scrim's height is
+   now `var(--tabclear)` with nothing added; do not add anything back. */
 /* THE BROWSER MUST NOT PARK A FOCUSED CONTROL UNDER THE TAB BAR — ROADMAP
    2.32, 2026-09-23.
 
@@ -1232,7 +1241,7 @@ html:has(.tabbar) {
      the same fault in a 29px strip. The ground now runs solid to about 8px
      above the bar and then fades over 60px, which is far enough that the
      dissolve reads as the page ending rather than as a band. */
-  height: calc(var(--tabclear) + 40px);
+  height: var(--tabclear);
   pointer-events: none;
   background: linear-gradient(to top,
     var(--ink-0) 0, var(--ink-0) calc(100% - 60px), transparent 100%);
