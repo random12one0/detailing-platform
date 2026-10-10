@@ -1,0 +1,44 @@
+{
+  "git_sha": "ec7d274282834a146e3f5f1f3d3bfcfc06f242d5",
+  "git_sha_started": "ec7d274282834a146e3f5f1f3d3bfcfc06f242d5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:35:58.261Z",
+  "failures": [
+    "every RLS table carries exactly three restrictive write rules rules 0, tables 7",
+    "support session refused: table insert {\"rows\":[],\"affected\":1,\"stmt\":\"insert into public.widgets (business_id, name) values ('22222222-2222-2222-2222-222222222222', 'new')\"}",
+    "support session refused: table update {\"rows\":[],\"affected\":2,\"stmt\":\"update public.widgets set name = 'changed' where business_id = '22222222-2222-2222-2222-222222222222'\"}",
+    "support session refused: table delete {\"rows\":[],\"affected\":2,\"stmt\":\"delete from public.widgets where business_id = '22222222-2222-2222-2222-222222222222'\"}",
+    "support session refused: storage insert {\"rows\":[],\"affected\":1,\"stmt\":\"insert into storage.objects (bucket_id, name) values ('business-media', 'new.png')\"}",
+    "support session refused: storage update {\"rows\":[],\"affected\":2,\"stmt\":\"update storage.objects set name = 'renamed.png'\"}",
+    "support session refused: storage delete {\"rows\":[],\"affected\":2,\"stmt\":\"delete from storage.objects\"}",
+    "nothing the support session tried actually changed {\"w\":0,\"o\":0,\"names\":null,\"lang\":null,\"v\":0}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/support-sessions-sql/results.json"
+  ],
+  "dimensions": {
+    "break": "permissive",
+    "migration": "20261010030000_support_sessions_read_only.sql",
+    "rls_tables_in_fixture": 7,
+    "write_paths": 8,
+    "refused_for_support": 2,
+    "allowed_for_owner": 8
+  },
+  "check_id": "support-sessions-sql",
+  "started_at": "2026-10-10T15:35:55.843Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 26,
+  "min_assertions": 26,
+  "assertion_floor": "structural: one assertion per fixed write path per session plus fixed setup checks, so the count cannot vary between runs",
+  "canary": {
+    "id": "restrictive-made-permissive",
+    "observed_failure": true
+  }
+}
