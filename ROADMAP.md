@@ -28753,5 +28753,29 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - - Detailers' `/app` works exactly as before.
   - - Every remaining check script passes, and none points at a deleted screen.
   - - Andrew has looked at the rebuilt back office and accepted it (the existing done-when for 9.12a).
+  **2026-10-10 — CUT INTO TWO SLICES. 99.3a DONE; 99.3b WAITS ON 9.12a STEPS 2–4. BOX STAYS OPEN.**
+  - [x] **99.3a — the gear's back-office row and its question are gone** (plan steps 3, 5 and 6; commits `2953eaf4`, `a700bcd4`).
+    `GearMenu.jsx` no longer draws "The website business" row for anybody, no longer asks `platform-admin` `whoami`, and has
+    no cache; the two Spanish keys went with it. **Proved:** `node scripts/gear-whoami.mjs` (rewritten for this) **37 of 37**
+    at `a700bcd4`: staff and owner, 1440/392/320 and 392 `?lite=1`, three gear opens each, **0** `platform-admin` calls,
+    no row, console silent, gear drew 7 rows (staff) and 9 (owner) against a floor of 5; plus the server still answering a
+    non-admin and an anonymous caller with a bare 404 (plan step 7). `--break=ask` serves the gear with the old call and
+    row put back: **24 of 24 browser assertions red**, both rewrites signed as landed and run
+    (`receipts/gear-whoami.sabotage.json`). `node scripts/admin-refuses.mjs` **21 of 21** at `a700bcd4` (gear row absent
+    for both; owner admitted at `/admin`, staff shown "Page not found" at 1440/392/320 — criterion 4); its `--break=let-in`
+    still turns staff's `/admin` red at all 3 widths. `scripts/verify-9-16-gear-row.mjs` deleted (its subject is gone);
+    `sweep-tap-targets.mjs` exempts no door now and its leaving-door test is 5/5 and reddens on a stale key; gotcha 120
+    rewritten, because the 404 now happens only on `/admin` for a non-admin.
+  - [ ] **99.3b — the new back office moves onto `/admin`; the old screen and `/admin/office` are deleted** (plan steps 1,
+    2, 4 and 8). **Not started, on purpose: it has to follow 9.12a steps 2–4 (Today, Money, System).** Only Detailers is
+    built. Switching today would delete, with nothing in their place: the "did we make money" screen (9.14, ticked),
+    signing up a detailer, the platform price editor and the mail list (9.12a's list of old-only actions). It would also
+    leave `scripts/admin-preconditions.mjs`, which 9.12a's done-when requires to pass, testing Today and Money tabs that no
+    longer exist — the exact "check that fails only because the thing it tested was deleted" this item forbids. When it
+    runs: `OfficePage` takes over `/admin` and carries the sign-in door (it currently redirects a signed-out visitor to
+    `/admin` for it); `App.jsx`'s impersonation "Leave" button already points at `/admin`; six scripts wait on `.pa-top`
+    (`grep -ln pa-top scripts/*.mjs` at `a700bcd4`: admin-furniture-clearance, admin-preconditions, admin-refuses,
+    office-detailers, platform-costs-live, platform-net-live) and each must be moved to the new screen or retired with it;
+    `/admin/office` must then show "Page not found".
 
 

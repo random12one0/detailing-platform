@@ -1,15 +1,12 @@
 {
-  "git_sha": "bb43496a1ff22d9f35b99269144d1f3de8ebe861",
-  "git_sha_started": "bb43496a1ff22d9f35b99269144d1f3de8ebe861",
+  "git_sha": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
+  "git_sha_started": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T19:50:26.871Z",
+  "finished_at": "2026-10-10T21:15:59.540Z",
   "failures": [
-    "staff/1440/gear-row-absent: \"The website business\" shown: true",
     "staff/1440/admin-refused: screen: admitted (back office true, 404 false)",
-    "staff/392/gear-row-absent: \"The website business\" shown: true",
     "staff/392/admin-refused: screen: admitted (back office true, 404 false)",
-    "staff/320/gear-row-absent: \"The website business\" shown: true",
     "staff/320/admin-refused: screen: admitted (back office true, 404 false)"
   ],
   "warnings": [
@@ -32,7 +29,7 @@
     "break": "let-in"
   },
   "check_id": "admin-refuses",
-  "started_at": "2026-10-10T19:49:55.116Z",
+  "started_at": "2026-10-10T21:15:25.563Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -49,35 +46,35 @@
   "sabotage": [
     {
       "tag": "staff/1440",
-      "route_hits": 3
+      "route_hits": 2
     },
     {
       "tag": "staff/392",
-      "route_hits": 3
+      "route_hits": 2
     },
     {
       "tag": "staff/320",
-      "route_hits": 3
+      "route_hits": 2
     }
   ],
   "observed": [
     "PASS roster/parsed — 2 declared; owner on it, staff off it",
-    "PASS owner/1440/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/1440/gear-row-absent — \"The website business\" shown: false",
     "PASS owner/1440/admin-admitted — screen: admitted (back office true, 404 false)",
     "PASS owner/1440/console — 0 designed platform-admin 404 line(s), 0 other",
-    "PASS owner/392/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/392/gear-row-absent — \"The website business\" shown: false",
     "PASS owner/392/admin-admitted — screen: admitted (back office true, 404 false)",
     "PASS owner/392/console — 0 designed platform-admin 404 line(s), 0 other",
-    "PASS owner/320/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/320/gear-row-absent — \"The website business\" shown: false",
     "PASS owner/320/admin-admitted — screen: admitted (back office true, 404 false)",
     "PASS owner/320/console — 0 designed platform-admin 404 line(s), 0 other",
-    "FAIL staff/1440/gear-row-absent — \"The website business\" shown: true",
+    "PASS staff/1440/gear-row-absent — \"The website business\" shown: false",
     "FAIL staff/1440/admin-refused — screen: admitted (back office true, 404 false)",
     "PASS staff/1440/console — 0 designed platform-admin 404 line(s), 0 other",
-    "FAIL staff/392/gear-row-absent — \"The website business\" shown: true",
+    "PASS staff/392/gear-row-absent — \"The website business\" shown: false",
     "FAIL staff/392/admin-refused — screen: admitted (back office true, 404 false)",
     "PASS staff/392/console — 0 designed platform-admin 404 line(s), 0 other",
-    "FAIL staff/320/gear-row-absent — \"The website business\" shown: true",
+    "PASS staff/320/gear-row-absent — \"The website business\" shown: false",
     "FAIL staff/320/admin-refused — screen: admitted (back office true, 404 false)",
     "PASS staff/320/console — 0 designed platform-admin 404 line(s), 0 other",
     "PASS canary/both-screens — both drawn must read as neither, got neither",
