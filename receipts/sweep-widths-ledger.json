@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-10-10T18:38:45.231Z",
+  "updated_at": "2026-10-10T18:48:34.394Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -1774,6 +1774,26 @@
       "measured": 85,
       "declared": 5,
       "expected": 88
+    },
+    {
+      "at": "2026-10-10T18:46:36.123Z",
+      "sha": "",
+      "width": 320,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 86,
+      "declared": 5,
+      "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:48:34.383Z",
+      "sha": "",
+      "width": 320,
+      "mode": "default",
+      "outcome": "complete",
+      "measured": 86,
+      "declared": 5,
+      "expected": 89
     }
   ]
 }

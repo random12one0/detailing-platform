@@ -23285,7 +23285,7 @@ the dashboard or back office at phone width at all.
   *Found by the supervisor, 2026-10-09, while proving 3.1a. It is not 3.1a's;
   3.1a's own check reports it because the check reads the console honestly.*
 
-- [ ] **9.25 — In Spanish at 320, "Cancelar" pokes 6px past its row on two Monthly plans
+- [x] **9.25 — In Spanish at 320, "Cancelar" pokes 6px past its row on two Monthly plans
   screens.** `LANG_APP=es node scripts/sweep-widths.mjs 320`, 2026-10-10 at `a334bceb`, twice:
   `Business · Monthly plans, the member form` and `… the QR` both print `past-parent +6px
   button.btn.ghost.inline in div.row «Cancelar»`. English is clean on both, and so is Spanish at
@@ -23296,6 +23296,17 @@ the dashboard or back office at phone width at all.
   *Found by 9.15a's Spanish widening run. Not tour code.*
   **SUPERVISOR 2026-10-10:** "so is Spanish at 1440" is unproven — see 9.26.
   **9.26 PROVED IT 2026-10-10:** Spanish at 1440 alone is `clean`, 85 of 85 surfaces.
+  **DONE 2026-10-10.** It was the WORD, not a nudge: at 320 the member form's row is
+  246px wide, and "Registrar este miembro" (124px, already squashed onto two lines) plus
+  "Cancelar" (120px) plus the 8px gap need 252px. Fix: `row wrap` on the two button rows
+  (`Plans.jsx:368` plan form, `:468` member form), so Cancelar drops to its own line
+  instead of leaving the row. Probe, Spanish 320: Cancelar spanned 169-289 in a row
+  ending at 283 before, 37-157 after; English at 390 and 1440 unchanged. Full sweeps
+  after: `LANG_APP=es node scripts/sweep-widths.mjs 320` prints the member form and the QR
+  `clean`, 86 of 86 measured (3 job-record surfaces declared unreachable, all accounted
+  for); English 320 the same, 86 of 86. The original defect was caught by the pre-fix
+  run of that same sweep (`past-parent +6px` on both screens). Console empty at all
+  three widths.
 
 - [x] **9.26 — The Spanish sweep at 1440 measures almost nothing and its receipt does not say so.**
   **DONE 2026-10-10.** The premise was wrong, and the receipt was why nobody could tell:

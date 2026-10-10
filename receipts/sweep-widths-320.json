@@ -1,20 +1,10 @@
 {
-  "git_sha": "43b43740a58747bb4ee0ca8e8e98188929e211ac",
-  "git_sha_started": "fbfa9cea3c866cb70a9120d15ca5d00abd48634d",
-  "head_moved": true,
+  "git_sha": "38bf73b3b67f014e771de25f78cc57ded1a5f02f",
+  "git_sha_started": "38bf73b3b67f014e771de25f78cc57ded1a5f02f",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-03T03:25:32.474Z",
-  "failures": [
-    {
-      "target": "(not a per-surface geometry finding)",
-      "count": 1,
-      "captured": [
-        "gear · subscription, cancelling NOT MEASURED — this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
-        "gear · subscription, past due NOT MEASURED — nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
-      ],
-      "why": "1 problem(s) raised, 2 line(s) captured. The capture pattern does not know every phrase this script prints; read the run output."
-    }
-  ],
+  "finished_at": "2026-10-10T18:48:34.448Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/sweep-widths/index.html"
@@ -31,41 +21,51 @@
     ]
   },
   "check_id": "sweep-widths-320",
-  "started_at": "2026-10-03T03:22:14.212Z",
-  "status": "fail",
-  "expected_targets": 152,
-  "discovered_targets": 152,
-  "attempted_targets": 152,
-  "completed_targets": 152,
-  "skipped_targets": 4,
+  "started_at": "2026-10-10T18:46:36.685Z",
+  "status": "pass",
+  "expected_targets": 86,
+  "discovered_targets": 86,
+  "attempted_targets": 86,
+  "completed_targets": 86,
+  "skipped_targets": 5,
   "skip_allowlist": {
     "reason": "Surfaces the demo cannot be in the state for at the hour this ran. Each one declared its own reason in the output and each was probed again before the skip was accepted — a skip over a reachable surface is refused and fails the run (ROADMAP 8.1b).",
     "expires": "2027-01-01",
     "skipped": [
       {
         "width": 320,
+        "label": "job record · finished",
+        "reason": "no finished job on today's rail yet. A job is finished once it has ENDED, so before the first shift of the day completes this state cannot exist (ROADMAP 8.1b)",
+        "evidence": "probe re-asked at the moment of the skip and found 0; a surface that was there would have refused the skip"
+      },
+      {
+        "width": 320,
+        "label": "job record · finalize",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "evidence": "probe re-asked at the moment of the skip and found 0; a surface that was there would have refused the skip"
+      },
+      {
+        "width": 320,
+        "label": "job record · send a text",
+        "reason": "no finished job on today's rail yet, and this dialog opens from that record. Before the first shift of the day completes there is nothing to finalize (ROADMAP 8.1b)",
+        "evidence": "probe re-asked at the moment of the skip and found 0; a surface that was there would have refused the skip"
+      },
+      {
+        "width": 320,
         "label": "gear · subscription, cancelling",
-        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)"
+        "reason": "this demo has no subscription, so there is nothing to cancel. The default seed is deliberately unsubscribed — it draws the checkout ladder instead, which is two surfaces rather than one. `node scripts/seed-demo.mjs --subscription=past_due` swaps which half is measured (ROADMAP 8.1b)",
+        "evidence": "probe re-asked at the moment of the skip and found 0; a surface that was there would have refused the skip"
       },
       {
         "width": 320,
         "label": "gear · subscription, past due",
-        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)"
-      },
-      {
-        "width": 320,
-        "label": "tour · step 36",
-        "reason": "the tour walked 35 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
-      },
-      {
-        "width": 320,
-        "label": "guide · today 7",
-        "reason": "the today guide walked 6 step(s) on this dashboard and ended on the last card it had (6 of 6). A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), so this label is a step this dashboard cannot produce — not a step that was missed"
+        "reason": "nothing is overdue on this demo, and nothing can be: the default seed writes no subscription at all, so there is no payment to fail. Same either/or as the cancel button above (ROADMAP 8.1b)",
+        "evidence": "probe re-asked at the moment of the skip and found 0; a surface that was there would have refused the skip"
       }
     ]
   },
-  "assertions_executed": 63262,
-  "min_assertions": 608,
+  "assertions_executed": 33186,
+  "min_assertions": 344,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",
     "observed_failure": true,

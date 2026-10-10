@@ -1,25 +1,10 @@
 {
-  "git_sha": "056ef2c1c11e569de95eb4dca86889ceceab6417",
-  "git_sha_started": "056ef2c1c11e569de95eb4dca86889ceceab6417",
+  "git_sha": "38bf73b3b67f014e771de25f78cc57ded1a5f02f",
+  "git_sha_started": "38bf73b3b67f014e771de25f78cc57ded1a5f02f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T18:34:37.345Z",
-  "failures": [
-    {
-      "target": "Business · Monthly plans, the member form",
-      "width": 320,
-      "findings": [
-        "past-parent    +6px  button.btn.ghost.inline in div.row  «Cancelar»"
-      ]
-    },
-    {
-      "target": "Business · Monthly plans, the QR",
-      "width": 320,
-      "findings": [
-        "past-parent    +6px  button.btn.ghost.inline in div.row  «Cancelar»"
-      ]
-    }
-  ],
+  "finished_at": "2026-10-10T18:46:36.187Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/sweep-widths-es/index.html"
@@ -36,8 +21,8 @@
     ]
   },
   "check_id": "sweep-widths-320-es",
-  "started_at": "2026-10-10T18:32:36.644Z",
-  "status": "fail",
+  "started_at": "2026-10-10T18:44:37.467Z",
+  "status": "pass",
   "expected_targets": 86,
   "discovered_targets": 86,
   "attempted_targets": 86,

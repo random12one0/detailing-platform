@@ -365,7 +365,7 @@ export default function Plans() {
           onChange={(e) => setPlanForm({ ...planForm, term_months: e.target.value })} />
       </Setting>
 
-      <div className="row" style={{ gap: 8 }}>
+      <div className="row wrap" style={{ gap: 8 }}>
         <button className="btn primary inline" onClick={savePlan}>{t("Save plan")}</button>
         <button className="btn ghost inline" onClick={() => setEditPlan(null)}>{t("Cancel")}</button>
       </div>
@@ -465,7 +465,7 @@ export default function Plans() {
           </div>
         )}
 
-        <div className="row" style={{ gap: 8 }}>
+        <div className="row wrap" style={{ gap: 8 }}>
           <button className="btn primary inline" onClick={saveMember}>{m ? t("Save") : t("Log this member")}</button>
           <button className="btn ghost inline" onClick={() => setEditMember(null)}>{t("Cancel")}</button>
         </div>
