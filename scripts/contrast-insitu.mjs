@@ -60,7 +60,7 @@
 //         node scripts/receipt.mjs receipts/contrast-insitu.json
 
 import { createRequire } from "node:module";
-const { chromium } = createRequire(import.meta.url)("D:/Users/rando/Downloads/claude/detailing-platform/app/node_modules/playwright/index.js");
+const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 import { writeReceipt } from "./receipt.mjs";
 import { demoOwner } from "./lib/demoOwner.mjs";
 

@@ -2165,6 +2165,10 @@ and how the wait ends.
   *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
 - [ ] **0.3 — Test data: flag, don't delete.** ~~Awaiting Andrew's yes.~~
+  **BELT PARKED after 3 attempts, 2026-10-09 22:32:15.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-09T22-32-09-637Z-0.3.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
   **ANDREW DECIDED 2026-10-09: HOLD AND TEST.** Keep every demo account and
   fixture. Do not apply the client-fixture switch merely to make the lists look
   clean; first verify the full system end to end with the fixtures still doing
@@ -3927,6 +3931,29 @@ the wrong service, and never book a job we cannot reach.
   `calculate-booking` they are shown $95 on the Sunday, with the reason
   written next to it, before they choose anything else. Nothing else is
   needed and nothing else is waiting.
+
+  Waits on: 2.1a, 2.1c. How the wait ends: those pieces are ticked.
+  Split on 2026-10-09 because this entry is 369 lines
+  long and no single session was finishing it.
+
+- [ ] **2.1a — Publish the updated calculate-booking function**
+  Andrew publishes the already-written calculate-booking edge-function revision before launch. This piece changes no source code and deliberately does not claim the customer-facing fix is verified after publication.
+  Part 1 of 2 of item 2.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - calculate-booking is published manually by Andrew
+  - The deployed bundle contains the day-only whenContextFor branch
+  - No other function is published as part of this piece
+
+- [ ] **2.1c — Run the clean surcharge check and close item 2.1**
+  Re-run the production-facing surcharge checks without the server stand-in after publishing, then record the measured result and tick the roadmap item if it passes. This piece verifies the live behavior; it does not introduce further pricing or interface changes.
+  Part 2 of 2 of item 2.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - node scripts/surcharge-visible.mjs passes without --stand-in=server
+  - All early-named, early-priced, early-visible, and early-painted assertions pass at all five widths
+  - Weekday control remains green with no surcharge shown
+  - ROADMAP.md records the clean passing result and item 2.1 is ticked
 
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and

@@ -7,9 +7,9 @@
 // and setting `currentTime` gives the exact frame at the exact moment, and
 // reading `animationDelay` off the computed style says what the stagger IS
 // rather than what it looked like.
-import { createRequire } from "node:module"; import { resolve } from "node:path";
+import { createRequire } from "node:module"; import { resolve } from "node:path"; import { pathToFileURL } from "node:url";
 const { chromium } = createRequire(resolve("app/package.json"))("playwright");
-const URL0 = "file:///D:/Users/rando/Downloads/claude/detailing-platform/docs/tenant-sites/y-kinzie.html";
+const URL0 = pathToFileURL(resolve("docs/tenant-sites/y-kinzie.html")).href;
 const b = await chromium.launch();
 const say = (ok, m) => { console.log((ok ? "PASS  " : "FAIL  ") + m); if (!ok) process.exitCode = 1; };
 

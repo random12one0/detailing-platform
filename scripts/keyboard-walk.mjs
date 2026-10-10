@@ -52,7 +52,7 @@
 
 import { createRequire } from "node:module";
 const req = createRequire(import.meta.url);
-const { chromium } = req("D:/Users/rando/Downloads/claude/detailing-platform/app/node_modules/playwright/index.js");
+const { chromium } = req("./../app/node_modules/playwright/index.js");
 import { writeReceipt } from "./receipt.mjs";
 import { demoOwner } from "./lib/demoOwner.mjs";
 

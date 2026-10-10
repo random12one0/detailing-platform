@@ -1,0 +1,47 @@
+{
+  "git_sha": "8557c5d93e60b9f777229ae5463a83f1d1090384",
+  "git_sha_started": "653bf3b9254ebf715b8c79f761d97c02c17bec4e",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-10-09T16:39:32.420Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/visual-regression.mjs",
+    "artifacts/visual/current",
+    "artifacts/visual/baseline"
+  ],
+  "dimensions": {
+    "screens": [
+      "pricing"
+    ],
+    "widths": [
+      1440,
+      392
+    ],
+    "noise_floor_pct": 0.08,
+    "screens_that_changed": [],
+    "method": "full-page screenshot compared to the approved baseline, pixel by pixel inside the browser, reducedMotion reduce",
+    "no_new_dependency": true
+  },
+  "check_id": "visual-regression",
+  "started_at": "2026-10-09T16:39:27.678Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 2,
+  "min_assertions": 1,
+  "canary": {
+    "id": "two deliberately different renders compared as part of every run",
+    "observed_failure": true,
+    "caught_by": [
+      "in-browser pixel comparison"
+    ],
+    "findings": [
+      "the comparison can tell two different images apart"
+    ]
+  }
+}

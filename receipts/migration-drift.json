@@ -1,9 +1,9 @@
 {
-  "git_sha": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
-  "git_sha_started": "c07f8a1abcd1088e9bb4233b4aa2e32e9a387907",
+  "git_sha": "1288f03b5bbca7349a86c8fa927832dbc93c79d9",
+  "git_sha_started": "1288f03b5bbca7349a86c8fa927832dbc93c79d9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T04:52:51.144Z",
+  "finished_at": "2026-10-10T07:13:57.169Z",
   "failures": [
     "3 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), action_log_is_append_only (declared by 20261006050000_action_log.sql)",
     "3 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql), action_log (declared by 20261006050000_action_log.sql), send_invoice_attempts (declared by 20261006062000_send_invoice_attempts.sql)",
@@ -20,7 +20,7 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 111,
+    "migration_files": 112,
     "tables_declared": 58,
     "tables_absent": [
       "platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)",
@@ -81,7 +81,7 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-09T04:52:45.727Z",
+  "started_at": "2026-10-10T07:13:45.877Z",
   "status": "fail",
   "expected_targets": 361,
   "discovered_targets": 345,
