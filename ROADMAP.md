@@ -21816,6 +21816,22 @@ the dashboard or back office at phone width at all.
   **The first session writes that plan and stops; no UI rebuild starts until it
   exists.** This is delegated design work, not another decision request.
 
+  **ANDREW, 2026-10-10:** **ANDREW DECIDED — talked through in the control room (Think it through), 2026-10-10:**
+  DECIDED: The back office will be rebuilt from scratch as four places, Today, Detailers, Money and System, reached from a side rail on a laptop and a bottom dock on a phone. Andrew approved the look in `back-office-mockup.html` (and its notes in `back-office-handoff.md`): dark, with a moving background and lots of charts, rings and animation, and very few plain boxes. The motion should be a little calmer than the first mockup, and none of the mockup's explanation lines ("All 14 in one list…", "Tap a red number…", the page subtitles and captions) carry over. "Customers" here means the detailers, not their customers.
+  
+  PLAN:
+  1. Build **Detailers** first. It is one list, and each row shows a health ring, a 5-step setup bar, a 12-week bookings trend, money earned this month and the main issue. Add filter chips and a switch between the list and a bubble chart. Clicking a name slides out a side panel with the health score and its reasons, setup steps, bookings, money paid, contact buttons, recent history and suspend/reopen.
+  2. Build **Today**. It has this month's money counting up against last month's line, a "Needs you" list of at most 5 items (who, what it costs, one fix button, most costly first), a 12-month chart of money in and money out, and the sign-up path showing where detailers get stuck.
+  3. Build **Money**. It shows what he kept, a step-down chart from money in to money kept, the monthly-income split by plan, money due in the next 30 days, and the platform bills. Any bill not typed in shows as "not entered" and is never guessed.
+  4. Build **System**. It stays quiet when everything works. Only broken or never-proven checks stand out, each with the time it was last checked.
+  5. Add Ctrl K search to jump to any detailer or place.
+  6. Remove the old five tabs.
+  7. Build each place and each section as its own piece, with the list of places kept in one spot, so a tab or chart can be added or removed later in a few lines.
+  
+  DONE WHEN: Andrew has opened the rebuilt back office and accepted it. It has the four places above and not the old five tabs, and its look and layout match the approved mockup. No text overlaps or sits wrongly at 390px, 768px and 1440px wide. No explanation copy from the mockup appears. No Text, Call or "Ring them" button shows for an account with no phone number. Unentered bills show "not entered". `scripts/admin-preconditions.mjs` still passes.
+  
+  NOT DOING: Keeping the current five tabs or reskinning them. A separate Growth tab (its nudges go into "Needs you"). A place for the detailers' own customers. A detailer map or leaderboard for now. Cutting the animation down to plain and static. Guessing any cost figure. Treating 0.4's build-start button as approved because it exists.
+
 - [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
   proof of success.** "$0 went through it this month… it is the proof the
   product works rather than income."
