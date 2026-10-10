@@ -3429,3 +3429,13 @@ question names the job, console 0/0; runtime sabotage red at both widths
 caught 3/3; `receipt.mjs` grades it valid. **3.1c**:
 `node scripts/mail-log-groups.mjs` — 17 assertions, 0 failed;
 `--break=nobands` — 9 of 17 failed. 3 of 3 reproduced.
+
+**Supervision 2026-10-10 (second pass), at `dd29835f`.** **4.1c**:
+`ONLY=392` and `ONLY=1440 node scripts/suspend-delete-waive.mjs` — 25
+assertions, 0 failed, 3 of 3 action-widths at each, console clean, canary
+caught; committed receipt restored afterwards (6 more permanent `action_log`
+rows on throwaway fixtures). **3.4b**: `node scripts/communication-lifecycle.mjs`
+— 125 assertions, 0 failed; `--break=new-push` 1 failed; independently, all 17
+`*Email` exports and all 18 sender folders are named in the doc. **3.4e**:
+`node scripts/email-failure-design.mjs` — 50/0; `--break=new-status` 3 failed.
+3 of 3 reproduced.
