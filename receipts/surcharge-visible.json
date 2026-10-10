@@ -1,11 +1,13 @@
 {
-  "git_sha": "8b4ab85e822d4fac5885591167beb6e2f7d6637b",
-  "git_sha_started": "8b4ab85e822d4fac5885591167beb6e2f7d6637b",
-  "head_moved": false,
+  "git_sha": "9ce2a5a3c9456de4bd012b6a9baec891542c27e1",
+  "git_sha_started": "feac562b1a08250d93e1f716ae85d17237ff5e3f",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-10T08:45:31.480Z",
+  "finished_at": "2026-10-10T09:18:00.797Z",
   "failures": [],
-  "warnings": [],
+  "warnings": [
+    "run with --stand-in=server; the day-only quote was answered by the DEPLOYED function given an invented midday time, because the server half of this fix is not published. This receipt proves the PAGE, not the engine — tests/price-a-day.test.mjs proves the engine."
+  ],
   "artifacts": [
     "artifacts/surcharge-visible/1920x1080-first-day.png",
     "artifacts/surcharge-visible/1920x1080-first-time.png",
@@ -37,6 +39,24 @@
     "artifacts/surcharge-visible/320x844-last-time.png",
     "artifacts/surcharge-visible/320x844-weekday-day.png",
     "artifacts/surcharge-visible/320x844-weekday-time.png",
+    "artifacts/surcharge-visible/1440x900-today-first-day.png",
+    "artifacts/surcharge-visible/1440x900-today-first-time.png",
+    "artifacts/surcharge-visible/1440x900-today-last-day.png",
+    "artifacts/surcharge-visible/1440x900-today-last-time.png",
+    "artifacts/surcharge-visible/1440x900-nextday-day.png",
+    "artifacts/surcharge-visible/1440x900-nextday-time.png",
+    "artifacts/surcharge-visible/392x844-today-first-day.png",
+    "artifacts/surcharge-visible/392x844-today-first-time.png",
+    "artifacts/surcharge-visible/392x844-today-last-day.png",
+    "artifacts/surcharge-visible/392x844-today-last-time.png",
+    "artifacts/surcharge-visible/392x844-nextday-day.png",
+    "artifacts/surcharge-visible/392x844-nextday-time.png",
+    "artifacts/surcharge-visible/320x844-today-first-day.png",
+    "artifacts/surcharge-visible/320x844-today-first-time.png",
+    "artifacts/surcharge-visible/320x844-today-last-day.png",
+    "artifacts/surcharge-visible/320x844-today-last-time.png",
+    "artifacts/surcharge-visible/320x844-nextday-day.png",
+    "artifacts/surcharge-visible/320x844-nextday-time.png",
     "artifacts/surcharge-visible/canary-order-1-day.png",
     "artifacts/surcharge-visible/canary-order-1-time.png",
     "artifacts/surcharge-visible/canary-order-2-day.png",
@@ -56,7 +76,17 @@
     "artifacts/surcharge-visible/canary-stripped-4-day.png",
     "artifacts/surcharge-visible/canary-stripped-4-time.png",
     "artifacts/surcharge-visible/canary-stripped-5-day.png",
-    "artifacts/surcharge-visible/canary-stripped-5-time.png"
+    "artifacts/surcharge-visible/canary-stripped-5-time.png",
+    "artifacts/surcharge-visible/canary-late-rush-1-day.png",
+    "artifacts/surcharge-visible/canary-late-rush-1-time.png",
+    "artifacts/surcharge-visible/canary-late-rush-2-day.png",
+    "artifacts/surcharge-visible/canary-late-rush-2-time.png",
+    "artifacts/surcharge-visible/canary-late-rush-3-day.png",
+    "artifacts/surcharge-visible/canary-late-rush-3-time.png",
+    "artifacts/surcharge-visible/canary-late-rush-4-day.png",
+    "artifacts/surcharge-visible/canary-late-rush-4-time.png",
+    "artifacts/surcharge-visible/canary-late-rush-5-day.png",
+    "artifacts/surcharge-visible/canary-late-rush-5-time.png"
   ],
   "dimensions": {
     "slug": "demo-detail",
@@ -73,7 +103,14 @@
     ],
     "kinds": [
       "weekend",
-      "weekday control"
+      "weekday control",
+      "same-day",
+      "next-day refusal"
+    ],
+    "rush_sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
     ],
     "observed": [
       "1920x1080 weekend, first slot: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
@@ -90,28 +127,38 @@
       "392x844 weekday control: no day $65 → day $65 → time $65 · «nothing named»",
       "320x844 weekend, first slot: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
       "320x844 weekend, last slot: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
-      "320x844 weekday control: no day $65 → day $65 → time $65 · «nothing named»"
+      "320x844 weekday control: no day $65 → day $65 → time $65 · «nothing named»",
+      "1440x900 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "1440x900 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "1440x900 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»",
+      "392x844 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "392x844 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "392x844 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»",
+      "320x844 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "320x844 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
+      "320x844 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»"
     ],
     "delta_floor": 2,
     "canary_runs": 5,
     "canary_flavours": [
       "order",
-      "stripped"
+      "stripped",
+      "late-rush"
     ],
     "sabotage": null,
-    "stand_in": null
+    "stand_in": "server"
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-10-10T08:38:09.683Z",
+  "started_at": "2026-10-10T09:06:43.421Z",
   "status": "pass",
-  "expected_targets": 25,
-  "discovered_targets": 25,
-  "attempted_targets": 25,
-  "completed_targets": 25,
+  "expected_targets": 39,
+  "discovered_targets": 39,
+  "attempted_targets": 39,
+  "completed_targets": 39,
   "skipped_targets": 0,
-  "assertions_executed": 195,
-  "min_assertions": 195,
-  "assertion_floor": "10 weekend targets x 9 questions + 5 weekday controls x 3 + 10 canary runs x 9 = 195. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
+  "assertions_executed": 256,
+  "min_assertions": 256,
+  "assertion_floor": "10 weekend targets x 9 questions + 5 weekday controls x 3 + 6 same-day targets x 5 + 3 next-day refusals x 2 + 10 weekend canary runs x 9 + 5 late-rush canary runs x 5 = 256. The count is fixed by SIZES x PICKS x the question list, never by what the run finds: a target that cannot render grades as failures rather than dropping out, so the number cannot fall without a diff. It is a tripwire on the code, not a run-time check.",
   "canary": {
     "id": "below-the-chips-and-stripped-from-the-answer",
     "observed_failure": true,
@@ -160,7 +207,27 @@
       "stripped run 5: named no surcharge line was rendered after the time was chosen either",
       "stripped run 5: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 5: visible",
-      "stripped run 5: painted"
+      "stripped run 5: painted",
+      "late-rush run 1: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 1: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 1: early-visible",
+      "late-rush run 1: early-painted",
+      "late-rush run 2: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 2: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 2: early-visible",
+      "late-rush run 2: early-painted",
+      "late-rush run 3: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 3: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 3: early-visible",
+      "late-rush run 3: early-painted",
+      "late-rush run 4: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 4: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 4: early-visible",
+      "late-rush run 4: early-painted",
+      "late-rush run 5: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+      "late-rush run 5: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 5: early-visible",
+      "late-rush run 5: early-painted"
     ],
     "runs": [
       {
@@ -277,8 +344,63 @@
           "visible",
           "painted"
         ]
+      },
+      {
+        "flavour": "late-rush",
+        "run": 1,
+        "caught": true,
+        "problems": [
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "early-visible",
+          "early-painted"
+        ]
+      },
+      {
+        "flavour": "late-rush",
+        "run": 2,
+        "caught": true,
+        "problems": [
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "early-visible",
+          "early-painted"
+        ]
+      },
+      {
+        "flavour": "late-rush",
+        "run": 3,
+        "caught": true,
+        "problems": [
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "early-visible",
+          "early-painted"
+        ]
+      },
+      {
+        "flavour": "late-rush",
+        "run": 4,
+        "caught": true,
+        "problems": [
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "early-visible",
+          "early-painted"
+        ]
+      },
+      {
+        "flavour": "late-rush",
+        "run": 5,
+        "caught": true,
+        "problems": [
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
+          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "early-visible",
+          "early-painted"
+        ]
       }
     ],
-    "caught": "order 5/5, stripped 5/5"
+    "caught": "order 5/5, stripped 5/5, late-rush 5/5"
   }
 }
