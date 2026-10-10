@@ -1,9 +1,9 @@
 {
-  "git_sha": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
-  "git_sha_started": "0914a145c0b38c2a0b93ee05a6ab1f3671ab25c7",
+  "git_sha": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
+  "git_sha_started": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T06:38:03.759Z",
+  "finished_at": "2026-10-10T12:21:45.908Z",
   "failures": [],
   "warnings": [
     "TARGET A IS REAL AND UN-REWRITTEN: the browser's own PostgREST read of `email_sends` under the demo owner's session, compared in order against an independent service-role read of the same table (29 rows, 25 of them bad). Nothing is written anywhere.",
@@ -64,7 +64,7 @@
     "observed": [
       "the table holds 29 row(s) for demo-detail: {\"skipped\":21,\"bounced\":4,\"delivered\":4}",
       "25 of those are states that need a person (bounced, complained, failed, refused, skipped)",
-      "157 row(s) belong to other businesses and are available to the `foreign` sabotage",
+      "159 row(s) belong to other businesses and are available to the `foreign` sabotage",
       "console: 1 browser log line(s) for the 500 this check asks for, FORGIVEN BY NAME"
     ],
     "canaries": [
@@ -82,7 +82,7 @@
     ]
   },
   "check_id": "mail-log",
-  "started_at": "2026-10-09T06:34:40.810Z",
+  "started_at": "2026-10-10T12:18:21.849Z",
   "status": "pass",
   "expected_targets": 25,
   "discovered_targets": 25,
