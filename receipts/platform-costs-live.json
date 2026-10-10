@@ -1,0 +1,234 @@
+{
+  "git_sha": "4d56642415e4b46c0df2d7424a9d9a52f4f9c610",
+  "git_sha_started": "4d56642415e4b46c0df2d7424a9d9a52f4f9c610",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T17:34:23.014Z",
+  "failures": [],
+  "warnings": [
+    "There is no applied-migrations ledger in this project (supabase_migrations.schema_migrations does not exist), so 'recorded as applied' is the live shape matching the file, including its last statement, plus commit 0087d1dd. Nothing here can show WHEN it ran.",
+    "force row level security is read as a flag, not exercised: every role that could exercise it is either refused earlier by the missing grant (anon, authenticated) or bypasses RLS (service_role, the owner).",
+    "The probes' own 4 refusals per width are expected in the console (a response line and a console line each, 8 per width) and are counted separately from the page's own noise, which must be zero. 0 page-own lines this run."
+  ],
+  "artifacts": [
+    "scripts/platform-costs-live.mjs",
+    "supabase/migrations/20261006020000_hand_entered_platform_costs.sql"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "table": "platform_costs",
+    "locked_target": "platform_costs",
+    "break": null,
+    "catalog": {
+      "exists": true,
+      "cols": [
+        {
+          "n": "id",
+          "t": "uuid",
+          "nn": true
+        },
+        {
+          "n": "period_month",
+          "t": "date",
+          "nn": true
+        },
+        {
+          "n": "category",
+          "t": "text",
+          "nn": true
+        },
+        {
+          "n": "amount_cents",
+          "t": "integer",
+          "nn": true
+        },
+        {
+          "n": "note",
+          "t": "text",
+          "nn": false
+        },
+        {
+          "n": "entered_by",
+          "t": "uuid",
+          "nn": false
+        },
+        {
+          "n": "created_at",
+          "t": "timestamp with time zone",
+          "nn": true
+        },
+        {
+          "n": "updated_at",
+          "t": "timestamp with time zone",
+          "nn": true
+        }
+      ],
+      "cons": {
+        "platform_costs_amount_cents_check": "CHECK ((amount_cents >= 0))",
+        "platform_costs_category_check": "CHECK ((category = ANY (ARRAY['hosting'::text, 'database'::text, 'email'::text, 'domain'::text, 'other'::text])))",
+        "platform_costs_period_is_first_of_month": "CHECK ((period_month = (date_trunc('month'::text, (period_month)::timestamp with time zone))::date))",
+        "platform_costs_pkey": "PRIMARY KEY (id)"
+      },
+      "rls": true,
+      "forced": true,
+      "policies": 0,
+      "triggers": [
+        "CREATE TRIGGER platform_costs_updated_at BEFORE UPDATE ON public.platform_costs FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX platform_costs_pkey ON public.platform_costs USING btree (id)",
+        "CREATE INDEX platform_costs_period_idx ON public.platform_costs USING btree (period_month, category)"
+      ],
+      "comment": "ROADMAP 9.14 - hand-entered platform costs, one row per bill per month. Written and read ONLY by the service role via the platform-admin edge function, gated on platform_admins. No RLS policies by design. A month with no rows means COSTS NOT ENTERED, never zero costs - see _shared/platformNet.js.",
+      "anon": [],
+      "authenticated": [],
+      "service_role": [
+        "DELETE",
+        "INSERT",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE",
+        "UPDATE"
+      ],
+      "canary_anon": [
+        "DELETE",
+        "INSERT",
+        "REFERENCES",
+        "SELECT",
+        "TRIGGER",
+        "TRUNCATE"
+      ]
+    },
+    "rest": {
+      "anon_read": {
+        "status": 401,
+        "code": "42501",
+        "message": "permission denied for table platform_costs",
+        "rows": null
+      },
+      "anon_insert": {
+        "status": 401,
+        "code": "42501",
+        "message": "permission denied for table platform_costs",
+        "rows": null
+      },
+      "admin_read": {
+        "status": 403,
+        "code": "42501",
+        "message": "permission denied for table platform_costs",
+        "rows": null
+      },
+      "admin_insert": {
+        "status": 403,
+        "code": "42501",
+        "message": "permission denied for table platform_costs",
+        "rows": null
+      },
+      "service_read": {
+        "status": 200,
+        "code": null,
+        "message": null,
+        "rows": 0
+      }
+    },
+    "cost_rows_now": 0,
+    "screen_1440": {
+      "text": "Did we make money?October 2026Paid to us in October 2026$0Costs not entered for October 2026Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2026HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed ",
+      "err": null,
+      "unknown": true,
+      "net": "Costs not entered for October 2026"
+    },
+    "browser_1440": {
+      "asAdmin": {
+        "url": "https://kguqylyzgyzfktkfnhjb.supabase.co",
+        "session": true,
+        "read": {
+          "status": 403,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        },
+        "insert": {
+          "status": 403,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        }
+      },
+      "asAnon": {
+        "url": "https://kguqylyzgyzfktkfnhjb.supabase.co",
+        "session": false,
+        "read": {
+          "status": 401,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        },
+        "insert": {
+          "status": 401,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        }
+      }
+    },
+    "console_1440": {
+      "page_own": [],
+      "signed_out_own": [],
+      "probe_lines": 8
+    },
+    "screen_392": {
+      "text": "Did we make money?October 2026Paid to us in October 2026$0Costs not entered for October 2026Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2026HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed ",
+      "err": null,
+      "unknown": true,
+      "net": "Costs not entered for October 2026"
+    },
+    "browser_392": {
+      "asAdmin": {
+        "url": "https://kguqylyzgyzfktkfnhjb.supabase.co",
+        "session": true,
+        "read": {
+          "status": 403,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        },
+        "insert": {
+          "status": 403,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        }
+      },
+      "asAnon": {
+        "url": "https://kguqylyzgyzfktkfnhjb.supabase.co",
+        "session": false,
+        "read": {
+          "status": 401,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        },
+        "insert": {
+          "status": 401,
+          "code": "42501",
+          "message": "permission denied for table platform_costs"
+        }
+      }
+    },
+    "console_392": {
+      "page_own": [],
+      "signed_out_own": [],
+      "probe_lines": 8
+    }
+  },
+  "check_id": "platform-costs-live",
+  "started_at": "2026-10-10T17:34:05.108Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 40,
+  "min_assertions": 37,
+  "canary": {
+    "id": "the same probe and privilege query, aimed at a table the public page reads, must say reachable",
+    "observed_failure": true,
+    "detail": "anon on businesses: probe reachable, privilege [\"DELETE\",\"INSERT\",\"REFERENCES\",\"SELECT\",\"TRIGGER\",\"TRUNCATE\"]"
+  }
+}

@@ -22128,7 +22128,7 @@ the dashboard or back office at phone width at all.
   Split on 2026-10-10 because this entry is 287 lines
   long and no single session was finishing it.
 
-- [ ] **9.14a — Apply the platform-costs migration to the intended database**
+- [x] **9.14a — Apply the platform-costs migration to the intended database**
   Run the existing hand-entered platform costs migration against the intended project, without changing its SQL. This establishes the table, constraints, RLS lock, grants, and trigger; it does not deploy application code or enter production costs.
   Part 1 of 3 of item 9.14, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -22136,6 +22136,35 @@ the dashboard or back office at phone width at all.
   - Migration 20261006020000_hand_entered_platform_costs.sql is recorded as applied
   - platform_costs exists with the specified constraints and five categories
   - Browser roles cannot select or insert platform_costs directly
+  **DONE 2026-10-10. NO SESSION APPLIED ANYTHING FOR THIS ITEM: it was already applied.** The file ran on
+  2026-10-10 in step 2 of `scripts/catch-up-steps-2-to-8.ps1`, with Andrew's go-ahead (commit `0087d1dd`;
+  `FOR-ANDREW.md` "Publish and apply", DONE note). **That commit is the record, because this project has no
+  applied-migrations ledger** (`supabase_migrations.schema_migrations` does not exist, so nothing here can
+  say WHEN it ran). **Checked by asking the live database, not the file:** `node scripts/platform-costs-live.mjs`
+  (dev server on :5173; project `kguqylyzgyzfktkfnhjb`, refuses any other), at `4d566424`, is **PASS, 40 of 40
+  assertions, 4 of 4 targets, canary caught**, graded valid by `receipt.mjs`. It checks five things:
+  - **The catalog, read-only.** All 8 columns are there with their types; the first-of-month, five-category
+    and non-negative checks are there, and the categories are compared with the FILE's list; RLS is on and
+    forced, with 0 policies; the `set_updated_at` trigger and the `(period_month, category)` index are there.
+    The migration's LAST statement, the table comment, is present too, so the whole file ran.
+  - **No browser privileges, and the server keeps its own.** `anon` and `authenticated` hold no privilege at
+    all, and `service_role` keeps select and insert.
+  - **The browser roles are refused through PostgREST.** A read and an insert as `anon` (public key only)
+    and as a signed-in platform admin are each refused with `42501 permission denied for table
+    platform_costs`: the grant refusal, not an empty answer. The probe row breaks three check constraints,
+    so no lock state could have stored it.
+  - **The case that should work.** The service role reads the table: 200, 0 rows.
+  - **A real browser at 1440 and 392.** Signed in as a throwaway admin (deleted after), the Money tab's
+    "Did we make money?" reads **"Costs not entered for October 2026"** with no error. That is also the first
+    sign that the deployed `platform-admin` answers `platform_net`, which is 9.14b's question and is not ticked
+    here. Inside that page, and signed out, the app's own client is refused a read and an insert with `42501`.
+    The console is clean at both widths apart from the probes' own 8 refusal lines per width, which are counted.
+
+  **Broken on purpose:** `--break=not-applied` (a table that was never created) went **26 of 38 red**, and
+  `--break=open-grant` (the lock checks aimed at `businesses`, which browsers can read) went **16 of 40 red**.
+  The second one's inserts into `businesses` were all refused `PGRST204` and wrote nothing.
+  `receipts/platform-costs-live.sabotage.json` holds the open-grant run. **What is not proved:**
+  `force row level security` is read as a flag, not exercised; the receipt's warnings say why.
 
 - [ ] **9.14b — Deploy the platform-admin function with cost actions**
   Publish the already-built platform-admin function so platform_net and platform_cost_add are available to the admin screen. This piece does not create or modify cost records beyond any deployment smoke check.
