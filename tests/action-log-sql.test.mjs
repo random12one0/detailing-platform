@@ -32,6 +32,7 @@ import assert from "node:assert/strict";
 
 const MIGRATION = "supabase/migrations/20261006050000_action_log.sql";
 const SQL = readFileSync(MIGRATION, "utf8");
+const INVITES_SQL = readFileSync("supabase/migrations/20261010020000_action_log_invites.sql", "utf8");
 
 let PGlite = null;
 const dir = process.env.PGLITE_DIR;
@@ -157,4 +158,30 @@ t("9 · the forced-RLS line removed shows in the catalog, and both walls removed
   await both.exec("set role anon");
   assert.equal(await refused(both, ROW), null, "anon was still refused with the revoke and row-level security both removed");
   await both.close();
+});
+
+// ── 4.1d · the invite subject ───────────────────────────────────────────────
+const INVITE_ROW = ROW.replace("'job.complete'", "'invite.send'").replace("'bookings'", "'business_invites'");
+
+t("10 · before the invite migration an invite row is refused; after it, it is accepted and stays append-only", async () => {
+  const db = await fresh();
+  assert.match(String(await refused(db, INVITE_ROW)), /check constraint/, "the invite subject was accepted before its migration");
+  await db.exec(INVITES_SQL);
+  await db.exec(INVITES_SQL); // applying twice is harmless
+  assert.equal(await refused(db, INVITE_ROW), null, "the invite row was refused after its migration");
+  assert.equal(await refused(db, ROW), null, "a booking row was refused after the migration");
+  assert.match(String(await refused(db, ROW.replace("'bookings'", "'customers'"))), /check constraint/, "the check was loosened to anything");
+  assert.match(String(await refused(db, "update public.action_log set action = 'x' where action = 'invite.send'")), /UPDATE is refused/);
+  assert.match(String(await refused(db, "delete from public.action_log where action = 'invite.send'")), /DELETE is refused/);
+  assert.equal((await db.query("select count(*)::int as n from public.action_log where action = 'invite.send'")).rows[0].n, 1);
+  await db.close();
+});
+
+t("11 · the invite migration leaves the locks as they were", async () => {
+  const db = await fresh();
+  await db.exec(INVITES_SQL);
+  assert.deepEqual((await db.query("select relrowsecurity as on, relforcerowsecurity as forced from pg_class where oid = 'public.action_log'::regclass")).rows[0], { on: true, forced: true });
+  assert.equal((await db.query("select count(*)::int as n from pg_policies where tablename = 'action_log'")).rows[0].n, 0);
+  assert.equal((await db.query("select has_table_privilege('anon', 'public.action_log', 'insert') as h")).rows[0].h, false);
+  await db.close();
 });

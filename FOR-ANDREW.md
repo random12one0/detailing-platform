@@ -569,6 +569,24 @@ flips them, nothing breaks and nothing says so** — both keep going the old way
 straight to Supabase, which does not count against the photo limit. That is the
 whole reason these lines are here.
 
+### Step 11 · The invite's written record — ROADMAP 4.1d (one change, one program)
+
+Sending an invite already asks first and names the address. **What was missing is the
+written record**: who sent it, whether it replaced an earlier invite to the same address, and
+when. It is built and tested on a throwaway database; **nothing is on the live one yet.**
+**Safe in either order** — until both are done the invite still goes out and the program says
+`audit_recorded: false` in its answer. The record holds ids and a role, never the address.
+
+```bash
+node scripts/apply-migrations.mjs 20261010020000_action_log_invites.sql
+node scripts/deploy-functions.mjs invite-user
+node scripts/owner-invite.mjs
+```
+
+The last line is the proof, and it is a browser check on its own throwaway business (no mail is
+sent, nothing of yours is touched): it must end `PASS` with no `NOT RUN` line. Run it without
+`--audit=pending`. Then a session ticks 4.1d.
+
 ### When it is all done · Three proofs that are not publishes
 
 **Publishing is not the same as proved.**

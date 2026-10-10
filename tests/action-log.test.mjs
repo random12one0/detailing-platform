@@ -36,6 +36,8 @@ import * as real from "../supabase/functions/_shared/actionLog.ts";
 const HELPER = "supabase/functions/_shared/actionLog.ts";
 const MIGRATION = "supabase/migrations/20261006050000_action_log.sql";
 const FUNCTION = "supabase/functions/update-booking/index.ts";
+const INVITE_FUNCTION = "supabase/functions/invite-user/index.ts";
+const INVITE_MIGRATION = "supabase/migrations/20261010020000_action_log_invites.sql";
 
 const member = { userId: "u-owner", businessId: "b-1", role: "owner" };
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -60,6 +62,14 @@ async function probes(mod) {
     && one[0]?.subject_table === "bookings" && one[0]?.subject_id === ID;
   const del = mod.rowsFor(member, ID, row(), row({ deleted_at: "2026-10-06T00:00:00Z" }));
   P.delete = del.length === 1 && del[0].action === "job.delete" && del[0].before.deleted_at === null;
+  // 4.1d: the invite's row. Its email is not stored; the superseded invites are its prior state.
+  const inv = mod.inviteRow(member, "inv-new", "owner", ["inv-old"]);
+  P.inviteRow = inv.action === "invite.send" && inv.subject_table === "business_invites" && inv.subject_id === "inv-new"
+    && inv.actor_id === "u-owner" && inv.actor_role === "owner" && inv.business_id === "b-1"
+    && JSON.stringify(inv.before) === '{"pending_invites":["inv-old"]}'
+    && JSON.stringify(inv.after) === '{"pending_invites":["inv-new"],"role":"owner"}'
+    && !/@/.test(JSON.stringify(inv));
+  P.inviteFirstHasNoPrior = JSON.stringify(mod.inviteRow(member, "i", "staff", []).before) === '{"pending_invites":[]}';
   // The write itself, against a fake client.
   const seen = [];
   const db = (error) => ({ from: (t) => ({ insert: async (rows) => { seen.push([t, rows]); return { error }; } }) });
@@ -72,6 +82,9 @@ async function probes(mod) {
     const none = await mod.recordActions(db(null), member, ID, row(), row({ customer_name: "x" }));
     P.writesNothingWhenNothingMoved = none === true && seen.length === 0;
     P.reportsFailure = (await mod.recordActions(db({ message: "boom" }), member, ID, row(), row({ status: "cancelled" }))) === false;
+    seen.length = 0;
+    P.inviteWrites = (await mod.recordInvite(db(null), member, "inv-new", "staff", [])) === true && seen.length === 1 && seen[0][0] === "action_log" && seen[0][1].length === 1;
+    P.inviteReportsFailure = (await mod.recordInvite(db({ message: "boom" }), member, "inv-new", "staff", [])) === false;
     const throwing = { from: () => ({ insert: async () => { throw new Error("network"); } }) };
     P.neverThrows = (await mod.recordActions(throwing, member, ID, row(), row({ status: "cancelled" }))) === false;
   } finally { console.error = silence; }
@@ -82,7 +95,7 @@ test("1 · every property holds on the real helper", async () => {
   const P = await probes(real);
   const red = Object.entries(P).filter(([, v]) => v !== true).map(([k]) => k);
   assert.deepEqual(red, [], "properties that do not hold: " + red.join(", "));
-  assert.ok(Object.keys(P).length >= 10, "the probe list shrank");
+  assert.ok(Object.keys(P).length >= 14, "the probe list shrank");
 });
 
 test("2 · the migration declares the table locked, append-only and free of personal data", () => {
@@ -120,6 +133,34 @@ test("4 · canary: the wiring reader sees a call removed and a report removed", 
   assert.equal(wiring(src.replace(/\.\.\.\(audited \? \{\} : \{ audit_recorded: false \}\)/, "")).reported, 1);
 });
 
+// 4.1d: invite-user writes the row and reports one that did not store. The ids of the invites it
+// supersedes must come back from the update, or `before` is always empty.
+const inviteWiring = (src) => ({
+  imported: /import \{ recordInvite \} from "\.\.\/_shared\/actionLog\.ts"/.test(src),
+  calls: (src.match(/await recordInvite\(supabase, member, invite\.id, role, /g) ?? []).length,
+  reported: (src.match(/audit_recorded: false/g) ?? []).length,
+  idsSelected: /\.is\("revoked_at", null\)\s*\.select\("id"\)/.test(src),
+});
+
+test("3b · invite-user writes the invite row, reads back what it superseded, and reports one that did not store", () => {
+  const w = inviteWiring(readFileSync(INVITE_FUNCTION, "utf8"));
+  assert.deepEqual(w, { imported: true, calls: 1, reported: 1, idsSelected: true });
+});
+
+test("4b · canary: the invite wiring reader sees the call, the report and the id read removed", () => {
+  const src = readFileSync(INVITE_FUNCTION, "utf8");
+  assert.equal(inviteWiring(src.replace("await recordInvite(supabase, member, invite.id, role, ", "true && (")).calls, 0);
+  assert.equal(inviteWiring(src.replace(/\.\.\.\(audited \? \{\} : \{ audit_recorded: false \}\)/, "")).reported, 0);
+  assert.equal(inviteWiring(src.replace(".select(\"id\");", ";")).idsSelected, false);
+});
+
+test("2b · the invite migration widens the subject check and nothing else", () => {
+  const sql = readFileSync(INVITE_MIGRATION, "utf8").replace(/^\s*--.*$/gm, "");
+  assert.match(sql, /drop constraint if exists action_log_subject_table_check/);
+  assert.match(sql, /check \(subject_table in \('bookings', 'business_invites'\)\)/);
+  assert.ok(!/drop (table|trigger)|truncate|delete|create policy|grant /i.test(sql), "it must not loosen a lock");
+});
+
 // ── 5 · break it on purpose ─────────────────────────────────────────────────
 const dir = mkdtempSync(path.join(tmpdir(), "action-log-"));
 let n = 0;
@@ -138,6 +179,9 @@ const SABOTAGE = [
   ["a failed insert reads as success", 'console.error("action_log insert failed:", error); return false;', 'console.error("action_log insert failed:", error); return true;', ["reportsFailure"]],
   ["a thrown insert escapes", "} catch (e) {\n    console.error(\"action_log insert threw:\", e);\n    return false;\n  }", "} finally { }", ["neverThrows"]],
   ["writes when nothing moved", "if (rows.length === 0) return true;", "", ["writesNothingWhenNothingMoved"]],
+  ["the invite row takes the actor from nowhere", "...who(member, \"business_invites\", inviteId),", "...who({ ...member, userId: \"someone\" }, \"business_invites\", inviteId),", ["inviteRow"]],
+  ["the invite row forgets what it superseded", "before: { pending_invites: superseded },", "before: { pending_invites: [] },", ["inviteRow"]],
+  ["a failed invite insert reads as success", "store(db, [inviteRow(member, inviteId, role, superseded)]);", "store(db, [inviteRow(member, inviteId, role, superseded)]).then(() => true);", ["inviteReportsFailure"]],
   ["a waiver is not named", '"payment.waive"', '"payment.set"', ["waive"]],
 ];
 

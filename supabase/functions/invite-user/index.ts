@@ -16,6 +16,7 @@ import { businessById, cleanPermissions, getSettings, requireMember } from "../_
 import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { inviteEmail } from "../_shared/emailTemplates.ts";
 import { PLATFORM_DOMAIN } from "../_shared/config.ts";
+import { recordInvite } from "../_shared/actionLog.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -44,14 +45,15 @@ Deno.serve(async (req) => {
       if (already) return json({ error: "That person is already on your team." }, 409);
     }
 
-    // Supersede any live invite for the same address.
-    await supabase
+    // Supersede any live invite for the same address. The ids come back for the audit row (4.1d).
+    const { data: superseded } = await supabase
       .from("business_invites")
       .update({ revoked_at: new Date().toISOString() })
       .eq("business_id", member.businessId)
       .eq("email", email)
       .is("accepted_at", null)
-      .is("revoked_at", null);
+      .is("revoked_at", null)
+      .select("id");
 
     const { data: invite, error } = await supabase
       .from("business_invites")
@@ -59,6 +61,9 @@ Deno.serve(async (req) => {
       .select()
       .single();
     if (error) throw error;
+
+    // Best-effort, like update-booking: a log row that will not write does not undo the invite.
+    const audited = await recordInvite(supabase, member, invite.id, role, (superseded ?? []).map((r: { id: string }) => r.id));
 
     const business = (await businessById(member.businessId))!;
     const settings = await getSettings(business.id);
@@ -70,7 +75,7 @@ Deno.serve(async (req) => {
     const sent = await sendTenantEmail({ businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text });
 
     // The link is returned so the owner can copy it if email is unavailable.
-    return json({ success: true, invite: { id: invite.id, email, role, label, permissions, expires_at: invite.expires_at, link }, emailed: sent });
+    return json({ success: true, invite: { id: invite.id, email, role, label, permissions, expires_at: invite.expires_at, link }, emailed: sent, ...(audited ? {} : { audit_recorded: false }) });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);
   }

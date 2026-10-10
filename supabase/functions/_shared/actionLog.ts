@@ -2,12 +2,14 @@
 //
 // 4.1's done-when asks that each of seven consequential actions leave a row saying
 // who did it, what it was before, and when, read off the row and never off the
-// screen. Three of the seven are not this file's: suspend and restore already write
-// `platform_admin_events` (`platform-admin`, with `{ from, to }`), and an owner
-// invite is itself a row in `business_invites` that names `invited_by` and carries
-// its `created_at`, with no earlier state to record. The other four are one function,
-// `update-booking`: completing, cancelling and no-showing a job (a `status` change),
-// waiving payment (a `payment_status` change) and deleting a job (`soft_delete`).
+// screen. Two of the seven are not this file's: suspend and restore already write
+// `platform_admin_events` (`platform-admin`, with `{ from, to }`). Four are one
+// function, `update-booking`: completing, cancelling and no-showing a job (a `status`
+// change), waiving payment (a `payment_status` change) and deleting a job
+// (`soft_delete`). The seventh, sending an invite (4.1d), is `invite-user`, through
+// `recordInvite` below. `business_invites` is NOT append-only (`accept-invite` and a
+// revoke both update it), so the invite is also logged here, where nothing can be
+// rewritten.
 //
 // IMPORT-FREE ON PURPOSE, like `photoDoor.ts`: Node 24 strips the types and runs it,
 // so `tests/action-log.test.mjs` exercises the real code in memory with no Deno.
@@ -30,7 +32,7 @@ export interface ActionRow {
   actor_id: string;
   actor_role: string;
   action: string;
-  subject_table: "bookings";
+  subject_table: "bookings" | "business_invites";
   subject_id: string;
   before: Record<string, unknown>;
   after: Record<string, unknown>;
@@ -49,6 +51,14 @@ export function statusAction(to: unknown): string {
   }
 }
 
+const who = (member: Member, subject_table: ActionRow["subject_table"], subject_id: string) => ({
+  business_id: member.businessId,
+  actor_id: member.userId,
+  actor_role: member.role,
+  subject_table,
+  subject_id,
+});
+
 const same = (a: unknown, b: unknown) => (a ?? null) === (b ?? null);
 
 /**
@@ -56,13 +66,7 @@ const same = (a: unknown, b: unknown) => (a ?? null) === (b ?? null);
  * `current` is the row as read before the write and `after` the row the write returned.
  */
 export function rowsFor(member: Member, bookingId: string, current: Record<string, unknown>, after: Record<string, unknown>): ActionRow[] {
-  const base = {
-    business_id: member.businessId,
-    actor_id: member.userId,
-    actor_role: member.role,
-    subject_table: "bookings" as const,
-    subject_id: bookingId,
-  };
+  const base = who(member, "bookings", bookingId);
   const out: ActionRow[] = [];
   if (!same(current.status, after.status)) {
     out.push({ ...base, action: statusAction(after.status), before: { status: current.status ?? null }, after: { status: after.status ?? null } });
@@ -85,8 +89,7 @@ export function rowsFor(member: Member, bookingId: string, current: Record<strin
 type Db = { from: (t: string) => { insert: (rows: unknown) => PromiseLike<{ error: any }> } };
 
 /** Writes the rows. Returns true when every row that was owed is stored, false when any is not. */
-export async function recordActions(db: Db, member: Member, bookingId: string, current: Record<string, unknown>, after: Record<string, unknown>): Promise<boolean> {
-  const rows = rowsFor(member, bookingId, current, after);
+async function store(db: Db, rows: ActionRow[]): Promise<boolean> {
   if (rows.length === 0) return true;
   try {
     const { error } = await db.from("action_log").insert(rows);
@@ -97,3 +100,24 @@ export async function recordActions(db: Db, member: Member, bookingId: string, c
     return false;
   }
 }
+
+export const recordActions = (db: Db, member: Member, bookingId: string, current: Record<string, unknown>, after: Record<string, unknown>) =>
+  store(db, rowsFor(member, bookingId, current, after));
+
+/**
+ * The row an invite owes (4.1d): `before` is the invites that were live for the address and were
+ * superseded by this one (none, for a first invite), `after` is the new invite and its role.
+ * The invitee's email is NOT stored, for the reason the booking rows hold no name: an append-only
+ * copy could never be erased. `subject_id` is the invite's id and joins to `business_invites`.
+ */
+export function inviteRow(member: Member, inviteId: string, role: string, superseded: string[]): ActionRow {
+  return {
+    ...who(member, "business_invites", inviteId),
+    action: "invite.send",
+    before: { pending_invites: superseded },
+    after: { pending_invites: [inviteId], role },
+  };
+}
+
+export const recordInvite = (db: Db, member: Member, inviteId: string, role: string, superseded: string[]) =>
+  store(db, [inviteRow(member, inviteId, role, superseded)]);

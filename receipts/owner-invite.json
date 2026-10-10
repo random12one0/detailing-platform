@@ -1,0 +1,49 @@
+{
+  "git_sha": "575ecbaf779127f068c0432c87b4f9ffd8190e68",
+  "git_sha_started": "575ecbaf779127f068c0432c87b4f9ffd8190e68",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:08:42.568Z",
+  "failures": [],
+  "warnings": [
+    "AUDIT HALF NOT RUN: 4 audit assertions. Needs migration 20261010020000 applied and invite-user published (both Andrew's). Re-run without --audit=pending afterwards."
+  ],
+  "artifacts": [
+    "scripts/owner-invite.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "slug": "oi-41d-mv2copvl",
+    "break": null,
+    "audit": "pending",
+    "widths": [
+      "1440x900",
+      "392x844"
+    ],
+    "console": {
+      "392": [
+        "error: Failed to load resource: the server responded with a status of 404 ()",
+        "error: Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "1440": [
+        "error: Failed to load resource: the server responded with a status of 404 ()",
+        "error: Failed to load resource: the server responded with a status of 404 ()"
+      ]
+    },
+    "whoami404": 4
+  },
+  "check_id": "owner-invite",
+  "started_at": "2026-10-10T12:08:23.553Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 20,
+  "canary": {
+    "id": "audit-matcher-rejects-a-stranger-and-a-wrong-prior",
+    "observed_failure": true
+  }
+}
