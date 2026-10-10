@@ -1639,5 +1639,43 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
     (b) => b !== null && !b.names.every((a) => b.below.includes(a)));
 }
 
+// ══ 16 · ROADMAP 4.3b — AUDIT HISTORY ALSO FINDS ROWS THAT ONLY CARRY A NAME ═
+// Early impersonation and suspension rows were written with business_id null,
+// so the id-only history never showed them. Credential-free: reads source, and
+// runs the escaping the server applies, because a name with a quote or comma
+// in it would otherwise break the PostgREST filter and blank the whole panel.
+{
+  const histOf = (src) => {
+    const m = src.match(/const quotedName = [^\n]*\n\s*const events = await supabase\.from\("platform_admin_events"\)[\s\S]*?\.limit\(20\);/);
+    return m ? m[0] : null;
+  };
+  const h = histOf(fn);
+  check("16a · the detail history query exists, after the business row is read", !!h && fn.indexOf(h) > fn.indexOf('if (!b.data) return json({ error: "No such business" }, 404);'),
+    "no sequential events query found after the 404 guard");
+  check("16b · it matches by id OR by name", !!h && /business_id\.eq\.\$\{b\.data\.id\}/.test(h) && /business_name\.eq\./.test(h),
+    "the or() filter must carry both arms");
+  check("16c · the name arm only matches rows with NO id (another business with the same name stays out)",
+    !!h && /and\(business_id\.is\.null,business_name\.eq\./.test(h), "name arm is not restricted to null business_id");
+  check("16d · the old id-only filter on platform_admin_events is gone",
+    !/from\("platform_admin_events"\)\s*\.select\([^)]*\)\s*\.eq\("business_id"/.test(fn), "id-only history query still present");
+  const BS = String.fromCharCode(92);
+  const esc = (n) => n.replace(/[\\"]/g, "\\$&");
+  check("16e · a name with a quote, backslash and comma is escaped for a quoted filter value",
+    esc(`A "B", C${BS}D`) === `A ${BS}"B${BS}", C${BS}${BS}D`, esc(`A "B", C${BS}D`));
+  check("16f · the server applies exactly that escaping", !!h && h.includes(`.replace(/[${BS}${BS}"]/g, "${BS}${BS}$&")`), "escape line differs from the one tested above");
+  const ui = read("app/src/admin/AdminPage.jsx");
+  check("16g · an action the screen has no words for is shown by its raw name, not dropped",
+    /ADMIN_EVENT_WORDS\[e\.action\] \?\? e\.action/.test(ui));
+  check("16h · the panel still has three states: reading / populated / empty",
+    /!detail\s*\?\s*<p className="pa-sub">Reading the record…<\/p>/.test(ui) && /detail\.events\?\.length/.test(ui)
+      && /Nothing is recorded against this account\./.test(ui));
+  // Broken on purpose, asserted to have changed the text (gotchas 95, 102).
+  const bad = (name, broken, verdict) => check(`16i · ${name}`, broken !== fn && !verdict(histOf(broken)),
+    broken === fn ? "THE SABOTAGE DID NOT APPLY — this check proved nothing" : "sabotaged source still passed");
+  const arm = (b) => !!b && /and\(business_id\.is\.null,business_name\.eq\./.test(b);
+  bad("dropping the name arm is seen", fn.replace(/,and\(business_id\.is\.null,business_name\.eq\."\$\{quotedName\}"\)/, ""), arm);
+  bad("widening the name arm to rows that have an id is seen", fn.replace("and(business_id.is.null,", "and(business_id.not.is.null,"), arm);
+}
+
 console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
 process.exit(failed ? 1 : 0);

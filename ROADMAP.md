@@ -12790,6 +12790,15 @@ requested.
   - The chosen design identifies every write path requiring protection, including security-definer functions.
 
 - [ ] **4.3b — Make account audit history include previously orphaned events**
+  **BUILT 2026-10-10, NOT TICKED: the code is on disk and not running.** `platform-admin`'s `get` now reads the history
+  with `business_id = this id` OR (`business_id` is null AND `business_name` = this name), after the business row is
+  read; the name is quoted for PostgREST. The name arm is limited to null-id rows so a second business with the same
+  name cannot leak in. Unknown actions already fall back to their raw name and the panel's three states are untouched
+  (`AdminPage.jsx`, not edited). Proved credential-free: `node tests/platform-admin.test.mjs` § 16, 10 checks, both
+  sabotages (name arm dropped; name arm widened to rows that have an id) go red. The same file has 3 failures that
+  also fail on the untouched HEAD (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
+  row appears on Coastline's panel, because that needs the function published.
+  NEEDS ANDREW: publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this.
   Update the platform-admin detail history query so it finds events recorded by either business ID or business name, allowing older sensitive events with a null business_id to appear. This improves audit completeness but does not provide server-side mutation enforcement.
   Part 2 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

@@ -654,7 +654,7 @@ Deno.serve(async (req) => {
     if (action === "get") {
       const id = String(body.business_id || "");
       if (!id) return json({ error: "business_id is required" }, 400);
-      const [b, settings, branding, members, svc, addOns, hours, bookings, sub, invoices, domains, events] =
+      const [b, settings, branding, members, svc, addOns, hours, bookings, sub, invoices, domains] =
         await Promise.all([
           supabase.from("businesses").select("*").eq("id", id).maybeSingle(),
           supabase.from("business_settings").select("*").eq("business_id", id).maybeSingle(),
@@ -669,10 +669,24 @@ Deno.serve(async (req) => {
           supabase.from("platform_invoices").select("*").eq("business_id", id)
             .order("created_at", { ascending: false }).limit(24),
           supabase.from("business_domains").select("domain, verified_at, created_at").eq("business_id", id),
-          supabase.from("platform_admin_events").select("admin_email, action, detail, created_at")
-            .eq("business_id", id).order("created_at", { ascending: false }).limit(20),
         ]);
       if (!b.data) return json({ error: "No such business" }, 404);
+      // HISTORY IS MATCHED BY ID, OR BY NAME WHEN THE ROW HAS NO ID — ROADMAP
+      // 4.3b. Early impersonation and suspension rows were written with
+      // `business_id = null` (the id was attached to the log later), so an
+      // id-only filter could never show them. The name arm is restricted to
+      // null-id rows so a different business that shares a name, and has its
+      // own id on its rows, cannot leak into this one's history. The name is
+      // double-quoted for PostgREST's `or()` grammar, which otherwise splits
+      // on a comma or paren inside it. Sequential after `b` because the name
+      // is read from the business row.
+      const quotedName = String(b.data.name ?? "").replace(/[\\"]/g, "\\$&");
+      const events = await supabase.from("platform_admin_events")
+        .select("admin_email, action, detail, created_at")
+        .or(b.data.name
+          ? `business_id.eq.${b.data.id},and(business_id.is.null,business_name.eq."${quotedName}")`
+          : `business_id.eq.${b.data.id}`)
+        .order("created_at", { ascending: false }).limit(20);
       // PROMO CODES ARE COUNTED, NOT LISTED, and the same for the catalog's
       // detail: the spec's Job 2 is "have they finished setting up", which the
       // seven-step progress in `app/src/lib/setup.js` already answers. The
