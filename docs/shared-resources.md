@@ -99,7 +99,9 @@ stops for every tenant until midnight UTC**, not just for you.
 **Does anything report it:** the product's own two limits are counted in
 `rate_hits`, so they can be *read*. Nothing warns you. **And there is a third
 ceiling above them, outside the product, that is not counted at all** —
-ROADMAP 14.15, unreproduced.
+ROADMAP 14.15, unreproduced — and a real-browser repro on 2026-10-10
+(`scripts/address-429-repro.mjs`) found **no** refusal from above the function
+in 370 calls; every 429 carried the product's own `reason: "busy"`.
 
 **`tests/geoapify.test.mjs` spends it only on request, 2026-10-06.** Its live half (§ 4 and § 5, about 11 lookups a run) needs `GEOAPIFY_LIVE=1`. Having credentials in `.env` is not enough, because `tests/_env.mjs` loads them into every suite and a plain run spent real lookups twice that day. Without the opt-in the file runs its 18 no-network checks and prints that § 4-5 were skipped. Measured by counting `fetch` calls with a preloaded counter: 0 calls with `.env` loaded and no opt-in, 8 calls with the opt-in and the network blocked.
 

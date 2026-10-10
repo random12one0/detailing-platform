@@ -26074,7 +26074,8 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.15 — Something refuses `address-suggest` that is not `address-suggest`, and this product cannot see it
 
-- [ ] **UNREPRODUCED. Read the last section first — it says what a repro would
+- [x] **CLOSED UNREPRODUCED 2026-10-10 — the repro was run and nothing above the function refused; "THE REPRO WAS RUN" at the end of this entry says what was measured and what it does NOT prove.**
+  **UNREPRODUCED. Read the last section first — it says what a repro would
   look like, because that is what this item is actually asking somebody for.**
   Found 2026-09-23 while answering the one edge function in 4.4 that was
   refusing for a reason nobody could name. **It is a lead, not a verdict**, and
@@ -26165,6 +26166,88 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   *"not a problem"*, or somebody changing one of the product's three limits in
   response — **none of which was consulted**, which the entry already warns about
   in advance.
+
+  **THE REPRO WAS RUN — 2026-10-10, `node scripts/address-429-repro.mjs` at
+  `ff18202b`. Outcome: NOT REPRODUCED. Nothing above the function refused.**
+  Receipt `receipts/address-429-repro.json`: **370 of 370 calls reached**, 10
+  assertions, 0 failed. `node scripts/receipt.mjs` grades it valid. All four
+  steps, as the done-when asks:
+
+  1. **Driven from a real browser on the booking page.** Bundled Chromium,
+     `/book/demo-detail`, at 1440. **What changed since this entry was
+     written:** the address box is no longer a per-keystroke type-ahead. Since
+     2026-09-13 it has been a **Find button**, one lookup per press
+     (`AddressField.jsx` header), so "each keystroke a request" cannot be
+     driven any more. The run did two things instead:
+     - It pressed the real Find button **70 times**, a different street each
+       press.
+     - From inside the page it sent **300 calls in three waves of 100 at
+       once**, each with a 2-character query. The function refuses those
+       **400 before it reaches its limiter**, so they cost nothing, and
+       **a 429 there could only come from above the function**.
+
+     The browser sent **107-113 CORS preflights per run**. They were counted
+     from Chromium's own network events, because `page.on("response")` does
+     not see preflights: the first run counted 0.
+  2. **Each 429 was judged by its body.** Burst: **300 of 300 answered 400
+     `bad_query`, 0 answered 429**, slowest call 521-736ms over five runs. In
+     the receipted run the hour's allowance was already spent, so **all 70
+     presses answered 429 and all 70 bodies said `reason: "busy"`**, the
+     product's own refusal. The first clean run came before the script was
+     committed. Its receipt was overwritten, and it cannot be repeated as it
+     was, because it depended on the counter sitting at 36. In that run **24
+     presses answered 200, then 46 answered 429, and all 46 bodies said
+     `busy`.** **In neither run did a 429 body come from anywhere else.**
+  3. **`rate_hits` was read just before and just after the presses.** The
+     per-IP counter rose by **70 for 70 presses** in every run, refused ones
+     included. The daily counter rose by **24** in the first run, exactly the
+     presses that got through, and by **0** in the receipted one. That
+     is correct: a caller already over the per-IP limit stops there and is
+     never counted against the shared daily budget.
+  4. **No ceiling is named, because nothing above the function refused.** The
+     counter moved for every refusal.
+
+  **The break, run on purpose:** `--break=blind` makes the script ignore 429
+  bodies. That run went **red, 2 failed**: 70 refusals marked "unknown" and
+  the product's own refusal not seen
+  (`receipts/address-429-repro.sabotage.json`). So the green run really was
+  reading the bodies.
+
+  **WHAT THIS DOES NOT PROVE, AND IT MUST NOT BE READ AS "NOT A PROBLEM":**
+  it is one IP, one evening, and at most 100 calls at once. A ceiling keyed
+  across many IPs, or one that only triggers at higher concurrency, would not
+  show up here. **The 82 refusals from 2026-09-23 cannot be re-examined**,
+  because the platform logs from that night are gone. The product's three
+  limits were **not touched**, as this entry warned in advance.
+
+  **THREE LEADS FROM THIS RUN. They suggest the 82 may have been the product's
+  own refusals after all. None of them is a verdict:**
+  - **The limiter's hour is a clock hour (`rate_take` uses a fixed window).**
+    This run's first attempt started at 19:58 UTC and its 70 presses split
+    **34 + 36** across two hours, so the limit never fired. **The 82
+    refusals ran 02:16-03:39, which also spans two clock hours**, so a
+    reading of one hour's row at "36 of 60" says nothing about refusals
+    counted in the hour before.
+  - **The per-IP row and the daily row both read 36.** The daily row can
+    never be smaller than the sum of all of that day's allowed per-IP calls.
+    If the 82 had been product refusals, the previous hour must already have
+    allowed 60 calls, so the daily row would have read at least 96. **36 and
+    36 agreeing means both rows were created within that hour**, either
+    because the day's address traffic really started then, or because the
+    rows were deleted.
+  - **Something that deletes them existed that evening.**
+    `scripts/tabbar-clearance.mjs` deletes every `address%` row from
+    `rate_hits` when it starts, including the daily one. Its own header says
+    its screen loads exhaust the 60-an-hour allowance "and every load then
+    answers 429". Its first commit landed at 20:49 Pacific on 2026-09-23,
+    ten minutes after the last of the 82 if those times were UTC. And 14.16
+    records another session's browser sweep calling this endpoint at the
+    same time.
+
+  Put together: **82 refusals at about one a minute for 83 minutes looks like
+  an exhausted hourly allowance, not a burst ceiling**, followed by a
+  clearance wiping the evidence. That is the most likely reading, and it is
+  **not proven**.
 
 ### 14.16 — Two sessions can collide on a public endpoint, and nothing in this repo guards it or reports it
 

@@ -1,0 +1,110 @@
+{
+  "git_sha": "ff18202b960062deea7154359cc3b4d3c31392c1",
+  "git_sha_started": "ff18202b960062deea7154359cc3b4d3c31392c1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T20:13:25.520Z",
+  "failures": [],
+  "warnings": [
+    "The booking page's address field is a Find button since 2026-09-13, not a per-keystroke type-ahead; the item's step 1 ('typing, each keystroke a request') is no longer how the product calls it, so phase 2 presses Find with a distinct street each time.",
+    "Phase 2 exhausts this machine's hourly address allowance (60/IP) on purpose; that is the positive control.",
+    "One IP, one region, one evening. A ceiling keyed on many IPs, or only reached at higher concurrency than 100, would not show here."
+  ],
+  "artifacts": [
+    "artifacts/address-429-repro/calls.json"
+  ],
+  "dimensions": {
+    "slug": "demo-detail",
+    "waves": [
+      100,
+      100,
+      100
+    ],
+    "presses": 70,
+    "break": "",
+    "item": "14.15"
+  },
+  "check_id": "address-429-repro",
+  "started_at": "2026-10-10T20:12:40.994Z",
+  "status": "pass",
+  "expected_targets": 370,
+  "discovered_targets": 370,
+  "attempted_targets": 370,
+  "completed_targets": 370,
+  "skipped_targets": 0,
+  "assertions_executed": 10,
+  "min_assertions": 9,
+  "canary": {
+    "id": "product-refusal-seen-by-body",
+    "observed_failure": true
+  },
+  "observed": {
+    "verdict": "NOT REPRODUCED: 0 refusals from above in 300 burst calls + 70 presses; the product's own limiter refused 70",
+    "burst": {
+      "200": 0,
+      "400": 300,
+      "429": 0,
+      "other": 0,
+      "product": 0,
+      "above": 0,
+      "unknown": 0
+    },
+    "presses": {
+      "200": 0,
+      "400": 0,
+      "429": 70,
+      "other": 0,
+      "product": 70,
+      "above": 0,
+      "unknown": 0
+    },
+    "moved": {
+      "address_ip": 70,
+      "address_day": 0
+    },
+    "preflights": 107,
+    "above_bodies": [],
+    "burst_slowest_ms": 630,
+    "console_errors": 370,
+    "counters_before": [
+      {
+        "bucket": "address_ip",
+        "key": "<this machine>",
+        "window_start": "2026-10-10T20:00:00+00:00",
+        "hits": 456
+      },
+      {
+        "bucket": "address_ip",
+        "key": "<this machine>",
+        "window_start": "2026-10-10T19:00:00+00:00",
+        "hits": 34
+      },
+      {
+        "bucket": "address_day",
+        "key": "all",
+        "window_start": "2026-10-10T00:00:00+00:00",
+        "hits": 94
+      }
+    ],
+    "counters_after": [
+      {
+        "bucket": "address_ip",
+        "key": "<this machine>",
+        "window_start": "2026-10-10T20:00:00+00:00",
+        "hits": 526
+      },
+      {
+        "bucket": "address_ip",
+        "key": "<this machine>",
+        "window_start": "2026-10-10T19:00:00+00:00",
+        "hits": 34
+      },
+      {
+        "bucket": "address_day",
+        "key": "all",
+        "window_start": "2026-10-10T00:00:00+00:00",
+        "hits": 94
+      }
+    ]
+  }
+}
