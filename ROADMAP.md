@@ -11170,7 +11170,22 @@ requested.
   - Each message has a documented purpose, audience, trigger, timing, and channel
   - Messages to add, remove, merge, or defer are explicitly decided
 
-- [ ] **3.4e — Design email-failure recovery for detailers**
+- [x] **3.4e — Design email-failure recovery for detailers** — **DONE 2026-10-10.**
+  The design is `docs/email-failure-recovery.md`: nine failure states (F1–F9)
+  read from the code that writes each one, plus the detailer's own alerts
+  bouncing (F-own); where each is shown today and four new signals (S1 job
+  record's pinned bar, S2 a list on Today, S3 own-alert warning, S4 spam
+  wording); and a call-or-text fallback for every state, including the missing
+  *Booking confirmed* text template. **Checked how:** `node
+  scripts/email-failure-design.mjs` holds the page against the product (10
+  rules, 50 assertions, 3 canaries caught; `--break=drop-state`, `new-status`
+  and `sentence` each red their own rule). Today's signals proved in a browser:
+  `node scripts/mail-log.mjs` 103/103 at five widths, and the new `node
+  scripts/bounced-line.mjs` 16/16 at 1440/392/320 with the console clean, both
+  sabotages caught. **Found while writing it:** a spam complaint suppresses
+  nothing — `send-campaign` and the maintenance sweep still mail that customer.
+  **3.4f's "approved" means Andrew's three answers in the doc's § 5**, which
+  are a DECIDE row in `FOR-ANDREW.md`.
   Specify how a detailer learns that an email failed and what alternate contact path they can use. This covers the product behavior and states, not the implementation of notifications or delivery-provider changes.
   Part 2 of 4 of item 3.4, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

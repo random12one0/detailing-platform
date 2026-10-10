@@ -50,6 +50,25 @@ Updated 2026-09-21.
 
 ---
 
+## DECIDE · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
+
+The plan for how a detailer finds out an email failed, and texts the customer
+instead, is written: `docs/email-failure-recovery.md`. Nothing is built yet;
+building it is ROADMAP 3.4f. Three yes-or-no answers, each with a
+recommendation:
+
+1. **Show "Emails that did not arrive" on Today**, listing upcoming jobs whose
+   email bounced, so the detailer is told without going to look. **Recommend
+   yes.**
+2. **When a customer marks an email as spam, stop marketing and maintenance
+   email to them.** Booking emails still go. **Recommend yes**, because it
+   protects the sending address every detailer shares.
+3. **When the product's own texting is switched on, text automatically when a
+   booking email fails.** **Recommend yes, but decide it on the day texting is
+   built**, because each text costs money.
+
+Answer in one line, for example *"3.4e: yes, yes, later"*.
+
 ## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
 > **DONE 2026-10-10, STEPS 1 TO 9 — NOTHING LEFT HERE FOR YOU.** Done by Claude

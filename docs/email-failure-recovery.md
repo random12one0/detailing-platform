@@ -228,6 +228,13 @@ same edit. Everything else maps to a template that exists or to *Write my own*.
 - **On screen, today's signals**: `node scripts/mail-log.mjs` (read-only; signs
   in as the demo owner) draws the real "Emails we sent" list and a fixture row
   for each stored state, at five widths. Its receipt is
-  `receipts/mail-log.json`.
+  `receipts/mail-log.json`. 2026-10-10 at `1a69a71f`: 103 of 103 assertions,
+  three canaries caught.
+- **On screen, the client record's red line**: `node scripts/bounced-line.mjs`
+  (read-only; the flag is put on the browser's copy of the customer list, never
+  on the table) opens one flagged and one clean customer at 1440, 392 and 320.
+  2026-10-10 at `1a69a71f`: 16 of 16 — shown, painted in `--bad`, inside the
+  width, absent on the clean record, console clean at every width.
+  `--break=noflag` and `--break=always` each turn their own assertions red.
 - **Not checked, because nothing of it exists yet**: S1–S4 and the *Booking
   confirmed* text. Those are 3.4f's to build and prove.

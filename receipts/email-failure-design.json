@@ -1,9 +1,9 @@
 {
-  "git_sha": "3a41b55512f6f40744cfbfd7ef9ccb3608dcbaa8",
-  "git_sha_started": "3a41b55512f6f40744cfbfd7ef9ccb3608dcbaa8",
+  "git_sha": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
+  "git_sha_started": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T12:18:05.549Z",
+  "finished_at": "2026-10-10T12:25:23.455Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE whether the design is right — that is Andrew's call on the three decisions in § 5",
@@ -18,7 +18,7 @@
     "break": null
   },
   "check_id": "email-failure-design",
-  "started_at": "2026-10-10T12:18:05.420Z",
+  "started_at": "2026-10-10T12:25:23.361Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
