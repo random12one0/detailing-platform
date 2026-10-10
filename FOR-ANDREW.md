@@ -3192,3 +3192,17 @@ once, which is still more than any script here can do.
   format. Like just make it look nice... I feel like if I copied a debug menu,
   this is what it looked like."* With the session that owns those emails.
   **Nothing for you to answer** — it is here so you know it was heard.
+
+- [ ] **Ten-second check: can YOUR computer open the photo address? — 2026-10-10.**
+  Logos, gallery photos and website-brief photos now go through the new photo
+  address. Open `https://media.detailingplatform.com/` in your browser. A plain
+  "not found" page means it works. If it says the site cannot be reached, your
+  internet provider's lookup has not picked up the new address yet: your logos
+  will look missing on that computer only. Changing the computer's DNS to
+  1.1.1.1 fixes it at once, and waiting does too. This session's computer did
+  exactly that on and off while testing. **Also known, nothing to do yet:** when
+  a photo is deleted, Cloudflare can keep showing it for a while from its
+  cache. A logo is unaffected (a new logo is a new file). A deleted gallery
+  photo could stay visible publicly for up to a few hours until the cache lets
+  go; closing that is a cache setting in Cloudflare, and it is queued in
+  ROADMAP 0.11bc2.
