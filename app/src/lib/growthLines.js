@@ -19,11 +19,15 @@
 //                 program worked out for THAT detailer
 //   todo          the advice under the line. A constant sentence, so it may only
 //                 say what is true of every name on the line
+//   noPhoneTodo   optional. The same advice worded without a phone call, used when
+//                 ANY name on the line has no number on file (ROADMAP 9.12a: the
+//                 advice is one sentence for the whole line, so it may say "ring"
+//                 only when every name can be rung)
 // `ctx` is `{ bookabilityOf, now }`: `bookabilityOf` stays in the screen, where
 // `tests/admin-insight.test.mjs` § 10 pins what it is fed, and is handed in.
 
 import { setupProgress } from "./setup.js";
-import { QUIET_DAYS, SETUP_FLOOR } from "./attention.js";
+import { QUIET_DAYS, SETUP_FLOOR, phoneOf } from "./attention.js";
 import { daysSince } from "./adminInsight.js";
 
 // A SUSPENDED ACCOUNT IS SWITCHED OFF, NOT QUIET, AND NOT "NEVER BOOKED". The
@@ -52,7 +56,8 @@ export const STUCK = [
    (r, { now }) => signedUpNote(r, now),
    // **THE OLD SENTENCE ENDED "every one of these signed up and then stopped",
    // AND NOTHING CHECKED EITHER HALF.** It is gone; the age is beside each name.
-   `Fewer than ${SETUP_FLOOR} of the steps are done. Ring them and finish it on the phone.`],
+   `Fewer than ${SETUP_FLOOR} of the steps are done. Ring them and finish it on the phone.`,
+   `Fewer than ${SETUP_FLOOR} of the steps are done. Contact them and finish it together.`],
   ["open",
    (r, { bookabilityOf }) => bookabilityOf(r).ok,
    // THE REASON THE PROGRAM ALREADY WORKS OUT FOR THIS ACCOUNT. `bookability()`
@@ -97,7 +102,8 @@ export const STUCK = [
   ["quiet",
    (r) => suspended(r) || (r.bookings_total ?? 0) === 0 || (r.days_since_booking ?? 9999) < QUIET_DAYS,
    () => null,
-   "They were taking work and stopped. Ring them before they decide to cancel."],
+   "They were taking work and stopped. Ring them before they decide to cancel.",
+   "They were taking work and stopped. Contact them before they decide to cancel."],
   ["site",
    (r) => Boolean(r.site_url || r.domain),
    () => null,
@@ -110,9 +116,12 @@ export const STUCK = [
  * carries the plural and the screen owns its words.
  */
 export function growthLines(live, ctx) {
-  return STUCK.map(([key, ok, note, todo]) => ({
-    key,
-    todo,
-    failing: live.filter((r) => !ok(r, ctx)).map((r) => ({ name: r.name, note: note(r, ctx) })),
-  })).filter((s) => s.failing.length > 0);
+  return STUCK.map(([key, ok, note, todo, noPhoneTodo]) => {
+    const on = live.filter((r) => !ok(r, ctx));
+    return {
+      key,
+      todo: noPhoneTodo && !on.every((r) => phoneOf(r)) ? noPhoneTodo : todo,
+      failing: on.map((r) => ({ name: r.name, note: note(r, ctx) })),
+    };
+  }).filter((s) => s.failing.length > 0);
 }

@@ -177,7 +177,8 @@ const reportsFault = {
   },
   async stoppedClaimBack(m) {
     const bare = { counts: { services: 0, hoursRows: [] }, branding: {}, settings: {}, business: {} };
-    return /signed up and then stopped/.test(m.growthLines([row({ setup_inputs: bare })], ctx).find((s) => s.key === "setup").todo);
+    const withPhone = { ...bare, business: { contact_phone: "555" } };
+    return [bare, withPhone].some((si) => /signed up and then stopped/.test(m.growthLines([row({ setup_inputs: si })], ctx).find((s) => s.key === "setup").todo));
   },
   async noSignupAge(m) {
     const bare = { counts: { services: 0, hoursRows: [] }, branding: {}, settings: {}, business: {} };
@@ -210,4 +211,19 @@ test("7 · SABOTAGE — each fix put back is seen (control first), and so is the
   assert.deepEqual(old.bookability({ counts: { services: 3, hoursRows: OPEN_HOURS } }).reasons, ["no open days"],
     "the old read is reproduced by putting it back");
   assert.deepEqual(bookability({ counts: { services: 3, hoursRows: OPEN_HOURS } }).reasons, []);
+});
+
+test("8 · ROADMAP 9.12a — a line says 'Ring them' only when every name on it has a phone number", () => {
+  const bare = { counts: { services: 0, hoursRows: [] }, branding: {}, settings: {}, business: {} };
+  const phoned = { ...bare, business: { contact_phone: "555" } };
+  const todoOf = (rows, key) => growthLines(rows, ctx).find((s) => s.key === key).todo;
+  const quiet = { bookings_total: 4, days_since_booking: 90 };
+  // setup line
+  assert.match(todoOf([row({ setup_inputs: phoned })], "setup"), /Ring them/);
+  assert.doesNotMatch(todoOf([row({ setup_inputs: bare })], "setup"), /ring|phone/i);
+  assert.doesNotMatch(todoOf([row({ name: "A", setup_inputs: phoned }), row({ name: "B", setup_inputs: bare })], "setup"), /ring|phone/i,
+    "one name without a number takes the phone out of the whole line's advice");
+  // quiet line
+  assert.match(todoOf([row({ ...quiet })], "quiet"), /Ring them/);
+  assert.doesNotMatch(todoOf([row({ ...quiet, setup_inputs: { ...full, business: {} } })], "quiet"), /ring|phone/i);
 });
