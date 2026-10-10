@@ -45,6 +45,7 @@ test("1. a seeded heartbeat (watching started, never reported) is NEVER, not ok"
   const c = by(M.checksOf(s, NOW), "job:accrue-plan-visits");
   assert.equal(c.state, "never");
   assert.equal(c.at, null, "a never-reported job has no last-checked time");
+  assert.equal(c.says, "Has never reported. It runs every day");
   assert.equal(by(M.checksOf(s, NOW), "job:send-owner-reminders").state, "ok");
 });
 

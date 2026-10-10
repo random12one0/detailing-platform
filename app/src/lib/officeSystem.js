@@ -14,7 +14,7 @@
 // The same names watch-jobs/index.ts uses for its alert email (ROADMAP 10.1).
 const JOB_LABELS = {
   "send-owner-reminders": "Reminder sweep",
-  "accrue-plan-visits": "Nightly plan-visit count",
+  "accrue-plan-visits": "Plan-visit count",
 };
 // The restore drill rides in job_heartbeats but is not a scheduled job (6.1).
 export const RESTORE_JOB = "restore-drill";
@@ -22,6 +22,8 @@ export const RESTORE_OLD_DAYS = 90;
 const MIN = 60000;
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+// A job's window in words: 15 -> "15 min", 1440 -> "day", 2880 -> "2 days".
+const every = (m) => (m % 1440 === 0 ? (m === 1440 ? "day" : `${m / 1440} days`) : m % 60 === 0 ? (m === 60 ? "hour" : `${m / 60} hours`) : `${m} min`);
 export const mb = (b) => {
   const v = Number(b ?? 0) / 1048576;
   return v >= 1024 ? `${(v / 1024).toFixed(1)} GB` : `${Math.round(v)} MB`;
@@ -60,8 +62,8 @@ export function checksOf(state, now = Date.now()) {
       key: `job:${h.job}`, name: JOB_LABELS[h.job] ?? h.job, state: st,
       at: st === "never" ? null : h.ran_at,
       says: st === "ok" ? "Finished on time"
-        : st === "bad" ? `Has not finished in ${late} min. It should every ${limit}`
-        : `Has never reported. It should every ${limit} min`,
+        : st === "bad" ? `Has not finished in ${late} min. It runs every ${every(limit)}`
+        : `Has never reported. It runs every ${every(limit)}`,
     });
   }
   // No job at all is not good news: a dropped table or a revoked grant looks like this.
