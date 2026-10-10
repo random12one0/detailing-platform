@@ -9236,6 +9236,8 @@ the wrong service, and never book a job we cannot reach.
   captured — recorded as not-captured, not as a result. **W16's twelve
   steps that do not fit stay untriaged and stay named**, unchanged by
   anything in this item.
+  **RESULT 2026-10-10 (ROADMAP 14.24 part 1): steps 6 and 7 compared at 320, 392, 768 and 1440 — nothing overflows, console clean,
+  48 of 48 assertions; the 768 calendar is captured.** Full record in 14.24.
   **THE SECOND-INSTANCE SWEEP OF `booking.css`, WRITTEN DOWN SO THE NEXT
   READER DOES NOT HAVE TO REPEAT IT.** Checked every `max-width` in the
   file against its actual parent's `display`, not assumed from the
@@ -16489,6 +16491,9 @@ rather than wording went to Andrew.
     Same family as 8.3's daylight read and 8.2's phone pass — human-only checks
     no script substitutes for; `docs/testing/phones-we-do-not-own.md` is where
     that family is written down.
+
+    **RESULT 2026-10-10 (ROADMAP 14.24 part 3): STILL NOT RUN.** No screen reader has been run on either screen. It is Andrew's five
+    minutes, and the row is in `FOR-ANDREW.md`.
   *A2 6.2*
 
 - [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**
@@ -20687,6 +20692,9 @@ the dashboard or back office at phone width at all.
   branch the still-to-do comparison does. **Whoever's next sweep lands on a
   day with two open jobs, one already past its time, closes this for
   free — worth watching for rather than staging on purpose.**
+  **RESULT 2026-10-10 (ROADMAP 14.24 part 2): staged on purpose, and it passed — the past job read `Late`, the not-yet-ended jobs did
+  not, 16 of 16 at 1440 and 392.** It also found why the entry's pair alone could not catch an off-by-one: the first job that has not
+  ended is drawn as the "Up next" card, which never runs the comparison. Full record in 14.24.
 
 - [x] **9.6 — ~~Client list has no labels.~~ CLOSED 2026-09-22 ON RE-READING,
   not on new work — both halves already built and already reviewed by
@@ -27604,6 +27612,59 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   > matches what is written on it. **Fails when:** one does not, and the failing
   > control is named.
   > **Zero cost, no install, nothing to build.**
+
+  **RECORDED 2026-10-10 — parts 1 and 2 are DONE, each against its own *Passes when*; part 3 is NOT, and says so below.**
+
+  **Part 1 · steps 6 and 7 — PASSES.** `scripts/booking-steps-6-7.mjs`, receipt `receipts/booking-steps-6-7.json` (clean run at
+  `7c856cb5`): **48 of 48 assertions, 9 of 9 targets (8 step-by-width readings + the 768 calendar), canaries 3 of 3**, graded by
+  `receipt.mjs`. Step 6 is *Details*, which is where the plan pitch lives; step 7 is *Review*. Read off the page, per width:
+  the column (`.bk-wrap`) is **320 / 392 / 632 / 632px** at 320 / 392 / 768 / 1440, so the doubling does reach both steps; the
+  document is exactly as wide as the viewport at all eight readings (no sideways overflow); the furthest right edge is 304 / 376 /
+  684 / 1424px; the console is **0 errors, 0 warnings, 0 failed requests** at all eight; the plan pitch is on step 6 at all four
+  widths and inside the column (288x842, 360x823, 600x462, 600x472px); **scrolled to the very bottom, the last block ends above the
+  bar by 25.6 to 26.0px** on every step that scrolls (step 6: 26.0 / 26.0 / 25.6 / 26.0px; step 7 fits without scrolling at 392, 768
+  and 1440, and at 320 it scrolls 169px and clears by 25.7px). **At 768 on step 5 the calendar block is captured**: 600x369px, 35 day
+  cells, the smallest **52x52**, the rightmost cell edge 654.6px of 768 (`.manager-shots/14.24/step5-calendar-768.png`, not committed).
+  **What I SAW in the screenshots** (read as pictures, not as numbers): at 320 and 392 the three fields on step 6 stack one to a row
+  and the four plan cards are one column with an arrow instead of the words "Choose this"; at 768 and 1440 phone and email sit side by
+  side and the plan cards are two by two with "Choose this". Step 7 fills the column at every width, nothing stranded and no line
+  stretched. One cosmetic note, **not a failure and not changed**: at 320 the bar's "Estimated total · 1 hr" wraps onto three short
+  lines beside the price on step 7. **A capture trap, so nobody re-finds it:** a *full-page* screenshot draws the sticky bar in the
+  middle of the page and makes it look as if it covers content — the script takes a second, bottom-scrolled screenshot of what a
+  person sees, and the `clear` assertion is measured on that.
+  **Broken on purpose, and each landed (the run exits 2 if it did not):** `--break=overflow` (a 2000px strip in the column) **14
+  failed**; `--break=stretch` (the column's max-width removed) **4 failed**, at 768 and 1440 only because the column already fills a
+  phone; `--break=cover` (the bar taken out of the page's flow, as before 2.15) **3 failed**, on the three readings that scroll.
+  *Not judged by a number, named in the receipt as `unjudgeable`: "stranded" and "stretched" as a LOOK — the sentence above is a
+  session's reading of the pictures.*
+
+  **Part 2 · 9.5, two open jobs — PASSES, and the entry's pair was not enough on its own.** `scripts/late-flag-two-jobs.mjs`, receipt
+  `receipts/late-flag-two-jobs.json` (clean run at `04806f46`): **16 of 16 assertions, 2 of 2 targets (1440 and 392), canaries 2 of 2.**
+  **Written to `demo-detail` on kguqylyzgyzfktkfnhjb:** three `confirmed` drop-off bookings dated today (Pacific) — *Late-Check Past*
+  (ended an hour earlier), *Late-Check Future* (starts in an hour), and a third, *Late-Check Later* (starts in three hours); no
+  address, so no Geoapify credit, and no mail. **All three read back as 2026-10-10 and `confirmed`; afterwards 0 remained and the demo
+  tenant's bookings were 32 before and 32 after.** What the screen showed, identical at both widths: all three sit under "Still to do";
+  **only *Late-Check Past* reads `Late`** (red, leading the name: *2:21 PM **Late** Late-Check Past*). **Passes when — exactly one of the
+  two reads Late and it is the past one — holds.** **THE THIRD ROW IS WHY THIS WAS WORTH STAGING AND IT IS NOT IN THE ENTRY:**
+  `Today.jsx`'s `lit` takes the first confirmed job that has not ended out of the list and draws it as the *"Up next"* card
+  (`BookingCard`), and that card has no Late flag and never asks the comparison anything. So with only the entry's two rows, the future
+  one is that card — and **`--break=always-late` (the comparison rewritten to `true`) leaves "exactly one" green, 2 of 3**. The third
+  row is drawn as an ordinary row, so the comparison IS asked of a job that has not ended, and it answers *not late*; that is the
+  assertion that goes red. **Broken on purpose, each landed:** `--break=blind` (the label hidden) **4 failed**; `--break=always-late`
+  (`b.end_at < nowIso` rewritten to `true` in the browser, served 1x and rewritten 1x per width) **2 failed**, both `later-not-late`;
+  `--break=both-past` (the early job staged in the past too) **6 failed**. **Console:** 0 unexpected errors at both widths.
+  **Spent, measured with `shared-resources-guard.mjs` (declared in the script header):** Today at 1440 asks `available-slots` for its
+  open-slots figure, so a run moves 2 each of `available-slots`, `address_ip`, `address_day` and `public_ceiling`; no
+  `address-suggest` bucket, so no Geoapify credit. **Found on the way:** the bookings table refuses two overlapping jobs for one
+  business (Postgres `23P01`), so a fixture has to stagger its rows. **Not covered:** a `completed` or `no_show` job (the entry's
+  other negatives) — those branches are 9.5's own and were already seen on screen.
+
+  **Part 3 · 7.4, Narrator — NOT DONE, and no session can do it.**
+  **NEEDS ANDREW: five minutes with Windows Narrator (`Ctrl`+`Win`+`Enter`), Tab through the booking page's date step and the job
+  record's pinned action bar, and write down any control that says nothing, only "button", or something other than its visible label —
+  listening is not something a session can do, and the manager already ruled it his (the row is at the top of `FOR-ANDREW.md`'s "DO ·
+  Five minutes with your computer reading the screen out loud"). Passes when every control on those two screens announces a name that
+  matches what is written on it.** Box left `[ ]` because *Done when* needs all three.
 
   **Done when:** all three are recorded **in this entry**, each against **its own
   *Passes when* line above** — they are not interchangeable and "all three done"
