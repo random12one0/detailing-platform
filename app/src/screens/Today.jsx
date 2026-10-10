@@ -656,8 +656,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
         <div className="warn-box" data-tour="setup-notice">
           {collapsed ? (
             <>
-              <span>{t("Your page isn't fully set up.")}</span>
+              {/* ROADMAP 9.15 — even folded away, the line names the one step
+                  that is next and the first button goes straight to it. */}
+              <span>{t("Next: {name}", { name: t(STEPS.find(([k]) => k === lead[0].key)[2]) })}</span>
               <span className="actions">
+                <button onClick={() => onSetup?.(STEPS.findIndex(([k]) => k === lead[0].key))}>{t("Continue")}</button>
                 <button onClick={() => toggleCollapsed(false)}>{t("Show")}</button>
               </span>
             </>

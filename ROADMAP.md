@@ -21935,7 +21935,7 @@ the dashboard or back office at phone width at all.
   (`FOR-ANDREW.md` Part 2, step 2 — already named there), then type one real
   month of bills and read the figure against a calculator.
 
-- [ ] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
+- [x] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
   *A1 P3-11*
   **Done when** (written 2026-09-25; this item had none): the 37-step tours no
@@ -21946,6 +21946,51 @@ the dashboard or back office at phone width at all.
   **What failing looks like:** a prompt with nothing to press, or a prompt shown
   to a business that has finished setting up, which is 9.3's fault in a new
   place.
+
+  **DONE 2026-10-10 — the tours no longer start, anywhere.** `App.jsx` no longer
+  imports `Walkthrough`: no tab press arms a guide, staff are no longer shown the
+  rail tour at first sign-in, the `user_tours` read and write are gone, and the
+  gear has no "Show me around" row (`GearMenu.jsx`). What replaces them already
+  existed and is now the only help: Today's "Your page isn't fully set up" notice
+  and Business's "Next: <step>" row, both from `lib/setup.js`. **One prompt did
+  not meet the second clause and was fixed:** Today's folded one-liner said only
+  *"Your page isn't fully set up. Show"* and named nothing; it now reads
+  *"Next: Vehicle types"* with a **Continue** button that opens the setup form on
+  that step (Spanish keys: "Next: {name}" and "Continue" already existed).
+  **How it was checked:** `node scripts/setup-prompts.mjs` (dev server + demo
+  login), 320 then 1440, 6 runs, **50 assertions, 12 prompts pressed, console
+  clean** — each prompt's words are matched to a setup step and pressing it must
+  open the form on THAT step's question. Against the pre-change code the same
+  script went red (`--break=prefix` by stashing the three files: 10 tour
+  cards appeared on their own at 320 and the gear row was still there), and
+  `--break=nostep` reds the names-a-step clause by itself. `tests/no-tours.test.mjs`
+  is the source-text half; `tests/tours.test.mjs` was removed with the feature.
+  **Not proved, said plainly:** (1) "a business with nothing unfinished sees no
+  prompt" was pressed on the demo tenant with its `business_settings` READ rewritten
+  in the browser to list all twelve steps done (no finished business exists to
+  sign into; the fixture business is still in first-run). Every write to that
+  table is swallowed so the rewrite is never saved. That is recorded as
+  UNJUDGEABLE in `receipts/setup-prompts.json`. (2) `?lite=1` was not run.
+  (3) `tests/route-contract.test.mjs` has 2 failures (`/exN` redirects) that
+  are identical at HEAD and are not this item.
+  **LEFT, AS 9.15a:** the dead code. `Walkthrough.jsx` is still in the tree,
+  unused; `scripts/sweep-widths.mjs` still opens "Show me around" and walks the
+  tour (it will now print `the tour row  NO SUCH ROW` until that section is
+  retired, and `sweep-widths.expected.json` still lists `tour · step N`);
+  `scripts/tour-runs.mjs`, the `.tourcard` rows in
+  `tests/fixed-furniture-is-hit-tested.test.mjs` (its NO_HIT_TEST equality) and
+  `TAB_NAMES` in `tests/spanish.test.mjs` § LISTS name it too.
+
+- [ ] **9.15a — Retire the dead tour code 9.15 stopped running.**
+  Delete `app/src/components/Walkthrough.jsx`, `scripts/tour-runs.mjs`, the tour and
+  guide walks in `scripts/sweep-widths.mjs` with their `tour · step` lines in
+  `sweep-widths.expected.json`, the `.tourcard` rows in
+  `tests/fixed-furniture-is-hit-tested.test.mjs` (move its equality in the same
+  edit, `docs/gotchas.md` 98), `TAB_NAMES` in `tests/spanish.test.mjs`, and the
+  Spanish keys only Walkthrough used. The `user_tours` table is Andrew's to drop
+  (a migration, append-only). **Done when:** `sweep-widths.mjs` runs clean at
+  320 and 1440 with no tour section, and `grep -rn Walkthrough app/src scripts tests`
+  finds nothing.
 
 - [x] **9.16 — Hide the owner-only "The website business" row from detailers.**
   Depends on 0.1.

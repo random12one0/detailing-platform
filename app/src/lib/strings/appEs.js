@@ -628,8 +628,6 @@ export const appEs = {
   // ── THE GEAR ─────────────────────────────────────────────────────────────
   "Texts you send from a job": "Mensajes que mandas desde un trabajo",
   "Change your sign-in password": "Cambia tu contraseña de acceso",
-  "Show me around": "Muéstrame el lugar",
-  "The guided tour of this dashboard": "El recorrido guiado de este panel",
   "The website business": "El negocio del sitio web",
   "Every detailer, and what they pay": "Cada detailer, y lo que paga",
   "Another account": "Otra cuenta",
@@ -1209,7 +1207,6 @@ export const appEs = {
   "Hide": "Ocultar",
   // ROADMAP 2.12 — the Today setup banner. "Your page isn't fully set up"
   // renders both with and without a trailing period, collapsed vs open.
-  "Your page isn't fully set up.": "Tu página no está completamente configurada.",
   "Your page isn't fully set up": "Tu página no está completamente configurada",
   "and {count} more": "y {count} más",
   "Used by every Navigate button.": "Lo usa cada botón de Navegar.",
@@ -2483,8 +2480,6 @@ export const appEs = {
     "El {count} trabajo queda como una entrada anónima, así que tus ingresos y tu exportación contable no cambian.",
   "The {count} jobs stay as anonymous entries, so your takings and your accountant export do not change.":
     "Los {count} trabajos quedan como entradas anónimas, así que tus ingresos y tu exportación contable no cambian.",
-  "Quick tours. Stop any time.":
-    "Recorridos rápidos. Para cuando quieras.",
   // Re-opening a blocked day asks with the reason the detailer typed.
   "This day is closed for {reason}. Re-open it and customers can book.":
     "Este día está cerrado por {reason}. Si lo reabres, los clientes podrán reservar.",

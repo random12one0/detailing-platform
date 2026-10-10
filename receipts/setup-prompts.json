@@ -1,0 +1,55 @@
+{
+  "git_sha": "97b1fc0c3437247b4654be1de5d4ff9e5921e363",
+  "git_sha_started": "97b1fc0c3437247b4654be1de5d4ff9e5921e363",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T14:10:51.905Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE: `collapsed` and `complete` are the demo tenant with ONE business_settings read rewritten in the browser. A real finished business was not available (the fixture business is in first-run), so 'silent when done' is proved for the screen's logic, not for an account that really got there.",
+    "Every non-GET to business_settings is swallowed so the rewritten `done` list is never written to the real row."
+  ],
+  "artifacts": [
+    "artifacts/setup-prompts/320-incomplete-today.png",
+    "artifacts/setup-prompts/320-collapsed-today.png",
+    "artifacts/setup-prompts/320-complete-today.png",
+    "artifacts/setup-prompts/1440-incomplete-today.png",
+    "artifacts/setup-prompts/1440-collapsed-today.png",
+    "artifacts/setup-prompts/1440-complete-today.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "1440x900"
+    ],
+    "variants": [
+      "incomplete",
+      "collapsed",
+      "complete"
+    ],
+    "observed": [
+      "320px incomplete: today prompts = [\"Vehicle types\",\"Where you work\",\"Messages\"]",
+      "320px collapsed: today prompts = [\"Continue\"]",
+      "1440px incomplete: today prompts = [\"Vehicle types\",\"Where you work\",\"Messages\"]",
+      "1440px collapsed: today prompts = [\"Continue\"]"
+    ],
+    "prompts_pressed": 12,
+    "break": null
+  },
+  "check_id": "setup-prompts",
+  "started_at": "2026-10-10T14:06:44.700Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 50,
+  "min_assertions": 20,
+  "assertion_floor": "2 widths x 3 variants, each at least no-tour/tabs + no-tour/gear + one Today clause + one Business clause = 24 minimum before per-prompt presses; 20 is the floor because a variant that opens no prompts books its clause as a failure rather than dropping out.",
+  "canary": {
+    "id": "a-tour-card",
+    "observed_failure": true,
+    "problems": []
+  }
+}

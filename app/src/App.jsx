@@ -13,7 +13,6 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { SCREENS } from "./screens/more/index.js";
-import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { supabase } from "./lib/supabase.js";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
@@ -45,48 +44,11 @@ const TABS = [
   { key: "business", label: "Business", Icon: Store, el: Business },
 ];
 
-// WHETHER THIS PERSON HAS BEEN SHOWN AROUND — ONE FACT, NOT SIX.
-//
-// **Andrew, 2026-09-13: *"it keeps giving me the tour even though I've already
-// said skip."* This block is why.** It used to hold a LIST of guide names, and
-// `markTourSeen` wrote the name of the guide that was on screen and nothing
-// else. There are six guides — the shell and the five tabs — so pressing Skip
-// once silenced one of them and left five armed, each arriving 900ms after the
-// first press of its tab. Measured: `tests/tours.test.mjs` § 6c.
-//
-// **A DISMISSAL IS ONE FACT ABOUT A PERSON: they are done being shown around.**
-// No list, no merge, no way for skip and finish to record different things.
-// *Show me around* is not gated on it (`tours.test.mjs` § 3), so the gear is
-// always the way back in, which is what makes "final" safe.
-//
-// BOTH OLD KEYS ARE STILL READ, so a browser that has already been shown
-// around is not shown around again the day this ships. Only the flag is
-// written from here on.
-//
-// **AND IT IS ALSO WRITTEN FOR THE PERSON** — `user_tours`, one row, read on
-// sign-in below. This stays as the fast path: it is synchronous, so no guide
-// flashes while a round trip is in the air.
-const TOUR_KEY = "dp.tour";
-const TOURS_KEY = "dp.tours";
-const seenTours = () => {
-  try {
-    const list = localStorage.getItem(TOURS_KEY);
-    return Boolean(localStorage.getItem(TOUR_KEY) || (list && list !== "[]"));
-  } catch { return false; }
-};
-const markTourSeen = () => {
-  try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* private mode */ }
-};
-const tourSeen = () => seenTours();
-
-// THE PERSON'S OWN ROW. Fire and forget: the device flag above has already
-// recorded the dismissal, so a failed insert must not block it — the next
-// dismissal tries again. A duplicate comes back as an error rather than a
-// throw, and is exactly as harmless as it sounds: the row already says it.
-const noteToursDismissed = (userId) => {
-  if (!userId) return;
-  supabase.from("user_tours").insert({ user_id: userId }).then(() => {}, () => {});
-};
+// ROADMAP 9.15 — THERE ARE NO TOURS. Six guides and up to 37 steps used to
+// start by themselves, one per tab, and again from the gear. What replaces
+// them is a prompt that names ONE unfinished setup step and goes straight to
+// it — Today's notice and Business's "Next:" row, both read from
+// `lib/setup.js` — and a business with nothing unfinished is shown nothing.
 
 export default function App() {
   const { session, business, settings, role, can, loading, signOut, reload,
@@ -154,9 +116,9 @@ export default function App() {
   const [bizScreen, setBizScreen] = useState(() =>
     deepLink.current === "payments" ? "payments" : null);
   // FIRST RUN — ONE STATE, TWO SEPARATE THINGS (screen designs §13, and the
-  // owner kept them two on purpose). "setup" is the stepped form, "tour" is
-  // the walkthrough; neither is a mode the shell has to know anything else
-  // about, so one nullable string holds both.
+  // owner kept them two on purpose). "setup" is the stepped form, "website" is
+  // the brief; neither is a mode the shell has to know anything else
+  // about, so one nullable string holds both. (There was a third, "tour", until 9.15.)
   // ROADMAP 9.3 — `/website` is the address the owner sends a detailer, and it
   // lands here with `?brief=1`. A route of its own would be the same screen
   // without the shell around it; this is a place INSIDE the dashboard they are
@@ -187,21 +149,6 @@ export default function App() {
     new URLSearchParams(window.location.search).get("setup") === "1"
     || new URLSearchParams(window.location.search).get("brief") === "1",
   );
-  // ROADMAP 2.24 — which TAB guide is on screen, separate from `firstRun`
-  // because they are different lifetimes: the first run happens once ever,
-  // and a tab guide happens once per tab and can arrive months later.
-  const [tabTour, setTabTour] = useState(null);
-  // Whether the guide on screen was ASKED FOR or arrived by itself. The two
-  // deserve different behaviour when there is nothing to point at.
-  const asked = useRef(false);
-  // The handle for the 900ms timer that arms a tab's guide, so pressing a
-  // second tab inside that window cancels the first rather than opening it
-  // over the wrong screen.
-  const tourTimer = useRef(null);
-  // ONE DOOR FOR EVERY DISMISSAL. Skip and finish, shell guide or tab guide,
-  // all record the same single fact — on this device instantly, and on the
-  // account in the background.
-  const dismissTours = () => { markTourSeen(); noteToursDismissed(session?.user?.id); };
   // **`/app/money` OPENED TODAY, AND SO DID THE OTHER FOUR — measured
   // 2026-09-11 with all five loaded one at a time.**
   //
@@ -370,32 +317,8 @@ export default function App() {
         autoOpened.current = true;
         setFirstRun("website");
       }
-    } else if (!tourSeen()) setFirstRun("tour");
+    }
   }, [business, settings, role, wantsBrief]);
-
-  // A DISMISSAL ON THE LAPTOP COUNTS ON THE PHONE — `user_tours`, one row per
-  // person, roadmap/2026-09-13. The device flag is the fast path and this is
-  // what outranks it: `localhost:5173` and the live domain are two separate
-  // localStorages, a private window is a third, and a skip in any of them used
-  // to be worth nothing in the others.
-  //
-  // ONLY WHEN THE DEVICE DOES NOT ALREADY KNOW — a device that has been shown
-  // around asks nothing, so this is one query on a new device and never again.
-  // A guide that is already on screen when the answer arrives is closed, which
-  // is the honest outcome: he has said skip, just not on this browser.
-  useEffect(() => {
-    const uid = session?.user?.id;
-    if (!uid || tourSeen()) return;
-    let live = true;
-    supabase.from("user_tours").select("user_id").eq("user_id", uid).maybeSingle()
-      .then(({ data }) => {
-        if (!live || !data) return;
-        markTourSeen();
-        setFirstRun((cur) => (cur === "tour" ? null : cur));
-        setTabTour(null);
-      }, () => { /* offline, or the table is not there yet — the guide runs */ });
-    return () => { live = false; };
-  }, [session?.user?.id]);
 
   if (loading) {
     return (
@@ -537,47 +460,16 @@ export default function App() {
           : firstRun === "setup" && !gear
           ? (
             <SetupForm start={setupAt} onClose={() => {
-              setFirstRun(autoOpened.current && !tourSeen() ? "tour" : null);
+              setFirstRun(null);
               autoOpened.current = false;
             }} />
           )
           : gear
             ? (
-              /* **IT RUNS THE GUIDE FOR THE TAB YOU ARE ON**, and that is
-                    his bug 1.3 rather than a preference: *"the today guide
-                    goes to the business page. The today guide should only do
-                    guides on the today page."* What he pressed was this, and
-                    it always ran the SHELL tour, whose last two steps are
-                    about the rail and the booking link and therefore live on
-                    Business. The shell tour is not wrong — it introduces the
-                    rail to somebody who has never seen it — it is just not
-                    what "show me around" means once you are standing
-                    somewhere.
-
-                    **AND IT MAKES EVERY TAB GUIDE REPLAYABLE**, which is his
-                    1.4: *"when I click on Calendar, Money, Clients and
-                    Business, I can't view the guides through all of them."*
-                    They fired once, automatically, the first time a browser
-                    opened each tab, and there was no second chance — so a
-                    detailer who tapped past one had lost it for good. */
               <GearMenu
                 key={gearScreen ?? "index"}
                 initial={gearScreen}
                 onClose={() => setGear(false)}
-                // **THE WHOLE DASHBOARD, FROM TODAY, WHATEVER TAB YOU PRESSED
-                // IT ON — his ruling, 2026-09-10.** It ran the guide for the
-                // tab you were standing on, which was yesterday's fix for it
-                // wandering off to Business. Right about the wandering, wrong
-                // about the scope: *"I want it so when you press the settings,
-                // it restarts the tour from the beginning, from the today
-                // page... It should do it for every single tab."* The tabs a
-                // detailer cannot see are not in it — `Walkthrough` drops a
-                // block whose screen has nothing to point at.
-                //
-                // A `{/* */}` COMMENT BETWEEN ATTRIBUTES IS A SYNTAX ERROR —
-                // second time this session. Inside an opening tag the comment
-                // form is `//`; the braces one only works between children.
-                onTour={() => { setGear(false); asked.current = true; setTabTour("everything"); }}
               />
             )
             : (
@@ -629,43 +521,6 @@ export default function App() {
               // little broken."* The rail is not decoration while a form is
               // open, it is the way out of it.
               if (firstRun) setFirstRun(null);
-              // ROADMAP 2.24 — the guide for a tab arrives the first time
-              // this browser opens it, and only then.
-              //
-              // **NEVER WHILE ANOTHER TOUR IS ON SCREEN.** The shell tour's
-              // own steps move tabs, so without this the first move would put
-              // a second overlay on top of the first — and the setup form is
-              // the same problem one screen earlier.
-              //
-              // The plan is worked out by `Walkthrough` itself, which drops a
-              // step whose target is absent — so a guide is only STARTED here
-              // and its length is decided there.
-              // AND NOT ON THE SAME TICK AS THE TAB PRESS. The tour works out
-              // its plan when it MOUNTS — dropping any step whose target is
-              // absent — and a screen that has just been switched to has not
-              // finished its own read yet. **Measured: Today planned "1 of 1"
-              // on a dashboard with two waiting requests and a finished job**,
-              // because neither block was drawn when the tour counted. Also
-              // the kinder order: an overlay on a still-loading screen is
-              // pointing at a spinner.
-              // NOT `!gear`. Pressing a tab is how you LEAVE the gear — the
-              // line above sets it false — so reading it here reads the state
-              // the press is ending, and a detailer whose first visit to
-              // Clients came from the settings screen got no guide at all.
-              // `firstRun` is the one that has to be checked from before,
-              // because a guide arriving the instant the setup form is
-              // dismissed is the two-overlays problem this guard exists for.
-              // AND THE PREVIOUS TAB'S TIMER IS CANCELLED FIRST — his *"not
-              // every time"*. Nothing used to clear it, and the setter is
-              // `(cur) => cur ?? x.key`, so pressing a second tab inside the
-              // 900ms window opened the FIRST tab's guide over the screen he
-              // had already left, where it planned against absent targets and
-              // left through `onEmpty` recording nothing — and threw the
-              // second one away unrecorded too. Both returned next visit.
-              clearTimeout(tourTimer.current);
-              if (!firstRun && TOURS[x.key] && !tourSeen()) {
-                tourTimer.current = setTimeout(() => setTabTour((cur) => cur ?? x.key), 900);
-              }
             }}>
             <x.Icon size={21} strokeWidth={1.75} />
             {t(x.label)}
@@ -675,42 +530,6 @@ export default function App() {
       {creating && (
         <NewBookingModal onClose={() => setCreating(false)}
           onCreated={() => { setCreating(false); setRev((r) => r + 1); }} />
-      )}
-      {/* OVER the shell rather than inside it, because the shell is one of the
-          things it points at — three of its seven targets are rail buttons.
-          It never returns on its own: closing writes this device down as
-          shown, and the only other door is the gear. */}
-      {firstRun === "tour" && (
-        <Walkthrough
-          onGo={(dest) => { setTab(dest); setGear(false); }}
-          onClose={() => { dismissTours(); setFirstRun(null); }} />
-      )}
-      {/* ROADMAP 2.24 — a tab's own guide. `key` so switching tabs while one
-          is up remounts rather than re-plans, and `onGo` is absent: a tab
-          guide is already on the screen it is about. */}
-      {!firstRun && tabTour && (
-        <Walkthrough key={tabTour} tour={tabTour}
-          // **THE WHOLE-DASHBOARD TOUR MOVES TABS AND THEREFORE NEEDS THIS.**
-          // A single tab's guide never calls it — its steps carry no
-          // destination — so one prop covers both without a condition.
-          onGo={(dest) => { setTab(dest); setGear(false); }}
-          // NOT MARKED SEEN when it leaves for want of steps — decision 6.
-          // A detailer whose Today is empty today gets the guide the first
-          // day there is a job on it.
-          // **A GUIDE STARTED BY HAND MUST NOT VANISH IN SILENCE.** Decision 6
-          // drops a guide with fewer than two targets, which is right when it
-          // arrived by itself and wrong when somebody pressed a button for it
-          // — that reads as a dead control, which is the shape of the bug he
-          // reported one screen over. So the automatic one still leaves
-          // quietly, and a requested one falls back to the tour of the rail,
-          // which every dashboard can always run.
-          onEmpty={() => { if (asked.current) { asked.current = false; setTabTour(null); setFirstRun("tour"); } else setTabTour(null); }}
-          // FINISHING THE TOUR OF EVERYTHING MARKS EVERYTHING SEEN, including
-          // when it is skipped — otherwise a detailer who has just been shown
-          // all five tabs gets each one's guide ambushing them again as they
-          // walk the rail, and somebody who pressed Skip gets it five more
-          // times. The gear is still the way back in.
-          onClose={() => { dismissTours(); setTabTour(null); }} />
       )}
     </div>
   );

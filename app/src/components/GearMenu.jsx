@@ -29,10 +29,9 @@
 // that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
-import { Bell, Building2, ChevronRight, CloudSun, Compass, CreditCard, KeyRound, LifeBuoy, LogOut, MailCheck, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
+import { Bell, Building2, ChevronRight, CloudSun, CreditCard, KeyRound, LifeBuoy, LogOut, MailCheck, MessageSquare, Shield, Smartphone, UserPlus, Users, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { GRAND_STEPS } from "./Walkthrough.jsx";
 import SettingsHost from "./SettingsHost.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
 import { roleName } from "../lib/permissions.js";
@@ -110,7 +109,7 @@ const TOUR_ROWS = {
 // a failed ask writes nothing, so it is retried.
 let adminSeen = { uid: null, yes: false };
 
-export default function GearMenu({ onClose, onTour, initial = null }) {
+export default function GearMenu({ onClose, initial = null }) {
   useAppLocale();
   const {
     business, settings, subscription, label, role, can, memberships, signOut,
@@ -253,17 +252,6 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the
     // product today — the row appears the day somebody runs two businesses.
-    // THE TOUR'S SECOND DOOR, and its only one after the first morning — the
-    // walkthrough leaves whenever you want and never comes back on its own
-    // (screen designs §13b), so something has to be able to ask for it. It
-    // belongs behind the gear by this screen's own admission test: it changes
-    // how the app behaves for the DETAILER and nothing a customer meets.
-    // Staff keep it; they are the ones most likely to be new.
-    // ROADMAP 10.1 — the row used to name the tour count and its step total
-    // (`GRAND_STEPS`), precise language nobody but the person who built the
-    // tours needed. The row it opens still says how long it is.
-    ["tour", "Show me around", Compass,
-      t("Quick tours. Stop any time."), null],
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),
@@ -422,7 +410,6 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
               // pretending it is one more settings panel would put a second
               // product inside a sheet.
               if (key === "platform") { window.location.href = "/admin"; return; }
-              if (key === "tour") { onTour?.(); return; }
               setOpen(key);
             }}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>
