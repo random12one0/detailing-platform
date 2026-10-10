@@ -11310,6 +11310,14 @@ requested.
   - Each sendable template has one recorded sandbox delivery row
   - Each unsendable template is named with its reason
   - The template count is taken from the source file at the time of the pass
+  **Render half done 2026-10-10:** `node scripts/render-emails.mjs` drew 34 emails
+  in English (`email-preview/`) and 34 in Spanish (`--lang=es --out=email-preview-es`),
+  both runs clean, canary caught; `emailTemplates.ts` exports 36 symbols, 21 of them
+  email builders (the rest are helpers). A person still has to look at them.
+  **NEEDS ANDREW: the sandbox-send half cannot be done by a session.** `scripts/send-test-emails.mjs`
+  mails a real inbox through the production relay (service-role key, shared sending
+  reputation with the real business), and the item says to spend one send per template.
+  Needs his go-ahead and an inbox address he names (`--to=`), then it is one run.
 
 - [x] **3.4a — DONE 2026-09-24. ~~`campaignEmail` is marketing, and marketing is
   forbidden.~~ THE RULE WAS REVERSED BY ITS AUTHOR ON 2026-09-21, SO THE
