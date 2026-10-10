@@ -24523,7 +24523,7 @@ event id.
   long and no single session was finishing it.
 
 - [ ] **14.9a — Publish the three write endpoints with their rate-limit guards**
-  NEEDS ANDREW — deploying an edge function is publishing, which is his (CLAUDE.md "DO NOT DEPLOY TO MAKE IT GREEN"). Nothing to decide: it ships with the next batch in FOR-ANDREW.md's shipping order. Renumbered from line-24345a and moved under 14.9 by the supervisor, 2026-10-10.
+  Queued behind the next publish — no choice is needed. Publishing is Andrew's step (CLAUDE.md "DO NOT DEPLOY TO MAKE IT GREEN") and these three functions are already in the agreed shipping order in FOR-ANDREW.md; a session cannot do this piece. Renumbered from line-24345a and moved under 14.9 by the supervisor, 2026-10-10.
   Deploy the current `cancel-booking`, `reschedule-booking`, and `accept-quote` bundles so the existing on-disk `withinLimits` guards are present in the running functions. This does not claim that a live refusal has occurred; that belongs to the next piece.
   Part 1 of 2 of item 14.9, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
