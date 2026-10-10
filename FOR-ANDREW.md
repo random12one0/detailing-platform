@@ -72,6 +72,14 @@ You already said go, and the live comparison ran. The same demo business shows *
 
 **Recommendation:** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
+## LOOK, THEN LATER DO · Connect Google Business, built up to Google's gate (ROADMAP 99.1)
+
+The screen is there: Business, then **Google Business**. You can connect and disconnect, and if Google says no or the link breaks it says so in plain words and says your Google listing was not touched. **Nothing is sent to Google yet**, and the screen says so while that is true. Google still has to approve the permission (ROADMAP 0.15) before hours and services can reach a listing.
+
+**Look (ten seconds, on your phone):** Business, then Google Business, and check the spacing and wording. If you dislike it, tell me what and I change it. **Later, when you publish:** apply the new database change, deploy the `google-business` function, and only then publish the app. Published without the function, an owner is wrongly told "Only the owner can connect Google."
+
+**Recommendation:** leave it unpublished until 0.15 is through, so detailers are not shown a Connect button that cannot do anything yet.
+
 ## DECIDE · The test emails (ROADMAP 3.4 and 3.4g, 2026-10-10)
 
 Every email the product sends has been drawn in English and Spanish and read for mistakes; the faults that turned up were fixed. What is left is sending one real copy of each to an inbox, which uses part of the 100-a-day email allowance shared with your real business. You earlier said not to spend it just to tick a box, so no session sent anything.
