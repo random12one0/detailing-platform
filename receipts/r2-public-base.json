@@ -1,9 +1,9 @@
 {
-  "git_sha": "daa15b49ac74e94c9c43d470777eb13f749775cc",
-  "git_sha_started": "daa15b49ac74e94c9c43d470777eb13f749775cc",
+  "git_sha": "39b6f710dc255fefd609c2fc541d53a89a93aeff",
+  "git_sha_started": "39b6f710dc255fefd609c2fc541d53a89a93aeff",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T08:54:49.889Z",
+  "finished_at": "2026-10-10T09:33:04.929Z",
   "failures": [],
   "warnings": [
     "anonymous-read: UNJUDGEABLE: no object named. Re-run with --key=<business>/branding/<file>.webp once one logo has been uploaded — criterion 4 is about reading a real object, and inventing a key proves only that the host answers."
@@ -24,7 +24,7 @@
     "base_source": "--base="
   },
   "check_id": "r2-public-base",
-  "started_at": "2026-10-10T08:54:49.287Z",
+  "started_at": "2026-10-10T09:33:04.354Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,

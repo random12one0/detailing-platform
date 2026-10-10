@@ -147,7 +147,7 @@ async function probeRead(base, key) {
   try {
     res = await fetch(url, { redirect: "follow" });
   } catch (err) {
-    return { ok: false, why: "GET " + url + " did not connect: " + err.message };
+    return { ok: false, why: "GET " + url + " did not connect: " + err.message + (err.cause?.code ? " (" + err.cause.code + ")" : "") };
   }
   const type = (res.headers.get("content-type") || "").toLowerCase();
   if (res.status !== 200) {
@@ -175,7 +175,7 @@ async function preflight(base, origin) {
       },
     });
   } catch (err) {
-    return { reached: false, why: "OPTIONS did not connect: " + err.message };
+    return { reached: false, why: "OPTIONS did not connect: " + err.message + (err.cause?.code ? " (" + err.cause.code + ")" : "") };
   }
   const h = (n) => (res.headers.get(n) || "").toLowerCase();
   return {
