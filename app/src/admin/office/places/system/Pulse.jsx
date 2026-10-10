@@ -1,11 +1,24 @@
 // "N of M working" beside a pulse, and every check as a node wired to the middle.
 // A working line carries a slow flow; anything else is dashed and its node rings.
+import { useEffect, useState } from "react";
 import { Count } from "../../ui.jsx";
 
 const COLOR = { ok: "var(--ac)", warn: "var(--bo-warn)", never: "var(--bo-warn)", bad: "var(--bad)" };
-const W = 720, H = 400, CX = 360, CY = 200, RX = 196, RY = 150;
+const W = 720, H = 400, CX = 360, CY = 200, RY = 150;
+// On a phone the labels are drawn larger, so the ring is narrower to leave them room.
+const NARROW = "(max-width: 520px)";
+const useNarrow = () => {
+  const [n, setN] = useState(() => window.matchMedia(NARROW).matches);
+  useEffect(() => {
+    const q = window.matchMedia(NARROW), on = () => setN(q.matches);
+    q.addEventListener("change", on);
+    return () => q.removeEventListener("change", on);
+  }, []);
+  return n;
+};
 
 export default function Pulse({ checks, i }) {
+  const RX = useNarrow() ? 118 : 196;
   const ok = checks.filter((c) => c.state === "ok").length;
   const broken = checks.some((c) => c.state === "bad");
   const nodes = checks.map((c, k) => {
