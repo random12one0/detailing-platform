@@ -43,6 +43,31 @@ status block and the "What's next" block** — they repeated each other and the
 closing paragraph, so four sentences of news printed three times. Do not
 reintroduce them.
 
+## Backups — we built our own, so we do not pay Supabase for them
+
+**The database IS backed up, every night, and it is working.** Andrew chose this
+over Supabase's paid backups (the platform is on the free plan, so Supabase's own
+dashboard shows no backups — **that is expected and is not "no backups"**). A
+session that tells him the database is unbacked-up is wrong; check here first.
+
+- **Where:** `github.com/random12one0/detailing-platform-backups` — private, must
+  stay private. A GitHub Action runs nightly at **02:10 Pacific** in GitHub's
+  cloud (no computer of his needs to be on), `pg_dump` of the whole database,
+  `age`-encrypted, saved as a release named `backup-YYYY-MM-DD`, kept 30 days plus
+  the 1st of each month.
+- **Is it working right now?** One read-only command answers it:
+  `gh run list -R random12one0/detailing-platform-backups --limit 5` (and
+  `gh release list -R random12one0/detailing-platform-backups --limit 5`).
+  Checked 2026-10-10: every night green from 2026-09-16 to 2026-10-09, 29
+  releases on hand.
+- **The one open gap:** the private key that unlocks a backup lives only in
+  Andrew's password manager, by design, and nobody has confirmed it is there or
+  restored a file. Never read, move, paste or regenerate that key.
+  `docs/recovery.md` and `docs/ops/backups.md` § 4 have the detail.
+- **Separate, and not the same thing:** the Control Room also saves a copy of
+  this repo's *code history* every 12 hours to `belt\backups\*.bundle`. That is
+  code, not the database.
+
 ## Commands
 
 ```bash
