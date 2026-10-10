@@ -58,6 +58,14 @@ The booking page's bottom bar is proven clear of every choice on every screen si
 
 **Nothing is broken.** Sessions have already checked everything a computer can check, and the walk itself is guarded by a test (6 of 6 passing today). This waits until you are about to release.
 
+## DO, WHEN YOU LIKE · Type this month's real bills into "Did we make money?" (ROADMAP 9.14c)
+
+The profit screen is finished and proven: a session typed four test bills into it, checked every figure against two separate sums, and then removed them. What it did not do is enter YOUR bills, because nobody here knows what you actually pay, and a saved bill cannot be removed from the screen yet.
+
+**How:** open `/admin`, press **Money**, and find **Did we make money?**. It opens on the current month. For each bill (Netlify, Supabase, Resend, the domain, anything else), pick its kind, type the dollars, add a note if you like, and press **Save this bill**. If a month really cost nothing, save one $0 bill so it reads as $0 rather than "Costs not entered".
+
+**Check before saving.** A wrong bill stays there until edit and delete are built. Nothing else is waiting on this.
+
 ## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
 
 You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.
