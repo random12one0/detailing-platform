@@ -134,6 +134,8 @@ export default function RequestCard({
           question={booking.customer_email
             ? t("Decline {job}? The customer is emailed.", { job })
             : t("Decline {job}?", { job })}
+          // 4.1a: ringed, not the accent fill - the card already has one accent button.
+          confirmClassName="btn"
           confirmLabel={t("Yes, decline it")}
           onConfirm={() => onDecline(booking)}
         />
