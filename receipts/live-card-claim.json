@@ -1,0 +1,59 @@
+{
+  "git_sha": "936f93233f3d9db95e57ed9ed7db72d55347845f",
+  "git_sha_started": "936f93233f3d9db95e57ed9ed7db72d55347845f",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T19:41:52.787Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/live-card-claim.mjs"
+  ],
+  "dimensions": {
+    "site": "https://detailingplatform.com",
+    "bundles": [
+      "index-CT8xjH8F.js"
+    ],
+    "targets": {
+      "home@1440": {
+        "problems": 0,
+        "painted": true,
+        "console": 0
+      },
+      "home@392": {
+        "problems": 0,
+        "painted": true,
+        "console": 0
+      },
+      "home@320": {
+        "problems": 0,
+        "painted": true,
+        "console": 0
+      },
+      "home@392-lite": {
+        "problems": 0,
+        "painted": true,
+        "console": 0
+      },
+      "pricing@392": {
+        "problems": 0,
+        "painted": null,
+        "console": 0
+      }
+    }
+  },
+  "check_id": "live-card-claim",
+  "started_at": "2026-10-10T19:41:38.665Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 15,
+  "canary": {
+    "id": "old-promise-through-judge",
+    "observed_failure": true
+  }
+}

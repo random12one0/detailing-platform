@@ -23594,7 +23594,30 @@ their age is not Andrew's problem.
   **Nothing was left suspended:** every run deletes its business in `finally`
   and on SIGINT/SIGTERM, sweeps any `billing-walk-*` a killed run left, and
   after the runs no business in the database was `paused`.
-- [ ] 12.2 Real in-person card payment. Today "Card" only writes the word
+- [x] 12.2 Real in-person card payment. **DONE 2026-10-10 BY BRANCH TWO — THE
+  PUBLISHED HOME PAGE NO LONGER PROMISES IT.** The publish the note at the
+  bottom of this entry was waiting for has happened: `origin/main` is
+  `0087d1dd` and `git branch -r --contains 6097a7e` now prints `origin/main`;
+  the live site serves `index-CT8xjH8F.js`, which holds `Log a card payment`
+  once and `Take a card payment` zero times. **Checked in a real browser on
+  the live site, not the source:** `node scripts/live-card-claim.mjs` (new,
+  read-only, commit `936f9323`) opened `https://detailingplatform.com/` at
+  1440, 392, 320 and 392 `?lite=1`, and `/pricing` at 392 — **receipt graded
+  PASS, 5 of 5 targets, 20 assertions**, `git_sha` `936f9323`: on every home
+  target exactly one card-payment phrase, reading `Log a card payment`, the
+  row painted after scrolling to it, and **0 console errors or warnings at all
+  five**; pricing names no card payment. **The refused case:**
+  `--break=old-wording` rewrote the live bundle in the browser back to `Take a
+  card payment` (5 rewrites counted as landed, `docs/gotchas.md` 102) and the
+  run went red at all four home targets, 8 failures, in
+  `receipts/live-card-claim.sabotage.json`; a canary pushes the old wording
+  through the same judging function on every run and is refused. Branch one —
+  a real card taken in person — stays unbuilt and is not needed to close this.
+  *Seen beside the row and left alone:* the illustration card reads `$95 · paid
+  by card` and the paragraph says `take the money for it`; neither promises
+  that the product takes a card on the driveway, and both are outside this
+  item's wording. To re-check after any later publish, run the script again.
+  Today "Card" only writes the word
   "Card" into the notes, while the home page promises "Take a card payment on
   the driveway." **Until this ships, 10.1 must change the home page wording** —
   ***STALE SINCE 2026-09-20 — the page says "Log a card payment" now, `6097a7e`; see the correction below. Branch two of this item's own criterion is met.***
