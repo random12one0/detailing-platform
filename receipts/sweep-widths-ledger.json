@@ -1,6 +1,6 @@
 {
   "note": "One row per width per run. `outcome` is complete | short | aborted. A width fails on a RATE, never on one bad run: more than 2 bad in the last 5 runs of the same mode. One abort is noise; four of five is a broken instrument, and only a count can tell those apart.",
-  "updated_at": "2026-10-10T15:01:15.557Z",
+  "updated_at": "2026-10-10T18:38:45.231Z",
   "window": 5,
   "max_bad": 2,
   "runs": [
@@ -1704,6 +1704,76 @@
       "measured": 86,
       "declared": 5,
       "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:25:48.203Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 85,
+      "declared": 5,
+      "expected": 88
+    },
+    {
+      "at": "2026-10-10T18:30:06.143Z",
+      "sha": "",
+      "width": 320,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 86,
+      "declared": 5,
+      "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:30:06.143Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 85,
+      "declared": 5,
+      "expected": 88
+    },
+    {
+      "at": "2026-10-10T18:32:35.778Z",
+      "sha": "",
+      "width": 320,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 85,
+      "declared": 5,
+      "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:34:37.259Z",
+      "sha": "",
+      "width": 320,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 86,
+      "declared": 5,
+      "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:38:45.216Z",
+      "sha": "",
+      "width": 320,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 86,
+      "declared": 5,
+      "expected": 89
+    },
+    {
+      "at": "2026-10-10T18:38:45.216Z",
+      "sha": "",
+      "width": 1440,
+      "mode": "-es",
+      "outcome": "complete",
+      "measured": 85,
+      "declared": 5,
+      "expected": 88
     }
   ]
 }

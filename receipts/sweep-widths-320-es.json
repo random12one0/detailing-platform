@@ -1,9 +1,9 @@
 {
-  "git_sha": "a334bcebd93c5295a6b1c14dd9076313b48973fe",
-  "git_sha_started": "a334bcebd93c5295a6b1c14dd9076313b48973fe",
+  "git_sha": "056ef2c1c11e569de95eb4dca86889ceceab6417",
+  "git_sha_started": "056ef2c1c11e569de95eb4dca86889ceceab6417",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:01:15.611Z",
+  "finished_at": "2026-10-10T18:34:37.345Z",
   "failures": [
     {
       "target": "Business · Monthly plans, the member form",
@@ -29,14 +29,14 @@
       320
     ],
     "locales": [
-      "en"
+      "es"
     ],
     "identities": [
       "demo-detail-owner"
     ]
   },
   "check_id": "sweep-widths-320-es",
-  "started_at": "2026-10-10T14:59:17.846Z",
+  "started_at": "2026-10-10T18:32:36.644Z",
   "status": "fail",
   "expected_targets": 86,
   "discovered_targets": 86,
@@ -79,7 +79,7 @@
       }
     ]
   },
-  "assertions_executed": 33110,
+  "assertions_executed": 33202,
   "min_assertions": 344,
   "canary": {
     "id": "sweep-canary-deliberate-overflow",

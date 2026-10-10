@@ -2864,6 +2864,13 @@ const ABORTED_W = new Set(ABORTED.map((a) => a.width));
 // or short within their own mode. Filled by the gate, which runs below, so
 // `JUDGED` is recomputed there rather than frozen here.
 const UNJUDGED_W = new Set();
+// **ROADMAP 9.26 - A SHORT RUN SAYS SO IN THE RECEIPT, BY WIDTH AND BY NAME.**
+// A Spanish 320+1440 run was read as "reached 85 of 171" with 1440 blamed, when
+// 1440 had reached 85 of 85 and the 320 pass was the one the gate refused. The
+// receipt carried only `GATE FAILED ... measured 85`, never which width or which
+// surfaces (the `NEVER MEASURED` lines match no capture pattern), so a reader
+// had to guess. One entry per refused or aborted width, written into `failures`.
+const SHORT_RUNS = [];
 const JUDGED = CERT.filter((c) => !ABORTED_W.has(c.width));
 if (ABORTED_W.size) {
   const dropped = CERT.length - JUDGED.length;
@@ -3099,6 +3106,8 @@ if (process.argv.includes("--dump-fingerprints")) {
       // charged twice.
       const died = ABORTED.find((a) => a.width === w);
       if (died) {
+        SHORT_RUNS.push({ width: w, why: "aborted", expected: expected.length, measured: died.measured,
+          unreached: expected.filter((l) => !got.includes(l)) });
         console.log(`expected-count ${w}px: NOT GRADED — the width aborted after `
           + `${died.measured} of ${expected.length} surfaces (${died.error}). `
           + `The ${expected.length - died.measured} it never reached are unmeasured, not clean.`);
@@ -3147,6 +3156,8 @@ EXPECTED-COUNT ${w}px: NOT GRADED - no ${RAN_DEEP.get(w) ? "deep" : "core"}`
          end cannot say the end is healthy. */
       UNJUDGED_W.add(w);
       found += missing.length + extra.length;
+      SHORT_RUNS.push({ width: w, why: "gate-refused", expected: expected.length - declared.length, measured: got.length,
+        unreached: missing, unexpected: extra });
       console.log(`\nEXPECTED-COUNT GATE FAILED at ${w}px: expected ${expected.length} surfaces, measured ${got.length}`
         + (declared.length ? `, ${declared.length} declared unreachable` : ""));
       for (const l of missing) console.log(`  NEVER MEASURED  ${l}`);
@@ -3382,7 +3393,7 @@ ${JUDGED.length - JUDGED_FINAL.length} further measurement(s) from `
   const { path: rp } = writeReceipt({
     check_id: `sweep-widths-${SIZES.join("-")}${MODE}`,
     started_at: STARTED,
-    status: found ? "fail" : "pass",
+    status: (found || SHORT_RUNS.length) ? "fail" : "pass",
     expected_targets: reachableTotal,
     // **`JUDGED`, NOT `CERT`** - a width that aborted contributes none of its
     // partial measurements. With `CERT` the receipt read 153 discovered against
@@ -3413,11 +3424,19 @@ ${JUDGED.length - JUDGED_FINAL.length} further measurement(s) from `
         .map((c) => ({ target: c.label, width: c.width, findings: c.findings }));
       const geometryCount = CERT.reduce((n, c) => n + c.findings.length, 0);
       const other = found - geometryCount;
-      if (other <= 0) return geometry;
+      const short = SHORT_RUNS.map((r) => ({
+        target: `(SHORT RUN at ${r.width}px - ${r.why === "aborted" ? "the width aborted" : "the expected-count gate refused it"})`,
+        width: r.width,
+        why: `SHORT RUN: ${r.width}px measured ${r.measured} of ${r.expected} surfaces and is OUT of the verdict, so `
+          + `the totals above are not a clean result. Unreached: ${r.unreached.length ? r.unreached.join("; ") : "none named"}.`
+          + (r.unexpected?.length ? ` Not in the expectation: ${r.unexpected.join("; ")}.` : ""),
+        unreached: r.unreached,
+      }));
+      if (other <= 0) return [...geometry, ...short];
       // The count is authoritative; the captured lines are the evidence for it.
       // If the capture missed some, `captured` is short of `count` and says so
       // in the receipt rather than rounding the difference away.
-      return [...geometry, {
+      return [...geometry, ...short, {
         target: "(not a per-surface geometry finding)",
         count: other,
         captured: LOUD,

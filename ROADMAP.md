@@ -23295,8 +23295,24 @@ the dashboard or back office at phone width at all.
   screens `clean`, and English 320 still does.
   *Found by 9.15a's Spanish widening run. Not tour code.*
   **SUPERVISOR 2026-10-10:** "so is Spanish at 1440" is unproven — see 9.26.
+  **9.26 PROVED IT 2026-10-10:** Spanish at 1440 alone is `clean`, 85 of 85 surfaces.
 
-- [ ] **9.26 — The Spanish sweep at 1440 measures almost nothing and its receipt does not say so.**
+- [x] **9.26 — The Spanish sweep at 1440 measures almost nothing and its receipt does not say so.**
+  **DONE 2026-10-10.** The premise was wrong, and the receipt was why nobody could tell:
+  `LANG_APP=es node scripts/sweep-widths.mjs 1440` alone reaches **85 of 85** (88 owed, 3 declared
+  unreachable), so Spanish at 1440 is fine and was never the short half. In the 320+1440 run it was
+  the **320** pass that came up one surface short of its 86, which refused that whole width out of the
+  verdict (so the receipt read 85 discovered of 171 — it was 1440's 85, not 320's), and the receipt
+  never said which width or which surface. Re-run clean at the same code: Spanish 320+1440 reports
+  **171 of 171**, `locales: ["es"]`. The one surface the first run missed was not recorded and cannot
+  be recovered; it did not recur. The receipt is still `fail` — only for 9.25's two `Cancelar` lines.
+  **Fix:** `sweep-widths.mjs` now writes a `(SHORT RUN at Npx …)` entry into `failures` for every width
+  the expected-count gate refuses or that aborts, naming the width, "measured X of Y", and every
+  unreached surface; and a short run can no longer be `pass`. **Proof:** `SWEEP_SHORT_CANARY=1`
+  (drops `Money · Lifetime` at 320) gave `SHORT RUN: 320px measured 85 of 86 … Unreached: Money ·
+  Lifetime.` in `receipts/sweep-widths-320-es.sabotage.json`; the clean run has no such entry.
+  *Original entry follows.*
+
   `receipts/sweep-widths-320-es.json` (Spanish, 320 only) reached **86 of 86** targets;
   `receipts/sweep-widths-320-1440-es.json` (Spanish, 320 then 1440, same commit `a334bceb`)
   reached **85 of 171** and is `fail` only because of 9.25's two lines. So the 1440 half reached
