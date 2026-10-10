@@ -1,0 +1,439 @@
+{
+  "git_sha": "fba7b403a0fe13bac408c2c4ffa359f50819170a",
+  "git_sha_started": "fba7b403a0fe13bac408c2c4ffa359f50819170a",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T23:12:11.169Z",
+  "failures": [
+    "320/step6/clear: scrolled 828px to the bottom: last block ends at 673.7px, fixed bar starts at 627px",
+    "320/step7/clear: scrolled 86px to the bottom: last block ends at 673.7px, fixed bar starts at 616.4px",
+    "392/step6/clear: scrolled 647px to the bottom: last block ends at 817.5px, fixed bar starts at 771px"
+  ],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/14.24/step6-320.png",
+    ".manager-shots/14.24/step6-320-bottom.png",
+    ".manager-shots/14.24/step7-320.png",
+    ".manager-shots/14.24/step7-320-bottom.png",
+    ".manager-shots/14.24/step6-392.png",
+    ".manager-shots/14.24/step6-392-bottom.png",
+    ".manager-shots/14.24/step7-392.png",
+    ".manager-shots/14.24/step7-392-bottom.png",
+    ".manager-shots/14.24/step5-calendar-768.png",
+    ".manager-shots/14.24/step6-768.png",
+    ".manager-shots/14.24/step6-768-bottom.png",
+    ".manager-shots/14.24/step7-768.png",
+    ".manager-shots/14.24/step7-768-bottom.png",
+    ".manager-shots/14.24/step6-1440.png",
+    ".manager-shots/14.24/step6-1440-bottom.png",
+    ".manager-shots/14.24/step7-1440.png",
+    ".manager-shots/14.24/step7-1440-bottom.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x700",
+      "392x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "steps": [
+      6,
+      7
+    ],
+    "business": "demo-detail",
+    "item": "14.24-1",
+    "break": "cover"
+  },
+  "check_id": "booking-steps-6-7",
+  "started_at": "2026-10-10T23:10:50.791Z",
+  "status": "fail",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 48,
+  "assertion_floor": "8 readings x 5 + 4 plan-pitch + 1 calendar + 3 canaries = 48, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "the-wide-strip",
+    "observed_failure": true
+  },
+  "canaries": [
+    {
+      "name": "the-wide-strip",
+      "flagged": true
+    },
+    {
+      "name": "the-covered-last-line",
+      "flagged": true
+    },
+    {
+      "name": "the-stretched-column",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [
+    "look/stranded-or-stretched — a line inside the column that looks abandoned, or a block that reads as stretched, is a judgement; the numbers here catch overflow and a wrong column width only. The screenshots in .manager-shots/14.24/ were read by a person (a session), and what was seen is written in ROADMAP 14.24."
+  ],
+  "sabotage": [
+    {
+      "width": 320,
+      "step": 6,
+      "break": "cover",
+      "landed": true,
+      "docW": 320,
+      "wrapW": 320
+    },
+    {
+      "width": 320,
+      "step": 7,
+      "break": "cover",
+      "landed": true,
+      "docW": 320,
+      "wrapW": 320
+    },
+    {
+      "width": 392,
+      "step": 6,
+      "break": "cover",
+      "landed": true,
+      "docW": 392,
+      "wrapW": 392
+    }
+  ],
+  "observed": [
+    {
+      "width": 320,
+      "step": 6,
+      "wrapW": 320,
+      "docW": 320,
+      "worst": 304,
+      "blocks": [
+        [
+          "bk-step-head",
+          288,
+          52
+        ],
+        [
+          "bk-field",
+          288,
+          73
+        ],
+        [
+          "bk-grid2",
+          288,
+          157
+        ],
+        [
+          "bk-refusal bk-muted",
+          288,
+          19
+        ],
+        [
+          "bk-field",
+          288,
+          124
+        ],
+        [
+          "bk-planpitch",
+          288,
+          842
+        ]
+      ]
+    },
+    {
+      "width": 320,
+      "step": 7,
+      "wrapW": 320,
+      "docW": 320,
+      "worst": 304,
+      "blocks": [
+        [
+          "bk-step-head",
+          288,
+          52
+        ],
+        [
+          "bk-card selected",
+          288,
+          112
+        ],
+        [
+          "bk-muted",
+          288,
+          19
+        ],
+        [
+          "bk-muted",
+          288,
+          19
+        ],
+        [
+          "bk-receipt",
+          288,
+          173
+        ],
+        [
+          "div",
+          288,
+          73
+        ],
+        [
+          "bk-muted",
+          288,
+          57
+        ]
+      ]
+    },
+    {
+      "width": 392,
+      "step": 6,
+      "wrapW": 392,
+      "docW": 392,
+      "worst": 376,
+      "blocks": [
+        [
+          "bk-step-head",
+          360,
+          52
+        ],
+        [
+          "bk-field",
+          360,
+          73
+        ],
+        [
+          "bk-grid2",
+          360,
+          157
+        ],
+        [
+          "bk-refusal bk-muted",
+          360,
+          19
+        ],
+        [
+          "bk-field",
+          360,
+          124
+        ],
+        [
+          "bk-planpitch",
+          360,
+          823
+        ]
+      ]
+    },
+    {
+      "width": 392,
+      "step": 7,
+      "wrapW": 392,
+      "docW": 392,
+      "worst": 376,
+      "blocks": [
+        [
+          "bk-step-head",
+          360,
+          52
+        ],
+        [
+          "bk-card selected",
+          360,
+          112
+        ],
+        [
+          "bk-muted",
+          360,
+          19
+        ],
+        [
+          "bk-muted",
+          360,
+          19
+        ],
+        [
+          "bk-receipt",
+          360,
+          173
+        ],
+        [
+          "div",
+          360,
+          73
+        ],
+        [
+          "bk-muted",
+          360,
+          38
+        ]
+      ]
+    },
+    {
+      "width": 768,
+      "step": 6,
+      "wrapW": 632,
+      "docW": 768,
+      "worst": 684,
+      "blocks": [
+        [
+          "bk-step-head",
+          600,
+          52
+        ],
+        [
+          "bk-field",
+          600,
+          73
+        ],
+        [
+          "bk-grid2",
+          600,
+          73
+        ],
+        [
+          "bk-refusal bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-field",
+          600,
+          124
+        ],
+        [
+          "bk-planpitch",
+          600,
+          462
+        ]
+      ]
+    },
+    {
+      "width": 768,
+      "step": 7,
+      "wrapW": 632,
+      "docW": 768,
+      "worst": 684,
+      "blocks": [
+        [
+          "bk-step-head",
+          600,
+          52
+        ],
+        [
+          "bk-card selected",
+          600,
+          122
+        ],
+        [
+          "bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-receipt",
+          600,
+          154
+        ],
+        [
+          "div",
+          600,
+          73
+        ],
+        [
+          "bk-muted",
+          600,
+          38
+        ]
+      ]
+    },
+    {
+      "width": 1440,
+      "step": 6,
+      "wrapW": 632,
+      "docW": 1440,
+      "worst": 1424,
+      "blocks": [
+        [
+          "bk-step-head",
+          600,
+          58
+        ],
+        [
+          "bk-field",
+          600,
+          73
+        ],
+        [
+          "bk-grid2",
+          600,
+          73
+        ],
+        [
+          "bk-refusal bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-field",
+          600,
+          124
+        ],
+        [
+          "bk-planpitch",
+          600,
+          472
+        ]
+      ]
+    },
+    {
+      "width": 1440,
+      "step": 7,
+      "wrapW": 632,
+      "docW": 1440,
+      "worst": 1424,
+      "blocks": [
+        [
+          "bk-step-head",
+          600,
+          58
+        ],
+        [
+          "bk-card selected",
+          600,
+          122
+        ],
+        [
+          "bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-muted",
+          600,
+          19
+        ],
+        [
+          "bk-receipt",
+          600,
+          154
+        ],
+        [
+          "div",
+          600,
+          73
+        ],
+        [
+          "bk-muted",
+          600,
+          38
+        ]
+      ]
+    }
+  ]
+}
