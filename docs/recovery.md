@@ -404,9 +404,11 @@ never had it. That is exactly the real worst day: the nightly backup loses up to
    product requires it**, sitting beside an expense row that still says it was
    uploaded. Whether that is three decisions or one is not this page's call;
    what this page can say is that they are not equivalent.
-4. **The last-restore date is still not visible in the back office**, which
-   6.1's "done when" requires. Front-end change; publishing is Andrew's.
-   **Named as blocked rather than dropped.**
+4. ~~**The last-restore date is still not visible in the back office**~~ **Built
+   2026-10-10:** back office → System health → Backups → "Last restore test", fed by
+   `scripts/restore-date.mjs` from the drill's own receipt and proved by
+   `scripts/restore-date-visible.mjs`. On the dev server; publishing is Andrew's. It
+   shows the 2026-10-06 logical drill, **not** a nightly copy — item 1 still stands.
 
 **Recovery point objective:** up to 24 hours (the gap between nightly runs),
 assuming item 1 ever passes. **Recovery time objective:** still undefined, and

@@ -14261,6 +14261,56 @@ most corroborated finding in the set.
 ## Wave 6 — Recovery and monitoring
 
 - [ ] **6.1 — There is no proved recovery path for the business's records.**
+  **READ THIS FIRST — STATE ON 2026-10-10, AND THREE THINGS BELOW IT ARE NO LONGER TRUE.**
+  * **"There are no backups" (the 2026-09-20 paragraphs) is out of date.** A nightly
+    encrypted copy of the whole database has run since 2026-09-16 in GitHub's cloud
+    (`random12one0/detailing-platform-backups`, 30 days kept). CLAUDE.md § Backups and
+    `docs/recovery.md` have it. What is still true is that *Supabase itself* holds no
+    restore point on the free plan.
+  * **"It is done on disk and switched off until launch" (the back-office date) was
+    false when written.** No line of it existed anywhere; the sentence came from the
+    blanket rewrite of eleven entries in `510403d0`. **It is built now:**
+    * **Back office → System health → Backups → "Last restore test"** shows the date
+      of the last PROVED restore and what came back (55 tables, 45 logins, 148 files on
+      2026-10-06). No record: "never recorded" and no date. Older than 90 days: not
+      green, and it says to run the test again. It is kept out of the jobs list and
+      can never raise an alarm email.
+    * The date lives in the `restore-drill` row of `job_heartbeats`, which
+      `platform-admin` already sends — **no new table, no column, no deploy.**
+      `scripts/restore-date.mjs` writes it **only from a receipt that proves the copy
+      came back** (refuses a mismatch, an unrecognised failure, a missed canary, a
+      sabotage run, a table not compared, another project); `restore-drill.mjs` now
+      calls it at the end of every run, so nobody has to remember. Written once on
+      2026-10-10 from the real 2026-10-06 receipt.
+    * **Proved:** `tests/restore-date.test.mjs` 10/10, and a sabotage that accepts every
+      failure (landed, `--numstat` 1/1) reddened exactly its 2 cases.
+      `node scripts/restore-date-visible.mjs` (dev server + `.env`):
+      **PASS, 9 of 9 worlds, 27 assertions at 1440, 392 and 320**, console clean apart
+      from React Router's future-flag warnings (forgiven by name), canary caught 3 of 3
+      (the date detector pointed at the no-row render finds no date);
+      `--break=strip`, the original defect, red on 9 lines. Expected date read from
+      the database, never from the page; readability checked by opacity after the
+      arrival fade, not by hit test (`docs/gotchas.md` 100). Receipt graded valid.
+      Commits `fb649d0`, `cba9b8c`. On the dev server only — publishing is Andrew's
+      and is a deferral, not a blocker.
+  * **MFA is not open: Andrew ruled it a permanent no on 2026-09-21** ("two-factor
+    login on Supabase and Netlify: NO, permanently", `docs/MANAGER-CLOSE-2026-09-21.md`).
+    This entry's fix list and its "still open" lines below still name it; **the ruling
+    wins and it is not to be raised again.**
+  * **FOUND: no session may re-run the drill any more.** `restore-drill.mjs` creates
+    and drops a schema (`restore_drill`) inside the live database, and the standing
+    rule since this drill was written is *no structure change on the live database,
+    not even one undone at once.* So the date on the screen stays at 2026-10-06 until
+    either the drill restores into a local throwaway copy instead (there is no local
+    Postgres on this machine today) or Andrew says a run is fine. It was not re-run
+    for this note. At 90 days (about 2027-01-04) the line stops being green.
+  * **What is still open, and it is his:** nobody has ever opened one of the nightly
+    copies, because the key that unlocks them is meant to be in his password manager
+    and nobody has confirmed it is there. Until it is, the nightly copies are
+    unproved. `FOR-ANDREW.md`, "Open your password manager and search it for the
+    backup key".
+
+  NEEDS ANDREW: look in your password manager for the backup key (search "backup", "age" or "detailing backup") and tell a session whether it is there - until somebody can unlock one nightly copy, the only restore that has ever been proved is the 2026-10-06 drill, not the backups you would actually use on a bad day. Everything else on 6.1 that a session can build is built.
   No restore test, restore date, recovery target or outage history exists.
   Once Andrew runs his livelihood on this, losing a week of bookings is a
   business-stopping event.
