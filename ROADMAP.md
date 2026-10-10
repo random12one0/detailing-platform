@@ -11160,6 +11160,15 @@ requested.
   Waits on: 3.4b, 3.4e, 3.4f, 3.4g. How the wait ends: those pieces are ticked.
   Split on 2026-10-10 because this entry is 943 lines
   long and no single session was finishing it.
+  **STATE 2026-10-10 (checked, nothing built under this number):** 3.4b and 3.4e
+  are ticked. 3.4f and 3.4g are open, and this parent has no work of its own left
+  to do: it ticks when they tick. **3.4g is dispatchable by itself** (rendering is
+  done, the sends are its own job). **3.4f is blocked on Andrew's answers.**
+  NEEDS ANDREW: answer the two DECIDE rows in `FOR-ANDREW.md` ("When an email does
+  not arrive", 3.4e, three yes/no answers; "Every message the product sends",
+  3.4b, one yes/no) — 3.4f's own text says "approved" means those answers, so
+  building it before them is guessing on his behalf. Recommendations are on the
+  rows: 3.4e yes, yes, later; 3.4b yes.
 
 - [x] **3.4b — Define the communication lifecycle** — **DONE 2026-10-10.**
   The matrix is `docs/communication-lifecycle.md`: 13 customer emails, 9
