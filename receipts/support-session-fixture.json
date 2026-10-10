@@ -1,0 +1,29 @@
+{
+  "git_sha": "51ecb12e01a01668b9cc3bcc22cd17d80b6cad1d",
+  "git_sha_started": "51ecb12e01a01668b9cc3bcc22cd17d80b6cad1d",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:15:38.001Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/support-session-fixture.answers.json"
+  ],
+  "dimensions": {},
+  "check_id": "support-session-fixture",
+  "started_at": "2026-10-10T15:15:35.660Z",
+  "status": "pass",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 7,
+  "min_assertions": 7,
+  "assertion_floor": "seven fixed questions, one assertion each; the count is set by the code, not by what the run found",
+  "canary": {
+    "id": "token-with-session-id-removed",
+    "observed_failure": true,
+    "detail": "stripped token -> none; empty claims -> none"
+  }
+}

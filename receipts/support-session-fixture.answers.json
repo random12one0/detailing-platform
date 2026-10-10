@@ -1,0 +1,41 @@
+{
+  "project": "kguqylyzgyzfktkfnhjb",
+  "break": null,
+  "results": [
+    {
+      "id": "server-exchange-returns-session",
+      "ok": true,
+      "detail": "session returned for the fixture user; access + refresh token present"
+    },
+    {
+      "id": "token-carries-session-id",
+      "ok": true,
+      "detail": "claims present: aal, amr, app_metadata, aud, email, exp, iat, is_anonymous, iss, phone, role, session_id, sub, user_metadata; session_id d533c29a…"
+    },
+    {
+      "id": "session-id-is-a-real-session",
+      "ok": true,
+      "detail": "auth.sessions rows for (id, user): 1"
+    },
+    {
+      "id": "link-is-one-use",
+      "ok": true,
+      "detail": "second exchange refused: Email link is invalid or has expired"
+    },
+    {
+      "id": "refresh-keeps-session-id",
+      "ok": true,
+      "detail": "refreshed token session_id d533c29a… vs original d533c29a…"
+    },
+    {
+      "id": "second-login-gets-different-session-id",
+      "ok": true,
+      "detail": "second session ad63f379… vs first d533c29a…"
+    },
+    {
+      "id": "auth-jwt-reads-session-id",
+      "ok": true,
+      "detail": "auth.jwt() ->> 'session_id' = d533c29a…"
+    }
+  ]
+}
