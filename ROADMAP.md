@@ -14637,6 +14637,7 @@ most corroborated finding in the set.
   - Andrew reports whether the key can be found using the documented password-manager search terms
   - FOR-ANDREW.md is updated to reflect the reported result
   - No key, token, password, or secret is recorded in the repository
+  NEEDS ANDREW: only he can open his password manager. Search "backup", "age" or "detailing backup" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody has yet shown that the key which opens them exists.
 
 - [ ] **6.1b — Prove a nightly backup restores outside production**
   Provide a safe, separate restore environment and use it to restore and inspect one encrypted nightly database copy. This covers the recovery path for the actual scheduled backups, not a rerun of the existing drill that creates and drops a schema in the live database.
@@ -14647,6 +14648,7 @@ most corroborated finding in the set.
   - One nightly encrypted copy is decrypted and restored successfully
   - Restored bookings, customers, settings, accounts, and storage files are checked against the backup artifacts
   - The restore result is recorded with a receipt that proves the copy came back and updates the restore-drill heartbeat date
+  **Two halves, and only the second waits on Andrew (2026-10-10, 6.1 session).** (1) *Buildable now:* a local throwaway Postgres on this machine, which has none today, plus a restore harness that loads a plain `pg_dump` file into it and checks it against the backup's own contents. That lets `restore-drill.mjs` stop creating a schema inside the live database. (2) *Waits on 6.1a:* decrypting one nightly copy needs the private key, which no session may read. Andrew would have to run the decryption step himself at this machine.
 
 - [ ] **6.1c — Publish and verify the visible restore-test status**
   Release the already-built Back office System health Backups status to production and verify it in the live interface. This piece only exposes and validates the recorded recovery result; it does not add jobs, alerts, tables, or database structure.
@@ -14657,6 +14659,7 @@ most corroborated finding in the set.
   - The no-record and older-than-90-days states display the specified non-green guidance
   - The page is verified at desktop and mobile viewports with no browser-console defects beyond the documented React Router warnings
   - The published view reads its expected date from the database rather than hard-coded page content
+  NEEDS ANDREW: the push that publishes. The panel is built and proved on the dev server only (`fb649d0`, `cba9b8c`). Measured 2026-10-10: `git merge-base --is-ancestor fb649d0 origin/main` says not pushed (main is 141 commits ahead of origin/main), and the live site still serves `assets/index-CT8xjH8F.js`. Publishing is his. After his push, a session checks it on the live site.
 
 - [x] **6.2 — The back office cannot prove the product is healthy.**
   Netlify connected but not read; Supabase needing wiring; email delivery not
