@@ -1,0 +1,53 @@
+{
+  "git_sha": "6b1340541812ab6aaa0fc838672238b56049de2d",
+  "git_sha_started": "6b1340541812ab6aaa0fc838672238b56049de2d",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T09:54:02.538Z",
+  "failures": [],
+  "warnings": [
+    "The browser-pressed REFUSAL (a stranger's public_url) cannot be produced by a real door, so it stays media-door-browser.mjs's. Here the refusal is asked of the deployed door directly: another business's folder 401, another business's key 404.",
+    "A removed object can keep reading 200 from Cloudflare's edge for minutes (FOR-ANDREW.md); removal is judged at the origin."
+  ],
+  "artifacts": [
+    ".manager-shots/media-door-live-gallery-1440.png",
+    ".manager-shots/media-door-live-gallery-392.png",
+    ".manager-shots/media-door-live-gallery-320.png",
+    ".manager-shots/media-door-live-intake-1440.png",
+    ".manager-shots/media-door-live-intake-392.png",
+    ".manager-shots/media-door-live-intake-320.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11bc2",
+    "public_base": "https://media.detailingplatform.com",
+    "flows": [
+      "gallery · Photo gallery · /app?settings=gallery",
+      "intake · Website brief · Photos and prices · /app?brief=1"
+    ],
+    "widths": [
+      "1440",
+      "392",
+      "320"
+    ],
+    "supplied": "ONLY database writes to gallery_images and site_intake (+ the brief's saved step as one read), and the old Supabase bucket's writes (answered so a fallback is recorded and spends nothing). The door, the signed PUT, R2 and the public address are all REAL.",
+    "wrote": "one 70-byte PNG per flow and width into the real business-media bucket, each removed through the door in a finally block. No database row, no deploy, no flag flipped, no secret touched.",
+    "objects_put": 6
+  },
+  "check_id": "media-door-live",
+  "started_at": "2026-10-10T09:53:23.301Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 69,
+  "min_assertions": 69,
+  "assertion_floor": "9 per flow-and-width x 6 = 54 (picker count, one deployed-door call, zero storage uploads, key, public url, one R2 PUT answered 200, the screen's words, the stored url or its absence, anonymous GET) + 2 cleanup per object x 6 objects = 12 + 2 refusals + 1 console = 69.",
+  "canary": {
+    "id": "the-anonymous-reader-can-say-no",
+    "observed_failure": true,
+    "what": "an anonymous GET of a key nobody uploaded under this business",
+    "rule": "must not read 200, or the 'anonymous GET returns the bytes' assertions cannot tell a stored object from any answer"
+  }
+}
