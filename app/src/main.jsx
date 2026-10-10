@@ -19,6 +19,7 @@ import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
+import OfficePage from "./admin/office/OfficePage.jsx";
 import PreviewEntry from "./admin/PreviewEntry.jsx";
 import NotFound from "./screens/NotFound.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
@@ -141,6 +142,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             read by the edge function under the service role. A route guard in
             the browser is a suggestion. */}
         <Route path="/admin" element={<AdminPage />} />
+        {/* ROADMAP 9.12a: the rebuilt back office, one place at a time. /admin stays
+            the real screen until the last place lands (slice 5). Same rules as the
+            route above: outside BusinessProvider, gate is on the server. */}
+        <Route path="/admin/office" element={<OfficePage />} />
         {/* The back office opens this in a NEW TAB to look at a detailer's
             dashboard. Outside BusinessProvider: there is no session in this
             tab yet, and the whole point is that the one next door is left
