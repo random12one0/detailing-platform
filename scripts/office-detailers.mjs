@@ -253,6 +253,27 @@ try {
     await page.waitForSelector(".bo-bub", { timeout: 5000 });
     await settle(page, 1400);
     check(where, "the bubble view draws one bubble per row", (await page.locator(".bo-bub").count()) === rows.length);
+    // Names that are SHOWING must not sit on top of each other or on another
+    // bubble: crowded bubbles hide theirs until hovered.
+    const nameClash = await page.evaluate(() => {
+      const shown = [...document.querySelectorAll(".bo-bub")].filter((b) => getComputedStyle(b.querySelector(".nm")).opacity > 0.5);
+      const hit = [];
+      const R = (el) => el.getBoundingClientRect();
+      for (let i = 0; i < shown.length; i++) {
+        const a = R(shown[i].querySelector(".nm"));
+        for (let j = 0; j < shown.length; j++) {
+          const b = j === i ? R(shown[i].querySelector(".nm")) : R(shown[j].querySelector(".nm"));
+          if (j > i && Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) hit.push(`${shown[i].textContent} x ${shown[j].textContent}`);
+        }
+        for (const o of document.querySelectorAll(".bo-bub")) {
+          if (o === shown[i]) continue;
+          const c = R(o.querySelector(".fl"));
+          if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 2 && Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 2) hit.push(`${shown[i].textContent} over ${o.getAttribute("aria-label")}`);
+        }
+      }
+      return { shown: shown.length, hit };
+    });
+    check(where, `no showing bubble name overlaps another name or bubble (${nameClash.shown} names showing)`, nameClash.hit.length === 0, nameClash.hit.slice(0, 3).join(" | "));
     await page.screenshot({ path: `${ART}/bubbles-${size.w}.png` }); artifacts.push(`${ART}/bubbles-${size.w}.png`);
     await page.locator('.bo-seg [data-mode="list"]').click();
 
@@ -305,8 +326,8 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * 18,
-  assertion_floor: "3 widths x 18 questions (list 6, hit areas 2, no-phone 5, with-phone 2, keyboard 3, bubbles 1, filters 2), fixed by the code; a missing account of either kind reddens its own question rather than dropping it.",
+  min_assertions: SIZES.length * 19,
+  assertion_floor: "3 widths x 19 questions (list 6, hit areas 2, no-phone 5, with-phone 2, keyboard 3, bubbles 2, filters 2), fixed by the code; a missing account of either kind reddens its own question rather than dropping it.",
   failures,
   artifacts,
   canary,

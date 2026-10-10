@@ -29,6 +29,7 @@
 .bo *, .bo *::before, .bo *::after { box-sizing: border-box; }
 :where(.bo) button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
 :where(.bo) a { color: inherit; text-decoration: none; }
+:where(.bo) :is(ul, ol, p, h1) { margin: 0; padding: 0; }
 .bo :focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; border-radius: 8px; }
 .bo-dim { color: var(--fog); font-size: 12.5px; }
 .bo-none { color: var(--fog); padding: 30px 18px; }
@@ -213,7 +214,9 @@
 .bo-bub .fl > span { position: relative; }
 .bo-bub.dash .fl::before { background: rgba(11,13,14,.6); box-shadow: inset 0 0 0 2px var(--c); }
 .bo-bub.dash { color: var(--bone); }
-.bo-bub:hover { z-index: 4; }
+.bo-bub:hover, .bo-bub:focus-visible { z-index: 4; }
+.bo-bub.crowd .nm { opacity: 0; transition: opacity .2s; padding: 3px 8px; border-radius: 8px; background: rgba(11,13,14,.92); box-shadow: inset 0 0 0 1px var(--line-2); }
+.bo-bub.crowd:hover .nm, .bo-bub.crowd:focus-visible .nm { opacity: 1; }
 .bo-bub:hover .fl { animation-play-state: paused; transform: scale(1.14); }
 .bo-bub .nm { position: absolute; top: 100%; left: 50%; transform: translate(-50%, 8px); white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--bone); opacity: .8; pointer-events: none; font-variation-settings: "wdth" 100; }
 @keyframes boFloat { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(4px, -7px); } 66% { transform: translate(-5px, 4px); } }

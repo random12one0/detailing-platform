@@ -93,23 +93,47 @@ function Row({ row, i, ctx }) {
 // sits at the "2 days" edge on purpose: the bubble is hollow, which says why.
 const daysOf = (r) => (r.days_since_booking == null ? 2 : Math.min(r.days_since_booking, 30));
 
+// Where each bubble sits, with crowds spread out. Fifteen test accounts share
+// one health and one "never booked" column, so plain coordinates stack them into
+// a blob with their names printed over each other. Bubbles that land in the same
+// cell are fanned out on a spiral (golden angle), deterministically, so the same
+// list always draws the same picture. A lone bubble keeps its name showing; a
+// crowded one shows it on hover and focus.
+function place(rows) {
+  const cells = new Map();
+  const base = rows.map((r) => {
+    const h = healthOf(r).score;
+    const x = 7 + (daysOf(r) / 30) * 75, y = 86 - (h / 100) * 72;
+    const key = `${Math.round(x / 7)}:${Math.round(y / 9)}`;
+    cells.set(key, (cells.get(key) ?? 0) + 1);
+    return { r, h, x, y, key, k: cells.get(key) - 1 };
+  });
+  const spread = base.map((b) => {
+    const ang = b.k * 2.39996, rad = b.k === 0 ? 0 : 3.2 + Math.sqrt(b.k) * 2.6;
+    return { ...b, x: b.x + Math.cos(ang) * rad * 0.8, y: b.y + Math.sin(ang) * rad * 1.1 };
+  });
+  // Crowded means another bubble is close enough that a printed name could touch
+  // it (a name is about 14% of the chart wide, a bubble about 8% tall).
+  return spread.map((b) => ({ ...b, crowded: spread.some((o) => o !== b && Math.abs(o.x - b.x) < 15 && Math.abs(o.y - b.y) < 17) }));
+}
+
 function Bubbles({ rows, ctx }) {
   const [shown, setShown] = useState(false);
   useEffect(() => { const t = setTimeout(() => setShown(true), 60); return () => clearTimeout(t); }, []);
+  const spots = useMemo(() => place(rows), [rows]);
   return (
     <div className="bo-bubbles">
       <div className="bo-gridl" />
       <div className="bo-zone tl">Doing great</div><div className="bo-zone br">Slipping away</div>
       <div className="bo-ax x">Days since their last booking →</div>
       <div className="bo-ax y">Health →</div>
-      {rows.map((r, i) => {
-        const h = healthOf(r), st = statusOf(r);
-        const x = 7 + (daysOf(r) / 30) * 84, y = 90 - (h.score / 100) * 78;
+      {spots.map(({ r, h: score, x, y, crowded }, i) => {
+        const h = { score }, st = statusOf(r);
         const size = 38 + Math.sqrt(Math.max(0, r.revenue_month || 0)) * 0.6;
         const c = TONE[st.color];
         return (
           <button key={r.id} type="button" aria-label={`${r.name}, health ${h.score}`}
-                  className={`bo-bub${shown ? " in" : ""}${st.key === "setup" ? " dash" : ""}`}
+                  className={`bo-bub${shown ? " in" : ""}${st.key === "setup" ? " dash" : ""}${crowded ? " crowd" : ""}`}
                   style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, "--c": c, transitionDelay: `${i * 50}ms` }}
                   onClick={() => ctx.open(r.id)}>
             <span className="fl" style={{ animationDelay: `-${(i * 0.9) % 6}s`, animationDuration: `${6 + (i % 4)}s` }}>
