@@ -142,7 +142,7 @@ async function run() {
     service_type: "dropoff", vehicle_size: "small", vehicle_size_fee: 0,
     subtotal: Number(svc.price), total_price: Number(svc.price), status: "confirmed", payment_status: "pending",
   });
-  const futureStart = BREAK === "both-past" ? now - 120 * 60000 : now + 60 * 60000;
+  const futureStart = BREAK === "both-past" ? now - 240 * 60000 : now + 60 * 60000;
   const rows = [stage(PAST, now - 120 * 60000), stage(FUTURE, futureStart), stage(LATER, now + 180 * 60000)];
   console.log(`WRITING to ${SLUG}: "${PAST}" ends ${iso(now - 60 * 60000)}, "${FUTURE}" starts ${iso(futureStart)}, "${LATER}" starts ${iso(now + 180 * 60000)}; all confirmed, drop-off, service "${svc.name}".`);
 
