@@ -3,6 +3,7 @@
 //   node scripts/booking-steps-6-7.mjs
 //   node scripts/booking-steps-6-7.mjs --break=overflow   # sabotage: a 2000px strip put into the column
 //   node scripts/booking-steps-6-7.mjs --break=stretch    # sabotage: the column's max-width removed
+//   node scripts/booking-steps-6-7.mjs --break=cover      # sabotage: the bar taken out of the page's flow, as before 2.15 (phones only)
 //
 // Needs the dev server (:5173) and the seeded demo business. No login, no credentials: the booking page is public.
 //
@@ -13,18 +14,20 @@
 // THE STEPS ARE ADDRESSED BY THE STEP'S OWN LABEL ("Step 6 of 7"), never by position, so a re-cut flow cannot fool it.
 // Step 6 is Details, which is where `planDoorStep` puts the plan pitch; step 7 is Review.
 //
-// WHAT IT ASSERTS, PER (step, width) READING — 4, DECLARED RATHER THAN COUNTED (docs/gotchas.md 98)
+// WHAT IT ASSERTS, PER (step, width) READING — 5, DECLARED RATHER THAN COUNTED (docs/gotchas.md 98)
 //   reached      the label reads exactly "Step N of 7"
 //   no-overflow  nothing in the header, column or bar reaches past the viewport's right edge, and the document is no
 //                wider than the viewport
 //   column       `.bk-wrap` is min(632, viewport) wide — the number the 9.11 fix was supposed to produce
+//   clear        scrolled to the very bottom, the last block in the column ends above the fixed bar (ROADMAP 2.15's fault:
+//                the column reserved less than the bar took, so the last line sat under it)
 //   console      no error or warning, and no http 4xx/5xx (watchConsole drops only the two known React Router flags)
 // plus, on step 6 only, per width:
 //   plan-pitch   the pitch is on the page and inside the column (the demo has plans; if it did not, this would fail,
 //                not skip: an absent pitch would mean step 6 was measured without the thing it is named for)
 // plus at 768 only, on step 5:
 //   calendar     the calendar block is captured, 28+ day cells, none reaching past the viewport
-// plus two canaries. 8 x 4 + 4 + 1 + 2 = 39, asserted as an EQUALITY.
+// plus three canaries. 8 x 5 + 4 + 1 + 3 = 48, asserted as an EQUALITY.
 //
 // WHAT IT CANNOT SAY, in the receipt as `unjudgeable`: "stranded" and "stretched" as a LOOK. The numbers above catch a
 // thing that overflows or a column that is the wrong width. A line that is technically inside the column but looks
@@ -46,11 +49,12 @@ const SIZES = [{ w: 320, h: 700 }, { w: 392, h: 844 }, { w: 768, h: 1024 }, { w:
 const STEPS = [6, 7];
 const COLUMN = 632;                       // the 9.11 fix's number, declared here rather than read off the page
 const OF = 7;
-const EXPECTED_ASSERTIONS = SIZES.length * STEPS.length * 4 + SIZES.length + 1 + 2;
+const EXPECTED_ASSERTIONS = SIZES.length * STEPS.length * 5 + SIZES.length + 1 + 3;
 
 // PURE RULES, so the canaries run through the same code the readings do (gotchas 95).
 const overflowOk = (r) => r.docW <= r.vw + 0.5 && r.worst <= r.vw + 0.5;
 const columnOk = (r) => Math.abs(r.wrapW - Math.min(COLUMN, r.vw)) <= 1;
+const clearOk = (r) => r.lastBottom <= r.barTop + 0.5;
 
 const READ = (COL) => {
   const vw = window.innerWidth;
@@ -60,11 +64,18 @@ const READ = (COL) => {
     return b.width > 0 ? Math.max(m, b.right) : m;
   }, 0);
   const worst = Math.max(edge(".bk-header *"), edge(".bk-wrap *"), edge(".bk-bar *"));
+  const bar = document.querySelector(".bk-bar");
+  const kids = [...(wrap ? wrap.children : [])]
+    .flatMap((el) => (getComputedStyle(el).display === "contents" ? [...el.children] : [el]))
+    .map((el) => el.getBoundingClientRect().bottom).filter((b) => b > 0);
   const pitch = document.querySelector(".bk-planpitch");
   const pb = pitch && pitch.getBoundingClientRect();
   const wb = wrap && wrap.getBoundingClientRect();
   return {
-    vw, docW: document.documentElement.scrollWidth, worst: Math.round(worst * 10) / 10,
+    vw, docW: document.documentElement.scrollWidth,
+    barTop: bar ? Math.round(bar.getBoundingClientRect().top * 10) / 10 : 0,
+    lastBottom: kids.length ? Math.round(Math.max(...kids) * 10) / 10 : 0,
+    scrolled: Math.round(window.scrollY), worst: Math.round(worst * 10) / 10,
     wrapW: wb ? Math.round(wb.width * 10) / 10 : 0,
     pitch: pb ? { w: Math.round(pb.width), h: Math.round(pb.height), inside: pb.left >= wb.left - 0.5 && pb.right <= wb.right + 0.5 } : null,
     blocks: [...(wrap ? wrap.children : [])]
@@ -92,9 +103,14 @@ async function sabotageNow(page, w, step, r) {
   } else if (BREAK === "stretch") {
     if (r.vw <= COLUMN) return r;   // the column already fills a phone: there is nothing to stretch at 320 or 392
     await page.addStyleTag({ content: ".bk-wrap{max-width:none!important}" });
+  } else if (BREAK === "cover") {
+    if (r.vw > 392 || r.scrolled === 0) return r;   // a step that fits above the bar has nothing for it to cover
+    await page.addStyleTag({ content: ".bk-bar{position:fixed!important;left:0;right:0;bottom:0}" });
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(150);
   } else return r;
   const after = await page.evaluate(READ, COLUMN);
-  const landed = BREAK === "overflow" ? !overflowOk(after) : !columnOk(after);
+  const landed = BREAK === "overflow" ? !overflowOk(after) : BREAK === "cover" ? !clearOk(after) : !columnOk(after);
   sabotage.push({ width: w, step, break: BREAK, landed, docW: after.docW, wrapW: after.wrapW });
   if (!landed) { console.error(`SABOTAGE DID NOT LAND at ${w} step ${step}`); process.exit(2); }
   return after;
@@ -150,12 +166,20 @@ async function run() {
           await settle(page, 2200);
           const step = at.n;
           let r = await page.evaluate(READ, COLUMN);
-          r = await sabotageNow(page, w, step, r);
           const file = `step${step}-${w}.png`;
           await page.screenshot({ path: join(ART, file), fullPage: true, animations: "disabled" });
           artifacts.push(`.manager-shots/14.24/${file}`);
+          // The full-page shot stretches a FIXED bar into the middle of the page; the bottom shot is what a person sees.
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+          await page.waitForTimeout(150);
+          r = await page.evaluate(READ, COLUMN);
+          r = await sabotageNow(page, w, step, r);
+          const bottom = `step${step}-${w}-bottom.png`;
+          await page.screenshot({ path: join(ART, bottom), animations: "disabled" });
+          artifacts.push(`.manager-shots/14.24/${bottom}`);
           ok(at.n === step && at.of === OF, `${w}/step${step}/reached`, `label reads Step ${at.n} of ${at.of}`);
           ok(overflowOk(r), `${w}/step${step}/no-overflow`, `document ${r.docW}px, furthest right edge ${r.worst}px, viewport ${r.vw}px`);
+          ok(clearOk(r), `${w}/step${step}/clear`, `scrolled ${r.scrolled}px to the bottom: last block ends at ${r.lastBottom}px, fixed bar starts at ${r.barTop}px`);
           ok(columnOk(r), `${w}/step${step}/column`, `.bk-wrap ${r.wrapW}px, expected ${Math.min(COLUMN, r.vw)}px`);
           if (step === 6) ok(r.pitch && r.pitch.inside && r.pitch.h > 0, `${w}/step6/plan-pitch`,
             r.pitch ? `pitch ${r.pitch.w}x${r.pitch.h}px, inside the column ${r.pitch.inside}` : "NO .bk-planpitch on step 6");
@@ -178,7 +202,10 @@ async function run() {
     const c1 = overflowOk({ docW: 392, worst: 432, vw: 392 });
     canaries.push({ name: "the-wide-strip", flagged: !c1 });
     ok(!c1, "canary/the-wide-strip", "a column reaching 432px on a 392px screen must NOT read as 'no overflow'");
-    const c2 = columnOk({ wrapW: 1440, vw: 1440 });
+    const c3 = clearOk({ lastBottom: 840, barTop: 800 });
+  canaries.push({ name: "the-covered-last-line", flagged: !c3 });
+  ok(!c3, "canary/the-covered-last-line", "a last block ending at 840px under a bar starting at 800px must NOT read as 'clear'");
+  const c2 = columnOk({ wrapW: 1440, vw: 1440 });
     canaries.push({ name: "the-stretched-column", flagged: !c2 });
     ok(!c2, "canary/the-stretched-column", "a 1440px column on a 1440px screen must NOT read as 'the 632px column'");
     if (assertions !== EXPECTED_ASSERTIONS) failures.push(`assertion count ${assertions} != declared ${EXPECTED_ASSERTIONS}`);
@@ -197,7 +224,7 @@ async function run() {
     status,
     expected_targets: n, discovered_targets: n, attempted_targets: n, completed_targets: n, skipped_targets: 0,
     assertions_executed: assertions, min_assertions: EXPECTED_ASSERTIONS,
-    assertion_floor: "8 readings x 4 + 4 plan-pitch + 1 calendar + 2 canaries = 39, asserted as an EQUALITY (docs/gotchas.md 98).",
+    assertion_floor: "8 readings x 5 + 4 plan-pitch + 1 calendar + 3 canaries = 48, asserted as an EQUALITY (docs/gotchas.md 98).",
     failures, warnings: [], artifacts,
     dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), steps: STEPS, business: "demo-detail", item: "14.24-1", break: BREAK },
     canary: { id: canaries[0].name, observed_failure: canaries.every((c) => c.flagged) },
