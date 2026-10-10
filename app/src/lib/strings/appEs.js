@@ -484,6 +484,15 @@ export const appEs = {
   // `{amount}` is formatted by `money()` before it arrives, so the figure is
   // already `$195.00` and the placeholder must survive — spanish.test.mjs
   // compares the placeholder sets.
+  // ROADMAP 3.4f S1 — the job record's line when an email about it did not arrive.
+  "The last email about this job did not reach {to}. Check the address with them, and text or call them instead.":
+    "El último correo sobre este trabajo no le llegó a {to}. Confirma la dirección con el cliente, y mándale un mensaje o llámale.",
+  "The last email about this job could not be sent to {to}. Text or call them instead.":
+    "El último correo sobre este trabajo no se pudo enviar a {to}. Mándale un mensaje o llámale.",
+  "The last email about this job did not go out. That was our side, not their address. Text them if it matters before the job.":
+    "El último correo sobre este trabajo no salió. Fue de nuestro lado, no de su dirección. Mándale un mensaje si importa antes del trabajo.",
+  "{to} marked the last email about this job as spam. Text them instead, and do not email them again.":
+    "{to} marcó como spam el último correo sobre este trabajo. Mándale un mensaje, y no le vuelvas a escribir por correo.",
   "This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
     "Esto ya estaba pagado. Devuelve {amount} desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
@@ -1125,6 +1134,8 @@ export const appEs = {
   "Ask about access": "Preguntar por el acceso",
   "Hi {{customer_name}}, quick check before {{date}}. Will I have access to water and an outlet at {{address}}?":
     "Hola {{customer_name}}, una pregunta antes del {{date}}. ¿Voy a tener agua y un tomacorriente en {{address}}?",
+  "Hi {{customer_name}}, this is {{business_name}}. You're booked for {{date}} at {{time}} at {{address}}. Your booking: {{booking_link}}":
+    "Hola {{customer_name}}, habla {{business_name}}. Tu cita quedó para el {{date}} a las {{time}} en {{address}}. Tu cita: {{booking_link}}",
   "There is an empty {{ }} with nothing in it.": "Hay un {{ }} vacío, sin nada adentro.",
   "“{token}” isn’t one of the details we can fill in.":
     "“{token}” no es uno de los datos que podemos llenar.",

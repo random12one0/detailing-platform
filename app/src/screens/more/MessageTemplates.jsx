@@ -43,7 +43,7 @@ import { MessageSquare, RotateCcw } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import {
-  DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate, findBadTokens, fromEditorDom, templateLabel, toSegments,
+  DEFAULT_TEMPLATES, PLACEHOLDERS, missingDefaults, fillTemplate, findBadTokens, fromEditorDom, templateLabel, toSegments,
 } from "../../lib/templates.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -106,9 +106,10 @@ export default function MessageTemplates() {
     const { data } = await supabase
       .from("message_templates").select("*")
       .eq("business_id", business.id).order("sort_order");
-    if (!data || data.length === 0) {
+    const missing = missingDefaults(data ?? []);
+    if (missing.length) {
       await supabase.from("message_templates").insert(
-        DEFAULT_TEMPLATES.map((d) => ({
+        missing.map((d) => ({
           ...d, label: t(d.label), body: t(d.body), business_id: business.id,
         })),
       );

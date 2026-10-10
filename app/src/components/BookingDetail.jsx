@@ -21,7 +21,7 @@ import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, ExternalLink, Mess
 import { api, downloadOwnerIcs } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
-import { fillTemplate, templateLabel } from "../lib/templates.js";
+import { fillTemplate, missingDefaults, templateLabel } from "../lib/templates.js";
 import { dateLong, localDate, mapsUrl, money, phoneAsTyped, time12 } from "../lib/format.js";
 import ConfirmTap, { jobDoneQuestion, jobPhrase } from "./ConfirmTap.jsx";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -42,6 +42,8 @@ import { getAppLocale, t } from "../lib/appI18n.js";
 import JobWeather from "./JobWeather.jsx";
 import { useJobWeather } from "../hooks/useJobWeather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import { jobMailWarning } from "../lib/mailWarning.js";
+import { businessToday } from "../book/core.js";
 
 // One vocabulary for the values a person reads, so the same booking does
 // not say "completed" in the sheet and "Completed" on the card, or show the
@@ -116,6 +118,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const [payPick, setPayPick] = useState(null);
   const [mail, setMail] = useState(null);   // ROADMAP 5.3 — null means loading
   const [mailErr, setMailErr] = useState(""); // ROADMAP 3.1 — a failed read is not an empty one
+  const [lastMail, setLastMail] = useState(null); // ROADMAP 3.4f S1 — newest email about THIS booking
 
   const [form, setForm] = useState({
     customer_name: booking.customer_name,
@@ -248,7 +251,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       const { data } = await supabase
         .from("message_templates").select("*")
         .eq("business_id", business.id).order("sort_order");
-      if (!dead) { setTemplates(data ?? []); setTemplatesLoaded(true); }
+      // A shipped template this business has no row for yet (one added after
+      // it was seeded, ROADMAP 3.4f D1) is offered in its shipped words — it
+      // cannot be one the detailer edited, because they never had it. Only
+      // after a SUCCESSFUL read, so a failed one still draws nothing.
+      const rows = data ?? [];
+      const extra = data ? missingDefaults(rows).map((d) => ({ ...d, id: d.key, body: t(d.body) })) : [];
+      if (!dead) { setTemplates([...rows, ...extra]); setTemplatesLoaded(true); }
     })();
     return () => { dead = true; };
   }, [business.id]);
@@ -274,7 +283,19 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       .order("sent_at", { ascending: false })
       .limit(MAIL_CAP);
     if (error) setMailErr(error.message); else setMail(data ?? []);
-  }, [business.id, booking.customer_email]);
+    // ROADMAP 3.4f S1 — its own query, not a filter of the rows above: those
+    // are the newest six to the ADDRESS, and a customer with other jobs can
+    // push this booking's email out of them.
+    const { data: last } = await supabase
+      .from("email_sends")
+      .select("status, detail")
+      .eq("business_id", business.id)
+      .eq("booking_id", booking.id)
+      .eq("to_email", booking.customer_email)
+      .order("sent_at", { ascending: false })
+      .limit(1);
+    setLastMail(last?.[0] ?? null);
+  }, [business.id, booking.id, booking.customer_email]);
   useEffect(() => { setMail(null); loadMail(); }, [loadMail]);
 
   // THE PAGE THE CUSTOMER SEES. `siteOrigin` is the tenant's own domain when
@@ -519,6 +540,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // `pending` means nothing was ever taken. `partial` carries no figure
   // because nothing records which part was paid — the same reason
   // `payability` refuses to guess at it.
+  const mailWarning = jobMailWarning(lastMail, { bookingDate: booking.booking_date, today: businessToday(business.timezone) });
   const refundOwed = cancelled
     && (booking.payment_status === "paid" || booking.payment_status === "partial");
   const refundAmount = booking.payment_status === "partial"
@@ -584,6 +606,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {refundAmount
                 ? t("This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.", { amount: refundAmount })
                 : t("Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.")}
+            </div>
+          )}
+          {/* ROADMAP 3.4f S1 — an email about this job did not arrive. Same
+              place and same red as the refund line, for the same reason: it
+              names something to do, and the Text button is right under it. */}
+          {mailWarning && (
+            <div className="error-box" role="status" data-mail-warning={lastMail.status} style={{ color: "var(--bad)" }}>
+              {t(mailWarning, { to: booking.customer_email })}
             </div>
           )}
           <div className="actions-row">

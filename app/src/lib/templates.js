@@ -165,7 +165,23 @@ export const DEFAULT_TEMPLATES = [
     sort_order: 4,
     body: "Hi {{customer_name}}, quick check before {{date}}. Will I have access to water and an outlet at {{address}}?",
   },
+  // ROADMAP 3.4f (D1) — the text to send when the confirmation EMAIL did not
+  // arrive. The other five never said "you are booked", so the fallback
+  // `docs/email-failure-recovery.md` § 4 designs opened an empty box.
+  {
+    key: "booking_confirmed",
+    label: "Booking confirmed",
+    sort_order: 5,
+    body: "Hi {{customer_name}}, this is {{business_name}}. You're booked for {{date}} at {{time}} at {{address}}. Your booking: {{booking_link}}",
+  },
 ];
+
+// The shipped templates this business has no row for. Seeding used to run
+// only on a business with NO rows, so a template added later (D1 above) never
+// reached anyone already seeded. `key` is unique per business, so a missing
+// key is never one the detailer edited — there is no delete.
+export const missingDefaults = (rows) =>
+  DEFAULT_TEMPLATES.filter((d) => !rows.some((r) => r.key === d.key));
 
 // A template's name, in the dashboard's language. `row.label` is baked in at
 // seeding (see the note in screens/more/MessageTemplates.jsx), so the five
