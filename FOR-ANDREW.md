@@ -1236,10 +1236,9 @@ still knows them.
   3.1a; `DECISIONS.md`, "Ticking on structural proof when the appearance is
   unmeasurable".
 
-- [ ] **DO · Open your password manager and search it for the backup key. You
-  said this morning that you do not know where it is and that it was never
-  written down. It was written down — twice — and I can tell you exactly
-  where it was meant to go.**
+- [ ] **NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED) · Confirm whether
+  the backup key is in your password manager. This is a thirty-second check,
+  not a choice or approval request.**
 
   **What this is.** Every night a copy of the whole database is made and
   locked with a key, so that if something is ever destroyed it can be brought
@@ -1261,8 +1260,9 @@ still knows them.
   this computer**, and that is correct rather than alarming — it is not
   supposed to be. The backup tool itself is not installed here either.
 
-  **What only you can do:** open your password manager and search it for
-  "backup", "age", or "detailing backup". **Thirty seconds.**
+  **Routine check:** search the password manager for "backup", "age", or
+  "detailing backup", then tell a session only whether it is there. **Thirty
+  seconds.**
 
   - **If it is there** — nothing is wrong. Tell a session it exists (not what
     it says, just that it is there) and the last real gap in the backup story

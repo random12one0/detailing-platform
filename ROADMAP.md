@@ -14304,13 +14304,12 @@ most corroborated finding in the set.
     either the drill restores into a local throwaway copy instead (there is no local
     Postgres on this machine today) or Andrew says a run is fine. It was not re-run
     for this note. At 90 days (about 2027-01-04) the line stops being green.
-  * **What is still open, and it is his:** nobody has ever opened one of the nightly
-    copies, because the key that unlocks them is meant to be in his password manager
-    and nobody has confirmed it is there. Until it is, the nightly copies are
-    unproved. `FOR-ANDREW.md`, "Open your password manager and search it for the
-    backup key".
+  * **What is still open is a routine confirmation, not a decision:** nobody has
+    confirmed that the backup key is still in Andrew's password manager. Until that
+    check is reported, the nightly copies are unproved. `FOR-ANDREW.md`, "Confirm
+    whether the backup key is in the password manager".
 
-  NEEDS ANDREW: look in your password manager for the backup key (search "backup", "age" or "detailing backup") and tell a session whether it is there - until somebody can unlock one nightly copy, the only restore that has ever been proved is the 2026-10-06 drill, not the backups you would actually use on a bad day. Everything else on 6.1 that a session can build is built.
+  NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): confirm whether the backup key is in the password manager (search "backup", "age" or "detailing backup") and tell a session only whether it is there. Until somebody can unlock one nightly copy, the only restore proved is the 2026-10-06 drill, not the backups used on a bad day. Everything else on 6.1 that a session can build is built.
   No restore test, restore date, recovery target or outage history exists.
   Once Andrew runs his livelihood on this, losing a week of bookings is a
   business-stopping event.
