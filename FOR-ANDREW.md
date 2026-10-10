@@ -1238,8 +1238,11 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
-- [ ] **DO · Restore the belt worker's Claude Code login and accept this
+- [x] **DO · Restore the belt worker's Claude Code login and accept this
   workspace's trust prompt.** Added 2026-10-10 by supervision.
+  **Login done — checked 2026-10-10 08:10 by the next supervisor:** the belt's
+  07:53 dispatch printed `Not logged in`; its 08:08 dispatch ran to completion.
+  Nothing for you to do unless the belt's next job fails in under a minute again.
 
   The two latest worker dispatches (`0` and `0.3b`) both stopped in under a
   minute before a tool call, edit, or command. Claude Code said `Not logged in`
