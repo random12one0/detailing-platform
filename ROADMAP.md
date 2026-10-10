@@ -3563,7 +3563,19 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
 A customer must never be shown one price and charged another, never be handed
 the wrong service, and never book a job we cannot reach.
 
-- [ ] **2.1 — The total rises after the customer has picked the time.**
+- [x] **2.1 — The total rises after the customer has picked the time.**
+  **DONE 2026-10-10 — LIVE AND MEASURED, NOT READ.** Andrew published
+  `calculate-booking` with the 2026-10-10 catch-up (`0087d1dd`), and the page
+  half was already on detailingplatform.com (its bundle renders the surcharge
+  lines on the day, the request-mode sentence still on the time). The clean run,
+  no stand-in, `node scripts/surcharge-visible.mjs` at `0aef861`: **PASS 25/25,
+  195 assertions, 0 failures**, `no day $65 → day $95 → time $95` with
+  `Weekend rate · +$30` named on the DAY at all five widths, Continue refused
+  with no time, weekday control `$65 → $65 → $65`, console clean, canaries
+  order 5/5 and stripped 5/5, `--break=paint` caught 20/20. Graded PASS by
+  `receipt.mjs`. **The first clean run that morning failed 10 — a different
+  rule, not this one:** see 2.1c and the new 2.1d. Everything below is history.
+
   **ANDREW DECIDED 2026-10-09: publish this before launch, now.** The code is
   still not live and publishing remains Andrew's manual action; this records
   authorization and removes any question about waiting for launch.
@@ -3936,7 +3948,13 @@ the wrong service, and never book a job we cannot reach.
   Split on 2026-10-09 because this entry is 369 lines
   long and no single session was finishing it.
 
-- [ ] **2.1a — Publish the updated calculate-booking function**
+- [x] **2.1a — Publish the updated calculate-booking function**
+  **DONE 2026-10-10.** Andrew published it in the FOR-ANDREW steps 1-8
+  catch-up (`0087d1dd`). `receipts/deployed-inventory.json` (07:56 UTC) lists
+  `calculate-booking` as matching this checkout, and the clean browser run in
+  2.1c got the weekend rate back from a day-only quote, which the old bundle
+  never returned. **One criterion is not met as worded:** it went out with 30
+  other functions, not alone — that was Andrew's own catch-up, not a session's.
   Andrew publishes the already-written calculate-booking edge-function revision before launch. This piece changes no source code and deliberately does not claim the customer-facing fix is verified after publication.
   Part 1 of 2 of item 2.1, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -3945,7 +3963,20 @@ the wrong service, and never book a job we cannot reach.
   - The deployed bundle contains the day-only whenContextFor branch
   - No other function is published as part of this piece
 
-- [ ] **2.1c — Run the clean surcharge check and close item 2.1**
+- [x] **2.1c — Run the clean surcharge check and close item 2.1**
+  **DONE 2026-10-10 — PASS 25/25, 195 assertions, 0 failures, no stand-in**,
+  all four `early-*` green at 1920, 1440x900, 768x1024, 392x844 and 320,
+  weekday control green, receipt graded PASS. Frames:
+  `artifacts/surcharge-visible/392x844-first-day.png` and `1440x900-last-time.png`.
+  **THE FIRST CLEAN RUN FAILED 10 AND THE REASON WAS THE CALENDAR, NOT THE FIX.**
+  Run on Saturday 2026-10-10, the weekend target took the first open weekend
+  day — today — and every slot today sits inside the demo's 24-hour
+  `Short notice` window: `day $95 → time $115`, `Short notice · +$20` named on
+  the tap, `early-priced` red at all ten targets, every other assertion green.
+  The weekday control already dodged that rule on purpose; the weekend target
+  never had to, because it had only been run on weekdays. It now skips today
+  and tomorrow (`0aef861`), so its result no longer depends on the day of the
+  week. **The rush fee itself is a real case and is 2.1d, not hidden.**
   Re-run the production-facing surcharge checks without the server stand-in after publishing, then record the measured result and tick the roadmap item if it passes. This piece verifies the live behavior; it does not introduce further pricing or interface changes.
   Part 2 of 2 of item 2.1, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -3954,6 +3985,29 @@ the wrong service, and never book a job we cannot reach.
   - All early-named, early-priced, early-visible, and early-painted assertions pass at all five widths
   - Weekday control remains green with no surcharge shown
   - ROADMAP.md records the clean passing result and item 2.1 is ticked
+
+- [ ] **2.1d — A same-day booking is told about the rush fee only when it taps
+  a time, even when every time that day carries it.** Found 2026-10-10 running
+  2.1c on a Saturday. A customer booking `demo-detail` for today saw **$95**
+  (`Weekend rate · +$30`) on the day, then **$115** with
+  `Short notice · +$20` the moment any time was tapped — first slot and last
+  slot alike, at all five widths. The rush fee is a `lead_time` rule (24 hours
+  on the demo), and `whenContextFor` in `_shared/pricing.ts` sends no lead time
+  for a day without an hour, so the server declines it until a time is picked.
+  **It is still shown before the customer can leave the step**, in the same
+  place, so it is not a hidden charge; it is the same "the disclosure arrives
+  with the charge" shape 2.1 was, and Andrew's 2.1b ruling (*"the very first
+  click of anything that changes any price"*) says the day click should show it.
+  **Suggested fix, not built:** for a day with no hour, measure the lead time
+  to the END of that day; if even that is inside the window, every slot that
+  day carries the fee and naming it on the day is exact. A day only partly
+  inside the window genuinely depends on the hour and keeps naming it on the
+  tap. Prove it with a case in `tests/price-a-day.test.mjs` and a same-day
+  target in `surcharge-visible.mjs` (which now skips today and tomorrow for
+  the weekend rate). It changes `_shared/pricing.ts`, which seven functions import, so they would
+  go behind the live copy again until Andrew publishes.
+  **Done when:** booking today on the demo shows the rush fee and the full
+  total the moment the day is tapped, and tapping a time does not move it.
 
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and

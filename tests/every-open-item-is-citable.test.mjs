@@ -162,7 +162,11 @@ const OPEN_FLOOR = 40;
 // the belt's gates** despite `CLAUDE.md` listing it as run-before-you-finish.
 // It is a gate as of the same day. **A count that is only checked when
 // somebody remembers is not a check.**
-const CROSS_FILE_OVERLAP = 14;
+//
+// **14 → 13 on 2026-10-10, in the same edit that ticked ROADMAP 2.1.** 2.1
+// left the open set and took its collision with `docs/roadmap.md` 2.1 with
+// it. The new 2.1d does not collide. Nothing was renumbered.
+const CROSS_FILE_OVERLAP = 13;
 
 const CANARY = process.env.CITABLE_CANARY === "1";
 
