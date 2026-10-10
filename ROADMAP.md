@@ -832,6 +832,7 @@ and how the wait ends.
   where they cannot happen out of order.
 
 - [ ] **0.11b — Move business media and intake images to public R2 storage**
+  **2026-10-10: 0.11ba and 0.11bb are ticked and 0.11bc3 is ticked; 0.11bc2 has the flag on and the logo live-proved, and waits only on the gallery and intake screens pressed live. See 0.11bc2.**
 
   **SUPERVISION 2026-10-09 — UNPARKED. TWO OF ITS THREE ATTEMPTS WERE SPENT ON A GATE THAT HAD NEVER
   BEEN MEASURED.** Attempts 2 and 3 were both recorded `gate-regression` on `sweep-pinned`, under the
@@ -1133,12 +1134,8 @@ and how the wait ends.
   Split on 2026-10-09 because this entry is 176 lines
   long and no single session was finishing it.
 
-- [ ] **0.11ba — Bind the public R2 address and configure business-media CORS**
-  NEEDS ANDREW: bind a public web address to the `business-media` R2 bucket in Cloudflare and add the CORS
-  rule to it, because all four of this item's criteria are acts inside his Cloudflare account and nothing in
-  this checkout can reach it — there is no Cloudflare credential in `.env` and acquiring one is forbidden.
-  `FOR-ANDREW.md` steps 9a1 and 9a2 already carry both halves in his own words; no row was added rather than
-  a duplicate written.
+- [x] **0.11ba — Bind the public R2 address and configure business-media CORS**
+  ***DONE 2026-10-10. Andrew bound media.detailingplatform.com to business-media, set CORS and moved the domain's DNS to Cloudflare (FOR-ANDREW.md, services-and-secrets 3a). Measured, not read: `node scripts/r2-public-base.mjs --base=https://media.detailingplatform.com --key=<a real logo key>` -> 6 rules, 0 failed, 0 UNJUDGEABLE, 29 assertions, 8 of 8 canaries caught; `anonymous-read` is PASS on a real object (GET 200, image/png, byte-for-byte the upload), CORS allows PUT with Content-Type from all 3 of our origins and refuses a stranger. The object was uploaded for the test through the live door and deleted afterwards.***
 
   ***WHAT WAS BUILT — 2026-10-09, commits `301e872` and `ead5248bd53e`. CREDENTIAL-FREE: no `.env`, no Cloudflare
   call, nothing bound, no CORS rule set, nothing deployed, no key touched, no byte written to R2 or to the
@@ -1229,13 +1226,9 @@ and how the wait ends.
   - business-media CORS permits the browser upload flow.
   - An unauthenticated request can read an object through the configured public address.
 
-- [ ] **0.11bb — Publish photo-door with the production R2 configuration**
+- [x] **0.11bb — Publish photo-door with the production R2 configuration**
+  ***DONE 2026-10-10. Andrew published photo-door with the production R2 configuration. `node scripts/photo-door-deployed.mjs --base=https://media.detailingplatform.com` -> 6 rules, 0 failed, 0 UNJUDGEABLE, 12 assertions, 11 of 11 canaries caught: ACTIVE, verify_jwt on, R2_MEDIA_BASE present by name and usable (the deployed door signed a media upload), the minted key is under the caller's own business, another business's start is 401 and its remove 404, and public_url is exactly publicUrl(base, key).***
 
-  NEEDS ANDREW: publish `photo-door` (`node scripts/deploy-functions.mjs photo-door`, `FOR-ANDREW.md`
-  step 9c) — and bind the `business-media` public address FIRST (step 9a2, item 0.11ba), because the
-  published door refuses every media request until `R2_MEDIA_BASE` is set. Publishing is Andrew's by
-  standing rule and all four criteria are statements about a DEPLOYED function, so no session can meet
-  any of them.
 
   ***EVERY CRITERION HERE CONTAINS THE WORD "DEPLOYED", SO WHAT WAS BUILDABLE IS THE CHECK — 2026-10-09,
   commit `9890e04`.* Credentialed but READ-ONLY: nothing published, nothing deployed, no flag flipped, no
@@ -1413,12 +1406,14 @@ and how the wait ends.
     byte leaves, and zero Supabase Storage uploads happen. Needs no deploy, no publish and no flag flipped
     on disk.
   - [ ] **0.11bc2 — Flip `MEDIA_VIA_DOOR` on disk and press all three flows against the DEPLOYED door.**
+    ***FLAG FLIPPED AND LIVE-PROVED 2026-10-10, commit 2b52787 — BOX STAYS OPEN ON TWO NAMED PRESSES.*** `MEDIA_VIA_DOOR` is `true` on disk. Two guard tests that held it off now hold it on, and `media-door-browser.mjs` rewrites either value so `--break=unbound` still forces OFF in the module the browser runs. Gate: 118 passed / 0 failed over 9 widths; `--break=unbound` 52/66 and `--break=public-url` 79/48, identical to bc1's. Photo suites 62 pass, 0 fail; four credential-free gates and the credentials check pass. **Live, against the deployed door and real R2:** the LOGO pressed in a browser at 1440 as the demo owner (Business info, no Save, so no row): one door start (media, branding), one PUT to R2 accepted 200, zero Supabase Storage writes, the preview tile shows media.detailingplatform.com/<this business>/branding/<id>.png, console clean, anonymous GET 200 image byte-for-byte. GALLERY and INTAKE pressed at the door with a real PUT and read back anonymously (200, same bytes), keys under this business's folder, a foreign business 401. All six test objects were removed through the door and confirmed 404 at the origin. **NOT DONE: the gallery screen and the intake brief pressed live in a browser** (gallery writes a gallery_images row; the brief writes the demo tenant's real site_intake row, so each needs its write answered locally while the upload is real). **TWO FINDINGS.** (1) Cloudflare keeps serving a removed object from its edge cache: GET after remove stayed 200 HIT with age growing past 125 s (it was 404 within a few minutes on other runs), because the first read caches it; nothing purges on remove. Harmless for a logo (a replaced logo gets a new key), but a removed gallery photo can stay public for a while — a cache purge or a short Cache-Control on business-media would close it. (2) This machine's OS resolver intermittently cannot resolve media.detailingplatform.com (curl, ping and Node fail while direct DNS answers), so the logo preview showed ERR_NAME_NOT_RESOLVED until the test pinned the address; if Andrew's machine does the same his logos will look missing. It cleared for curl after flushing the DNS cache once and came back.
     Blocked on 0.11ba (the public address bound in Cloudflare) and 0.11bb (`photo-door` published). The flip
     itself is one line in `app/src/lib/photo-door.js`, and it must not land before both of those: a flag
     flipped early answers every logo and gallery upload with *"Public image storage is not set up on the
     server yet."* on two features that work today, with nothing anywhere to say why (0.11bb measured that
     against the real handler).
-  - [ ] **0.11bc3 — Public-read without authentication, against the bound address.**
+  - [x] **0.11bc3 — Public-read without authentication, against the bound address.**
+    ***DONE 2026-10-10. Anonymous read measured on real objects at media.detailingplatform.com: a logo, a gallery image and an intake image each uploaded through the live door, then fetched with no credentials: 200, image/png, byte-for-byte the upload. r2-public-base `anonymous-read` PASS on the logo key.***
     Criterion 2's second clause. Unmeasurable until a real address exists: every run today derives the url
     through `r2.ts`'s own `mediaBase` + `publicUrl` against a deliberately fake host, because no address has
     been bound. Nothing in the repo can stand in for *"an anonymous visitor can GET this object"*.
