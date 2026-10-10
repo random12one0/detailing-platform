@@ -21992,6 +21992,45 @@ the dashboard or back office at phone width at all.
   320 and 1440 with no tour section, and `grep -rn Walkthrough app/src scripts tests`
   finds nothing.
 
+  **STATUS 2026-10-10 — everything named is deleted; NOT ticked, because the sweep is
+  not yet clean, for two reasons that are not tour code.** Commits `b7af8792`,
+  `c45fd22e`, `94fc5c3f`, `e100bfad`.
+  - Deleted: `Walkthrough.jsx`, `tour-runs.mjs`, the tour's CSS in `theme.css`
+    (`.tourblock`, `.spotlight`, `.tourcard`, `.tourline`, `dim-in/out`; 56 lines), and
+    **51 Spanish keys** — the 45 only Walkthrough used plus 6 older tour sentences
+    nothing used (found by a script that searched every other file in `app/src` for
+    each key; 0 shared keys removed). `TAB_NAMES` out of `spanish.test` LISTS.
+    `fixed-furniture` NO_HIT_TEST **8 → 7 in the same edit**; `FURNITURE_BREAK=new-furniture`
+    still reds it (pass 4 / fail 2). `no-tours.test` now guards the tour styles, and
+    that assertion is true against HEAD's `theme.css`.
+  - `sweep-widths.mjs`: the tour and four guide walks, their grading, the cross-width
+    check, both canaries (`SWEEP_GUIDE_CANARY`, `SWEEP_XWIDTH_CANARY`) and the `dp.tours`
+    suppression are gone (4,069 → 3,447 lines, cut by a script that sized each block
+    and refused one miscount). `sweep-widths.expected.json` lost exactly its **271**
+    `tour · `/`guide · ` labels (66/66/68/71 at 320/392/1440/1920) and nothing else.
+  - Also retired, because deleting the strings made `label-guard` red: `tour-caption.mjs`
+    (measured only the tour caption; 9.15 had already left its "Show me around" stale)
+    and `final-pass.mjs`'s "Skip the tour" press (it keeps its tour DETECTION, now a
+    regression check, and presses Escape). `label-guard` **61 of 61**.
+  - `grep -rn Walkthrough app/src scripts tests` → nothing (exit 1). Build green.
+  - **Found and fixed on the way:** the sweep's calendar step clicked `.cal-cell` nth(1),
+    which in October 2026 (starts on a Thursday) is a blank, hidden square — so 1440 had
+    aborted **5 of its last 5** runs and 320 4 of 5 before this item touched anything.
+    Now `.cal-cell:not(.other)`. After it, `node scripts/sweep-widths.mjs 320 1440`
+    finishes both widths: **171 surfaces, no tour section, sentinel clean.**
+  - **WHAT IS STILL RED (receipts/sweep-widths-320-1440.json):** (1) the expected-count
+    gate refuses both widths for one `NOT EXPECTED gear · Emails we sent` — 3.1's screen,
+    measured **clean** at both, never added to the expectation. The fix is
+    `node scripts/sweep-widths.mjs 320 1440 --write-expected` and reading the diff
+    (it should add that one label and nothing else). (2) `Business · FAQ  past-parent
+    +6px button.txt in div.row-item «Do you need my water?No. T»` at 320 — a layout
+    finding on a screen this item did not touch; no earlier receipt reaches that screen
+    (they all aborted at the calendar first), so whether it is older cannot be read
+    from them. Fix it or file it, then re-run 320 and 1440 and tick.
+  - `user_tours` is still in the database and `seed-demo.mjs` still deletes the demo's
+    row from it; dropping the table needs a new migration (Andrew applies) and that
+    seed line removed in the same change. Nothing else reads it.
+
 - [x] **9.16 — Hide the owner-only "The website business" row from detailers.**
   Depends on 0.1.
   *A2 4.11*
