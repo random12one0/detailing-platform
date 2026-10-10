@@ -1,9 +1,9 @@
 {
-  "git_sha": "0626b1588d2397d1e276a3beadbd9b926784323c",
-  "git_sha_started": "0626b1588d2397d1e276a3beadbd9b926784323c",
+  "git_sha": "dddcf01434b2ec99451e011069cfa831df42e0de",
+  "git_sha_started": "dddcf01434b2ec99451e011069cfa831df42e0de",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T21:44:49.312Z",
+  "finished_at": "2026-10-10T11:18:11.866Z",
   "failures": [],
   "warnings": [
     "HEADED CHROMIUM (`headless: false`, Playwright's bundled build — the `chrome` channel is not installed here). The headless shell draws overlay scrollbars with a 0px layout gutter, which is why ROADMAP 3.1a's thumb went unseen by the session that built it. A 0px gutter here is reported UNJUDGEABLE by name, never folded into a pass.",
@@ -32,7 +32,7 @@
     "break": null
   },
   "check_id": "mail-log-scroll",
-  "started_at": "2026-10-09T21:44:42.642Z",
+  "started_at": "2026-10-10T11:18:07.235Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
@@ -79,7 +79,7 @@
     {
       "id": "1440/box/overflows",
       "ok": true,
-      "detail": "scrollHeight 2818 vs clientHeight 520"
+      "detail": "scrollHeight 2842 vs clientHeight 520"
     },
     {
       "id": "1440/box/scrolls",
@@ -94,7 +94,7 @@
     {
       "id": "1440/page/not-page-scroll",
       "ok": true,
-      "detail": "the page overflows by 12px, the list by 2298px; .settings-body overflows false"
+      "detail": "the page overflows by 12px, the list by 2322px; .settings-body overflows false"
     },
     {
       "id": "1440/box/no-overlap",
@@ -119,7 +119,7 @@
     {
       "id": "392/box/overflows",
       "ok": true,
-      "detail": "scrollHeight 3790 vs clientHeight 506"
+      "detail": "scrollHeight 3904 vs clientHeight 506"
     },
     {
       "id": "392/box/scrolls",
@@ -134,12 +134,12 @@
     {
       "id": "392/page/not-page-scroll",
       "ok": true,
-      "detail": "the page overflows by 78px, the list by 3284px; .settings-body is not in this layout"
+      "detail": "the page overflows by 78px, the list by 3398px; .settings-body is not in this layout"
     },
     {
       "id": "392/box/no-overlap",
       "ok": true,
-      "detail": "at 0%: 29 rows, tightest gap 0.00px; at 50%: 29 rows, tightest gap 0.00px; at 100%: 29 rows, tightest gap -0.00px"
+      "detail": "at 0%: 29 rows, tightest gap 0.00px; at 50%: 29 rows, tightest gap -0.00px; at 100%: 29 rows, tightest gap -0.00px"
     },
     {
       "id": "392/page/console",

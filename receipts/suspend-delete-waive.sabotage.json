@@ -1,0 +1,43 @@
+{
+  "git_sha": "83735d7ba44cf742b6837b341c9b99ae8ceea2dd",
+  "git_sha_started": "83735d7ba44cf742b6837b341c9b99ae8ceea2dd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:52:59.637Z",
+  "failures": [
+    "392 suspend · the first press asks, naming the business — \"Suspend them? Their booking page stops taking bookings.\""
+  ],
+  "warnings": [
+    "Remove has no on-screen undo, by the manager's ruling (1) of 2026-10-07; this checks the fold says support can restore it, not that a restore works.",
+    "Suspend's audit row is platform_admin_events, which is readable and carries who/from/when but is NOT append-only (ROADMAP 4.1b's open scope question).",
+    "English only; the back office is English by construction, and the job record's Spanish questions are pinned by tests/confirm-questions.test.mjs."
+  ],
+  "artifacts": [
+    "scripts/suspend-delete-waive.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "slug": "sdw-41c-mv2c48zf",
+    "break": "nameless-suspend",
+    "widths": [
+      "392x844"
+    ],
+    "console": {
+      "392": []
+    }
+  },
+  "check_id": "suspend-delete-waive",
+  "started_at": "2026-10-10T11:52:28.539Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 25,
+  "min_assertions": 60,
+  "canary": {
+    "id": "audit-matcher-rejects-a-stranger-and-a-wrong-prior",
+    "observed_failure": true
+  }
+}

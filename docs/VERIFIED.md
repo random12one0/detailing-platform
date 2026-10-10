@@ -3439,3 +3439,24 @@ rows on throwaway fixtures). **3.4b**: `node scripts/communication-lifecycle.mjs
 `*Email` exports and all 18 sender folders are named in the doc. **3.4e**:
 `node scripts/email-failure-design.mjs` — 50/0; `--break=new-status` 3 failed.
 3 of 3 reproduced.
+
+## Supervision 2026-10-10 (third pass) — 8.10d, 9.12, 7.6 reproduced
+
+At `4be6a25b`, against `kguqylyzgyzfktkfnhjb` (ref checked before the first
+query). **8.10d**: read-only grant query through the Management API —
+`authenticated` holds 0 column UPDATE grants on `public.bookings`,
+`has_table_privilege(UPDATE)` false, `weather` and `admin_notes` UPDATE false,
+and SELECT **true** (the positive half, so the query is not blind). **9.12**:
+`node --test tests/admin-preconditions.test.mjs` 6/0; sabotage aimed at the
+PRODUCTION function (`actionFor` made to return the ring advice with no phone,
+`git diff --numstat` 1/1, file restored, porcelain empty after) — 1 failed, the
+ring test, by name. `node --env-file=.env scripts/admin-preconditions.mjs` —
+PASS, 18 assertions, 0 failed, both canaries caught; screenshots read by eye:
+the one account needing a call has no phone and is told "Email them", with its
+email button; Money shows "Nobody who pays has a problem" and the non-payer
+under "Not paying yet". **7.6**: live `photo_total_bytes()` 10737418240 /
+`photo_tenant_share()` 100 = 107374182 bytes (102.4 MB); `/pricing` in a headed
+Chrome at 392 and 1440 has one "unlimited", and it is "services, bookings and
+staff logins" — no photo claim. Console 0 errors at both; 1 warning, the
+manifest icon, which is not this item (`FOUND.md`, 2026-10-10). 3 of 3
+reproduced.

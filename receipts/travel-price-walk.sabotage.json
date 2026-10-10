@@ -1,0 +1,128 @@
+{
+  "git_sha": "18099e895e572089ddce0596a70c828a69cba9a0",
+  "git_sha_started": "18099e895e572089ddce0596a70c828a69cba9a0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:02:29.515Z",
+  "failures": [
+    "1440x900: paid-area-delta owed +$40, bar went $65 -> $65",
+    "1440x900: dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+    "1440x900: free-area-delta owed -$40, bar went $105 -> $105",
+    "1440x900: dropoff-free-moves-nothing-delta owed +$0, bar went $105 -> $65",
+    "392x844: paid-area-delta owed +$40, bar went $65 -> $65",
+    "392x844: dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+    "392x844: free-area-delta owed -$40, bar went $105 -> $105",
+    "392x844: dropoff-free-moves-nothing-delta owed +$0, bar went $105 -> $65",
+    "320x844: paid-area-delta owed +$40, bar went $65 -> $65",
+    "320x844: dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+    "320x844: free-area-delta owed -$40, bar went $105 -> $105",
+    "320x844: dropoff-free-moves-nothing-delta owed +$0, bar went $105 -> $65"
+  ],
+  "warnings": [
+    "run with --break=quotekey; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/travel-price-walk/1440x900.png",
+    "artifacts/travel-price-walk/392x844.png",
+    "artifacts/travel-price-walk/320x844.png",
+    "artifacts/travel-price-walk/canary-1.png",
+    "artifacts/travel-price-walk/canary-2.png",
+    "artifacts/travel-price-walk/canary-3.png"
+  ],
+  "dimensions": {
+    "slug": "demo-detail",
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
+    ],
+    "observed": [
+      "1440x900: first service (no figure) -> $65 (card $65)",
+      "1440x900: paid-area $65 -> $65 (owed 40)",
+      "1440x900: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "1440x900: mobile-restores-fee $65 -> $105 (owed 40)",
+      "1440x900: free-area $105 -> $105 (owed -40)",
+      "1440x900: dropoff-free-moves-nothing $105 -> $65 (owed 0)",
+      "392x844: first service (no figure) -> $65 (card $65)",
+      "392x844: paid-area $65 -> $65 (owed 40)",
+      "392x844: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "392x844: mobile-restores-fee $65 -> $105 (owed 40)",
+      "392x844: free-area $105 -> $105 (owed -40)",
+      "392x844: dropoff-free-moves-nothing $105 -> $65 (owed 0)",
+      "320x844: first service (no figure) -> $65 (card $65)",
+      "320x844: paid-area $65 -> $65 (owed 40)",
+      "320x844: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "320x844: mobile-restores-fee $65 -> $105 (owed 40)",
+      "320x844: free-area $105 -> $105 (owed -40)",
+      "320x844: dropoff-free-moves-nothing $105 -> $65 (owed 0)",
+      "canary 1: first service (no figure) -> $65 (card $65)",
+      "canary 1: paid-area $65 -> $65 (owed 40)",
+      "canary 1: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "canary 1: mobile-restores-fee $65 -> $65 (owed 40)",
+      "canary 1: free-area $65 -> $65 (owed -40)",
+      "canary 1: dropoff-free-moves-nothing $65 -> $65 (owed 0)",
+      "canary 2: first service (no figure) -> $65 (card $65)",
+      "canary 2: paid-area $65 -> $65 (owed 40)",
+      "canary 2: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "canary 2: mobile-restores-fee $65 -> $65 (owed 40)",
+      "canary 2: free-area $65 -> $65 (owed -40)",
+      "canary 2: dropoff-free-moves-nothing $65 -> $65 (owed 0)",
+      "canary 3: first service (no figure) -> $65 (card $65)",
+      "canary 3: paid-area $65 -> $65 (owed 40)",
+      "canary 3: dropoff-drops-fee $65 -> $65 (owed -40)",
+      "canary 3: mobile-restores-fee $65 -> $65 (owed 40)",
+      "canary 3: free-area $65 -> $65 (owed -40)",
+      "canary 3: dropoff-free-moves-nothing $65 -> $65 (owed 0)"
+    ],
+    "canary_runs": 3,
+    "break": "quotekey"
+  },
+  "check_id": "travel-price-walk",
+  "started_at": "2026-10-10T11:00:52.347Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 39,
+  "min_assertions": 39,
+  "assertion_floor": "3 sizes x 13 questions (2 first-click + 5 steps x landed/delta + dropoff-hides-area) = 39. A target that cannot be reached grades as a 'reached' failure, so the count is fixed by the code, not the run.",
+  "canary": {
+    "id": "travel-zone-ignored",
+    "runs": [
+      {
+        "run": 1,
+        "caught": true,
+        "failed": [
+          "paid-area-delta owed +$40, bar went $65 -> $65",
+          "dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+          "mobile-restores-fee-delta owed +$40, bar went $65 -> $65",
+          "free-area-delta owed -$40, bar went $65 -> $65"
+        ]
+      },
+      {
+        "run": 2,
+        "caught": true,
+        "failed": [
+          "paid-area-delta owed +$40, bar went $65 -> $65",
+          "dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+          "mobile-restores-fee-delta owed +$40, bar went $65 -> $65",
+          "free-area-delta owed -$40, bar went $65 -> $65"
+        ]
+      },
+      {
+        "run": 3,
+        "caught": true,
+        "failed": [
+          "paid-area-delta owed +$40, bar went $65 -> $65",
+          "dropoff-drops-fee-delta owed -$40, bar went $65 -> $65",
+          "mobile-restores-fee-delta owed +$40, bar went $65 -> $65",
+          "free-area-delta owed -$40, bar went $65 -> $65"
+        ]
+      }
+    ],
+    "observed_failure": true,
+    "caught": "3/3"
+  }
+}

@@ -1,0 +1,13 @@
+PASS doc-names-every-template — 17 templates read from the file
+FAIL doc-names-every-push-title — missing: Refund due
+PASS doc-names-every-sender — 17 functions send mail or push
+PASS doc-names-every-text — 5 built-in texts
+PASS doc-names-every-auth-call — 2 auth calls
+PASS every-row-is-complete — 48 rows (floor 40)
+PASS every-change-is-explained — 11 non-KEEP rows
+PASS push-switch-claim-is-true — 12 claims checked against the code
+UNJUDGEABLE whether each trigger and timing sentence is true — prose; only the push-switch claim is read against the code
+UNJUDGEABLE whether the decisions are right — D3 is Andrew's, as a DECIDE row in FOR-ANDREW.md
+UNJUDGEABLE the wording of Supabase's own sign-in mail — set in its dashboard, not in this repo
+canaries: drop-template=caught, new-push=caught, blank-cell=caught, flip-switch=caught
+8 rules, 126 assertions, 1 failed, BROKEN ON PURPOSE: new-push

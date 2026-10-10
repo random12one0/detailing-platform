@@ -1,10 +1,12 @@
 {
-  "git_sha": "9ce2e5f657131928886ae584af07fe7b07cd227b",
-  "git_sha_started": "9ce2e5f657131928886ae584af07fe7b07cd227b",
+  "git_sha": "7dbe5b41f92371280be8803617132aba3daf9a8b",
+  "git_sha_started": "7dbe5b41f92371280be8803617132aba3daf9a8b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T07:56:30.446Z",
-  "failures": [],
+  "finished_at": "2026-10-10T12:58:07.034Z",
+  "failures": [
+    "1 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
+  ],
   "warnings": [
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
     "126 of 651 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 525, not 651."
@@ -14,10 +16,12 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 112,
+    "migration_files": 114,
     "tables_declared": 58,
     "tables_absent": [],
-    "columns_absent": [],
+    "columns_absent": [
+      "email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
+    ],
     "type_mismatch": [],
     "policies_declared": 85,
     "policies_absent": [],
@@ -42,14 +46,14 @@
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-10T07:56:25.155Z",
-  "status": "pass",
+  "started_at": "2026-10-10T12:58:02.184Z",
+  "status": "fail",
   "expected_targets": 361,
   "discovered_targets": 361,
   "attempted_targets": 361,
   "completed_targets": 361,
   "skipped_targets": 0,
-  "assertions_executed": 2016,
+  "assertions_executed": 2017,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",

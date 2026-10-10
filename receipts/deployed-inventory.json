@@ -1,14 +1,10 @@
 {
-  "git_sha": "9ce2e5f657131928886ae584af07fe7b07cd227b",
-  "git_sha_started": "9ce2e5f657131928886ae584af07fe7b07cd227b",
+  "git_sha": "8b4ab85e822d4fac5885591167beb6e2f7d6637b",
+  "git_sha_started": "8b4ab85e822d4fac5885591167beb6e2f7d6637b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T07:56:13.874Z",
-  "failures": [
-    "1 function(s) are running something other than this checkout: delete-customer",
-    "delete-customer: 4 file(s) differ - index.ts, _shared/forgetPhotos.ts, _shared/r2.ts, _shared/photoKey.ts (newest commit is 17.3d after the deploy)",
-    "2 function(s) exist in this repo and are NOT DEPLOYED AT ALL: photo-door, photo-reconcile"
-  ],
+  "finished_at": "2026-10-10T08:21:14.321Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "scripts/deployed-inventory.mjs"
@@ -27,12 +23,15 @@
       "connect-account",
       "create-booking",
       "create-business",
+      "delete-customer",
       "forecast",
       "get-booking-receipt",
       "invite-user",
       "owner-push-subscribe",
       "owner-push-unsubscribe",
       "pay-booking",
+      "photo-door",
+      "photo-reconcile",
       "plan-link",
       "platform-admin",
       "platform-billing",
@@ -56,20 +55,18 @@
       "verify-domain",
       "watch-jobs"
     ],
-    "differing": [
-      "delete-customer"
-    ],
-    "widest_gap_days": 17.3
+    "differing": [],
+    "widest_gap_days": 0
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-10T07:55:19.885Z",
-  "status": "fail",
+  "started_at": "2026-10-10T08:20:36.907Z",
+  "status": "pass",
   "expected_targets": 41,
   "discovered_targets": 41,
   "attempted_targets": 41,
-  "completed_targets": 39,
+  "completed_targets": 41,
   "skipped_targets": 0,
-  "assertions_executed": 39,
+  "assertions_executed": 41,
   "min_assertions": 30,
   "canary": {
     "id": "the comparison must be shown to have run · at least one bundle read and compared",
@@ -78,7 +75,7 @@
       "compared"
     ],
     "findings": [
-      "[compared] 39 function bundle(s) were fetched and compared, so \"0 differ\" would be a real answer rather than a silent no-op"
+      "[compared] 41 function bundle(s) were fetched and compared, so \"0 differ\" would be a real answer rather than a silent no-op"
     ]
   }
 }

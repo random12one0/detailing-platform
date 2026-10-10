@@ -1,0 +1,220 @@
+{
+  "git_sha": "caec875ad49479504458f48e302e5170c77c3028",
+  "git_sha_started": "caec875ad49479504458f48e302e5170c77c3028",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:09:35.103Z",
+  "failures": [
+    "392/text/long-token — an unbroken 60-character subject stops -339.26px from the icon (the row's own gap is 6.15px)",
+    "320/text/long-token — an unbroken 60-character subject stops -410.61px from the icon (the row's own gap is 6.79px)"
+  ],
+  "warnings": [
+    "NOT COVERED: the 'n most recent' note and the error box (they draw only at 100 rows or on a failed read; the seed has 29), a row sliced by the box's own top/bottom edge (ROADMAP 3.1e), and the scrollbar thumb's appearance (3.1a, UNJUDGEABLE here).",
+    "icon/clears-thumb is measured against the box's CLIENT edge, which is where a classic scrollbar starts, so it is the same number with this machine's 0px overlay gutter and with Andrew's 8px one. It is a derived distance, not a photograph of a thumb.",
+    "The long-token probe edits the live DOM only. Nothing is written to the database."
+  ],
+  "artifacts": [
+    ".manager-shots/3.1b/gaps-1440.png",
+    ".manager-shots/3.1b/gaps-392.png",
+    ".manager-shots/3.1b/gaps-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "business": "demo-detail",
+    "item": "3.1b",
+    "break": "unwrapped"
+  },
+  "check_id": "mail-log-gaps",
+  "started_at": "2026-10-10T11:09:26.956Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 24,
+  "assertion_floor": "3 widths x 7 (rows measured, lines apart, clears icon, clears thumb, outer gaps, long token, console) + 3 canaries = 24, fixed by the question list and asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canaries": [
+    {
+      "name": "the-icon-against-the-bar",
+      "flagged": true
+    },
+    {
+      "name": "the-fused-lines",
+      "flagged": true
+    },
+    {
+      "name": "the-text-under-the-icon",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [],
+  "sabotage": [
+    {
+      "width": 1440,
+      "break": "unwrapped",
+      "before": {
+        "padR": "12px",
+        "wrap": "anywhere"
+      },
+      "after": {
+        "padR": "12px",
+        "wrap": "normal"
+      },
+      "landed": true
+    },
+    {
+      "width": 392,
+      "break": "unwrapped",
+      "before": {
+        "padR": "12px",
+        "wrap": "anywhere"
+      },
+      "after": {
+        "padR": "12px",
+        "wrap": "normal"
+      },
+      "landed": true
+    },
+    {
+      "width": 320,
+      "break": "unwrapped",
+      "before": {
+        "padR": "12px",
+        "wrap": "anywhere"
+      },
+      "after": {
+        "padR": "12px",
+        "wrap": "normal"
+      },
+      "landed": true
+    }
+  ],
+  "observed": [
+    {
+      "id": "1440/rows/measured",
+      "ok": true,
+      "detail": "29 rows measured, 29 with an icon (floor 20)"
+    },
+    {
+      "id": "1440/text/lines-apart",
+      "ok": true,
+      "detail": "tightest gap between lines of different facts in a row: 8.50px (floor 3px)"
+    },
+    {
+      "id": "1440/text/clears-icon",
+      "ok": true,
+      "detail": "nearest text to its icon: 144.88px (the row's own gap is 12.00px)"
+    },
+    {
+      "id": "1440/icon/clears-thumb",
+      "ok": true,
+      "detail": "icon to the box's right edge, where a scrollbar starts: 14.34px (must be at least the 12.00px the text keeps from it)"
+    },
+    {
+      "id": "1440/stack/outer-gaps",
+      "ok": true,
+      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.00px (each at least 12px)"
+    },
+    {
+      "id": "1440/text/long-token",
+      "ok": true,
+      "detail": "an unbroken 60-character subject stops 13.25px from the icon (the row's own gap is 12.00px)"
+    },
+    {
+      "id": "1440/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "392/rows/measured",
+      "ok": true,
+      "detail": "29 rows measured, 29 with an icon (floor 20)"
+    },
+    {
+      "id": "392/text/lines-apart",
+      "ok": true,
+      "detail": "tightest gap between lines of different facts in a row: 8.50px (floor 3px)"
+    },
+    {
+      "id": "392/text/clears-icon",
+      "ok": true,
+      "detail": "nearest text to its icon: 17.19px (the row's own gap is 6.00px)"
+    },
+    {
+      "id": "392/icon/clears-thumb",
+      "ok": true,
+      "detail": "icon to the box's right edge, where a scrollbar starts: 14.00px (must be at least the 6.00px the text keeps from it)"
+    },
+    {
+      "id": "392/stack/outer-gaps",
+      "ok": true,
+      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.39px (each at least 12px)"
+    },
+    {
+      "id": "392/text/long-token",
+      "ok": false,
+      "detail": "an unbroken 60-character subject stops -339.26px from the icon (the row's own gap is 6.15px)"
+    },
+    {
+      "id": "392/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "320/rows/measured",
+      "ok": true,
+      "detail": "29 rows measured, 29 with an icon (floor 20)"
+    },
+    {
+      "id": "320/text/lines-apart",
+      "ok": true,
+      "detail": "tightest gap between lines of different facts in a row: 8.50px (floor 3px)"
+    },
+    {
+      "id": "320/text/clears-icon",
+      "ok": true,
+      "detail": "nearest text to its icon: 12.73px (the row's own gap is 6.00px)"
+    },
+    {
+      "id": "320/icon/clears-thumb",
+      "ok": true,
+      "detail": "icon to the box's right edge, where a scrollbar starts: 14.00px (must be at least the 6.00px the text keeps from it)"
+    },
+    {
+      "id": "320/stack/outer-gaps",
+      "ok": true,
+      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.00px (each at least 12px)"
+    },
+    {
+      "id": "320/text/long-token",
+      "ok": false,
+      "detail": "an unbroken 60-character subject stops -410.61px from the icon (the row's own gap is 6.79px)"
+    },
+    {
+      "id": "320/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "canary/the-icon-against-the-bar",
+      "ok": true,
+      "detail": "an icon 2px from the scrollbar, 12px from its own text, must NOT read as clear"
+    },
+    {
+      "id": "canary/the-fused-lines",
+      "ok": true,
+      "detail": "two facts with 0px between their lines must NOT read as apart"
+    },
+    {
+      "id": "canary/the-text-under-the-icon",
+      "ok": true,
+      "detail": "text running 8px under its icon must NOT read as clear"
+    }
+  ]
+}

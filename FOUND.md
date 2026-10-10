@@ -4471,3 +4471,18 @@ which says *"Reload this job"* on a screen that is not a job.
 
 **It is also the thing that made the gate print six false defects** before the
 cause was read, which is written up as `docs/gotchas.md` 115.
+
+## 2026-10-10 — a real Chrome warns about the app icon on every page; no script can see it
+
+Found by the supervisor reading the console on `/pricing` in a headed Chrome at
+392 and 1440: `Error while trying to use the following icon from the Manifest:
+http://localhost:5173/icon.svg (Download error or resource isn't a valid image)`.
+The file is served correctly (`image/svg+xml`, 200, valid SVG), so this is
+Chrome refusing an SVG-only manifest icon, which is what decides the icon on a
+phone's "Add to home screen". **The browser scripts cannot see it:** the same
+page in headless Chromium 151 and headless Chrome 154 printed no warning at all
+(measured with a throwaway script, both launches), so every receipt that says
+"console clean" is silent on this one. Likely fix: add a PNG (192 and 512) beside
+`app/public/icon.svg` in `manifest.webmanifest`, generated from the same mark —
+not a new logo. Not fixed here; parked because it is cosmetic and nobody installs
+the app yet.

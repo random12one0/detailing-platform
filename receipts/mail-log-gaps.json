@@ -1,9 +1,9 @@
 {
-  "git_sha": "caec875ad49479504458f48e302e5170c77c3028",
-  "git_sha_started": "caec875ad49479504458f48e302e5170c77c3028",
+  "git_sha": "dddcf01434b2ec99451e011069cfa831df42e0de",
+  "git_sha_started": "dddcf01434b2ec99451e011069cfa831df42e0de",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T11:10:04.393Z",
+  "finished_at": "2026-10-10T11:19:06.973Z",
   "failures": [],
   "warnings": [
     "NOT COVERED: the 'n most recent' note and the error box (they draw only at 100 rows or on a failed read; the seed has 29), a row sliced by the box's own top/bottom edge (ROADMAP 3.1e), and the scrollbar thumb's appearance (3.1a, UNJUDGEABLE here).",
@@ -26,7 +26,7 @@
     "break": null
   },
   "check_id": "mail-log-gaps",
-  "started_at": "2026-10-10T11:09:56.602Z",
+  "started_at": "2026-10-10T11:18:59.371Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,
@@ -80,7 +80,7 @@
     {
       "id": "1440/stack/outer-gaps",
       "ok": true,
-      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.00px (each at least 12px)"
+      "detail": "intro->control 12.00px, control->first row 52.50px, last row->box bottom 16.50px (each at least 12px)"
     },
     {
       "id": "1440/text/long-token",
@@ -115,12 +115,12 @@
     {
       "id": "392/stack/outer-gaps",
       "ok": true,
-      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.39px (each at least 12px)"
+      "detail": "intro->control 12.00px, control->first row 52.50px, last row->box bottom 16.89px (each at least 12px)"
     },
     {
       "id": "392/text/long-token",
       "ok": true,
-      "detail": "an unbroken 60-character subject stops 10.81px from the icon (the row's own gap is 6.36px)"
+      "detail": "an unbroken 60-character subject stops 11.24px from the icon (the row's own gap is 6.79px)"
     },
     {
       "id": "392/page/console",
@@ -150,12 +150,12 @@
     {
       "id": "320/stack/outer-gaps",
       "ok": true,
-      "detail": "intro->control 12.00px, control->first row 28.00px, last row->box bottom 17.00px (each at least 12px)"
+      "detail": "intro->control 12.00px, control->first row 52.50px, last row->box bottom 16.50px (each at least 12px)"
     },
     {
       "id": "320/text/long-token",
       "ok": true,
-      "detail": "an unbroken 60-character subject stops 11.28px from the icon (the row's own gap is 6.79px)"
+      "detail": "an unbroken 60-character subject stops 10.84px from the icon (the row's own gap is 6.36px)"
     },
     {
       "id": "320/page/console",

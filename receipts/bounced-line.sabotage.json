@@ -1,0 +1,46 @@
+{
+  "git_sha": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
+  "git_sha_started": "1a69a71fda7b8333cfdcaa8a71d8793940332cba",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:24:13.612Z",
+  "failures": [
+    "1440x900 clean/absent — the sentence is not on the clean record",
+    "392x844 clean/absent — the sentence is not on the clean record",
+    "320x844 clean/absent — the sentence is not on the clean record"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/bounced-line/1440x900-flagged.png",
+    "artifacts/bounced-line/1440x900-clean.png",
+    "artifacts/bounced-line/392x844-flagged.png",
+    "artifacts/bounced-line/392x844-clean.png",
+    "artifacts/bounced-line/320x844-flagged.png",
+    "artifacts/bounced-line/320x844-clean.png",
+    "artifacts/bounced-line/report.sabotage.txt"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
+    ],
+    "break": "always",
+    "flagged": "Marcus Webb",
+    "clean": "Dana Ruiz"
+  },
+  "check_id": "bounced-line",
+  "started_at": "2026-10-10T12:23:56.729Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 15,
+  "canary": {
+    "id": "the-missing-line",
+    "observed_failure": true
+  }
+}

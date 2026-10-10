@@ -1,0 +1,45 @@
+{
+  "git_sha": "3ef623e19c3f44ef7bd5d2004f8f11abc6f77682",
+  "git_sha_started": "3ef623e19c3f44ef7bd5d2004f8f11abc6f77682",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:55:00.916Z",
+  "failures": [
+    "1440 /pricing never says unlimited photos — 4103 chars read",
+    "392 /pricing never says unlimited photos — 4103 chars read"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/photo-allowance-figure/system-health-1440.png",
+    "artifacts/photo-allowance-figure/system-health-392.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "break": "word",
+    "total_bytes": 10737418240,
+    "tenant_share": 100,
+    "each_bytes": 107374182,
+    "public": [
+      "/",
+      "/pricing",
+      "/book/demo-detail"
+    ]
+  },
+  "check_id": "photo-allowance-figure",
+  "started_at": "2026-10-10T12:54:07.212Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 19,
+  "canary": {
+    "id": "old-pricing-sentence",
+    "observed_failure": true
+  }
+}
