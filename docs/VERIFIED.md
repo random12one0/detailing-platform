@@ -3409,3 +3409,23 @@ default stood against a job whose cost scales with every object in the bucket;
 `20261009120000_photo_reconcile_cron_timeout.sql` reschedules the same job name
 with `timeout_milliseconds := 60000`. **Applying it is Andrew's**, and the
 migration says so.
+
+## Belt multi-suffix item IDs and self-check guard — 2026-10-10
+
+The belt had dispatched `0.11ba` as item `0`, bypassing its `NEEDS ANDREW`
+block. `node belt.mjs --self-check` now passes **344 assertions and 3 canaries**;
+the new fixture proves `0.11ba` is skipped while `0.11d3a` remains selectable.
+Restoring the prior one-suffix parser made both assertions fail. The same run
+also exposed and then cleared a CRLF false positive in its control-character
+guard; its character-8 canary still passes.
+
+## Supervision 2026-10-10 (second pass) — 4.1a, 2.1b, 3.1c reproduced
+
+At `321a98a0`. **4.1a**: throwaway Playwright walk as the demo owner, Today
+card, 1440 and 392 — only Accept accent-filled, "Yes, decline it" ringed,
+question names the job, console 0/0; runtime sabotage red at both widths
+(after a transition settle, `docs/gotchas.md` 119). **2.1b**:
+`node scripts/travel-price-walk.mjs` — PASS 3/3 widths, 39 assertions, canary
+caught 3/3; `receipt.mjs` grades it valid. **3.1c**:
+`node scripts/mail-log-groups.mjs` — 17 assertions, 0 failed;
+`--break=nobands` — 9 of 17 failed. 3 of 3 reproduced.

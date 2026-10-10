@@ -1,9 +1,9 @@
 {
-  "git_sha": "18099e895e572089ddce0596a70c828a69cba9a0",
-  "git_sha_started": "18099e895e572089ddce0596a70c828a69cba9a0",
+  "git_sha": "321a98a0bc9a0d42f2ba56fa2d1db2e36d281c2c",
+  "git_sha_started": "321a98a0bc9a0d42f2ba56fa2d1db2e36d281c2c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T10:59:07.560Z",
+  "finished_at": "2026-10-10T11:34:40.913Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -63,7 +63,7 @@
     "break": null
   },
   "check_id": "travel-price-walk",
-  "started_at": "2026-10-10T10:57:34.573Z",
+  "started_at": "2026-10-10T11:33:15.716Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,

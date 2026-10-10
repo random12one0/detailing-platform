@@ -5388,3 +5388,24 @@ grades zero sabotage files.
 `dimensions.break`, so a script that forgets to write it still clobbers its own
 receipt, silently, exactly as before. If you add a `--break=` switch, record it
 in `dimensions` or you have built this fault again.
+
+## 118 — A CONTROL-CHARACTER GUARD THAT SPLITS WINDOWS FILES ON LF FINDS A CARRIAGE RETURN ON EVERY LINE
+
+Found 2026-10-10 during belt supervision. `belt.mjs --self-check` split its
+own CRLF source on `"\n"`, leaving character 13 on every line, then correctly
+classified character 13 as forbidden. The result was a permanent red covering
+every line of `dashboard.mjs`; the guard's real finding was invisible in the
+noise. Split logical lines with `/\r?\n/` before testing their contents. The
+canary still inserts character 8 and must remain red for that case.
+
+## 119 — A COMPUTED COLOUR READ RIGHT AFTER A CLASS CHANGE IS THE TRANSITION'S FIRST FRAME, SO A RUNTIME SABOTAGE CAN PRINT PASS
+
+Found 2026-10-10 by the supervisor re-checking ROADMAP 4.1a. The sabotage added
+`primary` back to "Yes, decline it" and immediately compared every button's
+computed `backgroundColor` with `var(--accent)`. `.btn` transitions its
+background, so the read returned the OLD dark fill and the run printed PASS with
+the defect switched on. With an 800ms settle the same sabotage printed
+`["Accept","Yes, decline it"]` and exited 1 at both widths. The honest run was
+not affected — a freshly mounted button has nothing to transition from — which
+is exactly why only the sabotage lied. Settle past the transition (or read
+`transitionend`) before judging a colour you just changed.

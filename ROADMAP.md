@@ -12335,6 +12335,51 @@ requested.
   underneath whoever owns it. **The layout this change actually touched was measured directly instead** — the request card at 320, 392, 768 and 1440 in
   both languages, with the question's width asserted against the card's and screenshots kept.
 
+  Waits on: 4.1a, 4.1b, 4.1c, 4.1d. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 669 lines
+  long and no single session was finishing it.
+
+- [x] **4.1a — Correct the two Decline confirmation button weights**
+  Make the Today request-card and pending job-record Decline confirmations use a ringed, non-primary confirmation action. This covers only the visual livery regression; it leaves audit history and the remaining action sweep to later pieces.
+  Part 1 of 4 of item 4.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - At 1440 and 392 on both surfaces, opening Decline leaves exactly one accent-filled button on that surface by computed backgroundColor
+  - The confirmation still names the record and preserves focus and cancel behavior
+  - Browser console has no errors or warnings at both widths on both surfaces
+  **DONE 2026-10-10.** `RequestCard.jsx` and `BookingDetail.jsx` now pass `confirmClassName="btn"` to the Decline `ConfirmTap` (its default is `btn primary`, which put a second accent fill beside the lit Accept). Checked in a real browser as the demo owner at 1440 and 392, read-only (pressed Decline and Not yet, never Yes): on both the Today card and the job record the only accent-filled button is Accept (computed backgroundColor compared with `var(--accent)`); "Yes, decline it" is ringed (1px border, dark fill); the question still names "Marcus Webb’s Ceramic Coating at 8:30 AM" and the email clause; focus lands on the question and returns to Decline on Not yet; console 0 errors/warnings at both widths. Canary: with the fix reverted the same check printed `["Accept","Yes, decline it"]` on both surfaces at both widths and exited 1. Scratch script not kept.
+  **SUPERVISOR REPRODUCED 2026-10-10** on the Today card at 1440 and 392 (job record not re-checked): only Accept is accent-filled, "Yes, decline it" is `btn` on rgb(23, 27, 30), the question names the job, console 0/0. Sabotage (adding `primary` back at runtime) printed `["Accept","Yes, decline it"]` and exited 1 at both widths — once given 800ms for the button's colour transition; read immediately it printed PASS. `docs/gotchas.md` 119.
+
+- [ ] **4.1b — Land and verify append-only action history**
+  Apply the action-log migration and wire the shared logging path into the already-reviewed consequential actions without changing their interaction designs. This establishes the required durable audit foundation; remaining action-specific confirmation and undo work is left to subsequent pieces.
+  Part 2 of 4 of item 4.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - An append-only audit row records actor, prior value, action, and timestamp for complete, cancel, no-show, suspend, delete, waive, and owner-invite
+  - Rows are verified from the database rather than inferred from UI state
+  - The migration and deployed write paths are exercised safely on approved non-production test data
+  - No existing status transition or outward-facing message behavior changes unintentionally
+
+- [ ] **4.1c — Review and safeguard suspend, delete, and waive**
+  Implement the item’s required record-naming confirmation, audit write, and same-screen reversal where the action is reversible for suspend, delete, and waive. Reuse the product’s established destructive-action pattern where applicable rather than introducing a new interaction style.
+  Part 3 of 4 of item 4.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Each action requires a pre-write step that names the affected record
+  - Each action creates a readable audit row with who acted, the prior value, and when
+  - Every reversible action can be reversed from the same screen
+  - Relevant screens are checked at 1440, 768, and mobile width with clean console output
+
+- [ ] **4.1d — Review and safeguard owner invitations**
+  Add the required named-record pre-action step and audit history for owner invitations, including any applicable same-screen reversal behavior. This finishes the seventh named action without expanding the scope to unrelated invitation workflows.
+  Part 4 of 4 of item 4.1, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - One press on owner-invite first shows a step naming the intended recipient or record before sending
+  - The invitation action leaves an audit row with actor, prior state, and timestamp
+  - Any reversible invitation state is reversible from the same screen
+  - The invitation flow is visually verified at desktop and mobile widths with no console errors or warnings
+
 - [x] **DONE 2026-09-16 — 4.2 Calendar download links need an authorization review.**
   The link carried a Supabase function URL, a booking id, `audience=owner` and
   an anonymous API key. **A1 proved no vulnerability** — an anon key can be
