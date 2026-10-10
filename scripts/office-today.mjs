@@ -197,7 +197,7 @@ try {
 
     check(where, "Today is the first place and the one it opens on", (await page.locator(".bo-nav").first().innerText()).trim() === "Today"
       && (await page.locator("h1.bo-place").getAttribute("aria-label")) === "Today");
-    check(where, "the rail lists Today, then Detailers, then Money", (await page.locator(".bo-nav").allInnerTexts()).map((t) => t.replace(/\d+/g, "").trim()).join(",") === "Today,Detailers,Money");
+    check(where, "the rail lists Today, Detailers, Money, System", (await page.locator(".bo-nav").allInnerTexts()).map((t) => t.replace(/\d+/g, "").trim()).join(",") === "Today,Detailers,Money,System");
     check(where, "four sections are drawn", (await page.locator(".bo-sec").count()) === 4);
 
     const months = Object.keys(nets).sort();
