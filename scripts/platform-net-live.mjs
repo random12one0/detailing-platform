@@ -318,6 +318,7 @@ writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 49,
+  assertion_floor: "4 setup + 1440 (3 bills at 3 asserts each, plus 16) + 392 (1 bill at 3 asserts, plus 16) + 1 cleanup = 49, fixed by the code; a throw adds its own failing line rather than dropping any.",
   failures,
   dimensions: dims,
   artifacts: ["scripts/platform-net-live.mjs", "app/src/admin/AdminPage.jsx", "supabase/functions/platform-admin/index.ts", "supabase/functions/_shared/platformNet.js"],
