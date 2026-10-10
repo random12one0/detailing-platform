@@ -26328,7 +26328,37 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.17 — A guard for the shared resources, deliberately NOT built with the list
 
-- [ ] **Written down and left, 2026-09-23, on the manager's instruction.**
+- [x] **DONE 2026-10-10 — BUILT AS THE ENTRY BELOW DESCRIBES, at `8c14e282`
+  (logic in `scripts/lib/sharedResources.mjs`, CLI in
+  `scripts/shared-resources-guard.mjs`, tests in
+  `tests/shared-resources-guard.test.mjs`).** Read-only (GET/HEAD only), no new
+  table. `before` / `after` / `run -- <cmd>` sample `rate_hits` (every bucket,
+  last two windows), today's `platform_email_days` (sent, failed, claimed,
+  refused, refused_platform) and the demo tenant's row count in every table with a
+  `business_id` column (discovered from PostgREST's schema) plus a fingerprint of
+  bookings' id:status. `--mine=<prefix,...>` declares what this session moved;
+  anything else that moved is named. **Every verdict, clean or not, prints the
+  six resources it cannot see, the platform ceiling above `address-suggest`
+  (14.15) first, and a clean one reads "NOTHING UNDECLARED MOVED ... NOT 'no
+  collision'" — never "clean".** Rate-limit keys are hashed (they can be IPs).
+  **How it was checked:** live, read-only, against `kguqylyzgyzfktkfnhjb`: 113
+  counters (65 rate_hits rows, 5 email, 43 demo = 42 tables + the status
+  fingerprint), 0 moved on an idle pair. Positive control: `run -- <one
+  available-slots call>` exit 1 naming `rate_hits/available-slots/…: 20 -> 21
+  (+1)`; the same with `--mine=rate_hits/available-slots` exit 0 with it listed as
+  declared. Receipt `receipts/shared-resources-guard.json`: 3/3 targets, 4
+  assertions, canary (a planted undeclared counter must be named) caught. Sabotage
+  on the library, each confirmed landed with `git diff --numstat` before reading
+  the colour: render without the blind list → the blind-list test red; the 14.15
+  wording renamed → same test red; `claimed` always true → 5 of 7 red. (A first
+  sabotage broke the file's syntax and went red for the wrong reason; redone.)
+  **Known limits, said in the output:** it cannot see the 14.15 ceiling, Geoapify's
+  or Resend's own counts, demo child tables without `business_id`, edits that change
+  neither a count nor a status, `receipts/` overwrites or Andrew's window. The probe
+  cron's `available-slots:no-address` bucket is labelled background rather than
+  blamed. Pointer added to `docs/shared-resources.md`.
+
+  *Original entry, kept:* **Written down and left, 2026-09-23, on the manager's instruction.**
   `docs/shared-resources.md` is a page a person reads before dispatch, and it
   says for four of its five entries that **nothing reports the contention**.
   The obvious next thought is to make something report it. That was held back
