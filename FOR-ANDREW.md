@@ -52,7 +52,7 @@ Updated 2026-09-21.
 
 ## DECIDE · Let a session compare the setup count on the live site (ROADMAP 9.1b, 2026-10-10)
 
-**Say "go" or "no".** The last open piece of the setup-count fix is looking at one account in the detailer dashboard and in the back office and checking both say the same "N of 12". That needs a session to sign in as the demo detailer and the demo admin on the live site. It only reads; it changes nothing. **Recommendation: go.** No password gets pasted anywhere. If you say no, 9.1 stays open. (The repo side is proven: 12 of 12 inputs are sent; what the live site runs is unconfirmed since three later changes to the back-office function are not published.)
+**Say "go" or "no".** The last open piece of the setup-count fix is looking at one account in the detailer dashboard and in the back office and checking both say the same "N of 12". That needs a session to sign in as the demo detailer and the demo admin on the live site. It only reads; it changes nothing. **Recommendation: go.** No password gets pasted anywhere. If you say no, 9.1 stays open. (The repo side is proven: 12 of 12 inputs are sent. And the fix IS on the live site — checked 2026-10-10 by reading the running back-office function itself, ROADMAP 9.1a. Only the side-by-side look at the two screens is left.)
 
 ## DECIDE · What the back office is for (ROADMAP 9.12a, 2026-10-10)
 
@@ -727,7 +727,7 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
      business is "4 of 12 done" when their own dashboard says 9 of 12, because
      it was being told about their opening hours under a name the scoring
      couldn't read. **So the list of who needs a call is wrong for everyone on
-     it.** Fixed tonight; publishing makes the numbers agree. *(Roadmap 9.1.)*
+     it.** Fixed tonight; publishing makes the numbers agree. *(Roadmap 9.1.)* **PUBLISHED — confirmed live 2026-10-10, ROADMAP 9.1a.**
   3. **Your public pages have no working limit on how fast anyone can hammer
      them.** The limits are written, and **no running copy has them**, so we
      have never once seen one actually refuse anybody. Publishing puts the

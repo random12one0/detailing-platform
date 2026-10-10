@@ -1,0 +1,42 @@
+{
+  "git_sha": "da64600fb90d062ee32e975a12bd3533d153cf3e",
+  "git_sha_started": "da64600fb90d062ee32e975a12bd3533d153cf3e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:46:03.124Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "scripts/live-carries-commit.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "function": "platform-admin",
+    "live_version": 63,
+    "live_updated_at": "2026-10-10T07:53:59.966Z",
+    "present_commits": [
+      "99ed3922"
+    ],
+    "absent_commits": [
+      "83a0a740",
+      "8bd5d24b",
+      "3e002b1d"
+    ],
+    "present_lines_found": "39 of 39",
+    "absent_lines_absent": "42 of 42"
+  },
+  "check_id": "live-carries-commit",
+  "started_at": "2026-10-10T15:46:01.085Z",
+  "status": "pass",
+  "expected_targets": 81,
+  "discovered_targets": 81,
+  "attempted_targets": 81,
+  "completed_targets": 81,
+  "skipped_targets": 0,
+  "assertions_executed": 82,
+  "min_assertions": 10,
+  "canary": {
+    "id": "never-written-sentence",
+    "observed_failure": true
+  }
+}

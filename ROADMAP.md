@@ -19811,7 +19811,7 @@ the dashboard or back office at phone width at all.
   Split on 2026-10-10 because this entry is 158 lines
   long and no single session was finishing it.
 
-- [ ] **9.1a — Publish the prepared platform-admin function change**
+- [x] **9.1a — Publish the prepared platform-admin function change**
   Deploy the already-completed platform-admin payload widening so the live back office receives the same setup evidence as the dashboard. This piece does not certify a real account's displayed count after deployment.
   Part 1 of 2 of item 9.1, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -19819,6 +19819,8 @@ the dashboard or back office at phone width at all.
   - The intended platform-admin revision is published to the correct project.
   - Deployment status confirms the live function revision matches the prepared change.
   - No unrelated function or database-structure change is included.
+
+  **DONE 2026-10-10 — it was ALREADY published; no session deployed anything.** Checked by reading the running copy, not the checkout: `node scripts/live-carries-commit.mjs --fn=platform-admin --present=99ed3922 --absent=83a0a740,8bd5d24b,3e002b1d "--strings=business_id, setup, booking_mode, vehicle_sizes, faqs, |pay_cash, pay_venmo, pay_cashapp, pay_zelle, pay_paypal, pay_other|hoursRows"` at `da64600f` → PASS, graded by `receipt.mjs` (81/81 targets, canary caught). Project `kguqylyzgyzfktkfnhjb`, live **v63**, deployed 2026-10-10 07:53 UTC: **39 of 39** of the 9.1 commit's comment lines and code strings are in the running bundle, and **42 of 42** comment lines from the three unpublished 4.3b/4.3c commits are NOT — so nothing unpublished rode along, and 4.3c's unapplied `support_sessions` migration is not referenced live. Broken on purpose twice: `--break=swap` (asserts the 4.3 lines present) went red 36 of 78 (`receipts/live-carries-commit.sabotage.json`); `--strings=…|is_support_session` went red on that one string. A third misuse (`--absent=99ed3922`) went red 36 of 36 leaked, proving the absent side can fail. **Not proved here, by design:** any displayed "N of 12" on either screen — that is 9.1b. v63 also carries other platform-admin changes Andrew had approved for publishing (0.4, 3.1, 9.14, 9.18); "unrelated" is read as "not yet approved", which is the 4.3 work, and that is absent.
 
 - [ ] **9.1b — Verify live setup counts match and close 9.1**
   Using the same real detailer account, compare dashboard and back-office setup progress after the publish. This piece verifies the user-visible outcome and records the result; it does not alter the shared setup-progress implementation.
@@ -19831,7 +19833,7 @@ the dashboard or back office at phone width at all.
   - Any mismatch remains documented as an unresolved regression rather than marking the item complete.
 
   **NEEDS ANDREW: the live comparison needs two signed-in sessions (a detailer's dashboard and the platform admin's back office) against the live site, which means loading the demo credentials; this repo's rule is that a credentialed run needs the manager's say-so and no session may handle a password, so none was made.** Say "go" and a session runs it as the demo owner and demo admin, read-only.
-  **Measured 2026-10-10, credential-free:** `node scripts/setup-inputs-contract.mjs` → PASS, 17/17 targets, 18 assertions, canary caught — the checkout's `platform-admin` sends 12 of 12 steps' inputs. `receipts/deployed-inventory.json` (finished 08:10 Pacific, 2026-10-10) lists `platform-admin` as MATCHING the checkout of that moment, which already held the 9.1 widening (committed 2026-09-23) — so the live function very likely carries it. **But three commits touched `platform-admin` after that receipt (83a0a740, 8bd5d24b, 3e002b1d — 4.3b/4.3c, "not published"), so the live copy is no longer this checkout**; re-run `deployed-inventory` before relying on it. 9.1a is still unticked. **Not measured: any displayed count on either screen. Nothing ticked.**
+  **Measured 2026-10-10, credential-free:** `node scripts/setup-inputs-contract.mjs` → PASS, 17/17 targets, 18 assertions, canary caught — the checkout's `platform-admin` sends 12 of 12 steps' inputs. `receipts/deployed-inventory.json` (finished 08:10 Pacific, 2026-10-10) lists `platform-admin` as MATCHING the checkout of that moment, which already held the 9.1 widening (committed 2026-09-23) — so the live function very likely carries it. **But three commits touched `platform-admin` after that receipt (83a0a740, 8bd5d24b, 3e002b1d — 4.3b/4.3c, "not published"), so the live copy is no longer this checkout**; re-run `deployed-inventory` before relying on it. 9.1a is still unticked. **Superseded the same day: 9.1a is ticked — the live v63 carries the 9.1 widening (39 of 39 lines) and none of 4.3b/4.3c (42 of 42 absent); see 9.1a.** **Not measured: any displayed count on either screen. Nothing ticked.**
 
 - [x] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
