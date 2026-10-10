@@ -12764,6 +12764,50 @@ requested.
   door). The part most likely to be underestimated is the security-definer functions that
   write, which nobody has listed. Points 2 and 3 above are unchanged.
 
+  Waits on: 4.3a, 4.3b, 4.3c, 4.3d. How the wait ends: those pieces are ticked.
+  Split on 2026-10-10 because this entry is 230 lines
+  long and no single session was finishing it.
+
+- [ ] **4.3a — Validate and choose the support-session marking design**
+  Prove the two Supabase capabilities the recorded design depends on using only a throwaway fixture, then select the viable approach for distinguishing a support session from an owner's normal session. This covers the unresolved design decision only; it does not alter production auth, policies, or functions.
+  Part 1 of 4 of item 4.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The fixture establishes whether an access token exposes a session identifier.
+  - The fixture establishes whether the server can exchange the generated link token before a browser receives it.
+  - A decision record selects the implementation approach and defines the Working-switch behavior.
+  - The chosen design identifies every write path requiring protection, including security-definer functions.
+
+- [ ] **4.3b — Make account audit history include previously orphaned events**
+  Update the platform-admin detail history query so it finds events recorded by either business ID or business name, allowing older sensitive events with a null business_id to appear. This improves audit completeness but does not provide server-side mutation enforcement.
+  Part 2 of 4 of item 4.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Detail history retrieves matching events by business_id or business_name.
+  - Previously orphaned impersonation and suspension events appear for their named account.
+  - Unknown event actions remain visible rather than being dropped.
+  - The detail panel still distinguishes loading, empty, and populated history.
+
+- [ ] **4.3c — Implement server-recognized read-only support sessions**
+  Build the selected session marker and the server-side authorization rules that reject mutations while that marker is active. Protection must be location/session-based, preserving the owner's ability to work in their own ordinary dashboard, and must cover every record-access layer used by the support view.
+  Part 3 of 4 of item 4.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A support session is distinguishable from the owner's ordinary session without identity-based exceptions.
+  - Data API mutations made with a support session's credentials are refused by the intended server-side layer.
+  - Any edge-function mutation path reachable from support view is either refused with support credentials or documented as unreachable.
+  - An owner using an ordinary session for their own business can still perform allowed mutations.
+
+- [ ] **4.3d — Publish and verify the complete support-view behavior**
+  Publish the required migration and platform-admin changes, enable any chosen auth configuration, then perform the final support-session proof using the session's own credentials from the server. Confirm the existing banner, read-only wording, and audit history in the live flow; closing the preview tab remains the approved return-to-admin behavior.
+  Part 4 of 4 of item 4.3, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - The support-view banner identifies the viewed business and read-only state, including the Working-toggle wording.
+  - A support-view opening creates an audit row naming the actor, target business, and time before access proceeds.
+  - Server-side tests with support-session credentials show the refusal and name the refusing layer for every reachable write path.
+  - The resulting access appears in the account's audit history, including applicable older name-matched records.
+
 - [x] **4.4 — Prove multi-tenant isolation properly.**
   `tests/tenant-isolation.test.mjs` exists. Per `docs/gotchas.md`, break it on
   purpose before believing it.
