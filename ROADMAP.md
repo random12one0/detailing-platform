@@ -21837,7 +21837,9 @@ the dashboard or back office at phone width at all.
   up in `docs/gotchas.md`. No code change made because none was needed —
   ticking a fixed item is not the same as skipping it.
 
-- [ ] **9.14 — The owner cannot see whether the platform made money.**
+- [x] **9.14 — The owner cannot see whether the platform made money.**
+  **CLOSED 2026-10-10 by its own rule below: 9.14a, 9.14b and 9.14c are all ticked.** The last proof is
+  9.14c's, `node scripts/platform-net-live.mjs`, 49 of 49.
   Subscription revenue is visible; hosting, database, email and domain costs
   are not. Manual cost entry is fine to start.
   *A1 P3-06*
@@ -22197,7 +22199,7 @@ the dashboard or back office at phone width at all.
     ON DISK is newer (4.3b/4.3c, held by the supervisor) and is still unpublished; this item does not need it.
     `deployed-inventory.mjs` still lists `platform-admin` as differing for that reason.
 
-- [ ] **9.14c — Enter real monthly costs and verify the owner profit screen**
+- [x] **9.14c — Enter real monthly costs and verify the owner profit screen**
   Use /admin to record one real month of platform bills, then compare the displayed revenue, categorized costs, and net against an independent calculation. This validates the integrated feature after the migration and function deployment, without adding edit or delete capability.
   Part 3 of 3 of item 9.14, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -22206,6 +22208,39 @@ the dashboard or back office at phone width at all.
   - Displayed category costs and total costs match the entered bills
   - Displayed paid revenue minus costs matches an independent calculation
   - A month with no entered costs shows “Costs not entered” and no numeric net figure
+
+  **DONE 2026-10-10, on TEST bills in a test month, not on Andrew's own bills — and that was a choice.** Read
+  first, before writing: the live database held **no paid platform invoice in any month** and no cost row, so
+  "paid revenue minus costs" was "0 minus costs" everywhere, which cannot tell a screen that ignores revenue
+  from one that does not. Andrew's real bill amounts are recorded nowhere in this repo, and a saved bill cannot
+  be removed from the screen, so typing guesses into October 2026 would have put invented figures in his books.
+  So `node scripts/platform-net-live.mjs` (dev server on :5173; project `kguqylyzgyzfktkfnhjb`, refuses any
+  other) works in **September 2025**, refuses to start unless that month and October 2025 are empty, and removes
+  everything it wrote. Receipt taken at `243622b3` with the script as committed in `9c00bf32` (that commit only adds the count declaration): **PASS, 49 of 49 assertions, 4 of 4 targets, canary caught**, graded valid
+  by `receipt.mjs`.
+  - **Revenue that can be wrong:** three fixture invoices on the demo business — $40 paid in September, $539
+    marked open but dated inside September (only the paid filter keeps it out), $100 paid in October.
+  - **Saved through the real form, by the running `platform-admin`, into the real table:** Hosting $19, Email
+    $20 and Domain $12.99 at 1440; a second Hosting bill of $5.50 at 392. Each answered 200 with an id and was
+    sent as integer cents (1900, 2000, 1299, 550), the right kind, for 2025-09.
+  - **Checked against two independent sums:** a hand-written list (cents declared by hand, not converted by the
+    screen's code) and a direct database read. After 1440: paid $40, costs $51.99 from 3 bills, each category
+    equal to its bills, **"We lost $11.99"**. After 392: costs $57.49 from 4 bills, Hosting $24.50, **"We lost
+    $17.49"**. The table held exactly the bills typed, each entered by the test admin.
+  - **The month with no costs:** October 2025 shows its $100 paid and **"Costs not entered for October 2025"**,
+    with no net, no cost row and no "We kept / lost / broke even", at both widths. A negative amount leaves
+    "Save this bill" disabled at both widths. Console clean at both.
+  - **Broken on purpose:** `--break=net-on-empty` rewrites the server's answer for October into 9.14's own
+    fault (a profit with no costs entered): **4 red**, exactly the two empty-month lines at each width, with 4
+    answers rewritten. `--break=count-open` makes the hand sum count the unpaid invoice: **6 red**, revenue,
+    net and loss wording at each width. `receipts/platform-net-live.sabotage.json` holds the first.
+  - **Left behind:** nothing in the cost or invoice tables (asserted). `platform_cost_add` writes one
+    `platform_admin_events` row per saved bill; those audit rows stay, admin email `platform-net-live-test@…`.
+  - **Not proved:** Andrew's own month. Typing it is ordinary use of a finished screen, not a check; it is a
+    row in `FOR-ANDREW.md`. **Seen, not in scope:** `platform_net` counts paid invoices from EVERY business,
+    the demo ones included, while "What we earn, by plan" skips `is_demo`. Today the table is empty, but
+    `scripts/seed-demo.mjs` writes five demo invoices (five paid, or four when it seeds a late payer) dated 0 to 120 days back, so after a
+    seed the screen will count demo money as money paid to us.
 
 - [x] **9.15 — Onboarding: "Six short tours, up to 37 steps".**
   Replace with short contextual prompts tied to unfinished setup.
