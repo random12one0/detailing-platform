@@ -99,13 +99,16 @@ text-message, sign-in and website-uptime checks, because nothing feeds them yet.
 
 **What I need from you, two things:**
 1. **Do you accept the look?** If not, say what is wrong and it changes.
-2. **Where do the old screen's leftover jobs go?** Removing the old five tabs
-   would delete them otherwise: signing up a detailer, re-sending an invite,
-   exporting, the platform price editor, the mail list, and typing in last
-   month's bills. **My recommendation:** a sign-up button on the Detailers list;
-   invite and export in the detailer's side panel; the price editor and a month
-   switch on Money; the mail list on System. Say "go with that" or move any of
-   them. The old `/admin` stays untouched until you answer.
+2. **Where the old screen's leftover jobs go — three of six are now built,
+   so you can judge the result rather than a plan (2026-10-10).** A green **Sign
+   up a detailer** button sits at the right of the Detailers list, and every
+   detailer's side panel has a **Their account** part with **Download everything
+   they own** and **Send an owner invite**. Proved with made-up detailers, nothing
+   written: both the success and the refusal case, at laptop and two phone
+   widths, 81 checks and 0 failed. Still to build, same way: the price editor
+   and a past-month switch on Money, the mail list on System. If you want any
+   of them somewhere else, say where and it moves. The old `/admin` stays
+   untouched until all six have a home.
 
 ## DECIDED · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 

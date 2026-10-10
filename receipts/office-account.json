@@ -1,0 +1,100 @@
+{
+  "git_sha": "27c9c3c25f6e45e76369fd113237fc16a4b47804",
+  "git_sha_started": "27c9c3c25f6e45e76369fd113237fc16a4b47804",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:33:40.787Z",
+  "failures": [],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers for three made-up detailers. Asks what the screen sends and shows, not what the server does.",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-account/signup-1440.png",
+    "artifacts/office-account/signup-made-1440.png",
+    "artifacts/office-account/panel-1440.png",
+    "artifacts/office-account/signup-392.png",
+    "artifacts/office-account/signup-made-392.png",
+    "artifacts/office-account/panel-392.png",
+    "artifacts/office-account/signup-320.png",
+    "artifacts/office-account/signup-made-320.png",
+    "artifacts/office-account/panel-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "lite": false,
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "create",
+          "create",
+          "list",
+          "export",
+          "export",
+          "resend_invite",
+          "resend_invite",
+          "resend_invite"
+        ]
+      },
+      "392": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "create",
+          "create",
+          "list",
+          "export",
+          "export",
+          "resend_invite",
+          "resend_invite",
+          "resend_invite"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "create",
+          "create",
+          "list",
+          "export",
+          "export",
+          "resend_invite",
+          "resend_invite",
+          "resend_invite"
+        ]
+      }
+    }
+  },
+  "check_id": "office-account",
+  "started_at": "2026-10-10T22:33:13.102Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 81,
+  "min_assertions": 81,
+  "assertion_floor": "3 widths x 27 questions (sign-up 13, panel 13: export 6, invite 7, console 1), fixed by the code; a missing control reddens its own question and its dependants are counted only when it exists, so a hidden control drops the count below the floor.",
+  "canary": {
+    "id": "injected-overlapping-account-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}

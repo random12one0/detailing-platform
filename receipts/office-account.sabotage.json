@@ -1,0 +1,77 @@
+{
+  "git_sha": "27c9c3c25f6e45e76369fd113237fc16a4b47804",
+  "git_sha_started": "27c9c3c25f6e45e76369fd113237fc16a4b47804",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T22:34:44.542Z",
+  "failures": [
+    "1440: the toolbar has Sign up a detailer",
+    "1440: the panel has a Their account section",
+    "1440: console silent apart from the 3 refusals asked for 0 planned;",
+    "392: the toolbar has Sign up a detailer",
+    "392: the panel has a Their account section",
+    "392: console silent apart from the 3 refusals asked for 0 planned;",
+    "320: the toolbar has Sign up a detailer",
+    "320: the panel has a Their account section",
+    "320: console silent apart from the 3 refusals asked for 0 planned;"
+  ],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers for three made-up detailers. Asks what the screen sends and shows, not what the server does.",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that.",
+    "run with --break=hidden; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "lite": false,
+    "break": "hidden",
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get"
+        ]
+      },
+      "392": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get"
+        ]
+      }
+    }
+  },
+  "check_id": "office-account",
+  "started_at": "2026-10-10T22:34:34.828Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 81,
+  "assertion_floor": "3 widths x 27 questions (sign-up 13, panel 13: export 6, invite 7, console 1), fixed by the code; a missing control reddens its own question and its dependants are counted only when it exists, so a hidden control drops the count below the floor.",
+  "canary": {
+    "id": "injected-overlapping-account-button",
+    "observed_failure": false
+  }
+}
