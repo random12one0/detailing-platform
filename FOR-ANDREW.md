@@ -599,7 +599,8 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
 
   **What is waiting, and what each one starts doing the moment it lands:**
 
-  1. **A customer is shown $65 and charged $95.** Pick a weekend day, the page
+  1. **DONE 2026-10-10, published and checked on the real page (ROADMAP 2.1).**
+     **A customer is shown $65 and charged $95.** Pick a weekend day, the page
      says $65, pick a time and it becomes $95 — no mention of a weekend
      anywhere. **The fix is written and it is not live.** Publishing makes the
      page say the real price before they choose. *(Roadmap 2.1.)*
@@ -1033,6 +1034,11 @@ still knows them.
 
 - [ ] **DO · Publish the quote program, and the weekend price stops being a
   surprise.**
+  **DONE 2026-10-10 — you published it this morning, and it was checked on the
+  real page afterwards: a Saturday now shows $95 and "Weekend rate · +$30" the
+  moment the day is tapped, at every screen width. ROADMAP 2.1 is ticked.
+  Nothing left to do here.**
+
   **The fault you found on 22 September is fixed in the code and no customer
   can see the fix yet.** You picked a Sunday, waited, and the page showed nine
   Sunday times over a total of **$65** with nothing anywhere saying Sunday
