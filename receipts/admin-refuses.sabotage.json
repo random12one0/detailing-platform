@@ -1,0 +1,86 @@
+{
+  "git_sha": "bb43496a1ff22d9f35b99269144d1f3de8ebe861",
+  "git_sha_started": "bb43496a1ff22d9f35b99269144d1f3de8ebe861",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T19:50:26.871Z",
+  "failures": [
+    "staff/1440/gear-row-absent: \"The website business\" shown: true",
+    "staff/1440/admin-refused: screen: admitted (back office true, 404 false)",
+    "staff/392/gear-row-absent: \"The website business\" shown: true",
+    "staff/392/admin-refused: screen: admitted (back office true, 404 false)",
+    "staff/320/gear-row-absent: \"The website business\" shown: true",
+    "staff/320/admin-refused: screen: admitted (back office true, 404 false)"
+  ],
+  "warnings": [
+    "The expectation is the roster in docs/platform-admins.md, not the table. tests/platform-admins-declared.test.mjs is what keeps those two agreeing; run it beside this.",
+    "demo@demo.com is not signed in here: its password is Andrew's and no session holds it. It is covered only by the roster test.",
+    "Dev server only; the published bundle is not measured."
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x720"
+    ],
+    "accounts": [
+      "owner:admin",
+      "staff:refused"
+    ],
+    "item": "12.4",
+    "break": "let-in"
+  },
+  "check_id": "admin-refuses",
+  "started_at": "2026-10-10T19:49:55.116Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "1 roster + 2 accounts x 3 widths x 3 + 2 canaries = 21, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "both-screens+blank-page",
+    "observed_failure": true
+  },
+  "sabotage": [
+    {
+      "tag": "staff/1440",
+      "route_hits": 3
+    },
+    {
+      "tag": "staff/392",
+      "route_hits": 3
+    },
+    {
+      "tag": "staff/320",
+      "route_hits": 3
+    }
+  ],
+  "observed": [
+    "PASS roster/parsed — 2 declared; owner on it, staff off it",
+    "PASS owner/1440/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/1440/admin-admitted — screen: admitted (back office true, 404 false)",
+    "PASS owner/1440/console — 0 designed platform-admin 404 line(s), 0 other",
+    "PASS owner/392/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/392/admin-admitted — screen: admitted (back office true, 404 false)",
+    "PASS owner/392/console — 0 designed platform-admin 404 line(s), 0 other",
+    "PASS owner/320/gear-row-drawn — \"The website business\" shown: true",
+    "PASS owner/320/admin-admitted — screen: admitted (back office true, 404 false)",
+    "PASS owner/320/console — 0 designed platform-admin 404 line(s), 0 other",
+    "FAIL staff/1440/gear-row-absent — \"The website business\" shown: true",
+    "FAIL staff/1440/admin-refused — screen: admitted (back office true, 404 false)",
+    "PASS staff/1440/console — 0 designed platform-admin 404 line(s), 0 other",
+    "FAIL staff/392/gear-row-absent — \"The website business\" shown: true",
+    "FAIL staff/392/admin-refused — screen: admitted (back office true, 404 false)",
+    "PASS staff/392/console — 0 designed platform-admin 404 line(s), 0 other",
+    "FAIL staff/320/gear-row-absent — \"The website business\" shown: true",
+    "FAIL staff/320/admin-refused — screen: admitted (back office true, 404 false)",
+    "PASS staff/320/console — 0 designed platform-admin 404 line(s), 0 other",
+    "PASS canary/both-screens — both drawn must read as neither, got neither",
+    "PASS canary/blank-page — nothing drawn must NOT read as a refusal, got neither"
+  ]
+}
