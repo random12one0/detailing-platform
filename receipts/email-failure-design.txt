@@ -1,0 +1,14 @@
+PASS statuses-agree — check=sent,delivered,bounced,complained,failed,refused,skipped list=sent,delivered,bounced,complained,failed,refused,skipped trail=delivered,sent,bounced,complained,failed,refused,skipped
+PASS doc-names-every-status — 7 statuses, 8 § 2 rows
+PASS doc-draws-every-word
+PASS doc-names-every-relay-exit — 6 record sites (declared 6), 3 codes
+PASS doc-names-every-webhook-event — 4 events
+PASS doc-names-every-row-writer — 2 writers: supabase/functions/send-email/index.ts, supabase/functions/send-owner-reminders/index.ts
+PASS doc-names-every-suppressor — 3 suppressors: supabase/functions/send-campaign/index.ts, supabase/functions/send-owner-reminders/index.ts, supabase/functions/_shared/maintenance.ts
+PASS doc-quotes-screens-verbatim
+PASS doc-lists-every-text-template — 5 templates
+PASS every-state-has-a-fallback — 9 states, 10 fallback rows
+UNJUDGEABLE whether the design is right — that is Andrew's call on the three decisions in § 5
+UNJUDGEABLE S1–S4 and the Booking confirmed text on screen — not built yet; 3.4f builds and proves them
+canaries: drop-state=caught, new-status=caught, sentence=caught
+10 rules, 50 assertions, 0 failed

@@ -1,0 +1,37 @@
+{
+  "git_sha": "3a41b55512f6f40744cfbfd7ef9ccb3608dcbaa8",
+  "git_sha_started": "3a41b55512f6f40744cfbfd7ef9ccb3608dcbaa8",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T12:18:05.549Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE whether the design is right — that is Andrew's call on the three decisions in § 5",
+    "UNJUDGEABLE S1–S4 and the Booking confirmed text on screen — not built yet; 3.4f builds and proves them"
+  ],
+  "artifacts": [
+    "receipts/email-failure-design.txt"
+  ],
+  "dimensions": {
+    "rules": 10,
+    "functions_read": 84,
+    "break": null
+  },
+  "check_id": "email-failure-design",
+  "started_at": "2026-10-10T12:18:05.420Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 50,
+  "min_assertions": 40,
+  "canary": {
+    "id": "drop-state + new-status + sentence",
+    "observed_failure": true,
+    "drop-state": true,
+    "new-status": true,
+    "sentence": true
+  }
+}
