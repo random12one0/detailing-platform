@@ -30,7 +30,7 @@
 // `platform-admin` reads.
 
 import { createRequire } from "node:module";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
 import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
@@ -62,7 +62,9 @@ const PER_TARGET = 3; // gear row, /admin verdict, console
 // roster parsed + accounts x widths x 3 + 2 canaries, asserted as an EQUALITY (gotchas 98).
 const EXPECTED_ASSERTIONS = 1 + ACCOUNTS.length * SIZES.length * PER_TARGET + 2;
 
-const failures = [], observed = [], sabotage = [];
+const ART = join(REPO, ".manager-shots", "12.4");
+mkdirSync(ART, { recursive: true });
+const failures = [], observed = [], sabotage = [], artifacts = [];
 let assertions = 0;
 const ok = (cond, name, detail) => {
   assertions++;
@@ -129,6 +131,10 @@ try {
       await page.waitForSelector(".pa-top, main.nf", { state: "attached", timeout: 30000 }).catch(() => {});
       await page.waitForTimeout(800);
       const seen = { admitted: (await page.locator(".pa-top").count()) > 0, refused: (await page.locator("main.nf").count()) > 0 };
+      if (!BREAK) {
+        await page.screenshot({ path: join(ART, `${acct.label}-${w}.png`) });
+        artifacts.push(`.manager-shots/12.4/${acct.label}-${w}.png`);
+      }
       const v = verdict(seen);
       const want = acct.admin ? "admitted" : "refused";
       ok(v === want, `${tag}/admin-${want}`, `screen: ${v} (back office ${seen.admitted}, 404 ${seen.refused})`);
@@ -183,6 +189,7 @@ const { path } = writeReceipt({
     "demo@demo.com is not signed in here: its password is Andrew's and no session holds it. It is covered only by the roster test.",
     "Dev server only; the published bundle is not measured.",
   ],
+  artifacts,
   dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), accounts: ACCOUNTS.map((a) => `${a.label}:${a.admin ? "admin" : "refused"}`), item: "12.4", break: BREAK },
   canary: { id: "both-screens+blank-page", observed_failure: c1 === "neither" && c2 === "neither" },
   sabotage, observed,
