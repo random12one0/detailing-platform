@@ -42,7 +42,8 @@
 // with whoever else is calling `available-slots` from here and is left alone.
 // It never prints or stores the address, only "<this machine>".
 
-import { writeReceipt } from "./receipt.mjs";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { REPO, writeReceipt } from "./receipt.mjs";
 
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8);
 const { SUPABASE_URL: URL_, SUPABASE_SERVICE_ROLE_KEY: SR, SUPABASE_ANON_KEY: ANON } = process.env;
@@ -131,6 +132,10 @@ if (!controlSeen) {
 console.log(`\n${verdict}`);
 
 const judged = controlSeen;
+// The calls, status and moved rows, so a reader can judge them by hand.
+const LOG = `artifacts/gateway-header-probe/calls${BREAK ? "." + BREAK : ""}.json`;
+mkdirSync(`${REPO}/artifacts/gateway-header-probe`, { recursive: true });
+writeFileSync(`${REPO}/${LOG}`, JSON.stringify({ verdict, control_seen: controlSeen, ...observed }, null, 1));
 const { path } = writeReceipt({
   check_id: "gateway-header-probe",
   started_at: started,
@@ -141,12 +146,13 @@ const { path } = writeReceipt({
   completed_targets: judged ? calls.filter((c) => c.status === 200).length : 0,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 5,
+  min_assertions: 4,   // 5 run when both calls name a real-address row; 4 is the least a judged run executes
   failures,
   warnings: [
     "Two calls from one machine, one function, one evening. It says what the gateway did for this caller now, not for every path or every header (cf-connecting-ip was not forged).",
     "The deployed `available-slots` may still run the pre-fix `ipOf`; DIFFERS in deployed-inventory. A header-less call is only 'not counted' on the OLD code; on the fixed code it would land in available-slots:no-address.",
   ],
+  artifacts: [LOG],
   canary: { id: "reader-sees-its-own-control-row", observed_failure: controlSeen },
   dimensions: { function: FUNCTION, forged: FORGED, break: BREAK, item: "14.18" },
   observed: { verdict, control_seen: controlSeen, ...observed },
