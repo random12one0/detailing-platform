@@ -1,33 +1,25 @@
 {
-  "git_sha": "5163e0a9ae2ba214ffd669f4235b337fca602c6f",
-  "git_sha_started": "5163e0a9ae2ba214ffd669f4235b337fca602c6f",
+  "git_sha": "daa15b49ac74e94c9c43d470777eb13f749775cc",
+  "git_sha_started": "daa15b49ac74e94c9c43d470777eb13f749775cc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T20:21:52.694Z",
-  "failures": [
-    "door-published: photo-door is not deployed on this project. Publishing is Andrew's: FOR-ANDREW.md step 9 (`node scripts/deploy-functions.mjs photo-door`). Nothing below can be judged until it is.",
-    "secret-name-present: R2_MEDIA_BASE is not among this project's function secrets. It is the public address for business-media, it has no default, and it cannot exist until 0.11ba binds one in Cloudflare."
-  ],
-  "warnings": [
-    "base-live-on-door: nothing to judge: the deployed door was never called",
-    "caller-scoped-key: nothing to judge: the door minted no key",
-    "refuses-another-business: nothing to judge: neither refusal was attempted",
-    "public-url-from-base: UNJUDGEABLE: no configured address to compare against. Re-run with --base=<the address bound in Cloudflare>, or with R2_MEDIA_BASE exported. Criterion 4 is that the url is DERIVED from the configured address, and reading the host out of the answer would be the answer marking its own work."
-  ],
+  "finished_at": "2026-10-10T08:55:58.791Z",
+  "failures": [],
+  "warnings": [],
   "artifacts": [
     "receipts/photo-door-deployed.log"
   ],
   "dimensions": {
     "break": null,
-    "unjudgeable": 4,
+    "unjudgeable": 0,
     "canaries_caught": 11,
     "canaries_missed": [],
-    "door_deployed": false,
-    "base_source": "none"
+    "door_deployed": true,
+    "base_source": "--base="
   },
   "check_id": "photo-door-deployed",
-  "started_at": "2026-10-09T20:21:52.069Z",
-  "status": "fail",
+  "started_at": "2026-10-10T08:55:55.676Z",
+  "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,

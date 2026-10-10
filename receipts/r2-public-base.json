@@ -1,25 +1,19 @@
 {
-  "git_sha": "0626b1588d2397d1e276a3beadbd9b926784323c",
-  "git_sha_started": "0626b1588d2397d1e276a3beadbd9b926784323c",
+  "git_sha": "daa15b49ac74e94c9c43d470777eb13f749775cc",
+  "git_sha_started": "daa15b49ac74e94c9c43d470777eb13f749775cc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T21:50:21.890Z",
-  "failures": [
-    "base-configured: no public address for business-media: R2_MEDIA_BASE is unset here and no --base= was given. Nobody has bound one in Cloudflare (ROADMAP 0.11ba, FOR-ANDREW step 9a2)."
-  ],
+  "finished_at": "2026-10-10T08:54:49.889Z",
+  "failures": [],
   "warnings": [
-    "base-usable: nothing to judge: no address was supplied",
-    "base-not-dev-address: nothing to judge: no usable address",
-    "anonymous-read: nothing to judge: no address to GET through",
-    "cors-allows-our-pages: nothing to judge: no address to send a preflight to",
-    "cors-refuses-a-stranger: nothing to judge: no address to send a preflight to"
+    "anonymous-read: UNJUDGEABLE: no object named. Re-run with --key=<business>/branding/<file>.webp once one logo has been uploaded — criterion 4 is about reading a real object, and inventing a key proves only that the host answers."
   ],
   "artifacts": [
     "receipts/r2-public-base.log"
   ],
   "dimensions": {
     "break": null,
-    "unjudgeable": 5,
+    "unjudgeable": 1,
     "canaries_caught": 8,
     "canaries_missed": [],
     "origins": [
@@ -27,10 +21,10 @@
       "https://www.detailingplatform.com",
       "http://localhost:5173"
     ],
-    "base_source": "none"
+    "base_source": "--base="
   },
   "check_id": "r2-public-base",
-  "started_at": "2026-10-09T21:50:21.617Z",
+  "started_at": "2026-10-10T08:54:49.287Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,

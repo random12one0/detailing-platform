@@ -1,30 +1,30 @@
-photo release order · 2026-10-09T21:21:05.118Z · project kguqylyzgyzfktkfnhjb
-photo-door deployed: false · photo-reconcile deployed: false
-photo_total_gb: 1 · flags: {"RECEIPTS_VIA_DOOR":false,"MEDIA_VIA_DOOR":false}
-live bundle: assets/index-CfUTS91_.js
-delete-customer bundle: 5700534 bytes, 0 of 3 R2 markers
+photo release order · 2026-10-10T08:20:32.938Z · project kguqylyzgyzfktkfnhjb
+photo-door deployed: true · photo-reconcile deployed: true
+photo_total_gb: 10 · flags: {"RECEIPTS_VIA_DOOR":false,"MEDIA_VIA_DOOR":false}
+live bundle: assets/index-CT8xjH8F.js
+delete-customer bundle: 5775746 bytes, 3 of 3 R2 markers
 R2 secrets present (names only): R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 R2_MEDIA_BASE set: false
 broken on purpose: no
 
 PASS  app-flag-before-door (criterion 3)
-    photo-door is not deployed and no *_VIA_DOOR flag is true
+    photo-door is deployed, so the flags are free to be on (0 of 2 are)
 PASS  app-shipped-before-door (criterion 3)
-    photo-door is not deployed and the published bundle carries none of the 4 door markers
+    photo-door is deployed, so a published app that uses it is in order
 PASS  allowance-before-switch (criterion 3)
-    photo_total_gb is 1 and photo-door is not deployed
+    photo_total_gb is 10 and photo-door is deployed
 PASS  allowance-with-switch (criterion 3)
-    photo-door is not deployed, so there is no switch for the allowance to accompany yet
+    photo-door is deployed and photo_total_gb is 10
 PASS  door-keeps-jwt (criterion 4)
-    photo-door is absent from PUBLIC_FUNCTIONS and is not deployed
+    photo-door is absent from PUBLIC_FUNCTIONS and is deployed with verify_jwt=true
 PASS  reconcile-public-for-cron (criterion 4)
-    photo-reconcile is in PUBLIC_FUNCTIONS and is not deployed yet
+    photo-reconcile is in PUBLIC_FUNCTIONS and deployed with verify_jwt=false, like refresh-weather
 PASS  r2-secrets-present (criterion 2)
     all 3 required R2 secret(s) are set on the functions (names read, no value touched)
 PASS  cron-after-reconcile (criterion 4)
-    neither photo-reconcile nor its cron entry is installed, which is the right pre-release pair
+    photo-reconcile is deployed and its cron entry is installed
 PASS  forget-reaches-r2 (criterion 3)
-    photo-door is not live, so no job photo is in R2 yet and the deployed delete-customer's Supabase-Storage-only removal still reaches every photo there is
+    the deployed delete-customer carries all 3 R2 markers, so forgetting a customer removes their photos from both stores
 UNJUDGEABLE  bucket-cors (criterion 1)
     the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this program does not have and must not acquire; the buckets are unreachable anonymously (two are private, the third has no public address yet). 0.11d's first browser upload is the proof
 

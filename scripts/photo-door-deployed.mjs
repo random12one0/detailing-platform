@@ -423,7 +423,7 @@ async function standIn(mode) {
 }
 
 /** The same three calls the live path makes, against any door URL. */
-async function callDoor(origin, token) {
+async function callDoor(origin, token, caller = CALLER) {
   const post = async (body, auth = token) => {
     const res = await fetch(origin, {
       method: "POST",
@@ -436,18 +436,18 @@ async function callDoor(origin, token) {
   const otherKey = `${OTHER}/branding/${randomUUID()}.jpg`;
   return {
     noAuthStatus: (await post({
-      action: "start", store: "media", business_id: CALLER,
+      action: "start", store: "media", business_id: caller,
       folder: "branding", file_id: randomUUID(), content_type: "image/png", claimed_bytes: 40_000,
     }, null)).status,
     start: await post({
-      action: "start", store: "media", business_id: CALLER,
+      action: "start", store: "media", business_id: caller,
       folder: "branding", file_id: fileId, content_type: "image/png", claimed_bytes: 40_000,
     }),
     otherStart: await post({
       action: "start", store: "media", business_id: OTHER,
       folder: "branding", file_id: randomUUID(), content_type: "image/png", claimed_bytes: 40_000,
     }),
-    otherRemove: await post({ action: "remove", store: "media", business_id: CALLER, key: otherKey }),
+    otherRemove: await post({ action: "remove", store: "media", business_id: caller, key: otherKey }),
     otherKey,
   };
 }
@@ -608,7 +608,9 @@ async function observeLive() {
   if (!biz) throw new Error('no business with slug "demo-detail" — run node scripts/seed-demo.mjs');
   w.callerBusinessId = biz;
 
-  const calls = await callDoor(`${SUPA}/functions/v1/photo-door`, auth.access_token);
+  // The REAL business this session belongs to. This passed nothing until 2026-10-10, so every
+  // live call asked about the placeholder CALLER and a correct door answered 401 to all of them.
+  const calls = await callDoor(`${SUPA}/functions/v1/photo-door`, auth.access_token, biz);
   Object.assign(w, calls);
   say(`The deployed door answered: start ${w.start.status}, foreign start ${w.otherStart.status}, `
     + `foreign remove ${w.otherRemove.status}, no-auth ${w.noAuthStatus}`);
