@@ -11180,7 +11180,7 @@ requested.
   Split on 2026-10-10 because this entry is 943 lines
   long and no single session was finishing it.
   **STATE 2026-10-10 (checked, nothing built under this number):** 3.4b and 3.4e
-  are ticked. 3.4f and 3.4g are open, and this parent has no work of its own left
+  are ticked. 3.4f ticked later the same day (S3 built). 3.4g is open, and this parent has no work of its own left
   to do: it ticks when they tick. **3.4g is dispatchable by itself** (rendering is
   done, the sends are its own job).
   **ANDREW DECIDED 2026-10-10: decline all four proposed communication changes and
@@ -11239,8 +11239,34 @@ requested.
   - The detailer-facing failure signal and its location are defined
   - An alternate-channel workflow is defined for each relevant failure state
 
-- [ ] **3.4f — Implement the approved communication changes**
-  **STATE 2026-10-10 — PART BUILT, the rest waits on Andrew (box stays open).**
+- [x] **3.4f — Implement the approved communication changes** — **DONE 2026-10-10.**
+  **S3 BUILT (`9e5a3071`), which was the last buildable piece.** When the newest
+  email to one of the business's own alert addresses bounced or could not be
+  delivered at all, Today shows a box with **Fix this** (opens Notifications), and
+  Notifications shows the same warning in "Where your alerts go", with the remedy
+  for the main address or for an extra one. It clears itself once a later email to
+  that address is accepted. The addresses are the ones the server actually alerts
+  (`ownerRecipients`); `failed` is deliberately not counted, for the reason S1
+  gives it a neutral sentence (written up in `docs/email-failure-recovery.md` S3).
+  Shown only to somebody with the settings permission, who can fix it.
+  **Checked how:** `node --test tests/own-alert-warning.test.mjs` 6/6, including
+  the browser's address list run against the server's own function; three
+  sabotages each turned one test red (bounce silenced in the rule, the server list
+  changed, a Spanish key deleted). `node scripts/own-alert-warning.mjs` 36 of 36
+  declared, 3 of 3 widths (1440, 392, 320): shown for a bounce and its button a
+  46px target nothing covers, Fix this reaching Notifications' warning, absent after
+  a later delivered email and for a `failed` row on both screens, shown from the
+  demo tenant's REAL rows, console clean; canary caught; `--break=never` 18 red,
+  `--break=always` 12 red; `receipt.mjs` grades it PASS. Rows answered in the
+  browser except the real-row case, which only reads. `?lite=1` not walked: the
+  box has no motion.
+  **The demo tenant shows this warning for real:** its address is
+  `demo@example.com`, a reserved domain, so every alert to it is stored as
+  undeliverable (newest 2026-10-09). That is true, not a test artifact.
+  **Found, not fixed (outside this item):** Notifications says the main address
+  "Always receives", but `ownerRecipients` stops sending to it once "Also send to"
+  has anything in it. The S3 remedy wording follows the server.
+  **EARLIER STATE 2026-10-10 — PART BUILT (kept for the record):**
   **Built and proved** (`3e469e05`, `6d1e380b`): **S1**, the red line in a
   job's pinned bar when the newest email about THAT booking to its address
   bounced, was refused, was marked spam, or hit our daily limit — gone once a

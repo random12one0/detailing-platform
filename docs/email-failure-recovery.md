@@ -158,6 +158,19 @@ The detailer does not lose bookings in the meantime — new requests already sho
 on Today whatever happens to email — but they would stop being told on their
 phone, and they would not know.
 
+**Built 2026-10-10 (3.4f), two places it differs from the above, on purpose.**
+It reads the newest row to each address the server actually alerts — the
+"Also send to" list, or the main address when that list is empty
+(`ownerRecipients`, which `tests/own-alert-warning.test.mjs` runs against the
+browser's copy). It warns on F1 and F6 but **not `failed`**: the stored row
+cannot tell F2 from F3 (the same reason S1 gives `failed` a neutral sentence),
+and here a guess would draw "your address is broken" over a good one for as
+long as the business stays quiet; the usual F2, a malformed address, cannot be
+added on Notifications. The wording is *"Booking alerts to … are not
+arriving"*, which is true of a bounce and of a made-up address alike. Proved by
+`node scripts/own-alert-warning.mjs`. **The demo tenant is in this state for
+real** — its address is `demo@example.com`, so every alert to it is F6.
+
 **S4 — The existing client-record line (F1, F2) gains a spam wording for F4.**
 Today a spam complaint flags nothing and the client record says nothing. The
 line should read *"They marked an email from you as spam. Text them instead."*
@@ -236,5 +249,8 @@ that exists or to *Write my own*.
   2026-10-10 at `1a69a71f`: 16 of 16 — shown, painted in `--bad`, inside the
   width, absent on the clean record, console clean at every width.
   `--break=noflag` and `--break=always` each turn their own assertions red.
-- **Not checked, because nothing of it exists yet**: S1–S4 and the *Booking
+- **S1, S3 and the *Booking confirmed* text are built and proved** (3.4f;
+  `node scripts/job-mail-warning.mjs`, `node scripts/own-alert-warning.mjs`).
+  S2 and S4 were declined by Andrew on 2026-10-10.
+- **Not checked, because nothing of it exists yet**: (superseded by the line above) S1–S4 and the *Booking
   confirmed* text. Those are 3.4f's to build and prove.

@@ -1,0 +1,41 @@
+{
+  "git_sha": "9e5a3071dfdbf6a2c1909f32202685342c98ccdd",
+  "git_sha_started": "9e5a3071dfdbf6a2c1909f32202685342c98ccdd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T16:54:15.228Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/own-alert-warning/1440x900-today-bounced.png",
+    "artifacts/own-alert-warning/1440x900-notifications-bounced.png",
+    "artifacts/own-alert-warning/392x844-today-bounced.png",
+    "artifacts/own-alert-warning/392x844-notifications-bounced.png",
+    "artifacts/own-alert-warning/320x844-today-bounced.png",
+    "artifacts/own-alert-warning/320x844-notifications-bounced.png",
+    "artifacts/own-alert-warning/report.txt"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
+    ],
+    "break": null
+  },
+  "check_id": "own-alert-warning",
+  "started_at": "2026-10-10T16:53:13.793Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 36,
+  "min_assertions": 36,
+  "assertion_floor": "every width runs the same twelve checks unconditionally, so the count is 12 per width or the run stopped; okRun separately requires the exact declared total",
+  "canary": {
+    "id": "the-missing-box",
+    "observed_failure": true
+  }
+}

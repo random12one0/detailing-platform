@@ -1,0 +1,53 @@
+{
+  "git_sha": "9e5a3071dfdbf6a2c1909f32202685342c98ccdd",
+  "git_sha_started": "9e5a3071dfdbf6a2c1909f32202685342c98ccdd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T16:53:03.151Z",
+  "failures": [
+    "1440x900 today/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "1440x900 notifications/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below.",
+    "1440x900 today/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "1440x900 notifications/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below.",
+    "392x844 today/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "392x844 notifications/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below.",
+    "392x844 today/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "392x844 notifications/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below.",
+    "320x844 today/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "320x844 notifications/delivered-later/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below.",
+    "320x844 today/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Fix the address in Notifications.Fix this",
+    "320x844 notifications/failed-not-judged/absent — Booking alerts to demo@example.com are not arriving. Change it on Business info, or add a working address below."
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/own-alert-warning/1440x900-today-bounced.png",
+    "artifacts/own-alert-warning/1440x900-notifications-bounced.png",
+    "artifacts/own-alert-warning/392x844-today-bounced.png",
+    "artifacts/own-alert-warning/392x844-notifications-bounced.png",
+    "artifacts/own-alert-warning/320x844-today-bounced.png",
+    "artifacts/own-alert-warning/320x844-notifications-bounced.png",
+    "artifacts/own-alert-warning/report.sabotage.txt"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x844"
+    ],
+    "break": "always"
+  },
+  "check_id": "own-alert-warning",
+  "started_at": "2026-10-10T16:51:57.912Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 36,
+  "min_assertions": 36,
+  "canary": {
+    "id": "the-missing-box",
+    "observed_failure": true
+  }
+}
