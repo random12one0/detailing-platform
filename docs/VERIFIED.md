@@ -3539,3 +3539,17 @@ from above), 70 presses all 429 with body `busy`, per-IP counter +70. Sabotage r
 is `fail` naming 70 unattributed. Consistent; closing as UNREPRODUCED stands.
 3 of 3 reproduced. Gate red on 14.15 and 14.17 was the belt's own stranded split (`line-24345a/b`),
 not either item — fixed in `08228259`.
+
+### Supervision 2026-10-10 (late) — 99.3a and 12.2 re-run by the supervisor, both reproduce
+
+- **99.3a** (no back-office row in the Settings gear, no `platform-admin` ask): `node scripts/gear-whoami.mjs`
+  at `d4fa55f1` — **PASS, 37 assertions, 0 failed**, both accounts, 1440/392/320 and 392 `?lite=1`, console
+  silent, both canaries caught. `--break=ask` (the old door put back) — **FAIL, 24 of 37**: 2 calls per open,
+  the row drawn. Receipts committed in `5f8e5c03`.
+- **12.2** (live home page no longer promises "Take a card payment"): `node scripts/live-card-claim.mjs`
+  against detailingplatform.com — **PASS**, 0 problems at every width, canary refused; `--break=old-wording`
+  — **FAIL** at every width naming the old words. Receipts in `5f8e5c03`.
+- **9.25** read, not re-run: the fix is `row` → `row wrap` on two button rows of `Plans.jsx`, and `.row.wrap`
+  exists (`theme.css:483`). Its sweep receipt is stamped `38bf73b3`, the commit BEFORE the fix `de72b29b`
+  (docs/gotchas.md 121), so it cannot be re-taken at the revision it claims.
+2 of 2 re-run reproduced.

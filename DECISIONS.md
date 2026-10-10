@@ -343,6 +343,8 @@ were made more than once.
 
 - **Andrew's corrections of 2026-10-10** — four proposed communication changes are declined; the back office starts with research and a complete plan; and the existing read-only detail preview with its explicit unlock control replaces the invented second Working door.
 
+- **A rejected look is checked against the mockup, not answered with "it exists"** — supervision 2026-10-10: Andrew's payment-timeline note was answered with a bare dot rail he had already rejected; the mockup's labeled timeline is now ROADMAP 9.12b. Same pass closed 6.1c as superseded by the new back office, on his own words.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -18972,3 +18974,11 @@ The 4.3a decision that proposed `impersonate_work` is superseded. Remaining
 server-side enforcement must preserve and protect the existing preview/unlock
 flow; it must not silently make changes possible or remove the owner's explicit
 choice.
+
+## A rejected look is checked against the mockup, not answered with "it exists"
+
+Supervision, 2026-10-10. Andrew rejected 9.12a's Money place asking for "a timeline … this date, this person" like the mockup. The next session answered that it already existed and changed nothing. Compared side by side, it did not: the approved mockup draws every renewal as a labeled pin (amount, date, name) on a tall timeline; the build draws unlabeled dots on a 54px line and puts the names in a list. **When Andrew says something should look like the mockup, open the mockup file and compare before replying.** The fix is ROADMAP 9.12b, buildable without him.
+
+**6.1c closed as superseded, not done.** It asked Andrew to publish a restore-date panel in the OLD back office. He said on 2026-10-10 that the old screens no longer matter, and the new System place already shows the same restore date from the same heartbeat row, so it publishes and is verified with 9.12a. **What would reverse it:** 9.12a being abandoned and the old back office kept.
+
+**6.1a reworded, not removed.** Looking in his password manager is a task only he can do, but it is not a decision, so the marker now reads `NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED)`, the form already used elsewhere. The literal phrase stays because the belt skips on it.
