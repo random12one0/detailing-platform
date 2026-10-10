@@ -1,6 +1,6 @@
 {
   "note": "Every surface a full sweep must measure, per width. Regenerate with `node scripts/sweep-widths.mjs <widths> --write-expected`, which ADDS what the run found and KEEPS what it did not reach. READ THE DIFF: a label that disappears from this file is a screen that stopped being checked, and only --drop-missing removes one.",
-  "written_at": "2026-10-03T03:36:19.895Z",
+  "written_at": "2026-10-10T14:39:37.414Z",
   "widths": {
     "320": [
       "book · step 1",
@@ -90,7 +90,8 @@
       "setup · step 6 of 12",
       "setup · step 7 of 12",
       "setup · step 8 of 12",
-      "Business · Visits due"
+      "Business · Visits due",
+      "gear · Emails we sent"
     ],
     "392": [
       "book · step 1",
@@ -269,7 +270,8 @@
       "setup · step 5 of 12",
       "setup · step 6 of 12",
       "setup · step 7 of 12",
-      "setup · step 8 of 12"
+      "setup · step 8 of 12",
+      "gear · Emails we sent"
     ],
     "1920": [
       "book · step 1",

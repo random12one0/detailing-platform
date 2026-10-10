@@ -21981,7 +21981,33 @@ the dashboard or back office at phone width at all.
   `tests/fixed-furniture-is-hit-tested.test.mjs` (its NO_HIT_TEST equality) and
   `TAB_NAMES` in `tests/spanish.test.mjs` § LISTS name it too.
 
-- [ ] **9.15a — Retire the dead tour code 9.15 stopped running.**
+- [x] **9.15a — Retire the dead tour code 9.15 stopped running.**
+  **DONE 2026-10-10 (attempt 2), at `a334bceb`.** Both reds from the status below are closed.
+  `node scripts/sweep-widths.mjs 320 1440` → **exit 0, clean at 320 and 1440, 171 of 171
+  surfaces, no tour section** (0 `tour ·`/`guide ·` lines), expected-count 86/89 and 85/88
+  with only the 3 time-of-day job-record screens declared unreachable, ledger 2 of 5 at both
+  widths (the 2 are the calendar aborts fixed below). `node scripts/receipt.mjs` grades
+  `sweep-widths-320-1440` **PASS**, its overflow canary caught at both widths.
+  `grep -rn Walkthrough app/src scripts tests` → nothing.
+  - **"Emails we sent":** `--write-expected 320 1440` added exactly that one label per width
+    and nothing else (diff read). Widened in both languages: `LANG_APP=es` reached it, clean,
+    at 320 and 1440.
+  - **The FAQ +6px was the row's hover nudge**, not a width fault. The question button is
+    flush until the pointer rests on it, then `translateX(6px)` takes it 6px past a stacked
+    row with no gap to spend. Fixed in `theme.css` (`.rows-stack .row-item:hover > .txt`,
+    phone widths only; the nudge still runs at 1440). **The sweep only caught it because its
+    pointer happened to stop there:** with the fix removed on purpose, a full 320 sweep printed
+    `Business · FAQ clean`. So the proof is `node scripts/faq-hover-nudge.mjs`, which hovers
+    every row: **PASS, worst 0px at 320/392, console clean at 320, 392 and 1440**. With the fix
+    commented out, it reads **+6px at 320 and 392 and exits 1**.
+  - **Filed, not this item's:** the Spanish sweep at 320 finds `Cancelar` +6px past its row
+    on two Monthly plans screens. Both runs show it, and English is clean there. It is
+    **9.25**. One Spanish 320 run also missed
+    `Clients · a job from the history`, and the re-run reached it, so it is intermittent.
+  - `user_tours`: nothing in `app/src` reads it any more (only `seed-demo.mjs` deletes from
+    it and `setup-prompts.mjs` blocks it). So **9.24's racing read no longer exists**. Dropping
+    the table is still Andrew's migration.
+
   Delete `app/src/components/Walkthrough.jsx`, `scripts/tour-runs.mjs`, the tour and
   guide walks in `scripts/sweep-widths.mjs` with their `tour · step` lines in
   `sweep-widths.expected.json`, the `.tourcard` rows in
@@ -22821,6 +22847,16 @@ the dashboard or back office at phone width at all.
   device flag alone instead of being read as "never skipped".
   *Found by the supervisor, 2026-10-09, while proving 3.1a. It is not 3.1a's;
   3.1a's own check reports it because the check reads the console honestly.*
+
+- [ ] **9.25 — In Spanish at 320, "Cancelar" pokes 6px past its row on two Monthly plans
+  screens.** `LANG_APP=es node scripts/sweep-widths.mjs 320`, 2026-10-10 at `a334bceb`, twice:
+  `Business · Monthly plans, the member form` and `… the QR` both print `past-parent +6px
+  button.btn.ghost.inline in div.row «Cancelar»`. English is clean on both, and so is Spanish at
+  1440. The buttons are `Plans.jsx:370` and `:470`. "Cancelar" is longer than "Cancel", so
+  check first whether this is the word being wider or another hover nudge (`docs/gotchas.md`,
+  and 9.15a found one that was a nudge). **Done when:** that Spanish 320 run prints both
+  screens `clean`, and English 320 still does.
+  *Found by 9.15a's Spanish widening run. Not tour code.*
 
 ## Wave 10 — Copy
 
