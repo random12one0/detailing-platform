@@ -22013,6 +22013,10 @@ the dashboard or back office at phone width at all.
     and `final-pass.mjs`'s "Skip the tour" press (it keeps its tour DETECTION, now a
     regression check, and presses Escape). `label-guard` **61 of 61**.
   - `grep -rn Walkthrough app/src scripts tests` → nothing (exit 1). Build green.
+  - In the browser: `SIZES=320x844,392x844,1440x900 node scripts/setup-prompts.mjs` —
+    **PASS, 9 of 9 targets, 74 assertions, 18 prompts pressed, console clean at all three
+    widths**; no tour card on any tab or in the gear; its planted tour card was caught
+    (detector counted 2). `node scripts/receipt.mjs` grades the receipt valid.
   - **Found and fixed on the way:** the sweep's calendar step clicked `.cal-cell` nth(1),
     which in October 2026 (starts on a Thursday) is a blank, hidden square — so 1440 had
     aborted **5 of its last 5** runs and 320 4 of 5 before this item touched anything.
