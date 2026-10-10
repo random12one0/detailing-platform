@@ -1,0 +1,52 @@
+{
+  "git_sha": "fb649d0530fb0a8c9ef51b73b4536619ca0db5ae",
+  "git_sha_started": "fb649d0530fb0a8c9ef51b73b4536619ca0db5ae",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T13:19:12.782Z",
+  "failures": [],
+  "warnings": [
+    "`none` and `old` rewrite the platform-admin response in the browser; nothing is written. `real` is un-rewritten unless --break=strip."
+  ],
+  "artifacts": [
+    "artifacts/restore-date-visible/1440x900-real.png",
+    "artifacts/restore-date-visible/1440x900-none.png",
+    "artifacts/restore-date-visible/1440x900-old.png",
+    "artifacts/restore-date-visible/392x844-real.png",
+    "artifacts/restore-date-visible/392x844-none.png",
+    "artifacts/restore-date-visible/392x844-old.png",
+    "artifacts/restore-date-visible/320x844-real.png",
+    "artifacts/restore-date-visible/320x844-none.png",
+    "artifacts/restore-date-visible/320x844-old.png"
+  ],
+  "dimensions": {
+    "expected_date": "Oct 6, 2026",
+    "ran_at": "2026-10-06T22:34:35.559+00:00",
+    "observed": [
+      "database: restore-drill ran_at 2026-10-06T22:34:35.559+00:00 → the screen must print \"Oct 6, 2026\", 55 tables",
+      "1440x900: real=\"Oct 6, 2026\" · none=\"never recorded\" · old green=false",
+      "392x844: real=\"Oct 6, 2026\" · none=\"never recorded\" · old green=false",
+      "320x844: real=\"Oct 6, 2026\" · none=\"never recorded\" · old green=false"
+    ],
+    "break": null,
+    "console_forgiven_by_name": []
+  },
+  "check_id": "restore-date-visible",
+  "started_at": "2026-10-10T13:18:38.386Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 27,
+  "min_assertions": 27,
+  "assertion_floor": "3 widths x (real 4 + none 2 + old 3) = 27; a world that never renders books its questions as asked and failed.",
+  "canary": {
+    "id": "the date detector, pointed at the render that has no row, must not find a date",
+    "observed_failure": true,
+    "findings": [
+      "caught at 3 of 3 widths"
+    ]
+  }
+}

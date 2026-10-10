@@ -655,8 +655,12 @@ console.log("\n10. the jobs that nobody watches");
   // `jobState`. This check had been red since that commit and nobody had run
   // the suite. The property is unchanged: every job the server reports gets a
   // row and a colour, and the rows are drawn whether or not anything is wrong.
+  // **RE-POINTED 2026-10-10 BY ROADMAP 6.1.** `beats` is `jobsOf(state)`: every
+  // row EXCEPT `restore-drill`, the last restore test, which is not a job and is
+  // drawn on its own line. The filter must name that one row and nothing else.
   check("10g · and the screen prints it either way",
-    /const beats = state\?\.heartbeats \?\? \[\];/.test(p)
+    /const beats = jobsOf\(state\);/.test(p)
+      && /const jobsOf = \(state\) => \(state\?\.heartbeats \?\? \[\]\)\.filter\(\(h\) => h\.job !== RESTORE_JOB\);/.test(p)
       && /beats\.map\(\(h\) =>/.test(p)
       && /st === "stopped" \? "pa-bad" : st === "quiet" \? "pa-quiet" : "pa-ok"/.test(p));
   // A job that has never reported is what a dropped table looks like too, so

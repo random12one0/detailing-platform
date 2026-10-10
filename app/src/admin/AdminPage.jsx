@@ -130,6 +130,15 @@ const JOB_LABELS = {
 };
 const jobLabel = (job) => JOB_LABELS[job] ?? job;
 
+/* ROADMAP 6.1 — THE LAST RESTORE TEST rides in `job_heartbeats`
+   (`scripts/restore-date.mjs` writes it, only from a receipt that proves the
+   copy came back) because `platform-admin` already sends that table. It is
+   NOT a job: nothing runs it on a schedule, so it stays out of the jobs list
+   and the alerts, and its age is said in words on its own line. */
+const RESTORE_JOB = "restore-drill";
+const RESTORE_OLD_DAYS = 90;
+const jobsOf = (state) => (state?.heartbeats ?? []).filter((h) => h.job !== RESTORE_JOB);
+
 /* ══ THREE STATES, NOT TWO ═════════════════════════════════════════════════
    ROADMAP 6.2a. A job that has NEVER reported once rendered exactly like a
    job that finished a minute ago, because the seed row carries a fresh
@@ -380,7 +389,7 @@ export default function AdminPage() {
      strip on Now and the dot on the System health tab, so the two can never
      disagree about whether something is broken. */
   const alerts = [];
-  for (const h of state?.heartbeats ?? []) {
+  for (const h of jobsOf(state)) {
     // `jobState`, not a second copy of the arithmetic. The strip on Now, the
     // red pip on the tab bar and the health line all ask the one function, so
     // the three can never disagree about whether something is broken — which
@@ -2090,8 +2099,10 @@ function TabPipes({ state, alerts }) {
   const usedPct = store?.total_bytes ? Math.min(100, Math.round((store.used_bytes / store.total_bytes) * 100)) : 0;
   const mailPct = mail?.cap ? Math.min(100, Math.round((mail.sent / mail.cap) * 100)) : 0;
   const overPromised = !!(store?.total_bytes && store.committed_bytes > store.total_bytes);
-  const beats = state?.heartbeats ?? [];
+  const beats = jobsOf(state);
   const quiet = beats.filter((h) => jobState(h) === "quiet").length;
+  const restore = (state?.heartbeats ?? []).find((h) => h.job === RESTORE_JOB && Date.parse(h.ran_at));
+  const restoreOld = !!restore && mins(restore.ran_at) > RESTORE_OLD_DAYS * 1440;
 
   /* THIS SENTENCE WAS THE WHOLE FAULT, AND IT IS TRUE IN EVERY CASE THAT
      MATTERS — ROADMAP 6.2a. "Everything that reports in is reporting in" is
@@ -2167,6 +2178,29 @@ function TabPipes({ state, alerts }) {
               {state?.watch?.outside
                 ? "The only thing that can notice if everything above stops at once."
                 : "This is the only thing that could notice if everything above stopped at once, and it is switched off. Nothing is watching for that."}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section className="pa-sec" style={{ "--i": 2 }}>
+        <div className="pa-h"><h2>Backups</h2></div>
+        <div className="pa-svc">
+          <div className="pa-svc-r" data-restore={restore ? (restoreOld ? "old" : "ok") : "none"}>
+            <span className="pa-svc-n">
+              <i className={`pa-dot ${restore && !restoreOld ? "pa-ok" : "pa-quiet"}`} />
+              Last restore test
+            </span>
+            <span className="pa-v" style={restore ? { fontFamily: "var(--f-num)", fontSize: 12 } : { fontSize: 12 }}>
+              {restore
+                ? new Date(restore.ran_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                : "never recorded"}
+            </span>
+            <span className="pa-svc-d">
+              {restore
+                ? `A full copy was taken out, put back as a throwaway copy and checked against the original: ${restore.detail?.tables ?? "?"} tables, ${restore.detail?.accounts ?? "?"} logins and ${restore.detail?.files ?? "?"} files, all identical. That was ${shortAgo(restore.ran_at)}.`
+                  + (restoreOld ? ` That is over three months. Run the restore test again before counting on it.` : "")
+                : "No restore test has been recorded. Until one is, nobody knows a lost database could be brought back."}
             </span>
           </div>
         </div>
