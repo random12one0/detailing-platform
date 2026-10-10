@@ -12768,7 +12768,18 @@ requested.
   Split on 2026-10-10 because this entry is 230 lines
   long and no single session was finishing it.
 
-- [ ] **4.3a — Validate and choose the support-session marking design**
+- [x] **4.3a — Validate and choose the support-session marking design**
+  **DONE 2026-10-10.** Checked by running, not reading: `node scripts/support-session-fixture.mjs` 8 of 8 at
+  `2d53244` on a throwaway user (created, deleted, no business): the token carries `session_id`, the server
+  can exchange the link itself, the link is then spent, a refresh keeps the id, the owner's next sign-in gets a
+  different one, and `auth.jwt()` reads it. `--break=strip-sid` 5 failed and `--break=reuse` 1 failed, both
+  graded by `receipt.mjs`. `node scripts/support-write-paths.mjs` at `87237ef` lists the paths from the live
+  catalog: 36 tables, 7 storage rules, 2 of 14 definer functions (`accrue_plan_visits`, `set_my_lang`), 21 edge
+  functions; `--break=blind-definer` red. Decision (Option 2; Working becomes a second back-office door logged
+  as `impersonate_work`) is `docs/design-4.3-support-session.md` § "DECISION, 2026-10-10". **New finding for
+  4.3c:** a support session can write the owner's account through the Auth API (measured), and password
+  changes need no re-check on this project, so that layer needs its own answer. No browser check: nothing a
+  person sees changed, and this item does not touch production auth, policies or functions.
   Prove the two Supabase capabilities the recorded design depends on using only a throwaway fixture, then select the viable approach for distinguishing a support session from an owner's normal session. This covers the unresolved design decision only; it does not alter production auth, policies, or functions.
   Part 1 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

@@ -339,6 +339,7 @@ were made more than once.
 - **An unmeasured gate is not a passing gate** — supervision 2026-10-09, after proving from `state.json` that `sweep-pinned` was configured as the belt's 8th gate while the cached baseline held only 7 names, so its red was announced as *"these were passing at baseline"* and blamed on three consecutive items. Why the fix requires a measured `true` rather than merely "not `false`", why a baseline that does not name every configured gate now forces a re-measure, why the no-baseline-at-all case deliberately keeps its old ruling, and why 0.11b got two of its three attempts back instead of staying parked.
 
 - **An answer to a decision card does not do hand-work** — supervision 2026-10-09, after the belt spent nine Opus attempts (~$74) on 0.11b, 0.11c and 0.11d, every criterion of which is hand-work only Andrew can do, because he had answered a decision card about each and the override cleared every blocking phrase forever. Why his answer now buys ONE dispatch to prove it, why the entry is believed over the card once a session has worked the item, why matching the prose for "not a decision" was rejected, and how the canary was aimed at the new rule rather than the override above it.
+- **A support session is marked by its own session id, and Working becomes its own door** — ROADMAP 4.3a, 2026-10-10: a throwaway fixture proved the token carries `session_id` and the server can exchange the link itself, so Option 2 is chosen; Working moves to a second back-office button logged as `impersonate_work`; and the five layers 4.3c must refuse on are listed, including the Auth API, which no database rule reaches.
 
 <!-- INDEX:END -->
 
@@ -18925,3 +18926,25 @@ watched to fail **exactly the two new assertions**, leaving the original
 override assertion green — so the canary is aimed at this rule and not at the
 one above it. `lib.mjs` was restored byte-identical and the clean run is **340
 assertions**.
+
+## A support session is marked by its own session id, and Working becomes its own door
+
+ROADMAP 4.3a, 2026-10-10. The full record, with every measured answer and the list of write
+paths, is `docs/design-4.3-support-session.md` § "DECISION, 2026-10-10".
+
+**Chosen: the server exchanges the impersonation link itself and records the new session's
+id before the browser holds anything.** Chosen because both things it depends on were
+measured on a throwaway user rather than believed: the access token carries a `session_id`
+claim that names a real session, survives a refresh and differs from the owner's next
+sign-in, and a server-side `verifyOtp` returns a session and spends the link
+(`scripts/support-session-fixture.mjs`, 8 of 8 at `2d53244`, two sabotages red). The sign-in
+hook was dropped because it fails open when it is switched off.
+
+**Working is kept, as a second back-office button logged as `impersonate_work`**, because a
+mark that the preview tab could lift is a mark a leaked token could lift. Removing Working
+instead is a product call nobody has made; if Andrew wants it gone, only that button goes.
+
+**What would reverse it:** Supabase dropping `session_id` from its tokens (the fixture's
+first question goes red), or a measurement that a marked session can still write through
+one of the four database-side layers after 4.3c builds the refusals. The fifth layer, the
+Auth API, is already known to be beyond any database rule and is 4.3c's to bound.
