@@ -1,0 +1,111 @@
+{
+  "git_sha": "b3b5a6fbd0dea4e0910d400e6b6266b39346d375",
+  "git_sha_started": "b3b5a6fbd0dea4e0910d400e6b6266b39346d375",
+  "head_moved": false,
+  "environment": "production-read-only",
+  "finished_at": "2026-10-10T16:22:12.591Z",
+  "failures": [
+    "console dashboard-1440: 1 errors or warnings: error /: Refused to display '[URL] in a frame because it set 'X-Frame-Options' to 'deny'.",
+    "console dashboard-392: 1 errors or warnings: error /: Refused to display '[URL] in a frame because it set 'X-Frame-Options' to 'deny'."
+  ],
+  "warnings": [
+    "Measures the existing demo business, not every business. Auth sign-in creates normal login sessions; application writes are blocked. The booking preview reads available-slots, consuming its normal rate-limit budget. No credentials or session state are saved."
+  ],
+  "artifacts": [
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\dashboard-1440.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\back-office-1440.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\back-office-detail-1440.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\signed-out-1440.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\dashboard-392.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\back-office-392.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\back-office-detail-392.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\9.1b\\clean\\signed-out-392.png"
+  ],
+  "dimensions": {
+    "base": "https://detailingplatform.com",
+    "project": "kguqylyzgyzfktkfnhjb",
+    "break": null,
+    "sizes": [
+      {
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "width": 392,
+        "height": 844
+      }
+    ],
+    "observed": [
+      {
+        "width": 1440,
+        "account": "demo-detail",
+        "sameBusiness": true,
+        "dashboard": {
+          "count": 9,
+          "total": 12
+        },
+        "backOffice": {
+          "count": 9,
+          "total": 12
+        },
+        "detailCount": {
+          "count": 9,
+          "total": 12
+        },
+        "bundle": "/assets/index-CT8xjH8F.js",
+        "adminBundle": "/assets/index-CT8xjH8F.js",
+        "signedOut": "sign-in required",
+        "previewResponses": [
+          {
+            "path": "/book/demo-detail",
+            "xFrameOptions": "DENY"
+          }
+        ]
+      },
+      {
+        "width": 392,
+        "account": "demo-detail",
+        "sameBusiness": true,
+        "dashboard": {
+          "count": 9,
+          "total": 12
+        },
+        "backOffice": {
+          "count": 9,
+          "total": 12
+        },
+        "detailCount": {
+          "count": 9,
+          "total": 12
+        },
+        "bundle": "/assets/index-CT8xjH8F.js",
+        "adminBundle": "/assets/index-CT8xjH8F.js",
+        "signedOut": "sign-in required",
+        "previewResponses": [
+          {
+            "path": "/book/demo-detail",
+            "xFrameOptions": "DENY"
+          }
+        ]
+      }
+    ]
+  },
+  "check_id": "live-setup-counts",
+  "started_at": "2026-10-10T16:21:54.676Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 31,
+  "min_assertions": 31,
+  "assertion_floor": "Structural: one comparison canary plus fifteen assertions at each of two widths; extra sabotage assertions are additional.",
+  "canary": {
+    "id": "different counts or missing/incorrect totals",
+    "observed_failure": true,
+    "caught_by": [
+      "matching"
+    ]
+  }
+}
