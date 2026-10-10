@@ -133,7 +133,7 @@ if (mode === "before") {
   if (args.indexOf("--") < 0 || !cmd.length) { console.error("usage: run [--mine=...] -- <command...>"); process.exit(2); }
   const started = new Date().toISOString();
   const b0 = await take();
-  const r = spawnSync(cmd[0], cmd.slice(1), { stdio: "inherit", shell: process.platform === "win32" });
+  const r = spawnSync(cmd[0], cmd.slice(1), { stdio: "inherit" });
   console.log(`\n--- command exited ${r.status} ---`);
   await after(b0, started);
 } else {
