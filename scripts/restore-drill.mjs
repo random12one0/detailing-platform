@@ -71,6 +71,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { whyNotProved, recordRestore } from "./restore-date.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const started_at = new Date().toISOString();
@@ -777,7 +778,7 @@ const canary = {
 };
 
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
-const { path: receiptPath } = writeReceipt({
+const { path: receiptPath, receipt: written } = writeReceipt({
   check_id: "restore-drill",
   started_at,
   status,
@@ -812,4 +813,13 @@ const { path: receiptPath } = writeReceipt({
 console.log(`\n${status.toUpperCase()} — ${assertions} assertions, ${failures.length} failure(s). `
   + `Receipt ${receiptPath}`);
 for (const f of failures) console.log("  · " + f);
+// ROADMAP 6.1 — THE DATE THE BACK OFFICE SHOWS. Recorded by the run itself, so
+// nobody has to remember to; refused unless this receipt proves the copy came
+// back (`scripts/restore-date.mjs` says what that means). Never a failure here:
+// the receipt above is the result, this is only where it is shown.
+const notProved = whyNotProved(written);
+if (notProved.length) console.log("restore date NOT recorded — " + notProved.join("; "));
+else await recordRestore(written, URL_, SRK)
+  .then((row) => console.log(`restore date recorded for the back office: ${row.ran_at}`))
+  .catch((e) => console.log("restore date NOT recorded — " + e.message));
 process.exit(status === "pass" ? 0 : 1);
