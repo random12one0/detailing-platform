@@ -570,7 +570,19 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
     // rule is `Short notice`, `lead_time`, within 24 hours — so a control
     // built on the nearest weekday would fire a surcharge, fail, and look
     // exactly like the fix charging people on a Tuesday.
+    //
+    // **AND THE WEEKEND TARGET SKIPS TODAY AND TOMORROW, FOR THE SAME RULE —
+    // 2026-10-10.** It took the FIRST open weekend day, which on a Saturday
+    // is today: every slot was inside the 24-hour window, and the clean run
+    // printed `day $95 → time $115` with `Short notice · +$20` named on the
+    // tap at all ten targets. That is the rush fee, not the weekend rate, and
+    // whether this check passed depended on which day of the week it was run.
+    // Any slot two days out starts more than 24 hours from now. The rush fee
+    // on a same-day weekend booking is ROADMAP 2.1d, not hidden here.
     const wantWeekend = kind === "weekend";
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const tooSoon = [[0, now.getDate()], [tomorrow.getMonth() === now.getMonth() ? 0 : 1, tomorrow.getDate()]];
     let day = null;
     for (let month = 0; month < 3 && !day; month++) {
       if (month) {
@@ -579,7 +591,7 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
       }
       await page.locator(".bk-cal .cell:not(.closed):not(.empty)").first()
         .waitFor({ state: "attached", timeout: 8000 }).catch(() => {});
-      day = await page.evaluate((wantWeekend) => {
+      day = await page.evaluate(({ wantWeekend, month, tooSoon }) => {
         const grids = document.querySelectorAll(".bk-cal");
         const cells = [...grids[grids.length - 1].querySelectorAll(".cell")];
         const hits = [];
@@ -589,10 +601,12 @@ async function target(browser, { w, h }, { pick, kind, canary, label, stem }) {
           if (isWeekend !== wantWeekend) continue;
           const c = cells[i];
           if (/closed|empty/.test(c.className) || !c.innerText.trim()) continue;
+          const n = Number(c.innerText.trim());
+          if (wantWeekend && tooSoon.some(([m, d]) => m === month && d === n)) continue;
           hits.push(c.innerText.trim());
         }
         return hits.length ? (wantWeekend ? hits[0] : hits[hits.length - 1]) : null;
-      }, wantWeekend);
+      }, { wantWeekend, month, tooSoon });
     }
     if (!day) {
       throw new Error(
