@@ -22,6 +22,11 @@
 // does not run on SIGTERM (docs/gotchas.md 90) and a run killed halfway would otherwise leave two fake jobs on Andrew's
 // Today screen. It aborts without writing if Pacific time is within two hours of midnight (the rows would land on another day).
 //
+// WHAT ELSE IT SPENDS, MEASURED WITH scripts/shared-resources-guard.mjs: Today at 1440 asks `available-slots` for its "open
+// slots" figure, so a run moves 2 each of rate_hits/available-slots, address_ip, address_day and public_ceiling (2 because the
+// dev server's StrictMode runs the effect twice). It touches no address-suggest bucket, so no Geoapify credit. Run it as
+//   node scripts/shared-resources-guard.mjs run --mine=demo/bookings,demo/booking_services,rate_hits/available-slots,rate_hits/address_ip,rate_hits/address_day,rate_hits/public_ceiling -- node scripts/late-flag-two-jobs.mjs
+//
 // THE TRUTH IT RESTS ON: ROADMAP 9.5 flags `status === "confirmed" && end_at < now` in Today.jsx and nothing else. Its own
 // write-up says the case that would catch an off-by-one — two open jobs side by side — was never on screen, and that the
 // negatives it did get (a `completed` job, a future date) may never reach the same comparison. Both rows here are `confirmed`
