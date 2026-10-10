@@ -322,7 +322,14 @@ const DECLARED = {
   // contributes 0, not -1. The parent `0.3` was open at HEAD and stays open.
   // A count of 58 is reachable by two different stories and only one of them is
   // true; the id sets say which.
-  numberedOpenItems: 58,
+  // 58 -> 59, 2026-10-10. Commit c7f39388 split 2.1 into two open release
+  // slices (+2) without moving this declared population; that is why the belt
+  // baseline was red at 60 before this pass. Andrew then directed 7.10 closed
+  // (-1); its entry contained one quoted criterion and two quoted fragments,
+  // so the accountable changes below are 36 -> 35 and 414 -> 412. These
+  // figures were re-taken before moving this declaration, not fitted to silence
+  // an unexplained red.
+  numberedOpenItems: 59,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -428,7 +435,7 @@ const DECLARED = {
   // already predicted this figure would have to move once its cause was named
   // — it had been left red on purpose, which is the right call and is why this
   // is a move with a reason rather than a fit to the output.
-  quoteCriteria: 36,
+  quoteCriteria: 35,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -802,7 +809,7 @@ const DECLARED = {
   // leg whose cause is known is moved, and the rest stays visible for whoever
   // caused it. The figure above was re-measured at 414 AFTER 0.3's blocks were
   // in the tree, not predicted from 407 + 7.
-  quoteFragments: 414,
+  quoteFragments: 412,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
