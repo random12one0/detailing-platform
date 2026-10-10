@@ -23094,7 +23094,7 @@ the dashboard or back office at phone width at all.
   Cowork's; the line numbers and the seven-against-four count are this
   session's, read at the commit carrying this entry.*
 
-- [ ] **9.22 — `bk-bar-clearance`'s ceiling question asks about five boxes and
+- [x] **9.22 — `bk-bar-clearance`'s ceiling question asks about five boxes and
   there are seven, and the two it misses are the first ones anybody types into.**
   Assigned to DP Cowork2 by the manager, 2026-10-08, off 2.15a's tick. **Filed
   with the gap measured and the fix named; not built, because the one file it
@@ -23235,6 +23235,27 @@ the dashboard or back office at phone width at all.
   cited above; (d) `unexpected_failures: []` with the three day cells expected.
   **The box can be ticked on this, and is left for the manager to tick** with
   9.7 and 9.11 in the same pass.
+
+  ***TICKED — 2026-10-10, after re-taking the proof at `0f03aaad`.*** Two
+  later commits (`93b19666`, `2aff6c9f`, the 14.37 end-of-scrolling change) had
+  edited the same script since `e44b4c7`, so the figures above were re-run
+  rather than carried over. Dev server on `:5173`, no source edited.
+  * **Clean run:** **137 of 137 targets, 955 assertions**, 3 failures, all three
+    the declared 320x844 step-5 cells (plain, long-plan, long-tenant),
+    `expected (declared hold): 3 · NOT on the declared list: 0`,
+    `gate: HELD`, canaries caught/caught. All **seven** ceiling questions `ok`
+    at `maxLength=60`.
+  * **Per-box sabotage, one box each, same 137 of 137 / 955:**
+    `--break="ceiling:businesses.name @ signup"` → that box `FAIL`, the other six
+    `ok`, `NOT on the declared list: 1`, `gate: FAIL`;
+    `--break="ceiling:businesses.name @ back office"` → the same, for that box.
+    Both landed in `receipts/bk-bar-clearance.sabotage.json`, so the honest
+    receipt was not overwritten.
+  * **One line moved:** the back office create form's `<input>` now reads at
+    `AdminPage.jsx:961`, not `:990` as written above. The matcher finds the
+    element rather than a line number, so nothing broke; the number in the table
+    is simply out of date.
+
 
 
   *Filed by DP Cowork2, 2026-10-08. No `app/src` and no `scripts/` touched. The

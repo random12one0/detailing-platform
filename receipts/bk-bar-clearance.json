@@ -1,9 +1,9 @@
 {
-  "git_sha": "cc27db130c0575e644cbab76000deb2e45766317",
-  "git_sha_started": "cc27db130c0575e644cbab76000deb2e45766317",
+  "git_sha": "0f03aaad1079362e9b37b7bf68a6a7c6ca46e5eb",
+  "git_sha_started": "0f03aaad1079362e9b37b7bf68a6a7c6ca46e5eb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T17:24:42.804Z",
+  "finished_at": "2026-10-10T19:24:47.112Z",
   "failures": [
     "320x844 step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
     "320x844 long-plan step 5: legal «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang); «» is 37px of hit area with nothing over it (box 37px + 0px overhang) … and 32 more [35 control(s), smallest 36px]",
@@ -363,7 +363,7 @@
     }
   },
   "check_id": "bk-bar-clearance",
-  "started_at": "2026-10-10T17:18:18.936Z",
+  "started_at": "2026-10-10T19:18:17.881Z",
   "status": "fail",
   "expected_targets": 137,
   "discovered_targets": 137,
