@@ -4374,6 +4374,12 @@ button.warn-box:hover { border-color: var(--fog-2); }
 @media (max-width: 700px) {
   .rows-stack .row-item { flex-wrap: wrap; }
   .rows-stack .row-item > .txt { flex: 1 0 100%; }
+  /* ROADMAP 9.15a — AND NO HOVER NUDGE ONCE THE TEXT IS THE FULL WIDTH. The
+     nudge below spends the 12px gap to the chevron; a stacked row has no gap,
+     so the question slid 6px past its own row (measured at 320, flush until
+     the pointer rested on it). A tapped row on a phone keeps `:hover`, so this
+     was not a mouse-only fault. */
+  .rows-stack .row-item:hover > .txt { transform: none; }
 
   /* AND THE PLAN FORM'S PRICE SHAPE, WHICH IS A REAL DEFECT THIS ITEM FOUND
      IN PASSING AND DID NOT CAUSE — proven by re-running the same sweep with
