@@ -18,15 +18,13 @@ THE REAL ADDRESS — 0.11ba's four criteria, asked of business-media's public ba
         0.11ba criterion 2 — the value is one the door's own mediaBase() accepts
   PASS  base-not-dev-address     media.detailingplatform.com is not an r2.dev development host
         0.11ba criterion 1 — the bound address is not the rate-limited r2.dev development host
-  UNJU  anonymous-read           UNJUDGEABLE: no object named. Re-run with --key=<business>/branding/<file>.webp once one logo has been uploaded — criterion 4 is about reading a real object, and inventing a key proves only that the host answers.
+  PASS  anonymous-read           080fa036-9ebb-4aea-9870-0c0d7c7e5e39/branding/442aac57-f896-45c1-9ceb-29dfc10a62bd.png: GET 200 image/png
         0.11ba criterion 4 — an unauthenticated request reads an object through the address
   PASS  cors-allows-our-pages    PUT with Content-Type allowed from all 3 of our origins
         0.11ba criterion 3 — CORS permits the browser upload flow
   PASS  cors-refuses-a-stranger  refused (allow-origin "(none)")
         0.11ba criterion 3 — and permits it to nobody else
 
-6 rules asked, 0 failed, 1 UNJUDGEABLE, 29 assertions.
-UNJUDGEABLE, by name — not folded into the pass:
-  anonymous-read: UNJUDGEABLE: no object named. Re-run with --key=<business>/branding/<file>.webp once one logo has been uploaded — criterion 4 is about reading a real object, and inventing a key proves only that the host answers.
+6 rules asked, 0 failed, 0 UNJUDGEABLE, 29 assertions.
 
-FAIL — 0 failed, 1 unjudgeable, 0 canaries missed.
+PASS
