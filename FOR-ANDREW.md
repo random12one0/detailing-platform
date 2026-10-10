@@ -50,6 +50,30 @@ Updated 2026-09-21.
 
 ---
 
+## DECIDE · What the back office is for (ROADMAP 9.12a, 2026-10-10)
+
+You said the back office needs starting again, and that nothing on it is safe.
+Today it has five tabs: Today, Growth, Money, Detailers and System health.
+Rebuilding them without knowing what you want it for would give you the same
+five tabs in a new coat. Fixed already: Growth no longer says "Ring them" over
+a detailer with no phone number.
+
+**Recommended layout, change anything you like:**
+
+1. **People** (replaces Today, Detailers and Growth): one list, real detailers
+   first. Each row: name, status, setup progress, last booking, money earned,
+   customers, the one thing wrong, and what to do about it. Click a row and
+   the full record opens in a panel beside the list. Anything that needs you
+   is marked in the list, so you do not open a row to find it.
+2. **Money**: what came in, what it cost to run the platform, what is left.
+   Says "not entered" instead of a profit when no costs are typed in.
+3. **System health**: emails, backups, errors. Only things that are broken or
+   unproven, with the last time each was checked.
+
+Answer in one line, for example *"9.12a: go with your layout"* or *"9.12a:
+People list yes, but keep Growth as its own tab"*. Then I build it one tab at
+a time, and you look at each before the next.
+
 ## DECIDE · When an email does not arrive (ROADMAP 3.4e, 2026-10-10)
 
 The plan for how a detailer finds out an email failed, and texts the customer

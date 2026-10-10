@@ -21612,6 +21612,21 @@ the dashboard or back office at phone width at all.
   `scripts/admin-preconditions.mjs` must also still pass, so none of 9.12's
   false lines come back. **What failing looks like:** the same five tabs,
   re-skinned.
+  **2026-10-10 — GROWTH HALF DONE, REDESIGN NOT STARTED.** Growth's advice no
+  longer says "Ring them" over a line where any name has no phone number: the
+  setup and quiet lines swap to "Contact them…" wording (`growthLines.js`,
+  `tests/growth-lines.test.mjs` § 8, 14/14 with admin-preconditions; § 8 goes red
+  with the swap removed). That is the only piece of this item that did not need
+  a design ruling. The redesign itself was not started on purpose: it is a
+  from-scratch rewrite of a 2,238-line screen whose purpose, tabs and contents
+  Andrew said are all open, and its done-when is his acceptance.
+  **NEEDS ANDREW: what the back office is FOR and which tabs it has — a
+  one-line answer unblocks the build.** Rebuilding five tabs unseen and asking
+  him to accept the result is the "re-skinned" failure this entry names. The
+  row in FOR-ANDREW.md carries a recommended layout (one People list with a
+  side panel replacing Today, Detailers and Growth; Money; System health) that
+  he can approve or change. Slice order once he answers: (1) the People list
+  and side panel, (2) Money, (3) System health, (4) retire the old tabs.
 
 - [x] **ALREADY DONE, TICKED 2026-09-20 — 9.13 Zero data is being presented as
   proof of success.** "$0 went through it this month… it is the proof the
