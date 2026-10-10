@@ -2686,6 +2686,10 @@ once, which is still more than any script here can do.
   resumes, finish the number/carrier setup; then the team can settle the exact
   confirmation and reminder words as part of the broader email-and-text design
   review recorded under ROADMAP 3.4.
+  **This one step is also all that the booking texts wait on** (ROADMAP 3.3:
+  a text when somebody books, and a "Reply C to confirm" text the day before).
+  Every session that picks 3.3 up stops at the same place: there is no number
+  to send from. Nothing for you to do until you choose to launch.
 
 ### The six emails of 2026-09-23 — moved here 2026-10-07 because it was the
 ### first thing on the page a fortnight later

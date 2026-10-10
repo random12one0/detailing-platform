@@ -10212,6 +10212,7 @@ requested.
   that does not exist. Andrew has now settled the product question: texting is
   planned. `TEXTING.md` must be updated when this resumes so its old wording
   hold cannot be mistaken for a current owner decision.
+  NEEDS ANDREW: the texting phone number. Nothing in 3.3 can send until Telnyx has a number, and the number waits on the 10DLC campaign (ROADMAP 0.14), which Andrew parked on purpose on 2026-09-22 because it starts monthly charges ($15 once, then about $3 a month with the number) and he will not pay monthly before launch. What clears it: when he is ready to launch, submit the parked campaign and buy the number; then 0.13 builds the send pipe and 3.3 builds on it. Nothing to decide now - this is NOT a wording question (0.13 forbids asking one; the wording is settled inside 3.4's email-and-text redesign). Checked 2026-10-10, attempt 2: no texting code anywhere in `supabase/functions` or `app/src` (grep for telnyx: 0 files), and `TEXTING.md` already carries the 2026-10-09 ruling (commit a07a2dce), so the line above is done. Attempt 1 asked Andrew to pick the texts' wording; that contradicted 0.13 and was never written down, and is not repeated here.
 
 - [ ] **3.4 — Review every email end to end. Nobody has ever done this.**
   **ANDREW DECIDED 2026-10-09: DEFER AND REDESIGN THE COMMUNICATION SYSTEM.**
