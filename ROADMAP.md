@@ -3577,6 +3577,13 @@ the wrong service, and never book a job we cannot reach.
   order 5/5 and stripped 5/5, `--break=paint` caught 20/20. Graded PASS by
   `receipt.mjs`. **The first clean run that morning failed 10 — a different
   rule, not this one:** see 2.1c and the new 2.1d. Everything below is history.
+  **SUPERVISOR REPRODUCED 2026-10-10 at `ce35cc62`, by hand in a browser, not by
+  the script:** `localhost:5173/book/demo-detail`, Express Wash, drop-off.
+  1440: Saturday Oct 17 with no time → `Weekend rate · +$30` and **$95**,
+  Continue `aria-disabled`; Wednesday Oct 14 → **$65**, no rate line. 392:
+  Saturday → **$95**, the rate line hit-tests as itself at y 551–570 above the
+  bar, then 3:00 PM picked → still **$95**. Console 0 errors, 1 warning (the
+  manifest icon, unrelated). Shot: `.manager-shots/sup-2026-10-10-2.1-392-saturday.png`.
 
   **ANDREW DECIDED 2026-10-09: publish this before launch, now.** The code is
   still not live and publishing remains Andrew's manual action; this records
