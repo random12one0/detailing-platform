@@ -21819,42 +21819,6 @@ the dashboard or back office at phone width at all.
   it looks meaty; it fails the first criterion before size is even asked.**
 
 - [ ] **9.12a — Back office redesigned from scratch, tab by tab.** Split out of
-  **BELT PARKED after 3 attempts, 2026-10-10 22:21:41.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-10T22-21-37-981Z-9.12a.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
-  9.12 on 2026-10-10 so the redesign stays numbered after 9.12's four false
-  lines were fixed and ticked. **Andrew, 2026-10-09:** *"the back office needs
-  some serious … makeover and thought through, basically kind of starting from
-  scratch again on just design, implementation, … what should be on each tab.
-  So nothing really is going to stay."* Do not keep the current tabs or
-  layout just because they exist, and do not treat 0.4's build-start button
-  as approved. The audit's shape is the starting brief (A1 P3-01..P3-04): a
-  list rather than the three-column card wall (detailer, status, setup, last
-  booking, earned, customers, main warning, action), detail in a side panel,
-  and every issue shown once with who it is, what it costs and what to do
-  next. Also bring Growth's group advice into line with 9.12's rule: no
-  "Ring them" over an account with no phone number.
-  **Done when:** Andrew has looked at the rebuilt back office and accepted it.
-  `scripts/admin-preconditions.mjs` must also still pass, so none of 9.12's
-  false lines come back. **What failing looks like:** the same five tabs,
-  re-skinned.
-  **2026-10-10 — GROWTH HALF DONE, REDESIGN NOT STARTED.** Growth's advice no
-  longer says "Ring them" over a line where any name has no phone number: the
-  setup and quiet lines swap to "Contact them…" wording (`growthLines.js`,
-  `tests/growth-lines.test.mjs` § 8, 14/14 with admin-preconditions; § 8 goes red
-  with the swap removed). That is the only piece of this item that did not need
-  a design ruling. The redesign itself was not started on purpose: it is a
-  from-scratch rewrite of a 2,238-line screen whose purpose, tabs and contents
-  Andrew said are all open, and its done-when is his acceptance.
-  **ANDREW DIRECTED 2026-10-10: plan before implementation.** Research how small
-  SaaS operators manage a business, then write a complete back-office plan before
-  changing a screen. The plan must begin from his workflows — overview, detailer
-  management, money, operational warnings and direct actions — and may replace the
-  five-tab layout entirely. It must compare tabs with other navigation shapes, name
-  what each view lets the sole owner do, and cite the research behind the choices.
-  **The first session writes that plan and stops; no UI rebuild starts until it
-  exists.** This is delegated design work, not another decision request.
 
   **ANDREW, 2026-10-10:** **ANDREW DECIDED — talked through in the control room (Think it through), 2026-10-10:**
   DECIDED: The back office will be rebuilt from scratch as four places, Today, Detailers, Money and System, reached from a side rail on a laptop and a bottom dock on a phone. Andrew approved the look in `back-office-mockup.html` (and its notes in `back-office-handoff.md`): dark, with a moving background and lots of charts, rings and animation, and very few plain boxes. The motion should be a little calmer than the first mockup, and none of the mockup's explanation lines ("All 14 in one list…", "Tap a red number…", the page subtitles and captions) carry over. "Customers" here means the detailers, not their customers.
