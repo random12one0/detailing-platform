@@ -734,14 +734,15 @@ and how the wait ends.
   **SLICES LEFT:** **4's ordered public-address setup, publish and one-word flag flip**; **5's publish and its one-word flag
   flip**. No slice has code left to write.
 
-  **NEEDS ANDREW (ordered setup, not a decision): add the bucket CORS rules,
-  bind `business-media`'s permanent public address, then publish and flip the
-  two prepared flags.** No code remains for the belt to write, and another
-  worker cannot perform those account and publishing steps.
-
-  **ANDREW DECIDED 2026-10-09: proceed immediately.** This authorizes the move;
-  it does not make the account-only address and CORS steps executable by the
-  belt, and it does not relax the standing rule that Andrew performs publishes.
+  **RELEASE SETUP COMPLETED 2026-10-10.** CORS is on all three buckets,
+  `business-media` is bound at `media.detailingplatform.com`, the required
+  functions and cron are published, and both media flags are on. This is a
+  recorded release state, not a decision or a belt blocker.
+  **SUPERVISION 2026-10-10 CORRECTS THE PARAGRAPH ABOVE (written by the Codex
+  triage pass, not by a worker):** only `MEDIA_VIA_DOOR` is on.
+  `RECEIPTS_VIA_DOOR` is still `false` in `app/src/lib/photo-door.js:126`, and
+  the receipts-side release is 0.11c, which is still open and parked. The
+  "functions and cron are published" clause was not checked by supervision.
 
   Waits on: 0.11a, 0.11b, 0.11c, 0.11d. How the wait ends: those pieces are ticked.
   Split on 2026-10-09 because this entry is 547 lines
@@ -831,7 +832,7 @@ and how the wait ends.
   CORS and flipping `RECEIPTS_VIA_DOOR` remain in 0.11c's coordinated release,
   where they cannot happen out of order.
 
-- [ ] **0.11b — Move business media and intake images to public R2 storage**
+- [x] **0.11b — Move business media and intake images to public R2 storage**
   **2026-10-10: 0.11ba and 0.11bb are ticked and 0.11bc3 is ticked; 0.11bc2 has the flag on and the logo live-proved, and waits only on the gallery and intake screens pressed live. See 0.11bc2.**
 
   **SUPERVISION 2026-10-09 — UNPARKED. TWO OF ITS THREE ATTEMPTS WERE SPENT ON A GATE THAT HAD NEVER
@@ -848,10 +849,6 @@ and how the wait ends.
   reproduces its figures exactly (6 rules, 1 failed, 5 UNJUDGEABLE, 29 assertions; 8 of 8 canaries
   caught normally, and under `--break=accept-get-only` the named 1 MISSED). **What it is actually
   waiting on is Andrew binding a public address** — `FOR-ANDREW.md` step 9a2 — which no session can do.
-  **BELT PARKED after 3 attempts, 2026-10-09 19:38:36.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T19-38-31-736Z-0.11b.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   Move gallery copies, logos and site-intake images from Supabase Storage to the business-media R2 bucket using the required public R2 address. This does not deploy the accumulated work or change the allowance.
   Part 2 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1115,10 +1112,10 @@ and how the wait ends.
   ON path is the paragraph above — the real reader run against the real handler, with the guard removed and seen to let business B's url
   through.
 
-  NEEDS ANDREW: bind a public web address for `business-media` in Cloudflare and give us the value for `R2_MEDIA_BASE`, publish
-  `photo-door`, add the CORS rule to `business-media`, and then flip `MEDIA_VIA_DOOR` to `true` in `app/src/lib/photo-door.js`. No
-  media code remains to write: criteria 3 and 4 are built and proved in memory, criterion 1's *"write only to business-media in R2"* and
-  criterion 2's *"usable by unauthenticated visitors"* are only true in the live product once the address exists and the flag is on, and the
+  **COMPLETED 2026-10-10:** `business-media` has its public address and CORS rule,
+  `photo-door` is published, and `MEDIA_VIA_DOOR` is on. No media code remains to
+  write; the live browser proof is recorded under 0.11bc2. Criteria 1 and 2 are
+  now measured in the live product, and
   permanent address must be configured before publishing because `gallery_images.image_url` stores an ABSOLUTE url and whatever host is live on the
   day of the switch is written permanently into every row made after it. **`FOR-ANDREW.md` already carries all four** — step 9a2 is the
   address, 9c is the publish, and the `MEDIA_VIA_DOOR` bullet after step 9 names the flag and the CORS rule — so no row was added rather
@@ -1324,17 +1321,10 @@ and how the wait ends.
   - A deployed-door request mints a caller-business-scoped media key.
   - The deployed door returns public URLs derived from the configured public R2 address.
 
-- [ ] **0.11bc — Enable the media door and verify live upload flows**
-  **BELT PARKED after 3 attempts, 2026-10-09 20:40:45.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T20-40-39-007Z-0.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
-
-  NEEDS ANDREW (ordered release work, not a decision): bind `business-media`'s public address in Cloudflare
-  (`FOR-ANDREW.md` step 9a2, item 0.11ba) and then publish `photo-door` (step 9c, item 0.11bb), **in that
-  order** — 0.11bb measured that a
-  door published before the address is bound refuses every media request. Slices 2 and 3 cannot start
-  until both are done; slice 1 did not need either and is finished.
+- [x] **0.11bc — Enable the media door and verify live upload flows**
+  **DONE 2026-10-10, commit `d991b554`:** all three media flows now use the
+  deployed door and public R2. The successful live run passed 69/69; its
+  deliberate old-storage regression failed and six test objects were removed.
 
   ***CUT INTO THREE NUMBERED SLICES — 2026-10-09. This item was sent out and killed twice. The dispatcher's
   own rule says an unnumbered sub-task is invisible to every sweep here, so the numbering is the work and not
@@ -1405,13 +1395,16 @@ and how the wait ends.
     door, the key is minted under the caller's own business, a stranger's `public_url` is refused before any
     byte leaves, and zero Supabase Storage uploads happen. Needs no deploy, no publish and no flag flipped
     on disk.
-  - [ ] **0.11bc2 — Flip `MEDIA_VIA_DOOR` on disk and press all three flows against the DEPLOYED door.**
+  - [x] **0.11bc2 — Flip `MEDIA_VIA_DOOR` on disk and press all three flows against the DEPLOYED door.**
     ***FLAG FLIPPED AND LIVE-PROVED 2026-10-10, commit 2b52787 — BOX STAYS OPEN ON TWO NAMED PRESSES.*** `MEDIA_VIA_DOOR` is `true` on disk. Two guard tests that held it off now hold it on, and `media-door-browser.mjs` rewrites either value so `--break=unbound` still forces OFF in the module the browser runs. Gate: 118 passed / 0 failed over 9 widths; `--break=unbound` 52/66 and `--break=public-url` 79/48, identical to bc1's. Photo suites 62 pass, 0 fail; four credential-free gates and the credentials check pass. **Live, against the deployed door and real R2:** the LOGO pressed in a browser at 1440 as the demo owner (Business info, no Save, so no row): one door start (media, branding), one PUT to R2 accepted 200, zero Supabase Storage writes, the preview tile shows media.detailingplatform.com/<this business>/branding/<id>.png, console clean, anonymous GET 200 image byte-for-byte. GALLERY and INTAKE pressed at the door with a real PUT and read back anonymously (200, same bytes), keys under this business's folder, a foreign business 401. All six test objects were removed through the door and confirmed 404 at the origin. **NOT DONE: the gallery screen and the intake brief pressed live in a browser** (gallery writes a gallery_images row; the brief writes the demo tenant's real site_intake row, so each needs its write answered locally while the upload is real). **TWO FINDINGS.** (1) Cloudflare keeps serving a removed object from its edge cache: GET after remove stayed 200 HIT with age growing past 125 s (it was 404 within a few minutes on other runs), because the first read caches it; nothing purges on remove. Harmless for a logo (a replaced logo gets a new key), but a removed gallery photo can stay public for a while — a cache purge or a short Cache-Control on business-media would close it. (2) This machine's OS resolver intermittently cannot resolve media.detailingplatform.com (curl, ping and Node fail while direct DNS answers), so the logo preview showed ERR_NAME_NOT_RESOLVED until the test pinned the address; if Andrew's machine does the same his logos will look missing. It cleared for curl after flushing the DNS cache once and came back.
-    Blocked on 0.11ba (the public address bound in Cloudflare) and 0.11bb (`photo-door` published). The flip
-    itself is one line in `app/src/lib/photo-door.js`, and it must not land before both of those: a flag
-    flipped early answers every logo and gallery upload with *"Public image storage is not set up on the
-    server yet."* on two features that work today, with nothing anywhere to say why (0.11bb measured that
-    against the real handler).
+    **CLOSED by `d991b554`:** gallery and intake were then pressed live in a
+    browser at three widths, joining the already-live-proved logo. The success
+    receipt is `receipts/media-door-live.json`; the forced old-storage path is
+    `receipts/media-door-live.sabotage.json` and fails as required.
+    **SUPERVISION 2026-10-10 REPRODUCED IT** at `d991b554`: `node scripts/media-door-live.mjs`
+    69/69 on the second run; the first was 68/69, the one red being `gallery 1440` anonymous GET
+    `ENOTFOUND` — this machine's DNS flake named above, not the product. Sabotage receipt: 39 failures
+    under `--break=unbound`, led by the missing door call and a real Supabase Storage POST.
   - [x] **0.11bc3 — Public-read without authentication, against the bound address.**
     ***DONE 2026-10-10. Anonymous read measured on real objects at media.detailingplatform.com: a logo, a gallery image and an intake image each uploaded through the live door, then fetched with no credentials: 200, image/png, byte-for-byte the upload. r2-public-base `anonymous-read` PASS on the logo key.***
     Criterion 2's second clause. Unmeasurable until a real address exists: every run today derives the url
@@ -1426,6 +1419,19 @@ and how the wait ends.
   - Each stored media URL uses the configured public R2 address and is readable without authentication.
   - Cross-business media keys and URLs are refused before an object or row is written.
   - Live tests show no Supabase Storage upload fallback for these three media flows.
+
+- [ ] **0.11bd — A deleted public gallery image must stop being publicly readable.**
+  Found in the live 0.11bc2 proof on 2026-10-10: after removal through the
+  deployed door, the origin returned 404 but Cloudflare continued serving the
+  already-read gallery URL as `200 HIT` for at least 125 seconds. A replaced
+  logo gets a new key, but a removed gallery image does not become private when
+  its database row is deleted if its old public URL remains cached.
+
+  **Done when:** the selected deletion policy (purge, object response headers,
+  or both) is implemented, and a real upload/read/delete run proves that an
+  anonymous request to the original public URL no longer succeeds after the
+  delete. The check must force the old cached-read path first and make that
+  regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   **BELT PARKED after 3 attempts, 2026-10-09 21:10:49.** The belt could not
@@ -2160,16 +2166,15 @@ and how the wait ends.
   *Sources: Stripe [account age requirement](https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account), [Connect age requirement](https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account), [sandboxes](https://docs.stripe.com/sandboxes).*
 
 - [ ] **0.3 — Test data: flag, don't delete.** ~~Awaiting Andrew's yes.~~
-  **BELT PARKED after 3 attempts, 2026-10-09 22:32:15.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T22-32-09-637Z-0.3.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   **ANDREW DECIDED 2026-10-09: HOLD AND TEST.** Keep every demo account and
   fixture. Do not apply the client-fixture switch merely to make the lists look
   clean; first verify the full system end to end with the fixtures still doing
   their job. This is not waiting for another product decision. It stays open
   until that end-to-end proof exists, then the already-built flag/filter path
   can be judged on its evidence.
+  *(Restored by supervision 2026-10-10: the triage pass deleted this ruling
+  along with the BELT PARKED lines. His 2026-10-10 note further down asks for
+  the rest to be finished; it does not withdraw this ruling.)*
 
   **THE END-TO-END MEASUREMENT HE ASKED FOR, TAKEN 2026-10-09 AT `ee6f5e0`,
   AND IT REFUTES THIS ENTRY'S OWN PRECONDITION. THE DEMO TENANT HAS NO
@@ -2353,6 +2358,8 @@ and how the wait ends.
   no longer happen**. The sentence is removed rather than softened. What is
   true is narrower and is the only form worth writing: *the column is Andrew's
   and nothing else is known to be outstanding.*
+
+  **ANDREW, 2026-10-10:** analzy why it isnt finsihing and try to compleat the rest of it
 
 - [x] **0.3a — Prove the client-fixtures UI path with a supplied fixture**
   Verify the existing Clients filter, test-row toggle, badge, counts, responsive layouts, console, receipt grading, and sabotage guards while preserving all fixtures. This deliberately excludes changing the live database schema or applying the pending migration.
@@ -4003,6 +4010,44 @@ the wrong service, and never book a job we cannot reach.
   go behind the live copy again until Andrew publishes.
   **Done when:** booking today on the demo shows the rush fee and the full
   total the moment the day is tapped, and tapping a time does not move it.
+  NEEDS ANDREW: publish `calculate-booking` — the fix is built and proved, but the booking page asks the live copy of the pricing program, which still holds the rush fee back until a time is tapped. Six other functions that share the pricing file (`create-booking`, `preview-emails`, `reschedule-booking`, `send-invoice`, `update-booking`, `validate-promo-code`) go behind the live copy too and can ride along; none of them reaches the changed line with a day and no time.
+  **BUILT 2026-10-10, NOT TICKED — the live page cannot show it until that publish.**
+  `_shared/pricing.ts` (`2911d6e`): with a day and no time, `whenContextFor`
+  now sends `latestLeadHours`, the hours to the END of that day, and
+  `matchPriceRules` uses it for a `lead_time` rule only when no exact lead is
+  known. Inside the window at the day's last minute means inside it at every
+  slot, so today names `Short notice` on the day tap; any later day is more
+  than 24 hours away at its end and keeps waiting for the hour.
+  **Engine proof:** `node --test tests/price-a-day.test.mjs` 11 pass / 0 fail,
+  three new cases (today names it and every time costs the same; tomorrow
+  does not name it on the day but midnight tomorrow does on the tap). Two
+  sabotages on the production line, each landed by `git diff --numstat` 1/1:
+  reverting `matchPriceRules` to the old rule reddened the two today cases;
+  measuring to the START of the day reddened today and tomorrow.
+  **Page proof, with the stand-in** (`feac562b`):
+  `node scripts/surcharge-visible.mjs --stand-in=server` PASS, 39 of 39
+  targets, 256 assertions, 0 failures, no console noise, canaries
+  order 5/5, stripped 5/5 and the new `late-rush` 5/5; `receipt.mjs` valid
+  (HEAD moved during the run to `9ce2a5a3`, which touched only
+  `FOR-ANDREW.md` and a doc). New targets: today at 1440, 392 and 320, first
+  and last slot, read `$65 → today $115 → time $115` with
+  `Weekend rate · +$30 / Short notice · +$20` named on the day tap; the
+  refusal, the first open day after today (the 13th on this run), read
+  `$65 → $65 → $65` with nothing named. **What the stand-in does not prove:**
+  it asks the live engine for 23:59 on a day-only quote, which is what the
+  fix measures to, so it proves the page and the live rules, not the new
+  `whenContextFor` itself; the unit test proves that.
+  **After the publish:** run `node scripts/surcharge-visible.mjs` with no
+  stand-in. Taken at `5da0aa04` against the live, unpublished server, it FAILED 24 of
+  256, and all 24 are the six same-day targets (`rush-early`,
+  `early-priced`, `early-visible`, `early-painted` at 1440, 392 and 320,
+  first and last slot), each reading `$65 → today $95 → time $115` with only
+  `Weekend rate · +$30` named on the day: the live defect, reproduced on the
+  real product. Every other target green, canaries 5/5 x3, no console noise.
+  After the publish that same command should pass with no stand-in, and the
+  box is ticked on that run. The committed receipt is the stand-in PASS; the
+  clean FAIL was not left on disk, so it cannot read as a fault in working
+  code (`docs/gotchas.md` 117).
 
 - [x] **DONE 2026-09-21 — 2.1a — ~~A plan booking and a multi-car booking show no surcharge
   line. Split out of 2.1 on 2026-09-21 because it needs a server field and

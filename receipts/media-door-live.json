@@ -1,9 +1,9 @@
 {
-  "git_sha": "6b1340541812ab6aaa0fc838672238b56049de2d",
-  "git_sha_started": "6b1340541812ab6aaa0fc838672238b56049de2d",
+  "git_sha": "d991b554a4d8f441d7471aa99611e19fb3aec955",
+  "git_sha_started": "d991b554a4d8f441d7471aa99611e19fb3aec955",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T09:54:02.538Z",
+  "finished_at": "2026-10-10T10:05:37.309Z",
   "failures": [],
   "warnings": [
     "The browser-pressed REFUSAL (a stranger's public_url) cannot be produced by a real door, so it stays media-door-browser.mjs's. Here the refusal is asked of the deployed door directly: another business's folder 401, another business's key 404.",
@@ -34,7 +34,7 @@
     "objects_put": 6
   },
   "check_id": "media-door-live",
-  "started_at": "2026-10-10T09:53:23.301Z",
+  "started_at": "2026-10-10T10:05:00.271Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
