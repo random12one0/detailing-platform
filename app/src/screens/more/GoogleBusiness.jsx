@@ -62,7 +62,7 @@ export default function GoogleBusiness() {
   return (
     <div className="card">
       <div className="section-title" style={{ marginTop: 0 }}>{t("Google Business profile")}</div>
-      <p className="quiet" style={{ marginTop: 0 }}>
+      <p className="quiet" style={{ marginTop: 0, marginBottom: "var(--sp-3)" }}>
         {t("Connect the Google account that manages your business listing. You can disconnect it whenever you like.")}
       </p>
 
