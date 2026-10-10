@@ -16567,8 +16567,11 @@ rather than wording went to Andrew.
   and a strip that leaves its row by design, then fixed). Ticked by DP Cowork
   from the manager's report, not re-measured here.
 
-- [ ] **7.10 — Example site defects. Re-measured 2026-09-20; two fixed, two
+- [x] **7.10 — Example site defects. Re-measured 2026-09-20; two fixed, two
   still open, one is a disagreement.**
+  **ARCHIVED BY ANDREW 2026-10-10.** Andrew directed that this item be marked
+  done and archived. The documented residual thumbnail refresh and phone-wordmark
+  observation are not being represented as open work under this item.
   **This entry described a page and a set of faults that had partly stopped
   existing**, which is the same trap 7.12 carried: an item describing a
   vanished screen sends the next person looking for a defect that was fixed,
