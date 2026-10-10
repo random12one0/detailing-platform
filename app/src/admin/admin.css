@@ -645,8 +645,3 @@ html:has(.pa) {
 .pa-fire { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bad) 40%, transparent); }
 .pa-fire .pa-ev { color: var(--bad); }
 
-/* WHAT TO LOOK AT, IN ORDER. Numbered because the order IS the content — he
-   asked to be told what to check and in what sequence. */
-.pa-steps { margin: 0; padding: 0 0 0 20px; display: grid; gap: 9px; }
-.pa-steps li { font-size: 13.5px; line-height: 1.5; color: var(--paper); max-width: 66ch; }
-.pa-steps li::marker { color: var(--fog); font-variant-numeric: tabular-nums; }

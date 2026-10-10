@@ -81,3 +81,69 @@ export function needsALook(rows) {
   // AND no bookings is not two rows below one with neither.
   return out.sort((a, b) => b.why.length - a.why.length).slice(0, MAX_ROWS);
 }
+
+// ── EVERY LINE BELOW ONLY SAYS WHAT ITS PRECONDITION ALLOWS — ROADMAP 9.12 ──
+// The audit's four complaints were all one fault: a line printed whether or
+// not the thing it claims was true. "Ring them" on an account with no phone
+// number, "Money at risk" on an account paying nothing, "Booking · last one
+// yesterday" on an account with no customers. They live here rather than in
+// the screen so `tests/admin-preconditions.test.mjs` can run them.
+
+// The phone rides inside `setup_inputs` because the list payload builds that
+// object for `setupProgress`; it is the only copy the row carries.
+export const phoneOf = (r) => String(r?.setup_inputs?.business?.contact_phone ?? "").trim() || null;
+
+// [observation, advice with a phone, advice with only an email]. The advice is
+// chosen by what we can actually reach them on, never written for a phone call
+// and printed over an account with no number.
+const WHAT_TO_DO = [
+  [/payment failed/,
+    "Their card was declined. Chase it before the month ends or the account lapses.",
+    "Their card was declined. Chase it before the month ends or the account lapses."],
+  [/canceling/,
+    "They have asked to stop at the end of the term. Ring them and ask what went wrong.",
+    "They have asked to stop at the end of the term. Email them and ask what went wrong."],
+  [/never taken a booking/,
+    "They signed up and never got going. Ring them and walk them through setup.",
+    "They signed up and never got going. Email them and offer to walk them through setup."],
+  [/no booking in/,
+    "They were taking work and stopped. Ring them before they decide to cancel.",
+    "They were taking work and stopped. Email them before they decide to cancel."],
+  [/setup stopped at/,
+    "They stalled part-way through setup. Finish it with them on the phone.",
+    "They stalled part-way through setup. Email them and offer to finish it together."],
+  [/no website/,
+    "Nothing for their customers to find. Offer to build it.",
+    "Nothing for their customers to find. Offer to build it."],
+];
+export function actionFor(why = [], { phone = null, email = null } = {}) {
+  for (const [re, ring, mail] of WHAT_TO_DO) {
+    if (!why.some((w) => re.test(w))) continue;
+    if (phone) return ring;
+    if (email) return mail;
+    return "There is no phone number or email on file for them, so nothing here can reach them.";
+  }
+  return null;
+}
+
+// The Detailers list's one-line summary for a row with nothing wrong. `last`
+// counts cancelled bookings and `bookings_total` does not, so "No bookings ·
+// last one yesterday" was printable; and a booking with no customer behind it
+// (fixtures write them) printed "Booking" over "0 customers".
+export function activityLine(r, ago) {
+  const n = r?.bookings_total ?? 0;
+  if (n === 0) return "No bookings yet";
+  if ((r?.customers ?? 0) === 0) return `${n} ${n === 1 ? "booking" : "bookings"}, no customers on file`;
+  return `Booking · last one ${ago(r.last_booking_at).toLowerCase()}`;
+}
+
+// "Money at risk" is money: an account paying nothing has none to lose, and
+// the old section said so in its own footnote. Those go to "Not paying yet".
+export const splitAtRisk = (items) => ({
+  atRisk: items.filter((r) => r.cents > 0),
+  notPaying: items.filter((r) => !(r.cents > 0)),
+});
+
+// Real detailers before fixtures, order otherwise kept. A sort, not a filter:
+// the list never silently hides a row.
+export const realFirst = (rows) => [...rows].sort((a, b) => Number(!!a.is_demo) - Number(!!b.is_demo));

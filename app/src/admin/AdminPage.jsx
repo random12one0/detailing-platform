@@ -57,7 +57,9 @@ import { supabase } from "../lib/supabase.js";
 import { dateLong, localDate, money } from "../lib/format.js";
 import { mb } from "../lib/photo-rules.js";
 import { setupProgress } from "../lib/setup.js";
-import { needsALook, reasonsFor, QUIET_DAYS } from "../lib/attention.js";
+import {
+  needsALook, reasonsFor, QUIET_DAYS, actionFor, activityLine, phoneOf, realFirst, splitAtRisk,
+} from "../lib/attention.js";
 import { growthLines } from "../lib/growthLines.js";
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
@@ -515,44 +517,13 @@ export default function AdminPage() {
    him it is useless. So every empty state says what it WILL say, which is how
    an empty screen still explains the job. */
 
-/* The action for each reason `attention.js` can give. The reason is the
-   OBSERVATION and lives in `lib/attention.js`; the sentence telling him what to
-   do about it is this screen's, because it is advice and not a measurement. */
-const WHAT_TO_DO = [
-  [/payment failed/, "Their card was declined. Chase it before the month ends or the account lapses."],
-  [/canceling/, "They have asked to stop at the end of the term. Ring them and ask what went wrong."],
-  [/never taken a booking/, "They signed up and never got going. Ring them and walk them through setup."],
-  [/no booking in/, "They were taking work and stopped. Ring them before they decide to cancel."],
-  [/setup stopped at/, "They stalled part-way through setup. Finish it with them on the phone."],
-  [/no website/, "Nothing for their customers to find. Offer to build it."],
-];
-const actionFor = (why = []) => {
-  for (const [re, say] of WHAT_TO_DO) if (why.some((w) => re.test(w))) return say;
-  return null;
-};
+/* The advice under each reason is chosen by `actionFor` in `lib/attention.js`,
+   from what we can actually reach the detailer on — ROADMAP 9.12. It used to
+   live here and said "Ring them" over accounts with no phone number.
 
-/* WHAT TO LOOK AT, IN ORDER — the rhythm he asked for. Deliberately not a
-   calendar: a weekday checklist is read once and ignored, and it is wrong the
-   moment something is actually on fire. This reorders itself around what is
-   true right now, so it is a queue rather than a ritual. */
-function weeklyRhythm({ fires, needCall, waiting, live }) {
-  const out = [];
-  if (fires) out.push("Something is broken — fix that before anything else on this page.");
-  if (waiting) out.push("A customer is waiting on a detailer to answer them. That is somebody's booking.");
-  if (needCall) {
-    out.push(needCall === 1
-      ? "Ring the detailer below. A phone call at this size is the whole job."
-      : `Ring the ${needCall} detailers below. A phone call at this size is the whole job.`);
-  }
-  if (!live) {
-    out.push("No real detailers yet, so nothing here is about the business.");
-    out.push("When the first one signs up, this page starts telling you who is stuck and who has gone quiet.");
-  } else {
-    out.push("Check Growth for anybody stuck between signing up and taking their first booking.");
-    out.push("Check Money for anything past due.");
-  }
-  return out;
-}
+   "WHAT TO LOOK AT, IN ORDER" WAS CUT, 9.12 — it repeated every card above it
+   (the fire, the waiting customer, "ring the detailer below") a second time in
+   a second wide card. Every issue now appears once, in its own card. */
 
 function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
   /* NO PLATFORM-WIDE CHART, AND THIS IS THE SECOND TIME THAT SENTENCE HAS BEEN
@@ -654,7 +625,8 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
                      every row here rendered a name beside an empty string. Found
                      by reading the code while rebuilding, not by any check. */
                   const why = a.why ?? [];
-                  const todo = actionFor(why);
+                  const phone = phoneOf(a);
+                  const todo = actionFor(why, { phone, email: a.owner_email });
                   return (
                     <div className="pa-do" key={a.id}>
                       <div className="pa-do-t">
@@ -662,6 +634,7 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
                         <span className="pa-ev">{why.join(" · ")}</span>
                       </div>
                       {todo && <p className="pa-act">{todo}</p>}
+                      {phone && <a className="pa-btn" href={`tel:${phone}`}>{phone}</a>}
                       {a.owner_email && (
                         <a className="pa-btn" href={`mailto:${a.owner_email}`}>{a.owner_email}</a>
                       )}
@@ -671,17 +644,6 @@ function TabNow({ state, totals, rows, alerts, attention, onOpen }) {
               </div>
             </div>
           )}
-      </section>
-
-      {/* 4 · THE RHYTHM. What to look at and in what order, reordered around
-             what is actually true rather than printed as a fixed checklist. */}
-      <section className="pa-sec" style={{ "--i": 4 }}>
-        <div className="pa-h"><h2>What to look at, in order</h2></div>
-        <div className="pa-card">
-          <ol className="pa-steps">
-            {weeklyRhythm({ fires, needCall, waiting, live: live.length }).map((s) => <li key={s}>{s}</li>)}
-          </ol>
-        </div>
       </section>
 
       {/* 5 · THE NUMBERS, LAST AND FEW. Kept because he asked to see money, cut
@@ -1060,7 +1022,7 @@ function TabWho({ rows, totals, reload }) {
   const shown = useMemo(() => {
     const f = FILTERS.find((x) => x[0] === filter)?.[2] ?? (() => true);
     const q = find.trim().toLowerCase();
-    return rows.filter((r) => {
+    return realFirst(rows).filter((r) => {
       if (!f(r)) return false;
       if (!q) return true;
       return [r.name, r.slug, r.owner_email, r.contact_email].some((v) => String(v ?? "").toLowerCase().includes(q));
@@ -1119,7 +1081,7 @@ function TabWho({ rows, totals, reload }) {
                    which. */
                 const line = why.length
                   ? why.join(" · ")
-                  : `${r.bookings_total ?? 0 ? "Booking" : "No bookings"} · last one ${ago(r.last_booking_at).toLowerCase()}`;
+                  : activityLine(r, ago);
                 return (
                   <button key={r.id} className="pa-biz" type="button" onClick={() => setOpen(r)}>
                     <span className="pa-biz-n">
@@ -1728,7 +1690,7 @@ function TabMoney({ state, totals, rows, reload }) {
      EACH ROW IS AN OBSERVATION WITH A CAUSE, never a forecast. "Their card was
      declined" is checkable; "at risk of churning" is a guess he would act on by
      ringing a real person. */
-  const atRisk = useMemo(() => {
+  const billingRows = useMemo(() => {
     const out = [];
     for (const r of rows) {
       if (r.is_demo) continue;
@@ -1739,6 +1701,9 @@ function TabMoney({ state, totals, rows, reload }) {
     }
     return out.sort((a, b) => b.cents - a.cents);
   }, [rows]);
+  // ROADMAP 9.12: an account paying nothing has no money at risk, so it is
+  // listed under "Not paying yet" instead.
+  const { atRisk, notPaying } = splitAtRisk(billingRows);
   const riskCents = atRisk.reduce((a, r) => a + r.cents, 0);
 
   const p = state?.prices;
@@ -1809,9 +1774,11 @@ function TabMoney({ state, totals, rows, reload }) {
           ? (
             <div className="pa-card">
               <p className="pa-none">
-                {totals.businesses
-                  ? "Every detailer is paying and nothing has failed."
-                  : "Nobody is paying yet, so nothing to lose — fills in on a failed card, a notice, or a free account."}
+                {notPaying.length
+                  ? "Nobody who pays has a problem, so nothing is about to stop."
+                  : totals.businesses
+                    ? "Every detailer is paying and nothing has failed."
+                    : "Nobody is paying yet, so nothing to lose — fills in on a failed card or a notice to cancel."}
               </p>
             </div>
           )
@@ -1822,9 +1789,7 @@ function TabMoney({ state, totals, rows, reload }) {
                   <div className="pa-do" key={r.id}>
                     <div className="pa-do-t">
                       <strong>{r.name}</strong>
-                      <span className="pa-ev">
-                        {r.label}{r.cents ? ` · ${money(r.cents / 100)} a month` : " · paying nothing"}
-                      </span>
+                      <span className="pa-ev">{r.label} · {money(r.cents / 100)} a month</span>
                     </div>
                     {r.detail && <p className="pa-act">{r.detail}</p>}
                     {r.email && <a className="pa-btn" href={`mailto:${r.email}`}>{r.email}</a>}
@@ -1832,13 +1797,27 @@ function TabMoney({ state, totals, rows, reload }) {
                 ))}
               </div>
               <p className="pa-sub pa-act">
-                {riskCents
-                  ? `${money(riskCents / 100)} a month sits on these ${plural(atRisk.length, "account", "accounts")} — a failed card retries itself, everything else needs a call.`
-                  : "None of these is paying anything today, so nothing stops if they leave. They are here because a subscription that never started is a sale that was never finished."}
+                {money(riskCents / 100)} a month sits on these {plural(atRisk.length, "account", "accounts")} — a failed card retries itself, everything else needs a call.
               </p>
             </div>
           )}
       </section>
+
+      {notPaying.length > 0 && (
+        <section className="pa-sec" style={{ "--i": 2 }}>
+          <div className="pa-h"><h2>Not paying yet</h2></div>
+          <div className="pa-card">
+            <div className="pa-rows">
+              {notPaying.map((r) => (
+                <Row key={r.id} k={r.name} v={r.label} />
+              ))}
+            </div>
+            <p className="pa-sub pa-act">
+              A subscription that never started. Nothing stops if they leave.
+            </p>
+          </div>
+        </section>
+      )}
 
       <PlatformNet />
 
