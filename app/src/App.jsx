@@ -483,7 +483,8 @@ export default function App() {
                   // that is a SETTINGS SCREEN rather than a tab. Today's
                   // past-due box is what sends it, and a box that names the
                   // fix has to be able to reach it.
-                  if (dest === "billing") { setGearScreen("billing"); setGear(true); return; }
+                  // ROADMAP 3.4f S3 — Today's "alerts are not arriving" box, same shape.
+                  if (dest === "billing" || dest === "notifications") { setGearScreen(dest); setGear(true); return; }
                   // ROADMAP 8.9 — and the same shape one destination over. The
                   // money screen's "where they came from" block is a REPORT;
                   // the links it reports on are added and edited on Business.

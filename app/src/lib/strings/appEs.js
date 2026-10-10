@@ -493,6 +493,13 @@ export const appEs = {
     "El último correo sobre este trabajo no salió. Fue de nuestro lado, no de su dirección. Mándale un mensaje si importa antes del trabajo.",
   "{to} marked the last email about this job as spam. Text them instead, and do not email them again.":
     "{to} marcó como spam el último correo sobre este trabajo. Mándale un mensaje, y no le vuelvas a escribir por correo.",
+  // ROADMAP 3.4f S3 — the detailer's own alert address is not receiving.
+  "Booking alerts to {to} are not arriving. Fix the address in Notifications.":
+    "Los avisos de reservas a {to} no están llegando. Corrige la dirección en Avisos.",
+  "Booking alerts to {to} are not arriving. Change it on Business info, or add a working address below.":
+    "Los avisos de reservas a {to} no están llegando. Cámbiala en Datos del negocio, o agrega abajo una dirección que funcione.",
+  "Booking alerts to {to} are not arriving. Remove it below and add the right one.":
+    "Los avisos de reservas a {to} no están llegando. Quítala abajo y agrega la correcta.",
   "This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
     "Esto ya estaba pagado. Devuelve {amount} desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.":

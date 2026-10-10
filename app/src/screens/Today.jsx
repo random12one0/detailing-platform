@@ -37,7 +37,7 @@
 // thing lit" a matter of FORM rather than colour.
 
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { ChevronRight, ListChecks, Printer, TriangleAlert, WifiOff } from "lucide-react";
+import { ChevronRight, ListChecks, MailWarning, Printer, TriangleAlert, WifiOff } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
@@ -66,12 +66,16 @@ import RequestCard from "../components/RequestCard.jsx";
 // once at the root: at the root it works only while nothing is memoised.
 import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import { useOwnAlertBounces } from "../hooks/useOwnAlertBounces.js";
 
 export default function Today({ refreshKey = 0, onGo, onSetup }) {
   useAppLocale();
   const { business, firstName, can, subscription, siteOrigin, settings, branding, role, reload: reloadBusiness } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
+  // ROADMAP 3.4f S3 — their own alerts are not arriving. Only for somebody
+  // who can fix it: Notifications is behind the same permission.
+  const ownBounces = useOwnAlertBounces();
 
   // ---------------------------------------------------------------------------
   // "YOUR PAGE ISN'T FULLY SET UP" — Andrew's ask, 2026-09-14: Today is the
@@ -642,6 +646,22 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           </span>
           <span className="actions">
             <button onClick={() => onGo?.("billing")}>{t("Fix this")}</button>
+          </span>
+        </div>
+      )}
+
+      {/* ROADMAP 3.4f S3 — the channel that would tell them is the broken one,
+          so it is said here. `.warn-box`, not `.error-box`: nothing is lost
+          (new requests still land on this screen), they just stop being told
+          by email. */}
+      {can("settings") && ownBounces.length > 0 && (
+        <div className="warn-box" role="status" data-own-alerts={ownBounces.join(" ")}>
+          <MailWarning strokeWidth={2} aria-hidden="true" />
+          <span style={{ flex: "1 1 0", minWidth: 0, overflowWrap: "anywhere" }}>
+            {t("Booking alerts to {to} are not arriving. Fix the address in Notifications.", { to: ownBounces.join(", ") })}
+          </span>
+          <span className="actions">
+            <button onClick={() => onGo?.("notifications")}>{t("Fix this")}</button>
           </span>
         </div>
       )}

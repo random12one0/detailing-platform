@@ -39,3 +39,30 @@ export function jobMailWarning(row, { bookingDate, today }) {
       return null;
   }
 }
+
+// ROADMAP 3.4f, signal S3 — the detailer's OWN alerts are not arriving (F-own).
+//
+// WHO GETS ALERTS: the same list `ownerRecipients` in
+// `supabase/functions/_shared/email.ts` builds — the "Also send to" list when
+// it has anything in it, otherwise the business's main address. Read from the
+// SAVED settings, never the Notifications screen's unsaved edits, because the
+// server sends to what is saved.
+export function alertAddresses(contactEmail, notificationEmails) {
+  const list = (notificationEmails ?? []).map((e) => String(e).trim()).filter(Boolean);
+  if (list.length) return [...new Set(list)];
+  return contactEmail ? [contactEmail] : [];
+}
+
+// `row` is the newest `email_sends` row to ONE alert address. True when that
+// address is the problem: it bounced (F1) or cannot receive email at all (F6).
+// A later accepted email is the newest row, so the warning clears itself.
+//
+// NOT `failed` (F2/F3), on purpose: the row cannot tell "the provider refused
+// this address" from "the provider was down that minute" (S1 above says why),
+// and for an alert address the cost of guessing is "your address is broken"
+// drawn over a good one, for as long as the business stays quiet. The usual F2
+// — a malformed address — cannot be added on the Notifications screen.
+export function ownAlertBroken(row) {
+  if (!row) return false;
+  return row.status === "bounced" || (row.status === "skipped" && row.detail === UNDELIVERABLE);
+}

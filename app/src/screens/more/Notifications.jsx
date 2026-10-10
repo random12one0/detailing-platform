@@ -10,7 +10,7 @@
 // cancellation window it interacts with, rather than in two places.
 
 import { useEffect, useState } from "react";
-import { Mail, X } from "lucide-react";
+import { Mail, MailWarning, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
@@ -34,6 +34,7 @@ const hourWords = (h) => {
 // translated text: once at the root works only until something is memoised.
 import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
+import { useOwnAlertBounces } from "../../hooks/useOwnAlertBounces.js";
 
 const CUSTOMER_EMAILS = [
   ["email_customer_confirmation", "Booking confirmation",
@@ -77,6 +78,8 @@ export default function Notifications() {
     return f;
   });
   const [recipients, setRecipients] = useState(settings?.notification_emails ?? []);
+  // ROADMAP 3.4f S3 — saved alert addresses whose newest email did not arrive.
+  const ownBounces = useOwnAlertBounces();
   // The detailer's own paragraph per email kind. Roadmap 2.18.
   const [messages, setMessages] = useState(() => ({ ...(settings?.email_messages ?? {}) }));
   const [openKind, setOpenKind] = useState(null);
@@ -275,6 +278,20 @@ export default function Notifications() {
       </Group>
 
       <Group title={t("Where your alerts go")}>
+        {/* ROADMAP 3.4f S3. The remedy differs: the main address is edited on
+            Business info, an extra is removed here. While "Also send to" has
+            anything in it, alerts go to that list instead of the main address
+            (`ownerRecipients`), so adding a working one here also fixes it. */}
+        {ownBounces.map((to) => (
+          <div className="warn-box" role="status" data-own-alerts={to} key={to}>
+            <MailWarning strokeWidth={2} aria-hidden="true" />
+            <span style={{ flex: "1 1 0", minWidth: 0, overflowWrap: "anywhere" }}>
+              {to === primary && !(settings?.notification_emails ?? []).length
+                ? t("Booking alerts to {to} are not arriving. Change it on Business info, or add a working address below.", { to })
+                : t("Booking alerts to {to} are not arriving. Remove it below and add the right one.", { to })}
+            </span>
+          </div>
+        ))}
         <Setting label={t("Main address")} help={t("From your business info. Always receives.")}>
           <span className="quiet">{primary || t("Not set")}</span>
         </Setting>
