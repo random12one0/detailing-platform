@@ -1,9 +1,9 @@
 {
-  "git_sha": "288fb314fe7c90d9134a05dd5bf3992b19d5fdcb",
-  "git_sha_started": "288fb314fe7c90d9134a05dd5bf3992b19d5fdcb",
+  "git_sha": "2282b84bec1590c5f66692736a6cd2c9d8fdcf88",
+  "git_sha_started": "2282b84bec1590c5f66692736a6cd2c9d8fdcf88",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T05:38:50.914Z",
+  "finished_at": "2026-10-10T15:43:11.506Z",
   "failures": [],
   "warnings": [
     "Behavioural, not a grep: which input feeds which step is discovered by REMOVING it and watching the count, so renaming a field cannot blind this check.",
@@ -48,7 +48,7 @@
     "sabotage": null
   },
   "check_id": "setup-inputs-contract",
-  "started_at": "2026-09-24T05:38:50.738Z",
+  "started_at": "2026-10-10T15:43:11.454Z",
   "status": "pass",
   "expected_targets": 17,
   "discovered_targets": 17,

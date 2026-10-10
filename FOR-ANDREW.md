@@ -50,6 +50,10 @@ Updated 2026-09-21.
 
 ---
 
+## DECIDE · Let a session compare the setup count on the live site (ROADMAP 9.1b, 2026-10-10)
+
+**Say "go" or "no".** The last open piece of the setup-count fix is looking at one account in the detailer dashboard and in the back office and checking both say the same "N of 12". That needs a session to sign in as the demo detailer and the demo admin on the live site. It only reads; it changes nothing. **Recommendation: go.** No password gets pasted anywhere. If you say no, 9.1 stays open. (The repo side is proven: 12 of 12 inputs are sent; what the live site runs is unconfirmed since three later changes to the back-office function are not published.)
+
 ## DECIDE · What the back office is for (ROADMAP 9.12a, 2026-10-10)
 
 You said the back office needs starting again, and that nothing on it is safe.

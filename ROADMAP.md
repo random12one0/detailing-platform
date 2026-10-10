@@ -19830,6 +19830,9 @@ the dashboard or back office at phone width at all.
   - The comparison is recorded with sufficient account-safe evidence to support ticking 9.1.
   - Any mismatch remains documented as an unresolved regression rather than marking the item complete.
 
+  **NEEDS ANDREW: the live comparison needs two signed-in sessions (a detailer's dashboard and the platform admin's back office) against the live site, which means loading the demo credentials; this repo's rule is that a credentialed run needs the manager's say-so and no session may handle a password, so none was made.** Say "go" and a session runs it as the demo owner and demo admin, read-only.
+  **Measured 2026-10-10, credential-free:** `node scripts/setup-inputs-contract.mjs` → PASS, 17/17 targets, 18 assertions, canary caught — the checkout's `platform-admin` sends 12 of 12 steps' inputs. `receipts/deployed-inventory.json` (finished 08:10 Pacific, 2026-10-10) lists `platform-admin` as MATCHING the checkout of that moment, which already held the 9.1 widening (committed 2026-09-23) — so the live function very likely carries it. **But three commits touched `platform-admin` after that receipt (83a0a740, 8bd5d24b, 3e002b1d — 4.3b/4.3c, "not published"), so the live copy is no longer this checkout**; re-run `deployed-inventory` before relying on it. 9.1a is still unticked. **Not measured: any displayed count on either screen. Nothing ticked.**
+
 - [x] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
   nobody has used it". One account appears in setup-incomplete, cannot-book,
