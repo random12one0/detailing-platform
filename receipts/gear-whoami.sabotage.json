@@ -1,9 +1,9 @@
 {
-  "git_sha": "2953eaf403aeeea1da8a996f4a9af40b490cd42c",
-  "git_sha_started": "2953eaf403aeeea1da8a996f4a9af40b490cd42c",
+  "git_sha": "d3a07f81f345eb7e47c9607b923a97564463b7e0",
+  "git_sha_started": "d3a07f81f345eb7e47c9607b923a97564463b7e0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T21:12:18.758Z",
+  "finished_at": "2026-10-10T22:25:35.366Z",
   "failures": [
     "staff/1440/gear-asks-nothing: platform-admin calls per open: 2, 2, 2",
     "staff/1440/no-back-office-row: row keyed \"platform\" or \"The website business\" shown: true",
@@ -60,7 +60,7 @@
     "break": "ask"
   },
   "check_id": "gear-whoami",
-  "started_at": "2026-10-10T21:11:24.313Z",
+  "started_at": "2026-10-10T22:24:40.169Z",
   "status": "fail",
   "expected_targets": 8,
   "discovered_targets": 8,

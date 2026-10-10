@@ -1,9 +1,9 @@
 {
-  "git_sha": "936f93233f3d9db95e57ed9ed7db72d55347845f",
-  "git_sha_started": "936f93233f3d9db95e57ed9ed7db72d55347845f",
+  "git_sha": "d3a07f81f345eb7e47c9607b923a97564463b7e0",
+  "git_sha_started": "d3a07f81f345eb7e47c9607b923a97564463b7e0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T19:41:52.787Z",
+  "finished_at": "2026-10-10T22:26:04.318Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -43,7 +43,7 @@
     }
   },
   "check_id": "live-card-claim",
-  "started_at": "2026-10-10T19:41:38.665Z",
+  "started_at": "2026-10-10T22:25:50.264Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,
