@@ -558,3 +558,18 @@
 /* ?lite=1 and reduced motion: everything renders where it was going. */
 .lite .bo *, .lite .bo *::before, .lite .bo *::after { animation: none !important; transition: none !important; }
 .lite .bo-place .ch { transform: none; opacity: 1; }
+
+/* ═══ FORMS: sign up a detailer, owner invite (ROADMAP 9.12a step 6) ═══ */
+.bo-form { display: grid; gap: 14px; margin-top: 22px; }
+.bo-account .bo-form { margin-top: 18px; }
+.bo-form label { display: grid; gap: 6px; font-size: 12px; color: var(--fog); }
+.bo-form input, .bo-made input, .bo-sent input { height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: rgba(242,241,236,.06); box-shadow: inset 0 0 0 1px var(--line-2); color: var(--bone); font: inherit; font-size: 15px; min-width: 0; width: 100%; }
+.bo-form input:focus, .bo-made input:focus, .bo-sent input:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--ac); }
+.bo-form .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.bo-form .bo-err { margin: 0; }
+.bo-account > .bo-dim { margin-bottom: 12px; }
+.bo-account > .bo-err { margin: 12px 0 0; }
+.bo-made, .bo-sent { display: grid; gap: 10px; margin-top: 20px; padding: 16px 18px; border-radius: 16px; background: linear-gradient(120deg, rgba(56,224,139,.12), rgba(56,224,139,.03)); box-shadow: inset 0 0 0 1px rgba(56,224,139,.28); animation: boPlaceIn .45s var(--e-out) backwards; }
+.bo-sent { margin-top: 4px; }
+.bo-made p, .bo-sent p { font-size: 13px; color: var(--bone-2); overflow-wrap: anywhere; }
+.bo-pname + .bo-form { margin-top: 28px; }

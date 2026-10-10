@@ -14,6 +14,7 @@ import {
 import { STEPS } from "../../../lib/setup.js";
 import { money } from "../../../lib/format.js";
 import { Arrow, Av, Ring, Spark, healthColor } from "../ui.jsx";
+import SignUp from "../SignUp.jsx";
 
 const TONE = { good: "var(--ac)", bad: "var(--bad)", warn: "var(--bo-warn)", cool: "var(--bo-cool)", mute: "var(--fog-2)" };
 
@@ -153,6 +154,7 @@ export default function Detailers({ ctx }) {
   const [filter, setFilter] = useState(ctx.preset?.filter ?? "all");
   const [mode, setMode] = useState("list");
   const [sort, setSort] = useState("need");
+  const [signing, setSigning] = useState(false);
   const f = FILTERS.find((x) => x[0] === filter)?.[2] ?? (() => true);
   const list = useMemo(() => sortRows(ctx.rows.filter(f), sort), [ctx.rows, filter, sort]); // eslint-disable-line react-hooks/exhaustive-deps
   const counts = useMemo(() => Object.fromEntries(FILTERS.map(([k, , fn]) => [k, ctx.rows.filter(fn).length])), [ctx.rows]);
@@ -181,7 +183,9 @@ export default function Detailers({ ctx }) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><circle cx="8" cy="15" r="4" /><circle cx="16" cy="8" r="3" /><circle cx="18" cy="17" r="2" /></svg>Bubbles
           </button>
         </div>
+        <button type="button" className="bo-btn go bo-signup-open" onClick={() => setSigning(true)}>Sign up a detailer</button>
       </div>
+      {signing && <SignUp ctx={ctx} onClose={() => setSigning(false)} />}
 
       {mode === "list" ? (
         <div className="bo-list">

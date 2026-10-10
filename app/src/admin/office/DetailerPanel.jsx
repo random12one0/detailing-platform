@@ -49,6 +49,71 @@ function historyOf(row, detail) {
   return out.filter((x) => x.at).sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 8);
 }
 
+// THEIR ACCOUNT: the two jobs that lived only on the old screen (ROADMAP 9.12a step 6).
+// The export is HANDED OVER, NEVER DRAWN: it is every customer and price of one
+// business, and `/terms` promises it on request. The invite link is shown only
+// when the email failed; on screen every time, it ends up in a screenshot.
+function Account({ row }) {
+  const [busy, setBusy] = useState("");
+  const [err, setErr] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [to, setTo] = useState(row.owner_email ?? "");
+  const [invite, setInvite] = useState(null);
+
+  const download = async () => {
+    setBusy("export"); setErr("");
+    try {
+      const out = await call({ action: "export", business_id: row.id });
+      const url = URL.createObjectURL(new Blob([JSON.stringify(out.export, null, 2)], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = `${row.slug}-${localDate(new Date().toISOString())}.json`; a.click();
+      URL.revokeObjectURL(url);   // or the whole export stays in memory all day
+    } catch (e) { setErr(e.message); }
+    setBusy("");
+  };
+  const send = async () => {
+    setBusy("invite"); setErr(""); setInvite(null);
+    try { setInvite((await call({ action: "resend_invite", business_id: row.id, email: to.trim(), role: "owner" })).invite); }
+    catch (e) { setErr(e.message); }
+    setBusy("");
+  };
+
+  return (
+    <section className="bo-psec bo-account">
+      <div className="bo-label">Their account</div>
+      {!row.owner_email && <p className="bo-dim">Nobody has accepted the owner invite yet.</p>}
+      <div className="bo-contact">
+        <button type="button" className="bo-btn ghost" disabled={busy === "export"} onClick={download}>
+          {busy === "export" ? "Gathering it up…" : "Download everything they own"}
+        </button>
+        <button type="button" className="bo-btn ghost" aria-expanded={inviting} onClick={() => { setInviting((v) => !v); setInvite(null); }}>
+          {inviting ? "Never mind" : "Send an owner invite"}
+        </button>
+      </div>
+      {inviting && (
+        <div className="bo-form">
+          <label><span>Their email address</span><input type="email" autoComplete="off" value={to} onChange={(e) => setTo(e.target.value)} /></label>
+          <p className="bo-dim">Makes them owner of {row.name} and cancels any invite already out to that address.</p>
+          <div className="acts">
+            <button type="button" className="bo-btn go" disabled={!to.includes("@") || busy === "invite"} onClick={send}>
+              {busy === "invite" ? "Sending…" : "Send it"}
+            </button>
+          </div>
+          {invite && (
+            <div className="bo-sent" role="status">
+              {invite.emailed
+                ? <p>Sent to {invite.email}. The link works until {dateLong(localDate(invite.expires_at))}.</p>
+                : <><p>The email did not go out. Send them this link yourself:</p>
+                  <input readOnly value={invite.link} aria-label="Invite link" onFocus={(e) => e.target.select()} /></>}
+            </div>
+          )}
+        </div>
+      )}
+      {err && <p className="bo-err" role="alert">{err}</p>}
+    </section>
+  );
+}
+
 export default function DetailerPanel({ row, detail, ctx }) {
   const [leaving, close] = useLeaving(ctx.close);
   const [busy, setBusy] = useState("");
@@ -199,6 +264,8 @@ export default function DetailerPanel({ row, detail, ctx }) {
               ? <div className="bo-phone">{c.phone}</div>
               : <div className="bo-nophone"><i />No phone number on file, so there is no Text or Call button.</div>}
           </section>
+
+          <Account key={row.id} row={row} />
 
           <section className="bo-psec">
             <div className="bo-label">What happened</div>
