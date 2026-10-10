@@ -1784,6 +1784,10 @@ still knows them.
   node scripts/deployed-inventory.mjs   # names every function not yet live
   ```
 
+  **UPDATE 2026-10-10: all seven ARE live now** (published early on the 10th
+  along with a batch of other functions). Checked by reading the running copies:
+  every one sends the job-page link and none sends the old one. **So the only
+  thing left is the tap below** — nothing to publish for this row.
   **Nothing to decide.** Once they are live, tap the next job notification you
   get; it should open that job. If it does, tell a session and it ticks
   ROADMAP 14.34.

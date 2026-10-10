@@ -28173,6 +28173,11 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   release; include them in the next ordinary publish and perform the real-phone
   notification tap then.
 
+  ***OVERTAKEN 2026-10-10 — THE SEVEN ARE LIVE.*** All seven were published at 07:53–07:54 UTC on
+  2026-10-10 inside a wider publish (not by this item), and each running copy carries the `/job/` link
+  and no `/admin/job/` link — measured, see the 2026-10-10 block at the end of this entry. The hold
+  ruling above has nothing left to hold; only the real-phone tap remains, and it is Andrew's.
+
   **MEASURED, in four steps, because each one alone would be a guess:**
   1. **12 call sites** emit `url: \`/admin/job/${...}\`` — `accept-quote`,
      `cancel-booking`, `create-booking`, `reschedule-booking`, `send-invoice`,
@@ -28280,6 +28285,27 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   today is the 404 above. **Already on Andrew's list, not added twice:** `FOR-ANDREW.md` names the seven (`accept-quote`, `cancel-booking`,
   `create-booking`, `reschedule-booking`, `send-invoice`, `send-owner-reminders`, `update-booking`), carries them inside Part 2 steps 2 and 3, and
   already ends with *"a real notification is tapped on a subscribed phone and opens the job (14.34)"*. Nothing was deployed.
+
+  ***RE-MEASURED 2026-10-10 at `8b0226c8`. THE SERVER HALF IS NOW LIVE; ONLY THE TAP IS LEFT.***
+  **The running copies, read rather than inferred.** A GET-only read of each deployed bundle from the Management API on
+  `kguqylyzgyzfktkfnhjb` (ref checked before the first call), counting the two strings: `accept-quote` v55, `cancel-booking` v72,
+  `create-booking` v86, `reschedule-booking` v73, `send-invoice` v73, `send-owner-reminders` v81, `update-booking` v63 — **all 7 of 7**
+  updated 2026-10-10 07:53–07:54 UTC, **0 `/admin/job/` in every one**, and the template `` `/job/${`` present (2 each, 12 in
+  `send-owner-reminders`, i.e. 6 sites × 2 copies in the bundle). Positive control: `cancel-booking`'s bundle shows
+  `` url: `/job/${booking.id}` `` verbatim, so the counter was reading real source, not an empty body. **`deployed-inventory`'s
+  receipt (19:05 UTC, `de72b29`) still lists all seven as *differing*** — that tool compares every comment line, so it reports
+  other unpublished edits in those files; it is not evidence about the link. Published by an earlier session, not by this one;
+  this item deployed nothing.
+  **The check still holds.** `node --test tests/push-urls-are-routes.test.mjs`: **6 pass, 0 fail**, 12 push calls against 24 routes
+  (23 on 2026-10-07 — the route table grew; the floor is on calls, not routes). **Broken on purpose:** a scratch copy with `isServed`
+  answering `true` to everything (`git diff --no-index --numstat` 1/1, so the break landed) went **4 pass / 2 fail**, the two
+  canaries; scratch file deleted. `grep -rn '/admin/job' supabase/ app/src app/public` is still the one comment in
+  `AdminPage.jsx`, now at line 1989.
+  **Why it cannot be ticked here:** the done-when is a real push tapped on a subscribed device. Headless Chromium has no push
+  service, and firing a real one means making a booking change on the live demo tenant — the tap itself is the proof, and it is
+  on Andrew's phone. Box left `[ ]`.
+
+  NEEDS ANDREW: tap the next job notification on your subscribed phone and say whether it opened that job's page (time, money, buttons) or a "page does not exist" screen — the fixed links have been live since 2026-10-10 and that one tap is the only thing left before this can be ticked.
 
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
 
