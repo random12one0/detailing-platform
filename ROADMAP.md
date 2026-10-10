@@ -22108,6 +22108,15 @@ the dashboard or back office at phone width at all.
   only 85 of 171 expected targets. The two named `Cancelar` overflows may be real (9.25), but
   this receipt cannot prove the claimed Spanish 320/1440 clean pass. Deep verification must
   inspect the `LANG_APP` handoff and reproduce both widths before relying on that part of 9.15a.
+  **SUPERVISOR 2026-10-10, at `51412207` — tick KEPT, the Spanish sentence is NOT evidence.**
+  The done criterion is English and it reproduces: `sweep-widths-320-1440.json` PASS, 171 of 171.
+  In the browser at 1440 and 392 (demo owner): 0 tour elements on Today and 0 after pressing
+  every tab, Today's notice names "Vehicle types" and pressing it opens Getting started at
+  "STEP 2 OF 12 · VEHICLE TYPES", console clean at both (`.manager-shots/sup-prompt-*.png`).
+  The Spanish run is the gap: `-es` alone at 320 reached 86 of 86, but `-es` at 320+1440 reached
+  **85 of 171**, so the Spanish 1440 pass measured roughly nothing, and "reached it, clean, at
+  320 and 1440" and 9.25's "so is Spanish at 1440" rest on it. Filed as **9.26**. The receipt's
+  `locales: ["en"]` was a hard-coded label in `sweep-widths.mjs`; fixed in the same commit.
 
   Delete `app/src/components/Walkthrough.jsx`, `scripts/tour-runs.mjs`, the tour and
   guide walks in `scripts/sweep-widths.mjs` with their `tour · step` lines in
@@ -22984,6 +22993,20 @@ the dashboard or back office at phone width at all.
   and 9.15a found one that was a nudge). **Done when:** that Spanish 320 run prints both
   screens `clean`, and English 320 still does.
   *Found by 9.15a's Spanish widening run. Not tour code.*
+  **SUPERVISOR 2026-10-10:** "so is Spanish at 1440" is unproven — see 9.26.
+
+- [ ] **9.26 — The Spanish sweep at 1440 measures almost nothing and its receipt does not say so.**
+  `receipts/sweep-widths-320-es.json` (Spanish, 320 only) reached **86 of 86** targets;
+  `receipts/sweep-widths-320-1440-es.json` (Spanish, 320 then 1440, same commit `a334bceb`)
+  reached **85 of 171** and is `fail` only because of 9.25's two lines. So the 1440 half reached
+  about zero surfaces, and the reds it printed were not about that. Re-run
+  `LANG_APP=es node scripts/sweep-widths.mjs 1440` on its own first: if it reaches 85, the fault
+  is the second width in a Spanish run (state left behind by the 320 pass, or the language
+  switch); if it reaches ~0, it is Spanish at 1440. **Done when:** a Spanish 320+1440 run reports
+  171 of 171 (or names every unreached surface), **and** the receipt marks a run whose discovered
+  count is short of expected as a failure in its own words rather than leaving it to a reader.
+  Its receipt said `locales: ["en"]` on a Spanish run until 2026-10-10 (fixed by the supervisor).
+  *Found by the supervisor, 2026-10-10, re-reading 9.15a's evidence after triage flagged it.*
 
 ## Wave 10 — Copy
 

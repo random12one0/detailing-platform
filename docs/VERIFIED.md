@@ -3460,3 +3460,16 @@ Chrome at 392 and 1440 has one "unlimited", and it is "services, bookings and
 staff logins" — no photo claim. Console 0 errors at both; 1 warning, the
 manifest icon, which is not this item (`FOUND.md`, 2026-10-10). 3 of 3
 reproduced.
+
+## Supervisor, 2026-10-10 (fourth pass) — 9.15/9.15a, 9.17, 8.10d at `51412207`
+
+**9.15/9.15a:** demo owner at 1440 and 392 in headless Chromium: 0 `.tourblock/.tourcard/.spotlight`
+on Today and 0 after pressing every tab; Today's notice names "Vehicle types" and pressing it opens
+Getting started at "STEP 2 OF 12 · VEHICLE TYPES"; console 0 errors/warnings at both
+(`.manager-shots/sup-prompt-1440.png`, `-392.png`, not committed). English sweep receipt PASS 171 of
+171. **Spanish half not reproduced:** the 320+1440 Spanish receipt reached 85 of 171 — ROADMAP 9.26.
+**9.17:** three gear opens per page → `platform-admin` request count 1, 1, 1 at both 1440 and 392,
+console 0 errors (owner is an admin, so 200; the non-admin 404 path not re-run).
+**8.10d:** live `kguqylyzgyzfktkfnhjb`, read-only: `has_table_privilege('authenticated','public.bookings','UPDATE')`,
+the same for `anon`, and column UPDATE on `weather` and `admin_notes` — all four `false`.
+3 of 3 reproduced (9.15a on its English criterion only).

@@ -3429,7 +3429,7 @@ ${JUDGED.length - JUDGED_FINAL.length} further measurement(s) from `
     })(),
     dimensions: {
       viewports: SIZES,
-      locales: [LITE ? "en?lite=1" : "en"],
+      locales: [`${LANG_ES ? "es" : "en"}${LITE ? "?lite=1" : ""}`],
       identities: ["demo-detail-owner"],
     },
     artifacts: [`${ART}/index.html`],
