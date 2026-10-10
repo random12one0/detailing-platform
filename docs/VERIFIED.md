@@ -3487,3 +3487,20 @@ warning already in FOUND.md.
 36 of the 9.1 commit's comment lines (no `--strings`, hence 36 not the entry's 39) and 0 of the 42
 unpublished 4.3b/4.3c lines; canary read absent. `--break=swap` → FAIL, 42 of 78 missing.
 2 of 2 reproduced.
+
+## Supervisor, 2026-10-10 (sixth pass) — 3.4f, 9.19, 9.20 at `806e4274`
+
+Instrument: `belt/shots/sup-1010b/look.mjs` (outside the repo), demo owner, headless Chromium,
+**nothing stubbed and nothing written** — the real `email_sends` rows, read through the real query.
+**3.4f:** Today at 1440, 392 and 320 shows *"Booking alerts to demo@example.com are not arriving. Fix
+the address in Notifications."*; pressing Fix this opens Notifications, which shows *"… Change it on
+Business info, or add a working address below."* True on this tenant (reserved domain, F6 rows).
+Console 0 errors/warnings at all three. The clearing case (a later delivered row) was not re-run.
+**9.19:** calendar scrolled to its end: at 392 the last text line ends at 686px and the scrim begins
+at 708px (136px tall); at 320x640, 482 against 504. 22px clear of the fade at both; screenshot read
+by eye, last card fully legible. 1440 has no scrim, as designed.
+**9.20:** sabotage by hand — removed the `delErr` throw and the still-stored refusal from
+`removeReceipt` (`git diff --numstat` 1/2, gotchas 102) → `photo-door-receipt-wire` red, *"Missing
+expected rejection: a delete that fails did not refuse"*; restored (`git status` empty) → 10 pass, 0
+fail. The browser half (`scripts/receipt-viewer.mjs`, writes to the demo tenant) was not re-run.
+3 of 3 reproduced.
