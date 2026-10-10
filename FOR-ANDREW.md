@@ -52,6 +52,23 @@ Updated 2026-09-21.
 
 ## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
+> **DONE 2026-10-10, STEPS 1 TO 9 — NOTHING LEFT HERE FOR YOU.** Done by Claude
+> with Andrew's explicit go-ahead, in this order, each step checked before the
+> next: steps 1–8 (all 9 database changes plus the `site_build_start` one this
+> list never named; 31 programs), then all of step 9 — CORS on the three buckets
+> (9a1); the domain's DNS moved from Netlify to Cloudflare so the bucket could
+> get its own address, and `media.detailingplatform.com` bound to
+> `business-media` (9a2, full record in `docs/services-and-secrets.md` § 3a);
+> `R2_MEDIA_BASE` set; `photo-door`, `delete-customer`, `photo-reconcile`
+> published (9c–e); the nightly schedule and its timeout (9f); the allowance
+> 1 → 10 GB (9g). **Checks at the end:** `migration-drift` PASS,
+> `deployed-inventory` 41/41, `photo-release-order` 0 failed,
+> `photo-door-deployed` 6/6, `r2-public-base` 5 pass + 1 that needs a real logo.
+> **Step 10 is handed to the belt** (ROADMAP 0.11, answered on its card): flip
+> `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR` to `true`, run the photo and Spanish
+> suites, prove one real upload of each kind (0.11d), commit. **The only thing
+> still yours is the push that publishes the website afterwards.**
+
 **This is the single list of everything that is built, finished and waiting on you
 to switch on.** The rows further down this file keep the reasoning and the exact
 wording; this list keeps the ORDER. **Nothing here is urgent** — your ruling of

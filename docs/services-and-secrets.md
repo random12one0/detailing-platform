@@ -124,6 +124,39 @@ the free tier, about **1.5¢ per GB per month**.
 **The allowance, and why it is not 10 yet, is in
 `docs/the-photo-allowance.md`.** So is the enforcement design and the two ways
 the cap fails silently. **Read that before touching photo storage.**
+*(Superseded 2026-10-10: the allowance IS 10 now — see the next block.)*
+
+### 3a. LIVE SINCE 2026-10-10 — the switch-over, and where the domain's DNS lives now
+
+**`detailingplatform.com`'s DNS moved from Netlify DNS to Cloudflare on
+2026-10-10.** Registrar is **Spaceship** (`Random12one0@yahoo.com`'s Spaceship
+account; renews 2027-08-27). Nameservers are now **`joselyn.ns.cloudflare.com`
+and `yew.ns.cloudflare.com`** (were `dns1-4.p07.nsone.net`). Zone is on
+Cloudflare's **Free** plan in the same account as R2. **The website is still
+hosted on Netlify** — only the address book moved.
+
+- **11 records, copied one for one from Netlify and checked against both sets of
+  nameservers before and after the switch.** Every record is **DNS only (grey
+  cloud) — do NOT turn the orange proxy on** for `@` or `www`: they CNAME to
+  `detailplatform-admin-test.netlify.app` and Netlify must keep serving and
+  renewing the certificate itself. The rest: iCloud mail (2 MX, `apple-domain`
+  and SPF TXT, `sig1._domainkey` CNAME), `_dmarc` TXT, and the sending
+  service's `send.email` / `rsend.email` CNAMEs and `resend._domainkey.email` TXT.
+- **A new DNS record now goes in Cloudflare**, not Netlify. The old Netlify DNS
+  zone was left in place (unused) on purpose; deleting it is optional.
+- **`media.detailingplatform.com` is bound to `business-media`** as an R2 custom
+  domain (min TLS 1.2). It is the value of the functions secret
+  **`R2_MEDIA_BASE`**, and it is written into every logo/gallery row's
+  `image_url`, so **it must never change.**
+- **CORS** is set on all three buckets: GET + PUT, header `Content-Type`, from
+  `detailingplatform.com`, `www.`, `localhost:5173`, `127.0.0.1:5173`,
+  `*.netlify.app`, `*.netlify.live`.
+- **Published 2026-10-10:** `photo-door`, `delete-customer`, `photo-reconcile`;
+  nightly reconcile cron at 03:40 UTC with a 60 s timeout; allowance 1 → 10 GB.
+- **Proved, not assumed:** `scripts/photo-door-deployed.mjs` 6/6 PASS (11/11
+  canaries), `scripts/r2-public-base.mjs` 5 PASS + 1 UNJUDGEABLE until a real
+  logo exists, `scripts/photo-release-order.mjs` 0 failed,
+  `deployed-inventory` 41/41 match, `migration-drift` PASS.
 
 ## 4. Telnyx — texting. Account paid, brand submitted, nothing can send yet
 
