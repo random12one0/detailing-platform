@@ -13,15 +13,22 @@ const read = (month) => {
   return cache.get(month);
 };
 
+// Forget one month and have every place showing it read it again (after a bill is
+// typed in on Money, Today's chart must not keep the old answer).
+const listeners = new Set();
+export const reread = (month) => { cache.delete(month); listeners.forEach((f) => f()); };
+
 // `months` is a list of `YYYY-MM-01`. Returns { month: answer } as answers arrive.
 export function useNet(months) {
   const [got, setGot] = useState({});
+  const [v, setV] = useState(0);
+  useEffect(() => { const f = () => setV((x) => x + 1); listeners.add(f); return () => listeners.delete(f); }, []);
   const key = months.join(",");
   useEffect(() => {
     let live = true;
     months.forEach((m) => read(m).then((a) => { if (live) setGot((g) => ({ ...g, [m]: a })); }));
     return () => { live = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, v]);
   return got;
 }
