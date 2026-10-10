@@ -34,6 +34,7 @@ export default function OfficePage() {
   const [err, setErr] = useState("");
   const [placeKey, setPlaceKey] = useState(() => placeOf((window.location.hash || "").slice(1)).key);
   const [openId, setOpenId] = useState(null);
+  const [preset, setPreset] = useState(null);         // what a link from another place asks the next one to start on
   const [finder, setFinder] = useState(false);
   const [details, setDetails] = useState({});         // id -> get payload | { error: true }
   const asked = useRef(new Set());
@@ -77,8 +78,8 @@ export default function OfficePage() {
     pump();
   }, [pump]);
 
-  const go = useCallback((k) => {
-    setPlaceKey(placeOf(k).key); setOpenId(null);
+  const go = useCallback((k, want = null) => {
+    setPlaceKey(placeOf(k).key); setOpenId(null); setPreset(want);
     try { window.history.replaceState(null, "", `#${placeOf(k).key}`); } catch { /* ignore */ }
     window.scrollTo(0, 0);
   }, []);
@@ -88,8 +89,8 @@ export default function OfficePage() {
   const rows = state?.rows ?? [];
   const ctx = useMemo(() => ({
     state, rows, totals: state?.totals ?? {}, details, ensure, openId, open, close: () => setOpenId(null),
-    go, reload, find: () => setFinder(true),
-  }), [state, rows, details, ensure, openId, open, go, reload]);
+    go, reload, preset, find: () => setFinder(true),
+  }), [state, rows, details, ensure, openId, open, go, reload, preset]);
 
   // Keys: Ctrl/Cmd K or "/" finds, 1..n jumps to a place, Esc is handled by whichever layer is open.
   useEffect(() => {

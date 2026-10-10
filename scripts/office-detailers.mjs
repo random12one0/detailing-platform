@@ -158,7 +158,7 @@ try {
       await page.waitForSelector(".pa-top", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
-    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#detailers`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bo-row", { timeout: 60000 });
     await settle(page, 1600);
 

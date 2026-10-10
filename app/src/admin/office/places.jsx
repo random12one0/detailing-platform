@@ -4,13 +4,15 @@
 // built, replaced or deleted without touching another one. (ROADMAP 9.12a.)
 //
 // `badge(ctx)` is the little red number beside the name; return 0 for none.
-// Slice 1 has Detailers only. Today, Money and System each land as one line here
-// plus one file in places/.
-import { Users } from "lucide-react";
+// Today and Detailers are built; Money and System each land as one line here plus
+// one file in places/. Today is first, so it is where the back office opens.
+import { LayoutDashboard, Users } from "lucide-react";
+import Today from "./places/Today.jsx";
 import Detailers from "./places/Detailers.jsx";
 import { issueOf } from "../../lib/officeDetailers.js";
 
 export const PLACES = [
+  { key: "today", label: "Today", Icon: LayoutDashboard, Place: Today },
   {
     key: "detailers",
     label: "Detailers",
