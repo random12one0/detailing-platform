@@ -23241,9 +23241,26 @@ the dashboard or back office at phone width at all.
   five-against-seven count, both line shapes and the top-of-scroll numbers were
   read at the commit carrying this entry.*
 
-- [ ] **9.24 — the "has this person already skipped the guide" read is refused
+- [x] **9.24 — the "has this person already skipped the guide" read is refused
   401 on a fresh sign-in, so a skip on one browser can stop counting on
-  another.** `App.jsx:390` reads `user_tours` to honour a dismissal made on a
+  another.**
+  **DONE 2026-10-10 — the read no longer exists, and that is measured in the
+  running app rather than read off the source.** 9.15 (`f434f1f`, 2026-10-10)
+  deleted the tours, and with them this read and the `dp.tour` device flag it
+  wrote; `app/src` holds zero mentions of `user_tours`. No app file was changed
+  for 9.24. `node scripts/user-tours-race.mjs` (dev server + `.env`, committed
+  in `8fc0c6c`), run at `5e79368`: **40 of 40 fresh sign-ins through the form, 20 at 1440 and 20 at
+  392, each followed by one reload** — 0 `user_tours` requests, 0 `/rest/v1/`
+  401s, no tour key in localStorage, console clean, counted by a response
+  listener; the deliberately refused read (mangled bearer) was seen by that
+  listener as a 401 at both widths and left no flag behind. 163 assertions,
+  receipt graded PASS. `--break=old-read` (the old read restored in the served
+  App.jsx, signed landed+ran) went red 4 of 4 runs at `RUNS=2` — and the restored
+  read answered **200** every time, which is the race not biting, so the check
+  asserts zero REQUESTS rather than zero 401s. **Not re-measured on the live
+  domain**: it runs whatever was last published and makes the old read until
+  9.15 is published.
+  **Original entry:** `App.jsx:390` reads `user_tours` to honour a dismissal made on a
   different device — the whole point of that row, since `localhost:5173` and
   the live domain are separate localStorages. **Measured 2026-10-09 at 1440x900
   while verifying 3.1a**: the browser's own request
