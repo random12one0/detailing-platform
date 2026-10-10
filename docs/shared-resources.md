@@ -318,6 +318,15 @@ reported by Andrew noticing. So:
 If a number comes back strange, ask what else was running before you write the
 number down as a fact about the product.
 
+**A guard now reads what it can (ROADMAP 14.17, 2026-10-10).** Read-only, no new
+table: `node scripts/shared-resources-guard.mjs run --mine=<what you moved> -- <your command>`
+(or `before` / `after`) samples `rate_hits`, today's `platform_email_days` and the
+demo tenant's row counts either side, and names any counter that moved which you
+did not declare. **Its verdict is never "no collision".** It prints, with every
+verdict, the six things it cannot see — the platform ceiling above
+`address-suggest` (14.15) first. Declare with prefixes, e.g.
+`--mine=rate_hits/address-suggest,demo/bookings`.
+
 ---
 
 **Related:** `docs/gotchas.md` 78 and 79 · ROADMAP 14.15, 14.16, 14.17 ·

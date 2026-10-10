@@ -1,0 +1,44 @@
+{
+  "git_sha": "7d1bce058813bfba121f5870c09e15500e0987ab",
+  "git_sha_started": "7d1bce058813bfba121f5870c09e15500e0987ab",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T20:25:29.563Z",
+  "failures": [],
+  "warnings": [
+    "A pass here means the guard READ all three sources and caught its planted counter. What moved is in `observed`, not in `status`.",
+    "BLIND: the platform ceiling ABOVE address-suggest (ROADMAP 14.15). No counter exists for it. A real-browser repro on 2026-10-10 saw no refusal from there in 370 calls; that is one IP and one evening, not proof it is absent.",
+    "BLIND: Geoapify's own credit count. rate_hits holds the product's two limits, not what the provider has billed against the 2,400-a-day ceiling.",
+    "BLIND: Resend's account-wide daily usage. The account also sends andrewsdetail.com's mail, and platform_email_days counts only what send-email claimed.",
+    "BLIND: demo rows in tables with no business_id column (children keyed by booking_id and the like), and edits that change a row without changing a count or a booking's status.",
+    "BLIND: receipts/ overwritten by another session (docs/shared-resources.md § 7). Check `git status --porcelain receipts/` by hand.",
+    "BLIND: Andrew's browser window and .manager-shots/ (§ 6, § 8). Neither is a database."
+  ],
+  "artifacts": [
+    "docs/shared-resources.md"
+  ],
+  "dimensions": {
+    "item": "14.17",
+    "mine": []
+  },
+  "check_id": "shared-resources-guard",
+  "started_at": "2026-10-10T20:25:23.518Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 4,
+  "min_assertions": 3,
+  "canary": {
+    "id": "planted-unclaimed-counter-is-named",
+    "observed_failure": true
+  },
+  "observed": {
+    "counters": 113,
+    "moved": 0,
+    "unexplained": [],
+    "demo_tables": 42
+  }
+}
