@@ -200,7 +200,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND NINETEEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND TWENTY specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -844,3 +844,8 @@ unmoved, which is the drift this line exists to stop. `grep -c "^## " docs/gotch
 **118 → 119 on 2026-10-10, same edit, same supervisor** — a computed colour read straight after a runtime
 class change is the transition's first frame, so a sabotage that re-added `primary` printed PASS with the
 defect on; settled 800ms, it went red at both widths. `grep -c "^## " docs/gotchas.md` run before and after.
+
+**119 → 120 on 2026-10-10, same edit** — the one red 404 a console shows that is not a failure: the gear's
+`platform-admin` `whoami` for a non-admin, once per page load, designed and unsilenceable. Recorded so nobody
+re-files ROADMAP 9.17; `scripts/gear-whoami.mjs` holds the count at one. `grep -c "^## " docs/gotchas.md` run
+before and after.

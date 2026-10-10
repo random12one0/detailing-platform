@@ -1,0 +1,128 @@
+{
+  "git_sha": "5593c9a56dae6a71600a7041ca6d08d12fcb8e9a",
+  "git_sha_started": "5593c9a56dae6a71600a7041ca6d08d12fcb8e9a",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:07:30.998Z",
+  "failures": [
+    "staff/1440/first-open-asks-once: 2 platform-admin call(s) on the first open",
+    "staff/1440/console: 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "staff/392/first-open-asks-once: 2 platform-admin call(s) on the first open",
+    "staff/392/console: 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "staff/320/first-open-asks-once: 2 platform-admin call(s) on the first open",
+    "staff/320/console: 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "owner/1440/first-open-asks-once: 2 platform-admin call(s) on the first open",
+    "owner/392/first-open-asks-once: 2 platform-admin call(s) on the first open",
+    "owner/320/first-open-asks-once: 2 platform-admin call(s) on the first open"
+  ],
+  "warnings": [
+    "Dev server only. The production bundle has no StrictMode and made 1 call before this fix (ROADMAP 9.17's table); it is not re-measured here.",
+    "The one staff 404 console line is DESIGNED and cannot be removed from JavaScript: Chrome logs every 4xx a fetch receives, and platform-admin must answer 404 rather than {admin:false}. docs/gotchas.md records it as expected noise."
+  ],
+  "artifacts": [
+    ".manager-shots/9.17/staff-1440.png",
+    ".manager-shots/9.17/staff-392.png",
+    ".manager-shots/9.17/staff-320.png",
+    ".manager-shots/9.17/owner-1440.png",
+    ".manager-shots/9.17/owner-392.png",
+    ".manager-shots/9.17/owner-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x720"
+    ],
+    "accounts": [
+      "staff",
+      "owner"
+    ],
+    "opens": 3,
+    "item": "9.17",
+    "break": "late-cache"
+  },
+  "check_id": "gear-whoami",
+  "started_at": "2026-10-10T15:06:41.297Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 35,
+  "min_assertions": 35,
+  "assertion_floor": "2 accounts x 3 widths x 5 + 3 live + 2 canaries = 35, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "admin-false+two-calls",
+    "observed_failure": true
+  },
+  "sabotage": [
+    {
+      "tag": "staff/1440",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "staff/392",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "staff/320",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "owner/1440",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "owner/392",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "owner/320",
+      "landed": 1,
+      "ran": true
+    }
+  ],
+  "observed": [
+    "PASS live/staff-gets-a-silent-404 — 404 {\"error\":\"Not found\"}",
+    "PASS live/anonymous-gets-a-silent-404 — 404 {\"error\":\"Not found\"}",
+    "PASS live/owner-gets-200-admin-true — 200",
+    "FAIL staff/1440/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS staff/1440/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS staff/1440/answer-is-404 — statuses [404,404]",
+    "PASS staff/1440/back-office-row-absent — row \"The website business\" shown: false",
+    "FAIL staff/1440/console — 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "FAIL staff/392/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS staff/392/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS staff/392/answer-is-404 — statuses [404,404]",
+    "PASS staff/392/back-office-row-absent — row \"The website business\" shown: false",
+    "FAIL staff/392/console — 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "FAIL staff/320/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS staff/320/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS staff/320/answer-is-404 — statuses [404,404]",
+    "PASS staff/320/back-office-row-absent — row \"The website business\" shown: false",
+    "FAIL staff/320/console — 2 designed platform-admin 404 line(s) (want 1), 0 other",
+    "FAIL owner/1440/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS owner/1440/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS owner/1440/answer-is-200 — statuses [200,200]",
+    "PASS owner/1440/back-office-row-drawn — row \"The website business\" shown: true",
+    "PASS owner/1440/console — 0 designed platform-admin 404 line(s) (want 0), 0 other",
+    "FAIL owner/392/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS owner/392/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS owner/392/answer-is-200 — statuses [200,200]",
+    "PASS owner/392/back-office-row-drawn — row \"The website business\" shown: true",
+    "PASS owner/392/console — 0 designed platform-admin 404 line(s) (want 0), 0 other",
+    "FAIL owner/320/first-open-asks-once — 2 platform-admin call(s) on the first open",
+    "PASS owner/320/reopens-ask-nothing — opens 2..3: 0, 0",
+    "PASS owner/320/answer-is-200 — statuses [200,200]",
+    "PASS owner/320/back-office-row-drawn — row \"The website business\" shown: true",
+    "PASS owner/320/console — 0 designed platform-admin 404 line(s) (want 0), 0 other",
+    "PASS canary/admin-false — a 200 `{admin:false}` must NOT read as a silent refusal",
+    "PASS canary/two-calls — two calls on a first open (the pre-fix dev server) must NOT read as once"
+  ]
+}

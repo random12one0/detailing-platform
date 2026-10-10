@@ -105,8 +105,15 @@ const TOUR_ROWS = {
 // Whether the signed-in person has a back office, remembered for the life of
 // the PAGE rather than of the menu — see the effect below for why that
 // distinction is the whole point. `uid: null` means nobody has been asked yet;
-// a failed ask writes nothing, so it is retried.
-let adminSeen = { uid: null, yes: false };
+// a failed ask is forgotten, so it is retried.
+//
+// **`ask` IS THE QUESTION, NOT THE ANSWER, and it is written BEFORE the
+// request leaves** — ROADMAP 9.17. It used to hold `yes`, written after the
+// answer came back, so two mounts close together (React.StrictMode runs this
+// effect twice on the dev server) each found nothing and each asked: two
+// `platform-admin` calls, two red 404 lines. Now the second mount finds the
+// first one's question in flight and waits on it.
+let adminSeen = { uid: null, ask: null };
 
 export default function GearMenu({ onClose, initial = null }) {
   useAppLocale();
@@ -157,18 +164,29 @@ export default function GearMenu({ onClose, initial = null }) {
         // to keep invisible. A NO is remembered too, which is every detailer:
         // they were each paying an edge-function call per gear open for an
         // answer that cannot change.
-        if (adminSeen.uid === uid) { if (live) setIsPlatformAdmin(adminSeen.yes); return; }
-        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/platform-admin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${jwt}`,
-          },
-          body: JSON.stringify({ action: "whoami" }),
-        });
-        adminSeen = { uid, yes: res.ok };
-        if (live && res.ok) setIsPlatformAdmin(true);
+        //
+        // **THE 404 A DETAILER'S CONSOLE SHOWS HERE IS DESIGNED, ONE PER PAGE
+        // LOAD, AND CANNOT BE SILENCED FROM JAVASCRIPT** — Chrome logs every
+        // 4xx a fetch receives. `platform-admin` must answer 404 rather than
+        // `{admin:false}` (its own `whoami` comment says why), so the line
+        // stays. Recorded as expected console noise in `docs/gotchas.md`
+        // ("THE ONE RED 404 IN A CONSOLE THAT IS NOT A FAILURE");
+        // `scripts/gear-whoami.mjs` holds the count at exactly one.
+        if (adminSeen.uid !== uid) {
+          const ask = fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/platform-admin`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ action: "whoami" }),
+          }).then((res) => res.ok);
+          adminSeen = { uid, ask };
+          ask.catch(() => { if (adminSeen.ask === ask) adminSeen = { uid: null, ask: null }; });
+        }
+        const yes = await adminSeen.ask;
+        if (live && yes) setIsPlatformAdmin(true);
       } catch { /* offline, or the function is down: draw no row, remember nothing */ }
     })();
     return () => { live = false; };

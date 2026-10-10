@@ -5409,3 +5409,24 @@ the defect switched on. With an 800ms settle the same sabotage printed
 not affected — a freshly mounted button has nothing to transition from — which
 is exactly why only the sabotage lied. Settle past the transition (or read
 `transitionend`) before judging a colour you just changed.
+
+## 120 — THE ONE RED 404 IN A CONSOLE THAT IS NOT A FAILURE
+
+**Expected console noise, recorded here so nobody files it again (ROADMAP
+9.17).** Opening the Settings gear as anybody who is not a platform admin logs
+`Failed to load resource: the server responded with a status of 404` for
+`/functions/v1/platform-admin` — **once per page load**, at every width, on the
+dev server and the bundle alike. It is `GearMenu.jsx` asking `whoami` and
+`platform-admin` answering a non-admin the way it answers everybody: a 404 that
+says nothing, never `{admin:false}`, because a "no" would confirm the endpoint
+exists. Chrome logs every 4xx a `fetch` receives and JavaScript cannot silence
+it, so the line stays as long as the 404 does.
+
+**What is NOT expected, and is a real fault:** two of them on one page load
+(the dev server printed two before 9.17 — React.StrictMode mounted the effect
+twice and the cache was written after the answer), one on a REOPEN of the gear,
+a 404 from any other URL, or any 404 at all for a platform admin.
+`node scripts/gear-whoami.mjs` holds each of those, and `--break=late-cache`
+puts the pair back to prove it can see them. A console filter in another
+script should forgive this line BY URL and BY COUNT, as `owner-invite.mjs`
+does, never by the words "404" alone.

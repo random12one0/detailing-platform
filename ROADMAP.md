@@ -22129,7 +22129,33 @@ the dashboard or back office at phone width at all.
 
 ---
 
-- [ ] **9.17 — Opening the Settings gear puts a 404 in the console, twice, at
+- [x] **9.17 — DONE 2026-10-10: one `platform-admin` call per first gear open,
+  still a 404 for a non-admin, and the one remaining red line recorded as
+  designed.** (a) `GearMenu.jsx` now caches the QUESTION (`adminSeen.ask`, a
+  promise) before the request leaves, so React.StrictMode's second mount waits
+  on the first one's call instead of making its own; a failed ask is forgotten
+  and retried, as before. StrictMode is untouched. (b) `platform-admin` is
+  unchanged. (c) took the done-when's own second branch: `docs/gotchas.md` 120,
+  "THE ONE RED 404 IN A CONSOLE THAT IS NOT A FAILURE", says what the line is,
+  why it cannot be silenced, and what WOULD be a fault (two per load, one on a
+  reopen, any for an admin). **How it was checked:** `node
+  scripts/gear-whoami.mjs` (dev server, `.env`), staff (non-admin) and owner
+  (admin) at 1440, 392 and 320, three opens each, fresh context per run:
+  **35 assertions, 0 failed**, graded valid by `node scripts/receipt.mjs` (run on
+  `5593c9a5` with this fix uncommitted) — first open 1 call at all six, reopens 0,
+  staff 404 with the row absent and exactly 1 console line (the designed one),
+  owner 200 with the row drawn and a clean console; and, with no browser, the
+  DEPLOYED function answered staff and an anonymous caller `404
+  {"error":"Not found"}` and the owner 200. **Broken on purpose:**
+  `--break=late-cache` rewrites the served module back to the pre-fix shape
+  (cache written after the answer), proved landed and run at all six, and
+  printed **9 failed** — 2 calls on every first open and 2 red lines for staff
+  at every width (`receipts/gear-whoami.sabotage.json`). Two canaries: a
+  `200 {admin:false}` and a 2-call first open must both read as faults, and do.
+  Not re-measured: the production bundle (it already made 1 call) and
+  `?lite=1` (the call does not depend on motion).
+
+- [x] **9.17 (original entry) — Opening the Settings gear puts a 404 in the console, twice, at
   every width — and the request it comes from is working exactly as designed.**
   Found 2026-10-07 by DP Cowork sweeping 4.1 (`c8cd339`); it predates that work.
   **The 404 is not the bug. The bug is that a deliberately silent endpoint
