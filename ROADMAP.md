@@ -12856,10 +12856,20 @@ requested.
   (layer E2); (c) the reauthentication-setting test on the fixture (layer E3). **Not browser-verified**: the refusal
   needs the migration applied and the functions published, and pressing it means minting an impersonation, which is
   4.3d's proof. Owner sessions are unchanged in the browser because nothing here is live.
-  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): apply
-  `20261010030000_support_sessions_read_only.sql` and then publish `platform-admin`,
-  `create-business` and the functions sharing `_shared/tenant.ts` (FOR-ANDREW.md,
-  second migration list, row 3); a session can reconcile (a) to (c) meanwhile.
+  **RELEASE ON HOLD — supervisor, 2026-10-10. This line said "ROUTINE RELEASE, NO DECISION
+  REQUESTED" and it was wrong: releasing what is on disk breaks the unlock Andrew said must be
+  kept.** Read, not run: `platform-admin` marks EVERY impersonated session in `support_sessions`
+  (`index.ts` ~1199) and nothing anywhere removes or relaxes the mark — the only references to the
+  table are that insert and the lookup in `_shared/tenant.ts:280`. The preview's
+  "Let me make changes" button (`App.jsx:389-392`) only flips a `sessionStorage` flag. So once the
+  migration is applied and `platform-admin` published, pressing it turns the banner into
+  *"WORKING in … Anything you change is theirs"* while the database and every function refuse every
+  save — a promise on screen the server does not keep. **What (a) has to build:** that same button
+  asks the server to lift the lock for THAT session (and "Back to looking" to put it back), each
+  press written to the account's audit history; no new button, no `impersonate_work`. Until (a) is
+  built and proved, nothing about 4.3c is released. (Publishing the OTHER functions that share
+  `tenant.ts` first stays harmless: with no table, `isSupportSession` reads `42P01`/`PGRST205` as
+  "not a support session" — `_shared/supportSession.ts`.)
   Build the selected session marker and the server-side authorization rules that reject mutations while that marker is active. Protection must be location/session-based, preserving the owner's ability to work in their own ordinary dashboard, and must cover every record-access layer used by the support view.
   Part 3 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

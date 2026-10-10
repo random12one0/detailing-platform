@@ -260,6 +260,12 @@ node scripts/apply-migrations.mjs 20260924010000_a_fixture_is_not_a_customer.sql
 node scripts/deploy-functions.mjs create-booking get-booking-receipt platform-admin send-owner-reminders
 ```
 
+**HOLD `platform-admin` out of this line for now (supervisor, 2026-10-10).** The
+copy on disk now carries the unfinished 4.3c lock (migration row 3 above). Published
+today it would make "Look at their dashboard" refuse to open, because the table it
+needs does not exist yet. The live copy (v63) already carries this step's
+`platform-admin` parts (9.1, 9.14, 3.1, 9.18); only 4.3b's history fix waits with it. Publish the other three; `platform-admin` comes back when 4.3c is finished.
+
 **Unlocks:** a double-press leaving one booking (6.4); the public ceilings (14.9,
 14.18); the back-office costs read (9.14, with step 2.3); the back-office "Email
 we sent" list's server half (3.1, with step 2.2); **the System health tab's error
@@ -312,6 +318,12 @@ node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_s
    other way round, "Look at their dashboard" refuses to open (on purpose, it
    will not open a tab it cannot lock). Publishing the other functions first is
    harmless. Proved on a throwaway copy of Postgres, not on the live one.
+   **NOT YET — skip this one for now (supervisor, 2026-10-10).** As built, it
+   would lock the preview so hard that your "Let me make changes" button stops
+   working: the banner would say you are working while every save is refused.
+   A session is building the fix (that button unlocks the server too, and the
+   unlock is logged). This row comes back when that is proved. Rows 1 and 2
+   are unaffected.
 
 **Then:** `node scripts/migration-drift.mjs` should stop naming all three.
 

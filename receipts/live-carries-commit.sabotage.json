@@ -1,11 +1,11 @@
 {
-  "git_sha": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
-  "git_sha_started": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
+  "git_sha": "fa17139fa32662039590880e15d455cd621cf3ca",
+  "git_sha_started": "fa17139fa32662039590880e15d455cd621cf3ca",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:57:24.458Z",
+  "finished_at": "2026-10-10T16:41:21.022Z",
   "failures": [
-    "23 of 34 expected line(s) are NOT in the running calculate-booking: ROADMAP 4.3c: a read-only support session may READ photos (\"urls\") and nothing else. | ROADMAP 4.3c — IS THIS REQUEST A READ-ONLY SUPPORT SESSION? | Edge functions run as the service role, so the database's support-session"
+    "42 of 78 expected line(s) are NOT in the running platform-admin: HISTORY IS MATCHED BY ID, OR BY NAME WHEN THE ROW HAS NO ID — ROADMAP | 4.3b. Early impersonation and suspension rows were written with | `business_id = null` (the id was attached to the log later), so an"
   ],
   "warnings": [
     "run with --break=swap; this receipt is a sabotage, not a result"
@@ -15,28 +15,30 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "function": "calculate-booking",
-    "live_version": 64,
-    "live_updated_at": "2026-10-10T15:57:14.239Z",
+    "function": "platform-admin",
+    "live_version": 63,
+    "live_updated_at": "2026-10-10T07:53:59.966Z",
     "present_commits": [
-      "2911d6e1"
+      "99ed3922"
     ],
     "absent_commits": [
-      "8bd5d24b"
+      "83a0a740",
+      "8bd5d24b",
+      "3e002b1d"
     ],
-    "present_lines_found": "11 of 34",
+    "present_lines_found": "36 of 78",
     "absent_lines_absent": "0 of 0",
     "break": "swap"
   },
   "check_id": "live-carries-commit",
-  "started_at": "2026-10-10T15:57:22.214Z",
+  "started_at": "2026-10-10T16:41:17.401Z",
   "status": "fail",
-  "expected_targets": 34,
-  "discovered_targets": 34,
-  "attempted_targets": 34,
-  "completed_targets": 34,
+  "expected_targets": 78,
+  "discovered_targets": 78,
+  "attempted_targets": 78,
+  "completed_targets": 78,
   "skipped_targets": 0,
-  "assertions_executed": 35,
+  "assertions_executed": 79,
   "min_assertions": 10,
   "canary": {
     "id": "never-written-sentence",

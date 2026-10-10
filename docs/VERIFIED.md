@@ -3473,3 +3473,17 @@ console 0 errors (owner is an admin, so 200; the non-admin 404 path not re-run).
 **8.10d:** live `kguqylyzgyzfktkfnhjb`, read-only: `has_table_privilege('authenticated','public.bookings','UPDATE')`,
 the same for `anon`, and column UPDATE on `weather` and `admin_notes` — all four `false`.
 3 of 3 reproduced (9.15a on its English criterion only).
+
+## Supervisor, 2026-10-10 (fifth pass, deep) — 2.1d, 9.1a at `fa17139f`
+
+**2.1d:** by hand on `localhost:5173/book/demo-detail` (live `calculate-booking`), Express Wash,
+drop-off, Saturday Oct 10 at about 09:40 Pacific. At 392: the day tap reads **$115** with
+`Weekend rate · +$30` and `Short notice · +$20` named; tapping 12:00 PM and 5:00 PM leaves it
+$115 with both lines still named. The refusal case, Tuesday Oct 13: **$65**, neither line. At 1440
+the day tap reads $115 with both lines named. Console at both: 0 errors, the one manifest-icon
+warning already in FOUND.md.
+**9.1a:** `node scripts/live-carries-commit.mjs --fn=platform-admin --present=99ed3922
+--absent=83a0a740,8bd5d24b,3e002b1d` → PASS: live v63 (deployed 2026-10-10 07:53 UTC) carries 36 of
+36 of the 9.1 commit's comment lines (no `--strings`, hence 36 not the entry's 39) and 0 of the 42
+unpublished 4.3b/4.3c lines; canary read absent. `--break=swap` → FAIL, 42 of 78 missing.
+2 of 2 reproduced.
