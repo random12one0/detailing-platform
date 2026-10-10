@@ -1937,7 +1937,11 @@ for (const w of SIZES) {
   {
     // The 2nd cell of the demo month carries two jobs; the panel opens under
     // the grid at every width now, so there is no sheet to grow.
-    const cell = page.locator(".cal-cell").nth(1);
+    // **`:not(.other)`, found 2026-10-10 by 9.15a's run.** Since 9.4 the blank
+    // squares before the 1st are `.cal-cell.other`, aria-hidden and never
+    // visible. October 2026 starts on a Thursday, so `.cal-cell` nth(1) was a
+    // blank and the click waited 15s and aborted the width.
+    const cell = page.locator(".cal-cell:not(.other)").nth(1);
     if (await cell.count()) {
       await cell.click();
       await settle(page, 1600);
