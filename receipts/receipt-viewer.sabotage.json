@@ -1,0 +1,57 @@
+{
+  "git_sha": "ae22ea28487c3c15cbd5ae0601df9f14702a2928",
+  "git_sha_started": "ae22ea28487c3c15cbd5ae0601df9f14702a2928",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T17:48:52.805Z",
+  "failures": [
+    "1440/en refused/server-sentence-as-written — [\"Something went wrong.\"]",
+    "392/en refused/server-sentence-as-written — [\"Something went wrong.\"]",
+    "392/es refused/server-sentence-as-written — [\"Something went wrong.\"]",
+    "320/es refused/server-sentence-as-written — [\"Something went wrong.\"]"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/receipt-viewer/1440-en-list.png",
+    "artifacts/receipt-viewer/1440-en-viewer.png",
+    "artifacts/receipt-viewer/1440-en-no-settings.png",
+    "artifacts/receipt-viewer/1440-en-refused.png",
+    "artifacts/receipt-viewer/392-en-list.png",
+    "artifacts/receipt-viewer/392-en-viewer.png",
+    "artifacts/receipt-viewer/392-en-no-settings.png",
+    "artifacts/receipt-viewer/392-en-refused.png",
+    "artifacts/receipt-viewer/392-es-list.png",
+    "artifacts/receipt-viewer/392-es-viewer.png",
+    "artifacts/receipt-viewer/392-es-no-settings.png",
+    "artifacts/receipt-viewer/392-es-refused.png",
+    "artifacts/receipt-viewer/320-es-list.png",
+    "artifacts/receipt-viewer/320-es-viewer.png",
+    "artifacts/receipt-viewer/320-es-no-settings.png",
+    "artifacts/receipt-viewer/320-es-refused.png",
+    "artifacts/receipt-viewer/report.keep.sabotage.txt"
+  ],
+  "dimensions": {
+    "passes": [
+      "1440x900/en",
+      "392x844/en",
+      "392x844/es",
+      "320x844/es"
+    ],
+    "break": "keep"
+  },
+  "check_id": "receipt-viewer",
+  "started_at": "2026-10-10T17:47:49.745Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 64,
+  "min_assertions": 64,
+  "assertion_floor": "every pass runs the same sixteen checks unconditionally, so the count is 15 per pass or the run stopped; okRun separately requires the exact declared total",
+  "canary": {
+    "id": "the-built-url",
+    "observed_failure": true
+  }
+}

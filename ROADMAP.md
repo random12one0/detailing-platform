@@ -22791,8 +22791,38 @@ the dashboard or back office at phone width at all.
   DP Cowork's, taken during 9.4; the stylesheet geometry is this session's and
   was read at the commit carrying this entry.*
 
-- [ ] **9.20 — A detailer can attach a receipt to an expense and then never see
+- [x] **9.20 — A detailer can attach a receipt to an expense and then never see
   it, replace it or delete it. The bytes stay on their allowance forever.**
+
+  **DONE 2026-10-10 — proved in a browser, and one real fault fixed on the way.**
+  The screen half was built 2026-10-07 (`1779be17`: thumbnail on the Money row,
+  a viewer sheet, Remove inside it for the settings permission only) but never
+  graded. `scripts/receipt-viewer.mjs` now grades it at **4 of 4 passes** (1440 en,
+  392 en, 392 es, 320 es), **64 of 64 assertions declared, 0 failed, canary
+  caught**, receipt `receipts/receipt-viewer.json` PASS: (a) both seeded receipts
+  draw a signed-URL thumbnail, the receipt-less expense draws nothing, and the
+  full image loads; (b) Remove deletes the object (listed, not a bare GET),
+  clears all five columns, and `job_photo_budget` read **as the owner** moves
+  83718 → 42240, exactly the 41,478-byte file; (c) one signing request per read
+  of the list carrying both keys (StrictMode reads it twice in dev: 2 for 2);
+  (d) thumbnail 46x46 and Remove 161x46 by hit test, console clean at every pass;
+  (e) **stated precisely:** with the membership answered in the browser as
+  staff holding `money` only, the viewer opens and Remove is **not offered**;
+  and a refusal ANSWERED IN THE BROWSER with the door's sentence is shown
+  word for word with nothing removed. The real server's refusal is not reachable
+  from the screen while `RECEIPTS_VIA_DOOR` is false; on that path a
+  policy-refused delete now throws the same sentence (unit test below).
+  **THE FAULT, found by `--break=orphan`:** with the flag off (today's path)
+  `removeReceipt` cleared the columns and ignored the storage delete's answer,
+  so a failed delete left the photo in the bucket, the screen looked finished
+  and the allowance moved — this item's own named way to fail. Fixed in
+  `ae22ea28`: the file goes first, an error or a policy-refused empty answer
+  changes nothing, a retry after a half-done remove completes;
+  `tests/photo-door-receipt-wire.test.mjs` 10/10, red on the old order.
+  **Sabotages, each red:** `orphan` (object kept, columns kept, allowance
+  unmoved: 4 passes), `nosign` (0 of 2 thumbnails), `gate` (Remove offered 1,
+  4 passes), `keep` (reworded refusal, 4 passes). Seeded rows and objects are
+  deleted at the end; 0 `9.20 check` rows left, checked after the runs.
   Found by DP Cowork at `e246714` while building 0.11 slice 5's app half, and
   recorded in the module itself. **Filed, not built.**
 
