@@ -1,19 +1,13 @@
 {
-  "git_sha": "1288f03b5bbca7349a86c8fa927832dbc93c79d9",
-  "git_sha_started": "1288f03b5bbca7349a86c8fa927832dbc93c79d9",
+  "git_sha": "9ce2e5f657131928886ae584af07fe7b07cd227b",
+  "git_sha_started": "9ce2e5f657131928886ae584af07fe7b07cd227b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T07:13:57.169Z",
-  "failures": [
-    "3 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), action_log_is_append_only (declared by 20261006050000_action_log.sql)",
-    "3 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql), action_log (declared by 20261006050000_action_log.sql), send_invoice_attempts (declared by 20261006062000_send_invoice_attempts.sql)",
-    "4 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: businesses.site_build_started_at (declared by 20261008010000_site_build_start.sql), business_users.lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql), customers.is_test (declared by 20260924010000_a_fixture_is_not_a_customer.sql), email_sends.booking_id (declared by 20261006010000_an_email_row_knows_its_booking.sql)",
-    "14 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database; public.bookings — authenticated should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql); public.bookings — anon should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql); public.action_log — anon should NOT HOLD any table privilege (declared by 20261006050000_action_log.sql) — the object itself is not in the database; public.action_log — authenticated should NOT HOLD any table privilege (declared by 20261006050000_action_log.sql) — the object itself is not in the database; public.send_invoice_attempts — anon should NOT HOLD any table privilege (declared by 20261006062000_send_invoice_attempts.sql) — the object itself is not in the database; public.send_invoice_attempts — authenticated should NOT HOLD any table privilege (declared by 20261006062000_send_invoice_attempts.sql) — the object itself is not in the database",
-    "4 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: email_sends_booking_idx on email_sends — not in the database (declared by 20261006010000_an_email_row_knows_its_booking.sql); platform_costs_period_idx on platform_costs — not in the database (declared by 20261006020000_hand_entered_platform_costs.sql); action_log_subject_idx on action_log — not in the database (declared by 20261006050000_action_log.sql); action_log_business_idx on action_log — not in the database (declared by 20261006050000_action_log.sql)"
-  ],
+  "finished_at": "2026-10-10T07:56:30.446Z",
+  "failures": [],
   "warnings": [
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
-    "122 of 622 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 500, not 622."
+    "126 of 651 present column(s) had a declared type this check does not recognise and are UNJUDGED for type — counted, not guessed at. \"Columns by name and type family\" above means 525, not 651."
   ],
   "artifacts": [
     "scripts/migration-drift.mjs"
@@ -22,17 +16,8 @@
     "project": "kguqylyzgyzfktkfnhjb",
     "migration_files": 112,
     "tables_declared": 58,
-    "tables_absent": [
-      "platform_costs (declared by 20261006020000_hand_entered_platform_costs.sql)",
-      "action_log (declared by 20261006050000_action_log.sql)",
-      "send_invoice_attempts (declared by 20261006062000_send_invoice_attempts.sql)"
-    ],
-    "columns_absent": [
-      "businesses.site_build_started_at (declared by 20261008010000_site_build_start.sql)",
-      "business_users.lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
-      "customers.is_test (declared by 20260924010000_a_fixture_is_not_a_customer.sql)",
-      "email_sends.booking_id (declared by 20261006010000_an_email_row_knows_its_booking.sql)"
-    ],
+    "tables_absent": [],
+    "columns_absent": [],
     "type_mismatch": [],
     "policies_declared": 85,
     "policies_absent": [],
@@ -44,51 +29,27 @@
       "judged": 165,
       "unjudgeable": 0
     },
-    "grants_absent": [
-      "public.platform_costs — anon should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
-      "public.platform_costs — authenticated should NOT HOLD any table privilege (declared by 20261006020000_hand_entered_platform_costs.sql) — the object itself is not in the database",
-      "public.recipient_lang(text, uuid) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.recipient_lang(text, uuid) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.recipient_lang(text, uuid) — authenticated should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.set_my_lang(text) — public should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.set_my_lang(text) — anon should NOT HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.set_my_lang(text) — authenticated should HOLD execute (declared by 20261006030000_dashboard_language_reaches_the_server.sql) — the object itself is not in the database",
-      "public.bookings — authenticated should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql)",
-      "public.bookings — anon should NOT HOLD update (declared by 20261006040000_bookings_browser_updates_nothing.sql)",
-      "public.action_log — anon should NOT HOLD any table privilege (declared by 20261006050000_action_log.sql) — the object itself is not in the database",
-      "public.action_log — authenticated should NOT HOLD any table privilege (declared by 20261006050000_action_log.sql) — the object itself is not in the database",
-      "public.send_invoice_attempts — anon should NOT HOLD any table privilege (declared by 20261006062000_send_invoice_attempts.sql) — the object itself is not in the database",
-      "public.send_invoice_attempts — authenticated should NOT HOLD any table privilege (declared by 20261006062000_send_invoice_attempts.sql) — the object itself is not in the database"
-    ],
+    "grants_absent": [],
     "indexes_declared": 66,
     "index_statements": {
       "naive": 68,
       "judged": 68,
       "unjudgeable": 0
     },
-    "indexes_absent": [
-      "email_sends_booking_idx on email_sends — not in the database (declared by 20261006010000_an_email_row_knows_its_booking.sql)",
-      "platform_costs_period_idx on platform_costs — not in the database (declared by 20261006020000_hand_entered_platform_costs.sql)",
-      "action_log_subject_idx on action_log — not in the database (declared by 20261006050000_action_log.sql)",
-      "action_log_business_idx on action_log — not in the database (declared by 20261006050000_action_log.sql)"
-    ],
+    "indexes_absent": [],
     "method": "replay create/drop function/table/policy in file and statement order; compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
-    "absent": [
-      "recipient_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
-      "set_my_lang (declared by 20261006030000_dashboard_language_reaches_the_server.sql)",
-      "action_log_is_append_only (declared by 20261006050000_action_log.sql)"
-    ],
+    "absent": [],
     "drifted": []
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-10T07:13:45.877Z",
-  "status": "fail",
+  "started_at": "2026-10-10T07:56:25.155Z",
+  "status": "pass",
   "expected_targets": 361,
-  "discovered_targets": 345,
+  "discovered_targets": 361,
   "attempted_targets": 361,
   "completed_targets": 361,
   "skipped_targets": 0,
-  "assertions_executed": 1963,
+  "assertions_executed": 2016,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
