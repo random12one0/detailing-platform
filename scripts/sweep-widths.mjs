@@ -366,7 +366,7 @@ const CHECK = () => {
   // version. Truncated to 400 characters it reported four healthy pairs as the
   // same screen, because two different clients' sheets share their first 400
   // characters of chrome and differ further down.
-  const layers = [...document.querySelectorAll(".tourcard, .sheet, [role='dialog'], .modal")]
+  const layers = [...document.querySelectorAll(".sheet, [role='dialog'], .modal")]
     .filter((el) => el.getClientRects().length);
   const scope = layers.length ? layers[layers.length - 1] : (document.getElementById("root") || document.body);
   const sig = [
@@ -665,7 +665,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { ordinal } from "./lib/ordinal.mjs";
-import { addSkip, probeEvidence, pressEvidence } from "./lib/skipEvidence.mjs";
+import { addSkip, probeEvidence } from "./lib/skipEvidence.mjs";
 
 const STARTED = new Date().toISOString();
 
@@ -953,94 +953,6 @@ const CERT = [];
 // reachable after all, and a skip declared over a reachable surface is REFUSED
 // and fails the run. A declaration nobody can disprove is worth nothing.
 const SKIPPED = [];
-// **WHAT A GUIDE PLANNED, BESIDE WHAT IT WALKED — 2026-09-20.**
-//
-// A guide drops a step whose target is not on the screen; that is the design,
-// written into `Walkthrough.jsx` beside the filter that does it. So the Today
-// guide is eight steps on a dashboard with a day's work on it and five on one
-// without, and NEITHER of those is a defect. A guide that stops halfway
-// through the steps it planned IS one.
-//
-// Until today the expected-count gate could not tell those two apart. Both
-// arrived as `NEVER MEASURED guide · today 6` and both failed the run, which
-// is the same defect as a receipt that cannot tell stale from broken, one
-// level down: a gate that cannot name which failure it caught is a gate
-// somebody learns to scroll past. Andrew's ruling, 2026-09-20: the inventory
-// is NOT re-pointed at today's dashboard, because a gate that follows the data
-// can never fail. The fix is to give the gate the guide's own plan.
-//
-// Every card carries its own "N OF M". `M` is the plan and `N` is how far in
-// this card sits, so the LAST card a walk saw answers both questions the gate
-// needs — did the guide finish itself, and how long did it mean to be. Nothing
-// here counts the presses and compares that to itself.
-const WALKS = [];
-// Reads the step counter off the card that is up. `{ at, of }` or null.
-// **`OF` IS ENGLISH AND THE CARD SAYS `DE` IN SPANISH — 2026-09-20, ROADMAP
-// 14.13, and `docs/gotchas.md` already carried this exact lesson from the
-// first Spanish sweep ("Paso 1 de 12"). The string is `"{n} of {total}"`, and
-// `appEs.js` maps it to `"{n} de {total}"`, so this regex returned NULL on
-// every card of a Spanish run. Both words, and the raw text is kept so a card
-// whose counter cannot be parsed at all still has an identity.
-const cardPlan = async (page) => {
-  const raw = String(await page.locator(".tourcard .label").first().innerText().catch(() => ""))
-    .replace(/\s+/g, " ").trim();
-  const m = /(\d+)\s*(?:OF|DE)\s*(\d+)/i.exec(raw);
-  return m ? { at: Number(m[1]), of: Number(m[2]), raw } : (raw ? { at: null, of: null, raw } : null);
-};
-// **WAIT FOR THE NEXT CARD TO EXIST, NEVER FOR THE PAGE TO GO QUIET — 2026-09-20,
-// ROADMAP 14.11, and it is the sixth time `settle()` has been the wrong
-// instrument in this file.** `settle()` is a cap on a REPAINT. The next tab's
-// card is not a repaint of this one: measured, the page goes quiet ~560ms
-// after the press that crosses to a new tab and the card does not exist yet,
-// so the walk pressed into nothing and the tour ended at step 5, every run.
-//
-// **AND THIS IS ALSO WHERE THE FALSE SKIP CAME FROM.** A card at a tab
-// boundary reads `5 of 5` — at === of — which is indistinguishable from the
-// last card of the whole tour. So the accounting below saw "reached its own
-// last card", found the inventory wanted more, and wrote the rest off as
-// steps the dashboard cannot produce. Waiting for the next card is what turns
-// that guess into evidence: either a different card arrives, or the press and
-// the full wait came back empty and THAT is what a skip is allowed to rest on.
-//
-// Returns `{ arrived, ms }`. A different step counter is a different card; the
-// same counter still on screen means the press has not landed yet.
-const TOUR_WAIT_MS = Number(process.env.SWEEP_TOUR_WAIT || 8000);
-const nextCard = async (page, prev, ms = TOUR_WAIT_MS) => {
-  const t0 = Date.now();
-  for (;;) {
-    if (await page.locator(".tourcard").count()) {
-      const now = await cardPlan(page);
-      // **A CARD WE CANNOT READ IS NOT A CARD THAT ARRIVED.** The first
-      // version returned `arrived` whenever the plan was null, which in
-      // Spanish was EVERY card — so the walk never waited, never saw the tour
-      // end, and pressed on until a click timed out and took the whole width
-      // with it. Falling back to the raw label keeps an identity even when
-      // the counter cannot be parsed; only a genuinely different card counts.
-      if (!prev || !now) {
-        if (now && (!prev || now.raw !== prev.raw)) return { arrived: true, ms: Date.now() - t0 };
-      } else if (now.raw !== prev.raw) {
-        return { arrived: true, ms: Date.now() - t0 };
-      }
-    }
-    if (Date.now() - t0 >= ms) return { arrived: false, ms: Date.now() - t0 };
-    await page.waitForTimeout(60);
-  }
-};
-
-// **THE HOOK THAT BREAKS IT ON PURPOSE.** `SWEEP_GUIDE_CANARY=1` stops every
-// walk one step early, which is exactly the shape of a guide that died
-// halfway. The accounting below must call that a FINDING and must refuse to
-// write it off as a shorter plan. It exits before the receipt so a deliberately
-// broken run can never be filed as a real one.
-const GUIDE_CANARY = process.env.SWEEP_GUIDE_CANARY === "1";
-// **AND THE HOOK THAT BREAKS THE CROSS-WIDTH CHECK.** `SWEEP_XWIDTH_CANARY=1`
-// cuts the tour short AT THE FIRST WIDTH ONLY, which is the exact shape of the
-// thing that check exists to see: one width reporting a tour that finished
-// while the others walk on. It does not doctor the record afterwards — it
-// truncates the walk itself, so everything downstream is measuring a real
-// short walk rather than a number somebody edited. Same exit as the other
-// canary: no receipt, no contact sheet.
-const XWIDTH_CANARY = process.env.SWEEP_XWIDTH_CANARY === "1";
 // **A WIDTH THAT DIED PARTWAY.** Separate from `SKIPPED` on purpose and not a
 // second skip mechanism: a declared skip is a surface PROVED unreachable, and
 // this is the opposite — nobody knows what those surfaces would have said.
@@ -1653,18 +1565,6 @@ for (const w of SIZES) {
     signedIn = await ctx.storageState();
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
-  // ROADMAP 2.24 — MARK EVERY GUIDE AS SEEN BEFORE MEASURING ANYTHING.
-  //
-  // A tab guide arrives the first time THIS BROWSER opens that tab, and
-  // every width here is a fresh browser — so without this the script is
-  // racing an overlay on four of the five tabs, and an overlay that
-  // deliberately swallows pointer events. It broke the run at the first
-  // width the day the guides shipped.
-  //
-  // **CLEARED AGAIN, DELIBERATELY, in the block that walks them at the end.**
-  // Seeding this is not "turning the feature off for the tests": it is the
-  // ordinary state of every account that has already used the product once,
-  // which is what the other fifty measurements are about.
   // ROADMAP 8.17 STAGE 2B — `LANG=es` SWEEPS THE SPANISH DASHBOARD, and the
   // reason it is worth a flag is a MEASUREMENT rather than a worry: Spanish
   // runs longer than English word for word, and this product supports a
@@ -1678,8 +1578,6 @@ for (const w of SIZES) {
   const lang = process.env.LANG_APP === "es" ? "es" : "en";
   await page.evaluate((lang) => {
     try {
-      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "calendar", "money", "clients", "business"]));
-      localStorage.setItem("dp.tour", "1");
       localStorage.setItem("dp.lang.app", lang);
     } catch { /* private mode */ }
   }, lang);
@@ -2085,20 +1983,10 @@ for (const w of SIZES) {
         await card.first().click();
         await settle(page, 500);
       }
-      /* **NOTHING IS CLICKABLE WHILE A GUIDE IS UP** - the same sentence the
-         guide loop below already carries, and this section did not. A tab press
-         starts a guide on a 900ms timer, this close button is the first thing
-         under it, and the click waits the full 15 seconds and aborts the whole
-         width. Measured 2026-10-02: four of five widths died on the surface
-         after `Calendar - day, How this day works`, which is this line.
-         **AND THE CLOSE BUTTON MAY SIMPLY NOT BE THERE.** All three editors
+      /* **THE CLOSE BUTTON MAY SIMPLY NOT BE THERE.** All three editors
          above report "no such editor on this day" when the day is empty, so a
          `.first().click()` on a locator matching nothing is a guaranteed
          15-second abort rather than a finding. */
-      if (await page.locator(".tourblock").count()) {
-        await page.keyboard.press("Escape");
-        await settle(page, 400);
-      }
       const dayClose = page.locator(".daypanel .x");
       if (await dayClose.count()) {
         await dayClose.first().click();
@@ -2362,7 +2250,7 @@ for (const w of SIZES) {
   // ---- THE LONG TAIL: 28 of the 56 states, and the half that is skipped at
   // 1440 and 360. Everything above this line runs at every width.
   if (!deep) {
-    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — ${BUSINESS_ROWS.length + GEAR_ROWS.length} settings screens, the gear, setup x7, tour x7`);
+    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — ${BUSINESS_ROWS.length + GEAR_ROWS.length} settings screens, the gear, setup x7`);
     continue;
   }
 
@@ -2796,16 +2684,16 @@ for (const w of SIZES) {
     found++;
   }
 
-  // FIRST RUN — THE SETUP FORM'S SEVEN STEPS AND THE WALKTHROUGH'S SEVEN,
-  // added 2026-09-02 with roadmap 2.11 step 6 stage 7. It is the same finding
-  // this script has now made six times: a screen nothing enters reports
-  // exactly like a screen that was entered and found clean. These two are the
-  // worst case of it, because NEITHER IS REACHABLE BY CLICKING A TAB — the
-  // form is behind a row that only exists while setup is unfinished, and the
-  // tour is behind a row in the gear. Every step is a different screen: step 1
+  // FIRST RUN — THE SETUP FORM'S STEPS, added 2026-09-02 with roadmap 2.11
+  // step 6 stage 7. It is the same finding this script has now made six
+  // times: a screen nothing enters reports exactly like a screen that was
+  // entered and found clean. This is the worst case of it, because IT IS NOT
+  // REACHABLE BY CLICKING A TAB — the form is behind a row that only exists
+  // while setup is unfinished. Every step is a different screen: step 1
   // carries a list that grows with the tenant, step 5 is a single control with
-  // most of a phone under it, step 7 is a whole settings screen embedded, and
-  // the tour's caption is a 340px fixed box that has to fit a 320px phone.
+  // most of a phone under it, step 7 is a whole settings screen embedded.
+  // (The guided tour walked here too until ROADMAP 9.15 retired the tour and
+  // 9.15a retired its walk.)
   //
   // NOTHING HERE WRITES. The form is walked with "I'll do this later", which
   // is the skip path; Continue is the one that commits and is never pressed.
@@ -2882,321 +2770,6 @@ for (const w of SIZES) {
     const x = page.locator(".setupform .x");
     if (await x.count()) await x.click({ timeout: 5000 }).catch(() => {});
     await settle(page, 700);
-  }
-
-  await page.getByRole("button", { name: NAMED("Settings"), exact: true }).first().click();
-  await settle(page, 1400);
-  const tourRow = page.locator(".nav-row", { hasText: NAMED_TEXT("Show me around") });
-  if (!(await tourRow.count())) {
-    console.log(`${"the tour row".padEnd(24)} NO SUCH ROW`);
-    found++;
-  } else {
-    await tourRow.first().click();
-    await settle(page, 1800);
-    // The tour is six steps on an empty dashboard and seven on a seeded one
-    // (a step whose target is absent skips itself), so the loop asks whether
-    // the card is still there rather than counting to a fixed number.
-    // THE ONE THING IN THIS SCRIPT THAT IS NOT ABOUT AN EDGE, and it is here
-    // rather than in a suite of its own because the tour is already open, the
-    // browser is already logged in, and the alternative is a SECOND
-    // login-dependent browser test for two assertions.
-    //
-    // It exists because the walkthrough overlay says aria-modal="true" and
-    // its rule 1 says the lit element is not clickable, and BOTH of those
-    // were false when it was built: a backdrop stops a pointer and stops
-    // nothing else, so Tab walked into the dashboard behind the dim. Two
-    // React defects hid the fix twice (an effect keyed on an inline callback
-    // re-ran its own cleanup; a `visibility: hidden` card cannot take focus).
-    // Nothing this script otherwise measures could see any of it — a tour
-    // with no keyboard behaviour photographs perfectly. One width is enough:
-    // the trap has no layout in it.
-    if (w === 392) {
-      // **WAIT FOR THE FOCUS, DO NOT GLANCE AT IT — found by the first `--lite`
-      // run, 2026-09-19, and it is the hazard this file predicted for that
-      // path in writing.** The check asked once, immediately, and under
-      // reduced motion it asked too early: `FOCUS IS OUTSIDE THE CAPTION CARD`
-      // on a product that does nothing wrong.
-      //
-      // **Measured before changing anything, both paths, same page:**
-      //
-      //   NORMAL +200ms card=false   LITE +200ms card=false
-      //   NORMAL +400ms focusInCard=true, active=DIV.tourcard
-      //   LITE   +400ms focusInCard=true, active=DIV.tourcard
-      //
-      // Identical. The card and its focus both arrive at ~400ms either way —
-      // **so this was an INSTRUMENT defect, not an accessibility one**, and
-      // the lite path did exactly what it is for: with nothing animating the
-      // DOM goes quiet sooner, `settle()` returns earlier, and a check that
-      // glances instead of waiting starts losing a race it used to win by
-      // accident.
-      //
-      // A timeout is the right shape here and a longer `settle()` is not: this
-      // must still FAIL if focus never arrives, which is the defect it was
-      // written for.
-      const focused = await page.waitForFunction(
-        () => !!document.querySelector(".tourcard")?.contains(document.activeElement),
-        null, { timeout: 4000 },
-      ).then(() => true).catch(() => false);
-      if (!focused) {
-        console.log(`${"tour · focus on open".padEnd(24)} FOCUS IS OUTSIDE THE CAPTION CARD after 4s`);
-        found++;
-      }
-      for (let k = 0; k < 5; k++) {
-        await page.keyboard.press("Tab");
-        await settle(page, 200);
-        const a = await page.evaluate(() => {
-          const el = document.activeElement;
-          if (!el || el === document.body) return null;   // the browser's own cycle stop
-          return document.querySelector(".tourcard")?.contains(el) ? null
-            : (el.tagName + "." + el.className).slice(0, 50);
-        });
-        if (a) { console.log(`${"tour · tab escapes".padEnd(24)} ${a}`); found++; break; }
-      }
-    }
-
-    let tourLast = null;
-    let tourWalked = 0;
-    // **SEVEN WAS A NUMBER, NOT A CONDITION — the same defect this file already
-    // records about the guides, still sitting in the tour loop underneath it,
-    // and found on 2026-09-20 by the plan-versus-walk check the moment that
-    // check existed.** At 392 and 320 the tour walked all seven and its last
-    // card still read `3 of 6`: three more cards it never got to, and every
-    // run before this one reported that as seven clean surfaces. Twenty-four is
-    // a bound rather than an expectation, and the walk now says when it hits it
-    // so a short WALK can never be reported as a short GUIDE.
-    // **MEASURED AT 33 ON 2026-09-20** — 4 + 6 + 6 + 5 + 6 + 6, six blocks, ending
-    // cleanly on `6/6`. The old bound of 7 was not a bound, it was the answer:
-    // `sweep-widths.expected.json` lists `tour · step 1` to `7` because seven is
-    // what this loop used to press, so **26 screens of this product had never
-    // been measured at any width** and the gate that exists to catch exactly
-    // that had been seeded from the instrument it was meant to check. Forty-
-    // eight is a ceiling with room in it, and `WALK HIT ITS OWN CEILING` now
-    // says so out loud rather than reporting a short walk as a finished tour.
-    const TOUR_BOUND = Number(process.env.SWEEP_TOUR_BOUND || 48);
-    // The sequence of step counters the walk saw, so the BLOCK STRUCTURE of a
-    // multi-tab tour is readable from the log instead of inferred. `1/4 2/4
-    // 3/4 4/4 1/6 …` is a tour crossing from a four-step tab to a six-step
-    // one; the same pair twice running is a tour that is not advancing.
-    const tourTrail = [];
-    // **HOW LONG THE NEXT CARD ACTUALLY TOOK, PRINTED RATHER THAN ASSUMED —
-    // 2026-09-20, ROADMAP 14.10 and 14.11.** This line used to be
-    // `settle(page, 1000)` and threw away the number it returned, so the
-    // figure the whole truncation finding rested on was the one figure nobody
-    // had ever read. Measured, it was ~250ms inside a tab and ~560ms on the
-    // press that crosses to a new tab — quiet, and no card. The pace is kept
-    // because it is what tells a slow load from a dead press: a real wait
-    // ending in `EMPTY` is the tour finishing, and every number before it is
-    // how long the product took to answer.
-    const tourPace = [];
-    // Set only by a press whose bounded wait came back EMPTY. A walk that
-    // broke because the card was already gone leaves it false, and false is
-    // what refuses every write-off below.
-    let tourEndProved = false, tourEndMs = null;
-    for (let k = 1; k <= TOUR_BOUND; k++) {
-      if (!(await page.locator(".tourcard").count())) break;
-      // READ BEFORE THE PRESS. After the click the card is either the next
-      // step or gone, and "how far did this walk get" is a question about the
-      // last card that was actually on the screen.
-      tourLast = (await cardPlan(page)) || tourLast;
-      if (tourLast) tourTrail.push(`${tourLast.at}/${tourLast.of}`);
-      await say(`tour · step ${k}`);
-      tourWalked = k;
-      if (GUIDE_CANARY && k >= 2) break;
-      if (XWIDTH_CANARY && w === SIZES[0] && k >= 5) break;
-      await page.locator(".tourcard button.primary").click();
-      const step = await nextCard(page, tourLast);
-      tourPace.push(step.arrived ? String(step.ms) : step.ms + "=EMPTY");
-      if (!step.arrived) { tourEndProved = true; tourEndMs = step.ms; break; }
-    }
-    console.log(`${"tour · the pace".padEnd(24)} waited up to ${TOUR_WAIT_MS}ms per press; `
-      + `the next card took ${tourPace.join(" ") || "-"}`);
-    // The block structure, derived from the trail: a counter that restarts at
-    // 1 is a new tab. `1/4 2/4 3/4 4/4 1/6 …` is [4, 6, …].
-    const tourBlocks = [];
-    for (const pair of tourTrail) {
-      const [at, of_] = pair.split("/").map(Number);
-      if (at === 1) tourBlocks.push(of_); else tourBlocks[tourBlocks.length - 1] = of_;
-    }
-    console.log(`${"tour · the walk".padEnd(24)} ${tourTrail.join(" ")}`);
-    // **TWO DIFFERENT NUMBERS, PRINTED APART.** The block sizes are what the
-    // cards DECLARED; `tourWalked` is how many were actually pressed. The
-    // cross-width canary printed `4 + 6 = 5` — true on both halves and
-    // nonsense as an equation — because a walk cut short after the first card
-    // of a six-step block still learns that the block is six. Anywhere those
-    // two numbers disagree is a walk that did not finish, and the line now
-    // says so instead of quietly picking one.
-    const blockSum = tourBlocks.reduce((a, c) => a + c, 0);
-    console.log(`${"tour · the blocks".padEnd(24)} ${tourBlocks.length} block(s) declaring ${tourBlocks.join(" + ")} = ${blockSum} step(s); `
-      + `${tourWalked} walked${blockSum === tourWalked ? "" : " — SHORT BY " + (blockSum - tourWalked)}`);
-    WALKS.push({ width: w, prefix: "tour · step ", what: "the tour", walked: tourWalked, last: tourLast,
-      blocks: tourBlocks, endProved: tourEndProved, endMs: tourEndMs,
-      hitBound: tourWalked >= TOUR_BOUND && (await page.locator(".tourcard").count()) > 0 });
-
-    // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
-    // them. This script is the only thing in the repo that opens a tour at
-    // all, and a guide it does not walk is one no width ever measures.
-    //
-    // EACH ONE ARRIVES BY ITSELF the first time this browser opens that tab,
-    // which is why the loop presses the tab and then waits rather than
-    // asking for anything: the arrival IS the behaviour. **Calendar is
-    // deliberately absent** — it has no guide, and a run that reported one
-    // missing would be reporting the design as a defect.
-    //
-    // The count is PRINTED rather than asserted: how many steps a guide has
-    // depends on what this dashboard holds, and pinning a number here would
-    // make a seed change look like a broken tour.
-    // The guides were marked seen at sign-in so they could not interrupt the
-    // fifty measurements above; this is where they are given back.
-    //
-    // **AND FOR SIX DAYS THEY WERE NOT — measured 2026-09-19.** Suppression at
-    // sign-in writes TWO keys (`dp.tours` AND `dp.tour`) and this line gave
-    // back ONE, so `seenTours()` — which is an OR over both — stayed true and
-    // no guide could ever arrive. Five surfaces printed NOT MEASURED every run
-    // and nothing anywhere connected the two facts.
-    //
-    // **THE FAR CAUSE WAS NOT HERE AT ALL, AND NO AMOUNT OF CLEARING WOULD
-    // HAVE FOUND IT.** `App.jsx` reads a `user_tours` row for the person on
-    // sign-in and calls `markTourSeen()`, which writes `dp.tour` straight back.
-    // The demo owner had such a row. Probed: with the row present a guide
-    // arrived 0 of 6 times even with BOTH keys cleared; with it gone, 6 of 6.
-    // `seed-demo.mjs` deletes it on every seed now, which is where it belongs —
-    // this file can only clear the near cause.
-    await page.evaluate(() => {
-      try { localStorage.removeItem("dp.tours"); localStorage.removeItem("dp.tour"); } catch { /* private mode */ }
-    });
-    // CALENDAR JOINED THE LIST ON 2026-09-10, the day it got a guide at all.
-    for (const [tab, name] of [["Today", "today"], ["Calendar", "calendar"],
-      ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
-      // BY ATTRIBUTE, NOT BY NAME. The pair already carries the `data-tour`
-      // value as its second element, so there was never a reason to look this
-      // button up by a word that translates. The five rail buttons above have
-      // been addressed this way since 8.17; this loop was missed.
-      // **NOTHING IS CLICKABLE WHILE A GUIDE IS UP**, so every iteration of
-      // this loop starts by making sure there is not one — including the
-      // first, because the tab press that BEGAN this section can start a
-      // guide of its own on the 900ms timer. Measured 2026-09-10: the sweep
-      // died on the very first click here, before any of the presses below
-      // had run, with `.tourblock` already eating the event.
-      if (await page.locator(".tourblock").count()) {
-        await page.keyboard.press("Escape");
-        await settle(page, 400);
-      }
-      // **AND CLOSING A GUIDE MARKS IT SEEN**, which is right for a detailer
-      // and wrong for a measurement: the escape above, or the previous tab's
-      // own Done, writes that name into `dp.tours` and the next guide never
-      // arrives. Cleared per tab, so each one is met by a profile that has
-      // never seen it — which is the state this block exists to measure.
-      // BOTH KEYS, for the reason the block header now gives: `seenTours()` is
-      // an OR, so leaving `dp.tour` set makes clearing `dp.tours` a no-op.
-      await page.evaluate(() => {
-        try { localStorage.removeItem("dp.tours"); localStorage.removeItem("dp.tour"); } catch { /* private mode */ }
-      });
-      const btn = page.locator(`.tabbar button[data-tour="${name}"]`).first();
-      if (!(await btn.count())) {
-        // This sweep signs in as the OWNER, who has all four, so a missing tab
-        // is a finding rather than the staff case the old comment assumed.
-        console.log(`guide · ${name}`.padEnd(24) + "NOT MEASURED — no such tab for this account");
-        found++; continue;
-      }
-      /* ══ THE INTERMITTENT 1920 ABORT LIVES ON THIS LINE ══════════════════
-         Caught 2026-10-03 by `SWEEP_ABORT_CANARY`, which was aimed at a
-         different width entirely - **an unplanted catch, and the only evidence
-         a check ever has that it works on something nobody anticipated.**
-
-         What the call log said, once the abort stopped printing only its first
-         line: `waiting for locator('.tabbar button[data-tour="today"]')` ->
-         `locator resolved to <button class="active" data-tour="today">` ->
-         `2 x waiting for element to be visible, enabled and stable`.
-
-         **SO IT IS NOT COVERED AND IT IS NOT MISSING. IT IS MOVING.** Playwright
-         fails `stable` when the bounding box changes between two animation
-         frames, and it waited the full timeout - which is not a 180ms leave
-         animation, it is something that never settles. `say()` finishes every
-         FINITE animation before measuring and deliberately leaves infinite ones
-         alone (`finish()` on one throws), so an infinite animation on or above
-         the tab bar would do exactly this, and would do it only on the runs
-         where it happens to be running here.
-
-         **THIS DOES NOT RETRY.** A retry would convert an intermittent defect
-         into a green run, which is this repo's entire subject. It catches the
-         failure, records what was animating and what owns the pixel under the
-         button, prints it, and rethrows so the width still aborts. The next
-         occurrence arrives as evidence instead of as a timeout. */
-      try {
-        await btn.click();
-      } catch (clickErr) {
-        const why = await page.evaluate(() => {
-          const b = document.querySelector('.tabbar button[data-tour="today"]');
-          const r = b && b.getBoundingClientRect();
-          const anims = document.getAnimations().map((a) => {
-            const t = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : {};
-            return {
-              name: (a.animationName || (a.effect && a.effect.target && a.effect.target.className) || "?").toString().slice(0, 40),
-              state: a.playState,
-              infinite: !Number.isFinite(t.endTime),
-              on: (a.effect && a.effect.target && a.effect.target.tagName) || "?",
-            };
-          });
-          const hit = r ? document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)) : null;
-          return {
-            rect: r ? { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) } : null,
-            ownsThePixel: hit ? (hit.tagName + "." + String(hit.className).split(" ")[0]) : "nothing",
-            running: anims.filter((a) => a.state === "running"),
-            infiniteRunning: anims.filter((a) => a.state === "running" && a.infinite),
-          };
-        }).catch(() => null);
-        console.log(`\nGUIDE CLICK FAILED at ${w}px on the ${name} tab - FORENSICS, not a retry:`);
-        console.log("  " + JSON.stringify(why));
-        throw clickErr;
-      }
-      // `settle()` IS THE WRONG INSTRUMENT AGAIN, and this is the fifth time
-      // in this file. The guide is started on a 900ms timer — deliberately,
-      // so it plans against a drawn screen rather than a loading one — and
-      // settle returns as soon as the DOM has been quiet for 130ms, which on
-      // a cached tab is long before that. It reported NOT MEASURED four times
-      // about four guides that were about to appear.
-      await page.locator(".tourcard").first().waitFor({ timeout: 4000 }).catch(() => {});
-      await settle(page, 800);
-      if (!(await page.locator(".tourcard").count())) {
-        console.log(`${("guide · " + name).padEnd(24)} NOT MEASURED — no guide arrived; it has been seen on this profile, or every target is absent`);
-        continue;
-      }
-      const steps = await page.locator(".tourcard .label").first().innerText().catch(() => "?");
-      console.log(`${("guide · " + name).padEnd(24)} ${steps.replace(/\s+/g, " ")}`);
-      // **FIVE PRESSES WAS A NUMBER, NOT A CONDITION, AND IT BROKE THE WHOLE
-      // SWEEP ON 2026-09-10.** The guides were two and three steps when this
-      // was written; they are five to eight now, so five presses left the
-      // tour OPEN — and `.tourblock` eats every pointer event by design, so
-      // the next tab click in this loop timed out forty lines deep in a
-      // Playwright log with no line in it saying "a guide is in the way".
-      // Twelve is a bound rather than an expectation, and Escape is what
-      // actually guarantees the next iteration can click.
-      let last = null;
-      let walked = 0;
-      let endProved = false, endMs = null;
-      const GUIDE_BOUND = 12;
-      for (let k = 1; k <= GUIDE_BOUND; k++) {
-        if (!(await page.locator(".tourcard").count())) break;
-        last = (await cardPlan(page)) || last;
-        await say(`guide · ${name} ${k}`);
-        walked = k;
-        if (GUIDE_CANARY && k >= 2) break;
-        await page.locator(".tourcard button.primary").click();
-        // Same rule as the tour: a guide's end is a press whose wait came back
-        // empty, never a card that happened to be gone when we looked.
-        const step = await nextCard(page, last);
-        if (!step.arrived) { endProved = true; endMs = step.ms; break; }
-      }
-      WALKS.push({ width: w, prefix: `guide · ${name} `, what: `the ${name} guide`, walked, last, endProved, endMs,
-        hitBound: walked >= GUIDE_BOUND && (await page.locator(".tourcard").count()) > 0 });
-      // BELT AND BRACES, and the belt is the part that matters: a guide left
-      // open is not a finding about this tab, it is a failure of every
-      // measurement after it.
-      if (await page.locator(".tourcard").count()) {
-        await page.keyboard.press("Escape");
-        await settle(page, 400);
-      }
-    }
   }
 
   } catch (e) {
@@ -3366,201 +2939,6 @@ if (process.argv.includes("--dump-fingerprints")) {
   const perWidth = {};
   for (const c of CERT) (perWidth[c.width] ??= []).push(c.label);
 
-  // 2a · THE GUIDES AND THE TOUR ARE GRADED ON THEIR OWN PLAN, NOT ON THE
-  // INVENTORY — 2026-09-20, Andrew's ruling, and the reason is in `WALKS`.
-  //
-  // Everything else in this file is a fixed list of screens that must exist.
-  // A guide is not that: it is a plan made at runtime against the screen in
-  // front of it, and its length is a fact about the dashboard rather than
-  // about the product. So the inventory keeps every guide label — a label that
-  // leaves that file is a screen nobody checks again — and this block decides
-  // which of them this dashboard could have produced.
-  //
-  // THE RULE, and it is one line: **a guide that reached its own last card
-  // walked everything it meant to; a guide that did not, broke.** The card's
-  // "N OF M" is the guide speaking, not this script counting its own presses
-  // and agreeing with itself.
-  //
-  // **`M` IS THE BLOCK, NOT THE WALK — found by the canary, 2026-09-20.** The
-  // first wording here said "planned M steps", and the broken-on-purpose run
-  // printed `the tour planned 4 step(s)` for a walk the real sweep had taken
-  // SEVEN steps of. A multi-tab tour restarts the counter at each tab, so `M`
-  // is the size of the block the last card sat in and nothing on any card
-  // states the length of the whole walk. Every line below therefore reports
-  // the walk length and the last card separately, and claims no total. The
-  // completeness test is unaffected: `N < M` means the guide had another card
-  // ready and the walk ended anyway, whichever block it was in.
-  //
-  // What this deliberately does NOT do is subtract anything when the guide
-  // stopped short. That is the failure this whole block exists to make
-  // visible, and writing it off as a shorter plan is exactly the nudge the
-  // ruling forbids.
-  if (WALKS.length && !ONLY && !WRITE_EXPECTED && existsSync(EXPECTED_PATH)) {
-    const doc = JSON.parse(readFileSync(EXPECTED_PATH, "utf8"));
-    for (const k of WALKS) {
-      const owedLabels = (expectedMap(doc, k.width)[String(k.width)] || []).filter((l) => l.startsWith(k.prefix));
-      const got = (perWidth[k.width] || []).filter((l) => l.startsWith(k.prefix));
-      const short = owedLabels.filter((l) => !got.includes(l));
-      const head = `${k.prefix.trim()} @${k.width}`.padEnd(24);
-      if (!k.last) {
-        // No step counter was ever read, so there is no plan to grade against
-        // and nothing may be written off. The gate below still fails on every
-        // label this walk did not produce, which is the correct answer to
-        // "nobody knows how long it was supposed to be".
-        console.log(`${head} NO STEP COUNTER READ — ${k.walked} step(s) walked, plan unknown, nothing written off`);
-        continue;
-      }
-      if (k.hitBound) {
-        // **THE WALK RAN OUT, NOT THE GUIDE.** Reported apart from STOPPED
-        // EARLY on purpose: one of them is a defect in the product and the
-        // other is a number in this file, and a check that prints the same
-        // sentence for both sends somebody to read the wrong code.
-        console.log(`${head} WALK HIT ITS OWN CEILING — ${k.what} was still showing cards after `
-          + `${k.walked} press(es) (last card ${k.last.at} of ${k.last.of}). This is THIS SCRIPT's bound, `
-          + `not a fault in the guide. Raise it, then re-read the expectation diff.`);
-        found++;
-        continue;
-      }
-      if (k.last.at < k.last.of) {
-        // **THE FINDING THIS BLOCK WAS BUILT TO SEPARATE OUT.** The guide said
-        // it had `of` steps and the walk never reached them.
-        console.log(`${head} STOPPED EARLY — ${k.what} walked ${k.walked} step(s) and the last card it `
-          + `showed was ${k.last.at} of ${k.last.of}. It had more to say and the walk ended anyway: that is `
-          + `a broken guide, not a quieter dashboard, and the ${short.length} label(s) it owes are NOT `
-          + `being written off.`);
-        found++;
-        continue;
-      }
-      if (!short.length) {
-        console.log(`${head} ${k.walked} step(s), ended on the last card it had (${k.last.at} of ${k.last.of}) — complete, and the inventory agrees`);
-        continue;
-      }
-      // **A SKIP CARRIES THE EVIDENCE THAT THE SURFACE WAS REACHED AND
-      // REFUSED, OR IT IS NOT A SKIP — 2026-09-20, ROADMAP 14.11.** Everything
-      // below writes labels off as steps this dashboard cannot produce. That
-      // is a claim about the PRODUCT, and until today it rested on
-      // `k.last.at === k.last.of` — the walk ended on the last card of a
-      // block. **At a tab boundary that is exactly what a walk that died looks
-      // like**, because the card there reads `5 of 5` too. So the sweep issued
-      // itself a licence for its own truncation, once per run, and the gate
-      // believed it.
-      //
-      // `endProved` is the evidence and nothing else will do: the walk
-      // pressed, waited the full `TOUR_WAIT_MS`, and no new card came. A walk
-      // that stopped because the card was already gone when it looked has
-      // proved nothing about the product, so it writes nothing off and the run
-      // does not get to pass on it.
-      if (!k.endProved) {
-        console.log(`${head} ENDED WITHOUT PROOF — ${k.what} walked ${k.walked} step(s), last card `
-          + `${k.last.at} of ${k.last.of}, and the walk stopped because the card was already gone rather `
-          + `than because a press and a full wait came back empty. Nothing here shows the ${short.length} `
-          + `label(s) it owes are ABSENT rather than MISSED, so none are written off: ${short.join(", ")}`);
-        found++;
-        continue;
-      }
-      // Reached its own last card, and the inventory wanted more than this
-      // dashboard could offer. Each surplus label becomes a DECLARED skip with
-      // the plan quoted in it, so `skipped_targets` and the receipt carry the
-      // reason rather than the run quietly measuring fewer things.
-      for (const l of short) {
-        addSkip(SKIPPED, {
-          width: k.width,
-          label: l,
-          evidence: pressEvidence(k.endMs, TOUR_WAIT_MS),
-          reason: `${k.what} walked ${k.walked} step(s) on this dashboard and ended on the last card it had `
-            + `(${k.last.at} of ${k.last.of}). `
-            + `A step whose target is absent removes itself (Walkthrough.jsx, the plan's presence filter), `
-            + `so this label is a step this dashboard cannot produce — not a step that was missed`,
-        });
-      }
-      console.log(`${head} ${k.walked} step(s), ended on the last card it had (${k.last.at} of ${k.last.of}) — `
-        + `${short.length} inventory label(s) this dashboard cannot produce: ${short.join(", ")}`);
-    }
-  }
-  // 2b · THE ONE QUESTION A PER-WIDTH CHECK CANNOT ASK — 2026-09-20.
-  //
-  // Everything above asks each width, on its own, whether a guide reached its
-  // own last card. At 1440 the tour reaches `5 of 5` and believes it has
-  // finished; at 392 the same press sequence crosses into `1/6` and runs
-  // through five more tabs. **Both answers are internally consistent and one
-  // of them is a product that stops after its first tab.** A plan truncated
-  // before it was printed is invisible to the width it happened on, and the
-  // only instrument that sees it is the other widths.
-  //
-  // **IT FAILS ON THE DISAGREEMENT AND NAMES EVERY WIDTH. It does not guess
-  // which one is right** — Andrew, 2026-09-20 — because picking a winner here
-  // is the same move as re-pointing the expectation at whichever answer is
-  // convenient, and the evidence for who is correct is not in this run.
-  //
-  // WHAT IS COMPARED IS THE BLOCK COUNT, NOT THE BLOCK SIZES. A tab's guide is
-  // legitimately shorter on a narrow screen — Today is 5 steps at 1440 and 4
-  // at 320, because a target is absent — so comparing sizes would cry wolf on
-  // the very behaviour the check above exists to accept. How many TABS the
-  // tour visits is not a function of screen width, and that is the number
-  // being held to account.
-  // **A WIDTH THAT ABORTED IS NOT A DISAGREEMENT — measured 2026-09-20, the
-  // first graded run after this block was written.** 1440 died on a click
-  // timeout after 84 of 125 surfaces, so it never reached the guides at all,
-  // and this check reported five separate `guide · … never arrived at 1440px`
-  // findings plus a tour of nought blocks. Every one of them was true and all
-  // of them were the abort wearing a costume. The expected-count gate forty
-  // lines above already carries this rule in its own words — *a width that
-  // aborted is not ninety findings, it is one* — and a check written after it
-  // managed not to inherit it. A width with no walks at all is the same
-  // silence and is excluded for the same reason.
-  const LIVE = SIZES.filter((x) => !ABORTED.some((a) => a.width === x)
-    && WALKS.some((k) => k.width === x));
-  if (LIVE.length < SIZES.length) {
-    const out = SIZES.filter((x) => !LIVE.includes(x));
-    console.log(`cross-width    ${out.join(", ")}px left out of the comparison — `
-      + `${ABORTED.length ? "the width aborted" : "no guide or tour ran there"}, so it has nothing to disagree with`);
-  }
-  if (LIVE.length > 1) {
-    const tours = WALKS.filter((k) => k.blocks && k.blocks.length && LIVE.includes(k.width));
-    const shapes = new Map();
-    for (const t of tours) shapes.set(t.width, t.blocks);
-    const counts = new Set([...shapes.values()].map((b) => b.length));
-    if (counts.size > 1) {
-      console.log(`
-CROSS-WIDTH DISAGREEMENT: the tour visits a different number of tabs depending on width.`);
-      for (const [width, b] of shapes) {
-        console.log(`  ${String(width).padStart(5)}px  ${b.length} block(s): ${b.join(" + ")} = ${b.reduce((a, c) => a + c, 0)} step(s)`);
-      }
-      console.log(`  How many tabs a tour visits is not a function of screen width. One of these is a `
-        + `plan that was cut short before it was drawn, and THIS RUN CANNOT SAY WHICH — the width it `
-        + `happened on reports a tour that finished.`);
-      found++;
-    } else if (tours.length) {
-      console.log(`cross-width    the tour visits ${[...counts][0]} tab(s) at every width`);
-    }
-    // The same question about the tab guides, where the answer is presence
-    // rather than shape: a guide that arrives at one width and not another.
-    // Step COUNTS are deliberately not compared, for the reason above.
-    const byGuide = new Map();
-    for (const k of WALKS.filter((x) => x.prefix.startsWith("guide · ") && LIVE.includes(x.width))) {
-      if (!byGuide.has(k.prefix)) byGuide.set(k.prefix, new Set());
-      byGuide.get(k.prefix).add(k.width);
-    }
-    for (const [prefix, widths] of byGuide) {
-      if (widths.size === LIVE.length) continue;
-      const missing = LIVE.filter((x) => !widths.has(x));
-      console.log(`
-CROSS-WIDTH DISAGREEMENT: ${prefix.trim()} arrived at ${[...widths].join(", ")}px `
-        + `and never at ${missing.join(", ")}px. A guide is not a responsive feature.`);
-      found++;
-    }
-  }
-
-  if (GUIDE_CANARY || XWIDTH_CANARY) {
-    // A run with a hook on is not a measurement of anything. It exists to
-    // prove the paragraphs above can still fail, and it stops here so it can
-    // never be filed as a real one.
-    console.log(`
-CANARY RUN (${GUIDE_CANARY ? "guide walks cut short" : `the tour cut short at ${SIZES[0]}px only`}) — `
-      + `${GUIDE_CANARY ? "the lines above must say STOPPED EARLY" : "the lines above must report a CROSS-WIDTH DISAGREEMENT naming every width"}, `
-      + `and ${found} finding(s) are counted so far. No receipt is written and no contact sheet is filed.`);
-    process.exit(found ? 0 : 1);
-  }
   if (WRITE_EXPECTED) {
     // A SEPARATE COMMAND, ON PURPOSE — report § "Discipline", rule 8: the thing
     // that compares against a baseline must never also approve a new one. This
