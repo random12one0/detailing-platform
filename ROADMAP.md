@@ -16265,9 +16265,26 @@ rather than wording went to Andrew.
   checks).
   *A2 6.3*
 
-- [ ] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
+- [x] **7.6 — "Unlimited photos" against a 1 GB cap.** The back office shows
   1 GB total, "10.2 MB promised to each". Raise the storage or change the words.
   *A2 6.4*
+  **DONE 2026-10-10 — closed inside 0.11's raise, as this entry asked. No product
+  code changed: the line already read `photo_store_state()` through
+  `platform-admin`; what was missing was proof against the raised store.**
+  `node scripts/photo-allowance-figure.mjs` (dev server + `.env`, throwaway admin
+  made and dropped) at 1440 and 392: the live database answers
+  `photo_total_bytes()` 10737418240 / `photo_tenant_share()` 100 = 107374182, and
+  System health prints *"0.0 MB of 10240.0 MB · 17 detailers, 102.4 MB promised to
+  each."* — equal at both widths. A second load answering the old 1 GB store moved
+  the line to *"10.2 MB"* and printed *"PROMISED 1740.8 MB, which is more than
+  exists."* (the refused case). Home, `/pricing`, `/book/demo-detail` and all five
+  back-office tabs carry no "unlimited … photo". **20 of 20, console clean at both
+  widths**, canary caught, `receipt.mjs` PASS. **Broken on purpose:**
+  `--break=drift` (response share replaced with 1 GB / 100 — the original defect)
+  red on exactly the two share lines; `--break=word` ("Unlimited photos" put back
+  on `/pricing`) red on exactly the two `/pricing` lines. Taken at `3ef623e1`.
+  Not judged here: "10240.0 MB" is how the shared `mb()` formatter writes 10 GB —
+  correct, if not pretty; changing it is a separate copy call.
   **Done when** (written 2026-09-25; this item had none): **no page a detailer or
   a customer reads promises "unlimited" photos while any cap is in force**, and
   the figure the back office prints equals `photo_total_bytes()` divided by

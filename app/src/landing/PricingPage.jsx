@@ -429,7 +429,9 @@ export default function PricingPage() {
                 `20260906011000_photo_share.sql` exists precisely to stop this
                 page promising storage that does not exist yet. The decision
                 about what the real allowance should be is on Andrew's list
-                with the arithmetic attached. */}
+                with the arithmetic attached.
+                **Since 0.11 (2026-10-10) the total is 10 GB, so the share is
+                102.4 MB** — still a cap, so the word stays out. ROADMAP 7.6. */}
             <li>Unlimited services, bookings and staff logins</li>
             <li>Changes whenever you ask, for as long as you are on it</li>
             <li>No commission. A booked-out month costs the same as a slow one</li>
