@@ -37,7 +37,10 @@ const BASE = process.env.BASE_URL || "http://localhost:5173";
 const ART = join(REPO, "artifacts", "setup-prompts");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
 const OWNER = demoOwner();
-const SIZES = [{ w: 320, h: 844 }, { w: 1440, h: 900 }];   // 320 first
+// `SIZES=320x844,392x844,1440x900` overrides (9.15a ran all three); 320 first by default.
+const SIZES = process.env.SIZES
+  ? process.env.SIZES.split(",").map((s) => { const [w, h] = s.split("x").map(Number); return { w, h }; })
+  : [{ w: 320, h: 844 }, { w: 1440, h: 900 }];
 const VARIANTS = ["incomplete", "collapsed", "complete"];
 const ALL_KEYS = STEPS.map(([k]) => k);
 // The three sentences Today leads with when a step stops a booking. They are the

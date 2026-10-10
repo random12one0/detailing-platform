@@ -202,7 +202,9 @@ async function walk(who, creds, width) {
     await page.screenshot({ path: `${OUT}/${who}-${width}-tour.png` });
     const caption = (await tour.first().innerText()).split(/\n/).slice(0, 2).join(" · ");
     notes.push(`${who} @${width}: the tour opens unprompted — "${caption}"`);
-    await page.getByRole("button", { name: "Skip the tour" }).click();
+    // 9.15 retired the tour, so a tour here is a regression; its "Skip the tour"
+    // button left with it (9.15a), and Escape is what closes any overlay.
+    await page.keyboard.press("Escape");
     await page.waitForTimeout(900);
   } else {
     notes.push(`${who} @${width}: NO TOUR on a brand-new account`);
@@ -238,9 +240,7 @@ async function walk(who, creds, width) {
       await page.screenshot({ path: `${OUT}/${who}-${width}-${tab.toLowerCase().replace(/\W+/g, "")}-guide.png` });
       const cap = (await guide.first().innerText()).split(/\n/).slice(0, 2).join(" · ");
       notes.push(`${who} @${width}: ${tab} opens a guide — "${cap}"`);
-      const skip = page.getByRole("button", { name: "Skip the tour" });
-      if (await skip.count()) await skip.click();
-      else await page.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
       await page.waitForTimeout(700);
     }
     const shot = `${OUT}/${who}-${width}-${tab.toLowerCase().replace(/\W+/g, "")}.png`;
