@@ -1,0 +1,92 @@
+{
+  "git_sha": "36538733cdf4c90743392b3d806756b84ea3099e",
+  "git_sha_started": "36538733cdf4c90743392b3d806756b84ea3099e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T21:53:00.473Z",
+  "failures": [],
+  "warnings": [
+    "Reads the LIVE platform; this month has NO bills typed in, so the live pass asked the not-entered case and the fed pass asked the other.",
+    "The fed pass answers list, platform_net and platform_cost_add through page.route(); nothing is written to the database.",
+    "Signs in as a throwaway platform admin created and deleted by this run.",
+    "The look itself (color, glow, motion) is not judged here; the screenshots are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-money/live-1440.png",
+    "artifacts/office-money/fed-1440.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/9.12a/after-money.html",
+    "artifacts/office-money/live-768.png",
+    "artifacts/office-money/fed-768.png",
+    "artifacts/office-money/live-390.png",
+    "artifacts/office-money/fed-390.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844"
+    ],
+    "lite": false,
+    "observed": {
+      "1440 live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "1440 fed": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "768 live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "768 fed": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "390 live": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      },
+      "390 fed": {
+        "overlaps": [],
+        "clipped": [],
+        "overflowX": false,
+        "explainers": [],
+        "phoneLinks": 0
+      }
+    }
+  },
+  "check_id": "office-money",
+  "started_at": "2026-10-10T21:52:10.112Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 112,
+  "min_assertions": 112,
+  "assertion_floor": "3 widths x 37 questions (live 14, fed 13, typing a bill in 8, the refusal reaching the console 2) plus one no-write question = 112, all fixed by the code; none is conditional on what the live platform holds.",
+  "canary": {
+    "id": "pushed-step-label-and-guessed-kept-figure",
+    "observed_failure": true,
+    "kept": "\"You kept\" shows a figure ($987) on a month with no bill entered",
+    "overlap": "overlaps 0 -> 1"
+  }
+}
