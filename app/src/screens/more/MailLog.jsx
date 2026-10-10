@@ -42,7 +42,9 @@ import { Segmented } from "../../components/controls.jsx";
 // `EmailTrail.jsx`'s own header, and the reason `AdminPage` imports the same
 // map rather than copying it.
 import EmailTrail, { MAIL_STATE } from "../../components/EmailTrail.jsx";
-import { t } from "../../lib/appI18n.js";
+import Sheet from "../../components/Sheet.jsx";
+import { dateLong, localDate } from "../../lib/format.js";
+import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // The same 100 the back office asks for, because it is the same question one
@@ -55,12 +57,46 @@ const CAP = 100;
 const PROBLEMS = Object.keys(MAIL_STATE).filter((k) => MAIL_STATE[k].ok === false);
 const FILTERS = [["all", "Everything"], ["bad", "Problems"]];
 
+// ROADMAP 3.1d — THE EMAIL AS SENT, read one row at a time on opening so the
+// list never hauls up a hundred bodies. `body_html` is NULL for every send made
+// before the column existed (and for any whose copy was not kept), and that is
+// SAID rather than drawn as an empty frame. A database that does not have the
+// column yet answers 42703; that is the same fact, so it reads the same way.
+// The frame is `sandbox=""`: nothing in a stored email may run script or submit
+// a form from inside the dashboard.
+function MailPreview({ row, timezone, onClose }) {
+  const [body, setBody] = useState(undefined);   // undefined loading; null never stored; string stored
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let live = true;
+    supabase.from("email_sends").select("body_html").eq("id", row.id).maybeSingle()
+      .then(({ data, error: e }) => {
+        if (!live) return;
+        if (e && e.code !== "42703") setError(t("Could not read this email: {detail}", { detail: e.message }));
+        else setBody(e ? null : data?.body_html || null);
+      });
+    return () => { live = false; };
+  }, [row.id]);
+  const state = MAIL_STATE[row.status] ?? MAIL_STATE.sent;
+  return (
+    <Sheet title={row.subject} peek={80} onClose={onClose}
+      subtitle={`${row.to_email} · ${dateLong(localDate(row.sent_at, timezone), appIntlLocale().startsWith("es") ? "es" : "en")} · ${t(state.word)}`}>
+      {error ? <div className="error-box" role="alert">{error}</div>
+        : body === undefined ? <p className="quiet" aria-busy="true">{t("Loading…")}</p>
+        : body === null ? <p className="quiet" data-mail-nobody="">{t("This email's content was not saved. Only emails sent after previews were added keep a copy.")}</p>
+        : <iframe title={row.subject} sandbox="" srcDoc={body} data-mail-body=""
+            style={{ width: "100%", height: "60vh", border: 0, background: "#fff", borderRadius: "var(--r-sm, 6px)" }} />}
+    </Sheet>
+  );
+}
+
 export default function MailLog() {
   useAppLocale();
   const { business } = useBusiness();
   const [which, setWhich] = useState("all");
   const [rows, setRows] = useState(null);   // null while unknown; an array once the database has answered
   const [error, setError] = useState("");
+  const [opened, setOpened] = useState(null);   // the row whose email is open
   // DROPS AN ANSWER THAT LANDS AFTER THE SWITCH MOVED. Without it a slow
   // Everything read can arrive under Problems and paint rows that are not
   // problems — the same guard the back-office list carries.
@@ -115,7 +151,7 @@ export default function MailLog() {
             `.mail-scroll` for why putting it on the flex column itself
             stacked every row's text on the row above it. */}
         <div className="mail-scroll">
-          <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to groups
+          <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to groups onOpen={setOpened}
             empty={which === "bad"
               ? "Nothing has bounced, been refused or failed to send."
               : "No email has been sent yet."} />
@@ -130,6 +166,7 @@ export default function MailLog() {
           </div>
         )}
       </div>
+      {opened && <MailPreview row={opened} timezone={business.timezone} onClose={() => setOpened(null)} />}
     </div>
   );
 }

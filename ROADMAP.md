@@ -10097,6 +10097,20 @@ requested.
   body, and a row whose body was never stored says so rather than opening
   empty. *Andrew's review of 3.1, 2026-10-09. Slice 4 of 4.*
 
+  **BUILT 2026-10-10, NOT TICKED — the server half is not running.** A row is now a button that opens a sheet with the
+  email in a `sandbox=""` frame; a null body, or a database without the column (42703), says "This email's content was
+  not saved…"; a failed read says it could not read and never claims "not saved". Added: migration
+  `20261010010000_email_sends_keeps_the_body.sql` (`body_html`, nullable; reverses 14.3's "body is deliberately not
+  stored", on Andrew's request), `send-email` storing the body (capped 200,000 chars), `MailPreview` in `MailLog.jsx`,
+  `onOpen` on `EmailTrail`, two Spanish keys. Measured by `scripts/mail-log-preview.mjs`: 20 assertions, 0 failed, at 1440,
+  392 and 320; `--break=blank` fails 6 and `--break=unsandboxed` fails 3, both landed; console clean. Re-run unchanged:
+  `mail-log-gaps` 24/0, `mail-log-groups` 17/0, `mail-log-scroll` 20/0, `label-guard` clean, the four credential-free suites.
+  **The body read is a browser stub** (the column is not in the live database), so the real stored-body path is
+  UNJUDGEABLE in the receipt. **Order of Andrew's steps is load-bearing:** migration first, `send-email` second — the
+  reverse silently stops every email being logged (the insert is best-effort and swallows its error).
+  NEEDS ANDREW: apply migration 20261010010000, then publish `send-email`; only then can a real stored email be opened and the box ticked. FOR-ANDREW.md carries the row.
+  **NOT measured:** `?lite=1`; the sheet's look beyond `.manager-shots/3.1d/*.png`; Spanish rendering of the subtitle date.
+
 - [ ] **3.1e — the mail log's new scroll box has no edge treatment, and at
   phone width its bottom is underneath the tab bar.** 3.1a bounded the list
   correctly; what nobody specified is what its two edges should look like.

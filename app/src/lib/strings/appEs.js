@@ -313,6 +313,9 @@ export const appEs = {
   "No email has been sent yet.": "Todavía no se ha enviado ningún correo.",
   "Nothing has bounced, been refused or failed to send.":
     "Nada ha rebotado, sido rechazado ni fallado al enviarse.",
+  "Could not read this email: {detail}": "No se pudo leer este correo: {detail}",
+  "This email's content was not saved. Only emails sent after previews were added keep a copy.":
+    "El contenido de este correo no se guardó. Solo los correos enviados después de añadir las vistas previas conservan una copia.",
   "Could not read your sent email: {detail}":
     "No se pudo leer tu correo enviado: {detail}",
   // The same ranges again, INSIDE a sentence — *"No hay citas en los últimos

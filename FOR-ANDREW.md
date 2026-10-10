@@ -583,6 +583,19 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
 
 ## Start here — the one decision that unblocks the most
 
+- [ ] **DO · Mail-log email previews (ROADMAP 3.1d) are built and need two of your steps, in this order.**
+  Clicking a row in "Emails we sent" now opens that email. It cannot show anything real until the
+  database can hold the email's text. **1. Apply the new database change**
+  `supabase/migrations/20261010010000_email_sends_keeps_the_body.sql` (it adds one empty column).
+  **2. Then publish `send-email`.** **Order matters:** if `send-email` goes up first, it tries to
+  save a column that is not there, and every email stops being logged until the change is applied.
+  Emails sent before this are never recoverable, and the preview says "This email's content was not
+  saved" on those. **Checked already:** a row opens the preview, an old row says it was never saved,
+  a failed read says so instead of claiming that, at 1440, 392 and 320 with a clean console
+  (`node scripts/mail-log-preview.mjs`, 20 checks). **Not checked, because it needs the two steps
+  above:** a real stored email opening end to end. After both steps, send one test email and click
+  it. This reverses the September decision not to store bodies, on your own request of 2026-10-09.
+
 - [ ] **DECIDE · Four finished things are waiting on you. Say go, and say when.
   Written 2026-09-23.**
 

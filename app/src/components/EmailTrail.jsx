@@ -86,12 +86,15 @@ const band = (day, today) => (day === today ? "Today" : day.slice(0, 7) === toda
  * `groups` draws the Today / This month / All time dividers (ROADMAP 3.1c). Off
  * on a client record and a job, where the list is a dozen rows or fewer.
  *
+ * `onOpen` (ROADMAP 3.1d) makes each row a button that hands its row to the caller,
+ * which opens the sent email. Only the business-wide list passes it.
+ *
  * `to` draws the RECIPIENT on its own line, for the business-wide list where
  * the address is the only thing identifying whose mail a row is. It is off on
  * a client record and on a job, where the address is already the button three
  * sections up and printing it twice is Part B row 18.
  */
-export default function EmailTrail({ rows, timezone, cap, empty, error = "", to = false, groups = false }) {
+export default function EmailTrail({ rows, timezone, cap, empty, error = "", to = false, groups = false, onOpen = null }) {
   const today = localDate(new Date(), timezone);
   let last = null;
   return (
@@ -103,10 +106,11 @@ export default function EmailTrail({ rows, timezone, cap, empty, error = "", to 
           const b = groups ? band(localDate(m.sent_at, timezone), today) : null;
           const heading = b && b !== last;
           last = b ?? last;
+          const Row = onOpen ? "button" : "div";
           return (
             <Fragment key={m.id}>
               {heading && <div className="mail-band" role="heading" aria-level={3}>{t(b)}</div>}
-            <div className="row-item" style={{ cursor: "default" }}>
+            <Row className="row-item" {...(onOpen ? { type: "button", onClick: () => onOpen(m) } : { style: { cursor: "default" } })}>
               <span className="txt">
                 <span className="nm">{m.subject}</span>
                 {/* `addr` RATHER THAN THE DEFAULT `.sub`: `.row-item .sub` is
@@ -153,7 +157,7 @@ export default function EmailTrail({ rows, timezone, cap, empty, error = "", to 
                 <AlertCircle size={18} strokeWidth={2} aria-hidden="true"
                   style={{ flexShrink: 0, alignSelf: "flex-start", marginTop: 3, color: "var(--bad)" }} />
               )}
-            </div>
+            </Row>
             </Fragment>
           );
         })}

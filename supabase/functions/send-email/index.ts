@@ -128,6 +128,8 @@ interface SendContext {
   subject: string;
   /** NULL is correct for every email that is not about one booking. */
   booking_id: string | null;
+  /** ROADMAP 3.1d — the HTML as handed to the provider, kept for the mail log's preview. */
+  body_html: string | null;
 }
 
 async function record(
@@ -136,7 +138,7 @@ async function record(
   detail?: unknown,
   providerId?: string | null,
 ): Promise<void> {
-  const { business_id: businessId, to, subject, booking_id: bookingId } = ctx;
+  const { business_id: businessId, to, subject, booking_id: bookingId, body_html: bodyHtml } = ctx;
   try {
     let customerId: string | null = null;
     if (businessId) {
@@ -157,6 +159,7 @@ async function record(
       provider_id: providerId ?? null,
       // ROADMAP 3.1 — carried from the sender, never derived here.
       booking_id: bookingId,
+      body_html: bodyHtml,
       // The provider's own words, capped at the same 200 the customer flag uses.
       detail: detail === undefined || detail === null
         ? null
@@ -189,7 +192,7 @@ Deno.serve(async (req) => {
   // It used to be set only `if (to && subject)`, which left the in-try sites
   // reading three separate locals instead; the catch now tests the fields it
   // actually needs rather than the object being null.
-  let ctx: SendContext = { business_id: null, to: "", subject: "", booking_id: null };
+  let ctx: SendContext = { business_id: null, to: "", subject: "", booking_id: null, body_html: null };
 
   try {
     const { business_id, to, subject, body, text, attachments, sender_name, booking_id } = await req.json();
@@ -199,6 +202,8 @@ Deno.serve(async (req) => {
       subject: typeof subject === "string" ? subject : "",
       // Carried, not validated — see the input note at the top of this file.
       booking_id: typeof booking_id === "string" && booking_id ? booking_id : null,
+      // ROADMAP 3.1d — capped so one runaway template cannot bloat the table.
+      body_html: typeof body === "string" ? body.slice(0, 200_000) : null,
     };
     // ROADMAP 2.20 STAGE 2. Set only by platform billing mail, and it changes
     // two things: who the email says it is from, and whether the send result

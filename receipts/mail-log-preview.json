@@ -1,0 +1,160 @@
+{
+  "git_sha": "dddcf01434b2ec99451e011069cfa831df42e0de",
+  "git_sha_started": "dddcf01434b2ec99451e011069cfa831df42e0de",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T11:18:59.306Z",
+  "failures": [],
+  "warnings": [
+    "The server's body answer is STUBBED in the browser; see unjudgeable."
+  ],
+  "artifacts": [
+    ".manager-shots/3.1d/stored-1440.png",
+    ".manager-shots/3.1d/unstored-1440.png",
+    ".manager-shots/3.1d/stored-392.png",
+    ".manager-shots/3.1d/unstored-392.png",
+    ".manager-shots/3.1d/stored-320.png",
+    ".manager-shots/3.1d/unstored-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "business": "demo-detail",
+    "item": "3.1d",
+    "break": null
+  },
+  "check_id": "mail-log-preview",
+  "started_at": "2026-10-10T11:18:44.692Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "assertion_floor": "3 widths x 6 + 2 canaries = 20, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "the-empty-preview",
+    "observed_failure": true
+  },
+  "canaries": [
+    {
+      "name": "the-empty-preview",
+      "flagged": true
+    },
+    {
+      "name": "the-silent-blank",
+      "flagged": true
+    }
+  ],
+  "unjudgeable": [
+    "end-to-end/real-stored-body — the read of a body that send-email really stored cannot be exercised: the column is not in the live database until migration 20261010010000 is applied and send-email is deployed, both Andrew's. The stored case above is a browser stub of the server's answer."
+  ],
+  "sabotage": [],
+  "observed": [
+    {
+      "id": "1440/preview/stored",
+      "ok": true,
+      "detail": "row is <button>; dialog true, 1 frame, sandbox=\"\", frame 540px tall, rendered text carries the sentinel"
+    },
+    {
+      "id": "1440/preview/null",
+      "ok": true,
+      "detail": "0 frames; sentence painted: \"This email's content was not saved. Only emails sent after p\""
+    },
+    {
+      "id": "1440/preview/no-column",
+      "ok": true,
+      "detail": "0 frames; sentence painted; 2 expected 400 on the console"
+    },
+    {
+      "id": "1440/preview/read-error",
+      "ok": true,
+      "detail": "0 frames; alert true; says \"not saved\": false"
+    },
+    {
+      "id": "1440/preview/closes",
+      "ok": true,
+      "detail": "Escape put the dialog away: true"
+    },
+    {
+      "id": "1440/page/console",
+      "ok": true,
+      "detail": "0 unexpected errors or warnings (2 expected 400, 2 expected 500 from the stubs)"
+    },
+    {
+      "id": "392/preview/stored",
+      "ok": true,
+      "detail": "row is <button>; dialog true, 1 frame, sandbox=\"\", frame 506px tall, rendered text carries the sentinel"
+    },
+    {
+      "id": "392/preview/null",
+      "ok": true,
+      "detail": "0 frames; sentence painted: \"This email's content was not saved. Only emails sent after p\""
+    },
+    {
+      "id": "392/preview/no-column",
+      "ok": true,
+      "detail": "0 frames; sentence painted; 2 expected 400 on the console"
+    },
+    {
+      "id": "392/preview/read-error",
+      "ok": true,
+      "detail": "0 frames; alert true; says \"not saved\": false"
+    },
+    {
+      "id": "392/preview/closes",
+      "ok": true,
+      "detail": "Escape put the dialog away: true"
+    },
+    {
+      "id": "392/page/console",
+      "ok": true,
+      "detail": "0 unexpected errors or warnings (2 expected 400, 2 expected 500 from the stubs)"
+    },
+    {
+      "id": "320/preview/stored",
+      "ok": true,
+      "detail": "row is <button>; dialog true, 1 frame, sandbox=\"\", frame 420px tall, rendered text carries the sentinel"
+    },
+    {
+      "id": "320/preview/null",
+      "ok": true,
+      "detail": "0 frames; sentence painted: \"This email's content was not saved. Only emails sent after p\""
+    },
+    {
+      "id": "320/preview/no-column",
+      "ok": true,
+      "detail": "0 frames; sentence painted; 2 expected 400 on the console"
+    },
+    {
+      "id": "320/preview/read-error",
+      "ok": true,
+      "detail": "0 frames; alert true; says \"not saved\": false"
+    },
+    {
+      "id": "320/preview/closes",
+      "ok": true,
+      "detail": "Escape put the dialog away: true"
+    },
+    {
+      "id": "320/page/console",
+      "ok": true,
+      "detail": "0 unexpected errors or warnings (2 expected 400, 2 expected 500 from the stubs)"
+    },
+    {
+      "id": "canary/the-empty-preview",
+      "ok": true,
+      "detail": "a dialog with no frame must NOT read as 'opens the sent body'"
+    },
+    {
+      "id": "canary/the-silent-blank",
+      "ok": true,
+      "detail": "an empty frame with no sentence must NOT read as 'says it was never stored'"
+    }
+  ]
+}
