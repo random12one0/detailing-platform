@@ -1,0 +1,37 @@
+{
+  "git_sha": "9460a05b9f1f3a359db1071fd5e63af911bd20ca",
+  "git_sha_started": "9460a05b9f1f3a359db1071fd5e63af911bd20ca",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T15:17:53.353Z",
+  "failures": [
+    "C-definer-functions-that-write: found 0, floor 1"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/support-write-paths.list.blind-definer.sabotage.json"
+  ],
+  "dimensions": {
+    "break": "blind-definer",
+    "A": 36,
+    "B": 7,
+    "C": 0,
+    "D": 21
+  },
+  "check_id": "support-write-paths",
+  "started_at": "2026-10-10T15:17:51.413Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 4,
+  "min_assertions": 4,
+  "assertion_floor": "four fixed layers, one discovery-floor assertion each; the layer count is set by the code",
+  "canary": {
+    "id": "classifiers-tell-a-write-from-a-read",
+    "observed_failure": false,
+    "detail": "a classifier could not tell a write from a read"
+  }
+}

@@ -1,0 +1,540 @@
+{
+  "project": "kguqylyzgyzfktkfnhjb",
+  "layerA": [
+    {
+      "table": "add_ons",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "blockout_dates",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "booking_add_ons",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "booking_hours_overrides",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "booking_line_items",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "booking_services",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "booking_vehicles",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "bookings",
+      "commands": [
+        "DELETE",
+        "INSERT"
+      ]
+    },
+    {
+      "table": "business_branding",
+      "commands": [
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "business_domains",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "business_hours",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "business_invites",
+      "commands": [
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "business_settings",
+      "commands": [
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "business_users",
+      "commands": [
+        "DELETE",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "businesses",
+      "commands": [
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "campaign_visits",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "campaigns",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "customers",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "dropoff_only_periods",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "expenses",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "gallery_images",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "job_photos",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "maintenance_deadlines",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "message_templates",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "owner_daily_digest_state",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "owner_push_subscriptions",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "plan_members",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "plan_visits",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "plans",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "promo_codes",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "service_groups",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "services",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "site_intake",
+      "commands": [
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "testimonials",
+      "commands": [
+        "DELETE",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "translations",
+      "commands": [
+        "UPDATE"
+      ]
+    },
+    {
+      "table": "user_tours",
+      "commands": [
+        "INSERT"
+      ]
+    }
+  ],
+  "grantedNoPolicy": [
+    "business_branding:DELETE",
+    "business_invites:DELETE",
+    "business_settings:DELETE",
+    "business_users:INSERT",
+    "businesses:DELETE",
+    "businesses:INSERT",
+    "platform_invoices:DELETE",
+    "platform_invoices:INSERT",
+    "platform_invoices:UPDATE",
+    "platform_subscriptions:DELETE",
+    "site_intake:DELETE",
+    "user_tours:DELETE",
+    "user_tours:UPDATE"
+  ],
+  "layerB": [
+    {
+      "policyname": "business media settings delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "business media settings insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "business media settings update",
+      "cmd": "UPDATE",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "expense receipts member insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "expense receipts settings delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "job photos member insert",
+      "cmd": "INSERT",
+      "roles": "{authenticated}"
+    },
+    {
+      "policyname": "job photos settings delete",
+      "cmd": "DELETE",
+      "roles": "{authenticated}"
+    }
+  ],
+  "layerC": [
+    {
+      "fn": "accrue_plan_visits()",
+      "anon_too": false
+    },
+    {
+      "fn": "set_my_lang(p_lang text)",
+      "anon_too": false
+    }
+  ],
+  "definerReads": [
+    "business_canonical_host(p_business_id uuid)",
+    "business_ids_with_permission(p_permission text)",
+    "current_business_ids()",
+    "founding_offer()",
+    "get_business_translations(p_slug text, p_lang text)",
+    "get_public_business_profile(p_slug text)",
+    "get_public_business_profile_by_host(p_host text)",
+    "has_business_permission(p_business_id uuid, p_permission text)",
+    "is_business_owner(p_business_id uuid)",
+    "job_photo_budget(p_business uuid)",
+    "photo_total_bytes()",
+    "platform_prices()"
+  ],
+  "layerD": [
+    {
+      "fn": "booking-ics",
+      "gate": "requireMember",
+      "writes": []
+    },
+    {
+      "fn": "connect-account",
+      "gate": "requireMember",
+      "writes": [
+        "upsert",
+        "update"
+      ]
+    },
+    {
+      "fn": "create-booking",
+      "gate": "requireMember",
+      "writes": [
+        "insert",
+        "update",
+        "rpc"
+      ]
+    },
+    {
+      "fn": "create-business",
+      "gate": "getUser",
+      "writes": [
+        "insert",
+        "delete"
+      ]
+    },
+    {
+      "fn": "delete-customer",
+      "gate": "requireMember",
+      "writes": [
+        "remove",
+        "rpc"
+      ]
+    },
+    {
+      "fn": "forecast",
+      "gate": "requireMember",
+      "writes": []
+    },
+    {
+      "fn": "invite-user",
+      "gate": "requireMember",
+      "writes": [
+        "rpc",
+        "update",
+        "insert"
+      ]
+    },
+    {
+      "fn": "owner-push-subscribe",
+      "gate": "requireMember",
+      "writes": [
+        "upsert"
+      ]
+    },
+    {
+      "fn": "owner-push-unsubscribe",
+      "gate": "requireMember",
+      "writes": [
+        "delete"
+      ]
+    },
+    {
+      "fn": "photo-door",
+      "gate": "requireMember",
+      "writes": [
+        "rpc",
+        "insert",
+        "delete",
+        "update"
+      ]
+    },
+    {
+      "fn": "platform-admin",
+      "gate": "getUser",
+      "writes": [
+        "insert",
+        "rpc",
+        "update"
+      ]
+    },
+    {
+      "fn": "platform-billing",
+      "gate": "requireMember",
+      "writes": [
+        "rpc",
+        "upsert",
+        "update"
+      ]
+    },
+    {
+      "fn": "preview-emails",
+      "gate": "requireMember",
+      "writes": []
+    },
+    {
+      "fn": "report-problem",
+      "gate": "requireMember",
+      "writes": []
+    },
+    {
+      "fn": "respond-to-booking",
+      "gate": "requireMember",
+      "writes": [
+        "update"
+      ]
+    },
+    {
+      "fn": "send-campaign",
+      "gate": "requireMember",
+      "writes": [
+        "update"
+      ]
+    },
+    {
+      "fn": "send-invoice",
+      "gate": "requireMember",
+      "writes": [
+        "insert",
+        "update"
+      ]
+    },
+    {
+      "fn": "send-owner-reminders",
+      "gate": "requireMember",
+      "writes": [
+        "update",
+        "rpc",
+        "insert",
+        "upsert"
+      ]
+    },
+    {
+      "fn": "translate-content",
+      "gate": "requireMember",
+      "writes": [
+        "rpc"
+      ]
+    },
+    {
+      "fn": "update-booking",
+      "gate": "requireMember",
+      "writes": [
+        "update",
+        "delete",
+        "insert"
+      ]
+    },
+    {
+      "fn": "verify-domain",
+      "gate": "requireMember",
+      "writes": [
+        "update"
+      ]
+    }
+  ],
+  "edgeUnauthed": [
+    "accept-invite",
+    "accept-quote",
+    "address-suggest",
+    "available-slots",
+    "calculate-booking",
+    "cancel-booking",
+    "get-booking-receipt",
+    "pay-booking",
+    "photo-reconcile",
+    "plan-link",
+    "refresh-weather",
+    "reschedule-booking",
+    "resend-webhook",
+    "send-email",
+    "session-ping",
+    "stripe-webhook",
+    "track-visit",
+    "unsubscribe",
+    "validate-promo-code",
+    "watch-jobs"
+  ]
+}
