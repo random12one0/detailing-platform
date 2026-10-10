@@ -54,7 +54,9 @@ const counters = async () => {
   const r = await fetch(`${URL_}/rest/v1/rate_hits?bucket=like.address%25&select=bucket,key,window_start,hits&order=window_start.desc`,
     { headers: { apikey: SR, Authorization: `Bearer ${SR}` } });
   if (!r.ok) throw new Error(`rate_hits read ${r.status}`);
-  return r.json();
+  // THE PER-IP ROWS ARE KEYED ON THIS MACHINE'S PUBLIC ADDRESS, which has no
+  // business in a committed receipt. The counts are the evidence; the key is not.
+  return (await r.json()).map((x) => ({ ...x, key: x.key === "all" ? "all" : "<this machine>" }));
 };
 const total = (rows, bucket) => rows.filter((x) => x.bucket === bucket).reduce((s, x) => s + x.hits, 0);
 
