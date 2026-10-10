@@ -75,15 +75,18 @@ export function byPlan(rows) {
 // What should come in over the next `days`: each paying real subscription that
 // renews inside the window and is not set to cancel. The FULL charge, not the
 // per-month share, because that is what will land on the day.
+// A failed card renewing in the window is `late`: drawn on the timeline (9.12b)
+// but NOT in `total`, the same reason `byPlan` keeps it out.
 export function comingIn(rows, days = 30, now = new Date()) {
   const t0 = now.getTime(), t1 = t0 + days * 864e5;
-  const pins = real(rows)
-    .filter((r) => paying(r.subscription) && !r.subscription.cancel_at_period_end)
+  const due = (ok) => real(rows)
+    .filter((r) => ok(r.subscription) && !r.subscription.cancel_at_period_end)
     .map((r) => ({ row: r, at: Date.parse(r.subscription.current_period_end), cents: Number(r.subscription.recurring_cents) }))
     .filter((p) => Number.isFinite(p.at) && Number.isFinite(p.cents) && p.at >= t0 && p.at < t1)
     .sort((a, b) => a.at - b.at)
     .map((p) => ({ ...p, day: (p.at - t0) / 864e5, yearly: p.row.subscription.bill_interval === "year" }));
-  return { pins, total: pins.reduce((a, p) => a + p.cents, 0) };
+  const pins = due(paying);
+  return { pins, late: due((s) => s?.status === "past_due"), total: pins.reduce((a, p) => a + p.cents, 0) };
 }
 
 // Dollars typed into the bill form, as integer cents, or null when it is not a

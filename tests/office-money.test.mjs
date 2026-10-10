@@ -91,6 +91,7 @@ test("4. coming in: renewals inside 30 days, full charge, cancelling and late le
   assert.deepEqual(c.pins.map((p) => p.cents), [6000, 60000]);
   assert.equal(c.total, 66000);
   assert.equal(c.pins[1].yearly, true);
+  assert.deepEqual(c.late.map((p) => p.day), [5], "the failed card renewing on day 5 is drawn late, apart from the total");
 });
 
 test("5. the bill kinds are the server's, and the form sends whole cents or nothing", () => {

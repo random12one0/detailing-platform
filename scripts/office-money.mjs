@@ -88,7 +88,7 @@ const INSPECT = (blind) => {
     [...document.querySelectorAll(".bo-split-l span")],
     [...document.querySelectorAll(".bo-kept > div")],
     [...document.querySelectorAll(".bo-sec > .bo-label, .bo-kept .bo-label, .bo-big, .bo-h2")],
-    [...document.querySelectorAll(".bo-rail30 span")],
+    [...document.querySelectorAll(".bo-tl .lab, .bo-tl .now, .bo-tl .end")],
     ...[...document.querySelectorAll(".bo-bill, .bo-due button, .bo-dl > div, .bo-billform")].map((n) => [...n.children]),
     [document.querySelector(".bo-donut"), document.querySelector(".bo-dl")].filter(Boolean),
   ];
@@ -319,7 +319,7 @@ try {
     check(where, "fed: $660 expected in 30 days", num(await page.locator("[data-testid=coming]").innerText()) === 660);
     const due = await page.locator(".bo-due b").allInnerTexts();
     check(where, "fed: Alder then Birch renew; the cancelling, late and day-40 ones are left off", due.join(",") === "Fed Alder,Fed Birch", due.join(","));
-    check(where, "fed: one dot per renewal on the rail", (await page.locator(".bo-rail30 i").count()) === 2);
+    check(where, "fed: one pin per renewal on the timeline", (await page.locator(".bo-tl .bo-pin").count()) === 2);
     o = await inspect(page);
     observed[`${where} fed`] = o;
     check(where, "fed: no overlap, nothing clipped, no sideways overflow", o.overlaps.length === 0 && o.clipped.length === 0 && !o.overflowX, [...o.overlaps, ...o.clipped].slice(0, 3).join(" | "));
