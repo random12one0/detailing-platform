@@ -22166,7 +22166,7 @@ the dashboard or back office at phone width at all.
   `receipts/platform-costs-live.sabotage.json` holds the open-grant run. **What is not proved:**
   `force row level security` is read as a flag, not exercised; the receipt's warnings say why.
 
-- [ ] **9.14b — Deploy the platform-admin function with cost actions**
+- [x] **9.14b — Deploy the platform-admin function with cost actions**
   Publish the already-built platform-admin function so platform_net and platform_cost_add are available to the admin screen. This piece does not create or modify cost records beyond any deployment smoke check.
   Part 2 of 3 of item 9.14, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -22174,6 +22174,28 @@ the dashboard or back office at phone width at all.
   - Deployed platform-admin recognizes platform_net
   - Deployed platform-admin recognizes platform_cost_add
   - Non-admin requests remain indistinguishable from the existing bare 404 behavior
+
+  **DONE 2026-10-10. NO SESSION PUBLISHED ANYTHING FOR THIS ITEM: the running copy already had both actions.**
+  The supervisor's note in `FOR-ANDREW.md` step 3 said the live `platform-admin` (v63) carries 9.14, and this asks
+  the running function rather than trusting that note: `node scripts/platform-admin-actions-live.mjs` (no dev
+  server; project `kguqylyzgyzfktkfnhjb`, refuses any other), at the commit that adds it, is **PASS, 22 assertions,
+  2 of 2 targets, canary caught**, graded valid by `receipt.mjs`.
+  - **`platform_net` recognized:** a throwaway platform admin asks about January 2020 and gets 200 with
+    `period_month` `2020-01-01` and `net_cents` null (no costs entered, so no numeric net).
+  - **`platform_cost_add` recognized, with no row written:** sent with a NEGATIVE amount, it answers 400 *"The amount
+    cannot be below zero."*: its own validation sentence, refused before the insert. A function without the action
+    answers `Unknown action`, and the canary shows that sentence is what a made-up action gets from the same admin.
+    **The save itself (a real bill landing) is 9.14c's, deliberately not exercised.**
+  - **Non-admins:** an ordinary signed-in user and the public key as bearer each get `404 {"error":"Not found"}` for
+    `platform_net`, `platform_cost_add`, a made-up action and `whoami`: **8 of 8 byte-identical**. **With no
+    Authorization header at all**, Supabase's gateway answers 401 (`UNAUTHORIZED_NO_AUTH_HEADER`) before the
+    function runs, the same for every action (4 of 4 identical); that is the platform's behavior and not something
+    this function does or changed.
+  - **Broken on purpose:** `--break=typo` (asks for `platform_cost_addd`) goes red on exactly the one line, 1f.
+    `receipts/platform-admin-actions-live.sabotage.json` holds it.
+  - **Not proved:** which version or commit is running (this asks the function, it cannot read the version). The copy
+    ON DISK is newer (4.3b/4.3c, held by the supervisor) and is still unpublished; this item does not need it.
+    `deployed-inventory.mjs` still lists `platform-admin` as differing for that reason.
 
 - [ ] **9.14c — Enter real monthly costs and verify the owner profit screen**
   Use /admin to record one real month of platform bills, then compare the displayed revenue, categorized costs, and net against an independent calculation. This validates the integrated feature after the migration and function deployment, without adding edit or delete capability.

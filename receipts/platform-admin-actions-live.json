@@ -1,0 +1,106 @@
+{
+  "git_sha": "bcd529163560cd5486f964b7c1e4aa150f16f0f2",
+  "git_sha_started": "bcd529163560cd5486f964b7c1e4aa150f16f0f2",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T17:58:19.527Z",
+  "failures": [],
+  "warnings": [
+    "This asks the RUNNING function; it cannot say which version number or commit it is. 'Recognizes the action' is shown by the function's own answer, not by comparing source.",
+    "platform_cost_add is shown by its VALIDATION refusal. The insert path (a real row saving) is 9.14c's real bill, deliberately not exercised here."
+  ],
+  "artifacts": [
+    "scripts/platform-admin-actions-live.mjs",
+    "supabase/functions/platform-admin/index.ts"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "break": null,
+    "responses": {
+      "admin_bogus": {
+        "status": 400,
+        "body": "{\"error\":\"Unknown action\"}"
+      },
+      "platform_net": {
+        "status": 200,
+        "period_month": "2020-01-01",
+        "net_cents": null,
+        "keys": [
+          "period_month",
+          "revenue_cents",
+          "cost_cents",
+          "net_cents",
+          "costs_entered",
+          "cost_count",
+          "by_category"
+        ]
+      },
+      "platform_cost_add": {
+        "status": 400,
+        "body": "{\"error\":\"The amount cannot be below zero.\"}"
+      },
+      "no_sign_in:platform_net": {
+        "status": 401,
+        "body": "{\"code\":\"UNAUTHORIZED_NO_AUTH_HEADER\",\"message\":\"Missing authorization header\"}"
+      },
+      "no_sign_in:platform_cost_add": {
+        "status": 401,
+        "body": "{\"code\":\"UNAUTHORIZED_NO_AUTH_HEADER\",\"message\":\"Missing authorization header\"}"
+      },
+      "no_sign_in:platform_net_does_not_exist": {
+        "status": 401,
+        "body": "{\"code\":\"UNAUTHORIZED_NO_AUTH_HEADER\",\"message\":\"Missing authorization header\"}"
+      },
+      "no_sign_in:whoami": {
+        "status": 401,
+        "body": "{\"code\":\"UNAUTHORIZED_NO_AUTH_HEADER\",\"message\":\"Missing authorization header\"}"
+      },
+      "public_key_bearer:platform_net": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "public_key_bearer:platform_cost_add": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "public_key_bearer:platform_net_does_not_exist": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "public_key_bearer:whoami": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "ordinary_user:platform_net": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "ordinary_user:platform_cost_add": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "ordinary_user:platform_net_does_not_exist": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      },
+      "ordinary_user:whoami": {
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      }
+    }
+  },
+  "check_id": "platform-admin-actions-live",
+  "started_at": "2026-10-10T17:58:11.735Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 22,
+  "min_assertions": 20,
+  "canary": {
+    "id": "an action the function does not have must read as unrecognized, or 'recognized' proves nothing",
+    "observed_failure": true
+  }
+}
