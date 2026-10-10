@@ -1,0 +1,99 @@
+{
+  "git_sha": "5e79368ed4214ea2a1d75e56b5b4346f7aa22319",
+  "git_sha_started": "5e79368ed4214ea2a1d75e56b5b4346f7aa22319",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-10T18:13:24.310Z",
+  "failures": [
+    "1440/run01/no-user_tours-request: 1 request(s), statuses [200]",
+    "1440/run02/no-user_tours-request: 1 request(s), statuses [200]",
+    "392/run01/no-user_tours-request: 1 request(s), statuses [200]",
+    "392/run02/no-user_tours-request: 1 request(s), statuses [200]"
+  ],
+  "warnings": [
+    "Dev server only (React.StrictMode). The live domain runs whatever was last published; until 9.15 is published it still makes the old read.",
+    "The original 401 was a race that did not reproduce every time; zero requests is asserted because a read that never happens cannot be refused."
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "runs_per_width": 2,
+    "totals": {
+      "392": {
+        "toursRequests": 2,
+        "tours401": 0,
+        "rest401": 0,
+        "runs": 2
+      },
+      "1440": {
+        "toursRequests": 2,
+        "tours401": 0,
+        "rest401": 0,
+        "runs": 2
+      }
+    },
+    "item": "9.24",
+    "break": "old-read"
+  },
+  "check_id": "user-tours-race",
+  "started_at": "2026-10-10T18:12:58.391Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 19,
+  "min_assertions": 19,
+  "assertion_floor": "2 widths x (2 sign-ins x 4 + 1 refused read) + 1 canary = 19, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "user_tours-401",
+    "observed_failure": true
+  },
+  "sabotage": [
+    {
+      "tag": "1440/run01",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "1440/run02",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "392/run01",
+      "landed": 1,
+      "ran": true
+    },
+    {
+      "tag": "392/run02",
+      "landed": 1,
+      "ran": true
+    }
+  ],
+  "observed": [
+    "FAIL 1440/run01/no-user_tours-request — 1 request(s), statuses [200]",
+    "PASS 1440/run01/no-rest-401 — 0 of 59 REST responses were 401",
+    "PASS 1440/run01/no-tour-flag — localStorage tour keys: []",
+    "PASS 1440/run01/console-clean — 0 error/warning line(s)",
+    "FAIL 1440/run02/no-user_tours-request — 1 request(s), statuses [200]",
+    "PASS 1440/run02/no-rest-401 — 0 of 59 REST responses were 401",
+    "PASS 1440/run02/no-tour-flag — localStorage tour keys: []",
+    "PASS 1440/run02/console-clean — 0 error/warning line(s)",
+    "PASS 1440/refused-read-seen-and-flag-untouched — listener saw 1 user_tours response(s) [401]; tour keys after: []",
+    "FAIL 392/run01/no-user_tours-request — 1 request(s), statuses [200]",
+    "PASS 392/run01/no-rest-401 — 0 of 59 REST responses were 401",
+    "PASS 392/run01/no-tour-flag — localStorage tour keys: []",
+    "PASS 392/run01/console-clean — 0 error/warning line(s)",
+    "FAIL 392/run02/no-user_tours-request — 1 request(s), statuses [200]",
+    "PASS 392/run02/no-rest-401 — 0 of 59 REST responses were 401",
+    "PASS 392/run02/no-tour-flag — localStorage tour keys: []",
+    "PASS 392/run02/console-clean — 0 error/warning line(s)",
+    "PASS 392/refused-read-seen-and-flag-untouched — listener saw 1 user_tours response(s) [401]; tour keys after: []",
+    "PASS canary/user_tours-401 — a user_tours 401 must NOT read as clean"
+  ]
+}
