@@ -1,0 +1,73 @@
+{
+  "git_sha": "04e82a43660470a618550f0523d1e6caa43dc690",
+  "git_sha_started": "04e82a43660470a618550f0523d1e6caa43dc690",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T23:08:32.309Z",
+  "failures": [
+    "exactly one press won — 2 won",
+    "exactly one press won — 2 won",
+    "exactly one press won — 2 won",
+    "exactly one press won — 2 won",
+    "exactly one press won — 2 won"
+  ],
+  "warnings": [
+    "Races the production write against the live database; it does NOT press the deployed platform-admin, which runs whatever was last published.",
+    "Two simultaneous requests are the realistic overlap; nothing forces them to reach Postgres within the same millisecond, and the conditional write is correct either way."
+  ],
+  "artifacts": [
+    "scripts/build-start-race.mjs",
+    "supabase/functions/_shared/buildStartStamp.ts",
+    "supabase/functions/platform-admin/index.ts"
+  ],
+  "dimensions": {
+    "break": "unconditional",
+    "rounds": [
+      {
+        "round": 1,
+        "a_won": true,
+        "b_won": true,
+        "stored": "2026-10-01T12:00:02+00:00"
+      },
+      {
+        "round": 2,
+        "a_won": true,
+        "b_won": true,
+        "stored": "2026-10-01T12:00:03+00:00"
+      },
+      {
+        "round": 3,
+        "a_won": true,
+        "b_won": true,
+        "stored": "2026-10-01T12:00:04+00:00"
+      },
+      {
+        "round": 4,
+        "a_won": true,
+        "b_won": true,
+        "stored": "2026-10-01T12:00:05+00:00"
+      },
+      {
+        "round": 5,
+        "a_won": true,
+        "b_won": true,
+        "stored": "2026-10-01T12:00:05+00:00"
+      }
+    ]
+  },
+  "check_id": "build-start-race",
+  "started_at": "2026-10-11T23:08:27.788Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 10,
+  "min_assertions": 25,
+  "canary": {
+    "id": "the pre-0.4g unconditional write lets both overlapping presses win",
+    "observed_failure": true,
+    "caught": 2
+  }
+}

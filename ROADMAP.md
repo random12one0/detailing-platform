@@ -2652,6 +2652,42 @@ and how the wait ends.
   that reasoning is sound and was deliberate.
   **Done when:** two overlapping presses produce one stamp, the first one, and
   the loser gets the 409 naming the date already recorded.
+  **BUILT AND PROVED AGAINST THE DATABASE 2026-10-11 (`cefe3468`, `04e82a43`).
+  NOT TICKED: the deployed `platform-admin` does not have it yet.**
+  - **The fix is the one this entry named, nothing more.** The write is now
+    `stampBuildStart` in `supabase/functions/_shared/buildStartStamp.ts`:
+    `update … .eq("id") .is("site_build_started_at", null) .select()`. An empty
+    answer re-reads the stored date and `build_start` returns **409** with that
+    date in `site_build_started_at` and in the sentence (in the business's own
+    time zone), and says plainly that this press DID send a second copy of the
+    notice. The send still precedes the write; nothing was reordered. Lifted
+    into its own import-free module only so a script can run the production
+    function — the same reason `reachedProvider.ts` exists.
+  - **Proved:** `node scripts/build-start-race.mjs` fires the production
+    function twice at once against `kguqylyzgyzfktkfnhjb`, five rounds, on a
+    throwaway `build-start-race` business (deleted at the end; no email, no
+    edge function). **5/5 rounds, 30 assertions, 0 failed**: exactly one
+    winner each round, the stored date is the winner's, the loser is handed
+    that same date, and a third late press loses without moving it. Graded
+    `PASS 5/5` by `node scripts/receipt.mjs receipts/build-start-race.json`
+    at `04e82a43`. **Canary, every run:** the same function with the condition
+    stripped out of the production source, raced the same way — **2 winners**.
+    **Sabotage** `--break=unconditional` (all five rounds on that copy):
+    **0/5 rounds, 5 failed, "2 won" each round**, in
+    `receipts/build-start-race.sabotage.json`, also at `04e82a43`.
+  - `tests/build-start-notice.test.mjs`'s order assertion now anchors on the
+    `stampBuildStart(` call instead of the old update text: **3 passed**;
+    `BREAK=flag` still **2 passed / 1 failed** after the change.
+  - **Not done, named:** the edge function was not pressed with this change —
+    it cannot run on this machine (no Deno, no Supabase CLI) and the live copy
+    is the last published one. No browser pass: no screen changed, and pressing
+    the live button would exercise the old code. The loser's second email is not
+    written to the admin log (only the winner's is).
+  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): publish
+  `platform-admin` — the same publish 0.4 is already waiting on; this rides
+  along with `_shared/buildStartStamp.ts`. After it, re-run
+  `node scripts/build-start-race.mjs` (the write) and
+  `ALLOW_REAL_MAIL=1 node scripts/build-start-live.mjs` (the button), then tick.
   **ANDREW DECIDED 2026-10-09: do the strongest honest version we can without
   hiring a lawyer.** The remaining build-start sentence is not a request for
   another decision. The best fix is to make the promise true: record the day

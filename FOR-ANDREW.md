@@ -1519,6 +1519,10 @@ still knows them.
   version still writes the date down as though they had been told. That is
   fixed in the code now and only needs publishing. Recommended: publish it with
   the next batch.
+  **Added 2026-10-11, same publish:** two presses of that button at the same
+  moment (two tabs, or a retry) could each write the date, and the later one
+  won. Now the first date written stays and the other press is told it. Proved
+  against the database five times over; it goes live with that same publish.
   *The note as it stood on the 9th, kept for its context:*
   **Still waiting on you from the 8th: the build-start notice cannot be
   finished until you apply one database change and publish one function.**
