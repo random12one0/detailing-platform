@@ -2870,6 +2870,18 @@ once, which is still more than any script here can do.
 
 ## Recorded — nothing needed from you yet
 
+- **WAIT · Move the new back office only after its remaining tools are built
+  (ROADMAP 99.3, rechecked 2026-10-11).** The new Today, Detailers, Money and
+  System screens exist, but replacing `/admin` today would remove your price
+  editor, the mail list and the ability to type in a past month's bills.
+  **Recommendation:** finish the already-queued work in 9.12a: 6b prices on
+  Money, 6c mail on System, then 6d a month switch for bills. After that, send
+  99.3b to move the new screen to `/admin` and remove the old address. These
+  are coding jobs, already authorized, with no account or new decision needed
+  from you. When the move is built and checked, your remaining action is to
+  open the rebuilt back office and say whether you accept it. 99.3 stays open;
+  this session changed the dependency record only, not the website.
+
 - **WAIT · Texting is approved and planned; finish its setup when this work
   resumes — decided 2026-10-09.** This is no longer a wording decision or a
   question about whether the product will text. It will. You already started

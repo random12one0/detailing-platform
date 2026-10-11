@@ -28991,7 +28991,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - - Detailers' `/app` works exactly as before.
   - - Every remaining check script passes, and none points at a deleted screen.
   - - Andrew has looked at the rebuilt back office and accepted it (the existing done-when for 9.12a).
-  **2026-10-10 — CUT INTO TWO SLICES. 99.3a DONE; 99.3b WAITS ON 9.12a STEPS 2–4. BOX STAYS OPEN.**
+  **2026-10-11 — DEPENDENCY RECHECKED. 99.3a DONE; 99.3b WAITS ON 9.12a 6b–6d. BOX STAYS OPEN.**
   - [x] **99.3a — the gear's back-office row and its question are gone** (plan steps 3, 5 and 6; commits `2953eaf4`, `a700bcd4`).
     `GearMenu.jsx` no longer draws "The website business" row for anybody, no longer asks `platform-admin` `whoami`, and has
     no cache; the two Spanish keys went with it. **Proved:** `node scripts/gear-whoami.mjs` (rewritten for this) **37 of 37**
@@ -29005,16 +29005,23 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     `sweep-tap-targets.mjs` exempts no door now and its leaving-door test is 5/5 and reddens on a stale key; gotcha 120
     rewritten, because the 404 now happens only on `/admin` for a non-admin.
   - [ ] **99.3b — the new back office moves onto `/admin`; the old screen and `/admin/office` are deleted** (plan steps 1,
-    2, 4 and 8). **Not started, on purpose: it has to follow 9.12a steps 2–4 (Today, Money, System).** Only Detailers is
-    built. Switching today would delete, with nothing in their place: the "did we make money" screen (9.14, ticked),
-    signing up a detailer, the platform price editor and the mail list (9.12a's list of old-only actions). It would also
-    leave `scripts/admin-preconditions.mjs`, which 9.12a's done-when requires to pass, testing Today and Money tabs that no
-    longer exist — the exact "check that fails only because the thing it tested was deleted" this item forbids. When it
-    runs: `OfficePage` takes over `/admin` and carries the sign-in door (it currently redirects a signed-out visitor to
-    `/admin` for it); `App.jsx`'s impersonation "Leave" button already points at `/admin`; six scripts wait on `.pa-top`
-    (`grep -ln pa-top scripts/*.mjs` at `a700bcd4`: admin-furniture-clearance, admin-preconditions, admin-refuses,
-    office-detailers, platform-costs-live, platform-net-live) and each must be moved to the new screen or retired with it;
-    `/admin/office` must then show "Page not found".
+    2, 4 and 8). **Not started: 9.12a 6e explicitly waits on 6b–6d.** The earlier "only Detailers is built" note is
+    superseded: Today, Money, System and 6a's sign-up, export and owner invite are now built. The remaining prerequisite
+    work is **6b the platform price editor on Money, 6c the mail list on System, and 6d past-month bill entry**.
+    Source review at `39ea721b`: `AdminPage.jsx` still owns the `prices` and `email_list` calls; Money's section list has
+    no price editor and System's has no mail list. `places/money/Bills.jsx` takes its month from `useThisMonth()` in
+    `places/money/month.js`, which uses `lastMonths(1)` and offers no month switch. Removing the old screen now would
+    delete those actions. This is a source finding, not browser verification or a new approval requirement; 9.12a
+    already authorizes building their homes. No product files or routes changed in this recheck; neither box is ticked.
+    When the prerequisites are proved: move the sign-in door into `OfficePage`, replace `/admin`, remove `/admin/office`,
+    put the signed-in person's name and sign-out button at the top, and migrate or retire the old-screen checks.
+    Re-find callers at that revision: `rg -n 'pa-top|/admin/office' scripts app/src tests`; the earlier caller list was a
+    snapshot, not a complete list for the later switch. Keep the server's non-admin refusal and prove both routes,
+    the gear and `/app` in a browser, including the caught sabotage, before requesting Andrew's final look.
+  NEEDS ANDREW: have the already-queued 9.12a 6b–6d completed before reassigning 99.3b, because moving /admin now would
+  remove the price editor, mail list and past-month bill entry. Recommend 6b, then 6c, then 6d, then 99.3b; after the
+  move and its browser proof, open the rebuilt back office and accept it. No key, outside service or new design
+  decision is blocking this item; the unfinished prerequisite work belongs to 9.12a, outside this one-item assignment.
 
 
 
