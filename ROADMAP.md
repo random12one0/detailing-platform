@@ -23800,6 +23800,24 @@ their age is not Andrew's problem.
   the quote or a fixed amount, per business or per service — and what happens to
   it on a cancellation. **Until that is answered there is nothing to test**, and a
   plausible-sounding done-when here would have to be un-written later.
+
+  NEEDS ANDREW: one yes/no answer: should a customer pay part of the job price
+  when booking online (recommended: yes, an optional percentage each detailer
+  turns on, refunded inside their cancellation window)? His only reply,
+  2026-10-09 02:08, was "i dont understand", which the rewording above
+  answered. Nobody has answered the rewording. Re-checked 2026-10-11: nothing is
+  buildable without guessing the feature on his behalf, and nothing here is
+  half-built. The product takes no money anywhere (`templates.js:24` says so on
+  purpose). The `FOR-ANDREW.md` row now carries a $200 worked example and
+  the three possible answers.
+  Waits on: 12.1 (every payment scenario tested, which itself waits on his
+  Stripe test key). Even after a "yes", the build does not start until 12.1
+  is ticked. Whoever ticks 12.1 removes this line.
+  **Noticed, not changed:** two of the suggested policy sentences in the
+  website-intake form (`app/src/lib/siteIntake.js`, F1 and F2) mention "the
+  deposit". Those are wording a detailer picks for their *own* site about
+  money they collect themselves, not a promise this software makes, so they
+  are not the `/ex5` case. Revisit them if he answers "no".
 - [ ] **12.4 — Split the demo account before the first real detailer signs up.**
   Deliberate today (see 0.1) and correct while every business is a fixture.
   **The trigger is the first real signup, not a date.** At that moment **TWO**

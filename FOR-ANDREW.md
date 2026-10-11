@@ -1992,6 +1992,14 @@ still knows them.
   in ROADMAP 12.1 has been tested.** If yes, the recommended defaults below are
   enough to build without another design round.
 
+  **What it would look like, in dollars (added 2026-10-11).** A detailer turns
+  on "20% deposit". A customer books a $200 detail online and pays $40 by card
+  right then. On the day they owe $160. If they cancel early enough (inside
+  the cancellation window the detailer already set), the $40 goes back to
+  them. A detailer who leaves it off sees no change at all. **Three answers
+  are enough:** *"yes, as you recommend"*, *"no, not now"*, or *"yes, but
+  differently"* and say how.
+
   **The four details already have recommended defaults:**
   1. **Who sets the amount?** You, once, for everybody — or each detailer for
      their own business?
