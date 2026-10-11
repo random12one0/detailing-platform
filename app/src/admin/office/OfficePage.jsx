@@ -13,7 +13,7 @@
 // THE SHAPE: a gate, one `list` read, a shell (side rail on a laptop, bottom dock
 // on a phone, Ctrl K), and the active place from places.jsx. The side panel and
 // the finder are mounted here so they work from any place.
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NotFound from "../../screens/NotFound.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { signOutEverything } from "../../lib/signout.js";
@@ -106,20 +106,6 @@ export default function OfficePage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 
-  // The sliding highlight behind the active nav button.
-  const navRef = useRef(null);
-  const [pill, setPill] = useState({ x: 0, y: 0, w: 0, h: 0 });
-  const measure = useCallback(() => {
-    const b = navRef.current?.querySelector(".bo-nav.on");
-    if (b) setPill({ x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight });
-  }, []);
-  useLayoutEffect(measure, [placeKey, status, state, measure]);
-  useEffect(() => {
-    window.addEventListener("resize", measure);
-    document.fonts?.ready?.then(measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [measure]);
-
   if (status === "checking") return <div className="bo"><Ground /></div>;
   if (status === "denied") return <NotFound />;
 
@@ -139,8 +125,12 @@ export default function OfficePage() {
             </svg>
             <div><b>Detailing Platform</b><span>Back office</span></div>
           </div>
-          <div className="bo-navlist" ref={navRef}>
-            <span className="bo-navpill" style={{ width: pill.w, height: pill.h, transform: `translate(${pill.x}px,${pill.y}px)` }} />
+          {/* The sliding highlight is placed by CSS from the active tab's position in
+              the row (--at of --n), never measured in JS: a measured one was right only
+              at the width it was measured at, and a frozen review copy shown at another
+              width put it 19-25px off its tab (9.12b, 2026-10-11). */}
+          <div className="bo-navlist" style={{ "--at": PLACES.findIndex((p) => p.key === place.key), "--n": PLACES.length }}>
+            <span className="bo-navpill" />
             {PLACES.map((p) => {
               const n = state ? p.badge?.(ctx) ?? 0 : 0;
               return (
