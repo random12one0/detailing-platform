@@ -107,6 +107,8 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
       logoUrl: branding?.logo_url || null,
     }, branding?.primary_color || null),
     contactEmail: business.contact_email,
+    // ROADMAP 99.2c — "today" / "tomorrow" in a subject is the business's day.
+    timezone: business.timezone,
     dropoffAddress: business.dropoff_address,
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,

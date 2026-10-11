@@ -133,6 +133,8 @@ const brand = {
     logoUrl: LOGO,
   }, ACCENT),
   contactEmail: "hello@ridgelinedetail.example",
+  // ROADMAP 99.2c — a Denver business, so subjects say its "today".
+  timezone: "America/Denver",
   dropoffAddress: "2200 Blake St, Denver, CO 80205",
   googleReviewUrl: "https://g.page/r/example/review",
   yelpReviewUrl: "https://www.yelp.com/biz/example",

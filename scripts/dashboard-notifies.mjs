@@ -339,6 +339,8 @@ try {
   console.log(`    business ${biz.id}`);
   console.log(`    booking  ${bookingId} on ${day}, every recipient is ${SINK}`);
 
+  const MOVED = /^(Your booking has been rescheduled|New time: )/;
+  const CANCELLED = /^(Your booking has been cancelled|Your .*appointment.* is cancelled$)/;
   const step = async (name, payload, expectSubjects, detector) => {
     const before = await sendsFor(biz.id);
     const res = await callUpdate(owner.jwt, { business_id: biz.id, booking_id: bookingId, ...payload });
@@ -357,8 +359,11 @@ try {
     })();
 
     const subjects = got.map((g) => g.subject);
-    const missing = expectSubjects.filter((want) => !subjects.some((s) => s.startsWith(want)));
-    const extra = subjects.filter((s) => !expectSubjects.some((want) => s.startsWith(want)));
+    // A RegExp matches either side of ROADMAP 99.2c's subject change, which
+    // reaches the live functions only at Andrew's next publish.
+    const hit = (s, want) => (want instanceof RegExp ? want.test(s) : s.startsWith(want));
+    const missing = expectSubjects.filter((want) => !subjects.some((s) => hit(s, want)));
+    const extra = subjects.filter((s) => !expectSubjects.some((want) => hit(s, want)));
 
     assertions++;
     if (missing.length) say(`${name}: [${detector}] expected ${JSON.stringify(missing)} and nothing like it was sent (got ${JSON.stringify(subjects)})`);
@@ -393,7 +398,7 @@ try {
   const newDay = new Date(Date.now() + 47 * 86400_000).toISOString().slice(0, 10);
   await step("a detailer moves the job to another day",
     { booking_date: newDay, start_time: "09:00" },
-    ["Your booking has been rescheduled"], "reschedule");
+    [MOVED], "reschedule");
 
   console.log("\n3 · what must NOT be sent");
   await step("an edit that touches neither status nor time",
@@ -403,7 +408,7 @@ try {
 
   console.log("\n4 · cancelling, and cancelling again");
   await step("a detailer cancels the job",
-    { status: "cancelled" }, ["Your booking has been cancelled"], "cancel");
+    { status: "cancelled" }, [CANCELLED], "cancel");
   // A payload-driven implementation sends a second cancellation here; a
   // row-driven one knows the booking was already cancelled.
   await step("the same cancel sent a second time",
@@ -422,7 +427,7 @@ try {
   const res = await callUpdate(owner.jwt,
     { business_id: biz.id, booking_id: bookingId, status: "cancelled" });
   const got = res.status === 200 ? await delta(biz.id, before) : [];
-  const caught = got.some((g) => String(g.subject).startsWith("Your booking has been cancelled"));
+  const caught = got.some((g) => CANCELLED.test(String(g.subject)));
   assertions++;
   if (caught) canaryDetectors.push("double-send");
   rows.push({
@@ -452,7 +457,7 @@ try {
   if (BREAK !== "skip") {
     await step("put back and moved again — the mailer is still alive",
       { booking_date: lastDay, start_time: "11:00" },
-      ["Your booking has been rescheduled"], "liveness");
+      [MOVED], "liveness");
   }
 
 } catch (err) {

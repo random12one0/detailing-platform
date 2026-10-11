@@ -36,6 +36,7 @@
 import {
   type Brand,
   buttonBlock,
+  dayWords,
   esc,
   factsBlock,
   fineBlock,
@@ -82,6 +83,9 @@ export type TenantBrand = Brand & {
    * see the migration's comment and CLAUDE.md.
    */
   messages?: Partial<Record<MessageKind, string | null>>;
+  /** ROADMAP 99.2c — the business's IANA zone, so "today" in a subject is
+   *  the detailer's day, never the server's UTC one. `buildBrand` fills it. */
+  timezone?: string;
   /** Becomes Reply-To, and is where the owner's copy of a cancellation or a
    *  reschedule is sent when no notification list is configured. */
   contactEmail: string | null;
@@ -293,6 +297,23 @@ const vehicleFact = (b: BookingEmailData, lang?: unknown): [string, string] => {
 
 const firstName = (full: string) => String(full || "").trim().split(" ")[0] || "there";
 
+// ROADMAP 99.2c — THE UPCOMING DAY AS A CUSTOMER SAYS IT: "today", "tomorrow",
+// "Friday" inside a week, "October 14" beyond (`dayWords`, 99.2b). Spanish puts
+// the article in front of a weekday or a date ("el viernes", "el 14 de octubre")
+// and nothing in front of "hoy" or "mañana", so it is added here, once, and the
+// catalogue's sentences carry no article of their own. `near` is for the one
+// English sentence whose word order changes ("Your appointment tomorrow…").
+// The zone falls back to the column's own default, `America/Los_Angeles`.
+function upcoming(brand: TenantBrand, dateStr: string, time24: string | null, lang?: unknown) {
+  const es = langOf(lang) === "es";
+  const word = dayWords(dateStr, brand.timezone || "America/Los_Angeles", es ? "es" : "en");
+  const near = ["today", "tomorrow", "hoy", "mañana"].includes(word);
+  const day = es && !near ? `el ${word}` : word;
+  if (!time24) return { day, near, when: day };
+  const at = es ? (Number(String(time24).slice(0, 2)) % 12 === 1 ? "a la" : "a las") : "at";
+  return { day, near, when: `${day} ${at} ${formatTime12hr(time24)}` };
+}
+
 /** Where the job happens: the customer's address for mobile, ours otherwise. */
 export function jobAddress(
   brand: TenantBrand,
@@ -429,15 +450,10 @@ function paymentBlock(brand: TenantBrand, lead = "", lang?: unknown): string {
   );
 }
 
-function keepLink(bookUrl: string, lang?: unknown): string {
-  // ONE STRING LITERAL, NOT TWO JOINED BY `+`. The key is the whole sentence,
-  // and an extractor reading source as text sees only the first fragment of a
-  // concatenation — so the catalogue and the call site would disagree about
-  // what the key even is. Found by the check that compares them.
-  return fineBlock(T(lang)(
-    "Keep this email. The link above is how you change or cancel without calling anyone. To book again any time: {url}",
-    { url: bookUrl },
-  ));
+function keepLink(lang?: unknown): string {
+  // ROADMAP 99.2c — Andrew's approved wording replaced "Keep this email…".
+  // It sits directly under the booking button on every email that calls it.
+  return fineBlock(T(lang)("Need to change or cancel? Use the button above. No call needed."));
 }
 
 /**
@@ -603,14 +619,15 @@ export function customerConfirmationEmail(
   // paragraph in `ownWords`, their notes — never do.
   const tt = T(b.lang);
   const dateLong = formatDateLong(b.dateStr, b.lang);
+  const up = upcoming(brand, b.dateStr, b.startTime, b.lang);
   const blocks = [
     labBlock(isRequest ? tt("Request received") : tt("Booking confirmed")),
-    headlineBlock(isRequest ? tt("We're holding your time") : tt("You're all set")),
+    headlineBlock(isRequest ? tt("We're holding this time for you") : tt("You're all set")),
     proseBlock(isRequest
-      ? tt("Thanks, {first}. We've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.",
+      ? tt("Thanks, {first}. We're checking the schedule and will get back to you soon. Nothing is charged yet.",
         { first: esc(firstName(b.customerName)) })
-      : tt("Thanks, {first}. Here's everything for your appointment.",
-        { first: esc(firstName(b.customerName)) })),
+      : tt("Thanks, {first}. Here's everything for {day}.",
+        { first: esc(firstName(b.customerName)), day: up.day })),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b, b.lang)),
     ruleBlock(34),
@@ -625,15 +642,15 @@ export function customerConfirmationEmail(
     isRequest ? "" : paymentBlock(brand, tt("Nothing to pay now. This is for when the work is done."), b.lang),
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? tt("View or change your request") : tt("View your booking"), b.receiptUrl),
-    keepLink(brand.siteUrl, b.lang),
+    keepLink(b.lang),
     isRequest ? noteBlock(tt("Nothing is charged now. We'll email you the moment we've accepted.")) : "",
     b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(tt("Your notes"))}</strong><br>${esc(b.customerNotes)}`, 26) : "",
   ].filter(Boolean);
 
   return mail(
     isRequest
-      ? tt("Request received · {date}", { date: dateLong })
-      : tt("Booking confirmed · {date}", { date: dateLong }),
+      ? tt("Got your request for {when}", { when: up.when })
+      : tt("You're booked for {when}", { when: up.when }),
     shell(brand, blocks, isRequest
       ? tt("We're holding your time while we look at it.")
       : tt("{date} at {time}.", { date: dateLong, time: formatTime12hr(b.startTime) }),
@@ -745,7 +762,7 @@ export function requestDecisionEmail(
     date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
     time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
   });
-  const host = brand.siteUrl.replace(/^https?:\/\//, "");
+  const up = upcoming(brand, b.dateStr, b.startTime, b.lang);
 
   const blocks = kind === "quote"
     ? [
@@ -756,12 +773,12 @@ export function requestDecisionEmail(
       opts.quotedNote ? proseBlock(esc(opts.quotedNote), 22) : "",
       noteBlock(`${esc(tt("We're still holding {date} at {time} for you.", { date: dateLong, time: formatTime12hr(b.startTime) }))} <strong class="c-ink2" style="color:${G.ink2};">${esc(tt("Nothing is charged until you say yes."))}</strong>`),
       ownWords(brand, "quote"),
-      buttonBlock(brand, tt("See it and say yes"), opts.manageUrl),
+      buttonBlock(brand, tt("Look it over"), opts.manageUrl),
     ].filter(Boolean)
     : kind === "accepted"
     ? [
       labBlock(tt("Request accepted")),
-      headlineBlock(tt("You're booked in")),
+      headlineBlock(tt("You're confirmed")),
       proseBlock(tt("Good news. We've accepted your request for {when}. It's on the calendar.", { when })),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b, b.lang)),
@@ -804,24 +821,23 @@ export function requestDecisionEmail(
       paymentBlock(brand, tt("Nothing to pay now. This is for when the work is done."), b.lang),
       ownWords(brand, "accepted"),
       buttonBlock(brand, tt("View or change your booking"), opts.manageUrl),
-      keepLink(brand.siteUrl, b.lang),
+      keepLink(b.lang),
     ].filter(Boolean)
     : [
       labBlock(tt("Request declined")),
       headlineBlock(tt("We can't make that one")),
-      proseBlock(tt("We're sorry. We can't take {when}, so we've let that time go.", { when })),
-      proseBlock(tt("If another day works, we'd still love to see you: {link}.", {
-        link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
+      proseBlock(tt("Sorry, we can't make {when} work.", {
+        when: `<strong class="c-ink" style="color:${G.ink};">${esc(up.when)}</strong>`,
       })),
       ownWords(brand, "declined"),
+      buttonBlock(brand, tt("Pick another time"), brand.siteUrl),
     ].filter(Boolean);
 
   const subject = kind === "accepted"
-    ? tt("You're booked in · {date}", { date: dateLong })
+    ? tt("Confirmed: {when}", { when: up.when })
     : kind === "declined"
-    ? tt("About your request for {date}", { date: dateLong })
-    : tt("Your price: {amount} for {date}",
-      { amount: money(Number(opts.quotedAmount ?? 0)), date: dateLong });
+    ? tt("About your request for {day}", { day: up.day })
+    : tt("Your price is ready: {amount}", { amount: money(Number(opts.quotedAmount ?? 0)) });
 
   return mail(subject, shell(brand, blocks, subject, { lang: b.lang }));
 }
@@ -1003,7 +1019,7 @@ export function customerReminderEmail(
     paymentBlock(brand, tt("For when the work is done."), b.lang),
     ownWords(brand, second ? "reminder_2" : "reminder"),
     buttonBlock(brand, tt("View or change your booking"), b.receiptUrl),
-    keepLink(brand.siteUrl, b.lang),
+    keepLink(b.lang),
   ].filter(Boolean);
   return mail(
     tt("Reminder: your appointment {date}", { date: dateLong }),
@@ -1029,7 +1045,6 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
   const lang = forOwner ? ownerLang : b.lang;
   const tt = T(lang);
   const dateLong = formatDateLong(b.dateStr, lang);
-  const host = brand.siteUrl.replace(/^https?:\/\//, "");
   const blocks = forOwner
     ? [
       labBlock(tt("Cancelled"), "bad"),
@@ -1083,15 +1098,21 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
             : ""),
         )
         : "",
-      proseBlock(tt("We'd love to see you another time. You can book again at {link}.", {
-        link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
-      })),
+      // ROADMAP 99.2c — the approved line and a button replace a bare web
+      // address. The sentence above still names which appointment it was.
+      proseBlock(tt("This one's off the calendar. Whenever you're ready, booking again takes a minute.")),
       ownWords(brand, "cancelled"),
+      buttonBlock(brand, tt("Book again"), brand.siteUrl),
     ].filter(Boolean);
+  // "Your Friday appointment" reads; "Your today appointment" does not, so the
+  // two near days take the other word order.
+  const up = upcoming(brand, b.dateStr, null, lang);
   return mail(
     forOwner
       ? tt("Cancelled · {name} · {date}", { name: b.customerName, date: dateLong })
-      : tt("Your booking has been cancelled"),
+      : up.near
+      ? tt("Your appointment {day} is cancelled", { day: up.day })
+      : tt("Your {day} appointment is cancelled", { day: up.day }),
     shell(brand, blocks, tt("Cancelled: {date}", { date: dateLong }), { lang }),
   );
 }
@@ -1122,8 +1143,7 @@ export function rescheduleEmail(
     headlineBlock(forOwner ? b.customerName : tt("Your booking has moved")),
     proseBlock(forOwner
       ? tt("{name} moved their booking.", { name: `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong>` })
-      : tt("Hi {first}, your booking with {brand} has been moved.",
-        { first: esc(firstName(b.customerName)), brand: esc(brand.brandName) })),
+      : tt("Your appointment moved. Here's the new time.")),
     // ROADMAP 3.4 finding 3, the second of the two sites. The struck-through
     // OLD time was built entirely outside the lookup, so a Spanish reschedule
     // read *"sábado, 12 de septiembre de 2026 at 8:00 AM"* — and this is the
@@ -1153,7 +1173,7 @@ export function rescheduleEmail(
   return mail(
     forOwner
       ? tt("Rescheduled · {name} · now {date}", { name: b.customerName, date: dateLong })
-      : tt("Your booking has been rescheduled"),
+      : tt("New time: {when}", { when: upcoming(brand, b.dateStr, b.startTime, lang).when }),
     shell(brand, blocks, tt("Rescheduled to {date}", { date: dateLong }), { lang }),
   );
 }

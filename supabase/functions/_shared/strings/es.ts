@@ -79,8 +79,8 @@ export const es: Record<string, string> = {
   "Nothing to pay now. This is for when the work is done.":
     "No hay nada que pagar ahora. Esto es para cuando el trabajo esté hecho.",
   "For when the work is done.": "Para cuando el trabajo esté hecho.",
-  "Keep this email. The link above is how you change or cancel without calling anyone. To book again any time: {url}":
-    "Guarda este correo. El enlace de arriba es como cambias o cancelas sin llamar a nadie. Para reservar otra vez cuando quieras: {url}",
+  "Need to change or cancel? Use the button above. No call needed.":
+    "¿Necesitas cambiar o cancelar? Usa el botón de arriba. No hace falta llamar.",
   // `reconcile`'s two labels: the line it draws when an itemised column does
   // not reach its own total.
   "Discount applied": "Descuento aplicado",
@@ -111,11 +111,12 @@ export const es: Record<string, string> = {
   "Booking confirmed": "Reserva confirmada",
   "Request received": "Solicitud recibida",
   "You're all set": "Todo listo",
-  "We're holding your time": "Te estamos guardando el horario",
-  "Thanks, {first}. Here's everything for your appointment.":
-    "Gracias, {first}. Aquí está todo sobre tu cita.",
-  "Thanks, {first}. We've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.":
-    "Gracias, {first}. Ya tenemos tu solicitud y nadie más puede tomar este horario mientras la revisamos. Te avisamos pronto.",
+  "We're holding this time for you":
+    "Te estamos guardando este horario",
+  "Thanks, {first}. Here's everything for {day}.":
+    "Gracias, {first}. Aquí está todo para {day}.",
+  "Thanks, {first}. We're checking the schedule and will get back to you soon. Nothing is charged yet.":
+    "Gracias, {first}. Estamos revisando la agenda y te respondemos pronto. Todavía no se cobra nada.",
   "What we're doing": "Lo que vamos a hacer",
   "Estimated total": "Total estimado",
   "An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after.":
@@ -125,8 +126,10 @@ export const es: Record<string, string> = {
   "Nothing is charged now. We'll email you the moment we've accepted.":
     "No se cobra nada ahora. Te escribimos en cuanto la aceptemos.",
   "Your notes": "Tus notas",
-  "Booking confirmed · {date}": "Reserva confirmada · {date}",
-  "Request received · {date}": "Solicitud recibida · {date}",
+  "You're booked for {when}":
+    "Tu cita quedó reservada para {when}",
+  "Got your request for {when}":
+    "Recibimos tu solicitud para {when}",
   "We're holding your time while we look at it.":
     "Te estamos guardando el horario mientras la revisamos.",
   "{date} at {time}.": "{date} a las {time}.",
@@ -151,21 +154,26 @@ export const es: Record<string, string> = {
   "We're still holding {date} at {time} for you.":
     "Te seguimos guardando el {date} a las {time}.",
   "Nothing is charged until you say yes.": "No se cobra nada hasta que digas que sí.",
-  "See it and say yes": "Verlo y aceptar",
+  "Look it over":
+    "Revisarlo",
   "Request accepted": "Solicitud aceptada",
-  "You're booked in": "Ya quedaste apartado",
+  "You're confirmed":
+    "Tu cita está confirmada",
   "Good news. We've accepted your request for {when}. It's on the calendar.":
     "Buenas noticias. Aceptamos tu solicitud para el {when}. Ya está en la agenda.",
   "View or change your booking": "Ver o cambiar tu reserva",
   "Request declined": "Solicitud rechazada",
   "We can't make that one": "Ese horario no lo podemos tomar",
-  "We're sorry. We can't take {when}, so we've let that time go.":
-    "Lo sentimos. No podemos tomar el {when}, así que liberamos ese horario.",
-  "If another day works, we'd still love to see you: {link}.":
-    "Si te sirve otro día, nos encantaría atenderte: {link}.",
-  "You're booked in · {date}": "Ya quedaste apartado · {date}",
-  "About your request for {date}": "Sobre tu solicitud para el {date}",
-  "Your price: {amount} for {date}": "Tu precio: {amount} para el {date}",
+  "Sorry, we can't make {when} work.":
+    "Lo sentimos, no podemos atenderte {when}.",
+  "Pick another time":
+    "Elegir otro horario",
+  "Confirmed: {when}":
+    "Confirmada: {when}",
+  "About your request for {day}":
+    "Sobre tu solicitud para {day}",
+  "Your price is ready: {amount}":
+    "Tu precio está listo: {amount}",
 
   // ── 4 · The receipt, and the invoice that is not one ───────────────────
   "Receipt": "Recibo",
@@ -251,17 +259,21 @@ export const es: Record<string, string> = {
     "Pagaste por esta reserva. {brand} se encargará de tu reembolso directamente.",
   "Call {phone} if you have not heard from them.":
     "Llama al {phone} si no has sabido de ellos.",
-  "We'd love to see you another time. You can book again at {link}.":
-    "Nos encantaría atenderte en otra ocasión. Puedes reservar otra vez en {link}.",
-  "Your booking has been cancelled": "Tu reserva fue cancelada",
+  "This one's off the calendar. Whenever you're ready, booking again takes a minute.":
+    "Esta cita ya no está en la agenda. Cuando quieras, reservar otra vez toma un minuto.",
+  "Your {day} appointment is cancelled":
+    "Tu cita para {day} está cancelada",
+  "Your appointment {day} is cancelled":
+    "Tu cita de {day} está cancelada",
   "Cancelled: {date}": "Cancelada: {date}",
 
   // ── 8 · Moved ──────────────────────────────────────────────────────────
   "Rescheduled": "Reprogramada",
   "Your booking has moved": "Tu reserva cambió de horario",
-  "Hi {first}, your booking with {brand} has been moved.":
-    "Hola {first}, tu reserva con {brand} cambió de horario.",
-  "Your booking has been rescheduled": "Tu reserva fue reprogramada",
+  "Your appointment moved. Here's the new time.":
+    "Tu cita cambió de horario. Este es el nuevo.",
+  "New time: {when}":
+    "Nuevo horario: {when}",
   "Rescheduled to {date}": "Reprogramada para el {date}",
 
   // ── 11 · The plan link ─────────────────────────────────────────────────
