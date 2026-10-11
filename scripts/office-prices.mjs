@@ -137,7 +137,7 @@ async function openPage(size) {
   if (BREAK === "hidden" || BREAK === "wide") await ctx.addInitScript((css) => {
     const s = () => { const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st); };
     if (document.head) s(); else document.addEventListener("DOMContentLoaded", s);
-  }, BREAK === "hidden" ? ".bo-prices { display: none !important; }" : ".bo-prices { min-width: auto !important; }");
+  }, BREAK === "hidden" ? ".bo-prices { display: none !important; }" : ".bo-prices { min-width: auto !important; } .bo-pgroups { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important; max-width: 1100px !important; }");
   watchConsole(page, `${size.w}`, consoleNoise);
   await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#money`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-money", { timeout: 60000 });
