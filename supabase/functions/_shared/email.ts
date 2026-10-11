@@ -11,6 +11,7 @@ import type { TenantBrand } from "./emailTemplates.ts";
 import { paymentHandles } from "./payments.ts";
 import { brandFrom } from "./emailKit.ts";
 import { readFailed, retryRead } from "./retryRead.ts";
+import { reachedProvider } from "./reachedProvider.ts";
 
 // ---------------------------------------------------------------------------
 // THE TENANT'S COLOUR NOW GOES THROUGH THE SAME DERIVATION AS OURS — 2026-09-13
@@ -267,6 +268,15 @@ export async function sendTenantEmail(opts: {
    * already short by one.
    */
   bookingId?: string | null;
+  /**
+   * ROADMAP 0.4 — TRUE ONLY IF THE PROVIDER WAS ACTUALLY HANDED IT.
+   *
+   * Off by default, because a skipped send (reserved domain, no provider key)
+   * is meant to read as sent: that is the fixture sink. `build_start` turns it
+   * on, because a skip there would record a refund boundary nobody was told
+   * about. See `reachedProvider.ts`.
+   */
+  mustReachProvider?: boolean;
 }): Promise<boolean> {
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
@@ -288,7 +298,10 @@ export async function sendTenantEmail(opts: {
       }),
     });
     if (!res.ok) console.error("send-email relay failed:", await res.text());
-    return res.ok;
+    if (!opts.mustReachProvider || !res.ok) return res.ok;
+    const answer = await res.json().catch(() => null);
+    if (!reachedProvider(res.ok, answer)) console.error("send-email skipped a send that had to reach the provider:", answer);
+    return reachedProvider(res.ok, answer);
   } catch (e) {
     console.error("send-email relay error:", e);
     return false;

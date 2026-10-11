@@ -1060,9 +1060,13 @@ Deno.serve(async (req) => {
       const sent = await sendTenantEmail({
         businessId: id, to, subject: mail.subject, html: mail.html, text: mail.text,
         senderName: PLATFORM_NAME,
+        // A SKIP IS NOT A SEND HERE. The relay answers "ok" for an address
+        // that cannot receive mail and for a missing provider key; read as
+        // sent, that recorded the date with nobody told (0.4, 2026-10-11).
+        mustReachProvider: true,
       });
       if (!sent) {
-        return json({ error: "The notice did not go out, so nothing was recorded. Try again in a minute." }, 502);
+        return json({ error: `The notice did not go out to ${to}, so nothing was recorded. If that address is wrong, correct their contact email first; otherwise try again in a minute.` }, 502);
       }
 
       const startedAt = new Date().toISOString();
