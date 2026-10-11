@@ -1,6 +1,7 @@
 // 99.2a: the actual email formatter and all 34 rendered branches, in BOTH languages.
 // No credentials, database, email provider or paid service. Uses local previews.
 // node scripts/email-dates.mjs
+// --capture also refreshes Andrew's before/after copies and JPEGs on this machine.
 // --break=hours|year|minutes rewrites emailKit in a throwaway source copy, then
 // renders those real templates. The assertions themselves are never rewritten.
 // --break=missing drops one discovered preview to prove the population guard.
@@ -16,6 +17,7 @@ import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.argv.find(a => a.startsWith("--break="))?.slice(8) || "";
+const CAPTURE = process.argv.includes("--capture");
 if (BREAK && !["hours", "year", "minutes", "missing", "wrap"].includes(BREAK)) throw new Error("Unknown break");
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/99.2";
 const WIDTHS = [[390, 844], [1440, 900], [768, 1024], [392, 844], [320, 844]];
@@ -91,20 +93,20 @@ try {
         if (file === "customer-confirmation.html") {
           const expectedDate = lang === "en" ? "Thursday, September 17" : dateLong("2026-09-17", "es");
           check(`${label} actual appointment`, body.includes(expectedDate) && body.includes("10 AM") && body.includes("1:30 PM") && !body.includes("2026"));
-          if (!BREAK && [390, 768, 1440].includes(width)) {
+          if (CAPTURE && !BREAK && [390, 768, 1440].includes(width)) {
             mkdirSync(SHOTS, { recursive: true });
             const shot = `${SHOTS}/confirmation-${lang}-${width}.jpg`;
             await page.screenshot({ path: shot, type: "jpeg", quality: 90, fullPage: true });
             artifacts.push(shot);
           }
-          if (!BREAK && lang === "en" && width === 390) {
+          if (CAPTURE && !BREAK && lang === "en" && width === 390) {
             const { freeze, differs } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
             await freeze(page, { out: `${SHOTS}/after.html`, label: "After", note: "The date has no year; 10 AM is shorter and 1:30 PM keeps its exact minutes.", highlightText: "10 AM" });
             check("before and after visibly differ", await differs(page, `${SHOTS}/before.html`, `${SHOTS}/after.html`));
             writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Email dates and whole-hour times are shorter; long links and Spanish fact labels wrap within the phone.", url: pathToFileURL(path.join(out, file)).href, how: "Open the email preview list, then Customer - booking confirmed. Extra pairs show the Spanish new-detailer email and three-car alert.", situation: "A 10 AM to 1:30 PM booking; a long booking link; a Spanish three-car alert at 320px." }, null, 2));
           }
         }
-        if (!BREAK && lang === "es" && ((file === "platform-new-detailer.html" && width === 390) || (file === "owner-new-booking-carload.html" && width === 320))) {
+        if (CAPTURE && !BREAK && lang === "es" && ((file === "platform-new-detailer.html" && width === 390) || (file === "owner-new-booking-carload.html" && width === 320))) {
           const { freeze, differs } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
           const stem = file.replace(/\.html$/, "");
           await freeze(page, { out: `${SHOTS}/after-${stem}.html`, label: "After", note: "The fact list wraps inside this phone, with every label and value kept.", highlightText: file.startsWith("platform") ? "https://detailingplatform.com/book/ridgeline" : "Mid-size SUV" });
@@ -131,8 +133,7 @@ try {
 }
 const canaryCaught = badDateTime("Thursday, September 17, 2026 at 10:00 AM")
   && badDateTime("2026-09-17 at 10 AM") && !badDateTime("Thursday, September 17 at 10 AM - 1:30 PM");
-const receipt = writeReceipt({ check_id: "email-dates", started_at, status: failures.length ? "fail" : "pass", expected_targets: EXPECTED_TARGETS, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0, assertions_executed: assertions, min_assertions: 1700, failures, artifacts, dimensions: { break: BREAK, languages: ["en", "es"], widths: WIDTHS.map(v => v[0]), scope: "Local email formatting only; no live send, consent, channel routing, or relative dates." }, canary: { id: "old whole-hour and ISO dates", expected: "fail", observed: canaryCaught ? "fail" : "pass", caught: canaryCaught } });
-console.log(observations.join("\n"));
+const receipt = writeReceipt({ check_id: BREAK ? `email-dates-${BREAK}` : "email-dates", started_at, status: failures.length ? "fail" : "pass", expected_targets: EXPECTED_TARGETS, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0, assertions_executed: assertions, min_assertions: 1700, failures, artifacts, dimensions: { break: BREAK, capture: CAPTURE, languages: ["en", "es"], widths: WIDTHS.map(v => v[0]), scope: "Local email formatting only; no live send, consent, channel routing, or relative dates." }, canary: { id: "old whole-hour and ISO dates", observed_failure: canaryCaught } });
 console.log(`${discovered} of ${EXPECTED_TARGETS} targets; ${assertions} assertions; ${failures.length} failures`);
 for (const failure of failures) console.error(`FAIL ${failure}`);
 console.log(`Receipt ${receipt.path}`);
