@@ -1,0 +1,38 @@
+{
+  "git_sha": "b01acdbcc70068b5536b0e21b8ebbcab779a4877",
+  "git_sha_started": "b01acdbcc70068b5536b0e21b8ebbcab779a4877",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T21:31:03.616Z",
+  "failures": [
+    "screens/more/Preferences.jsx:119 — a non-sm ghost that is not in the ledger. Standing alone it reads as bare words: make it a plain `btn`, or register it with the stronger button beside it."
+  ],
+  "warnings": [],
+  "artifacts": [
+    "scripts/lone-ghost.mjs"
+  ],
+  "dimensions": {
+    "families": "btn, bk-btn, bo-btn",
+    "break": "lone"
+  },
+  "check_id": "lone-ghost",
+  "started_at": "2026-10-11T21:31:03.419Z",
+  "status": "fail",
+  "expected_targets": 44,
+  "discovered_targets": 45,
+  "attempted_targets": 45,
+  "completed_targets": 44,
+  "skipped_targets": 0,
+  "assertions_executed": 47,
+  "min_assertions": 40,
+  "canary": {
+    "id": "a lone `btn ghost` injected into a scratch file",
+    "observed_failure": true,
+    "caught_by": [
+      "source scan"
+    ],
+    "findings": [
+      "canary/Lone.jsx:1 reported"
+    ]
+  }
+}
