@@ -13,7 +13,7 @@ const day = (t) => new Date(t).toLocaleDateString("en-US", { month: "short", day
 // The axis is inset by half a label, so no label can leave the track. The track
 // is never narrower than MIN; past that it scrolls sideways in its own box.
 const LAB = 172, GAP = 46, PAD = LAB / 2 + 4, MIN = 600;
-const LH = 48, NEAR = 14, FAR = NEAR + LH + 10, AXIS = 26;
+const LH = 96, NEAR = 14, FAR = NEAR + LH + 10, AXIS = 26;
 function layout(pins) {
   const span = MIN - 2 * PAD;
   const xs = [];
@@ -35,7 +35,7 @@ export default function ComingIn({ ctx, i }) {
       <div className="bo-label">Coming in · next 30 days</div>
       <div className="bo-h2" data-testid="coming">{usd(total)} expected</div>
       <div className="bo-tl" role="group" aria-label="Renewals on a timeline">
-        <div className="bo-tl-in" style={{ "--tw": `${g.tw}px`, "--pad": `${g.pad}px`, height: g.height, "--rail": `${g.up}px` }}>
+        <div className={`bo-tl-in ${pins.length ? "has-pins" : "is-empty"}`} style={{ "--tw": `${g.tw}px`, "--pad": `${g.pad}px`, height: g.height, "--rail": `${g.up}px` }}>
           <i className="bo-tl-rail" />
           {pins.map((p, n) => {
             const state = p.late ? "late" : p.yearly ? "yr" : "";
@@ -45,7 +45,7 @@ export default function ComingIn({ ctx, i }) {
                 className={`bo-pin ${n % 2 ? "low" : ""} ${state}`.trim()}
                 style={{ left: at(g.f[n]), "--h": `${n % 4 >= 2 ? FAR : NEAR}px`, "--d": `${300 + n * 90}ms` }}>
                 <i className="dot" /><i className="stem" />
-                <span className="lab"><span><b>{usd(p.cents)}</b> {day(p.at)}</span><span className="n">{p.row.name}</span></span>
+                <span className="lab"><span><b>{usd(p.cents)}</b> {day(p.at)}</span><span className="n">{p.row.name}</span>{(p.yearly || p.late) && <small>{p.late ? "card failed" : "a year"}</small>}</span>
               </button>
             );
           })}

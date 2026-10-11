@@ -17,7 +17,7 @@ export default function Steps({ i }) {
     <section className="bo-sec" style={{ "--i": i }} aria-label="Where every dollar went">
       <div className="bo-label">Where every dollar went</div>
       {!k ? <p className="bo-dim">Reading…</p> : k.failed ? <p className="bo-dim">Could not read this month.</p> : (
-        <ol className="bo-wf">
+        <ol className={`bo-wf ${k.in === 0 && !k.out ? "zero" : ""}`}>
           {steps.map((s, n) => {
             let lo = 0, hi = 0;
             if (s.kind === "bill") { hi = level; level += s.cents; lo = level; }

@@ -1,36 +1,13 @@
-// ROADMAP 9.12b — Money's "Coming in" timeline, in a real browser, at 1440, 768,
-// 390 and 320.
-//
-//   node scripts/office-coming-in.mjs                 (dev server on :5173, credentials in .env)
-//   node scripts/office-coming-in.mjs --break=bare    (labels hidden: back to bare dots, must go red)
-//   node scripts/office-coming-in.mjs --freeze=before (only freezes the Before copy, no receipt)
-//
-// NOTHING IS WRITTEN. `list` is answered through page.route() with twelve known
-// subscriptions: nine renew inside 30 days (three of them on the SAME day, one a
-// failed card, two yearly), one is set to cancel, one renews on day 40 and one
-// failed card is already behind. `get` for a fed detailer is forwarded as a read of
-// a real one, so the panel opens on a real shape.
-//
-// PER WIDTH: every renewal is one pin whose label shows its name, date and amount,
-// in date order and in its state's color; no two labels overlap each other or the
-// axis words; no label leaves the timeline's own scroll box, and the box never
-// leaves the screen; every pin is 44px pressable and opens that detailer; the
-// "expected" figure leaves the failed card out. Then the EMPTY state (nothing
-// paying) still shows Today, the date 30 days out and one line; then ?lite=1 has
-// no motion on the timeline.
-//
-// THE CANARY pushes one label onto its neighbor; the overlap inspector must name
-// it. `--break=bare` hides every label, which must turn the label questions red.
-//
-// Signs in as a THROWAWAY platform admin, created here and deleted in a finally
-// (scripts/admin-account.mjs). Do not wrap in `timeout` (docs/gotchas.md 90).
-
-import "../tests/_env.mjs";
+// ROADMAP 9.12b: real browser, phone first. No credentials or database writes.
+// All platform responses and the session are synthetic; server billing is not tested.
+// node scripts/office-coming-in.mjs [--freeze=before] [--break=bare|faded|offscreen]
+// Six declared widths; nine included renewals, three refused by the window/cancel rules.
+// Canary: overlap, ancestor opacity, and the original hidden-start/no-cue defect.
+// Screenshots live in artifacts; Andrew gets frozen HTML copies outside the repo.
 import { createRequire } from "node:module";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
-import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -38,14 +15,17 @@ const started_at = new Date().toISOString();
 const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=")[1] || "";
 const BREAK = arg("break"), FREEZE = arg("freeze");
 const BASE = process.env.BASE || "http://localhost:5173";
-const ADMIN_EMAIL = "office-coming-in-test@detailplatform.com";
-const SIZES = [{ w: 1440, h: 900 }, { w: 768, h: 1024 }, { w: 390, h: 844 }, { w: 320, h: 700 }];
-const ART = "artifacts/office-coming-in";
+const SIZES = [{ w: 390, h: 844 }, { w: 392, h: 844 }, { w: 320, h: 700 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }, { w: 1920, h: 1080 }];
+const ART = `artifacts/office-coming-in${BREAK ? "/" + BREAK : ""}`;
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12b";
-const URL_ = process.env.SUPABASE_URL;
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — nothing measured, no receipt written."); process.exit(1); }
-if (!URL_.includes("kguqylyzgyzfktkfnhjb")) { console.error("SUPABASE_URL is not project kguqylyzgyzfktkfnhjb — refusing to run."); process.exit(1); }
+const REF = "kguqylyzgyzfktkfnhjb";
+const b64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+const exp = Math.floor(Date.now() / 1000) + 3600 * 24;
+const user = { id: "00000000-0000-4000-8000-000000000001", email: "andrew@example.com", aud: "authenticated", role: "authenticated" };
+const SESSION = {
+  access_token: `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: user.id, exp, role: "authenticated", email: user.email })}.x`,
+  refresh_token: "fake", token_type: "bearer", expires_in: 86400, expires_at: exp, user,
+};
 
 let assertions = 0;
 const failures = [], consoleNoise = [], artifacts = [], observed = {};
@@ -97,9 +77,18 @@ const INSPECT = (blind) => {
   const labs = pins.map((p) => p.querySelector(".lab")).filter(Boolean);
   const words = [...document.querySelectorAll(".bo-tl .now, .bo-tl .end, .bo-tl .bo-tl-none")];
   const hit = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5;
-  const shown = (el) => R(el).width > 0 && getComputedStyle(el).visibility !== "hidden";
+  const opacity = (el) => {
+    let n = 1;
+    for (let e = el; e; e = e.parentElement) n *= Number(getComputedStyle(e).opacity);
+    return n;
+  };
+  const shown = (el) => R(el).width > 0 && getComputedStyle(el).visibility !== "hidden" && opacity(el) >= .99;
+  const inScreen = (el) => { const r = R(el), b = R(sc); return shown(el) && r.left >= Math.max(0, b.left) - .5 && r.right <= Math.min(innerWidth, b.right) + .5 && r.top >= 0 && r.bottom <= innerHeight - 100; };
+  const start = !!sc && words.some((w) => w.textContent === "Today" && inScreen(w)) && labs.slice(0, 3).length === 3 && labs.slice(0, 3).every(inScreen);
+
   const out = {
-    pins: pins.map((p) => ({ cls: p.className, text: (p.querySelector(".lab")?.innerText ?? "").replace(/\s+/g, " ").trim(), shown: !!p.querySelector(".lab") && shown(p.querySelector(".lab")) })),
+    pins: pins.map((p) => ({ cls: p.className, text: (p.querySelector(".lab")?.innerText ?? "").replace(/\s+/g, " ").trim(), shown: !!p.querySelector(".lab") && shown(p.querySelector(".lab")), opacity: p.querySelector(".lab") ? opacity(p.querySelector(".lab")) : 0 })),
+    start,
     overlaps: [], outside: [], overflowX: document.documentElement.scrollWidth > window.innerWidth + 1,
     box: sc ? { left: R(sc).left, right: R(sc).right, scrolls: sc.scrollWidth > sc.clientWidth + 1 } : null,
     words: words.filter(shown).map((w) => w.textContent.trim()),
@@ -137,17 +126,8 @@ const press44 = (page) => page.evaluate(() => {
   return bad;
 });
 
-const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
-const all = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=1000`, { headers: H })).json().catch(() => ({}));
-const left = (all.users ?? []).find((u) => u.email === ADMIN_EMAIL);
-if (left) { await dropAdmin(URL_, KEY, left.id); console.log("deleted a leftover throwaway admin first"); }
-console.log(`writing: one throwaway platform admin on ${new URL(URL_).host}, removed when this run ends`);
-const acct = await makeAdmin(URL_, KEY, ADMIN_EMAIL);
-if (!acct) { console.error("could not create the throwaway admin; nothing measured"); process.exit(1); }
-const redact = (t) => String(t).split(acct.password).join("[password]");
-
-let browser = null, signedIn = null, completed = 0;
-const canary = { id: "label-pushed-onto-its-neighbor", observed_failure: true };
+let browser = null, completed = 0;
+const canary = { id: "overlap-painted-opacity-and-hidden-start", observed_failure: false };
 mkdirSync(ART, { recursive: true });
 mkdirSync(SHOTS, { recursive: true });
 
@@ -157,9 +137,15 @@ const openMoney = async (page, { lite = false } = {}) => {
   await page.locator(".bo-nav").filter({ hasText: "Money" }).click();
   await page.waitForSelector(".bo-money", { timeout: 20000 });
   await page.waitForFunction(() => !/Reading/.test(document.querySelector(".bo-money").innerText), null, { timeout: 40000 });
+  if (BREAK === "faded") await page.addStyleTag({ content: ".bo-tl .bo-pin { opacity: 0 !important; }" });
   if (BREAK === "bare") await page.addStyleTag({ content: ".bo-tl .lab { display: none !important; }" });
-  await page.locator('section[aria-label="Coming in, next 30 days"]').scrollIntoViewIfNeeded();
   await settle(page, 2600);
+  await page.locator('section[aria-label="Coming in, next 30 days"]').evaluate((e) => e.scrollIntoView({ block: "start" }));
+  await page.waitForTimeout(300);
+  if (BREAK === "offscreen") await page.evaluate(() => {
+    const sc = document.querySelector(".bo-tl"), track = sc.querySelector(".bo-tl-in");
+    sc.style.overflowX = "hidden"; track.style.width = "max(1600px, 150%)"; sc.scrollLeft = 240;
+  });
 };
 
 try {
@@ -167,41 +153,33 @@ try {
   for (const size of SIZES) {
     const where = `${size.w}`;
     console.log(`\n${where}`);
-    const ctx = await browser.newContext({ viewport: { width: size.w, height: size.h }, storageState: signedIn || undefined });
+    const ctx = await browser.newContext({ viewport: { width: size.w, height: size.h } });
+    await ctx.addInitScript(([k, v]) => localStorage.setItem(k, v), [`sb-${REF}-auth-token`, JSON.stringify(SESSION)]);
     const page = await ctx.newPage();
     watchConsole(page, where, consoleNoise);
-    if (!signedIn) {
-      await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-      await page.waitForSelector("input[type=email]", { timeout: 40000 });
-      await page.fill("input[type=email]", acct.email);
-      await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
-      signedIn = await ctx.storageState();
-    }
-    let empty = false, proto = null;
+    let empty = false;
+    const proto = { id: "fed", name: "Fed", slug: "fed", is_demo: false, status: "active", owner_email: "owner@example.com", created_at: "2026-08-01T12:00:00Z", bookings_total: 0, jobs_month: 0, customers: 0, setup_inputs: {} };
+    await page.route("**/auth/v1/user**", (r) => r.fulfill({ json: user }));
     await page.route("**/functions/v1/platform-admin", async (route) => {
       const body = JSON.parse(route.request().postData() || "{}");
-      if (body.action === "get" && String(body.business_id).startsWith("fed-") && proto) {
-        return route.fulfill({ response: await route.fetch({ postData: JSON.stringify({ ...body, business_id: proto.id }) }) });
-      }
-      if (body.action !== "list") return route.continue();
-      const res = await route.fetch();
-      const j = await res.json();
-      const f = fedRows(j.rows ?? [], empty);
-      proto = f.proto;
-      await route.fulfill({ response: res, json: { ...j, rows: f.rows } });
+      const f = fedRows([proto], empty);
+      if (body.action === "whoami") return route.fulfill({ json: { email: user.email } });
+      if (body.action === "list") return route.fulfill({ json: { rows: f.rows, totals: {} } });
+      if (body.action === "get") return route.fulfill({ json: { bookings: [], invoices: [], events: [] } });
+      if (body.action === "platform_net") return route.fulfill({ json: { revenue_cents: 0, cost_cents: 0, net_cents: null, costs_entered: false, by_category: {} } });
+      return route.fulfill({ json: {} });
     });
 
-    // ── FED: nine renewals ────────────────────────────────────────────────────
     await openMoney(page);
     if (FREEZE === "before") {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
       await freeze(page, {
         out: `${SHOTS}/before.html`, label: "Before",
-        note: "Coming in: nine renewals in the next 30 days are bare dots on a line. No name, date or amount on any dot, and three on the same day sit on top of each other.",
-        highlight: ".bo-rail30",
+        note: "On a phone the wide timeline needs sideways scrolling, names are clipped and list badges disappear; the zero-dollar chart above reserves a large empty space.",
+        highlight: ".bo-tl .now",
       });
+      await freeze(page, { out: `${SHOTS}/before-zero.html`, label: "Before", note: "A zero-dollar month reserves a tall empty chart.", highlight: ".bo-wf" });
+      await page.screenshot({ path: `${ART}/before-390.png`, fullPage: true });
       console.log(`froze ${SHOTS}/before.html`);
       break;
     }
@@ -228,9 +206,25 @@ try {
     check(where, "the page never scrolls sideways", !o.overflowX);
     check(where, "Today and the date 30 days out are on the axis", o.words.includes("Today") && o.words.includes(day(NOW + 30 * 864e5)), o.words.join(","));
     check(where, "the list under the timeline is kept, one row per renewal", (await page.locator(".bo-due button").count()) === IN.length);
+    check(where, "initial view: Today and the first three renewals are readable without sideways scrolling", o.start, `start=${o.start}, scrolls=${o.box?.scrolls}`);
+    check(where, "phone: the entire month fits horizontally, with no hidden portion", size.w > 860 || (o.box && !o.box.scrolls));
+    check(where, "all nine labels are painted, including ancestor opacity", o.pins.length === IN.length && o.pins.every((p) => p.opacity >= .99), o.pins.map((p) => p.opacity).join(","));
+    const rows = await page.$$eval(".bo-due button", (bs) => bs.map((b) => {
+      const a = b.querySelector(".bo-av"), r = a?.getBoundingClientRect();
+      return { text: b.textContent.replace(/\s+/g, " "), badge: !!r && r.width > 0 && getComputedStyle(a).display !== "none" };
+    }));
+    check(where, "every list row keeps its colored initials badge", rows.length === IN.length && rows.every((r) => r.badge));
+    check(where, "list keeps names, dates, amounts, yearly and failed-card states", WANT.every((w, k) => [w.name, w.date, w.amt, ...(LATE.includes(IN[k]) ? ["card failed"] : []), ...(YEARLY.includes(IN[k]) ? ["a year"] : [])].every((t) => rows[k]?.text.includes(t))));
+    const cut = await page.$$eval(".bo-tl .lab .n, .bo-due b", (es) => es.filter((e) => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1 || getComputedStyle(e).textOverflow === "ellipsis").map((e) => e.textContent));
+    check(where, "names wrap in full rather than being clipped", cut.length === 0, cut.join(","));
+    check(where, "canceled, day-40 and past renewals are refused by both views", !o.pins.some((p) => /Fed (Juniper|Larch|Maple)/.test(p.text)) && !rows.some((r) => /Fed (Juniper|Larch|Maple)/.test(r.text)));
+    const chart = await page.locator(".bo-wf-plot").first().evaluate((e) => e.getBoundingClientRect().height);
+    check(where, "zero-dollar chart collapses its empty space", chart <= 48, `${chart}px`);
+    // Photograph the arrival BEFORE any hit probe scrolls a pin into view.
+    await page.screenshot({ path: `${ART}/fed-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/fed-${size.w}.png`);
+    await page.screenshot({ path: `${ART}/arrival-${size.w}.png` }); artifacts.push(`${ART}/arrival-${size.w}.png`);
     const bad44 = await press44(page);
     check(where, "every pin has 44px of hit area", bad44.length === 0, bad44.slice(0, 3).join(" | "));
-    await page.screenshot({ path: `${ART}/fed-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/fed-${size.w}.png`);
 
     if (size.w === SIZES[0].w) {
       const before = (await inspect(page)).overlaps.length;
@@ -243,7 +237,19 @@ try {
       const after = (await inspect(page)).overlaps.length;
       await page.evaluate(() => { const b = document.querySelector("[data-canary]"); b.style.translate = b.dataset.canary; delete b.dataset.canary; });
       canary.overlap = `overlaps ${before} -> ${after}`;
-      canary.observed_failure = after > before;
+      await page.evaluate(() => { const p = document.querySelector(".bo-pin"); p.dataset.oldOpacity = p.style.opacity; p.style.opacity = "0"; });
+      const faded = !(await inspect(page)).pins[0].shown;
+      await page.evaluate(() => { const p = document.querySelector(".bo-pin"); p.style.opacity = p.dataset.oldOpacity; delete p.dataset.oldOpacity; });
+      await page.locator('section[aria-label="Coming in, next 30 days"]').evaluate((e) => e.scrollIntoView({ block: "start" }));
+      await page.evaluate(() => {
+        const sc = document.querySelector(".bo-tl"), track = sc.querySelector(".bo-tl-in");
+        sc.dataset.oldStyle = sc.getAttribute("style") || ""; track.dataset.oldStyle = track.getAttribute("style") || "";
+        sc.style.overflowX = "hidden"; track.style.width = "1600px"; sc.scrollLeft = 240;
+      });
+      const hiddenStart = !(await inspect(page)).start;
+      await page.evaluate(() => { for (const e of document.querySelectorAll("[data-old-style]")) { e.setAttribute("style", e.dataset.oldStyle); delete e.dataset.oldStyle; e.scrollLeft = 0; } });
+      canary.opacity = faded; canary.hiddenStart = hiddenStart;
+      canary.observed_failure = after > before && faded && hiddenStart;
       console.log(`    canary ${after > before ? "CAUGHT" : "MISSED"}: ${canary.overlap}`);
     }
 
@@ -262,19 +268,12 @@ try {
     check(where, "every pin opens that detailer", opened.length === 0, opened.slice(0, 3).join(" | "));
     if (size.w === SIZES[0].w && !BREAK) {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
-      await page.locator(".bo-tl").scrollIntoViewIfNeeded();
-      await freeze(page, {
-        out: `${SHOTS}/after.html`, label: "After",
-        note: "Coming in: every renewal in the next 30 days is a pin with its amount, date and name. Green is monthly, blue is yearly, red is a failed card. Three on the same day sit in different rows. Press a pin to open that detailer.",
-        highlight: ".bo-tl",
-      });
-      artifacts.push(`${SHOTS}/after.html`);
-    }
-    if (size.w === 390 && !BREAK) {
-      const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
-      await page.locator(".bo-tl").scrollIntoViewIfNeeded();
-      await freeze(page, { out: `${SHOTS}/after-phone.html`, label: "After (phone)", note: "On a phone the timeline slides sideways inside its own box; the labels keep their size.", highlight: ".bo-tl" });
-      artifacts.push(`${SHOTS}/after-phone.html`);
+      await freeze(page, { out: `${SHOTS}/after.html`, label: "After", note: "The phone timeline runs from Today down through every renewal to the end date. Full names, amounts and card states fit, and the list keeps its colored badges.", highlight: ".bo-tl .now" });
+      await freeze(page, { out: `${SHOTS}/after-zero.html`, label: "After", note: "The zero-dollar chart keeps its figures and labels without the empty block.", highlight: ".bo-wf" });
+      await freeze(page, { out: "C:/Users/rando/Downloads/claude/belt/shots/9.12a/after-money.html", label: "After", note: "Money's phone timeline and zero-dollar chart now fit the page.", highlight: ".bo-tl .now" });
+      await freeze(page, { out: `${SHOTS}/after-phone.html`, label: "After (phone)", note: "Every renewal is reachable by ordinary page scrolling, with no sideways scrolling or clipped labels.", highlight: ".bo-tl .now" });
+      artifacts.push(`${SHOTS}/after.html`, `${SHOTS}/after-zero.html`);
+      writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Phone renewals now run down a timeline with full labels and list badges; the empty chart is compact.", url: `${BASE}/admin/office#money`, how: "Open the back office and tap Money, then scroll to Coming in.", situation: "Nine upcoming renewals, including three on one day, two yearly plans, a failed card, and a zero-dollar month." }, null, 2));
     }
 
     // ── EMPTY: nothing paying ─────────────────────────────────────────────────
@@ -302,20 +301,30 @@ try {
     completed++;
     await ctx.close();
   }
+  if (!BREAK && !FREEZE) {
+    const { differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+    const review = await browser.newPage();
+    if (existsSync(`${SHOTS}/before.html`) && !(await differs(review, `${SHOTS}/before.html`, `${SHOTS}/after.html`))) {
+      unlinkSync(`${SHOTS}/before.html`);
+      const info = JSON.parse((await import("node:fs")).readFileSync(`${SHOTS}/where.json`, "utf8"));
+      info.before = "The original and changed pages look identical in a still copy.";
+      writeFileSync(`${SHOTS}/where.json`, JSON.stringify(info, null, 2));
+    }
+    await review.close();
+  }
 } catch (e) {
-  failures.push(`run stopped: ${redact(e.message)}`);
-  console.error(redact(e.stack || e.message));
+  failures.push(`run stopped: ${e.message}`);
+  console.error(e.stack || e.message);
 } finally {
   await browser?.close();
-  await dropAdmin(URL_, KEY, acct.id);
-  console.log("throwaway admin deleted");
+
 }
 
 if (FREEZE === "before") process.exit(0);
-for (const c of consoleNoise) failures.push(`console: ${redact(c)}`);
+for (const c of consoleNoise) failures.push(`console: ${c}`);
 const status = failures.length === 0 && completed === SIZES.length && canary.observed_failure ? "pass" : "fail";
 const { path } = writeReceipt({
-  check_id: "office-coming-in",
+  check_id: `office-coming-in${BREAK && BREAK !== "offscreen" ? "-" + BREAK : ""}`,
   started_at,
   status,
   expected_targets: SIZES.length,
@@ -324,17 +333,12 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * 18,
-  assertion_floor: "4 widths x 18 questions (fed 12, empty 4, lite 2), all fixed by the code; none depends on what the live platform holds.",
+  min_assertions: SIZES.length * 26,
+  assertion_floor: "6 declared widths x 26 questions: fed 20, empty 4, lite 2; independent of database contents.",
   failures,
   artifacts,
   canary,
-  warnings: [
-    "list is answered through page.route() with 12 fed subscriptions, 9 of them in the window; nothing is written to the database.",
-    "Signs in as a throwaway platform admin created and deleted by this run.",
-    "The look itself (glow, color, motion) is not judged here; the frozen copies in belt/shots/9.12b are the evidence for that.",
-    ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
-  ],
+  warnings: ["All sessions and platform responses are synthetic. No database write or credential use; this checks browser behavior, not the billing server.", ...(BREAK ? [`deliberate --break=${BREAK}`] : [])],
   dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), ...(BREAK && { break: BREAK }), observed },
 });
 console.log(`\n${status.toUpperCase()} — ${assertions} assertions, ${failures.length} failed, canary ${canary.observed_failure ? "caught" : "MISSED"} → ${path}`);
