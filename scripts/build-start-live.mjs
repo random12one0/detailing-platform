@@ -207,7 +207,7 @@ writeReceipt({
   artifacts: ["scripts/build-start-live.mjs", "supabase/functions/platform-admin/index.ts", "app/src/admin/AdminPage.jsx"],
   warnings: [
     "Presses the DEPLOYED platform-admin; it cannot say which commit is live. The unreachable-address verdict names which behavior answered.",
-    "Spends two real emails (delivered@resend.dev) of the daily allowance per clean run.",
+    "Spends two real emails of the daily allowance per clean run (the REAL address above).",
     "Overlapping presses (ROADMAP 0.4g) are NOT exercised: the stale tab presses after the first press finished.",
   ],
   canary,
