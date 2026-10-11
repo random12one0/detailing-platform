@@ -47,6 +47,8 @@ const rest = async (method, p, body) => {
 };
 
 const started = new Date();
+// The REST read says `+00:00`, the function says `Z`: same instant, different text.
+const sameInstant = (a, b) => !!a && !!b && Date.parse(a) === Date.parse(b);
 let assertions = 0;
 const failures = [];
 const check = (label, ok, detail = "") => {
@@ -129,10 +131,10 @@ try {
     const shown = await buildRow(A.page);
     const db = (await rest("GET", `businesses?id=eq.${b.id}&select=site_build_started_at`)).data?.[0]?.site_build_started_at ?? null;
     const sends = (await rest("GET", `email_sends?business_id=eq.${b.id}&select=status,to_email,subject,sent_at`)).data ?? [];
-    check(`${width}: the date is recorded`, !!db && db === body?.site_build_started_at, `db ${db}`);
+    check(`${width}: the date is recorded`, sameInstant(db, body?.site_build_started_at), `db ${db}`);
     check(`${width}: the row now shows the day, not "not started"`, shown !== "not started" && /\w+day, \w+ \d+/.test(shown), shown);
     check(`${width}: the button is gone once it is done`, (await button(A.page).count()) === 0);
-    check(`${width}: exactly one email row, sent to the contact email`, sends.length === 1 && sends[0].status === "sent" && sends[0].to_email === REAL, JSON.stringify(sends));
+    check(`${width}: exactly one email row, sent to the contact email`, sends.length === 1 && ["sent", "delivered"].includes(sends[0].status) && sends[0].to_email === REAL, JSON.stringify(sends));
     // CANARY, IN THE RUN: the same "it is done" test, aimed at the stale tab,
     // which has NOT been redrawn and must still read "not started".
     const staleRow = await buildRow(B.page);
@@ -148,7 +150,7 @@ try {
     await B.page.waitForTimeout(500);
     const db2 = (await rest("GET", `businesses?id=eq.${b.id}&select=site_build_started_at`)).data?.[0]?.site_build_started_at ?? null;
     const sends2 = (await rest("GET", `email_sends?business_id=eq.${b.id}&select=status`)).data ?? [];
-    check(`${width}: a second press from a stale tab is refused (409) naming the recorded date`, res2?.status() === 409 && body2?.site_build_started_at === db, `${res2?.status()} ${JSON.stringify(body2)?.slice(0, 140)}`);
+    check(`${width}: a second press from a stale tab is refused (409) naming the recorded date`, res2?.status() === 409 && sameInstant(body2?.site_build_started_at, db), `${res2?.status()} ${JSON.stringify(body2)?.slice(0, 140)}`);
     check(`${width}: the refusal is shown to the person who pressed`, /already recorded as started/.test(alertText ?? ""), alertText ?? "no message shown");
     check(`${width}: the date did not move and no second email went`, db2 === db && sends2.length === 1, `db ${db2}, ${sends2.length} email row(s)`);
     check(`${width}: console clean (both tabs; the refusal's own 409 excepted)`,
@@ -177,7 +179,7 @@ try {
   // A KNOWN STATE, NOT A PASS: the live server stamping here is the defect the
   // checkout fixes and Andrew's publish removes. UNEXPECTED is the only red.
   check("unreachable address: the live answer is one of the two known states", verdict !== "UNEXPECTED", verdict);
-  check("unreachable address: nothing was emailed", ssends.every((s) => s.status !== "sent"), JSON.stringify(ssends));
+  check("unreachable address: nothing was emailed", ssends.every((s) => !["sent", "delivered"].includes(s.status)), JSON.stringify(ssends));
   completed += 1;
 } catch (e) {
   failures.push(`run stopped: ${e.message}`);
