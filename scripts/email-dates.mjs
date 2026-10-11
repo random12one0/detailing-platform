@@ -44,7 +44,7 @@ try {
     if (BREAK === "hours") after = before.replace('m === 0 ? "" :', 'false ? "" :');
     if (BREAK === "minutes") after = before.replace('m === 0 ? "" :', 'true ? "" :');
     if (BREAK === "year") after = before.replace('weekday: "long", month: "long"', 'weekday: "long", year: "numeric", month: "long"');
-    if (BREAK === "wrap") after = before.replace('style="table-layout:fixed;"', '').replace('width="30%"', '').replace('vertical-align:top; overflow-wrap:anywhere;', 'vertical-align:top; white-space:nowrap;').replace('word-wrap:break-word; overflow-wrap:anywhere;', '');
+    if (BREAK === "wrap") after = before.replace('style="table-layout:fixed;"', '').replace('width="25%"', '').replace('vertical-align:top; overflow-wrap:anywhere;', 'vertical-align:top; white-space:nowrap;').replace('word-wrap:break-word; overflow-wrap:anywhere;', '');
     if (after === before) throw new Error("Sabotage did not land");
     writeFileSync(kitFile, after);
     sourceRoot = scratch;
