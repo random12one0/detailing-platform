@@ -48,6 +48,17 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
+
+The email formatter is built locally: `10:00 AM` becomes `10 AM`, real minutes stay, and the long date loses its year.
+Long links and Spanish fact labels also wrap inside a phone. This is the first part of 99.2; the new wording, consent box,
+message routing and automatic texting are still separate work, so this does not make texting ready for registration.
+
+**Your move:** include the functions that bundle `supabase/functions/_shared/emailKit.ts` in your next planned release,
+then have a session verify a real confirmation's subject, body and plain-text copy. Publishing the app alone does not update
+emails. The session has not pushed, published, deployed, enabled texting or spent money. Before/after copies are in the
+control room's `shots/99.2` folder. No decision about the approved wording is being reopened.
+
 ---
 
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
