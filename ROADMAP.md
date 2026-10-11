@@ -29022,6 +29022,22 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   remove the price editor, mail list and past-month bill entry. Recommend 6b, then 6c, then 6d, then 99.3b; after the
   move and its browser proof, open the rebuilt back office and accept it. No key, outside service or new design
   decision is blocking this item; the unfinished prerequisite work belongs to 9.12a, outside this one-item assignment.
+  **Recheck validation at `3cf8c68e` (documentation only):**
+  `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs tests/no-credentials-in-tracked-text.test.mjs tests/every-open-item-is-citable.test.mjs`
+  passed. `CITABLE_CANARY=1` caught the planted unnumbered item; the credential scan's direct `--break=md-only` run
+  caught the missing non-markdown population and its planted files. No browser success or refusal path was rerun;
+  this session does not certify the product or tick either box.
+  Required read-only checks, confirmed against project `kguqylyzgyzfktkfnhjb`, remain **FAIL**, not waived:
+  `node scripts/deployed-inventory.mjs` discovered **42 of 42** declared functions, compared **41 of 42** (Google
+  Business is unpublished), and named differing bundles including `platform-admin`; `node --env-file=.env scripts/migration-drift.mjs`
+  discovered **361 of 369** declared targets and named missing or drifted support-session, Google Business and
+  email-body schema. `node scripts/receipt.mjs <each receipt path>` rejected both ordinary receipts. Evidence:
+  `receipts/deployed-inventory.json` and `receipts/migration-drift.json`. The deliberately unreadable inventory
+  (`--only=platform-admin --break=unreadable`, **1 of 1** discovered, **0 of 1** compared) was refused as no comparison;
+  the migration sabotage (`--break=unappliedcol`, **361 of 369** discovered) added `businesses.id` to its missing-column
+  findings. Their `.sabotage.json` files preserve these exact outputs. These older scripts omit `dimensions.break`,
+  so sabotage receipts were copied to separate paths and the ordinary results restored (migration check rerun;
+  inventory's completed ordinary receipt copied back unchanged). No database change, deployment or push was made.
 
 
 

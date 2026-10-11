@@ -1,0 +1,42 @@
+{
+  "git_sha": "3cf8c68eb952d5c692ea958d84ed2e2996f5fd36",
+  "git_sha_started": "3cf8c68eb952d5c692ea958d84ed2e2996f5fd36",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T21:22:44.568Z",
+  "failures": [
+    "THE COMPARISON DID NOT RUN: 0 bundle(s) were fetched and compared, so this run proves nothing about any function. A pass here would be indistinguishable from a clean estate, which is the one way this check can lie."
+  ],
+  "warnings": [
+    "run with --break=unreadable; this receipt is a sabotage, not a result",
+    "platform-admin: UNREADABLE"
+  ],
+  "artifacts": [
+    "scripts/deployed-inventory.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "method": "comment-text comparison against the deployed eszip bundle",
+    "matching": [],
+    "differing": [],
+    "widest_gap_days": 0
+  },
+  "check_id": "deployed-inventory",
+  "started_at": "2026-10-11T21:22:44.011Z",
+  "status": "fail",
+  "expected_targets": 1,
+  "discovered_targets": 1,
+  "attempted_targets": 1,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 0,
+  "min_assertions": 30,
+  "canary": {
+    "id": "the comparison must be shown to have run · at least one bundle read and compared",
+    "observed_failure": false,
+    "caught_by": [],
+    "findings": [
+      "[compared] NOT CAUGHT — no bundle was readable, so this run proves nothing about any function"
+    ]
+  }
+}
