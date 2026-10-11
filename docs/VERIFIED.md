@@ -3553,3 +3553,12 @@ not either item — fixed in `08228259`.
   exists (`theme.css:483`). Its sweep receipt is stamped `38bf73b3`, the commit BEFORE the fix `de72b29b`
   (docs/gotchas.md 121), so it cannot be re-taken at the revision it claims.
 2 of 2 re-run reproduced.
+
+## Supervision 2026-10-11
+
+- **99.1 Disconnect Google outline** (commit `4aae9af4`): `node scripts/google-business.mjs` with `.env` loaded,
+  dev server on :5173 — **210 assertions, 0 failed**; the new `disconnect-outlined` reads `border 1px rgb(51, 59, 64)
+  on rgb(23, 27, 30)` at 1440, 392, 320 and 392 `?lite=1`. **Sabotage:** the old `btn ghost` class put back by hand —
+  **4 failed, `border 1px rgba(0, 0, 0, 0)`, one per width** — then restored. Screenshots looked at by the supervisor:
+  `.manager-shots/99.1/connected-392.png`, `connected-1440.png`, an outlined pill with a gap above it.
+1 of 1 re-run reproduced.
