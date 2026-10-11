@@ -865,7 +865,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                   <X size={18} strokeWidth={2} /> {isRequest ? t("Cancel this request") : t("Cancel this booking")}
                 </button>
                 {business.phone && (
-                  <a className="bk-btn ghost" href={`tel:${business.phone}`}>
+                  <a className="bk-btn" href={`tel:${business.phone}`}>
                     <Phone size={18} strokeWidth={2} /> {t("Call")} {phone(business.phone)}
                   </a>
                 )}

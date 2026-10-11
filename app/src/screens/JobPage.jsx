@@ -64,7 +64,7 @@ export default function JobPage() {
           phone width; only this route had no cap at all. `job-page` caps the
           COLUMN rather than changing `--wrap`, which every other screen reads. */}
       <main className="app-main job-page">
-        <button className="btn inline ghost" style={{ marginBottom: "var(--sp-3)" }}
+        <button className="btn inline" style={{ marginBottom: "var(--sp-3)" }}
           onClick={() => navigate("/app")}>
           <ChevronLeft strokeWidth={2} /> {t("Dashboard")}
         </button>

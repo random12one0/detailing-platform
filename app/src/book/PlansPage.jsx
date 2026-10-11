@@ -201,7 +201,7 @@ function PlansInner() {
         </div>
 
         <div>
-          <Link className="bk-btn ghost inline" to={`/book/${slug}`}>
+          <Link className="bk-btn inline" to={`/book/${slug}`}>
             <ArrowLeft size={20} strokeWidth={2} /> {t("Book a one-off instead")}
           </Link>
         </div>

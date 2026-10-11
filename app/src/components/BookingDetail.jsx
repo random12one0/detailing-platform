@@ -1022,7 +1022,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                        beside it reads as a product that forgot, and the
                        detailer cannot tell that the fix is in their hands. */
                     <>
-                      <a className="btn ghost" href={receiptHref} target="_blank" rel="noreferrer">
+                      <a className="btn" href={receiptHref} target="_blank" rel="noreferrer">
                         <ExternalLink size={18} strokeWidth={2} /> {t("Open the customer's receipt page")}
                       </a>
                       <p className="quiet">

@@ -247,7 +247,7 @@ export default function Team() {
               )}
 
               {open && (
-                <button className="btn ghost" disabled={lastOwner} onClick={() => removeMember(m)}>
+                <button className="btn danger" disabled={lastOwner} onClick={() => removeMember(m)}>
                   <X size={18} strokeWidth={2} /> {t("Remove from the team")}
                 </button>
               )}
@@ -310,7 +310,7 @@ export default function Team() {
               {roleName(inv.role, inv.label, t)} · {t("expires {date}", { date: String(inv.expires_at).slice(0, 10) })}
             </div>
           </div>
-          <button className="btn ghost inline" onClick={() => revoke(inv)}>{t("Revoke")}</button>
+          <button className="btn inline" onClick={() => revoke(inv)}>{t("Revoke")}</button>
         </div>
       ))}
 

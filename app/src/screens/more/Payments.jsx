@@ -360,7 +360,7 @@ export default function Payments() {
               />
 
               <div className="btnrow">
-                <button className="btn ghost" disabled={cardBusy === "disconnect"} onClick={disconnect}>
+                <button className="btn" disabled={cardBusy === "disconnect"} onClick={disconnect}>
                   {cardBusy === "disconnect" ? t("Disconnecting") : t("Disconnect Stripe")}
                 </button>
               </div>
@@ -521,7 +521,7 @@ export default function Payments() {
       })}
 
       {custom.length < 8 && (
-        <button className="btn ghost" style={{ marginBottom: "var(--sp-4)" }}
+        <button className="btn" style={{ marginBottom: "var(--sp-4)" }}
           onClick={() => setAdding(true)}>
           <Plus strokeWidth={2} /> {t("Add a way to be paid")}
         </button>

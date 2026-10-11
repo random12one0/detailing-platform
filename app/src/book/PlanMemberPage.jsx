@@ -245,7 +245,7 @@ function PlanInner({ data, onChanged }) {
                     <X size={20} strokeWidth={2} /> {t("End this plan")}
                   </button>
                   {business.phone && (
-                    <a className="bk-btn ghost" href={`tel:${business.phone}`}>{phone(business.phone)}</a>
+                    <a className="bk-btn" href={`tel:${business.phone}`}>{phone(business.phone)}</a>
                   )}
                 </>
               )}

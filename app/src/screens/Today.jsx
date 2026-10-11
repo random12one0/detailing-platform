@@ -507,7 +507,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
                   day that has jobs, which is tomorrow unless tomorrow is quiet:
                   a detailer with a free tomorrow still needs the paper for
                   Thursday. */}
-              <button className="btn ghost inline" onClick={() => setPrinting(true)}>
+              <button className="btn inline" onClick={() => setPrinting(true)}>
                 <Printer size={16} strokeWidth={2} />{" "}
                 {date === tomorrow ? t("Print tomorrow") : t("Print {day}", { day: shortDate(date) })}
               </button>

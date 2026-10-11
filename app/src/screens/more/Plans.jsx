@@ -459,8 +459,8 @@ export default function Plans() {
                   put two languages in one ledger, depending on which one the
                   detailer happened to be reading the day they pressed it.
                   The BUTTON is translated; the record it writes is not. */}
-              <button className="btn ghost inline" onClick={() => adjust(m, -1, "Skipped")}>{t("Skip a visit")}</button>
-              <button className="btn ghost inline" onClick={() => adjust(m, 1, "Added by hand")}>{t("Add a visit")}</button>
+              <button className="btn inline" onClick={() => adjust(m, -1, "Skipped")}>{t("Skip a visit")}</button>
+              <button className="btn inline" onClick={() => adjust(m, 1, "Added by hand")}>{t("Add a visit")}</button>
             </div>
           </div>
         )}

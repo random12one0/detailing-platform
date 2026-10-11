@@ -116,7 +116,7 @@ export default function Preferences() {
 
       <button
         type="button"
-        className="btn ghost"
+        className="btn"
         onClick={() => setPrefs(defaultPrefs(platform))}
       >
         {t("Reset to what this device suggests")}

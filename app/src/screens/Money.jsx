@@ -822,7 +822,7 @@ export default function Money({ onGo }) {
           than designing a second answer. The sentence is what is BEHIND the
           door, because "The full picture" names the control and says nothing
           about why a detailer would open it. */}
-      <button className="btn ghost linkdoor" onClick={() => setAdvanced(true)}>
+      <button className="btn linkdoor" onClick={() => setAdvanced(true)}>
         <BarChart3 strokeWidth={2} />
         <span>
           <b>{t("The full picture")}</b>
@@ -920,7 +920,7 @@ export default function Money({ onGo }) {
           A second maker is a second set of rules about slugs and discounts.
           The sentence says what is behind the door rather than naming the
           control, which is the pattern "The full picture" above it follows. */}
-      <button className="btn ghost linkdoor" onClick={() => onGo?.("campaigns")}>
+      <button className="btn linkdoor" onClick={() => onGo?.("campaigns")}>
         <LinkIcon strokeWidth={2} />
         <span>
           <b>{t("Tracking links")}</b>
@@ -1047,7 +1047,7 @@ export default function Money({ onGo }) {
           because it is the rarest thing on this screen — a detailer does this
           a few times a year, and putting it beside Collected would give it
           the weight of something they read every day. */}
-      <button className="btn ghost" style={{ marginTop: 12 }}
+      <button className="btn" style={{ marginTop: 12 }}
         onClick={() => setLoggingBulk(true)}>
         <Plus strokeWidth={2} /> {t("Add a fleet job")}
       </button>

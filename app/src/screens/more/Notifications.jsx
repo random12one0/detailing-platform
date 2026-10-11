@@ -208,7 +208,7 @@ export default function Notifications() {
         ) : device === "on" ? (
           <Setting label={t("On for this device")} stacked
             help={t("Turn it on again on any other phone or computer you want the alerts on.")}>
-            <button className="btn ghost" disabled={pushBusy} onClick={() => togglePush(false)}>
+            <button className="btn" disabled={pushBusy} onClick={() => togglePush(false)}>
               {pushBusy ? t("Saving…") : t("Turn off on this device")}
             </button>
           </Setting>

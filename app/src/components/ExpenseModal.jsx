@@ -235,7 +235,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
         )}
 
         {!showMore ? (
-          <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setShowMore(true)}>
+          <button className="btn" style={{ marginTop: 12 }} onClick={() => setShowMore(true)}>
             {t("Add a note or change the date")}
           </button>
         ) : (
@@ -264,7 +264,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
             {savedNoReceipt ? (
               <p className="quiet" style={{ marginTop: 4 }}>{t("Receipt not attached.")}</p>
             ) : (
-              <label className="btn ghost" style={{ cursor: "pointer", marginTop: 4 }}>
+              <label className="btn" style={{ cursor: "pointer", marginTop: 4 }}>
                 {receipt ? t("Receipt attached — choose another") : t("Add a photo of the receipt")}
                 <input type="file" accept="image/*" hidden
                   onChange={(e) => setReceipt(e.target.files?.[0] ?? null)} />
