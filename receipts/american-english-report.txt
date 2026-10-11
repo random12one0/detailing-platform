@@ -1,7 +1,7 @@
-American English, read off the finished page — 2026-10-11T20:44:32.432Z
+American English, read off the finished page — 2026-10-11T22:24:19.079Z
 
 
-  home          684 strings read, 0 British
+  home          703 strings read, 0 British
   pricing       277 strings read, 0 British
   terms         118 strings read, 0 British
   privacy       172 strings read, 0 British
@@ -12,7 +12,7 @@ American English, read off the finished page — 2026-10-11T20:44:32.432Z
   ex2           689 strings read, 0 British
   ex3           444 strings read, 0 British
   ex3-prices    491 strings read, 0 British
-  ex4           663 strings read, 0 British
+  ex4           664 strings read, 0 British
   ex5           947 strings read, 0 British
 
   canary: [rendered-text] all 7 planted words were caught, including "cancelled" inside a sentence

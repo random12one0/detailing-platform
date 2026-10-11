@@ -1,0 +1,102 @@
+{
+  "git_sha": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "git_sha_started": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:21:41.529Z",
+  "failures": [
+    "email en 2026-10-10: October 10 at 6 PM",
+    "email es 2026-10-10: 10 de octubre a las 6 PM",
+    "email en 2026-10-11: today at 1:30 PM",
+    "email es 2026-10-11: hoy a la 1:30 PM",
+    "email en 2026-10-12: tomorrow at 10 AM",
+    "email es 2026-10-12: mañana a las 10 AM",
+    "email en 2026-10-17: Saturday at 6 PM",
+    "email es 2026-10-17: sábado a las 6 PM"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-390-break-today.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-1440-break-today.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-392-break-today.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-320-break-today.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-390-lite-break-today.png"
+  ],
+  "dimensions": {
+    "break": "today",
+    "views": [
+      "390",
+      "1440",
+      "392",
+      "320",
+      "390?lite=1"
+    ],
+    "seen": [
+      {
+        "view": "390",
+        "chips": 5,
+        "first": [
+          "8 AM",
+          "8:30 AM",
+          "9 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "1440",
+        "chips": 6,
+        "first": [
+          "8 AM",
+          "8:30 AM",
+          "9 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "392",
+        "chips": 5,
+        "first": [
+          "8 AM",
+          "8:30 AM",
+          "9 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "320",
+        "chips": 6,
+        "first": [
+          "8 AM",
+          "8:30 AM",
+          "9 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "390?lite=1",
+        "chips": 5,
+        "first": [
+          "8 AM",
+          "8:30 AM",
+          "9 AM",
+          "9:30 AM"
+        ]
+      }
+    ],
+    "scope": "Formatters and the public booking page's time buttons. Dashboard screens share time12 and are covered by the table and the one-formatter rule, not opened here (that needs a sign-in). Nothing is wired into email subjects yet (99.2c)."
+  },
+  "check_id": "whole-hours-today",
+  "started_at": "2026-10-11T22:20:00.155Z",
+  "status": "fail",
+  "expected_targets": 55,
+  "discovered_targets": 55,
+  "attempted_targets": 55,
+  "completed_targets": 55,
+  "skipped_targets": 0,
+  "assertions_executed": 80,
+  "min_assertions": 75,
+  "canary": {
+    "id": "an on-the-hour 8:00 AM is flagged; 8 AM and 8:30 AM are not",
+    "observed_failure": true
+  }
+}

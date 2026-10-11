@@ -1,0 +1,118 @@
+{
+  "git_sha": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "git_sha_started": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:19:59.732Z",
+  "failures": [
+    "email time 00:00: 12:00 AM",
+    "email time 08:00: 8:00 AM",
+    "email time 12:00: 12:00 PM",
+    "email time 13:00: 1:00 PM",
+    "email en 2026-10-10: today at 6:00 PM",
+    "email es 2026-10-10: hoy a las 6:00 PM",
+    "email en 2026-10-12: Monday at 10:00 AM",
+    "email es 2026-10-12: lunes a las 10:00 AM",
+    "email en 2026-10-16: Friday at 6:00 PM",
+    "email es 2026-10-16: viernes a las 6:00 PM",
+    "email en 2026-10-17: October 17 at 6:00 PM",
+    "email es 2026-10-17: 17 de octubre a las 6:00 PM",
+    "email en 2026-10-09: October 9 at 6:00 PM",
+    "email es 2026-10-09: 9 de octubre a las 6:00 PM",
+    "390 no button ends :00: [\"8:00 AM\",\"9:00 AM\",\"10:00 AM\"]",
+    "390 a whole hour reads like \"8 AM\": [\"8:00 AM\",\"8:30 AM\",\"9:00 AM\",\"9:30 AM\"]",
+    "1440 no button ends :00: [\"8:00 AM\",\"9:00 AM\",\"10:00 AM\"]",
+    "1440 a whole hour reads like \"8 AM\": [\"8:00 AM\",\"8:30 AM\",\"9:00 AM\",\"9:30 AM\"]",
+    "392 no button ends :00: [\"8:00 AM\",\"9:00 AM\",\"10:00 AM\"]",
+    "392 a whole hour reads like \"8 AM\": [\"8:00 AM\",\"8:30 AM\",\"9:00 AM\",\"9:30 AM\"]",
+    "320 no button ends :00: [\"8:00 AM\",\"9:00 AM\",\"10:00 AM\"]",
+    "320 a whole hour reads like \"8 AM\": [\"8:00 AM\",\"8:30 AM\",\"9:00 AM\",\"9:30 AM\"]",
+    "390?lite=1 no button ends :00: [\"8:00 AM\",\"9:00 AM\",\"10:00 AM\"]",
+    "390?lite=1 a whole hour reads like \"8 AM\": [\"8:00 AM\",\"8:30 AM\",\"9:00 AM\",\"9:30 AM\"]"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-390-break-hours.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-1440-break-hours.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-392-break-hours.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-320-break-hours.png",
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\.manager-shots\\99.2b\\whole-hours-390-lite-break-hours.png"
+  ],
+  "dimensions": {
+    "break": "hours",
+    "views": [
+      "390",
+      "1440",
+      "392",
+      "320",
+      "390?lite=1"
+    ],
+    "seen": [
+      {
+        "view": "390",
+        "chips": 5,
+        "first": [
+          "8:00 AM",
+          "8:30 AM",
+          "9:00 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "1440",
+        "chips": 11,
+        "first": [
+          "8:00 AM",
+          "8:30 AM",
+          "9:00 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "392",
+        "chips": 5,
+        "first": [
+          "8:00 AM",
+          "8:30 AM",
+          "9:00 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "320",
+        "chips": 8,
+        "first": [
+          "8:00 AM",
+          "8:30 AM",
+          "9:00 AM",
+          "9:30 AM"
+        ]
+      },
+      {
+        "view": "390?lite=1",
+        "chips": 8,
+        "first": [
+          "8:00 AM",
+          "8:30 AM",
+          "9:00 AM",
+          "9:30 AM"
+        ]
+      }
+    ],
+    "scope": "Formatters and the public booking page's time buttons. Dashboard screens share time12 and are covered by the table and the one-formatter rule, not opened here (that needs a sign-in). Nothing is wired into email subjects yet (99.2c)."
+  },
+  "check_id": "whole-hours-hours",
+  "started_at": "2026-10-11T22:18:24.569Z",
+  "status": "fail",
+  "expected_targets": 55,
+  "discovered_targets": 55,
+  "attempted_targets": 55,
+  "completed_targets": 55,
+  "skipped_targets": 0,
+  "assertions_executed": 85,
+  "min_assertions": 75,
+  "canary": {
+    "id": "an on-the-hour 8:00 AM is flagged; 8 AM and 8:30 AM are not",
+    "observed_failure": true
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "git_sha": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
-  "git_sha_started": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
+  "git_sha": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "git_sha_started": "c1ebb862e23a560766bfa557349f8190c776e3bb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T20:45:33.252Z",
+  "finished_at": "2026-10-11T22:24:46.213Z",
   "failures": [],
   "warnings": [
     "bare \"wing\" is NOT in the word list — a wing is a real part of an American car — and one of the 36 instances found by hand was exactly that. This check would not have found it.",
@@ -15,17 +15,17 @@
   "dimensions": {
     "pages": 13,
     "words": 66,
-    "strings_read": 5470
+    "strings_read": 5490
   },
   "check_id": "american-english",
-  "started_at": "2026-10-11T20:44:32.432Z",
+  "started_at": "2026-10-11T22:24:19.079Z",
   "status": "pass",
   "expected_targets": 13,
   "discovered_targets": 13,
   "attempted_targets": 13,
   "completed_targets": 13,
   "skipped_targets": 0,
-  "assertions_executed": 5871,
+  "assertions_executed": 5891,
   "min_assertions": 2500,
   "canary": {
     "id": "a real page with British prose planted in its live DOM, tested both directions",

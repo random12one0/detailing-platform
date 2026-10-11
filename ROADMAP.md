@@ -28953,9 +28953,27 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     confirmation after that. **99.2a's local work is finished — the next worker starts at 99.2b**, and 99.2a is ticked by
     whoever checks the first live email. The existing deployed-inventory and migration-drift failures are recorded in their receipts;
     this session neither deploys to clear them nor changes the database.
-  - [ ] **99.2b — finish shared date/time rules on pages and in messages.** Remove whole-hour `:00` from `format.js`;
+  - [x] **99.2b — finish shared date/time rules on pages and in messages.** Remove whole-hour `:00` from `format.js`;
     implement business-local today/tomorrow and the seven-day subject-date rule in the two shared formatters. Keep historical
     receipts and invoices on the explicit weekday/month/day; relative wording belongs to upcoming appointment messages.
+    **DONE 2026-10-11, product commit `6b58152f`.** `time12` in `format.js` now prints `9 AM` / `9:30 AM`, the same rule
+    as `emailKit.ts`. Three hand-rolled copies that printed `:00` on their own now call it: the Business hours summary,
+    `HourChoice` in `controls.jsx`, and the Notifications summary row. `dayWords` / `whenWords` are added to BOTH formatters
+    as twins. They take the business's time zone (required), so "today" is the business's day, never the server's UTC day:
+    "today", "tomorrow", the weekday alone for 2-6 days out, "October 17" at 7+ days and for past dates. Spanish says
+    "hoy", "mañana", "viernes", "17 de octubre", and "a la 1:30 PM" vs "a las 6 PM". **Nothing calls them yet**: wiring
+    subjects is 99.2c/e. Receipts and invoices keep `dateLong`. `e2e-booking.mjs`'s slot-label parser now accepts `9 AM`.
+    `tests/reschedule-old-time.test.mjs` had been red since 99.2a (6 passed / 2 failed) on the old `2026 at 8:00 AM` shape,
+    and its canary was passing over a pattern that could no longer match. It is updated to 99.2a's shape: 8 passed / 0 failed.
+    **PROVED:** `node scripts/whole-hours.mjs` at `c1ebb862` reached **55 of 55** targets: 49 formatter checks across
+    both formatters, the one-formatter source rule, and the public booking page's time buttons at 390/1440/392/320 and
+    390 `?lite=1`. **80 assertions, 0 failures**, console clean at all five. Each view has a whole hour reading `8 AM` and
+    a half hour still reading `8:30 AM` (the case that must NOT be shortened). `receipt.mjs` grades it PASS.
+    `--break=hours` restores `:00` in a scratch emailKit and in the browser's copy of `format.js` (rewritten in flight and
+    signed, gotchas 113): **55 of 55, 24 failures**. `--break=today` puts emailKit's "today" on UTC: **55 of 55, 8 failures**.
+    Pictures: `.manager-shots/99.2b/whole-hours-*.png`, opened at 320 and 1440. The Before/After copies are in
+    `belt/shots/99.2`. Dashboard screens share `time12` and were not opened (that needs a sign-in). `email-dates.mjs`
+    still reads 70 of 70 with 0 failures. Goes live with Andrew's next ordinary publish; nothing here needs deciding.
   - [ ] **99.2c — customer booking email wording.** Original plan step 2, including crossed-out old times and Spanish.
   - [ ] **99.2d — after-job email wording and signature setting.** Original plan step 3; the receipt/invoice stay email.
   - [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
