@@ -3308,6 +3308,50 @@ and how the wait ends.
   the deploy rather than after, which is the whole difference between a near
   miss and an incident.*
 
+  Waits on: 0.6a, 0.6b, 0.6c, 0.6d. How the wait ends: those pieces are ticked.
+  Split on 2026-10-11 because this entry is 187 lines
+  long and no single session was finishing it.
+
+- [ ] **0.6a — Verify and record the deployed-versus-checkout inventory**
+  Run the content-based inventory, inspect its receipt, and establish the current set of differing deployed bundles without copying its derived count into prose. This covers measurement integrity and the known limits of comment-based comparison; it does not publish anything or build a prevention mechanism.
+  Part 1 of 4 of item 0.6, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - `node scripts/deployed-inventory.mjs` produces `receipts/deployed-inventory.json` and exits nonzero when differences exist
+  - The receipt identifies every differing function and the shared-module versus function-local causes
+  - The inventory result is checked against at least one obviously known differing deployed bundle
+  - No current deployed-drift tally is added to roadmap prose or other hand-maintained status text
+
+- [ ] **0.6b — Give Andrew the ordered, paste-ready publish handoff**
+  Prepare and validate the exact publication instructions for Andrew, preserving his authority over what ships and the required order. This covers the manual publication handoff only; it does not attempt a production deploy from the manager environment or claim that publication has occurred.
+  Part 2 of 4 of item 0.6, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - `FOR-ANDREW.md` contains an actionable publication block with the approved order
+  - The customer-facing cancellation fix is first in the order
+  - The payment webhook is last and isolated as required
+  - The handoff states that publication remains Andrew's action and does not label the deferral as a blocker
+
+- [ ] **0.6c — Publish the approved functions and confirm deployed parity**
+  After Andrew elects to execute the handoff, publish the approved checkout in the prescribed order and rerun the inventory against the gateway. This covers bringing the running system to the committed state; it leaves ongoing drift prevention to the next piece.
+  Part 3 of 4 of item 0.6, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - Andrew has explicitly authorized the publication run
+  - All approved functions are published in the documented order, with the payment webhook last and alone
+  - `node scripts/deployed-inventory.mjs` reports no differing deployed bundles
+  - The final receipt is retained as the evidence of clean inventory
+
+- [ ] **0.6d — Make deployment drift visible before it can be forgotten**
+  Add a durable, gated workflow so committed changes cannot silently diverge from what is deployed while respecting Andrew's authority to decide when publishing occurs. This covers detection and handoff behavior, not automatic production publishing.
+  Part 4 of 4 of item 0.6, split out so it can be
+  finished and ticked on its own. The parent keeps the full write-up.
+  Acceptance criteria:
+  - A documented workflow requires the deployed inventory to be run at the appropriate release/launch gate
+  - A non-clean inventory produces a clear failing signal and names the affected functions
+  - The workflow does not automatically deploy or bypass Andrew's shipping decision
+  - The detection path is exercised against a known-different case and a known-clean case
+
 - [ ] **0.7 — The maintenance reminder has no opt-out, and the fix is a
   product question rather than a template edit. Found 2026-09-20.**
   `maintenanceDueEmail` in `_shared/emailTemplates.ts` sends *"Your Ceramic Pro
