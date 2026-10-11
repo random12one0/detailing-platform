@@ -4,6 +4,7 @@
 // --break=hours|year|minutes rewrites emailKit in a throwaway source copy, then
 // renders those real templates. The assertions themselves are never rewritten.
 // --break=missing drops one discovered preview to prove the population guard.
+// --break=wrap restores the original fact table's phone overflow.
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -15,7 +16,7 @@ import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.argv.find(a => a.startsWith("--break="))?.slice(8) || "";
-if (BREAK && !["hours", "year", "minutes", "missing"].includes(BREAK)) throw new Error("Unknown break");
+if (BREAK && !["hours", "year", "minutes", "missing", "wrap"].includes(BREAK)) throw new Error("Unknown break");
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/99.2";
 const WIDTHS = [[390, 844], [1440, 900], [768, 1024], [392, 844], [320, 844]];
 const EXPECTED_EMAILS = 34; // deliberate declaration, not the directory's own size
@@ -41,6 +42,7 @@ try {
     if (BREAK === "hours") after = before.replace('m === 0 ? "" :', 'false ? "" :');
     if (BREAK === "minutes") after = before.replace('m === 0 ? "" :', 'true ? "" :');
     if (BREAK === "year") after = before.replace('weekday: "long", month: "long"', 'weekday: "long", year: "numeric", month: "long"');
+    if (BREAK === "wrap") after = before.replace('style="table-layout:fixed;"', '').replace('width="35%"', '').replace('vertical-align:top; overflow-wrap:anywhere;', 'vertical-align:top; white-space:nowrap;').replace('word-wrap:break-word; overflow-wrap:anywhere;', '');
     if (after === before) throw new Error("Sabotage did not land");
     writeFileSync(kitFile, after);
     sourceRoot = scratch;
@@ -99,14 +101,23 @@ try {
             const { freeze, differs } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
             await freeze(page, { out: `${SHOTS}/after.html`, label: "After", note: "The date has no year; 10 AM is shorter and 1:30 PM keeps its exact minutes.", highlightText: "10 AM" });
             check("before and after visibly differ", await differs(page, `${SHOTS}/before.html`, `${SHOTS}/after.html`));
-            writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Email dates lose the year and whole hours lose :00; exact minutes stay.", url: pathToFileURL(path.join(out, file)).href, how: "Open the email preview list, then Customer - booking confirmed.", situation: "A confirmed booking from 10 AM to 1:30 PM on Thursday, September 17." }, null, 2));
+            writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Email dates and whole-hour times are shorter; long links and Spanish fact labels wrap within the phone.", url: pathToFileURL(path.join(out, file)).href, how: "Open the email preview list, then Customer - booking confirmed. Extra pairs show the Spanish new-detailer email and three-car alert.", situation: "A 10 AM to 1:30 PM booking; a long booking link; a Spanish three-car alert at 320px." }, null, 2));
           }
+        }
+        if (!BREAK && lang === "es" && ((file === "platform-new-detailer.html" && width === 390) || (file === "owner-new-booking-carload.html" && width === 320))) {
+          const { freeze, differs } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
+          const stem = file.replace(/\.html$/, "");
+          await freeze(page, { out: `${SHOTS}/after-${stem}.html`, label: "After", note: "The fact list wraps inside this phone, with every label and value kept.", highlightText: file.startsWith("platform") ? "https://detailingplatform.com/book/ridgeline" : "Mid-size SUV" });
+          await page.screenshot({ path: `${SHOTS}/after-${stem}.jpg`, type: "jpeg", fullPage: true });
+          check(`${stem} before and after differ`, await differs(page, `${SHOTS}/before-${stem}.html`, `${SHOTS}/after-${stem}.html`, { width, height }));
+          artifacts.push(`${SHOTS}/after-${stem}.html`, `${SHOTS}/after-${stem}.jpg`);
         }
         await context.close();
       }
       completed++;
     }
     observations.push(`${lang}: ${files.length} of ${EXPECTED_EMAILS} emails at ${WIDTHS.map(v => v[0]).join("/")}`);
+    console.log(observations.at(-1));
   }
 } catch (err) {
   failures.push(err.message);
