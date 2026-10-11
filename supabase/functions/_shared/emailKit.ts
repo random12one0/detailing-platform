@@ -187,7 +187,8 @@ export const formatTime12hr = (time24: string): string => {
   const [h, m] = String(time24).split(":").map(Number);
   const period = h >= 12 ? "PM" : "AM";
   const hour = h % 12 || 12;
-  return `${hour}:${String(m).padStart(2, "0")} ${period}`;
+  // 99.2: whole hours read as "6 PM"; a real minute stays "6:05 PM".
+  return `${hour}${m === 0 ? "" : `:${String(m).padStart(2, "0")}`} ${period}`;
 };
 
 // ROADMAP 8.17 STAGE 2A — the language is an ARGUMENT, English by default, so
@@ -197,7 +198,7 @@ export const formatTime12hr = (time24: string): string => {
 export const formatDateLong = (dateStr: string, lang?: unknown): string => {
   const [y, m, d] = String(dateStr).split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(intlLocale(lang), {
-    weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC",
+    weekday: "long", month: "long", day: "numeric", timeZone: "UTC",
   });
 };
 
