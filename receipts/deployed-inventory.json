@@ -1,9 +1,9 @@
 {
-  "git_sha": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
-  "git_sha_started": "de72b29bf4eef351d5b8ed0acdb3c274d37328a7",
+  "git_sha": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
+  "git_sha_started": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T19:05:53.626Z",
+  "finished_at": "2026-10-11T20:46:40.065Z",
   "failures": [
     "33 function(s) are running something other than this checkout: owner-push-subscribe, owner-push-unsubscribe, translate-content, verify-domain, forecast, report-problem, platform-admin, create-booking, get-booking-receipt, send-owner-reminders, accept-invite, available-slots, pay-booking, track-visit, validate-promo-code, accept-quote, plan-link, reschedule-booking, booking-ics, cancel-booking, send-invoice, respond-to-booking, update-booking, create-business, invite-user, preview-emails, send-campaign, connect-account, platform-billing, photo-door, delete-customer, send-email, calculate-booking",
     "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 18.9d after the deploy)",
@@ -38,7 +38,8 @@
     "photo-door: 3 file(s) differ - _shared/tenant.ts, _shared/photoDoor.ts, _shared/supportSession.ts (newest commit is 0.3d after the deploy)",
     "delete-customer: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 0.3d after the deploy)",
     "send-email: 1 file(s) differ - index.ts (newest commit is 0.1d after the deploy)",
-    "calculate-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts"
+    "calculate-booking: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts",
+    "1 function(s) exist in this repo and are NOT DEPLOYED AT ALL: google-business"
   ],
   "warnings": [],
   "artifacts": [
@@ -95,11 +96,11 @@
     "widest_gap_days": 18.9
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-10T19:04:53.371Z",
+  "started_at": "2026-10-11T20:44:30.747Z",
   "status": "fail",
-  "expected_targets": 41,
-  "discovered_targets": 41,
-  "attempted_targets": 41,
+  "expected_targets": 42,
+  "discovered_targets": 42,
+  "attempted_targets": 42,
   "completed_targets": 41,
   "skipped_targets": 0,
   "assertions_executed": 41,

@@ -1,9 +1,9 @@
 {
-  "git_sha": "af45ecbdc221cb30b473bd40da1be3502a478a60",
-  "git_sha_started": "af45ecbdc221cb30b473bd40da1be3502a478a60",
+  "git_sha": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
+  "git_sha_started": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T22:51:32.926Z",
+  "finished_at": "2026-10-11T20:45:57.528Z",
   "failures": [],
   "warnings": [
     "Reads the LIVE platform; this month has NO bills typed in, so the live pass asked the not-entered case and the fed pass asked the other.",
@@ -73,7 +73,7 @@
     }
   },
   "check_id": "office-money",
-  "started_at": "2026-10-10T22:50:42.963Z",
+  "started_at": "2026-10-11T20:44:31.813Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,

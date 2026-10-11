@@ -1,11 +1,15 @@
 {
-  "git_sha": "7dbe5b41f92371280be8803617132aba3daf9a8b",
-  "git_sha_started": "7dbe5b41f92371280be8803617132aba3daf9a8b",
+  "git_sha": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
+  "git_sha_started": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T12:58:07.034Z",
+  "finished_at": "2026-10-11T20:44:37.843Z",
   "failures": [
-    "1 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
+    "2 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql)",
+    "2 function(s) in the database do NOT match the repo's newest definition: accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
+    "2 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql)",
+    "1 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
+    "12 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database"
   ],
   "warnings": [
     "SEES functions (by body), tables (by existence), columns (by name and type family), policies (by existence, on public and storage schemas), GRANTS and REVOKES on public tables, columns and functions (what each named role can actually do, PUBLIC folded in) and INDEXES on public (by name, table and uniqueness). STILL CANNOT SEE: an index's column list, constraints, triggers, views, enum types, extensions, RLS enable/force state, a policy's own USING/WITH CHECK expression, a column's DEFAULT or NULLABILITY, default privileges (rules about future objects), grants on schemas or sequences or other schemas' objects, a grant inside a dollar-quoted block (named UNJUDGEABLE), or a migration whose whole content is an update/backfill with no schema trace. There is no applied-migrations ledger in this project to compare against: supabase_migrations.schema_migrations does not exist.",
@@ -16,9 +20,12 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 114,
-    "tables_declared": 58,
-    "tables_absent": [],
+    "migration_files": 116,
+    "tables_declared": 60,
+    "tables_absent": [
+      "support_sessions (declared by 20261010030000_support_sessions_read_only.sql)",
+      "google_business_links (declared by 20261010040000_google_business_links.sql)"
+    ],
     "columns_absent": [
       "email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
     ],
@@ -26,14 +33,27 @@
     "policies_declared": 85,
     "policies_absent": [],
     "policies_unjudgeable": 0,
-    "grant_claims_declared": 513,
-    "grant_targets": 98,
+    "grant_claims_declared": 555,
+    "grant_targets": 102,
     "grant_statements": {
-      "naive": 165,
-      "judged": 165,
+      "naive": 170,
+      "judged": 170,
       "unjudgeable": 0
     },
-    "grants_absent": [],
+    "grants_absent": [
+      "public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database",
+      "public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database"
+    ],
     "indexes_declared": 66,
     "index_statements": {
       "naive": 68,
@@ -42,18 +62,24 @@
     },
     "indexes_absent": [],
     "method": "replay create/drop function/table/policy in file and statement order; compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
-    "absent": [],
-    "drifted": []
+    "absent": [
+      "is_support_session (declared by 20261010030000_support_sessions_read_only.sql)",
+      "refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql)"
+    ],
+    "drifted": [
+      "accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
+      "set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)"
+    ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-10T12:58:02.184Z",
+  "started_at": "2026-10-11T20:44:30.874Z",
   "status": "fail",
-  "expected_targets": 361,
+  "expected_targets": 369,
   "discovered_targets": 361,
-  "attempted_targets": 361,
-  "completed_targets": 361,
+  "attempted_targets": 369,
+  "completed_targets": 369,
   "skipped_targets": 0,
-  "assertions_executed": 2017,
+  "assertions_executed": 2063,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
