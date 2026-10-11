@@ -1,0 +1,51 @@
+{
+  "git_sha": "2b5e0c563a785f2cd50256e1188b0b3392e33d95",
+  "git_sha_started": "2b5e0c563a785f2cd50256e1188b0b3392e33d95",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T21:14:24.260Z",
+  "failures": [
+    "en/platform-new-detailer.html@390 fits horizontally",
+    "en/platform-new-detailer.html@392 fits horizontally",
+    "en/platform-new-detailer.html@320 fits horizontally",
+    "es/owner-new-booking-carload.html@320 fits horizontally",
+    "es/platform-new-detailer.html@390 fits horizontally",
+    "es/platform-new-detailer.html@392 fits horizontally",
+    "es/platform-new-detailer.html@320 fits horizontally"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/email-dates.wrap.sabotage.en.txt",
+    "receipts/email-dates.wrap.sabotage.es.txt"
+  ],
+  "dimensions": {
+    "break": "wrap",
+    "capture": false,
+    "languages": [
+      "en",
+      "es"
+    ],
+    "widths": [
+      390,
+      1440,
+      768,
+      392,
+      320
+    ],
+    "scope": "Local email formatting only; no live send, consent, channel routing, or relative dates."
+  },
+  "check_id": "email-dates-wrap",
+  "started_at": "2026-10-11T21:12:44.449Z",
+  "status": "fail",
+  "expected_targets": 70,
+  "discovered_targets": 70,
+  "attempted_targets": 70,
+  "completed_targets": 70,
+  "skipped_targets": 0,
+  "assertions_executed": 1806,
+  "min_assertions": 1700,
+  "canary": {
+    "id": "old whole-hour and ISO dates",
+    "observed_failure": true
+  }
+}

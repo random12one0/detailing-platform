@@ -1,0 +1,74 @@
+  ok    all 17 exported templates are rendered below
+  Customer · booking confirmed
+    Booking confirmed · Thursday, September 17
+  Customer · request received
+    Request received · Thursday, September 17
+  Customer · appointment reminder
+    Reminder: your appointment Thursday, September 17
+  Customer · quote offered
+    Your price: $395 for Thursday, September 17
+  Customer · request accepted
+    You're booked in · Thursday, September 17
+  Customer · request declined
+    About your request for Thursday, September 17
+  Customer · receipt (paid)
+    Receipt · $360 · Ridgeline Auto Detail
+  Customer · invoice (unpaid)
+    Invoice · $360 due · Ridgeline Auto Detail
+  Customer · invoice (unpaid, card accepted)
+    Invoice · $360 due · Ridgeline Auto Detail
+  Customer · rescheduled
+    Your booking has been rescheduled
+  Customer · cancelled
+    Your booking has been cancelled
+  Customer · thank-you and review request
+    Thank you for choosing Ridgeline Auto Detail
+  Owner · new booking
+    New booking · Dana Ortiz · Thursday, September 17 ($345)
+  Owner · new request waiting
+    Request · Dana Ortiz · Thursday, September 17 ($345)
+  Owner · new booking, address typed by hand
+    New booking · Dana Ortiz · Thursday, September 17 ($345)
+  Owner · new booking, address picked from the lookup
+    New booking · Dana Ortiz · Thursday, September 17 ($345)
+  Owner · new booking, three cars
+    New booking · Dana Ortiz · Thursday, September 17 ($839)
+  Customer · confirmed, three cars
+    Booking confirmed · Thursday, September 17
+  Owner · a booking moved
+    Rescheduled · Dana Ortiz · now Thursday, September 17
+  Owner · a booking cancelled
+    Cancelled · Dana Ortiz · Thursday, September 17
+  Owner · a PAID booking cancelled
+    Cancelled · Dana Ortiz · Thursday, September 17
+  Owner · nobody answered a request
+    Still waiting: Dana Ortiz · Thursday, September 17
+  Staff · team invite
+    Join Ridgeline Auto Detail on the booking dashboard
+  Customer · booking confirmed, on a plan
+    Booking confirmed · Thursday, September 17
+  Customer · your plan link
+    Your plan with Ridgeline Auto Detail
+  Customer · maintenance due (60 days)
+    Ceramic Pro annual inspection is due Thursday, December 10
+  Customer · maintenance due (tomorrow)
+    Last day: Ceramic Pro annual inspection
+  Owner · a plan ended
+    Dana Ortiz ended their plan
+  Customer · the detailer reaching out
+    Time to get it looking right again?
+  Detailer · a payment did not go through
+    We couldn't take payment for Ridgeline Auto Detail
+  Detailer · the booking page is offline
+    Ridgeline Auto Detail's booking page is offline
+  Detailer · work has started on their website
+    Work has started on Ridgeline Auto Detail's website
+  Detailer · work has started, no fee on file
+    Work has started on Ridgeline Auto Detail's website
+  Owner · somebody signed up
+    Ridgeline Auto Detail just signed up
+
+canary  a body containing NaN / Invalid Date / undefined -> caught by 3 of 4 rot pattern(s), so a rotten template is something this run can detect
+
+34 emails -> C:\Users\rando\Downloads\claude\detailing-platform\email-preview\99-2-en-wrap/index.html  (accent #38E08B)
+Receipt C:\Users\rando\AppData\Local\Temp\dp-email-dates-P96BgZ\receipts\render-emails.json

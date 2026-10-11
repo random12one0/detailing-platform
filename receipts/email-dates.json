@@ -1,0 +1,53 @@
+{
+  "git_sha": "2b5e0c563a785f2cd50256e1188b0b3392e33d95",
+  "git_sha_started": "2b5e0c563a785f2cd50256e1188b0b3392e33d95",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T21:14:29.143Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/email-dates.en.txt",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-en-390.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-en-1440.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-en-768.jpg",
+    "receipts/email-dates.es.txt",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-es-390.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-es-1440.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/confirmation-es-768.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/after-owner-new-booking-carload.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/after-owner-new-booking-carload.jpg",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/after-platform-new-detailer.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.2/after-platform-new-detailer.jpg"
+  ],
+  "dimensions": {
+    "break": "",
+    "capture": true,
+    "languages": [
+      "en",
+      "es"
+    ],
+    "widths": [
+      390,
+      1440,
+      768,
+      392,
+      320
+    ],
+    "scope": "Local email formatting only; no live send, consent, channel routing, or relative dates."
+  },
+  "check_id": "email-dates",
+  "started_at": "2026-10-11T21:12:44.391Z",
+  "status": "pass",
+  "expected_targets": 70,
+  "discovered_targets": 70,
+  "attempted_targets": 70,
+  "completed_targets": 70,
+  "skipped_targets": 0,
+  "assertions_executed": 1809,
+  "min_assertions": 1700,
+  "canary": {
+    "id": "old whole-hour and ISO dates",
+    "observed_failure": true
+  }
+}

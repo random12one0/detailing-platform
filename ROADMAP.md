@@ -28928,14 +28928,29 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 - [ ] **99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik**
   **2026-10-11 — WORK IN NUMBERED PARTS; THE PARENT STAYS OPEN.** This is more than one job. This session takes only
   the email-formatting part of plan step 1. The approved wording and all original acceptance criteria below still stand.
-  - [ ] **99.2a — readable email dates and exact times.** Local product changes are committed in `aab5a32e` and
-    `3a5fecfa`; the check's receipt contract is corrected in `5b3876db`. `emailKit.ts` now prints `Thursday, September 17`
-    and `10 AM`, preserving `1:30 PM`. Its fact list also wraps long links and Spanish labels instead of widening the
-    email on a phone. Final verification and review artifacts are recorded below when they finish. This is local rendering,
-    not a live email delivery claim. No wording keys, sending switches, prices, consent, database structure or schedules changed.
-    **NEEDS ANDREW: publish the email-generating functions with the updated shared formatter in your next release;
-    live delivery cannot be verified until that code is running.** This marker is for 99.2a only; the remaining parts below
-    are still buildable and the parent must not be parked as if all its work were finished.
+  - [ ] **99.2a — readable email dates and exact times.** Local product changes are committed through `2b5e0c56`.
+    `emailKit.ts` now prints `Thursday, September 17` and `10 AM`, preserving `1:30 PM`. Its fact list also wraps long
+    links and Spanish labels instead of widening the email on a phone. The 320px picture exposed an email address split
+    inside `.com`; the value column now has enough room, and the check explicitly measures that example's line height.
+    **PROVED LOCALLY, 2026-10-11:** `node scripts/email-dates.mjs --capture` at `2b5e0c56`: **70 of 70** declared targets
+    (two shared formatters and 34 email previews in each of English and Spanish), **1809 assertions, zero failures**;
+    browser widths 390/1440/768/392/320, with no console errors or warnings. `node scripts/receipt.mjs receipts/email-dates.json`
+    independently grades it PASS. Subjects, bodies and plain-text copies use no whole-hour `:00` or ISO date. Exact minutes,
+    midnight/noon and the year boundary are checked. This proves only this part's formatting, not the new subjects or wording.
+    `node scripts/email-dates.mjs --break=hours` at `2b5e0c56` reached **70 of 70**, recording **243 failures** for restored
+    old times; `--break=wrap` at the same revision reached **70 of 70**, recording the **seven original phone overflows**.
+    Both sabotages change the actual shared source in a disposable copy, then render the real templates; neither changes
+    the assertions. Their named receipts grade FAIL as required. The earlier `email-dates.sabotage.json` is retained as a
+    failed draft: its canary field did not meet the receipt contract and it is NOT trusted proof.
+    Opened the saved English/Spanish 390/768/1440 pictures and the Spanish 320px alert; shorter dates, full values and the
+    existing ruled-list design were visible. Before/after HTML pairs and `where.json` are outside the repo in `belt/shots/99.2`.
+    `node scripts/render-emails.mjs --lang=en --out=email-preview/99-2-en` at `2b5e0c56` renders **34 of 34** branches.
+    The receipt and all sabotage records are committed with this note. This is local rendering, not live delivery;
+    no wording keys, sending switches, prices, consent, database structure or schedules changed.
+    NEEDS ANDREW: publish the email-generating functions with the updated shared formatter in your next release; live delivery cannot be verified until that code is running.
+    This marker is for 99.2a only; the remaining parts below are still buildable and the parent must not be parked as if all
+    its work were finished. The existing deployed-inventory and migration-drift failures are recorded in their receipts;
+    this session neither deploys to clear them nor changes the database.
   - [ ] **99.2b — finish shared date/time rules on pages and in messages.** Remove whole-hour `:00` from `format.js`;
     implement business-local today/tomorrow and the seven-day subject-date rule in the two shared formatters. Keep historical
     receipts and invoices on the explicit weekday/month/day; relative wording belongs to upcoming appointment messages.
