@@ -49,7 +49,7 @@ const status = (state, extra = {}) => ({
 
 // ASSERTIONS PER SIZE, declared as an equality (docs/gotchas.md 98). `own` is
 // what the case asserts itself; every owner case adds the four common asks.
-const OWNER_CASES = { off: 3, none: 3, "connect-disconnect": 5, refused: 4, broken: 4, "call-fails": 3 };
+const OWNER_CASES = { off: 3, none: 3, "connect-disconnect": 6, refused: 4, broken: 4, "call-fails": 3 };
 const COMMON = 4;                 // no sideways scroll, 44px buttons, nothing clipped, console silent
 const OWNER_NETWORK = 1;          // no request left the app for Google
 const STAFF = 4;                  // told plainly, no buttons, console, no Google request
@@ -73,6 +73,10 @@ const reachedGoogle = (urls) => urls.filter((u) => {
     return /(^|\.)(google|googleapis|gstatic)\.com$/i.test(h) && !/^fonts\./i.test(h);
   } catch { return false; }
 });
+// Andrew, 2026-10-11: "the disconnect Google button needs to have some outline on it" —
+// it was `.btn.ghost`, bare text. An outline is a border at least 1px wide whose colour
+// is neither transparent nor the card's own ground.
+const hasOutline = (b) => b.width >= 1 && !/^(transparent|rgba\(.*,\s*0\))$/.test(b.color) && b.color !== b.ground;
 const saysProblem = (text) => /Google/.test(text) && /not been changed/.test(text);
 
 // The screen's own content: the owner's card, or the staff sentence. NOT `.settings-body`,
@@ -216,6 +220,11 @@ try {
           ok(/Connected to test account/.test(t), `${tag}/shows-connected`, t.slice(0, 70).replace(/\s+/g, " "));
           ok(/not sent to Google yet/.test(t), `${tag}/says-nothing-syncs-yet`, "the not-in-step line is on screen while syncing is false");
           ok((await btn("Disconnect Google").count()) === 1 && (await btn(/^Connect/).count()) === 0, `${tag}/disconnect-offered`, "Disconnect shown, Connect gone");
+          const edge = await btn("Disconnect Google").evaluate((b) => {
+            const s = getComputedStyle(b);
+            return { width: parseFloat(s.borderTopWidth), color: s.borderTopColor, ground: getComputedStyle(b.closest(".card")).backgroundColor };
+          });
+          ok(hasOutline(edge), `${tag}/disconnect-outlined`, `border ${edge.width}px ${edge.color} on ${edge.ground}`);
           await page.screenshot({ path: join(ART, `connected-${size}.png`) });
           artifacts.push(`.manager-shots/99.1/connected-${size}.png`);
           page.once("dialog", (d) => d.accept());

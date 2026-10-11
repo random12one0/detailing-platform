@@ -79,7 +79,7 @@ export default function GoogleBusiness() {
             </div>
           )}
           {link.connected && !link.syncing && (
-            <p className="muted" style={{ margin: "var(--sp-2) 0 0" }}>
+            <p className="muted" style={{ margin: "var(--sp-2) 0 var(--sp-3)" }}>
               {t("Your hours, services and photos are not sent to Google yet. Until they are, update your listing on Google yourself. We will tell you when this starts.")}
             </p>
           )}
@@ -92,7 +92,7 @@ export default function GoogleBusiness() {
               </button>
             )}
             {linked && (
-              <button className="btn ghost" disabled={busy === "disconnect"}
+              <button className="btn" disabled={busy === "disconnect"}
                 onClick={disconnect}>
                 {busy === "disconnect" ? t("Disconnecting") : t("Disconnect Google")}
               </button>
