@@ -1,0 +1,61 @@
+{
+  "git_sha": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "git_sha_started": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:48:53.715Z",
+  "failures": [
+    "team-remove @392: team-remove: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "team-revoke @392: team-revoke: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "expense-note @392: expense-note: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "expense-receipt @392: expense-receipt: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "notifications-off-device @392: notifications-off-device: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "payments-disconnect @392: payments-disconnect: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "plans-skip-visit @392: plans-skip-visit: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "plans-add-visit @392: plans-add-visit: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "job-dashboard @392: job-dashboard: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "job-receipt-link @392: job-receipt-link: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "manage-call @392: manage-call: reads as bare words (border 0px rgb(147, 156, 161), shadow none)",
+    "planmember-phone @392: planmember-phone: reads as bare words (border 0px rgb(147, 156, 161), shadow none)",
+    "team-remove @1440: team-remove: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "team-revoke @1440: team-revoke: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "expense-note @1440: expense-note: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "expense-receipt @1440: expense-receipt: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "notifications-off-device @1440: notifications-off-device: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "payments-disconnect @1440: payments-disconnect: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "plans-skip-visit @1440: plans-skip-visit: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "plans-add-visit @1440: plans-add-visit: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "job-dashboard @1440: job-dashboard: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "job-receipt-link @1440: job-receipt-link: reads as bare words (border 1px rgba(0, 0, 0, 0), shadow none)",
+    "manage-call @1440: manage-call: reads as bare words (border 0px rgb(147, 156, 161), shadow none)",
+    "planmember-phone @1440: planmember-phone: reads as bare words (border 0px rgb(147, 156, 161), shadow none)"
+  ],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/99.4/"
+  ],
+  "dimensions": {
+    "widths": "392, 1440",
+    "break": "ghost"
+  },
+  "check_id": "shots-99-4",
+  "started_at": "2026-10-11T22:47:26.531Z",
+  "status": "fail",
+  "expected_targets": 24,
+  "discovered_targets": 24,
+  "attempted_targets": 24,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 26,
+  "min_assertions": 24,
+  "canary": {
+    "id": "the quiet Cancel beside Save, which is bare on purpose",
+    "observed_failure": true,
+    "caught_by": [
+      "computed border/ring"
+    ],
+    "findings": [
+      "read as bare words"
+    ]
+  }
+}

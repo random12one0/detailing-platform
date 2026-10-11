@@ -1,9 +1,9 @@
 {
-  "git_sha": "b01acdbcc70068b5536b0e21b8ebbcab779a4877",
-  "git_sha_started": "b01acdbcc70068b5536b0e21b8ebbcab779a4877",
+  "git_sha": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "git_sha_started": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T21:31:03.998Z",
+  "finished_at": "2026-10-11T22:47:25.834Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,14 +13,14 @@
     "families": "btn, bk-btn, bo-btn"
   },
   "check_id": "lone-ghost",
-  "started_at": "2026-10-11T21:31:03.846Z",
+  "started_at": "2026-10-11T22:47:25.715Z",
   "status": "pass",
-  "expected_targets": 44,
-  "discovered_targets": 44,
-  "attempted_targets": 44,
-  "completed_targets": 44,
+  "expected_targets": 47,
+  "discovered_targets": 47,
+  "attempted_targets": 47,
+  "completed_targets": 47,
   "skipped_targets": 0,
-  "assertions_executed": 46,
+  "assertions_executed": 49,
   "min_assertions": 40,
   "canary": {
     "id": "a lone `btn ghost` injected into a scratch file",

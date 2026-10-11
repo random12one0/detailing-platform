@@ -1,0 +1,35 @@
+{
+  "git_sha": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "git_sha_started": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:50:07.908Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/99.4/"
+  ],
+  "dimensions": {
+    "widths": "392, 1440"
+  },
+  "check_id": "shots-99-4",
+  "started_at": "2026-10-11T22:48:54.201Z",
+  "status": "pass",
+  "expected_targets": 24,
+  "discovered_targets": 24,
+  "attempted_targets": 24,
+  "completed_targets": 24,
+  "skipped_targets": 0,
+  "assertions_executed": 26,
+  "min_assertions": 24,
+  "canary": {
+    "id": "the quiet Cancel beside Save, which is bare on purpose",
+    "observed_failure": true,
+    "caught_by": [
+      "computed border/ring"
+    ],
+    "findings": [
+      "read as bare words"
+    ]
+  }
+}
