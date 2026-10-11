@@ -6,8 +6,9 @@ import Steps from "./money/Steps.jsx";
 import ByPlan from "./money/ByPlan.jsx";
 import ComingIn from "./money/ComingIn.jsx";
 import Bills from "./money/Bills.jsx";
+import Prices from "./money/Prices.jsx";
 
-const SECTIONS = [Kept, Steps, ByPlan, ComingIn, Bills];
+const SECTIONS = [Kept, Steps, ByPlan, ComingIn, Bills, Prices];
 
 export default function Money({ ctx }) {
   return (
