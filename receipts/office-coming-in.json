@@ -1,9 +1,9 @@
 {
-  "git_sha": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
-  "git_sha_started": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
+  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T21:57:52.802Z",
+  "finished_at": "2026-10-11T23:40:50.772Z",
   "failures": [],
   "warnings": [
     "All sessions and platform responses are synthetic. No database write or credential use; this checks browser behavior, not the billing server."
@@ -631,7 +631,7 @@
     }
   },
   "check_id": "office-coming-in",
-  "started_at": "2026-10-11T21:56:19.969Z",
+  "started_at": "2026-10-11T23:39:24.448Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,

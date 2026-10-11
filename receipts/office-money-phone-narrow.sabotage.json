@@ -1,0 +1,658 @@
+{
+  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T23:39:12.308Z",
+  "failures": [
+    "360: every section and card spans the 328px content column button Oct 12FAFed Alder$60 (left 0.0, short 88.0) | button Oct 15FBFed Birch$60 (left 0.0, short 88.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 88.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 88.0)",
+    "375: every section and card spans the 343px content column button Oct 12FAFed Alder$60 (left 0.0, short 103.0) | button Oct 15FBFed Birch$60 (left 0.0, short 103.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 103.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 103.0)",
+    "390: every section and card spans the 358px content column button Oct 12FAFed Alder$60 (left 0.0, short 118.0) | button Oct 15FBFed Birch$60 (left 0.0, short 118.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 118.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 118.0)",
+    "412: every section and card spans the 380px content column button Oct 12FAFed Alder$60 (left 0.0, short 140.0) | button Oct 15FBFed Birch$60 (left 0.0, short 140.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 140.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 140.0)",
+    "430: every section and card spans the 398px content column button Oct 12FAFed Alder$60 (left 0.0, short 158.0) | button Oct 15FBFed Birch$60 (left 0.0, short 158.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 158.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 158.0)",
+    "390@130%: every section and card spans the 348px content column button Oct 12FAFed Alder$60 (left -0.0, short 36.4) | button Oct 15FBFed Birch$60 (left -0.0, short 36.4) | button Oct 15FCFed Cedar$60 card failed (left -0.0, short 36.4) | button Oct 15FDFed Dogwood$600 a year (left -0.0, short 36.4)"
+  ],
+  "warnings": [
+    "All sessions and platform responses are synthetic. No database write or credential use.",
+    "130% text is emulated with CSS zoom on <html>, which is how a phone's page-zoom text setting reflows; a browser's per-block font boosting cannot be reproduced in headless Chromium and is not claimed.",
+    "deliberate --break=narrow"
+  ],
+  "artifacts": [
+    "artifacts/office-money-phone/narrow/money-360.png",
+    "artifacts/office-money-phone/narrow/money-375.png",
+    "artifacts/office-money-phone/narrow/money-390.png",
+    "artifacts/office-money-phone/narrow/money-412.png",
+    "artifacts/office-money-phone/narrow/money-430.png",
+    "artifacts/office-money-phone/narrow/money-390-130pct.png",
+    "artifacts/office-money-phone/narrow/today-768.png",
+    "artifacts/office-money-phone/narrow/money-768.png",
+    "artifacts/office-money-phone/narrow/system-768.png",
+    "artifacts/office-money-phone/narrow/today-1440.png",
+    "artifacts/office-money-phone/narrow/money-1440.png",
+    "artifacts/office-money-phone/narrow/system-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "360",
+      "375",
+      "390",
+      "412",
+      "430",
+      "390@130%"
+    ],
+    "break": "narrow",
+    "observed": {
+      "360": {
+        "vw": 360,
+        "col": {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": 0,
+            "right": 88
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": 0,
+            "right": 88
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "375": {
+        "vw": 375,
+        "col": {
+          "left": 16,
+          "right": 359,
+          "width": 343
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": 0,
+            "right": 103
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": 0,
+            "right": 103
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "390": {
+        "vw": 390,
+        "col": {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": 0,
+            "right": 118
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": 0,
+            "right": 118
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "412": {
+        "vw": 412,
+        "col": {
+          "left": 16,
+          "right": 396,
+          "width": 380
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": 0,
+            "right": 140
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": 0,
+            "right": 140
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "430": {
+        "vw": 430,
+        "col": {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": 0,
+            "right": 158
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": 0,
+            "right": 158
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "390@130%": {
+        "vw": 390,
+        "col": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "pieces": 183,
+        "touching": [],
+        "short": [
+          {
+            "what": "button Oct 12FAFed Alder$60",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 15FBFed Birch$60",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 15FCFed Cedar$60 card failed",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 15FDFed Dogwood$600 a year",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 20FEFed Elm$60",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 24FRFed Ruby Ridge Auto Spa$12",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Oct 28FGFed Gum$60",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Nov 2FHFed Hazel$60",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          },
+          {
+            "what": "button Nov 10FIFed Ivy$600 a year",
+            "left": -0.003124237060546875,
+            "right": 36.40312576293945
+          }
+        ],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 16,
+          "right": 16,
+          "bottom": 13
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      }
+    }
+  },
+  "check_id": "office-money-phone-narrow",
+  "started_at": "2026-10-11T23:38:03.978Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 72,
+  "min_assertions": 60,
+  "assertion_floor": "6 declared phone renderings (360, 375, 390, 412, 430, and 390 at 130% zoom) x 10 questions.",
+  "canary": {
+    "id": "card-pinned-narrow-and-label-on-label",
+    "observed_failure": false,
+    "short": 0,
+    "touching": 1
+  }
+}

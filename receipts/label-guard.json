@@ -1,10 +1,12 @@
 {
-  "git_sha": "8312c7a143356b997ce047a6b84db8338217c054",
-  "git_sha_started": "8312c7a143356b997ce047a6b84db8338217c054",
+  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T22:33:33.038Z",
-  "failures": [],
+  "finished_at": "2026-10-11T23:41:11.019Z",
+  "failures": [
+    "declared label no longer in the product: \"sam.ortiz@example.com\" (shots-99-4.mjs)"
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/label-guard.mjs"
@@ -23,14 +25,14 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-11T22:33:32.891Z",
-  "status": "pass",
-  "expected_targets": 74,
-  "discovered_targets": 74,
-  "attempted_targets": 74,
-  "completed_targets": 74,
+  "started_at": "2026-10-11T23:41:10.869Z",
+  "status": "fail",
+  "expected_targets": 88,
+  "discovered_targets": 88,
+  "attempted_targets": 88,
+  "completed_targets": 88,
   "skipped_targets": 0,
-  "assertions_executed": 74,
+  "assertions_executed": 88,
   "min_assertions": 30,
   "canary": {
     "id": "a declared label that no product could contain",

@@ -1,0 +1,532 @@
+{
+  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T23:37:58.865Z",
+  "failures": [],
+  "warnings": [
+    "All sessions and platform responses are synthetic. No database write or credential use.",
+    "130% text is emulated with CSS zoom on <html>, which is how a phone's page-zoom text setting reflows; a browser's per-block font boosting cannot be reproduced in headless Chromium and is not claimed."
+  ],
+  "artifacts": [
+    "artifacts/office-money-phone/money-360.png",
+    "artifacts/office-money-phone/money-375.png",
+    "artifacts/office-money-phone/money-390.png",
+    "artifacts/office-money-phone/money-412.png",
+    "artifacts/office-money-phone/money-430.png",
+    "artifacts/office-money-phone/money-390-130pct.png",
+    "artifacts/office-money-phone/today-768.png",
+    "artifacts/office-money-phone/money-768.png",
+    "artifacts/office-money-phone/system-768.png",
+    "artifacts/office-money-phone/today-1440.png",
+    "artifacts/office-money-phone/money-1440.png",
+    "artifacts/office-money-phone/system-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "360",
+      "375",
+      "390",
+      "412",
+      "430",
+      "390@130%"
+    ],
+    "observed": {
+      "360": {
+        "vw": 360,
+        "col": {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        "pieces": 181,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "375": {
+        "vw": 375,
+        "col": {
+          "left": 16,
+          "right": 359,
+          "width": 343
+        },
+        "pieces": 181,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "390": {
+        "vw": 390,
+        "col": {
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        "pieces": 181,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "412": {
+        "vw": 412,
+        "col": {
+          "left": 16,
+          "right": 396,
+          "width": 380
+        },
+        "pieces": 181,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "430": {
+        "vw": 430,
+        "col": {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        "pieces": 181,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "390@130%": {
+        "vw": 390,
+        "col": {
+          "left": 21,
+          "right": 369,
+          "width": 348
+        },
+        "pieces": 182,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 16,
+          "right": 16,
+          "bottom": 13
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "copy after @360": {
+        "vw": 360,
+        "col": {
+          "left": 16,
+          "right": 344,
+          "width": 328
+        },
+        "pieces": 170,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "copy after @412": {
+        "vw": 412,
+        "col": {
+          "left": 16,
+          "right": 396,
+          "width": 380
+        },
+        "pieces": 170,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      },
+      "copy after @430": {
+        "vw": 430,
+        "col": {
+          "left": 16,
+          "right": 414,
+          "width": 398
+        },
+        "pieces": 170,
+        "touching": [],
+        "short": [],
+        "spanCount": 35,
+        "clipped": [],
+        "broken": [],
+        "faint": [],
+        "pill": {
+          "dx": 0,
+          "dw": 0,
+          "dy": 0
+        },
+        "tabs": [
+          {
+            "label": "Today",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Detailers",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "Money",
+            "lines": 1,
+            "fits": true
+          },
+          {
+            "label": "System",
+            "lines": 1,
+            "fits": true
+          }
+        ],
+        "tabTouch": [],
+        "bar": {
+          "left": 12,
+          "right": 12,
+          "bottom": 10
+        },
+        "overflowX": false,
+        "font": {
+          "body": "15px",
+          "h2": "28px"
+        }
+      }
+    }
+  },
+  "check_id": "office-money-phone",
+  "started_at": "2026-10-11T23:36:44.864Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 78,
+  "min_assertions": 60,
+  "assertion_floor": "6 declared phone renderings (360, 375, 390, 412, 430, and 390 at 130% zoom) x 10 questions.",
+  "canary": {
+    "id": "card-pinned-narrow-and-label-on-label",
+    "observed_failure": true,
+    "short": 1,
+    "touching": 1
+  }
+}
