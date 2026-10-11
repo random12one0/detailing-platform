@@ -90,8 +90,10 @@ const en = render("en");
 check("1a the old date and the new date are BOTH in the text half",
   en.text.includes("September 12") && en.text.includes("September 17"),
   "if one is missing this check is measuring the wrong template");
+// 99.2a (2026-10-11) dropped the year and whole-hour ":00" from email dates;
+// these patterns, and the canary's in § 4, were updated to that shape in 99.2b.
 check("1b the old time is labelled in words, not by styling",
-  /Was\s+Saturday, September 12, 2026 at 8:00 AM/.test(en.text),
+  /Was\s+Saturday, September 12 at 8 AM/.test(en.text),
   `the line reads: ${JSON.stringify((en.text.match(/.*September 12.*/) ?? [""])[0])}`);
 // The strikethrough is belt and braces, not the mechanism. If somebody removes
 // it as redundant the HTML gets worse for no gain, so it is pinned.
@@ -105,8 +107,8 @@ check("1c the strikethrough is STILL in the html as well",
 console.log("\n2. Spanish: the label is translated, and English is absent");
 
 const es = render("es");
-check("2a the Spanish label is present", /Antes:\s*sábado, 12 de septiembre de 2026/.test(es.text),
-  `the line reads: ${JSON.stringify((es.text.match(/.*septiembre de 2026 a las.*/) ?? [""])[0])}`);
+check("2a the Spanish label is present", /Antes:\s*sábado, 12 de septiembre a las 8 AM/.test(es.text),
+  `the line reads: ${JSON.stringify((es.text.match(/.*septiembre a las.*/) ?? [""])[0])}`);
 check("2b the ENGLISH label is absent — a missing es.ts key falls back silently",
   !/\bWas\s+sábado/.test(es.text) && !/\bWas\s+Saturday/.test(es.text),
   "T() returns the English key on a miss and throws nothing, so this is the only thing that catches it");
@@ -136,7 +138,7 @@ check("3a the quote email does NOT carry the reschedule's label",
 console.log("\n4. the canary — the pre-fix output must FAIL the check above");
 
 const preFix = en.text.replace(/Was\s+(Saturday, September 12)/, "$1");
-const canaryCaught = !/Was\s+Saturday, September 12, 2026 at 8:00 AM/.test(preFix)
+const canaryCaught = !/Was\s+Saturday, September 12 at 8 AM/.test(preFix)
   && preFix.includes("September 12") && preFix.includes("September 17");
 check("4a with the label removed, the old time is indistinguishable and 1b's test fails",
   canaryCaught,

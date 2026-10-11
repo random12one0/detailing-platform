@@ -16,7 +16,7 @@ import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Folded, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 // The folded row states the hour the way the control inside it does.
-import { duration } from "../../lib/format.js";
+import { duration, time12 } from "../../lib/format.js";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
 import { cleanMessages, MESSAGE_KINDS, MESSAGE_MAX } from "../../lib/emailMessages.js";
 // "1 other emails" — same plural helper Business, Clients and AdvancedMoney
@@ -26,8 +26,7 @@ const n = (v, one, many) => t(v === 1 ? one : many, { count: v });
 // opens can never disagree about what time the summary goes out.
 const hourWords = (h) => {
   const n24 = Math.min(23, Math.max(0, Number(h) ?? 7));
-  const ampm = n24 < 12 ? "AM" : "PM";
-  return `${n24 % 12 === 0 ? 12 : n24 % 12}:00 ${ampm}`;
+  return time12(n24);
 };
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders

@@ -202,6 +202,29 @@ export const formatDateLong = (dateStr: string, lang?: unknown): string => {
   });
 };
 
+// ROADMAP 99.2b — the short-line day for an UPCOMING appointment (subjects,
+// texts): "today", "tomorrow", the weekday alone inside the next seven days,
+// "October 14" beyond. Receipts and invoices keep `formatDateLong`. The time
+// zone is required so "today" is the business's, never the server's UTC.
+// Twin of `dayWords` in `app/src/lib/format.js`; `scripts/whole-hours.mjs`
+// holds both to one table.
+export const dayWords = (dateStr: string, tz: string, lang?: unknown, now: Date = new Date()): string => {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  const utc = (s: string) => { const [y, m, d] = String(s).slice(0, 10).split("-").map(Number); return Date.UTC(y, m - 1, d); };
+  const ahead = Math.round((utc(dateStr) - utc(today)) / 86400000);
+  const es = lang === "es";
+  if (ahead === 0) return es ? "hoy" : "today";
+  if (ahead === 1) return es ? "mañana" : "tomorrow";
+  const opts: Intl.DateTimeFormatOptions = ahead > 1 && ahead < 7 ? { weekday: "long" } : { month: "long", day: "numeric" };
+  return new Date(utc(dateStr)).toLocaleDateString(es ? "es-US" : "en-US", { ...opts, timeZone: "UTC" });
+};
+
+// "tomorrow at 6 PM" / "viernes a las 6 PM" — Spanish says "a la" for one o'clock.
+export const whenWords = (dateStr: string, time24: string, tz: string, lang?: unknown, now: Date = new Date()): string => {
+  const at = lang === "es" ? (Number(String(time24).slice(0, 2)) % 12 === 1 ? "a la" : "a las") : "at";
+  return `${dayWords(dateStr, tz, lang, now)} ${at} ${formatTime12hr(time24)}`;
+};
+
 export interface Brand {
   brandName: string;
   contactPhone: string | null;

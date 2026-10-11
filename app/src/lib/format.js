@@ -78,11 +78,43 @@ export const phoneAsTyped = (v) => {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
 };
 
+// ROADMAP 99.2b — whole hours read "6 PM", a real minute stays "6:05 PM". The
+// same rule as `emailKit.ts`'s `formatTime12hr`, so a page and the email about
+// it print one time the same way. A bare hour (`7`) is accepted for the
+// hour-of-day pickers, which store 0–23.
 export const time12 = (hhmm) => {
-  if (!hhmm) return "";
-  const [h, m] = String(hhmm).slice(0, 5).split(":").map(Number);
+  if (hhmm === null || hhmm === undefined || hhmm === "") return "";
+  const [h, m = 0] = String(hhmm).slice(0, 5).split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
-  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""} ${ampm}`;
+};
+
+// ROADMAP 99.2b — HOW AN UPCOMING APPOINTMENT'S DAY IS SAID IN A SHORT LINE (a
+// subject, a text, a heading): "today", "tomorrow", the weekday alone for the
+// rest of the next seven days, and "October 14" beyond that. Bodies, receipts
+// and invoices keep `dateLong`'s full weekday-month-day; this is only for
+// lines about something still to come.
+//
+// **THE TIME ZONE IS REQUIRED, AND "TODAY" IS THE BUSINESS'S.** A caller handing
+// in its own idea of today is how a server on UTC calls a 6 PM Pacific job
+// "tomorrow". `now` exists for tests. A past date gets the month and day.
+// The twin is `dayWords` in `supabase/functions/_shared/emailKit.ts`; the two
+// are held to one table by `scripts/whole-hours.mjs`.
+export const dayWords = (dateStr, tz, lang = "en", now = new Date()) => {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  const utc = (s) => { const [y, m, d] = String(s).slice(0, 10).split("-").map(Number); return Date.UTC(y, m - 1, d); };
+  const ahead = Math.round((utc(dateStr) - utc(today)) / 86400000);
+  const es = lang === "es";
+  if (ahead === 0) return es ? "hoy" : "today";
+  if (ahead === 1) return es ? "mañana" : "tomorrow";
+  const opts = ahead > 1 && ahead < 7 ? { weekday: "long" } : { month: "long", day: "numeric" };
+  return new Date(utc(dateStr)).toLocaleDateString(es ? "es-US" : "en-US", { ...opts, timeZone: "UTC" });
+};
+
+// "tomorrow at 6 PM" / "viernes a las 6 PM" — Spanish says "a la" for one o'clock.
+export const whenWords = (dateStr, hhmm, tz, lang = "en", now = new Date()) => {
+  const at = lang === "es" ? (Number(String(hhmm).slice(0, 2)) % 12 === 1 ? "a la" : "a las") : "at";
+  return `${dayWords(dateStr, tz, lang, now)} ${at} ${time12(hhmm)}`;
 };
 
 // How long a job takes, in the words a person uses. One implementation

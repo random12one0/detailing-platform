@@ -329,10 +329,11 @@ function dateFromChipLabel(label, near) {
 }
 
 const time24 = (label) => {
-  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(label).trim());
+  // 99.2b: a whole hour prints "9 AM", with no ":00", so the minutes are optional.
+  const m = /^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i.exec(String(label).trim());
   if (!m) return null;
   const h = (Number(m[1]) % 12) + (/pm/i.test(m[3]) ? 12 : 0);
-  return `${String(h).padStart(2, "0")}:${m[2]}`;
+  return `${String(h).padStart(2, "0")}:${m[2] ?? "00"}`;
 };
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const undeliverable = (addr) =>

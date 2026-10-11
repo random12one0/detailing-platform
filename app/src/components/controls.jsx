@@ -10,6 +10,7 @@ import { Check, Eye, EyeOff, Minus, Plus, ChevronRight } from "lucide-react";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { t } from "../lib/appI18n.js";
+import { time12 } from "../lib/format.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // A row: what it is on the left, the control on the right, and a plain
@@ -285,14 +286,9 @@ export function MoneyField({ value, onChange, placeholder = "0" }) {
 // An hour of the day, shown the way a clock shows it. Stored as 0–23.
 export function HourChoice({ value, onChange }) {
   const hours = Array.from({ length: 24 }, (_, h) => h);
-  const label = (h) => {
-    const ampm = h < 12 ? "AM" : "PM";
-    const twelve = h % 12 === 0 ? 12 : h % 12;
-    return `${twelve}:00 ${ampm}`;
-  };
   return (
     <select value={value ?? 7} onChange={(e) => onChange(Number(e.target.value))} style={{ maxWidth: 150 }}>
-      {hours.map((h) => <option key={h} value={h}>{label(h)}</option>)}
+      {hours.map((h) => <option key={h} value={h}>{time12(h)}</option>)}
     </select>
   );
 }

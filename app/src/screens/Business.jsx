@@ -59,6 +59,7 @@ import { STEPS, setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
 import { whereFrom } from "../lib/moneyAdvanced.js";
 import { brandVarsFor } from "../lib/theme.js";
+import { time12 } from "../lib/format.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -70,12 +71,6 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // abbreviations are a different set in a different order.
 const DAYS = () => [0, 1, 2, 3, 4, 5, 6].map((n) => new Date(Date.UTC(2026, 0, 4 + n))
   .toLocaleDateString(appIntlLocale(), { weekday: "short", timeZone: "UTC" }));
-const time12 = (hm) => {
-  if (!hm) return "";
-  const [h, m] = hm.slice(0, 5).split(":").map(Number);
-  const ampm = h < 12 ? "AM" : "PM";
-  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${ampm}`;
-};
 
 // Collapse the open days into something a person would say: consecutive
 // weekdays become a range, and identical hours are stated once.
