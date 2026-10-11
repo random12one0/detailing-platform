@@ -75,6 +75,8 @@ export const LEDGER = [
   { file: "admin/office/OfficePage.jsx", key: "", kind: "RINGED" },
   { file: "admin/office/places/money/Bills.jsx", key: "", kind: "RINGED", n: 2 },
   { file: "admin/office/places/today/NeedsYou.jsx", key: "", kind: "RINGED" },
+  // Added by 9.12a 6b after the first ledger: "Change these prices" stands alone but .bo-btn.ghost paints a ring.
+  { file: "admin/office/places/money/Prices.jsx", key: "", kind: "RINGED", n: 3 },
 ];
 
 const walk = (d) => readdirSync(d).flatMap((n) => {
