@@ -28975,6 +28975,29 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     `belt/shots/99.2`. Dashboard screens share `time12` and were not opened (that needs a sign-in). `email-dates.mjs`
     still reads 70 of 70 with 0 failures. Goes live with Andrew's next ordinary publish; nothing here needs deciding.
   - [ ] **99.2c — customer booking email wording.** Original plan step 2, including crossed-out old times and Spanish.
+    **BUILT AND PROVED LOCALLY 2026-10-11, product commit `6f681160`.** Booked / request received / accepted / declined /
+    price / time changed / cancelled now carry the approved subjects, headlines, first lines and buttons in English and
+    Spanish. "Keep this email" is replaced by "Need to change or cancel? Use the button above. No call needed." on every
+    email that had it. The upcoming day comes from 99.2b's `dayWords` through one helper, `upcoming()`, in the business's
+    own zone (`buildBrand` now passes `businesses.timezone`; a missing zone falls back to the column default
+    `America/Los_Angeles`). Spanish adds "el" before a weekday or date and nothing before "hoy"/"mañana". "Your today
+    appointment" is avoided by a second key ("Your appointment today is cancelled"). The cancelled email keeps its sentence
+    naming which appointment it was. Only the approved closing line and a Book again button replace the bare web address.
+    The struck-through old time already sat above the new one; it is now asserted. Owner halves are untouched (99.2e).
+    **PROVED:** `node scripts/booking-email-wording.mjs` at `8312c7a1` reached **128 of 128** targets: 7 emails × 2
+    languages × 4 days (today, tomorrow, +3, +9) × 2 zones (UTC+14 and UTC-11, so one always disagrees with UTC), plus the
+    four changed emails at 392 and 1440 in both languages. **768 assertions, 0 failures**, console silent, no sideways
+    scroll, buttons inside the screen. `receipt.mjs` grades it PASS. `--break=old` renders the pre-99.2c templates and
+    Spanish from git: **128 of 128, 360 failures**. `--break=utc` puts "today" on the server's clock: **128 of 128, 32
+    failures**. Both sabotage receipts grade FAIL. `render-emails.mjs` reaches **34 of 34** in English and in Spanish,
+    PASS. `tests/spanish.test.mjs` (database section skipped by blank credentials): 74 passed, 1 failed. The failure is
+    the existing 12c back-office word lists, which this change does not touch. Pictures: `.manager-shots/99.2c/`; 392 and 1440
+    were opened and look right. Before/After pairs are in `belt/shots/99.2`. `scripts/dashboard-notifies.mjs` (live,
+    credentialed, not run) now accepts old or new subjects.
+    **Not here:** "the reminder goes only to customers with no texting consent" is routing and belongs to 99.2i.
+    **Release step, not a decision:** these templates reach customers with the same email-function publish as 99.2a
+    (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email after that ticks 99.2a and 99.2c
+    together. **The next buildable part is 99.2d.**
   - [ ] **99.2d — after-job email wording and signature setting.** Original plan step 3; the receipt/invoice stay email.
   - [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
     refusal and the existing maintenance-due gate.

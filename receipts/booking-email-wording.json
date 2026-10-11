@@ -1,0 +1,59 @@
+{
+  "git_sha": "8312c7a143356b997ce047a6b84db8338217c054",
+  "git_sha_started": "8312c7a143356b997ce047a6b84db8338217c054",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:32:55.673Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/99.2c/en-confirmation-392.png",
+    ".manager-shots/99.2c/en-declined-392.png",
+    ".manager-shots/99.2c/en-reschedule-392.png",
+    ".manager-shots/99.2c/en-cancellation-392.png",
+    ".manager-shots/99.2c/es-confirmation-392.png",
+    ".manager-shots/99.2c/es-declined-392.png",
+    ".manager-shots/99.2c/es-reschedule-392.png",
+    ".manager-shots/99.2c/es-cancellation-392.png",
+    ".manager-shots/99.2c/en-confirmation-1440.png",
+    ".manager-shots/99.2c/en-declined-1440.png",
+    ".manager-shots/99.2c/en-reschedule-1440.png",
+    ".manager-shots/99.2c/en-cancellation-1440.png",
+    ".manager-shots/99.2c/es-confirmation-1440.png",
+    ".manager-shots/99.2c/es-declined-1440.png",
+    ".manager-shots/99.2c/es-reschedule-1440.png",
+    ".manager-shots/99.2c/es-cancellation-1440.png"
+  ],
+  "dimensions": {
+    "break": "",
+    "zones": [
+      "Pacific/Kiritimati",
+      "Pacific/Pago_Pago"
+    ],
+    "days_ahead": [
+      0,
+      1,
+      3,
+      9
+    ],
+    "widths": [
+      392,
+      1440
+    ],
+    "scope": "The seven customer booking emails' subjects, headlines, opening lines and buttons (99.2c). Detailer emails (99.2e), after-job emails (99.2d) and the reminder's texting-consent routing (99.2i) are not covered."
+  },
+  "check_id": "booking-email-wording",
+  "started_at": "2026-10-11T22:32:52.269Z",
+  "status": "pass",
+  "expected_targets": 128,
+  "discovered_targets": 128,
+  "attempted_targets": 128,
+  "completed_targets": 128,
+  "skipped_targets": 0,
+  "assertions_executed": 768,
+  "min_assertions": 760,
+  "canary": {
+    "id": "the pre-99.2c subject 'Booking confirmed · <date>' does not equal the approved one",
+    "observed_failure": true
+  }
+}

@@ -59,6 +59,12 @@ then have a session verify a real confirmation's subject, body and plain-text co
 emails. The session has not pushed, published, deployed, enabled texting or spent money. Before/after copies are in the
 control room's `shots/99.2` folder. No decision about the approved wording is being reopened.
 
+**Added 2026-10-11, same release (99.2c):** the seven customer booking emails now carry your approved wording ("You're booked
+for Friday at 6 PM", "New time: ...", "Your Friday appointment is cancelled", the Pick another time and Book again buttons),
+in English and Spanish. "Today" and "tomorrow" follow the business's own time zone. The same email functions carry it, so
+one release covers both parts. The live-email check `scripts/dashboard-notifies.mjs` accepts the old and the new subjects,
+so it stays honest on either side of the release.
+
 ---
 
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)

@@ -1,0 +1,75 @@
+{
+  "git_sha": "6f681160ca192dc98e796a34619008dc5deaf7f4",
+  "git_sha_started": "6f681160ca192dc98e796a34619008dc5deaf7f4",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T22:32:42.451Z",
+  "failures": [
+    "Kiritimati en +0d confirmation subject: got \"You're booked for tomorrow at 6 PM\", want \"You're booked for today at 6 PM\"",
+    "Kiritimati en +0d confirmation says \"Thanks, Maria. Here's everything for today.\"",
+    "Kiritimati en +0d request subject: got \"Got your request for tomorrow at 6 PM\", want \"Got your request for today at 6 PM\"",
+    "Kiritimati en +0d accepted subject: got \"Confirmed: tomorrow at 6 PM\", want \"Confirmed: today at 6 PM\"",
+    "Kiritimati en +0d declined subject: got \"About your request for tomorrow\", want \"About your request for today\"",
+    "Kiritimati en +0d declined says \"Sorry, we can't make today at 6 PM work.\"",
+    "Kiritimati en +0d reschedule subject: got \"New time: tomorrow at 6 PM\", want \"New time: today at 6 PM\"",
+    "Kiritimati en +0d cancellation subject: got \"Your appointment tomorrow is cancelled\", want \"Your appointment today is cancelled\"",
+    "Kiritimati en +1d confirmation subject: got \"You're booked for Tuesday at 6 PM\", want \"You're booked for tomorrow at 6 PM\"",
+    "Kiritimati en +1d confirmation says \"Thanks, Maria. Here's everything for tomorrow.\"",
+    "Kiritimati en +1d request subject: got \"Got your request for Tuesday at 6 PM\", want \"Got your request for tomorrow at 6 PM\"",
+    "Kiritimati en +1d accepted subject: got \"Confirmed: Tuesday at 6 PM\", want \"Confirmed: tomorrow at 6 PM\"",
+    "Kiritimati en +1d declined subject: got \"About your request for Tuesday\", want \"About your request for tomorrow\"",
+    "Kiritimati en +1d declined says \"Sorry, we can't make tomorrow at 6 PM work.\"",
+    "Kiritimati en +1d reschedule subject: got \"New time: Tuesday at 6 PM\", want \"New time: tomorrow at 6 PM\"",
+    "Kiritimati en +1d cancellation subject: got \"Your Tuesday appointment is cancelled\", want \"Your appointment tomorrow is cancelled\"",
+    "Kiritimati es +0d confirmation subject: got \"Tu cita quedó reservada para mañana a las 6 PM\", want \"Tu cita quedó reservada para hoy a las 6 PM\"",
+    "Kiritimati es +0d confirmation says \"Gracias, Maria. Aquí está todo para hoy.\"",
+    "Kiritimati es +0d request subject: got \"Recibimos tu solicitud para mañana a las 6 PM\", want \"Recibimos tu solicitud para hoy a las 6 PM\"",
+    "Kiritimati es +0d accepted subject: got \"Confirmada: mañana a las 6 PM\", want \"Confirmada: hoy a las 6 PM\"",
+    "Kiritimati es +0d declined subject: got \"Sobre tu solicitud para mañana\", want \"Sobre tu solicitud para hoy\"",
+    "Kiritimati es +0d declined says \"Lo sentimos, no podemos atenderte hoy a las 6 PM.\"",
+    "Kiritimati es +0d reschedule subject: got \"Nuevo horario: mañana a las 6 PM\", want \"Nuevo horario: hoy a las 6 PM\"",
+    "Kiritimati es +0d cancellation subject: got \"Tu cita de mañana está cancelada\", want \"Tu cita de hoy está cancelada\"",
+    "Kiritimati es +1d confirmation subject: got \"Tu cita quedó reservada para el martes a las 6 PM\", want \"Tu cita quedó reservada para mañana a las 6 PM\"",
+    "Kiritimati es +1d confirmation says \"Gracias, Maria. Aquí está todo para mañana.\"",
+    "Kiritimati es +1d request subject: got \"Recibimos tu solicitud para el martes a las 6 PM\", want \"Recibimos tu solicitud para mañana a las 6 PM\"",
+    "Kiritimati es +1d accepted subject: got \"Confirmada: el martes a las 6 PM\", want \"Confirmada: mañana a las 6 PM\"",
+    "Kiritimati es +1d declined subject: got \"Sobre tu solicitud para el martes\", want \"Sobre tu solicitud para mañana\"",
+    "Kiritimati es +1d declined says \"Lo sentimos, no podemos atenderte mañana a las 6 PM.\"",
+    "Kiritimati es +1d reschedule subject: got \"Nuevo horario: el martes a las 6 PM\", want \"Nuevo horario: mañana a las 6 PM\"",
+    "Kiritimati es +1d cancellation subject: got \"Tu cita para el martes está cancelada\", want \"Tu cita de mañana está cancelada\""
+  ],
+  "warnings": [],
+  "artifacts": [],
+  "dimensions": {
+    "break": "utc",
+    "zones": [
+      "Pacific/Kiritimati",
+      "Pacific/Pago_Pago"
+    ],
+    "days_ahead": [
+      0,
+      1,
+      3,
+      9
+    ],
+    "widths": [
+      392,
+      1440
+    ],
+    "scope": "The seven customer booking emails' subjects, headlines, opening lines and buttons (99.2c). Detailer emails (99.2e), after-job emails (99.2d) and the reminder's texting-consent routing (99.2i) are not covered."
+  },
+  "check_id": "booking-email-wording-utc",
+  "started_at": "2026-10-11T22:32:40.483Z",
+  "status": "fail",
+  "expected_targets": 128,
+  "discovered_targets": 128,
+  "attempted_targets": 128,
+  "completed_targets": 128,
+  "skipped_targets": 0,
+  "assertions_executed": 768,
+  "min_assertions": 760,
+  "canary": {
+    "id": "the pre-99.2c subject 'Booking confirmed · <date>' does not equal the approved one",
+    "observed_failure": true
+  }
+}
