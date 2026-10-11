@@ -1,0 +1,79 @@
+{
+  "git_sha": "174ba8f9567dae46b38019bcb388f73133c8dc52",
+  "git_sha_started": "174ba8f9567dae46b38019bcb388f73133c8dc52",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T23:03:38.513Z",
+  "failures": [
+    "1440: the server answered success — undefined null",
+    "1440: the date is recorded — db null",
+    "1440: the row now shows the day, not \"not started\" — not started",
+    "1440: exactly one email row, sent to the contact email — []",
+    "1440: a second press from a stale tab is refused (409) naming the recorded date — undefined null",
+    "1440: the refusal is shown to the person who pressed — no message shown",
+    "1440: the date did not move and no second email went — db null, 0 email row(s)",
+    "392: the server answered success — undefined null",
+    "392: the date is recorded — db null",
+    "392: the row now shows the day, not \"not started\" — not started",
+    "392: exactly one email row, sent to the contact email — []",
+    "392: a second press from a stale tab is refused (409) naming the recorded date — undefined null",
+    "392: the refusal is shown to the person who pressed — no message shown",
+    "392: the date did not move and no second email went — db null, 0 email row(s)"
+  ],
+  "warnings": [
+    "Presses the DEPLOYED platform-admin; it cannot say which commit is live. The unreachable-address verdict names which behavior answered.",
+    "Spends two real emails (delivered@resend.dev) of the daily allowance per clean run.",
+    "Overlapping presses (ROADMAP 0.4g) are NOT exercised: the stale tab presses after the first press finished."
+  ],
+  "artifacts": [
+    "scripts/build-start-live.mjs",
+    "supabase/functions/platform-admin/index.ts",
+    "app/src/admin/AdminPage.jsx"
+  ],
+  "dimensions": {
+    "break": "no-confirm",
+    "real_mail_sent": 0,
+    "targets": {
+      "w1440": {
+        "recorded": null,
+        "shown": "not started",
+        "email_rows": 0,
+        "refusal_status": null,
+        "console": []
+      },
+      "w392": {
+        "recorded": null,
+        "shown": "not started",
+        "email_rows": 0,
+        "refusal_status": null,
+        "console": []
+      },
+      "sink": {
+        "status": 200,
+        "recorded": "2026-10-11T23:03:36.793+00:00",
+        "email_rows": [
+          {
+            "status": "skipped",
+            "detail": "that address cannot receive email"
+          }
+        ],
+        "verdict": "LIVE-UNFIXED"
+      }
+    }
+  },
+  "check_id": "build-start-live",
+  "started_at": "2026-10-11T23:00:43.525Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 20,
+  "canary": {
+    "id": "the done-test must fail on an unpressed (stale) tab at both widths",
+    "observed_failure": true,
+    "caught": 2
+  }
+}

@@ -2549,6 +2549,61 @@ and how the wait ends.
   customer's record that still offers the button, plus the canary).
 
 - [ ] **0.4 — The legal pages. A lawyer is not the only option.**
+  **Done when** (2026-10-11, a SHAPE so it survives the back office being
+  rebuilt): against the RUNNING server, one press of the build-start control
+  (a) hands one notice to the email provider, addressed to the detailer's
+  `contact_email`, and (b) records one date; (c) a second press is refused
+  naming that date and sends nothing; (d) an address that cannot receive mail
+  records NO date. (a)–(c) at 1440 and 392 with the console read.
+  **WORKED 2026-10-11 — (a), (b), (c) PROVED LIVE; (d) FAILS LIVE, IS FIXED IN
+  THE CHECKOUT, AND NEEDS ONLY THE PUBLISH.** The `Waits on` line below was
+  stale: Andrew applied `20261008010000_site_build_start.sql` and published
+  `platform-admin` on 2026-10-10 (`FOR-ANDREW.md`, "Publish and apply",
+  steps 1–8). Read back today, read-only: live `platform-admin` is v63
+  (2026-10-10 07:53 UTC) and its bundle contains `build_start`;
+  `businesses.site_build_started_at` answers a select (0 of 17 stamped).
+  - **The success path, pressed for real** — `ALLOW_REAL_MAIL=1 node
+    scripts/build-start-live.mjs` at `174ba8f9`: **5 of 5 targets, 24
+    assertions, 0 failed**, graded `PASS` by `node scripts/receipt.mjs
+    receipts/build-start-live.json`. Throwaway businesses and a throwaway admin,
+    all deleted in `finally` (teardown read back: 0 left); never the demo
+    tenant. At **1440 and 392**: row "not started" → press → confirm → `200`,
+    the date in the database equals the server's answer, the row reads
+    "Sunday, October 11", the button is gone, exactly **one** `email_sends`
+    row, status `delivered`, to the contact email (Resend's
+    `delivered@resend.dev` simulator, **2 real sends, declared**). A stale
+    second tab then presses: **409**, the refusal names the same date, the
+    alert shows it, the date did not move, still one email. Console: the
+    refusal's own 409 and nothing else, both widths. Button 44px tall at both.
+  - **Canary**: the "row shows the day" test is aimed at the unpressed stale tab
+    at both widths and must fail there — caught 2 of 2. **Sabotage**
+    `--break=no-confirm` (never answers the confirm): **14 of 24 failed**,
+    written to `receipts/build-start-live.sabotage.json`.
+  - **(d) — A DEFECT, REPRODUCED LIVE.** `send-email` answers `200 { success,
+    skipped }` for an address that cannot receive mail and for a missing
+    provider key — deliberately, it is the fixture sink (`tests/_mail.mjs`).
+    `build_start` read that as "told them" and stamped the date. Live, on a
+    `.test` address: **200, date recorded, the email row says `skipped —
+    that address cannot receive email`**. That is the exact "recorded, nobody
+    told" defect this item exists to remove. **Fixed in `0600782d`**:
+    `sendTenantEmail` takes an opt-in `mustReachProvider`
+    (`_shared/reachedProvider.ts`); only `build_start` sets it, so every
+    other flow keeps the sink behavior; the refusal now names the address.
+    `node --test tests/build-start-notice.test.mjs` **3 passed**;
+    `BREAK=flag` (the flag removed from `build_start`) **2 passed / 1
+    failed**, printing that the break landed. The live script reports this case
+    as `LIVE-UNFIXED` today and will report `FIXED` (502, no date) once
+    published; anything else is red.
+  - **Not done, named:** overlapping presses are 0.4g's, untouched. Where the
+    button lives in the rebuilt back office is 9.12a's question (its NEEDS
+    ANDREW already lists it); the old `/admin` button is what was pressed.
+    No before/after freeze: the only screen change is the (d) refusal, which
+    exists only on an unpublished server.
+  NEEDS ANDREW (ROUTINE RELEASE, NO DECISION REQUESTED): publish
+  `platform-admin` (it carries `0600782d`, and `_shared/email.ts` +
+  `reachedProvider.ts` ride along). Then `ALLOW_REAL_MAIL=1 node
+  scripts/build-start-live.mjs` must print `verdict: FIXED`, and the box can
+  be ticked.
   **SUPERVISION REOPENED 2026-10-09.** The closing run proved the checkout and
   proved that the live server refused the button with `400 "Unknown action"`;
   it did **not** reproduce the working case. A refusal is proof of refusal, not
@@ -2557,8 +2612,8 @@ and how the wait ends.
   reconsidered under 9.12 (now 9.12a). Keep this open until the success path can be
   reproduced after the owner-controlled apply/publish work, and do not treat
   the rejected button layout as an approved design.
-  **Waits on:** Andrew applying the `site_build_started_at` migration and
-  publishing `platform-admin`. **Nothing a session can do closes this box** —
+  **Waits on:** ~~Andrew applying the `site_build_started_at` migration and
+  publishing `platform-admin`~~ — **CLEARED 2026-10-10**, see the block above. **Nothing a session can do closes this box** —
   the belt dispatched it twice while its success path was unreachable. The
   buildable half is **0.4g** below, which is a separate item and is not
   blocked.

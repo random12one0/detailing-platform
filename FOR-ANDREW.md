@@ -1510,7 +1510,17 @@ still knows them.
   list, say so and I will put them back** — but they will keep being attempted
   together and cut off part-way if I do.
 
-- [ ] **Still waiting on you from the 8th: the build-start notice cannot be
+- [ ] **UPDATED 2026-10-11: you did both on the 10th, and the button works.**
+  I pressed it for real today on two throwaway detailers (on a laptop-width and
+  a phone-width screen): each was emailed, the date was written down, and a
+  second press was refused with the date named. **One more publish of
+  `platform-admin` closes the last hole**, and there is no decision in it. The
+  hole: if a detailer's contact email cannot receive mail at all, today's live
+  version still writes the date down as though they had been told. That is
+  fixed in the code now and only needs publishing. Recommended: publish it with
+  the next batch.
+  *The note as it stood on the 9th, kept for its context:*
+  **Still waiting on you from the 8th: the build-start notice cannot be
   finished until you apply one database change and publish one function.**
   Re-stated here because the program has now picked that item up twice and
   could not finish it either time — there is nothing a session can do to close

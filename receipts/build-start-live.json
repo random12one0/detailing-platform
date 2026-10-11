@@ -1,0 +1,68 @@
+{
+  "git_sha": "174ba8f9567dae46b38019bcb388f73133c8dc52",
+  "git_sha_started": "174ba8f9567dae46b38019bcb388f73133c8dc52",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T23:00:38.680Z",
+  "failures": [],
+  "warnings": [
+    "Presses the DEPLOYED platform-admin; it cannot say which commit is live. The unreachable-address verdict names which behavior answered.",
+    "Spends two real emails (delivered@resend.dev) of the daily allowance per clean run.",
+    "Overlapping presses (ROADMAP 0.4g) are NOT exercised: the stale tab presses after the first press finished."
+  ],
+  "artifacts": [
+    "scripts/build-start-live.mjs",
+    "supabase/functions/platform-admin/index.ts",
+    "app/src/admin/AdminPage.jsx"
+  ],
+  "dimensions": {
+    "break": null,
+    "real_mail_sent": 2,
+    "targets": {
+      "w1440": {
+        "recorded": "2026-10-11T23:00:18.415+00:00",
+        "shown": "Sunday, October 11",
+        "email_rows": 1,
+        "refusal_status": 409,
+        "console": [
+          "error: Failed to load resource: the server responded with a status of 409 ()"
+        ]
+      },
+      "w392": {
+        "recorded": "2026-10-11T23:00:31.32+00:00",
+        "shown": "Sunday, October 11",
+        "email_rows": 1,
+        "refusal_status": 409,
+        "console": [
+          "error: Failed to load resource: the server responded with a status of 409 ()"
+        ]
+      },
+      "sink": {
+        "status": 200,
+        "recorded": "2026-10-11T23:00:37.19+00:00",
+        "email_rows": [
+          {
+            "status": "skipped",
+            "detail": "that address cannot receive email"
+          }
+        ],
+        "verdict": "LIVE-UNFIXED"
+      }
+    }
+  },
+  "check_id": "build-start-live",
+  "started_at": "2026-10-11T23:00:05.946Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 20,
+  "canary": {
+    "id": "the done-test must fail on an unpressed (stale) tab at both widths",
+    "observed_failure": true,
+    "caught": 2
+  }
+}
