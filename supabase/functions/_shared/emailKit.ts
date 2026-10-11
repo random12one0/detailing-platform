@@ -307,7 +307,7 @@ export function factsBlock(allRows: [string, string][]): string {
   const rows = allRows.filter(([, v]) => String(v ?? "").trim() !== "");
   if (!rows.length) return "";
   const body = rows.map(([k, v], i) => `<tr>
-      <td class="c-fog2" width="35%" style="padding:${i === 0 ? 0 : 11}px 12px 11px 0; font-family:${WORDS}; font-size:13px; line-height:1.5; color:${L.fog2}; vertical-align:top; overflow-wrap:anywhere;">${esc(k)}</td>
+      <td class="c-fog2" width="30%" style="padding:${i === 0 ? 0 : 11}px 12px 11px 0; font-family:${WORDS}; font-size:13px; line-height:1.5; color:${L.fog2}; vertical-align:top; overflow-wrap:anywhere;">${esc(k)}</td>
       <td class="c-ink" style="padding:${i === 0 ? 0 : 11}px 0 11px 0; font-family:${WORDS}; font-size:15px; line-height:1.5; color:${L.ink}; vertical-align:top; text-align:right; word-wrap:break-word; overflow-wrap:anywhere;">${v}</td>
     </tr>${i < rows.length - 1 ? `<tr><td colspan="2" class="bg-line" style="height:1px; line-height:1px; font-size:0; background-color:${L.line};">&nbsp;</td></tr>` : ""}`).join("");
   // 99.2: a long link or Spanish label must not widen the entire email on a phone.

@@ -44,7 +44,7 @@ try {
     if (BREAK === "hours") after = before.replace('m === 0 ? "" :', 'false ? "" :');
     if (BREAK === "minutes") after = before.replace('m === 0 ? "" :', 'true ? "" :');
     if (BREAK === "year") after = before.replace('weekday: "long", month: "long"', 'weekday: "long", year: "numeric", month: "long"');
-    if (BREAK === "wrap") after = before.replace('style="table-layout:fixed;"', '').replace('width="35%"', '').replace('vertical-align:top; overflow-wrap:anywhere;', 'vertical-align:top; white-space:nowrap;').replace('word-wrap:break-word; overflow-wrap:anywhere;', '');
+    if (BREAK === "wrap") after = before.replace('style="table-layout:fixed;"', '').replace('width="30%"', '').replace('vertical-align:top; overflow-wrap:anywhere;', 'vertical-align:top; white-space:nowrap;').replace('word-wrap:break-word; overflow-wrap:anywhere;', '');
     if (after === before) throw new Error("Sabotage did not land");
     writeFileSync(kitFile, after);
     sourceRoot = scratch;
@@ -90,6 +90,15 @@ try {
         check(`${label} readable date/time`, !badDateTime(body));
         check(`${label} fits horizontally`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
         check(`${label} console`, consoleErrors.length === 0, consoleErrors.join("; "));
+        if (file === "owner-new-booking-carload.html" && width === 320) {
+          check(`${label} example email stays on one line`, await page.evaluate(() => {
+            const td = [...document.querySelectorAll("td")].find(el => el.textContent.trim() === "dana.ortiz@example.com");
+            if (!td) return false;
+            const range = document.createRange();
+            range.selectNodeContents(td);
+            return range.getBoundingClientRect().height <= parseFloat(getComputedStyle(td).lineHeight);
+          }));
+        }
         if (file === "customer-confirmation.html") {
           const expectedDate = lang === "en" ? "Thursday, September 17" : dateLong("2026-09-17", "es");
           check(`${label} actual appointment`, body.includes(expectedDate) && body.includes("10 AM") && body.includes("1:30 PM") && !body.includes("2026"));
