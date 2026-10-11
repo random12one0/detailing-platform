@@ -297,6 +297,7 @@ try {
     }).map((el) => el.className));
     check(where, "lite: nothing on the timeline animates", moving.length === 0, moving.slice(0, 3).join(","));
     check(where, "lite: the pins are all there", (await page.locator(".bo-tl .bo-pin").count()) === IN.length);
+    await page.screenshot({ path: `${ART}/lite-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/lite-${size.w}.png`);
 
     completed++;
     await ctx.close();
