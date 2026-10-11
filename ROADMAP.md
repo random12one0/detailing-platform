@@ -28969,3 +28969,10 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     `/admin/office` must then show "Page not found".
 
 
+
+- [ ] **99.4 — Every button looks like a button: no lone `btn ghost` reading as bare text**
+  Andrew rejected 99.1's Disconnect Google on 2026-10-11 because it was `btn ghost` — a transparent border, so on its own it is just words: *"if there is no outline or any bubble ... it's just text"*. `docs/screen-rules.md` now carries the ruling. A ghost is fine as the quiet partner beside a stronger button (Cancel beside Save); it is wrong when it is the only action in its row. At `bc5484c1`, `grep -rn 'btn ghost' --include=*.jsx app/src` matched in 27 files and the non-`sm` count was 32; nobody has sorted which are alone.
+  Acceptance criteria:
+  - Every non-`sm` `btn ghost` in `app/src` is listed in this entry as PARTNERED (names the stronger button beside it) or FIXED (now `btn`, or `btn danger` only if it destroys something).
+  - Each FIXED one is screenshotted at 392 and 1440 in the state that shows it, under `.manager-shots/99.4/`.
+  - A check that fails when a lone ghost reappears, with a sabotage that re-introduces one and is seen to go red.

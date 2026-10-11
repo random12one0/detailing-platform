@@ -189,3 +189,13 @@ asking "does the bar reach its scrollport's edge" called the desk panel's bar
 a band and demanded square corners on the one place he could see they were
 wrong. **Ask the CARDS.** Wider than them is a band; level with them is an
 object. `scripts/pinned-bar.mjs` asks it that way.
+
+## A BUTTON ON ITS OWN HAS AN OUTLINE — Andrew, 2026-10-11
+
+He rejected the Google Business screen's **Disconnect Google** because it was
+`btn ghost`: a transparent border, so standing alone it was just words —
+*"if there is no outline or any bubble or anything ... it's just text."* It is
+now plain `btn`, the outlined pill. **A ghost button is only the quiet partner
+beside a stronger one** (Cancel next to Save). When it is the only action in its
+row, use `btn`; use `btn danger` only if pressing it destroys something (see the
+destructive-action rule above). ROADMAP 99.4 sorts the existing ghosts.
