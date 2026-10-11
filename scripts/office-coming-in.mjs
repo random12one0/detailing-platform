@@ -257,7 +257,7 @@ try {
     const opened = [];
     for (let k = 0; k < IN.length; k++) {
       const pin = page.locator(".bo-tl .bo-pin").nth(k);
-      if (!(await pin.count())) { opened.push(`${IN[k]}: no pin`); continue; }
+      if (!o.pins[k]?.shown || !(await pin.count())) { opened.push(`${IN[k]}: no pin`); continue; }
       // A person presses the label; the pin's own box takes no presses by design.
       if (!(await pin.locator(".lab").click({ timeout: 5000 }).then(() => true, () => false))) { opened.push(`${IN[k]}: label not pressable`); continue; }
       const got = await page.locator(".bo-panel").getAttribute("aria-label", { timeout: 8000 }).catch(() => null);
