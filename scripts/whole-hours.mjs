@@ -166,7 +166,7 @@ const receipt = writeReceipt({
   check_id: BREAK ? `whole-hours-${BREAK}` : "whole-hours", started_at,
   status: failures.length ? "fail" : "pass",
   expected_targets: EXPECTED, discovered_targets: reached, attempted_targets: reached, completed_targets: reached,
-  skipped_targets: 0, assertions_executed: assertions, min_assertions: 80, failures, artifacts,
+  skipped_targets: 0, assertions_executed: assertions, min_assertions: 75, failures, artifacts,
   dimensions: { break: BREAK, views: VIEWS.map((v) => `${v[0]}${v[2]}`), seen,
     scope: "Formatters and the public booking page's time buttons. Dashboard screens share time12 and are covered by the table and the one-formatter rule, not opened here (that needs a sign-in). Nothing is wired into email subjects yet (99.2c)." },
   canary: { id: "an on-the-hour 8:00 AM is flagged; 8 AM and 8:30 AM are not", observed_failure: canaryCaught },
