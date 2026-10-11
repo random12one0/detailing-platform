@@ -1,0 +1,87 @@
+{
+  "git_sha": "0554572cd501405affc1d3a7e9e72198fee75642",
+  "git_sha_started": "0554572cd501405affc1d3a7e9e72198fee75642",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-11T21:51:49.988Z",
+  "failures": [
+    "392: reading: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow Built-in prices cut by an edge | A month cut by an edge | $35 cut by an edge | To set up cut by an edge | $499 cut by an edge | A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | $400 cut by an edge | Month to month cut by an edge | $50 cut by an edge | Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | 50% of what is left cut by an edge",
+    "392: editor: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow To set up cut by an edge | Website + booking · To s cut by an edge | $999 cut by an edge | A month cut by an edge | Website + booking · A mo cut by an edge | $65 cut by an edge | Paid yearly cut by an edge | Website + booking · Paid cut by an edge | $600 cut by an edge | Month to month cut by an edge | Website + booking · Mont cut by an edge | $75 cut by an edge | To set up cut by an edge | Founding offer · To set  cut by an edge | $499 cut by an edge | A month cut by an edge | Founding offer · A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | Founding offer · Paid ye cut by an edge | $400 cut by an edge | Month to month cut by an edge | Founding offer · Month t cut by an edge | $50 cut by an edge | Length cut by an edge | Contract · Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | Contract · Exit fee cut by an edge | 50% of what is left cut by an edge | Save these prices cut by an edge | Cancel cut by an edge",
+    "320: reading: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow Built-in prices cut by an edge | A month cut by an edge | $35 cut by an edge | To set up cut by an edge | $499 cut by an edge | A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | $400 cut by an edge | Month to month cut by an edge | $50 cut by an edge | Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | 50% of what is left cut by an edge",
+    "320: editor: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow To set up cut by an edge | Website + booking · To s cut by an edge | $999 cut by an edge | A month cut by an edge | Website + booking · A mo cut by an edge | $65 cut by an edge | Paid yearly cut by an edge | Website + booking · Paid cut by an edge | $600 cut by an edge | Month to month cut by an edge | Website + booking · Mont cut by an edge | $75 cut by an edge | To set up cut by an edge | Founding offer · To set  cut by an edge | $499 cut by an edge | A month cut by an edge | Founding offer · A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | Founding offer · Paid ye cut by an edge | $400 cut by an edge | Month to month cut by an edge | Founding offer · Month t cut by an edge | $50 cut by an edge | Length cut by an edge | Contract · Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | Contract · Exit fee cut by an edge | 50% of what is left cut by an edge | Save these prices cut by an edge | Cancel cut by an edge"
+  ],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers. Asks what the screen sends and shows, not whether the server accepts a table (pricesFrom owns that).",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that.",
+    "run with --break=wide; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-prices/read-1440.png",
+    "artifacts/office-prices/edit-1440.png",
+    "artifacts/office-prices/read-392.png",
+    "artifacts/office-prices/edit-392.png",
+    "artifacts/office-prices/read-320.png",
+    "artifacts/office-prices/edit-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "lite": false,
+    "figures": 11,
+    "break": "wide",
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "prices",
+          "prices",
+          "list",
+          "prices",
+          "list"
+        ]
+      },
+      "392": {
+        "calls": [
+          "whoami",
+          "list",
+          "prices",
+          "prices",
+          "list",
+          "prices",
+          "list"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "prices",
+          "prices",
+          "list",
+          "prices",
+          "list"
+        ]
+      }
+    }
+  },
+  "check_id": "office-prices",
+  "started_at": "2026-10-11T21:51:31.011Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 66,
+  "min_assertions": 66,
+  "assertion_floor": "3 widths x 22 questions (reading 4, editing 5, refused 2, saved 4, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
+  "canary": {
+    "id": "injected-overlapping-price-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}
