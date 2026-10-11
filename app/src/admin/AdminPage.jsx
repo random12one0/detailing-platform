@@ -61,6 +61,7 @@ import {
   needsALook, reasonsFor, QUIET_DAYS, actionFor, activityLine, phoneOf, realFirst, splitAtRisk,
 } from "../lib/attention.js";
 import { growthLines } from "../lib/growthLines.js";
+import { priceRows, priceValue, tableOf } from "../lib/officeMoney.js";
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
@@ -218,43 +219,8 @@ function Tile({ n, t, warn }) {
   );
 }
 
-/* ── what the platform charges, flattened and given its units ─────────────
-   The table is two levels deep and mixes three kinds of number, so neither
-   `String(v)` nor `money(v)` is right for all of it. THE KEY CARRIES THE UNIT
-   — nothing else in the value knows whether 12 is dollars, months or a share.
-   Anything unrecognised falls through as a plain number rather than being
-   dressed as money, because a wrong unit reads as a real price. */
-const WORDS = {
-  website: "Website + booking", bookingOnly: "Booking only", founding: "Founding offer",
-  standard: "Standard price", unknown: "No plan recorded",
-  term: "Contract", annual: "Paid yearly", monthly: "A month", setup: "To set up",
-  monthToMonth: "Month to month", months: "Length", exitFeeShare: "Exit fee",
-};
-const say = (k) => WORDS[k] ?? k;
-const priceValue = (key, v) => {
-  if (typeof v !== "number") return String(v);
-  if (key === "months") return `${v} months`;
-  if (key === "exitFeeShare") return `${Math.round(v * 100)}% of what is left`;
-  return money(v);
-};
-// **ONE WALK, AND THE EDITOR USES IT TOO.** A hand-written list of fields
-// beside this would be a second place that has to learn about a new price, and
-// the one that forgets is the one that silently drops a figure out of the table
-// the day somebody saves. So a row carries where it came from (`path`) and what
-// is actually stored (`raw`) as well as what it reads as.
-function priceRows(table) {
-  const out = [];
-  for (const [k, v] of Object.entries(table ?? {})) {
-    if (v && typeof v === "object") {
-      for (const [k2, v2] of Object.entries(v)) {
-        out.push({ path: [k, k2], raw: v2, label: `${say(k)} · ${say(k2)}`, value: priceValue(k2, v2) });
-      }
-    } else {
-      out.push({ path: [k], raw: v, label: say(k), value: priceValue(k, v) });
-    }
-  }
-  return out;
-}
+// The price table's walk (`priceRows`, `priceValue`) moved to lib/officeMoney.js
+// for 9.12a 6b, so this screen and the new Money place read it from one copy.
 
 const Row = ({ k, v }) => (
   <div className="pa-row"><span className="pa-k">{k}</span><span className="pa-v">{v}</span></div>
@@ -1738,15 +1704,7 @@ function TabMoney({ state, totals, rows, reload }) {
     catch (e) { setPriceErr(e.message); }
     setSaving(false);
   };
-  const save = () => {
-    const table = {};
-    for (const [k, v] of Object.entries(draft)) {
-      const [a, b] = k.split(".");
-      if (b === undefined) table[a] = Number(v);
-      else { table[a] = table[a] ?? {}; table[a][b] = Number(v); }
-    }
-    return send({ action: "prices", prices: table });
-  };
+  const save = () => send({ action: "prices", prices: tableOf(draft) });
   // `null` IS THE WHOLE POINT OF THIS BUTTON. It does not write the built-in
   // figures into the row — that would be a third copy of the same numbers,
   // silently stale the next time the files change. It empties the row, and

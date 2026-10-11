@@ -9,6 +9,7 @@
 // was entered for the month, "kept" is null and nothing may draw it as a figure.
 
 import { monthlyCents } from "./officeDetailers.js";
+import { money } from "./format.js";
 
 // The bill kinds the server accepts, in its order. MUST equal COST_CATEGORIES in
 // supabase/functions/_shared/platformNet.js; the test holds the two together.
@@ -96,4 +97,60 @@ export function centsOf(text) {
   const s = String(text ?? "").trim().replace(/^\$/, "").replace(/,/g, "");
   if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
   return Math.round(Number(s) * 100);
+}
+
+/* ── what the platform charges, flattened and given its units ─────────────
+   Moved here from AdminPage.jsx (9.12a 6b) so the old screen and the Money place
+   read ONE copy. The table is two levels deep and mixes three kinds of number, so
+   neither `String(v)` nor `money(v)` is right for all of it. THE KEY CARRIES THE
+   UNIT — nothing else in the value knows whether 12 is dollars, months or a share.
+   Anything unrecognised falls through as a plain number rather than being dressed
+   as money, because a wrong unit reads as a real price. */
+const WORDS = {
+  website: "Website + booking", bookingOnly: "Booking only", founding: "Founding offer",
+  standard: "Standard price", unknown: "No plan recorded",
+  term: "Contract", annual: "Paid yearly", monthly: "A month", setup: "To set up",
+  monthToMonth: "Month to month", months: "Length", exitFeeShare: "Exit fee",
+};
+export const say = (k) => WORDS[k] ?? k;
+export const priceValue = (key, v) => {
+  if (typeof v !== "number") return String(v);
+  if (key === "months") return `${v} months`;
+  if (key === "exitFeeShare") return `${Math.round(v * 100)}% of what is left`;
+  return money(v);
+};
+// ONE WALK, AND THE EDITOR USES IT TOO. A hand-written list of fields beside this
+// would be a second place that has to learn about a new price, and the one that
+// forgets is the one that silently drops a figure out of the table the day
+// somebody saves. So a row carries where it came from (`path`) and what is
+// actually stored (`raw`) as well as what it reads as.
+export function priceRows(table) {
+  const out = [];
+  for (const [k, v] of Object.entries(table ?? {})) {
+    if (v && typeof v === "object") {
+      for (const [k2, v2] of Object.entries(v)) {
+        out.push({ path: [k, k2], raw: v2, label: `${say(k)} · ${say(k2)}`, value: priceValue(k2, v2) });
+      }
+    } else {
+      out.push({ path: [k], raw: v, label: say(k), value: priceValue(k, v) });
+    }
+  }
+  return out;
+}
+// The editor's draft (`"website.setup" -> "999"`, strings while typed) back into
+// the nested table `prices` sends. NOTHING IS VALIDATED: the server runs it through
+// `pricesFrom`, the function the checkout charges from, and a second opinion here
+// is how the two answers drift. EXCEPT ONE THING, which is a conversion and not a
+// judgement: `Number("")` is 0, so an emptied box used to save as $0 — and the setup
+// fee is the one figure the server allows to be 0, so it was taken silently. A blank
+// box goes as NaN (JSON null), which `pricesFrom` refuses with its own sentence.
+export function tableOf(draft) {
+  const table = {};
+  for (const [k, v] of Object.entries(draft)) {
+    const [a, b] = k.split(".");
+    const n = String(v).trim() === "" ? NaN : Number(v);
+    if (b === undefined) table[a] = n;
+    else { table[a] = table[a] ?? {}; table[a][b] = n; }
+  }
+  return table;
 }

@@ -5,6 +5,7 @@
 //   BREAK=guess node --test tests/office-money.test.mjs    (§ 1 must go red)
 //   BREAK=late node --test tests/office-money.test.mjs     (§ 3 must go red)
 //   BREAK=cancel node --test tests/office-money.test.mjs   (§ 4 must go red)
+//   BREAK=blank node --test tests/office-money.test.mjs    (§ 6 must go red: an emptied price box saves as 0 again)
 //
 // BREAK is an env var, not a flag (docs/gotchas.md 104). Each break rewrites the
 // module's source in memory and asserts the rewrite LANDED (gotchas 102).
@@ -27,6 +28,7 @@ let src = readFileSync(new URL("officeMoney.js", LIB), "utf8")
 if (BREAK === "guess") src = swap(src, "kept: entered ? Number(net.net_cents) : null,", "kept: Number(net.revenue_cents ?? 0) - Number(net.cost_cents ?? 0),");
 if (BREAK === "late") src = swap(src, 'if (s.status === "past_due") { late.cents += c; late.n++; continue; }', "");
 if (BREAK === "cancel") src = swap(src, " && !r.subscription.cancel_at_period_end", "");
+if (BREAK === "blank") src = swap(src, 'String(v).trim() === "" ? NaN : Number(v)', "Number(v)");
 const M = await import(asModule(src));
 
 // The server's own reduction makes the answers, so the test asks what the screen
@@ -100,4 +102,18 @@ test("5. the bill kinds are the server's, and the form sends whole cents or noth
   assert.equal(M.centsOf("$1,019"), 101900);
   assert.equal(M.centsOf("0"), 0);
   for (const bad of ["", "abc", "-3", "1.234", "1e3"]) assert.equal(M.centsOf(bad), null, bad);
+});
+
+test("6. the price editor saves back EVERY figure it read, and a blank box is never a $0 price", () => {
+  // The table's shape as supabase/functions/_shared/platformBilling.ts PRICES has it.
+  const T = { website: { setup: 999, monthly: 60, annual: 600, monthToMonth: 75 }, bookingOnly: { monthly: 35 },
+    founding: { setup: 499, monthly: 40, annual: 400, monthToMonth: 50 }, term: { months: 12, exitFeeShare: 0.5 } };
+  const rows = M.priceRows(T);
+  assert.equal(rows.length, 11);
+  const draft = Object.fromEntries(rows.map((r) => [r.path.join("."), String(r.raw)]));
+  assert.deepEqual(M.tableOf(draft), T, "a draft nobody touched saves the same table");
+  assert.deepEqual(rows.map((r) => r.value).slice(-2), ["12 months", "50% of what is left"]);
+  // The setup fee is the one figure the server lets be 0, so a blank one must not become 0.
+  const sent = JSON.parse(JSON.stringify(M.tableOf({ ...draft, "website.setup": " " })));
+  assert.equal(sent.website.setup, null, "a blank box must go as null, which pricesFrom refuses");
 });
