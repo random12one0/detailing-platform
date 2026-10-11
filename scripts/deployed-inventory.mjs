@@ -362,6 +362,21 @@ const canary = {
 };
 
 const differingNames = differing.map((r) => r.fn);
+
+// WHY EACH ONE DIFFERS, IN THE RECEIPT RATHER THAN ONLY ON THE SCREEN (ROADMAP 0.6a).
+// A difference in `_shared/x.ts` is fixed by redeploying EVERY function that imports
+// it; a difference in the function's own `index.ts` is fixed by redeploying that one.
+// `failures` names the files as prose, which a later check cannot read, so the same
+// split is kept as data: per function, and inverted per shared module.
+const causes = Object.fromEntries(differing.map((r) => [r.fn, {
+  function_local: r.differs.filter((f) => !f.startsWith("_shared/")),
+  shared_modules: r.differs.filter((f) => f.startsWith("_shared/")),
+}]));
+const bySharedModule = {};
+for (const [fn, c] of Object.entries(causes)) {
+  for (const m of c.shared_modules) (bySharedModule[m] ||= []).push(fn);
+}
+
 const notDeployedNames = report.filter((r) => r.verdict === "NOT DEPLOYED").map((r) => r.fn);
 
 // **THREE WAYS TO FAIL, AND UNTIL 2026-09-21 ONLY ONE OF THEM COUNTED.**
@@ -431,6 +446,9 @@ const { path: receiptPath } = writeReceipt({
     method: "comment-text comparison against the deployed eszip bundle",
     matching: matching.map((r) => r.fn),
     differing: differingNames,
+    not_deployed: notDeployedNames,
+    causes,
+    by_shared_module: bySharedModule,
     widest_gap_days: differing.length
       ? Number((Math.max(...differing.map((r) => r.behind)) / day).toFixed(1)) : 0,
   },
