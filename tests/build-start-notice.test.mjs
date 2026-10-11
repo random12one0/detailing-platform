@@ -53,7 +53,7 @@ test("build_start, and ONLY build_start, asks for a real send", () => {
   assert.ok(start > 0 && end > start, "found the build_start handler");
   const handler = admin.slice(start, end);
   assert.match(handler, /mustReachProvider: true,/, "build_start must refuse to stamp on a skipped send");
-  assert.ok(handler.indexOf("mustReachProvider: true") < handler.indexOf("site_build_started_at: startedAt"),
+  assert.ok(handler.indexOf("mustReachProvider: true") < handler.indexOf("stampBuildStart(supabase, id, startedAt)"),
     "the check happens before the date is written");
 
   // EQUALITY, not a ceiling (docs/gotchas.md 98): a second caller opting in is

@@ -34,6 +34,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
 import { dateStrIn, localToDate } from "../_shared/tz.ts";
+import { stampBuildStart } from "../_shared/buildStartStamp.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
 import { businessById, getSettings, supportSession } from "../_shared/tenant.ts";
 import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
@@ -1069,16 +1070,24 @@ Deno.serve(async (req) => {
         return json({ error: `The notice did not go out to ${to}, so nothing was recorded. If that address is wrong, correct their contact email first; otherwise try again in a minute.` }, 502);
       }
 
+      // A CONDITIONAL WRITE, NOT A PLAIN ONE (ROADMAP 0.4g). The read at the
+      // top is a check, not a lock: two overlapping presses both pass it, and
+      // a plain update let the later one move the recorded date.
       const startedAt = new Date().toISOString();
-      const { error } = await supabase.from("businesses")
-        .update({ site_build_started_at: startedAt }).eq("id", id);
+      const stamp = await stampBuildStart(supabase, id, startedAt);
       // SAID RATHER THAN SWALLOWED. The detailer has the email; what is
       // missing is our copy of the date, and he is the only one who can see
       // this sentence and fix it.
-      if (error) {
+      if (stamp.error) {
         return json({
-          error: `They were emailed, but the date did not save: ${error.message}. The notice has gone out — tell somebody before pressing this again.`,
+          error: `They were emailed, but the date did not save: ${stamp.error}. The notice has gone out — tell somebody before pressing this again.`,
         }, 500);
+      }
+      if (!stamp.won) {
+        return json({
+          error: `Another press got there first: work is already recorded as started${stamp.recorded ? ` on ${dateStrIn(String(biz.timezone || "America/Los_Angeles"), new Date(stamp.recorded))}` : ""}, and that date was not changed. This press did send them a second copy of the notice.`,
+          site_build_started_at: stamp.recorded,
+        }, 409);
       }
       await logIt(admin, "build_start", biz, { started_at: startedAt, emailed: to, setup_cents: setupCents });
       return json({ success: true, site_build_started_at: startedAt, emailed: to });
