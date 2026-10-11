@@ -1,9 +1,9 @@
 {
-  "git_sha": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
-  "git_sha_started": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "git_sha": "0e08d332f5fed9543c760ed93705543c2d8909ee",
+  "git_sha_started": "0e08d332f5fed9543c760ed93705543c2d8909ee",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T22:47:25.834Z",
+  "finished_at": "2026-10-11T23:20:16.055Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +13,7 @@
     "families": "btn, bk-btn, bo-btn"
   },
   "check_id": "lone-ghost",
-  "started_at": "2026-10-11T22:47:25.715Z",
+  "started_at": "2026-10-11T23:20:15.924Z",
   "status": "pass",
   "expected_targets": 47,
   "discovered_targets": 47,

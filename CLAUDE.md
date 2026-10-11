@@ -201,7 +201,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND TWENTY-TWO specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND TWENTY-THREE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -861,3 +861,7 @@ day. The entry landed without this line moving. `grep -c "^## " docs/gotchas.md`
 **121 → 122 on 2026-10-10, same edit, by the supervisor** — a label "shown" by width and visibility can be mid-fade and paint
 nothing; one copy of 9.12b's own screenshots had no labels under a 72/0 run. The pointer at the top of this file said 120 and
 is now 122. `grep -c "^## " docs/gotchas.md` run before and after.
+
+**122 → 123 on 2026-10-11, same edit, by the supervisor** — a frozen review copy keeps the inline geometry JavaScript measured, so it is
+only true at its capture width; Andrew's real phone showed the office tab highlight 19-25px off its tab. `freeze.mjs` now pins the copy's
+viewport to the capture width. The pointer at the top of this file moved in the same edit. `grep -c "^## " docs/gotchas.md` run before and after: 123.

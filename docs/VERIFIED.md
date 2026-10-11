@@ -3574,3 +3574,5 @@ not either item — fixed in `08228259`.
   `--break=offscreen` — **16 failed**, the same figures the entry records. Looked at `artifacts/office-coming-in/fed-390.png`:
   vertical rail from Today, nine renewals with name, date, amount, yearly and card-failed states, $1,620 expected (failed card left out).
 2 of 2 re-runs reproduced.
+
+**Supervision 2026-10-11 (late), at `0e08d332`.** **99.4 reproduced:** `node scripts/lone-ghost.mjs` — ghosts discovered 47 of 47 in the ledger, 47 verified, canary caught; `--break=lone` went red naming `screens/more/Preferences.jsx:119`. Opened `.manager-shots/99.4/money-doors-392.png`: Add and Tracking links are outlined buttons. **9.12b unticked** (Andrew rejected it from his real phone); the frozen copy's tab highlight measured 19px off at 360 and 25px off at 430, and 0px at both once pinned to its capture width (`docs/gotchas.md` 123). **0.4g** not re-run: no publish has happened since its receipt. 1 of 1 re-run (99.4) reproduced.
