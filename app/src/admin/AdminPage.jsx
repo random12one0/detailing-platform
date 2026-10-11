@@ -61,7 +61,7 @@ import {
   needsALook, reasonsFor, QUIET_DAYS, actionFor, activityLine, phoneOf, realFirst, splitAtRisk,
 } from "../lib/attention.js";
 import { growthLines } from "../lib/growthLines.js";
-import { priceRows, priceValue, tableOf } from "../lib/officeMoney.js";
+import { priceRows, priceValue, say, tableOf } from "../lib/officeMoney.js";
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
