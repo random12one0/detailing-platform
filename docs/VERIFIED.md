@@ -3562,3 +3562,15 @@ not either item — fixed in `08228259`.
   **4 failed, `border 1px rgba(0, 0, 0, 0)`, one per width** — then restored. Screenshots looked at by the supervisor:
   `.manager-shots/99.1/connected-392.png`, `connected-1440.png`, an outlined pill with a gap above it.
 1 of 1 re-run reproduced.
+
+## Supervision 2026-10-11 (second)
+
+- **9.12a 6b price editor** at `64db1735`: `node scripts/office-prices.mjs` — **66 assertions, 0 failed, 3 of 3 widths**, canary
+  caught; `--break=wide` — **4 failed** (plans cut by the right edge at 392 and 320). All server calls stubbed, nothing written.
+  Read the server's `prices` action: an invalid table is refused with a 400 via `pricesFrom`, so a blank box can no longer save $0.
+  Looked at `artifacts/office-prices/read-392.png`, `edit-392.png`, `read-1440.png`: everything on the phone, nothing cut.
+  Small look note, not a defect: at 1440 the price section runs 220px wider than the bills section above it.
+- **9.12b Coming-in timeline** at `64db1735`: `node scripts/office-coming-in.mjs` — **156 assertions, 0 failed, 6 of 6 widths**;
+  `--break=offscreen` — **16 failed**, the same figures the entry records. Looked at `artifacts/office-coming-in/fed-390.png`:
+  vertical rail from Today, nine renewals with name, date, amount, yearly and card-failed states, $1,620 expected (failed card left out).
+2 of 2 re-runs reproduced.

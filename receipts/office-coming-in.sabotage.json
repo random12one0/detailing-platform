@@ -1,9 +1,9 @@
 {
-  "git_sha": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
-  "git_sha_started": "d88bbff002eaa5e176c4eae0cde6ef6e7d1bdd5b",
+  "git_sha": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
+  "git_sha_started": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T20:46:24.739Z",
+  "finished_at": "2026-10-11T21:59:20.420Z",
   "failures": [
     "390: initial view: Today and the first three renewals are readable without sideways scrolling start=false, scrolls=true",
     "390: phone: the entire month fits horizontally, with no hidden portion",
@@ -30,21 +30,27 @@
     "artifacts/office-coming-in/offscreen/fed-390.png",
     "artifacts/office-coming-in/offscreen/arrival-390.png",
     "artifacts/office-coming-in/offscreen/empty-390.png",
+    "artifacts/office-coming-in/offscreen/lite-390.png",
     "artifacts/office-coming-in/offscreen/fed-392.png",
     "artifacts/office-coming-in/offscreen/arrival-392.png",
     "artifacts/office-coming-in/offscreen/empty-392.png",
+    "artifacts/office-coming-in/offscreen/lite-392.png",
     "artifacts/office-coming-in/offscreen/fed-320.png",
     "artifacts/office-coming-in/offscreen/arrival-320.png",
     "artifacts/office-coming-in/offscreen/empty-320.png",
+    "artifacts/office-coming-in/offscreen/lite-320.png",
     "artifacts/office-coming-in/offscreen/fed-768.png",
     "artifacts/office-coming-in/offscreen/arrival-768.png",
     "artifacts/office-coming-in/offscreen/empty-768.png",
+    "artifacts/office-coming-in/offscreen/lite-768.png",
     "artifacts/office-coming-in/offscreen/fed-1440.png",
     "artifacts/office-coming-in/offscreen/arrival-1440.png",
     "artifacts/office-coming-in/offscreen/empty-1440.png",
+    "artifacts/office-coming-in/offscreen/lite-1440.png",
     "artifacts/office-coming-in/offscreen/fed-1920.png",
     "artifacts/office-coming-in/offscreen/arrival-1920.png",
-    "artifacts/office-coming-in/offscreen/empty-1920.png"
+    "artifacts/office-coming-in/offscreen/empty-1920.png",
+    "artifacts/office-coming-in/offscreen/lite-1920.png"
   ],
   "dimensions": {
     "sizes": [
@@ -606,7 +612,7 @@
     }
   },
   "check_id": "office-coming-in",
-  "started_at": "2026-10-11T20:44:05.402Z",
+  "started_at": "2026-10-11T21:57:53.324Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,

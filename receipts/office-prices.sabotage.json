@@ -1,9 +1,9 @@
 {
-  "git_sha": "0554572cd501405affc1d3a7e9e72198fee75642",
-  "git_sha_started": "0554572cd501405affc1d3a7e9e72198fee75642",
+  "git_sha": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
+  "git_sha_started": "64db17355c4814c33c7160db8ce4bdbc3a680e21",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T21:51:49.988Z",
+  "finished_at": "2026-10-11T21:55:22.408Z",
   "failures": [
     "392: reading: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow Built-in prices cut by an edge | A month cut by an edge | $35 cut by an edge | To set up cut by an edge | $499 cut by an edge | A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | $400 cut by an edge | Month to month cut by an edge | $50 cut by an edge | Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | 50% of what is left cut by an edge",
     "392: editor: no overlap, buttons 44px, nothing cut by an edge, no sideways overflow To set up cut by an edge | Website + booking · To s cut by an edge | $999 cut by an edge | A month cut by an edge | Website + booking · A mo cut by an edge | $65 cut by an edge | Paid yearly cut by an edge | Website + booking · Paid cut by an edge | $600 cut by an edge | Month to month cut by an edge | Website + booking · Mont cut by an edge | $75 cut by an edge | To set up cut by an edge | Founding offer · To set  cut by an edge | $499 cut by an edge | A month cut by an edge | Founding offer · A month cut by an edge | $40 cut by an edge | Paid yearly cut by an edge | Founding offer · Paid ye cut by an edge | $400 cut by an edge | Month to month cut by an edge | Founding offer · Month t cut by an edge | $50 cut by an edge | Length cut by an edge | Contract · Length cut by an edge | 12 months cut by an edge | Exit fee cut by an edge | Contract · Exit fee cut by an edge | 50% of what is left cut by an edge | Save these prices cut by an edge | Cancel cut by an edge",
@@ -69,7 +69,7 @@
     }
   },
   "check_id": "office-prices",
-  "started_at": "2026-10-11T21:51:31.011Z",
+  "started_at": "2026-10-11T21:55:01.587Z",
   "status": "fail",
   "expected_targets": 3,
   "discovered_targets": 3,
