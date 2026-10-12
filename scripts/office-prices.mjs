@@ -78,6 +78,7 @@ const failures = [];
 const consoleNoise = [];
 const artifacts = [];
 const observed = {};
+const measured = {};
 const check = (where, name, cond, detail = "") => {
   assertions++;
   if (cond) { console.log(`    ok    ${name}`); return; }
@@ -271,7 +272,7 @@ try {
         check(where, "no figure printed twice (only the exit fee's reading)", repeats.length === 1 && repeats[0] === "term.exitFeeShare", JSON.stringify(repeats));
         const order = await sec(page).locator(".bo-pgroup h3").allInnerTexts();
         check(where, "founding offer last", order.at(-1) === "Founding offer" && order.length === 4, JSON.stringify(order));
-        observed[`${where} measured`] = { presses_to_first_box: 2 + extra, open_px: Math.round(openH), closed_px: Math.round(closedH), box_px: widths };
+        measured[where] = { presses_to_first_box: 2 + extra, open_px: Math.round(openH), closed_px: Math.round(closedH), box_px: widths };
 
         // ── 1. READING ──
         const boxes = await sec(page).locator("input[data-price]").evaluateAll((els) => els.map((e) => [e.dataset.price, e.value]));
@@ -409,7 +410,7 @@ const { path } = writeReceipt({
     "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12c are the evidence for that.",
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
   ],
-  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), lite: LITE, figures: FIGURES, ...(BREAK && { break: BREAK }), observed },
+  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), lite: LITE, figures: FIGURES, measured, old_open_px: OLD_OPEN, ...(BREAK && { break: BREAK }), observed },
 });
 console.log(`\n${status.toUpperCase()} — ${assertions} assertions, ${failures.length} failed, canary ${canary.observed_failure ? "caught" : "MISSED"} → ${path}`);
 process.exit(status === "pass" ? 0 : 1);
