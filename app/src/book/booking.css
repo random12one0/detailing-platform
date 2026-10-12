@@ -951,6 +951,10 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
 .bk-sms-consent label {
   display: flex; align-items: flex-start; gap: var(--bk-sp-3);
   min-height: 44px; padding-block: var(--bk-sp-2); cursor: pointer;
+  /* 99.5: the 22px box sat flush with the label's left edge, so a press just
+     left of it missed (42px of reach across, sweep-booking-steps). The label
+     reaches 11px into the page gutter; nothing on screen moves. */
+  margin-left: -11px; padding-left: 11px;
 }
 .bk-sms-consent input[type="checkbox"] { margin: 0; padding: 0; margin-top: 2px; }
 .bk-sms-consent label span { min-width: 0; }
