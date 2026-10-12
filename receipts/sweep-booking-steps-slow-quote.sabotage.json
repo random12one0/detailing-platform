@@ -1,0 +1,45 @@
+{
+  "git_sha": "26271cf177bf4dc4b95f6b3c5a4a3680edddd71c",
+  "git_sha_started": "26271cf177bf4dc4b95f6b3c5a4a3680edddd71c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T07:17:02.349Z",
+  "failures": [],
+  "warnings": [
+    "0 reading(s) fail W16; 0 fault(s) are not W16"
+  ],
+  "artifacts": [
+    "scripts/sweep-booking-steps.mjs"
+  ],
+  "dimensions": {
+    "widths": [
+      "1440x900",
+      "392x844"
+    ],
+    "step_readings": 38,
+    "numbered_step_readings": 16,
+    "controls_measured": 490,
+    "w16_bound_services": 5,
+    "canary_over_px": 788
+  },
+  "check_id": "sweep-booking-steps-1440x900-392x844",
+  "started_at": "2026-10-12T07:14:21.230Z",
+  "status": "pass",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 529,
+  "min_assertions": 200,
+  "canary": {
+    "id": "a booking step measured in a 200px-tall window must be reported OVER",
+    "observed_failure": true,
+    "caught_by": [
+      "over"
+    ],
+    "findings": [
+      "[over] step 1 at 1440x200 measured 788px over, so MEASURE can still report a step that does not fit and every \"fits\" above is a verdict this run could make"
+    ]
+  }
+}
