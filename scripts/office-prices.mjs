@@ -177,7 +177,7 @@ async function openPage(size) {
       document.head.appendChild(st);
       new MutationObserver(() => {
         const body = document.querySelector(".bo-price-body");
-        if (!body || body.querySelector(".x-change")) return;
+        if (!body || body.querySelector(".x-change") || document.querySelector(".bo-prices.x-editing")) return;
         const b = document.createElement("button"); b.type = "button"; b.className = "bo-btn ghost x-change"; b.textContent = "Change these prices";
         b.onclick = () => { document.querySelector(".bo-prices").classList.add("x-editing"); b.remove(); };
         body.appendChild(b);
@@ -251,12 +251,13 @@ try {
         await summary.focus(); await page.keyboard.press("Enter");
         await settle(page, 400);
         check(where, "one press opens all prices", await fold.evaluate((e) => e.open));
-        const ready = await sec(page).locator("input[data-price]").evaluateAll((els) => els.filter((e) => e.checkVisibility({ checkVisibilityCSS: true })).length);
+        const visibleBoxes = () => sec(page).locator("input[data-price]").evaluateAll((els) => els.filter((e) => e.checkVisibility({ checkVisibilityCSS: true })).length);
+        let ready = await visibleBoxes();
         check(where, `one press shows all ${FIGURES} boxes ready to type in`, ready === FIGURES, `${ready} visible`);
         check(where, "no separate Change these prices step", (await btn(page, "Change these prices").count()) === 0);
         // Reach a box even when sabotaged, so the rest still runs and the extra presses are recorded.
         let extra = 0;
-        while (ready !== FIGURES && extra < 3 && (await btn(page, "Change these prices").count())) { await btn(page, "Change these prices").click(); extra++; await settle(page, 300); }
+        while (ready !== FIGURES && extra < 3 && (await btn(page, "Change these prices").count())) { await btn(page, "Change these prices").click(); extra++; await settle(page, 300); ready = await visibleBoxes(); }
         const openH = await sec(page).evaluate((e) => e.getBoundingClientRect().height);
         const ceiling = (phone ? OLD_OPEN.phone : OLD_OPEN.wide) / 2;
         check(where, `open, at most half the old height (${ceiling}px)`, openH <= ceiling, `${Math.round(openH)}px`);
