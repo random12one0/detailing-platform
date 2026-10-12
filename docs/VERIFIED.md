@@ -3593,3 +3593,12 @@ not either item — fixed in `08228259`.
 - **9.12c reproduced:** `node scripts/office-prices.mjs` — PASS, 258 assertions, 0 failed, canary caught (fresh `receipts/office-prices.json`, recommitted). Opened `artifacts/office-prices/closed-390.png` and `closed-1440.png`: the quick preview stacks $68 / $35 / $999 with dividers at 390 and runs three columns at 1440, matching Andrew's 15:35 "spacing is fine". Tick stands; INBOX cleared.
 - **99.3b-i read, not re-driven:** `app/src/admin/AdminPage.jsx` (2,204 lines) and `admin.css` deleted; `/admin` routes to `OfficePage`, zero `AdminPage` references in `app/src` (two tools agree), `npm run build` passes, `route-contract` green. The deletion's own proof note is in its entry.
 - **99.9 read, test re-run:** `node --test tests/create-booking-phone.test.mjs` 3/3. Recount: 56 open, 181 done. 3 of 3 checked, nothing unticked.
+
+## Supervision 2026-10-12 (fifth), at `a7e60471`
+
+Nothing ticked since the fourth pass, so this pass re-proves standing ticks and reads the new part-1 work. Product files for 99.5/99.7/99.8 are byte-identical to their proof commits except one comment-only line in `BookingPage.jsx` (`002639c3`), so their receipts still describe this tree.
+
+- **99.8 reproduced live at HEAD:** a throwaway probe outside the repo walked the stubbed booking flow at 1440x900 and 392x844 — 7-digit phone refused with the sentence painted and the box `aria-invalid`, full `(555) 012-3456` advances past Details, console silent at both widths. Server half: `node --test tests/create-booking-phone.test.mjs` 3/3 (both copies agree on all six cases).
+- **99.5 spot-reproved live:** the consent box measures 600px against a 600px form at 1440, 360 against 360 at 392. Full 76/76 proof stands by file identity.
+- **98.1 re-run:** `node --test tests/route-contract.test.mjs` pass.
+- **99.3b-ii part 1 read and its headline count confirmed:** `node tests/platform-admin.test.mjs` prints 134 passed, 50 failed, 7 skipped — the 50 reds are the open part-2 work its entry lists, not a regression. Nothing ticked by this work, so nothing unticked. 4 of 4 checks reproduced.
