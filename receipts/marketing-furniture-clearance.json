@@ -1,0 +1,102 @@
+{
+  "git_sha": "e3fa0feea55ca1fe1b872de9900581ca3b8be804",
+  "git_sha_started": "e3fa0feea55ca1fe1b872de9900581ca3b8be804",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T18:20:37.518Z",
+  "failures": [],
+  "warnings": [
+    "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after — never the rect. No `--break=rect` sabotage: one was built and went PASS against the fixed tree (every control measured `+ 0px` overhang), so the flag proved nothing and was removed rather than kept as theater.",
+    "`.ld .nav.hid` is dead: no JS in app/src applies it, so the pill is always on screen and a control measured under it is a real overlap rather than a passing state.",
+    "`.lite .ld .stage` is `position: static` — the reduced-motion path pins nothing. This run measures the default path only.",
+    "On a menu surface the open menu covers page content ON PURPOSE: only the menu's own links can fail `reachable`; buried page controls are recorded in `observed`, never failed."
+  ],
+  "artifacts": [
+    "artifacts/marketing-furniture-clearance/320x844-page-landing.png",
+    "artifacts/marketing-furniture-clearance/320x844-page-pricing.png",
+    "artifacts/marketing-furniture-clearance/320x844-page-legal.png",
+    "artifacts/marketing-furniture-clearance/392x844-page-landing.png",
+    "artifacts/marketing-furniture-clearance/392x844-page-pricing.png",
+    "artifacts/marketing-furniture-clearance/392x844-page-legal.png",
+    "artifacts/marketing-furniture-clearance/768x1024-page-landing.png",
+    "artifacts/marketing-furniture-clearance/768x1024-page-pricing.png",
+    "artifacts/marketing-furniture-clearance/768x1024-page-legal.png",
+    "artifacts/marketing-furniture-clearance/1440x900-page-landing.png",
+    "artifacts/marketing-furniture-clearance/1440x900-page-pricing.png",
+    "artifacts/marketing-furniture-clearance/1440x900-page-legal.png",
+    "artifacts/marketing-furniture-clearance/1920x1080-page-landing.png",
+    "artifacts/marketing-furniture-clearance/1920x1080-page-pricing.png",
+    "artifacts/marketing-furniture-clearance/1920x1080-page-legal.png",
+    "artifacts/marketing-furniture-clearance/320x844-menu-landing.png",
+    "artifacts/marketing-furniture-clearance/392x844-menu-landing.png",
+    "artifacts/marketing-furniture-clearance/canary.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "392x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "pages": [
+      "landing (/)",
+      "pricing (/pricing)",
+      "legal (/terms)"
+    ],
+    "menu_sizes": [
+      320,
+      392
+    ],
+    "absolute": 44,
+    "furniture": [
+      ".ld .nav",
+      ".ld .navmenu.on",
+      ".ld .stage"
+    ],
+    "observed": [
+      "320x844 page:landing: 1 control(s) under 44px at the middle of the screen (reported, not graded) — «Your dashboard» (htab) 43px (box 44px + 0px overhang), lost to {\"htabs\":1}",
+      "320x844 page:landing: 7 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 76, stage present, worst reachable 43px",
+      "320x844 page:pricing: 4 visible control(s) (+7 hidden in shut folds, not measured), nav bottom 76, no stage, worst reachable 44px",
+      "320x844 page:legal: 2 visible control(s) (+5 hidden in shut folds, not measured), nav bottom 76, no stage, worst reachable 44px",
+      "392x844 page:landing: 1 control(s) under 44px at the middle of the screen (reported, not graded) — «Your dashboard» (htab) 43px (box 44px + 0px overhang), lost to {\"htabs\":1}",
+      "392x844 page:landing: 7 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 76, stage present, worst reachable 43px",
+      "392x844 page:pricing: 4 visible control(s) (+7 hidden in shut folds, not measured), nav bottom 76, no stage, worst reachable 44px",
+      "392x844 page:legal: 2 visible control(s) (+5 hidden in shut folds, not measured), nav bottom 76, no stage, worst reachable 44px",
+      "768x1024 page:landing: 9 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 87, stage present, worst reachable 44px",
+      "768x1024 page:pricing: 5 visible control(s) (+7 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "768x1024 page:legal: 4 visible control(s) (+5 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "1440x900 page:landing: 9 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 87, stage present, worst reachable 44px",
+      "1440x900 page:pricing: 5 visible control(s) (+7 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "1440x900 page:legal: 4 visible control(s) (+5 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "1920x1080 page:landing: 9 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 87, stage present, worst reachable 44px",
+      "1920x1080 page:pricing: 5 visible control(s) (+7 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "1920x1080 page:legal: 4 visible control(s) (+5 hidden in shut folds, not measured), nav bottom 80, no stage, worst reachable 44px",
+      "320x844 menu:landing: 1 control(s) under 44px at the middle of the screen (reported, not graded) — «Your dashboard» (htab) 43px (box 44px + 0px overhang), lost to {\"htabs\":1}",
+      "320x844 menu:landing: 6 page control(s) behind the OPEN menu read short — worst «DETAILING PLATFORM» at 44px, lost to {\".ld .nav\":1} (the menu covers on purpose; recorded, not a fault)",
+      "320x844 menu:landing: 10 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 76, menu open, stage present, worst reachable 48px",
+      "392x844 menu:landing: 1 control(s) under 44px at the middle of the screen (reported, not graded) — «Your dashboard» (htab) 43px (box 44px + 0px overhang), lost to {\"htabs\":1}",
+      "392x844 menu:landing: 6 page control(s) behind the OPEN menu read short — worst «DETAILING PLATFORM» at 44px, lost to {\".ld .nav\":1} (the menu covers on purpose; recorded, not a fault)",
+      "392x844 menu:landing: 10 visible control(s) (+10 hidden in shut folds, not measured), nav bottom 76, menu open, stage present, worst reachable 48px"
+    ],
+    "sabotage": null
+  },
+  "check_id": "marketing-furniture-clearance",
+  "started_at": "2026-10-12T18:19:44.866Z",
+  "status": "pass",
+  "expected_targets": 18,
+  "discovered_targets": 18,
+  "attempted_targets": 18,
+  "completed_targets": 18,
+  "skipped_targets": 0,
+  "assertions_executed": 54,
+  "min_assertions": 54,
+  "assertion_floor": "5 widths x 3 pages + 2 menu surfaces, 3 counts each (subjects, the legal run, reachable), + 1 canary x 3. Fixed by SIZES, PAGES, MENU_SIZES and the question list, never by what the run finds: a surface with no matching controls grades as failures rather than dropping out, so the number cannot fall without a diff. A tripwire on the code, not a run-time check.",
+  "canary": {
+    "id": "the-nav-much-taller",
+    "observed_failure": true,
+    "problems": [
+      "reachable «See five sites built» (cta) is legal at 51px but only 0px survive where the browser puts it (y 101..151, nav bottom 214), lost to {\".ld .nav\":51}; «Your website» (htab) is legal at 44px but only 0px survive where the browser puts it (y 101..145, nav bottom 214), lost to {\".ld .nav\":44}; «Your booking page» (htab) is legal at 44px but only 0px survive where the browser puts it (y 101..145, nav bottom 214), lost to {\".ld .nav\":45}"
+    ]
+  }
+}
