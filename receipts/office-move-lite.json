@@ -1,9 +1,9 @@
 {
-  "git_sha": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
-  "git_sha_started": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "git_sha": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
+  "git_sha_started": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T15:01:12.580Z",
+  "finished_at": "2026-10-12T17:49:22.193Z",
   "failures": [],
   "warnings": [
     "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
@@ -46,7 +46,7 @@
     }
   },
   "check_id": "office-move-lite",
-  "started_at": "2026-10-12T15:01:03.460Z",
+  "started_at": "2026-10-12T17:49:08.604Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,

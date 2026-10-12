@@ -1,9 +1,9 @@
 {
-  "git_sha": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
-  "git_sha_started": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "git_sha": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
+  "git_sha_started": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T15:00:42.024Z",
+  "finished_at": "2026-10-12T17:49:38.808Z",
   "failures": [
     "1440: unsigned: no old five-tab markup (.pa-top) is served",
     "1440: signed in: no old five-tab markup (.pa-top) is served",
@@ -58,7 +58,7 @@
     }
   },
   "check_id": "office-move",
-  "started_at": "2026-10-12T15:00:29.305Z",
+  "started_at": "2026-10-12T17:49:22.598Z",
   "status": "fail",
   "expected_targets": 3,
   "discovered_targets": 3,
