@@ -29408,6 +29408,17 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     **99.2f's local work is finished; the next worker starts at 99.2g. The parent stays open.**
   - [ ] **99.2g — fixed booking text templates.** Original plan step 8; test realistic substitutions, own-domain links,
     plain characters and the full rendered length, not just the template with placeholders still in it.
+    **NEEDS ANDREW: choose which one of the conflicting Booked-text requirements changes.** The approved exact English
+    words are already too long once even the bare `https://detailingplatform.com` link is added. Recommendation: approve a shorter Booked sentence while
+    keeping the same meaning and STOP line; buying or configuring a separate short domain is a cost/account decision and
+    still would not make a normal booking URL fit. A local template draft and full-substitution check found this before
+    any relay or paid send was built; the other realistic messages fit, but Booked did not in either English or Spanish
+    with the actual platform booking path. Do not tick this slice until the wording decision is made.
+  **2026-10-12 — Andrew corrected the parent visual direction:** the booking consent sentence needs to use the available
+  horizontal room more efficiently on desktop/landscape while remaining prominent; he also wants a phone-sized, editable
+  visual planner for every email so he can review and dictate or type changes. This reopens visual/email-planning work
+  outside 99.2g. It is recorded here from `belt/NUDGE.md`; the next 99.2 planning pass scopes it before changing the
+  already-proved email wording or the consent behaviour.
   - [ ] **99.2h — texting relay and signed webhook, switched off.** Original plan step 9 and `TEXTING.md`; local disposable
     database for schema proof, provider stub, recorded skips/refusals, tenant isolation, STOP/START/HELP and spending guard.
   - [ ] **99.2i — consent-aware routing and reminder/review timing.** Email fallback while texting is unavailable; invoice,

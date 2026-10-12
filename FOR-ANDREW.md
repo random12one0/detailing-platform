@@ -92,6 +92,15 @@ texting registration just from these local copies: the checkbox and privacy para
 
 ---
 
+## DECIDE · One text message needs fewer words (ROADMAP 99.2g)
+
+The exact approved “You're all set” booking text cannot also meet the required one-text limit: it is already too long when
+the bare `detailingplatform.com` link is added, before a usable booking path. Please approve a shorter version of that one message that keeps the
+appointment facts and “Reply STOP to opt out.” My recommendation is to shorten the sentence, not buy or configure a
+second short web address just for texts.
+
+---
+
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
 
 The booking page's bottom bar is proven clear of every choice on every screen size a computer can pretend to be. What no computer can pretend is the iPhone keyboard, and that is the one question left. Four booking steps have a text box: vehicle, address, name/phone/email/notes, and the promo code. On each, tap the box, type three letters, and look: can you still see what you are typing and the button you need next? Does the bar sit behind the keyboard, or ride up over the box?
