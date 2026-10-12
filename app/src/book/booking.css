@@ -956,7 +956,7 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
 .bk-sms-consent label span { min-width: 0; }
 .bk-sms-links { display: flex; flex-wrap: wrap; gap: var(--bk-sp-3); padding-left: calc(22px + var(--bk-sp-3)); }
 .bk-sms-links a {
-  display: inline-flex; align-items: center; min-height: 44px;
+  display: inline-flex; align-items: center; min-height: 44px; min-width: 44px;
   color: var(--bk-text); text-decoration: underline; text-underline-offset: 3px;
 }
 .bk :focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 3px; }

@@ -10,6 +10,7 @@ import { bookingFixture, fixtureBooking } from './lib/bookingConsentFixture.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:5182';
 const OUT = 'C:/Users/rando/Downloads/claude/belt/shots/99.2';
 const BEFORE = process.argv.includes('--capture=before');
+const SERVER_ONLY = process.argv.includes('--server-only');
 const BREAK = process.argv.find(a => a.startsWith('--break='))?.slice(8) || '';
 if (BREAK && !['default', 'save', 'strict', 'privacy'].includes(BREAK)) throw Error('Unknown break');
 const WORDS = 'Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.';
@@ -75,8 +76,8 @@ async function routes(page) {
   });
   return { calls, escaped };
 }
-async function details(page) {
-  await page.goto(BASE + '/book/consent-proof', { waitUntil: 'networkidle' });
+async function details(page, q = '') {
+  await page.goto(BASE + '/book/consent-proof' + q, { waitUntil: 'networkidle' });
   await page.locator('.bk-card.selectable').first().click();
   for (let guard = 0; guard < 8; guard++) {
     if (await page.locator('input[type=tel]').count()) return;
@@ -98,7 +99,7 @@ async function photograph(page, tag) {
 
 const browser = await chromium.launch();
 try {
-  const VIEWS = BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']];
+  const VIEWS = SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']];
   for (const [width,height,q] of VIEWS) for (const lang of (BEFORE ? ['en'] : ['en','es'])) for (const choice of (BEFORE ? ['unchecked'] : ['unchecked','checked','uncheck'])) {
     const tag = `${lang}-${width}${q ? '-lite' : ''}-${choice}`, ctx = await browser.newContext({ viewport: { width,height } });
     await ctx.addInitScript(lang => localStorage.setItem('dp.lang',lang),lang);
@@ -108,11 +109,7 @@ try {
     const network = await routes(page);
     try {
       // One navigation per context, including sabotage (gotcha 113).
-      if (q) {
-        // The details walker uses the same page address with the lite query.
-        await page.route('**/book/consent-proof', route => route.continue({ url: BASE + '/book/consent-proof' + q }));
-      }
-      await details(page); discovered++; attempted++;
+      await details(page,q); discovered++; attempted++;
       await page.locator('input[type=tel]').scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
       await page.evaluate(() => document.fonts.ready);
@@ -134,7 +131,7 @@ try {
       const layout = await page.locator('.bk-sms-consent').evaluate(el => {
         const r = el.getBoundingClientRect();
         return { fits: r.left >= 0 && r.right <= innerWidth, text: getComputedStyle(el).color,
-          links: [...el.querySelectorAll('a')].map(a => a.getBoundingClientRect().height), label: el.querySelector('label').getBoundingClientRect().height };
+          links: [...el.querySelectorAll('a')].map(a => Math.min(a.getBoundingClientRect().height,a.getBoundingClientRect().width)), label: el.querySelector('label').getBoundingClientRect().height };
       });
       check(`${tag} consent and targets fit`, layout.fits && layout.label >= 44 && layout.links.every(h => h >= 44), JSON.stringify(layout));
       await photograph(page, 'details-' + tag);
@@ -169,7 +166,7 @@ try {
     } catch(e) { failures.push(`${tag}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
   }
-  for (const [width,height,q] of (BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
+  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
     const ctx = await browser.newContext({ viewport: { width,height } }), page = await ctx.newPage(), logs = [];
     await routes(page); page.on('console',m => ['error','warning'].includes(m.type()) && logs.push(m.text())); page.on('pageerror',e => logs.push(e.message));
     try {
@@ -190,7 +187,7 @@ try {
     } catch(e) { failures.push(`privacy-${width}${q}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
   }
-  for (const [width,height,q] of (BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
+  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
     const ctx = await browser.newContext({viewport:{width,height}}), page = await ctx.newPage(), logs=[];
     await routes(page); page.on('console',m => ['error','warning'].includes(m.type()) && logs.push(m.text())); page.on('pageerror',e => logs.push(e.message));
     try {
@@ -208,7 +205,7 @@ try {
     } catch(e) { failures.push(`terms-${width}${q}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
   }
-  if (!BEFORE && !BREAK) {
+  if (!BEFORE && !BREAK && !SERVER_ONLY) {
     const page = await browser.newPage();
     check('before/after booking differ', await differs(page, OUT + '/before.html', OUT + '/after.html'));
     check('before/after privacy differ', await differs(page, OUT + '/before-privacy.html', OUT + '/after-privacy.html'));
@@ -273,10 +270,10 @@ else {
   await canary.book({...fixtureBooking,sms_consent:'true'});
   const canaryCaught = !!canary.rows.customers.find(r => r.business_id === 'tenant-a')?.sms_consent_at;
   check('canary truthy consent is detected',canaryCaught);
-  const expected = 68;
+  const expected = SERVER_ONLY ? 20 : 68;
   const r = writeReceipt({ check_id: BREAK ? `booking-consent-${BREAK}` : 'booking-consent', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: expected, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
-    assertions_executed: assertions, min_assertions: 650, failures, artifacts, dimensions: { break: BREAK, seen, scope: 'Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send.' },
+    assertions_executed: assertions, min_assertions: SERVER_ONLY ? 75 : 650, failures, artifacts, dimensions: { break: BREAK, server_only: SERVER_ONLY, seen, scope: 'Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send.' },
     canary: { id: 'real helper broken to accept string true creates consent that the strict-choice assertion rejects', observed_failure: canaryCaught }, warnings: ['Live delivery and deployed consent saving are not measured.'] });
   console.log(`${discovered} of ${expected} discovered; ${completed} completed; ${assertions} assertions; ${failures.length} failures. ${r.path}`);
   failures.forEach(f => console.error('FAIL ' + f)); if (failures.length) process.exitCode = 1;
