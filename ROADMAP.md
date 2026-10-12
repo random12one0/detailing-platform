@@ -29567,7 +29567,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 
 ## Belt repairs
 
-- [ ] **98.1 — Repair the route-contract check (broken by 9.12d)**
+- [x] **98.1 — Repair the route-contract check (broken by 9.12d)**
   REPAIR CHECK route-contract. Job 9.12d turned the quality check "route-contract" red; it passed before that job. Find why and make it pass again without undoing 9.12d's work. The check is: `node --test tests/route-contract.test.mjs`.
   Acceptance criteria:
   - The route-contract check passes (`node --test tests/route-contract.test.mjs`).
+  **Done 2026-10-11.** Nothing 9.12d committed broke it. The check reads `app/dist/_redirects`, a build OUTPUT, and at 21:16 (the minute 9.12d's first slice committed) a bare `vite build` rebuilt `app/dist` without `build-examples.mjs`, so the generated `/ex1…/ex5` and `/examples` rewrites were never prepended. Fixed by running the real build, `npm run build --prefix app` ("6 slashless rewrites prepended"), then `node --test tests/route-contract.test.mjs`: 34 passed, 0 failed. Red-first: on the bare-built dist the same check printed 32 passed / 2 failed. The check now names the cause when the generated block is missing entirely (commit before this one), so the next bare build costs nobody the trace. **Run `npm run build`, never bare `vite build`, if anything after you reads `app/dist`.**
