@@ -1,0 +1,147 @@
+{
+  "git_sha": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
+  "git_sha_started": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T04:07:11.096Z",
+  "failures": [
+    "390: 'Needs a look' is seen with NO press seen=false inFold=true",
+    "390: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe",
+    "768: 'Needs a look' is seen with NO press seen=false inFold=true",
+    "768: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe",
+    "1440: 'Needs a look' is seen with NO press seen=false inFold=true",
+    "1440: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe"
+  ],
+  "warnings": [
+    "Reads the LIVE platform; signs in as a throwaway platform admin created and deleted by this run. Nothing else is written.",
+    "The look itself (color, glow, motion) is not judged here; the screenshots are the evidence for that.",
+    "run with --break=fold-warning; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-folds/fold-warning/closed-390.png",
+    "artifacts/office-folds/fold-warning/open-390.png",
+    "artifacts/office-folds/fold-warning/closed-768.png",
+    "artifacts/office-folds/fold-warning/open-768.png",
+    "artifacts/office-folds/fold-warning/closed-1440.png",
+    "artifacts/office-folds/fold-warning/open-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "lite": false,
+    "break": "fold-warning",
+    "observed": {
+      "390 closed": {
+        "heights": {
+          "How many checks are working": 303,
+          "Every check": 168,
+          "Storage and email": 256,
+          "Email we sent": 631
+        },
+        "page": 1780,
+        "summaryH": 166,
+        "peek": [
+          {
+            "c": "ok",
+            "n": 7,
+            "seen": true
+          },
+          {
+            "c": "never",
+            "n": 2,
+            "seen": true
+          }
+        ]
+      },
+      "390 open": {
+        "heights": {
+          "How many checks are working": 303,
+          "Every check": 822,
+          "Storage and email": 256,
+          "Email we sent": 631
+        },
+        "page": 2433
+      },
+      "768 closed": {
+        "heights": {
+          "How many checks are working": 460,
+          "Every check": 155,
+          "Storage and email": 256,
+          "Email we sent": 631
+        },
+        "page": 1927,
+        "summaryH": 153,
+        "peek": [
+          {
+            "c": "ok",
+            "n": 7,
+            "seen": true
+          },
+          {
+            "c": "never",
+            "n": 2,
+            "seen": true
+          }
+        ]
+      },
+      "768 open": {
+        "heights": {
+          "How many checks are working": 460,
+          "Every check": 790,
+          "Storage and email": 256,
+          "Email we sent": 631
+        },
+        "page": 2562
+      },
+      "1440 closed": {
+        "heights": {
+          "How many checks are working": 317,
+          "Every check": 155,
+          "Storage and email": 118,
+          "Email we sent": 631
+        },
+        "page": 1707,
+        "summaryH": 153,
+        "peek": [
+          {
+            "c": "ok",
+            "n": 7,
+            "seen": true
+          },
+          {
+            "c": "never",
+            "n": 2,
+            "seen": true
+          }
+        ]
+      },
+      "1440 open": {
+        "heights": {
+          "How many checks are working": 317,
+          "Every check": 518,
+          "Storage and email": 118,
+          "Email we sent": 631
+        },
+        "page": 2070
+      }
+    }
+  },
+  "check_id": "office-folds",
+  "started_at": "2026-10-12T04:06:34.551Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 42,
+  "min_assertions": 42,
+  "assertion_floor": "3 widths x 14 questions (15 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.",
+  "canary": {
+    "id": "warning-section-folded-away",
+    "observed_failure": false
+  }
+}

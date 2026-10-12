@@ -166,7 +166,9 @@ mkdirSync(ART, { recursive: true });
 const openSystem = async (page) => {
   await page.goto("about:blank");
   await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#system`, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector(".bo-system .bo-checks li", { timeout: 60000 });
+  // 9.12d folds "Every check" at arrival: open it, so the questions below measure the list a reader opens.
+  await page.waitForSelector(".bo-system .bo-checks li", { timeout: 60000, state: "attached" });
+  await page.locator('section[aria-label="Every check"] summary').click();
   await settle(page, 2000);
 };
 const texts = (page, sel) => page.locator(sel).evaluateAll((els) => els.map((e) => e.dataset.check));
