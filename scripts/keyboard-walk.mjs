@@ -79,10 +79,41 @@ const PLANT = () => {
   document.body.appendChild(d);
 };
 
+// ROADMAP 9.11e — FURNITURE ATTENDANCE, NOT JUST COVERAGE EVENTS. This walk
+// already asks `elementFromPoint` whether every focused control is really on
+// top, so it would catch a control under ANY fixed thing on screen at the
+// time — without ever naming that bar. What was missing is the proof the bar
+// was ever there: a covered-stop list that is empty beside no attendance
+// record proves nothing. So each screen records which of these intersect the
+// viewport. ONLY THESE THREE ARE LISTED: naming a fourth here (impersonation
+// state, the intake preview, the back office) would count as coverage in
+// `tests/fixed-furniture-is-hit-tested.test.mjs` without any genuine test.
+const FURNITURE_SELECTORS = [".topbar", ".split > .col-2", ".tabbar"];
+const furnitureOnScreen = async (page) => {
+  if (process.env.FURNITURE_PROBE_BREAK === "1") return {};
+  return page.evaluate((sels) => {
+    const out = {};
+    for (const sel of sels) {
+      let n = 0;
+      for (const el of document.querySelectorAll(sel)) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight
+          && r.right > 0 && r.left < innerWidth) n++;
+      }
+      out[sel] = n;
+    }
+    return out;
+  }, FURNITURE_SELECTORS);
+};
+
 const walk = async (page, label, out) => {
   await page.evaluate(PLANT);
   await page.evaluate(() => document.getAnimations().forEach((a) => { try { a.finish(); } catch (e) {} }));
   await page.evaluate(() => (document.activeElement || document.body).blur?.());
+  // 9.11e attendance: read AFTER navigation settled (the caller waits 2.2s),
+  // BEFORE any Tab press scrolls — the question is what furniture the walk's
+  // own stops could have met.
+  const furniture = await furnitureOnScreen(page);
   const stops = [];
   await page.evaluate(() => { window.__seen = []; });
   let blanks = 0;
@@ -232,7 +263,7 @@ const walk = async (page, label, out) => {
     document.getElementById("canary-no-ring")?.remove();
     document.getElementById("canary-escape-trap")?.remove();
   });
-  out.push({ label, stops: stops.length, escape, trapStillOpen, canarySeen, rows: stops });
+  out.push({ label, stops: stops.length, escape, trapStillOpen, canarySeen, rows: stops, furniture });
 };
 
 const browser = await chromium.launch();
@@ -289,6 +320,25 @@ console.log("\nA · focus held with NO visible change (real, canary excluded):",
 console.log("\nB · focused while OUT OF VIEW:",
   JSON.stringify(offScreen.filter((r) => r.id !== "canary-no-ring").map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}"`), null, 1));
 console.log("\nstops per screen:", JSON.stringify(out.map((s) => `${s.label}:${s.stops}`)));
+// 9.11e: attendance per screen, in words — an empty covered-stop list beside
+// furniture attested on screen is a clean answer; beside no record it is an
+// absence. Variation across screens (present on dashboard, absent on booking)
+// is what proves this reads live DOM rather than a constant.
+const furnitureLine = (s) => {
+  const f = s.furniture || {};
+  const parts = FURNITURE_SELECTORS.map((sel) => `${sel}x${f[sel] ?? "?"}`);
+  const under = s.rows.filter((r) => r.coveredBy && r.id !== "canary-no-ring").length;
+  return `${s.label}: ${parts.join(" ")} | stops found under furniture: ${under}`;
+};
+for (const s of out) console.log("furniture:", furnitureLine(s));
+// A BLIND PROBE MUST FAIL, NOT PRINT EMPTY. `.tabbar` is awaited visible
+// before the walk starts, so a live probe always attests something — zero
+// across every screen means the probe is dead. `FURNITURE_PROBE_BREAK=1`
+// empties it on purpose and must go red through this line.
+const attested = out.reduce((n, s) => n
+  + FURNITURE_SELECTORS.reduce((m, sel) => m + ((s.furniture || {})[sel] || 0), 0), 0);
+const probeBlind = attested === 0;
+if (probeBlind) console.log("VOID — furniture probe attested nothing on any screen");
 console.log("page errors:", errors.length ? errors.slice(0, 3) : "none");
 await browser.close();
 
@@ -326,7 +376,7 @@ const { path: receiptPath } = writeReceipt({
   started_at,
   // A shortfall is part of the verdict, not a footnote.
   status: realNoRing.length === 0 && realOff.length === 0 && canariesGood
-    && missingLabels.length === 0 ? "pass" : "fail",
+    && missingLabels.length === 0 && !probeBlind ? "pass" : "fail",
   expected_targets: EXPECTED_SCREENS,
   discovered_targets: out.length,
   attempted_targets: out.length,
@@ -340,11 +390,13 @@ const { path: receiptPath } = writeReceipt({
     ...covered.filter((r) => r.id !== "canary-no-ring").map((r) => `${r.where}: ${r.tag}.${r.cls} "${r.text}" focused while covered by ${r.coveredBy}`),
     ...(canariesGood ? [] : ["a canary was not caught — every clean line beside it is void"]),
     ...missingLabels.map((l) => "NEVER REACHED, no reason recorded: " + l),
+    ...(probeBlind ? ["furniture probe attested nothing on any screen — the 9.11e attendance record is blind"] : []),
   ],
   artifacts: ["scripts/keyboard-walk.mjs"],
   warnings: unknown ? [`${unknown} stop(s) undetermined — the box was repainting`] : [],
   dimensions: {
     screens: out.map((s2) => `${s2.label}:${s2.stops}`),
+    furniture: out.map((s2) => furnitureLine(s2)),
     method: "pixel diff with a stability baseline, under reducedMotion reduce",
     in_view_measured_before_any_screenshot: true,
   },

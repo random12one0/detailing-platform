@@ -212,11 +212,19 @@ export function coveredBy(sel, texts) {
 const NO_HIT_TEST = [
   ".impbar",
   ".intake:has(> .livesite) > .livesite",
-  ".split > .col-2",
-  ".topbar",
   ".bo-rail",
   ".bo-panel",
 ];
+// 6 -> 4 on 2026-10-12 (ROADMAP 9.11e, walk-attendance slice): `.topbar` and
+// `.split > .col-2` came off in the same edit as the attendance probe in
+// `scripts/keyboard-walk.mjs`, which names both and records per screen which
+// of them intersected the viewport beside the walk's own covered-stop list.
+// The walk already asked `elementFromPoint` on those screens; what was missing
+// was the proof the furniture was ever on screen, and variation across screens
+// (present on dashboard, absent on booking) is what proves the probe reads
+// live DOM. `.impbar` stays declared: the walk never runs impersonating, and
+// the probe deliberately does not name it — a name without a test would be
+// coverage by text match alone.
 // 9 -> 6 on 2026-10-12 (ROADMAP 9.11e, marketing third): `.ld .nav`,
 // `.ld .navmenu.on` and `.ld .stage` came off in the same edit as
 // `scripts/marketing-furniture-clearance.mjs`, the check that covers them on
