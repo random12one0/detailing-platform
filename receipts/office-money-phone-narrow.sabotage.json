@@ -1,9 +1,9 @@
 {
-  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
-  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha": "f13f5b614288521fa5973683860deadb1b793f09",
+  "git_sha_started": "f13f5b614288521fa5973683860deadb1b793f09",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T23:39:12.308Z",
+  "finished_at": "2026-10-12T00:46:47.049Z",
   "failures": [
     "360: every section and card spans the 328px content column button Oct 12FAFed Alder$60 (left 0.0, short 88.0) | button Oct 15FBFed Birch$60 (left 0.0, short 88.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 88.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 88.0)",
     "375: every section and card spans the 343px content column button Oct 12FAFed Alder$60 (left 0.0, short 103.0) | button Oct 15FBFed Birch$60 (left 0.0, short 103.0) | button Oct 15FCFed Cedar$60 card failed (left 0.0, short 103.0) | button Oct 15FDFed Dogwood$600 a year (left 0.0, short 103.0)",
@@ -639,7 +639,7 @@
     }
   },
   "check_id": "office-money-phone-narrow",
-  "started_at": "2026-10-11T23:38:03.978Z",
+  "started_at": "2026-10-12T00:45:38.786Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,

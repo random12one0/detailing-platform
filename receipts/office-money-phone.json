@@ -1,9 +1,9 @@
 {
-  "git_sha": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
-  "git_sha_started": "059a3e1187e8cbf211c25d77febb82ae04aa8241",
+  "git_sha": "f13f5b614288521fa5973683860deadb1b793f09",
+  "git_sha_started": "f13f5b614288521fa5973683860deadb1b793f09",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T23:37:58.865Z",
+  "finished_at": "2026-10-12T00:45:22.337Z",
   "failures": [],
   "warnings": [
     "All sessions and platform responses are synthetic. No database write or credential use.",
@@ -513,7 +513,7 @@
     }
   },
   "check_id": "office-money-phone",
-  "started_at": "2026-10-11T23:36:44.864Z",
+  "started_at": "2026-10-12T00:44:07.372Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
