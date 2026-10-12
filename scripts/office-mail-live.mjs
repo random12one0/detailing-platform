@@ -3,6 +3,7 @@
 // No row creation, no email sends, no business changes. Auth creates a session.
 import '../tests/_env.mjs';
 import { createRequire } from 'node:module';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { demoOwner } from './lib/demoOwner.mjs';
 import { writeReceipt } from './receipt.mjs';
 const {chromium}=createRequire(import.meta.url)('../app/node_modules/playwright/index.js');
@@ -39,5 +40,7 @@ try {
   }
 }finally{await browser.close();}
 const status=failures.length===0&&completed===2&&canary.observed_failure?'pass':'fail';
-const {path}=writeReceipt({check_id:'office-mail-live',started_at,status,expected_targets:2,discovered_targets:discovered,attempted_targets:2,completed_targets:completed,skipped_targets:0,assertions_executed:assertions,min_assertions:10,assertion_floor:'Two declared widths × five questions: real success, contents/order, refusal sentence, no false empty, console.',failures,artifacts:[],canary,warnings:['Signs in as the existing demo owner. Reads mail; sends none. The refusal is intercepted in the browser. Mail contents and credentials are never printed or saved.'],dimensions:{sizes,project:'kguqylyzgyzfktkfnhjb',observed}});
+mkdirSync('artifacts/office-mail-live',{recursive:true});
+writeFileSync('artifacts/office-mail-live/result.json',JSON.stringify({started_at,status,observed,canary,failures},null,2));
+const {path}=writeReceipt({check_id:'office-mail-live',started_at,status,expected_targets:2,discovered_targets:discovered,attempted_targets:2,completed_targets:completed,skipped_targets:0,assertions_executed:assertions,min_assertions:10,assertion_floor:'Two declared widths × five questions: real success, contents/order, refusal sentence, no false empty, console.',failures,artifacts:['artifacts/office-mail-live/result.json'],canary,warnings:['Signs in as the existing demo owner. Reads mail; sends none. The refusal is intercepted in the browser. Mail contents and credentials are never printed or saved.'],dimensions:{sizes,project:'kguqylyzgyzfktkfnhjb',observed}});
 console.log(status,assertions,failures,path);process.exit(status==='pass'?0:1);
