@@ -346,6 +346,7 @@ were made more than once.
 - **A rejected look is checked against the mockup, not answered with "it exists"** — supervision 2026-10-10: Andrew's payment-timeline note was answered with a bare dot rail he had already rejected; the mockup's labeled timeline is now ROADMAP 9.12b. Same pass closed 6.1c as superseded by the new back office, on his own words.
 
 - **Phones first: every screen is designed at 390px before it is widened** — Andrew, 2026-10-10 23:20, rejecting 9.12b on his phone: 70-80% of looks are on a phone, nothing may look oddly sized, and the phone must carry everything the laptop shows. Same pass: 14.24 part 3 (screen-reader names) is a session's job, not his.
+- **"No need of the founder pricing anymore" means the price preview, not the product** — supervision 2026-10-12, reading Andrew's 02:39 rejection of the price editor: the closed preview shows the setup fee instead of the founding price; the founding offer stays live and editable. ROADMAP 9.12c.
 
 <!-- INDEX:END -->
 
@@ -18994,3 +18995,11 @@ Andrew, 2026-10-10 23:20, rejecting ROADMAP 9.12b (Money's "Coming in" timeline)
 **How it is applied:** ROADMAP 9.12b reopened with phone-first criteria; the belt's task template now carries this rule so every visual item is built and screenshotted at 390 first; CLAUDE.md's Design absolutes carry one line pointing here.
 
 **14.24 part 3 is not Andrew's.** Same evening (23:23) he ruled that checking what a screen reader announces is internal testing with no business choice in it. The Narrator row in FOR-ANDREW.md is withdrawn and 14.24 part 3 now reads accessible names in a browser check. **What would reverse it:** a defect that only a real screen reader reproduces.
+
+## "No need of the founder pricing anymore" means the price preview, not the product
+
+Supervision, 2026-10-12. Andrew's words, rejecting the 9.12a price editor at 02:39 (belt INBOX): *"the founder price with the like price it takes to set up the business … the thousand dollar, the 999 … because the founders only be there for three people, have no need of the founder pricing anymore, so we replaced that."*
+
+**Read as:** in the price editor's quick preview, put the setup price ($999) where the founding-offer price is now, because the founding offer only ever applies to three accounts. **Not read as:** delete the founding offer. It is live product with a counted cap (`claim_founding_spot`, the `/pricing` page, the founding ladder pinned by `landing-pricing`), and removing it is a pricing decision with legal copy attached, not a back-office layout tweak. So its figures stay editable, placed last inside the open editor.
+
+**Why this reading:** it is the one that changes only the screen he was looking at, and it is the cheaper one to correct. If he meant the product, the founding figures are still there to remove; the other way round would have deleted live pricing on a guess. **What would reverse it:** him saying the founding offer is finished. That is its own item, touching `/pricing`, `claim_founding_spot` and the landing-pricing test.
