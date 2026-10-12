@@ -1002,10 +1002,14 @@ console.log("11. text that only exists after an action");
   // **THE EXCLUSION IS PRINTED, BECAUSE A SKIPPED CHECK READS EXACTLY LIKE A
   // PASSING ONE.** These are English on purpose; the number appearing in the
   // log is what stops the policy drifting into an accident.
+  // 99.3b-ii: AdminPage.jsx held admin/'s native dialogs; deleted 2026-10-12
+  // and the office uses no confirm()/alert()/prompt(), so the policy now pins
+  // to the back-office word lists, which stay English for the same reason.
+  const WORDLIST = /const (?:[A-Z][A-Z0-9_]*_)?(?:LABELS?|KINDS?|WORDS|SAYS|NAMES)\s*=/g;
   const admin = walk(path.join(ROOT, "app/src/admin"))
-    .flatMap((p) => [...strip(readFileSync(p, "utf8")).matchAll(DIALOG)]).length;
-  check(`11c · skipped on purpose — ${admin} dialogs in admin/, which stays English`,
-    admin > 0, "no dialogs found in admin/ — has the back office moved?");
+    .flatMap((p) => [...strip(readFileSync(p, "utf8")).matchAll(WORDLIST)]).length;
+  check(`11c · skipped on purpose — ${admin} word lists in admin/, which stays English`,
+    admin > 0, "no word lists found in admin/ — has the back office moved?");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1062,10 +1066,12 @@ console.log("11. text that only exists after an action");
   ];
   // Matches the name pattern and is NOT checked, and why. A reason is required.
   const EXCLUDED = {
-    "admin/AdminPage.jsx#JOB_LABELS": "admin/ stays English on purpose (11c)",
-    "admin/AdminPage.jsx#ADMIN_EVENT_WORDS": "admin/ stays English on purpose (11c)",
-    "admin/AdminPage.jsx#WORDS": "admin/ stays English on purpose (11c)",
-    "admin/AdminPage.jsx#COST_KINDS": "admin/ stays English on purpose (11c)",
+    "admin/office/DetailerPanel.jsx#EVENT_WORDS": "admin/ stays English on purpose (11c); re-pointed 2026-10-12 (99.3b-ii): AdminPage.jsx deleted, the same plain-words table now lives in the office",
+    // 99.3b-ii: AdminPage.jsx deleted 2026-10-12; its JOB_LABELS/WORDS/COST_KINDS tables went with it.
+    "admin/office/places/system/Every.jsx#KINDS": "admin/ stays English on purpose (11c); back-office status labels, owner only",
+    "lib/officeMoney.js#BILL_KINDS": "admin/ stays English on purpose (11c); back-office bill kinds, owner only",
+    "lib/officeMoney.js#WORDS": "admin/ stays English on purpose (11c); back-office words, owner only",
+    "lib/officeSystem.js#JOB_LABELS": "admin/ stays English on purpose (11c); back-office labels, owner only",
     "components/ExpenseModal.jsx#CATEGORY_WORDS": "carries its own Spanish beside each word, see the comment above it",
     "lib/localeStore.js#LOCALE_NAMES": "each language's name for ITSELF — \"Español\" is never translated",
     "book/core.js#BODY_TYPE_GUESS_WORDS": "regex-to-key matching table; no word in it is ever shown",
