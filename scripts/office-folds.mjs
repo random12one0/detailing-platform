@@ -4,7 +4,8 @@
 //   node scripts/office-folds.mjs                 (dev server on :5173, credentials in .env)
 //   node scripts/office-folds.mjs --lite          (the ?lite=1 reduced-motion path)
 //   node scripts/office-folds.mjs --break=fold-warning
-//   node scripts/office-folds.mjs --freeze=before|after
+//   node scripts/office-folds.mjs --break=hide-mail-problems
+//   node scripts/office-folds.mjs --freeze=before|after|before-mail|after-mail
 //
 // WHAT IT ASKS, per width (390, 768, 1440), on System:
 // * "Every check" arrives FOLDED, its preview names the working / never-proven /
@@ -13,13 +14,18 @@
 // * "Needs a look" (every broken or never-proven check) is visible with NO press —
 //   a problem must never sit behind one — and holds every non-ok row of Every check;
 // * the hero and "Needs a look" are never inside a fold;
+// * "Email we sent" arrives FOLDED, no email seen; its preview's Problems count
+//   is SEEN with no press and equals the problem rows in the list; one press
+//   opens it and the filters, the list and its first email are then seen;
 // * nothing overlaps or is cut by the screen edge, open and closed; console clean.
 // It also records each System section's height and the page height, closed.
 //
 // THE CANARY folds "Needs a look" into a closed <details> in the page and requires
 // the same inspector to name it hidden. `--break=fold-warning` does that for the
 // whole run, so the real question must go red; the receipt then lands in
-// receipts/office-folds.sabotage.json.
+// receipts/office-folds.sabotage.json. A second canary moves the mail preview's
+// Problems count inside the closed fold and requires the inspector to call it
+// unseen; `--break=hide-mail-problems` does that for the whole run.
 //
 // Signs in as a THROWAWAY platform admin, created here and deleted in a finally
 // (scripts/admin-account.mjs). Nothing else is written. Do not wrap in `timeout`
@@ -83,6 +89,9 @@ const INSPECT = () => {
   }
   const cut = leaves.filter((e) => R(e).left < -0.5 || R(e).right > innerWidth + 0.5).map((e) => e.textContent.trim().slice(0, 24));
   const H = (el) => (el ? Math.round(R(el).height) : null);
+  const mail = sec("Email we sent"), mfold = mail?.querySelector("details");
+  const mailRows = [...document.querySelectorAll(".bo-mail [data-mail-id]")].map((li) => ({ bad: !!li.querySelector(".bo-mail-status.bad"), seen: seen(li) }));
+  const mailPeek = Object.fromEntries([...(mail?.querySelectorAll("[data-peek]") ?? [])].map((s) => [s.dataset.peek, { t: s.querySelector("b")?.textContent.trim(), seen: seen(s) }]));
   return {
     folded: !!fold && !fold.open, open: !!fold?.open, rows, loudRows, peek,
     loudSeen: seen(loud), loudInFold: !!loud && folded(loud) , heroSeen: seen(hero), heroInFold: !!hero?.closest("details"),
@@ -90,6 +99,9 @@ const INSPECT = () => {
     heights: Object.fromEntries([...document.querySelectorAll(".bo-system > section")].map((s) => [s.getAttribute("aria-label"), H(s)])),
     page: document.documentElement.scrollHeight,
     summaryH: fold ? H(fold.querySelector("summary")) : null,
+    mailFolded: !!mfold && !mfold.open, mailOpen: !!mfold?.open, mailRows, mailPeek,
+    mailSummaryH: mfold ? H(mfold.querySelector("summary")) : null,
+    mailListSeen: seen(mail?.querySelector(".bo-mail-scroll")), mailFiltersSeen: [...(mail?.querySelectorAll(".bo-mail-filters button") ?? [])].filter(seen).length,
   };
 };
 const inspect = (page) => page.evaluate(`(${INSPECT.toString()})()`);
@@ -101,6 +113,13 @@ const FOLD_WARNING = () => {
   const sum = document.createElement("summary"); sum.textContent = "Warnings";
   s.replaceWith(d); d.append(sum, s); return true;
 };
+// The second sabotage AND canary: the mail problem count moved behind the press.
+const HIDE_MAIL_PROBLEMS = () => {
+  const s = document.querySelector(".bo-mail [data-peek=bad]"), body = document.querySelector(".bo-mail details > summary + *");
+  if (!s || !body || body.contains(s)) return false;
+  s.dataset.from = "preview"; body.prepend(s); return true;
+};
+const UNHIDE_MAIL_PROBLEMS = () => { const s = document.querySelector('[data-from="preview"]'); document.querySelector(".bo-mail .bo-fold-preview")?.append(s); };
 const UNFOLD_WARNING = () => { const d = document.querySelector("details[data-sab]"); if (!d) return; d.replaceWith(d.querySelector("section")); };
 
 mkdirSync(ART, { recursive: true });
@@ -115,7 +134,7 @@ if (!acct) { console.error("could not create the throwaway admin; nothing measur
 const redact = (t) => String(t).split(acct.password).join("[password]");
 
 let browser = null, signedIn = null, completed = 0;
-const canary = { id: "warning-section-folded-away", observed_failure: false };
+const canary = { id: "warning-section-and-mail-problems-folded-away", observed_failure: false };
 try {
   browser = await chromium.launch();
   for (const size of SIZES) {
@@ -137,16 +156,20 @@ try {
     await page.waitForSelector(".bo-system .bo-checks li", { timeout: 60000, state: "attached" });
     await page.waitForFunction(() => !/Reading/.test(document.querySelector(".bo-system").innerText), null, { timeout: 40000 });
     await settle(page, 2600);
+    await page.waitForFunction(() => document.querySelector(".bo-mail")?.getAttribute("aria-busy") === "false", null, { timeout: 40000 });
     if (BREAK === "fold-warning") await page.evaluate(`(${FOLD_WARNING.toString()})()`);
+    if (BREAK === "hide-mail-problems") await page.evaluate(`(${HIDE_MAIL_PROBLEMS.toString()})()`);
 
     if (FREEZE && size.w === 390) {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
-      const before = FREEZE === "before";
+      const before = FREEZE.startsWith("before"), mail = FREEZE.endsWith("-mail");
       await freeze(page, {
         out: `${SHOTS}/${FREEZE}.html`, label: before ? "Before" : "After",
-        note: before ? "On a phone the full list of every check is about 660px tall, most of a screen, and it repeats the two problems already shown in 'Needs a look' above it."
+        note: mail ? (before ? "On a phone the email list is about 630px tall, most of a screen, with its own scrolling box of up to 100 emails."
+            : "The email list is now one line: when the last email went out and how many of the last 100 had a problem. One press opens the full list. The problem count is always on the line, so a failed email is never behind a press.")
+          : before ? "On a phone the full list of every check is about 660px tall, most of a screen, and it repeats the two problems already shown in 'Needs a look' above it."
           : "The full list is now one line with the counts (working, never proven). One press opens it with every check inside. 'Needs a look' stays open above it, so a problem is never behind a press.",
-        highlight: 'section[aria-label="Every check"]',
+        highlight: mail ? 'section[aria-label="Email we sent"]' : 'section[aria-label="Every check"]',
       });
       console.log(`froze ${SHOTS}/${FREEZE}.html`);
     }
@@ -167,16 +190,26 @@ try {
     check(where, "'Needs a look' is seen with NO press", nonOk.length === 0 || a.loudSeen, `seen=${a.loudSeen} inFold=${a.loudInFold}`);
     check(where, "'Needs a look' holds every broken / never-proven / near-limit check, each seen", nonOk.every((k) => a.loudRows.some((l) => l.key === k && l.seen)), `nonOk ${nonOk.join(",")}`);
     check(where, "the hero is seen and never inside a fold", a.heroSeen && !a.heroInFold);
+    const badMail = a.mailRows.filter((r) => r.bad).length;
+    observed[`${where} closed`].mail = { rows: a.mailRows.length, bad: badMail, peek: a.mailPeek, summaryH: a.mailSummaryH };
+    check(where, "there are emails to fold (discovery floor: at least 1 row)", a.mailRows.length >= 1, `found ${a.mailRows.length}`);
+    check(where, "'Email we sent' arrives folded", a.mailFolded);
+    check(where, "while folded, no email and no list is seen", a.mailRows.every((r) => !r.seen) && !a.mailListSeen);
+    check(where, "the mail preview's Problems count is seen with NO press and equals the problem rows; Last sent is seen", a.mailPeek.bad?.seen === true && Number(a.mailPeek.bad?.t) === badMail && a.mailPeek.last?.seen === true, `peek ${JSON.stringify(a.mailPeek)} problem rows ${badMail}`);
+    check(where, "the folded mail line is shorter than 200px", a.mailSummaryH != null && a.mailSummaryH < 200, `${a.mailSummaryH}px`);
     check(where, "closed: nothing overlaps", a.overlaps.length === 0, a.overlaps.slice(0, 3).join(" | "));
     check(where, "closed: nothing cut by the screen edge, no sideways scroll", a.cut.length === 0 && !a.overflowX, a.cut.join(","));
 
     // ONE press opens it.
     await page.locator('section[aria-label="Every check"] summary').click();
+    await page.locator('section[aria-label="Email we sent"] summary').click();
     await page.waitForTimeout(400);
     const b = await inspect(page);
     observed[`${where} open`] = { heights: b.heights, page: b.page };
     check(where, "one press opens it", b.open);
     check(where, "open: every check row is seen, each with its time", b.rows.length === a.rows.length && b.rows.every((r) => r.seen), b.rows.filter((r) => !r.seen).map((r) => r.key).join(","));
+    check(where, "one press opens 'Email we sent'", b.mailOpen);
+    check(where, "open: both filters, the list and its first email are seen, every email still there", b.mailFiltersSeen === 2 && b.mailListSeen && b.mailRows[0]?.seen === true && b.mailRows.length === a.mailRows.length, `filters ${b.mailFiltersSeen} list ${b.mailListSeen} rows ${b.mailRows.length}/${a.mailRows.length}`);
     check(where, "open: nothing overlaps", b.overlaps.length === 0, b.overlaps.slice(0, 3).join(" | "));
     check(where, "open: nothing cut by the screen edge, no sideways scroll", b.cut.length === 0 && !b.overflowX, b.cut.join(","));
     await page.screenshot({ path: `${ART}/open-${size.w}${LITE ? "-lite" : ""}.png`, fullPage: true }); artifacts.push(`${ART}/open-${size.w}.png`);
@@ -188,8 +221,14 @@ try {
       const did = await page.evaluate(`(${FOLD_WARNING.toString()})()`);
       const after = (await inspect(page)).loudSeen;
       await page.evaluate(`(${UNFOLD_WARNING.toString()})()`);
-      canary.observed_failure = did && before === true && after === false;
-      canary.detail = `loudSeen ${before} -> ${after}`;
+      await page.evaluate(() => { document.querySelector(".bo-mail details").open = false; });
+      await page.waitForTimeout(300);
+      const m0 = (await inspect(page)).mailPeek.bad?.seen;
+      const mdid = await page.evaluate(`(${HIDE_MAIL_PROBLEMS.toString()})()`);
+      const m1 = (await inspect(page)).mailPeek.bad?.seen;
+      await page.evaluate(`(${UNHIDE_MAIL_PROBLEMS.toString()})()`);
+      canary.observed_failure = did && before === true && after === false && mdid && m0 === true && m1 === false;
+      canary.detail = `loudSeen ${before} -> ${after}; mail Problems seen ${m0} -> ${m1}`;
       console.log(`    canary ${canary.observed_failure ? "CAUGHT" : "MISSED"}: ${canary.detail}`);
     }
     completed++;
@@ -216,8 +255,8 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * (LITE ? 15 : 14),
-  assertion_floor: `3 widths x 14 questions (15 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.`,
+  min_assertions: SIZES.length * (LITE ? 22 : 21),
+  assertion_floor: `3 widths x 21 questions (22 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.`,
   failures,
   artifacts,
   canary,

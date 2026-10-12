@@ -24,6 +24,7 @@ try {
       await page.fill('input[type=email]',owner.email);await page.fill('input[type=password]',owner.password);await page.click('form button.pa-btn');await page.waitForSelector('.pa-top');
       await page.goto(`${BASE}/admin/office#system`);await page.waitForSelector('.bo-mail');discovered++;
       await page.waitForFunction(()=>document.querySelector('.bo-mail')?.getAttribute('aria-busy')==='false');
+      await page.locator('.bo-mail summary').click(); // 9.12d: the section arrives folded
       await page.waitForTimeout(500);
       const wire=responses[0],sec=page.locator('.bo-mail');
       check(w,'live email_list answers 200 with a nonempty list',wire?.status===200&&Array.isArray(wire.body?.rows)&&wire.body.rows.length>0);

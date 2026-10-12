@@ -1,9 +1,9 @@
 {
-  "git_sha": "0bfe0b9edab962c437e9e55b43287939e24a063a",
-  "git_sha_started": "0bfe0b9edab962c437e9e55b43287939e24a063a",
+  "git_sha": "a9b5d2558404a455a26ec251072bc13f8634d7bb",
+  "git_sha_started": "a9b5d2558404a455a26ec251072bc13f8634d7bb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T03:06:34.420Z",
+  "finished_at": "2026-10-12T04:23:56.875Z",
   "failures": [],
   "warnings": [
     "Signs in as the existing demo owner. Reads mail; sends none. The refusal is intercepted in the browser. Mail contents and credentials are never printed or saved."
@@ -41,7 +41,7 @@
     }
   },
   "check_id": "office-mail-live",
-  "started_at": "2026-10-12T03:06:15.489Z",
+  "started_at": "2026-10-12T04:23:37.281Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,

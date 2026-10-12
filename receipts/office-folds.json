@@ -1,9 +1,9 @@
 {
-  "git_sha": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
-  "git_sha_started": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
+  "git_sha": "a9b5d2558404a455a26ec251072bc13f8634d7bb",
+  "git_sha_started": "a9b5d2558404a455a26ec251072bc13f8634d7bb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T04:06:00.733Z",
+  "finished_at": "2026-10-12T04:25:33.818Z",
   "failures": [],
   "warnings": [
     "Reads the LIVE platform; signs in as a throwaway platform admin created and deleted by this run. Nothing else is written.",
@@ -31,9 +31,9 @@
           "Needs a look": 270,
           "Every check": 168,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 164
         },
-        "page": 2028,
+        "page": 1561,
         "summaryH": 166,
         "peek": [
           {
@@ -46,7 +46,22 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": true
+            }
+          },
+          "summaryH": 162
+        }
       },
       "390 open": {
         "heights": {
@@ -54,9 +69,9 @@
           "Needs a look": 270,
           "Every check": 822,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 817
         },
-        "page": 2681
+        "page": 2868
       },
       "768 closed": {
         "heights": {
@@ -64,9 +79,9 @@
           "Needs a look": 250,
           "Every check": 155,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 151
         },
-        "page": 2155,
+        "page": 1675,
         "summaryH": 153,
         "peek": [
           {
@@ -79,7 +94,22 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": true
+            }
+          },
+          "summaryH": 149
+        }
       },
       "768 open": {
         "heights": {
@@ -87,9 +117,9 @@
           "Needs a look": 250,
           "Every check": 790,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 804
         },
-        "page": 2791
+        "page": 2963
       },
       "1440 closed": {
         "heights": {
@@ -97,9 +127,9 @@
           "Needs a look": 151,
           "Every check": 155,
           "Storage and email": 118,
-          "Email we sent": 631
+          "Email we sent": 151
         },
-        "page": 1837,
+        "page": 1357,
         "summaryH": 153,
         "peek": [
           {
@@ -112,7 +142,22 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": true
+            }
+          },
+          "summaryH": 149
+        }
       },
       "1440 open": {
         "heights": {
@@ -120,26 +165,26 @@
           "Needs a look": 151,
           "Every check": 518,
           "Storage and email": 118,
-          "Email we sent": 631
+          "Email we sent": 804
         },
-        "page": 2200
+        "page": 2372
       }
     }
   },
   "check_id": "office-folds",
-  "started_at": "2026-10-12T04:05:19.551Z",
+  "started_at": "2026-10-12T04:24:55.061Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,
   "attempted_targets": 3,
   "completed_targets": 3,
   "skipped_targets": 0,
-  "assertions_executed": 42,
-  "min_assertions": 42,
-  "assertion_floor": "3 widths x 14 questions (15 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.",
+  "assertions_executed": 63,
+  "min_assertions": 63,
+  "assertion_floor": "3 widths x 21 questions (22 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.",
   "canary": {
-    "id": "warning-section-folded-away",
+    "id": "warning-section-and-mail-problems-folded-away",
     "observed_failure": true,
-    "detail": "loudSeen true -> false"
+    "detail": "loudSeen true -> false; mail Problems seen true -> false"
   }
 }

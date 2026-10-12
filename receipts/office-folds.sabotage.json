@@ -1,29 +1,26 @@
 {
-  "git_sha": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
-  "git_sha_started": "7e8301affacba3a38fe7d762c72ebde0d6f84e0d",
+  "git_sha": "93498101a83e05e02368e08653e236500b98577e",
+  "git_sha_started": "93498101a83e05e02368e08653e236500b98577e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T04:07:11.096Z",
+  "finished_at": "2026-10-12T04:19:32.621Z",
   "failures": [
-    "390: 'Needs a look' is seen with NO press seen=false inFold=true",
-    "390: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe",
-    "768: 'Needs a look' is seen with NO press seen=false inFold=true",
-    "768: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe",
-    "1440: 'Needs a look' is seen with NO press seen=false inFold=true",
-    "1440: 'Needs a look' holds every broken / never-proven / near-limit check, each seen nonOk netlify,stripe"
+    "390: the mail preview's Problems count is seen with NO press and equals the problem rows; Last sent is seen peek {\"last\":{\"t\":\"13 hours ago\",\"seen\":true},\"bad\":{\"t\":\"96\",\"seen\":false}} problem rows 96",
+    "768: the mail preview's Problems count is seen with NO press and equals the problem rows; Last sent is seen peek {\"last\":{\"t\":\"13 hours ago\",\"seen\":true},\"bad\":{\"t\":\"96\",\"seen\":false}} problem rows 96",
+    "1440: the mail preview's Problems count is seen with NO press and equals the problem rows; Last sent is seen peek {\"last\":{\"t\":\"13 hours ago\",\"seen\":true},\"bad\":{\"t\":\"96\",\"seen\":false}} problem rows 96"
   ],
   "warnings": [
     "Reads the LIVE platform; signs in as a throwaway platform admin created and deleted by this run. Nothing else is written.",
     "The look itself (color, glow, motion) is not judged here; the screenshots are the evidence for that.",
-    "run with --break=fold-warning; this receipt is a sabotage, not a result"
+    "run with --break=hide-mail-problems; this receipt is a sabotage, not a result"
   ],
   "artifacts": [
-    "artifacts/office-folds/fold-warning/closed-390.png",
-    "artifacts/office-folds/fold-warning/open-390.png",
-    "artifacts/office-folds/fold-warning/closed-768.png",
-    "artifacts/office-folds/fold-warning/open-768.png",
-    "artifacts/office-folds/fold-warning/closed-1440.png",
-    "artifacts/office-folds/fold-warning/open-1440.png"
+    "artifacts/office-folds/hide-mail-problems/closed-390.png",
+    "artifacts/office-folds/hide-mail-problems/open-390.png",
+    "artifacts/office-folds/hide-mail-problems/closed-768.png",
+    "artifacts/office-folds/hide-mail-problems/open-768.png",
+    "artifacts/office-folds/hide-mail-problems/closed-1440.png",
+    "artifacts/office-folds/hide-mail-problems/open-1440.png"
   ],
   "dimensions": {
     "sizes": [
@@ -32,16 +29,17 @@
       "1440x900"
     ],
     "lite": false,
-    "break": "fold-warning",
+    "break": "hide-mail-problems",
     "observed": {
       "390 closed": {
         "heights": {
           "How many checks are working": 303,
+          "Needs a look": 270,
           "Every check": 168,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 130
         },
-        "page": 1780,
+        "page": 1527,
         "summaryH": 166,
         "peek": [
           {
@@ -54,25 +52,42 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": false
+            }
+          },
+          "summaryH": 128
+        }
       },
       "390 open": {
         "heights": {
           "How many checks are working": 303,
+          "Needs a look": 270,
           "Every check": 822,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 805
         },
-        "page": 2433
+        "page": 2855
       },
       "768 closed": {
         "heights": {
           "How many checks are working": 460,
+          "Needs a look": 250,
           "Every check": 155,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 151
         },
-        "page": 1927,
+        "page": 1675,
         "summaryH": 153,
         "peek": [
           {
@@ -85,25 +100,42 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": false
+            }
+          },
+          "summaryH": 149
+        }
       },
       "768 open": {
         "heights": {
           "How many checks are working": 460,
+          "Needs a look": 250,
           "Every check": 790,
           "Storage and email": 256,
-          "Email we sent": 631
+          "Email we sent": 826
         },
-        "page": 2562
+        "page": 2985
       },
       "1440 closed": {
         "heights": {
           "How many checks are working": 317,
+          "Needs a look": 151,
           "Every check": 155,
           "Storage and email": 118,
-          "Email we sent": 631
+          "Email we sent": 151
         },
-        "page": 1707,
+        "page": 1357,
         "summaryH": 153,
         "peek": [
           {
@@ -116,32 +148,48 @@
             "n": 2,
             "seen": true
           }
-        ]
+        ],
+        "mail": {
+          "rows": 100,
+          "bad": 96,
+          "peek": {
+            "last": {
+              "t": "13 hours ago",
+              "seen": true
+            },
+            "bad": {
+              "t": "96",
+              "seen": false
+            }
+          },
+          "summaryH": 149
+        }
       },
       "1440 open": {
         "heights": {
           "How many checks are working": 317,
+          "Needs a look": 151,
           "Every check": 518,
           "Storage and email": 118,
-          "Email we sent": 631
+          "Email we sent": 826
         },
-        "page": 2070
+        "page": 2394
       }
     }
   },
   "check_id": "office-folds",
-  "started_at": "2026-10-12T04:06:34.551Z",
+  "started_at": "2026-10-12T04:18:34.777Z",
   "status": "fail",
   "expected_targets": 3,
   "discovered_targets": 3,
   "attempted_targets": 3,
   "completed_targets": 3,
   "skipped_targets": 0,
-  "assertions_executed": 42,
-  "min_assertions": 42,
-  "assertion_floor": "3 widths x 14 questions (15 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.",
+  "assertions_executed": 63,
+  "min_assertions": 63,
+  "assertion_floor": "3 widths x 21 questions (22 under --lite), fixed by the code; none is conditional on the live platform except 'Needs a look', which is asked whenever any check is not ok.",
   "canary": {
-    "id": "warning-section-folded-away",
+    "id": "warning-section-and-mail-problems-folded-away",
     "observed_failure": false
   }
 }

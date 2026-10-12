@@ -1,7 +1,7 @@
 // 9.12a slice 6c. No credentials, database writes or email sends: every API
 // request is intercepted. BASE points at the dev server. --freeze=before|after
 // captures the same System situation; --break=hidden reproduces the missing list.
-// Six declared widths, 25 questions each, overlap and contrast canaries.
+// Six declared widths, 26 questions each, overlap and contrast canaries.
 import { createRequire } from 'node:module';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { writeReceipt } from './receipt.mjs';
@@ -86,6 +86,9 @@ try {
         if(await sec.count())discovered++;
         check(w,'mail list visible',await sec.isVisible());
         if(!await sec.isVisible())continue;
+        // 9.12d: the section arrives folded; its preview must name the problems before any press.
+        check(w,'arrives folded and the preview names the five problems',await sec.locator('details').evaluate(d=>!d.open)&&(await sec.locator('[data-peek=bad] b').textContent())==='5'&&await sec.locator('[data-peek=bad]').isVisible());
+        await sec.locator('summary').click(); await page.waitForTimeout(300);
         await sec.scrollIntoViewIfNeeded(); await sec.evaluate(e=>e.scrollIntoView({block:'start'})); await page.waitForTimeout(400);
         check(w,'seven declared rows',await sec.locator('[data-mail-id]').count()===7);
         check(w,'Everything request has limit 100 and no status filter',sent.some(b=>b.action==='email_list'&&b.limit===100&&!('statuses'in b)));
@@ -136,5 +139,5 @@ try {
 }finally{await browser.close();}
 if(FREEZE)process.exit(0);
 const status=failures.length===0&&completed===6&&canary.observed_failure?'pass':'fail';
-const {path}=writeReceipt({check_id:`office-mail${LITE?'-lite':''}`,started_at,status,expected_targets:6,discovered_targets:discovered,attempted_targets:6,completed_targets:completed,skipped_targets:0,assertions_executed:assertions,min_assertions:150,assertion_floor:'Six declared widths × 25 questions, fixed before running. A missing section cannot execute the dependent questions.',failures,artifacts,canary,warnings:['Synthetic session and intercepted server answers; no live email or database writes. The browser proves the view and request contract, not deployed server behavior.'],dimensions:{sizes:SIZES,lite:LITE,...(BREAK?{break:BREAK}:{}),observed}});
+const {path}=writeReceipt({check_id:`office-mail${LITE?'-lite':''}`,started_at,status,expected_targets:6,discovered_targets:discovered,attempted_targets:6,completed_targets:completed,skipped_targets:0,assertions_executed:assertions,min_assertions:156,assertion_floor:'Six declared widths × 26 questions, fixed before running. A missing section cannot execute the dependent questions.',failures,artifacts,canary,warnings:['Synthetic session and intercepted server answers; no live email or database writes. The browser proves the view and request contract, not deployed server behavior.'],dimensions:{sizes:SIZES,lite:LITE,...(BREAK?{break:BREAK}:{}),observed}});
 console.log(status,assertions,failures,path);process.exit(status==='pass'?0:1);
