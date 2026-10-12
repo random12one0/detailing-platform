@@ -29557,6 +29557,15 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       name 11, legal 7, queue 9.2; sabotage debt + notice caught; queue's 2.15a/0.11/4.3 failures re-run on the base
       and pre-existing. Still to re-home: platform-admin, spanish, growth-lines, dead-mans-switch, fixed-furniture,
       admin-insight, platform-billing, scripts.
+      AUDIT 2026-10-12 (NUDGE 17:39 line — fair fix, NO revert): every one of the seven test edits re-homes a pin
+      onto the file that now owns the behavior, and none weakens an assertion — verified string-by-string against
+      the office source and re-run. Money 47/47 ("You kept" Kept.jsx:14, no "Taken", paid-invoice base
+      platformNet.js:101); name+legal+furniture 24/24 (CreateBusiness:151 + SignUp:67 capped 60, UNBACKED terms row
+      honest — no build_start sender left in app/src); spanish 83/83 (zero dialogs in office/, 12c found 27 word
+      lists); platform-admin 134/50/7 identical to the checkpoint above, failing set exactly the listed remaining
+      reds (16g still red on the ADMIN_EVENT_WORDS->EVENT_WORDS rename — part-2 work, not a goalpost move).
+      Sabotage cover stands on the landing commits (spanish 3e92406c, furniture 7dd67ee6, batch-1 debt+notice);
+      not re-proved this session. Queue reds stay pre-existing/env per above.
     - [ ] 99.3b-iii — retire admin-preconditions.mjs + admin-furniture-clearance.mjs; re-point platform-costs/net-live and
       the other four scripts; full caller re-grep at that revision.
     - [ ] 99.3b-iv — FULL browser proof (money tag): owner `/admin`, staff `/admin` 404, `/admin/office` 404, gear both roles
