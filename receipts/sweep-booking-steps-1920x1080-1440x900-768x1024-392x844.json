@@ -1,14 +1,14 @@
 {
-  "git_sha": "5a48e5c58825b4dfab8b8ad71b28714c3e0ed3b9",
-  "git_sha_started": "5a48e5c58825b4dfab8b8ad71b28714c3e0ed3b9",
+  "git_sha": "0309136be22fccc02fba63cdf6dd4a5cd1473be0",
+  "git_sha_started": "0309136be22fccc02fba63cdf6dd4a5cd1473be0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-25T04:46:01.914Z",
+  "finished_at": "2026-10-12T05:17:04.592Z",
   "failures": [
-    "7 failing reading(s) — see above"
+    "6 failing reading(s) — see above"
   ],
   "warnings": [
-    "7 reading(s) fail W16; 0 fault(s) are not W16"
+    "6 reading(s) fail W16; 0 fault(s) are not W16"
   ],
   "artifacts": [
     "scripts/sweep-booking-steps.mjs"
@@ -22,19 +22,19 @@
     ],
     "step_readings": 76,
     "numbered_step_readings": 32,
-    "controls_measured": 945,
+    "controls_measured": 980,
     "w16_bound_services": 5,
     "canary_over_px": 788
   },
   "check_id": "sweep-booking-steps-1920x1080-1440x900-768x1024-392x844",
-  "started_at": "2026-09-25T04:42:35.010Z",
+  "started_at": "2026-10-12T05:13:36.682Z",
   "status": "fail",
   "expected_targets": 32,
   "discovered_targets": 32,
   "attempted_targets": 32,
   "completed_targets": 32,
   "skipped_targets": 0,
-  "assertions_executed": 1022,
+  "assertions_executed": 1057,
   "min_assertions": 200,
   "canary": {
     "id": "a booking step measured in a 200px-tall window must be reported OVER",
