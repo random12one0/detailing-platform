@@ -219,7 +219,12 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     check("every example path is rewritten to its own index.html",
       Array.from({ length: 5 }, (_, i) => `/ex${i + 1}    /ex${i + 1}/index.html`)
         .every((r) => red.includes(r)) && red.includes("/examples    /examples/index.html"),
-      "a slashless /exN falls through and draws the sign-in screen");
+      // A bare `vite build` copies the plain public/_redirects over dist and
+      // never runs build-examples.mjs, so the whole generated block is missing.
+      // That happened 2026-10-11 (ROADMAP 98.1) and cost a session the trace.
+      red.includes("# examples (generated")
+        ? "a slashless /exN falls through and draws the sign-in screen"
+        : "no generated block at all: app/dist came from a bare `vite build`. Run `npm run build --prefix app`, which also runs build-examples.mjs");
     check("and every one of them sits ABOVE the catch-all",
       catchAll > -1 && red.indexOf("/ex1    ") > -1 &&
       red.lastIndexOf("/examples    /examples/index.html") < catchAll,
