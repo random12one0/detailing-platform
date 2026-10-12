@@ -29571,7 +29571,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: every template `render-emails.mjs` renders appears exactly once (count declared and matched, with a canary for a missing one); copying returns labeled notes only for the boxes he filled; nothing cut at 390 or 1440; it opens from the Control Room. His notes then go through the planner and come back as wording changes under 99.2's rules (English and Spanish in the same edit). Those changes are new items, not this one.
 - [ ] **99.7 — Booking step 3 with several cars runs past the screen at 1440 and 392.**
   Found 2026-10-12 by `BASE=http://127.0.0.1:5182 node scripts/sweep-booking-steps.mjs` at `0309136b` while closing 99.5 (receipt `receipts/sweep-booking-steps-1920x1080-1440x900-768x1024-392x844.json`): `3/N cars · 1` over 40px at 1440 and 34px at 392, `3/N cars · 3` and `3 split` over 18px at 1440 and 42px at 392; the tallest blocks are the car-size choices (258–288px) and "How dirty is the inside" (93px). 1920 and 768 fit. These are 6 of the run's 6 W16 failures. Not caused by 99.5, whose CSS reaches only `.bk-contact` and `.bk-sms-consent` on step 6.
-  DONE WHEN: those four readings fit at 1440x900 and 392x844 with nothing hidden, and `sweep-booking-steps.mjs` reports 0 steps that do not fit.
+  DONE WHEN: those six readings (three car counts at two widths) fit at 1440x900 and 392x844 with nothing hidden, and `sweep-booking-steps.mjs` reports 0 steps that do not fit.
 
 
 ## Belt repairs
