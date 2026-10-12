@@ -1,9 +1,9 @@
 {
-  "git_sha": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
-  "git_sha_started": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
+  "git_sha": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "git_sha_started": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T21:15:59.540Z",
+  "finished_at": "2026-10-12T15:03:21.732Z",
   "failures": [
     "staff/1440/admin-refused: screen: admitted (back office true, 404 false)",
     "staff/392/admin-refused: screen: admitted (back office true, 404 false)",
@@ -29,7 +29,7 @@
     "break": "let-in"
   },
   "check_id": "admin-refuses",
-  "started_at": "2026-10-10T21:15:25.563Z",
+  "started_at": "2026-10-12T15:02:51.107Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -46,15 +46,15 @@
   "sabotage": [
     {
       "tag": "staff/1440",
-      "route_hits": 2
+      "route_hits": 14
     },
     {
       "tag": "staff/392",
-      "route_hits": 2
+      "route_hits": 14
     },
     {
       "tag": "staff/320",
-      "route_hits": 2
+      "route_hits": 14
     }
   ],
   "observed": [

@@ -1,9 +1,9 @@
 {
-  "git_sha": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
-  "git_sha_started": "a700bcd409588d27cc9caa1f87635476fb08d1bc",
+  "git_sha": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "git_sha_started": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T21:15:05.655Z",
+  "finished_at": "2026-10-12T15:02:45.244Z",
   "failures": [],
   "warnings": [
     "The expectation is the roster in docs/platform-admins.md, not the table. tests/platform-admins-declared.test.mjs is what keeps those two agreeing; run it beside this.",
@@ -32,7 +32,7 @@
     "break": null
   },
   "check_id": "admin-refuses",
-  "started_at": "2026-10-10T21:14:30.706Z",
+  "started_at": "2026-10-12T15:02:08.802Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,

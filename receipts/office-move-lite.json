@@ -1,0 +1,64 @@
+{
+  "git_sha": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "git_sha_started": "b863dfb1628dc633e16b6a6c7e847637ff2d6749",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T15:01:12.580Z",
+  "failures": [],
+  "warnings": [
+    "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-move/door-1440.png",
+    "artifacts/office-move/door-refused-1440.png",
+    "artifacts/office-move/rail-1440.png",
+    "artifacts/office-move/dead-1440.png",
+    "artifacts/office-move/door-392.png",
+    "artifacts/office-move/door-refused-392.png",
+    "artifacts/office-move/rail-392.png",
+    "artifacts/office-move/dead-392.png",
+    "artifacts/office-move/door-320.png",
+    "artifacts/office-move/door-refused-320.png",
+    "artifacts/office-move/rail-320.png",
+    "artifacts/office-move/dead-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "lite": true,
+    "observed": {
+      "1440 lite": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "392 lite": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "320 lite": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      }
+    }
+  },
+  "check_id": "office-move-lite",
+  "started_at": "2026-10-12T15:01:03.460Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 48,
+  "assertion_floor": "3 widths x 16 questions (door 6, refusal 3, rail 4, dead address 2, console 1), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  "canary": {
+    "id": "injected-overlapping-door-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}

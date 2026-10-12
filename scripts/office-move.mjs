@@ -149,9 +149,9 @@ try {
       note: "The back office itself is now at /admin: the same rail (Today, Detailers, Money, System) with the visitor's own account on it. The old five-tab screen is gone from this address.",
       highlight: ".bo-rail",
     });
-    await ctx.close();
     const same = await differs(page, `${SHOTS}/before-office-move.html`, `${SHOTS}/after-office-move.html`);
     console.log(`froze after into ${SHOTS} (differs=${same})`);
+    await ctx.close();
   } else {
     for (const size of SIZES) {
       const where = `${size.w}${LITE ? " lite" : ""}`;
