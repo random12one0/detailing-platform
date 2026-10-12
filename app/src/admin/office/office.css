@@ -36,9 +36,7 @@
 
 /* System's sent-mail ledger. Full words and dates survive the phone layout;
  * the list owns its scrolling so a hundred sends do not lengthen the place. */
-.bo-mail-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-bottom: 16px; }
-.bo-mail-head .bo-label { margin: 0; }
-.bo-mail-filters { display: flex; gap: 4px; border-bottom: 1px solid var(--line-2); }
+.bo-mail-filters { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--line-2); }
 .bo-mail-filters button { min-height: 44px; padding: 0 14px; font-size: 14px; color: var(--fog); border-bottom: 2px solid transparent; }
 .bo-mail-filters button[aria-pressed="true"] { color: var(--ac); border-bottom-color: var(--ac); }
 .bo-mail-filters button:hover { color: var(--bone); }
@@ -60,7 +58,7 @@
 .bo-mail-meta span { overflow-wrap: anywhere; max-width: 100%; }
 .bo-mail-meta time { font-family: var(--f-num); font-size: 11.5px; max-width: 100%; }
 .bo-mail-detail { color: var(--bad); font-size: 12.5px; line-height: 1.5; overflow-wrap: anywhere; margin-top: 10px !important; }
-.bo-mail-error { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; color: var(--bad); overflow-wrap: anywhere; }
+.bo-mail-error { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; color: var(--bad); overflow-wrap: anywhere; }
 .bo-mail-cap { margin-top: 12px !important; font-family: var(--f-num); }
 @media (min-width: 1000px) and (min-height: 500px) {
   .bo-mail-line { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 24px; }
