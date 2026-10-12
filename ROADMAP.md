@@ -3412,7 +3412,7 @@ and how the wait ends.
   --no-verify` skips any hook, which is git's own; after 0.6c the gate still names `platform-admin` (held for
   4.3c) and `google-business` (99.1), so the override is expected until those land.
 
-- [ ] **0.7 — The maintenance reminder has no opt-out, and the fix is a
+- [x] **0.7 — The maintenance reminder has no opt-out, and the fix is a
   product question rather than a template edit. Found 2026-09-20.**
   `maintenanceDueEmail` in `_shared/emailTemplates.ts` sends *"Your Ceramic Pro
   annual inspection is due by 12 October. Book it below and we'll take care of
@@ -3537,6 +3537,41 @@ and how the wait ends.
     `send-owner-reminders` (FOR-ANDREW.md). Until then the running copy sends
     the old email to any business that has switched it on — which is none,
     because no control in the product can switch it on.
+
+  ***DONE 2026-10-11 — IT WAS ALREADY PUBLISHED; THIS SITTING PROVED IT.*** No
+  code changed. `send-owner-reminders` was republished **2026-10-10 07:54 UTC
+  (version 81)**, four days after the 0.7 build, so the "carried out live" half of
+  Done-when had happened without this entry hearing about it.
+  - **Running copy, read directly** (Management API `/functions/send-owner-reminders/body`,
+    read-only, project ref checked first): it contains the template's refusal
+    sentence *"maintenanceDueEmail: a mailing address and an unsubscribe link are
+    required"*, `maintenanceDueSubject`, `maintenanceVerdict` and the `"skipped"`
+    status — **4 of 4 found, and a canary string 0 of 1**, so the search could say
+    no. `deployed-inventory.mjs` agrees from the other side: this function's
+    `index.ts` and `_shared/maintenance.ts` are NOT among its differing files; only
+    six shared modules changed later (tenant, email, emailTemplates, emailKit,
+    reachedProvider, supportSession — work committed after the 10th, not 0.7).
+    Full run at `9ee4a66e`: 42 of 42 reached, 35 differ, 6 match, 1 not deployed,
+    exit 1 — the standing drift ROADMAP 0.6 tracks, left alone as that rule says.
+  - **Live database, read only:** the maintenance switch is on for **0 of 17**
+    businesses and **1 of 17** has a postal address; **0** maintenance-looking
+    `email_sends` rows since the publish (a subject/detail pattern, so a soft
+    figure). Nothing can send this email today, old or new.
+  - **Rule re-run at this commit:** `tests/maintenance-legal.test.mjs` 5/5,
+    `tests/maintenance.test.mjs` 39/0. **Sabotage re-done on a scratch copy**: the
+    rule filling a blank address with *"Address on file"* (one line, confirmed by
+    diff) turned **test 2 red, 4 pass / 1 fail**.
+  - **Looked at in a browser:** `render-emails.mjs` (34 emails, en and es), the
+    60-day maintenance email at **392 and 1440, both languages: 4 of 4 views** show
+    the exact sample address and a real opt-out link inside the width, 0px
+    sideways overflow, console empty. **Canary:** the same check on the booking
+    confirmation (no legal footer) went **0 of 4**. The refusal case (no
+    address) renders nothing by design — it is test 2 plus the source check in
+    test 5, and the refusal sentence is in the running bundle above.
+  - **Not proved, and why:** no real maintenance email has been sent from the
+    live server. The sweep has no dry run and runs every business at once, so
+    triggering it would spend the shared email allowance and move demo rows; and
+    with the switch off everywhere it would send nothing anyway.
 
 ---
 
