@@ -22070,6 +22070,10 @@ the dashboard or back office at phone width at all.
   it looks meaty; it fails the first criterion before size is even asked.**
 
 - [ ] **9.12a — Back office redesigned from scratch, tab by tab.** Split out of
+  **BELT PARKED after 3 attempts, 2026-10-12 15:05:51.** The belt could not
+  finish this and moved on rather than looping. The last attempt's full output
+  is at `belt/runs/2026-10-12T15-05-48-126Z-9.12a.md`. Needs a person or a different
+  approach — unpark by deleting these four lines.
 
   **2026-10-12 — ANDREW'S 02:00 PRICE-EDITOR CORRECTION BUILT; BROADER COMPACT-PREVIEW REQUEST RECORDED. BOX STAYS OPEN.**
   His latest direction: improve the laptop price editor's spacing and controls; on phones, show a compact preview (the three plan prices) and open the full details only when wanted. Use that same approach on other large sections across the four places so looking something up does not mean scrolling through every editor. This is a correction to the existing 6b, not permission to rebuild the office or skip the remaining slices.
