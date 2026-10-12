@@ -1,0 +1,392 @@
+{
+  "git_sha": "e774948569edc602a084a8c4b397990bb6cd3586",
+  "git_sha_started": "e774948569edc602a084a8c4b397990bb6cd3586",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T04:54:43.379Z",
+  "failures": [
+    "en-1440-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-1440-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-1440-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-1440-checked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-1440-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-1440-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-checked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-1440-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-checked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-768-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-checked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-768-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-checked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "en-844-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-checked consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-checked consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-uncheck consent spans the form: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
+    "es-844-uncheck consent lines: {\"width\":294,\"form\":600,\"height\":158,\"lines\":6,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}"
+  ],
+  "warnings": [
+    "Live delivery and deployed consent saving are not measured."
+  ],
+  "artifacts": [
+    ".manager-shots/99.2f/details-en-390-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-390-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-390-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-1440-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-1440-checked-break-half.jpg",
+    ".manager-shots/99.2f/save-failed-en-1440-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-1440-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-1440-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-1440-checked-break-half.jpg",
+    ".manager-shots/99.2f/save-failed-es-1440-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-1440-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-768-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-768-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-768-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-768-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-768-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-768-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-392-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-392-checked-break-half.jpg",
+    ".manager-shots/99.2f/save-failed-en-392-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-392-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-392-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-392-checked-break-half.jpg",
+    ".manager-shots/99.2f/save-failed-es-392-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-392-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-320-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-320-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-320-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-320-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-320-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-320-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-en-844-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-844-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-en-844-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/details-es-844-unchecked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-844-checked-break-half.jpg",
+    ".manager-shots/99.2f/details-es-844-uncheck-break-half.jpg",
+    ".manager-shots/99.2f/privacy-390-break-half.jpg",
+    ".manager-shots/99.2f/privacy-1440-break-half.jpg",
+    ".manager-shots/99.2f/privacy-768-break-half.jpg",
+    ".manager-shots/99.2f/privacy-392-break-half.jpg",
+    ".manager-shots/99.2f/privacy-320-break-half.jpg",
+    ".manager-shots/99.2f/privacy-390-lite-break-half.jpg",
+    ".manager-shots/99.2f/privacy-844-break-half.jpg",
+    ".manager-shots/99.2f/terms-390-break-half.jpg",
+    ".manager-shots/99.2f/terms-1440-break-half.jpg",
+    ".manager-shots/99.2f/terms-768-break-half.jpg",
+    ".manager-shots/99.2f/terms-392-break-half.jpg",
+    ".manager-shots/99.2f/terms-320-break-half.jpg",
+    ".manager-shots/99.2f/terms-390-lite-break-half.jpg",
+    ".manager-shots/99.2f/terms-844-break-half.jpg",
+    ".manager-shots/99.2f/server-half.json"
+  ],
+  "dimensions": {
+    "break": "half",
+    "server_only": false,
+    "seen": [
+      {
+        "tag": "en-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      }
+    ],
+    "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+  },
+  "check_id": "booking-consent-half",
+  "started_at": "2026-10-12T04:49:05.338Z",
+  "status": "fail",
+  "expected_targets": 76,
+  "discovered_targets": 76,
+  "attempted_targets": 76,
+  "completed_targets": 76,
+  "skipped_targets": 0,
+  "assertions_executed": 1048,
+  "min_assertions": 650,
+  "canary": {
+    "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+    "observed_failure": true
+  }
+}

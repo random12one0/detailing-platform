@@ -12,10 +12,14 @@ const OUT = 'C:/Users/rando/Downloads/claude/belt/shots/99.2';
 const BEFORE = process.argv.includes('--capture=before');
 const SERVER_ONLY = process.argv.includes('--server-only');
 const BREAK = process.argv.find(a => a.startsWith('--break='))?.slice(8) || '';
-if (BREAK && !['default', 'save', 'strict', 'privacy'].includes(BREAK)) throw Error('Unknown break');
+if (BREAK && !['default', 'save', 'strict', 'privacy', 'half'].includes(BREAK)) throw Error('Unknown break');
 const WORDS = 'Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.';
 const ES = 'Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.';
 const fontCache = new Map();
+// 99.5: 844x390 is a phone turned sideways. Phone heights are 99.5's
+// before-run (e7749485^), so "no taller than today" is a measured ceiling.
+const ALL_VIEWS = [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1'], [844,390,'']];
+const PHONE_HEIGHT = { 390: { en: 119, es: 138 }, 320: { en: 138, es: 158 } };
 const profile = {
   business: { id: 'tenant-a', slug: 'consent-proof', name: "Andrew's Auto Detail", timezone: 'America/Los_Angeles', phone: '555-0100', address: '1234 Oak St' },
   branding: {}, settings: { mobile_enabled: false, dropoff_enabled: true, ask_vehicle_condition: false,
@@ -115,7 +119,7 @@ async function photograph(page, tag) {
 
 const browser = await chromium.launch();
 try {
-  const VIEWS = SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']];
+  const VIEWS = SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : ALL_VIEWS;
   for (const [width,height,q] of VIEWS) for (const lang of (BEFORE ? ['en'] : ['en','es'])) for (const choice of (BEFORE ? ['unchecked'] : ['unchecked','checked','uncheck'])) {
     const tag = `${lang}-${width}${q ? '-lite' : ''}-${choice}`, ctx = await browser.newContext({ viewport: { width,height } });
     await ctx.addInitScript(lang => localStorage.setItem('dp.lang',lang),lang);
@@ -130,6 +134,11 @@ try {
       await page.locator('input[type=tel]').scrollIntoViewIfNeeded();
       await page.waitForTimeout(500);
       await page.evaluate(() => document.fonts.ready);
+      if (BREAK === 'half') {
+        // The pre-99.5 defect: the box back in the Phone column, links below.
+        await page.addStyleTag({ content: '.bk-contact > .bk-sms-consent { grid-column: 1 !important; display: block !important; } .bk-contact .bk-sms-links { padding-left: calc(22px + var(--bk-sp-3)) !important; }' });
+        check(`${tag} sabotage executed`, await page.evaluate(() => innerWidth <= 400 || getComputedStyle(document.querySelector('.bk-sms-consent')).display === 'block'));
+      }
       if (BEFORE) {
         await freeze(page, { out: OUT + '/before.html', label: 'Before', note: 'Phone has no choice for appointment texts.', highlight: '.bk-grid2' });
         continue;
@@ -150,6 +159,21 @@ try {
         return { fits: r.left >= 0 && r.right <= innerWidth, text: getComputedStyle(el).color,
           links: [...el.querySelectorAll('a')].map(a => Math.min(a.getBoundingClientRect().height,a.getBoundingClientRect().width)), label: el.querySelector('label').getBoundingClientRect().height };
       });
+      // 99.5: whole form width and at most 2 lines (3 in Spanish) once Phone
+      // and Email sit side by side; no taller than today on a phone.
+      const fit = await page.evaluate(() => {
+        const c = document.querySelector('.bk-sms-consent'), s = c.querySelector('label span'), r = c.getBoundingClientRect(), sr = s.getBoundingClientRect();
+        const lh = parseFloat(getComputedStyle(s).lineHeight), links = [...c.querySelectorAll('a')].map(a => a.getBoundingClientRect());
+        const above = Math.max(...['input[type=tel]', 'input[type=email]'].map(q => document.querySelector(q).getBoundingClientRect()).filter(b => b.left < r.right && b.top < r.top).map(b => b.bottom));
+        return { width: Math.round(r.width), form: Math.round(document.querySelector('input[autocomplete=name]').getBoundingClientRect().width), height: Math.round(r.height),
+          lines: Math.round(sr.height / lh) + (links.every(l => l.top < sr.bottom) ? 0 : 1), gapAbove: Math.round(r.top - above),
+          linkGap: Math.round(Math.max(links[1].left - links[0].right, links[1].top - links[0].bottom)), sentenceClear: links.every(l => l.left >= sr.right || l.top >= sr.bottom) };
+      });
+      if (width > 400) {
+        check(`${tag} consent spans the form`, Math.abs(fit.width - fit.form) <= 1, JSON.stringify(fit));
+        check(`${tag} consent lines`, fit.lines <= (lang === 'en' ? 2 : 3), JSON.stringify(fit));
+      } else if (PHONE_HEIGHT[width]) check(`${tag} consent no taller than before`, fit.height <= PHONE_HEIGHT[width][lang], JSON.stringify(fit));
+      check(`${tag} consent is its own block`, fit.gapAbove >= 8 && fit.sentenceClear && fit.linkGap >= 8, JSON.stringify(fit));
       check(`${tag} consent and targets fit`, layout.fits && layout.label >= 44 && layout.links.every(h => h >= 44), JSON.stringify(layout));
       await photograph(page, 'details-' + tag);
       if (width === 390 && lang === 'en' && !q && !BREAK && choice === 'unchecked') {
@@ -196,7 +220,7 @@ try {
     } catch(e) { const message = `${tag}: ${e.message.split('\n')[0]}`; failures.push(message); console.error('FAIL ' + message); }
     finally { await ctx.close(); }
   }
-  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
+  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : ALL_VIEWS)) {
     const ctx = await browser.newContext({ viewport: { width,height } }), page = await ctx.newPage(), logs = [];
     await routes(page); page.on('console',m => ['error','warning'].includes(m.type()) && logs.push(m.text())); page.on('pageerror',e => logs.push(e.message));
     try {
@@ -217,7 +241,7 @@ try {
     } catch(e) { failures.push(`privacy-${width}${q}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
   }
-  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
+  for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : ALL_VIEWS)) {
     const ctx = await browser.newContext({viewport:{width,height}}), page = await ctx.newPage(), logs=[];
     await routes(page); page.on('console',m => ['error','warning'].includes(m.type()) && logs.push(m.text())); page.on('pageerror',e => logs.push(e.message));
     try {
@@ -312,7 +336,7 @@ else {
   const serverArtifact = `.manager-shots/99.2f/server-${BREAK || 'clean'}.json`;
   writeFileSync(serverArtifact,JSON.stringify({scope:'Real handler and helper; database and delivery are in-memory stand-ins.',break:BREAK,cases:serverEvidence,canaryCaught},null,2));
   artifacts.push(serverArtifact);
-  const expected = SERVER_ONLY ? 20 : 68;
+  const expected = SERVER_ONLY ? 20 : 76;
   const r = writeReceipt({ check_id: BREAK ? `booking-consent-${BREAK}` : 'booking-consent', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: expected, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
     assertions_executed: assertions, min_assertions: SERVER_ONLY ? 75 : 650, failures, artifacts, dimensions: { break: BREAK, server_only: SERVER_ONLY, seen, scope: 'Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send.' },
