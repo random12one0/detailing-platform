@@ -1,9 +1,9 @@
 {
-  "git_sha": "ca6dabb656c02c713d82f89974301ee4e5677537",
-  "git_sha_started": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "git_sha": "13262063755973de542726ee830519828ec2e1be",
+  "git_sha_started": "13262063755973de542726ee830519828ec2e1be",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T00:22:36.358Z",
+  "finished_at": "2026-10-12T20:55:07.983Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -27,7 +27,7 @@
     }
   },
   "check_id": "release-gate",
-  "started_at": "2026-10-12T00:15:16.879Z",
+  "started_at": "2026-10-12T20:52:25.645Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
