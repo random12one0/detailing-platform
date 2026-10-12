@@ -9,7 +9,7 @@
 // FOUR STATES. `ok`; `bad` (broken now); `warn` (working, near a limit);
 // `never` (never seen working). Only `bad` may count on the nav badge: a job that
 // has not come round yet is not failing, and a monitor that cries wolf is worse
-// than none (AdminPage.jsx, ROADMAP 6.2a). Every non-ok state is LOUD on the page.
+// than none (ROADMAP 6.2a; the old screen's comment said the same). Every non-ok state is LOUD on the page.
 
 // The same names watch-jobs/index.ts uses for its alert email (ROADMAP 10.1).
 const JOB_LABELS = {

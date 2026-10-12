@@ -39,7 +39,7 @@ import { Segmented } from "../../components/controls.jsx";
 // THE WORDS AND THE SEVEN STATES COME FROM THE ONE TABLE THAT OWNS THEM. A
 // second vocabulary for `status` is how two screens come to disagree about
 // whether an email bounced, which is the one thing these lists exist to say —
-// `EmailTrail.jsx`'s own header, and the reason `AdminPage` imports the same
+// `EmailTrail.jsx`'s own header, and the reason the back office imports the same
 // map rather than copying it.
 import EmailTrail, { MAIL_STATE } from "../../components/EmailTrail.jsx";
 import Sheet from "../../components/Sheet.jsx";

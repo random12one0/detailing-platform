@@ -728,7 +728,7 @@ function BookingFlow({ notFound = null }) {
 
       {/* ROADMAP 8.5b — **THE CUSTOMER-FACING SURFACE NEVER DECLARED A MAIN
           LANDMARK, AND EVERYTHING ELSE IN THE PRODUCT DOES.** `App.jsx`,
-          `JobPage.jsx`, `AdminPage.jsx`, the landing page, pricing and legal
+          `JobPage.jsx`, the landing page, pricing and legal
           all render a real `<main>`; the booking pages render a bare `<div>`.
           So "jump to the main content" — the first thing a screen-reader user
           does on any page — does nothing here, on the one surface a STRANGER

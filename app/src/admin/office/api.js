@@ -1,7 +1,7 @@
 // The one way the new back office talks to the server: the `platform-admin` edge
 // function, behind the `platform_admins` gate. There is no `supabase.from()` in
-// this folder, for the reason AdminPage.jsx's header gives. (AdminPage.jsx keeps
-// its own copy of this until the old five tabs are retired, slice 5.)
+// this folder, for the reason the old screen's header gave. (The old screen kept
+// its own copy of this; it went with the old five tabs, ROADMAP 99.3b.)
 import { supabase } from "../../lib/supabase.js";
 
 export const call = async (body) => {

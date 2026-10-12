@@ -2,7 +2,7 @@
  * background, rings and charts, very few plain boxes: the look Andrew approved in
  * back-office-mockup.html, 2026-10-10.
  *
- * TWO RULES, the same two admin.css keeps: every class is `bo-` prefixed and this
+ * TWO RULES, the same two the old screen's stylesheet kept: every class is `bo-` prefixed and this
  * file shares NO RULE with theme.css, only its tokens (color, type, easing). The
  * back office can see every tenant, so a change made for a detailer must never
  * restyle it. `.lite` (?lite=1, reduced motion) removes all motion and every

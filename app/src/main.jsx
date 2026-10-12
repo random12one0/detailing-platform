@@ -142,7 +142,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             the browser is a suggestion. */}
         <Route path="/admin" element={<OfficePage />} />
         {/* ROADMAP 9.12a slice 6e (ROADMAP 99.3b): the rebuilt back office took
-            /admin outright and the old five-tab screen is unrouted. The deleted
+            /admin outright and the old five-tab screen is deleted. The deleted
             /admin/office address falls through to the "*" catch-all below, which
             draws the product's own 404 — a non-address, never a forward. Same
             rules as before: outside BusinessProvider, gate is on the server. */}

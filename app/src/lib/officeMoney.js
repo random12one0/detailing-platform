@@ -100,8 +100,8 @@ export function centsOf(text) {
 }
 
 /* ── what the platform charges, flattened and given its units ─────────────
-   Moved here from AdminPage.jsx (9.12a 6b) so the old screen and the Money place
-   read ONE copy. The table is two levels deep and mixes three kinds of number, so
+   Moved here from the old back-office screen (9.12a 6b) so the Money place
+   reads ONE copy. The table is two levels deep and mixes three kinds of number, so
    neither `String(v)` nor `money(v)` is right for all of it. THE KEY CARRIES THE
    UNIT — nothing else in the value knows whether 12 is dollars, months or a share.
    Anything unrecognised falls through as a plain number rather than being dressed

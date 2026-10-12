@@ -32,7 +32,7 @@ export function needsYou(rows, max = MAX_NEEDS) {
 // REAL DETAILERS ONLY (fixtures trip every stage by construction). EACH STAGE IS
 // COUNTED ON ITS OWN AGAINST EVERYONE, NOT AS A FUNNEL: a detailer can be booking
 // steadily with setup half-finished, and a funnel would file them under "stuck at
-// setup" and stop counting them (AdminPage.jsx records the same ruling). So a bar
+// setup" and stop counting them (the old screen recorded the same ruling). So a bar
 // can be longer than the one above it, and that is correct.
 export function signupPath(rows) {
   const live = (rows ?? []).filter((r) => !r.is_demo);

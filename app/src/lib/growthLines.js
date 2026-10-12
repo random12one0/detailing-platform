@@ -3,7 +3,7 @@
 // inside them, and do not build the stages.** `docs/9-2c-stages-proposal-2026-10-06.md`
 // has the reasoning; this file is where the fixes live.
 //
-// IT WAS A CONSTANT IN `AdminPage.jsx` AND MOVED HERE FOR ONE REASON: a screen
+// IT WAS A CONSTANT IN THE OLD BACK-OFFICE SCREEN AND MOVED HERE FOR ONE REASON: a screen
 // file cannot be imported by a Node test, and all three faults were of the same
 // shape, a sentence on the screen that said something the code behind it had
 // not worked out. A sentence nobody can run cannot be proved to have stopped
@@ -11,7 +11,7 @@
 // the questions, the notes beside the names and the advice are here.
 //
 // EACH LINE IS COUNTED ON ITS OWN, NOT AS A FUNNEL — and that is still the
-// decision, written in full above `TabGrowth`. A detailer can be on two lines.
+// decision; the old Growth tab stated it in full beside its table. A detailer can be on two lines.
 //
 // A ROW IS `[key, ok, note, todo]`:
 //   ok(r, ctx)    true when the detailer is FINE on this line; false puts them on it
