@@ -247,6 +247,7 @@ try {
 if (BEFORE) { if (failures.length) throw Error(failures.join('\n')); console.log('Before copies captured'); }
 else {
   const old = { sms_consent_at:'2026-09-01T12:00:00.000Z',sms_consent_source:'reply_start' };
+  const serverEvidence = [];
   const CASES = [
     ['absent', undefined, {}, false], ['false', false, {}, false], ['true', true, {}, true],
     ['string true', 'true', {}, false], ['string false', 'false', {}, false], ['number', 1, {}, false], ['null', null, {}, false],
@@ -264,6 +265,9 @@ else {
     const f = bookingFixture({ ...opts,consentBreak:BREAK });
     const result = await f.book({ ...fixtureBooking,sms_consent:consent,sms_consent_at:'2020-01-01',sms_consent_source:'reply_start' });
     const customer = f.rows.customers.find(r => r.business_id === 'tenant-a');
+    serverEvidence.push({name,status:result.status,savedConsent:!!customer?.sms_consent_at,source:customer?.sms_consent_source ?? null,
+      stopPreserved:customer?.sms_stopped_at ?? null,bookings:f.rows.bookings.length,confirmationCalls:f.sends.length,
+      otherTenantConsent:!!f.rows.customers.find(r => r.business_id === 'tenant-b').sms_consent_at});
     check(`${name} status`, result.status === (opts.refused ? 409 : opts.failedWrite ? 500 : 200), JSON.stringify(result));
     check(`${name} saved choice`, !!customer?.sms_consent_at === wanted, JSON.stringify(customer));
     check(`${name} other tenant unchanged`, !f.rows.customers.find(r => r.business_id === 'tenant-b').sms_consent_at);
@@ -304,6 +308,10 @@ else {
   await canary.book({...fixtureBooking,sms_consent:'true'});
   const canaryCaught = !!canary.rows.customers.find(r => r.business_id === 'tenant-a')?.sms_consent_at;
   check('canary truthy consent is detected',canaryCaught);
+  mkdirSync('.manager-shots/99.2f',{recursive:true});
+  const serverArtifact = `.manager-shots/99.2f/server-${BREAK || 'clean'}.json`;
+  writeFileSync(serverArtifact,JSON.stringify({scope:'Real handler and helper; database and delivery are in-memory stand-ins.',break:BREAK,cases:serverEvidence,canaryCaught},null,2));
+  artifacts.push(serverArtifact);
   const expected = SERVER_ONLY ? 20 : 68;
   const r = writeReceipt({ check_id: BREAK ? `booking-consent-${BREAK}` : 'booking-consent', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: expected, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
