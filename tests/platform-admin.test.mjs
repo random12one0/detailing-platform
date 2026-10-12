@@ -111,7 +111,7 @@ const read = (p) => readFileSync(MUT[p] ?? p, "utf8");
 
 const MIGRATIONS = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql"));
 const fn = read("supabase/functions/platform-admin/index.ts");
-const page = read("app/src/admin/AdminPage.jsx");
+const page = read("app/src/admin/office/OfficePage.jsx");
 const mig = read("supabase/migrations/20260906001000_platform_admin.sql");
 
 // ─── 1. NO POLICY ANYWHERE GRANTS CROSS-TENANT READ ───────────────────────
@@ -909,10 +909,13 @@ console.log("\n11. demos are marked and never counted");
   // collapse into one claim about the MECHANISM rather than two about a scroll.
   // Under 560px the drawer is the full width, so a phone still gets two levels
   // rather than one long page, which is what 12c asked for.
+  // RE-POINTED 2026-10-12 (99.3b-ii): the drawer is `.bo-panel` now (fixed sheet,
+  // 12px inset, min(500px, 100vw-24px)); the no-scrollTo half is scoped to the
+  // panel file because OfficePage's place-switcher resets the page top on purpose.
   check("11k · the open detailer needs no scroll, because it is not in the flow",
-    /\.pa-open \{ position: fixed; inset: 0;/.test(strip(read("app/src/admin/admin.css")))
-      && /width: min\(560px, 100%\)/.test(strip(read("app/src/admin/admin.css")))
-      && !/window\.scrollTo\(/.test(p),
+    /\.bo-panel \{ position: fixed;/.test(strip(read("app/src/admin/office/office.css")))
+      && /width: min\(500px, calc\(100vw - 24px\)\)/.test(strip(read("app/src/admin/office/office.css")))
+      && !/window\.scrollTo\(/.test(strip(read("app/src/admin/office/DetailerPanel.jsx"))),
     "a fixed overlay is on screen by construction; a scrollTo left behind would be the bug");
 
   // ─── the door says where it is (F-021) ──────────────────────────────────
@@ -962,7 +965,7 @@ console.log("\n11. demos are marked and never counted");
 console.log("\n12. the layout, and the motion the owner asked for");
 {
   const p = strip(page);
-  const css = strip(read("app/src/admin/admin.css"));
+  const css = strip(read("app/src/admin/office/office.css"));
   // main.jsx, because the degradation switch moved OUT of this stylesheet and
   // into one live listener there — see 12m.
   const main = read("app/src/main.jsx");
@@ -1120,10 +1123,10 @@ console.log("\n12. the layout, and the motion the owner asked for");
 // screenshot script publishing a password for the all-seeing account.
 console.log("\n13. the back office's own door (roadmap 8.2)");
 {
-  const p13 = strip(page);
+  const p13 = strip(read("app/src/admin/office/DetailerPanel.jsx"));
   const app = strip(read("app/src/App.jsx"));
   const impCode = strip(read("app/src/lib/impersonation.js"));
-  const css = read("app/src/admin/admin.css");
+  const css = read("app/src/admin/office/office.css");
   const theme = read("app/src/theme.css");
 
   // ══ IS THE NOTE MECHANISM STILL REACHABLE? ═══════════════════
@@ -1150,7 +1153,7 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // the CALL, not the definition — `impersonation.js` defines the function, so
   // a check for the name alone is satisfied by the corpse.
   const noteIsWired = [
-    "app/src/admin/AdminPage.jsx", "app/src/App.jsx",
+    "app/src/admin/office/DetailerPanel.jsx", "app/src/App.jsx",
     "app/src/context/BusinessContext.jsx", "app/src/screens/SiteIntake.jsx",
   ].some((f) => /(?<!function )beginImpersonation\(/.test(read(f)));
   const deadNote = "NOT MEASURED: nothing in app/src calls beginImpersonation, so no "
@@ -1424,7 +1427,9 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   const mig = read("supabase/migrations/20260907000300_email_safety_net.sql");
   const send = strip(read("supabase/functions/send-email/index.ts"));
   const admin = strip(read("supabase/functions/platform-admin/index.ts"));
-  const page = strip(read("app/src/admin/AdminPage.jsx"));
+  const sys = strip(read("app/src/lib/officeSystem.js"));
+  const gauges = strip(read("app/src/admin/office/places/system/Gauges.jsx"));
+  const mailJs = strip(read("app/src/admin/office/places/system/Mail.jsx"));
   const cb = strip(read("supabase/functions/create-business/index.ts"));
   const tpl = strip(read("supabase/functions/_shared/emailTemplates.ts"));
 
@@ -1485,9 +1490,12 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   // Quotas row on Plumbing. Both are asserted, because the alert alone would
   // mean the figure is unreadable on a quiet day and the row alone would mean
   // nobody is told on a busy one.
+  // RE-POINTED 2026-10-12 (99.3b-ii): the meter is the "Email today" gauge beside
+  // "Photo storage"; the words live in lib/officeSystem.js and print through the
+  // gauge and the "Needs a look" list. "Platform emails" is now "Email we sent".
   check("14c-ii · and the screen prints it beside the other silent limits",
-    /Platform emails: \$\{mail\.sent\} of \$\{mail\.cap\} today/.test(page)
-      && /\{mail\?\.sent \?\? 0\} of \{mail\?\.cap \?\? 0\}/.test(page));
+    /label="Email today"/.test(gauges) && /label="Photo storage"/.test(gauges)
+      && /of={`of \$\{m\.cap\} a day`}/.test(gauges));
   // **"PLATFORM" IS LOAD-BEARING AND IS NOT A TIDIER LABEL — 2026-09-08,
   // measured by domain.** `sent` comes from `platform_email_days`, a table in
   // THIS project, so it counts what the platform sent. The cap is Resend's
@@ -1498,10 +1506,10 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   // a busy Saturday can read comfortable while the account is at its limit.
   // Dropping the word puts that claim back.
   check("14c-ii-b · the label says WHICH emails, because the cap is shared",
-    /Platform emails/.test(page) && !/\{`Emails: /.test(page),
+    /Email we sent/.test(mailJs) && !/\{`Emails: /.test(mailJs),
     "the numerator is platform-only and the cap is account-wide");
   check("14c-ii-c · and the warning says the account may be higher",
-    /shared with andrewsdetail\.com/.test(page),
+    /shared with andrewsdetail\.com/.test(sys),
     "at four fifths of a SHARED cap, the real figure is the one that matters");
   // **AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that arrives AT the cap is
   // a warning about emails that have already failed.
@@ -1509,14 +1517,14 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   // two places — the alert is pushed at `>= cap * 0.8`, and the Quotas meter
   // turns at `mailPct >= 80`. The THRESHOLD is the property, not the class name.
   check("14c-iii · it goes red before the cap, not at it",
-    /mail\.sent >= mail\.cap \* 0\.8/.test(page)
-      && /mailPct >= 80 \? " pa-warn"/.test(page));
+    /sent >= cap \* 0\.8/.test(sys)
+      && /stroke=\{COLOR\[c\.state\]\}/.test(gauges));
   // **AND THE WAY TO SILENCE IT IS TO RAISE THE CAP** — his own sentence read
   // literally. A dismiss flag silences a true statement and leaves the next
   // busy Saturday exactly where F-025 found it.
   check("14c-iv · the cap is a stored number, so raising it is the answer",
     /email_daily_cap integer not null default 100/.test(mig)
-      && !/dismiss/i.test(page.slice(page.indexOf("state.email"), page.indexOf("state.email") + 900)));
+      && !/dismiss/i.test(sys + gauges));
 
   // ── R2: SOMEBODY SIGNED UP ────────────────────────────────────────────
   // **RE-POINTED 2026-10-06.** The words moved out of the caller into
@@ -1538,7 +1546,7 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   // A GUARD THAT SKIPS MUST PRINT. A feature that is switched off looks
   // exactly like a feature that is quiet.
   check("14d-iv · and the screen says when nobody is being told",
-    /NOBODY is being emailed about signups/.test(page));
+    /Nobody is told about signups/.test(sys));
 
   // ── ONE TEMPLATE, NOT ONE PER EVENT ───────────────────────────────────
   // A signup, a first payment and 8.12's dead-man's switch are the same
@@ -1665,7 +1673,7 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
   check("16e · a name with a quote, backslash and comma is escaped for a quoted filter value",
     esc(`A "B", C${BS}D`) === `A ${BS}"B${BS}", C${BS}${BS}D`, esc(`A "B", C${BS}D`));
   check("16f · the server applies exactly that escaping", !!h && h.includes(`.replace(/[${BS}${BS}"]/g, "${BS}${BS}$&")`), "escape line differs from the one tested above");
-  const ui = read("app/src/admin/AdminPage.jsx");
+  const ui = read("app/src/admin/office/DetailerPanel.jsx");
   check("16g · an action the screen has no words for is shown by its raw name, not dropped",
     /ADMIN_EVENT_WORDS\[e\.action\] \?\? e\.action/.test(ui));
   check("16h · the panel still has three states: reading / populated / empty",

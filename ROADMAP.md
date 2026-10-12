@@ -29540,6 +29540,13 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     - [x] 99.3b-i — delete AdminPage.jsx + admin.css; clear the comment cross-references; confirm no import remains. DONE 2026-10-12 (commit `002639c3`): both files deleted (2,851 lines gone), 8 comment cross-refs neutralised, dangling-ref grep clean, credentials gate 1/1, `npm run build --prefix app` green, no-credentials gate PASS. No visible change: the old screen was already unrouted.
     - [ ] 99.3b-ii — re-home or retire every suite pin in the triage list (fixed-furniture `.pa-*` rows retire with
       admin-furniture-clearance, same as `.tourcard`).
+      Platform-admin part 1 DONE 2026-10-12 (NOT green, NOT committed as done — checkpoint only): file-level crash
+      fixed (page/css/ui re-pointed to OfficePage.jsx/office.css/DetailerPanel.jsx), 11k re-pinned to DetailerPanel
+      (.bo-panel/min(500px,calc(100vw-24px))/no-scroll), section 14 re-pinned to officeSystem.js+Gauges.jsx+Mail.jsx
+      (14c-ii Email today gauge, 14c-iii sent column, COLOR warn stroke, no-dismiss, Nobody line). Suite runs:
+      134 passed, 50 failed, 7 skipped. REMAINING reds for part 2: 2b-ii, 7-tile x4, 8-site x2, 9h, 9i, 10g, 10h,
+      10h-ii, 10i, 11f, 11g, 11h-iv, 11i, 11j, 11j-ii, 12a-e, 12g-12q (motion+chart), 13a-c, 13f series, 13o series,
+      15e, 16g, 16h. Then sabotage (ADMIN_BREAK), clean re-run, commit.
       Batch 1 DONE 2026-10-12: money-overstatement Taken pins -> office/places/money/Kept.jsx ("You kept" judged
       cash-correct under the accrual rule: paid-invoice base, null-till-complete); queue 9.2 re-proof -> lib/growthLines.js
       STUCK; legal-promises buildfee-notice-terms UNBACKED (no screen sends build_start since the old screen went —
