@@ -149,7 +149,7 @@ try {
       }
       const expect = choice === 'checked';
       if (choice === 'unchecked') {
-        await page.locator('.bk-bar .bk-btn.primary').click();
+        await page.locator('.bk-bar .bk-btn.primary').click({force:true});
         check(`${tag} incomplete booking refused`, network.calls.length === 0 && await page.locator('input[type=tel]').count() === 1);
       }
       await page.getByLabel(lang === 'en' ? 'Your name' : 'Tu nombre', { exact: true }).fill('Maria Lopez');
