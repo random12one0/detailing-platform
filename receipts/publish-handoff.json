@@ -1,0 +1,31 @@
+{
+  "git_sha": "971e2c1ba4c285fcdccd9b694be26dd258337c00",
+  "git_sha_started": "971e2c1ba4c285fcdccd9b694be26dd258337c00",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T00:10:49.109Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/publish-handoff/commands-as-tested.txt"
+  ],
+  "dimensions": {
+    "block": "FOR-ANDREW.md 0.6b-handoff",
+    "publish_lines": 4
+  },
+  "check_id": "publish-handoff",
+  "started_at": "2026-10-12T00:10:48.756Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "assertion_floor": "9 order and path questions + 9 picker questions over 4 fixed inventories + 2 wording questions; nothing the run finds changes the count",
+  "canary": {
+    "id": "empty-inventory-refused",
+    "observed_failure": true
+  }
+}
