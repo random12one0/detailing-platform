@@ -1,6 +1,6 @@
-// THE NEW BACK OFFICE (ROADMAP 9.12a). It lives at /admin/office while it is
+// THE BACK OFFICE (ROADMAP 9.12a). It lived at /admin/office while it was built
 // built a place at a time; the old five-tab /admin stays up until the last place
-// lands (slice 5), so nothing Andrew uses is taken away early.
+// lands (slice 6e / ROADMAP 99.3b), when it replaced the old screen outright at /admin.
 //
 // WHAT HAS NOT CHANGED, AND MUST NOT:
 // * every byte comes from the `platform-admin` edge function (api.js) and the
@@ -14,6 +14,7 @@
 // on a phone, Ctrl K), and the active place from places.jsx. The side panel and
 // the finder are mounted here so they work from any place.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import NotFound from "../../screens/NotFound.jsx";
 import { supabase } from "../../lib/supabase.js";
 import { signOutEverything } from "../../lib/signout.js";
@@ -25,10 +26,16 @@ import { PLACES, placeOf } from "./places.jsx";
 import "./office.css";
 
 const TODAY = () => new Date().toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
+// Plan step 8 (ROADMAP 99.3): the rail shows who is signed in. The address
+// before the @, de-dotted; never a hardcoded name.
+const nameOf = (email) => {
+  const who = String(email ?? "").split("@")[0].replace(/[._-]+/g, " ").trim();
+  return who ? who.replace(/\b\w/g, (c) => c.toUpperCase()) : "Back office";
+};
 const CONCURRENCY = 5;
 
 export default function OfficePage() {
-  const [status, setStatus] = useState("checking");   // checking | denied | ok
+  const [status, setStatus] = useState("checking");   // checking | anon | denied | ok
   const [email, setEmail] = useState("");
   const [state, setState] = useState(null);
   const [err, setErr] = useState("");
@@ -38,6 +45,12 @@ export default function OfficePage() {
   const [finder, setFinder] = useState(false);
   const [details, setDetails] = useState({});         // id -> get payload | { error: true }
   const asked = useRef(new Set());
+  /* ── the door: unsigned visitors sign in HERE since 6e moved the /admin
+     address onto this page. Same words and same one-message refusal as the
+     old screen's door; `bo-` styling. ── */
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [showPw, setShowPw] = useState(false);
+  const [doorErr, setDoorErr] = useState("");
   const queue = useRef([]);
   const running = useRef(0);
 
@@ -51,14 +64,24 @@ export default function OfficePage() {
       const { data } = await supabase.auth.getSession();
       const s = data?.session;
       if (!live) return;
-      // No session: the sign-in door lives on /admin until the old screen retires.
-      if (!s) { window.location.replace("/admin"); return; }
+      // No session: the door below signs them in (6e). Nothing to bounce to.
+      if (!s) { setStatus("anon"); return; }
       setEmail(s.user?.email ?? "");
       try { await call({ action: "whoami" }); if (!live) return; setStatus("ok"); load(); }
       catch { if (live) setStatus("denied"); }
     })();
     return () => { live = false; };
   }, [load]);
+
+  const signIn = async (e) => {
+    e.preventDefault();
+    setDoorErr("");
+    const { error } = await supabase.auth.signInWithPassword(form);
+    // ONE MESSAGE FOR BOTH HALVES. "No such account" tells somebody which
+    // addresses are real.
+    if (error) { setDoorErr("That email and password do not match."); return; }
+    window.location.reload();
+  };
 
   // `get` for one detailer, five at a time, once. `force` re-reads after a change.
   const pump = useCallback(() => {
@@ -107,6 +130,44 @@ export default function OfficePage() {
   }, [go]);
 
   if (status === "checking") return <div className="bo"><Ground /></div>;
+  // THE DOOR. Same words as the retired screen's door, own `bo-` styling.
+  if (status === "anon") {
+    return (
+      <div className="bo">
+        <Ground />
+        <div className="bo-door">
+          <div className="bo-door-in">
+            <span className="bo-door-eyebrow">Detailing Platform · back office</span>
+            <h1>Sign in</h1>
+            <p className="bo-door-sub">This is the platform&apos;s own screen, not a detailer&apos;s.</p>
+            <form onSubmit={signIn}>
+              <label className="bo-field">
+                <span>Email</span>
+                <input type="email" autoComplete="username" required
+                       value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              </label>
+              <label className="bo-field">
+                <span>Password</span>
+                <span className="bo-pw">
+                  <input type={showPw ? "text" : "password"} autoComplete="current-password" required
+                         value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                  <button type="button" aria-pressed={showPw}
+                          aria-label={showPw ? "Hide password" : "Show password"}
+                          onClick={() => setShowPw((v) => !v)}>
+                    {showPw ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
+                  </button>
+                </span>
+              </label>
+              {doorErr && <p className="bo-err">{doorErr}</p>}
+              <div className="bo-door-acts">
+                <button className="bo-btn go" type="submit">Sign in</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (status === "denied") return <NotFound />;
 
   const place = placeOf(placeKey);
@@ -149,7 +210,7 @@ export default function OfficePage() {
           </button>
           <div className="bo-me">
             <span className="bo-av" style={{ "--c": "#38E08B" }}>{(email[0] ?? "A").toUpperCase()}</span>
-            <div><b>Andrew</b><button type="button" onClick={signOutEverything}>Sign out</button></div>
+            <div><b>{nameOf(email)}</b><button type="button" onClick={signOutEverything}>Sign out</button></div>
           </div>
         </nav>
 

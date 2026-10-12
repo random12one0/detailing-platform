@@ -18,7 +18,6 @@ import { installEmbedHeight } from "./lib/embedHeight.js";
 import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
 import ResetPassword from "./screens/ResetPassword.jsx";
-import AdminPage from "./admin/AdminPage.jsx";
 import OfficePage from "./admin/office/OfficePage.jsx";
 import PreviewEntry from "./admin/PreviewEntry.jsx";
 import NotFound from "./screens/NotFound.jsx";
@@ -137,15 +136,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             uses — and, worse, would put a screen that can see every tenant
             inside the same context tree as the one a detailer opens. 4.4's
             own security requirement is "its own route and layout"; this line
-            and `admin/admin.css` are the two halves of it.
+            and `admin/office/office.css` are the two halves of it.
             The GATE is not here and must never be: it is `platform_admins`,
             read by the edge function under the service role. A route guard in
             the browser is a suggestion. */}
-        <Route path="/admin" element={<AdminPage />} />
-        {/* ROADMAP 9.12a: the rebuilt back office, one place at a time. /admin stays
-            the real screen until the last place lands (slice 5). Same rules as the
-            route above: outside BusinessProvider, gate is on the server. */}
-        <Route path="/admin/office" element={<OfficePage />} />
+        <Route path="/admin" element={<OfficePage />} />
+        {/* ROADMAP 9.12a slice 6e (ROADMAP 99.3b): the rebuilt back office took
+            /admin outright and the old five-tab screen is unrouted. The deleted
+            /admin/office address falls through to the "*" catch-all below, which
+            draws the product's own 404 — a non-address, never a forward. Same
+            rules as before: outside BusinessProvider, gate is on the server. */}
         {/* The back office opens this in a NEW TAB to look at a detailer's
             dashboard. Outside BusinessProvider: there is no session in this
             tab yet, and the whole point is that the one next door is left
