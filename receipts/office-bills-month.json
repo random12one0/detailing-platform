@@ -1,0 +1,116 @@
+{
+  "git_sha": "da7619e580eb44cfb2586d3d97fb9ca7d57574fc",
+  "git_sha_started": "da7619e580eb44cfb2586d3d97fb9ca7d57574fc",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T06:04:32.735Z",
+  "failures": [],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers with an in-memory ledger. Asks what the screen sends and shows, not whether the server accepts a bill (costEntry owns that).",
+    "The look itself is not judged here; the saved screenshots and the frozen copies in belt/shots/9.12a are the evidence for that."
+  ],
+  "artifacts": [
+    "artifacts/office-bills-month/this-month-390.png",
+    "artifacts/office-bills-month/last-month-390.png",
+    "artifacts/office-bills-month/form-390.png",
+    "artifacts/office-bills-month/this-month-392.png",
+    "artifacts/office-bills-month/last-month-392.png",
+    "artifacts/office-bills-month/form-392.png",
+    "artifacts/office-bills-month/this-month-320.png",
+    "artifacts/office-bills-month/last-month-320.png",
+    "artifacts/office-bills-month/form-320.png",
+    "artifacts/office-bills-month/this-month-768.png",
+    "artifacts/office-bills-month/last-month-768.png",
+    "artifacts/office-bills-month/form-768.png",
+    "artifacts/office-bills-month/this-month-1440.png",
+    "artifacts/office-bills-month/last-month-1440.png",
+    "artifacts/office-bills-month/form-1440.png",
+    "artifacts/office-bills-month/this-month-1920.png",
+    "artifacts/office-bills-month/last-month-1920.png",
+    "artifacts/office-bills-month/form-1920.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "392x844",
+      "320x700",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "lite": false,
+    "months_back": 11,
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      },
+      "390": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      },
+      "392": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      },
+      "768": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      },
+      "1920": {
+        "calls": [
+          "whoami",
+          "list",
+          "platform_net",
+          "platform_cost_add"
+        ],
+        "months_asked": 12
+      }
+    }
+  },
+  "check_id": "office-bills-month",
+  "started_at": "2026-10-12T06:02:50.057Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 144,
+  "min_assertions": 144,
+  "assertion_floor": "6 widths x 24 questions (switch on this month 5, one press back 5, a past-month bill 3, refused 2, switching closes the form 3, untouched this month and the 12-month limit 6); a missing switch reddens its first question and the rest are not asked, so the total drops below the floor.",
+  "canary": {
+    "id": "injected-overlapping-month-button",
+    "observed_failure": true,
+    "overlap": "overlaps 0 -> 1"
+  }
+}
