@@ -1,0 +1,38 @@
+{
+  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T07:49:33.457Z",
+  "failures": [
+    "7 digits refused (555-0123 -> 400): got 200 {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_p",
+    "7 digits refused error names the phone: {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":185,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}",
+    "1 digit refused (5 -> 400): got 200 {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_p",
+    "1 digit refused error names the phone: {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":185,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}",
+    "short +44 refused (+44 770 -> 400): got 200 {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_p",
+    "short +44 refused error names the phone: {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":185,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}",
+    "11 digits without leading 1 refused (25550123456 -> 400): got 200 {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_p",
+    "11 digits without leading 1 refused error names the phone: {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":185,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}"
+  ],
+  "warnings": [
+    "run with --break=blank-only; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "scope": "Real create-booking handler with in-memory stand-ins; no database, no sends."
+  },
+  "check_id": "99.8-phone-blank-only",
+  "started_at": "2026-10-12T07:49:33.330Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 15,
+  "canary": {
+    "id": "full 10-digit booking lands with one row and one confirmation",
+    "observed_failure": true
+  }
+}

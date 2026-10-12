@@ -1,0 +1,31 @@
+{
+  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T08:05:19.123Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/before.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/after.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/where.json"
+  ],
+  "dimensions": {
+    "scope": "Public booking page at 392 and 1440 in English and Spanish; local responses stand in for the database."
+  },
+  "check_id": "99.8-browser",
+  "started_at": "2026-10-12T08:03:57.707Z",
+  "status": "pass",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 54,
+  "min_assertions": 10,
+  "canary": {
+    "id": "blank-only core served by route lets seven digits reach review",
+    "observed_failure": true
+  }
+}

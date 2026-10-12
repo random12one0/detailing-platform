@@ -1,9 +1,9 @@
 {
-  "git_sha": "2d93044e4d001a89325cf9e104390cdd347f2c19",
-  "git_sha_started": "2d93044e4d001a89325cf9e104390cdd347f2c19",
+  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T06:02:24.784Z",
+  "finished_at": "2026-10-12T08:12:52.229Z",
   "failures": [
     "declared label no longer in the product: \"sam.ortiz@example.com\" (shots-99-4.mjs)"
   ],
@@ -25,14 +25,14 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-12T06:02:24.569Z",
+  "started_at": "2026-10-12T08:12:52.099Z",
   "status": "fail",
-  "expected_targets": 90,
-  "discovered_targets": 90,
-  "attempted_targets": 90,
-  "completed_targets": 90,
+  "expected_targets": 91,
+  "discovered_targets": 91,
+  "attempted_targets": 91,
+  "completed_targets": 91,
   "skipped_targets": 0,
-  "assertions_executed": 90,
+  "assertions_executed": 91,
   "min_assertions": 30,
   "canary": {
     "id": "a declared label that no product could contain",

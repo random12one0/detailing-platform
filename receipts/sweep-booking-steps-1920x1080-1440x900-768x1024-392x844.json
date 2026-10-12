@@ -1,9 +1,9 @@
 {
-  "git_sha": "9085fc7a33e7f54e9de5f577b3a92c15cba7f1d4",
-  "git_sha_started": "9085fc7a33e7f54e9de5f577b3a92c15cba7f1d4",
+  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T07:21:53.921Z",
+  "finished_at": "2026-10-12T08:16:31.770Z",
   "failures": [],
   "warnings": [
     "0 reading(s) fail W16; 0 fault(s) are not W16"
@@ -25,7 +25,7 @@
     "canary_over_px": 788
   },
   "check_id": "sweep-booking-steps-1920x1080-1440x900-768x1024-392x844",
-  "started_at": "2026-10-12T07:18:30.039Z",
+  "started_at": "2026-10-12T08:13:02.751Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,

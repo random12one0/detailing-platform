@@ -1,0 +1,31 @@
+{
+  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T08:05:34.202Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/before.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/after.html",
+    "C:/Users/rando/Downloads/claude/belt/shots/99.8/where.json"
+  ],
+  "dimensions": {
+    "scope": "Real create-booking handler with in-memory stand-ins; no database, no sends."
+  },
+  "check_id": "99.8-phone",
+  "started_at": "2026-10-12T08:05:34.073Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 10,
+  "canary": {
+    "id": "full 10-digit booking lands with one row and one confirmation",
+    "observed_failure": true
+  }
+}

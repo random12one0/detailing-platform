@@ -16,11 +16,11 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   const helperErrors = [];
   const helper = new Function('console',stripTypeScriptTypes(helperSrc).replace('export ', '') + '; return saveBookingSmsConsent;')({error(...args) { helperErrors.push(args.map(String).join(' ')); }});
   const rows = { customers: [
-    ...(existing ? [{ business_id: 'tenant-a', id: 'customer-a', phone: '555-0123', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...existing }] : []),
-    { business_id: 'tenant-b', id: 'customer-b', phone: '555-0123', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null },
+    ...(existing ? [{ business_id: 'tenant-a', id: 'customer-a', phone: '(555) 012-3456', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...existing }] : []),
+    { business_id: 'tenant-b', id: 'customer-b', phone: '(555) 012-3456', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null },
   ], bookings: [], booking_services: [], booking_add_ons: [] };
   const operations = [], sends = [], errors = [];
-  const oldBooking = { id: 'booking-a', business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '555-0123', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', deleted_at: null };
+  const oldBooking = { id: 'booking-a', business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '(555) 012-3456', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', deleted_at: null };
   if (duplicate) rows.bookings.push(oldBooking);
   const db = {
     from(table) {
@@ -84,4 +84,4 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   };
 }
 
-export const fixtureBooking = { business_slug:'consent-proof',customer_name:'Maria Lopez',customer_phone:'555-0123',customer_email:'maria@example.invalid',service_type:'dropoff',vehicle_size:'small',service_ids:['service-a'],booking_date:'2026-10-30',start_time:'10:00' };
+export const fixtureBooking = { business_slug:'consent-proof',customer_name:'Maria Lopez',customer_phone:'(555) 012-3456',customer_email:'maria@example.invalid',service_type:'dropoff',vehicle_size:'small',service_ids:['service-a'],booking_date:'2026-10-30',start_time:'10:00' };
