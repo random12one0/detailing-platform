@@ -186,7 +186,7 @@ async function openPage(size) {
     if (document.head) add(); else document.addEventListener("DOMContentLoaded", add);
   });
   watchConsole(page, `${size.w}`, consoleNoise);
-  await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#money`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#money`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-money", { timeout: 60000 });
   await settle(page, 1400);
   return { ctx, page, sent, answer };
@@ -219,7 +219,7 @@ try {
     }
     writeFileSync(`${SHOTS}/where.json`, JSON.stringify({
       what: "The price editor opens ready to edit on one press, at under half its old height on a phone, with each price once in a small box; the quick look shows the setup fee instead of the founding price.",
-      url: `${BASE}/admin/office#money`,
+      url: `${BASE}/admin#money`,
       how: "Open the back office, tap Money, scroll to What detailers pay, tap it once.",
       situation: "The built-in price table: eleven prices and contract terms, nothing changed yet.",
     }, null, 2) + "\n");

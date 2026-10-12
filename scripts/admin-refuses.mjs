@@ -8,7 +8,7 @@
 // login) and per width (1440, 392, 320), each in a fresh browser context:
 //   - the gear menu draws NO "The website business" row, for anybody (ROADMAP 99.3a:
 //     Andrew reaches the back office by typing /admin; it was drawn for the roster until then);
-//   - `/admin` opens the back office (`.pa-top`)        iff the account is on the roster,
+//   - `/admin` opens the back office (`.bo-rail`)        iff the account is on the roster,
 //     and otherwise the product's own 404 (`main.nf`) — never both, never neither;
 //   - the console holds nothing but the designed `platform-admin` 404 lines
 //     (docs/gotchas.md 120) for an account that is refused.
@@ -129,9 +129,9 @@ try {
 
       // /admin: `attached`, not the default `visible` (gotchas 107).
       await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-      await page.waitForSelector(".pa-top, main.nf", { state: "attached", timeout: 30000 }).catch(() => {});
+      await page.waitForSelector(".bo-rail, main.nf", { state: "attached", timeout: 30000 }).catch(() => {});
       await page.waitForTimeout(800);
-      const seen = { admitted: (await page.locator(".pa-top").count()) > 0, refused: (await page.locator("main.nf").count()) > 0 };
+      const seen = { admitted: (await page.locator(".bo-rail").count()) > 0, refused: (await page.locator("main.nf").count()) > 0 };
       if (!BREAK) {
         await page.screenshot({ path: join(ART, `${acct.label}-${w}.png`) });
         artifacts.push(`.manager-shots/12.4/${acct.label}-${w}.png`);

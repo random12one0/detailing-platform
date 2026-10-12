@@ -147,7 +147,7 @@ async function openPage(size) {
     if (document.head) s(); else document.addEventListener("DOMContentLoaded", s);
   });
   watchConsole(page, `${size.w}`, consoleNoise);
-  await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#money`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#money`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-money", { timeout: 60000 });
   await settle(page, 1400);
   return { ctx, page, sent, answer, ledger };
@@ -182,7 +182,7 @@ try {
     await ctx.close();
     writeFileSync(`${SHOTS}/where.json`, JSON.stringify({
       what: "Money's Platform bills has a month switch, so last month's (and earlier months') bills can be read and typed in.",
-      url: `${BASE}/admin/office#money`,
+      url: `${BASE}/admin#money`,
       how: "Open the back office, tap Money, scroll to Platform bills, tap the left arrow beside the month.",
       situation: "Last month already has a hosting bill ($19) and a database bill ($25); the email and domain bills for it are not typed in yet.",
       before: "The Before copy shows the same section with no month switch.",

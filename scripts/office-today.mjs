@@ -181,13 +181,13 @@ try {
       await page.waitForSelector("input[type=email]", { timeout: 40000 });
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button[type=submit]");
+      await page.waitForSelector(".bo-rail", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
 
     // ── LIVE PASS ───────────────────────────────────────────────────────────
-    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bo-sec", { timeout: 60000 });
     // Every month answered (the bars exist from the first frame, so counting them proves nothing).
     await page.waitForFunction(() => document.querySelectorAll(".bo-mcol").length === 12
@@ -269,7 +269,7 @@ try {
       const j = await res.json();
       await route.fulfill({ response: res, json: { ...j, rows: fed.rows } });
     });
-    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bo-need", { timeout: 60000 });
     await settle(page, 1500);
     await page.evaluate((m) => document.querySelectorAll(".bo-need").forEach((li) => { li.dataset.hasPhone = m[li.querySelector("b").textContent] ? "1" : "0"; }), Object.fromEntries(phoneOf));

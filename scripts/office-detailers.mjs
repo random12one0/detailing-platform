@@ -154,11 +154,11 @@ try {
       await page.waitForSelector("input[type=email]", { timeout: 40000 });
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button[type=submit]");
+      await page.waitForSelector(".bo-rail", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
-    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#detailers`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#detailers`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bo-row", { timeout: 60000 });
     await settle(page, 1600);
 

@@ -278,7 +278,9 @@ console.log("\n4. the audit covers more than the one action 4.4 asked for");
 // ─── 5. The screen cannot reach the database directly ─────────────────────
 console.log("\n5. the back office reads nothing through RLS");
 {
-  const p = strip(page);
+  // 9.12a slice 6e: the LIVE screen is OfficePage at /admin (AdminPage.jsx stays
+  // on disk unrouted until part 2 deletes it; other sections still pin it).
+  const p = strip(read("app/src/admin/office/OfficePage.jsx"));
   absent("NOT ONE supabase.from() ON THE ADMIN SCREEN", p, /supabase\.from\(/,
     /supabase\.auth\.getSession\(\)/,
     "every byte comes through the edge function, which is what makes the absent policies safe");
@@ -289,10 +291,10 @@ console.log("\n5. the back office reads nothing through RLS");
   // `tests/booking-core.test.mjs` § 1 carries the same note.
   check("it is not wrapped in BusinessProvider",
     !/BusinessProvider/.test(p)
-    && /<Route path="\/admin" element=\{<AdminPage \/>\} \/>/.test(read("app/src/main.jsx")),
+    && /<Route path="\/admin" element=\{<OfficePage \/>\} \/>/.test(read("app/src/main.jsx")),
     "a screen that can see every business must not sit in the same context tree as one a detailer opens");
   check("it has its own stylesheet and shares no rule",
-    /import "\.\/admin\.css"/.test(page)
+    /import "\.\/office\.css"/.test(read("app/src/admin/office/OfficePage.jsx"))
     && !/\.card\b|\.nav-row\b|className="btn/.test(p),
     "a shared selector is the quiet way 'its own layout' gets broken");
 }

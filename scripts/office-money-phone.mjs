@@ -187,7 +187,7 @@ mkdirSync(ART, { recursive: true });
 mkdirSync(SHOTS, { recursive: true });
 
 const openMoney = async (page, zoom) => {
-  await page.goto(`${BASE}/admin/office#money`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin#money`, { waitUntil: "domcontentloaded" });
   if (zoom) await page.addStyleTag({ content: `html { zoom: ${zoom}; }` });
   await page.waitForSelector(".bo-money", { timeout: 60000 });
   await page.waitForFunction(() => !/Reading/.test(document.querySelector(".bo-money").innerText), null, { timeout: 40000 });
@@ -289,7 +289,7 @@ try {
     await page.route("**/auth/v1/user**", (r) => r.fulfill({ json: user }));
     await page.route("**/functions/v1/platform-admin", (route) => route.fulfill({ json: (({ whoami: { email: user.email }, list: { rows: ROWS, totals: {}, prices: { current: null, built_in: BUILT_IN } }, platform_net: NET })[JSON.parse(route.request().postData() || "{}").action]) ?? {} }));
     console.log(`\n${where}`);
-    await page.goto(`${BASE}/admin/office`);
+    await page.goto(`${BASE}/admin`);
     await page.waitForSelector(".bo-nav.on", { timeout: 60000 });
     // Pressed, not addressed: a hash-only goto does not reload, so the place would not change.
     for (const tab of ["Today", "Money", "System"]) {

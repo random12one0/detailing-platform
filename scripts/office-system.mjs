@@ -165,7 +165,7 @@ mkdirSync(ART, { recursive: true });
 // about:blank first: the same URL with only a #hash would not reload the page.
 const openSystem = async (page) => {
   await page.goto("about:blank");
-  await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#system`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#system`, { waitUntil: "domcontentloaded" });
   // 9.12d folds "Every check" at arrival: open it, so the questions below measure the list a reader opens.
   await page.waitForSelector(".bo-system .bo-checks li", { timeout: 60000, state: "attached" });
   await page.locator('section[aria-label="Every check"] summary').click();
@@ -190,8 +190,8 @@ try {
       await page.waitForSelector("input[type=email]", { timeout: 40000 });
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button[type=submit]");
+      await page.waitForSelector(".bo-rail", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
 

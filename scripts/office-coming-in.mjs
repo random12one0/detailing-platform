@@ -132,7 +132,7 @@ mkdirSync(ART, { recursive: true });
 mkdirSync(SHOTS, { recursive: true });
 
 const openMoney = async (page, { lite = false } = {}) => {
-  await page.goto(`${BASE}/admin/office${lite ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${lite ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-nav", { timeout: 60000 });
   await page.locator(".bo-nav").filter({ hasText: "Money" }).click();
   await page.waitForSelector(".bo-money", { timeout: 20000 });
@@ -273,7 +273,7 @@ try {
       await freeze(page, { out: "C:/Users/rando/Downloads/claude/belt/shots/9.12a/after-money.html", label: "After", note: "Money's phone timeline and zero-dollar chart now fit the page.", highlight: ".bo-tl .now" });
       await freeze(page, { out: `${SHOTS}/after-phone.html`, label: "After (phone)", note: "Every renewal is reachable by ordinary page scrolling, with no sideways scrolling or clipped labels.", highlight: ".bo-tl .now" });
       artifacts.push(`${SHOTS}/after.html`, `${SHOTS}/after-zero.html`);
-      writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Phone renewals now run down a timeline with full labels and list badges; the empty chart is compact.", url: `${BASE}/admin/office#money`, how: "Open the back office and tap Money, then scroll to Coming in.", situation: "Nine upcoming renewals, including three on one day, two yearly plans, a failed card, and a zero-dollar month." }, null, 2));
+      writeFileSync(`${SHOTS}/where.json`, JSON.stringify({ what: "Phone renewals now run down a timeline with full labels and list badges; the empty chart is compact.", url: `${BASE}/admin#money`, how: "Open the back office and tap Money, then scroll to Coming in.", situation: "Nine upcoming renewals, including three on one day, two yearly plans, a failed card, and a zero-dollar month." }, null, 2));
     }
 
     // ── EMPTY: nothing paying ─────────────────────────────────────────────────

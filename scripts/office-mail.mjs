@@ -62,7 +62,7 @@ async function open(w,h) {
     return r.fulfill({json:{rows}});
   });
   if(BREAK==='hidden')await page.addStyleTag({content:'.bo-mail {display:none!important}'}).catch(()=>{});
-  await page.goto(`${BASE}/admin/office${LITE?'?lite=1':''}#system`);
+  await page.goto(`${BASE}/admin${LITE?'?lite=1':''}#system`);
   await page.waitForSelector('.bo-system'); await page.waitForTimeout(1300);
   if(BREAK==='hidden')await page.addStyleTag({content:'.bo-mail {display:none!important}'});
   return {page,context,sent,noise,setMode:v=>{mode=v;},held:()=>hold};
@@ -74,7 +74,7 @@ try {
     await freeze(page,{out:`${SHOTS}/${FREEZE}.html`,label:FREEZE==='before'?'Before':'After',note:FREEZE==='before'?'System has no list of the emails sent for detailers.':'System now shows sent emails, their recipients and delivery problems.',highlight:FREEZE==='before'?'.bo-gauges':'.bo-mail'});
     if(FREEZE==='after') {
       console.log('differs=',await differs(page,`${SHOTS}/before.html`,`${SHOTS}/after.html`));
-      writeFileSync(`${SHOTS}/where.json`,JSON.stringify({what:'The mail list now lives on System in the rebuilt back office.',url:`${BASE}/admin/office#system`,how:'Open System, then scroll to Email we sent.',situation:'Seven emails, including a long subject and address, a delivery, an email on its way and five problem states.'},null,2));
+      writeFileSync(`${SHOTS}/where.json`,JSON.stringify({what:'The mail list now lives on System in the rebuilt back office.',url:`${BASE}/admin#system`,how:'Open System, then scroll to Email we sent.',situation:'Seven emails, including a long subject and address, a delivery, an email on its way and five problem states.'},null,2));
     }
     await context.close();
   } else {

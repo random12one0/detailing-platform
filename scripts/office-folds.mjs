@@ -148,11 +148,11 @@ try {
       await page.waitForSelector("input[type=email]", { timeout: 40000 });
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button[type=submit]");
+      await page.waitForSelector(".bo-rail", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
-    await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#system`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#system`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bo-system .bo-checks li", { timeout: 60000, state: "attached" });
     await page.waitForFunction(() => !/Reading/.test(document.querySelector(".bo-system").innerText), null, { timeout: 40000 });
     await settle(page, 2600);

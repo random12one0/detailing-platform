@@ -147,7 +147,7 @@ async function openPage(size) {
     if (document.head) s(); else document.addEventListener("DOMContentLoaded", s);
   });
   watchConsole(page, `${size.w}`, consoleNoise);
-  await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}#detailers`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}#detailers`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-row", { timeout: 60000 });
   await settle(page, 1200);
   return { ctx, page, sent, answer };

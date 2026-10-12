@@ -209,7 +209,7 @@ let completed = 0, liveEntered = null, writesLeaked = 0;
 mkdirSync(ART, { recursive: true });
 const plain = (s) => s.replace(/\s+/g, " ").trim();
 const openMoney = async (page) => {
-  await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bo-nav", { timeout: 60000 });
   await page.locator(".bo-nav").filter({ hasText: "Money" }).click();
   await page.waitForSelector(".bo-money", { timeout: 20000 });
@@ -239,8 +239,8 @@ try {
       await page.waitForSelector("input[type=email]", { timeout: 40000 });
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button[type=submit]");
+      await page.waitForSelector(".bo-rail", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
 

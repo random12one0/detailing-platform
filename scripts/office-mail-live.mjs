@@ -21,8 +21,8 @@ try {
     page.on('response',async r=>{if(r.url().endsWith('/functions/v1/platform-admin')&&r.request().postDataJSON()?.action==='email_list')responses.push({status:r.status(),body:await r.json()});});
     try {
       const owner=demoOwner();await page.goto(`${BASE}/admin`);await page.waitForSelector('input[type=email]');
-      await page.fill('input[type=email]',owner.email);await page.fill('input[type=password]',owner.password);await page.click('form button.pa-btn');await page.waitForSelector('.pa-top');
-      await page.goto(`${BASE}/admin/office#system`);await page.waitForSelector('.bo-mail');discovered++;
+      await page.fill('input[type=email]',owner.email);await page.fill('input[type=password]',owner.password);await page.click('form button[type=submit]');await page.waitForSelector('.bo-rail');
+      await page.goto(`${BASE}/admin#system`);await page.waitForSelector('.bo-mail');discovered++;
       await page.waitForFunction(()=>document.querySelector('.bo-mail')?.getAttribute('aria-busy')==='false');
       await page.locator('.bo-mail summary').click(); // 9.12d: the section arrives folded
       await page.waitForTimeout(500);
