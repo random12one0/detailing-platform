@@ -16,6 +16,13 @@
 # Installed once per checkout:  git config core.hooksPath .githooks
 # Tested by tests/release-gate.test.mjs.
 
+# A belt job never pushes (belt overhaul 2.3, 2026-10-12). The belt sets
+# BELT_JOB=1 for every agent it runs; publishing stays Andrew's.
+if [ -n "$BELT_JOB" ]; then
+  echo "PUSH REFUSED: this push came from a belt job. Jobs never push; publishing is Andrew's."
+  exit 1
+fi
+
 gated=""
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$remote_ref" = "refs/heads/main" ] && gated=1
@@ -23,6 +30,14 @@ done
 [ -z "$gated" ] && exit 0
 
 cd "$(dirname "$0")/.." || exit 1
+# Nothing reaches main on GitHub that does not build (belt overhaul 2.3).
+if [ -f app/package.json ] && [ -d app/node_modules ]; then
+  echo "Release gate: building the app..."
+  if ! npm run build --prefix app >/dev/null 2>&1; then
+    echo "RELEASE GATE: PUSH REFUSED. The app does not build. Run: npm run build --prefix app"
+    exit 1
+  fi
+fi
 echo "Release gate: checking the back-end programs on the server against this checkout..."
 node scripts/deployed-inventory.mjs
 status=$?
