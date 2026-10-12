@@ -130,6 +130,9 @@ Every email the product sends has been drawn in English and Spanish and read for
 
 ## LOOK AND DECIDE · The rebuilt back office, all four places (ROADMAP 9.12a, 2026-10-10)
 
+**2026-10-12 price-editor follow-up:** in the Control Room's 9.12a Before/After, compare the compact phone preview, then the laptop editor pair. The three monthly prices now stay visible without opening; open All prices and contract for the full table, then Change these prices for grouped plus/minus controls. The saved copies are viewable without publishing. Keyboard folding preserves typing, successful saves and refusals were exercised with intercepted writes, and the normal/lite browser receipts each reached 6 of 6 widths with no failures (`node scripts/office-prices.mjs`, `--lite`, at `98d30e12`). If the layout still looks wrong, describe the spot and it changes. The broader compact-preview work and 6c–6e are still ours to build; no new approval is needed to continue.
+
+
 **Updated 2026-10-10: Today, Detailers, Money and System are all built now.**
 Run the dev server, sign in at `/admin` as usual, then open `/admin/office`. You
 get the dark look you approved, with a side rail (a bottom dock on a phone) and
@@ -149,14 +152,13 @@ text-message, sign-in and website-uptime checks, because nothing feeds them yet.
 
 **What I need from you, two things:**
 1. **Do you accept the look?** If not, say what is wrong and it changes.
-2. **Where the old screen's leftover jobs go — three of six are now built,
+2. **Where the old screen's leftover jobs go — the account actions and price editor are now built,
    so you can judge the result rather than a plan (2026-10-10).** A green **Sign
    up a detailer** button sits at the right of the Detailers list, and every
    detailer's side panel has a **Their account** part with **Download everything
    they own** and **Send an owner invite**. Proved with made-up detailers, nothing
    written: both the success and the refusal case, at laptop and two phone
-   widths, 81 checks and 0 failed. Still to build, same way: the price editor
-   and a past-month switch on Money, the mail list on System. If you want any
+   widths, 81 checks and 0 failed. Still to build, same way: a past-month switch on Money and the mail list on System. If you want any
    of them somewhere else, say where and it moves. The old `/admin` stays
    untouched until all six have a home.
 

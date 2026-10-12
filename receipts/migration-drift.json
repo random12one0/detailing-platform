@@ -1,14 +1,14 @@
 {
-  "git_sha": "3cf8c68eb952d5c692ea958d84ed2e2996f5fd36",
-  "git_sha_started": "3cf8c68eb952d5c692ea958d84ed2e2996f5fd36",
+  "git_sha": "23330b1ff6da6a163cc7e718ed07136de8a31b57",
+  "git_sha_started": "23330b1ff6da6a163cc7e718ed07136de8a31b57",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T21:22:50.149Z",
+  "finished_at": "2026-10-12T02:21:21.573Z",
   "failures": [
     "2 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql)",
     "2 function(s) in the database do NOT match the repo's newest definition: accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
     "2 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql)",
-    "1 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
+    "2 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql), email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
     "12 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database"
   ],
   "warnings": [
@@ -20,13 +20,14 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 116,
+    "migration_files": 117,
     "tables_declared": 60,
     "tables_absent": [
       "support_sessions (declared by 20261010030000_support_sessions_read_only.sql)",
       "google_business_links (declared by 20261010040000_google_business_links.sql)"
     ],
     "columns_absent": [
+      "business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql)",
       "email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
     ],
     "type_mismatch": [],
@@ -72,14 +73,14 @@
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-11T21:22:44.791Z",
+  "started_at": "2026-10-12T02:21:14.184Z",
   "status": "fail",
   "expected_targets": 369,
   "discovered_targets": 361,
   "attempted_targets": 369,
   "completed_targets": 369,
   "skipped_targets": 0,
-  "assertions_executed": 2063,
+  "assertions_executed": 2064,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
