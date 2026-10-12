@@ -1,28 +1,28 @@
   ok    all 17 exported templates are rendered below
   Customer · booking confirmed
-    Booking confirmed · Thursday, September 17
+    You're booked for September 17 at 10 AM
   Customer · request received
-    Request received · Thursday, September 17
+    Got your request for September 17 at 10 AM
   Customer · appointment reminder
     Reminder: your appointment Thursday, September 17
   Customer · quote offered
-    Your price: $395 for Thursday, September 17
+    Your price is ready: $395
   Customer · request accepted
-    You're booked in · Thursday, September 17
+    Confirmed: September 17 at 10 AM
   Customer · request declined
-    About your request for Thursday, September 17
+    About your request for September 17
   Customer · receipt (paid)
-    Receipt · $360 · Ridgeline Auto Detail
+    Your receipt from Ridgeline Auto Detail: $360
   Customer · invoice (unpaid)
-    Invoice · $360 due · Ridgeline Auto Detail
+    Invoice from Ridgeline Auto Detail: $360 due
   Customer · invoice (unpaid, card accepted)
-    Invoice · $360 due · Ridgeline Auto Detail
+    Invoice from Ridgeline Auto Detail: $360 due
   Customer · rescheduled
-    Your booking has been rescheduled
+    New time: September 17 at 10 AM
   Customer · cancelled
-    Your booking has been cancelled
+    Your September 17 appointment is cancelled
   Customer · thank-you and review request
-    Thank you for choosing Ridgeline Auto Detail
+    Thanks from Ridgeline Auto Detail
   Owner · new booking
     New booking · Dana Ortiz · Thursday, September 17 ($345)
   Owner · new request waiting
@@ -34,7 +34,7 @@
   Owner · new booking, three cars
     New booking · Dana Ortiz · Thursday, September 17 ($839)
   Customer · confirmed, three cars
-    Booking confirmed · Thursday, September 17
+    You're booked for September 17 at 10 AM
   Owner · a booking moved
     Rescheduled · Dana Ortiz · now Thursday, September 17
   Owner · a booking cancelled
@@ -46,7 +46,7 @@
   Staff · team invite
     Join Ridgeline Auto Detail on the booking dashboard
   Customer · booking confirmed, on a plan
-    Booking confirmed · Thursday, September 17
+    You're booked for September 17 at 10 AM
   Customer · your plan link
     Your plan with Ridgeline Auto Detail
   Customer · maintenance due (60 days)

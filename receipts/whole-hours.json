@@ -1,9 +1,9 @@
 {
-  "git_sha": "c1ebb862e23a560766bfa557349f8190c776e3bb",
-  "git_sha_started": "c1ebb862e23a560766bfa557349f8190c776e3bb",
+  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T22:18:24.136Z",
+  "finished_at": "2026-10-12T01:22:33.941Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -55,7 +55,7 @@
       },
       {
         "view": "320",
-        "chips": 6,
+        "chips": 5,
         "first": [
           "8 AM",
           "8:30 AM",
@@ -77,7 +77,7 @@
     "scope": "Formatters and the public booking page's time buttons. Dashboard screens share time12 and are covered by the table and the one-formatter rule, not opened here (that needs a sign-in). Nothing is wired into email subjects yet (99.2c)."
   },
   "check_id": "whole-hours",
-  "started_at": "2026-10-11T22:16:45.095Z",
+  "started_at": "2026-10-12T01:20:48.037Z",
   "status": "pass",
   "expected_targets": 55,
   "discovered_targets": 55,

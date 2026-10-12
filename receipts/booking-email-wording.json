@@ -1,9 +1,9 @@
 {
-  "git_sha": "8312c7a143356b997ce047a6b84db8338217c054",
-  "git_sha_started": "8312c7a143356b997ce047a6b84db8338217c054",
+  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T22:32:55.673Z",
+  "finished_at": "2026-10-12T01:19:00.076Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -43,7 +43,7 @@
     "scope": "The seven customer booking emails' subjects, headlines, opening lines and buttons (99.2c). Detailer emails (99.2e), after-job emails (99.2d) and the reminder's texting-consent routing (99.2i) are not covered."
   },
   "check_id": "booking-email-wording",
-  "started_at": "2026-10-11T22:32:52.269Z",
+  "started_at": "2026-10-12T01:18:56.858Z",
   "status": "pass",
   "expected_targets": 128,
   "discovered_targets": 128,

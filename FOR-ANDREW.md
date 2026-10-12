@@ -65,6 +65,15 @@ in English and Spanish. "Today" and "tomorrow" follow the business's own time zo
 one release covers both parts. The live-email check `scripts/dashboard-notifies.mjs` accepts the old and the new subjects,
 so it stays honest on either side of the release.
 
+**Added 2026-10-11, same release (99.2d):** the receipt, the invoice and the thank-you email now use your approved
+wording, and every email a customer gets ends "Thanks again, Andrew · Andrew's Auto Detail · andrewsdetail.com" (the first
+name comes from the Team screen; with none set it signs as the business). A new switch on Notifications, "Sign emails with
+the business name", swaps the first name for the business name. **One extra step for that switch only:** apply the new
+database file `supabase/migrations/20261011010000_email_sign_as_business.sql` (one added on/off column, off for everyone).
+Until it is applied, every email still goes out signed with the first name and the rest of the Notifications screen
+saves normally; only turning that one switch on would fail. Publish `send-invoice` and the other email functions in the
+same release. No decision is waiting on you.
+
 ---
 
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)

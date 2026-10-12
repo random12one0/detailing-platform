@@ -1,21 +1,21 @@
 {
-  "git_sha": "9ee4a66e359901ba52b6030e400e1a03daf4e3d7",
-  "git_sha_started": "9ee4a66e359901ba52b6030e400e1a03daf4e3d7",
+  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T00:32:00.290Z",
+  "finished_at": "2026-10-12T01:18:21.094Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/AppData/Local/Temp/claude/C--Users-rando-Downloads-claude-detailing-platform/0fcb95f6-4c00-4ca6-8350-b369de4a4e55/scratchpad/em-es/index.html"
+    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\email-preview\\99-2-es/index.html"
   ],
   "dimensions": {
     "accent": "#38E08B",
     "rot_patterns": 4,
-    "out": "C:/Users/rando/AppData/Local/Temp/claude/C--Users-rando-Downloads-claude-detailing-platform/0fcb95f6-4c00-4ca6-8350-b369de4a4e55/scratchpad/em-es"
+    "out": "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\email-preview\\99-2-es"
   },
   "check_id": "render-emails",
-  "started_at": "2026-10-12T00:32:00.049Z",
+  "started_at": "2026-10-12T01:18:20.930Z",
   "status": "pass",
   "expected_targets": 34,
   "discovered_targets": 34,

@@ -1,28 +1,28 @@
   ok    all 17 exported templates are rendered below
   Customer · booking confirmed
-    Reserva confirmada · jueves, 17 de septiembre
+    Tu cita quedó reservada para el 17 de septiembre a las 10 AM
   Customer · request received
-    Solicitud recibida · jueves, 17 de septiembre
+    Recibimos tu solicitud para el 17 de septiembre a las 10 AM
   Customer · appointment reminder
     Recordatorio: tu cita el jueves, 17 de septiembre
   Customer · quote offered
-    Tu precio: $395 para el jueves, 17 de septiembre
+    Tu precio está listo: $395
   Customer · request accepted
-    Ya quedaste apartado · jueves, 17 de septiembre
+    Confirmada: el 17 de septiembre a las 10 AM
   Customer · request declined
-    Sobre tu solicitud para el jueves, 17 de septiembre
+    Sobre tu solicitud para el 17 de septiembre
   Customer · receipt (paid)
-    Recibo · $360 · Ridgeline Auto Detail
+    Tu recibo de Ridgeline Auto Detail: $360
   Customer · invoice (unpaid)
-    Factura · $360 a pagar · Ridgeline Auto Detail
+    Factura de Ridgeline Auto Detail: $360 a pagar
   Customer · invoice (unpaid, card accepted)
-    Factura · $360 a pagar · Ridgeline Auto Detail
+    Factura de Ridgeline Auto Detail: $360 a pagar
   Customer · rescheduled
-    Tu reserva fue reprogramada
+    Nuevo horario: el 17 de septiembre a las 10 AM
   Customer · cancelled
-    Tu reserva fue cancelada
+    Tu cita para el 17 de septiembre está cancelada
   Customer · thank-you and review request
-    Gracias por elegir a Ridgeline Auto Detail
+    Gracias de parte de Ridgeline Auto Detail
   Owner · new booking
     Nueva cita · Dana Ortiz · jueves, 17 de septiembre ($345)
   Owner · new request waiting
@@ -34,7 +34,7 @@
   Owner · new booking, three cars
     Nueva cita · Dana Ortiz · jueves, 17 de septiembre ($839)
   Customer · confirmed, three cars
-    Reserva confirmada · jueves, 17 de septiembre
+    Tu cita quedó reservada para el 17 de septiembre a las 10 AM
   Owner · a booking moved
     Reprogramada · Dana Ortiz · ahora el jueves, 17 de septiembre
   Owner · a booking cancelled
@@ -46,7 +46,7 @@
   Staff · team invite
     Únete a Ridgeline Auto Detail en el panel de reservas
   Customer · booking confirmed, on a plan
-    Reserva confirmada · jueves, 17 de septiembre
+    Tu cita quedó reservada para el 17 de septiembre a las 10 AM
   Customer · your plan link
     Tu plan con Ridgeline Auto Detail
   Customer · maintenance due (60 days)
@@ -72,7 +72,7 @@ canary  a body containing NaN / Invalid Date / undefined -> caught by 3 of 4 rot
 spanish 18 customer email(s) checked for an English date; detector fires on an English date and not on a Spanish one
 spanish 16 detailer / staff / platform email(s) checked the same way
 spanish 2 email(s) name a seeded size in Spanish; detector fires on an English seeded size and not on Spanish or a renamed one
-spanish 184 English template sentence(s) searched for; detector fires on "Typed by hand. The address lookup found no match for it." and not on its Spanish
+spanish 187 English template sentence(s) searched for; detector fires on "Typed by hand. The address lookup found no match for it." and not on its Spanish
 
 34 emails -> C:\Users\rando\Downloads\claude\detailing-platform\email-preview\99-2-es/index.html  (accent #38E08B)
 Receipt C:\Users\rando\Downloads\claude\detailing-platform\receipts\render-emails.json

@@ -1,0 +1,45 @@
+{
+  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T01:17:43.641Z",
+  "failures": [
+    "browser 392 es-receipt no line of the sign-off starts with a dot: 1 dot(s) lead a line",
+    "browser 392 es-card no line of the sign-off starts with a dot: 1 dot(s) lead a line",
+    "browser 392 es-thanks no line of the sign-off starts with a dot: 1 dot(s) lead a line"
+  ],
+  "warnings": [],
+  "artifacts": [],
+  "dimensions": {
+    "break": "wrap",
+    "languages": [
+      "en",
+      "es"
+    ],
+    "signature_modes": [
+      "owner",
+      "business",
+      "no-name"
+    ],
+    "widths": [
+      392,
+      1440
+    ],
+    "scope": "Receipt, invoice, thank-you wording and the sign-off on the twelve customer emails (99.2d), buildBrand's choice of who signs, and the two subject matchers. UNJUDGEABLE, not run: the Notifications toggle in a signed-in browser (needs the demo owner's login) and the migration applied to a database. Marketing and detailer emails are 99.2e; texting is 99.2f onward."
+  },
+  "check_id": "after-job-emails-wrap",
+  "started_at": "2026-10-12T01:17:41.150Z",
+  "status": "fail",
+  "expected_targets": 116,
+  "discovered_targets": 116,
+  "attempted_targets": 116,
+  "completed_targets": 116,
+  "skipped_targets": 0,
+  "assertions_executed": 408,
+  "min_assertions": 400,
+  "canary": {
+    "id": "the pre-99.2d receipt subject 'Receipt · $185 · <business>' does not equal the approved one",
+    "observed_failure": true
+  }
+}

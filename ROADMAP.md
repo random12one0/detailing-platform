@@ -29263,8 +29263,45 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     **Not here:** "the reminder goes only to customers with no texting consent" is routing and belongs to 99.2i.
     **Release step, not a decision:** these templates reach customers with the same email-function publish as 99.2a
     (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email after that ticks 99.2a and 99.2c
-    together. **The next buildable part is 99.2d.**
+    together. **The next buildable part was 99.2d (built, see below); now 99.2e.**
   - [ ] **99.2d — after-job email wording and signature setting.** Original plan step 3; the receipt/invoice stay email.
+    **BUILT AND PROVED LOCALLY 2026-10-11, product commits `f857fa4a` and `b3b7c562`.** Receipt: subject "Your receipt from
+    {business}: $185", headline "Paid in full, thank you", "Thanks, Maria. Here's your receipt for Friday, October 2.", button
+    "View online". Invoice: "Invoice from {business}: $185 due", "Here's your invoice", "Hi Maria, here's the bill for ...",
+    "How to pay" and the card button kept. Thank-you: "Thanks from {business}", one short paragraph, the review buttons, then
+    the sign-off. All in English and Spanish; receipts and invoices keep the explicit weekday-month-day (no "today"). The
+    sign-off "Thanks again, <first name> · <business> · <site>" is on all twelve customer emails (booked, request received,
+    accepted, declined, price, time changed, cancelled, reminder, receipt, invoice, thank-you, plan link) and on no detailer
+    email. The first name is the owner's `business_users.first_name` (the Team screen); a new switch on Notifications,
+    "Sign emails with the business name", swaps it for the business (`business_settings.email_sign_as_business`, migration
+    `20261011010000_email_sign_as_business.sql` WRITTEN, NOT APPLIED). With no owner name set it signs as the business.
+    The dots in the line are bound to the word before them, so a phone line never begins with one.
+    **Found on the way:** the job record and `scripts/e2e-receipt-trail.mjs` recognise a receipt by its SUBJECT starting
+    "Receipt"; the new subject would have silently turned off "Email it again" and the receipt-trail check. Both now accept
+    old and new (receipts already sent keep the old subject).
+    **PROVED:** `node scripts/after-job-emails.mjs` at `b3b7c562` reached **116 of 116** targets, **408 assertions, 0
+    failures**: the wording by hand in both languages (10 emails), the sign-off on 12 customer emails x 2 languages x 3
+    modes (owner name / business / no name), 3 detailer emails unsigned, a name with markup escaped, `buildBrand` itself run
+    against a stand-in database client (owner read; the switch suppresses the read; blank/no name gives none; a failed read
+    throws; query scoped to this business's owners), both subject matchers lifted out of their source files, and three emails
+    opened in a browser at 392 and 1440 in both languages (no sideways scroll, buttons inside and 44px tall, sign-off below
+    the button, console silent). `--break=old`: 116 of 116, **143 failures** (the templates and buildBrand as of
+    `2538c5bc`). `--break=setting` (switch ignored): **2**. `--break=unsigned`: **107**. `--break=wrap` (the original
+    phone wrap, a dot starting a line, found by looking at the 392 picture): **3**. The four sabotage receipts grade FAIL as
+    required; the clean one grades PASS. Re-run at the same commit: `render-emails.mjs` 34 of 34 in English and Spanish,
+    `email-dates.mjs` 70 of 70 (1806 assertions), `booking-email-wording.mjs` 128 of 128 (768). `tests/spanish.test.mjs`
+    (credentials blanked): 74 passed, 1 failed, the same failure as before this change (12c word lists, back-office files).
+    `payments` 83/0, `reschedule-old-time` 8/0, `email-brand` 226. Pictures: `.manager-shots/99.2d/` (opened at 392 and 1440);
+    Before/After pairs `before|after-receipt|invoice|thanks.html` are in `belt/shots/99.2`.
+    **UNJUDGEABLE, named, not run:** the Notifications switch in a signed-in browser (needs the demo owner's login, which is
+    credentialed) and the migration applied to a database (applying is Andrew's). The screen saves the new field only when
+    it changed, so every other Notifications switch keeps saving before the migration is applied.
+    **Not here:** the promo and maintenance-due emails' sign-off belongs to 99.2e with their wording; "the thank-you goes only
+    to customers without texting consent" is routing, 99.2i.
+    **Release step, not a decision:** publish with the same email-function release as 99.2a and 99.2c (`send-invoice` is the
+    one that sends receipts, invoices and thank-yous), and apply the migration if the switch should work
+    (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email ticks 99.2a, c and d together.
+    **The next buildable part is 99.2e.**
   - [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
     refusal and the existing maintenance-due gate.
   - [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7; use the filed wording
