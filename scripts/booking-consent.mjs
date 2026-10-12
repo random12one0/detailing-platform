@@ -28,8 +28,9 @@ const quote = { subtotal: 185, subtotal_before_discounts: 185, total: 185, total
 const started_at = new Date().toISOString(), failures = [], artifacts = [], seen = [];
 let assertions = 0, discovered = 0, attempted = 0, completed = 0;
 function check(name, ok, detail = '') { assertions++; if (!ok) failures.push(`${name}: ${detail}`); }
-async function routes(page) {
+async function routes(page, {failFirst = false} = {}) {
   const calls = [], escaped = [];
+  const fixture = bookingFixture({consentBreak:BREAK,failedWrite:failFirst});
   await page.route('**/*', async route => {
     const req = route.request(), url = new URL(req.url());
     if (url.origin === BASE) {
@@ -62,8 +63,13 @@ async function routes(page) {
       body = { days };
     } else if (/create-booking$/.test(url.pathname)) {
       const payload = req.postDataJSON(); calls.push(payload);
-      const fixture = bookingFixture({ consentBreak: BREAK });
       const outcome = await fixture.book(payload);
+      if (outcome.status === 500 && failFirst && calls.length === 1) {
+        check('failed consent has a safe error',outcome.data.error === 'sms_consent_not_saved');
+        check('failed consent kept one booking and one confirmation',fixture.rows.bookings.length === 1 && fixture.sends.length === 1);
+        fixture.failWrites(false);
+        return route.fulfill({status:500,headers,body:JSON.stringify(outcome.data)});
+      }
       if (outcome.status !== 200) throw Error('Local handler: ' + JSON.stringify(outcome));
       const customer = fixture.rows.customers.find(r => r.business_id === 'tenant-a');
       check('browser handler writes consent only when checked', payload.sms_consent === true ? customer?.sms_consent_source === 'booking_form' : !customer?.sms_consent_at);
@@ -74,7 +80,7 @@ async function routes(page) {
     else { escaped.push(url.pathname); return route.fulfill({ status: 200, headers, body: '{}' }); }
     return route.fulfill({ status: 200, headers, body: JSON.stringify(body) });
   });
-  return { calls, escaped };
+  return { calls, escaped, fixture };
 }
 async function details(page, q = '') {
   await page.goto(BASE + '/book/consent-proof' + q, { waitUntil: 'networkidle' });
@@ -106,7 +112,8 @@ try {
     const page = await ctx.newPage(), logs = [];
     page.on('console', m => ['error','warning'].includes(m.type()) && logs.push(m.text()));
     page.on('pageerror', e => logs.push(e.message));
-    const network = await routes(page);
+    const failFirst = !BEFORE && choice === 'checked' && [1440,392].includes(width);
+    const network = await routes(page,{failFirst});
     try {
       // One navigation per context, including sabotage (gotcha 113).
       await details(page,q); discovered++; attempted++;
@@ -155,12 +162,21 @@ try {
       await page.locator('.bk-bar .bk-btn.primary').click();
       await page.waitForTimeout(450);
       await page.locator('.bk-bar .bk-btn.primary').click();
+      if (failFirst) {
+        const message = lang === 'en' ? "Your booking is saved, but we couldn't save your text choice. Try again to save it." : 'Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto. Inténtalo de nuevo para guardarla.';
+        await page.locator('.bk-error').filter({hasText:message}).waitFor();
+        check(`${tag} refusal says booking saved and offers retry`,(await page.locator('.bk-error').textContent()) === message);
+        await page.locator('.bk-error').scrollIntoViewIfNeeded(); await photograph(page,'save-failed-' + tag);
+        await page.locator('.bk-bar .bk-btn.primary').click();
+      }
       await page.locator('.bk-header .tagline').filter({ hasText: lang === 'en' ? 'Booking confirmed' : 'Reserva confirmada' }).waitFor({ timeout: 5000 });
-      check(`${tag} booking completes`, network.calls.length === 1);
+      check(`${tag} booking completes`, network.calls.length === (failFirst ? 2 : 1));
+      check(`${tag} one booking and one confirmation`,network.fixture.rows.bookings.length === 1 && network.fixture.sends.length === 1);
       check(`${tag} payload choice`, network.calls[0]?.sms_consent === expect, JSON.stringify({ choice, actual: network.calls[0]?.sms_consent }));
       check(`${tag} no consent remembered`, !JSON.parse(await page.evaluate(() => localStorage.getItem('bk.customer')) || '{}').smsConsent);
       check(`${tag} no unexpected external endpoint`, network.escaped.length === 0, network.escaped.join(','));
-      check(`${tag} console silent`, logs.length === 0, logs.join(' | '));
+      const expectedErrors = logs.filter(l => /Failed to load resource.*500/.test(l));
+      check(`${tag} console has only expected refusal`, logs.length === (failFirst ? 1 : 0) && expectedErrors.length === (failFirst ? 1 : 0), logs.join(' | '));
       if (BREAK === 'default') check(`${tag} sabotage executed`, await page.evaluate(() => window.__consentBreak === true));
       seen.push({ tag, choice, calls: network.calls.length, console: logs }); completed++; console.log('Reached ' + tag);
     } catch(e) { const message = `${tag}: ${e.message.split('\n')[0]}`; failures.push(message); console.error('FAIL ' + message); }
@@ -243,7 +259,10 @@ else {
       check(`${name} timestamp is server-owned`, opts.existing?.sms_consent_at ? customer.sms_consent_at === old.sms_consent_at : Math.abs(Date.now() - Date.parse(customer.sms_consent_at)) < 10000);
     }
     if (opts.refused) check(`${name} no rows written`, f.operations.every(o => o.operation === 'read'));
-    if (opts.failedWrite) check(`${name} failure surfaced`, f.errors.some(e => e.includes('Consent write refused')));
+    if (opts.failedWrite) {
+      check(`${name} failure surfaced safely`, result.data.error === 'sms_consent_not_saved' && f.helperErrors.some(e => e.includes('Consent write refused')));
+      check(`${name} confirmation still sent`,f.sends.length === 1);
+    }
     if (opts.duplicate || opts.collision) check(`${name} one booking`, f.rows.bookings.length === 1 && f.sends.length === 0);
     completed++;
   }
@@ -255,10 +274,11 @@ else {
     }],
     ['payload refuses truthy nonboolean', () => bookingRequests({...initialForm(profile.settings),smsConsent:'true'})[0].sms_consent === false],
     ['helper refuses customer from other tenant', async () => {
-      const f = bookingFixture({consentBreak:BREAK}); await f.save('tenant-a',null,true,null);
+      const f = bookingFixture({consentBreak:BREAK});
+      let refused = false; try { await f.save('tenant-a',null,true,null); } catch(e) { refused = e.message === 'sms_consent_not_saved'; }
       // Exercise the real helper against this fixture's scoped update.
       await f.save('tenant-a','customer-b',true,null);
-      return f.rows.customers.every(r => !r.sms_consent_at);
+      return refused && f.rows.customers.every(r => !r.sms_consent_at);
     }],
   ]) {
     discovered++; attempted++;

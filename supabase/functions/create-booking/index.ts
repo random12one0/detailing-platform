@@ -652,10 +652,6 @@ Deno.serve(async (req) => {
       if (addErr) console.error(`BOOKING ${booking.id} lost its add-on lines:`, addErr);
     }
 
-    // Only a successful public booking can record this choice. This also
-    // runs on a duplicate retry above, so a failed consent write is retryable.
-    await saveBookingSmsConsent(supabase, business.id, customerId, body.sms_consent, member);
-
     // Promo usage counter — best-effort, never fails the booking.
     if (promo) {
       const { error: usageErr } = await supabase.rpc("increment_promo_usage", {
@@ -756,6 +752,10 @@ Deno.serve(async (req) => {
     } catch (pushErr) {
       console.error("Owner push send error:", pushErr);
     }
+
+    // The booking and its email are already saved before a consent failure
+    // reaches the page. Both duplicate exits retry only the consent write.
+    await saveBookingSmsConsent(supabase, business.id, customerId, body.sms_consent, member);
 
     return json({
       success: true,

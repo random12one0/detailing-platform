@@ -13,7 +13,8 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     const changed = helperSrc.replace('consent !== true', '!consent');
     if (changed === helperSrc) throw Error('Strict sabotage did not land'); helperSrc = changed;
   }
-  const helper = new Function(stripTypeScriptTypes(helperSrc).replace('export ', '') + '; return saveBookingSmsConsent;')();
+  const helperErrors = [];
+  const helper = new Function('console',stripTypeScriptTypes(helperSrc).replace('export ', '') + '; return saveBookingSmsConsent;')({error(...args) { helperErrors.push(args.map(String).join(' ')); }});
   const rows = { customers: [
     ...(existing ? [{ business_id: 'tenant-a', id: 'customer-a', phone: '555-0123', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...existing }] : []),
     { business_id: 'tenant-b', id: 'customer-b', phone: '555-0123', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null },
@@ -78,7 +79,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   // stripTypeScriptTypes is the parser, rather than node --check on TS (gotcha 101).
   new Function(...names, stripTypeScriptTypes(src))(...names.map(k => dependencies[k]));
   if (!handler) throw Error('create-booking handler did not load');
-  return { rows, operations, sends, errors, helper, save: (...args) => helper(db,...args),
+  return { rows, operations, sends, errors, helperErrors, helper, failWrites(value) { failedWrite = value; }, save: (...args) => helper(db,...args),
     async book(payload) { return handler({ method:'POST',json:async () => payload }); },
   };
 }

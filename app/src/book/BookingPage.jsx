@@ -553,7 +553,9 @@ function BookingFlow({ notFound = null }) {
     } catch (e) {
       // A 409 here means the slot went while they were filling the form, or
       // a rule rejected it. Say so plainly and send them back to pick again.
-      setSubmitError(e.message || t("We couldn't complete that booking."));
+      setSubmitError(e.message === "sms_consent_not_saved"
+        ? t("Your booking is saved, but we couldn't save your text choice. Try again to save it.")
+        : e.message || t("We couldn't complete that booking."));
       setSubmitting(false);
     }
   };
