@@ -74,6 +74,14 @@ Until it is applied, every email still goes out signed with the first name and t
 saves normally; only turning that one switch on would fail. Publish `send-invoice` and the other email functions in the
 same release. No decision is waiting on you.
 
+**Added 2026-10-11, same release (99.2e):** the emails you get as the detailer now read the way you approved ("Maria Lopez
+wants Friday at 6 PM", "New booking: Maria Lopez, Friday at 6 PM ($185)", "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St",
+"Your card didn't go through"), and a promo or maintenance-due email ends with the same sign-off. Include `invite-user` and
+`send-owner-reminders` with the other email functions. Two things were done differently from the plan, on purpose: the
+request email keeps one "Answer this request" button instead of separate Accept and Decline buttons, because nothing can
+accept from an email yet; and the maintenance email does not say "two months since your last detail", because it is about
+a deadline you set, which can be any length of time. Nothing to decide.
+
 ---
 
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)

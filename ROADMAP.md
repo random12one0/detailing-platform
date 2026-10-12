@@ -29301,9 +29301,44 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     **Release step, not a decision:** publish with the same email-function release as 99.2a and 99.2c (`send-invoice` is the
     one that sends receipts, invoices and thank-yous), and apply the migration if the switch should work
     (`FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE"). Whoever checks the first live email ticks 99.2a, c and d together.
-    **The next buildable part is 99.2e.**
+    **The next buildable part was 99.2e (built, see below); now 99.2f.**
   - [ ] **99.2e — marketing and detailer email wording.** Original plan steps 4 and 5, with Spanish; preserve the mailing-address
     refusal and the existing maintenance-due gate.
+    **BUILT AND PROVED LOCALLY 2026-10-11, product commit `89ced53d`.** Detailer subjects: "New booking: Maria Lopez, Friday at
+    6 PM ($185)", "Maria Lopez wants Friday at 6 PM", "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St" (no street for a drop-off),
+    "Maria Lopez moved to Saturday at 10 AM" (old time still struck through), "Maria Lopez cancelled Friday at 6 PM" with "That
+    time is open again.", "Still waiting: Maria asked 12 hours ago" with "That time is held until you answer.", "Maria Lopez
+    left your Monthly plan", "Andrew added you to Andrew's Auto Detail" (the name of whoever pressed Invite, read in
+    `invite-user`; none -> "You've been added to ..."), "Your card didn't go through", "We've started building your site". The
+    day uses the same `upcoming()` helper as the customer emails, in the business's own zone. Spanish for every one.
+    **Fixed on the way:** the job-coming-up subject was typed in `send-owner-reminders` with the raw `2026-10-03` date (a
+    done-when breach); it now comes from `ownerReminderSubject` in the template file. Promo: the detailer's subject and words
+    untouched, the sign-off added above the address and unsubscribe. Maintenance-due: subject "Your car's about due, Maria",
+    "Want to get on the calendar?", button "Pick a time", sign-off. Its refusal without an address or unsubscribe link, the
+    sweep's `email_customer_maintenance_due` switch and `maintenanceVerdict` are unchanged and asserted.
+    **Two places the approved wording did not fit the code, decided here and written down, not parked:** (1) the
+    maintenance-due email is a WARRANTY DEADLINE the detailer set (any distance away), so the approved "It's been about two
+    months since your last detail" line would often be false; the sentence naming the real deadline stays instead. (2) The
+    request email's **Accept and Decline buttons are NOT BUILT**: nothing in the product can accept or decline from an email,
+    and two buttons with those words that only open a page would say something untrue. It keeps one "Answer this request"
+    button. Building them needs a signed one-tap link or a job-record deep link; that is the one remaining piece of 99.2e.
+    **Found, not fixed (out of scope):** the detailer's "Answer this request" / "Open the job" button goes to the customer's
+    own booking page (`/booking/<id>`), not the dashboard job record (`/job/<id>`, where the push notifications go).
+    **PROVED:** `node scripts/marketing-detailer-emails.mjs` at `89ced53d` reached **156 of 156** targets, **514 assertions,
+    0 failures**: six day-named detailer subjects x 2 languages x 4 days x 2 zones (UTC+14, UTC-11), eleven other emails x 2
+    languages written by hand, sign-off as owner and as business, the two refusals, the switch, both callers, and six emails
+    in a browser at 392 and 1440 (no sideways scroll, buttons inside and 44px tall, sign-off below the button, console
+    silent). `receipt.mjs` grades it PASS. Sabotages, all caught, all graded FAIL: `--break=old` (templates and Spanish at
+    `463a1ee5`) **157 failures**; `--break=utc` **24**; `--break=unsigned` **16**. Re-run at `89ced53d`: `after-job-emails`
+    116 of 116, `booking-email-wording` 128 of 128, `email-dates` 70 of 70, `render-emails` 34 of 34 in English and Spanish.
+    `tests/spanish.test.mjs` (credentials blanked): 74 passed, 1 failed, the same 12c back-office word lists as before; its
+    email section, which is where a reworded email string missing its Spanish would show (6c, 6c-ii), passes.
+    `scripts/i18n-survey.mjs` scans the dashboard, not the email functions, so it was not the instrument here.
+    Pictures: `.manager-shots/99.2e/` (392 opened: request and Spanish maintenance-due look right; the Spanish one's due date
+    is English only because the fixture typed it so). Before/After: `before|after-request`, `-maintenance`, `-promo` in
+    `belt/shots/99.2`. **UNJUDGEABLE, not run:** a real send, and `invite-user`'s read of the inviter's name against a database.
+    **Release step, not a decision:** these reach inboxes with the same email-function release as 99.2a, c and d (plus
+    `invite-user` and `send-owner-reminders`); `FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE". **Next buildable part: 99.2f.**
   - [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7; use the filed wording
     exactly, unticked by default, and prove the unticked/ticked booking cases with no real sends.
   - [ ] **99.2g — fixed booking text templates.** Original plan step 8; test realistic substitutions, own-domain links,
