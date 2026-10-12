@@ -6,7 +6,7 @@ import { centsOf } from "../../../../lib/officeMoney.js";
 import { call } from "../../api.js";
 import { usd } from "../../ui.jsx";
 import { reread } from "../../useNet.js";
-import { BILL_COLOR, useThisMonth } from "./month.js";
+import { BILL_COLOR, BILL_MONTHS, useMonth } from "./month.js";
 
 function AddBill({ month, kind, name, done }) {
   const [dollars, setDollars] = useState("");
@@ -37,12 +37,20 @@ function AddBill({ month, kind, name, done }) {
 }
 
 export default function Bills({ i }) {
-  const { month, name, k } = useThisMonth();
+  const [at, setAt] = useState(BILL_MONTHS.length - 1);
+  const { month, name, k } = useMonth(BILL_MONTHS[at]);
   const [adding, setAdding] = useState(null);
+  // An open form belongs to the month it was opened on, so a switch closes it.
+  const go = (to) => { setAt(to); setAdding(null); };
   return (
     <section className="bo-sec" style={{ "--i": i }} aria-label="Platform bills">
-      <div className="bo-label">Platform bills · {name}</div>
-      {!k ? <p className="bo-dim">Reading…</p> : k.failed ? <p className="bo-dim">Could not read this month's bills.</p> : (
+      <div className="bo-label">Platform bills</div>
+      <div className="bo-monthstep">
+        <button type="button" className="bo-btn ghost" aria-label="Earlier month" disabled={at === 0} onClick={() => go(at - 1)}>‹</button>
+        <span className="bo-monthname" aria-live="polite">{name} {month.slice(0, 4)}</span>
+        <button type="button" className="bo-btn ghost" aria-label="Later month" disabled={at === BILL_MONTHS.length - 1} onClick={() => go(at + 1)}>›</button>
+      </div>
+      {!k ? <p className="bo-dim">Reading…</p> : k.failed ? <p className="bo-dim">Could not read the bills for {name}.</p> : (
         <ul className="bo-bills">
           {k.bills.map((b) => (
             <li key={b.kind} className={b.cents === null ? "missing" : ""} data-bill={b.kind}>
