@@ -417,7 +417,10 @@ const failures = [
 
 
 const { path: receiptPath } = writeReceipt({
-  check_id: "deployed-inventory",
+  // A NARROWED RUN WRITES ITS OWN RECEIPT (ROADMAP 0.6d). Andrew's publish block
+  // (FOR-ANDREW.md, 0.6b) builds step 2's list from `deployed-inventory.json`, so
+  // an `--only=x` run left there would make that step publish x alone.
+  check_id: ONLY ? "deployed-inventory-only" : "deployed-inventory",
   started_at,
   status: failures.length === 0 && canary.observed_failure ? "pass" : "fail",
   expected_targets: dirs.length,
