@@ -29543,7 +29543,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     called from `lib/officeDetailers.js:124`; NOTHING in `office/` calls `growthLines(` or names STUCK/bookabilityOf, and the
     new Money place says "You kept" (Kept.jsx:14, officeMoney.js `kept`) — judge that wording under the accrual rule before
     re-pinning money-overstatement. Part 2 is cut into numbered slices, one per session:
-    - [ ] 99.3b-i — delete AdminPage.jsx + admin.css; clear the comment cross-references; confirm no import remains.
+    - [x] 99.3b-i — delete AdminPage.jsx + admin.css; clear the comment cross-references; confirm no import remains. DONE 2026-10-12 (commit `002639c3`): both files deleted (2,851 lines gone), 8 comment cross-refs neutralised, dangling-ref grep clean, credentials gate 1/1, `npm run build --prefix app` green, no-credentials gate PASS. No visible change: the old screen was already unrouted.
     - [ ] 99.3b-ii — re-home or retire every suite pin in the triage list (fixed-furniture `.pa-*` rows retire with
       admin-furniture-clearance, same as `.tourcard`).
     - [ ] 99.3b-iii — retire admin-preconditions.mjs + admin-furniture-clearance.mjs; re-point platform-costs/net-live and
