@@ -92,7 +92,7 @@ async function details(page, q = '') {
   throw Error('Details step never reached');
 }
 async function photograph(page, tag) {
-  const file = `.manager-shots/99.2f/${tag}.jpg`;
+  const file = `.manager-shots/99.2f/${tag}${BREAK ? '-break-' + BREAK : ''}.jpg`;
   mkdirSync('.manager-shots/99.2f', { recursive: true });
   await page.screenshot({ path: file, type: 'jpeg', quality: 90, animations: 'disabled' }); artifacts.push(file);
 }
@@ -163,7 +163,7 @@ try {
       check(`${tag} console silent`, logs.length === 0, logs.join(' | '));
       if (BREAK === 'default') check(`${tag} sabotage executed`, await page.evaluate(() => window.__consentBreak === true));
       seen.push({ tag, choice, calls: network.calls.length, console: logs }); completed++; console.log('Reached ' + tag);
-    } catch(e) { failures.push(`${tag}: ${e.message.split('\n')[0]}`); }
+    } catch(e) { const message = `${tag}: ${e.message.split('\n')[0]}`; failures.push(message); console.error('FAIL ' + message); }
     finally { await ctx.close(); }
   }
   for (const [width,height,q] of (SERVER_ONLY ? [] : BEFORE ? [[390,844,'']] : [[390,844,''], [1440,900,''], [768,1024,''], [392,844,''], [320,844,''], [390,844,'?lite=1']])) {
