@@ -1,9 +1,9 @@
 {
-  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
-  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "git_sha_started": "89ced53d7f852dc303eee30f4a599647252b133e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T01:17:33.296Z",
+  "finished_at": "2026-10-12T01:31:04.151Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -38,7 +38,7 @@
     "scope": "Receipt, invoice, thank-you wording and the sign-off on the twelve customer emails (99.2d), buildBrand's choice of who signs, and the two subject matchers. UNJUDGEABLE, not run: the Notifications toggle in a signed-in browser (needs the demo owner's login) and the migration applied to a database. Marketing and detailer emails are 99.2e; texting is 99.2f onward."
   },
   "check_id": "after-job-emails",
-  "started_at": "2026-10-12T01:17:30.861Z",
+  "started_at": "2026-10-12T01:31:01.687Z",
   "status": "pass",
   "expected_targets": 116,
   "discovered_targets": 116,

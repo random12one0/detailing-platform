@@ -1,21 +1,21 @@
 {
-  "git_sha": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
-  "git_sha_started": "b3b7c56257e2f3496b1aed816e27d1003196a3b9",
+  "git_sha": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "git_sha_started": "89ced53d7f852dc303eee30f4a599647252b133e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T01:18:21.094Z",
+  "finished_at": "2026-10-12T01:32:17.757Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\email-preview\\99-2-es/index.html"
+    "email-preview/99-2e-es/index.html"
   ],
   "dimensions": {
     "accent": "#38E08B",
     "rot_patterns": 4,
-    "out": "C:\\Users\\rando\\Downloads\\claude\\detailing-platform\\email-preview\\99-2-es"
+    "out": "email-preview/99-2e-es"
   },
   "check_id": "render-emails",
-  "started_at": "2026-10-12T01:18:20.930Z",
+  "started_at": "2026-10-12T01:32:17.477Z",
   "status": "pass",
   "expected_targets": 34,
   "discovered_targets": 34,

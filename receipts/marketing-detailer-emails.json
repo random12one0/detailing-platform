@@ -1,0 +1,71 @@
+{
+  "git_sha": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "git_sha_started": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T01:30:19.171Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/99.2e/en-still-waiting-12h-392.png",
+    ".manager-shots/99.2e/en-invite-inviter-named-392.png",
+    ".manager-shots/99.2e/en-card-failed-392.png",
+    ".manager-shots/99.2e/en-maintenance-due-392.png",
+    ".manager-shots/99.2e/en-promo-392.png",
+    ".manager-shots/99.2e/es-still-waiting-12h-392.png",
+    ".manager-shots/99.2e/es-invite-inviter-named-392.png",
+    ".manager-shots/99.2e/es-card-failed-392.png",
+    ".manager-shots/99.2e/es-maintenance-due-392.png",
+    ".manager-shots/99.2e/es-promo-392.png",
+    ".manager-shots/99.2e/en-request-392.png",
+    ".manager-shots/99.2e/es-request-392.png",
+    ".manager-shots/99.2e/en-still-waiting-12h-1440.png",
+    ".manager-shots/99.2e/en-invite-inviter-named-1440.png",
+    ".manager-shots/99.2e/en-card-failed-1440.png",
+    ".manager-shots/99.2e/en-maintenance-due-1440.png",
+    ".manager-shots/99.2e/en-promo-1440.png",
+    ".manager-shots/99.2e/es-still-waiting-12h-1440.png",
+    ".manager-shots/99.2e/es-invite-inviter-named-1440.png",
+    ".manager-shots/99.2e/es-card-failed-1440.png",
+    ".manager-shots/99.2e/es-maintenance-due-1440.png",
+    ".manager-shots/99.2e/es-promo-1440.png",
+    ".manager-shots/99.2e/en-request-1440.png",
+    ".manager-shots/99.2e/es-request-1440.png"
+  ],
+  "dimensions": {
+    "break": "",
+    "languages": [
+      "en",
+      "es"
+    ],
+    "zones": [
+      "Pacific/Kiritimati",
+      "Pacific/Pago_Pago"
+    ],
+    "days_ahead": [
+      0,
+      1,
+      3,
+      9
+    ],
+    "widths": [
+      392,
+      1440
+    ],
+    "scope": "Detailer, platform, promo and maintenance-due email wording (99.2e), the sign-off on promo and maintenance-due, the mailing-address refusal and the maintenance-due switch left as they were, and the two callers. UNJUDGEABLE, not run: a real send, and invite-user's read of the inviter's first name against a database. NOT BUILT: Accept and Decline buttons on the request email (no one-tap answer from an email exists); the request email keeps one 'Answer this request' button."
+  },
+  "check_id": "marketing-detailer-emails",
+  "started_at": "2026-10-12T01:30:14.878Z",
+  "status": "pass",
+  "expected_targets": 156,
+  "discovered_targets": 156,
+  "attempted_targets": 156,
+  "completed_targets": 156,
+  "skipped_targets": 0,
+  "assertions_executed": 514,
+  "min_assertions": 400,
+  "canary": {
+    "id": "the pre-99.2e new-booking subject 'New booking · <name> · <date> (<total>)' does not equal the approved one",
+    "observed_failure": true
+  }
+}

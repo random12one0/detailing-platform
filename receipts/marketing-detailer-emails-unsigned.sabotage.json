@@ -1,0 +1,63 @@
+{
+  "git_sha": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "git_sha_started": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T01:30:46.291Z",
+  "failures": [
+    "en maintenance due is signed",
+    "en promo is signed",
+    "es maintenance due is signed",
+    "es promo is signed",
+    "en maintenance due signed as the business, exactly once: found 0",
+    "en promo signed as the business, exactly once: found 0",
+    "es maintenance due signed as the business, exactly once: found 0",
+    "es promo signed as the business, exactly once: found 0",
+    "browser 392 en-maintenance-due sign-off painted, inside the screen, below the button",
+    "browser 392 en-promo sign-off painted, inside the screen, below the button",
+    "browser 392 es-maintenance-due sign-off painted, inside the screen, below the button",
+    "browser 392 es-promo sign-off painted, inside the screen, below the button",
+    "browser 1440 en-maintenance-due sign-off painted, inside the screen, below the button",
+    "browser 1440 en-promo sign-off painted, inside the screen, below the button",
+    "browser 1440 es-maintenance-due sign-off painted, inside the screen, below the button",
+    "browser 1440 es-promo sign-off painted, inside the screen, below the button"
+  ],
+  "warnings": [],
+  "artifacts": [],
+  "dimensions": {
+    "break": "unsigned",
+    "languages": [
+      "en",
+      "es"
+    ],
+    "zones": [
+      "Pacific/Kiritimati",
+      "Pacific/Pago_Pago"
+    ],
+    "days_ahead": [
+      0,
+      1,
+      3,
+      9
+    ],
+    "widths": [
+      392,
+      1440
+    ],
+    "scope": "Detailer, platform, promo and maintenance-due email wording (99.2e), the sign-off on promo and maintenance-due, the mailing-address refusal and the maintenance-due switch left as they were, and the two callers. UNJUDGEABLE, not run: a real send, and invite-user's read of the inviter's first name against a database. NOT BUILT: Accept and Decline buttons on the request email (no one-tap answer from an email exists); the request email keeps one 'Answer this request' button."
+  },
+  "check_id": "marketing-detailer-emails-unsigned",
+  "started_at": "2026-10-12T01:30:43.339Z",
+  "status": "fail",
+  "expected_targets": 156,
+  "discovered_targets": 156,
+  "attempted_targets": 156,
+  "completed_targets": 156,
+  "skipped_targets": 0,
+  "assertions_executed": 514,
+  "min_assertions": 400,
+  "canary": {
+    "id": "the pre-99.2e new-booking subject 'New booking · <name> · <date> (<total>)' does not equal the approved one",
+    "observed_failure": true
+  }
+}
