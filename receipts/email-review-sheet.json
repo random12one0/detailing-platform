@@ -1,0 +1,45 @@
+{
+  "git_sha": "77a8bada0f46326f92573dba1efcf6e1424e6e60",
+  "git_sha_started": "77a8bada0f46326f92573dba1efcf6e1424e6e60",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T05:50:09.414Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:\\Users\\rando\\Downloads\\claude\\belt\\shots\\99.6\\emails.html",
+    ".manager-shots\\99.6\\sheet-390.jpg",
+    ".manager-shots\\99.6\\sheet-1440.jpg"
+  ],
+  "dimensions": {
+    "widths": [
+      390,
+      320,
+      1440
+    ],
+    "languages": [
+      "en",
+      "es"
+    ]
+  },
+  "check_id": "email-review-sheet",
+  "started_at": "2026-10-12T05:50:09.310Z",
+  "status": "pass",
+  "expected_targets": 34,
+  "discovered_targets": 34,
+  "attempted_targets": 34,
+  "completed_targets": 34,
+  "skipped_targets": 0,
+  "assertions_executed": 70,
+  "min_assertions": 40,
+  "canary": {
+    "id": "a page with one email's id replaced must fail the count-and-identity question",
+    "observed_failure": true,
+    "caught_by": [
+      "count/identity"
+    ],
+    "findings": [
+      "[count] a page with one email swapped for another id fails the each-once question"
+    ]
+  }
+}

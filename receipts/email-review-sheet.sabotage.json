@@ -1,0 +1,53 @@
+{
+  "git_sha": "357338a2d7a648abb440a8f312869e8ccd6ab2b8",
+  "git_sha_started": "357338a2d7a648abb440a8f312869e8ccd6ab2b8",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T05:49:22.444Z",
+  "failures": [
+    "@390: Copy with every box empty did not say so",
+    "@390: Copy with every box empty still changed the clipboard",
+    "@390: copied text has 34 headings, expected the 2 filled boxes ([\"## Customer · booking confirmed [customer-confirmation]\\r\",\"## Customer · request received [customer-request-received]\\r\",\"## Customer · appointment reminder [customer-reminder]\\r\",\"## Customer · quote offered [customer-quote]\\r\",\"## Customer · request accepted [customer-accepted]\\r\",\"## Customer · request declined [customer-declined]\\r\",\"## Customer · receipt (paid) [customer-receipt]\\r\",\"## Customer · invoice (unpaid) [customer-invoice]\\r\",\"## Customer · invoice (unpaid, card accepted) [customer-invoice-card]\\r\",\"## Customer · rescheduled [customer-reschedule]\\r\",\"## Customer · cancelled [customer-cancellation]\\r\",\"## Customer · thank-you and review request [customer-followup]\\r\",\"## Owner · new booking [owner-new-booking]\\r\",\"## Owner · new request waiting [owner-new-request]\\r\",\"## Owner · new booking, address typed by hand [owner-new-booking-typed]\\r\",\"## Owner · new booking, address picked from the lookup [owner-new-booking-picked]\\r\",\"## Owner · new booking, three cars [owner-new-booking-carload]\\r\",\"## Customer · confirmed, three cars [customer-confirmation-carload]\\r\",\"## Owner · a booking moved [owner-reschedule]\\r\",\"## Owner · a booking cancelled [owner-cancellation]\\r\",\"## Owner · a PAID booking cancelled [owner-cancellation-paid]\\r\",\"## Owner · nobody answered a request [owner-stale-request]\\r\",\"## Staff · team invite [staff-invite]\\r\",\"## Customer · booking confirmed, on a plan [customer-confirmation-plan]\\r\",\"## Customer · your plan link [customer-plan-link]\\r\",\"## Customer · maintenance due (60 days) [customer-maintenance-far]\\r\",\"## Customer · maintenance due (tomorrow) [customer-maintenance-last]\\r\",\"## Owner · a plan ended [owner-plan-cancelled]\\r\",\"## Customer · the detailer reaching out [customer-campaign]\\r\",\"## Detailer · a payment did not go through [platform-payment-failed]\\r\",\"## Detailer · the booking page is offline [platform-suspended]\\r\",\"## Detailer · work has started on their website [platform-build-started]\\r\",\"## Detailer · work has started, no fee on file [platform-build-started-nofee]\\r\",\"## Owner · somebody signed up [platform-new-detailer]\\r\"])",
+    "@390: copied text is missing a note or includes a blank one",
+    "@1440: Copy with every box empty did not say so",
+    "@1440: Copy with every box empty still changed the clipboard",
+    "@1440: copied text has 34 headings, expected the 2 filled boxes ([\"## Customer · booking confirmed [customer-confirmation]\\r\",\"## Customer · request received [customer-request-received]\\r\",\"## Customer · appointment reminder [customer-reminder]\\r\",\"## Customer · quote offered [customer-quote]\\r\",\"## Customer · request accepted [customer-accepted]\\r\",\"## Customer · request declined [customer-declined]\\r\",\"## Customer · receipt (paid) [customer-receipt]\\r\",\"## Customer · invoice (unpaid) [customer-invoice]\\r\",\"## Customer · invoice (unpaid, card accepted) [customer-invoice-card]\\r\",\"## Customer · rescheduled [customer-reschedule]\\r\",\"## Customer · cancelled [customer-cancellation]\\r\",\"## Customer · thank-you and review request [customer-followup]\\r\",\"## Owner · new booking [owner-new-booking]\\r\",\"## Owner · new request waiting [owner-new-request]\\r\",\"## Owner · new booking, address typed by hand [owner-new-booking-typed]\\r\",\"## Owner · new booking, address picked from the lookup [owner-new-booking-picked]\\r\",\"## Owner · new booking, three cars [owner-new-booking-carload]\\r\",\"## Customer · confirmed, three cars [customer-confirmation-carload]\\r\",\"## Owner · a booking moved [owner-reschedule]\\r\",\"## Owner · a booking cancelled [owner-cancellation]\\r\",\"## Owner · a PAID booking cancelled [owner-cancellation-paid]\\r\",\"## Owner · nobody answered a request [owner-stale-request]\\r\",\"## Staff · team invite [staff-invite]\\r\",\"## Customer · booking confirmed, on a plan [customer-confirmation-plan]\\r\",\"## Customer · your plan link [customer-plan-link]\\r\",\"## Customer · maintenance due (60 days) [customer-maintenance-far]\\r\",\"## Customer · maintenance due (tomorrow) [customer-maintenance-last]\\r\",\"## Owner · a plan ended [owner-plan-cancelled]\\r\",\"## Customer · the detailer reaching out [customer-campaign]\\r\",\"## Detailer · a payment did not go through [platform-payment-failed]\\r\",\"## Detailer · the booking page is offline [platform-suspended]\\r\",\"## Detailer · work has started on their website [platform-build-started]\\r\",\"## Detailer · work has started, no fee on file [platform-build-started-nofee]\\r\",\"## Owner · somebody signed up [platform-new-detailer]\\r\"])",
+    "@1440: copied text is missing a note or includes a blank one"
+  ],
+  "warnings": [
+    "run with --break=copy-all; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "widths": [
+      390,
+      320,
+      1440
+    ],
+    "languages": [
+      "en",
+      "es"
+    ],
+    "break": "copy-all"
+  },
+  "check_id": "email-review-sheet",
+  "started_at": "2026-10-12T05:49:22.296Z",
+  "status": "fail",
+  "expected_targets": 34,
+  "discovered_targets": 34,
+  "attempted_targets": 34,
+  "completed_targets": 34,
+  "skipped_targets": 0,
+  "assertions_executed": 70,
+  "min_assertions": 40,
+  "canary": {
+    "id": "a page with one email's id replaced must fail the count-and-identity question",
+    "observed_failure": true,
+    "caught_by": [
+      "count/identity"
+    ],
+    "findings": [
+      "[count] a page with one email swapped for another id fails the each-once question"
+    ]
+  }
+}
