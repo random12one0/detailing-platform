@@ -34,6 +34,41 @@
 .bo-dim { color: var(--fog); font-size: 12.5px; }
 .bo-none { color: var(--fog); padding: 30px 18px; }
 
+/* System's sent-mail ledger. Full words and dates survive the phone layout;
+ * the list owns its scrolling so a hundred sends do not lengthen the place. */
+.bo-mail-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-bottom: 16px; }
+.bo-mail-head .bo-label { margin: 0; }
+.bo-mail-filters { display: flex; gap: 4px; border-bottom: 1px solid var(--line-2); }
+.bo-mail-filters button { min-height: 44px; padding: 0 14px; font-size: 14px; color: var(--fog); border-bottom: 2px solid transparent; }
+.bo-mail-filters button[aria-pressed="true"] { color: var(--ac); border-bottom-color: var(--ac); }
+.bo-mail-filters button:hover { color: var(--bone); }
+.bo-mail-scroll { max-height: 540px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--fog-2) transparent; padding-right: 12px; }
+.bo-mail-scroll::-webkit-scrollbar { width: 6px; }
+.bo-mail-scroll::-webkit-scrollbar-thumb { background: var(--fog-2); border-radius: 6px; }
+.bo-mail-list { list-style: none; }
+.bo-mail-list li { padding: 18px 0; border-bottom: 1px solid var(--line-2); }
+.bo-mail-list li:first-child { padding-top: 4px; }
+.bo-mail-line { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.bo-mail-subject { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; min-width: 0; }
+.bo-mail-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.5; }
+.bo-mail-status i { width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 50%; flex: none; }
+.bo-mail-status.ok { color: var(--ac); }
+.bo-mail-status.ok i, .bo-mail-status.bad i { background: currentColor; }
+.bo-mail-status.bad { color: var(--bad); }
+.bo-mail-status.pending { color: var(--fog); }
+.bo-mail-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 10px; font-size: 12.5px; color: var(--fog); }
+.bo-mail-meta span { overflow-wrap: anywhere; max-width: 100%; }
+.bo-mail-meta time { font-family: var(--f-num); font-size: 11.5px; max-width: 100%; }
+.bo-mail-detail { color: var(--bad); font-size: 12.5px; line-height: 1.5; overflow-wrap: anywhere; margin-top: 10px !important; }
+.bo-mail-error { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; color: var(--bad); overflow-wrap: anywhere; }
+.bo-mail-cap { margin-top: 12px !important; font-family: var(--f-num); }
+@media (min-width: 1000px) and (min-height: 500px) {
+  .bo-mail-line { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 24px; }
+  .bo-mail-subject { flex: 1; }
+  .bo-mail-status { flex: none; max-width: 220px; }
+  .bo-mail-meta { flex-direction: row; flex-wrap: wrap; column-gap: 20px; }
+}
+
 /* ═══ THE GROUND ═══ */
 .bo-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .bo-bg canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9; }

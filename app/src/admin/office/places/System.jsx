@@ -8,8 +8,9 @@ import Pulse from "./system/Pulse.jsx";
 import Loud from "./system/Loud.jsx";
 import Every from "./system/Every.jsx";
 import Gauges from "./system/Gauges.jsx";
+import Mail from "./system/Mail.jsx";
 
-const SECTIONS = [Pulse, Loud, Every, Gauges];
+const SECTIONS = [Pulse, Loud, Every, Gauges, Mail];
 
 export default function System({ ctx }) {
   const now = useMemo(() => Date.now(), [ctx.state]);
