@@ -18,10 +18,10 @@
 
 import {
   DEFAULT_VEHICLE_SIZES, matchVehicle, REMEMBER_KEY, VEHICLE_CONDITIONS, bookingRequest,
-  campaignFor, canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
+  campaignFor, blockers, canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
   normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
-  recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
+  phoneComplete, recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
   suggestVehicleSize, toggleService, bodyTypeOf, vehicleBodyTypeCoverage, VEHICLE_BODY_TYPES,
   guessBodyTypes, vehicleSizeExtra, vehicleSizesMatter, visitorIdFor,
 } from "../app/src/book/core.js";
@@ -304,10 +304,21 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
     G("When", { ...base, bookingDate: "2026-09-10" }) === false);
   check("...and passes with both",
     G("When", { ...base, bookingDate: "2026-09-10", startTime: "09:00" }) === true);
-  const named = { ...base, customerName: "A", customerPhone: "5", customerEmail: "a@b.c" };
+  const named = { ...base, customerName: "A", customerPhone: "(555) 012-3456", customerEmail: "a@b.c" };
   check("Details needs all three", G("Details", { ...named, customerEmail: "" }) === false);
   check("...and whitespace is none of them", G("Details", { ...named, customerPhone: " " }) === false);
   check("Details passes when reachable", G("Details", named) === true);
+  check("Details refuses seven digits", G("Details", { ...named, customerPhone: "(555) 012-3" }) === false);
+  check("Details refuses one digit", G("Details", { ...named, customerPhone: "5" }) === false);
+  check("Details refuses a blank box as no-phone, not bad-phone",
+    JSON.stringify(blockers("Details", { form: { ...named, customerPhone: " " }, ...ok })) === '["no-phone"]');
+  check("Details names a short number bad-phone",
+    JSON.stringify(blockers("Details", { form: { ...named, customerPhone: "(555) 012-3" }, ...ok })) === '["bad-phone"]');
+  check("a bare ten digits counts", phoneComplete("5550123456") === true);
+  check("a leading 1 drops, as phoneAsTyped does", phoneComplete("1(555)012-3456") === true);
+  check("eleven digits without a leading 1 do not", phoneComplete("25550123456") === false);
+  check("a +44 number with eight digits counts", phoneComplete("+44 7700 900077") === true);
+  check("a short +44 number does not", phoneComplete("+44 770") === false);
   check("Review never blocks — the button is the gate there", G("Review", base) === true);
   check("Extras never blocks — it is optional by definition", G("Extras", base) === true);
 }

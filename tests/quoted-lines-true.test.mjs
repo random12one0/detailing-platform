@@ -106,7 +106,7 @@ const BASE = {
   extraVehicles: [],
 };
 
-// `create-booking/index.ts:650-676`, field for field. This is the payload the
+// `create-booking/index.ts:663-689`, field for field. This is the payload the
 // customer's confirmation is really built from — not a restatement of it.
 // A fixture that restates the product instead of exercising it cannot fail
 // with it, which is how `render-emails.mjs`'s hand-written `carloadBooking`

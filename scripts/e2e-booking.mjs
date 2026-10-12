@@ -475,7 +475,7 @@ async function loop({ slug, dashboard }) {
   // Unique per run, because create-booking upserts the customer BY PHONE
   // within a business — a fixed number would attach every run to one customer
   // row and the cleanup would delete a row the next run is still using.
-  const PHONE = `555-01${String(Date.now() % 100).padStart(2, "0")}`;
+  const PHONE = `555-010-${String(Date.now() % 10000).padStart(4, "0")}`;
 
   // ROADMAP 2.21 — CLEAR THE THROTTLE THIS RUN IS ABOUT TO SPEND.
   //

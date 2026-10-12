@@ -1239,6 +1239,23 @@ export const monthHasNothing = (days) =>
 // address eventually; this one only refuses what cannot work.
 export const looksLikeEmail = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v ?? "").trim());
 
+// ROADMAP 99.8 — A PHONE NUMBER WITH DIGITS MISSING BOOKS, and the detailer
+// gets a number nobody can call or text. The only rule was "not empty", so
+// one digit booked. A US number counts once it has exactly 10 digits (a
+// leading 1 dropped, as `phoneAsTyped` already does); a number typed from
+// `+` (but not +1, which is the US country code and takes the digit path) is
+// left alone except it needs at least 8 digits. Crude on purpose, like
+// `looksLikeEmail`: it refuses only what cannot work. Exported beside the
+// test itself so the Details step can mark the field, the way `emailFault`
+// does for the email box. No imports — this file stays import-free.
+export const phoneComplete = (v) => {
+  const raw = String(v ?? "");
+  if (/^\s*\+(?!1)/.test(raw)) return raw.replace(/\D/g, "").length >= 8;
+  const d = raw.replace(/\D/g, "");
+  const n = d.length === 11 && d.startsWith("1") ? d.slice(1) : d;
+  return n.length === 10;
+};
+
 // **AND WHICH WAY IT IS WRONG, BECAUSE ONE SENTENCE FOR THREE FAULTS SENDS
 // PEOPLE TO THE WRONG PLACE — 2026-09-12.** The step said *"That address is
 // missing an @"* for every refusal, so `andrew@gmail` and `andrew@@gmail.com`
@@ -1319,6 +1336,7 @@ export function blockers(stepName, { form, settings, quote, quoting }) {
     case "Details":
       if (!form.customerName?.trim()) out.push("no-name");
       if (!form.customerPhone?.trim()) out.push("no-phone");
+      else if (!phoneComplete(form.customerPhone)) out.push("bad-phone");
       if (!looksLikeEmail(form.customerEmail)) {
         out.push(form.customerEmail?.trim() ? "bad-email" : "no-email");
       }

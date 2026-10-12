@@ -759,7 +759,7 @@ try {
     if (f === "role") return "staff";
     if (f === "amount" || f === "quoted_amount") return 99;
     if (f === "name") return `${S("A")} probe`;
-    if (f === "phone") return "555-0199";
+    if (f === "phone") return "555-555-0199";
     if (f === "code") return "EDGEREPLAY";
     if (f === "host" || f === "domain") return "edge-replay.example";
     if (f === "url") return "https://edge-replay.example/x";
@@ -776,7 +776,7 @@ try {
     // harness is missing". They named it perfectly; the lookup was keyed on
     // the wrong spelling. The same for the phone, the address and the email.
     if (f === "customer_name") return "Edge replay client";
-    if (f === "customer_phone") return "555-0199";
+    if (f === "customer_phone") return "555-555-0199";
     if (f === "customer_email") return SINK;
     if (f === "customer_address") return "1 Edge Replay Street, Denver CO";
     // `forecast` takes a POINT, deliberately — nothing in this product stores

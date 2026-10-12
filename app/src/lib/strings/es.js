@@ -142,6 +142,7 @@ export const es = {
   "Add your email to continue. Your confirmation goes there.": "Agrega tu correo para continuar. Ahí llega tu confirmación.",
   "Add your phone number to continue.": "Agrega tu teléfono para continuar.",
   "Add your name and phone number to continue.": "Agrega tu nombre y tu teléfono para continuar.",
+  "That phone number looks incomplete. Check it and try again.": "Ese número de teléfono parece incompleto. Revísalo e inténtalo de nuevo.",
   "Add the address to continue.": "Agrega la dirección para continuar.",
   // THE ANSWER TO A REFUSED PRESS. One sentence per thing that can block a
   // step, from `book/Refusal.jsx` — the four below had no English string at

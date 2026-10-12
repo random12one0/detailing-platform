@@ -229,7 +229,7 @@ const fixtureQuote = (extra = {}) => computeQuote({
 });
 
 // Every field a template reads for money, taken from the quote and from
-// nowhere else. `create-booking/index.ts:650-676` builds the same shape.
+// nowhere else. `create-booking/index.ts:663-689` builds the same shape.
 const moneyFrom = (q) => ({
   serviceNames: fixtureServices.map((s) => s.name),
   addOnNames: fixtureAddOns.map((a) => a.name),

@@ -158,7 +158,7 @@ console.log("\ntest 1: a cancelled booking releases its slot");
 {
   const day = daysOut(30);
   const made = await fn("create-booking", {
-    business_slug: "tz-ny", customer_name: "Canceller", customer_phone: "555-2001",
+    business_slug: "tz-ny", customer_name: "Canceller", customer_phone: "555-555-2001",
     customer_email: "c1@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(NY)], booking_date: day, start_time: "14:00",
   });
@@ -176,7 +176,7 @@ console.log("\ntest 1: a cancelled booking releases its slot");
   // And the database itself accepts a real booking in the freed slot — proof
   // the exclusion constraint honors status, not just the availability code.
   const rebook = await fn("create-booking", {
-    business_slug: "tz-ny", customer_name: "Rebooker", customer_phone: "555-2002",
+    business_slug: "tz-ny", customer_name: "Rebooker", customer_phone: "555-555-2002",
     customer_email: "c2@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(NY)], booking_date: day, start_time: "14:00",
   });
@@ -187,7 +187,7 @@ console.log("\ntest 2: a soft-deleted booking releases its slot");
 {
   const day = daysOut(31);
   const made = await fn("create-booking", {
-    business_slug: "tz-ny", customer_name: "Deleted", customer_phone: "555-2003",
+    business_slug: "tz-ny", customer_name: "Deleted", customer_phone: "555-555-2003",
     customer_email: "c3@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(NY)], booking_date: day, start_time: "14:00",
   });
@@ -200,7 +200,7 @@ console.log("\ntest 2: a soft-deleted booking releases its slot");
   const freed = await fn("available-slots", { business_slug: "tz-ny", booking_date: day, duration_minutes: 120 });
   check("14:00 offered again after soft delete", freed.data?.slots?.includes("14:00"), JSON.stringify(freed.data?.slots));
   const rebook = await fn("create-booking", {
-    business_slug: "tz-ny", customer_name: "Rebooker2", customer_phone: "555-2004",
+    business_slug: "tz-ny", customer_name: "Rebooker2", customer_phone: "555-555-2004",
     customer_email: "c4@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(NY)], booking_date: day, start_time: "14:00",
   });
@@ -222,7 +222,7 @@ console.log("\ntest 3: New York and Phoenix, identical wall-clock hours");
   // Same local time, different real instants — the whole point of per-tenant
   // timezones.
   const mk = (slug, biz) => fn("create-booking", {
-    business_slug: slug, customer_name: "Ten AM", customer_phone: "555-2100",
+    business_slug: slug, customer_name: "Ten AM", customer_phone: "555-555-2100",
     customer_email: "t@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(biz)], booking_date: day, start_time: "10:00",
   });
@@ -281,7 +281,7 @@ console.log("\ntest 5: changing a business's timezone");
 {
   const day = daysOut(33);
   const made = await fn("create-booking", {
-    business_slug: "tz-phx", customer_name: "Mover", customer_phone: "555-2200",
+    business_slug: "tz-phx", customer_name: "Mover", customer_phone: "555-555-2200",
     customer_email: "m@tz.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [svcOf(PHX)], booking_date: day, start_time: "09:00",
   });

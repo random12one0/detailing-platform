@@ -176,7 +176,7 @@ console.log("\ntest 1: reserve mode is unchanged, and it is the default");
   check("a settings row written without the column reads 'reserve'",
     fresh.data?.[0]?.booking_mode === "reserve", JSON.stringify(fresh.data));
 
-  const r = await book(D1, "09:00", "555-2001");
+  const r = await book(D1, "09:00", "555-555-2001");
   check("booking succeeds", r.status === 200, JSON.stringify(r.data));
   check("status comes back confirmed", r.data?.booking?.status === "confirmed", JSON.stringify(r.data?.booking));
 }
@@ -186,7 +186,7 @@ console.log("\ntest 2: request mode makes a booking PENDING, not confirmed");
 let pendingId;
 {
   await setMode("request");
-  const r = await book(D2, "09:00", "555-2002");
+  const r = await book(D2, "09:00", "555-555-2002");
   check("booking succeeds", r.status === 200, JSON.stringify(r.data));
   check("status comes back pending", r.data?.booking?.status === "pending", JSON.stringify(r.data?.booking));
   pendingId = r.data?.booking?.id;
@@ -201,9 +201,9 @@ let pendingId;
 // booking, and the slot is not OFFERED either.
 console.log("\ntest 3: a request HOLDS the slot — nobody else can take it");
 {
-  const clash = await book(D2, "09:00", "555-2003");
+  const clash = await book(D2, "09:00", "555-555-2003");
   check("a second booking at the same time is refused", clash.status === 409, `${clash.status} ${JSON.stringify(clash.data)}`);
-  const inside = await book(D2, "10:00", "555-2004");
+  const inside = await book(D2, "10:00", "555-555-2004");
   check("so is one that overlaps it", inside.status === 409, `${inside.status}`);
 }
 
@@ -216,7 +216,7 @@ console.log("\ntest 4: and available-slots does not offer it");
 // ---------------------------------------------------------------------------
 console.log("\ntest 5: accepting");
 {
-  const r = await book(D3, "09:00", "555-2005");
+  const r = await book(D3, "09:00", "555-555-2005");
   const id = r.data?.booking?.id;
   const unauthorised = await fn("respond-to-booking", { business_id: R.id, booking_id: id, action: "accept" });
   check("no session → 401", unauthorised.status === 401, `${unauthorised.status}`);
@@ -245,7 +245,7 @@ console.log("\ntest 5: accepting");
 // which is the half worth a test.
 console.log("\ntest 6: declining frees the slot and says who did it");
 {
-  const r = await book(D4, "09:00", "555-2006");
+  const r = await book(D4, "09:00", "555-555-2006");
   const id = r.data?.booking?.id;
   const ok = await fn("respond-to-booking", { business_id: R.id, booking_id: id, action: "decline" }, owner.jwt);
   check("decline succeeds", ok.status === 200, JSON.stringify(ok.data));
@@ -254,7 +254,7 @@ console.log("\ntest 6: declining frees the slot and says who did it");
   check("status is cancelled", row?.status === "cancelled", String(row?.status));
   check("declined_at records that the DETAILER ended it", !!row?.declined_at, String(row?.declined_at));
 
-  const reuse = await book(D4, "09:00", "555-2007");
+  const reuse = await book(D4, "09:00", "555-555-2007");
   check("somebody else can now have that time", reuse.status === 200, `${reuse.status} ${JSON.stringify(reuse.data)}`);
   const slots = await fn("available-slots", { business_slug: "engine-r", booking_date: daysOut(36), duration_minutes: 120 });
   check("available-slots still answers normally", Array.isArray(slots.data?.slots));
@@ -264,7 +264,7 @@ console.log("\ntest 6: declining frees the slot and says who did it");
 console.log("\ntest 7: a quote is OFFERED, never charged");
 let quotedId;
 {
-  const r = await book(D5, "09:00", "555-2008", { add_ons: [addOn.id] });
+  const r = await book(D5, "09:00", "555-555-2008", { add_ons: [addOn.id] });
   quotedId = r.data?.booking?.id;
   check("the request was taken at 230 (200 + 30 add-on)", near(r.data?.booking?.total_price, 230),
     JSON.stringify(r.data?.booking));
@@ -327,7 +327,7 @@ console.log("\ntest 8: the customer accepts, and the receipt still adds up");
 // ---------------------------------------------------------------------------
 console.log("\ntest 9: the customer can still cancel and move a request");
 {
-  const r = await book(D6, "09:00", "555-2009");
+  const r = await book(D6, "09:00", "555-555-2009");
   const id = r.data?.booking?.id;
   const moved = await fn("reschedule-booking", { booking_id: id, booking_date: D6, start_time: "14:00" });
   check("a pending request can be rescheduled", moved.status === 200, JSON.stringify(moved.data));
@@ -351,7 +351,7 @@ console.log("\ntest 10: a booking the DETAILER makes is never a request");
 {
   const r = await fn("create-booking", {
     business_slug: "engine-r",
-    customer_name: "Walk In", customer_phone: "555-2010",
+    customer_name: "Walk In", customer_phone: "555-555-2010",
     service_type: "mobile", vehicle_size: "small",
     service_ids: [service.id], add_ons: [],
     booking_date: daysOut(37), start_time: "09:00",
@@ -367,7 +367,7 @@ console.log("\ntest 10: a booking the DETAILER makes is never a request");
 // is tomorrow" and the detailer gets nudged to go and do it.
 console.log("\ntest 11: the reminder sweep ignores a request nobody accepted");
 {
-  const r = await book(daysOut(38), "09:00", "555-2011");
+  const r = await book(daysOut(38), "09:00", "555-555-2011");
   const id = r.data?.booking?.id;
   // Make it due: no marker, and a lead time wide enough to cover the date.
   await svc.patch(`/rest/v1/business_settings?business_id=eq.${R.id}`,
@@ -390,7 +390,7 @@ console.log("\ntest 11: the reminder sweep ignores a request nobody accepted");
 console.log("\ntest 12: another business's request is not yours to answer");
 {
   const other = await ensureUser("phase2-owner-r2@engine.test", "Phase2-request-test-pw!");
-  const r = await book(daysOut(39), "09:00", "555-2012");
+  const r = await book(daysOut(39), "09:00", "555-555-2012");
   const id = r.data?.booking?.id;
   const attempt = await fn("respond-to-booking",
     { business_id: R.id, booking_id: id, action: "accept" }, other.jwt);
@@ -404,7 +404,7 @@ console.log("\ntest 12: another business's request is not yours to answer");
 // accepted just dropped off Today when Friday passed.
 console.log("\ntest 13: a request nobody answered gets chased");
 {
-  const r = await book(daysOut(40), "09:00", "555-2013");
+  const r = await book(daysOut(40), "09:00", "555-555-2013");
   const id = r.data?.booking?.id;
   await svc.patch(`/rest/v1/business_settings?business_id=eq.${R.id}`, { request_nudge_hours: 12 });
 
@@ -445,7 +445,7 @@ console.log("\ntest 13: a request nobody answered gets chased");
     !(past.data ?? []).some((b) => b.id === id), `${(past.data ?? []).length} due`);
 
   // An ACCEPTED booking is never in this list — it is not waiting on anybody.
-  const r2 = await book(daysOut(41), "09:00", "555-2014");
+  const r2 = await book(daysOut(41), "09:00", "555-555-2014");
   const id2 = r2.data?.booking?.id;
   await svc.patch(`/rest/v1/bookings?id=eq.${id2}`,
     { created_at: new Date(Date.now() - 20 * 3600_000).toISOString() });

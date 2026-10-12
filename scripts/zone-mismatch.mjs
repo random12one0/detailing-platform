@@ -236,7 +236,7 @@ async function book(page, address) {
     // The name/phone/email step.
     if (await page.locator(".bk-field input[type=tel]").count()) {
       await page.locator("input:visible").first().fill(STAMP);
-      await page.locator(".bk-field input[type=tel]").first().fill("555-0133");
+      await page.locator(".bk-field input[type=tel]").first().fill("555-555-0133");
       await page.locator(".bk-field input[type=email]").first().fill(CUSTOMER_EMAIL);
       await settle(page, 600);
     }

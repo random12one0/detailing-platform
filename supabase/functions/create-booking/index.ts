@@ -50,6 +50,18 @@ import { saveBookingSmsConsent } from "../_shared/bookingConsent.ts";
  * is the key to the manage page: phone and time alone are things a stranger
  * can know. A retry sends the identical name, so it costs a real retry nothing.
  */
+// ROADMAP 99.8 — the same rule as `phoneComplete` in `app/src/book/core.js`:
+// a US number counts with exactly 10 digits (a leading 1 dropped); a number
+// typed from `+` (not +1) needs at least 8 digits. Kept as a local copy
+// because edge functions cannot import from `app/src`.
+const phoneComplete = (v: unknown) => {
+  const raw = String(v ?? "");
+  if (/^\s*\+(?!1)/.test(raw)) return raw.replace(/\D/g, "").length >= 8;
+  const d = raw.replace(/\D/g, "");
+  const n = d.length === 11 && d.startsWith("1") ? d.slice(1) : d;
+  return n.length === 10;
+};
+
 const sameBooking = (businessId: string, startIso: string, body: Record<string, unknown>) =>
   supabase
     .from("bookings")
@@ -121,6 +133,7 @@ Deno.serve(async (req) => {
     // --- Required fields ---------------------------------------------------
     if (!body.customer_name?.trim()) return json({ error: "Customer name is required" }, 400);
     if (!body.customer_phone?.trim()) return json({ error: "Customer phone is required" }, 400);
+    if (!phoneComplete(body.customer_phone)) return json({ error: "Customer phone number is incomplete" }, 400);
     if (!body.booking_date) return json({ error: "Booking date is required" }, 400);
     if (!body.start_time) return json({ error: "Start time is required" }, 400);
     const serviceType = body.service_type === "dropoff" ? "dropoff" : "mobile";

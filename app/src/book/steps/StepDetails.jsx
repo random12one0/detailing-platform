@@ -1,7 +1,7 @@
 // Step 5 — who we're detailing for.
 
 import Refusal from "../Refusal.jsx";
-import { emailFault } from "../core.js";
+import { emailFault, phoneComplete } from "../core.js";
 import { phoneAsTyped } from "../../lib/format.js";
 import { t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
@@ -23,6 +23,10 @@ export default function StepDetails({ form, setForm, blocks = [], tried = false 
   // be required at all when no plan is attached is a rules question, and the
   // rules live in `core.js`.
   const badEmail = !!emailFault(form.customerEmail);
+  // ROADMAP 99.8 — mark the phone box the way the email box is marked, so a
+  // half-typed number reads as wrong on the field itself, not only in the
+  // refusal line below. Empty is not wrong yet: nobody has reached it.
+  const badPhone = !!form.customerPhone?.trim() && !phoneComplete(form.customerPhone);
   return (
     <>
       <label className="bk-field">
@@ -36,7 +40,7 @@ export default function StepDetails({ form, setForm, blocks = [], tried = false 
       <div className="bk-grid2 bk-contact">
         <label className="bk-field">
           <span>{t("Phone")}</span>
-          <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone}
+          <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone} aria-invalid={badPhone || undefined}
             onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value) }))} />
         </label>
         <div className="bk-sms-consent">

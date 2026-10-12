@@ -87,7 +87,7 @@ const services = (await svc.post("/rest/v1/services", [A, PHX].map((b) =>
 
 const day = daysOut(25);
 const mk = (slug, biz) => fn("create-booking", {
-  business_slug: slug, customer_name: "Ada Byron", customer_phone: "555-7100",
+  business_slug: slug, customer_name: "Ada Byron", customer_phone: "555-555-7100",
   customer_email: "ada@ics.test", customer_address: "22 Elm St, Brooklyn, NY",
   service_type: "mobile", vehicle_size: "small",
   service_ids: [services.find((s) => s.business_id === biz.id).id],
@@ -124,7 +124,7 @@ console.log("\ntest 1: the .ics file stamps the business's timezone");
     /^PRODID:-\/\/[a-z0-9.-]+\/\/Booking\/\/EN$/.test(prodid) && !/coastline|riverside|ironclad/i.test(prodid),
     prodid);
   check("CRLF line endings", text.includes("\r\n"));
-  check("owner copy carries the customer's contact", text.includes("555-7100"));
+  check("owner copy carries the customer's contact", text.includes("555-555-7100"));
   check("location is the customer address for a mobile job", text.includes("22 Elm St"));
 }
 
@@ -140,7 +140,7 @@ console.log("\ntest 2: the customer copy differs, and Phoenix gets no DST");
   // never left thinking `audience=owner` is a free parameter.
   const flipped = await (await fetch(`${URL_}/functions/v1/booking-ics?id=${bookingA.id}&audience=owner`)).text();
   check("an anonymous caller typing audience=owner gets the customer's copy",
-    !flipped.includes("555-7100") && !flipped.includes("Customer: Ada Byron"),
+    !flipped.includes("555-555-7100") && !flipped.includes("Customer: Ada Byron"),
     flipped.match(/DESCRIPTION.*/)?.[0] ?? "");
 
   // No audience: nobody is a member of the Phoenix fixture, and the timezone
@@ -180,7 +180,7 @@ console.log("\ntest 4: notification recipients and toggles");
   // A booking still succeeds with confirmation email off (email is never a
   // gate on booking).
   const b2 = await fn("create-booking", {
-    business_slug: "ics-a", customer_name: "Grace H", customer_phone: "555-7200",
+    business_slug: "ics-a", customer_name: "Grace H", customer_phone: "555-555-7200",
     customer_email: "grace@ics.test", service_type: "mobile", vehicle_size: "small",
     service_ids: [services.find((s) => s.business_id === A.id).id],
     booking_date: daysOut(26), start_time: "10:00",

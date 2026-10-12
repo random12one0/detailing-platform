@@ -214,7 +214,7 @@ console.log("test 7: booking — a booking made on one page belongs only to it")
     const [date, info] = day;
     const created = await fn("create-booking", {
       business_slug: A,
-      customer_name: "Isolation Test", customer_phone: "555-7788",
+      customer_name: "Isolation Test", customer_phone: "555-555-7788",
       customer_email: "isolation@booking.test",
       customer_address: "12 Test Row",
       service_type: "mobile", vehicle_size: "small",
@@ -251,7 +251,7 @@ console.log("test 7: booking — a booking made on one page belongs only to it")
   // Booking B's way on A's page must be rejected: A does not do drop-off.
   const wrongMode = await fn("create-booking", {
     business_slug: A,
-    customer_name: "Wrong Mode", customer_phone: "555-0000", customer_email: "wm@booking.test",
+    customer_name: "Wrong Mode", customer_phone: "555-555-0000", customer_email: "wm@booking.test",
     service_type: "dropoff", vehicle_size: "small",
     service_ids: [a.services[0].id], add_ons: [],
     booking_date: new Date(Date.now() + 6 * 86400_000).toISOString().slice(0, 10),

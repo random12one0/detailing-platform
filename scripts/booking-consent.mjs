@@ -198,7 +198,7 @@ try {
         check(`${tag} incomplete booking refused`, network.calls.length === 0 && await page.locator('input[type=tel]').count() === 1);
       }
       await page.getByLabel(lang === 'en' ? 'Your name' : 'Tu nombre', { exact: true }).fill('Maria Lopez');
-      await page.locator('input[type=tel]').fill('555-0123');
+      await page.locator('input[type=tel]').fill('555-012-3456');
       await page.locator('input[type=email]').fill('maria@example.invalid');
       await page.locator('.bk-bar .bk-btn.primary').click();
       await page.waitForTimeout(450);

@@ -76,6 +76,10 @@ export function reasonFor(blocks, form) {
   if (needName && needPhone) return t("Add your name and phone number to continue.");
   if (needName) return t("Add your name to continue.");
   if (needPhone) return t("Add your phone number to continue.");
+  // ROADMAP 99.8 — the number is there but digits are missing, so the
+  // detailer would get a number nobody can call or text. Said beside the
+  // box like every other blocker, never only as a silent refusal.
+  if (blocks.includes("bad-phone")) return t("That phone number looks incomplete. Check it and try again.");
   if (blocks.includes("no-email")) return t("Add your email to continue. Your confirmation goes there.");
   if (blocks.includes("bad-email")) {
     // The DIAGNOSIS is `core.js`'s, so a tenant's own form gets it too; only

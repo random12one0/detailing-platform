@@ -194,7 +194,7 @@ let bookingA1;
 {
   const r = await fn("create-booking", {
     business_slug: "engine-a",
-    customer_name: "Cust One", customer_phone: "555-1001", customer_email: "cust1@engine.test",
+    customer_name: "Cust One", customer_phone: "555-555-1001", customer_email: "cust1@engine.test",
     customer_address: "9 Elm St", service_type: "mobile", vehicle_size: "medium", vehicle_model: "Civic",
     service_ids: [serviceA.id], add_ons: [addOnA.id],
     booking_date: D1, start_time: "10:00",
@@ -216,7 +216,7 @@ console.log("test 3: same promo code, different business → different discount"
 {
   const r = await fn("create-booking", {
     business_slug: "engine-b",
-    customer_name: "Cust Two", customer_phone: "555-1002", customer_email: "cust2@engine.test",
+    customer_name: "Cust Two", customer_phone: "555-555-1002", customer_email: "cust2@engine.test",
     service_type: "dropoff", vehicle_size: "medium",
     service_ids: [serviceB.id], booking_date: D1, start_time: "10:00",
     applied_promo_code: "SUMMER10",
@@ -229,28 +229,28 @@ console.log("test 3: same promo code, different business → different discount"
 console.log("test 4: double validation — submit re-checks what display hid");
 {
   const outsideHours = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1003", customer_email: "x@engine.test",
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-555-1003", customer_email: "x@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
     booking_date: D1, start_time: "19:00",
   });
   check("outside hours → 409", outsideHours.status === 409, `${outsideHours.status} ${JSON.stringify(outsideHours.data)}`);
 
   const runsPastClose = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1003", customer_email: "x@engine.test",
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-555-1003", customer_email: "x@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
     booking_date: D1, start_time: "17:00", // 120min service ends 19:00 > 18:00 close
   });
   check("runs past close → 409", runsPastClose.status === 409, `${runsPastClose.status}`);
 
   const inBuffer = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1004", customer_email: "x2@engine.test",
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-555-1004", customer_email: "x2@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
     booking_date: D1, start_time: "12:30", // A1 runs 10:00-12:15 (135min); buffer 60 → blocked until 13:15
   });
   check("inside buffer → 409", inBuffer.status === 409, `${inBuffer.status} ${JSON.stringify(inBuffer.data)}`);
 
   const badService = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1005", customer_email: "x3@engine.test",
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-555-1005", customer_email: "x3@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceB.id], // B's service on A's site
     booking_date: D1, start_time: "15:00",
   });
@@ -262,7 +262,7 @@ console.log("test 5: dashboard booking passes the SAME validation");
   const adminOutsideHours = await fn(
     "create-booking",
     {
-      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-1006",
+      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-555-1006",
       service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
       booking_date: D2, start_time: "19:00", admin_notes: "phone booking",
     },
@@ -273,7 +273,7 @@ console.log("test 5: dashboard booking passes the SAME validation");
   const adminOk = await fn(
     "create-booking",
     {
-      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-1006",
+      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-555-1006",
       service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
       booking_date: D2, start_time: "09:00", admin_notes: "phone booking",
     },
@@ -290,7 +290,7 @@ console.log("test 6: buffer independence through the live engine");
   // Both businesses booked D2 10:00-12:00 local. (A already has 09:00-11:00
   // from test 5 — use B for the clean comparison and A for the change.)
   await fn("create-booking", {
-    business_slug: "engine-b", customer_name: "Buf B", customer_phone: "555-1007", customer_email: "bufb@engine.test",
+    business_slug: "engine-b", customer_name: "Buf B", customer_phone: "555-555-1007", customer_email: "bufb@engine.test",
     service_type: "dropoff", vehicle_size: "small", service_ids: [serviceB.id],
     booking_date: D2, start_time: "13:00",
   });
@@ -335,7 +335,7 @@ console.log("test 7: min/max advance from settings");
     key: ANON, jwt: userA.jwt, body: { min_advance_minutes: 40 * 24 * 60 }, // 40 days
   });
   const tooSoon = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1008", customer_email: "x4@engine.test",
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-555-1008", customer_email: "x4@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
     booking_date: daysOut(30), start_time: "09:00",
   });
@@ -346,7 +346,7 @@ console.log("test 7: min/max advance from settings");
     key: ANON, jwt: userB.jwt, body: { max_advance_days: 5 },
   });
   const tooFar = await fn("create-booking", {
-    business_slug: "engine-b", customer_name: "X", customer_phone: "555-1009", customer_email: "x5@engine.test",
+    business_slug: "engine-b", customer_name: "X", customer_phone: "555-555-1009", customer_email: "x5@engine.test",
     service_type: "dropoff", vehicle_size: "small", service_ids: [serviceB.id],
     booking_date: daysOut(30), start_time: "09:00",
   });
@@ -361,7 +361,7 @@ console.log("test 8: cancel & reschedule honor the cancellation window");
 let bookingA3;
 {
   const r = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Mover", customer_phone: "555-1010", customer_email: "mover@engine.test",
+    business_slug: "engine-a", customer_name: "Mover", customer_phone: "555-555-1010", customer_email: "mover@engine.test",
     service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
     booking_date: D3, start_time: "10:00",
   });
@@ -475,12 +475,12 @@ console.log("test 12: a day restricted to one service type refuses the other");
 // which is where create-, reschedule- and update-booking all meet.
 {
   const book = (type) => fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Mode Check", customer_phone: "555-0900",
+    business_slug: "engine-a", customer_name: "Mode Check", customer_phone: "555-555-0900",
     customer_email: "mode@engine.test", customer_address: "9 Test St", service_type: type,
     vehicle_size: "small", service_ids: [serviceA.id], add_ons: [],
     booking_date: D4, start_time: "10:00",
   });
-  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0900`);
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0900`);
   const restrict = async (mode) => {
     await svc.del(`/rest/v1/dropoff_only_periods?business_id=eq.${A.id}&start_date=eq.${D4}`);
     if (mode) {
@@ -534,11 +534,11 @@ console.log("test 13: a category's max_select is enforced on the server");
   ])).data;
   const id = (n) => made.find((x) => x.name === n).id;
   const book = (ids) => fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Cap Check", customer_phone: "555-0901",
+    business_slug: "engine-a", customer_name: "Cap Check", customer_phone: "555-555-0901",
     customer_email: "cap@engine.test", customer_address: "9 Test St", service_type: "mobile",
     vehicle_size: "small", service_ids: ids, add_ons: [], booking_date: D5, start_time: "10:00",
   });
-  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0901`);
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0901`);
 
   const two = await book([id("Excl One"), id("Excl Two")]); await clear();
   check("two from a pick-one category -> 409", two.status === 409, `${two.status} ${JSON.stringify(two.data)}`);
@@ -575,12 +575,12 @@ console.log("test 14: a REQUIRED resource blocks the booking on the server");
     { water_requirement: water, power_requirement: power },
   );
   const book = (extra) => fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Tap Check", customer_phone: "555-0902",
+    business_slug: "engine-a", customer_name: "Tap Check", customer_phone: "555-555-0902",
     customer_email: "tap@engine.test", customer_address: "9 Test St", service_type: "mobile",
     vehicle_size: "small", service_ids: [serviceA.id], add_ons: [],
     booking_date: D5, start_time: "14:00", ...extra,
   });
-  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0902`);
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0902`);
 
   await setNeed("required", "ask");
   const noWater = await book({ has_water: false, has_power: true }); await clear();
@@ -632,11 +632,11 @@ console.log("test 15: a category that IS the whole booking");
   ])).data;
   const id = (n) => made.find((x) => x.name === n).id;
   const book = (ids) => fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Excl Check", customer_phone: "555-0903",
+    business_slug: "engine-a", customer_name: "Excl Check", customer_phone: "555-555-0903",
     customer_email: "excl@engine.test", customer_address: "9 Test St", service_type: "mobile",
     vehicle_size: "small", service_ids: ids, add_ons: [], booking_date: D5, start_time: "11:00",
   });
-  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0903`);
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0903`);
 
   const both = await book([id("The Lot"), id("Just Inside")]); await clear();
   check("the package plus a part -> 409", both.status === 409, `${both.status} ${JSON.stringify(both.data)}`);
@@ -665,11 +665,11 @@ console.log("test 16: a service carries its own availability");
     allows_mobile: false, available_weekdays: [2, 3],
   }])).data;
   const book = (type, date) => fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Avail Check", customer_phone: "555-0904",
+    business_slug: "engine-a", customer_name: "Avail Check", customer_phone: "555-555-0904",
     customer_email: "avail@engine.test", customer_address: "9 Test St", service_type: type,
     vehicle_size: "small", service_ids: [garage.id], add_ons: [], booking_date: date, start_time: "13:00",
   });
-  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0904`);
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0904`);
   // A Tuesday and a Thursday, both far enough out to be free.
   const onDow = (dow) => { const d = new Date(); d.setDate(d.getDate() + 26); while (d.getDay() !== dow) d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); };
   const tue = onDow(2), thu = onDow(4);
@@ -790,7 +790,7 @@ console.log("test 17: travel and time-based surcharges reach the price");
   await setPricing({ travel_zones: [{ key: "far", name: "Out of town", fee: 40 }] });
   const quoted = (await price({ service_type: "mobile", travel_zone: "far", booking_date: sat, start_time: "09:00" })).data?.quote;
   const made = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Price Check", customer_phone: "555-0905",
+    business_slug: "engine-a", customer_name: "Price Check", customer_phone: "555-555-0905",
     customer_email: "price@engine.test", customer_address: "9 Test St", service_type: "mobile",
     travel_zone: "far", vehicle_size: "small", service_ids: [serviceA.id], add_ons: [],
     booking_date: sat, start_time: "09:00",
@@ -806,7 +806,7 @@ console.log("test 17: travel and time-based surcharges reach the price");
       && (row.data?.[0]?.price_adjustments ?? []).some((a) => a.label === "Weekend rate"),
     JSON.stringify(row.data?.[0]));
 
-  await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0905`);
+  await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0905`);
   await setPricing({ travel_fee: null, travel_zones: [], price_rules: [], price_rounding_nearest: 5 });
 }
 
@@ -852,7 +852,7 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
   // the row stores, with the plan in it.
   const day = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
   const made = await fn("create-booking", {
-    business_slug: "engine-a", customer_name: "Plan Check", customer_phone: "555-0914",
+    business_slug: "engine-a", customer_name: "Plan Check", customer_phone: "555-555-0914",
     customer_email: "plan@engine.test", service_type: "dropoff", vehicle_size: "small",
     service_ids: [serviceA.id], add_ons: [], booking_date: day, start_time: "09:00",
     plan_id: plan.id,
@@ -877,7 +877,7 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
   check("a plan sign-up arrives as a REQUEST even in reserve mode",
     row?.status === "pending", `mode=reserve, status=${row?.status}`);
 
-  await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0914`);
+  await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0914`);
   await svc.del(`/rest/v1/plans?id=eq.${plan.id}`);
 }
 
@@ -999,7 +999,7 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
         start_at: start,
         end_at: end,
         customer_name: "Overlap Probe",
-        customer_phone: "555-0955",
+        customer_phone: "555-555-0955",
         customer_email: "user@example.test",
       };
     };

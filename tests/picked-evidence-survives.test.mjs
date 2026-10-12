@@ -129,7 +129,7 @@ test("14.26 · 2 — the fixture tenant holds a booking whose address_source is 
       headers: { "Content-Type": "application/json", apikey: await anonKey() },
       body: JSON.stringify({
         business_slug: FIXTURE_SLUG,
-        customer_name: "ROADMAP 14.26 Evidence", customer_phone: "555-0101", customer_email: "evidence@example.com",
+        customer_name: "ROADMAP 14.26 Evidence", customer_phone: "555-555-0101", customer_email: "evidence@example.com",
         customer_address: "5000 East Ocean Boulevard, Long Beach, CA", address_source: "picked",
         service_type: "mobile", vehicle_size: "medium", vehicle_model: "Civic",
         service_ids: [service.id], booking_date: day, start_time: "10:00",
