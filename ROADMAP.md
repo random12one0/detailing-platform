@@ -29563,3 +29563,11 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Split out of 99.2 by supervision 2026-10-12. Andrew, 02:23 (belt INBOX): *"a lot of them look good but there's a few things I want to go over with the planner … make a mock-up of every single email and below a text box so I could speak into or type a change I want for each, then copy the results and send it back … the size of a standard phone, since that's the majority of people … a lot of the wording didn't make sense or was too AI-looking or not enough information."*
   Build one local page from the same renderer `scripts/render-emails.mjs` uses, so it shows exactly what would be sent, English and Spanish. Write it to `belt/shots/99.6/emails.html` so he opens it from the Control Room on his phone. Each email in a 390px frame with its subject and when it is sent; under it a plain text box (the phone keyboard's microphone covers speaking); at the bottom one **Copy all my notes** button that copies every filled-in note labeled with its email's name, ready to paste into the planner. Notes kept in the browser while he works (wrapped in try/catch). No sending, no network, and **no email wording changed in this item**.
   DONE WHEN: every template `render-emails.mjs` renders appears exactly once (count declared and matched, with a canary for a missing one); copying returns labeled notes only for the boxes he filled; nothing cut at 390 or 1440; it opens from the Control Room. His notes then go through the planner and come back as wording changes under 99.2's rules (English and Spanish in the same edit). Those changes are new items, not this one.
+
+
+## Belt repairs
+
+- [ ] **98.1 — Repair the route-contract check (broken by 9.12d)**
+  REPAIR CHECK route-contract. Job 9.12d turned the quality check "route-contract" red; it passed before that job. Find why and make it pass again without undoing 9.12d's work. The check is: `node --test tests/route-contract.test.mjs`.
+  Acceptance criteria:
+  - The route-contract check passes (`node --test tests/route-contract.test.mjs`).
