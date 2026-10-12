@@ -695,7 +695,7 @@
 .bo-price-control:focus-within { box-shadow: inset 0 0 0 1.5px var(--c); }
 .bo-price-entry { display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; height: 100%; gap: 2px; font-family: var(--f-num); color: var(--bone-2); cursor: text; }
 .bo-price-entry > span { flex: none; font-size: 12px; }
-.bo-pgroup input { height: auto; max-width: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0; color: var(--bone); font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 16px; line-height: 20px; text-align: center; }
+.bo-pgroup input { height: auto; min-width: 0; max-width: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0; color: var(--bone); font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 16px; line-height: 20px; text-align: center; }
 .bo-pgroup input:focus { outline: none; box-shadow: none; }
 .bo-price-step { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; color: var(--bone-2); transition: background .2s; }
 .bo-price-step:hover { background: rgba(242,241,236,.08); }

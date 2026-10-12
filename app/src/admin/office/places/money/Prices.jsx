@@ -97,7 +97,6 @@ export default function Prices({ ctx, i }) {
                               style={{ width: `${Math.max(1, String(typed).length) + 0.4}ch` }}
                               onChange={(e) => type(key, e.target.value)} />
                             {last === "months" && <span aria-hidden="true">mo</span>}
-                            {last === "exitFeeShare" && <span aria-hidden="true">×100%</span>}
                           </label>
                           <button type="button" className="bo-price-step" aria-label={`Increase ${r.label}`} disabled={busy || bad}
                             onClick={() => step(key, by)}><Plus size={15} aria-hidden="true" /></button>
