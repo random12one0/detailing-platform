@@ -702,6 +702,8 @@ const EXPECTED_EMAILS = 34;
 }
 
 const cards = [];
+// ROADMAP 99.6: scripts/email-review-sheet.mjs reads this instead of scraping index.html.
+const manifest = [];
 
 for (const [file, label, render] of EMAILS) {
   const { subject, html, text } = render();
@@ -745,9 +747,12 @@ for (const [file, label, render] of EMAILS) {
   }
   await writeFile(`${OUT}/${file}.html`, html);
   await writeFile(`${OUT}/${file}.txt`, text ?? "");
+  manifest.push({ file, label, subject });
   cards.push(`<li><a href="${file}.html">${label}</a> <a href="${file}.txt" class="t">text</a><div class="s">${subject.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div></li>`);
   console.log(`  ${label}\n    ${subject}`);
 }
+
+await writeFile(`${OUT}/emails.json`, JSON.stringify(manifest, null, 1));
 
 // --- EVERY MONEY COLUMN REACHES ITS OWN TOTAL -----------------------------
 // The check the old invoice would have failed. It is asserted on the RENDERED
