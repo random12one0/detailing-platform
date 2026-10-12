@@ -666,46 +666,46 @@
  * on the plan grid: a definite max once made auto-fit run off a phone edge. */
 .bo-prices { min-width: 0; }
 .bo-price-fold { border-block: 1px solid var(--line-2); }
-.bo-price-summary { display: grid; gap: 18px; padding: 22px 0 18px; cursor: pointer; list-style: none; }
+.bo-price-summary { display: grid; gap: 12px; padding: 16px 0 6px; cursor: pointer; list-style: none; }
 .bo-price-summary::-webkit-details-marker { display: none; }
 .bo-price-summary > .bo-label { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
-.bo-price-preview { display: grid; gap: 12px; }
-.bo-price-preview > span { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: 12px; border-left: 2px solid var(--c); }
+.bo-price-preview { display: grid; gap: 8px; }
+.bo-price-preview > span { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-left: 12px; border-left: 2px solid var(--c); }
 .bo-price-preview > span > span { font-size: 13px; color: var(--bone-2); }
-.bo-price-preview b { white-space: nowrap; font-family: var(--f-num); font-size: 22px; font-weight: 600; }
+.bo-price-preview b { white-space: nowrap; font-family: var(--f-num); font-size: 18px; font-weight: 600; }
 .bo-price-preview small { font-family: var(--f-body); font-size: 12px; font-weight: 400; color: var(--fog); }
 .bo-price-more { display: flex; justify-content: space-between; align-items: center; min-height: 44px; color: var(--bone-2); font-size: 13px; }
 .bo-price-more svg { transition: transform .2s var(--e-out); }
 .bo-price-fold[open] .bo-price-more svg { transform: rotate(180deg); }
-.bo-price-body { padding: 8px 0 24px; }
-.bo-pgroups { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); align-items: start; }
-.bo-pgroup { position: relative; min-width: 0; padding: 0 0 0 14px; }
+/* 9.12c: one row per figure — label, then a fixed-width control, so every box
+ * sits on the same grid line and the figure is centered between − and +. Wider,
+ * the plans flow into two columns (founding last) instead of a grid whose rows
+ * leave gaps under the short plans. */
+.bo-price-body { padding: 4px 0 18px; }
+.bo-pgroups { display: grid; gap: 16px; }
+.bo-pgroup { position: relative; min-width: 0; padding: 0 0 0 12px; break-inside: avoid; }
 .bo-pgroup::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; border-radius: 2px; background: var(--c); opacity: .85; }
-.bo-pgroup:nth-child(2) { order: 3; }
-.bo-pgroup:nth-child(3) { order: 2; }
-.bo-pgroup:nth-child(4) { order: 4; }
-.bo-pgroup h3 { font-size: 16px; font-weight: 800; margin: 0 0 12px; color: var(--bone); }
+.bo-pgroup h3 { font-size: 13px; font-weight: 800; margin: 0 0 2px; color: var(--bone); }
 .bo-pgroup dl { margin: 0; display: grid; }
-.bo-pgroup dl > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; min-height: 44px; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.bo-pgroup dl > div { display: grid; grid-template-columns: minmax(0, 1fr) 152px; gap: 10px; align-items: center; padding: 2px 0; border-bottom: 1px solid var(--line-2); }
 .bo-pgroup dl > div:last-child { border-bottom: 0; }
-.bo-pgroup dt { color: var(--bone-2); font-size: 13.5px; }
-.bo-pgroup dd { margin: 0; font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 15px; text-align: right; color: var(--bone); }
-.bo-pgroup dl > div.editing { grid-template-columns: minmax(0, 1fr); padding: 14px 0; }
-.bo-pgroup dl > div.editing dd { font-size: 12px; color: var(--bone-2); text-align: left; }
-.bo-price-control { display: flex; align-items: center; min-width: 0; border-radius: 14px; background: rgba(242,241,236,.04); box-shadow: inset 0 0 0 1px var(--line-2); }
+.bo-pgroup dt { display: grid; color: var(--bone-2); font-size: 13px; }
+.bo-pgroup dt small { font-size: 11.5px; color: var(--fog); }
+.bo-price-control { display: flex; align-items: center; margin: 0; height: 44px; border-radius: 12px; background: rgba(242,241,236,.04); box-shadow: inset 0 0 0 1px var(--line-2); }
 .bo-price-control:focus-within { box-shadow: inset 0 0 0 1.5px var(--c); }
-.bo-price-entry { display: flex; align-items: center; flex: 1; min-width: 0; padding: 0 8px; gap: 6px; font-family: var(--f-num); color: var(--bone-2); }
+.bo-price-entry { display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; height: 100%; gap: 2px; font-family: var(--f-num); color: var(--bone-2); cursor: text; }
 .bo-price-entry > span { flex: none; font-size: 12px; }
-.bo-pgroup input { height: 52px; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0; color: var(--bone); font-family: var(--f-num); font-size: 22px; text-align: right; min-width: 0; width: 100%; }
+.bo-pgroup input { height: auto; max-width: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0; color: var(--bone); font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 16px; line-height: 20px; text-align: center; }
 .bo-pgroup input:focus { outline: none; box-shadow: none; }
-.bo-price-step { display: grid; place-items: center; flex: none; width: 48px; height: 52px; border-radius: 14px; transition: background .2s; }
+.bo-price-step { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; color: var(--bone-2); transition: background .2s; }
 .bo-price-step:hover { background: rgba(242,241,236,.08); }
 .bo-price-step:disabled { opacity: .35; cursor: default; }
-.bo-price-body > .acts, .bo-price-body > .bo-sure { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
-.bo-price-body > .bo-err { margin: 16px 0 0; max-width: 620px; }
+.bo-price-body > .acts, .bo-price-body > .bo-sure { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.bo-price-body > .bo-err { margin: 12px 0 0; max-width: 620px; }
 @media (min-width: 700px) and (min-height: 500px) {
-  .bo-price-preview { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-  .bo-price-preview > span { display: grid; gap: 4px; }
-  .bo-pgroups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 40px; }
+  .bo-price-preview { grid-template-columns: repeat(3, max-content); gap: 40px; }
+  .bo-price-preview > span { display: grid; gap: 2px; }
+  .bo-pgroups { display: block; columns: 2 300px; column-gap: 48px; max-width: 760px; }
+  .bo-pgroup { margin-bottom: 18px; }
 }
 .lite .bo-price-more svg, .lite .bo-price-step { transition: none; }
