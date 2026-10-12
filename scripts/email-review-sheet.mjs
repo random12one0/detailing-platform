@@ -367,7 +367,7 @@ const { path: receiptPath } = writeReceipt({
   assertions_executed: assertions,
   min_assertions: 40,
   failures,
-  artifacts: [],
+  artifacts: [OUT, ...(SHOTS ? [join(SHOTS, "sheet-390.jpg"), join(SHOTS, "sheet-1440.jpg")] : [])],
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
   dimensions: { widths: [390, 320, 1440], languages: ["en", "es"], ...(BREAK ? { break: BREAK } : {}) },
   canary: {
