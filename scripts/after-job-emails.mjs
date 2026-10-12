@@ -5,6 +5,7 @@
 //   node scripts/after-job-emails.mjs --break=old         # the templates and buildBrand as they were before 99.2d
 //   node scripts/after-job-emails.mjs --break=setting     # buildBrand ignores "sign as the business"
 //   node scripts/after-job-emails.mjs --break=unsigned    # the sign-off helper prints nothing
+//   node scripts/after-job-emails.mjs --break=wrap        # the dots may start a line on a phone
 //
 // Five parts, all without credentials, a network or a database:
 //   1. Receipt, invoice (with and without the card button) and thank-you (with
@@ -39,7 +40,7 @@ import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.argv.find((a) => a.startsWith("--break="))?.slice(8) || "";
-if (BREAK && !["old", "setting", "unsigned"].includes(BREAK)) throw new Error("Unknown break");
+if (BREAK && !["old", "setting", "unsigned", "wrap"].includes(BREAK)) throw new Error("Unknown break");
 const failures = [], artifacts = [];
 let assertions = 0, reached = 0;
 const check = (name, ok, detail = "") => { assertions++; if (!ok) failures.push(`${name}${detail ? `: ${detail}` : ""}`); };
@@ -63,8 +64,10 @@ if (BREAK) {
     for (const p of ["emailTemplates.ts", "strings/es.ts", "email.ts"]) edit(p, () => at(p));
   } else if (BREAK === "setting") {
     edit("email.ts", (s) => s.replace("if (!settings.email_sign_as_business) {", "if (true) {"));
+  } else if (BREAK === "wrap") {
+    edit("emailTemplates.ts", (s) => s.replace('.replaceAll(" · ", "&nbsp;· ")', ""));
   } else {
-    edit("emailTemplates.ts", (s) => s.replace('return proseBlock(line.replace(/ · $/, ""), 34);', 'return "";'));
+    edit("emailTemplates.ts", (s) => s.replace('return proseBlock(line.replace(/ · $/, "").replaceAll(" · ", "&nbsp;· "), 34);', 'return "";'));
   }
 }
 
@@ -292,7 +295,20 @@ try {
     const id = `browser ${w} ${r.id}`;
     const got = await page.evaluate(() => {
       const links = [...document.querySelectorAll("a")].map((a) => { const rc = a.getBoundingClientRect(); return { t: a.textContent.trim(), href: a.getAttribute("href"), l: rc.left, r: rc.right, t0: rc.top, b: rc.bottom, h: rc.height }; });
-      return { sw: document.documentElement.scrollWidth, iw: innerWidth, links, body: document.body.innerText };
+      // Does any line of the sign-off BEGIN with a separator dot? Each dot's left edge is
+      // compared with the left edge of the sign-off's own cell.
+      const link = [...document.querySelectorAll("a")].find((a) => a.textContent.trim() === "andrewsdetail.com");
+      const cell = link?.closest("td");
+      let leadingDots = 0;
+      if (cell) {
+        const edge = cell.getBoundingClientRect().left;
+        const walk = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+        for (let n; (n = walk.nextNode());) for (let i = 0; i < n.data.length; i++) if (n.data[i] === "·") {
+          const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+          if (Math.abs(rg.getBoundingClientRect().left - (edge + parseFloat(getComputedStyle(cell).paddingLeft))) < 1.5) leadingDots++;
+        }
+      }
+      return { sw: document.documentElement.scrollWidth, iw: innerWidth, links, body: document.body.innerText, leadingDots };
     });
     check(`${id} no sideways scroll`, got.sw <= got.iw, `${got.sw} > ${got.iw}`);
     const buttons = got.links.filter((l) => l.h >= 30 && l.t !== "andrewsdetail.com");
@@ -301,6 +317,7 @@ try {
     const site = got.links.find((l) => l.t === "andrewsdetail.com");
     check(`${id} sign-off link inside the screen, below the last button`, !!site && site.l >= 0 && site.r <= got.iw && site.t0 > Math.max(...buttons.map((b) => b.b)), JSON.stringify(site));
     check(`${id} the sign-off is painted`, got.body.replace(/\s+/g, " ").includes(SIGN[r.lang].owner));
+    check(`${id} no line of the sign-off starts with a dot`, got.leadingDots === 0, `${got.leadingDots} dot(s) lead a line`);
     check(`${id} console silent`, noise.length === 0, noise.join(" | "));
     if (!BREAK) {
       const shot = path.join(SHOTS, `${r.id}-${w}.png`);
@@ -324,7 +341,7 @@ const receipt = writeReceipt({
   check_id: BREAK ? `after-job-emails-${BREAK}` : "after-job-emails", started_at,
   status: failures.length || reached !== EXPECTED ? "fail" : "pass",
   expected_targets: EXPECTED, discovered_targets: reached, attempted_targets: reached, completed_targets: reached,
-  skipped_targets: 0, assertions_executed: assertions, min_assertions: 390, failures, artifacts,
+  skipped_targets: 0, assertions_executed: assertions, min_assertions: 400, failures, artifacts,
   dimensions: { break: BREAK, languages: ["en", "es"], signature_modes: ["owner", "business", "no-name"], widths: [392, 1440],
     scope: "Receipt, invoice, thank-you wording and the sign-off on the twelve customer emails (99.2d), buildBrand's choice of who signs, and the two subject matchers. UNJUDGEABLE, not run: the Notifications toggle in a signed-in browser (needs the demo owner's login) and the migration applied to a database. Marketing and detailer emails are 99.2e; texting is 99.2f onward." },
   canary: { id: "the pre-99.2d receipt subject 'Receipt · $185 · <business>' does not equal the approved one", observed_failure: canaryCaught },

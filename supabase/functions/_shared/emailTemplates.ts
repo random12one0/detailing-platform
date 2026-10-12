@@ -480,7 +480,9 @@ function signOff(brand: TenantBrand, lang?: unknown): string {
   const line = brand.signOffName
     ? tt("Thanks again, {name} · {brand} · {site}", vars)
     : tt("Thanks again, {brand} · {site}", vars);
-  return proseBlock(line.replace(/ · $/, ""), 34);
+  // The no-break space keeps each dot with the word before it, so on a phone
+  // a line can only end on a dot and never begins with one.
+  return proseBlock(line.replace(/ · $/, "").replaceAll(" · ", "&nbsp;· "), 34);
 }
 
 /**
