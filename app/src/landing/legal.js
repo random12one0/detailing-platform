@@ -47,7 +47,7 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 // that same method found a THIRD commitment `/pricing` makes in public and
 // this document never mentioned, and the § "Sales tax" clause below is it.
 // One clause added, nothing else in either document touched.
-export const EFFECTIVE = "8 October 2026";
+export const EFFECTIVE = "October 11, 2026";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
@@ -159,6 +159,8 @@ export const PRIVACY = {
      "Your name, your business, your email address and phone number, and everything you set up: services, prices, opening hours, the wording of your emails. If you subscribe, the plan you chose and the invoices you have paid."],
     ["What we hold about your customers",
      "Whatever they type into your booking page: name, phone, email, the address you are going to, the vehicle, and anything they write in the notes. It is their information and it is yours to look after. We hold it for you and we do not use it for anything else."],
+    ["Text messages",
+     "Appointment texts are optional. The booking page asks separately, with an unticked box under Phone, and you can book without agreeing. We keep when you agreed and where you agreed. Mobile information is not sold or shared with third parties for marketing or promotional purposes. That includes your phone number and your consent to texts. Automated texting is not switched on yet. When it is, the messaging provider and carriers will receive only what they need to deliver appointment texts. Reply STOP to opt out or HELP for help. Message frequency varies. Message and data rates may apply."],
     // **THE DISCLOSURE THE OWNER ASKED FOR, 2026-09-06.** He wants his back
     // office to show him everything about a detailer and their clients, and
     // his own condition was that it be said out loud: *"it could be disclosed

@@ -944,6 +944,21 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
   width: 22px; height: 22px; min-height: 0; box-shadow: none;
   accent-color: var(--bk-accent); flex-shrink: 0;
 }
+.bk-sms-consent {
+  margin-top: var(--bk-sp-2); color: var(--bk-text);
+  font-size: var(--bk-t-meta); line-height: 1.5;
+}
+.bk-sms-consent label {
+  display: flex; align-items: flex-start; gap: var(--bk-sp-3);
+  min-height: 44px; padding-block: var(--bk-sp-2); cursor: pointer;
+}
+.bk-sms-consent input[type="checkbox"] { margin: 0; padding: 0; margin-top: 2px; }
+.bk-sms-consent label span { min-width: 0; }
+.bk-sms-links { display: flex; flex-wrap: wrap; gap: var(--bk-sp-3); padding-left: calc(22px + var(--bk-sp-3)); }
+.bk-sms-links a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  color: var(--bk-text); text-decoration: underline; text-underline-offset: 3px;
+}
 .bk :focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 3px; }
 
 /* THE VEHICLE TYPE-AHEAD — app/src/book/VehicleField.jsx.

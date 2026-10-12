@@ -40,6 +40,7 @@ import { siteFor } from "../_shared/tenantSite.ts";
 import { vcardAttachment } from "../_shared/vcard.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { localDateTimeToInstant, timeStrIn, weekdayOf } from "../_shared/tz.ts";
+import { saveBookingSmsConsent } from "../_shared/bookingConsent.ts";
 
 /**
  * ROADMAP 6.4 / F-022 — is this request a booking that already exists?
@@ -244,7 +245,10 @@ Deno.serve(async (req) => {
     const asked = localDateTimeToInstant(business.timezone, String(body.booking_date), String(body.start_time).slice(0, 5));
     if (!Number.isNaN(asked.getTime())) {
       const { data: mine } = await sameBooking(business.id, asked.toISOString(), body);
-      if (mine) return json({ booking: mine, duplicate: true });
+      if (mine) {
+        await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
+        return json({ booking: mine, duplicate: true });
+      }
     }
 
     // --- The authoritative slot gate ---------------------------------------
@@ -567,6 +571,7 @@ Deno.serve(async (req) => {
         // and already scopes the customer upsert by it; email is optional.
         const { data: mine } = await sameBooking(business.id, check.startAt!.toISOString(), body);
         if (mine) {
+          await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
           // The SAME shape a fresh booking returns, so the confirmation page
           // and the emails behave identically — a retry must be
           // indistinguishable from the first press, including for the
@@ -646,6 +651,10 @@ Deno.serve(async (req) => {
       );
       if (addErr) console.error(`BOOKING ${booking.id} lost its add-on lines:`, addErr);
     }
+
+    // Only a successful public booking can record this choice. This also
+    // runs on a duplicate retry above, so a failed consent write is retryable.
+    await saveBookingSmsConsent(supabase, business.id, customerId, body.sms_consent, member);
 
     // Promo usage counter — best-effort, never fails the booking.
     if (promo) {

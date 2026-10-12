@@ -31,11 +31,24 @@ export default function StepDetails({ form, setForm, blocks = [], tried = false 
           onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))} />
       </label>
       <div className="bk-grid2">
-        <label className="bk-field">
-          <span>{t("Phone")}</span>
-          <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone}
-            onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value) }))} />
-        </label>
+        <div>
+          <label className="bk-field">
+            <span>{t("Phone")}</span>
+            <input type="tel" inputMode="tel" autoComplete="tel" value={form.customerPhone}
+              onChange={(e) => setForm((f) => ({ ...f, customerPhone: phoneAsTyped(e.target.value) }))} />
+          </label>
+          <div className="bk-sms-consent">
+            <label>
+              <input type="checkbox" name="sms_consent" checked={form.smsConsent === true}
+                onChange={(e) => setForm((f) => ({ ...f, smsConsent: e.target.checked }))} />
+              <span>{t("Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.")}</span>
+            </label>
+            <div className="bk-sms-links">
+              <a href="https://detailingplatform.com/privacy" target="_blank" rel="noreferrer">{t("Privacy")}</a>
+              <a href="https://detailingplatform.com/terms" target="_blank" rel="noreferrer">{t("Terms")}</a>
+            </div>
+          </div>
+        </div>
         <label className="bk-field">
           <span>{t("Email")}</span>
           <input type="email" inputMode="email" autoComplete="email" value={form.customerEmail}

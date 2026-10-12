@@ -453,6 +453,8 @@ export function initialForm(settings, known) {
     startTime: "",
     customerName: known?.name ?? "",
     customerPhone: known?.phone ?? "",
+    // Consent is a fresh choice, never recalled from this device's details.
+    smsConsent: false,
     customerEmail: known?.email ?? "",
     customerNotes: "",
     promoCode: "",
@@ -1402,6 +1404,7 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
   return {
     customer_name: form.customerName.trim(),
     customer_phone: form.customerPhone.trim(),
+    sms_consent: form.smsConsent === true,
     customer_email: form.customerEmail.trim(),
     customer_address: form.customerAddress?.trim() || null,
     // ROADMAP 2.8. Sent on every booking; the SERVER decides whether to keep

@@ -44,6 +44,9 @@
 // believe every key here is discovered.
 
 export const es = {
+  "Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.": "Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.",
+  "Privacy": "Privacidad",
+  "Terms": "Términos",
   // ── The four `t(label)` keys the extractor cannot see ───────────────────
   "Coupe, sedan, hatchback": "Coupé, sedán, hatchback",
   "Email preferences": "Preferencias de correo",
