@@ -95,7 +95,7 @@ const read = (p) => readFileSync(root(p), "utf8");
 const BREAK = process.env.FURNITURE_BREAK || "";
 const CANARY_ON = process.env.FURNITURE_CANARY !== "off";
 
-const CSS = ["app/src/theme.css", "app/src/book/booking.css", "app/src/admin/admin.css", "app/src/landing/landing.css"];
+const CSS = ["app/src/theme.css", "app/src/book/booking.css", "app/src/admin/office/office.css", "app/src/landing/landing.css"];
 
 // The four the manager named. Nothing else counts as a hit-test here, and
 // nothing in this file writes to any of them.
@@ -180,9 +180,8 @@ const SCREEN = {
   ".topbar": { screen: "the dashboard shell, every /app screen", jsx: "app/src/App.jsx", cls: "topbar" , reach: "walked" },
   ".impbar": { screen: "the dashboard shell while an admin is impersonating", jsx: "app/src/App.jsx", cls: "impbar" , reach: "walked-not-in-this-state" },
   ".jobbar": { screen: "the job record at /job/:id", jsx: "app/src/components/BookingDetail.jsx", cls: "jobbar" , reach: "walked" },
-  ".pa-top": { screen: "the back office at /admin", jsx: "app/src/admin/AdminPage.jsx", cls: "pa-top" , reach: "unvisited" },
-  ".pa-x": { screen: "the back office, a panel's own close control", jsx: "app/src/admin/AdminPage.jsx", cls: "pa-x" , reach: "unvisited" },
-  ".pa-load": { screen: "the back office — a 3px progress strip pinned over the top edge, and it OUTRANKS the bar below it at z-index 50 against 30", jsx: "app/src/admin/AdminPage.jsx", cls: "pa-load" , reach: "unvisited" },
+  ".bo-rail": { screen: "the back office at /admin — its side rail (sticky on desktop, pinned bottom bar on phones)", jsx: "app/src/admin/office/OfficePage.jsx", cls: "bo-rail" , reach: "unvisited" },
+  ".bo-panel": { screen: "the back office — a panel's own sheet (detailer panel, sign-up)", jsx: "app/src/admin/office/DetailerPanel.jsx", cls: "bo-panel" , reach: "unvisited" },
   ".split > .col-2": { screen: "Today, Calendar, Money and every settings host — the second column", jsx: "app/src/components/SettingsHost.jsx", cls: "col-2" , reach: "walked" },
   ".intake:has(> .livesite) > .livesite": { screen: "the site intake screen's live preview", jsx: "app/src/screens/SiteIntake.jsx", cls: "livesite" , reach: "unvisited" },
   ".ld .nav": { screen: "every marketing page — landing, pricing, legal", jsx: "app/src/landing/LandingPage.jsx", cls: "nav" , reach: "unvisited" },
@@ -212,6 +211,8 @@ const NO_HIT_TEST = [
   ".ld .stage",
   ".split > .col-2",
   ".topbar",
+  ".bo-rail",
+  ".bo-panel",
 ];
 // 8 -> 7 on 2026-10-10 (ROADMAP 9.15a): `.tourcard` left with the tour itself —
 // its CSS and the tour's component were deleted in the same edit, so it was retired
@@ -220,6 +221,11 @@ const NO_HIT_TEST = [
 // edit as the check that covers them, which is what the equality above is for.
 // **The marketing surface is now the whole of the unvisited half**, and the
 // three that left were the other half of it.
+// 2026-10-12 (ROADMAP 99.3b-ii): the old screen is deleted, so its three rows
+// retire the way `.tourcard` did — and the new back office brings two of its
+// own (`.bo-rail`, `.bo-panel`), declared above with reach "unvisited" because
+// no hit-testing check visits /admin. `.bo-bg`, `.bo-scrim` and `.bo-pal-wrap`
+// are scanned too and fall under the two stated exclusions, printed in §1.
 
 // DISCOVERY FLOORS, and they stay floors: more rules than expected is the repo
 // growing, not a fault (`docs/gotchas.md` 98). They exist so a parser that has
