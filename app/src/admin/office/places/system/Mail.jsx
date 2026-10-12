@@ -3,6 +3,7 @@
 // MAIL_STATE is shared with the old office and the detailer's own email log.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MAIL_STATE } from "../../../../components/EmailTrail.jsx";
+import { dateLong, localDate, localTime, time12 } from "../../../../lib/format.js";
 import { call } from "../../api.js";
 
 const CAP = 100;
@@ -10,9 +11,8 @@ const PROBLEMS = Object.keys(MAIL_STATE).filter((key) => MAIL_STATE[key].ok === 
 const FILTERS = [["all", "Everything"], ["bad", "Problems"]];
 const dateOf = (iso) => {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "Date not recorded" : d.toLocaleString("en-US", {
-    month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
-  });
+  return Number.isNaN(d.getTime()) ? "Date not recorded"
+    : `${dateLong(localDate(iso))}, ${d.getFullYear()} · ${time12(localTime(iso))}`;
 };
 
 export default function Mail({ i }) {
