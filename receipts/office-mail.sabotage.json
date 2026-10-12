@@ -1,0 +1,65 @@
+{
+  "git_sha": "66bdf357fbc57547ae5a89a267ce627260a71efd",
+  "git_sha_started": "66bdf357fbc57547ae5a89a267ce627260a71efd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T02:55:40.949Z",
+  "failures": [
+    "390: mail list visible ",
+    "392: mail list visible ",
+    "320: mail list visible ",
+    "768: mail list visible ",
+    "1440: mail list visible ",
+    "1920: mail list visible "
+  ],
+  "warnings": [
+    "Synthetic session and intercepted server answers; no live email or database writes. The browser proves the view and request contract, not deployed server behavior."
+  ],
+  "artifacts": [],
+  "dimensions": {
+    "sizes": [
+      [
+        390,
+        844
+      ],
+      [
+        392,
+        844
+      ],
+      [
+        320,
+        844
+      ],
+      [
+        768,
+        1024
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1920,
+        1080
+      ]
+    ],
+    "lite": false,
+    "break": "hidden",
+    "observed": {}
+  },
+  "check_id": "office-mail",
+  "started_at": "2026-10-12T02:55:24.621Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 6,
+  "min_assertions": 150,
+  "assertion_floor": "Six declared widths × 25 questions, fixed before running. A missing section cannot execute the dependent questions.",
+  "canary": {
+    "id": "overlapping-mail-subject",
+    "observed_failure": false
+  }
+}

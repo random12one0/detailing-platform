@@ -1,0 +1,58 @@
+{
+  "git_sha": "0bfe0b9edab962c437e9e55b43287939e24a063a",
+  "git_sha_started": "0bfe0b9edab962c437e9e55b43287939e24a063a",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T03:06:34.420Z",
+  "failures": [],
+  "warnings": [
+    "Signs in as the existing demo owner. Reads mail; sends none. The refusal is intercepted in the browser. Mail contents and credentials are never printed or saved."
+  ],
+  "artifacts": [
+    "artifacts/office-mail-live/result.json"
+  ],
+  "dimensions": {
+    "sizes": [
+      [
+        392,
+        844
+      ],
+      [
+        1440,
+        900
+      ]
+    ],
+    "project": "kguqylyzgyzfktkfnhjb",
+    "observed": {
+      "392": {
+        "http": 200,
+        "rows": 100,
+        "console": [
+          "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+        ]
+      },
+      "1440": {
+        "http": 200,
+        "rows": 100,
+        "console": [
+          "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+        ]
+      }
+    }
+  },
+  "check_id": "office-mail-live",
+  "started_at": "2026-10-12T03:06:15.489Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 10,
+  "min_assertions": 10,
+  "assertion_floor": "Two declared widths × five questions: real success, contents/order, refusal sentence, no false empty, console.",
+  "canary": {
+    "id": "real-row-subject-altered-in-browser",
+    "observed_failure": true
+  }
+}

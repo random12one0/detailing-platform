@@ -1,9 +1,9 @@
 {
-  "git_sha": "98d30e129b5adb8b13d5c3ab6d58289f53ff9493",
-  "git_sha_started": "98d30e129b5adb8b13d5c3ab6d58289f53ff9493",
+  "git_sha": "66bdf357fbc57547ae5a89a267ce627260a71efd",
+  "git_sha_started": "66bdf357fbc57547ae5a89a267ce627260a71efd",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T02:24:57.423Z",
+  "finished_at": "2026-10-12T02:57:40.382Z",
   "failures": [
     "declared label no longer in the product: \"sam.ortiz@example.com\" (shots-99-4.mjs)"
   ],
@@ -25,7 +25,7 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-12T02:24:57.124Z",
+  "started_at": "2026-10-12T02:57:40.073Z",
   "status": "fail",
   "expected_targets": 88,
   "discovered_targets": 88,
