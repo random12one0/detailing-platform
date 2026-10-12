@@ -306,13 +306,11 @@ export const es: Record<string, string> = {
   "{label} on your {vehicle}": "{label} de tu {vehicle}",
   "Hi {first}. Your {what} is due by {date}.":
     "Hola {first}. Tu {what} vence el {date}.",
-  "Book it below and we'll take care of it.":
-    "Resérvalo abajo y nosotros nos encargamos.",
-  "Book it in": "Reservarlo",
+  "Want to get on the calendar?": "¿Quieres apartar un horario?",
+  "Pick a time": "Elegir un horario",
   "If you have already had this done elsewhere, let us know and we will mark it off.":
     "Si ya te lo hicieron en otro lado, avísanos y lo marcamos como hecho.",
-  "Last day: {label}": "Último día: {label}",
-  "{label} is due {date}": "{label} vence el {date}",
+  "Your car's about due, {first}": "{first}, ya casi le toca servicio a tu auto",
   "{lead} to book your {label}.": "{lead} para reservar tu {label}.",
 
   // ══ THE DETAILER'S, STAFF'S AND PLATFORM'S EMAILS — ROADMAP 3.4 FAULT 4 ══
@@ -340,14 +338,14 @@ export const es: Record<string, string> = {
   "None.": "Ninguna.",
   "Answer this request": "Responder esta solicitud",
   "Open the job": "Abrir el trabajo",
-  "Request · {name} · {date} ({total})": "Solicitud · {name} · {date} ({total})",
-  "New booking · {name} · {date} ({total})": "Nueva cita · {name} · {date} ({total})",
-  "Upcoming job - {name} - {date} at {time}": "Próximo trabajo - {name} - {date} a las {time}",
+  "{name} wants {when}": "{name} quiere {when}",
+  "New booking: {name}, {when} ({total})": "Nueva cita: {name}, {when} ({total})",
+  "{when}: {name}, {street}": "{when}: {name}, {street}",
+  "{when}: {name}": "{when}: {name}",
   // ── 7 · A booking cancelled ────────────────────────────────────────────
-  "{date} at {time} is cancelled. The slot is open again.":
-    "La cita del {date} a las {time} se canceló. El horario quedó libre otra vez.",
+  "{date} at {time} is cancelled. That time is open again.": "La cita del {date} a las {time} se canceló. Ese horario quedó libre otra vez.",
   "Was worth": "Valía",
-  "Cancelled · {name} · {date}": "Cancelada · {name} · {date}",
+  "{name} cancelled {when}": "{name} canceló {when}",
   // `refundInstruction` in `_shared/connect.ts`. Same Spanish as the job
   // screen's (appEs.js), so the email and the dashboard say it one way.
   "what they paid": "lo que pagaron",
@@ -355,17 +353,17 @@ export const es: Record<string, string> = {
     "Esto ya estaba pagado. Devuelve {amount} desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   // ── 8 · A booking moved ────────────────────────────────────────────────
   "{name} moved their booking.": "{name} cambió su cita.",
-  "Rescheduled · {name} · now {date}": "Reprogramada · {name} · ahora el {date}",
+  "{name} moved to {when}": "{name} cambió su cita a {when}",
   // ── 9 · A request nobody answered ──────────────────────────────────────
   "Still waiting on you": "Todavía te está esperando",
   "asked for {date} at {time}. That was {hours} hour ago, and it is still waiting for an answer.":
     "pidió el {date} a las {time}. Eso fue hace {hours} hora y todavía espera respuesta.",
   "asked for {date} at {time}. That was {hours} hours ago, and it is still waiting for an answer.":
     "pidió el {date} a las {time}. Eso fue hace {hours} horas y todavía espera respuesta.",
-  "That time is held for them until you accept or decline it, so nobody else can book it either.":
-    "Ese horario está apartado para esa persona hasta que lo aceptes o lo rechaces, así que nadie más puede reservarlo.",
+  "That time is held until you answer.": "Ese horario queda apartado hasta que respondas.",
   "Asking": "Pide",
-  "Still waiting: {name} · {date}": "Todavía esperando: {name} · {date}",
+  "Still waiting: {first} asked {hours} hour ago": "Todavía esperando: {first} pidió hace {hours} hora",
+  "Still waiting: {first} asked {hours} hours ago": "Todavía esperando: {first} pidió hace {hours} horas",
   "{name} asked for {date} and has not heard back.":
     "{name} pidió el {date} y todavía no tiene respuesta.",
   // ── 10 · The staff invite ──────────────────────────────────────────────
@@ -380,7 +378,8 @@ export const es: Record<string, string> = {
   "Set up your account": "Configurar tu cuenta",
   "This link works until {date}. If the button doesn't work, open: {url}":
     "Este enlace funciona hasta el {date}. Si el botón no funciona, abre: {url}",
-  "Join {brand} on the booking dashboard": "Únete a {brand} en el panel de reservas",
+  "{inviter} added you to {brand}": "{inviter} te agregó a {brand}",
+  "You've been added to {brand}": "Te agregaron a {brand}",
   "{brand} invited you to their dashboard.": "{brand} te invitó a su panel.",
   // ── 12 · Somebody left a plan ──────────────────────────────────────────
   "Plan ended": "Plan terminado",
@@ -391,7 +390,8 @@ export const es: Record<string, string> = {
   "Ended": "Terminado",
   "They can join again whenever they like; the record of what they were owed is kept either way.":
     "Puede volver a unirse cuando quiera; el registro de lo que se le debía se guarda de todas formas.",
-  "{name} ended their plan": "{name} terminó su plan",
+  "{name} left your {plan}": "{name} dejó tu {plan}",
+  "{name} left your {plan} plan": "{name} dejó tu plan {plan}",
   "{name} ended {plan}.": "{name} terminó {plan}.",
   // ── 14 · The platform's own billing ────────────────────────────────────
   "Your site is offline": "Tu sitio está fuera de línea",
@@ -424,7 +424,7 @@ export const es: Record<string, string> = {
   "Customers who have already booked can still see, change and cancel their appointments. Only new bookings have stopped.":
     "Los clientes que ya reservaron todavía pueden ver, cambiar y cancelar sus citas. Solo se detuvieron las reservas nuevas.",
   "{business}'s booking page is offline": "La página de reservas de {business} está fuera de línea",
-  "We couldn't take payment for {business}": "No pudimos cobrar el pago de {business}",
+  "Your card didn't go through": "Tu tarjeta no pasó",
   "Nothing has been deleted. Open your billing page to bring it back.":
     "No se borró nada. Abre tu página de facturación para recuperarla.",
   "We'll try again over the next two weeks.": "Lo volveremos a intentar durante las próximas dos semanas.",
@@ -442,7 +442,7 @@ export const es: Record<string, string> = {
   "Work started": "El trabajo empezó",
   "Build fee": "Tarifa de construcción",
   "See it on your billing page": "Verlo en tu página de facturación",
-  "Work has started on {business}'s website": "Empezó el trabajo en el sitio web de {business}",
+  "We've started building your site": "Empezamos a construir tu sitio",
   "The build fee is no longer refundable from today. Nothing else changes.":
     "La tarifa de construcción ya no es reembolsable a partir de hoy. Nada más cambia.",
   // ── 16 · The platform telling its owner somebody signed up ─────────────

@@ -19,8 +19,7 @@ import { businessById, getSettings, requireMember, type Business } from "../_sha
 import {
   buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, recipientLang, sendTenantEmail,
 } from "../_shared/email.ts";
-import { T } from "../_shared/i18n.ts";
-import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
+import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, ownerReminderSubject, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { businessSiteUrl, receiptUrl, unsubscribeUrl } from "../_shared/config.ts";
 import { maintenanceVerdict, STAGES, stageDue } from "../_shared/maintenance.ts";
@@ -155,9 +154,9 @@ async function sendOwnerReminder(b: BookingRow) {
         await sendTenantEmail({ bookingId: b.id,
           businessId: business.id,
           to,
-          subject: T(lang)("Upcoming job - {name} - {date} at {time}", {
-            name: data.customerName, date: data.dateStr, time: formatTime12hr(data.startTime),
-          }),
+          // ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". This
+          // was typed here with the raw 2026-10-03 date in it.
+          subject: ownerReminderSubject(brand, data, lang),
           html: msg.html,
           text: msg.text,
         }),
@@ -445,7 +444,7 @@ Deno.serve(async (req) => {
               business_id: business.id,
               customer_id: d.customer_id,
               to_email: customer!.email,
-              subject: maintenanceDueSubject({ label: d.label, dueOn, daysLeft: STAGES[stage] }, lang),
+              subject: maintenanceDueSubject({ customerName: customer!.name ?? "there" }, lang),
               status: "skipped",
               detail: verdict.detail,
             });

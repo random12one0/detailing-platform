@@ -71,7 +71,13 @@ Deno.serve(async (req) => {
     const link = `https://${PLATFORM_DOMAIN}/invite/${invite.token}`;
     // The invitee's dashboard language if they already use one anywhere (ROADMAP
     // 3.4 FAULT 4); somebody new is unknown, which is English.
-    const msg = inviteEmail(brand, { role, label, link, expiresAt: invite.expires_at }, await recipientLang(email));
+    // ROADMAP 99.2e — "Andrew added you to Andrew's Auto Detail": the first name of
+    // whoever pressed Invite. A failed or empty read only drops the name from the
+    // subject; it never stops the invite.
+    const { data: inviter } = await supabase
+      .from("business_users").select("first_name")
+      .eq("business_id", member.businessId).eq("user_id", member.userId).maybeSingle();
+    const msg = inviteEmail(brand, { role, label, link, expiresAt: invite.expires_at, inviterName: inviter?.first_name ?? null }, await recipientLang(email));
     const sent = await sendTenantEmail({ businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text });
 
     // The link is returned so the owner can copy it if email is unavailable.

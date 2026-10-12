@@ -319,6 +319,9 @@ function upcoming(brand: TenantBrand, dateStr: string, time24: string | null, la
   return { day, near, when: `${day} ${at} ${formatTime12hr(time24)}` };
 }
 
+// ROADMAP 99.2e — a subject that STARTS with the day ("Tomorrow at 6 PM: …").
+const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
+
 /** Where the job happens: the customer's address for mobile, ours otherwise. */
 export function jobAddress(
   brand: TenantBrand,
@@ -750,13 +753,30 @@ export function ownerNewBookingEmail(
     buttonBlock(brand, isRequest ? tt("Answer this request") : tt("Open the job"), b.receiptUrl),
   ];
 
-  const subjectVars = { name: b.customerName, date: dateLong, total: money(Number(b.total)) };
+  // ROADMAP 99.2e — Andrew's approved subjects, the day said the way the
+  // customer emails say it, in the business's own zone.
+  const subjectVars = { name: b.customerName, when: upcoming(brand, b.dateStr, b.startTime, lang).when, total: money(Number(b.total)) };
   return mail(
     isRequest
-      ? tt("Request · {name} · {date} ({total})", subjectVars)
-      : tt("New booking · {name} · {date} ({total})", subjectVars),
+      ? tt("{name} wants {when}", subjectVars)
+      : tt("New booking: {name}, {when} ({total})", subjectVars),
     shell(brand, blocks, `${b.customerName} · ${dateLong} · ${money(Number(b.total))}`, { lang }),
   );
+}
+
+/**
+ * ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". The owner
+ * reminder reuses the new-booking layout under its own subject, and that
+ * subject used to be typed in `send-owner-reminders` with the raw
+ * `2026-10-03` date in it. The street is the first part of the job address,
+ * and only for a mobile job: a drop-off happens at the detailer's own unit.
+ */
+export function ownerReminderSubject(brand: TenantBrand, b: BookingEmailData, lang?: unknown): string {
+  const when = cap(upcoming(brand, b.dateStr, b.startTime, lang).when);
+  const street = b.serviceType === "mobile" ? jobAddress(brand, b).split(",")[0].trim() : "";
+  return street
+    ? T(lang)("{when}: {name}, {street}", { when, name: b.customerName, street })
+    : T(lang)("{when}: {name}", { when, name: b.customerName });
 }
 
 // ---------------------------------------------------------------------------
@@ -1090,7 +1110,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
     ? [
       labBlock(tt("Cancelled"), "bad"),
       headlineBlock(b.customerName),
-      proseBlock(tt("{date} at {time} is cancelled. The slot is open again.", {
+      proseBlock(tt("{date} at {time} is cancelled. That time is open again.", {
         date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
         time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
       })),
@@ -1151,7 +1171,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
   const up = upcoming(brand, b.dateStr, null, lang);
   return mail(
     forOwner
-      ? tt("Cancelled · {name} · {date}", { name: b.customerName, date: dateLong })
+      ? tt("{name} cancelled {when}", { name: b.customerName, when: upcoming(brand, b.dateStr, b.startTime, lang).when })
       : up.near
       ? tt("Your appointment {day} is cancelled", { day: up.day })
       : tt("Your {day} appointment is cancelled", { day: up.day }),
@@ -1215,7 +1235,7 @@ export function rescheduleEmail(
   ].filter(Boolean);
   return mail(
     forOwner
-      ? tt("Rescheduled · {name} · now {date}", { name: b.customerName, date: dateLong })
+      ? tt("{name} moved to {when}", { name: b.customerName, when: upcoming(brand, b.dateStr, b.startTime, lang).when }).replace(" a el ", " al ")
       : tt("New time: {when}", { when: upcoming(brand, b.dateStr, b.startTime, lang).when }),
     shell(brand, blocks, tt("Rescheduled to {date}", { date: dateLong }), { lang }),
   );
@@ -1243,7 +1263,7 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
     proseBlock(hoursWaited === 1
       ? tt("asked for {date} at {time}. That was {hours} hour ago, and it is still waiting for an answer.", when)
       : tt("asked for {date} at {time}. That was {hours} hours ago, and it is still waiting for an answer.", when)),
-    proseBlock(tt("That time is held for them until you accept or decline it, so nobody else can book it either."), 16),
+    proseBlock(tt("That time is held until you answer."), 16),
     factsBlock([
       [tt("Phone"), esc(b.customerPhone)],
       ...(b.customerEmail ? [[tt("Email"), esc(b.customerEmail)] as [string, string]] : []),
@@ -1253,7 +1273,9 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
     buttonBlock(brand, tt("Answer this request"), b.receiptUrl),
   ];
   return mail(
-    tt("Still waiting: {name} · {date}", { name: b.customerName, date: dateLong }),
+    hoursWaited === 1
+      ? tt("Still waiting: {first} asked {hours} hour ago", { first: firstName(b.customerName), hours: hoursWaited })
+      : tt("Still waiting: {first} asked {hours} hours ago", { first: firstName(b.customerName), hours: hoursWaited }),
     shell(brand, blocks, tt("{name} asked for {date} and has not heard back.", { name: b.customerName, date: dateLong }), { lang }),
   );
 }
@@ -1263,7 +1285,9 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
 // ---------------------------------------------------------------------------
 export function inviteEmail(
   brand: TenantBrand,
-  opts: { role: string; label?: string | null; link: string; expiresAt: string },
+  // `inviterName` is the first name of whoever pressed Invite (99.2e); without
+  // one the subject says who the team is and not who asked.
+  opts: { role: string; label?: string | null; link: string; expiresAt: string; inviterName?: string | null },
   // The INVITEE's dashboard language, which is almost always unknown (they
   // have not signed in yet) and so English — `recipientLang` answers it.
   lang?: unknown,
@@ -1291,7 +1315,9 @@ export function inviteEmail(
     fineBlock(tt("This link works until {date}. If the button doesn't work, open: {url}", { date: expires, url: opts.link })),
   ];
   return mail(
-    tt("Join {brand} on the booking dashboard", { brand: brand.brandName }),
+    opts.inviterName?.trim()
+      ? tt("{inviter} added you to {brand}", { inviter: opts.inviterName.trim(), brand: brand.brandName })
+      : tt("You've been added to {brand}", { brand: brand.brandName }),
     shell(brand, blocks, tt("{brand} invited you to their dashboard.", { brand: brand.brandName }), { lang }),
   );
 }
@@ -1369,7 +1395,9 @@ export function planCancelledEmail(
     fineBlock(tt("They can join again whenever they like; the record of what they were owed is kept either way.")),
   ];
   return mail(
-    tt("{name} ended their plan", { name: opts.customerName }),
+    /\bplan$/i.test(opts.planName.trim())
+      ? tt("{name} left your {plan}", { name: opts.customerName, plan: opts.planName.trim() })
+      : tt("{name} left your {plan} plan", { name: opts.customerName, plan: opts.planName.trim() }),
     shell(brand, blocks, tt("{name} ended {plan}.", { name: opts.customerName, plan: opts.planName }), { lang }),
   );
 }
@@ -1431,6 +1459,9 @@ export function campaignEmail(brand: TenantBrand, c: CampaignEmailData, lang?: u
     proseBlock(tt("Hello {first},", { first: esc(firstName(c.customerName)) })),
     proseBlock(words, 10),
     buttonBlock(brand, tt("Book again"), c.bookUrl),
+    // 99.2e — the logo, the signature, the address and the unsubscribe are
+    // ours and locked; only the subject and the message are theirs.
+    signOff(brand, lang),
   ];
   return mail(
     c.subject,
@@ -1641,7 +1672,7 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData, lang?: unk
   return mail(
     down
       ? tt("{business}'s booking page is offline", { business: b.businessName })
-      : tt("We couldn't take payment for {business}", { business: b.businessName }),
+      : tt("Your card didn't go through"),
     shell(brand, blocks, down
       // The preheader made the same promise the button used to, and it is the
       // first thing shown in an inbox. See the button's note above.
@@ -1728,7 +1759,7 @@ export function buildStartedEmail(brand: TenantBrand, b: BuildStartedData, lang?
   ].filter(Boolean);
 
   return mail(
-    tt("Work has started on {business}'s website", { business: b.businessName }),
+    tt("We've started building your site"),
     shell(brand, blocks, fee
       ? tt("The build fee is no longer refundable from today. Nothing else changes.")
       : tt("Nothing for you to do — we will email you again when there is something to look at."), { lang }),
@@ -1771,11 +1802,10 @@ export interface MaintenanceEmailData {
 }
 
 /** The subject alone, so a SKIPPED send can be logged under the same words. */
-export function maintenanceDueSubject(m: Pick<MaintenanceEmailData, "label" | "dueOn" | "daysLeft">, lang?: unknown): string {
-  const tt = T(lang);
-  return m.daysLeft <= 1
-    ? tt("Last day: {label}", { label: m.label })
-    : tt("{label} is due {date}", { label: m.label, date: m.dueOn });
+// ROADMAP 99.2e — Andrew's approved subject at every stage. The urgency
+// ("Tomorrow is the last day", "9 days left") is the headline inside.
+export function maintenanceDueSubject(m: Pick<MaintenanceEmailData, "customerName">, lang?: unknown): string {
+  return T(lang)("Your car's about due, {first}", { first: firstName(m.customerName) });
 }
 
 // **ROADMAP 0.7 — IT SELLS A BOOKING, SO IT CARRIES THE CAMPAIGN EMAIL'S FOOTER.**
@@ -1810,9 +1840,14 @@ export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData,
       what: `<strong class="c-ink" style="color:${G.ink};">${what}</strong>`,
       date: `<strong class="c-ink" style="color:${G.ink};">${esc(m.dueOn)}</strong>`,
     })),
-    proseBlock(tt("Book it below and we'll take care of it."), 16),
-    buttonBlock(brand, tt("Book it in"), m.bookUrl),
+    // 99.2e — the approved question and button. Its "about two months since
+    // your last detail" line is NOT used: this email is about the detailer's
+    // own deadline, which can be any distance away, so the sentence above
+    // names it instead of guessing a span.
+    proseBlock(tt("Want to get on the calendar?"), 16),
+    buttonBlock(brand, tt("Pick a time"), m.bookUrl),
     fineBlock(tt("If you have already had this done elsewhere, let us know and we will mark it off.")),
+    signOff(brand, lang),
   ];
   return mail(
     maintenanceDueSubject(m, lang),
