@@ -410,6 +410,29 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
    is 75px and three fit. They stack below the 320 floor like every other pair
    in the product, where two controls on one line is genuinely too narrow. */
 .bk-vehicle { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 8px; }
+/* ROADMAP 99.7 — THE COUNT ROW IS 95px NO OTHER VEHICLE STEP PAYS, so this
+   step pays it back with a tighter rhythm, scoped to the count control's own
+   presence (`bk-count` in StepVehicle.jsx) so a one-car business keeps the
+   exact look it has. Measured 2026-10-12 on /book/demo-riverside step 3:
+   count=1 over 40px at 1440x900 / 34 at 392x844, count=3 over 18 / 42 —
+   the count row (69px block + one 26px section gap) against 23–60px of spare.
+   Three moves, nothing hidden, nothing reworded:
+   1 · section gap 26 to 14 between this step's blocks (head gap held at 16 by
+       the compensated margin below, so the heading relationship is untouched;
+       14 still reads as sections against the 8px within-menu gaps, W18);
+   2 · text boxes 48 to 44 high — the 44px tap floor, so pressability is
+       unchanged and the sweep's own tap probe keeps passing;
+   3 · size cards lose 4–6px of padding per side (one-car state only; the tap
+       target stays the whole ~65px card).
+   Lands the six readings at 60–84px spare by the gate's own formula — and
+   that formula is 73px lenient (see the entry): the sticky bar overlaps
+   content the gate calls fitting, so this was sized to TRUE no-overlap
+   (nothing painted under the bar at any of the six states, verified by rect)
+   with true no-scroll at 1440. */
+.bk-wrap:has(.bk-count) { row-gap: 14px; }
+.bk-wrap:has(.bk-count) .bk-step-head { margin-bottom: calc(var(--bk-sp-4) - 14px); }
+.bk-wrap:has(.bk-count) .bk-field input { min-height: 44px; }
+.bk-wrap:has(.bk-count) .bk-choices .bk-card.selectable { padding: clamp(11px, 3vw, 14px); }
 @media (max-width: 360px) { .bk-vehicle { grid-template-columns: 1fr; } }
 @media (max-width: 400px) { .bk-grid2 { grid-template-columns: 1fr; } }
 

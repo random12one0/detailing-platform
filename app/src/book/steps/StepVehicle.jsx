@@ -178,7 +178,9 @@ export default function StepVehicle({ form, setForm, selectedServices, blocks = 
   return (
     <>
       {cap > 1 && (
-        <div className="bk-field">
+        // `bk-count` is the scoping hook for 99.7's tighter rhythm: the count
+        // row is 95px no other vehicle step pays, so this step pays it back.
+        <div className="bk-field bk-count">
           <span>{t("How many vehicles?")}</span>
           <div className="bk-chips">
             {Array.from({ length: cap }, (_, i) => i + 1).map((n) => (

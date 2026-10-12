@@ -51,6 +51,25 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 // mid-run edit. `source-guard.mjs` explains why that matters.
 const changedSince = watchSource();
 const CANARY_BLIND = process.argv.includes("--break=blind");
+// ROADMAP 99.7's sabotage: skip the quote-settle wait below and measure
+// whatever is on screen, loading line included.
+const NO_QUOTE_WAIT = process.argv.includes("--break=no-quote-wait");
+// ROADMAP 99.7's product sabotage: put the pre-fix rhythm back (26px gaps,
+// 48px boxes, full card padding) via an injected stylesheet and expect the
+// six riverside readings to go red again — the original defect, on purpose.
+// Only matches where 99.7's own scope hook sits, so every other step reads
+// exactly as the clean run reads it.
+const ROOMY = process.argv.includes("--break=roomy");
+// ROADMAP 99.7's wait proof: hold every server price 4s in the browser so the
+// quote-pending line is up at measure time. With the wait (default) the run
+// stays green AND prints a "quote still loading" line per engaged reading —
+// the wait observed firing, not argued for. With --break=no-quote-wait added
+// the same run measures the loading state instead.
+const SLOW_QUOTE = process.argv.includes("--break=slow-quote");
+const roomyPages = new Set();
+const slowQuote = (pg) => SLOW_QUOTE
+  ? pg.route("**/calculate-booking*", (route) => setTimeout(() => route.continue(), 4000))
+  : Promise.resolve();
 const sbStartedAt = new Date().toISOString();
 // The product promises seven booking steps. Declared here so a flow that
 // silently became six shrinks nothing quietly - it fails the receipt.
@@ -292,6 +311,9 @@ const fault = (what) => { failing++; OTHER_FAULTS.push(what); };
 // full-screen. Counted separately and always printed: an exemption nobody
 // sees is an exemption nobody re-reads.
 let exempted = 0;
+// ROADMAP 99.7 — readings that waited out the quote-pending line below.
+// Printed, so the wait going missing reads as a missing line, not a mystery.
+let quoteWaits = 0;
 // **THE STATED BOUND'S OWN TALLIES.** `outsideBound` counts readings the bound
 // covers, and `svcSeen` is the subject count that stops a run which never
 // reached step 1 from reading like a run in which the bound was tested and
@@ -319,6 +341,7 @@ for (const size of SIZES) {
   // their own page for one measurement each, so `say` stays the only place
   // that knows how to measure and report.
   let page = await ctx.newPage();
+  await slowQuote(page);
   if (process.env.SLOTPROBE) page.on("response", (r) => {
     if (/available-slots/.test(r.url())) console.log("      slots ->", r.status());
   });
@@ -351,6 +374,39 @@ for (const size of SIZES) {
     if (SHOTS) {
       const file = `${SHOTS}/${size.width}x${size.height}${LITE ? "-lite" : ""}-${label.replace(/[^a-z0-9]+/gi, "-")}.png`;
       await page.screenshot({ path: file, fullPage: !gate });
+    }
+    // ROADMAP 99.7 — THE QUOTE-PENDING LINE IS LOADING, NOT CONTENT. While
+    // the server price is being (re)worked out, every step carries a 19px
+    // `.bk-refusal` reading "Working out your price…" (Refusal.jsx
+    // reasonFor("pricing") — its own comment: "which clears itself in a
+    // second") plus its 10px margin and one 26px section gap: 55px of
+    // overflow that belongs to the network, not the layout. Measured
+    // 2026-10-12: the same step read 42px over and 97px over nine minutes
+    // apart, the 55px difference exactly this line. So a reading taken while
+    // it is up measures the loading state, not the step — wait for it to
+    // clear, bounded (a quote that never lands still gets measured and fails
+    // honestly rather than hanging the run). Spelling-coupled by necessity:
+    // the DOM carries only the sentence, in English on this walk (it has no
+    // Spanish entry and falls back). If the sentence is renamed without
+    // updating this, the wait stops matching and the run goes back to
+    // occasional transient reds — noisy, never a silent pass.
+    if (!NO_QUOTE_WAIT) {
+      const pending = page.locator(".bk-refusal", { hasText: "Working out your price" });
+      if (await pending.count()) {
+        const qw0 = Date.now();
+        await pending.waitFor({ state: "detached", timeout: 9000 }).catch(() => {});
+        quoteWaits++;
+        console.log(`  ${label} — quote still loading at measure time; read after ${Date.now() - qw0}ms`);
+      }
+    }
+    if (ROOMY && !roomyPages.has(page)) {
+      roomyPages.add(page);
+      await page.addStyleTag({
+        content: `.bk-wrap:has(.bk-count) { row-gap: 26px !important; }
+.bk-wrap:has(.bk-count) .bk-step-head { margin-bottom: calc(var(--bk-sp-4) - var(--bk-sp-5)) !important; }
+.bk-wrap:has(.bk-count) .bk-field input { min-height: 48px !important; }
+.bk-wrap:has(.bk-count) .bk-choices .bk-card.selectable { padding: clamp(15px, 3.6vw, 20px) !important; }`,
+      });
     }
     await tapCheck(page, `${size.width}x${size.height} ${label}`);
     const { over, vh, blocks, pitch, services, excess } = await page.evaluate(MEASURE, W16_SERVICES);
@@ -659,6 +715,7 @@ for (const size of SIZES) {
   // we do for you?" does not.
   const first = async (label, url, { before, gate = true } = {}) => {
     const p = await ctx.newPage();
+    await slowQuote(p);
     p.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
     if (before) {
       // localStorage is per-ORIGIN, so it has to be written on the origin
@@ -762,6 +819,7 @@ for (const size of SIZES) {
   // whether that is true rather than plausible.
   {
     const p = await ctx.newPage();
+    await slowQuote(p);
     p.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
     await p.goto(`${BASE}/book/demo-riverside${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
     const ok = await p.waitForSelector(".bk-card, .bk-note", { timeout: 30000 }).catch(() => null);
@@ -872,6 +930,9 @@ const exemptNote = exempted
 console.log(w16Failing
   ? `\n${w16Failing} step${w16Failing === 1 ? "" : "s"} do not fit — W16 is not met` + exemptNote
   : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}${exempted ? ", with one documented exception" : ""}` + exemptNote);
+if (quoteWaits) console.log(
+  `${quoteWaits} reading${quoteWaits === 1 ? "" : "s"} waited for the quote-pending line to clear before measuring. `
+  + `Without that wait those readings would have carried 55px of loading state as overflow.`);
 
 // --- WHAT W16 PROMISED THIS RUN, PRINTED WHETHER OR NOT IT MATTERED ---------
 // **The declaration is read out every run, and so is the subject count.** A
