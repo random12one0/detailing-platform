@@ -14,7 +14,7 @@
 // what it SENDS and what the screen does with each answer, never whether the
 // server takes it (`pricesFrom` and the edge function own that).
 //
-// WHAT IT ASKS, at 1440, 392 and 320:
+// WHAT IT ASKS, phone first at 390, 392, 320, 768, 1440 and 1920:
 //   1. the section shows all 11 figures of the built-in table, each in its unit
 //      ($, months, "% of what is left"), says "Built-in prices", and offers no
 //      "go back" when there is nothing to go back from;
@@ -31,7 +31,7 @@
 // overlap probe to name it.
 
 import { createRequire } from "node:module";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
 
@@ -43,7 +43,7 @@ const BREAK = arg("break");
 const FREEZE = arg("freeze");
 const LITE = process.argv.includes("--lite");
 const BASE = process.env.BASE || "http://localhost:5173";
-const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }, { w: 320, h: 700 }];
+const SIZES = [{ w: 390, h: 844 }, { w: 392, h: 844 }, { w: 320, h: 700 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }, { w: 1920, h: 1080 }];
 const ART = "artifacts/office-prices";
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12a";
 const REF = "kguqylyzgyzfktkfnhjb";
@@ -83,7 +83,7 @@ const SESSION = {
 // section wider than the phone never makes the page scroll and `overflowX` stays
 // false over plans running off the right edge (measured 2026-10-11 at 392px).
 const PROBE = (sel) => {
-  const els = [...document.querySelectorAll(sel)].filter((e) => e.getBoundingClientRect().width > 0);
+  const els = [...document.querySelectorAll(sel)].filter((e) => e.checkVisibility({ checkVisibilityCSS: true, contentVisibilityAuto: true }) && e.getBoundingClientRect().width > 0);
   const overlaps = [], thin = [];
   const cut = els.filter((e) => { const r = e.getBoundingClientRect(); return r.left < -0.5 || r.right > innerWidth + 0.5; })
     .map((e) => `${(e.textContent || e.getAttribute("aria-label") || "").trim().slice(0, 24)} cut by an edge`);
@@ -152,25 +152,21 @@ try {
   browser = await chromium.launch();
 
   if (FREEZE) {
-    const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
-    const { ctx, page } = await openPage({ w: 390, h: 844 });
-    if (FREEZE === "before") {
-      await page.evaluate(() => window.scrollTo(0, 1e6));
-      await settle(page, 400);
-      await freeze(page, { out: `${SHOTS}/before-prices.html`, label: "Before",
-        note: "The new back office's Money place ends at the platform bills: there is nowhere to see or change what detailers are charged. That editor is only on the old screen.",
-        highlight: ".bo-money > :last-child" });
-    } else {
-      await btn(page, "Change these prices").click();
-      await settle(page, 500);
-      await page.locator('.bo-prices input[data-price="website.monthly"]').fill("65");
+    const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+    for (const size of [{w:390,h:844},{w:1440,h:900}]) {
+      const {ctx,page}=await openPage(size);
       await sec(page).scrollIntoViewIfNeeded();
-      await freeze(page, { out: `${SHOTS}/after-prices.html`, label: "After",
-        note: "Money now ends with \"What detailers pay\": every price grouped by plan, and \"Change these prices\" (opened here, with the monthly price typed as 65) saves the whole table through the same server check as before.",
-        highlight: ".bo-prices" });
+      if(size.w===390) await freeze(page,{out:SHOTS+'/after.html',label:'After',note:'Three monthly prices stay in a compact preview; open it to inspect every price and contract term.',highlight:'.bo-price-summary'});
+      await sec(page).locator('summary').click();
+      await btn(page,'Change these prices').click();
+      await settle(page,400);
+      await freeze(page,{out:SHOTS+'/after-editor'+(size.w===1440?'-desktop':'')+'.html',label:'After',note:'Grouped prices have dollar and unit controls, plus/minus buttons and a live reading; folding preserves unsaved typing.',highlight:'.bo-prices'});
+      const suffix=size.w===1440?'-desktop':'';
+      console.log('editor differs '+size.w+': '+await differs(page,SHOTS+'/before-editor'+suffix+'.html',SHOTS+'/after-editor'+suffix+'.html'));
+      if(size.w===390) console.log('summary differs: '+await differs(page,SHOTS+'/before.html',SHOTS+'/after.html'));
+      await ctx.close();
     }
-    await ctx.close();
-    console.log(`froze ${FREEZE} into ${SHOTS}`);
+    writeFileSync(SHOTS+'/where.json',JSON.stringify({what:'Money now shows a compact preview of the three monthly plan prices, opening to a grouped editor with plus/minus controls.',url:BASE+'/admin/office#money',how:'Open Money, scroll to What detailers pay, open All prices and contract, then choose Change these prices.',situation:'The built-in table contains eleven prices and contract terms. The editor pair shows all fields ready to edit.'},null,2)+'\n');
   } else {
     for (const size of SIZES) {
       const where = `${size.w}${LITE ? " lite" : ""}`;
@@ -182,6 +178,20 @@ try {
       check(where, "Money has a What detailers pay section", visible);
       if (visible) {
         await sec(page).scrollIntoViewIfNeeded();
+        const fold=sec(page).locator('details');
+        const summary=sec(page).locator('summary');
+        if(BREAK==='expanded') await fold.evaluate(e=>e.open=true);
+        check(where, "prices are folded on arrival", !(await fold.evaluate(e=>e.open)));
+        const preview=await summary.locator('.bo-price-preview').innerText();
+        check(where, "three current monthly prices visible without opening", ['$60','$35','$40'].every(v=>preview.includes(v)) && await summary.locator('.bo-price-preview > span').count()===3,preview);
+        check(where, "closed preview fits within 300px", await sec(page).evaluate(e=>e.getBoundingClientRect().height)<=300);
+        let compact=await probe(page,'.bo-price-summary .bo-label, .bo-price-preview > span > *, .bo-price-more');
+        check(where,"closed preview has no overlap or cut edges",!compact.overlaps.length && !compact.cut.length && !compact.overflowX,JSON.stringify(compact));
+        await sec(page).scrollIntoViewIfNeeded();
+        await page.screenshot({path:ART+'/closed-'+size.w+'.png'}); artifacts.push(ART+'/closed-'+size.w+'.png');
+        if(await fold.evaluate(e=>e.open)) await summary.click();
+        await summary.focus(); await page.keyboard.press('Enter');
+        check(where,"keyboard opens all prices",await fold.evaluate(e=>e.open));
         const shown = await sec(page).locator("[data-price]").evaluateAll((els) => els.map((e) => [e.dataset.price, e.querySelector(".v")?.textContent.trim()]));
         const want = { "website.setup": "$999", "website.monthly": "$60", "website.annual": "$600", "website.monthToMonth": "$75", "bookingOnly.monthly": "$35",
           "founding.setup": "$499", "founding.monthly": "$40", "founding.annual": "$400", "founding.monthToMonth": "$50", "term.months": "12 months", "term.exitFeeShare": "50% of what is left" };
@@ -220,8 +230,21 @@ try {
           console.log(`    canary ${canary.observed_failure ? "CAUGHT" : "MISSED"}: ${canary.detail}`);
         }
         await sec(page).scrollIntoViewIfNeeded();
+        await sec(page).evaluate(e => e.scrollIntoView({block: "start"}));
+        await settle(page, 500);
         await page.screenshot({ path: `${ART}/edit-${size.w}.png` }); artifacts.push(`${ART}/edit-${size.w}.png`);
+        await page.screenshot({ path: `${ART}/edit-full-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/edit-full-${size.w}.png`);
 
+        // Stepping changes the draft, never an immediate payment write.
+        const writes = sent.filter((b) => b.action === "prices").length;
+        await sec(page).getByRole("button", { name: "Increase Website + booking · A month", exact: true }).click();
+        check(where, "plus updates monthly draft and live reading to $70", await sec(page).locator('input[data-price="website.monthly"]').inputValue() === "70" && await sec(page).locator('[data-price="website.monthly"] .v').innerText() === "$70");
+        await sec(page).getByRole("button", { name: "Decrease Website + booking · A month", exact: true }).click();
+        check(where, "minus returns to $65 without a write", await sec(page).locator('input[data-price="website.monthly"]').inputValue() === "65" && sent.filter((b) => b.action === "prices").length === writes);
+        await summary.focus(); await page.keyboard.press("Space");
+        check(where, "keyboard folds the editor without discarding typing", !(await fold.evaluate((e) => e.open)));
+        await page.keyboard.press("Space");
+        check(where, "reopening keeps the unsaved $65", await sec(page).locator('input[data-price="website.monthly"]').inputValue() === "65");
         // ── 3. REFUSED ──
         answer.prices = "no";
         await btn(page, "Save these prices").click();
@@ -242,6 +265,7 @@ try {
         check(where, "now says Changed here", (await sec(page).locator(".bo-prices-from").innerText().catch(() => "")).includes("Changed here"));
         check(where, "the saved figure is what it reads", (await sec(page).locator('[data-price="website.monthly"] .v').innerText().catch(() => "")) === "$65");
 
+        check(where, "saved summary reads the new $65", (await summary.locator(".bo-price-preview").innerText()).includes("$65"));
         // ── 5. GO BACK ──
         await btn(page, "Change these prices").click();
         await settle(page, 300);
@@ -288,13 +312,13 @@ const { path } = writeReceipt({
   started_at,
   status,
   expected_targets: SIZES.length,
-  discovered_targets: SIZES.length,
+  discovered_targets: Object.keys(observed).length,
   attempted_targets: SIZES.length,
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * 22,
-  assertion_floor: "3 widths x 22 questions (reading 4, editing 5, refused 2, saved 4, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
+  min_assertions: SIZES.length * 32,
+  assertion_floor: "6 widths x 32 questions (compact 5, reading 4, editing 9, refused 2, saved 5, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
   failures,
   artifacts,
   canary,

@@ -40,6 +40,7 @@
 // `es-US` rather than from a string in this file.
 
 export const appEs = {
+  "All prices and contract": "Todos los precios y el contrato",
   // ── SHARED VOCABULARY ────────────────────────────────────────────────────
   // **THE DURATION PRESETS ARE HERE ONCE AND THEY REACH NINE SETTINGS SCREENS,
   // because `controls.jsx` translates its own labels.** Every one of those

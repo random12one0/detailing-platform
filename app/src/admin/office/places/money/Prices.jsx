@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { priceRows, priceValue, say, tableOf } from "../../../../lib/officeMoney.js";
 import { call } from "../../api.js";
+import { ChevronDown, Minus, Plus } from "lucide-react";
 
 const TONE = { website: "var(--ac)", bookingOnly: "#5FB4E2", founding: "var(--bo-warn)" };
 const when = (iso) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -22,6 +23,7 @@ export default function Prices({ ctx, i }) {
 
   const open = () => { setErr(""); setSure(false); setDraft(Object.fromEntries(rows.map((r) => [r.path.join("."), String(r.raw)]))); };
   const shut = () => { setDraft(null); setSure(false); setErr(""); };
+  const step = (key, amount) => setDraft((d) => ({ ...d, [key]: String(Math.round((Number(d[key]) + amount) * 100) / 100) }));
   const send = async (prices) => {
     setBusy(true); setErr("");
     try { await call({ action: "prices", prices }); await ctx.reload(); shut(); }
@@ -37,12 +39,25 @@ export default function Prices({ ctx, i }) {
 
   return (
     <section className="bo-sec bo-prices" style={{ "--i": i }} aria-label="What detailers pay">
-      <div className="bo-label">
+      <details className="bo-price-fold">
+      <summary className="bo-price-summary" onClick={(e) => { if (busy) e.preventDefault(); }}>
+      <span className="bo-label">
         What detailers pay
         {table && (
           <span className="bo-prices-from">{p.current ? `Changed here${p.updated_at ? ` · ${when(p.updated_at)}` : ""}` : "Built-in prices"}</span>
         )}
-      </div>
+      </span>
+      {table && <span className="bo-price-preview">
+        {groups.filter((g) => g.rows.some((r) => r.path.at(-1) === "monthly")).map((g) => (
+          <span key={g.key} style={{ "--c": TONE[g.key] }}>
+            <span>{say(g.key)}</span>
+            <b>{g.rows.find((r) => r.path.at(-1) === "monthly").value}<small> / month</small></b>
+          </span>
+        ))}
+      </span>}
+      <span className="bo-price-more">All prices and contract <ChevronDown size={18} aria-hidden="true" /></span>
+      </summary>
+      <div className="bo-price-body">
       {!table ? <p className="bo-dim">Could not read the prices.</p> : (
         <>
           <div className="bo-pgroups">
@@ -57,8 +72,19 @@ export default function Prices({ ctx, i }) {
                       <div key={key} data-price={key} className={draft ? "editing" : ""}>
                         <dt className="k">{say(last)}</dt>
                         {draft && (
-                          <input data-price={key} type="text" inputMode="decimal" aria-label={r.label} value={typed}
-                                 onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} />
+                          <div className="bo-price-control">
+                            <button type="button" className="bo-price-step" aria-label={`Decrease ${r.label}`} disabled={busy || String(typed).trim() === "" || !Number.isFinite(Number(typed))}
+                              onClick={() => step(key, -(last === "exitFeeShare" ? 0.05 : last === "months" ? 1 : 5))}><Minus size={16} aria-hidden="true" /></button>
+                            <span className="bo-price-entry">
+                              {!['months', 'exitFeeShare'].includes(last) && <span aria-hidden="true">$</span>}
+                              <input data-price={key} type="text" inputMode="decimal" aria-label={r.label} value={typed} disabled={busy}
+                                onChange={(e) => setDraft({ ...draft, [key]: e.target.value })} />
+                              {last === "months" && <span aria-hidden="true">mo</span>}
+                              {last === "exitFeeShare" && <span aria-hidden="true">×100%</span>}
+                            </span>
+                            <button type="button" className="bo-price-step" aria-label={`Increase ${r.label}`} disabled={busy || String(typed).trim() === "" || !Number.isFinite(Number(typed))}
+                              onClick={() => step(key, last === "exitFeeShare" ? 0.05 : last === "months" ? 1 : 5)}><Plus size={16} aria-hidden="true" /></button>
+                          </div>
                         )}
                         {/* While typing, what it WILL read as: 0.5 is half, 50 says 5000% out loud. */}
                         <dd className="v">{draft ? (String(typed).trim() === "" ? "Blank" : priceValue(last, Number(typed))) : r.value}</dd>
@@ -87,6 +113,8 @@ export default function Prices({ ctx, i }) {
           )}
         </>
       )}
+      </div>
+      </details>
     </section>
   );
 }
