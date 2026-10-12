@@ -29530,6 +29530,26 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     Re-find callers at that revision: `rg -n 'pa-top|/admin/office' scripts app/src tests`; the earlier caller list was a
     snapshot, not a complete list for the later switch. Keep the server's non-admin refusal and prove both routes,
     the gear and `/app` in a browser, including the caught sabotage, before requesting Andrew's final look.
+    **2026-10-12 — caller triage for part 2 (source only; no product file changed this session).** `AdminPage` is named in
+    29 files: `app/src` — AdminPage.jsx, admin.css, `office/api.js`, BookingPage.jsx, `lib/growthLines.js|officeMoney.js|`
+    `officeSystem.js|officeToday.js` (comment cross-references), `screens/more/MailLog.jsx`; scripts — admin-preconditions, admin-furniture-clearance, bk-bar-clearance, build-start-live, i18n-survey, platform-net-live,
+    sweep-tap-targets; tests — admin-insight, admin-preconditions, dead-mans-switch, fixed-furniture-is-hit-tested,
+    growth-lines, legal-promises, money-overstatement, name-length, platform-admin (§5 + ~12 pins), platform-billing,
+    queue-rows-still-belong, spanish. `main.jsx` imports only OfficePage (`/admin` serves it; `/admin/office` falls to `*`
+    404 per the line-146 comment); GearMenu.jsx names no admin screen. The 6b–6d homes now exist in the tree (source
+    finding, NOT browser proof and NOT 9.12a's tick): 6b `office/places/money/Prices.jsx`, 6c `office/places/system/Mail.jsx`
+    (`email_list`), 6d `BILL_MONTHS = lastMonths(12)` in `places/money/month.js` ("Bills passes the one its switch is on").
+    Door (OfficePage.jsx:48-50, 141-163) and name + Sign out (OfficePage.jsx:213) are in. Re-home notes: `actionFor` is now
+    called from `lib/officeDetailers.js:124`; NOTHING in `office/` calls `growthLines(` or names STUCK/bookabilityOf, and the
+    new Money place says "You kept" (Kept.jsx:14, officeMoney.js `kept`) — judge that wording under the accrual rule before
+    re-pinning money-overstatement. Part 2 is cut into numbered slices, one per session:
+    - [ ] 99.3b-i — delete AdminPage.jsx + admin.css; clear the comment cross-references; confirm no import remains.
+    - [ ] 99.3b-ii — re-home or retire every suite pin in the triage list (fixed-furniture `.pa-*` rows retire with
+      admin-furniture-clearance, same as `.tourcard`).
+    - [ ] 99.3b-iii — retire admin-preconditions.mjs + admin-furniture-clearance.mjs; re-point platform-costs/net-live and
+      the other four scripts; full caller re-grep at that revision.
+    - [ ] 99.3b-iv — FULL browser proof (money tag): owner `/admin`, staff `/admin` 404, `/admin/office` 404, gear both roles
+      with console read at 1440 + 392, sabotage receipts, freeze before/after + `belt/shots/99.3/where.json`, Andrew look.
   **Recheck validation at `3cf8c68e` (documentation only):**
   `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs tests/no-credentials-in-tracked-text.test.mjs tests/every-open-item-is-citable.test.mjs`
   passed. `CITABLE_CANARY=1` caught the planted unnumbered item; the credential scan's direct `--break=md-only` run
