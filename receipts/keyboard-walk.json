@@ -1,9 +1,9 @@
 {
-  "git_sha": "82f2a165770f42263ee52d794770462d9a12014d",
-  "git_sha_started": "82f2a165770f42263ee52d794770462d9a12014d",
+  "git_sha": "a51c362763c5a299c4e54f75565134cc7b686c6f",
+  "git_sha_started": "a51c362763c5a299c4e54f75565134cc7b686c6f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-08T02:36:19.445Z",
+  "finished_at": "2026-10-12T18:33:30.043Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -11,25 +11,33 @@
   ],
   "dimensions": {
     "screens": [
-      "Today:22",
+      "Today:35",
       "Calendar:43",
-      "Money:31",
+      "Money:29",
       "Clients:29",
-      "Business:26",
+      "Business:27",
       "Booking step 1:16"
+    ],
+    "furniture": [
+      "Today: .topbarx1 .split > .col-2x1 .tabbarx1 | stops found under furniture: 0",
+      "Calendar: .topbarx1 .split > .col-2x0 .tabbarx1 | stops found under furniture: 0",
+      "Money: .topbarx1 .split > .col-2x1 .tabbarx1 | stops found under furniture: 0",
+      "Clients: .topbarx1 .split > .col-2x0 .tabbarx1 | stops found under furniture: 0",
+      "Business: .topbarx1 .split > .col-2x1 .tabbarx1 | stops found under furniture: 0",
+      "Booking step 1: .topbarx0 .split > .col-2x0 .tabbarx0 | stops found under furniture: 0"
     ],
     "method": "pixel diff with a stability baseline, under reducedMotion reduce",
     "in_view_measured_before_any_screenshot": true
   },
   "check_id": "keyboard-walk",
-  "started_at": "2026-10-08T02:35:24.867Z",
+  "started_at": "2026-10-12T18:32:28.104Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 167,
+  "assertions_executed": 179,
   "min_assertions": 100,
   "canary": {
     "id": "a ring styled away, and a dialog that swallows Escape",

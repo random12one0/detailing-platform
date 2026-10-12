@@ -1,0 +1,55 @@
+{
+  "git_sha": "a51c362763c5a299c4e54f75565134cc7b686c6f",
+  "git_sha_started": "a51c362763c5a299c4e54f75565134cc7b686c6f",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T18:32:19.147Z",
+  "failures": [
+    "furniture probe attested nothing on any screen — the 9.11e attendance record is blind"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "scripts/keyboard-walk.mjs"
+  ],
+  "dimensions": {
+    "screens": [
+      "Today:35",
+      "Calendar:43",
+      "Money:29",
+      "Clients:29",
+      "Business:27",
+      "Booking step 1:16"
+    ],
+    "furniture": [
+      "Today: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0",
+      "Calendar: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0",
+      "Money: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0",
+      "Clients: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0",
+      "Business: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0",
+      "Booking step 1: .topbarx? .split > .col-2x? .tabbarx? | stops found under furniture: 0"
+    ],
+    "method": "pixel diff with a stability baseline, under reducedMotion reduce",
+    "in_view_measured_before_any_screenshot": true
+  },
+  "check_id": "keyboard-walk",
+  "started_at": "2026-10-12T18:31:17.475Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 179,
+  "min_assertions": 100,
+  "canary": {
+    "id": "a ring styled away, and a dialog that swallows Escape",
+    "observed_failure": true,
+    "caught_by": [
+      "pixel-diff",
+      "escape"
+    ],
+    "findings": [
+      "ring 6/6, escape 6/6"
+    ]
+  }
+}

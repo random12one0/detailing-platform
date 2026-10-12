@@ -9214,6 +9214,42 @@ the wrong service, and never book a job we cannot reach.
   every receipt's `observed`. Nothing deployed, pushed or applied; no credential
   loaded; `artifacts/` ignored, both receipts committed.
 
+  ---
+
+  **THE WALK NAMES ITS FURNITURE NOW — 2026-10-12, second slice.** `.topbar`
+  and `.split > .col-2` were the two "walked but unnamed" gaps: the walk
+  already asked `elementFromPoint` of every focused control on those screens
+  but never named the bar, so nothing said a control was ever found under one.
+  `scripts/keyboard-walk.mjs` now reads, per screen before any Tab press, how
+  many of `.topbar` / `.split > .col-2` / `.tabbar` intersect the viewport,
+  prints it beside that screen's covered-stop count, and records both in the
+  receipt dimensions. No grading change — no new assertions, no touched
+  verdict. **PASS — 6 of 6 screens, 179 stops, 0 failures, both canaries 6/6**,
+  re-take `node --env-file=.env scripts/keyboard-walk.mjs` and grade
+  `node scripts/receipt.mjs receipts/keyboard-walk.json`. The attendance varies
+  the way live DOM should: `.topbar` x1 on all five dashboard screens, x0 on
+  booking; `.col-2` x1 on Today/Money/Business, x0 on Calendar/Clients/booking;
+  `.tabbar` x1 on dashboard, x0 on booking — and 0 stops found under furniture
+  on every screen, which beside this record is a clean answer instead of an
+  absence. Page errors: none.
+
+  **The probe lists ONLY those three, on purpose.** Naming impersonation, the
+  intake preview or the back office here would count as coverage in the
+  meta-test by text match without any genuine test, and `.impbar` stays
+  declared for exactly that reason (verified after the edit: none of
+  `.impbar`, `.livesite`, `.bo-rail`, `.bo-panel`, `.navmenu`, `.ld .stage`
+  appears in the script). `FURNITURE_PROBE_BREAK=1` empties the probe and goes
+  red through a blind-probe tripwire — `.tabbar` is awaited visible before the
+  walk, so a live probe always attests something; the sabotage receipt
+  (`receipts/keyboard-walk.sabotage.json`) carries status fail with that line
+  by name. Meta-test **6 → 4** in the same edit (`node --test
+  tests/fixed-furniture-is-hit-tested.test.mjs`, **6 passed 0 failed**); its
+  three sabotages re-ran red by name (`.sabotage-strip` uncovered, `.bk-bar`
+  flipped, § 5 fails). Nothing deployed, pushed or applied; the demo tenant
+  was re-seeded for the run, no other writes. The box stays open: 4 of the 12
+  remain (`.impbar`, the intake preview, `.bo-rail`, `.bo-panel`), each needing
+  its own instrument or state.
+
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
