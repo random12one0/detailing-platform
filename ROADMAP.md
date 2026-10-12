@@ -3388,7 +3388,8 @@ and how the wait ends.
   cases, 21 assertions. Six stub cases (refused, could-not-run refused, clean, override, other branch, several
   refs), then the real hook against the gateway, read-only: refused and named every program the full inventory
   named, then `--only=` on the first one it called different (exit 1, named) and the first it called clean
-  (exit 0, PASS). `BREAK=lets-red-through` (6 failures, kept in `receipts/release-gate.sabotage.json`) and
+  (exit 0, PASS). Then once through git itself, `git hook run pre-push` with a main ref: git found the hook
+  and the push was refused. `BREAK=lets-red-through` (6 failures, kept in `receipts/release-gate.sabotage.json`) and
   `BREAK=all-branches` (2) each went red. Also fixed: an `--only=` run used to overwrite the full receipt that
   the 0.6b block's step 2 reads, so it would have published one program; it now writes
   `deployed-inventory-only.json` (`1f8525c2`). Nothing anyone sees changed, so no browser check applies.
