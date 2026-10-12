@@ -3700,7 +3700,7 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   **ANDREW DECIDED 2026-10-09: KEEP THEM AS THEY ARE FOR NOW.** There are no
   real accounts and he still needs the demos. The built flag/filter remains the
   launch path, not a task for him today; revisit it when the product is nearly
-  ready or the first real accounts are coming. The current "gone quiet" number
+  ready or the first real accounts are coming. **ANDREW DECIDED 2026-10-12: leave test accounts visible for now, hide them at launch.** The current "gone quiet" number
   is not a present product concern because it contains no real customers.
   Back office "Everyone" shows 16 rows of which 15 are tests; the client list
   carries "Smoke TPMOY" with a broken number "(555) 014-2"; "9 gone quiet"
@@ -20314,10 +20314,14 @@ the dashboard or back office at phone width at all.
   **Deployment context rechecked:** `node --env-file=.env scripts/deployed-inventory.mjs` at `b3b5a6fb` compared **41 of 41** functions and found **33 of 41** differ from the checkout, including platform-admin v63's unpublished 4.3 changes. That FAIL is preserved in `receipts/deployed-inventory.json`, not cleared by deploying. The live displayed-count comparison above is independent of checkout equality. The four credential-free suites, tracked-text credential scanner, and open-item citation check passed; no live structure change, push, or deploy.
   Document figures were also checked with `node --test tests/figures-carry-their-command.test.mjs`: PASS after adding the already-installed `C:\Program Files\Git\bin` to that process's PATH. Its first run could not launch bash and falsely classified real revisions as missing; native `git rev-parse --verify '9901b16^{commit}'` resolved the cited revision. No test or declared baseline was changed. That scanner excludes FOR-ANDREW's prose figures, so the new prose claims were checked directly against the live receipts above.
 
-  NEEDS ANDREW: after a separate session prepares and verifies the booking-preview header fix, publish it and rerun this live comparison; the counts already match, but the live dashboard console error prevents the required full browser pass. Recommendation: permit only the intended booking-preview embedding while retaining protection on the dashboard and back office. The action and its reason are in FOR-ANDREW.md.
+  NEEDS ANDREW: after 9.1c (the booking-preview header fix, which Andrew said to fix now on 2026-10-12) is prepared and verified, publish it and rerun this live comparison; the counts already match, but the live dashboard console error prevents the required full browser pass. Recommendation: permit only the intended booking-preview embedding while retaining protection on the dashboard and back office. The action and its reason are in FOR-ANDREW.md.
 
   **Earlier source-only assessment, superseded by Andrew's go and the measured comparison above:**
   **Measured 2026-10-10, credential-free:** `node scripts/setup-inputs-contract.mjs` → PASS, 17/17 targets, 18 assertions, canary caught — the checkout's `platform-admin` sends 12 of 12 steps' inputs. `receipts/deployed-inventory.json` (finished 08:10 Pacific, 2026-10-10) lists `platform-admin` as MATCHING the checkout of that moment, which already held the 9.1 widening (committed 2026-09-23) — so the live function very likely carries it. **But three commits touched `platform-admin` after that receipt (83a0a740, 8bd5d24b, 3e002b1d — 4.3b/4.3c, "not published"), so the live copy is no longer this checkout**; re-run `deployed-inventory` before relying on it. 9.1a is still unticked. **Superseded the same day: 9.1a is ticked — the live v63 carries the 9.1 widening (39 of 39 lines) and none of 4.3b/4.3c (42 of 42 absent); see 9.1a.** **Not measured: any displayed count on either screen. Nothing ticked.**
+
+- [ ] **9.1c — Prepare and verify the booking-preview header fix (split from 9.1b 2026-10-12; Andrew said fix now).**
+  The live dashboard embeds the booking preview in a frame, but `app/netlify.toml` sends `X-Frame-Options: DENY` on `/*`, so Business's real preview is blank with a console error and 9.1b cannot pass its clean-console criterion. Build a narrow fix that lets only the intended preview embed while the dashboard and back office stay protected; prove it locally at 1440 and 392, console clean at both, plus a sabotage run (blanket-allow) that the proof catches.
+  DONE WHEN: the preview renders inside the dashboard with a silent console at both widths, the dashboard and back office themselves still refuse framing, and the sabotage run is red for the right reason. Publish stays Andrew's (FOR-ANDREW.md carries it); 9.1b reruns after the publish.
 
 - [x] **9.2 — The back office says contradictory things about one account.**
   Growth says a page "cannot take a booking" and also "the page works and
@@ -24227,7 +24231,7 @@ their age is not Andrew's problem.
   buildable without guessing the feature on his behalf, and nothing here is
   half-built. The product takes no money anywhere (`templates.js:24` says so on
   purpose). The `FOR-ANDREW.md` row now carries a $200 worked example and
-  the three possible answers.
+  the three possible answers. **2026-10-12 — Andrew asked whether the deposit/cancellation-fee discussion already reached the repo. It has, in part: `BUSINESS-RULES.md` (decided 2026-10-12, not built yet) records a detailer-set cancellation fee plus an optional rescheduling fee, off by default and shown before booking; the fee details (notice window, flat or percentage, waiver) sit in its "Still to decide" #4. What stays open here is only the deposit-at-booking question above — a customer paying part of the price when they book.**
   Waits on: 12.1 (every payment scenario tested, which itself waits on his
   Stripe test key). Even after a "yes", the build does not start until 12.1
   is ticked. Whoever ticks 12.1 removes this line.

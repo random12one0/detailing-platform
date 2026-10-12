@@ -101,11 +101,11 @@ second short web address just for texts.
 
 ---
 
-## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
+## AT RELEASE · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
 
 The booking page's bottom bar is proven clear of every choice on every screen size a computer can pretend to be. What no computer can pretend is the iPhone keyboard, and that is the one question left. Four booking steps have a text box: vehicle, address, name/phone/email/notes, and the promo code. On each, tap the box, type three letters, and look: can you still see what you are typing and the button you need next? Does the bar sit behind the keyboard, or ride up over the box?
 
-**How:** on the computer run `npm run dev --prefix app -- --host`, open the `Network:` address it prints on your phone (same Wi-Fi), and follow section 5 of `docs/testing/phones-we-do-not-own.md`, steps 4, 5, 7 and 8. Tell a session what you saw, even if it is "nothing wrong at all". That answer closes both items.
+**How:** on the computer run `npm run dev --prefix app -- --host`, open the `Network:` address it prints on your phone (same Wi-Fi), and follow section 5 of `docs/testing/phones-we-do-not-own.md`, steps 4, 5, 7 and 8. Tell a session what you saw, even if it is "nothing wrong at all". That answer closes both items. (Andrew, 2026-10-12: nothing here needs you before release — this is release-time, not a task for today.)
 
 **Nothing is broken.** Sessions have already checked everything a computer can check, and the walk itself is guarded by a test (6 of 6 passing today). This waits until you are about to release.
 
@@ -121,7 +121,7 @@ The profit screen is finished and proven: a session typed four test bills into i
 
 You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.
 
-**Recommendation:** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
+**Recommendation (Andrew said fix now, 2026-10-12 — ROADMAP 9.1c builds it):** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
 ## LOOK, THEN LATER DO · Connect Google Business, built up to Google's gate (ROADMAP 99.1)
 
@@ -2386,10 +2386,10 @@ still knows them.
 
   **Nothing breaks while this waits.**
 
-- [ ] **DO · Run one command that adds a "this is a test row" tick box to your
+- [ ] **AT LAUNCH · Run one command that adds a "this is a test row" tick box to your
   customer list. Everything else for ROADMAP 1.3 is built and proved; this is
   the one step that makes it real, and it is yours because it changes the
-  shape of the database.**
+  shape of the database (Andrew, 2026-10-12: leave test accounts visible for now, run this at launch).**
 
   ```bash
   set -a; . ./.env; set +a
