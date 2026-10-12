@@ -1,7 +1,7 @@
 // 99.2f: actual public booking flow with EVERY external request intercepted.
 // No login, database, provider or real sends. --capture=before precedes edits.
 import { chromium } from '../app/node_modules/playwright/index.mjs';
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { freeze, differs } from '../../belt/freeze.mjs';
 import { writeReceipt } from './receipt.mjs';
 import { initialForm, bookingRequests } from '../app/src/book/core.js';
@@ -11,6 +11,9 @@ const BASE = process.env.BASE || 'http://127.0.0.1:5182';
 const OUT = 'C:/Users/rando/Downloads/claude/belt/shots/99.2';
 const BEFORE = process.argv.includes('--capture=before');
 const SERVER_ONLY = process.argv.includes('--server-only');
+// 99.2's review pair lives outside the repo and is cleared once reviewed; with
+// no Before there is nothing to pair an After with, so say so and skip it.
+const REVIEW = !BEFORE && existsSync(OUT + '/before.html');
 const BREAK = process.argv.find(a => a.startsWith('--break='))?.slice(8) || '';
 if (BREAK && !['default', 'save', 'strict', 'privacy', 'half'].includes(BREAK)) throw Error('Unknown break');
 const WORDS = 'Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.';
@@ -176,7 +179,7 @@ try {
       check(`${tag} consent is its own block`, fit.gapAbove >= 8 && fit.sentenceClear && fit.linkGap >= 8, JSON.stringify(fit));
       check(`${tag} consent and targets fit`, layout.fits && layout.label >= 44 && layout.links.every(h => h >= 44), JSON.stringify(layout));
       await photograph(page, 'details-' + tag);
-      if (width === 390 && lang === 'en' && !q && !BREAK && choice === 'unchecked') {
+      if (REVIEW && width === 390 && lang === 'en' && !q && !BREAK && choice === 'unchecked') {
         await freeze(page, { out: OUT + '/after.html', label: 'After', note: 'Appointment texts are optional. The box starts unticked, with Privacy and Terms beside it.', highlight: '.bk-sms-consent' });
       }
       // Both paths on every view: unchecked, checked, then unchecked again.
@@ -236,7 +239,7 @@ try {
       check(`privacy-${width}${q} console silent`, logs.length === 0, logs.join(' | '));
       if (BREAK === 'privacy') check(`privacy-${width}${q} sabotage executed`, await page.evaluate(() => window.__privacyBreak === true));
       await photograph(page, `privacy-${width}${q ? '-lite' : ''}`);
-      if (width === 390 && !q && !BREAK) await freeze(page, { out: OUT + '/after-privacy.html', label: 'After', note: 'The privacy page covers optional appointment texts and says mobile information is not sold or shared for marketing.', highlightText: 'Text messages' });
+      if (REVIEW && width === 390 && !q && !BREAK) await freeze(page, { out: OUT + '/after-privacy.html', label: 'After', note: 'The privacy page covers optional appointment texts and says mobile information is not sold or shared for marketing.', highlightText: 'Text messages' });
       completed++;
     } catch(e) { failures.push(`privacy-${width}${q}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
@@ -254,12 +257,13 @@ try {
       check(`terms-${width}${q} no sideways scroll`,await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       check(`terms-${width}${q} console silent`,logs.length === 0,logs.join(' | '));
       await photograph(page,`terms-${width}${q ? '-lite' : ''}`);
-      if (width === 390 && !q && !BREAK) await freeze(page,{out:OUT + '/after-terms.html',label:'After',note:'The shared policy date now records the texting paragraph added on October 11.',highlightText:'Effective'});
+      if (REVIEW && width === 390 && !q && !BREAK) await freeze(page,{out:OUT + '/after-terms.html',label:'After',note:'The shared policy date now records the texting paragraph added on October 11.',highlightText:'Effective'});
       completed++;
     } catch(e) { failures.push(`terms-${width}${q}: ${e.message.split('\n')[0]}`); }
     finally { await ctx.close(); }
   }
-  if (!BEFORE && !BREAK && !SERVER_ONLY) {
+  if (!REVIEW && !BEFORE && !BREAK && !SERVER_ONLY) console.log('SKIPPED 99.2 before/after review copies: ' + OUT + '/before.html is gone (cleared after review).');
+  if (REVIEW && !BREAK && !SERVER_ONLY) {
     const page = await browser.newPage();
     check('before/after booking differ', await differs(page, OUT + '/before.html', OUT + '/after.html'));
     check('before/after privacy differ', await differs(page, OUT + '/before-privacy.html', OUT + '/after-privacy.html'));
@@ -340,7 +344,7 @@ else {
   const r = writeReceipt({ check_id: BREAK ? `booking-consent-${BREAK}` : 'booking-consent', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: expected, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
     assertions_executed: assertions, min_assertions: SERVER_ONLY ? 75 : 650, failures, artifacts, dimensions: { break: BREAK, server_only: SERVER_ONLY, seen, scope: 'Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send.' },
-    canary: { id: 'real helper broken to accept string true creates consent that the strict-choice assertion rejects', observed_failure: canaryCaught }, warnings: ['Live delivery and deployed consent saving are not measured.'] });
+    canary: { id: 'real helper broken to accept string true creates consent that the strict-choice assertion rejects', observed_failure: canaryCaught }, warnings: ['Live delivery and deployed consent saving are not measured.', ...(REVIEW || BREAK || SERVER_ONLY ? [] : ['99.2 before/after review copies skipped: belt/shots/99.2/before.html is gone.'])] });
   console.log(`${discovered} of ${expected} discovered; ${completed} completed; ${assertions} assertions; ${failures.length} failures. ${r.path}`);
   failures.forEach(f => console.error('FAIL ' + f)); if (failures.length) process.exitCode = 1;
 }
