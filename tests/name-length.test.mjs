@@ -123,20 +123,25 @@ test("ROADMAP 2.15a — a name over the cap is refused in words, by the server",
     assert.equal(
       [...read("app/src/screens/more/Catalog.jsx").matchAll(/value=\{editing\.form\.name\} maxLength=\{60\}/g)].length,
       2, "Catalog.jsx should carry the cap on both of its name editors");
-    // AND THE TWO THAT HAVE NONE: printed, not failed. Adding them is Lane A's file and 2.15a
-    // specifies them; a guard that skips must say so rather than going quiet.
-    for (const f of ["app/src/screens/CreateBusiness.jsx", "app/src/admin/AdminPage.jsx"]) {
+    // AND THE LAST GAP BOX, NOW CLOSED: failed, not printed. This loop watched the
+    // uncapped business-name boxes while 2.15a specified them and Lane A owned the
+    // fix, so it printed rather than failing. RE-POINTED 2026-10-12 (99.3b-ii):
+    // both gaps are gone — the AdminPage.jsx box went with the deleted screen
+    // (its replacement, office/SignUp.jsx, ships capped at 60), and Lane A capped
+    // CreateBusiness.jsx at 60 (verified this session). An uncapped box here is
+    // now a REGRESSION, not pending work, so the silent print became an assertion.
+    for (const f of ["app/src/screens/CreateBusiness.jsx"]) {
       // THE WHOLE ELEMENT, NOT THE TEXT AFTER `value=`. The first version read forward from
-      // `value={name}` to the next `>`, and `AdminPage.jsx:990` writes `maxLength` BEFORE `value`,
-      // so it reported a capped box as NOT CAPPED - a false negative that reads exactly like the
-      // gap it was written to watch. Caught 2026-10-08 when Lane A capped it and this still said
-      // otherwise.
+      // `value={name}` to the next `>`, and the old AdminPage.jsx:990 wrote `maxLength` BEFORE
+      // `value`, so it reported a capped box as NOT CAPPED - a false negative that reads exactly
+      // like the gap it was written to watch. Caught 2026-10-08 when Lane A capped it and this
+      // still said otherwise.
       const box = read(f).split("<input").map((c) => "<input" + c.split(">")[0])
         .find((c) => /value=\{(?:form\.)?name\}/.test(c));
       assert.ok(box, `${f}: the business-name input was not found at all, so this gap is unmeasured`);
       const cap = box.match(/maxLength=\{(\d+)\}/);
-      if (!cap) console.error(`  NOT CAPPED (expected — specified for Lane A under 2.15a): ${f}`);
-      else assert.equal(Number(cap[1]), NAME_MAX, `${f} caps its name box at ${cap[1]}, not ${NAME_MAX}`);
+      assert.ok(cap, `${f}: the name box lost its cap — 2.15a specifies ${NAME_MAX} and Lane A built it`);
+      assert.equal(Number(cap[1]), NAME_MAX, `${f} caps its name box at ${cap[1]}, not ${NAME_MAX}`);
     }
   });
 

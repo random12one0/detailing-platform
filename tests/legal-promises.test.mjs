@@ -52,9 +52,10 @@
 //   4. The UNBACKED rows are exactly `UNBACKED_IDS`. Also an equality, and this
 //      is the row that matters: a promise with nothing behind it is **reported by
 //      name** rather than folded into a pass, and a SECOND one reddens the run.
-//      **`UNBACKED_IDS` IS EMPTY SINCE 2026-10-09** — the two build-start rows
-//      were the debt and are backed now — so it is no longer "the declared debt
-//      has not grown" but "there is none", and the next one reddens on arrival.
+//      **`UNBACKED_IDS` HOLDS ONE ROW SINCE 2026-10-12** — both build-start rows
+//      were the debt, both were backed on 2026-10-09, and 99.3b-ii unbacked the
+//      terms one (button deleted with the old screen) — so § 4 reports the open
+//      debt by name, and the next one reddens on arrival.
 //   5. Every external host the edge functions name is classified, and every one
 //      classified as a processor is named on `/privacy` by the string declared
 //      beside it.
@@ -238,16 +239,24 @@ const LEDGER = [
   },
   {
     // The same promise in the terms. One fault, two pages — and now one fix,
-    // two pages. The back office's own button is pinned here rather than on
-    // the row above so that both rows do not depend on the identical list:
+    // two pages. The back office's own button was pinned here rather than on
+    // the row above so that both rows did not depend on the identical list:
     // a screen with no way to press it is a notice nobody can send.
+    // UNBACKED 2026-10-12 (99.3b-ii): the old screen's "Tell them work has
+    // started" button went with the deleted AdminPage.jsx, and no screen in the
+    // new back office sends `build_start` (DetailerPanel.jsx presses export,
+    // resend_invite, impersonate, suspend/restore; the action name survives only
+    // as a history label in EVENT_WORDS). Template, server action and migration
+    // are intact, so the notice is composable but nothing can send it on the
+    // day. Restoring a "tell them work started" control in DetailerPanel
+    // re-backs this row; until then § 4 reports it by name every run.
     id: "buildfee-notice-terms", where: "terms",
     phrase: "you are told on the day that happens",
+    unbacked: true, why: "no screen sends build_start since the old back office was deleted (99.3b-ii)",
     backing: [
       ["supabase/functions/_shared/emailTemplates.ts", "export function buildStartedEmail"],
       ["supabase/functions/platform-admin/index.ts", 'action === "build_start"'],
       ["supabase/migrations/20261008010000_site_build_start.sql", "add column if not exists site_build_started_at"],
-      ["app/src/admin/AdminPage.jsx", "Tell them work has started"],
     ],
   },
 
@@ -316,11 +325,13 @@ const LEDGER = [
 
 // Declarations, not derivations. An equality on each — `docs/gotchas.md` 98.
 const DECLARED_ROWS = 16;
-// EMPTY SINCE 2026-10-09, AND IT STAYS AN EQUALITY FOR EXACTLY THAT REASON —
-// `docs/gotchas.md` 98. The two build-start rows were the debt; they are backed
-// now, so § 4 prints "0 promise(s) with nothing behind them" and the NEXT unkept
-// promise reddens the run on arrival instead of fitting into a ceiling.
-const UNBACKED_IDS = [];
+// ONE ROW SINCE 2026-10-12, AND IT STAYS AN EQUALITY FOR EXACTLY THAT REASON —
+// `docs/gotchas.md` 98. The two build-start rows were the debt, both backed on
+// 2026-10-09; 99.3b-ii deleted the old screen that held the only button sending
+// the notice, so buildfee-notice-terms is unbacked again until a control lands
+// in DetailerPanel. § 4 prints it by name, and the NEXT unkept promise reddens
+// the run on arrival instead of fitting into a ceiling.
+const UNBACKED_IDS = ["buildfee-notice-terms"];
 const FETCH_SITES = 9;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -406,9 +417,10 @@ const fileText = (p) => {
   }
   // Sabotage 6 is aimed at the pair that was the whole of this item's open debt
   // until 2026-10-09 — the build-start notice. It hides the email template, so
-  // § 3 must redden naming BOTH build-start rows: a notice the product cannot
-  // compose is the fault those two rows carried for eighteen days, and the
-  // reason it is a sabotage of its own is that `unbacked` above cannot reach it.
+  // § 3 must redden naming the pricing row (the terms row is already reported
+  // by § 4 since 99.3b-ii unbacked it): a notice the product cannot compose is
+  // the fault those two rows carried for eighteen days, and the reason it is a
+  // sabotage of its own is that `unbacked` above cannot reach it.
   if (BREAK === "notice" && p.endsWith("emailTemplates.ts")) {
     console.log("  SABOTAGE notice: hiding buildStartedEmail from _shared/emailTemplates.ts");
     return body.replace(/export function buildStartedEmail/g, "function hidden");

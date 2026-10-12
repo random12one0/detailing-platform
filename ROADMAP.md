@@ -29548,6 +29548,14 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     - [x] 99.3b-i — delete AdminPage.jsx + admin.css; clear the comment cross-references; confirm no import remains. DONE 2026-10-12 (commit `002639c3`): both files deleted (2,851 lines gone), 8 comment cross-refs neutralised, dangling-ref grep clean, credentials gate 1/1, `npm run build --prefix app` green, no-credentials gate PASS. No visible change: the old screen was already unrouted.
     - [ ] 99.3b-ii — re-home or retire every suite pin in the triage list (fixed-furniture `.pa-*` rows retire with
       admin-furniture-clearance, same as `.tourcard`).
+      Batch 1 DONE 2026-10-12: money-overstatement Taken pins -> office/places/money/Kept.jsx ("You kept" judged
+      cash-correct under the accrual rule: paid-invoice base, null-till-complete); queue 9.2 re-proof -> lib/growthLines.js
+      STUCK; legal-promises buildfee-notice-terms UNBACKED (no screen sends build_start since the old screen went —
+      needs a control in DetailerPanel, template/action/migration intact); name-length gap -> CreateBusiness.jsx alone,
+      print became assertion (both gaps closed: AdminPage deleted, CreateBusiness capped at 60). Green: money 47,
+      name 11, legal 7, queue 9.2; sabotage debt + notice caught; queue's 2.15a/0.11/4.3 failures re-run on the base
+      and pre-existing. Still to re-home: platform-admin, spanish, growth-lines, dead-mans-switch, fixed-furniture,
+      admin-insight, platform-billing, scripts.
     - [ ] 99.3b-iii — retire admin-preconditions.mjs + admin-furniture-clearance.mjs; re-point platform-costs/net-live and
       the other four scripts; full caller re-grep at that revision.
     - [ ] 99.3b-iv — FULL browser proof (money tag): owner `/admin`, staff `/admin` 404, `/admin/office` 404, gear both roles

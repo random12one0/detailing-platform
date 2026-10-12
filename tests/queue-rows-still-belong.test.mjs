@@ -154,7 +154,7 @@ const CMD = {
   "4.3": { cmd: `! grep -rqE 'support_mode|is_support' supabase/functions/` },
   "9.2": {
     unverifiable:
-      "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening AdminPage.jsx's STUCK array, which is also the first step of the work.",
+      "membership is 'do the other four STUCK rows state facts they did not compute?' — five advice strings read against five predicates. No grep expresses it; a command could only confirm the file exists. Re-prove it by opening the STUCK array — RE-POINTED 2026-10-12 (99.3b-ii): it lived in the deleted AdminPage.jsx and now lives in app/src/lib/growthLines.js, five [key, ok, note, todo, noPhoneTodo] rows — which is also the first step of the work.",
   },
   "2.15a": { cmd: `node -e 'const r=require("./receipts/bk-bar-clearance.json");process.exit(r.status==="fail"?0:1)'` },
   "0.11": {

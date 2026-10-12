@@ -207,9 +207,16 @@ const FORBIDDEN = [
   ['t("Brought in")', "app/src/components/AdvancedMoney.jsx", "the accrual total is Earned"],
   ['t("Kept")', "app/src/components/AdvancedMoney.jsx", "accrual net is not money kept"],
   ['t("Net, all time")', "app/src/screens/Money.jsx", "Net reads as kept"],
-  ['b>} taken', "app/src/admin/AdminPage.jsx", "the back office repeated the error"],
-  ['k="Taken this month"', "app/src/admin/AdminPage.jsx", "the back office repeated the error"],
-  ['k="Taken, all time"', "app/src/admin/AdminPage.jsx", "the back office repeated the error"],
+  // RE-POINTED 2026-10-12 (99.3b-ii): the old back office is deleted. Its three
+  // "Taken" pins move to the new Money place — and the new screen's own "You
+  // kept" was JUDGED, not grandfathered, before it was allowed to stay: the
+  // figure under it is `keptOf` (app/src/lib/officeMoney.js), whose revenue base
+  // is `invoiceRows`, documented in platformNet.js as PAID platform invoices
+  // (cash, not work finished), and which is null — drawn as "Not entered" —
+  // until every bill kind for the month is typed (9.14). A cash name over a
+  // cash figure drawn only when complete is not this defect. The pin below
+  // guards the regression: the old cash verb must never come back.
+  ['Taken', "app/src/admin/office/places/money/Kept.jsx", "cash verb over the kept figure"],
 ];
 for (const [needle, file, why] of FORBIDDEN) {
   check(`${file.split("/").pop()} no longer says ${JSON.stringify(needle)}`,
@@ -225,6 +232,10 @@ const PRESENT = [
   ['t("Earned less expenses, all time")', "app/src/screens/Money.jsx"],
   ['t("Collected")', "app/src/components/AdvancedMoney.jsx"],
   ['t("Earned")', "app/src/components/AdvancedMoney.jsx"],
+  // RE-POINTED 2026-10-12 (99.3b-ii): the back office replacement label. Kept.jsx
+  // says "You kept" (judged cash-correct in the FORBIDDEN comment above); a file
+  // that lost the label entirely must fail here rather than pass for silence.
+  ['You kept', "app/src/admin/office/places/money/Kept.jsx"],
 ];
 for (const [needle, file] of PRESENT) {
   check(`${file.split("/").pop()} says ${JSON.stringify(needle)}`,
