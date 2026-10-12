@@ -1,0 +1,310 @@
+{
+  "git_sha": "ac1a074fbaad68ef4cd38ca8720b183e98384b37",
+  "git_sha_started": "ac1a074fbaad68ef4cd38ca8720b183e98384b37",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T02:07:36.543Z",
+  "failures": [],
+  "warnings": [
+    "Live delivery and deployed consent saving are not measured."
+  ],
+  "artifacts": [
+    ".manager-shots/99.2f/details-en-390-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-390-checked.jpg",
+    ".manager-shots/99.2f/details-en-390-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-390-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-390-checked.jpg",
+    ".manager-shots/99.2f/details-es-390-uncheck.jpg",
+    ".manager-shots/99.2f/details-en-1440-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-1440-checked.jpg",
+    ".manager-shots/99.2f/save-failed-en-1440-checked.jpg",
+    ".manager-shots/99.2f/details-en-1440-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-1440-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-1440-checked.jpg",
+    ".manager-shots/99.2f/save-failed-es-1440-checked.jpg",
+    ".manager-shots/99.2f/details-es-1440-uncheck.jpg",
+    ".manager-shots/99.2f/details-en-768-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-768-checked.jpg",
+    ".manager-shots/99.2f/details-en-768-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-768-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-768-checked.jpg",
+    ".manager-shots/99.2f/details-es-768-uncheck.jpg",
+    ".manager-shots/99.2f/details-en-392-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-392-checked.jpg",
+    ".manager-shots/99.2f/save-failed-en-392-checked.jpg",
+    ".manager-shots/99.2f/details-en-392-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-392-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-392-checked.jpg",
+    ".manager-shots/99.2f/save-failed-es-392-checked.jpg",
+    ".manager-shots/99.2f/details-es-392-uncheck.jpg",
+    ".manager-shots/99.2f/details-en-320-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-320-checked.jpg",
+    ".manager-shots/99.2f/details-en-320-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-320-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-320-checked.jpg",
+    ".manager-shots/99.2f/details-es-320-uncheck.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-unchecked.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-checked.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-uncheck.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-unchecked.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-checked.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-uncheck.jpg",
+    ".manager-shots/99.2f/privacy-390.jpg",
+    ".manager-shots/99.2f/privacy-1440.jpg",
+    ".manager-shots/99.2f/privacy-768.jpg",
+    ".manager-shots/99.2f/privacy-392.jpg",
+    ".manager-shots/99.2f/privacy-320.jpg",
+    ".manager-shots/99.2f/privacy-390-lite.jpg",
+    ".manager-shots/99.2f/terms-390.jpg",
+    ".manager-shots/99.2f/terms-1440.jpg",
+    ".manager-shots/99.2f/terms-768.jpg",
+    ".manager-shots/99.2f/terms-392.jpg",
+    ".manager-shots/99.2f/terms-320.jpg",
+    ".manager-shots/99.2f/terms-390-lite.jpg"
+  ],
+  "dimensions": {
+    "break": "",
+    "server_only": false,
+    "seen": [
+      {
+        "tag": "en-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      }
+    ],
+    "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+  },
+  "check_id": "booking-consent",
+  "started_at": "2026-10-12T02:02:02.540Z",
+  "status": "pass",
+  "expected_targets": 68,
+  "discovered_targets": 68,
+  "attempted_targets": 68,
+  "completed_targets": 68,
+  "skipped_targets": 0,
+  "assertions_executed": 797,
+  "min_assertions": 650,
+  "canary": {
+    "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+    "observed_failure": true
+  }
+}

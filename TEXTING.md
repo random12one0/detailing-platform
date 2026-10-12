@@ -2,6 +2,17 @@
 
 ---
 
+## LOCAL CONSENT WORK BUILT 2026-10-11; AUTOMATIC TEXTING STILL OFF
+
+ROADMAP 99.2f now builds the unticked booking checkbox with the filed wording, Privacy/Terms links, Spanish, and the
+privacy paragraph. The local `create-booking` writes a successful customer's explicit checked choice to the existing
+consent columns; unchecked choices and STOP remain untouched. Local proof: `node scripts/booking-consent.mjs` at
+`ac1a074f`, **68 of 68**, using an in-memory database and provider stand-ins, no real sends or database writes.
+**Nothing in this paragraph says it is live.** At the next ordinary release, publish `create-booking` before the app,
+then verify stored consent. The checkbox and paragraph must be live before registration can be submitted.
+The relay, fixed texts and routing still belong to 99.2g-i; no texting service is enabled here. The older "nothing writes"
+and "neither is started" statements below describe the state before this local work.
+
 ## APPROVED IN PRINCIPLE 2026-10-09; SETUP AND PRODUCT REVIEW STILL OPEN
 
 **Andrew has decided that this product will send SMS.** The old wording hold is

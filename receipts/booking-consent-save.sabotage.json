@@ -1,0 +1,39 @@
+{
+  "git_sha": "045c425829e7b0fddf3a8dc648da4347538f60d7",
+  "git_sha_started": "045c425829e7b0fddf3a8dc648da4347538f60d7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T02:08:58.712Z",
+  "failures": [
+    "true source is server-owned: {\"id\":\"customer-a\",\"sms_consent_at\":\"2026-10-12T02:08:58.486Z\",\"sms_consent_source\":\"owner_entered\",\"sms_stopped_at\":null,\"business_id\":\"tenant-a\",\"name\":\"Maria Lopez\",\"email\":\"maria@example.invalid\",\"phone\":\"555-0123\",\"address\":null}",
+    "stopped checked source is server-owned: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"555-0123\",\"sms_consent_at\":\"2026-10-12T02:08:58.510Z\",\"sms_consent_source\":\"owner_entered\",\"sms_stopped_at\":\"2026-09-02T12:00:00Z\"}",
+    "duplicate retry source is server-owned: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"555-0123\",\"sms_consent_at\":\"2026-10-12T02:08:58.521Z\",\"sms_consent_source\":\"owner_entered\",\"sms_stopped_at\":null}",
+    "insert collision retry source is server-owned: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"555-0123\",\"sms_consent_at\":\"2026-10-12T02:08:58.524Z\",\"sms_consent_source\":\"owner_entered\",\"sms_stopped_at\":null}"
+  ],
+  "warnings": [
+    "Live delivery and deployed consent saving are not measured."
+  ],
+  "artifacts": [
+    ".manager-shots/99.2f/server-save.json"
+  ],
+  "dimensions": {
+    "break": "save",
+    "server_only": true,
+    "seen": [],
+    "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+  },
+  "check_id": "booking-consent-save",
+  "started_at": "2026-10-12T02:08:57.994Z",
+  "status": "fail",
+  "expected_targets": 20,
+  "discovered_targets": 20,
+  "attempted_targets": 20,
+  "completed_targets": 20,
+  "skipped_targets": 0,
+  "assertions_executed": 86,
+  "min_assertions": 75,
+  "canary": {
+    "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+    "observed_failure": true
+  }
+}

@@ -29338,9 +29338,60 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     is English only because the fixture typed it so). Before/After: `before|after-request`, `-maintenance`, `-promo` in
     `belt/shots/99.2`. **UNJUDGEABLE, not run:** a real send, and `invite-user`'s read of the inviter's name against a database.
     **Release step, not a decision:** these reach inboxes with the same email-function release as 99.2a, c and d (plus
-    `invite-user` and `send-owner-reminders`); `FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE". **Next buildable part: 99.2f.**
-  - [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7; use the filed wording
-    exactly, unticked by default, and prove the unticked/ticked booking cases with no real sends.
+    `invite-user` and `send-owner-reminders`); `FOR-ANDREW.md`, "DO, AT YOUR NEXT RELEASE". **99.2f is built below; next buildable part: 99.2g.**
+  - [ ] **99.2f — consent checkbox, saved consent, and privacy paragraph.** Original plan steps 6 and 7.
+    **BUILT AND PROVED LOCALLY 2026-10-11; product commits `022b5823` through `3a002640`; final check at `ac1a074f`.**
+    Phone now has the filed consent sentence word for word, unticked on every fresh form, including a remembered customer.
+    The existing Phone/Email layout stays; consent sits directly with Phone, with separate 44px Privacy and Terms links
+    on the platform's own domain. Spanish is added in the same edit. Neither the step gate nor the price depends on it.
+    `core.js` sends one strict boolean, also on split bookings, and never remembers the choice on the device.
+    `create-booking` runs `saveBookingSmsConsent` only after a successful public booking, including both duplicate exits.
+    The server writes its own time and `booking_form` to the existing columns, scoped to this business and customer;
+    unchecked/absent/truthy nonbooleans and a member's claimed consent cannot write it. Existing evidence is preserved.
+    STOP is never cleared, including when a stopped customer ticks the box. No migration was added or applied.
+    A failed consent write preserves the booking and its confirmation email, returns a safe code rather than database
+    details, and shows a translated explanation that the booking is saved and the text choice can be retried. Retrying
+    saves consent on that same booking, without another booking or confirmation. A missing customer id is also refused.
+    Privacy's new Text messages paragraph explicitly says mobile information is not sold or shared with third parties
+    for marketing or promotional purposes. It explains optional consent and says automated texting is not switched on yet.
+    The shared policy date is October 11, 2026; Terms was opened too because it shares that date. Legal pages retain their
+    existing English-only presentation. The booking checkbox, links and new failure explanation are fully bilingual.
+    **PROVED:** `node scripts/booking-consent.mjs` at `ac1a074f`: **68 of 68**, **797 assertions, 0 failures**.
+    The declared targets are 36 booking walks (English/Spanish, unchecked/checked/check-then-uncheck at 390/1440/768/392/320
+    and 390 `?lite=1`), six Privacy views, six Terms views, sixteen server cases, and four core/isolation cases.
+    Browser submissions execute the real local `create-booking` and consent helper with an in-memory database. Pricing,
+    availability, business reads and email delivery are explicit stand-ins: NO live database or message service was used.
+    Includes an incomplete booking refused at each width, a saving failure then successful retry at 1440/392 in both
+    languages, a taken slot refused before any write, existing consent/STOP, forged timestamp/source, strict boolean
+    narrowing, both duplicate branches, another tenant's same phone untouched, and missing/foreign customer ids refused.
+    No sideways scroll; complete wording and links fit. Normal browser console is silent. Each injected save failure
+    logs exactly its one expected HTTP 500, named and retained in the receipt, with no other errors or warnings.
+    `node scripts/receipt.mjs receipts/booking-consent.json` grades PASS at the check revision. Actual production code is
+    broken with assertions unchanged: `--break=default` (68 of 68, 36 failures); `--break=privacy` (68 of 68, 6 failures);
+    `--server-only --break=strict` (20 of 20, 3 failures); `--server-only --break=save` (20 of 20, 4 failures).
+    The two browser rewrites are signed and their execution is asserted. The two server breaks alter the actual helper
+    source before it is run with the real handler. The always-run canary also executes a truthy-consent defect.
+    All four named sabotage receipts grade FAIL. The earlier privacy sabotage missed its 320 target on a remote-font
+    timeout; the final run above replaces it. Actual font responses are now reused across isolated browser contexts.
+    The browser receipts are at `ac1a074f`; the server-only receipts are at `045c4258`, which only adds their case artifacts
+    required by the receipt contract. Product source and assertions are unchanged between those two revisions.
+    Opened the saved JPEGs at 390/1440/768/320, the Spanish consent at 390/320, and the save failure at 392 in both languages;
+    the existing Archivo type, dark ground, ruled privacy list and complete consent paragraph were visible. Also opened
+    Privacy at 390/1440/768 and Terms at 390. Pictures: `.manager-shots/99.2f/`; Before/After HTML pairs for booking,
+    Privacy and the shared policy date are in `belt/shots/99.2` outside the repo; `differs()` confirms all three differ.
+    `npm run build --prefix app` passes (existing bundle-size warning). The required four credential-free suites, booking-core,
+    address-source, credential-text and citable-item suites pass. `tests/spanish.test.mjs`, run without even reading `.env`
+    via `belt/shots/99.2/run-spanish.mjs`, reports 74 passed/1 failed, the existing 12c back-office word-list issue; booking
+    keys and email keys pass. `i18n-survey.mjs` remains a dashboard heuristic. `label-guard.mjs` flags the existing fixture
+    email locator in `shots-99-4.mjs`; `figures-carry-their-command` flags old unresolved revisions and `docs/silences.md`.
+    These unrelated results are recorded, not repaired by changing this item's scope. This session's label receipt is committed.
+    **UNJUDGEABLE, not run:** a live consent readback, `deployed-inventory`, `migration-drift`, and the credentialed general
+    contrast/booking sweeps. They require the live credentials forbidden to this session. The browser proof here is scoped
+    to this change and does not claim those broader checks ran. No push, publication, deployment, paid send or live schema change.
+    **Release step, not a decision:** publish `create-booking` before publishing the app, in the next ordinary release
+    (`FOR-ANDREW.md`, DO, AT YOUR NEXT RELEASE). A session then checks one unchecked and one checked booking's stored consent
+    against the released function and ticks 99.2f. The checkbox and paragraph must be live before the registration filing.
+    **99.2f's local work is finished; the next worker starts at 99.2g. The parent stays open.**
   - [ ] **99.2g — fixed booking text templates.** Original plan step 8; test realistic substitutions, own-domain links,
     plain characters and the full rendered length, not just the template with placeholders still in it.
   - [ ] **99.2h — texting relay and signed webhook, switched off.** Original plan step 9 and `TEXTING.md`; local disposable

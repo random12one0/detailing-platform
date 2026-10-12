@@ -82,6 +82,14 @@ request email keeps one "Answer this request" button instead of separate Accept 
 accept from an email yet; and the maintenance email does not say "two months since your last detail", because it is about
 a deadline you set, which can be any length of time. Nothing to decide.
 
+**Added 2026-10-11, same release (99.2f):** the booking page now has the exact filed text-consent sentence under Phone,
+unticked, with Privacy and Terms links. The Privacy page now includes the mobile-information paragraph. Both booking
+choices and saving consent are proved locally with no real messages or database writes. **Publish `create-booking`
+before publishing the app**, so the new checkbox actually saves the choice. Its existing consent columns need no new
+database change. A session then checks checked and unchecked bookings against the released function and ticks 99.2f.
+Automatic texting stays off; the relay, templates and routing are the remaining parts of 99.2. Do not submit or pay the
+texting registration just from these local copies: the checkbox and privacy paragraph must first be live. No new decision.
+
 ---
 
 ## DO · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
