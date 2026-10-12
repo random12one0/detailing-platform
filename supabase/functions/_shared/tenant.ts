@@ -87,6 +87,9 @@ export interface BusinessSettings {
   email_customer_confirmation: boolean;
   email_customer_reminder: boolean;
   email_customer_followup: boolean;
+  // ROADMAP 99.2d — sign customer emails as the business, not the owner's first
+  // name. Optional: absent until its migration is applied, and absent means false.
+  email_sign_as_business?: boolean;
   // ROADMAP 3.4 finding A — the "maintenance due" email, which SELLS a service
   // the customer has not bought. Its own switch, deliberately NOT folded into
   // `email_customer_reminder`, and the only email switch on this table that
@@ -212,6 +215,7 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     email_customer_confirmation: true,
     email_customer_reminder: true,
     email_customer_followup: true,
+    email_sign_as_business: false,
     // ROADMAP 3.4 finding A — FALSE, and it is the only one here that is.
     // **This fallback matters more than the column default.** It is what
     // answers when `business_settings` has no row at all for a business, and

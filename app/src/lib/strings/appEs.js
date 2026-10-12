@@ -2051,6 +2051,9 @@ export const appEs = {
   "What you want to say": "Lo que quieres decir",
   "What you write": "Lo que escribes",
   "What your customers get": "Lo que reciben tus clientes",
+  "Sign emails with the business name": "Firmar los correos con el nombre del negocio",
+  "Off, they end with your first name (set on Team). On, they end with the business name.":
+    "Apagado, terminan con tu nombre (se define en Equipo). Encendido, terminan con el nombre del negocio.",
   "What's included": "Qué incluye",
   "When it applies": "Cuándo aplica",
   "When someone books": "Cuando alguien agenda",

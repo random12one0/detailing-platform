@@ -86,6 +86,11 @@ export type TenantBrand = Brand & {
   /** ROADMAP 99.2c — the business's IANA zone, so "today" in a subject is
    *  the detailer's day, never the server's UTC one. `buildBrand` fills it. */
   timezone?: string;
+  /** ROADMAP 99.2d — the first name the sign-off under a customer email uses:
+   *  the owner's, from `business_users.first_name`. `buildBrand` leaves it null
+   *  when the detailer chose to sign as the business, or no name is set, and
+   *  the sign-off then names the business alone. */
+  signOffName?: string | null;
   /** Becomes Reply-To, and is where the owner's copy of a cancellation or a
    *  reschedule is sent when no notification list is configured. */
   contactEmail: string | null;
@@ -456,6 +461,28 @@ function keepLink(lang?: unknown): string {
   return fineBlock(T(lang)("Need to change or cancel? Use the button above. No call needed."));
 }
 
+// ROADMAP 99.2d — "Thanks again, Andrew · Andrew's Auto Detail · andrewsdetail.com",
+// the last thing in every customer email. A person signs, so it is the owner's
+// first name by default; a detailer who would rather sign as the business turns
+// that on (`business_settings.email_sign_as_business`) and `buildBrand` then
+// leaves `signOffName` empty, which is also what a business with no name set
+// gets, so the line never reads "Thanks again, null".
+function signOff(brand: TenantBrand, lang?: unknown): string {
+  const tt = T(lang);
+  const site = String(brand.siteUrl || "");
+  const vars = {
+    name: esc(String(brand.signOffName || "")),
+    brand: esc(brand.brandName),
+    site: site
+      ? `<a href="${esc(site)}" target="_blank" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(site.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</a>`
+      : "",
+  };
+  const line = brand.signOffName
+    ? tt("Thanks again, {name} · {brand} · {site}", vars)
+    : tt("Thanks again, {brand} · {site}", vars);
+  return proseBlock(line.replace(/ · $/, ""), 34);
+}
+
 /**
  * THE QUOTE'S MONEY LINES, AND THEY HAVE TO REACH THE TOTAL.
  *
@@ -645,6 +672,7 @@ export function customerConfirmationEmail(
     keepLink(b.lang),
     isRequest ? noteBlock(tt("Nothing is charged now. We'll email you the moment we've accepted.")) : "",
     b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(tt("Your notes"))}</strong><br>${esc(b.customerNotes)}`, 26) : "",
+    signOff(brand, b.lang),
   ].filter(Boolean);
 
   return mail(
@@ -774,6 +802,7 @@ export function requestDecisionEmail(
       noteBlock(`${esc(tt("We're still holding {date} at {time} for you.", { date: dateLong, time: formatTime12hr(b.startTime) }))} <strong class="c-ink2" style="color:${G.ink2};">${esc(tt("Nothing is charged until you say yes."))}</strong>`),
       ownWords(brand, "quote"),
       buttonBlock(brand, tt("Look it over"), opts.manageUrl),
+      signOff(brand, b.lang),
     ].filter(Boolean)
     : kind === "accepted"
     ? [
@@ -822,6 +851,7 @@ export function requestDecisionEmail(
       ownWords(brand, "accepted"),
       buttonBlock(brand, tt("View or change your booking"), opts.manageUrl),
       keepLink(b.lang),
+      signOff(brand, b.lang),
     ].filter(Boolean)
     : [
       labBlock(tt("Request declined")),
@@ -831,6 +861,7 @@ export function requestDecisionEmail(
       })),
       ownWords(brand, "declined"),
       buttonBlock(brand, tt("Pick another time"), brand.siteUrl),
+      signOff(brand, b.lang),
     ].filter(Boolean);
 
   const subject = kind === "accepted"
@@ -891,11 +922,14 @@ export function invoiceEmail(
 
   const blocks = [
     labBlock(paid ? tt("Receipt") : tt("Invoice")),
-    headlineBlock(paid ? tt("Paid in full") : tt("Amount due")),
+    headlineBlock(paid ? tt("Paid in full, thank you") : tt("Here's your invoice")),
+    // ROADMAP 99.2d — the approved wording. `dateLong` stays the explicit
+    // weekday, month and day (no "today"/"tomorrow"): a receipt or an invoice
+    // is a record of a day that has passed.
     proseBlock(paid
-      ? tt("Thanks, {first}. Here's your receipt for the work on {date}.",
+      ? tt("Thanks, {first}. Here's your receipt for {date}.",
         { first: esc(firstName(b.customerName)), date: esc(dateLong) })
-      : tt("Hi {first}, here's the invoice for the work on {date}.",
+      : tt("Hi {first}, here's the bill for {date}.",
         { first: esc(firstName(b.customerName)), date: esc(dateLong) })),
     factsBlock([
       [tt("Reference"), `<span class="c-ink" style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
@@ -943,17 +977,18 @@ export function invoiceEmail(
       brand,
       !paid && cardReady
         ? tt("Pay {amount} by card", { amount: money(Number(totals.totalPaid)) })
-        : tt("View this online"),
+        : tt("View online"),
       b.receiptUrl,
     ),
     fineBlock(tt("Keep this for your records. Reply to this email if anything looks wrong.")),
+    signOff(brand, b.lang),
   ].filter(Boolean);
 
   return mail(
     paid
-      ? tt("Receipt · {amount} · {brand}",
+      ? tt("Your receipt from {brand}: {amount}",
         { amount: money(Number(totals.totalPaid)), brand: brand.brandName })
-      : tt("Invoice · {amount} due · {brand}",
+      : tt("Invoice from {brand}: {amount} due",
         { amount: money(Number(totals.totalPaid)), brand: brand.brandName }),
     shell(brand, blocks, paid
       ? tt("Paid in full · {amount}.", { amount: money(Number(totals.totalPaid)) })
@@ -981,18 +1016,21 @@ export function followupEmail(brand: TenantBrand, name: string, lang?: unknown):
   const blocks = [
     labBlock(tt("Thank you")),
     headlineBlock(tt("Thanks for trusting us with it")),
-    proseBlock(tt("Hello {first}, thank you for choosing {brand}. We appreciate the opportunity to take care of your vehicle.",
-      { first: esc(firstName(name)), brand: esc(brand.brandName) })),
-    links.length
-      ? proseBlock(tt("If you were happy with the work, a quick review genuinely helps us."), 22)
-      : "",
+    // ROADMAP 99.2d — ONE SHORT PARAGRAPH, then the review buttons, then the
+    // sign-off. The review ask is part of the paragraph when there is somewhere
+    // to leave a review, and the paragraph says nothing about one when there is not.
+    proseBlock(links.length
+      ? tt("Hi {first}, thanks for choosing {brand}. If you were happy with the work, a quick review really helps a small business like ours.",
+        { first: esc(firstName(name)), brand: esc(brand.brandName) })
+      : tt("Hi {first}, thanks for choosing {brand}. We appreciate the chance to take care of your vehicle.",
+        { first: esc(firstName(name)), brand: esc(brand.brandName) })),
     ownWords(brand, "followup"),
     ...links.map(([label, href]) => buttonBlock(brand, label, href)),
-    links.length ? fineBlock(tt("It takes about a minute, and it is the single biggest thing that helps a small business like ours.")) : "",
+    signOff(brand, lang),
   ].filter(Boolean);
 
   return mail(
-    tt("Thank you for choosing {brand}", { brand: brand.brandName }),
+    tt("Thanks from {brand}", { brand: brand.brandName }),
     shell(brand, blocks, tt("Thank you from {brand}", { brand: brand.brandName }), { lang }),
   );
 }
@@ -1020,6 +1058,7 @@ export function customerReminderEmail(
     ownWords(brand, second ? "reminder_2" : "reminder"),
     buttonBlock(brand, tt("View or change your booking"), b.receiptUrl),
     keepLink(b.lang),
+    signOff(brand, b.lang),
   ].filter(Boolean);
   return mail(
     tt("Reminder: your appointment {date}", { date: dateLong }),
@@ -1103,6 +1142,7 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       proseBlock(tt("This one's off the calendar. Whenever you're ready, booking again takes a minute.")),
       ownWords(brand, "cancelled"),
       buttonBlock(brand, tt("Book again"), brand.siteUrl),
+      signOff(brand, lang),
     ].filter(Boolean);
   // "Your Friday appointment" reads; "Your today appointment" does not, so the
   // two near days take the other word order.
@@ -1169,6 +1209,7 @@ export function rescheduleEmail(
     factsBlock(jobFacts(brand, b, lang)),
     forOwner ? "" : ownWords(brand, "rescheduled"),
     buttonBlock(brand, forOwner ? tt("Open the job") : tt("View your booking"), b.receiptUrl),
+    forOwner ? "" : signOff(brand, lang),
   ].filter(Boolean);
   return mail(
     forOwner
@@ -1286,6 +1327,7 @@ export function planLinkEmail(
     buttonBlock(brand, tt("Open your plan"), opts.planUrl),
     fineBlock(tt("Keep this email. That link is the only way back to your plan. To book any time: {url}",
       { url: opts.bookUrl })),
+    signOff(brand, lang),
   ];
   return mail(
     tt("Your plan with {brand}", { brand: brand.brandName }),

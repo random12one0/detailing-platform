@@ -135,6 +135,8 @@ const brand = {
   contactEmail: "hello@ridgelinedetail.example",
   // ROADMAP 99.2c — a Denver business, so subjects say its "today".
   timezone: "America/Denver",
+  // ROADMAP 99.2d — who signs the customer emails.
+  signOffName: "Dana",
   dropoffAddress: "2200 Blake St, Denver, CO 80205",
   googleReviewUrl: "https://g.page/r/example/review",
   yelpReviewUrl: "https://www.yelp.com/biz/example",

@@ -178,12 +178,13 @@ export const es: Record<string, string> = {
   // ── 4 · The receipt, and the invoice that is not one ───────────────────
   "Receipt": "Recibo",
   "Invoice": "Factura",
-  "Paid in full": "Pagado por completo",
+  "Paid in full, thank you": "Pagado por completo, gracias",
+  "Here's your invoice": "Aquí está tu factura",
   "Amount due": "Monto a pagar",
-  "Thanks, {first}. Here's your receipt for the work on {date}.":
-    "Gracias, {first}. Aquí está tu recibo por el trabajo del {date}.",
-  "Hi {first}, here's the invoice for the work on {date}.":
-    "Hola {first}, aquí está la factura por el trabajo del {date}.",
+  "Thanks, {first}. Here's your receipt for {date}.":
+    "Gracias, {first}. Aquí está tu recibo del {date}.",
+  "Hi {first}, here's the bill for {date}.":
+    "Hola {first}, aquí está la cuenta del {date}.",
   "Reference": "Referencia",
   "The work": "El trabajo",
   "What you paid": "Lo que pagaste",
@@ -216,26 +217,27 @@ export const es: Record<string, string> = {
   // invoice from a business that takes cards. It goes to the booking page,
   // where the card button lives; an email cannot create a payment.
   "Pay {amount} by card": "Pagar {amount} con tarjeta",
-  "View this online": "Verlo en línea",
+  "View online": "Verlo en línea",
   "Keep this for your records. Reply to this email if anything looks wrong.":
     "Guárdalo para tus registros. Responde a este correo si algo no cuadra.",
-  "Receipt · {amount} · {brand}": "Recibo · {amount} · {brand}",
-  "Invoice · {amount} due · {brand}": "Factura · {amount} a pagar · {brand}",
+  "Your receipt from {brand}: {amount}": "Tu recibo de {brand}: {amount}",
+  "Invoice from {brand}: {amount} due": "Factura de {brand}: {amount} a pagar",
   "Paid in full · {amount}.": "Pagado por completo · {amount}.",
   "{amount} due.": "{amount} a pagar.",
 
   // ── 5 · The thank-you ──────────────────────────────────────────────────
   "Thank you": "Gracias",
   "Thanks for trusting us with it": "Gracias por confiarnos tu vehículo",
-  "Hello {first}, thank you for choosing {brand}. We appreciate the opportunity to take care of your vehicle.":
+  "Hi {first}, thanks for choosing {brand}. If you were happy with the work, a quick review really helps a small business like ours.":
+    "Hola {first}, gracias por elegir a {brand}. Si quedaste contento con el trabajo, una reseña rápida le ayuda mucho a un negocio pequeño como el nuestro.",
+  "Hi {first}, thanks for choosing {brand}. We appreciate the chance to take care of your vehicle.":
     "Hola {first}, gracias por elegir a {brand}. Agradecemos la oportunidad de cuidar tu vehículo.",
-  "If you were happy with the work, a quick review genuinely helps us.":
-    "Si quedaste contento con el trabajo, una reseña rápida nos ayuda de verdad.",
   "Leave a Google review": "Dejar una reseña en Google",
   "Leave a Yelp review": "Dejar una reseña en Yelp",
-  "It takes about a minute, and it is the single biggest thing that helps a small business like ours.":
-    "Toma como un minuto, y es lo que más ayuda a un negocio pequeño como el nuestro.",
-  "Thank you for choosing {brand}": "Gracias por elegir a {brand}",
+  "Thanks from {brand}": "Gracias de parte de {brand}",
+  // ROADMAP 99.2d — the sign-off under every customer email.
+  "Thanks again, {name} · {brand} · {site}": "Gracias de nuevo, {name} · {brand} · {site}",
+  "Thanks again, {brand} · {site}": "Gracias de nuevo, {brand} · {site}",
   "Thank you from {brand}": "Gracias de parte de {brand}",
 
   // ── 6 · The reminder ───────────────────────────────────────────────────

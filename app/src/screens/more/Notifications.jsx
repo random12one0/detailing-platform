@@ -71,6 +71,7 @@ export default function Notifications() {
     const f = {};
     for (const [k] of [...CUSTOMER_EMAILS, ...OWNER_EMAILS]) f[k] = settings?.[k] ?? true;
     f.push_enabled = settings?.push_enabled ?? false;
+    f.email_sign_as_business = settings?.email_sign_as_business ?? false;
     f.owner_nudge_lead_minutes = settings?.owner_nudge_lead_minutes ?? 30;
     f.finalize_nudge_delay_minutes = settings?.finalize_nudge_delay_minutes ?? 60;
     f.daily_digest_hour = settings?.daily_digest_hour ?? 7;
@@ -137,6 +138,12 @@ export default function Notifications() {
     const { error } = await supabase.from("business_settings").update({
       ...Object.fromEntries([...CUSTOMER_EMAILS, ...OWNER_EMAILS].map(([k]) => [k, !!form[k]])),
       push_enabled: !!form.push_enabled,
+      // ROADMAP 99.2d. SENT ONLY WHEN IT CHANGED: the column arrives with a
+      // migration the owner applies, and an update naming a column that is not
+      // there yet fails the WHOLE save. Until then, every other switch on this
+      // screen has to keep saving.
+      ...(!!form.email_sign_as_business !== !!settings?.email_sign_as_business
+        ? { email_sign_as_business: !!form.email_sign_as_business } : {}),
       owner_nudge_lead_minutes: Number(form.owner_nudge_lead_minutes) || 0,
       finalize_nudge_delay_minutes: Number(form.finalize_nudge_delay_minutes) || 0,
       daily_digest_hour: Math.min(23, Math.max(0, Number(form.daily_digest_hour) || 0)),
@@ -229,6 +236,11 @@ export default function Notifications() {
           <Switch key={k} label={t(label)} help={t(help)}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
+        {/* ROADMAP 99.2d. Every customer email ends "Thanks again, <first name> ·
+            <business> · <site>"; this swaps the first name for the business. */}
+        <Switch label={t("Sign emails with the business name")}
+          help={t("Off, they end with your first name (set on Team). On, they end with the business name.")}
+          checked={form.email_sign_as_business} onChange={(v) => set("email_sign_as_business", v)} />
         {/* ROADMAP 4.2 — "WHAT DOES MY CUSTOMER ACTUALLY GET?" The old site
             answered it and the rebuild dropped the answer, so until now the
             only way to find out was to make a real booking and delete it —

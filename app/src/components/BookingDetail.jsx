@@ -334,9 +334,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
   // HAS A RECEIPT FOR **THIS JOB** ALREADY GONE?
   //
-  // The subject `invoiceEmail` writes is `Receipt · $195 · <business>` — the
-  // product's own word for this document, in whichever language the booking was
-  // taken in, and then THE AMOUNT. Both halves are matched, and the amount is
+  // The subject `invoiceEmail` writes is `Your receipt from <business>: $195`
+  // (`Receipt · $195 · <business>` before 99.2d, and receipts already sent still
+  // carry that) — the product's own word for this document, in whichever
+  // language the booking was taken in, and then THE AMOUNT. Both halves are matched, and the amount is
   // the half that matters: the rows below are every email to this ADDRESS, and
   // a returning customer has receipts on them from jobs that are not this one.
   // Matching the word alone made a job whose receipt had never been sent offer
@@ -470,7 +471,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   };
 
   const sentReceipt = (mail ?? []).some((m) =>
-    /^(receipt|recibo)\b/i.test(String(m.subject || ""))
+    /^(your receipt|receipt|tu recibo|recibo)\b/i.test(String(m.subject || ""))
     && String(m.subject).includes(money(charged)));
   const diff = charged == null ? 0 : Math.round((charged - quoted) * 100) / 100;
   // Same condition as Today's lit card and its "Needs payment" run, so the

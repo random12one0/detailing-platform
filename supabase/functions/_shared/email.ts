@@ -89,6 +89,26 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
   // branded detailer's mail in the neutral ink with no logo and nothing to say
   // it happened — FOUND.md § 85 READS DISCARDED THEIR ERROR is the class.
   if (error) throw readFailed("business_branding", error);
+  // ROADMAP 99.2d — WHO SIGNS. The owner's first name, which the Team screen
+  // already collects for the dashboard greeting, unless the detailer chose to
+  // sign as the business (`email_sign_as_business`, false until set — and
+  // `undefined` before its migration is applied, which reads the same).
+  // A failed read throws like the one above: a swallowed error would quietly
+  // sign a person's mail with the business name instead.
+  let signOffName: string | null = null;
+  if (!settings.email_sign_as_business) {
+    const { data: owners, error: ownerErr } = await retryRead("buildBrand:owner", () =>
+      supabase
+        .from("business_users")
+        .select("first_name")
+        .eq("business_id", business.id)
+        .eq("role", "owner")
+        .not("first_name", "is", null)
+        .order("created_at", { ascending: true })
+        .limit(1));
+    if (ownerErr) throw readFailed("business_users", ownerErr);
+    signOffName = String(owners?.[0]?.first_name ?? "").trim() || null;
+  }
   // ONE COLOUR IN, SIX OUT: three corrected against the light paper and three
   // against the dark panel. `secondary_color` is still not read — "Your colour"
   // writes the same hex to both columns. `brandColor.js` carries the arithmetic
@@ -110,6 +130,7 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
     contactEmail: business.contact_email,
     // ROADMAP 99.2c — "today" / "tomorrow" in a subject is the business's day.
     timezone: business.timezone,
+    signOffName,
     dropoffAddress: business.dropoff_address,
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,

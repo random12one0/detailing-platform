@@ -85,7 +85,7 @@ const SINK = realMail("delivered@resend.dev",
 // not read back out of it: if the template stops calling this document a
 // receipt, the detailer's screen and the customer's inbox have started using
 // two different words for one thing, and that is the defect this item is about.
-const RECEIPT_WORD = /^receipt\b/i;
+const RECEIPT_WORD = /^(your receipt|receipt)\b/i;
 
 let assertions = 0;
 const failures = [];
@@ -239,7 +239,7 @@ try {
   // same sink are untouched. ROADMAP 0.3 is flag-don't-delete about FIXTURES
   // a person might look at; these are this check's own bookkeeping, and
   // `e2e-ten-features.mjs` clears its own the same way.
-  for (const like of ["Receipt%", "Thank you for choosing%"]) {
+  for (const like of ["Receipt%", "Your receipt%", "Thank you for choosing%", "Thanks from%"]) {
     await svc(`/rest/v1/email_sends?to_email=eq.${encodeURIComponent(SINK)}`
       + `&subject=like.${encodeURIComponent(like)}`, { method: "DELETE" });
   }
