@@ -263,6 +263,16 @@ held back. If it names anything else, that program did not publish. Tell a sessi
 its name, and do not re-run step 2. If any step prints `FAILED`, stop there. The
 publishing program stops at the first failure and says which one.
 
+**New, 2026-10-11: your push now does this check for you (ROADMAP 0.6d).** When you push
+to `main`, which is the website release, the computer first runs the same check as the
+first step above. It takes about seven minutes. If any program on the server is older
+than the website you are pushing, the push stops and lists them by name. Nothing is
+published either way. Publish them with the steps above, or, to send the website out
+anyway, push with `SHIP_WITH_DRIFT=1 git push`. Expect it to stop even after the steps
+above: `platform-admin` is held back on purpose and `google-business` has never been
+published, and that is when pushing anyway is the right answer. Pushes to any other
+branch are not checked.
+
 **Two rules for the whole thing.** Do not publish while a browser check is running on
 the practice business. And this does not touch the website: no Netlify credits.
 

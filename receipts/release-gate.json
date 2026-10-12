@@ -1,0 +1,44 @@
+{
+  "git_sha": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "git_sha_started": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T00:22:36.358Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".githooks/pre-push"
+  ],
+  "dimensions": {
+    "live": {
+      "ran": true,
+      "hook_exit": 1,
+      "receipt_status": "fail",
+      "differing": 36,
+      "matching": 6,
+      "known_different": {
+        "fn": "owner-push-subscribe",
+        "exit": 1
+      },
+      "known_clean": {
+        "fn": "address-suggest",
+        "exit": 0
+      }
+    }
+  },
+  "check_id": "release-gate",
+  "started_at": "2026-10-12T00:15:16.879Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "3 install + 12 over 6 stub cases + (no break) 6 live: real hook refusal and names, receipt freshness, known-different, known-clean, full receipt untouched",
+  "canary": {
+    "id": "drift-on-main-refused",
+    "observed_failure": true
+  }
+}

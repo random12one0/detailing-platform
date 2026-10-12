@@ -1,0 +1,42 @@
+{
+  "git_sha": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "git_sha_started": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-12T00:22:44.675Z",
+  "failures": [
+    "drift on a push to main: the push is REFUSED — exit 0",
+    "drift on a push to main: it says plainly the push was refused and nothing was published — Release gate: checking the back-end programs on the server against this checkout...\nFAIL - 2 of 3 function(s) are NOT running this checkout.\n  send-email\n  update-booking\n",
+    "drift on a push to main: it names the way to push anyway — no override named",
+    "the check could not run (no credentials): the push is REFUSED, not waved through — exit 0",
+    "drift with SHIP_WITH_DRIFT=1: it still names the programs and says so — Release gate: checking the back-end programs on the server against this checkout...\nFAIL - 2 of 3 function(s) are NOT running this checkout.\n  send-email\n  update-booking\n",
+    "a push of several refs that includes main: gated and refused — exit 0"
+  ],
+  "warnings": [
+    "§ 2 not run: this is a sabotage run of § 1"
+  ],
+  "artifacts": [
+    ".githooks/pre-push"
+  ],
+  "dimensions": {
+    "live": {
+      "ran": false
+    },
+    "break": "lets-red-through"
+  },
+  "check_id": "release-gate",
+  "started_at": "2026-10-12T00:22:43.695Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 15,
+  "assertion_floor": "3 install + 12 over 6 stub cases + (no break) 6 live: real hook refusal and names, receipt freshness, known-different, known-clean, full receipt untouched",
+  "canary": {
+    "id": "drift-on-main-refused",
+    "observed_failure": false
+  }
+}

@@ -3369,7 +3369,7 @@ and how the wait ends.
   - `node scripts/deployed-inventory.mjs` reports no differing deployed bundles
   - The final receipt is retained as the evidence of clean inventory
 
-- [ ] **0.6d — Make deployment drift visible before it can be forgotten**
+- [x] **0.6d — Make deployment drift visible before it can be forgotten**
   Add a durable, gated workflow so committed changes cannot silently diverge from what is deployed while respecting Andrew's authority to decide when publishing occurs. This covers detection and handoff behavior, not automatic production publishing.
   Part 4 of 4 of item 0.6, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -3378,6 +3378,23 @@ and how the wait ends.
   - A non-clean inventory produces a clear failing signal and names the affected functions
   - The workflow does not automatically deploy or bypass Andrew's shipping decision
   - The detection path is exercised against a known-different case and a known-clean case
+  **Ticked 2026-10-11, how it was checked.** The gate is a push: `.githooks/pre-push` runs
+  `node scripts/deployed-inventory.mjs` before any push to `main` (the website release) and refuses it, naming
+  every program, when the inventory is not clean or could not run; other branches are not gated.
+  `SHIP_WITH_DRIFT=1 git push` is Andrew's override and still prints the names. It contains no publish command.
+  Switched on here with `git config core.hooksPath` (a fresh clone needs that one line; CLAUDE.md "Publishing"
+  says so). Documented in CLAUDE.md "Publishing" and its verification table, and in FOR-ANDREW.md under the 0.6b
+  block. `node tests/release-gate.test.mjs` at `ca6dabb6`: receipt `receipts/release-gate.json` graded PASS, 9 of 9
+  cases, 21 assertions. Six stub cases (refused, could-not-run refused, clean, override, other branch, several
+  refs), then the real hook against the gateway, read-only: refused and named every program the full inventory
+  named, then `--only=` on the first one it called different (exit 1, named) and the first it called clean
+  (exit 0, PASS). `BREAK=lets-red-through` (6 failures, kept in `receipts/release-gate.sabotage.json`) and
+  `BREAK=all-branches` (2) each went red. Also fixed: an `--only=` run used to overwrite the full receipt that
+  the 0.6b block's step 2 reads, so it would have published one program; it now writes
+  `deployed-inventory-only.json` (`1f8525c2`). Nothing anyone sees changed, so no browser check applies.
+  **Limits:** the full inventory takes about seven minutes, so a push to `main` waits that long; `git push
+  --no-verify` skips any hook, which is git's own; after 0.6c the gate still names `platform-admin` (held for
+  4.3c) and `google-business` (99.1), so the override is expected until those land.
 
 - [ ] **0.7 — The maintenance reminder has no opt-out, and the fix is a
   product question rather than a template edit. Found 2026-09-20.**
