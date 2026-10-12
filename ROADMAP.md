@@ -3711,6 +3711,18 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   "gone quiet" count drops to match real customers.
   *A1 P3-01, A2 1.3*
 
+  **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** applying
+  `supabase/migrations/20260924010000_a_fixture_is_not_a_customer.sql` is the
+  only step left, it is his schema change, and he ruled 2026-10-09 to hold it
+  until launch. Checked 2026-10-11 at `9c70c742`: nothing buildable remains
+  inside this item — the Today-screen fixtures and the `create-booking` leak
+  below are separate items (an edge-function deploy is also his). The check
+  was NOT re-run this session: `client-fixtures.mjs` needs the demo owner's
+  password from `.env` and nobody had cleared that load; its receipt is for
+  `803f0cfb` and grades STALE (every rule passed), and `Clients.jsx` has since
+  changed in `c6471ff4` / `b27ce249` (0.3, the delete guard). Re-run it, with
+  the demo tenant unwatched, in the same sitting as the migration.
+
   **BUILT AND PROVED 2026-09-24, COMMIT `3c24a1f`. ON DISK, SWITCHED OFF UNTIL
   LAUNCH — reframed 2026-09-24, and it is NOT a chore for Andrew.** The one
   command below is **the switch**, run whenever he launches; nothing is waiting
