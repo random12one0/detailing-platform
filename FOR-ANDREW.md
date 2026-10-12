@@ -173,6 +173,105 @@ to remove and none to merge**. One thing is yours to answer:
 **Andrew answered 2026-10-10: no — keep things as they are.** The eight alerts
 continue with their present behavior; this is not a pending implementation choice.
 
+## YOURS, WHEN YOU LAUNCH · Put the back-end programs live, in this order (ROADMAP 0.6b, written 2026-10-11)
+
+**This is the one to follow.** The two older publish blocks further down are kept for
+their reasoning. Both have a line that would publish everything at once if its list
+came out empty, and each now says so. **This is your switch, and you flip it when you choose.**
+Your ruling of 2026-09-24 stands: nobody is on the site, so leaving this for launch
+day is a choice you made, not something stuck. No session will run it for you.
+
+**What it does.** Several back-end programs on the server are older than what we have
+written. Most of the gap is two shared files every program carries: the read-only
+lock for "Look at their dashboard", and the email wording. The check below names them.
+The list is not written here, because a typed list goes stale within the hour.
+
+**The order, and why.**
+1. **`update-booking` first, alone.** It is the program that emails a customer when
+   you cancel or move their job from your dashboard (ROADMAP 3.4, finding 1–2). A
+   customer whose job you cancel has to hear about it, so this goes first.
+2. **Then one small database change, then everything else in one pass.** The change
+   adds one empty column so the "Emails we sent" list can show an email's content
+   (ROADMAP 3.1d). It must go **before** `send-email`. Published first, `send-email`
+   would try to save into a column that is not there, and the record of every email
+   would quietly stop.
+3. **`platform-billing` alone.** It charges detailers for the platform.
+4. **The payment webhook last and alone.** It touches money, so if anything goes
+   wrong there is only one thing it can have been. This is your rule and it has not
+   changed.
+
+**Held back on purpose: `platform-admin`.** Published today, it would make your "Let
+me make changes" button promise you can edit while every save is refused (ROADMAP
+4.3c). It goes up when 4.3c is finished, and that session removes it from the held
+names in step 2. **Also not in this list: `google-business`**, which has never been
+published and waits for Google (ROADMAP 99.1).
+
+**Open Git Bash. Before you start — two reads, nothing changes:**
+
+<!-- 0.6b-handoff:start -->
+```bash
+cd /c/Users/rando/Downloads/claude/detailing-platform
+set -a; . ./.env; set +a
+git status --porcelain supabase/functions
+node scripts/deployed-inventory.mjs
+node scripts/migration-drift.mjs
+```
+
+The `git status` line must print **nothing**. If it prints a file, a session is
+changing the programs right now. Stop, because the steps would publish different
+copies of the shared files. The inventory prints the out-of-date programs by name.
+That list is the only one to trust, and step 2 reads it for you.
+
+**Step 1 · the cancellation email:**
+
+```bash
+node scripts/deploy-functions.mjs update-booking
+```
+
+**Step 2 · the one-column change, then everything else the inventory named:**
+
+```bash
+node scripts/apply-migrations.mjs 20261010010000_email_sends_keeps_the_body.sql
+LIST=$(node -e "const hold=['update-booking','platform-admin','platform-billing','stripe-webhook'];const l=JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>!hold.includes(f));if(!l.length){console.error('NOTHING TO PUBLISH IN STEP 2 - go on to step 3');process.exit(1)}console.log(l.join(' '))") && echo "$LIST" && node scripts/deploy-functions.mjs $LIST
+```
+
+**Why the second line is shaped like that.** Given no names, the publishing program
+publishes **every** program at once, including the payment webhook. So the line
+stops if the list comes out empty, and never hands it zero names.
+
+**Step 3 · platform billing, alone:**
+
+```bash
+node scripts/deploy-functions.mjs platform-billing
+```
+
+**Step 4 · the payment webhook, last and alone. Nothing else running:**
+
+```bash
+node scripts/deploy-functions.mjs stripe-webhook
+```
+
+**Then check it took:**
+
+```bash
+node scripts/deployed-inventory.mjs
+```
+<!-- 0.6b-handoff:end -->
+
+**What "done" looks like.** The last check names **only `platform-admin`**, the one
+held back. If it names anything else, that program did not publish. Tell a session
+its name, and do not re-run step 2. If any step prints `FAILED`, stop there. The
+publishing program stops at the first failure and says which one.
+
+**Two rules for the whole thing.** Do not publish while a browser check is running on
+the practice business. And this does not touch the website: no Netlify credits.
+
+**Checked 2026-10-11 without publishing anything:** `node --test
+tests/publish-handoff.test.mjs` pulls these exact commands out of this block. It runs
+step 2's name-picking line against today's inventory and against two made-up ones,
+and checks the order: cancellation first, the webhook last and alone, the held ones
+left out, an empty list refused. Three deliberate breaks each turn it red.
+
 ## Publish and apply — the one ordered list. Written 2026-10-06, re-ordered 2026-10-07.
 
 > **DONE 2026-10-10, STEPS 1 TO 9 — NOTHING LEFT HERE FOR YOU.** Done by Claude
@@ -211,7 +310,7 @@ which ROADMAP items it unlocks, and the one check to run afterwards.
 ### Before you start · Two reads. They change nothing.
 
 ```bash
-cd /d/Users/rando/Downloads/claude/detailing-platform
+cd /c/Users/rando/Downloads/claude/detailing-platform
 set -a; . ./.env; set +a
 node scripts/migration-drift.mjs
 node scripts/deployed-inventory.mjs
@@ -373,6 +472,8 @@ node scripts/apply-migrations.mjs 20261006050000_action_log.sql 20261006062000_s
 **Then:** `node scripts/migration-drift.mjs` should stop naming all three.
 
 ### Step 5 · Publish the remaining 24, in one pass
+
+**SUPERSEDED 2026-10-11 by "YOURS, WHEN YOU LAUNCH" near the top of this file (ROADMAP 0.6b).** If this line's list ever comes out empty, `deploy-functions.mjs` gets no names and publishes **every** program at once, the payment webhook included. Use that block's guarded line instead.
 
 ```bash
 node scripts/deploy-functions.mjs $(node -e "const x=['report-problem','create-booking','get-booking-receipt','platform-admin','send-owner-reminders','platform-billing','stripe-webhook','delete-customer'];console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>!x.includes(f)).join(' '))")
@@ -883,7 +984,7 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
   **Open Git Bash, then:**
 
   ```bash
-  cd /d/Users/rando/Downloads/claude/detailing-platform
+  cd /c/Users/rando/Downloads/claude/detailing-platform
   set -a; . ./.env; set +a
   ```
 
@@ -898,6 +999,8 @@ what is open, and which of it a session can still do, is in `docs/BATCHES.md`.
   list to trust.** Then publish everything it named **except the payment
   one**, which this line does for you — it reads the names the check just
   wrote down and leaves `stripe-webhook` out:
+
+  **SUPERSEDED 2026-10-11 by "YOURS, WHEN YOU LAUNCH" near the top of this file (ROADMAP 0.6b).** If this line's list ever comes out empty, `deploy-functions.mjs` gets no names and publishes **every** program at once, the payment webhook included. Use that block's guarded line instead.
 
   ```bash
   node scripts/deploy-functions.mjs $(node -e "console.log(JSON.parse(require('fs').readFileSync('receipts/deployed-inventory.json','utf8')).dimensions.differing.filter(f=>f!=='stripe-webhook').join(' '))")

@@ -3334,7 +3334,7 @@ and how the wait ends.
   the deploy is present (the control). The inventory lists `send-email` as differing by `index.ts` alone,
   which agrees. Limit unchanged: comparison is by comment text, so DIFFERS is strong and `matches` is weak.
 
-- [ ] **0.6b — Give Andrew the ordered, paste-ready publish handoff**
+- [x] **0.6b — Give Andrew the ordered, paste-ready publish handoff**
   Prepare and validate the exact publication instructions for Andrew, preserving his authority over what ships and the required order. This covers the manual publication handoff only; it does not attempt a production deploy from the manager environment or claim that publication has occurred.
   Part 2 of 4 of item 0.6, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -3343,6 +3343,21 @@ and how the wait ends.
   - The customer-facing cancellation fix is first in the order
   - The payment webhook is last and isolated as required
   - The handoff states that publication remains Andrew's action and does not label the deferral as a blocker
+  **Ticked 2026-10-11, how it was checked.** `FOR-ANDREW.md` § "YOURS, WHEN YOU LAUNCH" is the block, between
+  `0.6b-handoff` markers: inventory and migration-drift first; `update-booking` alone (the dashboard cancel/move
+  email, 3.4 findings 1–2); the `email_sends.body_html` column, then one guarded pass over whatever the inventory
+  names except `update-booking`, `platform-admin` (held for 4.3c), `platform-billing` and `stripe-webhook`;
+  `platform-billing` alone; the payment webhook last and alone; the inventory again. It says publishing is his
+  switch and never calls the deferral a blocker. The order departs from 2026-09-21's (`report-problem` first);
+  Andrew allowed reordering that day (`MANAGER-CLOSE` § 4) and the parent's Done-when puts the cancellation first.
+  **Two faults found and fixed in the old blocks, both marked rather than deleted:** (1) `deploy-functions.mjs` given
+  no names publishes EVERY function, so the old `$(node -e …)` lines would have put the webhook in a batch on an
+  empty list; the new line stops instead. (2) all three `cd` lines said `/d/Users/…`, a drive this machine does not
+  have, so the first paste failed; now `/c/`. **Proof:** `node tests/publish-handoff.test.mjs` (credential-free,
+  publishes nothing) pulls the commands out of the block and runs step 2's picker for real against two made-up
+  inventories, a missing one and today's; receipt `receipts/publish-handoff.json` graded PASS, 4 of 4 inventories.
+  `BREAK=webhook-in-batch|unguarded|cancel-not-first|wrong-drive` each red on its own line
+  (`receipts/publish-handoff.sabotage.json` holds the last). **Not proved:** the publish itself, which is 0.6c's.
 
 - [ ] **0.6c — Publish the approved functions and confirm deployed parity**
   After Andrew elects to execute the handoff, publish the approved checkout in the prescribed order and rerun the inventory against the gateway. This covers bringing the running system to the committed state; it leaves ongoing drift prevention to the next piece.
