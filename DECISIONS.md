@@ -347,6 +347,7 @@ were made more than once.
 
 - **Phones first: every screen is designed at 390px before it is widened** — Andrew, 2026-10-10 23:20, rejecting 9.12b on his phone: 70-80% of looks are on a phone, nothing may look oddly sized, and the phone must carry everything the laptop shows. Same pass: 14.24 part 3 (screen-reader names) is a session's job, not his.
 - **"No need of the founder pricing anymore" means the price preview, not the product** — supervision 2026-10-12, reading Andrew's 02:39 rejection of the price editor: the closed preview shows the setup fee instead of the founding price; the founding offer stays live and editable. ROADMAP 9.12c.
+- **9.12c stays ticked: Andrew's 15:35 "spacing is fine" is acceptance, not a defect** — supervision 2026-10-12: his mobile note on the price preview reads as no further work; the check re-ran green at HEAD and fresh 390/1440 screenshots show clear stacked figures. ROADMAP 9.12c.
 
 <!-- INDEX:END -->
 
@@ -19003,3 +19004,7 @@ Supervision, 2026-10-12. Andrew's words, rejecting the 9.12a price editor at 02:
 **Read as:** in the price editor's quick preview, put the setup price ($999) where the founding-offer price is now, because the founding offer only ever applies to three accounts. **Not read as:** delete the founding offer. It is live product with a counted cap (`claim_founding_spot`, the `/pricing` page, the founding ladder pinned by `landing-pricing`), and removing it is a pricing decision with legal copy attached, not a back-office layout tweak. So its figures stay editable, placed last inside the open editor.
 
 **Why this reading:** it is the one that changes only the screen he was looking at, and it is the cheaper one to correct. If he meant the product, the founding figures are still there to remove; the other way round would have deleted live pricing on a guess. **What would reverse it:** him saying the founding offer is finished. That is its own item, touching `/pricing`, `claim_founding_spot` and the landing-pricing test.
+
+## 9.12c stays ticked: Andrew's 15:35 note is acceptance, not a defect
+
+Supervision, 2026-10-12. Andrew on the 9.12c price editor, belt INBOX 15:35: *"On mobile the like boxes the numbers are in are a little big and almost touching but the spacing is fine."* The belt filed it as a rejection of the change. Read as: leave the closed preview alone — it reads fine. The supervisor opened fresh screenshots at 390 and 1440 (`artifacts/office-prices/closed-390.png`, `closed-1440.png`): three stacked figures with dividers on a phone, three columns wider, none touching. The item's check re-ran at HEAD (`43b7cf6b`) passes 258/0 with its canary caught, so the tick stands and no follow-up styling item is filed. **What would reverse it:** him naming a figure he cannot read or a box that overlaps on his phone.

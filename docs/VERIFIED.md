@@ -3587,3 +3587,9 @@ not either item — fixed in `08228259`.
 - **99.7 reproduced:** `BASE=http://localhost:5173 node scripts/sweep-booking-steps.mjs 1440x900 392x844` — every step fits including the six original readings, canary caught, tap floor 490 controls all reaching 44px. `--break=roomy` went red naming the original pixels (`3/N cars · 1 over 40px`), exit 1 — then a clean re-run restored the pass receipt.
 - **9.12a-6d (past-month bills) reproduced:** `node scripts/office-bills-month.mjs` — PASS, 144 assertions, 0 failed, canary caught, at all 6 widths.
 - Both re-run receipts recommitted at this HEAD, which also retires their stale-`git_sha` form (the brief's ancestor-SHA warning). 3 of 3 reproduced, nothing unticked.
+
+## Supervision 2026-10-12 (fourth), at `43b7cf6b`
+
+- **9.12c reproduced:** `node scripts/office-prices.mjs` — PASS, 258 assertions, 0 failed, canary caught (fresh `receipts/office-prices.json`, recommitted). Opened `artifacts/office-prices/closed-390.png` and `closed-1440.png`: the quick preview stacks $68 / $35 / $999 with dividers at 390 and runs three columns at 1440, matching Andrew's 15:35 "spacing is fine". Tick stands; INBOX cleared.
+- **99.3b-i read, not re-driven:** `app/src/admin/AdminPage.jsx` (2,204 lines) and `admin.css` deleted; `/admin` routes to `OfficePage`, zero `AdminPage` references in `app/src` (two tools agree), `npm run build` passes, `route-contract` green. The deletion's own proof note is in its entry.
+- **99.9 read, test re-run:** `node --test tests/create-booking-phone.test.mjs` 3/3. Recount: 56 open, 181 done. 3 of 3 checked, nothing unticked.
