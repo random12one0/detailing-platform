@@ -1,9 +1,9 @@
 {
-  "git_sha": "da7619e580eb44cfb2586d3d97fb9ca7d57574fc",
-  "git_sha_started": "da7619e580eb44cfb2586d3d97fb9ca7d57574fc",
+  "git_sha": "27da96444e8a1fa0bc77fe185927cca9481a97d2",
+  "git_sha_started": "27da96444e8a1fa0bc77fe185927cca9481a97d2",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T06:04:32.735Z",
+  "finished_at": "2026-10-12T14:26:44.097Z",
   "failures": [],
   "warnings": [
     "Writes nothing: a made-up session and page.route() answers with an in-memory ledger. Asks what the screen sends and shows, not whether the server accepts a bill (costEntry owns that).",
@@ -98,7 +98,7 @@
     }
   },
   "check_id": "office-bills-month",
-  "started_at": "2026-10-12T06:02:50.057Z",
+  "started_at": "2026-10-12T14:25:13.888Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
