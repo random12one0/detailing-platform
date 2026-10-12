@@ -1,0 +1,41 @@
+#!/bin/sh
+# THE RELEASE GATE — ROADMAP 0.6d.
+#
+# A push to `main` is the website release (Netlify builds it). Before it goes,
+# this runs `node scripts/deployed-inventory.mjs`, which compares every
+# back-end program running on the server against this checkout. If any is out
+# of date, was never published, or the check could not run at all, the push is
+# REFUSED and the programs are named.
+#
+# It never publishes anything. Publishing the programs is Andrew's (the ordered
+# block in FOR-ANDREW.md, "YOURS, WHEN YOU LAUNCH"). To push anyway, knowing:
+#
+#   SHIP_WITH_DRIFT=1 git push
+#
+# Pushes to any other branch (free previews) are not gated.
+# Installed once per checkout:  git config core.hooksPath .githooks
+# Tested by tests/release-gate.test.mjs.
+
+gated=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$remote_ref" = "refs/heads/main" ] && gated=1
+done
+[ -z "$gated" ] && exit 0
+
+cd "$(dirname "$0")/.." || exit 1
+echo "Release gate: checking the back-end programs on the server against this checkout..."
+node scripts/deployed-inventory.mjs
+status=$?
+[ "$status" -eq 0 ] && exit 0
+
+echo ""
+if [ "$SHIP_WITH_DRIFT" = "1" ]; then
+  echo "RELEASE GATE: NOT CLEAN, PUSHING ANYWAY because SHIP_WITH_DRIFT=1."
+  echo "The website goes out while the programs named above are not this checkout."
+  exit 0
+fi
+echo "RELEASE GATE: PUSH REFUSED. The programs named above are not running this checkout,"
+echo "or the check could not run. Nothing was published."
+echo "  Publish them first: FOR-ANDREW.md, \"YOURS, WHEN YOU LAUNCH\"."
+echo "  Or push anyway, knowing:  SHIP_WITH_DRIFT=1 git push"
+exit 1
