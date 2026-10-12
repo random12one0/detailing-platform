@@ -31,7 +31,7 @@
 // overlap probe to name it.
 
 import { createRequire } from "node:module";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 import { settle, watchConsole } from "./lib/bookingWalk.mjs";
 
@@ -105,6 +105,17 @@ const PROBE = (sel) => {
   return { overlaps, thin, cut, overflowX: document.documentElement.scrollWidth > innerWidth + 1, n: els.length };
 };
 const probe = (page, sel) => page.evaluate(`(${PROBE.toString()})(${JSON.stringify(sel)})`);
+// Reuse the existing painted-background contrast inspector without starting its
+// unrelated dashboard walk. Scope it to prices, including its own bad-text canary.
+const contrastSource = readFileSync(new URL('./contrast-insitu.mjs', import.meta.url), 'utf8');
+const contrastStart = contrastSource.indexOf('const PROBE = () => {');
+const contrastEnd = contrastSource.indexOf('\nconst browser =', contrastStart);
+if (contrastStart < 0 || contrastEnd < 0) throw Error('Contrast inspector not found');
+const contrastProbe = contrastSource.slice(contrastStart, contrastEnd).trim()
+  .replace('const PROBE = ', '').replace(/;$/, '')
+  .replace('document.body.appendChild(canary)', 'document.querySelector(".bo-prices").appendChild(canary)')
+  .replace('document.querySelectorAll("body *")', 'document.querySelectorAll(".bo-prices *")');
+
 
 let browser = null;
 const canary = { id: "injected-overlapping-price-button", observed_failure: false };
@@ -234,6 +245,9 @@ try {
         await settle(page, 500);
         await page.screenshot({ path: `${ART}/edit-${size.w}.png` }); artifacts.push(`${ART}/edit-${size.w}.png`);
         await page.screenshot({ path: `${ART}/edit-full-${size.w}.png`, fullPage: true }); artifacts.push(`${ART}/edit-full-${size.w}.png`);
+        const contrast = await page.evaluate('(' + contrastProbe + ')()');
+        const unreadable = contrast.rows.filter(r => r.text !== 'canary grey on grey');
+        check(where, 'painted price text clears contrast floors and catches unreadable canary', contrast.examined >= 40 && contrast.canaryCaught && unreadable.length === 0, JSON.stringify({examined:contrast.examined, unreadable, canary:contrast.canaryCaught}));
 
         // Stepping changes the draft, never an immediate payment write.
         const writes = sent.filter((b) => b.action === "prices").length;
@@ -317,8 +331,8 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * 32,
-  assertion_floor: "6 widths x 32 questions (compact 5, reading 4, editing 9, refused 2, saved 5, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
+  min_assertions: SIZES.length * 33,
+  assertion_floor: "6 widths x 33 questions (compact 5, reading 4, editing 10 including painted contrast, refused 2, saved 5, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
   failures,
   artifacts,
   canary,
