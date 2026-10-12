@@ -665,23 +665,25 @@
 /* 9.12a: Folded's current-value summary, scoped to the office. No max-width
  * on the plan grid: a definite max once made auto-fit run off a phone edge. */
 .bo-prices { min-width: 0; }
-.bo-price-fold { border-block: 1px solid var(--line-2); }
-.bo-price-summary { display: grid; gap: 12px; padding: 16px 0 6px; cursor: pointer; list-style: none; }
-.bo-price-summary::-webkit-details-marker { display: none; }
-.bo-price-summary > .bo-label { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
-.bo-price-preview { display: grid; gap: 8px; }
-.bo-price-preview > span { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-left: 12px; border-left: 2px solid var(--c); }
-.bo-price-preview > span > span { font-size: 13px; color: var(--bone-2); }
-.bo-price-preview b { white-space: nowrap; font-family: var(--f-num); font-size: 18px; font-weight: 600; }
+.bo-price-fold, .bo-fold { border-block: 1px solid var(--line-2); }
+.bo-price-summary, .bo-fold-summary { display: grid; gap: 12px; padding: 16px 0 6px; cursor: pointer; list-style: none; }
+.bo-price-summary::-webkit-details-marker, .bo-fold-summary::-webkit-details-marker { display: none; }
+.bo-price-summary > .bo-label, .bo-fold-summary > .bo-label { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.bo-price-preview, .bo-fold-preview { display: grid; gap: 8px; }
+.bo-price-preview > span, .bo-fold-preview > span { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-left: 12px; border-left: 2px solid var(--c); }
+.bo-price-preview > span > span, .bo-fold-preview > span > span { font-size: 13px; color: var(--bone-2); }
+.bo-price-preview b, .bo-fold-preview b { white-space: nowrap; font-family: var(--f-num); font-size: 18px; font-weight: 600; }
 .bo-price-preview small { font-family: var(--f-body); font-size: 12px; font-weight: 400; color: var(--fog); }
-.bo-price-more { display: flex; justify-content: space-between; align-items: center; min-height: 44px; color: var(--bone-2); font-size: 13px; }
-.bo-price-more svg { transition: transform .2s var(--e-out); }
-.bo-price-fold[open] .bo-price-more svg { transform: rotate(180deg); }
+.bo-price-more, .bo-fold-more { display: flex; justify-content: space-between; align-items: center; min-height: 44px; color: var(--bone-2); font-size: 13px; }
+.bo-price-more svg, .bo-fold-more svg { transition: transform .2s var(--e-out); }
+.bo-price-fold[open] .bo-price-more svg, .bo-fold[open] .bo-fold-more svg { transform: rotate(180deg); }
 /* 9.12c: one row per figure — label, then a fixed-width control, so every box
  * sits on the same grid line and the figure is centered between − and +. Wider,
  * the plans flow into two columns (founding last) instead of a grid whose rows
  * leave gaps under the short plans. */
 .bo-price-body { padding: 4px 0 18px; }
+/* 9.12d: any other folded section opens straight into its own list. */
+.bo-fold > summary + * { margin: 4px 0 18px; }
 .bo-pgroups { display: grid; gap: 16px; }
 .bo-pgroup { position: relative; min-width: 0; padding: 0 0 0 12px; break-inside: avoid; }
 .bo-pgroup::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; border-radius: 2px; background: var(--c); opacity: .85; }
@@ -703,9 +705,9 @@
 .bo-price-body > .acts, .bo-price-body > .bo-sure { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .bo-price-body > .bo-err { margin: 12px 0 0; max-width: 620px; }
 @media (min-width: 700px) and (min-height: 500px) {
-  .bo-price-preview { grid-template-columns: repeat(3, max-content); gap: 40px; }
-  .bo-price-preview > span { display: grid; gap: 2px; }
+  .bo-price-preview, .bo-fold-preview { grid-template-columns: repeat(3, max-content); gap: 40px; }
+  .bo-price-preview > span, .bo-fold-preview > span { display: grid; gap: 2px; }
   .bo-pgroups { display: block; columns: 2 300px; column-gap: 48px; max-width: 760px; }
   .bo-pgroup { margin-bottom: 18px; }
 }
-.lite .bo-price-more svg, .lite .bo-price-step { transition: none; }
+.lite .bo-price-more svg, .lite .bo-fold-more svg, .lite .bo-price-step { transition: none; }
