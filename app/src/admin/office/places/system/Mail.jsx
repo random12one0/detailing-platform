@@ -53,7 +53,7 @@ export default function Mail({ i }) {
       <details className="bo-fold">
         <summary className="bo-fold-summary">
           <h2 className="bo-label">Email we sent</h2>
-          {peek ? (peek.n === 0 ? <span className="bo-dim">No email has been sent yet.</span> : (
+          {peek ? (peek.n === 0 ? <span className="bo-dim">None sent yet</span> : (
             <span className="bo-fold-preview">
               <span data-peek="last" style={{ "--c": "var(--ac)" }}><span>Last sent</span><b>{ago(peek.at)}</b></span>
               <span data-peek="bad" style={{ "--c": peek.bad ? "var(--bad)" : "var(--ac)" }}><span>Problems</span><b>{peek.bad}</b></span>
