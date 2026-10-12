@@ -1,9 +1,9 @@
 {
-  "git_sha": "85ab1f33a4de220860ce20ef7738a769de3f044f",
-  "git_sha_started": "85ab1f33a4de220860ce20ef7738a769de3f044f",
+  "git_sha": "c559b4d3995aee6d6b3d06bfb25ea98e17f3cfa5",
+  "git_sha_started": "c559b4d3995aee6d6b3d06bfb25ea98e17f3cfa5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T03:52:27.916Z",
+  "finished_at": "2026-10-12T05:38:19.567Z",
   "failures": [],
   "warnings": [
     "Writes nothing: a made-up session and page.route() answers. Asks what the screen sends and shows, not whether the server accepts a table (pricesFrom owns that).",
@@ -164,7 +164,7 @@
     }
   },
   "check_id": "office-prices",
-  "started_at": "2026-10-12T03:51:14.294Z",
+  "started_at": "2026-10-12T05:37:36.464Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
