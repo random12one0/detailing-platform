@@ -1,9 +1,9 @@
 {
-  "git_sha": "ca6dabb656c02c713d82f89974301ee4e5677537",
-  "git_sha_started": "ca6dabb656c02c713d82f89974301ee4e5677537",
+  "git_sha": "7f6b3c6019bbcd1454aa305054c105439f86950e",
+  "git_sha_started": "7f6b3c6019bbcd1454aa305054c105439f86950e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T00:23:33.445Z",
+  "finished_at": "2026-10-12T00:28:40.891Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,7 +14,7 @@
     "publish_lines": 4
   },
   "check_id": "publish-handoff",
-  "started_at": "2026-10-12T00:23:33.157Z",
+  "started_at": "2026-10-12T00:28:40.562Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -3360,6 +3360,21 @@ and how the wait ends.
   (`receipts/publish-handoff.sabotage.json` holds the last). **Not proved:** the publish itself, which is 0.6c's.
 
 - [ ] **0.6c — Publish the approved functions and confirm deployed parity**
+  AWAITS PUBLISH (built and proved; no decision asked of Andrew): run the `0.6b-handoff` block in FOR-ANDREW.md
+  ("YOURS, WHEN YOU LAUNCH"), steps 1-4 in order, whenever he chooses to launch; then a session re-runs the inventory,
+  commits its receipt and ticks the criteria it meets. Nothing in this item is buildable by a session: every criterion
+  is his publish or its result, and sessions never publish.
+  Waits on: 4.3c (releases `platform-admin` from the hold) and 99.1 (`google-business`, never published). Who removes
+  this line: whichever session ticks the later of the two. **Until then criterion 3 cannot be met by a perfect run of the
+  handoff**, because the handoff holds `platform-admin` back on purpose and the inventory counts `google-business` as
+  not deployed. Said out loud rather than quietly reworded: the criterion and the handoff disagree, and the handoff's own
+  "What done looks like" (only `platform-admin` named) is the right reading for a publish before 4.3c lands.
+  **Also stale, not edited here (4.3b's entry):** its AWAITS PUBLISH line says `platform-admin` is "already in
+  FOR-ANDREW.md step 3 and step 5". Since 0.6b it is held, and the steps are 1-4.
+  **Re-checked 2026-10-11 at `7f6b3c60`:** `node tests/publish-handoff.test.mjs` PASS, 20 of 20 assertions over 4 of 4
+  inventories, canary `empty-inventory-refused` caught; against today's inventory receipt (taken at `783d4dad`, and no
+  file under `supabase/` changed between that commit and this one) step 2 picks exactly the differing programs that are
+  not held or isolated. The inventory itself was not re-run (seven minutes, read-only, and nothing it reads moved).
   After Andrew elects to execute the handoff, publish the approved checkout in the prescribed order and rerun the inventory against the gateway. This covers bringing the running system to the committed state; it leaves ongoing drift prevention to the next piece.
   Part 3 of 4 of item 0.6, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
