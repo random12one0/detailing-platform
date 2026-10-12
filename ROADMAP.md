@@ -29697,6 +29697,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   so sabotage receipts were copied to separate paths and the ordinary results restored (migration check rerun;
   inventory's completed ordinary receipt copied back unchanged). No database change, deployment or push was made.
 
+  **ANDREW, 2026-10-12:** continue where you left off
+
 
 
 - [x] **99.4 — Every button looks like a button: no lone `btn ghost` reading as bare text**
