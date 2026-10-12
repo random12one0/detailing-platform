@@ -15,12 +15,13 @@ const BREAK = process.argv.find(a => a.startsWith('--break='))?.slice(8) || '';
 if (BREAK && !['default', 'save', 'strict', 'privacy'].includes(BREAK)) throw Error('Unknown break');
 const WORDS = 'Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.';
 const ES = 'Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.';
+const fontCache = new Map();
 const profile = {
   business: { id: 'tenant-a', slug: 'consent-proof', name: "Andrew's Auto Detail", timezone: 'America/Los_Angeles', phone: '555-0100', address: '1234 Oak St' },
   branding: {}, settings: { mobile_enabled: false, dropoff_enabled: true, ask_vehicle_condition: false,
     ask_water_electric: false, water_requirement: 'not_needed', power_requirement: 'not_needed', booking_mode: 'reserve',
     cancellation_window_hours: 24, max_vehicles_per_booking: 1 },
-  services: [{ id: 'service-a', name: 'Full detail', base_price: 185, duration_minutes: 60, is_active: true, sort_order: 0 }],
+  services: [{ id: 'service-a', name: 'Full detail', price: 185, duration_minutes: 60, is_active: true, sort_order: 0 }],
   add_ons: [], plans: [], service_groups: [], hours: [],
 };
 const quote = { subtotal: 185, subtotal_before_discounts: 185, total: 185, total_duration: 60,
@@ -48,7 +49,16 @@ async function routes(page, {failFirst = false} = {}) {
       }
       return route.continue();
     }
-    if (/fonts\.(googleapis|gstatic)\.com/.test(url.hostname)) return route.continue();
+    if (/fonts\.(googleapis|gstatic)\.com/.test(url.hostname)) {
+      // Reuse the real font bytes between isolated contexts. Each page still
+      // loads the product fonts; repeated remote font requests add no proof.
+      if (!fontCache.has(req.url())) {
+        const response = await route.fetch();
+        if (!response.ok()) throw Error('Product font request failed');
+        fontCache.set(req.url(), { body:await response.body(),contentType:response.headers()['content-type'] });
+      }
+      return route.fulfill({status:200,...fontCache.get(req.url()),headers:{'access-control-allow-origin':'*'}});
+    }
     const headers = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'content-type': 'application/json' };
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers });
     let body = {};
@@ -146,6 +156,10 @@ try {
         await freeze(page, { out: OUT + '/after.html', label: 'After', note: 'Appointment texts are optional. The box starts unticked, with Privacy and Terms beside it.', highlight: '.bk-sms-consent' });
       }
       // Both paths on every view: unchecked, checked, then unchecked again.
+      // The initial-state assertion above catches an opt-in default. Reset
+      // AFTER asking it so a broken default cannot prevent later scenarios
+      // from reaching their own assertion (notably the save-error retry).
+      await box.uncheck();
       if (choice !== 'unchecked') {
         await box.focus(); await page.keyboard.press('Space');
         check(`${tag} keyboard checks it`, await box.isChecked());
@@ -227,7 +241,7 @@ try {
     check('before/after privacy differ', await differs(page, OUT + '/before-privacy.html', OUT + '/after-privacy.html'));
     check('before/after terms date differ', await differs(page, OUT + '/before-terms.html', OUT + '/after-terms.html'));
     await page.close();
-    writeFileSync(OUT + '/where.json', JSON.stringify({ what: 'Optional appointment-text consent under Phone, and a texting paragraph on Privacy.', url: 'https://detailingplatform.com/book/consent-proof', how: 'Choose a service, vehicle, location and time, then open Your details. Privacy is linked beside the checkbox.', situation: 'A customer booking a full detail, before agreeing to any appointment texts. Local responses stand in for the database; no messages sent.' }, null, 2));
+    writeFileSync(OUT + '/where.json', JSON.stringify({ what: 'Optional appointment-text consent under Phone, and a texting paragraph on Privacy.', url: BASE + '/book/consent-proof', how: 'Choose a service, vehicle, location and time, then open Your details. Privacy is linked beside the checkbox.', situation: 'A customer booking a full detail, before agreeing to any appointment texts. Local responses stand in for the database; no messages sent.' }, null, 2));
   }
 } finally { await browser.close(); }
 if (BEFORE) { if (failures.length) throw Error(failures.join('\n')); console.log('Before copies captured'); }
