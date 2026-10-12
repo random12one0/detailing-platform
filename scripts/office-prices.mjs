@@ -44,7 +44,7 @@ const FREEZE = arg("freeze");
 const LITE = process.argv.includes("--lite");
 const BASE = process.env.BASE || "http://localhost:5173";
 const SIZES = [{ w: 390, h: 844 }, { w: 392, h: 844 }, { w: 320, h: 700 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }, { w: 1920, h: 1080 }];
-const ART = "artifacts/office-prices";
+const ART = `artifacts/office-prices${LITE ? "-lite" : ""}`;
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12a";
 const REF = "kguqylyzgyzfktkfnhjb";
 
@@ -251,9 +251,9 @@ try {
 
         // Stepping changes the draft, never an immediate payment write.
         const writes = sent.filter((b) => b.action === "prices").length;
-        await sec(page).getByRole("button", { name: "Increase Website + booking · A month", exact: true }).click();
+        await sec(page).locator('[data-price="website.monthly"] button').last().click();
         check(where, "plus updates monthly draft and live reading to $70", await sec(page).locator('input[data-price="website.monthly"]').inputValue() === "70" && await sec(page).locator('[data-price="website.monthly"] .v').innerText() === "$70");
-        await sec(page).getByRole("button", { name: "Decrease Website + booking · A month", exact: true }).click();
+        await sec(page).locator('[data-price="website.monthly"] button').first().click();
         check(where, "minus returns to $65 without a write", await sec(page).locator('input[data-price="website.monthly"]').inputValue() === "65" && sent.filter((b) => b.action === "prices").length === writes);
         await summary.focus(); await page.keyboard.press("Space");
         check(where, "keyboard folds the editor without discarding typing", !(await fold.evaluate((e) => e.open)));
