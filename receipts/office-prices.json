@@ -1,39 +1,33 @@
 {
-  "git_sha": "98d30e129b5adb8b13d5c3ab6d58289f53ff9493",
-  "git_sha_started": "98d30e129b5adb8b13d5c3ab6d58289f53ff9493",
+  "git_sha": "85ab1f33a4de220860ce20ef7738a769de3f044f",
+  "git_sha_started": "85ab1f33a4de220860ce20ef7738a769de3f044f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T02:25:57.600Z",
+  "finished_at": "2026-10-12T03:52:27.916Z",
   "failures": [],
   "warnings": [
     "Writes nothing: a made-up session and page.route() answers. Asks what the screen sends and shows, not whether the server accepts a table (pricesFrom owns that).",
-    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that."
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12c are the evidence for that."
   ],
   "artifacts": [
     "artifacts/office-prices/closed-390.png",
-    "artifacts/office-prices/read-390.png",
     "artifacts/office-prices/edit-390.png",
-    "artifacts/office-prices/edit-full-390.png",
+    "artifacts/office-prices/edit-section-390.png",
     "artifacts/office-prices/closed-392.png",
-    "artifacts/office-prices/read-392.png",
     "artifacts/office-prices/edit-392.png",
-    "artifacts/office-prices/edit-full-392.png",
+    "artifacts/office-prices/edit-section-392.png",
     "artifacts/office-prices/closed-320.png",
-    "artifacts/office-prices/read-320.png",
     "artifacts/office-prices/edit-320.png",
-    "artifacts/office-prices/edit-full-320.png",
+    "artifacts/office-prices/edit-section-320.png",
     "artifacts/office-prices/closed-768.png",
-    "artifacts/office-prices/read-768.png",
     "artifacts/office-prices/edit-768.png",
-    "artifacts/office-prices/edit-full-768.png",
+    "artifacts/office-prices/edit-section-768.png",
     "artifacts/office-prices/closed-1440.png",
-    "artifacts/office-prices/read-1440.png",
     "artifacts/office-prices/edit-1440.png",
-    "artifacts/office-prices/edit-full-1440.png",
+    "artifacts/office-prices/edit-section-1440.png",
     "artifacts/office-prices/closed-1920.png",
-    "artifacts/office-prices/read-1920.png",
     "artifacts/office-prices/edit-1920.png",
-    "artifacts/office-prices/edit-full-1920.png"
+    "artifacts/office-prices/edit-section-1920.png"
   ],
   "dimensions": {
     "sizes": [
@@ -46,6 +40,60 @@
     ],
     "lite": false,
     "figures": 11,
+    "measured": {
+      "320": {
+        "presses_to_first_box": 2,
+        "open_px": 901,
+        "closed_px": 212,
+        "box_px": [
+          152
+        ]
+      },
+      "390": {
+        "presses_to_first_box": 2,
+        "open_px": 901,
+        "closed_px": 212,
+        "box_px": [
+          152
+        ]
+      },
+      "392": {
+        "presses_to_first_box": 2,
+        "open_px": 901,
+        "closed_px": 212,
+        "box_px": [
+          152
+        ]
+      },
+      "768": {
+        "presses_to_first_box": 2,
+        "open_px": 539,
+        "closed_px": 165,
+        "box_px": [
+          152
+        ]
+      },
+      "1440": {
+        "presses_to_first_box": 2,
+        "open_px": 539,
+        "closed_px": 165,
+        "box_px": [
+          152
+        ]
+      },
+      "1920": {
+        "presses_to_first_box": 2,
+        "open_px": 539,
+        "closed_px": 165,
+        "box_px": [
+          152
+        ]
+      }
+    },
+    "old_open_px": {
+      "phone": 2058,
+      "wide": 1203
+    },
     "observed": {
       "320": {
         "calls": [
@@ -116,16 +164,16 @@
     }
   },
   "check_id": "office-prices",
-  "started_at": "2026-10-12T02:24:26.866Z",
+  "started_at": "2026-10-12T03:51:14.294Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 198,
-  "min_assertions": 198,
-  "assertion_floor": "6 widths x 33 questions (compact 5, reading 4, editing 10 including painted contrast, refused 2, saved 5, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
+  "assertions_executed": 258,
+  "min_assertions": 258,
+  "assertion_floor": "6 widths x 43 questions (closed + one press 13, reading 5, editing 11 including Cancel and painted contrast, refused 2, saved 5, go back 6, console 1); a hidden section reddens its first question and the rest are not counted, so it drops below the floor.",
   "canary": {
     "id": "injected-overlapping-price-button",
     "observed_failure": true,

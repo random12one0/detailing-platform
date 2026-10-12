@@ -76,7 +76,7 @@ export const LEDGER = [
   { file: "admin/office/places/money/Bills.jsx", key: "", kind: "RINGED", n: 2 },
   { file: "admin/office/places/today/NeedsYou.jsx", key: "", kind: "RINGED" },
   // Added by 9.12a 6b after the first ledger: "Change these prices" stands alone but .bo-btn.ghost paints a ring.
-  { file: "admin/office/places/money/Prices.jsx", key: "", kind: "RINGED", n: 3 },
+  { file: "admin/office/places/money/Prices.jsx", key: "", kind: "RINGED", n: 2 }, // 9.12c: Cancel and Not yet; "Change these prices" is gone
 ];
 
 const walk = (d) => readdirSync(d).flatMap((n) => {
