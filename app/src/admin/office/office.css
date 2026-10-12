@@ -200,7 +200,9 @@
 .bo-thead, .bo-row { display: grid; grid-template-columns: minmax(0, 2.1fr) 70px minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, .8fr) minmax(0, 1.7fr) 44px; gap: 18px; align-items: center; }
 .bo-thead { padding: 0 18px 12px; font-family: var(--f-num); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--fog); border-bottom: 1px solid rgba(242,241,236,.08); }
 .bo-thead button { position: relative; text-align: left; letter-spacing: inherit; text-transform: inherit; font: inherit; color: inherit; }
-.bo-thead button::after { content: ""; position: absolute; inset: -16px -4px -8px; }
+/* 44px of target for a ~15px label: 21 + 8 of invisible overhang. Measured 40
+   before (9.11e's clearance), which is a real 4px gap, not loop ±1px. */
+.bo-thead button::after { content: ""; position: absolute; inset: -21px -4px -8px; }
 .bo-thead button:hover, .bo-thead button.on { color: var(--bone); }
 .bo-row { position: relative; width: 100%; text-align: left; padding: 16px 18px; border-radius: 16px; cursor: pointer;
   transition: background .3s, transform .4s var(--spring); animation: boRowIn .7s var(--e-out) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
@@ -598,6 +600,17 @@
   .bo-ring-big { width: 104px; height: 104px; }
   .bo-ring-big b { font-size: 34px; }
   .bo-paid b { font-size: 36px; }
+}
+/* THE DOCK'S RESERVE. A focused control must stop above the fixed bottom dock,
+   the way the old screen's scroll-padding-top held controls below its bar. A
+   padding decides where content STARTS and scroll-padding where the browser
+   STOPS — .bo-main already has 120px of bottom padding and controls still
+   parked under the dock. 68px dock + 10px offset + 14px margin, plus the same
+   safe-area the dock itself stands on. :has(.bo) keeps it off every other
+   screen, and a literal, not a var(), because a var() on html cannot see a
+   descendant's declaration. */
+@media (max-width: 860px) {
+  html:has(.bo) { scroll-padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 420px) {
   .bo-stats dd { font-size: 22px; }

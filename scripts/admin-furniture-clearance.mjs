@@ -1,5 +1,5 @@
 // CAN A CONTROL THAT COMES TO REST UNDER THE BACK OFFICE'S FIXED FURNITURE
-// STILL BE PRESSED? — ROADMAP 9.11e, the back-office third of it.
+// STILL BE PRESSED? — ROADMAP 9.11e, the back-office share of it.
 //
 //   node --env-file=.env scripts/admin-furniture-clearance.mjs
 //   node --env-file=.env scripts/admin-furniture-clearance.mjs --headed
@@ -7,45 +7,44 @@
 //   node --env-file=.env scripts/admin-furniture-clearance.mjs --break=canary
 //   node scripts/receipt.mjs receipts/admin-furniture-clearance.json
 //
+// RETARGETED 2026-10-12 at the new back office (9.12a's `office/`). The first
+// version of this file measured the old screen's `.pa-top` / `.pa-x` /
+// `.pa-load`; that screen is deleted, so it asked its questions of nothing.
+// Same file, same check_id, still `/admin` — only the selectors moved.
+//
 // `BASE` overrides the dev server; the default is :5173. Credentials in `.env`.
 //
 // ---------------------------------------------------------------------------
 // WHY THIS FILE EXISTS AND WHAT IT IS A COPY OF
 // ---------------------------------------------------------------------------
-// `tests/fixed-furniture-is-hit-tested.test.mjs` derived the population from
-// the CSS on 2026-10-07 and found **14 pieces of furniture on 7 screens, 3
-// hit-tested**. Of the 11 with no hit-test, **7 sat on screens no hit-testing
-// check visited at all**, and three of those seven are the back office:
+// `tests/fixed-furniture-is-hit-tested.test.mjs` derives the population from
+// the CSS every run. Two rows of it are the new back office, on a screen no
+// hit-testing check visits:
 //
-//   .pa-top    fixed, z-index 30 — the bar that never moves
-//   .pa-x      sticky, z-index 1 — a panel's own close control, 30px wearing
-//              `::after { inset: -7px }`, so 44px of real hit area
-//   .pa-load   fixed, z-index 50 — a THREE PIXEL progress strip over the top
-//              edge, which outranks the bar beneath it
+//   .bo-rail    sticky side rail on desktop; fixed 68px bottom dock on phones,
+//               z-index 25 — the furniture is at the BOTTOM here, not the top
+//   .bo-panel   fixed sheet, z-index 31 over its own scrim (z-index 30) — a
+//               right-hand sheet on desktop, a 92dvh bottom sheet on phones,
+//               with its own inner scroll (`.bo-pscroll`)
 //
 // It follows `scripts/tabbar-clearance.mjs`'s pattern deliberately rather than
 // inventing one: the hit area is measured with `elementFromPoint`, never the
 // bounding rect, and the overhang is READ OFF each element's own `::after`.
-// **`.pa-x` is exactly the control that breaks a rect-only probe** — 30px of
-// box, 44px of target — so a scan that measured the rect would report a legal
-// control broken at every width, which is the instrument bug `tabbar-clearance`
-// was written to avoid and which `--break=rect` reproduces here on purpose.
+// **`.bo-thead button` is the control that breaks a rect-only probe** — its
+// `::after` wears `inset: -16px -4px -8px`, so a scan that measured the rect
+// would misjudge every table header, which is the instrument bug
+// `tabbar-clearance` was written to avoid and which `--break=rect` reproduces
+// here on purpose.
 //
 // ---------------------------------------------------------------------------
-// THE THREE-PIXEL STRIP, AND WHY IT IS INJECTED
+// NO STRIP SURFACES, AND WHY
 // ---------------------------------------------------------------------------
-// `.pa-load` is drawn by `AdminPage.jsx:437` as `{busy && <div className=
-// "pa-load" />}` — it exists only while an admin fetch is in flight, which is
-// a few hundred milliseconds. A probe that waited to catch one would be a
-// probe that usually measured nothing and said it was clean.
-//
-// So the strip surfaces put the app's **own class** on the page and ask
-// `elementFromPoint` the same question. Nothing about the app is modified: the
-// element, the class and the CSS are all the product's, placed where the
-// product places them. **What is being tested is whether a press that lands in
-// the top three rows reaches the control or the strip** — and because the
-// strip is `z-index: 50` against `.pa-top`'s 30, it is in front of the bar as
-// well.
+// The old screen had `.pa-load`, a 3px progress strip that outranked the bar,
+// so this file injected it with the app's own class. The new office has no
+// equivalent — grep for `bo-load`, a busy strip or a progress element finds
+// nothing — and an injected strip would test the instrument, not the product.
+// If one is added, it belongs in the furniture population the way `.pa-load`
+// was, with surfaces of its own.
 //
 // ---------------------------------------------------------------------------
 // WHICH ACCOUNT THIS SIGNS IN AS, IN ONE PLACE SO NOBODY HAS TO GUESS
@@ -90,24 +89,26 @@
 //              something. A surface with none grades as failures rather than
 //              dropping out.
 //   legal      the control's own hit area, measured in the middle of the
-//              screen where no fixed furniture can reach it, is 44px. Without
-//              this the check would blame the furniture for a control that was
-//              too small to begin with.
+//              screen where no fixed furniture can reach it, is 44px − the
+//              loop's own ±1px (a 44.0 target on a fractional edge reads 43).
+//              Without this the check would blame the furniture for a control
+//              that was too small to begin with.
 //   reachable  where the browser puts it when it is focused, 44 of those rows
 //              survive. Losses are attributed by `elementFromPoint`, so "the
-//              bar did it" is read off the page rather than assumed.
-//   strip      STRIP SURFACES ONLY: with `.pa-load` on screen, does any
-//              control lose a row to it. This is the manager's question of
-//              2026-10-07 and a loss here is a real defect in `app/src`,
-//              reported into ROADMAP 9.11e and NOT fixed from this file.
+//              dock did it" is read off the page rather than assumed. The
+//              scroll uses `block: "end"` because the furniture here is at the
+//              BOTTOM — the old screen's `"start"` would park controls at the
+//              top, where nothing covers them, and report a clean sheet over a
+//              dock that eats the bottom row of everything.
 //
 // ---------------------------------------------------------------------------
 // TWO SABOTAGES
 // ---------------------------------------------------------------------------
 // `--break=rect` scans the bounding rect and ignores the `::after`, so every
-// legal `.pa-x` must fail `legal` — which is how this file proves it measures
-// the overhang rather than claiming to. `--break=canary` drops the injected
-// canary, so nothing is observed and `receipt.mjs` refuses the receipt.
+// legal `.bo-thead button` (16px of top overhang) must fail `legal` — which is
+// how this file proves it measures the overhang rather than claiming to.
+// `--break=canary` drops the injected canary, so nothing is observed and
+// `receipt.mjs` refuses the receipt.
 import "../tests/_env.mjs";
 
 import { createRequire } from "node:module";
@@ -140,18 +141,17 @@ const SIZES = [
   { w: 1440, h: 900 }, { w: 1920, h: 1080 },
 ];
 
-// Three of the five tabs. `now` and `pipes` are the two with the most controls
-// and the tallest bodies; `who` is the one that opens a panel, which is the
-// only place `.pa-x` exists. Growth and Money are charts over the same bar and
-// the same body padding, so they would re-ask one question with a different
-// picture behind it.
+// All four places. `detailers` is the one that opens a panel, which is the
+// only place `.bo-panel` exists; the other three are tall bodies over the
+// same phone dock, each with its own controls.
 const TABS = [
-  { key: "now", label: "Today" },
-  { key: "who", label: "Detailers" },
-  { key: "pipes", label: "System health" },
+  { key: "today", label: "Today" },
+  { key: "detailers", label: "Detailers" },
+  { key: "money", label: "Money" },
+  { key: "system", label: "System" },
 ];
 
-const SEL = ".pa-btn, .pa-tab, .pa-chip, .pa-out, .pa-edit, .pa-swap, .pa-x, button";
+const SEL = ".bo-btn, .bo-nav, .bo-px, .bo-fchip, .bo-find-top, .bo-row, button, a[href]";
 const ABSOLUTE = 44;
 const ART = fileURLToPath(new URL("../artifacts/admin-furniture-clearance/", import.meta.url));
 
@@ -160,7 +160,6 @@ const failures = [];
 const artifacts = [];
 const consoleNoise = [];
 const observed = [];
-const stripHits = [];
 
 const check = (target, name, cond, detail = "") => {
   assertions++;
@@ -176,27 +175,19 @@ const check = (target, name, cond, detail = "") => {
  * `useRect` is the `--break=rect` sabotage: scan the bounding box and ignore
  * the `::after`, which is the instrument bug this file exists not to have.
  */
-const MEASURE = ({ sel, absolute, useRect, strip, within }) => {
-  const top = document.querySelector(".pa-top");
-  const barBottom = top ? Math.round(top.getBoundingClientRect().bottom) : null;
+const MEASURE = ({ sel, absolute, useRect, within }) => {
+  const rail = document.querySelector(".bo-rail");
+  const railBox = rail ? rail.getBoundingClientRect() : null;
+  // On phones the rail is a fixed bottom dock; on desktop it is a sticky side
+  // column nothing scrolls under. The number that matters is the dock's TOP on
+  // a phone width, null everywhere else — read off the page, not assumed.
+  const railTop = railBox && getComputedStyle(rail).position === "fixed"
+    ? Math.round(railBox.top) : null;
 
-  // THE STRIP, PUT ON SCREEN WITH THE APP'S OWN CLASS. `AdminPage.jsx` draws
-  // exactly this element while a fetch is in flight; it is removed again
-  // before this function returns so nothing persists into the screenshot's
-  // own meaning.
-  let injected = null;
-  if (strip && !document.querySelector(".pa-load")) {
-    injected = document.createElement("div");
-    injected.className = "pa-load";
-    injected.setAttribute("data-probe", "1");
-    document.body.appendChild(injected);
-  }
-  const stripEl = document.querySelector(".pa-load");
-  const stripBox = stripEl ? stripEl.getBoundingClientRect() : null;
-
-  // THE OVERHANG, READ OFF THE ELEMENT rather than assumed. `.pa-x` is 30px
-  // wearing `::after { inset: -7px }` — 44px of target — and a literal here
-  // would stop covering the next control to use a different inset.
+  // THE OVERHANG, READ OFF THE ELEMENT rather than assumed. `.bo-thead
+  // button` wears `::after { inset: -16px -4px -8px }` and `.bo-px` wears
+  // `inset: -2px` — and a literal here would stop covering the next control
+  // to use a different inset.
   const overhangOf = (el) => {
     if (useRect) return { top: 0, bottom: 0 };
     const a = getComputedStyle(el, "::after");
@@ -207,10 +198,9 @@ const MEASURE = ({ sel, absolute, useRect, strip, within }) => {
 
   const who = (hit) => {
     if (!hit) return "nothing";
-    if (hit.closest(".pa-load")) return ".pa-load";
-    if (hit.closest(".pa-top")) return ".pa-top";
-    if (hit.closest(".pa-x")) return ".pa-x";
-    if (hit.closest(".pa-open")) return ".pa-open";
+    if (hit.closest(".bo-rail")) return ".bo-rail";
+    if (hit.closest(".bo-panel")) return ".bo-panel";
+    if (hit.closest(".bo-scrim")) return ".bo-scrim";
     return String(hit.className || "").split(" ")[0] || hit.tagName;
   };
 
@@ -229,30 +219,21 @@ const MEASURE = ({ sel, absolute, useRect, strip, within }) => {
 
   const out = [];
   let hidden = 0;
-  // **A PANEL SURFACE MEASURES THE PANEL, NOT THE PAGE BEHIND IT.** `.pa-open`
-  // is `inset: 0` at z-index 40 — a modal — so every control on the page under
-  // it correctly reads 0px of hit area, and a run that measured them reported
-  // five defects per width that were the product working. The panel exists in
-  // this plan for one reason, `.pa-x`, and that is what it now measures.
+  // **A PANEL SURFACE MEASURES THE PANEL, NOT THE PAGE BEHIND IT.** `.bo-scrim`
+  // is `inset: 0` at z-index 30 — a modal scrim — so every control on the page
+  // under it correctly reads 0px of hit area. The panel surface exists for
+  // `.bo-panel` itself: its close control, its buttons, its inner scroll.
   const scope = within ? document.querySelector(within) : document;
-  if (!scope) return { barBottom, absolute, controls: [], hidden: 0, strip: null, missing: within };
+  if (!scope) return { railTop, absolute, controls: [], hidden: 0, missing: within };
   for (const el of scope.querySelectorAll(sel)) {
     const r0 = el.getBoundingClientRect();
     if (r0.width < 8 || r0.height < 8) continue;
-    // THE BAR'S OWN CONTROLS ARE SKIPPED, WITH ONE EXCEPTION THAT IS THE POINT
-    // OF THE STRIP SURFACES: `.pa-tab` lives inside `.pa-top`, and `.pa-load`
-    // is painted OVER `.pa-top` at z-index 50 against 30. So the tabs are the
-    // controls most likely to lose rows to the strip, and skipping the whole
-    // bar would have measured everything except the thing at risk.
-    //
-    // **AND THE EXCEPTION IS FOR THE STRIP SURFACES ONLY, which the first run
-    // proved by failing wrongly.** On a panel surface the detailer dialog
-    // (`.pa-open`, `inset: 0`, z-index 40) is legitimately over the tab bar, so
-    // the tabs measured 0px of hit area at all five widths and the run reported
-    // five defects that were the product behaving correctly. A modal covering
-    // what is behind it is not a clearance fault, and `.pa-open` is in the
-    // furniture check's own "covers the viewport" exclusion for that reason.
-    if (el.closest(".pa-top") && !(strip && el.classList.contains("pa-tab"))) continue;
+    // THE DOCK'S OWN CONTROLS ARE SKIPPED. `.bo-nav` lives inside `.bo-rail`
+    // and the rail is always on screen by construction — this script clicks
+    // those very buttons to navigate — so measuring their "reachable" would
+    // ask whether fixed furniture comes to rest under itself. Their `legal`
+    // size is asked by `sweep-tap-targets.mjs`, which owns that question.
+    if (el.closest(".bo-rail")) continue;
     // A CONTROL INSIDE A CLOSED FOLD IS NOT A BROKEN CONTROL. It keeps a
     // bounding rect while an ancestor takes it off the screen, so the
     // reachable count is 0 and a run would report a screen full of faults.
@@ -276,8 +257,8 @@ const MEASURE = ({ sel, absolute, useRect, strip, within }) => {
     //    honoured for; `scrollIntoView` alone moves nothing for an element the
     //    browser already considers visible under a painted bar, which is the
     //    trap `keyboard-walk.mjs` and `tabbar-clearance.mjs` both record.
-    //    `block: "start"` because the furniture here is at the TOP.
-    el.scrollIntoView({ block: "start", inline: "nearest" });
+    //    `block: "end"` because the furniture here is at the BOTTOM.
+    el.scrollIntoView({ block: "end", inline: "nearest" });
     if (typeof el.focus === "function") el.focus({ preventScroll: false });
     const rn = el.getBoundingClientRect();
     const got = rows(el, rn.top - o.top, rn.bottom + o.bottom,
@@ -291,24 +272,13 @@ const MEASURE = ({ sel, absolute, useRect, strip, within }) => {
       top: Math.round(rn.top), bottom: Math.round(rn.bottom),
     });
   }
-  // READ THE STACKING ORDER BEFORE DETACHING IT. The first run printed
-  // `.pa-load 3px at y 0 z ` with the z blank, because `getComputedStyle` on a
-  // removed element answers nothing -- a number quietly missing from a receipt,
-  // which is the shape this repo keeps meeting.
-  const stripZ = stripEl ? getComputedStyle(stripEl).zIndex : null;
-  if (injected) injected.remove();
-  return {
-    barBottom, absolute, controls: out, hidden,
-    strip: stripBox ? { top: Math.round(stripBox.top), h: Math.round(stripBox.height), z: stripZ } : null,
-  };
+  return { railTop, absolute, controls: out, hidden };
 };
 
-// THE CANARY: take the body's reserve for the fixed bar away. `--pa-top` is
-// 116px and `.pa-body`'s own padding is `calc(var(--pa-top) + 14px)`, so
-// zeroing it rides the whole body up under a bar that has not moved. Whatever a
-// fix looks like, a body with no reserve must lose rows to `.pa-top` again — so
-// a run that observes nothing here has stopped looking.
-const CANARY_CSS = `:root { --pa-top: 0px !important; } html { scroll-padding-top: 0 !important; }`;
+// THE CANARY: take the dock's reserve away. Whatever the reserve looks like,
+// a body with no bottom reserve must lose rows to `.bo-rail` on a phone width
+// again — so a run that observes nothing here has stopped looking.
+const CANARY_CSS = `html { scroll-padding-bottom: 0 !important; }`;
 
 rmSync(ART, { recursive: true, force: true });
 mkdirSync(ART, { recursive: true });
@@ -355,23 +325,31 @@ console.log(`signed in as ${acct.email} — created for this run, deleted at the
 let signedIn = null;
 let browser = null;
 
-// **WAIT FOR THE BODY, NOT FOR THE BAR.** The first run of this file measured
-// `.pa-top bottom 106` on every surface and **0 controls**, because `/admin`
-// was still showing "Reading the platform…" — the shell renders immediately
-// and the platform read takes seconds. The screenshot showed it plainly; the
-// numbers alone would have read as a back office with no controls in it.
-// **The `subjects` question is what caught it**, which is the whole reason a
-// surface with nothing on it grades as a failure instead of dropping out.
+// **WAIT FOR THE PLACE, NOT FOR THE RAIL.** The old screen's first run
+// measured 0 controls because `/admin` was still showing its loading state —
+// the shell renders immediately and the data read takes seconds. The
+// screenshot showed it plainly; the numbers alone would have read as a back
+// office with no controls in it. **The `subjects` question is what catches
+// it**, which is the whole reason a surface with nothing on it grades as a
+// failure instead of dropping out.
 async function ready(page) {
-  await page.waitForSelector(".pa-body", { timeout: 40000 });
-  await page.waitForFunction(() => !document.querySelector(".pa-none"), null, { timeout: 60000 });
-  await page.waitForFunction(() => !document.querySelector(".pa-load"), null, { timeout: 60000 });
+  await page.waitForSelector(".bo-rail", { timeout: 40000 });
+  // THE BODY, NOT THE RAIL. The rail renders while the place still says
+  // "Reading the platform…" (`.bo-none`), and a wait on the rail alone
+  // measures an empty body with zero controls. The retarget's first run did
+  // exactly that on all 26 surfaces — the `subjects` question caught it,
+  // which is why a surface with nothing on it grades as a failure.
+  await page.waitForFunction(() => !document.querySelector(".bo-none"), null, { timeout: 90000 });
+  const err = await page.locator(".bo-error").first().innerText().catch(() => "");
+  if (err) throw new Error(`the back office loaded its shell but its data read failed: `
+    + `${String(err).replace(/\s+/g, " ").slice(0, 200)} (ROADMAP 9.18 owns the platform-admin read; `
+    + `this run stops loudly rather than measuring one Try-again button and calling it a surface)`);
   await page.waitForFunction(
-    () => document.querySelectorAll(".pa-body button, .pa-body a[href]").length > 0,
+    () => document.querySelectorAll(".bo-main button, .bo-main a[href]").length > 0,
     null, { timeout: 60000 });
 }
 
-async function surface(size, { tab, panel, strip, label, canary }) {
+async function surface(size, { tab, panel, label, canary }) {
   const ctx = await browser.newContext({
     viewport: { width: size.w, height: size.h }, deviceScaleFactor: 1,
     storageState: signedIn || undefined,
@@ -380,23 +358,21 @@ async function surface(size, { tab, panel, strip, label, canary }) {
   watchConsole(page, label, consoleNoise);
   try {
     await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("input[type=email], .pa-top", { timeout: 40000 });
+    await page.waitForSelector("input[type=email], .bo-rail", { timeout: 40000 });
     if (await page.locator("input[type=email]").count()) {
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      // `form button.pa-btn` is the door's own submit, the same selector
-      // `admin-contrast.mjs` uses. A looser `form button` matched something
-      // else on the first run and the wait below timed out on `.pa-top` with
-      // nothing to say about why, which is a harness fault wearing a product
-      // fault's clothes.
-      await page.click("form button.pa-btn");
+      // `form button.bo-btn.go` is the door's own submit. A looser
+      // `form button` risks matching the show-password toggle instead, which
+      // is a harness fault wearing a product fault's clothes.
+      await page.click("form button.bo-btn.go");
       try {
-        await page.waitForSelector(".pa-top", { timeout: 40000 });
+        await page.waitForSelector(".bo-rail", { timeout: 40000 });
       } catch (e) {
         // THE DOOR'S OWN WORDS, OR THERE IS NOTHING TO ACT ON. A timeout on
-        // `.pa-top` says the sign-in did not land and nothing else; the error
+        // `.bo-rail` says the sign-in did not land and nothing else; the error
         // the screen is showing says which half failed.
-        const said = await page.locator(".pa-err, .pa-door-in").first()
+        const said = await page.locator(".bo-error, .bo-door").first()
           .innerText().catch(() => "(nothing on screen)");
         throw new Error(`sign-in did not reach the back office. The door says: `
           + `${String(said).replace(/\s+/g, " ").slice(0, 200)}`);
@@ -406,21 +382,23 @@ async function surface(size, { tab, panel, strip, label, canary }) {
     await ready(page);
     await settle(page, 1200);
     if (tab) {
-      await page.locator(".pa-tab").filter({ hasText: tab.label }).first().click();
+      await page.locator(".bo-nav").filter({ hasText: tab.label }).first().click();
       await ready(page);
       await settle(page, 1200);
     }
     if (panel) {
-      // The only place `.pa-x` exists. A back office with no detailer rows is
-      // not a clean run, it is an unasked question, so the absence is reported.
-      const row = page.locator(".pa-biz, .pa-row").first();
+      // The only place `.bo-panel` exists. A back office with no detailer rows
+      // is not a clean run, it is an unasked question, so the absence is
+      // reported: the panel surface grades `subjects` on `.bo-panel` being
+      // there, and MEASURE reports `missing` when it never opened.
+      const row = page.locator(".bo-row").first();
       if (await row.count()) { await row.click(); await settle(page, 1500); }
     }
     if (canary && BREAK !== "canary") await page.addStyleTag({ content: CANARY_CSS });
     await settle(page, 800);
     const m = await page.evaluate(MEASURE,
-      { sel: SEL, absolute: ABSOLUTE, useRect: BREAK === "rect", strip: !!strip,
-        within: panel ? ".pa-open" : null });
+      { sel: SEL, absolute: ABSOLUTE, useRect: BREAK === "rect",
+        within: panel ? ".bo-panel" : null });
     // THE FRAME IS TAKEN WHERE THE MEASUREMENT ENDED — the last control
     // focused, sitting wherever the browser left it. A shot of the top of the
     // page would be a picture of somewhere the numbers did not come from.
@@ -439,18 +417,23 @@ function grade(id, m, kind, sink) {
     m.missing
       ? `${m.missing} is not on screen, so the panel never opened and this surface asked nothing`
       : "no controls matched on this surface, so every question below was asked of nothing");
-  const illegal = controls.filter((c) => c.legal < ABSOLUTE);
+  // 44 − 1: the row loop counts INTEGER rows and carries ±1px at a fractional
+  // edge — a 36px chip wearing exactly 8px of overhang (44.0 of target) reads
+  // 43 when its box lands on a fraction, the marketing script's `.htab`
+  // precedent. The exact figure is still printed, and a shortfall of 2 or
+  // more still fails, so `--break=rect` (5+ px out) keeps biting by a mile.
+  const illegal = controls.filter((c) => c.legal < ABSOLUTE - 1);
   sink(id, "legal", controls.length > 0 && illegal.length === 0,
     illegal.slice(0, 3).map((c) => `«${c.text}» (${c.cls}) is ${c.legal}px of hit area with nothing `
       + `over it (box ${c.rectH}px + ${c.overhang}px overhang)`).join("; ")
       + (illegal.length > 3 ? ` … and ${illegal.length - 3} more` : ""));
 
   // ONLY LOSSES TO THE BACK OFFICE'S OWN FURNITURE COUNT. A chip can come up
-  // short against `.pa-body` or a card at a wide width — real, and not what
+  // short against `.bo-main` or a card at a wide width — real, and not what
   // this item is about. Failing on it here would make the check go red for
   // reasons outside its own scope, which is how a check starts measuring
   // itself. Reported instead.
-  const mine = (c) => Object.keys(c.lost || {}).some((k) => k === ".pa-top" || k === ".pa-load");
+  const mine = (c) => Object.keys(c.lost || {}).some((k) => k === ".bo-rail");
   const short = controls.filter((c) => c.legal >= ABSOLUTE && c.reachable < ABSOLUTE && mine(c));
   const elsewhere = controls.filter((c) => c.legal >= ABSOLUTE && c.reachable < ABSOLUTE && !mine(c));
   if (elsewhere.length) {
@@ -460,24 +443,9 @@ function grade(id, m, kind, sink) {
   }
   sink(id, "reachable", controls.length > 0 && short.length === 0,
     short.slice(0, 3).map((c) => `«${c.text}» (${c.cls}) is legal at ${c.legal}px but only `
-      + `${c.reachable}px survive where the browser puts it (y ${c.top}..${c.bottom}, bar bottom `
-      + `${m.barBottom}), lost to ${JSON.stringify(c.lost)}`).join("; ")
+      + `${c.reachable}px survive where the browser puts it (y ${c.top}..${c.bottom}, dock top `
+      + `${m.railTop}), lost to ${JSON.stringify(c.lost)}`).join("; ")
       + (short.length > 3 ? ` … and ${short.length - 3} more` : ""));
-
-  if (kind !== "strip") return;
-  // THE MANAGER'S QUESTION, 2026-10-07. A loss to the 3px strip is a real
-  // defect in `app/src` and is NOT fixed from here — it goes into ROADMAP
-  // 9.11e by name.
-  const taken = controls.filter((c) => (c.lost || {})[".pa-load"] > 0);
-  if (taken.length) {
-    for (const c of taken.slice(0, 4)) {
-      stripHits.push(`${id}: «${c.text}» (${c.cls}) loses ${c.lost[".pa-load"]} row(s) to .pa-load `
-        + `at y ${c.top}..${c.bottom}`);
-    }
-  }
-  sink(id, "strip", taken.length === 0,
-    `${taken.length} control(s) lose rows to the 3px .pa-load strip (z-index ${m.strip?.z}): `
-    + taken.slice(0, 3).map((c) => `«${c.text}» ${c.lost[".pa-load"]} row(s)`).join("; "));
 }
 
 // ---------------------------------------------------------------------------
@@ -487,14 +455,13 @@ function grade(id, m, kind, sink) {
 const PLAN = [
   ...SIZES.flatMap((s) => TABS.map((t) => ({ size: s, tab: t, kind: "tab" }))),
   ...SIZES.map((s) => ({ size: s, tab: TABS[1], panel: true, kind: "panel" })),
-  ...SIZES.map((s) => ({ size: s, tab: TABS[0], strip: true, kind: "strip" })),
 ];
-const QUESTIONS = { tab: 3, panel: 3, strip: 4 };
+const QUESTIONS = { tab: 3, panel: 3 };
 const EXPECTED = PLAN.length + 1;                       // + the canary
 const MIN_ASSERTIONS = PLAN.reduce((n, p) => n + QUESTIONS[p.kind], 0) + 3;
 
 let discovered = 0, attempted = 0, completed = 0;
-const canary = { id: "the-bar-reserve-taken-away", observed_failure: false, problems: [] };
+const canary = { id: "the-dock-reserve-taken-away", observed_failure: false, problems: [] };
 
 try {
   browser = await chromium.launch({ headless: !HEADED });
@@ -508,16 +475,19 @@ try {
     const worst = m.controls.reduce((a, c) => (c.reachable < a ? c.reachable : a), 999);
     observed.push(`${label}: ${m.controls.length} visible control(s)`
       + (m.hidden ? ` (+${m.hidden} inside closed folds, not measured)` : "")
-      + `, .pa-top bottom ${m.barBottom}`
-      + (m.strip ? `, .pa-load ${m.strip.h}px at y ${m.strip.top} z ${m.strip.z}` : "")
+      + `, dock top ${m.railTop === null ? "n/a (side rail, nothing scrolls under it)" : m.railTop}`
       + `, worst reachable ${worst === 999 ? "n/a" : worst + "px"}`);
     completed++;
   }
 
-  console.log("  canary — the bar's reserve taken away; it MUST fail");
+  console.log("  canary — the dock's reserve taken away; it MUST fail");
   discovered++; attempted++;
   {
-    const m = await surface(SIZES[0], { tab: TABS[0], kind: "tab", label: "canary", canary: true });
+    // MONEY, not today: the canary must bite where controls actually reach the
+    // dock. Today's body is short — nothing scrolls, zeroing the reserve
+    // changes nothing, and the first version of this file MISSED its canary on
+    // a 3-control clean surface. Money's bottom row loses 32 rows to the dock.
+    const m = await surface(SIZES[0], { tab: TABS[2], kind: "tab", label: "canary", canary: true });
     grade("canary", m, "tab", (t, name, cond, detail) => {
       assertions++;
       if (cond) return;
@@ -538,10 +508,6 @@ try {
 
 console.log("\nWhat the surfaces measured:");
 for (const o of observed) console.log("  " + redact(o));
-if (stripHits.length) {
-  console.log("\nTHE 3px STRIP TOOK ROWS FROM A CONTROL — a real defect in app/src, for ROADMAP 9.11e:");
-  for (const s of stripHits) console.log("  " + s);
-}
 if (consoleNoise.length) {
   console.log("\nConsole and refused requests:");
   for (const c of consoleNoise) console.log("  " + redact(c));
@@ -561,7 +527,7 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   min_assertions: MIN_ASSERTIONS,
   assertion_floor:
-    "5 widths x (3 tabs x 3 questions + 1 panel x 3 + 1 strip x 4) + 1 canary x 3. Fixed by SIZES, "
+    "5 widths x (4 places x 3 questions + 1 panel x 3) + 1 canary x 3. Fixed by SIZES, "
     + "TABS and the question list per surface kind, never by what the run finds: a surface with no "
     + "matching controls grades as failures rather than dropping out, so the number cannot fall "
     + "without a diff. A tripwire on the code, not a run-time check.",
@@ -569,11 +535,8 @@ const { path } = writeReceipt({
   artifacts,
   warnings: [
     "Measures the HIT AREA — bounding rect plus the overhang read off each element's own ::after "
-    + "— never the rect. `.pa-x` is 30px of box and 44px of target, so a rect-only scan reports a "
-    + "legal control broken at every width. `--break=rect` is that bug on purpose.",
-    ".pa-load is INJECTED with the app's own class on the strip surfaces, because the product draws "
-    + "it only while a fetch is in flight. Nothing about the app is modified; a probe that waited to "
-    + "catch one would usually measure nothing and call it clean.",
+    + "— never the rect. `.bo-thead button` wears 16px of top overhang, so a rect-only scan "
+    + "misjudges every table header. `--break=rect` is that bug on purpose.",
     "Signs in as a THROWAWAY platform admin created for this run and deleted in a finally, AND "
     + "any leftover at that address is deleted before the run starts. Do not wrap this script in "
     + "`timeout`: docs/gotchas.md 90, a finally does not run on SIGTERM, and a killed run leaves "
@@ -586,8 +549,7 @@ const { path } = writeReceipt({
     tabs: TABS.map((t) => t.key),
     surface_kinds: Object.keys(QUESTIONS),
     absolute: ABSOLUTE,
-    furniture: [".pa-top", ".pa-x", ".pa-load"],
-    strip_findings: stripHits,
+    furniture: [".bo-rail", ".bo-panel"],
     leftover_admin_found_at_start: leftover,
     observed,
     sabotage: BREAK || null,
