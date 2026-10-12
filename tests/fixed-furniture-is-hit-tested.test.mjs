@@ -111,6 +111,12 @@ const HIT_TESTERS = [
   // /admin. Its own header says which account it signs in as and why that is a
   // throwaway.
   "scripts/admin-furniture-clearance.mjs",
+  // ADDED 2026-10-12 (ROADMAP 9.11e, marketing third). The marketing surface
+  // was the rest of the unvisited half -- `.ld .nav`, `.ld .navmenu.on` and
+  // `.ld .stage` on /, /pricing and /terms -- and
+  // `marketing-furniture-clearance.mjs` is the same pattern pointed there.
+  // Credential-free: the marketing surface is signed-out, so no account.
+  "scripts/marketing-furniture-clearance.mjs",
 ];
 
 // Comments are blanked rather than removed, so a reported line number is the
@@ -206,21 +212,27 @@ export function coveredBy(sel, texts) {
 const NO_HIT_TEST = [
   ".impbar",
   ".intake:has(> .livesite) > .livesite",
-  ".ld .nav",
-  ".ld .navmenu.on",
-  ".ld .stage",
   ".split > .col-2",
   ".topbar",
   ".bo-rail",
   ".bo-panel",
 ];
+// 9 -> 6 on 2026-10-12 (ROADMAP 9.11e, marketing third): `.ld .nav`,
+// `.ld .navmenu.on` and `.ld .stage` came off in the same edit as
+// `scripts/marketing-furniture-clearance.mjs`, the check that covers them on
+// /, /pricing and /terms — which is what the equality above is for. The
+// instrument arrived RED (controls under the pill at every width, the open
+// menu's first link under the pill) and was fixed in `landing.css` in the
+// same sitting before it was allowed to go green.
 // 8 -> 7 on 2026-10-10 (ROADMAP 9.15a): `.tourcard` left with the tour itself —
 // its CSS and the tour's component were deleted in the same edit, so it was retired
 // rather than covered.
 // 11 -> 8 on 2026-10-07: `.pa-top`, `.pa-x` and `.pa-load` came off in the same
 // edit as the check that covers them, which is what the equality above is for.
-// **The marketing surface is now the whole of the unvisited half**, and the
-// three that left were the other half of it.
+// (2026-10-12: the sentence that stood here — "the marketing surface is now
+// the whole of the unvisited half" — left with the marketing third above. The
+// unvisited half is now the new back office's `.bo-rail`/`.bo-panel` plus the
+// intake `.livesite` preview.)
 // 2026-10-12 (ROADMAP 99.3b-ii): the old screen is deleted, so its three rows
 // retire the way `.tourcard` did — and the new back office brings two of its
 // own (`.bo-rail`, `.bo-panel`), declared above with reach "unvisited" because

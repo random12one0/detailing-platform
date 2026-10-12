@@ -321,6 +321,18 @@
    by its rim and its sheen. ONE backdrop-filter on the page, not a glass
    system — 28 of them is what makes a page expensive on a mid-range
    phone. */
+/* ROADMAP 9.11e, marketing third — the top scroll reserve. The pill is fixed
+   at z-index 60 with its bottom edge at 76px on phones and up to 87px on
+   desktop (measured, all five widths), and nothing reserved the top: a
+   control focused to the top of the scrollport came to rest under it on the
+   landing and pricing pages at every width. `scroll-padding-top` decides
+   where the browser STOPS; padding decides where content starts, so no
+   padding fixes this — the back office's 130px of body padding proved it.
+   A literal, not a var(): a `var()` on `html` cannot see a property declared
+   on a descendant (scripts/var-scope-guard.mjs). `:has(.ld)` keeps the number
+   off every screen without the marketing nav. 87 max measured + 14, the same
+   margin the back office's reserve uses. */
+html:has(.ld) { scroll-padding-top: 101px; }
 .ld .nav {
   position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 60;
   width: calc(100% - 28px); max-width: var(--wrap);
@@ -415,10 +427,15 @@
      that Escape CLOSED it — the menu had never been shut, so nothing could
      close it. `hidden` stays on the element for assistive tech; it is no
      longer what does the hiding. */
+  /* ROADMAP 9.11e, marketing third — the menu hangs BELOW the pill, not under
+     it. The pill's bottom edge is 76px at these widths (measured) and 62px
+     slid the menu's first 14px beneath it, taking 7 rows off «What you get».
+     84 is 76 + 8. Not a ported number: the reference page has no menu, the
+     port added it, so there is nothing to preserve. */
   .ld .navmenu.on {
     display: flex; flex-direction: column; gap: 2px;
     position: fixed; z-index: 39; left: 50%; transform: translateX(-50%);
-    top: 62px; width: min(calc(100vw - 24px), 320px);
+    top: 84px; width: min(calc(100vw - 24px), 320px);
     padding: 6px; border-radius: 14px;
     background: rgba(10, 13, 15, .92);
     border: 1px solid rgba(255, 255, 255, .08);

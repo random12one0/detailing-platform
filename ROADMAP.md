@@ -9144,6 +9144,76 @@ the wrong service, and never book a job we cannot reach.
   pushed or applied. The throwaway admin was created and dropped on every run,
   confirmed in the log each time. Worktree removed.*
 
+  ---
+
+  **THE MARKETING SURFACE IS HIT-TESTED NOW, AND IT ARRIVED RED — 2026-10-12.**
+  `scripts/marketing-furniture-clearance.mjs`, the `tabbar-clearance` pattern
+  pointed at `/`, `/pricing` and `/terms`, plus a menu-open surface at 320 and
+  392 where the burger draws. Credential-free: the marketing surface is
+  signed-out, so no account, no database writes, no shared budgets. **PASS —
+  18 of 18 targets, 54 assertions, 0 failures, canary caught**, re-take
+  `node scripts/marketing-furniture-clearance.mjs` and grade
+  `node scripts/receipt.mjs receipts/marketing-furniture-clearance.json`.
+  `tests/fixed-furniture-is-hit-tested.test.mjs` moved **9 → 6** in the same
+  edit (re-take `node --test tests/fixed-furniture-is-hit-tested.test.mjs`,
+  **6 passed 0 failed**); the unvisited set is now the new back office
+  (`.bo-rail`, `.bo-panel`) plus the intake preview.
+
+  ### THE FINDING: THE PILL ATE CONTROLS AT EVERY WIDTH, AND THE MENU HID UNDER IT
+
+  The marketing pages had **no `scroll-padding-top` anywhere** — the product's
+  fourth missing top reserve after the back office. Measured with
+  `elementFromPoint`, read off the page:
+
+  | surface | control | landed | lost to |
+  |---|---|---|---|
+  | landing, all five widths | «See five sites built» (cta), legal at 50–51px | y 0..51 | 37 rows to `.ld .nav` (pill bottom 76–87) |
+  | landing, all five widths | «Your website» / «Your booking page» (htab) | y 0..44 | 30–31 rows to `.ld .nav` |
+  | pricing, all five widths | «Back to the site» (backlink) | y 0..44 | 31 rows to `.ld .nav` |
+  | menu open, 320 / 392 | «What you get» (first menu link) | fixed, cannot scroll away | 7 rows to `.ld .nav` — the menu hung at `top: 62px` under a 76px pill |
+
+  **Two fixes in `app/src/landing/landing.css`, same sitting:** (1)
+  `html:has(.ld) { scroll-padding-top: 101px }` — 87px max pill bottom measured
+  + 14, the back office's margin; `:has(.ld)` keeps it off every other screen,
+  and a literal, not a `var()`, because a `var()` on `html` cannot see a
+  descendant's declaration (`node scripts/var-scope-guard.mjs`: green, 26
+  resolving root reads). A padding would not have done it — padding decides where content
+  starts, `scroll-padding-top` where the browser stops. (2) `.ld .navmenu.on`
+  `top: 62px → 84px` (76 + 8); not a ported number — the reference page has no
+  menu, the port added it — so nothing was preserved. Before/after freezes of
+  the open phone menu: `belt/shots/9.11e/before.html` / `after.html`,
+  `differs()` true, situation in `where.json`.
+
+  ### THE INSTRUMENT WAS WRONG TWICE AND ITS OWN QUESTIONS CAUGHT BOTH
+
+  | run | what it reported | what was actually wrong |
+  |---|---|---|
+  | 1 | canary MISSED on a run that observed the defect | the 420px canary bar broke `legal` first (controls measured at mid-screen), and `reachable` only judges legal controls — it passed vacuously. A canary must break exactly the question it guards: 200px now, mid-screen intact, top eaten |
+  | 2 | `--break=rect` went PASS | no measured control wears vertical `::after` overhang (every control printed `+ 0px`), so ignoring it changes nothing. Removed rather than kept as theater; the overhang is still read per element |
+
+  **`legal` is asked, printed and recorded — never graded — in this script
+  only.** The row loop counts integer rows and carries ±1px at a fractional
+  edge: a 44.25px `.htab` at top 400.125 reads 43 (probed, last row landing on
+  the grid container), phone widths only, no furniture near it. Failing the
+  furniture check on scroll-offset fractions, or padding the product 1px to
+  satisfy a loop, would both be dishonest; the furniture question is
+  `reachable` and keeps full grading.
+
+  ### BROKEN ON PURPOSE
+
+  | sabotage | result |
+  |---|---|
+  | `--break=canary` — the tall nav never injected | **FAIL, 0 failures, canary MISSED** — the receipt refuses a run whose canary did not bite |
+  | tall nav injected (the clean run's own canary) | **caught** — «See five sites built» 51px → 0px, lost to `.ld .nav` |
+  | `FURNITURE_BREAK=new-furniture` / `uncover` / `FURNITURE_CANARY=off` on the meta-test | all three fail by name (`.sabotage-strip` uncovered, `.bk-bar` flipped, § 5 fails) |
+
+  **`.ld .stage` never took a row** on any landing surface at any width — present
+  throughout, sticky, full viewport — and the menu's own links are all reachable
+  with the menu open. The question was asked of both; clean is an answer, not an
+  absence. `legal` notes one regular: the `.htab` 43px report above, by name, in
+  every receipt's `observed`. Nothing deployed, pushed or applied; no credential
+  loaded; `artifacts/` ignored, both receipts committed.
+
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the
