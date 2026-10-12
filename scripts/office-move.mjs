@@ -169,11 +169,15 @@ try {
           (await page.locator(".pa-top").count()) === 0);
         check(where, "unsigned: no rail before signing in",
           (await page.locator(".bo-rail").count()) === 0);
-        const p = await probe(page, ".bo-door button, .bo-door input");
+        // Overlap is asked of the two fields plus the submit button only: the
+        // eye toggle sits INSIDE its password field on purpose (the old door's
+        // own design, kept word for word), so asking it against its field
+        // would fail a deliberate control. It stays in the 44px probe below.
+        const p = await probe(page, ".bo-door input, .bo-door button[type=submit]");
         check(where, "door: no overlap, no sideways overflow",
           p.overlaps.length === 0 && !p.overflowX, [...p.overlaps, p.overflowX ? "overflow-x" : ""].join(" | "));
-        check(where, "door: Sign in has 44px of hit area",
-          (await probe(page, ".bo-door button[type=submit]")).thin.length === 0);
+        check(where, "door: every button has 44px of hit area",
+          (await probe(page, ".bo-door button")).thin.length === 0);
         // CANARY, at the first width: the same probe must name an injected overlap.
         if (size.w === SIZES[0].w) {
           await page.evaluate(() => {
@@ -182,7 +186,7 @@ try {
             c.style.marginLeft = `-${r.width - 8}px`;
             b.after(c);
           });
-          const cp = await probe(page, ".bo-door button, .bo-door input");
+          const cp = await probe(page, ".bo-door input, .bo-door button[type=submit]");
           await page.evaluate(() => document.querySelectorAll("[data-canary]").forEach((n) => n.remove()));
           canary.observed_failure = BREAK === "blind" ? false : cp.overlaps.length >= 1;
           canary.detail = `overlaps seen with one injected: ${BREAK === "blind" ? "probe blinded" : cp.overlaps.length}`;
