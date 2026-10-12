@@ -29258,10 +29258,6 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   have to happen before this screen is published, in this order: apply the migration, then deploy `google-business`, then publish
   the app. **Published without the function, an owner opening the screen is told "Only the owner can connect Google" — wrong — because the missing function answers 404 exactly as it does to staff.**
 - [ ] **99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik**
-  **BELT PARKED after 3 attempts, 2026-10-12 02:11:19.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-12T02-11-12-385Z-99.2.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   **2026-10-11 — WORK IN NUMBERED PARTS; THE PARENT STAYS OPEN.** This is more than one job. This session takes only
   the email-formatting part of plan step 1. The approved wording and all original acceptance criteria below still stand.
   - [ ] **99.2a — readable email dates and exact times.** Local product changes are committed through `2b5e0c56`.
