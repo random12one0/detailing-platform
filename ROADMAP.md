@@ -3312,7 +3312,7 @@ and how the wait ends.
   Split on 2026-10-11 because this entry is 187 lines
   long and no single session was finishing it.
 
-- [ ] **0.6a — Verify and record the deployed-versus-checkout inventory**
+- [x] **0.6a — Verify and record the deployed-versus-checkout inventory**
   Run the content-based inventory, inspect its receipt, and establish the current set of differing deployed bundles without copying its derived count into prose. This covers measurement integrity and the known limits of comment-based comparison; it does not publish anything or build a prevention mechanism.
   Part 1 of 4 of item 0.6, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -3321,6 +3321,18 @@ and how the wait ends.
   - The receipt identifies every differing function and the shared-module versus function-local causes
   - The inventory result is checked against at least one obviously known differing deployed bundle
   - No current deployed-drift tally is added to roadmap prose or other hand-maintained status text
+  **Ticked 2026-10-11, how it was checked.** `node scripts/deployed-inventory.mjs` was run twice
+  against project `kguqylyzgyzfktkfnhjb` (ref confirmed first; read-only, nothing deployed). It exited 1 both
+  times and rewrote `receipts/deployed-inventory.json`, which names every differing function and, new in
+  `386193e2`, records WHY as data: `dimensions.causes` (per function: `function_local` vs `shared_modules`),
+  `dimensions.by_shared_module` (each shared file to the functions it breaks) and `dimensions.not_deployed`.
+  The receipt is the only place the current set lives; no tally is written here. Receipt graded: discovered
+  of expected targets agree, canary caught, assertions above the declared minimum.
+  **Independent check against a known-differing bundle:** `send-email` was fetched by hand and compared
+  without the script's normalisation. Commit `ccfa1b54` added a `ROADMAP 3.1d` comment to its `index.ts`
+  after the 2026-10-10 deploy; that comment is absent from the running bundle, and a comment that predates
+  the deploy is present (the control). The inventory lists `send-email` as differing by `index.ts` alone,
+  which agrees. Limit unchanged: comparison is by comment text, so DIFFERS is strong and `matches` is weak.
 
 - [ ] **0.6b — Give Andrew the ordered, paste-ready publish handoff**
   Prepare and validate the exact publication instructions for Andrew, preserving his authority over what ships and the required order. This covers the manual publication handoff only; it does not attempt a production deploy from the manager environment or claim that publication has occurred.
