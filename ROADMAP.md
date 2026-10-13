@@ -1494,6 +1494,8 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/gallery-remove-keys.test.mjs.
+  The work is safe on branch `belt/0.11be-20261013093840`. Answer "merge it" to keep it, or say what to change.
   Found by supervision at bf08d943 while reviewing 0.11bd. Gallery.jsx remove()
   only deletes gallery_images; it never calls removeBusinessPhoto. The cache
   adapter cannot help a button that never reaches photo-door. This is separate
