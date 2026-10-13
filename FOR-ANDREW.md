@@ -897,9 +897,9 @@ a push publishes at all** before spending one.
 website published before `photo-door` exists answers every photo action with
 *"Photo storage is not set up on the server yet"*.
 
-**AND NOW TWO LINES TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND
-IS EASY TO FORGET.** Two parts of the photo job are written, tested and
-**switched off** by one word each, both in `app/src/lib/photo-door.js`:
+**THE TWO RELEASE SWITCHES ARE NOW ON LOCALLY.** Both are in
+`app/src/lib/photo-door.js`; the app still needs your publish after the
+98.5 photo-test repair passes.
 
 * **`RECEIPTS_VIA_DOOR`, now `true` locally (0.11cc, 2026-10-13)** — receipts for expenses.
   **Needs:** `photo-door` published (step 9c).
@@ -908,10 +908,10 @@ IS EASY TO FORGET.** Two parts of the photo job are written, tested and
   public web address from step 9a2, **and** the CORS rule on `business-media`.
   *Added 2026-10-08.*
 
-Publish the function, meet each one's conditions, then have a session flip it to
-`true`; the website has to be published afterwards for either to take effect.
-**Why they are off at all:** both of those features work today, so switching them
-over before the function existed would break something that works. (Job
+The function, public address and CORS prerequisites above are already live.
+The website has to be published afterwards for the local receipt switch to take effect.
+**Why these switches originally stayed off:** switching working uploads
+over before the function existed would break them. (Job
 photographs have no switch, because they were already going through a door that
 did not exist — there was nothing working to lose.) **If you publish and nobody
 flips them, nothing breaks and nothing says so** — both keep going the old way,
