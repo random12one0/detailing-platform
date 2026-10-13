@@ -30097,6 +30097,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   file's content matches its JSON. Raw output: `receipts/supervisor-{release,door}-{break,clean}.txt`.
 
 - [ ] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/restore-date.test.mjs.
+  The work is safe on branch `belt/98.8-20261013140155`. Answer "merge it" to keep it, or say what to change.
   Supervisor review of the held 6.1b branch at `0cdab2bc`: the new test edit is fair, but
   `scripts/restore-nightly.mjs` unconditionally sets `project = PROJECT` for every `--dump` input.
   Its own invented fixture, exported unchanged and passed back through `--dump`, restores
