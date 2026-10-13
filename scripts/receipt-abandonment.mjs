@@ -5,7 +5,7 @@
 // node scripts/receipt-abandonment.mjs
 // PGLITE_DIR defaults to the existing TEMP/pglite installation; BASE=:5180.
 // This does NOT certify real R2 cleanup; publication and the live proof remain.
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
@@ -24,6 +24,7 @@ const BREAK = process.argv.find(a => a.startsWith("--break="))?.slice(8) || "";
 if (BREAK && BREAK !== "leave-object") throw new Error("Unknown sabotage");
 const BASE = process.env.BASE || "http://localhost:5180";
 const started_at = new Date().toISOString(), failures = [], observations = [];
+const transcript = [];
 const EXPECTED = 24; // 14 named SQL/handler targets + 5 browser cases at each of 2 widths.
 let discovered = 0, attempted = 0, completed = 0, assertions = 0, canaryCaught = false;
 const db = new PGlite(), objects = new Map();
@@ -47,8 +48,8 @@ const raw = {
 const reaper = (over = {}) => reclaimReceiptAttempts({ claim, ack, r2: raw, ...over });
 async function target(name, fn) {
   discovered++; attempted++;
-  try { await fn(); assertions++; completed++; console.log("ok " + name); }
-  catch (e) { failures.push(name + ": " + e.message); console.log("FAIL " + name + ": " + e.message); }
+  try { await fn(); assertions++; completed++; transcript.push("ok " + name); console.log("ok " + name); }
+  catch (e) { failures.push(name + ": " + e.message); transcript.push("FAIL " + name + ": " + e.message); console.log("FAIL " + name + ": " + e.message); }
 }
 try {
   await db.exec(`create role anon; create role authenticated; create role service_role;
@@ -202,10 +203,13 @@ try {
     }
   } finally { await browser.close(); }
 } finally { await db.close(); }
+const artifact = `receipts/receipt-abandonment${BREAK ? ".sabotage" : ""}.txt`;
+writeFileSync(artifact, transcript.join("\n") + "\n" + JSON.stringify(observations, null, 2) + "\n");
 const { path: receipt } = writeReceipt({ check_id: "receipt-abandonment", started_at, expected_targets: EXPECTED,
   discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: EXPECTED,
   assertion_floor: "One completed assertion group per declared target: fourteen SQL/handler cases and ten real Chromium cases; 24 total.", failures, status: failures.length ? "fail" : "pass",
+  artifacts: [artifact],
   canary: { id: "delete-left-object-behind", observed_failure: canaryCaught },
   dimensions: { break: BREAK, base: BASE, database: "throwaway PGlite", storage: "fake R2; real R2 cleanup NOT PROVED", observations } });
 console.log(`${discovered}/${EXPECTED} discovered; ${completed} completed; ${failures.length} failures; ${receipt}`);
