@@ -1494,6 +1494,32 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  **BUILT AND PROVED LOCALLY 2026-10-13; box left open only for the live proof below.**
+  Waits on: 0.11bd release (Andrew publishes photo-door with the purge). Then the warmed
+  public-URL proof runs through this button; whoever runs 0.11bd's live check removes this line
+  and ticks 0.11be. Nothing here is a decision for Andrew.
+  Product commit `0021a08f`: `storedMediaAt` (photo-rules.js) turns a stored address into a
+  key only for this business's own R2 object (`https://media.detailingplatform.com/<door-shaped
+  key>`) or older Supabase object (`getPublicUrl("")` prefix); external and foreign addresses
+  never become keys (canonical-form, no query). `removeBusinessPhotoAt` (upload.js) routes by
+  ADDRESS, not flag; `removeBusinessPhoto` is byte-for-byte unchanged so the photo-door-media*
+  sabotage targets stay armed. Gallery.jsx removes every address a row holds (both pair
+  members), then the row, checking its error; any refusal keeps the row and shows
+  "That photo was not removed. <reason>" (Spanish key added). A foreign row is deleted without
+  touching the file (it may be its owner's photo); the door also 404s a foreign key.
+  Proof, at `740882b2`: `node --env-file=.env scripts/gallery-remove-browser.mjs` (BASE=:5180) ->
+  **16 of 16 presses, 62 of 62 assertions**, graded PASS by `node scripts/receipt.mjs`, canary
+  `the-row-only-handler` caught; console clean at 1440 and 392 beyond the 2 refusals it serves
+  per width. Six stood-in rows (R2, old Supabase, pair, external key-shaped, foreign, row delete
+  refused): each press judged on its exact call sequence, file before row. `--break=row-only`
+  (the pre-fix handler, in the module the browser ran) -> red at both widths, sending only
+  `row ... ok`; `--break=foreign` -> red, door called with the foreign key (64 assertions, 11
+  failed; that run is `receipts/gallery-remove-browser.sabotage.json`). Unit:
+  `node --test tests/gallery-remove-keys.test.mjs` 4/4; photo-door-media-wire, photo-door-media,
+  job-photos, photo-door suites 39/39 with the new test. `spanish.test.mjs` NOT run: it writes
+  demo bookings with credentials. Seen: screenshots at 392 and 1440 show the reason and all six
+  tiles kept. Ceiling: if R2_MEDIA_BASE is ever rebound, `MEDIA_PUBLIC_BASE` must follow or R2
+  photos fall back to row-only removes (ponytail note beside it).
   Found by supervision at bf08d943 while reviewing 0.11bd. Gallery.jsx remove()
   only deletes gallery_images; it never calls removeBusinessPhoto. The cache
   adapter cannot help a button that never reaches photo-door. This is separate
