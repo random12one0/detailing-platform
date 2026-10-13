@@ -24,7 +24,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { withinLimits } from "../_shared/rateLimit.ts";
-import { makeR2, r2Config } from "../_shared/r2.ts";
+import { listAll, makeR2, r2Config } from "../_shared/r2.ts";
 import { type DbPhoto, handlePhotoReconcile, JOB, type ReconcileDeps } from "../_shared/photoReconcile.ts";
 import { reclaimReceiptAttempts } from "../_shared/receiptAttempts.ts";
 
@@ -58,10 +58,15 @@ const deps = (): ReconcileDeps => {
     loadRows,
     async reclaimReceipts() {
       if (!config) throw new Error("Receipt storage unavailable");
+      const receiptStore = makeR2(config);
+      // A PUT begun while its URL was valid can complete after an earlier
+      // cleanup saw no object. Tombstones let the next listing reclaim it.
+      // A listing alone never authorizes deletion: the ledger must claim it.
+      const present = await listAll(receiptStore, "expense-receipts");
       return reclaimReceiptAttempts({
-        r2: makeR2(config),
+        r2: receiptStore,
         async claim() {
-          const { data, error } = await supabase.rpc("claim_receipt_attempts");
+          const { data, error } = await supabase.rpc("claim_receipt_attempts", { p_present_keys: present.map(o => o.key) });
           if (error) throw error;
           return data ?? [];
         },

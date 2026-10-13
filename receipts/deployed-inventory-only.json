@@ -1,10 +1,12 @@
 {
-  "git_sha": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
-  "git_sha_started": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
+  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T10:37:10.638Z",
-  "failures": [],
+  "finished_at": "2026-10-13T12:13:31.692Z",
+  "failures": [
+    "THE COMPARISON DID NOT RUN: 0 bundle(s) were fetched and compared, so this run proves nothing about any function. A pass here would be indistinguishable from a clean estate, which is the one way this check can lie."
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/deployed-inventory.mjs"
@@ -12,9 +14,7 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "method": "comment-text comparison against the deployed eszip bundle",
-    "matching": [
-      "photo-reconcile"
-    ],
+    "matching": [],
     "differing": [],
     "not_deployed": [],
     "causes": {},
@@ -22,23 +22,21 @@
     "widest_gap_days": 0
   },
   "check_id": "deployed-inventory-only",
-  "started_at": "2026-10-13T10:37:05.982Z",
-  "status": "pass",
-  "expected_targets": 1,
-  "discovered_targets": 1,
-  "attempted_targets": 1,
-  "completed_targets": 1,
+  "started_at": "2026-10-13T12:13:30.824Z",
+  "status": "fail",
+  "expected_targets": 0,
+  "discovered_targets": 0,
+  "attempted_targets": 0,
+  "completed_targets": 0,
   "skipped_targets": 0,
-  "assertions_executed": 1,
+  "assertions_executed": 0,
   "min_assertions": 30,
   "canary": {
     "id": "the comparison must be shown to have run · at least one bundle read and compared",
-    "observed_failure": true,
-    "caught_by": [
-      "compared"
-    ],
+    "observed_failure": false,
+    "caught_by": [],
     "findings": [
-      "[compared] 1 function bundle(s) were fetched and compared, so \"0 differ\" would be a real answer rather than a silent no-op"
+      "[compared] NOT CAUGHT — no bundle was readable, so this run proves nothing about any function"
     ]
   }
 }

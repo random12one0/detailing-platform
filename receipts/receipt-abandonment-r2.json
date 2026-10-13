@@ -1,0 +1,32 @@
+{
+  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:17:24.533Z",
+  "failures": [
+    "Real R2 proof NOT RUN; missing environment names: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/receipt-abandonment-r2.txt"
+  ],
+  "dimensions": {
+    "break": "",
+    "storage": "real R2 NOT RUN"
+  },
+  "check_id": "receipt-abandonment-r2",
+  "started_at": "2026-10-13T12:17:24.473Z",
+  "status": "fail",
+  "expected_targets": 24,
+  "discovered_targets": 0,
+  "attempted_targets": 0,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 0,
+  "min_assertions": 24,
+  "canary": {
+    "id": "delete-left-object-behind",
+    "observed_failure": false
+  }
+}

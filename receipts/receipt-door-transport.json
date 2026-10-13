@@ -1,9 +1,9 @@
 {
-  "git_sha": "f2c7aa669013ba4b8d232f969b2619efc497c144",
-  "git_sha_started": "f2c7aa669013ba4b8d232f969b2619efc497c144",
+  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T11:56:32.517Z",
+  "finished_at": "2026-10-13T12:21:52.433Z",
   "failures": [],
   "warnings": [
     "Refusal replaces only the outgoing expense id. The deployed door and its 404 sentence are real. The expected HTTP 404 console entry is counted once per refused target; every other warning/error fails.",
@@ -364,7 +364,7 @@
     "writes": "Own marked demo expenses and R2 receipts; removed after each target"
   },
   "check_id": "receipt-door-transport",
-  "started_at": "2026-10-13T11:53:32.365Z",
+  "started_at": "2026-10-13T12:18:32.926Z",
   "status": "pass",
   "expected_targets": 14,
   "discovered_targets": 14,

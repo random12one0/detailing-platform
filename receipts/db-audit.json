@@ -1,10 +1,12 @@
 {
-  "git_sha": "81186c1c1e787823741d3267280eaabca12ddad1",
-  "git_sha_started": "81186c1c1e787823741d3267280eaabca12ddad1",
+  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-24T05:47:53.653Z",
-  "failures": [],
+  "finished_at": "2026-10-13T12:16:52.761Z",
+  "failures": [
+    "3 finding(s) to look at — see FOUND above"
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/db-audit.mjs"
@@ -14,8 +16,8 @@
     "checks": 6
   },
   "check_id": "db-audit",
-  "started_at": "2026-09-24T05:47:49.211Z",
-  "status": "pass",
+  "started_at": "2026-10-13T12:16:39.467Z",
+  "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
