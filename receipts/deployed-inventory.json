@@ -1,9 +1,9 @@
 {
-  "git_sha": "13262063755973de542726ee830519828ec2e1be",
-  "git_sha_started": "13262063755973de542726ee830519828ec2e1be",
+  "git_sha": "bb48d24d8b671b5fbe7b1649707c7c958b8463eb",
+  "git_sha_started": "bb48d24d8b671b5fbe7b1649707c7c958b8463eb",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T20:54:56.287Z",
+  "finished_at": "2026-10-13T08:19:10.197Z",
   "failures": [
     "35 function(s) are running something other than this checkout: owner-push-subscribe, owner-push-unsubscribe, translate-content, verify-domain, forecast, create-booking, report-problem, platform-admin, send-owner-reminders, accept-quote, plan-link, reschedule-booking, cancel-booking, send-invoice, respond-to-booking, update-booking, create-business, invite-user, preview-emails, send-campaign, watch-jobs, platform-billing, stripe-webhook, get-booking-receipt, accept-invite, available-slots, pay-booking, track-visit, validate-promo-code, booking-ics, connect-account, photo-door, delete-customer, calculate-booking, send-email",
     "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
@@ -635,7 +635,7 @@
     "widest_gap_days": 20.3
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-12T20:52:34.336Z",
+  "started_at": "2026-10-13T08:16:41.616Z",
   "status": "fail",
   "expected_targets": 42,
   "discovered_targets": 42,
