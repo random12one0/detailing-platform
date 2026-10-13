@@ -30117,7 +30117,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   a credential-free validator check. Exercise that provenance check with a planted untrusted source.
   The real encrypted-nightly run remains 6.1b and waits on 6.1a; no keys, live structure or publication.
 
-- [ ] **98.6 — Distinguish deliberately private tables from an accidental lock in the database audit.**
+- [x] **98.6 — Distinguish deliberately private tables from an accidental lock in the database audit.**
   Found during 14.39's read-only `node scripts/db-audit.mjs` at `0c74abf2`: its receipt reaches **6 of 6**
   checks, but section 2 calls `action_log`, `platform_costs` and `send_invoice_attempts` accidental locks.
   Section 5 of that SAME run confirms all three have RLS and their browser grants revoked. Their migrations
@@ -30127,6 +30127,14 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   their browser grants remain revoked; an actually unintended inaccessible table still fails; deliberately
   regrant access and prove the existing grant canary still catches it. Preserve the findings until reviewed.
   Evidence: `receipts/db-audit.json`, retained by 14.39. No audit script was edited by that job.
+  **DONE 2026-10-13, commit `63d5e8a4`.** Each migration reviewed (`20261006050000`, `20261006020000`,
+  `20261006062000`): every header names a server-only store and carries enable, force and revoke from anon and
+  authenticated; every reader imports `_shared/db.ts` (service role); `app/src` names none. The three were added to
+  `NO_POLICY_BY_DESIGN`, so they stay excused only while their grants are 0. Before (`0c74abf2` code): section 2
+  FOUND 3. After: `node scripts/db-audit.mjs` exit 0, receipt PASS 6 of 6 checks at `63d5e8a4`, canary 5 tables.
+  `--break=regrant` voided `action_log` (7 grants back, FOUND 1, exit 1, kept in `receipts/db-audit.sabotage.json`);
+  new `--break=stranger` added an unexplained locked table and it was FOUND 1, exit 1. Sabotage runs now record
+  `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
 - [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
