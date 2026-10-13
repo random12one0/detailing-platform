@@ -1,6 +1,11 @@
 // 0.11cc: the expense screen uses the deployed receipt door, with no fallback.
 // node scripts/receipt-door-live.mjs
 // node scripts/receipt-door-live.mjs --break=unbound
+// node scripts/receipt-door-live.mjs --transport-only
+// The extra mode uses isolated Chromium without web security to test the real
+// transport from the belt's required :5180 origin. R2 allows :5173, not :5180.
+// It does NOT prove CORS: scripts/bucket-cors.mjs independently asks real R2
+// about every supported origin and strangers, without Playwright routing.
 // BASE=http://localhost:5180 is required for the belt checkout.
 // Writes only its own marked demo expenses and receipt objects. Removes objects
 // through the door before deleting rows, including on signals. No schema changes,
@@ -23,26 +28,43 @@ if (new URL(SUPA).hostname !== "kguqylyzgyzfktkfnhjb.supabase.co") throw new Err
 const BREAK = process.argv.find(a => a.startsWith("--break="))?.slice(8) || "";
 if (BREAK && BREAK !== "unbound") throw new Error("Unknown sabotage; nothing measured");
 const started_at = new Date().toISOString();
+const transportOnly = process.argv.includes("--transport-only");
+const cleanMessage = text => text.replace(/https?:\/\/[^\s'"<>]+/g, url => {
+  try { const u = new URL(url); return u.origin + u.pathname + (u.search ? "?[query omitted]" : ""); }
+  catch { return "[URL omitted]"; }
+});
 const owner = createClient(SUPA, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 const login = await owner.auth.signInWithPassword(demoOwner());
 if (login.error) throw login.error;
 const { data: biz, error: bizError } = await owner.from("businesses").select("id").eq("slug", "demo-detail").single();
 if (bizError) throw bizError;
-const browser = await chromium.launch();
+if (transportOnly && BASE !== "http://localhost:5180") throw new Error("Transport-only mode is restricted to the isolated belt origin");
+const browser = await chromium.launch(transportOnly ? { args: ["--disable-web-security"] } : {});
 const widths = [
   [390, 844, false], [392, 844, false], [768, 1024, false], [1440, 900, false],
   [320, 844, false], [392, 844, true], [1440, 900, true],
 ];
 const run = randomUUID();
 const made = new Set();
+const pending = new Map();
 const failures = [], artifacts = [], observations = [];
 let assertions = 0, discovered = 0, attempted = 0, completed = 0;
 const check = (name, ok) => { assertions++; if (!ok) failures.push(name); console.log(`${ok ? "ok" : "FAIL"} ${name}`); };
 const door = body => owner.functions.invoke("photo-door", { body: { business_id: biz.id, store: "receipt", ...body } });
 async function cleanup() {
   for (const id of [...made]) {
-    const { data: row, error } = await owner.from("expenses").select("receipt_path").eq("id", id).single();
+    let { data: row, error } = await owner.from("expenses").select("receipt_path").eq("id", id).single();
     if (error) throw error;
+    // A browser can PUT successfully and then lose the CORS reply. Finish the
+    // known attempt before removing it, so cleanup cannot orphan that object.
+    if (!row.receipt_path && pending.has(id)) {
+      const finalized = await door({ action: "finish", expense_id: id, file_id: pending.get(id) });
+      if (!finalized.error && finalized.data?.expense?.receipt_path) row = finalized.data.expense;
+      else if (finalized.error) {
+        const status = finalized.error.context?.status;
+        if (![400, 404, 409].includes(status)) throw new Error("Could not verify unfinished receipt cleanup: " + id);
+      }
+    }
     if (row.receipt_path) {
       const gone = await door({ action: "remove", expense_id: id });
       if (gone.error || gone.data?.removed !== true) throw new Error("Receipt cleanup refused; row retained: " + id);
@@ -50,6 +72,7 @@ async function cleanup() {
     const deleted = await owner.from("expenses").delete().eq("id", id).select("id");
     if (deleted.error || deleted.data?.length !== 1) throw new Error("Expense cleanup did not delete exactly its row: " + id);
     made.delete(id);
+    pending.delete(id);
   }
 }
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, async () => {
@@ -88,12 +111,14 @@ try {
     p.on("console", msg => {
       if (!["warning", "error"].includes(msg.type())) return;
       if (refused && /^Failed to load resource: the server responded with a status of 404/.test(msg.text())) expectedHTTP.push(msg.text());
-      else noise.push(msg.text());
+      else noise.push(cleanMessage(msg.text()));
     });
-    p.on("pageerror", e => noise.push(e.message));
+    p.on("pageerror", e => noise.push(cleanMessage(e.message)));
     p.on("response", async res => {
       if (res.url().endsWith("/functions/v1/photo-door")) {
-        calls.push({ action: res.request().postDataJSON()?.action, status: res.status() });
+        const body = res.request().postDataJSON();
+        calls.push({ action: body?.action, status: res.status() });
+        if (body?.action === "start" && res.status() === 200 && body.expense_id === inserted?.id) pending.set(body.expense_id, body.file_id);
       }
       if (res.request().method() === "PUT" && new URL(res.url()).hostname.endsWith("r2.cloudflarestorage.com")) {
         puts.push({ status: res.status(), bytes: res.request().postDataBuffer()?.length || 0 });
@@ -144,7 +169,8 @@ try {
       check(label + " console", noise.length === 0);
       if (refused) {
         const words = (await p.getByRole("alert").allTextContents()).join(" ");
-        check(label + " real door refused nonexistent expense", calls.length === 1 && calls[0].action === "start" && calls[0].status === 404);
+        const uploads = calls.filter(c => ["start", "finish"].includes(c.action));
+        check(label + " real door refused nonexistent expense", uploads.length === 1 && uploads[0].action === "start" && uploads[0].status === 404);
         check(label + " refusal stays visible with Close", words.includes("Expense saved, but the receipt did not attach. Expense not found") && await p.locator(".sheet-body").getByRole("button", { name: "Close", exact: true }).isVisible().catch(() => false));
         check(label + " no file or receipt columns written", puts.length === 0 && storage === 0 && row?.receipt_path === null && row?.receipt_bytes === null);
         check(label + " only intentional HTTP refusal in console", expectedHTTP.length === 1);
@@ -171,19 +197,20 @@ try {
         receipt_bytes: row?.receipt_bytes, console: noise, intentional_http_refusals: expectedHTTP.length,
         screen_error: (await p.getByRole("alert").allTextContents()).join(" ") || null });
       completed++;
-    } catch (e) { failures.push(label + " " + e.message); }
+    } catch (e) { failures.push(label + " " + cleanMessage(e.message)); }
     finally { await context.close(); await cleanup(); }
   }
 } finally { await cleanup(); await browser.close(); }
 check("all temporary expense rows and objects cleaned", made.size === 0);
 check("transport canary catches old store", canaryCaught);
-const { path: receipt } = writeReceipt({ check_id: "receipt-door-live", started_at,
+const { path: receipt } = writeReceipt({ check_id: transportOnly ? "receipt-door-transport" : "receipt-door-live", started_at,
   status: failures.length ? "fail" : "pass", expected_targets: widths.length * 2, discovered_targets: discovered,
   attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: 86, failures, artifacts,
   canary: { id: "old-store-not-door", observed_failure: canaryCaught },
-  dimensions: { break: BREAK || null, base: BASE, observations, writes: "Own marked demo expenses and R2 receipts; removed after each target" },
+  dimensions: { break: BREAK || null, base: BASE, transport_only: transportOnly, observations, writes: "Own marked demo expenses and R2 receipts; removed after each target" },
   warnings: ["Refusal replaces only the outgoing expense id. The deployed door and its 404 sentence are real. The expected HTTP 404 console entry is counted once per refused target; every other warning/error fails.",
-    "Screenshots are JPEG proof captures; this release changes transport, with no visual before/after difference."] });
+    "Screenshots are JPEG proof captures; this release changes transport, with no visual before/after difference.",
+    transportOnly ? "UNJUDGEABLE browser CORS in this mode: isolated Chromium disables web security for the required :5180 belt origin. Run bucket-cors.mjs separately; this pass certifies real start/PUT/finish/read/refusal/cleanup only." : "Normal browser security. The required :5180 belt origin is absent from the R2 allow list; failures here do not describe the production origin."] });
 console.log(`${discovered}/${widths.length * 2} targets; ${assertions} assertions; ${failures.length} failures; ${receipt}`);
 process.exit(failures.length ? 1 : 0);
