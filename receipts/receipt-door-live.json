@@ -1,0 +1,319 @@
+{
+  "git_sha": "47d24c26df6ef3948f1c55e043b4607ea5713571",
+  "git_sha_started": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-10-13T11:49:45.427Z",
+  "failures": [
+    "390/accepted console",
+    "390/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "390/accepted saved key belongs to expense",
+    "390/accepted browser reads same R2 byte count",
+    "390/accepted success closes expense sheet",
+    "392/accepted console",
+    "392/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "392/accepted saved key belongs to expense",
+    "392/accepted browser reads same R2 byte count",
+    "392/accepted success closes expense sheet",
+    "768/accepted console",
+    "768/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "768/accepted saved key belongs to expense",
+    "768/accepted browser reads same R2 byte count",
+    "768/accepted success closes expense sheet",
+    "1440/accepted console",
+    "1440/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "1440/accepted saved key belongs to expense",
+    "1440/accepted browser reads same R2 byte count",
+    "1440/accepted success closes expense sheet",
+    "320/accepted console",
+    "320/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "320/accepted saved key belongs to expense",
+    "320/accepted browser reads same R2 byte count",
+    "320/accepted success closes expense sheet",
+    "392-lite/accepted console",
+    "392-lite/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "392-lite/accepted saved key belongs to expense",
+    "392-lite/accepted browser reads same R2 byte count",
+    "392-lite/accepted success closes expense sheet",
+    "1440-lite/accepted console",
+    "1440-lite/accepted door start/PUT/finish and authoritative bytes; zero old-store requests",
+    "1440-lite/accepted saved key belongs to expense",
+    "1440-lite/accepted browser reads same R2 byte count",
+    "1440-lite/accepted success closes expense sheet"
+  ],
+  "warnings": [
+    "Refusal replaces only the outgoing expense id. The deployed door and its 404 sentence are real. The expected HTTP 404 console entry is counted once per refused target; every other warning/error fails.",
+    "Screenshots are JPEG proof captures; this release changes transport, with no visual before/after difference.",
+    "Normal browser security. The required :5180 belt origin is absent from the R2 allow list; failures here do not describe the production origin."
+  ],
+  "artifacts": [
+    ".manager-shots/0.11cc/390-accepted.jpg",
+    ".manager-shots/0.11cc/390-refused.jpg",
+    ".manager-shots/0.11cc/392-accepted.jpg",
+    ".manager-shots/0.11cc/392-refused.jpg",
+    ".manager-shots/0.11cc/768-accepted.jpg",
+    ".manager-shots/0.11cc/768-refused.jpg",
+    ".manager-shots/0.11cc/1440-accepted.jpg",
+    ".manager-shots/0.11cc/1440-refused.jpg",
+    ".manager-shots/0.11cc/320-accepted.jpg",
+    ".manager-shots/0.11cc/320-refused.jpg",
+    ".manager-shots/0.11cc/392-lite-accepted.jpg",
+    ".manager-shots/0.11cc/392-lite-refused.jpg",
+    ".manager-shots/0.11cc/1440-lite-accepted.jpg",
+    ".manager-shots/0.11cc/1440-lite-refused.jpg"
+  ],
+  "dimensions": {
+    "break": null,
+    "base": "http://localhost:5180",
+    "transport_only": false,
+    "observations": [
+      {
+        "label": "390/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/da5de47f-19a5-49c4-8741-62247d0ed586/41d1db84-5489-4100-84fa-378deed1494d.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "390/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "392/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/231e6323-36ac-45ac-b0c7-4f2a901c6d58/4c1a727a-ae93-4166-97e8-89138d2348dd.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "392/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "768/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/df43c177-d11a-4e27-a955-c85398475686/e2b339aa-f3a3-4d9e-ac2b-dbb55757d7db.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "768/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "1440/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/31f0b006-1ec7-42b5-ae1a-de0d529b9bc0/f0d01e4b-fd4b-4d9d-8259-97e41223e5f5.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "1440/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "320/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/5751301e-d234-445c-9a59-32d658d0d213/63004921-1a06-4f95-b6d9-c0d1fd718ddc.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "320/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "392-lite/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/8dc781a0-0c5c-4491-b511-35c3a862166a/383212a7-a97d-4a9c-98f5-df88de10cc22.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "392-lite/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      },
+      {
+        "label": "1440-lite/accepted",
+        "calls": [
+          {
+            "action": "start",
+            "status": 200
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [
+          "Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/62456821-65d7-40ae-8251-e162bf3f04b6/a1c69e49-6c08-41f0-aa36-4896ad46d401/1217eb03-5275-455b-a357-a8ef941da725.jpg?[query omitted]' from origin 'http://localhost:5180/' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "intentional_http_refusals": 0,
+        "screen_error": "Expense saved, but the receipt did not attach. Could not reach the photo service. Check your connection. If it is fine, photo storage may not be set up on the server yet."
+      },
+      {
+        "label": "1440-lite/refused",
+        "calls": [
+          {
+            "action": "start",
+            "status": 404
+          }
+        ],
+        "puts": [],
+        "storage": 0,
+        "receipt_bytes": null,
+        "console": [],
+        "intentional_http_refusals": 1,
+        "screen_error": "Expense saved, but the receipt did not attach. Expense not found"
+      }
+    ],
+    "writes": "Own marked demo expenses and R2 receipts; removed after each target"
+  },
+  "check_id": "receipt-door-live",
+  "started_at": "2026-10-13T11:46:54.301Z",
+  "status": "fail",
+  "expected_targets": 14,
+  "discovered_targets": 14,
+  "attempted_targets": 14,
+  "completed_targets": 14,
+  "skipped_targets": 0,
+  "assertions_executed": 86,
+  "min_assertions": 86,
+  "assertion_floor": "Exactly six assertions per accepted/refused target at seven viewport/motion combinations (84), plus cleanup and transport canary (2). Sabotage adds one executed-rewrite assertion per target.",
+  "canary": {
+    "id": "old-store-not-door",
+    "observed_failure": true
+  }
+}

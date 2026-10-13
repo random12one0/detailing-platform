@@ -1,0 +1,9 @@
+{
+  "targets": 7,
+  "restored": 0,
+  "removed": 0,
+  "absent": 0,
+  "failures": [
+    "Existing real expense guard is disabled; no writes attempted"
+  ]
+}

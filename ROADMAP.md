@@ -1882,6 +1882,29 @@ and how the wait ends.
   cron changes happened earlier, so this entry does not claim that a later local switch proves a
   simultaneous historical release. The release-order gate's green also does not prove that the
   current local flags have reached the live bundle.
+  **Final local proof 2026-10-13; box not ticked.** At `f2c7aa66`,
+  `node scripts/receipt-door-live.mjs --transport-only` discovered/completed **14 of 14** targets,
+  **86 assertions**, no failures: actual expense-screen saves, deployed start/PUT/finish, stored and
+  downloaded bytes equal, receipt thumbnail, nonexistent-expense refusal, no old-store requests,
+  and cleanup checked the private object's 404 before deleting each marked row. Sizes were 390,
+  392, 768, 1440 and 320, plus lite at 392/1440. Opened the JPEG captures: thumbnail present on the
+  success path; refusal sentence and Close readable on phone, tablet and desktop. Console was
+  silent on accepted cases; each refused case had exactly its intentional HTTP 404 and no other
+  warnings/errors. `--transport-only --break=unbound` reached **14 of 14**, ran **100 assertions**
+  and caught the old-store regression with **42 failures**. The clean receipt grades PASS under
+  `node scripts/receipt.mjs receipts/receipt-door-transport.json`.
+  **Limit kept explicit:** that mode disables web security in isolated Chromium because R2's
+  development allow list names :5173, while this job must serve its own code on :5180. Normal
+  security's separate receipt reached **14 of 14**, **86 assertions**, **35 failures** on that
+  unsupported origin; its orphan attempts were finished/removed during cleanup. It is not a
+  production-CORS pass. `node scripts/bucket-cors.mjs` at `0e4243a2` independently passes **76 of 76**
+  supported-origin/foreign-origin targets, **77 assertions**; its foreign-allowed sabotage catches
+  **9 failures of 76**. At `f2c7aa66`, `node scripts/photo-cron-live.mjs` grades **3 of 3** targets,
+  **5 assertions** PASS (missing-timeout sabotage caught), and `node scripts/photo-release-order.mjs`
+  grades **10 of 10**, **16 assertions** PASS with bucket-cors named UNJUDGEABLE and covered separately
+  above (door-public sabotage caught). The six required credential-free suites and the build with
+  generated example routes pass. Full photo/Spanish failures remain 98.5's, unchanged; broad server
+  and migration drift remain the already numbered 98.2/98.3 release backlog. No publish occurred.
   Install the photo-reconcile cron entry, apply the required migrations, publish the app, and perform the upload routing and 1 GB-to-10 GB allowance change as one coordinated release. This leaves only post-release proof and drift observation.
   Part 3 of 3 of item 0.11c, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.

@@ -1,6 +1,6 @@
-photo release order · 2026-10-13T10:36:16.708Z · project kguqylyzgyzfktkfnhjb
+photo release order · 2026-10-13T11:53:17.068Z · project kguqylyzgyzfktkfnhjb
 photo-door deployed: true · photo-reconcile deployed: true
-photo_total_gb: 10 · flags: {"RECEIPTS_VIA_DOOR":false,"MEDIA_VIA_DOOR":true}
+photo_total_gb: 10 · flags: {"RECEIPTS_VIA_DOOR":true,"MEDIA_VIA_DOOR":true}
 live bundle: assets/index-CT8xjH8F.js
 delete-customer bundle: 5775746 bytes, 3 of 3 R2 markers
 R2 secrets present (names only): R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
@@ -8,7 +8,7 @@ R2_MEDIA_BASE set: true
 broken on purpose: no
 
 PASS  app-flag-before-door (criterion 3)
-    photo-door is deployed, so the flags are free to be on (1 of 2 are)
+    photo-door is deployed, so the flags are free to be on (2 of 2 are)
 PASS  app-shipped-before-door (criterion 3)
     photo-door is deployed, so a published app that uses it is in order
 PASS  allowance-before-switch (criterion 3)

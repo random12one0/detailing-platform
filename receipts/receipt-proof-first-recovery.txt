@@ -1,0 +1,7 @@
+{
+  "targets": 7,
+  "restored": 7,
+  "removed": 7,
+  "absent": 0,
+  "failures": []
+}
