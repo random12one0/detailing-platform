@@ -3,6 +3,8 @@
 // Start this checkout on :5180 first. One disposable gallery PNG per width.
 // Browser PUT uses real CORS. Public reads have no authentication, no cache-busting
 // query and no request Cache-Control. A real HIT is required BEFORE removal.
+// A blank test page uses the existing allowed production origin; :5180 is not
+// in the live bucket's CORS list. This fixture tests transport, not app layout.
 // Foreign-key refusal is asked via Playwright's request client so its deliberate
 // 404 does not add a failed-resource message to the page's console.
 import { createRequire } from "node:module";
@@ -65,9 +67,12 @@ try {
   for (const size of WIDTHS) {
     const ctx = await browser.newContext({ viewport: size });
     const page = await ctx.newPage();
-    page.on("console", (m) => { if (["error", "warning"].includes(m.type())) noise.push(`${size.width}: ${m.type()} ${m.text().slice(0, 180)}`); });
+    page.on("console", (m) => { if (["error", "warning"].includes(m.type())) noise.push(`${size.width}: ${m.type()} ${/CORS|Access to fetch/.test(m.text()) ? "CORS refusal (request URL omitted)" : "browser console message (request details omitted)"}`); });
     page.on("pageerror", () => noise.push(`${size.width}: page error`));
     await page.goto(BASE, { waitUntil: "networkidle" });
+    const harness = "https://detailingplatform.com/__media-delete-proof";
+    await page.route(harness, (route) => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>Media deletion transport proof</title>" }));
+    await page.goto(harness);
     attempted++;
     try {
       const start = await door(ctx.request, { action: "start", folder: "gallery", file_id: randomUUID(), content_type: "image/png", claimed_bytes: PNG.length });
@@ -84,10 +89,13 @@ try {
         } catch { return 0; }
       }, { uploadUrl, bytes: [...PNG] });
       check(`${size.width} browser PUT`, put === 200, `HTTP ${put}`);
+      if (put !== 200) throw new Error("browser upload did not succeed; no cached deletion can be judged");
       let warm = await publicRead(url);
       check(`${size.width} anonymous read returns uploaded bytes`, warm.status === 200 && warm.bytes.equals(PNG), `HTTP ${warm.status}, ${warm.cache}, ${warm.bytes.length} bytes`);
+      if (warm.status !== 200 || !warm.bytes.equals(PNG)) throw new Error("public URL never returned the uploaded image");
       for (let read = 0; read < 5 && warm.cache !== "HIT"; read++) warm = await publicRead(url);
       check(`${size.width} real cache HIT before delete`, warm.status === 200 && warm.cache === "HIT" && warm.bytes.equals(PNG), `HTTP ${warm.status}, ${warm.cache}`);
+      if (warm.cache !== "HIT") throw new Error("old cached-read path was not reached");
       const removed = await door(ctx.request, { action: "remove", key });
       check(`${size.width} removal acknowledged`, removed.status === 200 && removed.body?.removed === true, `HTTP ${removed.status}`);
       const gone = BREAK ? warm : await publicRead(url);
@@ -119,7 +127,7 @@ try {
     expected_targets: 4, discovered_targets: WIDTHS.length * 2, attempted_targets: attempted, completed_targets: completed,
     skipped_targets: 0, assertions_executed: assertions, min_assertions: 16, failures,
     artifacts: [artifact], canary: { id: "anonymous-missing-image", observed_failure: absent.status === 404, what: "a random nonexistent public gallery key must answer 404" },
-    dimensions: { roadmap: "0.11bd", break: BREAK || undefined, base: BASE, widths: WIDTHS.map((w) => w.width), public_base: PUBLIC, objects: uploaded.length, evidence },
+    dimensions: { roadmap: "0.11bd", break: BREAK || undefined, base: BASE, browser_upload_origin: "https://detailingplatform.com (blank routed test page, no app UI proof)", widths: WIDTHS.map((w) => w.width), public_base: PUBLIC, objects: uploaded.length, evidence },
     warnings: ["Browser transport and deployed door are real. This does not exercise Gallery.jsx's row-only Remove button, or certify every Cloudflare location or a previously downloaded browser copy."],
   });
   console.log(`${completed}/4 targets, ${failures.length} failed; ${path}`);
