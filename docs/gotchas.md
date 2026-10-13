@@ -5500,3 +5500,45 @@ old count of failures elsewhere are different claims; neither certifies the
 whole suite. Keep the failed output and match each finding to today's screen
 before changing an assertion. Do not delete the checks because their subjects
 moved, and do not report the remaining failure count from a previous checkout.
+
+
+## 129. A separate sabotage JSON can still point at a clean run's overwritten log
+
+Supervision 2026-10-13, at `aa4a69fb`. The 0.11cb shared writer fix correctly
+separated JSON files. But photo-release-order always wrote `photo-release-order.txt`,
+and photo-door-deployed always wrote `photo-door-deployed.log`. Run sabotage then
+clean: the red release receipt's named artifact said "broken on purpose: no" and
+the red tenant-refusal receipt's artifact ended PASS. Reproduced by the commands
+in ROADMAP 98.7. The JSON's red was true; its linked evidence described another run.
+
+Separate every generated artifact as well as the receipt. After both runs, open
+the file each JSON actually names. Fixed for these two scripts at `e58b0dc7`;
+the held nightly harness's report has the same issue, owned by 98.8. A canary
+checking status alone cannot detect this overwritten evidence.
+
+## 130. A restored dump cannot name the project it was backed up from
+
+Held 6.1b at `0cdab2bc`, inspected in supervision 2026-10-13. `--fixture`
+correctly labels its invented data as fixture. Export that same fixture, then
+feed it to `--dump`: the harness labels it `kguqylyzgyzfktkfnhjb`, reports
+"restore PROVED", and permits the heartbeat path. Only the absent environment
+stopped a write in this isolated reproduction. Full output and source recipe:
+`docs/supervision-2026-10-13-release.md`; repair 98.8.
+
+A matching row hash proves restoration against the input, not where that input
+came from. Carry verified backup provenance separately; refuse an unverified
+dump for the project's nightly-restore date even when its round trip succeeds.
+
+## 131. A missing command runner is reported as missing evidence when errors become null
+
+Supervision 2026-10-13, at `e58b0dc7`. The figures suite runs git and grep
+through bash and turns command errors into null. Bash was absent from this
+Windows PATH, so it called valid revisions fabricated and tracked files
+untracked. Direct `git rev-parse --verify d850a97` and `3398470` both resolved.
+The initial report is `receipts/supervisor-figures.txt`.
+
+Do not fix the historical evidence to agree with an instrument that never
+launched. Require the command runner first, fail as NOT MEASURED when it is
+missing, and report the remedy. Fixed at `eaee66e9`, ROADMAP 98.9. The absent-bash
+run now refuses before judging revisions; the same suite with
+`$env:Path='C:\Program Files\Git\bin;' + $env:Path` passes including its canary.

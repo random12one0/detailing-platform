@@ -1,9 +1,9 @@
 {
-  "git_sha": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
-  "git_sha_started": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
+  "git_sha": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "git_sha_started": "aa4a69fbd60811450e611e2b76a8542007718fc5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T11:43:57.692Z",
+  "finished_at": "2026-10-13T12:41:39.756Z",
   "failures": [
     "cron: exactly one active daily 03:40 UTC anonymous platform HTTP call, with 60s timeout, same transport as refresh-weather"
   ],
@@ -69,7 +69,7 @@
     }
   },
   "check_id": "photo-cron-live",
-  "started_at": "2026-10-13T11:43:55.023Z",
+  "started_at": "2026-10-13T12:41:37.047Z",
   "expected_targets": 3,
   "discovered_targets": 3,
   "attempted_targets": 3,

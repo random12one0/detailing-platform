@@ -15205,8 +15205,13 @@ most corroborated finding in the set.
   NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): a ten-second look, not a choice — only he can open his password manager. Search "backup", "age" or "detailing backup" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody has yet shown that the key which opens them exists.
 
 - [ ] **6.1b — Prove a nightly backup restores outside production**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/restore-date.test.mjs.
-  The work is safe on branch `belt/6.1b-20261013103843`. Answer "merge it" to keep it, or say what to change.
+  **SUPERVISOR REVIEW 2026-10-13:** the added restore-date test is fair: it adds the nightly receipt type
+  and refuses a fixture without weakening existing refusals. The held build is NOT ready to merge:
+  `--dump` stamps any supplied dump as this platform's nightly, including its own invented fixture.
+  At `0cdab2bc`, a fixture passed back through `--dump` produced PASS and "restore PROVED"; only the
+  deliberately absent environment prevented a heartbeat write. Raw proof: `receipts/supervisor-restore-untrusted-dump.txt`.
+  Waits on: 98.8, 6.1a. How the wait ends: repair and review the held build, then Andrew runs a real encrypted nightly.
+  Branch `belt/6.1b-20261013103843` remains separate. No merge approval is being requested.
   Provide a safe, separate restore environment and use it to restore and inspect one encrypted nightly database copy. This covers the recovery path for the actual scheduled backups, not a rerun of the existing drill that creates and drops a schema in the live database.
   Part 2 of 3 of item 6.1, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -30061,6 +30066,49 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: the three state shots differ where the page differs (the checked shot shows a ticked box); the clean run still passes with the same targets and the `--break=half` run is still red through the width and line questions; the receipt re-grades green.
 
 ## Belt repairs
+
+- [x] **98.9 — Refuse the figures scan when its command runner is missing.**
+  Supervision 2026-10-13, fixed at `eaee66e9`. On this Windows PATH, bash was absent;
+  `node --test tests/figures-carry-their-command.test.mjs` reported valid revisions
+  as fabricated and tracked files as absent because every command failure became null.
+  Direct `git rev-parse --verify d850a97` and `3398470` both resolved.
+  The suite now refuses before scanning with NOT MEASURED and the exact PATH remedy.
+  With bash absent it fails for that reason; with
+  `$env:Path='C:\Program Files\Git\bin;' + $env:Path; node --test tests/figures-carry-their-command.test.mjs`
+  it passes all nine tests, including its injected bare-figure canary. Assertions,
+  discovery floors and declared debt are unchanged. Raw proof: `receipts/supervisor-figures-no-runner.txt`
+  and `receipts/supervisor-figures-with-bash.txt`; original false report: `receipts/supervisor-figures.txt`.
+
+- [x] **98.7 — Preserve the readable evidence behind R2 sabotage receipts.**
+  Fixed in supervision 2026-10-13, code commit `e58b0dc7`. At `aa4a69fb`, both
+  photo-release-order and photo-door-deployed separated sabotage JSON but pointed it at the clean run's
+  shared TXT/LOG. After a clean rerun the release sabotage's artifact said "broken on purpose: no",
+  and the door sabotage's artifact said PASS despite its two missed tenant-refusal canaries.
+  Both scripts now write separate sabotage artifacts and name those paths in their receipts.
+  Proof at `e58b0dc7`: `node scripts/photo-release-order.mjs --break=door-public` then the same command
+  without the flag; `node scripts/photo-door-deployed.mjs --base=https://media.detailingplatform.com --break=accept-stranger`
+  then the same command without the break. Sabotages retain the named JWT failure and two missed
+  stranger canaries; clean runs pass. The normal and sabotage artifact paths are disjoint and each
+  file's content matches its JSON. Raw output: `receipts/supervisor-{release,door}-{break,clean}.txt`.
+
+- [ ] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
+  Supervisor review of the held 6.1b branch at `0cdab2bc`: the new test edit is fair, but
+  `scripts/restore-nightly.mjs` unconditionally sets `project = PROJECT` for every `--dump` input.
+  Its own invented fixture, exported unchanged and passed back through `--dump`, restores
+  **8 of 8** tables and says "restore PROVED". With the documented environment loaded that path
+  would update the back-office restore date. This is a recovery-proof defect, not a failed restore.
+  Existing output: `receipts/supervisor-restore-untrusted-dump.txt` and
+  `receipts/supervision-2026-10-13-release/restore-untrusted-dump.json`; reproduction and
+  fixture location: `docs/supervision-2026-10-13-release.md`. No heartbeat was written.
+  Fix/review the necessary held 6.1b files locally. A generic dump may prove its own round trip but
+  must not certify this project's scheduled encrypted backup or update that heartbeat. Preserve a
+  verified release/source identity through the receipt and date validator; do not trust a filename
+  or a caller-supplied project label. Keep fixture, partial-restore and sabotage refusals.
+  Separate the held harness's clean and sabotage `report.txt` too (same shared-artifact defect as 98.7).
+  DONE WHEN: the invented dump still round-trips, but its receipt is refused for the platform heartbeat;
+  a fixture and a missing-bookings sabotage are refused; verified nightly provenance is accepted by
+  a credential-free validator check. Exercise that provenance check with a planted untrusted source.
+  The real encrypted-nightly run remains 6.1b and waits on 6.1a; no keys, live structure or publication.
 
 - [ ] **98.6 — Distinguish deliberately private tables from an accidental lock in the database audit.**
   Found during 14.39's read-only `node scripts/db-audit.mjs` at `0c74abf2`: its receipt reaches **6 of 6**

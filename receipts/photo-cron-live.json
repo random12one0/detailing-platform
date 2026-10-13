@@ -1,9 +1,9 @@
 {
-  "git_sha": "f2c7aa669013ba4b8d232f969b2619efc497c144",
-  "git_sha_started": "f2c7aa669013ba4b8d232f969b2619efc497c144",
+  "git_sha": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "git_sha_started": "aa4a69fbd60811450e611e2b76a8542007718fc5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T11:53:16.750Z",
+  "finished_at": "2026-10-13T12:42:17.053Z",
   "failures": [],
   "warnings": [
     "Checks migration effects, not an applied-migrations ledger. No release history can prove simultaneous changes retroactively. A publish of this checkout is still required for its flags to reach customers."
@@ -67,7 +67,7 @@
     }
   },
   "check_id": "photo-cron-live",
-  "started_at": "2026-10-13T11:53:13.944Z",
+  "started_at": "2026-10-13T12:42:14.118Z",
   "expected_targets": 3,
   "discovered_targets": 3,
   "attempted_targets": 3,

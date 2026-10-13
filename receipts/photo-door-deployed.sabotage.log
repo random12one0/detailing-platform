@@ -1,0 +1,38 @@
+THE STAND-IN — the six rules against a loopback door, eight modes.
+  ok                      all six rules pass against the production handler, as they must
+  no-base                 caught by base-live-on-door: the deployed door answered 503 "Public image storage is not set up on the server yet." — the name may be set but the run
+  open-door               caught by door-published: an unauthenticated POST was answered 200, not 401 — the door is open to anybody
+  unscoped-key            caught by caller-scoped-key: 22222222-2222-4222-8222-222222222222/branding/06a1b863-33c3-4378-be0a-8539c4985c45.jpg is not scoped to the caller 11111
+  serves-stranger-start   NOT CAUGHT by refuses-another-business — the rule is not looking
+  serves-stranger-remove  NOT CAUGHT by refuses-another-business — the rule is not looking
+  foreign-url             caught by public-url-from-base: the door answered https://someone-elses-bucket.example/11111111-1111-4111-8111-111111111111/branding/a64b10e9-ce3a-4c2f-
+  r2dev-url               caught by public-url-from-base: the door answered https://pub-deadbeef.r2.dev/11111111-1111-4111-8111-111111111111/branding/15b18dbb-0517-41b7-8637-4ae6
+  — four account worlds, judged through the same six rules:
+  not deployed            caught by door-published: photo-door is not deployed on this project. Publishing is Andrew's: FOR-ANDREW.md step 9 (
+  deployed but INACTIVE   caught by door-published: photo-door is deployed but its status is REMOVED, not ACTIVE
+  deployed with verify_jwt off caught by door-published: photo-door is deployed with verify_jwt OFF. Its own header says verify_jwt STAYS ON: every
+  no R2_MEDIA_BASE secret caught by secret-name-present: R2_MEDIA_BASE is not among this project's function secrets. It is the public address for b
+
+CANARIES CAUGHT: 9 of 11 handed-over defects. 2 MISSED: mode "serves-stranger-start" went UNNOTICED by refuses-another-business | mode "serves-stranger-remove" went UNNOTICED by refuses-another-business
+
+The live project (kguqylyzgyzfktkfnhjb): 41 functions deployed; photo-door ACTIVE, verify_jwt true
+Function secrets present, by name: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_MEDIA_BASE
+The deployed door answered: start 200, foreign start 401, foreign remove 404, no-auth 401
+
+THE LIVE PROJECT — 0.11bb's four criteria, asked of the deployed door.
+  PASS  door-published             deployed, ACTIVE, verify_jwt true, an unauthenticated POST is 401
+        0.11bb criterion 1 — photo-door is published, ACTIVE, and refuses an unauthenticated caller
+  PASS  secret-name-present        R2_MEDIA_BASE is present (name only; no value was read)
+        0.11bb criterion 2 — R2_MEDIA_BASE is on the function (by NAME; no value is read)
+  PASS  base-live-on-door          the deployed door signed a media upload, so its base is usable
+        0.11bb criterion 2 — and the deployed door's own answer proves the value is usable
+  PASS  caller-scoped-key          62456821-65d7-40ae-8251-e162bf3f04b6/branding/fab85af2-cbf7-413e-b1c9-3bc4707abde8.png parses as the caller's own and as nobody else's
+        0.11bb criterion 3 — the minted key is under the CALLER's business, not the body's
+  PASS  refuses-another-business   start for another business 401, remove of another business's key 404 — both refused
+        0.11bb criterion 3 — another tenant's business and another tenant's key are both refused
+  PASS  public-url-from-base       https://media.detailingplatform.com/62456821-65d7-40ae-8251-e162bf3f04b6/branding/fab85af2-cbf7-413e-b1c9-3bc4707abde8.png is exactly publicUrl(base, key)
+        0.11bb criterion 4 — public_url is the configured address applied to that key
+
+6 rules asked, 0 failed, 0 UNJUDGEABLE, 12 assertions.
+
+FAIL — 0 failed, 0 unjudgeable, 2 canaries missed.

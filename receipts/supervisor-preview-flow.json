@@ -1,0 +1,41 @@
+{
+  "git_sha": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
+  "git_sha_started": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:51:25.550Z",
+  "failures": [],
+  "warnings": [
+    "Vite supplies no Netlify framing headers. Separate preview-frame-headers receipt proves the local header model, not the live host."
+  ],
+  "artifacts": [
+    "receipts/supervisor-preview-flow.txt",
+    ".manager-shots/supervision-2026-10-13-release/business-1440.png",
+    ".manager-shots/supervision-2026-10-13-release/business-768.png",
+    ".manager-shots/supervision-2026-10-13-release/business-390.png",
+    ".manager-shots/supervision-2026-10-13-release/business-392.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "392x844"
+    ]
+  },
+  "check_id": "supervisor-preview-flow",
+  "started_at": "2026-10-13T12:50:42.429Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "assertion_floor": "Exactly four widths times five assertions: preview, empty-step stability, refusal, accepted advance, quiet console.",
+  "canary": {
+    "id": "empty-service-selection-refused",
+    "observed_failure": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "observations": [
+    {
+      "width": 1440,
+      "height": 900,
+      "preview": true,
+      "refusedEmpty": true,
+      "selectedAdvances": true,
+      "console": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "preview": true,
+      "refusedEmpty": true,
+      "selectedAdvances": true,
+      "console": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "preview": true,
+      "refusedEmpty": true,
+      "selectedAdvances": true,
+      "console": []
+    },
+    {
+      "width": 392,
+      "height": 844,
+      "preview": true,
+      "refusedEmpty": true,
+      "selectedAdvances": true,
+      "console": []
+    }
+  ],
+  "failures": []
+}

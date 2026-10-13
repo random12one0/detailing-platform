@@ -3637,3 +3637,25 @@ Nothing ticked since the fourth pass, so this pass re-proves standing ticks and 
 Exact commands, retained output, screenshot files, limits and historical
 receipt grading: [the audit](supervision-2026-10-13.md). Standard credential-free
 gates and decisions index pass. No publication or live structural change.
+
+## Supervision 2026-10-13 — release interval
+
+At `aa4a69fb`, re-proved 0.11ca CORS, including the foreign-origin sabotage;
+at `e58b0dc7`, re-proved 0.11cb's deployed door and release-order rules,
+including JWT and tenant-refusal sabotages. Both closures stand. Preview
+header model and the actual Business/Open it flow pass locally; 9.1c stays
+open for publication. Opened current screenshots at desktop, tablet and both
+phone widths; console quiet. The receipt's exact targets and commands are
+in [the release audit](supervision-2026-10-13-release.md).
+
+98.7 separates sabotage TXT/LOG files as well as JSON. Both sabotage artifacts
+were opened after their clean runs and retain their named failures. 98.9,
+at `eaee66e9`, refuses an unavailable bash before the figures scan can falsely
+declare historical evidence absent; supplied bash, the original assertions
+and canary pass. Required credential-free gates and decisions index pass.
+
+Held 6.1b's fixture and lost-bookings control run locally. Its test addition
+is fair, but an invented dump falsely certifies platform nightly provenance;
+branch stays held for 98.8. No actual encrypted nightly was opened and no
+restore heartbeat was written. Broad deployed inventory and migration drift
+remain red, already owned by the release queue. No publish or live DDL.

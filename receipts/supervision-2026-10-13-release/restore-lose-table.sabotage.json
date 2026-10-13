@@ -1,0 +1,47 @@
+{
+  "git_sha": "0cdab2bcf6817b363353a060cb45a5119e5dd3a6",
+  "git_sha_started": "0cdab2bcf6817b363353a060cb45a5119e5dd3a6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:46:56.805Z",
+  "failures": [
+    "restore mismatch — public.bookings: 0 rows, the backup holds 126"
+  ],
+  "warnings": [
+    "run with --break=lose-table; this receipt is a sabotage, not a result",
+    "STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md)."
+  ],
+  "artifacts": [
+    "artifacts/restore-nightly/report.txt"
+  ],
+  "dimensions": {
+    "project": "fixture",
+    "source": "fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)",
+    "target": "throwaway local Postgres, deleted after the run",
+    "break": "lose-table",
+    "accounts": 6,
+    "files": 9,
+    "rows": {
+      "auth.users": 6,
+      "public.business_settings": 6,
+      "public.businesses": 6,
+      "public.customers": 42,
+      "storage.objects": 9
+    }
+  },
+  "check_id": "restore-nightly",
+  "started_at": "2026-10-13T12:46:53.025Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 9,
+  "canary": {
+    "id": "altered-booking-text",
+    "observed_failure": false,
+    "note": "could not plant: psql.exe -X -q -At … exited 3: ERROR:  no text value in public.bookings to alter\r"
+  }
+}

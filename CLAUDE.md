@@ -202,7 +202,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND TWENTY-SEVEN specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-ONE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -877,3 +877,12 @@ viewport to the capture width. The pointer at the top of this file moved in the 
 
 **123 → 124 on 2026-10-11, same edit** — a viewport line is ignored inside an iframe, and the control room shows frozen copies in one, so
 123's pin did not reach the copy Andrew opens (still 19/13.5/24.7px off at 360/412/430). `grep -c "^## " docs/gotchas.md` run before and after: 124.
+
+
+**128 → 130 on 2026-10-13, same supervision edit.** Entry 128 was already present
+while the pointer still named 127. Added separate-readable-artifact and dump-provenance
+findings, then recounted with `rg -c '^## ' docs/gotchas.md` before and after.
+
+**130 → 131 in the same supervision, 2026-10-13.** Missing bash made valid
+revisions read as fabricated. The suite now refuses before judging them.
+`rg -c '^## ' docs/gotchas.md` run after the entry and this pointer edit.

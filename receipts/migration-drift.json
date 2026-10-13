@@ -1,9 +1,9 @@
 {
-  "git_sha": "fcb70b37ed5e32c9c1a099b98e9c72cf8c077cc0",
-  "git_sha_started": "fcb70b37ed5e32c9c1a099b98e9c72cf8c077cc0",
+  "git_sha": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
+  "git_sha_started": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T12:29:06.494Z",
+  "finished_at": "2026-10-13T12:56:56.438Z",
   "failures": [
     "6 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)",
     "2 function(s) in the database do NOT match the repo's newest definition: accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
@@ -93,7 +93,7 @@
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-13T12:26:58.027Z",
+  "started_at": "2026-10-13T12:54:47.618Z",
   "status": "fail",
   "expected_targets": 378,
   "discovered_targets": 361,
