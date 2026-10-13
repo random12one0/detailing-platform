@@ -1,9 +1,9 @@
 {
-  "git_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
-  "git_sha_started": "bf08d943c0c1bf9116b572f585814150e15fde12",
+  "git_sha": "7b7d37dda6e93fc849cafca03811176656358cba",
+  "git_sha_started": "7b7d37dda6e93fc849cafca03811176656358cba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T09:23:49.436Z",
+  "finished_at": "2026-10-13T14:00:35.508Z",
   "failures": [],
   "warnings": [
     "Live delivery and deployed consent saving are not measured."
@@ -339,7 +339,7 @@
     "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
   },
   "check_id": "booking-consent",
-  "started_at": "2026-10-13T09:18:30.819Z",
+  "started_at": "2026-10-13T13:55:20.115Z",
   "status": "pass",
   "expected_targets": 76,
   "discovered_targets": 76,

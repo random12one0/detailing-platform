@@ -1,9 +1,9 @@
 {
-  "git_sha": "000a24e4a9e000623e6805d2d5015d6ab6df30b8",
-  "git_sha_started": "bf08d943c0c1bf9116b572f585814150e15fde12",
-  "head_moved": true,
+  "git_sha": "7b7d37dda6e93fc849cafca03811176656358cba",
+  "git_sha_started": "7b7d37dda6e93fc849cafca03811176656358cba",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T09:30:55.067Z",
+  "finished_at": "2026-10-13T13:55:19.748Z",
   "failures": [
     "en-1440-unchecked consent spans the form: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
     "en-1440-unchecked consent lines: {\"width\":294,\"form\":600,\"height\":138,\"lines\":5,\"gapAbove\":12,\"linkGap\":12,\"sentenceClear\":true}",
@@ -376,7 +376,7 @@
     "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
   },
   "check_id": "booking-consent-half",
-  "started_at": "2026-10-13T09:25:44.301Z",
+  "started_at": "2026-10-13T13:50:11.396Z",
   "status": "fail",
   "expected_targets": 76,
   "discovered_targets": 76,
