@@ -58,8 +58,8 @@ const publicRead = async (url) => {
   // retry a post-delete 200 until its TTL expires and then call that a pass.
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const r = await reader.request.get(url);
-      return { status: r.status(), cache: r.headers()["cf-cache-status"] || "", bytes: await r.body() };
+      const r = await fetch(url);
+      return { status: r.status, cache: r.headers.get("cf-cache-status") || "", bytes: Buffer.from(await r.arrayBuffer()) };
     } catch { if (attempt === 2) return { status: 0, cache: "transport failed", bytes: Buffer.alloc(0) }; }
   }
 };
@@ -93,7 +93,10 @@ try {
       let warm = await publicRead(url);
       check(`${size.width} anonymous read returns uploaded bytes`, warm.status === 200 && warm.bytes.equals(PNG), `HTTP ${warm.status}, ${warm.cache}, ${warm.bytes.length} bytes`);
       if (warm.status !== 200 || !warm.bytes.equals(PNG)) throw new Error("public URL never returned the uploaded image");
-      for (let read = 0; read < 5 && warm.cache !== "HIT"; read++) warm = await publicRead(url);
+      for (let read = 0; read < 10 && warm.cache !== "HIT"; read++) {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        warm = await publicRead(url);
+      }
       check(`${size.width} real cache HIT before delete`, warm.status === 200 && warm.cache === "HIT" && warm.bytes.equals(PNG), `HTTP ${warm.status}, ${warm.cache}`);
       if (warm.cache !== "HIT") throw new Error("old cached-read path was not reached");
       const removed = await door(ctx.request, { action: "remove", key });
