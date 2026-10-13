@@ -1,10 +1,13 @@
 {
-  "git_sha": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
-  "git_sha_started": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
+  "git_sha": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
+  "git_sha_started": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T10:37:10.638Z",
-  "failures": [],
+  "finished_at": "2026-10-13T12:31:52.632Z",
+  "failures": [
+    "1 function(s) are running something other than this checkout: photo-door",
+    "photo-door: 6 file(s) differ - index.ts, _shared/tenant.ts, _shared/photoDoor.ts, _shared/mediaCache.ts, _shared/receiptAttempts.ts, _shared/supportSession.ts (newest commit is 3.2d after the deploy)"
+  ],
   "warnings": [],
   "artifacts": [
     "scripts/deployed-inventory.mjs"
@@ -12,18 +15,47 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "method": "comment-text comparison against the deployed eszip bundle",
-    "matching": [
-      "photo-reconcile"
+    "matching": [],
+    "differing": [
+      "photo-door"
     ],
-    "differing": [],
     "not_deployed": [],
-    "causes": {},
-    "by_shared_module": {},
-    "widest_gap_days": 0
+    "causes": {
+      "photo-door": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/photoDoor.ts",
+          "_shared/mediaCache.ts",
+          "_shared/receiptAttempts.ts",
+          "_shared/supportSession.ts"
+        ]
+      }
+    },
+    "by_shared_module": {
+      "_shared/tenant.ts": [
+        "photo-door"
+      ],
+      "_shared/photoDoor.ts": [
+        "photo-door"
+      ],
+      "_shared/mediaCache.ts": [
+        "photo-door"
+      ],
+      "_shared/receiptAttempts.ts": [
+        "photo-door"
+      ],
+      "_shared/supportSession.ts": [
+        "photo-door"
+      ]
+    },
+    "widest_gap_days": 3.2
   },
   "check_id": "deployed-inventory-only",
-  "started_at": "2026-10-13T10:37:05.982Z",
-  "status": "pass",
+  "started_at": "2026-10-13T12:31:46.925Z",
+  "status": "fail",
   "expected_targets": 1,
   "discovered_targets": 1,
   "attempted_targets": 1,

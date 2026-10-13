@@ -1,0 +1,117 @@
+{
+  "git_sha": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
+  "git_sha_started": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:31:46.728Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/receipt-abandonment.txt"
+  ],
+  "dimensions": {
+    "break": "",
+    "base": "http://localhost:5180",
+    "database": "throwaway PGlite",
+    "storage": "fake R2; real R2 cleanup NOT PROVED",
+    "observations": [
+      {
+        "width": 392,
+        "mode": "saved",
+        "console": [],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      },
+      {
+        "width": 392,
+        "mode": "refused",
+        "console": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ],
+        "stored_bytes": 0,
+        "tab_closed": false
+      },
+      {
+        "width": 392,
+        "mode": "lost-put-reply",
+        "console": [
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      },
+      {
+        "width": 392,
+        "mode": "closed-tab",
+        "console": [],
+        "stored_bytes": 35844,
+        "tab_closed": true
+      },
+      {
+        "width": 392,
+        "mode": "lost-finish-reply",
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      },
+      {
+        "width": 1440,
+        "mode": "saved",
+        "console": [],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      },
+      {
+        "width": 1440,
+        "mode": "refused",
+        "console": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ],
+        "stored_bytes": 0,
+        "tab_closed": false
+      },
+      {
+        "width": 1440,
+        "mode": "lost-put-reply",
+        "console": [
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      },
+      {
+        "width": 1440,
+        "mode": "closed-tab",
+        "console": [],
+        "stored_bytes": 35844,
+        "tab_closed": true
+      },
+      {
+        "width": 1440,
+        "mode": "lost-finish-reply",
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ],
+        "stored_bytes": 35844,
+        "tab_closed": false
+      }
+    ]
+  },
+  "check_id": "receipt-abandonment",
+  "started_at": "2026-10-13T12:31:36.916Z",
+  "expected_targets": 24,
+  "discovered_targets": 24,
+  "attempted_targets": 24,
+  "completed_targets": 24,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 24,
+  "assertion_floor": "One completed assertion group per declared target: fourteen SQL/handler cases and ten real Chromium cases; 24 total.",
+  "status": "pass",
+  "canary": {
+    "id": "delete-left-object-behind",
+    "observed_failure": true
+  }
+}
