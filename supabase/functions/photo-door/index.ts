@@ -29,6 +29,7 @@ import { can, requireMember } from "../_shared/tenant.ts";
 import { LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { handlePhotoDoor, type PhotoDeps, type PhotoRow } from "../_shared/photoDoor.ts";
 import { makeR2, mediaBase, publicUrl, r2Config } from "../_shared/r2.ts";
+import { makeMediaPurge, mediaCacheConfig, withMediaCache } from "../_shared/mediaCache.ts";
 
 const getPhoto = async (businessId: string, photoId: string): Promise<PhotoRow | null> => {
   const { data, error } = await supabase.from("job_photos").select("*")
@@ -45,6 +46,10 @@ const deps = (): PhotoDeps => {
   // so it is logged by its own NAME. ROADMAP 0.11 slice 4.
   const { base, missing: noBase } = mediaBase((n) => Deno.env.get(n));
   if (!base) console.error("photo-door: no public image address, missing", noBase.join(", "));
+  // 0.11bd: origin deletion alone left an already-read public image at 200 HIT.
+  // Missing purge permission refuses media deletion; uploads and private stores still work.
+  const { config: cacheConfig, missing: noCache } = mediaCacheConfig((n) => Deno.env.get(n));
+  if (!cacheConfig) console.error("photo-door: no public image cache purge, missing", noCache.join(", "));
   return {
     requireMember,
     can,
@@ -132,7 +137,7 @@ const deps = (): PhotoDeps => {
     // signed upload nobody could ever read back.
     mediaUrl: base ? (key) => publicUrl(base, key) : undefined,
 
-    r2: config ? makeR2(config) : null,
+    r2: config ? withMediaCache(makeR2(config), base, cacheConfig ? makeMediaPurge(cacheConfig) : null) : null,
     log: (...a) => console.error(...a),
   };
 };

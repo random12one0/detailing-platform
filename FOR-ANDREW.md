@@ -48,6 +48,24 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Let deleted gallery images leave Cloudflare's cache (ROADMAP 0.11bd)
+
+The deletion fix is built locally. It needs a new Cloudflare **Cache Purge**
+permission for **detailingplatform.com**, separate from the R2 upload setup
+you already finished. Create a token restricted to that zone, then save it
+directly in this platform's Supabase function secrets as `CF_CACHE_PURGE_TOKEN`;
+save the domain's Zone ID as `CF_MEDIA_ZONE_ID`. Configure those before you
+publish **photo-door**, or the new code refuses media deletion.
+The exact account steps and repeatable checks are in
+[the deletion setup](docs/media-cache-deletion.md). No values go in chat.
+The local check catches the old cached-image leak. The real browser check
+reproduces it at phone and desktop widths: the original URL remains `200 HIT`
+after the deployed door says it removed the file; a separate origin read is 404.
+Cached deletion with the new fix is still unproved and the box is open.
+After setup and your publish, a session repeats the real warmed-URL check.
+These are server checks; the existing gallery button's row-only deletion is
+named separately in the setup document and was not changed by this item.
+
 ## DO, AT YOUR NEXT RELEASE · Bring the server up to the saved code (ROADMAP 98.2)
 
 The red server inventory is a real release backlog, and was already red before 14.24 refreshed it.

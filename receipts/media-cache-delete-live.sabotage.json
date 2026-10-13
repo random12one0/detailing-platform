@@ -1,0 +1,162 @@
+{
+  "git_sha": "082c5aff67fe23f00dec32d20c639dc523c75ba0",
+  "git_sha_started": "082c5aff67fe23f00dec32d20c639dc523c75ba0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T08:39:59.145Z",
+  "failures": [
+    "392 original warmed URL stops succeeding immediately: HTTP 200, HIT; no query string or cache bypass",
+    "1440 original warmed URL stops succeeding immediately: HTTP 200, HIT; no query string or cache bypass"
+  ],
+  "warnings": [
+    "Browser transport and deployed door are real. This does not exercise Gallery.jsx's row-only Remove button, or certify every Cloudflare location or a previously downloaded browser copy."
+  ],
+  "artifacts": [
+    "receipts/media-cache-delete-live.sabotage.txt"
+  ],
+  "dimensions": {
+    "roadmap": "0.11bd",
+    "break": "cached-read",
+    "base": "http://localhost:5180",
+    "browser_upload_origin": "https://detailingplatform.com (blank routed test page, no app UI proof)",
+    "cache_fixture": "same uploaded PNG PUT again with Cache-Control public,max-age=300; only disposable object metadata changes",
+    "widths": [
+      392,
+      1440
+    ],
+    "public_base": "https://media.detailingplatform.com",
+    "objects": 2,
+    "evidence": [
+      {
+        "name": "392 start",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "392 own canonical public URL",
+        "ok": true,
+        "detail": "same URL throughout proof"
+      },
+      {
+        "name": "392 browser PUT",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "392 disposable fixture forces old cache lifetime",
+        "ok": true,
+        "detail": "HTTP 200; fixture metadata only, max-age=300"
+      },
+      {
+        "name": "392 anonymous read returns uploaded bytes",
+        "ok": true,
+        "detail": "HTTP 200, MISS, 70 bytes"
+      },
+      {
+        "name": "392 real cache HIT before delete",
+        "ok": true,
+        "detail": "HTTP 200, HIT"
+      },
+      {
+        "name": "392 removal acknowledged",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "392 original warmed URL stops succeeding immediately",
+        "ok": false,
+        "detail": "HTTP 200, HIT; no query string or cache bypass"
+      },
+      {
+        "name": "392 another business's key refused",
+        "ok": true,
+        "detail": "HTTP 404"
+      },
+      {
+        "name": "1440 start",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "1440 own canonical public URL",
+        "ok": true,
+        "detail": "same URL throughout proof"
+      },
+      {
+        "name": "1440 browser PUT",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "1440 disposable fixture forces old cache lifetime",
+        "ok": true,
+        "detail": "HTTP 200; fixture metadata only, max-age=300"
+      },
+      {
+        "name": "1440 anonymous read returns uploaded bytes",
+        "ok": true,
+        "detail": "HTTP 200, MISS, 70 bytes"
+      },
+      {
+        "name": "1440 real cache HIT before delete",
+        "ok": true,
+        "detail": "HTTP 200, HIT"
+      },
+      {
+        "name": "1440 removal acknowledged",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "1440 original warmed URL stops succeeding immediately",
+        "ok": false,
+        "detail": "HTTP 200, HIT; no query string or cache bypass"
+      },
+      {
+        "name": "1440 another business's key refused",
+        "ok": true,
+        "detail": "HTTP 404"
+      },
+      {
+        "name": "cleanup test object",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "cleanup origin diagnostic (not proof about cached URL)",
+        "ok": true,
+        "detail": "HTTP 404, MISS"
+      },
+      {
+        "name": "cleanup test object",
+        "ok": true,
+        "detail": "HTTP 200"
+      },
+      {
+        "name": "cleanup origin diagnostic (not proof about cached URL)",
+        "ok": true,
+        "detail": "HTTP 404, MISS"
+      },
+      {
+        "name": "console read at both widths",
+        "ok": true,
+        "detail": "no errors or warnings"
+      }
+    ]
+  },
+  "check_id": "media-cache-delete-live",
+  "started_at": "2026-10-13T08:39:35.623Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 23,
+  "min_assertions": 18,
+  "canary": {
+    "id": "anonymous-missing-image",
+    "observed_failure": true,
+    "what": "a random nonexistent public gallery key must answer 404"
+  }
+}

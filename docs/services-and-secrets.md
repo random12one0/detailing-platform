@@ -158,6 +158,19 @@ hosted on Netlify** — only the address book moved.
   logo exists, `scripts/photo-release-order.mjs` 0 failed,
   `deployed-inventory` 41/41 match, `migration-drift` PASS.
 
+### 3b. Public image cache deletion — new setup required by ROADMAP 0.11bd
+
+Built locally 2026-10-13; not published. This does not reopen the R2 switch-over
+above. It adds a separate Cloudflare **zone Cache Purge** permission so a
+deleted object does not remain at its public URL in Cloudflare's cache.
+Andrew saves `CF_CACHE_PURGE_TOKEN` and `CF_MEDIA_ZONE_ID` directly in this
+platform's Supabase function secrets. Token restricted to detailingplatform.com;
+Zone ID is not the Account ID. No value belongs in this document.
+Configure before publishing photo-door: missing purge configuration refuses
+public-media removal. [Setup, policy and proof](media-cache-deletion.md).
+The real cached-read deletion criterion remains unproved; do not treat the
+2026-10-10 switch-over numbers above as proof of this later deletion change.
+
 ## 4. Telnyx — texting. Account paid, brand submitted, nothing can send yet
 
 **State as of the night of 2026-09-21:**
