@@ -1,0 +1,134 @@
+bucket cors · 2026-10-13T09:11:29.876Z
+endpoint: https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com · media: https://media.detailingplatform.com
+origins: https://detailingplatform.com https://www.detailingplatform.com http://localhost:5173 http://127.0.0.1:5173 https://*.netlify.app https://*.netlify.live
+buckets: job-photos expense-receipts business-media
+broken on purpose: no
+
+PASS  job-photos GET from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  job-photos PUT from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  job-photos GET from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  job-photos PUT from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  job-photos GET from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  job-photos PUT from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  job-photos GET from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  job-photos PUT from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  job-photos GET from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  job-photos PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  job-photos GET from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  job-photos PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  job-photos PUT from https://evil.example → expect refuse: 403
+PASS  job-photos PUT from https://detailingplatform.com.evil.example → expect refuse: 403
+PASS  job-photos PUT from https://evilnetlify.app → expect refuse: 403
+PASS  job-photos PUT from http://detailingplatform.com → expect refuse: 403
+PASS  job-photos PUT from http://localhost:5174 → expect refuse: 403
+PASS  job-photos PUT from https://notdetailingplatform.com → expect refuse: 403
+PASS  job-photos DELETE from https://detailingplatform.com → expect refuse: 403
+PASS  expense-receipts GET from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  expense-receipts PUT from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  expense-receipts GET from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  expense-receipts PUT from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  expense-receipts GET from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  expense-receipts PUT from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  expense-receipts GET from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  expense-receipts PUT from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  expense-receipts GET from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  expense-receipts PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  expense-receipts GET from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  expense-receipts PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  expense-receipts PUT from https://evil.example → expect refuse: 403
+PASS  expense-receipts PUT from https://detailingplatform.com.evil.example → expect refuse: 403
+PASS  expense-receipts PUT from https://evilnetlify.app → expect refuse: 403
+PASS  expense-receipts PUT from http://detailingplatform.com → expect refuse: 403
+PASS  expense-receipts PUT from http://localhost:5174 → expect refuse: 403
+PASS  expense-receipts PUT from https://notdetailingplatform.com → expect refuse: 403
+PASS  expense-receipts DELETE from https://detailingplatform.com → expect refuse: 403
+PASS  business-media GET from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  business-media PUT from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  business-media GET from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  business-media PUT from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  business-media GET from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  business-media PUT from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  business-media GET from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  business-media PUT from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  business-media GET from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  business-media PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  business-media GET from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  business-media PUT from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  business-media PUT from https://evil.example → expect refuse: 403
+PASS  business-media PUT from https://detailingplatform.com.evil.example → expect refuse: 403
+PASS  business-media PUT from https://evilnetlify.app → expect refuse: 403
+PASS  business-media PUT from http://detailingplatform.com → expect refuse: 403
+PASS  business-media PUT from http://localhost:5174 → expect refuse: 403
+PASS  business-media PUT from https://notdetailingplatform.com → expect refuse: 403
+PASS  business-media DELETE from https://detailingplatform.com → expect refuse: 403
+PASS  media domain GET from https://detailingplatform.com → expect allow: 204 ACAO https://detailingplatform.com
+PASS  media domain GET from https://www.detailingplatform.com → expect allow: 204 ACAO https://www.detailingplatform.com
+PASS  media domain GET from http://localhost:5173 → expect allow: 204 ACAO http://localhost:5173
+PASS  media domain GET from http://127.0.0.1:5173 → expect allow: 204 ACAO http://127.0.0.1:5173
+PASS  media domain GET from https://deploy-preview-1--detailplatform-admin-test.netlify.app → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.app
+PASS  media domain GET from https://deploy-preview-1--detailplatform-admin-test.netlify.live → expect allow: 204 ACAO https://deploy-preview-1--detailplatform-admin-test.netlify.live
+PASS  media domain GET from https://evil.example → expect refuse: 403
+
+canary nonexistent-bucket-judged-allow caught: true (status 403)
+PASS  browser 1440px job-photos PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 1440px expense-receipts PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 1440px business-media PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 1440px job-photos PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+PASS  browser 1440px expense-receipts PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+PASS  browser 1440px business-media PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+PASS  browser 392px job-photos PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 392px expense-receipts PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 392px business-media PUT from http://localhost:5173 → expect allow: fetch threw TypeError, Chrome corsError MissingAllowOriginHeader
+PASS  browser 392px job-photos PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+PASS  browser 392px expense-receipts PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+PASS  browser 392px business-media PUT from https://evil.example → expect refuse: fetch threw TypeError, Chrome corsError PreflightMissingAllowOriginHeader
+
+console (both widths; each line is the expected CORS refusal of an unsigned or foreign request):
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  1440 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'http://localhost:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 http://localhost:5173 [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/job-photos/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/expense-receipts/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Access to fetch at 'https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com/business-media/cors-probe/0.11ca.jpg' from origin 'https://evil.example' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
+  392 https://evil.example [error] Failed to load resource: net::ERR_FAILED
