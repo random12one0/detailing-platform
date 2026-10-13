@@ -12,7 +12,7 @@
 // Its random business/expense prefixes are local fixtures, never customer keys.
 // PGLITE_DIR defaults to the existing TEMP/pglite installation; BASE=:5180.
 // This does NOT certify real R2 cleanup; publication and the live proof remain.
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
@@ -24,6 +24,7 @@ import { reclaimReceiptAttempts, withReceiptAttempts } from "../supabase/functio
 import { handlePhotoReconcile } from "../supabase/functions/_shared/photoReconcile.ts";
 import "../tests/_env.mjs";
 import { makeR2, r2Config } from "../supabase/functions/_shared/r2.ts";
+import { parseObjectKey } from "../supabase/functions/_shared/photoKey.ts";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("../app/node_modules/playwright");
@@ -34,6 +35,9 @@ if (BREAK && BREAK !== "leave-object") throw new Error("Unknown sabotage");
 const BASE = process.env.BASE || "http://localhost:5180";
 const EXPECTED = 24; // 14 named SQL/handler targets + 5 browser cases at each of 2 widths.
 const REAL = process.argv.includes("--real-r2");
+const manifest = "receipts/receipt-abandonment-r2-objects.json";
+const cleanupOnly = process.argv.includes("--cleanup-r2-fixtures");
+if (cleanupOnly && !REAL) throw new Error("Fixture cleanup requires --real-r2");
 let actualR2;
 if (REAL) {
   const { config, missing } = r2Config(n => process.env[n]);
@@ -48,13 +52,30 @@ if (REAL) {
     console.error(reason); process.exit(1);
   }
   actualR2 = makeR2(config);
+  const leftovers = existsSync(manifest) ? JSON.parse(readFileSync(manifest, "utf8")) : { keys: [] };
+  if (cleanupOnly) {
+    if (!leftovers.keys?.length) throw new Error("No fixture cleanup targets; nothing measured or removed");
+    if (!Array.isArray(leftovers.business_ids) || leftovers.business_ids.length !== 2 ||
+      !leftovers.keys.every(k => { const p = parseObjectKey(k); return p && leftovers.business_ids.includes(p.businessId); })) {
+      throw new Error("Fixture manifest ownership invalid; nothing removed");
+    }
+    // Operator-only recovery, not a client action. Do not overwrite a manifest
+    // from an interrupted run until every recorded key is confirmed absent.
+    for (const k of [...leftovers.keys]) {
+      await actualR2.del("expense-receipts", k);
+      if ((await actualR2.head("expense-receipts", k)).exists) throw new Error("Fixture remains; manifest retained");
+      leftovers.keys = leftovers.keys.filter(other => other !== k);
+      writeFileSync(manifest, JSON.stringify(leftovers, null, 2) + "\n");
+    }
+    console.log("Recorded R2 fixtures removed and confirmed absent; manifest empty"); process.exit(0);
+  }
+  if (leftovers.keys?.length) throw new Error("An interrupted R2 proof has leftovers; run --real-r2 --cleanup-r2-fixtures before another proof");
 }
 const started_at = new Date().toISOString(), failures = [], observations = [];
 const transcript = [];
 let discovered = 0, attempted = 0, completed = 0, assertions = 0, canaryCaught = false;
 const db = new PGlite(), objects = new Map(), planted = new Set();
 const A = randomUUID(), B = randomUUID();
-const manifest = "receipts/receipt-abandonment-r2-objects.json";
 const recordPlanted = k => {
   planted.add(k);
   if (actualR2) writeFileSync(manifest, JSON.stringify({ business_ids: [A, B], keys: [...planted] }, null, 2) + "\n");

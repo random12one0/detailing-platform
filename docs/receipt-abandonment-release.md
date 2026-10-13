@@ -66,6 +66,11 @@ Before each real PUT, its key is saved in
 `receipts/receipt-abandonment-r2-objects.json`; verified teardown removes it
 from that manifest. If stopped unexpectedly, retain that manifest for cleanup; do not
 delete an expense row in order to pretend its object has gone.
+With the same R2 environment configured, run
+`node scripts/receipt-abandonment.mjs --real-r2 --cleanup-r2-fixtures` to remove
+only its recorded fixture keys and confirm each is absent. Another real proof
+refuses to overwrite a manifest with leftovers. This recovery command is an
+operator action, not a browser permission.
 
 ## Andrew's release order
 
