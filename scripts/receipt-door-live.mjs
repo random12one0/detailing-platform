@@ -66,8 +66,14 @@ async function cleanup() {
       }
     }
     if (row.receipt_path) {
+      const links = await door({ action: "urls", keys: [row.receipt_path] });
+      const readUrl = links.data?.urls?.[row.receipt_path];
+      if (links.error || !readUrl) throw new Error("Could not verify receipt removal: " + id);
       const gone = await door({ action: "remove", expense_id: id });
       if (gone.error || gone.data?.removed !== true) throw new Error("Receipt cleanup refused; row retained: " + id);
+      const missing = await fetch(readUrl);
+      await missing.body?.cancel();
+      if (missing.status !== 404) throw new Error("Receipt file remains after removal; row retained: " + id);
     }
     const deleted = await owner.from("expenses").delete().eq("id", id).select("id");
     if (deleted.error || deleted.data?.length !== 1) throw new Error("Expense cleanup did not delete exactly its row: " + id);

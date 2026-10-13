@@ -15,6 +15,7 @@ const supa = process.env.SUPABASE_URL;
 if (new URL(supa).hostname !== "kguqylyzgyzfktkfnhjb.supabase.co") throw new Error("Wrong project");
 const input = process.argv[2];
 if (input !== "receipts/receipt-door-live.json") throw new Error("Only the local receipt proof is accepted");
+if (process.argv.slice(3).some(value => value !== "--break=owner-guard")) throw new Error("Unknown cleanup option");
 const broken = process.argv.includes("--break=owner-guard");
 const report = JSON.parse(readFileSync(input, "utf8"));
 if (report.check_id !== "receipt-door-live" || report.dimensions.base !== "http://localhost:5180") throw new Error("Unexpected proof");
@@ -58,8 +59,14 @@ for (const [expenseId, fileId] of (canaryCaught ? targets : [])) {
   const door = body => owner.functions.invoke("photo-door", { body: { business_id: biz.id, store: "receipt", ...body } });
   const finish = await door({ action: "finish", expense_id: expenseId, file_id: fileId });
   if (finish.data?.expense?.receipt_path) {
+    const key = finish.data.expense.receipt_path;
+    const links = await door({ action: "urls", keys: [key] });
+    const readUrl = links.data?.urls?.[key];
+    if (links.error || !readUrl) { failures.push("Could not verify file removal " + expenseId); continue; }
     const gone = await door({ action: "remove", expense_id: expenseId });
     if (gone.error || gone.data?.removed !== true) { failures.push("Door cleanup refused; marked row retained " + expenseId); continue; }
+    const missing = await fetch(readUrl); await missing.body?.cancel();
+    if (missing.status !== 404) { failures.push("Receipt file remains after removal " + expenseId); continue; }
     removed++;
   } else if (finish.error?.context?.status === 409) absent++;
   else { failures.push("Could not verify receipt; marked row retained " + expenseId); continue; }
