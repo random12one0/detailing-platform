@@ -48,6 +48,16 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO, AT YOUR NEXT RELEASE · Bring the server up to the saved code (ROADMAP 98.2)
+
+The red server inventory is a real release backlog, and was already red before 14.24 refreshed it.
+Recommendation: use your existing `0.6b-handoff` launch checklist in "YOURS, WHEN YOU LAUNCH" below.
+Full green also waits for the separate `platform-admin` release (4.3c) and the Google function's
+migration-before-function release (99.1). Those remain their existing jobs; this adds no new decision.
+After those releases, have a session run `node scripts/deployed-inventory.mjs` and
+`node scripts/receipt.mjs receipts/deployed-inventory.json`, retain the receipt, and tick 98.2 only when both pass.
+The session has not pushed, published, deployed or changed a check to hide the backlog.
+
 ## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
 
 The email formatter is built locally: `10:00 AM` becomes `10 AM`, real minutes stay, and the long date loses its year.

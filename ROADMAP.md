@@ -29790,6 +29790,22 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - The route-contract check passes (`node --test tests/route-contract.test.mjs`).
   **Done 2026-10-11.** Nothing 9.12d committed broke it. The check reads `app/dist/_redirects`, a build OUTPUT, and at 21:16 (the minute 9.12d's first slice committed) a bare `vite build` rebuilt `app/dist` without `build-examples.mjs`, so the generated `/ex1…/ex5` and `/examples` rewrites were never prepended. Fixed by running the real build, `npm run build --prefix app` ("6 slashless rewrites prepended"), then `node --test tests/route-contract.test.mjs`: 34 passed, 0 failed. Red-first: on the bare-built dist the same check printed 32 passed / 2 failed. The check now names the cause when the generated block is missing entirely (commit before this one), so the next bare build costs nobody the trace. **Run `npm run build`, never bare `vite build`, if anything after you reads `app/dist`.**
 - [ ] **98.2 — Repair the receipt deployed-inventory.json says fail check (broken by 14.24)**
+  **Diagnosis 2026-10-13 — not a broken check; box stays open.** The premise that 14.24 turned a pass red does not
+  match its receipt commit. Compare `git show 4b877265^:receipts/deployed-inventory.json` with
+  `git show 4b877265:receipts/deployed-inventory.json`: both say `fail`, discover **42 of 42** functions, compare
+  **41 of 42**, name **35** differing functions and `google-business` not deployed. That commit changes only the
+  receipt's revision and run times; it preserves the findings. `node scripts/receipt.mjs receipts/deployed-inventory.json`
+  also rejects the receipt: the missing function leaves the completed count short. No check, hold, server source or
+  14.24 work is changed here. Refreshing the read-only inventory and retaining its caught unreadable-body sabotage
+  is the remaining local proof; the release itself is outside this item's authority.
+  AWAITS PUBLISH (built and proved; no decision asked of Andrew): the existing server release handoff in
+  FOR-ANDREW.md (`0.6b-handoff`, ROADMAP 0.6c). A session cannot clear genuine unpublished differences without
+  publishing or weakening the check; neither is a repair authorized here.
+  Waits on: 4.3c's `platform-admin` release and 99.1's migration-before-function release of `google-business`.
+  The existing handoff deliberately leaves these out, so running it alone cannot make the full inventory pass.
+  Who removes this line: the session verifying the later dependent release. After both are live, that session runs
+  `node scripts/deployed-inventory.mjs`, then `node scripts/receipt.mjs receipts/deployed-inventory.json`, commits
+  the receipt and ticks 98.2 only if both pass. The Google account blocker remains in 99.1; no new decision is asked.
   REPAIR CHECK receipt deployed-inventory.json says fail. Job 14.24 turned the quality check "receipt deployed-inventory.json says fail" red; it passed before that job. Find why and make it pass again without undoing 14.24's work.
   Acceptance criteria:
   - The receipt deployed-inventory.json says fail check passes.
