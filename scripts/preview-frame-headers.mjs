@@ -37,6 +37,7 @@
 
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join, extname } from "node:path";
 import { createRequire } from "node:module";
 import { REPO, writeReceipt } from "./receipt.mjs";
@@ -55,6 +56,8 @@ const A = `http://localhost:${PA}`, B = `http://localhost:${PB}`;
 const SLUG = "demo-detail";
 const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }];
 const CANARY_PATH = "/__canary-unprotected";
+const SHOTS = ".manager-shots/9.1c";
+const artifacts = [];
 
 // ── THE RULES, FROM THE REAL FILE ───────────────────────────────────────────
 export function parseHeaderRules(toml) {
@@ -178,6 +181,13 @@ try {
     await page.waitForTimeout(1500);
     ok(noise.length === 0, `console@${tag}`, `console not silent: ${noise.join(" | ")}`);
     observed.sizes[tag] = { src, shown, console: noise };
+    if (found) {
+      mkdirSync(join(REPO, SHOTS), { recursive: true });
+      const rel = `${SHOTS}/preview${BREAK ? "-break-" + BREAK : ""}-${s.w}.png`;
+      await iframe.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: join(REPO, rel) });
+      artifacts.push(rel);
+    }
     await ctx.close();
   }
 
@@ -233,7 +243,7 @@ const { path } = writeReceipt({
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
     "Assumes Netlify matches [[headers]] `for` against the REQUESTED path, not the /index.html the SPA rewrite serves. Unproved until the live rerun after publish (ROADMAP 9.1b).",
   ],
-  artifacts: [],
+  artifacts,
   dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), item: "9.1c", break: BREAK, origins: { app: A, stranger: B } },
   canary: { id: "unprotected-path-renders-for-stranger", observed_failure: canaryCaught },
   observed,
