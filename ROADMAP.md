@@ -1825,7 +1825,29 @@ and how the wait ends.
   **So what is left of this slice is one paste into three buckets, and `bucket-cors` stays UNJUDGEABLE until
   0.11d's first browser upload, where a missing rule shows as a blocked preflight.**
 
-- [ ] **0.11cb — Publish the R2 functions in release order**
+- [x] **0.11cb — Publish the R2 functions in release order**
+  **DONE 2026-10-13: Andrew published all three on 2026-10-10 08:20 UTC (his note on 0.11); this run proved
+  each criterion against the live project, read-only, at `bf449860`.** (1) photo-door v2 is ACTIVE with
+  `verify_jwt` on: a POST with no login answered 401 `UNAUTHORIZED_NO_AUTH_HEADER` and a malformed token 401
+  `UNAUTHORIZED_INVALID_JWT_FORMAT`, both the gateway's own codes; signed in as the demo owner it signed an
+  upload (200, nothing uploaded), and refused another business (401) and another business's key (404).
+  `node scripts/photo-door-deployed.mjs --base=https://media.detailingplatform.com`: 6 of 6 rules, 0 failed,
+  11 of 11 planted defects caught, receipt PASS. (2) delete-customer v39 carries 3 of 3 R2 markers;
+  photo-reconcile matches this checkout (`deployed-inventory.mjs --only=photo-reconcile` PASS). (3)
+  photo-reconcile is `verify_jwt=false`, and the proof it is reachable by its anonymous cron is that it was
+  reached: `cron.job_run_details` shows `photo-reconcile` succeeded at 03:40 UTC on 10-11, 10-12 and 10-13,
+  and its `job_heartbeats` row was written 2026-10-13 03:40:06 (clean, 0 orphans). (4)
+  `node scripts/photo-release-order.mjs`: 10 rules, 0 failed, 1 UNJUDGEABLE (`bucket-cors`, proved instead by
+  0.11ca's `bucket-cors.mjs`), receipt PASS. Sabotages `door-public`, `reconcile-private` and `forget-stale`
+  each reddened exactly their own rule by name, 1 failed each. No browser screen: this piece ships no page.
+  **Found and fixed on the way:** this gate and `cors-rule.mjs` record a sabotage as
+  `dimensions.broken_on_purpose`, which `receipt.mjs` did not recognise, so every sabotage run overwrote the
+  real receipt with a red one (it did, three times, this run). The writer now routes it to
+  `receipts/photo-release-order.sabotage.json`, measured. **Drift, not this item's:** the running photo-door
+  lacks the 0.11bd cache purge and the 4.3c and 99.2d shared-module changes, and delete-customer lacks 4.3c and
+  99.2d. All three were committed after the 10-10 publish and each item records its own publish step.
+  photo-door's header no longer says "NOT DEPLOYED"; photo-reconcile's still does, left on purpose, because
+  editing it would make a function that now matches the checkout differ over a comment.
   Publish photo-door, delete-customer, and photo-reconcile, preserving photo-door JWT verification and allowing photo-reconcile to be called by cron. This leaves database/cron changes and the app upload switch untouched.
   Part 2 of 3 of item 0.11c, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1835,7 +1857,7 @@ and how the wait ends.
   - photo-reconcile is publicly callable for its cron invocation.
   - The release-order check confirms the app has not shipped before photo-door.
 
-  **NEEDS ANDREW: every criterion here is a publish, and publishing is his - 2026-10-09.** A session cannot
+  **RESOLVED 2026-10-13 (see top of entry); was: NEEDS ANDREW — every criterion here is a publish, and publishing is his - 2026-10-09.** A session cannot
   perform any of the three, by standing rule. **What is built instead is the order check around them:**
   `node scripts/photo-release-order.mjs` judges `door-keeps-jwt` (photo-door absent from `PUBLIC_FUNCTIONS`
   and, once live, deployed with `verify_jwt=true`), `reconcile-public-for-cron` (present in that list, so the

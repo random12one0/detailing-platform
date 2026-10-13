@@ -1,9 +1,9 @@
 {
-  "git_sha": "13262063755973de542726ee830519828ec2e1be",
-  "git_sha_started": "13262063755973de542726ee830519828ec2e1be",
+  "git_sha": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
+  "git_sha_started": "b0a37d37aa837ce7d67062b3134f8ee61b545b35",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T20:55:07.870Z",
+  "finished_at": "2026-10-13T10:37:10.638Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +13,7 @@
     "project": "kguqylyzgyzfktkfnhjb",
     "method": "comment-text comparison against the deployed eszip bundle",
     "matching": [
-      "address-suggest"
+      "photo-reconcile"
     ],
     "differing": [],
     "not_deployed": [],
@@ -22,7 +22,7 @@
     "widest_gap_days": 0
   },
   "check_id": "deployed-inventory-only",
-  "started_at": "2026-10-12T20:55:04.020Z",
+  "started_at": "2026-10-13T10:37:05.982Z",
   "status": "pass",
   "expected_targets": 1,
   "discovered_targets": 1,

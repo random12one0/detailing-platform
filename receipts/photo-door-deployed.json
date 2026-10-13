@@ -1,9 +1,9 @@
 {
-  "git_sha": "1e83adfb97f488daf2457c569361a74b8f49e1e9",
-  "git_sha_started": "1e83adfb97f488daf2457c569361a74b8f49e1e9",
+  "git_sha": "bf449860bb3dbe047f31035a1c7e331e2b5a05bc",
+  "git_sha_started": "bf449860bb3dbe047f31035a1c7e331e2b5a05bc",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T09:35:32.740Z",
+  "finished_at": "2026-10-13T10:36:35.748Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -18,7 +18,7 @@
     "base_source": "--base="
   },
   "check_id": "photo-door-deployed",
-  "started_at": "2026-10-10T09:35:29.176Z",
+  "started_at": "2026-10-13T10:36:29.050Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
