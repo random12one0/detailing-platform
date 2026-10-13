@@ -1,13 +1,12 @@
 {
-  "git_sha": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
-  "git_sha_started": "1243e5d99380108d1c1f56042ef8823d9d9cc172",
+  "git_sha": "e79df9e8151b99c496ca735bdfb742a391186e33",
+  "git_sha_started": "e79df9e8151b99c496ca735bdfb742a391186e33",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T08:11:39.821Z",
+  "finished_at": "2026-10-13T04:57:56.213Z",
   "failures": [],
   "warnings": [
-    "Live delivery and deployed consent saving are not measured.",
-    "99.2 before/after review copies skipped: belt/shots/99.2/before.html is gone."
+    "Live delivery and deployed consent saving are not measured."
   ],
   "artifacts": [
     ".manager-shots/99.2f/details-en-390-unchecked.jpg",
@@ -340,14 +339,14 @@
     "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
   },
   "check_id": "booking-consent",
-  "started_at": "2026-10-12T08:06:26.984Z",
+  "started_at": "2026-10-13T04:52:30.026Z",
   "status": "pass",
   "expected_targets": 76,
   "discovered_targets": 76,
   "attempted_targets": 76,
   "completed_targets": 76,
   "skipped_targets": 0,
-  "assertions_executed": 1006,
+  "assertions_executed": 1009,
   "min_assertions": 650,
   "canary": {
     "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",

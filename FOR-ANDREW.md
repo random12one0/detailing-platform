@@ -117,6 +117,12 @@ The profit screen is finished and proven: a session typed four test bills into i
 
 **Check before saving.** A wrong bill stays there until edit and delete are built. Nothing else is waiting on this.
 
+## DO · Publish the two 4.3 pieces and check them live (ROADMAP 4.3b + 4.3c, you said go 2026-10-13)
+
+You approved publishing both pieces and checking them live. Piece one (4.3b) puts orphaned history rows onto the live panel — publish `platform-admin`. Piece two (4.3c) is the support-session lock: the migration plus the functions sharing `_shared/tenant.ts`. **Known consequence, your call:** until 4.3c part (a) is built, the preview's "Let me make changes" button promises what the server refuses — pressing it shows *WORKING in … Anything you change is theirs* while every save is refused. If that is acceptable for now, publish in this order: migration first, then the functions, then check Coastline's detail (4.3b) and the preview banner (4.3c) live. A session ticks the boxes after.
+
+**Recommendation:** publish, since you said go — but expect the unlock mismatch above until (a) lands, and do not demo the unlock button live before then.
+
 ## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
 
 You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.

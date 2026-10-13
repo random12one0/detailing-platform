@@ -13216,6 +13216,7 @@ requested.
   also fail on the untouched HEAD (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
   row appears on Coastline's panel, because that needs the function published.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this. This is an existing release step, not a question for Andrew.
+  **Andrew decided 2026-10-13: yes, publish both pieces (4.3b + 4.3c) and check them live.** Recorded by supervision 2026-10-13; publishing is his hand, FOR-ANDREW.md carries the row.
   Update the platform-admin detail history query so it finds events recorded by either business ID or business name, allowing older sensitive events with a null business_id to appear. This improves audit completeness but does not provide server-side mutation enforcement.
   Part 2 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -13266,6 +13267,10 @@ requested.
   built and proved, nothing about 4.3c is released. (Publishing the OTHER functions that share
   `tenant.ts` first stays harmless: with no table, `isSupportSession` reads `42P01`/`PGRST205` as
   "not a support session" — `_shared/supportSession.ts`.)
+  **Andrew decided 2026-10-13: publish both pieces (4.3b + 4.3c) and check them live — the supervisor hold above
+  is lifted by owner decision.** Known consequence, stated plainly so his hand knows: until (a) lands, the
+  preview's "Let me make changes" button promises what the server refuses. FOR-ANDREW.md carries the publish
+  row with that warning. Recorded by supervision 2026-10-13.
   Build the selected session marker and the server-side authorization rules that reject mutations while that marker is active. Protection must be location/session-based, preserving the owner's ability to work in their own ordinary dashboard, and must cover every record-access layer used by the support view.
   Part 3 of 4 of item 4.3, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -28115,6 +28120,10 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   "button", or a name that does not contain the control's visible words. Sabotage: strip one control's label (`aria-label=""` on a
   date cell, or empty a bar button's text) and the check must name that control. Passes when every control on both screens has a
   name that matches what is written on it. Box left `[ ]` because *Done when* needs all three.
+
+  **Andrew decided 2026-10-12/13 (dashboard INBOX, same line 7 times, counted once): run all three checks now.**
+  Parts 1 and 2 already pass above; part 3 stays a session job — build the accessible-name check first, then run
+  all three. Recorded by supervision 2026-10-13; box still `[ ]` until *Done when* holds all three.
 
   **Done when:** all three are recorded **in this entry**, each against **its own
   *Passes when* line above** — they are not interchangeable and "all three done"
