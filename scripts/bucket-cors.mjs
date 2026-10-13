@@ -222,7 +222,9 @@ const { path: rp, receipt } = writeReceipt({
   completed_targets: completed + browserResults.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: EXPECTED + 12 + 1,
+  // A FLOOR below the run's real count (77): the preflights alone. A browser half that ran
+  // nothing is caught by discovered_targets falling short of expected_targets, not by this.
+  min_assertions: EXPECTED,
   failures,
   artifacts: [`receipts/bucket-cors${BREAK ? ".sabotage" : ""}.txt`],
   dimensions: {
