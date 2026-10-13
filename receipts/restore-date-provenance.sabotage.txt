@@ -1,0 +1,22 @@
+== sabotage: provenance line removed from whyNotProved (git diff --numstat follows)
+1	1	scripts/restore-date.mjs
+✖ refused for the date: the invented dump, named like a nightly, labelled as the platform (3.5217ms)
+✖ refused for the date: no provenance at all (the held 6.1b receipt) (0.2848ms)
+✖ refused for the date: a caller who wrote kind=nightly-release over a file (0.2048ms)
+✖ refused for the date: another repository (0.177ms)
+✖ refused for the date: a tag that is not a nightly (0.1907ms)
+✖ refused for the date: bytes that do not match GitHub's digest (0.2152ms)
+✖ refused for the date: GitHub reported no digest (0.1694ms)
+✖ refused for the date: never decrypted (0.1769ms)
+ℹ tests 21
+ℹ pass 13
+ℹ fail 8
+✖ failing tests:
+✖ refused for the date: the invented dump, named like a nightly, labelled as the platform (3.5217ms)
+✖ refused for the date: no provenance at all (the held 6.1b receipt) (0.2848ms)
+✖ refused for the date: a caller who wrote kind=nightly-release over a file (0.2048ms)
+✖ refused for the date: another repository (0.177ms)
+✖ refused for the date: a tag that is not a nightly (0.1907ms)
+✖ refused for the date: bytes that do not match GitHub's digest (0.2152ms)
+✖ refused for the date: GitHub reported no digest (0.1694ms)
+✖ refused for the date: never decrypted (0.1769ms)

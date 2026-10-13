@@ -30096,7 +30096,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   stranger canaries; clean runs pass. The normal and sabotage artifact paths are disjoint and each
   file's content matches its JSON. Raw output: `receipts/supervisor-{release,door}-{break,clean}.txt`.
 
-- [ ] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
+- [x] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
   Supervisor review of the held 6.1b branch at `0cdab2bc`: the new test edit is fair, but
   `scripts/restore-nightly.mjs` unconditionally sets `project = PROJECT` for every `--dump` input.
   Its own invented fixture, exported unchanged and passed back through `--dump`, restores
@@ -30114,6 +30114,34 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   a fixture and a missing-bookings sabotage are refused; verified nightly provenance is accepted by
   a credential-free validator check. Exercise that provenance check with a planted untrusted source.
   The real encrypted-nightly run remains 6.1b and waits on 6.1a; no keys, live structure or publication.
+  **DONE 2026-10-13 (belt 98.8), fix at `612d72b3`.** The held 6.1b code (`restore-nightly.mjs`, its fixture,
+  `restore-date.mjs`, `tests/restore-date.test.mjs`) was adopted byte-for-byte from `0cdab2bc` in `0af8642e` and repaired
+  here; 6.1b's write-ups (its ROADMAP text, FOR-ANDREW row, `docs/recovery.md` line) stay on `belt/6.1b-20261013103843`, whose
+  code is now superseded by this branch. **The fix:** only `--release` records where the copy came from, from GitHub's own
+  answer (`gh release view --json tagName,assets`): repo, resolved tag, asset, GitHub's `digest`, the downloaded bytes'
+  sha256, and `decrypted: true` once `age` succeeds. `--dump` (any name, encrypted or not) records `provenance.kind "file"`
+  and project `unknown (a file given with --dump)`; `--fixture` records `"fixture"`. `whyNotProved` refuses a
+  `restore-nightly` receipt unless the provenance is `nightly-release` from `random12one0/detailing-platform-backups`, a
+  `backup-YYYY-MM-DD` tag, a 64-hex sha256 equal to GitHub's digest, and decrypted. The report is now one file per mode and
+  sabotage (`artifacts/restore-nightly/report.<fixture|dump|release>[.sabotage-<break>].txt`). `--save-dump=<file>` (fixture
+  only) keeps the invented dump so this proof re-takes without editing the script. GitHub's digest format was checked
+  read-only on 2026-10-13 against `backup-2026-10-13` (`sha256:<hex>`, the same form the script compares).
+  **Proved at `612d72b3`, throwaway local Postgres only, `.env` not loaded:** the invented dump saved as
+  `.tmp-98.8/backup-2026-10-13.pgc` (a nightly's name, on purpose) through `--dump` → PASS, **8 of 8** tables, canary caught,
+  `receipt.mjs` valid, and *restore date NOT recorded: drilled project unknown…; source is file, not a nightly fetched from
+  random12one0/detailing-platform-backups* (`receipts/restore-nightly.planted-dump.txt`, `receipts/restore-nightly.json`).
+  `--fixture` → PASS 8 of 8, date refused (`…fixture.txt`). `--fixture --break=lose-table` → FAIL, *public.bookings: 0 rows,
+  the backup holds 126*, date refused (`…sabotage-lose-table.txt`); `--break=canary` → FAIL, date refused
+  (`…sabotage-canary.txt`, `receipts/restore-nightly.sabotage.json`, which holds the last sabotage run). Each of the four
+  report files was opened after all runs and shows its own run's status and failures. `--release=latest` with no key →
+  REFUSED exit 2 before downloading (`…no-key.txt`). `node --test tests/restore-date.test.mjs` **21 of 21**: verified
+  provenance accepted; ten planted sources refused, including the 98.8 defect itself (a file named `backup-2026-10-13.pgc`
+  labelled as the platform) and a hand-written `kind: nightly-release` with no repo, digest or decryption. **Sabotage:**
+  the provenance line removed from `whyNotProved` (`git diff --numstat` 1/1) → **8 of 21 failed**, every one a planted
+  source; the other two planted cases (fixture, another project) are still refused by the older project check
+  (`receipts/restore-date-provenance.sabotage.txt`); restored → 21 of 21. Nothing a person sees changed, so there is no
+  browser view. **Not proved, and not this item:** the release path's provenance block has not run end to end. That is
+  the real encrypted nightly, which stays 6.1b and waits on 6.1a (Andrew's key).
 
 - [ ] **98.6 — Distinguish deliberately private tables from an accidental lock in the database audit.**
   Found during 14.39's read-only `node scripts/db-audit.mjs` at `0c74abf2`: its receipt reaches **6 of 6**
