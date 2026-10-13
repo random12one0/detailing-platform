@@ -1,0 +1,41 @@
+{
+  "git_sha": "63d5e8a4b59423db0643c8a2e47db76f94a2c9fb",
+  "git_sha_started": "63d5e8a4b59423db0643c8a2e47db76f94a2c9fb",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T14:11:16.971Z",
+  "failures": [
+    "1 finding(s) to look at — see FOUND above"
+  ],
+  "warnings": [
+    "run with --break=regrant; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "scripts/db-audit.mjs"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "checks": 6,
+    "break": "regrant"
+  },
+  "check_id": "db-audit",
+  "started_at": "2026-10-13T14:11:03.575Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 7,
+  "min_assertions": 5,
+  "canary": {
+    "id": "public must contain tables · an empty answer means the queries are not answering",
+    "observed_failure": true,
+    "caught_by": [
+      "query-answers"
+    ],
+    "findings": [
+      "[query-answers] 5 table(s) came back, so an empty result above is a real answer rather than a silent no-op"
+    ]
+  }
+}
