@@ -131,6 +131,10 @@ try {
     try {
       const r = await door(reader.request, { action: "remove", key });
       check("cleanup test object", r.status === 200 && r.body?.removed === true, `HTTP ${r.status}`);
+      // Cleanup diagnosis ONLY. This fresh query must never replace the
+      // canonical warmed-URL assertion above: an origin 404 did not stop the leak.
+      const origin = await publicRead(`${PUBLIC}/${key}?cleanup=${randomUUID()}`);
+      check("cleanup origin diagnostic (not proof about cached URL)", origin.status === 404, `HTTP ${origin.status}, ${origin.cache}`);
     } catch { check("cleanup test object", false, "transport failed; demo gallery test object needs removal"); }
   }
   check("console read at both widths", noise.length === 0, noise.length ? noise.join(" | ") : "no errors or warnings");
