@@ -24,8 +24,8 @@
 
 import { supabase } from "./supabase.js";
 import { api } from "./api.js";
-import { mediaExtForType } from "./photo-rules.js";
-import { DOOR_WORDS, MEDIA_VIA_DOOR, doorError, readMediaStart } from "./photo-door.js";
+import { mediaExtForType, storedMediaAt } from "./photo-rules.js";
+import { DOOR_WORDS, MEDIA_VIA_DOOR, doorError, readMediaStart, readRemoved } from "./photo-door.js";
 
 // ONE LINE, DELIBERATELY NOT SHARED WITH `photos.js`'s COPY. The rule worth
 // sharing is `doorError`'s mapping of a status to a sentence, and that IS
@@ -95,14 +95,10 @@ export async function uploadBusinessPhoto(businessId, file, folder = "gallery") 
 /**
  * Remove one business image. ROADMAP 0.11 slice 4.
  *
- * **IT TAKES A KEY, NOT A URL, and nothing calls it yet** — it exists because
- * `publishToGallery` needs to undo its own upload when the `gallery_images`
- * row fails, and that was the one place the old code already removed an object.
- * **The screens do not, which is a real gap and an old one:** `Gallery.jsx`'s
- * remove deletes the row and leaves the file, so `business-media` has been
- * accumulating orphans since it was built. That is written up in `ROADMAP.md`
- * 0.11 rather than fixed here, because on R2 it is the reconcile's to count and
- * the reconcile reads only `job-photos` today.
+ * **IT TAKES A KEY, NOT A URL**, and follows the flag: `publishToGallery` uses
+ * it to undo its own fresh upload when the `gallery_images` row fails. The
+ * gallery's Remove uses `removeBusinessPhotoAt` below, which follows the
+ * stored address instead (ROADMAP 0.11be).
  */
 export async function removeBusinessPhoto(businessId, key) {
   if (MEDIA_VIA_DOOR) {
@@ -112,4 +108,27 @@ export async function removeBusinessPhoto(businessId, key) {
   }
   const { error } = await supabase.storage.from("business-media").remove([key]);
   if (error) throw new Error(error.message);
+}
+
+/**
+ * ROADMAP 0.11be — remove the file behind one stored ADDRESS (a gallery row's
+ * `image_url`, `before_url` or `after_url`). **The address decides the
+ * store, not the flag:** rows written before the switch point at Supabase
+ * Storage and keep doing so. Only this business's own objects are ever
+ * removed — an external address or another business's file is left alone and
+ * never guessed into a key (the door also refuses a foreign key on its side).
+ * It throws on a refusal, so the caller can keep the row, and with it the
+ * address a retry needs. Removing an old Supabase object is not a second
+ * upload door: it only frees bytes. Already-gone is success on both stores.
+ */
+export async function removeBusinessPhotoAt(businessId, url) {
+  // The old bucket's public prefix, from the client itself (no network).
+  const oldBase = supabase.storage.from("business-media").getPublicUrl("").data.publicUrl;
+  const at = storedMediaAt(url, { businessId, oldBase });
+  if (at.kind === "r2") {
+    readRemoved(await door(businessId, { action: "remove", store: "media", key: at.key }));
+  } else if (at.kind === "supabase") {
+    const { error } = await supabase.storage.from("business-media").remove([at.key]);
+    if (error) throw new Error(error.message);
+  }
 }
