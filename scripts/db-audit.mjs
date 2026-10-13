@@ -190,6 +190,18 @@ const NO_POLICY_BY_DESIGN = new Set([
   "site_probes",            // outside-check definitions, no business_id, pg_cron only
   "site_probe_events",      // outage/recovery history for those checks
   "tenant_watch",           // per-detailer bookability state, keyed by business_id
+  // **ADDED 2026-10-13 — ROADMAP 98.6.** 14.39's run at `0c74abf2` reported
+  // these three as locked with nothing to unlock them, and section 5 of the
+  // same run showed all three with RLS on, no policy and 0 browser grants.
+  // Each migration says in its own header that it is a server-only store, and
+  // each carries `enable`, `force` and `revoke all from anon, authenticated`.
+  // Every reader and writer imports `_shared/db.ts` (`SERVICE_ROLE_KEY`):
+  // `update-booking`/`invite-user` via `_shared/actionLog.ts`, `platform-admin`,
+  // `send-invoice`. Nothing in `app/src` names any of them. Same expiry as the
+  // rest: a regrant voids the entry by itself.
+  "action_log",             // 20261006050000: append-only audit history of job changes
+  "platform_costs",         // 20261006020000: Andrew's hand-entered costs, platform-admin only
+  "send_invoice_attempts",  // 20261006062000: send-invoice's repeat-press claim store
 ]);
 
 // **THE FOREIGN KEYS DELIBERATELY LEFT UNINDEXED**, with the reason, so this
@@ -251,6 +263,12 @@ console.log("\n2. RLS on, and something to enforce");
   if (BREAK === "regrant") {
     const victim = rows.find((r) => NO_POLICY_BY_DESIGN.has(r.table));
     if (victim) { victim.grants = 7; console.log(`--break=regrant: pretending ${victim.table} got its grants back`); }
+  }
+  // `--break=stranger` adds a locked table nobody has explained, in the
+  // reading only, so the allowlist growing cannot quietly excuse an accident.
+  if (BREAK === "stranger") {
+    rows.push({ table: "zz_unexplained_lock", grants: 0 });
+    console.log("--break=stranger: pretending zz_unexplained_lock is locked with no entry");
   }
   const excused = (r) => NO_POLICY_BY_DESIGN.has(r.table) && Number(r.grants) === 0;
   const voided = rows.filter((r) => NO_POLICY_BY_DESIGN.has(r.table) && Number(r.grants) > 0);
@@ -405,7 +423,8 @@ const { path: receiptPath } = writeReceipt({
   failures: auditFailures,
   artifacts: ["scripts/db-audit.mjs"],
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
-  dimensions: { project: REF, checks: EXPECTED_CHECKS },
+  // `break` sends a sabotage run to `db-audit.sabotage.json` (receipt.mjs).
+  dimensions: { project: REF, checks: EXPECTED_CHECKS, ...(BREAK ? { break: BREAK } : {}) },
   canary: {
     id: "public must contain tables · an empty answer means the queries are not answering",
     observed_failure: canaryCaught,
