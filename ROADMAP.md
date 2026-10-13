@@ -29796,8 +29796,17 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   **41 of 42**, name **35** differing functions and `google-business` not deployed. That commit changes only the
   receipt's revision and run times; it preserves the findings. `node scripts/receipt.mjs receipts/deployed-inventory.json`
   also rejects the receipt: the missing function leaves the completed count short. No check, hold, server source or
-  14.24 work is changed here. Refreshing the read-only inventory and retaining its caught unreadable-body sabotage
-  is the remaining local proof; the release itself is outside this item's authority.
+  14.24 work is changed here.
+  **Re-proved 2026-10-13 at `bb48d24d`:** `node scripts/deployed-inventory.mjs` discovers **42 of 42**, attempts
+  **42**, compares **41**, and executes **41** comparisons: **6** comment matches, **35** differences, and
+  `google-business` absent. Exit **1**; `node scripts/receipt.mjs receipts/deployed-inventory.json` also exits **1**.
+  This final run has no sabotage warning and no moving HEAD.
+  Before it, `node scripts/deployed-inventory.mjs --break=unreadable` discovered **42 of 42**, compared **40**,
+  and named `accept-invite: UNREADABLE`; the grader
+  rejected the extra missing comparison. That run is retained separately as `receipts/deployed-inventory.sabotage.json`.
+  Its moving HEAD is only this item's two document edits (`git show --stat bb48d24d`); no measured source changed.
+  The final ordinary receipt is retained as `receipts/deployed-inventory.json`. No product screen changed, so no
+  browser appearance is claimed. The release itself remains outside this item's authority.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): the existing server release handoff in
   FOR-ANDREW.md (`0.6b-handoff`, ROADMAP 0.6c). A session cannot clear genuine unpublished differences without
   publishing or weakening the check; neither is a repair authorized here.
