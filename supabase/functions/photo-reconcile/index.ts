@@ -1,7 +1,8 @@
 // The photo reconcile — ROADMAP 0.11 slice 6. Sums what R2 actually holds against what `job_photos` says, per
 // business, and writes the numbers to the `photo-reconcile` row of `job_heartbeats`. All the rules are in
 // `_shared/photoReconcile.ts` (a Node test runs them); this file only connects them to the real database and
-// the real R2. **It READS. It never deletes, updates or repairs anything**, in R2 or in the database.
+// the real R2. Job-photo reconciliation remains read-only. 14.39 additionally
+// reclaims expired receipt attempts, claimed atomically by the database.
 //
 // **PUBLIC, LIKE `refresh-weather`, AND IT MUST BE.** pg_cron calls it with no session
 // (`20261006060000_photo_reconcile_cron.sql`). It is bounded instead of authenticated: it refuses unless the
@@ -25,6 +26,7 @@ import { supabase } from "../_shared/db.ts";
 import { withinLimits } from "../_shared/rateLimit.ts";
 import { makeR2, r2Config } from "../_shared/r2.ts";
 import { type DbPhoto, handlePhotoReconcile, JOB, type ReconcileDeps } from "../_shared/photoReconcile.ts";
+import { reclaimReceiptAttempts } from "../_shared/receiptAttempts.ts";
 
 const PAGE = 1000;
 const PAGE_CEILING = 500; // 500,000 rows; past it the read throws rather than report a partial table as whole.
@@ -54,6 +56,21 @@ const deps = (): ReconcileDeps => {
       return data && data.detail?.seeded !== true ? data.ran_at : null;
     },
     loadRows,
+    async reclaimReceipts() {
+      if (!config) throw new Error("Receipt storage unavailable");
+      return reclaimReceiptAttempts({
+        r2: makeR2(config),
+        async claim() {
+          const { data, error } = await supabase.rpc("claim_receipt_attempts");
+          if (error) throw error;
+          return data ?? [];
+        },
+        async ack(a) {
+          const { error } = await supabase.rpc("ack_receipt_attempt", { p_key: a.key, p_business: a.business_id, p_expense: a.expense_id });
+          if (error) throw error;
+        },
+      });
+    },
     async allowance() {
       const total = await supabase.rpc("photo_total_bytes");
       const share = await supabase.rpc("photo_tenant_share");

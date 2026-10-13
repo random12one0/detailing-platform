@@ -30,6 +30,7 @@ import { LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { handlePhotoDoor, type PhotoDeps, type PhotoRow } from "../_shared/photoDoor.ts";
 import { makeR2, mediaBase, publicUrl, r2Config } from "../_shared/r2.ts";
 import { makeMediaPurge, mediaCacheConfig, withMediaCache } from "../_shared/mediaCache.ts";
+import { withReceiptAttempts } from "../_shared/receiptAttempts.ts";
 
 const getPhoto = async (businessId: string, photoId: string): Promise<PhotoRow | null> => {
   const { data, error } = await supabase.from("job_photos").select("*")
@@ -105,19 +106,14 @@ const deps = (): PhotoDeps => {
       if (error) throw error;
       return data;
     },
+    receiptAttemptsManaged: true,
     async saveReceipt(row) {
-      // `.eq("business_id", ...)` again on the WRITE, not only the read above:
-      // the read and the write are two round trips and the guard belongs on
-      // the one that changes something.
-      const { data, error } = await supabase.from("expenses")
-        .update({
-          receipt_path: row.receipt_path, receipt_bytes: row.receipt_bytes,
-          receipt_width: row.receipt_width, receipt_height: row.receipt_height,
-          receipt_uploaded_at: row.receipt_uploaded_at,
-        })
-        .eq("id", row.id).eq("business_id", row.business_id)
-        .select("id, business_id, receipt_path, receipt_bytes, receipt_width, receipt_height, receipt_uploaded_at")
-        .single();
+      // Receipt finish and the reaper lock the same durable attempt. A HEAD
+      // followed by an ordinary update would race a scheduled deletion.
+      const { data, error } = await supabase.rpc("finish_receipt_attempt", {
+        p_business: row.business_id, p_expense: row.id, p_key: row.receipt_path,
+        p_bytes: row.receipt_bytes, p_width: row.receipt_width, p_height: row.receipt_height,
+      });
       if (error) throw error;
       return data;
     },
@@ -137,7 +133,13 @@ const deps = (): PhotoDeps => {
     // signed upload nobody could ever read back.
     mediaUrl: base ? (key) => publicUrl(base, key) : undefined,
 
-    r2: config ? withMediaCache(makeR2(config), base, cacheConfig ? makeMediaPurge(cacheConfig) : null) : null,
+    r2: config ? withReceiptAttempts(
+      withMediaCache(makeR2(config), base, cacheConfig ? makeMediaPurge(cacheConfig) : null),
+      async (key, business, expense) => {
+        const { error } = await supabase.rpc("start_receipt_attempt", { p_key: key, p_business: business, p_expense: expense });
+        if (error) throw error;
+      },
+    ) : null,
     log: (...a) => console.error(...a),
   };
 };
