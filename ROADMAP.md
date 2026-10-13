@@ -28686,6 +28686,25 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   sits over the control the sweep presses, which is what a bar over the bottom of the window does. **Clean run, same script, same app:** gate
   HELD, 0 unexpected, 0 covered at the end at all ten cells, 2, 2 and 1 set aside at the top at the same three cells.
 
+- [ ] **14.39 — Reclaim a receipt upload that never reaches finish.**
+  Found during 0.11cc's real browser proof: R2 accepted the receipt bytes, but the required belt
+  origin :5180 could not read its CORS reply, so the app never called finish. The expense had no
+  receipt_path or receipt_bytes while its file still existed. This is a failed-upload cleanup gap,
+  not a request to allow :5180 publicly. The normal production origins pass bucket-cors.mjs.
+  addReceipt throws on a failed PUT without reclaiming that attempted object; photo-reconcile
+  currently lists job-photos only, so a lost receipt finish is outside its nightly observation.
+  The proof's files were reclaimed through the existing door: scripts/receipt-proof-cleanup.mjs
+  temporarily restored its own missing expense, let finish HEAD the known receipt, then removed
+  the receipt and its marked expense. The first recovery's 7 of 7 removed is retained in
+  receipts/receipt-proof-first-recovery.txt; that first removal cannot be repeated now because
+  the files are gone (unrepeatable by construction). The repeatable cleanup receipt checks those
+  same 7 of 7 attempts as absent, with no leftover marked rows. No customer data was changed.
+  DONE WHEN: an abandoned receipt start/PUT is reclaimed without needing a successful client finish,
+  including a lost response and a closed tab; a successful receipt still keeps its authoritative
+  bytes and remains readable; cleanup respects tenant ownership. Prove the abandonment against
+  real R2 and a sabotage that leaves the object behind. Do not rebuild the allowance or grant a
+  client permission to remove another business's key.
+
 ### 14.38 — The job record scrolled sideways 16px at 320 in Spanish, and `1fr` is why — FIXED 2026-10-08
 
 - [x] **Lane A, `app/src/theme.css`, commit `dcdd271`. Found by Andrew in the 320 Spanish shot taken for 4.7:

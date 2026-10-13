@@ -48,6 +48,21 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## RELEASE STEP · Expense receipts use the new photo store (ROADMAP 0.11cc)
+
+The final upload switch is committed locally. Your cron, its timeout and the
+10 GB allowance were already live; they were checked again without changing
+the database. No new account setup or decision is needed for those steps.
+
+Before publishing the app, have the session for **98.5** repair the stale photo
+checks and get the full photo and Spanish run green. The protected tests were
+left unchanged by this job, and their failed output is saved. Then include the
+receipt switch in your ordinary app release; a session verifies the published
+upload and ticks 0.11cc. The control-room copy on port 5180 has a separate
+browser-origin restriction, so its transport check records that limitation.
+The failed-upload cleanup gap found during proof is now numbered **14.39**;
+all of this job's temporary receipt files and expenses were removed.
+
 ## DO · Let deleted gallery images leave Cloudflare's cache (ROADMAP 0.11bd)
 
 The deletion fix is built locally. It needs a new Cloudflare **Cache Purge**
@@ -886,9 +901,9 @@ website published before `photo-door` exists answers every photo action with
 IS EASY TO FORGET.** Two parts of the photo job are written, tested and
 **switched off** by one word each, both in `app/src/lib/photo-door.js`:
 
-* **`RECEIPTS_VIA_DOOR`, currently `false`** — receipts for expenses.
+* **`RECEIPTS_VIA_DOOR`, now `true` locally (0.11cc, 2026-10-13)** — receipts for expenses.
   **Needs:** `photo-door` published (step 9c).
-* **`MEDIA_VIA_DOOR`, currently `false`** — your logo, the marketing gallery and
+* **`MEDIA_VIA_DOOR`, already `true` locally (0.11bc2, 2026-10-10)** — your logo, the marketing gallery and
   the website-intake photographs. **Needs:** `photo-door` published **and** the
   public web address from step 9a2, **and** the CORS rule on `business-media`.
   *Added 2026-10-08.*
