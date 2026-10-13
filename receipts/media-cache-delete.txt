@@ -1,0 +1,14 @@
+PASS warm public URL becomes unreadable after remove
+PASS missing purge configuration refuses before deleting
+PASS purge false never confirms removal
+PASS purge http-error never confirms removal
+PASS purge network never confirms removal
+PASS purge invalid-json never confirms removal
+PASS purge missing-success never confirms removal
+PASS retry purges even when origin was already removed
+PASS origin failure cannot become successful removal
+PASS foreign key refused before origin or purge call
+PASS unauthenticated removal refused
+PASS private objects bypass public purge
+PASS configuration and photo-door wiring are present
+Canary: origin-only remove returns 200, origin exists false, warmed public URL 200 HIT

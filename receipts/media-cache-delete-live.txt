@@ -1,0 +1,23 @@
+PASS 392 start: HTTP 200
+PASS 392 own canonical public URL: same URL throughout proof
+PASS 392 browser PUT: HTTP 200
+PASS 392 disposable fixture forces old cache lifetime: HTTP 200; fixture metadata only, max-age=300
+PASS 392 anonymous read returns uploaded bytes: HTTP 200, MISS, 70 bytes
+PASS 392 real cache HIT before delete: HTTP 200, HIT
+PASS 392 removal acknowledged: HTTP 200
+FAIL 392 original warmed URL stops succeeding immediately: HTTP 200, HIT; no query string or cache bypass
+PASS 392 another business's key refused: HTTP 404
+PASS 1440 start: HTTP 200
+PASS 1440 own canonical public URL: same URL throughout proof
+PASS 1440 browser PUT: HTTP 200
+PASS 1440 disposable fixture forces old cache lifetime: HTTP 200; fixture metadata only, max-age=300
+PASS 1440 anonymous read returns uploaded bytes: HTTP 200, MISS, 70 bytes
+PASS 1440 real cache HIT before delete: HTTP 200, HIT
+PASS 1440 removal acknowledged: HTTP 200
+FAIL 1440 original warmed URL stops succeeding immediately: HTTP 200, HIT; no query string or cache bypass
+PASS 1440 another business's key refused: HTTP 404
+PASS cleanup test object: HTTP 200
+PASS cleanup origin diagnostic (not proof about cached URL): HTTP 404, MISS
+PASS cleanup test object: HTTP 200
+PASS cleanup origin diagnostic (not proof about cached URL): HTTP 404, MISS
+PASS console read at both widths: no errors or warnings

@@ -1,0 +1,34 @@
+{
+  "git_sha": "37daa522cca72b12b097d0ef6a2215b37ed9a6e3",
+  "git_sha_started": "37daa522cca72b12b097d0ef6a2215b37ed9a6e3",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T08:42:12.153Z",
+  "failures": [],
+  "warnings": [
+    "This proves the local policy and regression detector, not the live Cloudflare deployment or gallery screen's row-only deletion."
+  ],
+  "artifacts": [
+    "receipts/media-cache-delete.txt"
+  ],
+  "dimensions": {
+    "roadmap": "0.11bd",
+    "transport": "in-memory origin, edge cache and Cloudflare API; real production handler and adapter"
+  },
+  "check_id": "media-cache-delete",
+  "started_at": "2026-10-13T08:42:12.067Z",
+  "status": "pass",
+  "expected_targets": 13,
+  "discovered_targets": 13,
+  "attempted_targets": 13,
+  "completed_targets": 13,
+  "skipped_targets": 0,
+  "assertions_executed": 13,
+  "min_assertions": 13,
+  "assertion_floor": "Thirteen fixed scenario groups, each one judged by assertions over the real handler/adapter. The population is independently asserted equal to thirteen.",
+  "canary": {
+    "id": "original-cached-delete",
+    "observed_failure": true,
+    "what": "origin-only remove acknowledges success while the warmed public URL remains 200 HIT"
+  }
+}

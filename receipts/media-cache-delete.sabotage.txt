@@ -1,0 +1,35 @@
+FAIL warm public URL becomes unreadable after remove: original warmed public URL still returns 200 HIT
+
+200 !== 404
+
+PASS missing purge configuration refuses before deleting
+FAIL purge false never confirms removal: Expected values to be strictly equal:
+
+200 !== 500
+
+FAIL purge http-error never confirms removal: Expected values to be strictly equal:
+
+200 !== 500
+
+FAIL purge network never confirms removal: Expected values to be strictly equal:
+
+200 !== 500
+
+FAIL purge invalid-json never confirms removal: Expected values to be strictly equal:
+
+200 !== 500
+
+FAIL purge missing-success never confirms removal: Expected values to be strictly equal:
+
+200 !== 500
+
+FAIL retry purges even when origin was already removed: retry left the cached public copy readable
+
+200 !== 404
+
+PASS origin failure cannot become successful removal
+PASS foreign key refused before origin or purge call
+PASS unauthenticated removal refused
+PASS private objects bypass public purge
+PASS configuration and photo-door wiring are present
+Canary: origin-only remove returns 200, origin exists false, warmed public URL 200 HIT
