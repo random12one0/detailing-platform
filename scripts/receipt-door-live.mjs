@@ -207,6 +207,7 @@ const { path: receipt } = writeReceipt({ check_id: transportOnly ? "receipt-door
   status: failures.length ? "fail" : "pass", expected_targets: widths.length * 2, discovered_targets: discovered,
   attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: 86, failures, artifacts,
+  assertion_floor: "Exactly six assertions per accepted/refused target at seven viewport/motion combinations (84), plus cleanup and transport canary (2). Sabotage adds one executed-rewrite assertion per target.",
   canary: { id: "old-store-not-door", observed_failure: canaryCaught },
   dimensions: { break: BREAK || null, base: BASE, transport_only: transportOnly, observations, writes: "Own marked demo expenses and R2 receipts; removed after each target" },
   warnings: ["Refusal replaces only the outgoing expense id. The deployed door and its 404 sentence are real. The expected HTTP 404 console entry is counted once per refused target; every other warning/error fails.",

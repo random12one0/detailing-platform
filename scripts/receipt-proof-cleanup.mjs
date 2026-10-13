@@ -15,6 +15,7 @@ const supa = process.env.SUPABASE_URL;
 if (new URL(supa).hostname !== "kguqylyzgyzfktkfnhjb.supabase.co") throw new Error("Wrong project");
 const input = process.argv[2];
 if (input !== "receipts/receipt-door-live.json") throw new Error("Only the local receipt proof is accepted");
+const broken = process.argv.includes("--break=owner-guard");
 const report = JSON.parse(readFileSync(input, "utf8"));
 if (report.check_id !== "receipt-door-live" || report.dimensions.base !== "http://localhost:5180") throw new Error("Unexpected proof");
 const owner = createClient(supa, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
@@ -23,7 +24,8 @@ if (loginError) throw loginError;
 const { data: biz, error: bizError } = await owner.from("businesses").select("id").eq("slug", "demo-detail").single();
 if (bizError) throw bizError;
 const targets = new Map();
-const ownDescription = value => typeof value === "string" && value.startsWith("0.11cc check");
+const ownDescription = value => broken || (typeof value === "string" && value.startsWith("0.11cc check"));
+const canaryCaught = !ownDescription("real expense");
 const scrub = text => text.replace(/https?:\/\/[^\s'"<>]+/g, value => {
   try {
     const u = new URL(value);
@@ -42,7 +44,8 @@ if (!targets.size) throw new Error("No own receipt attempts found; no cleanup cl
 let restored = 0, removed = 0, absent = 0;
 const failures = [];
 const started_at = new Date().toISOString();
-for (const [expenseId, fileId] of targets) {
+if (!canaryCaught) failures.push("Existing real expense guard is disabled; no writes attempted");
+for (const [expenseId, fileId] of (canaryCaught ? targets : [])) {
   const old = await owner.from("expenses").select("id,description").eq("id", expenseId).maybeSingle();
   if (old.error) throw old.error;
   if (old.data && !ownDescription(old.data.description)) throw new Error("An existing expense is outside this proof");
@@ -64,12 +67,12 @@ for (const [expenseId, fileId] of targets) {
   if (del.error || del.data?.length !== 1) failures.push("Marked row cleanup failed " + expenseId);
 }
 const summary = { targets: targets.size, restored, removed, absent, failures };
-const artifact = "receipts/receipt-proof-cleanup.txt";
+const artifact = `receipts/receipt-proof-cleanup${broken ? ".sabotage" : ""}.txt`;
 writeFileSync(artifact, JSON.stringify(summary, null, 2) + "\n");
 writeReceipt({ check_id: "receipt-proof-cleanup", started_at, expected_targets: 7, discovered_targets: targets.size,
   attempted_targets: targets.size, completed_targets: removed + absent, skipped_targets: 0,
-  assertions_executed: targets.size * 2, min_assertions: 1, failures, status: failures.length ? "fail" : "pass",
-  artifacts: [artifact], dimensions: summary, warnings: ["Cleanup report only; no upload success or feature acceptance claimed."],
-  canary: { id: "existing-real-expense-refused", observed_failure: !ownDescription("real expense") } });
+  assertions_executed: canaryCaught ? targets.size * 2 : 2, min_assertions: 1, failures, status: failures.length ? "fail" : "pass",
+  artifacts: [artifact], dimensions: { ...summary, break: broken ? "owner-guard" : null }, warnings: ["Cleanup report only; no upload success or feature acceptance claimed."],
+  canary: { id: "existing-real-expense-refused", observed_failure: canaryCaught } });
 console.log(JSON.stringify(summary));
 process.exit(failures.length ? 1 : 0);
