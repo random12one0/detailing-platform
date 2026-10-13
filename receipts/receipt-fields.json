@@ -1,9 +1,9 @@
 {
-  "git_sha": "e44b4c785d4ebcf1780c9ec522c86bd82f8e139b",
-  "git_sha_started": "e44b4c785d4ebcf1780c9ec522c86bd82f8e139b",
+  "git_sha": "008204e4e0afbd94aba4667b602615afc55c15b5",
+  "git_sha_started": "008204e4e0afbd94aba4667b602615afc55c15b5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-08T05:57:30.309Z",
+  "finished_at": "2026-10-13T10:35:54.125Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -15,7 +15,7 @@
     "bookings_probed": 2
   },
   "check_id": "receipt-fields",
-  "started_at": "2026-10-08T05:57:27.442Z",
+  "started_at": "2026-10-13T10:35:48.624Z",
   "status": "pass",
   "expected_targets": 62,
   "discovered_targets": 62,
