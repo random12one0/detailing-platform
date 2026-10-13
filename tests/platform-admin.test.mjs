@@ -1674,14 +1674,19 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
     esc(`A "B", C${BS}D`) === `A ${BS}"B${BS}", C${BS}${BS}D`, esc(`A "B", C${BS}D`));
   check("16f · the server applies exactly that escaping", !!h && h.includes(`.replace(/[${BS}${BS}"]/g, "${BS}${BS}$&")`), "escape line differs from the one tested above");
   const ui = read("app/src/admin/office/DetailerPanel.jsx");
+  // The office panel replaced AdminPage. Its empty history still has the
+  // Signed up row; retarget these assertions without dropping either state.
   check("16g · an action the screen has no words for is shown by its raw name, not dropped",
-    /ADMIN_EVENT_WORDS\[e\.action\] \?\? e\.action/.test(ui));
-  check("16h · the panel still has three states: reading / populated / empty",
-    /!detail\s*\?\s*<p className="pa-sub">Reading the record…<\/p>/.test(ui) && /detail\.events\?\.length/.test(ui)
-      && /Nothing is recorded against this account\./.test(ui));
+    /EVENT_WORDS\[e\.action\] \?\? e\.action/.test(ui));
+  check("16h · the panel still tells reading from populated, and an empty history still has a row",
+    /\{!detail && <p className="bo-dim">Reading…<\/p>\}\s*<ol className="bo-log">/.test(ui) && /detail\?\.events \?\? \[\]/.test(ui)
+      && /text: "Signed up"/.test(ui));
   // Broken on purpose, asserted to have changed the text (gotchas 95, 102).
   const bad = (name, broken, verdict) => check(`16i · ${name}`, broken !== fn && !verdict(histOf(broken)),
     broken === fn ? "THE SABOTAGE DID NOT APPLY — this check proved nothing" : "sabotaged source still passed");
+  const nameless = ui.replace("EVENT_WORDS[e.action] ?? e.action", "EVENT_WORDS[e.action]");
+  check("16i · an unknown action dropped from the panel is seen", nameless !== ui && !/EVENT_WORDS\[e\.action\] \?\? e\.action/.test(nameless),
+    nameless === ui ? "THE SABOTAGE DID NOT APPLY — this check proved nothing" : "sabotaged panel still passed");
   const arm = (b) => !!b && /and\(business_id\.is\.null,business_name\.eq\./.test(b);
   bad("dropping the name arm is seen", fn.replace(/,and\(business_id\.is\.null,business_name\.eq\."\$\{quotedName\}"\)/, ""), arm);
   bad("widening the name arm to rows that have an id is seen", fn.replace("and(business_id.is.null,", "and(business_id.not.is.null,"), arm);
