@@ -15167,6 +15167,8 @@ most corroborated finding in the set.
   NEEDS ANDREW (ROUTINE CHECK, NO DECISION REQUESTED): a ten-second look, not a choice — only he can open his password manager. Search "backup", "age" or "detailing backup" and tell a session only whether the key is there, never the key itself. No session can do any part of this. Rechecked 2026-10-10 by the 6.1 session: the nightly backups are still green (`gh run list -R random12one0/detailing-platform-backups --limit 3`: 3 of 3 success, latest 2026-10-10 09:23 UTC), so the copies exist. Nobody has yet shown that the key which opens them exists.
 
 - [ ] **6.1b — Prove a nightly backup restores outside production**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/restore-date.test.mjs.
+  The work is safe on branch `belt/6.1b-20261013103843`. Answer "merge it" to keep it, or say what to change.
   Provide a safe, separate restore environment and use it to restore and inspect one encrypted nightly database copy. This covers the recovery path for the actual scheduled backups, not a rerun of the existing drill that creates and drops a schema in the live database.
   Part 2 of 3 of item 6.1, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
