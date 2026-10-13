@@ -48,16 +48,25 @@
 //
 // THE DATE. A real nightly that proves out writes the `restore-drill` row of
 // `job_heartbeats` through `restore-date.mjs` (needs `.env` loaded); the back
-// office reads that row. A --fixture run is marked as such and can never
-// write it — `whyNotProved` refuses any project but the platform's.
+// office reads that row. ONLY a --release run can: it is the one path where
+// this script fetched the copy itself, so it records WHERE the copy came from
+// (the backups repo, the tag GitHub answered with, the asset, GitHub's own
+// sha256 for it, the sha256 of the bytes downloaded, and that `age` decrypted
+// them) and `whyNotProved` checks that record. A --dump file proves its own
+// round trip and nothing more, whatever it is called — ROADMAP 98.8 found the
+// invented fixture, saved and passed back through --dump, printing "restore
+// PROVED" for the platform. A --fixture run never writes it either.
+//
+//   node scripts/restore-nightly.mjs --fixture --save-dump=backup-2026-10-13.pgc
+//   node scripts/restore-nightly.mjs --dump=backup-2026-10-13.pgc   # must PASS and refuse the date
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import net from "node:net";
 import os from "node:os";
 import { join, basename } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
-import { whyNotProved, recordRestore, PROJECT } from "./restore-date.mjs";
+import { whyNotProved, recordRestore, PROJECT, BACKUPS_REPO } from "./restore-date.mjs";
 
 const started_at = new Date().toISOString();
 const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").slice(k.length + 3) || null;
@@ -65,7 +74,8 @@ const BREAK = arg("break") || "";
 const FIXTURE = process.argv.includes("--fixture");
 const RELEASE = arg("release");
 const DUMP = arg("dump");
-const BACKUPS_REPO = "random12one0/detailing-platform-backups";
+const SAVE_DUMP = arg("save-dump");
+const MODE = FIXTURE ? "fixture" : RELEASE ? "release" : "dump";
 const KEY = process.env.AGE_KEY_FILE || join(os.homedir(), ".config", "detailing-backup", "age-key.txt");
 const TOOLS = process.env.RESTORE_TOOLS || join(process.env.LOCALAPPDATA || os.homedir(), "detailing-platform", "tools");
 const PG = (n) => join(TOOLS, "pgsql", "bin", n + ".exe");
@@ -76,6 +86,7 @@ const CANARY_TABLE = "public.bookings";
 
 const refuse = (msg) => { console.error(`REFUSED — ${msg}\nNothing was restored and no date was recorded.`); process.exit(2); };
 if ([FIXTURE, !!RELEASE, !!DUMP].filter(Boolean).length !== 1) refuse("say exactly one of --fixture, --release=<tag|latest>, --dump=<file>");
+if (SAVE_DUMP && !FIXTURE) refuse("--save-dump only saves the invented --fixture dump");
 for (const n of ["initdb", "pg_ctl", "pg_dump", "pg_restore", "psql"]) {
   if (!existsSync(PG(n))) refuse(`${n}.exe is not at ${PG(n)}. docs/recovery.md says how to unzip the Postgres 17 tools there.`);
 }
@@ -122,31 +133,44 @@ const roleSql = ROLES.map((r) => `do $$ begin create role ${r} nologin; exceptio
 sql("postgres", roleSql + "\ncreate database restored;");
 
 // ---- the copy to restore ----------------------------------------------------
-let dumpFile, source, project;
+const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+let dumpFile, source, project, provenance;
 if (FIXTURE) {
   sql("postgres", "create database source;");
   sql("source", readFileSync(new URL("./restore-nightly.fixture.sql", import.meta.url), "utf8"));
   dumpFile = join(TMP, "fixture.pgc");
   // The nightly's own flags (docs/ops/backups.md): custom format, no owners, no grants.
   run(PG("pg_dump"), [...CONN, "-d", "source", "--no-owner", "--no-privileges", "--format=custom", "-f", dumpFile]);
+  if (SAVE_DUMP) writeFileSync(SAVE_DUMP, readFileSync(dumpFile));
   source = "fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)";
   project = "fixture";
+  provenance = { kind: "fixture" };
 } else {
   let enc = DUMP;
   if (RELEASE) {
     const tag = RELEASE === "latest"
       ? run("gh", ["release", "list", "-R", BACKUPS_REPO, "--limit", "1", "--json", "tagName", "--jq", ".[0].tagName"]).stdout.trim()
       : RELEASE;
-    run("gh", ["release", "download", tag, "-R", BACKUPS_REPO, "--dir", TMP, "--pattern", "*.pgc.age"]);
-    enc = join(TMP, readdirSync(TMP).find((f) => f.endsWith(".pgc.age")) || refuse(`release ${tag} has no .pgc.age file`));
-    source = `${BACKUPS_REPO} release ${tag}`;
-  } else source = `file ${basename(DUMP)}`;
+    // GitHub's answer, not the caller's: the tag it resolved and its own sha256 of the asset.
+    const rel = JSON.parse(run("gh", ["release", "view", tag, "-R", BACKUPS_REPO, "--json", "tagName,assets"]).stdout);
+    const asset = rel.assets.find((a) => a.name.endsWith(".pgc.age")) || refuse(`release ${tag} has no .pgc.age file`);
+    run("gh", ["release", "download", rel.tagName, "-R", BACKUPS_REPO, "--dir", TMP, "--pattern", asset.name]);
+    enc = join(TMP, asset.name);
+    source = `${BACKUPS_REPO} release ${rel.tagName}`;
+    provenance = { kind: "nightly-release", repo: BACKUPS_REPO, tag: rel.tagName, asset: asset.name,
+      github_digest: asset.digest ?? null, sha256: "sha256:" + sha256(enc), decrypted: false };
+  } else {
+    source = `file ${basename(DUMP)}`;
+    // A file's name and contents say nothing about where it came from.
+    provenance = { kind: "file", name: basename(DUMP), sha256: "sha256:" + sha256(DUMP) };
+  }
   if (encrypted) {
     dumpFile = join(TMP, "dump.pgc");
     run(AGE, ["-d", "-i", KEY, "-o", dumpFile, enc]); // age reads the key; this script never does
+    if (RELEASE) provenance.decrypted = true;
   } else dumpFile = DUMP;
   source += `, ${statSync(enc).size} bytes${encrypted ? " encrypted" : ""}`;
-  project = PROJECT;
+  project = RELEASE ? PROJECT : "unknown (a file given with --dump)";
 }
 console.log(`restoring: ${source}`);
 
@@ -234,7 +258,9 @@ const counts = Object.fromEntries(results.filter((r) => r.ok && MUST_HAVE.includ
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
 // The thing a person can look at: per table, rows and a hash, never a value
 // (artifacts/ is git-ignored; this holds no customer data either way).
-const REPORT = "artifacts/restore-nightly/report.txt";
+// One file per mode and per sabotage, so a clean run never overwrites the
+// report a sabotage receipt points at (ROADMAP 98.7/98.8).
+const REPORT = `artifacts/restore-nightly/report.${MODE}${BREAK ? ".sabotage-" + BREAK : ""}.txt`;
 mkdirSync(join(REPO, "artifacts", "restore-nightly"), { recursive: true });
 writeFileSync(join(REPO, REPORT), [`restore-nightly ${started_at} — ${source}`, `status ${status}`,
   ...results.map((r) => `${r.ok ? "ok  " : "FAIL"} ${r.table} ${r.ok ? `${r.rows} rows sha256 ${digest(expected.get(r.table).rows)}` : r.why}`),
@@ -253,7 +279,7 @@ const { path: receiptPath, receipt } = writeReceipt({
   failures,
   warnings: [...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []), ...warnings],
   dimensions: {
-    project, source, target: "throwaway local Postgres, deleted after the run", break: BREAK || undefined,
+    project, source, provenance, target: "throwaway local Postgres, deleted after the run", break: BREAK || undefined,
     accounts: counts["auth.users"] ?? null, files: counts["storage.objects"] ?? null, rows: counts,
   },
   artifacts: [REPORT],

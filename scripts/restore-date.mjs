@@ -36,6 +36,8 @@ import { REPO } from "./receipt.mjs";
 
 export const RESTORE_JOB = "restore-drill";
 export const PROJECT = "kguqylyzgyzfktkfnhjb";
+// Where this project's nightly copies live (docs/ops/backups.md).
+export const BACKUPS_REPO = "random12one0/detailing-platform-backups";
 // Postgres `integer` max: the row can never go stale, so it can never email.
 export const NEVER_STALE = 2147483647;
 
@@ -48,12 +50,29 @@ const NOT_ABOUT_THE_RESTORE = [
   /^\d+ table\(s\) exist in `public` that no migration declares/,
 ];
 
+// ROADMAP 98.8: a restore-nightly receipt proves the PLATFORM's backup only
+// when the copy is one this script fetched itself from the backups repo, whose
+// bytes match GitHub's own sha256 for that asset, and which `age` decrypted.
+// A --dump file or the fixture round-trips and still says nothing about where
+// it came from, so its receipt is refused whatever its name or project label.
+function whyNotTheNightly(p) {
+  const no = [];
+  if (p?.kind !== "nightly-release") return [`source is ${p?.kind ?? "unrecorded"}, not a nightly fetched from ${BACKUPS_REPO}`];
+  if (p.repo !== BACKUPS_REPO) no.push(`fetched from ${p.repo}, not ${BACKUPS_REPO}`);
+  if (!/^backup-\d{4}-\d{2}-\d{2}$/.test(p.tag ?? "")) no.push(`release ${p.tag} is not a nightly tag`);
+  if (!/^sha256:[0-9a-f]{64}$/.test(p.sha256 ?? "")) no.push("no sha256 of the downloaded copy");
+  else if (p.github_digest !== p.sha256) no.push(`downloaded copy ${String(p.sha256).slice(0, 19)} does not match GitHub's ${String(p.github_digest).slice(0, 19)}`);
+  if (p.decrypted !== true) no.push("the copy was not decrypted with the backup key");
+  return no;
+}
+
 /** Why this receipt does NOT prove a restore. Empty means it does. */
 export function whyNotProved(r) {
   const no = [];
   // restore-nightly (6.1b) restores a real nightly backup into a throwaway local Postgres.
   if (!["restore-drill", "restore-nightly"].includes(r?.check_id)) no.push(`not a restore receipt (${r?.check_id})`);
   if (r?.dimensions?.project !== PROJECT) no.push(`drilled project ${r?.dimensions?.project}, not ${PROJECT}`);
+  if (r?.check_id === "restore-nightly") no.push(...whyNotTheNightly(r?.dimensions?.provenance));
   if ((r?.warnings ?? []).some((w) => /^run with --break=/.test(w))) no.push("it is a sabotage run");
   if (r?.canary?.observed_failure !== true) no.push("the canary was not caught, so a match proves nothing");
   const d = r?.discovered_targets;
