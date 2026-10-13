@@ -5,6 +5,10 @@
 // query and no request Cache-Control. A real HIT is required BEFORE removal.
 // A blank test page uses the existing allowed production origin; :5180 is not
 // in the live bucket's CORS list. This fixture tests transport, not app layout.
+// After the browser PUT, the SAME disposable object is PUT once through the
+// signed URL with Cache-Control public,max-age=300. This forces the ORIGINAL
+// long-lived cache path even if today's default objects always revalidate.
+// It changes only the fixture's HTTP metadata, never the bucket/domain settings.
 // Foreign-key refusal is asked via Playwright's request client so its deliberate
 // 404 does not add a failed-resource message to the page's console.
 import { createRequire } from "node:module";
@@ -90,6 +94,15 @@ try {
       }, { uploadUrl, bytes: [...PNG] });
       check(`${size.width} browser PUT`, put === 200, `HTTP ${put}`);
       if (put !== 200) throw new Error("browser upload did not succeed; no cached deletion can be judged");
+      let fixturePut = 0;
+      try {
+        const r = await fetch(uploadUrl, {
+          method: "PUT", headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=300" }, body: PNG,
+        });
+        fixturePut = r.status;
+      } catch { /* No signed URL or underlying error may enter a receipt. */ }
+      check(`${size.width} disposable fixture forces old cache lifetime`, fixturePut === 200, `HTTP ${fixturePut}; fixture metadata only, max-age=300`);
+      if (fixturePut !== 200) throw new Error("cached-read regression fixture was not stored");
       let warm = await publicRead(url);
       check(`${size.width} anonymous read returns uploaded bytes`, warm.status === 200 && warm.bytes.equals(PNG), `HTTP ${warm.status}, ${warm.cache}, ${warm.bytes.length} bytes`);
       if (warm.status !== 200 || !warm.bytes.equals(PNG)) throw new Error("public URL never returned the uploaded image");
@@ -128,9 +141,9 @@ try {
   const { path } = writeReceipt({
     check_id: "media-cache-delete-live", started_at, status: failures.length ? "fail" : "pass",
     expected_targets: 4, discovered_targets: WIDTHS.length * 2, attempted_targets: attempted, completed_targets: completed,
-    skipped_targets: 0, assertions_executed: assertions, min_assertions: 16, failures,
+    skipped_targets: 0, assertions_executed: assertions, min_assertions: 18, failures,
     artifacts: [artifact], canary: { id: "anonymous-missing-image", observed_failure: absent.status === 404, what: "a random nonexistent public gallery key must answer 404" },
-    dimensions: { roadmap: "0.11bd", break: BREAK || undefined, base: BASE, browser_upload_origin: "https://detailingplatform.com (blank routed test page, no app UI proof)", widths: WIDTHS.map((w) => w.width), public_base: PUBLIC, objects: uploaded.length, evidence },
+    dimensions: { roadmap: "0.11bd", break: BREAK || undefined, base: BASE, browser_upload_origin: "https://detailingplatform.com (blank routed test page, no app UI proof)", cache_fixture: "same uploaded PNG PUT again with Cache-Control public,max-age=300; only disposable object metadata changes", widths: WIDTHS.map((w) => w.width), public_base: PUBLIC, objects: uploaded.length, evidence },
     warnings: ["Browser transport and deployed door are real. This does not exercise Gallery.jsx's row-only Remove button, or certify every Cloudflare location or a previously downloaded browser copy."],
   });
   console.log(`${completed}/4 targets, ${failures.length} failed; ${path}`);
