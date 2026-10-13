@@ -1868,6 +1868,20 @@ and how the wait ends.
   so. The steps are `FOR-ANDREW.md` 9c, 9d and 9e, in that order, with step 9a2 before 9c.
 
 - [ ] **0.11cc — Install cron and apply coordinated allowance release**
+  **Progress 2026-10-13 — the outside setup is already done; the box stays open.** The earlier
+  cron/migration blocker below was superseded by Andrew's 2026-10-10 completion note. Re-read live,
+  read-only: the photo schedule is active at 03:40 UTC, uses the same HTTP transport as refresh-weather,
+  has its 60-second timeout, and has a real 2026-10-13 heartbeat with numeric drift counters;
+  the allowance is 10 GB. `scripts/photo-cron-live.mjs` retains these effects without reading cron
+  commands into a log. The app change is committed at `b92bdb21`: receipts now use the door;
+  media was already switched on. No migration was applied and nothing was pushed or published.
+  **Waits on: 98.5's repair of the photo test expectations and Windows line-ending handling.**
+  The session proving 98.5 removes this line after the full photo and Spanish run passes.
+  **Release step, not a decision:** after that repair and successful browser proof, Andrew publishes
+  the app; a session verifies the published routing and ticks this box. The original allowance and
+  cron changes happened earlier, so this entry does not claim that a later local switch proves a
+  simultaneous historical release. The release-order gate's green also does not prove that the
+  current local flags have reached the live bundle.
   Install the photo-reconcile cron entry, apply the required migrations, publish the app, and perform the upload routing and 1 GB-to-10 GB allowance change as one coordinated release. This leaves only post-release proof and drift observation.
   Part 3 of 3 of item 0.11c, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1878,7 +1892,8 @@ and how the wait ends.
   - RECEIPTS_VIA_DOOR and MEDIA_VIA_DOOR are switched and photo_total_gb changes from 1 to 10 in the same release.
   - The release-order gate passes for the completed release state.
 
-  **NEEDS ANDREW: a cron install, two migrations and a publish - all four are his - 2026-10-09.** Applying a
+  **SUPERSEDED by Andrew's 2026-10-10 completion note; original 2026-10-09 blocker:** a cron install,
+  two migrations and a publish were his. Applying a
   migration changes the live database's structure and publishing the website is his alone; a session does
   neither. **What is built is everything around them:** the cron migration exists and is shaped exactly like
   `refresh-weather`'s (`20261006060000_photo_reconcile_cron.sql`, daily at 03:40 UTC, seeded `seeded: true` so
@@ -29966,6 +29981,28 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: the three state shots differ where the page differs (the checked shot shows a ticked box); the clean run still passes with the same targets and the `--break=half` run is still red through the width and line questions; the receipt re-grades green.
 
 ## Belt repairs
+
+- [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
+  Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
+  tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
+  the 17 requested files: `$env:PGLITE_DIR='C:/Users/rando/AppData/Local/Temp/pglite';
+  $env:PGLITE_REQUIRED='1'; $photoTests=@(Get-ChildItem tests -Filter 'photo-*.test.mjs' |
+  ForEach-Object { $_.FullName }); node --test --test-reporter=spec @photoTests
+  tests/job-photos.test.mjs tests/forget-photos.test.mjs tests/spanish.test.mjs`.
+  Its Node summary is 133 passed of 142 tests, 9 failed, no skips; the custom assertion suites also
+  print their own counts in the retained output. Do not treat this as a green pre-publish run.
+  The nine failures are: (1) photo-release-order section 6 deliberately pins RECEIPTS_VIA_DOOR=false
+  after Andrew instructed the switch; its own message requires a live app-flag-before-door reading
+  before updating it, and that live rule passes. (2) photo-door-contract section 3 expects the generic
+  service error instead of the server sentence preserved by 0.11a. (3) photo-door-receipt-wire section
+  10 cannot find its multiline sabotage in CRLF receipts.js. (4–9) photo-reconcile-sql leaves CREATE
+  EXTENSION in CRLF SQL because its stripper matches only LF; PGlite therefore refuses pg_net before
+  any of the six migration assertions runs.
+  DONE WHEN: each expectation is reviewed against the named release decision; text is normalized
+  before exact multiline edits and extension stripping; all 17 requested files run without skips
+  and pass; each affected sabotage demonstrably lands and catches its original missing behavior.
+  Keep the POST-release green-world assertions, the JWT checks and the migration idempotency and
+  chosen-allowance protections. Preserve this red output and do not relax or delete protections.
 
 - [x] **98.1 — Repair the route-contract check (broken by 9.12d)**
   REPAIR CHECK route-contract. Job 9.12d turned the quality check "route-contract" red; it passed before that job. Find why and make it pass again without undoing 9.12d's work. The check is: `node --test tests/route-contract.test.mjs`.

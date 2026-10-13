@@ -114,8 +114,8 @@ try {
     });
     if (BREAK) await p.route("**/src/lib/photo-door.js*", async route => {
       const src = await (await fetch(route.request().url())).text();
+      if (!src.includes("export const RECEIPTS_VIA_DOOR = true;")) throw new Error("Sabotage target absent");
       const body = src.replace("export const RECEIPTS_VIA_DOOR = true;", "export const RECEIPTS_VIA_DOOR = false;") + "\nglobalThis.__receiptBreak = true;";
-      if (body === src) throw new Error("Sabotage did not land");
       await route.fulfill({ status: 200, contentType: "text/javascript", body });
     });
     if (refused) await p.route("**/functions/v1/photo-door", route => {
@@ -135,16 +135,17 @@ try {
       discovered++;
       if (BREAK) check(label + " sabotage executed", await p.evaluate(() => globalThis.__receiptBreak === true));
       await p.getByRole("button", { name: "Save expense", exact: true }).click();
-      if (refused && !BREAK) await p.getByRole("alert").waitFor({ timeout: 30000 });
-      else await p.getByRole("button", { name: "Save expense", exact: true }).waitFor({ state: "detached", timeout: 30000 });
+      // "Save expense" disappears when it is RENAMED "Saving", before the
+      // request finishes. Settle on the outcome, never on that label's absence.
+      await p.waitForFunction(() => !document.querySelector(".sheet") || document.querySelector(".sheet [role=alert]"), null, { timeout: 30000 });
       await p.waitForTimeout(900);
       const { data: row, error } = await owner.from("expenses").select("receipt_path,receipt_bytes").eq("id", inserted?.id).single();
       check(label + " expense exists", !error && !!inserted?.id);
       check(label + " console", noise.length === 0);
       if (refused) {
-        const words = await p.getByRole("alert").textContent().catch(() => "");
+        const words = (await p.getByRole("alert").allTextContents()).join(" ");
         check(label + " real door refused nonexistent expense", calls.length === 1 && calls[0].action === "start" && calls[0].status === 404);
-        check(label + " refusal stays visible with Close", words.includes("Expense saved, but the receipt did not attach. Expense not found") && await p.getByRole("button", { name: "Close", exact: true }).isVisible().catch(() => false));
+        check(label + " refusal stays visible with Close", words.includes("Expense saved, but the receipt did not attach. Expense not found") && await p.locator(".sheet-body").getByRole("button", { name: "Close", exact: true }).isVisible().catch(() => false));
         check(label + " no file or receipt columns written", puts.length === 0 && storage === 0 && row?.receipt_path === null && row?.receipt_bytes === null);
         check(label + " only intentional HTTP refusal in console", expectedHTTP.length === 1);
       } else {
@@ -161,13 +162,14 @@ try {
           }, row.receipt_path);
           check(label + " browser reads same R2 byte count", got.status === 200 && got.bytes === row.receipt_bytes);
         } else check(label + " browser reads same R2 byte count", false);
-        check(label + " success closes expense sheet", await p.getByRole("button", { name: "Add a note or change the date", exact: true }).count() === 0);
+        check(label + " success closes expense sheet", await p.locator(".sheet").count() === 0);
       }
       const shot = path.join(shotDir, label.replace("/", "-") + ".jpg");
       await p.screenshot({ path: shot, type: "jpeg", quality: 85 });
       artifacts.push(path.relative(REPO, shot).replaceAll("\\", "/"));
       observations.push({ label, calls, puts: puts.map(x => ({ status: x.status, bytes: x.bytes })), storage,
-        receipt_bytes: row?.receipt_bytes, console: noise, intentional_http_refusals: expectedHTTP.length });
+        receipt_bytes: row?.receipt_bytes, console: noise, intentional_http_refusals: expectedHTTP.length,
+        screen_error: (await p.getByRole("alert").allTextContents()).join(" ") || null });
       completed++;
     } catch (e) { failures.push(label + " " + e.message); }
     finally { await context.close(); await cleanup(); }
