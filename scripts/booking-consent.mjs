@@ -178,7 +178,6 @@ try {
       } else if (PHONE_HEIGHT[width]) check(`${tag} consent no taller than before`, fit.height <= PHONE_HEIGHT[width][lang], JSON.stringify(fit));
       check(`${tag} consent is its own block`, fit.gapAbove >= 8 && fit.sentenceClear && fit.linkGap >= 8, JSON.stringify(fit));
       check(`${tag} consent and targets fit`, layout.fits && layout.label >= 44 && layout.links.every(h => h >= 44), JSON.stringify(layout));
-      await photograph(page, 'details-' + tag);
       if (REVIEW && width === 390 && lang === 'en' && !q && !BREAK && choice === 'unchecked') {
         await freeze(page, { out: OUT + '/after.html', label: 'After', note: 'Appointment texts are optional. The box starts unticked, with Privacy and Terms beside it.', highlight: '.bk-sms-consent' });
       }
@@ -192,6 +191,8 @@ try {
         check(`${tag} keyboard checks it`, await box.isChecked());
         if (choice === 'uncheck') await box.uncheck();
       }
+      // 99.11: shoot AFTER the choice is set, so each state file shows its state.
+      await photograph(page, 'details-' + tag);
       const expect = choice === 'checked';
       if (choice === 'unchecked') {
         await page.locator('.bk-bar .bk-btn.primary').click({force:true});
