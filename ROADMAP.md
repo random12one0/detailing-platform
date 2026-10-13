@@ -30137,6 +30137,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
 - [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/photo-door-contract.test.mjs, tests/photo-door-receipt-wire.test.mjs, tests/photo-reconcile-sql.test.mjs, tests/photo-release-order.test.mjs.
+  The work is safe on branch `belt/98.5-20261013141316`. Answer "merge it" to keep it, or say what to change.
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
   tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
   the 17 requested files: `$env:PGLITE_DIR='C:/Users/rando/AppData/Local/Temp/pglite';
