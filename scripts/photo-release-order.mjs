@@ -613,7 +613,8 @@ if (invokedDirectly) {
   console.log(`\n${results.length} rules · ${failures.length} failed · ${unjudgeable.length} UNJUDGEABLE `
     + `(${unjudgeable.map((r) => r.rule).join(", ")}) · ${assertions} assertions`);
 
-  const report = path.join(REPO, "receipts", "photo-release-order.txt");
+  const reportArtifact = `receipts/photo-release-order${brk ? ".sabotage" : ""}.txt`;
+  const report = path.join(REPO, reportArtifact);
   mkdirSync(path.dirname(report), { recursive: true });
   writeFileSync(report, [
     `photo release order · ${started} · project ${REF}`,
@@ -649,7 +650,7 @@ if (invokedDirectly) {
     min_assertions: 10,
     failures: failures.map((r) => `${r.rule}: ${r.says}`),
     warnings: unjudgeable.map((r) => `UNJUDGEABLE ${r.rule}: ${r.says}`),
-    artifacts: ["receipts/photo-release-order.txt"],
+    artifacts: [reportArtifact],
     dimensions: {
       rules: results.length,
       unjudgeable: unjudgeable.length,
