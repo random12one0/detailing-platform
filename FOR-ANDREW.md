@@ -48,6 +48,27 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Unfinished receipt cleanup (ROADMAP 14.39)
+
+The fix is built and committed locally: a receipt upload remains recorded even
+if its reply is lost or the tab closes, so the nightly job can reclaim it.
+The local proof passes and catches a deliberately retained file. The required
+real-R2 cleanup proof is unfinished because this runner has none of the existing
+R2 environment that is configured in your Supabase function secrets.
+
+**Your move:** arrange a proof runner with that existing R2 environment;
+keep secret values out of chat and docs. Recommendation: use the committed
+proof's real-R2 mode before releasing, rather than treating the local result
+as evidence about Cloudflare. It saves a manifest before writing each fixture
+and has a recovery command for an interrupted run.
+
+**Release step, not a decision:** apply this item's two new migrations in order,
+then publish `photo-door` and `photo-reconcile`. A session repeats the real-R2
+sabotage, successful receipt and scheduled-cleanup proof before ticking 14.39.
+The exact files, commands and limits are in
+[the unfinished-receipt release guide](docs/receipt-abandonment-release.md).
+No new public upload origin, account setup or allowance decision is requested.
+
 ## RELEASE STEP · Expense receipts use the new photo store (ROADMAP 0.11cc)
 
 The final upload switch is committed locally. Your cron, its timeout and the

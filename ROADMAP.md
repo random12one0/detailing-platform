@@ -28710,6 +28710,44 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   HELD, 0 unexpected, 0 covered at the end at all ten cells, 2, 2 and 1 set aside at the top at the same three cells.
 
 - [ ] **14.39 — Reclaim a receipt upload that never reaches finish.**
+  **Built locally 2026-10-13; NOT TICKED.** Receipt starts now record a durable server-only attempt before
+  signing. Finish and cleanup lock that same record; successful finish saves the authoritative bytes and
+  retires its attempt atomically. The existing scheduled job claims expired, unattached receipts, deletes
+  their objects and requires HEAD absence before acknowledging cleanup. Failed deletes remain retryable.
+  Attempts survive a deleted expense, and a receipt-bucket listing can reclaim a tombstone whose late PUT
+  arrived after an earlier cleanup. A listing alone never authorizes deletion. No allowance, app wording,
+  client removal permission or CORS origin was changed. Existing migrations were kept append-only.
+  **Local proof at `8e7c37de`:** `node scripts/receipt-abandonment.mjs --break=leave-object` discovered
+  **24 of 24**, completed **17**, and caught **7** actual retained-object failures; then
+  `node scripts/receipt-abandonment.mjs` discovered and completed **24 of 24**, with no failures.
+  `node scripts/receipt.mjs receipts/receipt-abandonment.json` grades it PASS; the separately graded
+  sabotage stays FAIL. Both JSON receipts and their readable TXT artifacts are retained. This uses real
+  local PostgreSQL and Chromium at 392 and 1440, with fake R2: lost PUT reply, closed tab, lost finish reply,
+  successful bytes/readability, expiry, retry and tenant refusal. It does NOT prove real-R2 cleanup.
+  **Existing deployed-door baseline at `0c74abf2`:**
+  `$env:BASE='http://localhost:5180'; node scripts/receipt-door-live.mjs --transport-only` reached
+  **14 of 14**, with **86** assertions and no failures. Real R2 kept the successful receipt's authoritative
+  bytes and readable image; refusal created no object. Its marked files and rows were removed. Phone and
+  desktop accepted/refused JPGs were opened: the thumbnail and refusal/Close are visible. This baseline
+  uses an isolated browser transport mode; it proves neither production CORS nor the new cleanup.
+  **Real-R2 cleanup NOT RUN:** `node scripts/receipt-abandonment.mjs --real-r2` at `8e7c37de` recorded
+  **0 of 24**, FAIL, because this runner lacks the existing R2 environment. The optional real mode,
+  retained-object sabotage, durable fixture manifest and interrupted-run recovery are built in that script.
+  NEEDS ANDREW: arrange a proof runner with the existing R2 environment; those credentials are in Supabase
+  function secrets, absent here, and reading or copying secret values is prohibited. Without that runner
+  the required real-R2 abandonment and deliberate leak proof cannot run.
+  Release step, not a decision: Andrew applies `20261013130000_receipt_upload_attempts.sql` and
+  `20261013131000_receipt_attempts_late_put.sql`, then publishes `photo-door` and `photo-reconcile`.
+  The live ledger and functions remain absent/old. Real storage cleanup and the published scheduled path
+  remain unproved. Exact order, commands and proof limits: `docs/receipt-abandonment-release.md`;
+  account action: `FOR-ANDREW.md`, "Unfinished receipt cleanup". Nothing was pushed, published or deployed.
+  **Other checks:** the production build and required credential-free gates pass. The two server suites
+  pass; at `fcb70b37`, `node --test tests/photo-door-receipts.test.mjs tests/photo-reconcile.test.mjs
+  tests/photo-door-receipt-wire.test.mjs` is **47 of 48**, with the existing CRLF sabotage failure
+  already owned by **98.5** (retained in `receipts/14.39-regressions.txt`).
+  Live inventory and schema drift remain red (existing release backlog plus this unapplied work); each
+  receipt declares its reached population. `db-audit.mjs` reached **6 of 6** but flags three server-only
+  tables while its own grant check confirms they are locked; new checking-tool repair **98.6** records it.
   Found during 0.11cc's real browser proof: R2 accepted the receipt bytes, but the required belt
   origin :5180 could not read its CORS reply, so the app never called finish. The expense had no
   receipt_path or receipt_bytes while its file still existed. This is a failed-upload cleanup gap,
@@ -30023,6 +30061,17 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: the three state shots differ where the page differs (the checked shot shows a ticked box); the clean run still passes with the same targets and the `--break=half` run is still red through the width and line questions; the receipt re-grades green.
 
 ## Belt repairs
+
+- [ ] **98.6 — Distinguish deliberately private tables from an accidental lock in the database audit.**
+  Found during 14.39's read-only `node scripts/db-audit.mjs` at `0c74abf2`: its receipt reaches **6 of 6**
+  checks, but section 2 calls `action_log`, `platform_costs` and `send_invoice_attempts` accidental locks.
+  Section 5 of that SAME run confirms all three have RLS and their browser grants revoked. Their migrations
+  deliberately make them server-only stores; the checking tool's intent list has not followed those additions.
+  This is a checking-tool repair, not permission to give a browser access or add a customer policy.
+  DONE WHEN: review each named migration's intent; recognize those deliberate private stores only while
+  their browser grants remain revoked; an actually unintended inaccessible table still fails; deliberately
+  regrant access and prove the existing grant canary still catches it. Preserve the findings until reviewed.
+  Evidence: `receipts/db-audit.json`, retained by 14.39. No audit script was edited by that job.
 
 - [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected

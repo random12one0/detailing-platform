@@ -1,9 +1,9 @@
 {
-  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
-  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
+  "git_sha_started": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T12:17:24.533Z",
+  "finished_at": "2026-10-13T12:30:26.999Z",
   "failures": [
     "Real R2 proof NOT RUN; missing environment names: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY"
   ],
@@ -16,7 +16,7 @@
     "storage": "real R2 NOT RUN"
   },
   "check_id": "receipt-abandonment-r2",
-  "started_at": "2026-10-13T12:17:24.473Z",
+  "started_at": "2026-10-13T12:30:26.937Z",
   "status": "fail",
   "expected_targets": 24,
   "discovered_targets": 0,

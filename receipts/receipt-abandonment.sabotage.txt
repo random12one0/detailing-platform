@@ -3,7 +3,13 @@ FAIL lost PUT reply reclaimed without finish: Expected values to be strictly equ
 
 1 !== 0
 
-ok never PUT is retired without restoring its deleted expense
+FAIL never PUT is retired without restoring its deleted expense: Expected values to be strictly equal:
++ actual - expected
+
++ 'reaping'
+- 'reaped'
+       ^
+
 ok young attempt stays; PUT lifetime fits inside grace
 ok successful receipt keeps authoritative bytes and object
 ok lost finish response can be retried idempotently

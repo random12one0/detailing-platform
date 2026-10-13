@@ -1,9 +1,9 @@
 {
-  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
-  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
+  "git_sha_started": "8e7c37de387d68439bb2e9df8d42fc585b35e2ac",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T12:20:30.202Z",
+  "finished_at": "2026-10-13T12:31:46.728Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -100,7 +100,7 @@
     ]
   },
   "check_id": "receipt-abandonment",
-  "started_at": "2026-10-13T12:20:19.602Z",
+  "started_at": "2026-10-13T12:31:36.916Z",
   "expected_targets": 24,
   "discovered_targets": 24,
   "attempted_targets": 24,

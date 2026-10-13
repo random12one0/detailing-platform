@@ -1,16 +1,16 @@
 {
-  "git_sha": "0c74abf2c45274473320bd26edd45436e255a900",
-  "git_sha_started": "0c74abf2c45274473320bd26edd45436e255a900",
+  "git_sha": "fcb70b37ed5e32c9c1a099b98e9c72cf8c077cc0",
+  "git_sha_started": "fcb70b37ed5e32c9c1a099b98e9c72cf8c077cc0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T12:18:45.672Z",
+  "finished_at": "2026-10-13T12:29:06.494Z",
   "failures": [
-    "6 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
+    "6 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)",
     "2 function(s) in the database do NOT match the repo's newest definition: accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
     "3 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql), receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql)",
     "2 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql), email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
-    "1 polic(y/ies) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013130000_receipt_upload_attempts.sql)",
-    "16 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
+    "1 polic(y/ies) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013131000_receipt_attempts_late_put.sql)",
+    "20 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
     "1 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: receipt_attempts_due on receipt_upload_attempts — not in the database (declared by 20261013130000_receipt_upload_attempts.sql)"
   ],
   "warnings": [
@@ -23,7 +23,7 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 118,
+    "migration_files": 119,
     "tables_declared": 61,
     "tables_absent": [
       "support_sessions (declared by 20261010030000_support_sessions_read_only.sql)",
@@ -37,14 +37,14 @@
     "type_mismatch": [],
     "policies_declared": 86,
     "policies_absent": [
-      "public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013130000_receipt_upload_attempts.sql)"
+      "public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013131000_receipt_attempts_late_put.sql)"
     ],
     "policies_unjudgeable": 0,
-    "grant_claims_declared": 587,
-    "grant_targets": 103,
+    "grant_claims_declared": 591,
+    "grant_targets": 104,
     "grant_statements": {
-      "naive": 174,
-      "judged": 174,
+      "naive": 176,
+      "judged": 176,
       "unjudgeable": 0
     },
     "grants_absent": [
@@ -63,7 +63,11 @@
       "public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
       "public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
       "public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
-      "public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database"
+      "public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
+      "public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
+      "public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
+      "public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
+      "public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database"
     ],
     "indexes_declared": 67,
     "index_statements": {
@@ -80,8 +84,8 @@
       "refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql)",
       "start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
       "finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
-      "claim_receipt_attempts (declared by 20261013130000_receipt_upload_attempts.sql)",
-      "ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)"
+      "ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
+      "claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)"
     ],
     "drifted": [
       "accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
@@ -89,14 +93,14 @@
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-13T12:16:39.407Z",
+  "started_at": "2026-10-13T12:26:58.027Z",
   "status": "fail",
-  "expected_targets": 377,
+  "expected_targets": 378,
   "discovered_targets": 361,
-  "attempted_targets": 377,
-  "completed_targets": 377,
+  "attempted_targets": 378,
+  "completed_targets": 378,
   "skipped_targets": 0,
-  "assertions_executed": 2099,
+  "assertions_executed": 2103,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
