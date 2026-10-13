@@ -30136,7 +30136,23 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   new `--break=stranger` added an unexplained locked table and it was FOUND 1, exit 1. Sabotage runs now record
   `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
-- [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
+- [x] **98.5 — Repair the photo checks for the completed release and Windows files.**
+  **DONE 2026-10-13 (fixes in `9090be30`).** The same 17-file command, re-taken: red at `a087c24b`,
+  133 of 142, 9 failed, 0 skipped (`receipts/98.5-photo-tests-before.txt`, the same nine as 0.11cc's run).
+  After, at `9090be30`: 142 of 142, 0 failed, 0 skipped (`receipts/98.5-photo-tests-after.txt`).
+  The four fixes. (1) `photo-release-order` § 6 now pins `RECEIPTS_VIA_DOOR = true`, but only after the
+  live reading its own message asks for: `node scripts/photo-release-order.mjs` at `9090be30` reports
+  app-flag-before-door ok, "2 of 2" flags on, 10 of 10 rules, 0 failed, 1 UNJUDGEABLE (bucket-cors, as
+  always). The PRE and POST worlds and the JWT rules are untouched. (2) `photo-door-contract` § 3 now expects
+  the door's own 503 sentences, which is the 0.11a decision ("Could not check your photo storage…" and
+  "Photo storage is not set up on the server yet."). A new assertion keeps the generic line for a 5xx that
+  has NO sentence. (3) and (4) `photo-door-receipt-wire` and `photo-reconcile-sql` convert the file text to
+  LF when they read it. Git stores these files with LF, and this checkout (core.autocrlf) writes CRLF. All
+  six migration assertions now run, including the idempotency and chosen-allowance checks. Both § 6
+  sabotages and all six § 10 sabotages now land; each test asserts the edit landed before it believes the
+  red. New sabotage: `CONTRACT_BREAK=fivexx` loads a copy of the real `photo-door.js` without 0.11a's
+  `!spoke`. It went red on § 3 alone, 3 passed and 1 failed, showing the old generic line
+  (`receipts/98.5-contract-fivexx.sabotage.txt`). No browser check: nothing a person sees changed.
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
   tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
   the 17 requested files: `$env:PGLITE_DIR='C:/Users/rando/AppData/Local/Temp/pglite';
