@@ -22,6 +22,13 @@ test("the row carries the receipt's date and counts, and can never alarm", () =>
   assert.equal(row.stale_after_seconds, NEVER_STALE);
 });
 
+// 6.1b: a nightly backup restored outside Supabase may write the date; its
+// --fixture self-test (project "fixture") never may.
+test("a restore-nightly receipt counts; its fixture self-test never does", () => {
+  assert.deepEqual(whyNotProved(bent((r) => { r.check_id = "restore-nightly"; })), []);
+  assert.ok(whyNotProved(bent((r) => { r.check_id = "restore-nightly"; r.dimensions.project = "fixture"; })).length > 0);
+});
+
 const refusals = {
   "a restore mismatch": (r) => r.failures.push("restore mismatch — bookings: 12 rows, expected 13"),
   "a failure nobody recognises": (r) => r.failures.push("something new went wrong"),

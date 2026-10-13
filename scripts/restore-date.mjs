@@ -51,7 +51,8 @@ const NOT_ABOUT_THE_RESTORE = [
 /** Why this receipt does NOT prove a restore. Empty means it does. */
 export function whyNotProved(r) {
   const no = [];
-  if (r?.check_id !== "restore-drill") no.push(`not a restore-drill receipt (${r?.check_id})`);
+  // restore-nightly (6.1b) restores a real nightly backup into a throwaway local Postgres.
+  if (!["restore-drill", "restore-nightly"].includes(r?.check_id)) no.push(`not a restore receipt (${r?.check_id})`);
   if (r?.dimensions?.project !== PROJECT) no.push(`drilled project ${r?.dimensions?.project}, not ${PROJECT}`);
   if ((r?.warnings ?? []).some((w) => /^run with --break=/.test(w))) no.push("it is a sabotage run");
   if (r?.canary?.observed_failure !== true) no.push("the canary was not caught, so a match proves nothing");
