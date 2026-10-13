@@ -5476,3 +5476,9 @@ Found by the supervisor 2026-10-12 while re-running ROADMAP 99.7. `scripts/sweep
 ## 126. A content search that finds nothing has proved nothing — corroborate a zero before claiming an absence
 
 Found by the supervisor 2026-10-12, twice in one pass: the `search` tool returned zero matches for `9\.12c` in ROADMAP.md (the entry is at line 22170) and for `timeout|gate-regression|ticked` in `belt/lib.mjs` (25+ hits), while `Select-String` found all of them. A zero-result search reads exactly like a true absence — the same shape as the skipped-check failure this repo keeps meeting. **The rule:** a claim of absence (no refs, no callers, no occurrences) needs a second tool that agrees — here `Select-String` plus, for the AdminPage deletion, a passing production build. Never delete or declare on one tool's zero alone.
+
+## 127. One capture filed under three state names is one capture, not three states
+
+Found by the supervisor 2026-10-13 re-proving ROADMAP 99.5. `scripts/booking-consent.mjs` photographs each view once (`photograph`, line 181) BEFORE it drives the checkbox states, then files that capture as the unchecked, checked and uncheck shots. Proved by hash: the three 1440 English files share one SHA-256 while the `--break=half` file differs. The assertions genuinely exercise all three states (payload choice, keyboard checks, save-error retry), so the tick stands — but every per-state illustration is the pre-interaction page, and Andrew opening the "checked" shot sees an unticked box. Artifact count is not evidence count: N files with N names can still be one measurement.
+
+**The rule:** a screenshot that claims a state is taken after the state is set; file one shot per capture, never one per scenario. Filed as ROADMAP 99.11.

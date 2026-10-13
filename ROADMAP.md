@@ -29777,6 +29777,11 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: all six are fixed; `node --test` on legal-promises, platform-admin, name-length and fixed-furniture-is-hit-tested passes individually with no allowance added; no file under tests/ or scripts/ references `AdminPage.jsx`, `admin.css` or `.pa-` selectors; and a phone-width screenshot shows the account name and Sign out.
   Not to go live before this is done: the office migration as it stands.
 
+- [ ] **99.11 — The consent check files one screenshot under three state names.**
+  Found 2026-10-13 by supervision while re-proving 99.5. `photograph(page, 'details-' + tag)` runs at `scripts/booking-consent.mjs:181`, before the choice interaction below it (uncheck, Space, uncheck), so the unchecked, checked and uncheck shots for a view are one capture of the pre-interaction page filed under three names. Proved by hash: the three 1440 English files share a single SHA-256 while the `--break=half` file differs (`Get-FileHash .manager-shots\99.2f\details-en-1440-unchecked.jpg, .manager-shots\99.2f\details-en-1440-checked.jpg, .manager-shots\99.2f\details-en-1440-uncheck.jpg, .manager-shots\99.2f\details-en-1440-unchecked-break-half.jpg` — first three equal, fourth different). The functional assertions do exercise all three states (payload choice, keyboard checks, save-error retry), so 99.5's tick stands; only the illustrations are mislabeled — Andrew opening the "checked" shot sees an unticked box.
+  Fix: capture after the choice is set, or file one shot per view honestly. Touch only the capture points, not the assertions.
+  DONE WHEN: the three state shots differ where the page differs (the checked shot shows a ticked box); the clean run still passes with the same targets and the `--break=half` run is still red through the width and line questions; the receipt re-grades green.
+
 ## Belt repairs
 
 - [x] **98.1 — Repair the route-contract check (broken by 9.12d)**
