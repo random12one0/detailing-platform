@@ -1,9 +1,9 @@
 {
-  "git_sha": "257c8119e1569add6623012f90e3b7b549549337",
-  "git_sha_started": "a0bf7e8390b09a488efa5886e94b8b4b3ae7beb6",
-  "head_moved": true,
+  "git_sha": "b92bdb210c609ea20d417bb6908150482508918c",
+  "git_sha_started": "b92bdb210c609ea20d417bb6908150482508918c",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T08:32:11.550Z",
+  "finished_at": "2026-10-13T11:21:37.060Z",
   "failures": [
     "35 function(s) are running something other than this checkout: owner-push-subscribe, owner-push-unsubscribe, translate-content, verify-domain, forecast, photo-door, create-booking, report-problem, platform-admin, send-owner-reminders, accept-quote, plan-link, reschedule-booking, cancel-booking, send-invoice, respond-to-booking, update-booking, create-business, invite-user, preview-emails, send-campaign, watch-jobs, platform-billing, stripe-webhook, get-booking-receipt, accept-invite, available-slots, pay-booking, track-visit, validate-promo-code, booking-ics, connect-account, delete-customer, calculate-booking, send-email",
     "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
@@ -11,7 +11,7 @@
     "translate-content: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
     "verify-domain: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
     "forecast: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "photo-door: 5 file(s) differ - index.ts, _shared/tenant.ts, _shared/photoDoor.ts, _shared/mediaCache.ts, _shared/supportSession.ts (newest commit is 3.0d after the deploy)",
+    "photo-door: 5 file(s) differ - index.ts, _shared/tenant.ts, _shared/photoDoor.ts, _shared/mediaCache.ts, _shared/supportSession.ts (newest commit is 3.1d after the deploy)",
     "create-booking: 10 file(s) differ - index.ts, _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailKit.ts, _shared/emailTemplates.ts, _shared/bookingConsent.ts, _shared/reachedProvider.ts, _shared/supportSession.ts, _shared/strings/es.ts (newest commit is 2.0d after the deploy)",
     "report-problem: 6 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailKit.ts, _shared/reachedProvider.ts, _shared/strings/es.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
     "platform-admin: 9 file(s) differ - index.ts, _shared/supportSession.ts, _shared/buildStartStamp.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 1.7d after the deploy)",
@@ -641,7 +641,7 @@
     "widest_gap_days": 20.3
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-13T08:29:49.020Z",
+  "started_at": "2026-10-13T11:19:16.732Z",
   "status": "fail",
   "expected_targets": 42,
   "discovered_targets": 42,

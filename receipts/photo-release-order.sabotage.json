@@ -1,9 +1,9 @@
 {
-  "git_sha": "bf449860bb3dbe047f31035a1c7e331e2b5a05bc",
-  "git_sha_started": "bf449860bb3dbe047f31035a1c7e331e2b5a05bc",
+  "git_sha": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
+  "git_sha_started": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T10:36:16.545Z",
+  "finished_at": "2026-10-13T11:44:09.781Z",
   "failures": [
     "door-keeps-jwt: photo-door is in PUBLIC_FUNCTIONS in scripts/deploy-functions.mjs — it would deploy with the sign-in check OFF, and every action on it needs a signed-in person"
   ],
@@ -19,13 +19,13 @@
     "door_deployed": true,
     "reconcile_deployed": true,
     "photo_total_gb": 10,
-    "flags_on": 1,
+    "flags_on": 2,
     "r2_secrets_present": 3,
     "live_bundle_door_sentences": 4,
     "broken_on_purpose": "door-public"
   },
   "check_id": "photo-release-order",
-  "started_at": "2026-10-13T10:36:04.069Z",
+  "started_at": "2026-10-13T11:43:55.046Z",
   "status": "fail",
   "expected_targets": 10,
   "discovered_targets": 10,

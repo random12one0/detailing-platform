@@ -1,0 +1,58 @@
+{
+  "project": "kguqylyzgyzfktkfnhjb",
+  "state": {
+    "cron": [
+      {
+        "active": true,
+        "schedule": "40 3 * * *",
+        "anonymous": true,
+        "http_post": true,
+        "timeout_60s": false,
+        "platform_url": true
+      }
+    ],
+    "allowance": [
+      10
+    ],
+    "heartbeat": [
+      {
+        "detail": {
+          "clean": true,
+          "named": {},
+          "db_rows": 0,
+          "missing": 0,
+          "orphans": 0,
+          "db_bytes": 0,
+          "misfiled": 0,
+          "r2_bytes": 0,
+          "allowance": {
+            "share_bytes": 107374182,
+            "total_bytes": 10737418240,
+            "store_used_pct": 0,
+            "store_used_bytes": 0,
+            "businesses_over_share": 0
+          },
+          "mismatched": 0,
+          "r2_objects": 0,
+          "drift_bytes": 0,
+          "orphan_bytes": 0,
+          "missing_bytes": 0,
+          "mismatch_bytes": 0,
+          "businesses_seen": 0,
+          "named_truncated": false,
+          "unknown_size_rows": 0,
+          "unattributed_bytes": 0,
+          "businesses_drifting": 0,
+          "unattributed_objects": 0
+        },
+        "ran_at": "2026-10-13T03:40:06.380794+00:00",
+        "stale_after_seconds": 90000
+      }
+    ],
+    "refresh_weather": 1
+  },
+  "failures": [
+    "cron: exactly one active daily 03:40 UTC anonymous platform HTTP call, with 60s timeout, same transport as refresh-weather"
+  ],
+  "canaryCaught": true
+}

@@ -48,6 +48,21 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## RELEASE STEP · Expense receipts use the new photo store (ROADMAP 0.11cc)
+
+The final upload switch is committed locally. Your cron, its timeout and the
+10 GB allowance were already live; they were checked again without changing
+the database. No new account setup or decision is needed for those steps.
+
+Before publishing the app, have the session for **98.5** repair the stale photo
+checks and get the full photo and Spanish run green. The protected tests were
+left unchanged by this job, and their failed output is saved. Then include the
+receipt switch in your ordinary app release; a session verifies the published
+upload and ticks 0.11cc. The control-room copy on port 5180 has a separate
+browser-origin restriction, so its transport check records that limitation.
+The failed-upload cleanup gap found during proof is now numbered **14.39**;
+all of this job's temporary receipt files and expenses were removed.
+
 ## DO · Let deleted gallery images leave Cloudflare's cache (ROADMAP 0.11bd)
 
 The deletion fix is built locally. It needs a new Cloudflare **Cache Purge**
@@ -882,21 +897,21 @@ a push publishes at all** before spending one.
 website published before `photo-door` exists answers every photo action with
 *"Photo storage is not set up on the server yet"*.
 
-**AND NOW TWO LINES TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND
-IS EASY TO FORGET.** Two parts of the photo job are written, tested and
-**switched off** by one word each, both in `app/src/lib/photo-door.js`:
+**THE TWO RELEASE SWITCHES ARE NOW ON LOCALLY.** Both are in
+`app/src/lib/photo-door.js`; the app still needs your publish after the
+98.5 photo-test repair passes.
 
-* **`RECEIPTS_VIA_DOOR`, currently `false`** — receipts for expenses.
+* **`RECEIPTS_VIA_DOOR`, now `true` locally (0.11cc, 2026-10-13)** — receipts for expenses.
   **Needs:** `photo-door` published (step 9c).
-* **`MEDIA_VIA_DOOR`, currently `false`** — your logo, the marketing gallery and
+* **`MEDIA_VIA_DOOR`, already `true` locally (0.11bc2, 2026-10-10)** — your logo, the marketing gallery and
   the website-intake photographs. **Needs:** `photo-door` published **and** the
   public web address from step 9a2, **and** the CORS rule on `business-media`.
   *Added 2026-10-08.*
 
-Publish the function, meet each one's conditions, then have a session flip it to
-`true`; the website has to be published afterwards for either to take effect.
-**Why they are off at all:** both of those features work today, so switching them
-over before the function existed would break something that works. (Job
+The function, public address and CORS prerequisites above are already live.
+The website has to be published afterwards for the local receipt switch to take effect.
+**Why these switches originally stayed off:** switching working uploads
+over before the function existed would break them. (Job
 photographs have no switch, because they were already going through a door that
 did not exist — there was nothing working to lose.) **If you publish and nobody
 flips them, nothing breaks and nothing says so** — both keep going the old way,

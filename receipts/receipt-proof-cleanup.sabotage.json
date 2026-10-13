@@ -1,0 +1,40 @@
+{
+  "git_sha": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
+  "git_sha_started": "0e4243a23766fc14d165bf9b4f4ce73f5fc16592",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T11:47:05.429Z",
+  "failures": [
+    "Existing real expense guard is disabled; no writes attempted"
+  ],
+  "warnings": [
+    "Cleanup report only; no upload success or feature acceptance claimed."
+  ],
+  "artifacts": [
+    "receipts/receipt-proof-cleanup.sabotage.txt"
+  ],
+  "dimensions": {
+    "targets": 7,
+    "restored": 0,
+    "removed": 0,
+    "absent": 0,
+    "failures": [
+      "Existing real expense guard is disabled; no writes attempted"
+    ],
+    "break": "owner-guard"
+  },
+  "check_id": "receipt-proof-cleanup",
+  "started_at": "2026-10-13T11:47:05.361Z",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 2,
+  "min_assertions": 1,
+  "status": "fail",
+  "canary": {
+    "id": "existing-real-expense-refused",
+    "observed_failure": false
+  }
+}
