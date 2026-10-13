@@ -29789,3 +29789,13 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - The route-contract check passes (`node --test tests/route-contract.test.mjs`).
   **Done 2026-10-11.** Nothing 9.12d committed broke it. The check reads `app/dist/_redirects`, a build OUTPUT, and at 21:16 (the minute 9.12d's first slice committed) a bare `vite build` rebuilt `app/dist` without `build-examples.mjs`, so the generated `/ex1…/ex5` and `/examples` rewrites were never prepended. Fixed by running the real build, `npm run build --prefix app` ("6 slashless rewrites prepended"), then `node --test tests/route-contract.test.mjs`: 34 passed, 0 failed. Red-first: on the bare-built dist the same check printed 32 passed / 2 failed. The check now names the cause when the generated block is missing entirely (commit before this one), so the next bare build costs nobody the trace. **Run `npm run build`, never bare `vite build`, if anything after you reads `app/dist`.**
+- [ ] **98.2 — Repair the receipt deployed-inventory.json says fail check (broken by 14.24)**
+  REPAIR CHECK receipt deployed-inventory.json says fail. Job 14.24 turned the quality check "receipt deployed-inventory.json says fail" red; it passed before that job. Find why and make it pass again without undoing 14.24's work.
+  Acceptance criteria:
+  - The receipt deployed-inventory.json says fail check passes.
+- [ ] **98.3 — Repair the receipt migration-drift.json says fail check (broken by 14.24)**
+  REPAIR CHECK receipt migration-drift.json says fail. Job 14.24 turned the quality check "receipt migration-drift.json says fail" red; it passed before that job. Find why and make it pass again without undoing 14.24's work.
+  Acceptance criteria:
+  - The receipt migration-drift.json says fail check passes.
+
+
