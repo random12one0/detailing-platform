@@ -84,7 +84,7 @@ async function cleanup() {
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, async () => {
   try { await cleanup(); } finally { await browser.close(); process.exit(130); }
 });
-const shotDir = path.join(REPO, ".manager-shots", "0.11cc");
+const shotDir = path.join(REPO, ".manager-shots", "0.11cc", transportOnly ? "transport" : "live", BREAK ? "sabotage" : "clean");
 mkdirSync(shotDir, { recursive: true });
 const image = readFileSync(path.join(REPO, "app/public/img/tenant-site-hero.jpg"));
 const transportOK = r => r.start === 1 && r.finish === 1 && r.puts === 1 && r.storage === 0 && r.bytes > 0 && r.bytes === r.stored;
