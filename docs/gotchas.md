@@ -5482,3 +5482,21 @@ Found by the supervisor 2026-10-12, twice in one pass: the `search` tool returne
 Found by the supervisor 2026-10-13 re-proving ROADMAP 99.5. `scripts/booking-consent.mjs` photographs each view once (`photograph`, line 181) BEFORE it drives the checkbox states, then files that capture as the unchecked, checked and uncheck shots. Proved by hash: the three 1440 English files share one SHA-256 while the `--break=half` file differs. The assertions genuinely exercise all three states (payload choice, keyboard checks, save-error retry), so the tick stands — but every per-state illustration is the pre-interaction page, and Andrew opening the "checked" shot sees an unticked box. Artifact count is not evidence count: N files with N names can still be one measurement.
 
 **The rule:** a screenshot that claims a state is taken after the state is set; file one shot per capture, never one per scenario. Filed as ROADMAP 99.11.
+
+## 128. A copied test baseline can survive the screen it measured
+
+Found in supervision 2026-10-13. ROADMAP 4.3b said platform-admin.test.mjs
+had three known failures. Running the entire suite at bf08d943 produced
+134 passed, 50 failed, 7 skipped (node tests/platform-admin.test.mjs;
+receipts/supervision-2026-10-13/platform-admin-before.txt). Numerous assertions
+still looked for pa-* markup or functions on the old screen. The held worker's
+section-16 repair is fair and removes two stale failures; it does not clear
+the other 48. The non-landing 15e sabotage is also explicitly named by the run.
+The existing 99.3b-ii repair is split out as 98.4; the corrected 4.3b entry
+preserves both scopes.
+
+Retake a claimed baseline with the full command. A passing section and an
+old count of failures elsewhere are different claims; neither certifies the
+whole suite. Keep the failed output and match each finding to today's screen
+before changing an assertion. Do not delete the checks because their subjects
+moved, and do not report the remaining failure count from a previous checkout.

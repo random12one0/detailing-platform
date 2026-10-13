@@ -1,0 +1,291 @@
+
+1. row-level security still says 'one business, always'
+  ok    NO POLICY MENTIONS THE ADMIN CHECK
+  ok    ...and the migrations were actually read
+  ok    platform_admins has RLS forced
+  ok    platform_admins has NO policy, which is the strongest statement available
+  ok    platform_admin_events has RLS forced
+  ok    platform_admin_events has NO policy, which is the strongest statement available
+  ok    is_platform_admin is not executable by a browser
+
+2. the gate is a table, not a claim and not an env var
+  ok    the JWT is verified against GoTrue
+  ok    AND THEN CHECKED AGAINST platform_admins
+  ok    no role claim is trusted
+  ok    no environment variable is the gate
+  ok    a non-admin gets 404, not 403
+  ok    2b-i · a signed-out visitor is offered a login, not an error
+node :   FAIL  2b-ii · and a signed-in non-admin still gets the product's 404 page
+At line:2 char:1
++ node tests/platform-admin.test.mjs > .tmp-supervision-pa-after.txt 2> ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  FAIL  2b-ii ·...duct's 404 page:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+        the two refusals answer different questions and must not collapse
+  ok    2b-ii-b - and that page really is the not-found page
+  ok    2b-iii · a failed sign-in does not say WHICH half was wrong
+  ok    and the SCREEN says the same thing
+
+3. impersonation
+  ok    the impersonate branch was found
+  ok    IT LOGS BEFORE IT MAKES THE LINK
+  ok    AND A FAILED LOG STOPS THE ACTION
+  ok    the record names who, when and which business
+  ok    the link is generated, never emailed
+
+4. the audit covers more than the one action 4.4 asked for
+  ok    note is logged
+  ok    suspend is logged
+  ok    tier is logged
+  ok    the note's CONTENT is not copied into the log
+
+5. the back office reads nothing through RLS
+  ok    NOT ONE supabase.from() ON THE ADMIN SCREEN
+  ok    only the session is read from the client
+  ok    it is not wrapped in BusinessProvider
+  ok    it has its own stylesheet and shares no rule
+
+6. the platform's notes are not the detailer's to read
+  ok    NO DETAILER-FACING FILE READS admin_notes_platform
+  ok    ...and the walk actually looked at something
+  ok    it is in no version of the public profile
+
+7. and the things the spec refused
+  ok    whoami answers only for an admin, and 404s for everyone else
+  ok    and it is inside the gate, not before it
+  ok    no second permission system for admins
+  FAIL  no refunds or card handling — Stripe's dashboard is better at those
+        show the state, link out for the action
+  FAIL  the check has figures to count — the tile block was found
+        
+  FAIL  no more than eight figures in one run
+        0 figures
+  FAIL  the platform's own takings are still on the screen
+        the tiles answer 'how is my company doing'; this one answers 'is it carrying work'
+
+8. their site
+  ok    the site columns are revoked from `authenticated` at column level
+  ok    `site_updated_at` is the server's clock, never the caller's
+  ok    a bare hostname gets a scheme before it is stored
+  ok    the site action never writes `business_domains`
+  FAIL  the *no website yet* filter has its input
+        the list's own select must carry the column the filter reads
+  FAIL  the site is written down like every other action, with what it was before
+        the previous address is the useful half, and `biz` must select it or every entry says null
+
+9. taking their data with them
+  ok    9a · the tables are discovered from the catalog
+  ok    9b · by the same rule every RLS policy uses — a `business_id`
+  ok    9c · the audit log is excluded by name
+  ok    9d · and the platform's private note is stripped from the row
+  ok    9e · the function is service-role only
+  ok    9f · the back office reaches it through the gate, like every other action
+  ok    9g · and it is written down, with the size rather than the contents
+  FAIL  9h · the screen hands over a file rather than drawing it
+
+10. the jobs that nobody watches
+        
+  FAIL  9i · the open detailer is re-read after an action, not left on a snapshot
+        AdminPage.jsx:994 holds the row by value; reload() refreshes rows and never re-points open, so Suspend leaves 
+the panel saying the detailer is live
+  ok    10a · there is a heartbeat table at all
+  ok    10b · and it is unreachable from any browser
+  ok    10c · the sweep stamps itself from the function, not from the cron
+  ok    10d · and a failed heartbeat cannot fail the sweep
+  ok    10e · at the END of the run, so a stamp means it got that far
+  ok    10f · the back office is sent them
+  FAIL  10g · and the screen prints it either way
+        
+  FAIL  10h · a job that has never reported is quiet, never healthy
+        
+  FAIL  10h-ii · and the staleness window comes from the row, not this file
+        
+  FAIL  10i · in minutes and hours, not "today"
+        
+  ok    10i-ii · and one of anything is never printed with an s
+  ok    10j · both jobs are seeded when the watching starts
+
+11. demos are marked and never counted
+  ok    11a · the server asks for is_demo
+  ok    11b · and sends it on every row
+  ok    11c · the tiles are computed from the real detailers only
+  ok    11d · and no tile is computed from the raw rows
+  ok    11e · except the demo count itself, which is the difference
+  FAIL  11f · a demo row is tagged in the list
+        
+  FAIL  11g · and the screen says how many were left out
+  ok    11h · this month has an upper bound as well as a lower one
+  ok    11h-ii · and it is computed in the business's own timezone
+        
+  ok    11h-iii · reusing _shared/tz.ts rather than a second copy of the maths
+  FAIL  11h-iv · the chart's months are the detailer's, not the reader's
+        
+  ok    11h-v · the same booking really does land in different months
+  FAIL  11i · the jobs figure says the jobs are finished ones, in BOTH places
+        AdminPage.jsx:1074 prints '{r.jobs_month} jobs this month' under 'Booking · last one today'
+  FAIL  11j · the promised total is printed only when it is over the ceiling
+        
+  FAIL  11j-ii · every photo_store field the screen reads is one the RPC returns
+        no store.* reads found — this check proved nothing
+  ok    11k · the open detailer needs no scroll, because it is not in the flow
+  ok    11m · the signed-out door names itself
+  ok    11n · and still tells a signed-in non-admin nothing
+
+12. the layout, and the motion the owner asked for
+  FAIL  12a · the open business is over the list, never below it
+        F-015 was the open business a hundred rows down; a fixed overlay cannot be
+  FAIL  12b · and the width is the product's own, not a second opinion
+        
+  FAIL  12c · below 560 the open business covers the list
+        
+  FAIL  12d · and the screen only mounts it when something is open
+        
+  FAIL  12e · with three ways back, because one is a trap
+        a scrim alone is a trap on a keyboard and an x alone is a trap for a thumb
+  FAIL  12g · pa-arrive exists — the page's own first paint
+        
+  FAIL  12g · pa-col-in exists — a business opening
+        
+  FAIL  12g · pa-col-out exists — and closing
+        
+  FAIL  12g · pa-bar-rise exists — the bars growing
+        
+  FAIL  12h · every duration is a token, never a number typed here
+  ok    12m · reduced motion is handled once
+  ok    12r · the spine is built from the calendar, not from the bookings
+
+13. the back office's own door (roadmap 8.2)
+  SKIP  13b-ii · signing out drops the impersonation note before it signs out
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  SKIP  13d · impersonation.js talks to nobody
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  SKIP  13d-ii · it is believed only while that address is the one signed in
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  SKIP  13d-iii · and no session means no note
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  ok    13f-iii · the invite that fixes it is offered by the same screen
+  ok    13g · the server is still the one that refuses
+  SKIP  13h · the dashboard draws a strip while impersonating
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  SKIP  13h-ii · from the note, checked against the live session
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  SKIP  13h-iii · and it carries a way out
+        NOT MEASURED: nothing in app/src calls beginImpersonation, so no note is ever written and this guards code that cannot run. Andrew replaced the session swap with the /preview tab (app/src/lib/preview.js) on 2026-09-09. Lane B owns removing the dead module; this re-arms itself.
+  ok    13h-iv · the app's own sign-out goes through that same door
+  ok    13i · the strip is drawn in --bad, never the tenant's accent
+  ok    13j · the check has subjects — some script does create an admin
+  ok    13k · admin-account.mjs generates the password it uses, never writes one down
+  ok    13k · admin-contrast.mjs generates the password it uses, never writes one down
+  ok    13k · platform-admin-actions-live.mjs generates the password it uses, never writes one down
+  ok    13k · platform-admin-add.mjs generates the password it uses, never writes one down
+  ok    13k · seed-demo.mjs generates the password it uses, never writes one down
+  ok    13l · the check has subjects — something does sign in at /admin
+  ok    13l-ii · admin-contrast.mjs removes the admin it made
+  ok    13l-ii · admin-furniture-clearance.mjs removes the admin it made
+  ok    13l-ii · admin-preconditions.mjs removes the admin it made
+  ok    13l-ii · build-start-live.mjs removes the admin it made
+  ok    13l-ii · email-list-admin.mjs removes the admin it made
+  ok    13l-ii · health-line-honest.mjs removes the admin it made
+  ok    13l-ii · office-detailers.mjs removes the admin it made
+  ok    13l-ii · office-folds.mjs removes the admin it made
+  ok    13l-ii · office-money.mjs removes the admin it made
+  ok    13l-ii · office-system.mjs removes the admin it made
+  ok    13l-ii · office-today.mjs removes the admin it made
+  ok    13l-ii · photo-allowance-figure.mjs removes the admin it made
+  ok    13l-ii · platform-admin-actions-live.mjs removes the admin it made
+  ok    13l-ii · platform-costs-live.mjs removes the admin it made
+  ok    13l-ii · platform-net-live.mjs removes the admin it made
+        NO SUBJECT: /animation: pa-/ is not in what was read, so the absence of /animation(-duration)?:[^;]*\d+ms/ 
+proves nothing
+  FAIL  12h-ii · and the stagger steps are the only bare numbers
+        10 animation-delay declarations, 3 of them a calc'd step: animation-delay: calc(var(--i, 0) * 45ms) | 
+animation-delay: var(--d, 0s) | animation-delay: calc(var(--k) * 45ms) | animation-delay: calc(var(--i, 0) * 90ms) | 
+animation-delay: var(--d, 0ms) | animation-delay: var(--d, 0ms) | animation-delay: var(--d, 0ms) | animation-delay: 
+var(--d, 0ms) | animation-delay: 1.33s | animation-delay: 2.66s
+  FAIL  12i · a swap animates its parts, never the frame
+        
+  FAIL  12j · and the frame is re-keyed so the swap actually runs
+        
+  FAIL  12k · closing animates out through the shared hook
+        
+  FAIL  12l · and no second copy of the exit duration
+        NO SUBJECT: /useLeaving\(/ is not in what was read, so the absence of /setTimeout\([^)]*18\d\)/ proves nothing
+  FAIL  12n · and ?lite=1 rides the same rule
+        the query has to OR with the media query, and .lite has to be what kills the animation
+  FAIL  12o · the six-month chart is drawn with explicit coordinates
+        
+  FAIL  12p · and no percentage height is left inside it
+        NO SUBJECT: /\.pa-barr/ is not in what was read, so the absence of /pa-bar[^r][\s\S]{0,200}?height: 100%/ 
+proves nothing
+  FAIL  12q · an empty month is not lit
+        
+  FAIL  13a · the bar prints the signed-in address
+        pa-who renders no identifier at all
+  FAIL  13a-ii · and the address is the session's own, not a guess
+        
+  FAIL  13b · there is a sign out
+        
+  FAIL  13c · a signed-in non-admin still gets the product's 404 page
+        
+  FAIL  13f · the owner account gates the button
+        the button has to be off when there is no account to open it as
+  FAIL  13f-i · and not knowing yet is a third answer, not a no
+        hasOwner has to be true | false | null, never a plain boolean
+  FAIL  13f-ii · and the screen says why, on the same condition
+        a disabled button with no sentence beside it is an unexplained dead end
+  ok    13l-ii · restore-date-visible.mjs removes the admin it made
+  ok    13l-ii · shoot-admin.mjs removes the admin it made
+  ok    13l-ii · suspend-delete-waive.mjs removes the admin it made
+  ok    13l-iii · the one admin that is meant to persist says so on its own row
+  ok    13m · the teardown cannot become the error
+  ok    13n · adding a real admin never sets or resets their password
+
+14. the email safety net (roadmap 8.6)
+  FAIL  13o · the address is set as prose, not as a tracked-out label
+        
+  FAIL  13o-ii · and it can break rather than push the bar sideways
+        
+  ok    14a · the day's count is a single atomic upsert
+  ok    14a-ii · and the day is UTC, like the provider's cap
+  ok    14a-iii · the table is forced RLS with no policies at all
+  ok    14a-iv · and the counter is service-role only
+  ok    14b · both outcomes are counted, at the send
+  ok    14b-ii · the refusal is counted before the error is returned
+  ok    14b-iii · and the success after the address is cleared
+  ok    14b-iv · counting can never fail a send
+  ok    14c · the back office is handed today's count and the cap
+  ok    14c-ii · and the screen prints it beside the other silent limits
+  ok    14c-ii-b · the label says WHICH emails, because the cap is shared
+  ok    14c-ii-c · and the warning says the account may be higher
+  ok    14c-iii · it goes red before the cap, not at it
+  ok    14c-iv · the cap is a stored number, so raising it is the answer
+  ok    14d · a signup emails the owner
+  ok    14d-ii · to platform_settings.owner_email, not to an admin row
+  ok    14d-iii · and it can never fail the signup
+  ok    14d-iv · and the screen says when nobody is being told
+  ok    14e · the alert is one template the caller words
+  ok    14e-ii · and it is rendered with the other twenty-five
+
+15. an unknown action says so (ROADMAP 9.18 d)
+  ok    15a · the gate exists and stands BEFORE the per-business guard
+  ok    15b · every action handled below the gate is named in it
+  ok    15c · and every name in it is really handled below it
+  ok    15d · the answer is 'Unknown action' with a 400, naming no parameter
+  ok    15e · the gate removed is seen
+  FAIL  15e · an action handled below but left out of the set is seen
+        THE SABOTAGE DID NOT APPLY — this check proved nothing
+  ok    15e · a name in the set that nothing handles is seen
+  ok    16a · the detail history query exists, after the business row is read
+  ok    16b · it matches by id OR by name
+  ok    16c · the name arm only matches rows with NO id (another business with the same name stays out)
+  ok    16d · the old id-only filter on platform_admin_events is gone
+  ok    16e · a name with a quote, backslash and comma is escaped for a quoted filter value
+  ok    16f · the server applies exactly that escaping
+  ok    16g · an action the screen has no words for is shown by its raw name, not dropped
+  ok    16h · the panel still tells reading from populated, and an empty history still has a row
+  ok    16i · an unknown action dropped from the panel is seen
+  ok    16i · dropping the name arm is seen
+  ok    16i · widening the name arm to rows that have an id is seen
+
+137 passed, 48 failed, 7 skipped

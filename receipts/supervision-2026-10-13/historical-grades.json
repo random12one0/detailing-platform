@@ -1,0 +1,682 @@
+[
+  {
+    "file": "receipts/bucket-cors.json",
+    "tested_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [],
+    "head_moved": false,
+    "dimensions": {
+      "preflights": 64,
+      "allow_cases": 42,
+      "refuse_cases": 22,
+      "browser_cases": 12,
+      "widths": [
+        1440,
+        392
+      ],
+      "origins_derived": 6,
+      "buckets_derived": 3,
+      "break": null
+    },
+    "counts": [
+      76,
+      76,
+      76
+    ],
+    "canary": {
+      "id": "nonexistent-bucket-judged-allow",
+      "observed_failure": true
+    },
+    "historical_grade": "pass"
+  },
+  {
+    "file": "receipts/bucket-cors.sabotage.json",
+    "tested_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [
+      "9 failure(s) recorded"
+    ],
+    "head_moved": false,
+    "dimensions": {
+      "preflights": 64,
+      "allow_cases": 45,
+      "refuse_cases": 19,
+      "browser_cases": 12,
+      "widths": [
+        1440,
+        392
+      ],
+      "origins_derived": 6,
+      "buckets_derived": 3,
+      "break": "foreign-allowed"
+    },
+    "counts": [
+      76,
+      76,
+      76
+    ],
+    "canary": {
+      "id": "nonexistent-bucket-judged-allow",
+      "observed_failure": true
+    },
+    "historical_grade": "fail"
+  },
+  {
+    "file": "receipts/media-cache-delete.json",
+    "tested_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [],
+    "head_moved": false,
+    "dimensions": {
+      "roadmap": "0.11bd",
+      "transport": "in-memory origin, edge cache and Cloudflare API; real production handler and adapter"
+    },
+    "counts": [
+      13,
+      13,
+      13
+    ],
+    "canary": {
+      "id": "original-cached-delete",
+      "observed_failure": true,
+      "what": "origin-only remove acknowledges success while the warmed public URL remains 200 HIT"
+    },
+    "historical_grade": "pass"
+  },
+  {
+    "file": "receipts/media-cache-delete.sabotage.json",
+    "tested_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [
+      "7 failure(s) recorded"
+    ],
+    "head_moved": false,
+    "dimensions": {
+      "roadmap": "0.11bd",
+      "break": "no-purge",
+      "transport": "in-memory origin, edge cache and Cloudflare API; real production handler and adapter"
+    },
+    "counts": [
+      13,
+      13,
+      13
+    ],
+    "canary": {
+      "id": "original-cached-delete",
+      "observed_failure": true,
+      "what": "origin-only remove acknowledges success while the warmed public URL remains 200 HIT"
+    },
+    "historical_grade": "fail"
+  },
+  {
+    "file": "receipts/booking-consent.json",
+    "tested_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [],
+    "head_moved": false,
+    "dimensions": {
+      "break": "",
+      "server_only": false,
+      "seen": [
+        {
+          "tag": "en-390-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-1440-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-1440-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "en-1440-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-1440-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-1440-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "es-1440-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-392-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-392-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "en-392-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-392-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-392-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "es-392-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        }
+      ],
+      "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+    },
+    "counts": [
+      76,
+      76,
+      76
+    ],
+    "canary": {
+      "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+      "observed_failure": true
+    },
+    "historical_grade": "pass"
+  },
+  {
+    "file": "receipts/booking-consent-half.sabotage.json",
+    "tested_sha": "000a24e4a9e000623e6805d2d5015d6ab6df30b8",
+    "started_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+    "problems": [
+      "36 failure(s) recorded",
+      "HEAD MOVED DURING THIS RUN: started bf08d943, finished 000a24e4 — the receipt names a commit it did not measure end to end. NOT automatically void: run `git show --stat` on what landed and check whether the check's own source guard fired. The reader decides."
+    ],
+    "head_moved": true,
+    "dimensions": {
+      "break": "half",
+      "server_only": false,
+      "seen": [
+        {
+          "tag": "en-390-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-1440-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-1440-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "en-1440-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-1440-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-1440-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "es-1440-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-768-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-768-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-392-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-392-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "en-392-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-392-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-392-checked",
+          "choice": "checked",
+          "calls": 2,
+          "console": [
+            "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+          ]
+        },
+        {
+          "tag": "es-392-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-320-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-320-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-390-lite-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-390-lite-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "en-844-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-unchecked",
+          "choice": "unchecked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-checked",
+          "choice": "checked",
+          "calls": 1,
+          "console": []
+        },
+        {
+          "tag": "es-844-uncheck",
+          "choice": "uncheck",
+          "calls": 1,
+          "console": []
+        }
+      ],
+      "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+    },
+    "counts": [
+      76,
+      76,
+      76
+    ],
+    "canary": {
+      "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+      "observed_failure": true
+    },
+    "historical_grade": "fail"
+  }
+]

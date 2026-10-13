@@ -1,0 +1,3 @@
+belt.mjs: supervisionDue message changed from items done to item runs completed; condition and counter unchanged.
+belt.config.json: inserted taskTemplate line:
+- **A discovered product defect outside this item still gets a numbered ROADMAP entry before you finish.** A limitation buried in a setup document or proof note is invisible to the dispatcher. Supervision 2026-10-13: 0.11bd named Gallery Remove's row-only deletion but left it without work of its own; publishing the purge adapter cannot fix a button that never calls it.

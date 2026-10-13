@@ -1,9 +1,9 @@
 {
-  "git_sha": "baaba472b520700a99700122f7cfb68cb73b04af",
-  "git_sha_started": "baaba472b520700a99700122f7cfb68cb73b04af",
+  "git_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+  "git_sha_started": "bf08d943c0c1bf9116b572f585814150e15fde12",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T09:11:29.541Z",
+  "finished_at": "2026-10-13T09:21:29.635Z",
   "failures": [
     "job-photos PUT from https://evil.example → expect allow: status 403",
     "expense-receipts PUT from https://evil.example → expect allow: status 403",
@@ -33,7 +33,7 @@
     "break": "foreign-allowed"
   },
   "check_id": "bucket-cors",
-  "started_at": "2026-10-13T09:11:12.367Z",
+  "started_at": "2026-10-13T09:21:12.682Z",
   "status": "fail",
   "expected_targets": 76,
   "discovered_targets": 76,

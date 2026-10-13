@@ -3613,3 +3613,27 @@ Nothing ticked since the fourth pass, so this pass re-proves standing ticks and 
 
 - **99.5 reproduced live at HEAD:** `BASE=http://127.0.0.1:5173 node scripts/booking-consent.mjs` — 76 of 76 targets, 1009 assertions, 0 failures, canary caught; fresh `receipts/booking-consent.json` names `3b67620d`. **Broken on purpose and caught:** `--break=half` went red with exactly 36 failures, each naming the defect (`width 294 of form 600, 5 lines EN`) — `receipts/booking-consent-half.sabotage.json`. Opened `.manager-shots/99.2f/details-en-1440-unchecked.jpg` (box spans the whole form under Phone+Email, 2 lines, Privacy/Terms beside the sentence) and `details-en-392-unchecked.jpg` (Phone, box, Email order unchanged, links on their own row). Tick stands; 1 of 1 reproduced, nothing unticked.
 - **New defect filed, not fixed:** the three state shots per view are one capture filed under three names (proved by hash; `Get-FileHash` over the three 1440 files shares one SHA-256, the break-half file differs) — filed as ROADMAP 99.11. The tick is unaffected (the assertions exercise the states); only the illustrations are mislabeled.
+
+## Supervision 2026-10-13 (tenth), main product at `bf08d943`
+
+- 0.11ca: `node scripts/bucket-cors.mjs` — 76 of 76; Chromium at 1440 and
+  392 permits localhost's preflight and refuses the stranger. Foreign-allowed
+  sabotage: nine named failures, canary caught. Secret presence is the separate
+  historical name-only receipt at `8b4ab85e`, not a new secret query.
+- 99.5: `BASE=http://localhost:5173 node scripts/booking-consent.mjs` — 76 of
+  76, 1009 assertions, no failures; half-width sabotage catches 36 layout
+  failures. Opened current English/Spanish phone, tablet and desktop captures
+  plus the saved-but-consent-refused retry state. Both ticks stand. The sabotage
+  records HEAD moving only for the test-only commit `000a24e4`.
+- 0.11bd: `node scripts/media-cache-delete.mjs` — 13 of 13 local scenarios;
+  no-purge sabotage catches seven failures. Its existing live receipt remains
+  red. Gallery's separate row-only deletion is now 0.11be, not a proven fix.
+- Held 4.3 at `8b8f033d`: helper coverage 22 of 22 and local PostgreSQL 24
+  of 24; unlogged-unlock and ignore-working sabotages caught. Product branch
+  remains separate pending 4.3e. Fair 4.3b section-16 test retarget applied at
+  `000a24e4`, with all three canaries exercised; full suite still has 48
+  failures. Existing broader repair split from 99.3b-ii into 98.4.
+
+Exact commands, retained output, screenshot files, limits and historical
+receipt grading: [the audit](supervision-2026-10-13.md). Standard credential-free
+gates and decisions index pass. No publication or live structural change.

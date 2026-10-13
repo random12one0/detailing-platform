@@ -1476,6 +1476,7 @@ and how the wait ends.
   on 2026-10-10.
   The live check now reaches the HIT path. After the account setup and
   publication, its exact warmed URL must return 404/410 before this box is ticked.
+  Separate product repair: ROADMAP 0.11be now owns the Gallery Remove button.
   Separate existing limitation: Gallery.jsx's Remove button deletes only its
   database row and never calls the door. These receipts do not prove that
   button erases stored files; see the named limitation in the setup document.
@@ -1491,6 +1492,23 @@ and how the wait ends.
   anonymous request to the original public URL no longer succeeds after the
   delete. The check must force the old cached-read path first and make that
   regression fail; an origin-only 404 is not proof about the public URL.
+
+- [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  Found by supervision at bf08d943 while reviewing 0.11bd. Gallery.jsx remove()
+  only deletes gallery_images; it never calls removeBusinessPhoto. The cache
+  adapter cannot help a button that never reaches photo-door. This is separate
+  from 0.11bd's cache policy and is buildable with local transport stand-ins.
+  Fix single images and both members of before/after pairs. Derive keys only
+  from this business's recognized storage URLs; preserve external URLs and
+  support older Supabase objects. Surface a failed object removal and keep
+  the row so a retry still knows the object's address. Check the row deletion's
+  own error too. Do not remove another business's object.
+  DONE WHEN: the real Gallery Remove button at 1440 and 392 calls the correct
+  storage removal before deleting its row; an object-removal refusal keeps
+  the row and shows a reason; a retry succeeds; external URLs never become
+  guessed storage keys; foreign keys are refused. Both image-pair members are
+  covered. A sabotage restoring the row-only handler must fail the browser
+  check. Final warmed public-URL proof follows Andrew's 0.11bd release.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   **BELT PARKED after 3 attempts, 2026-10-09 21:10:49.** The belt could not
@@ -1769,8 +1787,8 @@ and how the wait ends.
   BEFORE uploading (a CORS preflight). That question needs no login and Cloudflare answers it from the rule
   alone, so the rule can be checked without the dashboard. New check: `node scripts/bucket-cors.mjs`.
   It is credential-free and writes nothing. Sites and buckets come from `cors-rule.mjs`'s `observe()`, i.e.
-  from the product. It sends 64 preflights: every bucket × all 6 origins × GET and PUT with Content-Type, plus
-  the `media.detailingplatform.com` domain. It also sends 22 that must be REFUSED: a stranger, lookalike domains,
+  from the product. It sends 64 preflights in total, including every bucket × all 6 origins × GET and PUT
+  with Content-Type and the `media.detailingplatform.com` domain. Of those, 22 must be REFUSED: a stranger, lookalike domains,
   plain http, the wrong dev port, and DELETE. Then a real Chromium at 1440 and 392 PUTs to each bucket from
   `localhost:5173` and from `evil.example` and reads Chrome's own verdict (12 cases). **Result: 76 of 76
   passed, receipt `receipts/bucket-cors.json` PASS.** Chrome let our page's request past the check
@@ -13034,8 +13052,14 @@ requested.
   stays safe.
 
 - [ ] **4.3 — Support view needs a read-only banner and an audit record.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
-  The work is safe on branch `belt/4.3-20261013084536`. Answer "merge it" to keep it, or say what to change.
+  SUPERVISOR REVIEW 2026-10-13: the held test edits are fair. In a throwaway
+  checkout of 8b8f033d, the real helper passes 22 of 22 function targets and
+  local PostgreSQL passes 24 of 24 session/write-path targets; unlogged-unlock
+  and ignore-working sabotages fail their named assertions. Nothing was run
+  against a live database. The branch stays available at
+  `belt/4.3-20261013084536`; adopting its product changes still needs the
+  session repair in 4.3e. This is no longer an owner question about the tests.
+  Waits on: 4.3e. Remove this line when that branch repair is verified.
   "Look at their dashboard" opened a support view that appeared read-only, but
   nothing said so and nothing recorded it.
   **Fix:** "Viewing as support — read only" banner, record who opened it and
@@ -13291,15 +13315,24 @@ requested.
   - The chosen design identifies every write path requiring protection, including security-definer functions.
 
 - [ ] **4.3b — Make account audit history include previously orphaned events**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/platform-admin.test.mjs.
-  The work is safe on branch `belt/4.3b-20261013091259`. Answer "merge it" to keep it, or say what to change.
+  SUPERVISOR REVIEW 2026-10-13: the held test edit was a fair retarget to the
+  current office panel, not a relaxed history query. Applied the small repair
+  to main: unknown actions still appear, reading/populated/empty states remain
+  checked, and an added unknown-action sabotage is caught. All section 16
+  checks pass, including the two query sabotages. Publication remains Andrew's
+  already-listed step; the box stays open. The broader suite remains red:
+  50 failures before this repair, 48 after, not the historical three-failure baseline. Commands and complete output: docs/supervision-2026-10-13.md;
+  remaining check repair is ROADMAP 98.4.
   **BUILT 2026-10-10, NOT TICKED: the code is on disk and not running.** `platform-admin`'s `get` now reads the history
   with `business_id = this id` OR (`business_id` is null AND `business_name` = this name), after the business row is
   read; the name is quoted for PostgREST. The name arm is limited to null-id rows so a second business with the same
-  name cannot leak in. Unknown actions already fall back to their raw name and the panel's three states are untouched
-  (`AdminPage.jsx`, not edited). Proved credential-free: `node tests/platform-admin.test.mjs` § 16, 10 checks, both
-  sabotages (name arm dropped; name arm widened to rows that have an id) go red. The same file has 3 failures that
-  also fail on the untouched HEAD (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
+  name cannot leak in. Unknown actions fall back to their raw name in the current
+  office panel (`DetailerPanel.jsx`); its reading and populated states are distinct,
+  and an empty event list still includes the business's sign-up row. Current proof
+  at 000a24e4: `node tests/platform-admin.test.mjs` § 16, 11 passing assertions,
+  all three canaries caught. The whole suite still has 48 failures, owned by 98.4.
+  Historical note, superseded: the 2026-10-10 entry claimed only 3 failures
+  (the Stripe-dashboard line, the `site` line, 15e). NOT proved: that a real orphaned
   row appears on Coastline's panel, because that needs the function published.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): publish `platform-admin` (already in FOR-ANDREW.md step 3 and step 5) so the orphaned rows can be seen on a live panel; after that a session can open Coastline's detail and tick this. This is an existing release step, not a question for Andrew.
   **Andrew decided 2026-10-13: yes, publish both pieces (4.3b + 4.3c) and check them live.** Recorded by supervision 2026-10-13; publishing is his hand, FOR-ANDREW.md carries the row.
@@ -29751,7 +29784,12 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       fixed (page/css/ui re-pointed to OfficePage.jsx/office.css/DetailerPanel.jsx), 11k re-pinned to DetailerPanel
       (.bo-panel/min(500px,calc(100vw-24px))/no-scroll), section 14 re-pinned to officeSystem.js+Gauges.jsx+Mail.jsx
       (14c-ii Email today gauge, 14c-iii sent column, COLOR warn stroke, no-dismiss, Nobody line). Suite runs:
-      134 passed, 50 failed, 7 skipped. REMAINING reds for part 2: 2b-ii, 7-tile x4, 8-site x2, 9h, 9i, 10g, 10h,
+      SUPERVISION 2026-10-13: the platform-admin remainder of this part is now
+      split into top-level ROADMAP 98.4 so the dispatcher can target it directly.
+      Section 16's fair retarget is applied at 000a24e4; it now passes with all
+      three canaries. Run the whole suite there: 137 passed, 48 failed, 7 skipped.
+      The list below is the earlier baseline, not today's remaining population.
+      134 passed, 50 failed, 7 skipped. HISTORICAL reds for part 2: 2b-ii, 7-tile x4, 8-site x2, 9h, 9i, 10g, 10h,
       10h-ii, 10i, 11f, 11g, 11h-iv, 11i, 11j, 11j-ii, 12a-e, 12g-12q (motion+chart), 13a-c, 13f series, 13o series,
       15e, 16g, 16h. Then sabotage (ADMIN_BREAK), clean re-run, commit.
       Batch 1 DONE 2026-10-12: money-overstatement Taken pins -> office/places/money/Kept.jsx ("You kept" judged
@@ -29910,3 +29948,36 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - The receipt migration-drift.json says fail check passes.
 
 
+
+- [ ] **4.3e — Finish the held preview-unlock branch without English fallback.**
+  Supervision reviewed the diff at 8b8f033d and its SQL/edge tests on a local
+  copy. The tests are fair, but the branch adds new refusal sentences in
+  preview.js and a new banner sentence in App.jsx without Spanish keys or
+  translation calls. No string-file change is in that branch's diff. The
+  branch is a saved implementation, not evidence that the live lock changed.
+  Adopt the saved work rather than rebuilding it. Translate the new client
+  messages in the same edit, preserve the existing compatibility behavior
+  deliberately, and verify the banner's server-refusal states in both languages.
+  DONE WHEN: the saved branch's local SQL and edge tests pass with their
+  sabotages caught; the preview banner at 1440 and 392 shows Spanish as well
+  as English for offline, refused-unlock and refused-relock states; a refused
+  unlock never shows WORKING. Code and receipts are committed locally and
+  the existing FOR-ANDREW release row names the unlock migration/function order.
+  No publishing or live structural change belongs to this item.
+
+- [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
+  Split from 99.3b-ii part 2 by supervision, not a second owner for the same
+  repair. Section 16 is completed at 000a24e4; this slice owns the remainder.
+  Supervision ran node tests/platform-admin.test.mjs at bf08d943: 134 passed,
+  50 failed, 7 skipped. The previously copied baseline of three failures no
+  longer describes this screen. Section 16's reviewed repair removes two
+  stale failures and adds one real canary: 137 passed, 48 failed, 7 skipped.
+  Complete outputs and scope: docs/supervision-2026-10-13.md. Many failures
+  still match pa-* markup or old single-file screen code; 15e's removed-action
+  sabotage does not land. Assess each finding against the current component
+  before retargeting; retain actual permission and data-leak protections.
+  DONE WHEN: the entire credential-free suite passes with declared subjects,
+  each old-screen matcher follows the current component that owns its behavior,
+  and each changed canary demonstrably changes its subject and catches the
+  missing behavior. The previous failed run is retained; no allowlist or
+  deletion of assertions may hide unverified behavior.

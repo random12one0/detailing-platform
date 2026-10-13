@@ -1,0 +1,86 @@
+  ok    discovery: at least 8 RLS tables found
+  ok    every RLS table carries exactly three restrictive write rules
+  ok    support session can still READ the business
+  ok    support session refused: table insert
+  ok    support session refused: table update
+  ok    support session refused: table delete
+  ok    support session refused: storage insert
+  ok    support session refused: storage update
+  ok    support session refused: storage delete
+  ok    support session refused: definer set_my_lang
+  ok    support session refused: definer accrue_plan_visits
+  ok    nothing the support session tried actually changed
+  ok    marker table refused to a signed-in caller: select * from
+  ok    marker table refused to a signed-in caller: delete from public.support_sessions
+  ok    marker table refused to a signed-in caller: update public.support_sessions set
+  ok    marker table refused to a signed-in caller: insert into public.support_sessions
+  ok    owner's own session allowed: table insert
+  ok    owner's own session allowed: table update
+  ok    owner's own session allowed: table delete
+  ok    owner's own session allowed: storage insert
+  ok    owner's own session allowed: storage update
+  ok    owner's own session allowed: storage delete
+  ok    owner's own session allowed: definer set_my_lang
+  ok    owner's own session allowed: definer accrue_plan_visits
+  ok    owner's writes landed (language set, visits accrued)
+  ok    no token (the nightly cron) is not refused
+node :   FAIL  unlocked preview session allowed: table insert {"error":"new row violates row-level security policy 
+\"support_read_only_insert\" for table \"widgets\""}
+At line:2 char:364
++ ... e-working'; node tests/support-sessions-sql.test.mjs > ../.tmp-superv ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  FAIL  unlocke...e \"widgets\""}:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  FAIL  unlocked preview session allowed: table update {"rows":[],"affected":0}
+  FAIL  unlocked preview session allowed: table delete {"rows":[],"affected":0}
+  FAIL  unlocked preview session allowed: storage insert {"error":"new row violates row-level security policy 
+\"support_read_only_insert\" for table \"objects\""}
+  FAIL  unlocked preview session allowed: storage update {"rows":[],"affected":0}
+  FAIL  unlocked preview session allowed: storage delete {"rows":[],"affected":0}
+  FAIL  unlocked preview session allowed: definer set_my_lang {"error":"This is a read-only support view, so nothing 
+can be changed here."}
+  FAIL  unlocked preview session allowed: definer accrue_plan_visits {"error":"This is a read-only support view, so 
+nothing can be changed here."}
+  ok    locked again: the same session is refused again
+  ok    canary: a permissive rule lets the support insert through, so the refusal above is the restrictive rule's
+✖ 4.3c · support sessions are read-only at the database, the owner's own session is not (3562.5137ms)
+✔ 4.3c · every migration after this one that enables RLS on a table also refuses support writes on it (1.2675ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3567.2884
+
+✖ failing tests:
+
+test at tests\support-sessions-sql.test.mjs:149:1
+✖ 4.3c · support sessions are read-only at the database, the owner's own session is not (3562.5137ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'unlocked preview session allowed: table insert {"error":"new row violates row-level security policy \\"support_read_only_insert\\" for table \\"widgets\\""}',
+  +   'unlocked preview session allowed: table update {"rows":[],"affected":0}',
+  +   'unlocked preview session allowed: table delete {"rows":[],"affected":0}',
+  +   'unlocked preview session allowed: storage insert {"error":"new row violates row-level security policy \\"support_read_only_insert\\" for table \\"objects\\""}',
+  +   'unlocked preview session allowed: storage update {"rows":[],"affected":0}',
+  +   'unlocked preview session allowed: storage delete {"rows":[],"affected":0}',
+  +   'unlocked preview session allowed: definer set_my_lang {"error":"This is a read-only support view, so nothing can be changed here."}',
+  +   'unlocked preview session allowed: definer accrue_plan_visits {"error":"This is a read-only support view, so nothing can be changed here."}'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/detailing-platform/.tmp-supervision-held/tests/support-sessions-sql.test.mjs:248:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

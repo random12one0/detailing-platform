@@ -1,0 +1,414 @@
+scanning 87 components + the reference page
+  ok    0 - the check has subjects: the components were READ, not just listed
+  ok    0 - and all three stylesheets and the reference page carry content
+
+test 1: collections are lists, not stacks of cards
+  ok    no screen maps records onto .card
+
+test 1b: a bare switch carries its own name
+  ok    1b · every bare switch passes a label
+
+test 2: a choice of two to four uses Segmented, not a dropdown
+  ok    no hand-written <select> with 2–4 options
+
+test 3: no third-party animation or scroll library (law 13)
+  ok    no animation library in app/package.json
+  ok    the reference page fetches no third-party script
+
+test 4: two faces, and the never-defaults are absent
+  ok    the reference page declares exactly Archivo + JetBrains Mono
+  ok    theme.css declares exactly Archivo + JetBrains Mono
+  ok    landing.css declares exactly Archivo + JetBrains Mono
+  ok    booking.css declares exactly Archivo + JetBrains Mono
+  ok    no never-default font is the first family anywhere
+
+test 4b: theme.css cannot reach into a scoped sheet
+  ok    no bare class in theme.css is used by landing.css or booking.css
+
+test 5: two motion presets and one curve (law 4)
+  ok    the reference page uses exactly one easing curve
+  ok    an exit is faster than an entrance
+
+test 6: the reference page and the document hold the same tokens
+  ok    all 16 tokens agree across page, document and test
+
+test 7: the rules are actually written down
+  ok    every section gets its own skeleton
+  ok    something is always animating
+  ok    motion is not spendable
+  ok    segmented-over-dropdown is stated
+  ok    the reveal's arrival line is not its departure line
+  ok    a pin has to declare and earn its cost
+  ok    distribute linearly, ease each beat
+  ok    transformed elements are not measured with rects
+  ok    1920 is named as a required width
+  ok    no third-party JavaScript
+  ok    the composition rule cites its test
+  ok    the contrast rule cites its test
+  ok    the old system is named as replaced
+
+test 8: the corner and the second column's motion (roadmap 2.17)
+  ok    8a-i · theme.css: the corner check has subjects
+  ok    8a-ii · theme.css: every panel and inset corner is squircled
+  ok    8a-iii · theme.css: no pill, dot or circle is squircled
+  ok    8a-i · booking.css: the corner check has subjects
+  ok    8a-ii · booking.css: every panel and inset corner is squircled
+  ok    8a-iii · booking.css: no pill, dot or circle is squircled
+  ok    8a-i · landing.css: the corner check has subjects
+  ok    8a-ii · landing.css: every panel and inset corner is squircled
+  ok    8a-iii · landing.css: no pill, dot or circle is squircled
+  ok    8a-i · the reference page: the corner check has subjects
+  ok    8a-ii · the reference page: every panel and inset corner is squircled
+  ok    8a-iii · the reference page: no pill, dot or circle is squircled
+  ok    8b-i · the second column has an entrance
+  ok    8b-ii · and an exit
+  ok    8b-iii · both keyframes exist
+  ok    8b-iv · the second column opens at --t-exit, not --t-reveal
+  ok    8b-v · reduced motion switches both directions off
+  ok    8c-i · useLeaving's delay matches --t-exit
+  ok    8c-ii · RecordHost.jsx closes through useLeaving
+  ok    8c-ii · SettingsHost.jsx closes through useLeaving
+  ok    8c-ii · Calendar.jsx closes through useLeaving
+  ok    8d-i · the month's desk container does not depend on a day being open
+  ok    8d-ii · with nothing open the month takes the whole width
+  ok    8d-ii-b · and it does that with a 0px track, not display:block
+  ok    8d-iv · the month's own move is transitioned
+  ok    8d-v · and it starts back as the panel starts leaving
+  ok    8d-iii · no :has() is nested inside another :has()
+  ok    8e-i · the swap moves its PARTS, on the screen's own keyframe at exit speed
+  ok    8e-i-b · no rule targets the block itself, only its parts
+  ok    8e-ii · the rejected blur is gone and did not come back
+  ok    8e-iii · the swap does not fight the screen's arrival in the cascade
+  ok    8e-iv · Money.jsx: the period's figures is nested, not a .col-1 child
+  ok    8e-iv · Money.jsx: the period's context block is nested, not a .col-1 child
+  ok    8e-iv · Clients.jsx: the sorted list is nested, not a .col-1 child
+  ok    8e-iv · Team.jsx: a member's role editor is nested, not a .col-1 child
+  ok    8e-vii · the parts are staggered, eight beats deep before it caps
+  ok    8e-viii · the pinned action bar opts out of the swap
+  ok    8e-ix · the chart does not re-rise on a swap
+  ok    8e-v · reduced motion renders the end state
+  ok    8e-vi · RecordHost.jsx swaps its content (switching from one job to another)
+  ok    8e-vi · Money.jsx swaps its content (switching period)
+  ok    8e-vi · Clients.jsx swaps its content (re-sorting the list)
+  ok    8e-vi · Team.jsx swaps its content (opening a member's role editor)
+  ok    9a · reduced motion is live, not read once (a change listener exists)
+  ok    9a-ii · ?lite=1 outranks the media query (read once, into the toggle)
+  ok    9b · theme.css has no second reduced-motion implementation
+  ok    9b · booking.css has no second reduced-motion implementation
+  ok    9b · landing.css has no second reduced-motion implementation
+
+test 10: a layer that drifts is clipped, and overhangs by a length
+  ok    10a · the check has subjects — something drifts
+  ok    10b · the dot lattice is a frame at inset 0 that clips
+  ok    10c · and the pattern that moves is inside it
+  ok    10d · its overhang is a length, not a percentage
+  ok    10f · no negative horizontal inset is a percentage
+  ok    10e · and it covers the whole travel
+
+test 11: paper, and water and power in all three places
+  ok    11a · there is a print stylesheet at all
+  ok    11a-ii · and paper is white with dark ink
+  ok    11b · it does not hide every button element
+  ok    11b-ii · and a job row survives onto paper
+  ok    11c · theme.css does not reach into the landing page's chrome
+  ok    11c-ii · landing.css carries its own print block instead
+  ok    11d · motion is off on paper
+  ok    11d-ii · and the dark ground is never forced onto the page
+  ok    11e · the job record still says it
+  ok    11e-ii · the day-sheet row says it too
+  ok    11e-iii · and it leads the line, so truncation cannot eat it
+  ok    11f · and the owner's booking email carries it
+  ok    11f-ii · undefined means nobody was asked, and prints nothing
+  ok    11f-iii · the render fixture reaches the case
+
+97 passed, 0 failed
+✔ tests\composition.test.mjs (562.4895ms)
+== "The Thread" — tokens read from app/src/theme.css ==
+ok    17.22  bone / ink-0 (the ground)  (#F2F1EC on #0B0D0E, min 4.5)
+ok    16.34  bone / ink-1  (#F2F1EC on #111417, min 4.5)
+ok    15.32  bone / ink-2 (panel)  (#F2F1EC on #171B1E, min 4.5)
+ok    14.02  bone / ink-3 (highest surface)  (#F2F1EC on #1E2327, min 4.5)
+ok    12.77  bone-2 / ink-0  (#CFD2CE on #0B0D0E, min 4.5)
+ok    11.36  bone-2 / ink-2  (#CFD2CE on #171B1E, min 4.5)
+ok     6.97  fog / ink-0  (#939CA1 on #0B0D0E, min 4.5)
+ok     6.20  fog / ink-2  (#939CA1 on #171B1E, min 4.5)
+ok     5.16  fog-2 / ink-0 (10-13px labels)  (#7B858A on #0B0D0E, min 4.5)
+ok     4.59  fog-2 / ink-2 (10-13px labels)  (#7B858A on #171B1E, min 4.5)
+ok    11.32  accent / ink-0  (#38E08B on #0B0D0E, min 4.5)
+ok    10.07  accent / ink-2  (#38E08B on #171B1E, min 4.5)
+ok    15.63  paper-ink / paper  (#12161A on #EFEEE7, min 4.5)
+ok     5.61  paper-fog / paper  (#565F64 on #EFEEE7, min 4.5)
+ok     6.94  ac-deep / paper  (#0E5C36 on #EFEEE7, min 4.5)
+== booking page — DARK, restyled to "The Thread" in roadmap 2.1 ==
+ok           --bk-bg matches lib/theme.js BOOKING_BG (#0B0D0E)
+ok    17.22  ink / bg  (#F2F1EC on #0B0D0E, min 4.5)
+ok    15.32  ink / card  (#F2F1EC on #171B1E, min 4.5)
+ok    14.02  ink / lit (the selected card)  (#F2F1EC on #1E2327, min 4.5)
+ok    11.36  ink-2 / card  (#CFD2CE on #171B1E, min 4.5)
+ok     6.97  muted / bg  (#939CA1 on #0B0D0E, min 4.5)
+ok     6.61  muted / sunken (input placeholders)  (#939CA1 on #111417, min 4.5)
+ok     6.20  muted / card  (#939CA1 on #171B1E, min 4.5)
+ok     5.67  muted / lit  (#939CA1 on #1E2327, min 4.5)
+ok           --bk-danger matches docs/design-system.md --bad (#E2705F)
+ok     6.23  danger / bg  (#E2705F on #0B0D0E, min 4.5)
+ok     5.54  danger / card  (#E2705F on #171B1E, min 4.5)
+== landing page — restyled to "The Thread" in roadmap 2.2 ==
+ok           landing.css tokens match the system's values (13 compared)
+ok    17.22  bone / ink-0 (the ground)  (#F2F1EC on #0B0D0E, min 4.5)
+ok    16.34  bone / ink-1 (the last word)  (#F2F1EC on #111417, min 4.5)
+ok    14.02  bone / ink-3 (the lit card, the lead plan)  (#F2F1EC on #1E2327, min 4.5)
+ok    12.77  bone-2 / ink-0 (terms, questions)  (#CFD2CE on #0B0D0E, min 4.5)
+ok     6.97  fog / ink-0 (every lede)  (#939CA1 on #0B0D0E, min 4.5)
+ok     5.67  fog / ink-3 (the lit card's second line)  (#939CA1 on #1E2327, min 4.5)
+ok     5.16  fog-2 / ink-0 (10-13px labels)  (#7B858A on #0B0D0E, min 4.5)
+ok     4.59  fog-2 / ink-2 (10-13px labels on a panel)  (#7B858A on #171B1E, min 4.5)
+ok    11.32  accent / ink-0  (#38E08B on #0B0D0E, min 4.5)
+ok     9.21  accent / ink-3 (the founding flag)  (#38E08B on #1E2327, min 4.5)
+ok    17.24  button ink on bone (the primary call to action)  (#0A0D0F on #F2F1EC, min 4.5)
+ok    15.63  paper-ink / paper  (#12161A on #EFEEE7, min 4.5)
+ok     5.61  paper-fog / paper  (#565F64 on #EFEEE7, min 4.5)
+ok    15.63  paper / paper-ink (the lit comparison row)  (#EFEEE7 on #12161A, min 4.5)
+ok     6.94  ac-deep / paper (the tick dots, non-text)  (#0E5C36 on #EFEEE7, min 3)
+
+all pairs pass
+✔ tests\design-contrast.test.mjs (89.5317ms)
+▶ every open item in ROADMAP.md is citable
+  ✔ 0 · the check has subjects (0.8995ms)
+  ✔ 1 · every open item has an identifier (0.8955ms)
+  ✔ 2 · no two open items share an identifier (0.2309ms)
+  ✔ 3 · the overlap with the old roadmap is the declared one (4.8986ms)
+  ✔ 4 · the canary is wired and says so (0.1748ms)
+✔ every open item in ROADMAP.md is citable (23.1698ms)
+test 1: every number comes from the config
+  ok    1a-0 · the slice HAS subjects
+  ok    no hardcoded prices in the pricing section
+  ok    the page imports the config
+  ok    every figure comes from the live table, not the file
+  ok    the annual saving is computed, not typed
+  ok    the annual saving is a whole number of months
+  ok    the annual discount is inside the 15-20% band the category uses
+
+test 2: the founding offer is counted, not declared
+  ok    pricing.js carries no spot count
+  ok    the page asks the server for the offer
+  ok    the API calls the counting function
+  ok    a failed lookup closes the offer
+  ok    the guard requires a positive remaining count
+  ok    every visitor-facing founding line sits inside the guard
+
+test 3: the count is safe to expose
+  ok    the function is security definer
+  ok    it returns counts, not rows
+  ok    anonymous visitors may call it
+  ok    the underlying settings table is not granted
+
+test 4: the copy stays plain and true
+  ok    no urgency theater or SaaS-speak
+  ok    any struck price is the real list price, from config
+  ok    no struck literal numbers anywhere
+  ok    the struck price only renders under the offer guard
+  ok    no unearned free-trial promise
+
+test 5: the pricing page reads every figure from the config
+  ok    5a · the page slice HAS subjects
+  ok    5b · no hardcoded prices anywhere on it
+  ok    5c · it imports the config
+  ok    5c-ii · and reads the live table everywhere, not the file
+  ok    5d · the term comes from the config
+  ok    5e · the exit fee comes from the config
+
+test 6: the ladder's RULES, not its figures
+  ok    6a · list: the annual saving is a whole number of months
+  ok    6b · list: the annual discount is inside the 15-20% band
+  ok    6c · list: month-to-month's premium is inside the 20-30% band
+  ok    6d · list: the ladder is in order — up front cheapest, m2m dearest
+  ok    6a · founding: the annual saving is a whole number of months
+  ok    6b · founding: the annual discount is inside the 15-20% band
+  ok    6c · founding: month-to-month's premium is inside the 20-30% band
+  ok    6d · founding: the ladder is in order — up front cheapest, m2m dearest
+  ok    6e · founding setup is genuinely below the list price
+  ok    6e · founding monthly is genuinely below the list price
+  ok    6e · founding annual is genuinely below the list price
+  ok    6e · founding monthToMonth is genuinely below the list price
+
+test 6b: the founding saving is VISIBLE, not only stated
+  ok    6b-i · the page strikes a list price at all
+  ok    6b-ii · every struck price is a real list figure from the config
+  ok    6b-iii · nothing struck is a literal number
+  ok    6b-iv · every strike is behind the founding guard
+  ok    6b-v · the annual rung shows what it is discounted from
+  ok    6b-v · the monthly rung shows what it is discounted from
+  ok    6b-v · the monthToMonth rung shows what it is discounted from
+
+test 7: the AB 2863 disclosures are on the page
+  ok    7a-0 · the disclosure list HAS subjects
+  ok    7a · the page states auto-renewal
+  ok    7a · the page states the renewal frequency
+  ok    7a · the page states what will be charged
+  ok    7a · the page states the commitment
+  ok    7a · the page states the early-exit fee
+  ok    7a · the page states how to cancel
+  ok    7a · the page states that cancelling is one button
+  ok    7a · the page states that the build fee is separate
+  ok    7a · the page states what a failed payment costs
+  ok    7b-i · no pre-selected control
+  ok    7b-ii · no selection state that could be defaulted
+  ok    7b-iii · no recommendation badge
+  ok    7c · the terms are not set in the fine-print ramp
+
+test 8: the plan buttons lead to the pricing page
+  ok    8a · /pricing is a served route
+  ok    8b · no landing-page button goes straight to the signup form
+  ok    8c · the landing page points at /pricing
+  ok    8d · sign in still goes to the app
+  ok    8e · the landing page: no reveal sits on a node the offer lookup adds
+  ok    8e · the pricing page: no reveal sits on a node the offer lookup adds
+
+test 9: the founding count ignores demo businesses
+  ok    9a · the count has a definition to read
+  ok    9b · the remaining count ignores demos
+  ok    9c · and so does the claim, or the page offers a spot the claim refuses
+  ok    9d · the seeded demo says it is one
+  ok    9e · and is still founding, so the struck prices stay the swept state
+
+test 10: the two documents and the support line
+  ok    10a · both routes exist and are public
+  ok    10b · the support address matches the one the emails send from
+  ok    10c · and so does the phone number
+  ok    10b-i · the privacy page says we can see it
+  ok    10b-ii · and says plainly that nothing is sold
+  ok    10b-iii · it comes straight after the customers paragraph
+  ok    10d · the footer carries the support policy and both documents
+  ok    10e · and the line says how long an answer takes
+  ok    10f · both pages say a lawyer has not seen this yet, at the TOP
+  ok    10g · nothing is invented that nobody has decided
+  ok    10i · the dashboard carries it too, where a stuck detailer is
+  ok    10j · and reads it from the one home, not a second copy
+  ok    10h · the terms restate the printed promises rather than new ones
+  ok    10k · no emphasis markup reaches the reader
+  ok    10l · and nothing is dropped on the way
+  ok    10m · both pages name a legal person and an effective date
+  ok    10n · the privacy page covers Google sign-in and Limited Use
+
+test 11: the page describes itself
+  ok    11a · there is a description at all
+  ok    11b · and Open Graph, so a shared link is a card rather than a URL
+  ok    11c · og:url is absolute
+  ok    11d · the card type matches whether there is an image
+  ok    11e · no SaaS-speak in the metadata either
+  ok    11f · the website leads, as the positioning says
+
+test 11: a phone can reach the nav
+  ok    11a · there is a menu button
+  ok    11b · and it carries the three links the pill drops
+  ok    11c · Sign up is NOT hidden behind the menu
+  ok    11d · the open state is a class, not the hidden attribute alone
+  ok    11e · the button only exists once the links are gone
+
+9. no price is shown before it is known (roadmap 8.7, F-009)
+  ok    9a · the page knows whether it has an answer yet
+  ok    9a-ii · and a figure holds its space until it does
+  ok    9a-iii · written as an escape, not as an invisible character
+  ok    9b · the check has subjects — the ladder does print figures
+  ok    9b-ii · and every one of them goes through fig()
+  ok    9b-iii · including the build fee
+  ok    9c · it declares itself loading until the answer is in
+
+the gutter: nothing un-centres a .wrap
+  ok    no rule sets a margin shorthand on a class that also carries `wrap`
+  ok    `.legal` is defined once, by the page that owns it
+  ok    7.3 the three rules exist
+  ok    7.3 (c) the saving is the fine print's size
+  ok    7.3 (c) the saving is regular weight and the price figure is not
+  ok    7.3 (b) the standalone saving figure is gone
+  ok    7.3 (b) both savings are written as (save $N) inside .saving
+  ok    7.3 (d) the payment choice is inside the plan-one card
+
+115 passed, 0 failed
+✔ tests\landing-pricing.test.mjs (126.7955ms)
+1. the scan has subjects
+  ok   1a it found at least 120 tracked markdown files
+  ok   1a2 it found at least 600 tracked text files in all
+  ok   1a3 every extension 14.25 names is in the population
+  ok   1a4 no tracked file was unreadable (a skipped file reads as a clean one)
+  ok   1b it read a plausible number of lines
+
+2. every rule still fires on an invented example
+  ok   2a-pair fires
+  ok   2a-assignment fires
+  ok   2a-prefix fires
+  ok   2a-jwt fires
+  ok   2a-longhex fires
+  ok   2a-worddigits fires
+  ok   2b a redacted line is NOT a finding
+  ok   2c an env var NAME is not a value
+  ok   2d the allowlist is EXACTLY the declared size, not merely under a cap
+  ok   2e plant in plant.mjs goes RED and names its line
+  ok   2e plant in plant.json goes RED and names its line
+  ok   2e plant in plant.yml goes RED and names its line
+  ok   2f plants removed: nothing left to find
+
+3. no tracked text file carries a credential
+  ok   3a no undeclared findings
+  ok   3b every declared exception still holds EXACTLY (remove a line when its hit is fixed)
+
+   1454 files (176 markdown) · 489322 lines · 6 rules · 5 finding(s) · 5 declared
+
+20 passed, 0 failed
+✔ tests\no-credentials-in-tracked-text.test.mjs (1476.235ms)
+  ok    0 · the two sources were actually read, and routes were found
+routes served: /, /pricing, /terms, /privacy, /reset, /book/:slug, /book/:slug/plans, /booking/:id, /plan/:memberId, /unsubscribe/:customerId, /admin, /preview, /invite/:token, /job/:id, /website, /website/preview, /settings/payments/connected, /app, *
+
+test 1: the routes the emails point at exist
+  ok    router serves /book/:slug
+  ok    router serves /booking/:id
+  ok    router still has a catch-all
+  ok    the landing page owns /
+  ok    the dashboard lives at /app and its tabs
+
+test 2: config.ts builds those exact paths
+  ok    businessSiteUrl builds /book/{slug}
+  ok    receiptUrl builds /booking/{bookingId}
+  ok    the site URL's path is a served route
+  ok    the receipt URL's path is a served route
+  ok    every builder reduces to a path, so the checks above have subjects
+  ok    planUrl builds /plan/{memberId}
+  ok    plansUrl builds /book/{slug}/plans
+  ok    router serves the plan member page
+  ok    router serves the plans page
+  ok    unsubscribeUrl builds /unsubscribe/{customerId}
+  ok    router serves the opt-out page
+
+test 3: the platform URL is overridable per deployment
+  ok    PLATFORM_URL reads the environment
+  ok    it has a default so local dev still works
+  ok    a trailing slash cannot double up
+  ok    the from-address is not derived from PLATFORM_URL
+
+test 4: the public routes sit outside the owner's session context
+  ok    /book/:slug is not wrapped in the session provider
+  ok    /booking/:id is not wrapped in the session provider
+  ok    /plan/:memberId is not wrapped in the session provider
+  ok    /book/:slug/plans is not wrapped in the session provider
+  ok    /unsubscribe/:customerId is not wrapped in the session provider
+  ok    the dashboard at /app IS wrapped
+  ok    and so is every tab route
+  ok    the 404 page is NOT wrapped in the session provider
+  ok    the landing page is not wrapped in the session provider
+
+the example-page rewrites
+  ok    the catch-all is still there
+  ok    every example path is rewritten to its own index.html
+  ok    and every one of them sits ABOVE the catch-all
+  ok    and no /exampleN rewrite came back
+
+34 passed, 0 failed
+✔ tests\route-contract.test.mjs (94.411ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1512.9402

@@ -1,0 +1,151 @@
+
+   FIGURES ACCOUNTED FOR — 5 documents, each declared separately
+     VERIFIED         0  command ran, output equals the figure
+     PINNED          34  command + a revision that resolves (NOT verified)
+     ACCOUNTED       92  names why it cannot be re-taken
+     BARE           104
+     UNJUDGEABLE     26  reported, never passed
+     bad revisions   41
+     half-pinned     12  still BARE; one edit from pinned
+     (canary: on)
+
+     per document            found/floor      bare/declared
+       open-items-read-as-a-stranger-2026-09-    112/90      97/97    87% bare
+       ticked-without-proof-2026-09-25.md         66/30       0/0     0% bare
+       silences.md                                40/20       6/0     15% bare
+       PROJECT-STATE.md                           11/8        0/0     0% bare
+       FOR-ANDREW.md                            out of scope (prose) - figures here are not scanned, so 0 means nothing was read
+     BARE in silences.md:
+       27 **31**  | figures in this file's tables | **31** | `node --test tests/figures-carry-thei
+       28 **0**  | carrying a command **and** a revision | **0** | `node --test tests/figures-car
+       30 **29**  | figure-bearing rows | **29** | `node --test tests/figures-carry-their-command.
+       31 **1**  | of those, carrying a command | **1** | `node --test tests/figures-carry-their-
+       32 **2**  | of those, carrying a revision | **2** | `node --test tests/figures-carry-their
+       33 **0**  | carrying **both** | **0** | `node --test tests/figures-carry-their-command.tes
+
+   UNJUDGEABLE — 26, listed so they are not mistaken for passes:
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1256 **16** names supabase/functions/_shared/emailTemplates.ts, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1257 **1** carries a command this file cannot judge (truncated, or it ran and matched nothing)
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1265 **2** carries a command this file cannot judge (truncated, or it ran and matched nothing)
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1689 **534** names tests/sweep-methods-are-pinned.test.mjs, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1808 **36** names tests/sweep-methods-are-pinned.test.mjs, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1809 **247** names tests/sweep-methods-are-pinned.test.mjs, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1809 **274** names tests/sweep-methods-are-pinned.test.mjs, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:1912 **0** names app/src/landing/LegalPage.jsx, which is not a tracked file
+     docs/open-items-read-as-a-stranger-2026-09-25.md:2143 **91** names docs/gotchas.md, which is not a tracked file
+     docs/ticked-without-proof-2026-09-25.md:662 **0** names scripts/sweep-tap-targets.mjs, which is not a tracked file
+     docs/ticked-without-proof-2026-09-25.md:663 **0** names scripts/lib/tapProbe.mjs, which is not a tracked file
+     docs/ticked-without-proof-2026-09-25.md:664 **18** names app/src, which is not a tracked file
+▶ every recorded figure carries its command or names why it cannot
+  ✔ 1 · EVERY document cleared its OWN discovery floor (1.0281ms)
+  ✔ 2 · REPORT — the five buckets, and UNJUDGEABLE is never folded into pass (1.3175ms)
+  ✖ 3 · no cited revision is fabricated (1.1366ms)
+  ✖ 4 · NO document's bare count has grown — asserted per document, never as a total (0.2725ms)
+  ✔ 4a · no declaration carries SLACK — it must equal reality, not merely cap it (0.1509ms)
+  ✔ 5 · the canary is injected on every run and lands in BARE (0.1053ms)
+  ✔ 7 · a document that finds no figures SAYS why, never a silent 0 (ROADMAP 14.32) (0.1233ms)
+  ✔ 6 · UNJUDGEABLE is surfaced by name, not counted as passing (0.1817ms)
+✖ every recorded figure carries its command or names why it cannot (93.6207ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 6
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.6952
+
+✖ failing tests:
+
+test at tests\figures-carry-their-command.test.mjs:424:11
+✖ 3 · no cited revision is fabricated (1.1366ms)
+  AssertionError [ERR_ASSERTION]: a figure cites a revision that does not resolve. A fabricated sha is the cheapest possible fake annotation, which is why it is its own failure.
+  + actual - expected
+  
+  + [
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1256 cites d850a97, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1256 cites d9ca0f8, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1689 cites 3398470, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1808 cites 3f2ca08, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1808 cites 3398470, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1809 cites 3398470, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:1809 cites 3f2ca08, which does not resolve',
+  +   'docs/open-items-read-as-a-stranger-2026-09-25.md:2497 cites 23199db, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:28 cites 07ea4b8, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:28 cites 8b1e4e7, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:29 cites 07ea4b8, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:662 cites df200a7, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:663 cites df200a7, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:664 cites df200a7, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:918 cites 58349d9, which does not resolve',
+  +   'docs/ticked-without-proof-2026-09-25.md:1358 cites dca4c37, which does not resolve',
+  +   'docs/silences.md:27 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:28 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:30 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:31 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:32 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:33 cites 9901b16, which does not resolve',
+  +   'docs/silences.md:154 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:155 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:156 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:157 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:160 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:161 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:162 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:218 cites c024f89, which does not resolve',
+  +   'docs/silences.md:219 cites f2dc0fc, which does not resolve',
+  +   'docs/silences.md:220 cites 8ae32e4, which does not resolve',
+  +   'docs/silences.md:220 cites 8ae32e4, which does not resolve',
+  +   'docs/silences.md:220 cites c024f89, which does not resolve',
+  +   'docs/silences.md:220 cites f2dc0fc, which does not resolve',
+  +   'docs/silences.md:246 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:248 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:704 cites 30b7804, which does not resolve',
+  +   'docs/silences.md:1284 cites 30b7804, which does not resolve',
+  +   'PROJECT-STATE.md:1999 cites d3a9170, which does not resolve',
+  +   'PROJECT-STATE.md:2842 cites d3a9170, which does not resolve'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/detailing-platform/tests/figures-carry-their-command.test.mjs:425:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at TestContext.test (node:internal/test_runner/test:399:20)
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/detailing-platform/tests/figures-carry-their-command.test.mjs:424:11)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'docs/open-items-read-as-a-stranger-2026-09-25.md:1256 cites d850a97, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1256 cites d9ca0f8, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1689 cites 3398470, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1808 cites 3f2ca08, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1808 cites 3398470, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1809 cites 3398470, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:1809 cites 3f2ca08, which does not resolve', 'docs/open-items-read-as-a-stranger-2026-09-25.md:2497 cites 23199db, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:28 cites 07ea4b8, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:28 cites 8b1e4e7, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:29 cites 07ea4b8, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:662 cites df200a7, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:663 cites df200a7, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:664 cites df200a7, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:918 cites 58349d9, which does not resolve', 'docs/ticked-without-proof-2026-09-25.md:1358 cites dca4c37, which does not resolve', 'docs/silences.md:27 cites 9901b16, which does not resolve', 'docs/silences.md:28 cites 9901b16, which does not resolve', 'docs/silences.md:30 cites 9901b16, which does not resolve', 'docs/silences.md:31 cites 9901b16, which does not resolve', 'docs/silences.md:32 cites 9901b16, which does not resolve', 'docs/silences.md:33 cites 9901b16, which does not resolve', 'docs/silences.md:154 cites 30b7804, which does not resolve', 'docs/silences.md:155 cites 30b7804, which does not resolve', 'docs/silences.md:156 cites 30b7804, which does not resolve', 'docs/silences.md:157 cites 30b7804, which does not resolve', 'docs/silences.md:160 cites 30b7804, which does not resolve', 'docs/silences.md:161 cites 30b7804, which does not resolve', 'docs/silences.md:162 cites 30b7804, which does not resolve', 'docs/silences.md:218 cites c024f89, which does not resolve', 'docs/silences.md:219 cites f2dc0fc, which does not resolve', 'docs/silences.md:220 cites 8ae32e4, which does not resolve', 'docs/silences.md:220 cites 8ae32e4, which does not resolve', 'docs/silences.md:220 cites c024f89, which does not resolve', 'docs/silences.md:220 cites f2dc0fc, which does not resolve', 'docs/silences.md:246 cites 30b7804, which does not resolve', 'docs/silences.md:248 cites 30b7804, which does not resolve', 'docs/silences.md:704 cites 30b7804, which does not resolve', 'docs/silences.md:1284 cites 30b7804, which does not resolve', 'PROJECT-STATE.md:1999 cites d3a9170, which does not resolve', 'PROJECT-STATE.md:2842 cites d3a9170, which does not resolve' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\figures-carry-their-command.test.mjs:432:11
+✖ 4 · NO document's bare count has grown — asserted per document, never as a total (0.2725ms)
+  AssertionError [ERR_ASSERTION]: a document's bare count grew. A figure with no command, no revision and no stated reason is a memory (gotchas 94). These are inherited debt and the check's job is to stop one more: pin the new figure, or state why it cannot be re-taken. Raising a declared number needs a sentence saying why, in the same edit.
+    **Asserted PER DOCUMENT rather than as a total, because a single total lets a rise in one file hide behind a fall in another** — pin six here, let seven go bare there, and the total improves while the repo gets worse.
+  + actual - expected
+  
+  + [
+  +   'docs/silences.md: 6 bare, declared 0 (+6)'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/detailing-platform/tests/figures-carry-their-command.test.mjs:437:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at TestContext.test (node:internal/test_runner/test:399:20)
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/detailing-platform/tests/figures-carry-their-command.test.mjs:432:11)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'docs/silences.md: 6 bare, declared 0 (+6)' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

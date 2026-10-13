@@ -1,9 +1,9 @@
 {
-  "git_sha": "37daa522cca72b12b097d0ef6a2215b37ed9a6e3",
-  "git_sha_started": "37daa522cca72b12b097d0ef6a2215b37ed9a6e3",
+  "git_sha": "bf08d943c0c1bf9116b572f585814150e15fde12",
+  "git_sha_started": "bf08d943c0c1bf9116b572f585814150e15fde12",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T08:42:12.153Z",
+  "finished_at": "2026-10-13T09:18:51.148Z",
   "failures": [],
   "warnings": [
     "This proves the local policy and regression detector, not the live Cloudflare deployment or gallery screen's row-only deletion."
@@ -16,7 +16,7 @@
     "transport": "in-memory origin, edge cache and Cloudflare API; real production handler and adapter"
   },
   "check_id": "media-cache-delete",
-  "started_at": "2026-10-13T08:42:12.067Z",
+  "started_at": "2026-10-13T09:18:51.042Z",
   "status": "pass",
   "expected_targets": 13,
   "discovered_targets": 13,

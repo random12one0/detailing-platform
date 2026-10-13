@@ -354,6 +354,7 @@ were made more than once.
 - **Supervision 2026-10-13 (eighth): the trigger was Andrew, not the belt, and no belt change** — the "3 items in a row did not pass" call was two hand-kills plus a STOP he asked for (99.6, 9.15a, 3.4f: zero commits, zero ticks moved, product untouched), so there is no routing, gate, or cadence fault to fix and none was made; the open 99.5 alert was already adjudicated by the seventh pass, corroborated here (main-tree `scripts/booking-consent.mjs` already exercises 844x390 in ALL_VIEWS, and `booking-consent-halfwidth` appears nowhere on main — the reviewer's finding is branch-local to an unmerged practice copy); the two supervisor proposal diffs (258KB, belt.mjs/lib.mjs/config/ui.html) were left unapplied as too big to judge sound in one pass; belt process alive with KEEP-RUNNING set, and a FOR-ANDREW row asks whether the hand-kills mean park it.
 - **Supervision 2026-10-13 (ninth): the empty queue was the test set ending, and no belt change** — the NOTHING WORKABLE came from the test-set-finish path (empty without a shortlist), while a read-only shortlist over HEAD gives 59 eligible / 43 ready with about twenty playable after shelf and skips, so the belt resumes on its own; the 2.1 practice branch's citable 14 to 13 is a fair fix under its own procedure (no breakage, answering the test-set report), 2.1a stays ticked with its disclosed criterion, and 99.5 stays ticked on a live 76/76 re-proof; new defect 99.11 (one consent screenshot filed under three state names).
 
+- **Supervision 2026-10-13 (tenth)** — CORS and consent reproduced; cache deletion stays open; fair held test edits, whole-suite baseline corrected; Gallery removal and preview translations queued; belt labels dispatches honestly.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19051,3 +19052,37 @@ On the call reason ("the belt found nothing workable"): not confirmed as a state
 On the finished 2.1 practice branch (gate-regression, ticked, review OK after fixes): its citable 14→13 move is a fair fix — the seventh deliberate move under that constant's own documented procedure, the failure named the departed, and main already holds 13 for the same cause with the suite green. That answers the test-set report's "one broken check needs investigation before trusting Muse on money work": there was no breakage. 2.1a stays ticked on main: the entry already discloses the criterion unmet as worded (the authorized 31-function batch was Andrew's catch-up, not a session's), and the branch's untick would mint a permanently open item with no work remaining. One caution from the report stands: 3.1c's second attempt ticked with 2 steps and zero tool calls — a tick with no evidence, harmless on an unmerged branch, but test-set wins should require a receipt or commits before they count.
 
 New defect filed as 99.11: the consent check photographs once per view (`booking-consent.mjs:181`, before the choice interaction) and files the capture under three state names — proved by hash, three 1440 files sharing one SHA-256. 99.5's tick stands (the assertions exercise the states); only the illustrations are mislabeled. **What would reverse it:** a real-cycle shortlist coming back empty, a practice branch merged with its tick, or Andrew answering the park question.
+
+## Supervision 2026-10-13 (tenth)
+
+Git, not dispatch totals, defines the audit scope. Since 5a37198c, only 0.11ca
+became newly checked on main; the Muse practice ticks were not merged. The
+trigger's six is six completed dispatches, including progress and held runs.
+Keep the cadence and model routing: neither is disproved by this pass. Change
+the trigger text from "items done" to "item runs completed" without changing
+its counter or picking logic. Add one task-template instruction requiring a
+numbered follow-up for a discovered product defect outside the worker's scope.
+0.11bd documented Gallery's row-only removal in prose, leaving it invisible
+to the dispatcher; 0.11be now owns it.
+
+0.11ca's effect reproduces in anonymous preflights and real Chromium at both
+widths. Its function-secret presence criterion is historical name-only evidence
+in photo-release-order.json, not a new credentialed query. 99.5's current main
+flow was also replayed, including Spanish, incomplete input and save retry.
+The screenshot-state defect already has 99.11; do not duplicate it. 0.11bd's
+local purge policy passes and its original-deletion sabotage fails; its live
+receipt remains red and is not upgraded by a local run.
+
+The held support-test edits broaden coverage to unlocked sessions and include
+the later Google table; local PostgreSQL and helper sabotages support accepting
+those edits. The product branch stays separate pending 4.3e's translation and
+browser repair. 4.3b's small test repair is applied locally: it follows the
+current office history and adds a missing-unknown-action canary. The full suite
+still fails; its existing 99.3b-ii part-2 repair is split out as 98.4 so the
+dispatcher can target it directly; this is not a green suite claim. The Muse
+2.1 collision constant also fairly follows a closure, documented in its diff;
+that practice branch remains unmerged. No live row, secret, publication or
+database structure was touched. Evidence and commands are in
+docs/supervision-2026-10-13.md. Reverse these judgments if a repaired assertion
+passes with its named behavior removed, or a saved branch is mistaken for a
+live release.

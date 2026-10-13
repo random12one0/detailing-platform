@@ -63,8 +63,10 @@ reproduces it at phone and desktop widths: the original URL remains `200 HIT`
 after the deployed door says it removed the file; a separate origin read is 404.
 Cached deletion with the new fix is still unproved and the box is open.
 After setup and your publish, a session repeats the real warmed-URL check.
-These are server checks; the existing gallery button's row-only deletion is
-named separately in the setup document and was not changed by this item.
+These are server checks. ROADMAP 0.11be separately repairs the Gallery Remove
+button, which currently deletes only the row. Recommendation: require that
+button's browser proof as well as the cache proof before calling gallery
+removal complete; the session can build it while this account setup waits.
 
 ## DO, AT YOUR NEXT RELEASE · Bring the server up to the saved code (ROADMAP 98.2)
 

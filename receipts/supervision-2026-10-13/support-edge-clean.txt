@@ -1,0 +1,64 @@
+  ok    session id is read from the token
+  ok    a token with no session id is not a support session (and the marker is not asked)
+  ok    a listed session IS a support session
+  ok    the owner's own session (not listed) is NOT a support session
+  ok    a marker read that fails counts as a support session (fails closed)
+  ok    no marker table at all (migration not yet applied) is not a support session
+  ok    4.3c (a): an UNLOCKED preview is not refused as read-only
+  ok    4.3c (a): but it is still a preview session when asked evenWhenWorking
+  ok    4.3c (a): a marker with no `working` field (unlock migration not applied) stays locked
+  ok    preview_mode work: logs preview_work for the opener and this business, THEN unlocks
+  ok    preview_mode look: logs preview_look, THEN locks again
+  ok    preview_mode: an audit row that did not land stops it, and the lock does not move
+  ok    preview_mode: an opener who is no longer a platform admin is refused, nothing logged or moved
+  ok    preview_mode: the owner's own session (no marker) gets the gate's 404
+  ok    preview_mode: a token with no session id gets 404
+  ok    preview_mode: a marker read that fails changes nothing
+  ok    requireMember refuses a support session before reading membership
+  ok    discovered exactly 22 user-authenticating functions
+  ok    booking-ics: requireMember, opted in as read-only
+  ok    connect-account: requireMember, refused by default
+  ok    create-booking: requireMember, refused by default
+  ok    create-business: own getUser + supportSession
+  ok    delete-customer: requireMember, refused by default
+  ok    forecast: requireMember, opted in as read-only
+  ok    google-business: requireMember, refused by default
+  ok    invite-user: requireMember, refused by default
+  ok    owner-push-subscribe: requireMember, refused by default
+  ok    owner-push-unsubscribe: requireMember, refused by default
+  ok    photo-door: requireMember via photoDoor (urls only)
+  ok    platform-admin: own getUser + supportSession
+  ok    platform-billing: requireMember, refused by default
+  ok    preview-emails: requireMember, opted in as read-only
+  ok    report-problem: requireMember, refused by default
+  ok    respond-to-booking: requireMember, refused by default
+  ok    send-campaign: requireMember, refused by default
+  ok    send-invoice: requireMember, refused by default
+  ok    send-owner-reminders: requireMember, refused by default
+  ok    translate-content: requireMember, refused by default
+  ok    update-booking: requireMember, refused by default
+  ok    verify-domain: requireMember, refused by default
+  ok    the functions that may serve a support session are exactly the recorded read-only list
+  ok    photo-door lets a support session through for `urls` only
+  ok    preview_mode is answered before the admin gate
+  ok    preview_mode verifies the token (getUser) before asking anything
+  ok    the admin gate refuses a preview session even once unlocked
+  ok    create-business refuses a preview session even once unlocked
+  ok    the marker lookup reads `*`, so a missing `working` column cannot refuse every detailer
+  ok    impersonate exchanges the link on a fresh client, not the shared service-role one
+  ok    impersonate refuses when the token carries no session id
+  ok    the marker is written before the tokens are returned
+  ok    a marker that did not land ends the session and hands nothing over
+  ok    the audit row is still written before the link is made
+  ok    the preview door takes the server's session with setSession
+  ok    the browser guard also covers auth.updateUser in a preview tab
+  ok    canary: an unguarded getUser function is caught
+✔ 4.3c · edge functions refuse a read-only support session; the owner's own session passes (65.8256ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.2973
