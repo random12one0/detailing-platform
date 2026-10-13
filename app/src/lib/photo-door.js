@@ -92,8 +92,8 @@
 //     There is no `finish` (nothing to record) and no `urls` (the bucket is
 //     public-read, so there is nothing to sign). Both answer in words.
 //
-// **BOTH ARE BEHIND A FLAG IN THIS FILE AND BOTH ARE OFF** —
-// `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR`, each with its reason beside it.
+// Both stores use the published door. The flags remain explicit release
+// switches; neither path falls back when the door refuses an upload.
 // Job photos have no flag because they never had a working path to lose.
 // ---------------------------------------------------------------------------
 
@@ -123,7 +123,9 @@ export const DOOR = "photo-door";
 // working feature and break it on the next push, before the function Andrew
 // has not published yet. Same destination, different starting state, so a
 // different switch.
-export const RECEIPTS_VIA_DOOR = false;
+// ON since 2026-10-13 (ROADMAP 0.11cc): the deployed door retains JWT
+// verification, the reconcile cron is installed, and photo_total_gb is 10.
+export const RECEIPTS_VIA_DOOR = true;
 
 // ── ROADMAP 0.11 SLICE 4 — THE PUBLIC IMAGES FLAG ───────────────────────────
 // **FLIP THIS TO `true` ONCE `photo-door` IS PUBLISHED *AND* `business-media`
