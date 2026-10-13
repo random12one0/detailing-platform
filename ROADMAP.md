@@ -13291,6 +13291,8 @@ requested.
   - The chosen design identifies every write path requiring protection, including security-definer functions.
 
 - [ ] **4.3b — Make account audit history include previously orphaned events**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/platform-admin.test.mjs.
+  The work is safe on branch `belt/4.3b-20261013091259`. Answer "merge it" to keep it, or say what to change.
   **BUILT 2026-10-10, NOT TICKED: the code is on disk and not running.** `platform-admin`'s `get` now reads the history
   with `business_id = this id` OR (`business_id` is null AND `business_name` = this name), after the business row is
   read; the name is quoted for PostgREST. The name arm is limited to null-id rows so a second business with the same
