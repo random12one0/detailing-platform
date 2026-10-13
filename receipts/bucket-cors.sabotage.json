@@ -1,0 +1,49 @@
+{
+  "git_sha": "baaba472b520700a99700122f7cfb68cb73b04af",
+  "git_sha_started": "baaba472b520700a99700122f7cfb68cb73b04af",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T09:11:29.541Z",
+  "failures": [
+    "job-photos PUT from https://evil.example → expect allow: status 403",
+    "expense-receipts PUT from https://evil.example → expect allow: status 403",
+    "business-media PUT from https://evil.example → expect allow: status 403",
+    "browser 1440px job-photos PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader",
+    "browser 1440px expense-receipts PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader",
+    "browser 1440px business-media PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader",
+    "browser 392px job-photos PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader",
+    "browser 392px expense-receipts PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader",
+    "browser 392px business-media PUT from https://evil.example → expect allow: corsError PreflightMissingAllowOriginHeader"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/bucket-cors.sabotage.txt"
+  ],
+  "dimensions": {
+    "preflights": 64,
+    "allow_cases": 45,
+    "refuse_cases": 19,
+    "browser_cases": 12,
+    "widths": [
+      1440,
+      392
+    ],
+    "origins_derived": 6,
+    "buckets_derived": 3,
+    "break": "foreign-allowed"
+  },
+  "check_id": "bucket-cors",
+  "started_at": "2026-10-13T09:11:12.367Z",
+  "status": "fail",
+  "expected_targets": 76,
+  "discovered_targets": 76,
+  "attempted_targets": 76,
+  "completed_targets": 76,
+  "skipped_targets": 0,
+  "assertions_executed": 77,
+  "min_assertions": 64,
+  "canary": {
+    "id": "nonexistent-bucket-judged-allow",
+    "observed_failure": true
+  }
+}

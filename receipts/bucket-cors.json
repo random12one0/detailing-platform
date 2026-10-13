@@ -1,0 +1,39 @@
+{
+  "git_sha": "baaba472b520700a99700122f7cfb68cb73b04af",
+  "git_sha_started": "baaba472b520700a99700122f7cfb68cb73b04af",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T09:11:47.042Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/bucket-cors.txt"
+  ],
+  "dimensions": {
+    "preflights": 64,
+    "allow_cases": 42,
+    "refuse_cases": 22,
+    "browser_cases": 12,
+    "widths": [
+      1440,
+      392
+    ],
+    "origins_derived": 6,
+    "buckets_derived": 3,
+    "break": null
+  },
+  "check_id": "bucket-cors",
+  "started_at": "2026-10-13T09:11:29.876Z",
+  "status": "pass",
+  "expected_targets": 76,
+  "discovered_targets": 76,
+  "attempted_targets": 76,
+  "completed_targets": 76,
+  "skipped_targets": 0,
+  "assertions_executed": 77,
+  "min_assertions": 64,
+  "canary": {
+    "id": "nonexistent-bucket-judged-allow",
+    "observed_failure": true
+  }
+}
