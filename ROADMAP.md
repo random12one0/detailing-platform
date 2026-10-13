@@ -1428,7 +1428,7 @@ and how the wait ends.
   `removed: true`; retry purges even when the origin is already absent.
   No upload/CORS change, no migration, no app flag change. Product commit
   `0c9dbaab`; repeatable live check and its tightened discovery are committed
-  through `fe19bebb`. Setup and commands: `docs/media-cache-deletion.md`.
+  through `082c5aff`. Setup and commands: `docs/media-cache-deletion.md`.
 
   Local proof: `node scripts/media-cache-delete.mjs` discovers **13 of 13**
   scenario groups; clean receipt passes. `--break=no-purge` removes the actual
@@ -1438,14 +1438,21 @@ and how the wait ends.
   Their text artifacts and the JSON receipts are committed beside this entry.
 
   Live proof: `node --env-file=.env scripts/media-cache-delete-live.mjs`
-  discovers **4 of 4**, completes **2 of 4**; it is a FAILURE, not a pass.
+  discovers **4 of 4**, completes **4 of 4**; it is a FAILURE, not a pass.
   At 392 and 1440 the real browser PUT succeeds, an anonymous read returns
   the uploaded bytes, a foreign-business key is refused 404, and the consoles
-  have no errors or warnings. Reads then return `200 REVALIDATED`, never the
-  required `200 HIT`; the check refuses to judge cached deletion. Test
-  objects were removed through the deployed door; no database rows written.
-  The live `--break=cached-read` run also completes **2 of 4**, so its forced
-  stale answer was NOT reached or certified. Both live receipts remain red.
+  have no errors or warnings. To force the original cached-read condition,
+  each disposable PNG is PUT again with `Cache-Control: public, max-age=300`;
+  this changes only test-object metadata, never the bucket/domain settings.
+  Each public URL then returns a real `200 HIT` before deletion. The old
+  deployed door confirms removal but the SAME anonymous URL remains `200 HIT`
+  at both widths: **2 named failures**. Cleanup's separate fresh query gets
+  **404**, demonstrating why an origin-only 404 is not the public proof.
+  No gallery rows or customer records written. The live `--break=cached-read`
+  run completes **4 of 4**, with **2 named failures** for its forced old cached
+  answer. Both live receipts remain red because the fix is not published.
+  Earlier unmodified test objects returned `REVALIDATED`, so those incomplete
+  attempts were replaced by this explicitly forced cache fixture.
   Browser uploads use a blank test page on the already-allowed production
   origin: the live bucket refuses :5180. This is transport proof, not a
   gallery-screen walk. No frontend files were changed.
@@ -1457,6 +1464,8 @@ and how the wait ends.
   unchanged from this job's starting commit `1dda445d`). Six standard gates
   pass; route-contract was repeated after `npm run build --prefix app` so
   generated routes were also checked. `decisions-index.mjs` passes.
+  `figures-carry-their-command.test.mjs` reports existing bare figures in
+  `docs/silences.md`; that document and the check were unchanged by this job.
   `deployed-inventory.mjs`: **42 of 42 discovered, 41 of 42 completed**;
   photo-door differs, other release drift is recorded in its receipt. Nothing
   was deployed to clear that gate.
@@ -1465,8 +1474,8 @@ and how the wait ends.
   Then Andrew publishes photo-door and a session repeats the real proof. This
   is a new zone permission required by 0.11bd, not the R2 setup already settled
   on 2026-10-10.
-  The current live cache cannot be certified from REVALIDATED reads; its HIT
-  path must be established before a future session ticks this box.
+  The live check now reaches the HIT path. After the account setup and
+  publication, its exact warmed URL must return 404/410 before this box is ticked.
   Separate existing limitation: Gallery.jsx's Remove button deletes only its
   database row and never calls the door. These receipts do not prove that
   button erases stored files; see the named limitation in the setup document.

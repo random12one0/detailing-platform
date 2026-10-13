@@ -43,7 +43,8 @@ somebody already downloaded.
 These commands do not publish or change database structure. The live command
 signs in as the demo owner, reads that business's ID, and writes disposable
 images only to its R2 gallery folder. It removes each test object on exit.
-No gallery row or customer record is written.
+No gallery row or customer record is written. Sign-in creates the ordinary
+demo-owner auth session.
 
 ```powershell
 node scripts/media-cache-delete.mjs --break=no-purge
@@ -64,6 +65,13 @@ The sabotage commands must fail with the named cached-read finding. The clean
 commands must pass. Run sabotage before clean. Commit both JSON receipts and
 their text artifacts after a committed product revision has been measured.
 
+After the real browser upload, the live check PUTs the same disposable PNG
+again through its signed URL with `Cache-Control: public, max-age=300`.
+This deliberately gives only the test object the old cache lifetime; it
+changes no Cloudflare bucket or domain setting and requires no browser CORS
+header change. Ordinary test objects returned `REVALIDATED` on 2026-10-13,
+which could not certify the cached-read case. This fixture reached a real HIT.
+
 The local receipt declares thirteen scenario groups and carries a canary that
 uses the original origin-only deletion. The live receipt declares four targets:
 upload/read/delete and foreign-key refusal at each width. It requires uploaded
@@ -71,6 +79,12 @@ bytes and a **real `200 HIT` before deletion**, then immediately reads the exact
 same public URL anonymously. It never changes that URL, adds a cache-busting
 query, sends request `Cache-Control`, or waits for a post-delete 200 to expire.
 If it cannot warm a HIT, the success target is incomplete, not a pass.
+Cleanup separately reads a fresh query URL to diagnose whether the origin
+object is gone. That diagnosis never replaces the warmed original URL proof.
+
+Before publication, the live check reproduced the leak: the deployed door
+acknowledged removal, a separate cleanup read returned 404, and the original
+public URL still returned `200 HIT`. Its receipt correctly remains a failure.
 
 The browser upload runs from a blank routed test page on the already-allowed
 production origin. The check first loads this checkout's server at :5180;

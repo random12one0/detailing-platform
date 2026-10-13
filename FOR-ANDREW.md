@@ -58,9 +58,10 @@ save the domain's Zone ID as `CF_MEDIA_ZONE_ID`. Configure those before you
 publish **photo-door**, or the new code refuses media deletion.
 The exact account steps and repeatable checks are in
 [the deletion setup](docs/media-cache-deletion.md). No values go in chat.
-The local check catches the old cached-image leak. The real browser uploads
-and foreign-key refusals work, but live reads were `REVALIDATED`, not the
-required cache `HIT`, so cached deletion is still unproved and the box is open.
+The local check catches the old cached-image leak. The real browser check
+reproduces it at phone and desktop widths: the original URL remains `200 HIT`
+after the deployed door says it removed the file; a separate origin read is 404.
+Cached deletion with the new fix is still unproved and the box is open.
 After setup and your publish, a session repeats the real warmed-URL check.
 These are server checks; the existing gallery button's row-only deletion is
 named separately in the setup document and was not changed by this item.
