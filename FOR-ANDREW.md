@@ -843,7 +843,11 @@ in step 10 leaves photos going the old way with nothing to say so. The command
 prints a line per rule and tells you which step is out of place. One line in it
 will always read `????` next to `bucket-cors` — that is step a1, the Cloudflare
 rule, which only you can see; it is printed rather than hidden so nobody mistakes
-it for something that was checked.
+it for something that was checked. *(2026-10-13: it can be checked after all,
+without your dashboard. `node scripts/bucket-cors.mjs` asks each bucket the same
+"may this site upload?" question a browser asks, and it found your rule on all three
+buckets, letting our sites in and keeping strangers out. 76 of 76. Step a1 is done
+and proved. Nothing for you to do here.)*
 
 **Then, the morning after:** one read tells you the first night's reconcile ran
 and what it found. In the Supabase SQL editor (it only reads):

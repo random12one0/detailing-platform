@@ -1763,7 +1763,30 @@ and how the wait ends.
   Split on 2026-10-09 because this entry is 192 lines
   long and no single session was finishing it.
 
-- [ ] **0.11ca — Configure R2 CORS and verify function secrets**
+- [x] **0.11ca — Configure R2 CORS and verify function secrets**
+  **DONE 2026-10-13, and the "dashboard-only" half turned out to be checkable from outside.** Andrew applied the
+  rule to all three buckets on 2026-10-10 (his note on 0.11). A browser asks a bucket *"may this site upload?"*
+  BEFORE uploading (a CORS preflight). That question needs no login and Cloudflare answers it from the rule
+  alone, so the rule can be checked without the dashboard. New check: `node scripts/bucket-cors.mjs`.
+  It is credential-free and writes nothing. Sites and buckets come from `cors-rule.mjs`'s `observe()`, i.e.
+  from the product. It sends 64 preflights: every bucket × all 6 origins × GET and PUT with Content-Type, plus
+  the `media.detailingplatform.com` domain. It also sends 22 that must be REFUSED: a stranger, lookalike domains,
+  plain http, the wrong dev port, and DELETE. Then a real Chromium at 1440 and 392 PUTs to each bucket from
+  `localhost:5173` and from `evil.example` and reads Chrome's own verdict (12 cases). **Result: 76 of 76
+  passed, receipt `receipts/bucket-cors.json` PASS.** Chrome let our page's request past the check
+  (`MissingAllowOriginHeader` on the unsigned PUT R2 then refused) and blocked the stranger at the preflight
+  (`PreflightMissingAllowOriginHeader`). The console at both widths holds only those expected CORS lines
+  (`receipts/bucket-cors.txt`).
+  Canary: a bucket that does not exist, judged as "allow", must fail, and it does (403). Sabotage
+  `--break=foreign-allowed` and `--break=refuse-ours` each went red on exactly 9 of 9 targeted cases
+  (`receipts/bucket-cors.sabotage.json`).
+  **The first browser version was wrong and the refused case caught it:** with any Playwright `route()`
+  on, Playwright answers preflights itself, so `evil.example` passed. It now uses a raw CDP `Fetch` pattern,
+  explained in the file's comments. Criterion 2 stands on `receipts/photo-release-order.json` (2026-10-10,
+  `8b4ab85e`): `r2-secrets-present` PASS, read by name only.
+  `photo-release-order.mjs` still prints `bucket-cors` UNJUDGEABLE, and its reason (*"unreachable
+  anonymously"*) is now out of date. Left untouched because this item asked for the proof, not a change to
+  that gate. 0.11d can point at `bucket-cors.mjs`.
   Apply the exact CORS configuration to all three photo-related buckets and confirm the required R2 secrets are present without exposing values. This leaves publishing functions, migrations, cron installation, app deployment, and switches to later pieces.
   Part 1 of 3 of item 0.11c, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
@@ -1772,7 +1795,7 @@ and how the wait ends.
   - R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY are confirmed present without logging their values.
   - The CORS instruction gate and receipt pass, while dashboard-only verification remains explicitly recorded.
 
-  **NEEDS ANDREW: both halves of this slice are his, and the buildable part is already done - 2026-10-09.**
+  **RESOLVED 2026-10-13 (see top of entry); was: NEEDS ANDREW — both halves of this slice are his, and the buildable part is already done - 2026-10-09.**
   Setting a CORS rule needs the Cloudflare dashboard, which no credential in this repo can reach and must not
   acquire. **What a session CAN do was done:** step 9a1 is now an exact JSON block to paste, three times, one
   per bucket, derived from the product rather than written from memory - `node scripts/cors-rule.mjs` prints
