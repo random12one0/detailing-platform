@@ -3,6 +3,7 @@
 //   node --test tests/create-booking-phone.test.mjs
 //
 // Credential-free, no dev server, no browser, no Deno, no database.
+// Run from the repo root: test 3's fixture reads the handler by relative path.
 //
 // WHY THIS EXISTS: `phoneComplete` lives in TWO places — `app/src/book/core.js`
 // (the client, held by 9 assertions in `tests/booking-core.test.mjs`) and
@@ -92,4 +93,32 @@ test("2 — the two copies agree on every case, so neither can drift silently", 
       `copies disagree on ${JSON.stringify(input)}: server=${server(input)} client=${clientPhoneComplete(input)}`,
     );
   }
+});
+
+// Tests 0-2 never call the handler: a commented-out refusal still matches
+// test 0's regex and leaves the extracted rule intact. This one runs the REAL
+// handler (imports swapped for stand-ins, no network) and reads its response,
+// so the refusal has to actually execute. Red-first: commenting out the
+// `phoneComplete` line in the handler turns the four short cases into 200s.
+test("3 — the create-booking handler itself answers 400 to short phones and books full ones", async () => {
+  const { bookingFixture, fixtureBooking } = await import("../scripts/lib/bookingConsentFixture.mjs");
+  let refused = 0, booked = 0;
+  for (const [input, complete] of CASES) {
+    const f = bookingFixture();
+    const res = await f.book({ ...fixtureBooking, customer_phone: input });
+    const label = `handler on ${JSON.stringify(input)}: ${res.status} ${JSON.stringify(res.data)}`;
+    if (complete) {
+      assert.equal(res.status, 200, label);
+      assert.equal(res.data?.success, true, label);
+      assert.equal(f.rows.bookings.length, 1, `${label} — wrote ${f.rows.bookings.length} bookings, expected 1`);
+      booked++;
+    } else {
+      assert.equal(res.status, 400, label);
+      assert.equal(res.data?.error, "Customer phone number is incomplete", label);
+      assert.equal(f.operations.length, 0, `${label} — touched the database ${f.operations.length} times before refusing`);
+      refused++;
+    }
+  }
+  // Declared, not discovered: a population that shrank would otherwise pass.
+  assert.deepEqual({ refused, booked }, { refused: 4, booked: 2 });
 });
