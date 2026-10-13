@@ -18,7 +18,7 @@
 // **CREDENTIALS: BY NAME, FROM THE ENVIRONMENT, NEVER PRINTED.** `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
 // `R2_SECRET_ACCESS_KEY` (`docs/services-and-secrets.md`). Missing: 503, and only the NAMES are logged.
 //
-// **NOT DEPLOYED.** Publishing is Andrew's.
+// **PUBLISHED 2026-10-10, verify_jwt off; the 03:40 UTC cron has run it nightly since.** Republishing is Andrew's.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";

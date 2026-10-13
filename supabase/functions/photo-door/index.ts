@@ -19,8 +19,8 @@
 // `job_photo_budget()` as the caller, which is the only way it answers (see the
 // header of `_shared/photoDoor.ts`).
 //
-// **NOT DEPLOYED.** Publishing is Andrew's. Until it is, the app answers every
-// photo action with "Photo storage is not set up on the server yet."
+// **PUBLISHED 2026-10-10 (v2, verify_jwt on).** Whether the running copy is THIS
+// checkout is `scripts/deployed-inventory.mjs`'s question; republishing is Andrew's.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.58.0";
