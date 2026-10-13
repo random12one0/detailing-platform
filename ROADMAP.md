@@ -13352,6 +13352,31 @@ requested.
   The work is safe on branch `belt/4.3c-20261013101138`. Answer "merge it" to keep it, or say what to change.
   NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
   The work is safe on branch `belt/4.3c-20261013095529`. Answer "merge it" to keep it, or say what to change.
+  **THIRD RUN, 2026-10-13: NOTHING REBUILT. The held 4.3c work collides with a second build of the same switch,
+  so neither "merge it" above should be answered yet.**
+  (1) `belt/4.3c-20261013101138` contains all of `belt/4.3c-20261013095529` plus (b) and (c). Re-run at
+  `b7d1015e` by a session that did not write it, in a throwaway worktree, no credentials, local PGlite only:
+  `node tests/support-sessions-edge.test.mjs` 56 ok / 0 failed, 22 of 22 functions;
+  `PGLITE_DIR=<pglite folder> PGLITE_REQUIRED=1 node tests/support-sessions-sql.test.mjs` 36 ok / 0 failed;
+  `BREAK=expiry-ignored` edge 3 red and SQL 3 red, `BREAK=unlock-ignored` SQL 1 red, `BREAK=permissive` SQL 10 red,
+  matching its own entry. It merges cleanly onto `dac58d20`.
+  (2) **The parent's held branch `belt/4.3-20261013084536` (`cea0a43c`..`8b8f033d`) built part (a) a second,
+  different way**: a `working` column and a `preview_mode` action instead of `unlocked_at` and
+  `support_unlock`/`support_lock`, under the SAME migration timestamp `20261013010000`. 4.3e is queued to adopt that
+  one. `git merge-tree --write-tree belt/4.3-20261013084536 belt/4.3c-20261013101138`: 13 files in conflict,
+  including both graded tests, `platform-admin`, `_shared/supportSession.ts`, `_shared/tenant.ts` and `App.jsx`.
+  Merging both would leave two migrations redefining `is_support_session()` against different columns.
+  (3) Each has something the other lacks. Only 101138 has (b), the two-hour end, and (c). Only the 4.3 branch
+  (i) keeps the button working against a `platform-admin` that does not know the action yet (its
+  `previewModeRefusal` lets 404 and "Unknown action" through). 101138's `App.jsx` shows any refusal and stays on
+  Looking, so **publishing its front end before `platform-admin` would turn today's working "Let me make changes"
+  into a refusal.** Only the 4.3 branch also (ii) keeps `create-business` refused for an UNLOCKED preview
+  (`evenWhenWorking`). In 101138 an unlocked marker is not a support session, so `create-business` lets it through.
+  Neither branch translates its new client sentences (4.3e's finding).
+  Recommendation: keep 101138 as the base, port (i) and (ii) into it, add the Spanish, and retire 095529 and the
+  4.3 branch's (a). That is 4.3e's job, retargeted there in this same edit.
+  Waits on: 4.3e (combine the held builds onto `belt/4.3c-20261013101138`). 4.3e's session removes this line and
+  the two belt hold lines above once its combined branch is the one held for Andrew.
   **ANDREW CORRECTED THE DESIGN 2026-10-10:** the existing detail-page preview is
   already read-only and deliberately has an explicit control to unlock changes when
   he chooses. Do not invent a second Working button or a “support staff” workflow.
@@ -29956,6 +29981,15 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 
 
 - [ ] **4.3e — Finish the held preview-unlock branch without English fallback.**
+  **RETARGETED 2026-10-13 by 4.3c's third run: there are TWO held builds of this switch, and they conflict in 13
+  files under one migration timestamp.** Use `belt/4.3c-20261013101138` (`b7d1015e`) as the base, not
+  `8b8f033d`. It also carries 4.3c (b), the two-hour end, and (c), and its tests reproduce (56/0 edge, 36/0 SQL,
+  four sabotages red; ROADMAP 4.3c). Port two things from `8b8f033d` into it: the 404 / "Unknown action"
+  pass-through (`previewModeRefusal`), and `create-business` staying refused for an unlocked preview. Then add the
+  Spanish for both branches' new client sentences.
+  ADDED DONE WHEN: one migration owns `20261013010000`; with `platform-admin` answering "Unknown action" the
+  preview's "Let me make changes" still switches to Working; an unlocked preview is still refused by
+  `create-business`; 4.3c's (b) checks still pass with their sabotages caught.
   Supervision reviewed the diff at 8b8f033d and its SQL/edge tests on a local
   copy. The tests are fair, but the branch adds new refusal sentences in
   preview.js and a new banner sentence in App.jsx without Spanish keys or

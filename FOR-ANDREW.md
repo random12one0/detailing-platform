@@ -151,6 +151,8 @@ The profit screen is finished and proven: a session typed four test bills into i
 
 You approved publishing both pieces and checking them live. Piece one (4.3b) puts orphaned history rows onto the live panel — publish `platform-admin`. Piece two (4.3c) is the support-session lock: the migration plus the functions sharing `_shared/tenant.ts`. **Known consequence, your call:** until 4.3c part (a) is built, the preview's "Let me make changes" button promises what the server refuses — pressing it shows *WORKING in … Anything you change is theirs* while every save is refused. If that is acceptable for now, publish in this order: migration first, then the functions, then check Coastline's detail (4.3b) and the preview banner (4.3c) live. A session ticks the boxes after.
 
+**Update 2026-10-13, about the "merge it" questions on 4.3c: please don't answer them yet.** Two separate jobs built the fix for that button, each in its own way, and the two versions can't both be kept. One also has the two-hour time limit. The other keeps your button working if the website goes live before the server half does. A follow-up job (ROADMAP 4.3e) combines them into one version and then asks you once. Nothing needs doing from you until then.
+
 **Recommendation:** publish, since you said go — but expect the unlock mismatch above until (a) lands, and do not demo the unlock button live before then.
 
 ## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
