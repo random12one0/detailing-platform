@@ -13349,6 +13349,8 @@ requested.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
   NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
+  The work is safe on branch `belt/4.3c-20261013101138`. Answer "merge it" to keep it, or say what to change.
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
   The work is safe on branch `belt/4.3c-20261013095529`. Answer "merge it" to keep it, or say what to change.
   **ANDREW CORRECTED THE DESIGN 2026-10-10:** the existing detail-page preview is
   already read-only and deliberately has an explicit control to unlock changes when
