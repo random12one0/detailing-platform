@@ -30052,6 +30052,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   **UNTICKED 2026-10-12 by the Muse-trial code review (`belt/` overhaul).** The test written for it never calls the `create-booking` handler and checks no response: it evaluates the extracted `phoneComplete` and regex-matches the refusal line in source, which a commented-out refusal still satisfies. The DONE WHEN above asks for the handler itself. Keep `tests/create-booking-phone.test.mjs`'s unit checks and add handler-level tests using the credential-free harness in `scripts/lib/bookingConsentFixture.mjs`; prove the guard by commenting the refusal out and watching the test go red.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/legal-promises.test.mjs.
+  The work is safe on branch `belt/99.10-20261013131044`. Answer "merge it" to keep it, or say what to change.
   A line-by-line review of the 18 Muse runs (99.7–9.11e, 2026-10-11/12) found booking work sound but the back-office move (99.3 / 9.12a) lost two things, weakened three checks, and left old references. Each line below is one fix; tick them in the entry as they land.
   1. Restore the "work has started" (build_start) notice: the only control that sent it was in the deleted AdminPage; the server action and `growthLines.js` survive with no caller.
   2. `tests/legal-promises.test.mjs`: remove the allowance that lets `buildfee-notice-terms` stay unbacked (`UNBACKED_IDS` back to empty) once 1 is done — a broken public promise must not pass.
