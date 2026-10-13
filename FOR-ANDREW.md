@@ -1627,6 +1627,16 @@ still knows them.
 
 ## Waiting on you — nothing breaks while these wait
 
+- [ ] **DECIDE · You stopped three belt jobs by hand this morning — did you mean
+  to park the belt?** Added 2026-10-13 by supervision. Overnight the belt ran
+  its Muse practice set, then at about 10:15–10:30pm your time you killed the
+  99.6, 9.15a and 3.4f runs one after another and the belt stopped. Nothing was
+  lost: all three were practice copies, nothing reached the product, and the
+  belt is set to carry on the next time it starts. **Recommendation:** if you
+  want quiet, say "park the belt" and a session will stop it properly; if those
+  three kills were just tidying, do nothing and it will keep working through
+  the list.
+
 - [x] **DO · Restore the belt worker's Claude Code login and accept this
   workspace's trust prompt.** Added 2026-10-10 by supervision.
   **Login done — checked 2026-10-10 08:10 by the next supervisor:** the belt's
