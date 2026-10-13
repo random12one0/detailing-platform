@@ -13011,6 +13011,8 @@ requested.
   stays safe.
 
 - [ ] **4.3 — Support view needs a read-only banner and an audit record.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
+  The work is safe on branch `belt/4.3-20261013084536`. Answer "merge it" to keep it, or say what to change.
   "Look at their dashboard" opened a support view that appeared read-only, but
   nothing said so and nothing recorded it.
   **Fix:** "Viewing as support — read only" banner, record who opened it and
