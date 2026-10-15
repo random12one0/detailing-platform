@@ -30309,6 +30309,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   file's content matches its JSON. Raw output: `receipts/supervisor-{release,door}-{break,clean}.txt`.
 
 - [ ] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/98.8-20261013140155 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 99d1ca26 98.8: tick; receipts taken at 612d72b3 (planted dump round-trips and is refused, fixture and both sabotages refused, validator sabotage 8/21 red); 612d72b3 98.8: a restore receipt certifies the platform's nightly only with verified provenance; 0af8642e 98.8: adopt the held 6.1b restore harness byte-for-byte from 0cdab2bc (code only; its write-ups stay on the held branch)..
+  The work is safe on branch `belt/98.8-20261013140155`. Answer "merge it" to keep it, or say what to change.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): hold it and have the flaw below fixed before merging. Resume from branch `belt/98.8-20261013140155`.
   Supervisor review of the held 6.1b branch at `0cdab2bc`: the new test edit is fair, but
   `scripts/restore-nightly.mjs` unconditionally sets `project = PROJECT` for every `--dump` input.
