@@ -30456,6 +30456,11 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   and each changed canary demonstrably changes its subject and catches the
   missing behavior. The previous failed run is retained; no allowlist or
   deletion of assertions may hide unverified behavior.
+- [ ] **98.10 — Repair the app build check (broken by 97.63)**
+  REPAIR CHECK app build. Job 97.63 turned the quality check "app build" red; it passed before that job. Find why and make it pass again without undoing 97.63's work.
+  Acceptance criteria:
+  - The app build check passes.
+
 
 ## Audit items, 2026-10-14 — lower-severity fixes, product readiness and cleanup (97.29–97.63)
 
