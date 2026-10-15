@@ -1706,8 +1706,7 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/gallery-remove-keys.test.mjs.
-  The work is safe on branch `belt/0.11be-20261013093840`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
   Found by supervision at bf08d943 while reviewing 0.11bd. Gallery.jsx remove()
   only deletes gallery_images; it never calls removeBusinessPhoto. The cache
   adapter cannot help a button that never reaches photo-door. This is separate
@@ -13620,10 +13619,7 @@ requested.
   - The detail panel still distinguishes loading, empty, and populated history.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
-  The work is safe on branch `belt/4.3c-20261013101138`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/support-sessions-edge.test.mjs, tests/support-sessions-sql.test.mjs.
-  The work is safe on branch `belt/4.3c-20261013095529`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): combine both builds into one version that keeps the strictest rule from each: the 4.3 run's branch `belt/4.3-20261013084536` (unlock, which also refuses a business being created from an unlocked preview) and `belt/4.3c-20261013101138` (unlock plus two-hour expiry, Spanish wording; it already contains `belt/4.3c-20261013095529`). One migration, one set of receipts; nothing published.
   **THIRD RUN, 2026-10-13: NOTHING REBUILT. The held 4.3c work collides with a second build of the same switch,
   so neither "merge it" above should be answered yet.**
   (1) `belt/4.3c-20261013101138` contains all of `belt/4.3c-20261013095529` plus (b) and (c). Re-run at
@@ -30256,16 +30252,14 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Follow-through inside this diff: short fake phones posted through `create-booking` lengthened to 10 digits (`555-XXXX` → `555-555-XXXX`, cleanup `eq.` filters and the two `555-7100` email assertions with them) in booking-engine, booking-page-isolation, ics-and-notifications, picked-evidence-survives, request-mode, timezone-and-slots, edge-tenant-replay (`0199`), zone-mismatch, e2e-booking (now `555-010-XXXX`), and the consent fixture; business `contact_phone`s and direct-REST rows left alone. Line citations `create-booking/index.ts:650-676` moved to 663-689. The server half takes effect when Andrew publishes the edge functions — no deploy done here.
 
 - [ ] **99.9 — The server's copy of the phone rule has no committed test, so the two copies can drift apart silently.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/create-booking-phone.test.mjs.
-  The work is safe on branch `belt/99.9-20261013130814`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): finish the live booking check, then merge it. Resume from branch `belt/99.9-20261013130814`; the handler-level test the UNTICKED note below asks for is the missing piece.
   Found 2026-10-12 by supervision while verifying 99.8. The client rule `phoneComplete` is held by 9 assertions in `tests/booking-core.test.mjs`, but the server copy in `supabase/functions/create-booking/index.ts` is a local duplicate (edge functions cannot import from `app/src`) exercised only by `receipts/99.8-phone.json` — whose probe script was never committed, so no committed check re-takes it. An edit to either copy goes red nowhere, and the two rules already disagree by construction the moment anyone touches one.
   DONE WHEN: a committed test sends a 7-digit phone (and one more short form — 1 digit, short +44, or 11-without-1) straight at the `create-booking` handler and each is refused with the 400, while a full 10-digit phone and a long +44 number book; restore the blank-only server rule and watch the new test go red. Touch only the test — not either copy of the rule.
   Done 2026-10-12. New `tests/create-booking-phone.test.mjs` (3/3 pass, credential-free, no Deno): it extracts the server's OWN `phoneComplete` from the committed handler source and evaluates those exact characters — not a re-typed duplicate — asserting the 400 refusal line is wired, that 7-digit plus 1-digit, short-+44 and 11-without-1 are refused while 10-digit and long +44 pass, and that both copies agree on all six cases so a drift in either direction goes red. Sabotage (refusal neutralised to blank-only) went red on test 0 as required, then the handler was restored byte-identical (`git diff` empty — final diff touches only the new test). No browser re-proof: no pixel changed, and the refuse/work cases at 392/1440 stand proved by 99.8's `receipts/99.8-browser.json` (12/12, 54 assertions). Gates green: booking-core, composition, design-contrast, landing-pricing, route-contract, no-credentials, every-open-item, decisions-index.
   **UNTICKED 2026-10-12 by the Muse-trial code review (`belt/` overhaul).** The test written for it never calls the `create-booking` handler and checks no response: it evaluates the extracted `phoneComplete` and regex-matches the refusal line in source, which a commented-out refusal still satisfies. The DONE WHEN above asks for the handler itself. Keep `tests/create-booking-phone.test.mjs`'s unit checks and add handler-level tests using the credential-free harness in `scripts/lib/bookingConsentFixture.mjs`; prove the guard by commenting the refusal out and watching the test go red.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/legal-promises.test.mjs.
-  The work is safe on branch `belt/99.10-20261013131044`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back to fix all six problems below first. Resume from branch `belt/99.10-20261013131044`; nothing merges until every DONE WHEN line holds.
   A line-by-line review of the 18 Muse runs (99.7–9.11e, 2026-10-11/12) found booking work sound but the back-office move (99.3 / 9.12a) lost two things, weakened three checks, and left old references. Each line below is one fix; tick them in the entry as they land.
   1. Restore the "work has started" (build_start) notice: the only control that sent it was in the deleted AdminPage; the server action and `growthLines.js` survive with no caller.
   2. `tests/legal-promises.test.mjs`: remove the allowance that lets `buildfee-notice-terms` stay unbacked (`UNBACKED_IDS` back to empty) once 1 is done — a broken public promise must not pass.
@@ -30309,8 +30303,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   file's content matches its JSON. Raw output: `receipts/supervisor-{release,door}-{break,clean}.txt`.
 
 - [ ] **98.8 — Refuse an unverified dump as proof of a nightly platform restore.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/restore-date.test.mjs.
-  The work is safe on branch `belt/98.8-20261013140155`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): hold it and have the flaw below fixed before merging. Resume from branch `belt/98.8-20261013140155`.
   Supervisor review of the held 6.1b branch at `0cdab2bc`: the new test edit is fair, but
   `scripts/restore-nightly.mjs` unconditionally sets `project = PROJECT` for every `--dump` input.
   Its own invented fixture, exported unchanged and passed back through `--dump`, restores
@@ -30349,8 +30342,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
 - [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/photo-door-contract.test.mjs, tests/photo-door-receipt-wire.test.mjs, tests/photo-reconcile-sql.test.mjs, tests/photo-release-order.test.mjs.
-  The work is safe on branch `belt/98.5-20261013141316`. Answer "merge it" to keep it, or say what to change.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send back for changes before merging: every one of the 17 files must pass with no skips before anything merges. Resume from branch `belt/98.5-20261013141316`.
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
   tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
   the 17 requested files: `$env:PGLITE_DIR='C:/Users/rando/AppData/Local/Temp/pglite';
