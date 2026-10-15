@@ -157,6 +157,218 @@ source of truth for what an item is and why.**
 
 ---
 
+## Audit items, 2026-10-14 — urgent: security, money and booking truth (97.1–97.28)
+
+Added 2026-10-14 from the three read-only audits in `docs/audits/`:
+`security-audit-2026-10-14.md` (S-), `code-health-audit-2026-10-14.md` (C-) and
+`product-readiness-audit-2026-10-14.md` (P-). Each item names the audit finding
+it came from; the audit file has the full evidence and the proof. Line numbers
+were taken at `3501cde0`. **This block sits above Wave 0 on purpose:** the belt
+works ready items in file order, and these are the ones where a customer is
+charged the wrong amount, a booking is saved at the wrong time, or one tenant can
+reach another's data. Ordered most urgent first. The lower-severity items, the
+product-readiness gaps and the cleanup are in the second audit block at the end
+of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build jobs.
+
+- [ ] **97.1 — On the two clock-change Sundays, morning bookings are saved an hour off (C-H1).**
+  `supabase/functions/_shared/tz.ts:15-35` (`localToDate`) reads the zone offset once, at a guessed instant that lands on the wrong side of the clock change. Proved in node for America/Los_Angeles: on 2026-03-08 08:00 is saved as 9:00 AM and 09:00 and 10:00 both become 17:00Z; on 2026-11-01 08:00 is saved as 7:00 AM. **The next clock change is 2026-11-01.** Callers: `slotValidation.ts:149` (the stored `start_at` for `create-booking/index.ts:489-490` and `reschedule-booking/index.ts:108`), `available-slots/index.ts:381`, `pricing.ts:352,358`, `BulkJobModal.jsx:81`. Fix the one function (two-pass offset) so every caller is fixed at once; grep for a browser copy of the same math too.
+  Acceptance criteria:
+  - A credential-free test converts all 24 hours of 2026-03-08, 2026-11-01 and one ordinary day in America/Los_Angeles (plus one other US zone) and every result round-trips to the same wall-clock time
+  - The test goes red when the old one-pass offset is restored (sabotage switch, caught)
+  - Every caller listed above still imports the fixed function, with no second copy of the offset math left behind
+
+- [ ] **97.2 — `create-booking`'s duplicate answer hands the whole booking row to anyone who knows a name, phone and time (S-H1).**
+  `supabase/functions/create-booking/index.ts:65-75` (`sameBooking`, `.select("*")`) and `:260-263` (`return json({ booking: mine, duplicate: true })`). The public caller gets email, home address, notes, the detailer's private `admin_notes`, and the booking id that opens the manage page. The same path writes SMS consent (`:262`). The retry-safety work that added this exit (Wave 5 region, "compare-and-set") must keep working: a real retry still gets 200 and "you're booked".
+  Acceptance criteria:
+  - The duplicate answer carries only id, start time and status; `admin_notes`, email, address, phone and notes are absent, proved by a test that reads the response keys
+  - The duplicate path writes no consent row and changes no consent value
+  - A genuine double press still answers 200 with `duplicate: true` and creates one booking (existing retry-safety test passes)
+
+- [ ] **97.3 — The reminder sweep and three other background jobs can be triggered by anyone (S-H2, S-L1).**
+  `send-owner-reminders`, `refresh-weather`, `watch-jobs` and `photo-reconcile` are in `PUBLIC_FUNCTIONS` (`scripts/deploy-functions.mjs:25-47`). The sweep branch of `send-owner-reminders/index.ts` (`:210` onward) has no caller check, and its response returns booking ids and error strings (`:583`). `refresh-weather/index.ts:68-90` writes every tenant's bookings with no caller check. Build a shared check: the call must carry a secret header that pg_cron sends, read from an environment value. **Setting that secret and updating the cron jobs to send it is Andrew's** (a secret, and his publish); build and prove everything up to that point, and add the steps to `FOR-ANDREW.md`.
+  Acceptance criteria:
+  - With the secret configured, each of the four functions refuses a call without the header (401) and runs normally with it, proved locally for all four
+  - The manual "send reminder" branch still works for a signed-in member without the header
+  - The sweep's public answer no longer lists booking ids or raw error strings
+  - `FOR-ANDREW.md` has the exact steps for the secret and the cron header (where it lives, never its value)
+
+- [ ] **97.4 — Two overlapping reminder runs send every due reminder twice (C-H5, S-H2).**
+  `send-owner-reminders/index.ts` sends first and marks second, e.g. `await sendOwnerReminder(b); await mark(b.id, "owner_reminder_sent_at");` (`:242-243`, also `:256-258`, `:266-268`, the stages around `:274-318`, `:351`, the maintenance stages `385-495` and the digest `513-546`). Nothing refuses a second run while one is in progress (compare `photo-reconcile/index.ts:9`; `watch-jobs` already claims). Change every stage to claim first (`update … set x_sent_at = now() where id = ? and x_sent_at is null returning`), send only when a row came back, and clear the marker if the send fails.
+  Acceptance criteria:
+  - Two sweeps started at the same moment against the same due bookings send each reminder exactly once, counted in `email_sends` (test, local functions)
+  - A send that fails leaves its marker clear so the next sweep retries it
+  - Removing the claim (sabotage) makes the double-run test go red
+
+- [ ] **97.5 — One bad owner address makes the other owner addresses get the same email every 15 minutes (C-H6).**
+  `send-owner-reminders/index.ts:149-165`: `mustSend` throws inside the loop over recipients, so recipient A's successful send leaves no marker when recipient B fails, and the push at `:167` is skipped as well. The stale-request nudge (`335-351`) does the same. Keep a marker per recipient (or mark once at least one send succeeded and log the rest), and send the push outside the email loop.
+  Acceptance criteria:
+  - With two owner recipients where the second always fails, a second sweep sends nothing new to the first (test)
+  - The owner push is sent once even when one email recipient fails
+  - The failure is still recorded where the mail log shows it
+
+- [ ] **97.6 — A plan member booking several cars on different days gets every car free (C-H2).**
+  `app/src/book/core.js:1502-1511` copies `plan_id` onto every car's booking; `_shared/pricing.ts:537-541` prices each car of a split-day booking as its own one-car booking, and `pricing.ts:665-671` covers "the first car", so every car counts as the first. Proved: 3 cars on one day = $400 (one car covered); the same 3 cars on 3 days = **$0**. Send `plan_id` with car 1 only, and have `create-booking` refuse a plan on any row with `group_with` set, so a direct post cannot do it either.
+  Acceptance criteria:
+  - The 3-cars-on-3-days case quotes and saves the same total as the same-day case's covered-car rule (one car covered), in a credential-free pricing test
+  - `create-booking` refuses a plan on a second grouped row (test against the local function)
+  - The sabotage that restores `plan_id` on every car turns the test red
+
+- [ ] **97.7 — Different-day multi-car bookings are quoted at car 1's day and charged at each car's own day (C-H3).**
+  `core.js:328-331` sends only size and model for the other cars; `calculate-booking/index.ts:67-71` matches price rules once, against car 1's date; `create-booking/index.ts:231-235` matches each car against its own date. Proved with a +$30 weekend rate: car 1 Monday, car 2 Saturday is quoted **$400** and charged **$430**; reversed, quoted $460 and charged $430. Send each car's date and time with the quote and match rules per car, so the quote and the save run the same inputs.
+  Acceptance criteria:
+  - Both orders of the Monday/Saturday case quote exactly what `create-booking` saves ($430), in a test that runs the quote and the save on the same input
+  - `node scripts/surcharge-visible.mjs` passes and the page shows the weekend line for the car it applies to
+  - A sabotage that drops the per-car date turns the test red
+
+- [ ] **97.8 — `create-booking` saves whatever total it works out, even when the page showed a different one (C-H3, C-L7).**
+  The product's first rule is that a customer is never charged a price they were not shown. Besides 97.7, the rush fee is re-checked at submit against the current clock (`pricing.ts:362`), so a customer who crosses the cut-off while typing is charged a fee the page never showed. The cheapest general guard: the page sends the total it showed, and `create-booking` refuses with a plain "the price changed" answer when its own total differs, and the page shows the new price and asks again.
+  Acceptance criteria:
+  - A booking whose shown total differs from the server's total is refused with a plain-words reason and nothing is saved (test)
+  - A booking whose totals match is saved exactly as today
+  - The booking page shows the new price and lets the customer confirm it, checked at 390 and 1440 with the console read
+  - Spanish strings added in the same edit
+
+- [ ] **97.9 — A one-use promo on a different-day multi-car booking books car 1 and refuses car 2 (C-M3).**
+  The quote applies the code to every car (`pricing.ts:530-535`); car 1's save counts the code as used (`create-booking/index.ts:669-675`); car 2 is then refused with a 409 at `:289-303` (once per customer) or `:196-197` (`usage_limit = 1`). Let rows in the same group share one use of the code, or apply it to one car in both the quote and the save, whichever keeps quote and save identical.
+  Acceptance criteria:
+  - A 2-car different-day booking with a `usage_limit = 1` code saves both cars, and the discount saved equals the discount quoted (test)
+  - The code counts as used once for the group
+  - A second, separate booking with the same code is still refused
+
+- [ ] **97.10 — The Stripe webhook marks a job paid without checking that the money arrived or how much it was (C-H4, S-L2).**
+  `stripe-webhook/index.ts:609-669` sets `payment_status: "paid"` on `checkout.session.completed` without reading the session's own `payment_status` or comparing the amount to the amount owed. Stripe is not live yet, so this is the moment to fix it. This item is the check itself; the async events and stale sessions are 97.11.
+  Acceptance criteria:
+  - A `checkout.session.completed` event whose session `payment_status` is not `paid` leaves the booking unpaid (test with a signed fixture event, no real Stripe call)
+  - An event whose amount differs from the amount owed leaves the booking unpaid and records why where the detailer can see it
+  - A correct paid event still marks the booking paid, and the connected-account check at `:630-637` is unchanged
+
+- [ ] **97.11 — Delayed card payments and stale checkout pages can leave a job paid when it is not (C-H4).**
+  There is no handler for `checkout.session.async_payment_succeeded` or `async_payment_failed`, and `pay-booking/index.ts:121-148` neither limits payment methods nor expires an older checkout page when the amount changes. Scenarios from the audit: a bank debit that fails stays "paid"; a $100 page still open after the total became $150 marks $150 paid; two live pages can both be paid and the second payment is ignored with no refund flag.
+  Acceptance criteria:
+  - `async_payment_succeeded` marks paid and `async_payment_failed` marks unpaid with a visible reason (fixture events)
+  - When the amount owed changes, the earlier checkout session is expired before a new one is made (test against a stubbed Stripe client)
+  - A second payment for an already-paid booking is recorded and flagged to the detailer as needing a refund, never silently ignored
+
+- [ ] **97.12 — Another tenant can insert lines into a business's receipts and invoices (S-M2).**
+  `booking_services`, `booking_add_ons` and `booking_line_items` reference `bookings(id)` by `booking_id` alone (`supabase/migrations/20260827000200_tenant_data.sql:292,308,321`), and their policy checks only the row's own `business_id` (`:394-397`). The public receipt and the invoice embed them through the service role with no business filter (`get-booking-receipt/index.ts:84-85`, `send-invoice/index.ts:73`). A detailer in business A who knows a booking id of business B can add lines to B's paperwork. New migration (append-only): a unique constraint on `bookings(id, business_id)` and composite foreign keys `(booking_id, business_id)` on all three tables; plus `.eq("business_id", …)` on the embeds. **Applying the migration to the live database is Andrew's.**
+  Acceptance criteria:
+  - On a throwaway local copy, an insert pairing business A's `business_id` with business B's `booking_id` is refused for all three tables
+  - The receipt and invoice queries filter the embeds by the booking's own business (test reads the code path)
+  - `node scripts/db-audit.mjs` and `node scripts/migration-drift.mjs` name the new migration; existing rows are checked for mismatches before the constraint is added, and the count is written in the entry
+
+- [ ] **97.13 — A detailer can mark any domain "verified", or keep the badge after switching domains (S-M1, S-L6).**
+  INSERT on `business_domains` is allowed with only a tenant check (`20260904000000_custom_roles.sql:155-157`); the later lockdown revokes UPDATE but grants back `update (domain)` (`20260907003000_column_revokes_actually_apply.sql:82,88`), so a member can insert a row with `verified_at` filled in, or verify domain A and rename it to B. Every platform domain serves the same marker (`verify-domain/index.ts:35`, `MARKER = "detailing-platform-host-v1"`), and `verify-domain/index.ts:95` follows redirects. New migration: revoke INSERT and `update (domain)` from `authenticated` (add domains through an edge function), clear `verified_at` when `domain` changes, serve a per-row token, and fetch with `redirect: "manual"`.
+  Acceptance criteria:
+  - On a throwaway local copy, a signed-in member cannot insert a domain row or change `domain`/`verified_at` directly
+  - Adding a domain through the function works, and verification passes only when the host serves that row's own token
+  - Changing a verified row's domain clears `verified_at`
+  - The settings screen still adds and verifies a domain end to end, checked at 390 and 1440
+
+- [ ] **97.14 — Staff logins can hard-delete bookings and edit or delete customers directly, whatever their permissions (S-M3).**
+  `customers` and `bookings` get `for all to authenticated using (business_id in (select current_business_ids()))` (`20260827000200_tenant_data.sql:394-397`). Bookings had UPDATE revoked (`20261006040000_bookings_browser_updates_nothing.sql:50`) but not DELETE; `customers` has no revoke. `delete-customer` requires the owner (`delete-customer/index.ts:63`), but the REST API skips it. New migration: revoke DELETE on `bookings` from `authenticated` (the app soft-deletes with `deleted_at`), and revoke insert/update/delete on `customers`, routing any browser write that breaks through permission-checked functions. Grep `app/src` for every direct `customers` write first and list them in the entry.
+  Acceptance criteria:
+  - On a throwaway local copy, a staff session's direct DELETE on `bookings` and direct writes on `customers` are refused
+  - Every customer edit the app offers still works through a function, checked in the running app (adding, editing and the owner-only delete)
+  - `node scripts/fixture-not-deletable.mjs` still passes
+
+- [ ] **97.15 — Support ("view as") sessions never expire and hand out a refresh token (S-M4).**
+  `platform-admin/index.ts:1177-1221` creates a real owner session and returns both `access_token` and `refresh_token`; nothing in `support_sessions` or `_shared/supportSession.ts` holds an expiry, and Supabase Auth's own `updateUser` (password, email) never consults `support_sessions` (the only guard is `app/src/lib/supabase.js:117`). Give the marker an `expires_at` (30 minutes), check it in `is_support_session()` and `isSupportSession`, stop returning the refresh token, and sign the session out when the view ends or expires.
+  Acceptance criteria:
+  - The view-as answer carries no refresh token (test)
+  - A support session older than 30 minutes is refused by `requireMember` and RLS (test with a back-dated marker)
+  - Ending the view signs the session out, so its token stops working
+  - The back office's "view as" still opens the business read-only, checked in the running app
+
+- [ ] **97.16 — A customer can accept a revised quote they never saw (C-M6).**
+  `accept-quote/index.ts:74-106` guards on the `quoted_at` it reads itself; the page sends only `booking_id` (`app/src/lib/api.js:214`); `respond-to-booking` allows a re-quote while pending (`:98-102`). The page shows $200, the detailer re-quotes $300, the customer presses Accept and $300 is accepted. Also add the missing `start_at > now()` check (C-L6).
+  Acceptance criteria:
+  - The page sends the `quoted_at` (or amount) it showed, and `accept-quote` refuses with a plain reason when it no longer matches (test)
+  - Accepting a quote whose appointment has passed is refused
+  - The normal accept still works on the manage page, checked at 390 and 1440
+
+- [ ] **97.17 — "Closed until" (away mode) hides days on screen but the server still books them (C-M4).**
+  `closed_until` is read only at `available-slots/index.ts:302-335`; `_shared/slotValidation.ts` never checks it, nor do create-, reschedule- or update-booking. The value is already loaded at `tenant.ts:250`. About three lines in `validateSlot`.
+  Acceptance criteria:
+  - A direct post to `create-booking` and to `reschedule-booking` for a date before `closed_until` is refused with a plain reason (test)
+  - Dates on and after `closed_until` still book
+
+- [ ] **97.18 — Two bookings sent at once can both beat the daily cap and the buffer (C-M9).**
+  `slotValidation.ts:281-328` checks and `create-booking/index.ts:489` inserts, with no lock between. `bookings_no_overlap` (`20260907000400_multiple_vehicles.sql:154-158`) catches only true overlaps; nothing enforces `max_bookings_per_day` or `buffer_minutes` at insert time. Take a lock per business per day around the check and the insert (`pg_advisory_xact_lock` in an RPC), or re-check in a trigger. New migration; applying it live is Andrew's.
+  Acceptance criteria:
+  - On a throwaway local copy, two concurrent bookings that together exceed `max_bookings_per_day` save one and refuse the other
+  - The same holds for two bookings that break `buffer_minutes`
+  - A single ordinary booking takes no longer than before, measured and written in the entry
+
+- [ ] **97.19 — One tenant's campaigns can use up every other tenant's booking emails for the day (S-M5).**
+  `send-campaign/index.ts:53,119` caps each press at 50, with no per-day or per-tenant cap and no guard against a second press (C-L6). `claim_email_send` keeps one pool for all tenant mail (`greatest(v_cap - coalesce(v_reserve, 0), 0)`). New migration: each business gets a daily share inside `claim_email_send`, and booking mail (confirmations, reminders) is claimed ahead of campaigns.
+  Acceptance criteria:
+  - On a throwaway local copy, one business's campaign sends stop at its share while another business's confirmation still claims
+  - Transactional mail is never refused while campaign mail still has allowance
+  - A double press of Send on a campaign sends once
+
+- [ ] **97.20 — "Delete for good" leaves the customer's email address and full email copies behind (S-M6).**
+  `forget_customer` (`supabase/migrations/20260907001000_forget_customer.sql`) predates `email_sends` (`customer_id … on delete set null`, `to_email text not null`, `20260916010000_every_email_leaves_a_row.sql:56,58`), which now stores `body_html` with the customer's name, address and phone (`20261010010000_email_sends_keeps_the_body.sql:20`). The privacy page says "it is deleted" (`app/src/landing/legal.js:289`). New migration extending `forget_customer` to remove or blank that customer's `email_sends` rows (by `customer_id` and by booking), plus a test that lists every table with a customer-identifying column so the next one cannot be missed.
+  Acceptance criteria:
+  - On a throwaway local copy, after `forget_customer` no `email_sends` row holds that customer's address, name or body
+  - A credential-free test lists every table with a customer-identifying column and fails when a new one is added without being covered
+  - The mail log still shows other customers' mail
+
+- [ ] **97.21 — Unsubscribing from marketing also stops appointment reminders (C-M1).**
+  `supabase/migrations/20260913020000_customer_reminder_is_due_only_if_sendable.sql:116,169` filter on `c.unsubscribed_at is null`, contradicting `unsubscribe/index.ts:24-28` ("Only `send-campaign` reads this flag"). New migration dropping that condition from both reminder functions and keeping `email_failed_at`.
+  Acceptance criteria:
+  - On a throwaway local copy, an unsubscribed customer with a booking tomorrow is due a reminder; a customer with `email_failed_at` set is not
+  - `send-campaign` still skips the unsubscribed customer
+
+- [ ] **97.22 — After a booking moves, the second customer reminder never goes out again (C-M2).**
+  The trigger in `20260829000100_reminder_marker_reset.sql:27-32` clears five markers but predates `customer_reminder_2_sent_at` (`20260903001000`) and never clears `owner_request_nudge_sent_at`. New migration recreating the trigger function to clear both.
+  Acceptance criteria:
+  - On a throwaway local copy, moving a booking clears `customer_reminder_2_sent_at` and `owner_request_nudge_sent_at` along with the original five
+  - `node scripts/migration-drift.mjs` names the new function body
+
+- [ ] **97.23 — A promo code typed into the dashboard's New Booking form is always rejected (C-M5).**
+  `app/src/components/NewBookingModal.jsx:261` tests `r?.valid`, but `validate-promo-code/index.ts:72-74` returns `{ success, promo }`. The form also does not upper-case the code, while codes are stored in capitals (`Promos.jsx:109`) and looked up exactly as typed (`pricing.ts:857`). Test `r?.success`, and upper-case inside `resolvePromo` so every path is covered.
+  Acceptance criteria:
+  - A valid code typed in lower case applies its discount in the New Booking form, checked in the running app at 390 and 1440
+  - An invalid code still shows the refusal
+  - A test covers the upper-casing in `resolvePromo`
+
+- [ ] **97.24 — "Un-cancel" brings a booking back silently, and can revive a declined request (C-M7).**
+  `update-booking/index.ts:176-178` (status guard only) and `:226-239` (only a cancellation or a move sends an email); the button is `components/BookingDetail.jsx:1113`. A cancelled customer's next email is "See you soon"; un-cancelling a declined request confirms it with `declined_at` still set and no email. 4.1 already records that there is no transition guard; these effects are new. Treat cancelled→confirmed as news: email the customer, clear `declined_at`, and send declined requests through `respond-to-booking`.
+  Acceptance criteria:
+  - Un-cancel sends the customer a plain "your booking is back on" email (English and Spanish) and the mail log shows it
+  - A declined request cannot be confirmed through `update-booking` (refused with a reason) and the screen offers the right path
+  - `node scripts/render-emails.mjs` renders the new email
+
+- [ ] **97.25 — Restoring a backup silently drops the database's permission lockdown (S-M7).**
+  The nightly backup runs `pg_dump --no-owner --no-privileges` (`docs/ops/backups.md:20`, `docs/recovery.md:125`, `docs/ops/backup.workflow.yml:101`), so every GRANT and REVOKE is left out, and the product's security depends on revokes (`20260921000000_revoke_locked_table_grants.sql`, `20260907003000_column_revokes_actually_apply.sql`, `20260913005000_definer_execute_swept.sql`). The restore census compares rows, not privileges. Drop `--no-privileges` (keep `--no-owner`) in this repo's copy of the workflow and the two documents, and add a privileges comparison to the restore check (`migration-drift.mjs` already compares grants). **Installing the changed workflow in the private backups repo is Andrew's.**
+  Acceptance criteria:
+  - `docs/ops/backup.workflow.yml`, `docs/ops/backups.md` and `docs/recovery.md` agree, with no `--no-privileges`
+  - The restore check names a grant difference when run against a scratch copy with one revoke removed (sabotage, caught)
+  - `FOR-ANDREW.md` has the one-step instruction to update the backups repo
+
+- [ ] **97.26 — No Content-Security-Policy on the main site (S-L9).**
+  `app/netlify.toml` sets `X-Frame-Options`, `nosniff` and `Referrer-Policy`, and `frame-ancestors` only on `/book/*`. Add a CSP limited to self, the Supabase host, the photo host, Stripe and the other origins the app really calls (list them from the code, not from memory). Ship it first as `Content-Security-Policy-Report-Only` if any origin is uncertain.
+  Acceptance criteria:
+  - Every origin the app loads from is listed in the entry with the file that calls it
+  - A production build served locally with the policy shows no CSP violations in the console on `/`, `/pricing`, `/book/demo-detail` (through a booking to the last step), `/app` and one example tenant site, at 390 and 1440
+  - The existing `/book/*` `frame-ancestors` rule still applies
+
+- [ ] **97.27 — Turn on Supabase Auth's "secure password change" setting (S-L7).**
+  `app/src/screens/more/Password.jsx:84-89` checks the current password only in the browser, then calls `updateUser`, so a stolen session token can change the password without it. The server-side fix is a setting in the Supabase dashboard, which only Andrew can reach.
+  NEEDS ANDREW: in the Supabase dashboard for `kguqylyzgyzfktkfnhjb`, Authentication settings, switch on "Secure password change" (asks for a recent sign-in before a password change). About one minute. Recommendation: yes.
+  Acceptance criteria:
+  - The setting reads on in the dashboard, and the item records who switched it on and when
+  - The Password screen still changes a password for a freshly signed-in user, checked in the running app
+
+- [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+  "every backup for 30 days, plus the 1st of each month for ever" (`docs/ops/backups.md:23`, `docs/recovery.md:131`); the privacy page says deletion means deletion (`app/src/landing/legal.js:289`) and does not mention backups.
+  NEEDS ANDREW: how long to keep the monthly backups. Recommendation: 12 months, and one sentence on the privacy page saying backups are kept that long and then deleted. Once he picks a period, the build is the workflow retention rule, the two documents and the privacy sentence (with its Spanish key).
+  Acceptance criteria:
+  - The chosen period is written in `docs/ops/backups.md`, `docs/recovery.md` and the workflow copy, and they agree
+  - The privacy page states the period in English and Spanish
+
+---
+
 ## Wave 0 — Decisions and blockers for Andrew
 
 Nothing below this line waits on these. They are asked once, here.
@@ -30242,3 +30454,237 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   and each changed canary demonstrably changes its subject and catches the
   missing behavior. The previous failed run is retained; no allowlist or
   deletion of assertions may hide unverified behavior.
+
+## Audit items, 2026-10-14 — lower-severity fixes, product readiness and cleanup (97.29–97.63)
+
+The second half of the 2026-10-14 audit items; the urgent half (97.1–97.28) sits
+above Wave 0. Sources: `docs/audits/code-health-audit-2026-10-14.md` (C-),
+`docs/audits/product-readiness-audit-2026-10-14.md` (P-) and
+`docs/audits/security-audit-2026-10-14.md` (S-), line numbers at `3501cde0`.
+Ordered: smaller money and booking fixes first, then what a paying detailer would
+hit (cheapest first), then cleanup. Items marked `NEEDS ANDREW` are his
+decisions, not build jobs.
+
+- [ ] **97.29 — The Money screen silently under-counts past 1,000 rows (C-M8).**
+  `hooks/useBookings.js:107-116` reads 10 years oldest first, so the newest rows are the ones PostgREST's 1,000-row cap cuts; `Money.jsx:278-279` reads every invoice line and `Money.jsx:295-296` every page visit, with no limit. A detailer doing 3 jobs a day crosses 1,000 bookings in about a year. The export already pages. Read in pages, or total the figures in a database function.
+  Acceptance criteria:
+  - With more than 1,000 bookings in a scratch business, the Money totals equal a direct database sum (test or script, receipt kept)
+  - The screen loads at 390 and 1440 with no console errors
+
+- [ ] **97.30 — A reschedule can land on a just-cancelled booking, and customer notices skip the detailer's notification list (C-L1, C-L2).**
+  `reschedule-booking/index.ts:106-115` guards the update on `start_at` only; add `.eq("status", booking.status)`. `cancel-booking/index.ts:144-152` and `reschedule-booking/index.ts:174-180` send only to `brand.contactEmail`, while every other owner alert uses `ownerRecipients()`.
+  Acceptance criteria:
+  - A reschedule racing a cancel never moves the cancelled booking (test)
+  - Customer cancel and reschedule notices go to every address `ownerRecipients()` returns (test)
+
+- [ ] **97.31 — Final rounding can make a promo discount negative (C-L3).**
+  `pricing.ts:714-716`. Proved: a $104 job with a $1-off code, rounded to the nearest $5, gives `promo_discount = -1` and a $105 total, with no "rounded up" line shown (`StepReview.jsx:80`, `emailTemplates.ts:607` hide a promo that is not above $0). Never fold rounding into the promo discount.
+  Acceptance criteria:
+  - The $104 / $1-off / nearest-$5 case gives a promo discount of $1 and shows any rounding as its own line (credential-free pricing test)
+  - `node scripts/discount-label.mjs` passes
+
+- [ ] **97.32 — "Today" is taken from the UTC date in three places (C-L4).**
+  `app/src/book/ManageBookingPage.jsx:268` (after 5 PM Pacific the reschedule picker starts tomorrow), `app/src/screens/more/Maintenance.jsx:100` (Mark done records tomorrow's date in the evening, and writes from the browser), `send-owner-reminders/index.ts:384` (maintenance window lower bound). `core.js:1166` already has `businessToday(tz)`.
+  Acceptance criteria:
+  - All three use the business's own date; a test with a clock set to 6 PM Pacific gets today's date in each
+  - Maintenance Mark done goes through an edge function rather than a browser write, or the entry records why not
+
+- [ ] **97.33 — The owner's "push alerts off" switch is ignored by most pushes (C-L6).**
+  `push_enabled` gates only 4 senders; the starting-soon, wrap-up, finalize and request nudges, the digest (`send-owner-reminders/index.ts:277,292,307,335,534`), and cancel, reschedule and update-booking ignore it. The manual "send reminder" (`:197-203`) also allows cancelled and completed bookings, answers `success` when reminders are off, and sets no marker. Put the gate in the one shared push sender.
+  Acceptance criteria:
+  - With `push_enabled` off, none of the senders listed sends a push (test)
+  - The manual reminder refuses cancelled and completed bookings, says so when reminders are off, and sets its marker
+
+- [ ] **97.34 — The back office's own money formatter rounds negative amounts the wrong way (C-L8).**
+  `app/src/admin/office/ui.jsx:5`, `usd`, used 17 times under `admin/office/`: `usd(150)` gives `$2` but `usd(-150)` gives `−$1`, with a different minus sign from `format.js`. Use `money` from `lib/format.js` (one formatter each), or round the absolute value.
+  Acceptance criteria:
+  - Negative and positive amounts of the same size print the same digits (test)
+  - The office screens show the same figures as before for positive amounts, checked at 390 and 1440
+
+- [ ] **97.35 — Remove the "Most take this" badge from the pricing page (P-8).**
+  `app/src/landing/PricingPage.jsx:478`. PRODUCT.md says never a "most popular" badge and never invented social proof; there are no customers, and the page promises "Nothing on this page is chosen for you."
+  Acceptance criteria:
+  - The badge is gone in English and Spanish (if it has a Spanish key, the key goes too)
+  - `tests/landing-pricing.test.mjs` gains an assertion that fails when the badge (or any "most popular" wording) comes back, and that sabotage is caught
+
+- [ ] **97.36 — The home page says "No setup wizard and no migration"; the first screen after signup is a 12-step setup wizard (P-2).**
+  `app/src/landing/LandingPage.jsx:1040`; the wizard is `app/src/lib/setup.js:85-98`, opened at `app/src/App.jsx:299-310`. Reword the line so it is true (keep the plain voice; no "seamless"), with its Spanish key if it has one.
+  Acceptance criteria:
+  - The line no longer claims there is no setup wizard, read on the rendered page at 390 and 1440
+  - `node scripts/american-english.mjs` and `node scripts/label-guard.mjs` pass
+
+- [ ] **97.37 — Open self-serve signup gives strangers a free, working booking page with no payment (P-1).**
+  Every "Choose this" on `/pricing` goes to `/app?plan=…&offer=founding`, an open form; `create-booking` and `available-slots` never check billing, and the platform cannot take money until Wave 12's Stripe ownership is settled. BUSINESS-RULES.md "Still to decide" #7 is the open question.
+  NEEDS ANDREW: decide "Still to decide" #7 (no live booking page before the first payment?). Recommendation: until platform billing takes real money, replace open signup with a founding-application form and create each pilot account by hand in the back office (`create-business/index.ts:47-72` already supports it).
+  Acceptance criteria:
+  - His decision is written in BUSINESS-RULES.md
+  - If invite-only: `/pricing` buttons lead to the application form, the form's submissions reach Andrew, and `/app` signup without an invite is closed, checked at 390 and 1440
+
+- [ ] **97.38 — After a website-plan signup there is no "what happens next" (P-2).**
+  The home page sells a site "built for you", but nothing after signup books the kickoff call, starts the intake form (`docs/tenant-site-intake-form.md`) or says when the site arrives. Build a screen shown once after a website-plan signup with those three things. The kickoff booking link and the delivery promise are Andrew's words: use them from BUSINESS-RULES.md or PRODUCT.md if written there; if not, build with a clearly marked placeholder setting and add a `FOR-ANDREW.md` row.
+  Acceptance criteria:
+  - A website-plan signup lands on the screen once; a booking-only signup does not
+  - The screen links to the kickoff booking and the intake form, and states the delivery time, in English and Spanish
+  - Checked at 390 first, then 1440, console clean
+
+- [ ] **97.39 — A new business starts with an empty service list (P-2).**
+  `supabase/functions/_shared/newBusiness.ts:41-47` creates no services. Offer starter services at first setup (an exterior, an interior, a full detail) with editable prices, which the detailer can accept, change or skip.
+  Acceptance criteria:
+  - The setup step offers the three starters; accepting creates them with the shown prices, skipping creates none
+  - Prices are editable before saving, using the existing `MoneyField`
+  - Checked at 390 and 1440, English and Spanish
+
+- [ ] **97.40 — Detailers cannot bring their existing customers in (P-3).**
+  There is an export (`app/src/lib/customer-export.js`, `Clients.jsx:432`) but no import anywhere in `app/src` or `supabase/functions`. Build a CSV import through an edge function: name, phone, email, address, vehicle, notes; a preview before saving; duplicate matching on phone or email; and an undo for the whole batch. If this cannot finish in one job, cut it into numbered slices in this entry (preview first).
+  Acceptance criteria:
+  - A sample CSV with 20 rows, 2 duplicates and 1 bad row shows a preview naming each, and saving creates 17 customers
+  - Undo removes exactly that batch
+  - Imported rows are flagged as imported, and test fixtures are not deleted (flag, don't delete)
+  - Checked at 390 and 1440
+
+- [ ] **97.41 — `robots.txt` and `sitemap.xml` serve the app's HTML (P-4).**
+  Both answer 200 `text/html` on the live site, because `app/netlify.toml` sends `/*` to `index.html` and nothing exists in `app/public`. Add a real `robots.txt` and a `sitemap.xml` listing the public marketing pages and published tenant booking pages (generated at build time if tenant pages are included).
+  Acceptance criteria:
+  - A production build served locally answers `/robots.txt` as `text/plain` and `/sitemap.xml` as XML, both well-formed
+  - The sitemap lists only public pages (no `/app`, no manage links)
+
+- [ ] **97.42 — Every tenant booking link previews as an ad for the platform (P-4).**
+  The raw HTML of `/book/demo-detail` carries `<title>Detailing Platform</title>` and the platform's description; `og:title` stays the platform's even after load (`app/index.html:75-102`, no prerendering). Set the title, description and Open Graph tags per tenant before the page loads, with a Netlify edge function that rewrites `<head>` from the business row.
+  Acceptance criteria:
+  - Fetching `/book/demo-detail` with no JavaScript (netlify dev or the edge function's own test) returns the business's name in `<title>` and `og:title`, and its own description
+  - An unknown slug falls back to the platform tags, and the page still loads normally
+
+- [ ] **97.43 — No `LocalBusiness` structured data on booking pages or tenant sites (P-4).**
+  There is no JSON-LD anywhere. Add `LocalBusiness` JSON-LD (name, area served, phone, prices) to the booking page head and to every tenant site template.
+  Acceptance criteria:
+  - The booking page and each example site (`/ex1`…`/ex5`) carry one valid `LocalBusiness` block, checked with a JSON parse and the schema's required fields
+  - No private data (owner notes, staff names) appears in it
+
+- [ ] **97.44 — No share image for the platform or for tenants (P-4).**
+  There is no `og:image`. Add a default share image for the platform and one per tenant (the business's own photo or logo when it has one, otherwise a generated card with its name).
+  Acceptance criteria:
+  - The platform pages and `/book/demo-detail` each carry an `og:image` that loads (200, an image type, at least 1200x630)
+  - A tenant with no photo gets the fallback, not a broken link
+
+- [ ] **97.45 — The phone's Back button leaves the booking, and a refresh loses everything (P-7).**
+  The step lives only in React state (`app/src/book/BookingPage.jsx:170`) and step changes never touch history (`BookingPage.jsx:494-498`); nothing in progress is saved (`core.js:1584,1624` save only after a successful booking). Put each step in history (`?step=` with `pushState`) and keep the draft in `sessionStorage`.
+  Acceptance criteria:
+  - At step 5, Back returns to step 4 with every choice kept, and Forward returns to step 5
+  - A refresh at step 5 returns to step 5 with the draft intact; a completed booking clears the draft
+  - `node scripts/sweep-booking-steps.mjs` passes at all its sizes
+
+- [ ] **97.46 — Calendar days read to a screen reader as just "17, button" (P-10).**
+  Days are `<div role="button" tabindex="0" class="cell">17</div>`; closed days (`class="cell closed"`) are not marked unavailable. Give each day a full-date `aria-label` (e.g. "Saturday, October 17", localized) and `aria-disabled="true"` on closed days.
+  Acceptance criteria:
+  - Every day cell carries a full-date label in the page's language, and closed days carry `aria-disabled="true"` (browser check that counts them against the days shown)
+  - Keyboard selection of an open day still works (`node scripts/keyboard-walk.mjs` passes)
+
+- [ ] **97.47 — Focus is not moved to the new step when the booking step changes (P-10).**
+  It only scrolls (`BookingPage.jsx:497`). Move focus to the new step's heading on each change, without a visible jump.
+  Acceptance criteria:
+  - After each step change, `document.activeElement` is that step's heading (browser check across all steps)
+  - `node scripts/keyboard-walk.mjs` passes
+
+- [ ] **97.48 — Booking errors are not announced, and the price "Try again" button is 34px (P-10).**
+  The submit and price-lookup error boxes (`BookingPage.jsx:950,958`) have no `role` or `aria-live`; the "Try again" button (`BookingPage.jsx:952`) is under the 44px rule.
+  Acceptance criteria:
+  - Both error boxes carry `role="alert"` and appear in the accessibility tree when shown
+  - "Try again" has at least 44px of hit area (`node scripts/sweep-tap-targets.mjs` passes for the booking page)
+
+- [ ] **97.49 — No automated accessibility check on the booking flow (P-10).**
+  No axe pass exists in `tests/` or the booking sweep. Add an axe-core pass to `scripts/sweep-booking-steps.mjs` (this item explicitly authorizes editing that script), reporting serious and critical issues per step, with a canary.
+  Acceptance criteria:
+  - The sweep reports axe results per step at each size and fails on a serious or critical issue
+  - A sabotage that removes a label is caught by name
+  - Existing results in the sweep are unchanged
+
+- [ ] **97.50 — The price "working out" state looks like an error (P-11).**
+  After a service is tapped, the fixed bar shows "Working out your price…" in a red-outlined box for 2–3 seconds. Use a neutral waiting style, and show the price worked out on the device (rules already in `core.js`) right away while the server confirms it; the shown price must still equal the charged price.
+  Acceptance criteria:
+  - The waiting state uses no error color, checked at 390 and 1440 with `node scripts/contrast-insitu.mjs` passing
+  - The device price appears immediately and is replaced only if the server differs; `node scripts/surcharge-visible.mjs` passes
+
+- [ ] **97.51 — No card on file, so the decided cancellation fee cannot be collected (P-5).**
+  Card payment exists only after booking, on the receipt page (`app/src/book/ManageBookingPage.jsx:722`), and needs the Connect client ID (`supabase/functions/_shared/connect.ts:45`). The deposit work is already queued behind 12.1; card on file belongs in the same design, because it is what a cancellation fee is charged against.
+  Waits on: 12.1 (the Stripe test key). How the wait ends: 12.1 is ticked; whoever ticks it removes this line.
+  Acceptance criteria:
+  - A customer can save a card while booking, in Stripe test mode, and the detailer sees that a card is on file
+  - The cancellation fee rule in BUSINESS-RULES.md can be charged against it in test mode, with the customer told in advance
+
+- [ ] **97.52 — Prospects cannot try the dashboard before buying (P-9).**
+  The only "try it" is the demo booking page; the product tours were removed (`App.jsx:47-51`).
+  NEEDS ANDREW: which one. Option A, a public read-only demo dashboard on a copy of the seeded tenant, reset nightly (more work, and must never be the `demo-detail` login itself, whose back-office access is deliberate). Option B, a 90-second phone screen recording on `/`. Recommendation: B now, A after launch.
+  Acceptance criteria:
+  - His choice is written here, and the chosen option is visible from `/` at 390 and 1440
+
+- [ ] **97.53 — Calendar sync is one file per booking; there is no feed to subscribe to (P-12).**
+  `supabase/functions/booking-ics/index.ts:1-4` makes one `.ics` per booking. Add a private, token-protected calendar feed per business that Google and Apple Calendar can subscribe to, with a way to reset the token. The owner-view protections from 14.2 must hold for the feed too.
+  Acceptance criteria:
+  - The feed URL returns a valid calendar with the business's upcoming bookings and nothing from another business
+  - A wrong or reset token is refused
+  - The settings screen shows the link and a reset button, at 390 and 1440
+
+- [ ] **97.54 — Team scheduling stops at roles: no per-worker jobs or availability (P-13).**
+  Assignment and per-worker availability were deferred on purpose (`supabase/migrations/20260827003000_staff_roles.sql`, header); buffer time is one flat number (`available-slots/index.ts:297,388-390`). A two-van operator cannot book both vans at 9 AM.
+  NEEDS ANDREW: is per-worker scheduling needed before launch, and for how many workers? It is a large feature (several jobs). Recommendation: after launch, unless a pilot detailer runs two vans.
+  Acceptance criteria:
+  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts
+
+- [ ] **97.55 — No pre-job vehicle check-in or customer sign-off (P-14).**
+  Damage photos (`job_photos.kind 'damage'`, `20260906010000_job_photos.sql:76`) are the closest thing; there is no waiver or signature.
+  NEEDS ANDREW: is a check-in (damage photos plus the customer's checkbox on the receipt link, saved with a time) wanted before launch, and does the wording need a lawyer? Recommendation: build the checkbox version; no signature drawing.
+  Acceptance criteria:
+  - His answer is written here; if yes, the customer can acknowledge recorded damage from the receipt link and the job shows when they did
+
+- [ ] **97.56 — No gift cards (P-15).**
+  Square sells them and they are a holiday revenue line for detailers.
+  NEEDS ANDREW: wanted at all, and how sold (through the detailer's Stripe, as a promo-code-like balance)? It touches money and expiry law. Recommendation: not before launch.
+  Acceptance criteria:
+  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts
+
+- [ ] **97.57 — The app icon is SVG only, with no PNG or apple-touch-icon (P-15).**
+  `app/public/manifest.webmanifest`, `app/index.html:35-38`. An iPhone home-screen icon may show blank.
+  Acceptance criteria:
+  - PNG icons at 192 and 512 and a 180px `apple-touch-icon` exist, are listed in the manifest and head, and each URL loads in a production build
+  - The icons match the current mark
+
+- [ ] **97.58 — PRODUCT.md "Known open threads" lists two threads closed in August (P-15).**
+  It still says "email produces nothing in Resend" and "pg_cron never wired", though the same file says both were closed.
+  Acceptance criteria:
+  - Both lines are marked closed with the date they closed and where that is recorded, not silently removed
+  - No other line in that list contradicts the rest of PRODUCT.md
+
+- [ ] **97.59 — Four credential-free suites are red at `3501cde0` (C-tests).**
+  `em-dash`: 6 em dashes in user-facing copy from `0914a145` (`platform-admin/index.ts:1029,1083`, `_shared/emailTemplates.ts:1737,1765`, `_shared/strings/es.ts:434,436`). `mail-sink`: 3 undeclared send-capable test addresses (`scripts/office-money.mjs:42`, `office-system.mjs:40`, `office-today.mjs:41`, on a domain that is not the platform's). `skip-census`: `user-tours-race.mjs` and `visual-regression.mjs` count skips but are not declared. `skip-evidence`: `sweep-widths.mjs` has 1 `addSkip` site (`:1349`) against a required 2, and its canary edits a line removed with the tours. Fix the code or the stale declarations; never weaken an assertion to pass. (`admin-insight`/`growth-lines` and the photo suites are owned by 99.10 and 98.5 and are not this item.)
+  Acceptance criteria:
+  - `node --test tests/em-dash.test.mjs tests/mail-sink.test.mjs tests/skip-census.test.mjs tests/skip-evidence.test.mjs` passes, each run individually
+  - Each changed canary still turns its own suite red when sabotaged
+  - Spanish strings changed in the same edit as their English
+
+- [ ] **97.60 — A plain test run rewrites tracked receipts and dirties the tree (C-C3).**
+  17 test files write into the tracked `receipts/` folder (381 tracked files), so `node --test` changes git state. Make local runs write to an ignored folder by default, and write the tracked receipt only when asked (an env switch the belt and receipt-proving sessions set). The belt's rule of committing a receipt with its proof must keep working; read the belt task template's receipt rules before choosing the switch.
+  Acceptance criteria:
+  - Running the credential-free suites leaves `git status --porcelain receipts/` empty
+  - With the switch set, the same runs write the tracked receipts as today, and `node scripts/receipt.mjs` grades them
+  - The switch is named in CLAUDE.md's verification section
+
+- [ ] **97.61 — `_shared/stripePrices.ts` is dead, or the "price locked for life" promise rests on nobody editing a constant (C-C1).**
+  `supabase/functions/_shared/stripePrices.ts` (265 lines) is imported by no edge function; only `scripts/check-stripe-prices.mjs` uses it. Its header argues for Stripe lookup keys so a founding price cannot be re-priced by editing a constant; live billing does the opposite, sending inline `price_data` from `PRICES` (`_shared/platformBilling.ts:29-46`).
+  NEEDS ANDREW: delete the file (and `check-stripe-prices.mjs`) and keep inline prices, or wire lookup keys in and retire inline `price_data`. He leans delete. Recommendation: delete, and add a test that pins the founding prices in `PRICES` so a change to them has to be deliberate.
+  Acceptance criteria:
+  - His ruling is recorded in DECISIONS.md with its index line
+  - If delete: both files are gone, nothing references them, and a test pins the founding prices; if wire in: no inline `price_data` remains
+
+- [ ] **97.62 — README.md points at the wrong plan and the wrong test count; two stale briefs sit in the root (C-C4).**
+  `README.md:33` says "Eleven test suites live in `tests/`" (there are 153 at `3501cde0`); lines 13 and 23 call `docs/roadmap.md` the plan of record, but `ROADMAP.md` is the live queue. `HANDOFF-2026-09-19.md` and `REVIEW-BRIEF-2026-09-14.md` are tracked and stale; `.gitignore` has redundant entries (e.g. `shots-admin/` at 152 after `shots-*/` at 116).
+  Acceptance criteria:
+  - README points at `ROADMAP.md` as the live queue and states the test count with the command that produced it and the revision
+  - The two briefs move to `docs/archive/` (or are deleted) and nothing links to their old paths
+  - Redundant `.gitignore` lines are removed and `git status` shows nothing newly unignored
+
+- [ ] **97.63 — About 3.0 GB of ignored screenshots and artifacts clutter the repo root (C-C4).**
+  All gitignored, so none reaches GitHub or Netlify: 51 `shots-*` folders (~450 MB), `artifacts/` (2.4 GB, `sweep-widths` 1.4 GB), `.manager-shots/` (173 MB), `.tmp-supervision-6.1b/` and `.tmp-99.3/`, 6 `email-preview*` folders, `detailingplatform-site.zip` (6.2 MB, 2026-09-14) and `lx.tmp.mjs` (a one-off that runs Playwright against three outside websites). Deleting them deletes local evidence.
+  NEEDS ANDREW: may these be deleted? Recommendation: delete the `shots-*`, `email-preview*` and `.tmp-*` folders, the zip and `lx.tmp.mjs`; prune `artifacts/` to the newest run of each check; keep `.manager-shots/` (visual claims cite it). Then point screenshot output at one ignored `out/` folder so the root stops growing.
+  Acceptance criteria:
+  - His answer is written here; what he approved is gone, measured with `du -sh` before and after
+  - New screenshot runs write under one ignored folder
