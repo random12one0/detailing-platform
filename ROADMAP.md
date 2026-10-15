@@ -30741,3 +30741,12 @@ Added by the Control Room's Audit tab from run 1, after a second check by a diff
   - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
   - Following the reproduction in the evidence (Give a service available_weekdays [2] (Tuesday only), book it, open the manage link and choose Reschedule: Thursdays are offered, and choosing one returns a 409.) now gives the right result
   - The Control Room's audit re-check of R1-06 passes after this box is ticked
+
+- [ ] **100.5 — A third, unused copy of the 'is this time free' rule lives in the database and already disagrees with the other two (audit R1-08).**
+  `supabase/migrations/20260827000300_helpers.sql:31-63`, `supabase/functions/available-slots/index.ts:218`, `supabase/functions/_shared/slotValidation.ts:297`. is_slot_available is still granted to signed-in users but nothing in the app or the functions calls it. It counts logged bulk dealership jobs as busy time (the other two exempt them) and assumes a 60-minute buffer when settings are missing. Nothing today, but the next person who reaches for it gets an answer that disagrees with the booking engine.
+  Supposed to: One rule for whether a time is free, enforced by validateSlot, shown by available-slots and backed by the exclusion constraint.
+  Fix: Drop the function in a new migration (and its test probes), or rewrite it to match: exclude bulk_vehicle_count rows and drop the 60-minute default.
+  Found by the audit (run 1, code auditor, opus, commit `dcfcb5cf`); second check confirmed by claude-sonnet-5-5: helpers.sql:46-57 is_slot_available has no bulk_vehicle_count filter and defaults buffer to 60 (line 43), while available-slots/index.ts:218 and slotValidation.ts:297 both exclude bulk jobs with .is("bulk_vehicle_count", null). Grep finds no caller in app or functions, only tests/tenant-isolation.test.mjs (probe tests) and docs; the grant to authenticated remains at helpers.sql:63. No open ROADMAP item covers it.. Full evidence: `docs/audits/audit-run-1-2026-10-15.md` § R1-08.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - The Control Room's audit re-check of R1-08 passes after this box is ticked
