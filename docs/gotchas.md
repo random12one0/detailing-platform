@@ -5542,3 +5542,18 @@ launched. Require the command runner first, fail as NOT MEASURED when it is
 missing, and report the remedy. Fixed at `eaee66e9`, ROADMAP 98.9. The absent-bash
 run now refuses before judging revisions; the same suite with
 `$env:Path='C:\Program Files\Git\bin;' + $env:Path` passes including its canary.
+
+## 132. A proof written to an excluded folder inside a job's copy never reaches the main checkout
+
+Supervision 2026-10-15, re-checking ROADMAP 99.11 at `c38f1859`. The entry says
+the three 1440 English consent shots now have three different SHA-256 values.
+In the main checkout, `sha256sum .manager-shots/99.2f/details-en-1440-{unchecked,checked,uncheck}.jpg`
+printed ONE value three times, timestamped 02:19 on 2026-10-13, four hours before
+the fix. `.manager-shots/` is in `.git/info/exclude`, and the belt runs each job
+in its own worktree under `belt-jobs/`, so the job's new shots were written there
+and never merged. Hashing the main copy "refuted" a correct fix.
+
+Re-run the producing script in the checkout you are judging before believing either
+verdict: `node scripts/booking-consent.mjs` (dev server on 5182) wrote three
+different hashes and the checked shot shows a ticked box. Any artifact under an
+ignored or excluded path is evidence only in the tree that wrote it.
