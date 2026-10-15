@@ -30695,3 +30695,19 @@ decisions, not build jobs.
   Acceptance criteria:
   - His answer is written here; what he approved is gone, measured with `du -sh` before and after
   - New screenshot runs write under one ignored folder
+
+---
+
+## Audit run 1, 2026-10-15 (100.x)
+
+Added by the Control Room's Audit tab from run 1, after a second check by a different AI and Andrew's yes. Each item names its audit finding; the evidence is in `docs/audits/`.
+
+- [ ] **100.1 — A staff member whose 'Answer requests' permission was switched off can still accept or decline booking requests (audit R1-03).**
+  `supabase/functions/update-booking/index.ts:54-56`, `supabase/functions/update-booking/index.ts:85-86`, `supabase/functions/update-booking/index.ts:116-118`, `supabase/functions/respond-to-booking/index.ts:44-46`, `app/src/lib/permissions.js:33-38`. update-booking lets any member of the business write the status field (it only checks membership, never can(member, 'requests')). Since browsers cannot update bookings directly, this is the one write path, and it accepts status 'confirmed' or 'cancelled' on a pending request. Staff the owner deliberately blocked from answering requests can confirm one (the customer gets no acceptance email) or cancel it (the customer gets a cancellation email), simply through the general status change. The owner's permission setting does not hold.
+  Supposed to: 'Answer requests' is the permission an owner can take away from staff; respond-to-booking refuses anyone without it.
+  Fix: In update-booking, when the current status is 'pending' and the new status differs, require can(member, 'requests') (or send that transition to respond-to-booking); return 403 otherwise.
+  Found by the audit (run 1, code auditor, opus, commit `dcfcb5cf`); second check confirmed by claude-sonnet-5-5: update-booking/index.ts:85 only calls requireMember (tenant.ts:304 checks membership only, no permission) and never can(member,'requests'); line 55 allows 'status' and lines 116-118 write it, with justCancelled (226) emailing the customer. respond-to-booking/index.ts:44 does gate on can(member,'requests') with a 403, so the permission is bypassable through the general path. No open ROADMAP item covers it (97.14 is about direct browser deletes/edits, a different problem).. Full evidence: `docs/audits/audit-run-1-2026-10-15.md` § R1-03.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (As a staff member with permissions [] on a request-mode business, call update-booking with { booking_id: <pending id>, status: 'confirmed' }. It succeeds, whereas respond-to-booking with action 'accep) now gives the right result
+  - The Control Room's audit re-check of R1-03 passes after this box is ticked
