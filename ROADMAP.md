@@ -30342,6 +30342,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
 - [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/98.5-20261013141316 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: cfde50d4 98.5: tick; 17 photo files 142/142 at 9090be30, live release-order 10/10, CONTRACT_BREAK=fivexx caught; 9090be30 98.5: photo checks read LF on a Windows checkout, contract follows 0.11a, release-order pins the 0.11cc flag; CONTRACT_BREAK=fivexx..
+  The work is safe on branch `belt/98.5-20261013141316`. Answer "merge it" to keep it, or say what to change.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send back for changes before merging: every one of the 17 files must pass with no skips before anything merges. Resume from branch `belt/98.5-20261013141316`.
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
   tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
