@@ -30,6 +30,6 @@ FAIL 2026-03-08 10:00 LA is 17:00Z, not the same instant as 09:00 — 2026-03-08
 FAIL 2026-11-01 08:00 LA is 16:00Z (was 7:00 AM) — 2026-11-01T15:00:00.000Z
 FAIL localToDate itself agrees with the wrapper
 
-137 passed, 31 failed, 168 assertions (BREAK=one-pass).
+138 passed, 31 failed, 169 assertions (BREAK=one-pass).
 canary: the old one-pass function failed 22 of 144 conversions
 receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.1-20261016042658330\receipts\tz-clock-change.sabotage.json

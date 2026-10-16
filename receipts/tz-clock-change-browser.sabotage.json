@@ -1,9 +1,9 @@
 {
-  "git_sha": "9c5e0a1905d3b82bd799c9cee3768edc9815b439",
-  "git_sha_started": "9c5e0a1905d3b82bd799c9cee3768edc9815b439",
+  "git_sha": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
+  "git_sha_started": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T04:33:14.447Z",
+  "finished_at": "2026-10-16T04:41:19.262Z",
   "failures": [
     "1440x900 America/Los_Angeles 2026-03-08 03:00 — stored 2026-03-08T11:00:00.000Z, reads back 2026-03-08 04:00",
     "1440x900 America/Los_Angeles 2026-03-08 04:00 — stored 2026-03-08T12:00:00.000Z, reads back 2026-03-08 05:00",
@@ -87,7 +87,7 @@
     "break": "one-pass"
   },
   "check_id": "tz-clock-change-browser",
-  "started_at": "2026-10-16T04:33:13.290Z",
+  "started_at": "2026-10-16T04:41:17.727Z",
   "status": "fail",
   "expected_targets": 432,
   "discovered_targets": 432,

@@ -1,9 +1,9 @@
 {
-  "git_sha": "5b94c7240346b59b97248888c77d81f84b0e0fbb",
-  "git_sha_started": "5b94c7240346b59b97248888c77d81f84b0e0fbb",
+  "git_sha": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
+  "git_sha_started": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T04:31:48.832Z",
+  "finished_at": "2026-10-16T04:41:08.138Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -24,15 +24,15 @@
     "files_searched_for_second_copy": 633
   },
   "check_id": "tz-clock-change",
-  "started_at": "2026-10-16T04:31:48.119Z",
+  "started_at": "2026-10-16T04:41:07.375Z",
   "status": "pass",
   "expected_targets": 144,
   "discovered_targets": 144,
   "attempted_targets": 144,
   "completed_targets": 144,
   "skipped_targets": 0,
-  "assertions_executed": 168,
-  "min_assertions": 168,
+  "assertions_executed": 169,
+  "min_assertions": 169,
   "assertion_floor": "structural: the grid is 2 zones x 3 days x 24 hours and every other assertion is a fixed list, so the count cannot vary between runs",
   "canary": {
     "id": "tz-one-pass-offset-restored",
