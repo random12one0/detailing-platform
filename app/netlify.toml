@@ -36,6 +36,26 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# THE BOOKING PAGE MAY BE FRAMED BY OUR OWN DASHBOARD, AND BY NOTHING ELSE —
+# ROADMAP 9.1c. Business shows the detailer's real `/book/<slug>` in an iframe
+# (components/PagePreview.jsx), and the DENY above blanked it on the live site.
+#
+# This works because a `frame-ancestors` policy makes every current browser
+# IGNORE X-Frame-Options on that response, so DENY still arrives and stops
+# counting. Two things would break it, both silently:
+#   - setting X-Frame-Options here too: both rules match /book/*, the values
+#     can be merged into "DENY, SAMEORIGIN", and a browser reads a conflict as
+#     DENY;
+#   - adding a Content-Security-Policy to `/*`: two policies are BOTH enforced,
+#     so 'none' there would beat this one.
+# The two hosts are named because a detailer with their own domain gets the
+# preview from that domain while the dashboard is on ours.
+# `node scripts/preview-frame-headers.mjs` holds all of this.
+[[headers]]
+  for = "/book/*"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
+
 # Hashed build assets are immutable.
 [[headers]]
   for = "/assets/*"

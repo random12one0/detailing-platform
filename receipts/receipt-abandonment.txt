@@ -1,0 +1,108 @@
+ok attempt committed before signing; failed signing still leaves it
+ok lost PUT reply reclaimed without finish
+ok never PUT is retired without restoring its deleted expense
+ok young attempt stays; PUT lifetime fits inside grace
+ok successful receipt keeps authoritative bytes and object
+ok lost finish response can be retried idempotently
+ok cleanup wins lock: late finish refused
+ok finish wins lock: cleanup never claims saved key
+ok failed deletion is durable and retried
+ok canary detects DELETE that claims success but leaves object
+ok tenant cannot register or finish another expense
+ok misfiled claim is refused before any storage call
+ok browser roles cannot call lifecycle RPCs or read ledger
+ok scheduled handler stamps cleanup failures and does not fake a run
+ok browser 392/saved
+ok browser 392/refused
+ok browser 392/lost-put-reply
+ok browser 392/closed-tab
+ok browser 392/lost-finish-reply
+ok browser 1440/saved
+ok browser 1440/refused
+ok browser 1440/lost-put-reply
+ok browser 1440/closed-tab
+ok browser 1440/lost-finish-reply
+[
+  {
+    "width": 392,
+    "mode": "saved",
+    "console": [],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  },
+  {
+    "width": 392,
+    "mode": "refused",
+    "console": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "stored_bytes": 0,
+    "tab_closed": false
+  },
+  {
+    "width": 392,
+    "mode": "lost-put-reply",
+    "console": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  },
+  {
+    "width": 392,
+    "mode": "closed-tab",
+    "console": [],
+    "stored_bytes": 35844,
+    "tab_closed": true
+  },
+  {
+    "width": 392,
+    "mode": "lost-finish-reply",
+    "console": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  },
+  {
+    "width": 1440,
+    "mode": "saved",
+    "console": [],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  },
+  {
+    "width": 1440,
+    "mode": "refused",
+    "console": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "stored_bytes": 0,
+    "tab_closed": false
+  },
+  {
+    "width": 1440,
+    "mode": "lost-put-reply",
+    "console": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  },
+  {
+    "width": 1440,
+    "mode": "closed-tab",
+    "console": [],
+    "stored_bytes": 35844,
+    "tab_closed": true
+  },
+  {
+    "width": 1440,
+    "mode": "lost-finish-reply",
+    "console": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ],
+    "stored_bytes": 35844,
+    "tab_closed": false
+  }
+]

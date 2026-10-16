@@ -355,6 +355,8 @@ were made more than once.
 - **Supervision 2026-10-13 (ninth): the empty queue was the test set ending, and no belt change** — the NOTHING WORKABLE came from the test-set-finish path (empty without a shortlist), while a read-only shortlist over HEAD gives 59 eligible / 43 ready with about twenty playable after shelf and skips, so the belt resumes on its own; the 2.1 practice branch's citable 14 to 13 is a fair fix under its own procedure (no breakage, answering the test-set report), 2.1a stays ticked with its disclosed criterion, and 99.5 stays ticked on a live 76/76 re-proof; new defect 99.11 (one consent screenshot filed under three state names).
 
 - **Supervision 2026-10-13 (tenth)** — CORS and consent reproduced; cache deletion stays open; fair held test edits, whole-suite baseline corrected; Gallery removal and preview translations queued; belt labels dispatches honestly.
+- **Roadmap 14.39 — Receipt attempts outlive the tab** — durable server attempts rather than browser-only cleanup; finish and cleanup lock the same record; a receipt listing can revive an expired tombstone but cannot authorize deleting an unknown key. Real R2 and publication remain separate proofs.
+- **Supervision 2026-10-13 (eleventh)** — R2 closures reproduced; preview proved locally; readable sabotage evidence separated; held nightly restore cannot certify an arbitrary dump.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19086,3 +19088,56 @@ database structure was touched. Evidence and commands are in
 docs/supervision-2026-10-13.md. Reverse these judgments if a repaired assertion
 passes with its named behavior removed, or a saved branch is mistaken for a
 live release.
+
+## Roadmap 14.39 — Receipt attempts outlive the tab
+
+2026-10-13. A client-side abort cannot cover a lost start reply or a closed
+tab. A bucket listing alone cannot safely decide whether a finish is still
+in progress. Use a service-only receipt-attempt ledger, written before the
+upload URL is returned. Finish and cleanup lock that same record, so cleanup
+cannot race an authoritative expense write. No browser gets a delete-by-key
+action. Job-photo reconciliation remains read-only; the scheduled function
+additionally reclaims explicitly recorded, expired receipt attempts.
+
+Use a one-hour technical grace period over the ten-minute PUT signature.
+Retain failed deletions for retry and require HEAD absence before acknowledging
+cleanup. Retired keys remain tombstones: the receipt listing can revive one
+if a PUT begun earlier arrives late. Unknown listing keys are never deletion
+targets. Keep attempts when an expense is deleted, because a cleanup that needs
+the expense restored repeats the original defect. Successful receipts and their
+authoritative bytes stay out of cleanup, including when finish committed and
+its reply was lost. This changes neither the allowance nor the bucket origins.
+
+The local PostgreSQL/browser proof and its deliberate retained-object sabotage
+are repeatable in `scripts/receipt-abandonment.mjs`. Its optional real-R2 mode
+uses the same code but cannot run without the existing server environment.
+Missing names produce a failed receipt, not a pass. Release details and proof
+limits are in `docs/receipt-abandonment-release.md`. The box stays open while
+real storage cleanup and the published scheduled path remain unproved.
+
+
+## Supervision 2026-10-13 (eleventh)
+
+The latest supervision interval starts at 2026-10-13T10:25:50.911Z in belt/state.json.
+Git at `aa4a69fb` contains one closure from those six dispatches, 0.11cb; the other
+landed work remains open. Verified that closure, earlier 0.11ca, and 9.1c's local
+preview path. No tick comes off. Narrow publish capability and tenant refusals are
+proved; broad content/schema drift and an unpublished preview header remain release
+work. Their existing open entries are retained.
+
+The belt's model choices and cadence have no new fault behind them. Change only its
+taskTemplate: preserve each sabotage's readable artifacts, then open them after the
+clean rerun. JSON separation alone allowed two scripts' red receipts to point to
+green logs. Corrected those scripts in `e58b0dc7` and recorded 98.7.
+
+The held 6.1b test addition is fair, but adopting its product build now would let an
+arbitrary supplied dump certify a nightly backup. Proved with invented data, not an
+actual nightly or a secret. Hold the branch for repair 98.8; 6.1a still belongs to
+Andrew. No approval question or real restore is needed to repair that local defect.
+Exact observations, commands and limits: `docs/supervision-2026-10-13-release.md`.
+
+The figures check also reported valid historical revisions missing because bash
+was absent from the supervisor's Windows PATH. Do not alter its historical
+figures or debt declarations: require its command runner before scanning.
+Fixed that prerequisite refusal at `eaee66e9`, with the missing-runner red and
+the real-runner green retained. ROADMAP 98.9 and gotchas 131 name the observation.

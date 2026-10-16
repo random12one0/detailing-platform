@@ -135,6 +135,16 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
+// A missing command runner is not evidence of absent revisions or files.
+// Supervision 2026-10-13: every bash call returned null on this Windows PATH,
+// and valid historical commits were reported as fabricated. Refuse explicitly
+// before scanning; the existing assertions and canaries remain unchanged.
+try { execFileSync("bash", ["--version"], { stdio: "ignore", windowsHide: true }); }
+catch {
+  console.error("NOT MEASURED: bash is unavailable. Run in Git Bash or put C:/Program Files/Git/bin on PATH. No revision or figure was judged.");
+  process.exit(2);
+}
+
 // ---------------------------------------------------------------------------
 // PER-DOCUMENT DECLARATIONS, AND THE REASON THEY ARE NOT ONE TOTAL
 // ---------------------------------------------------------------------------

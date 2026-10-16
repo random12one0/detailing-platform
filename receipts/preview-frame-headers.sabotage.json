@@ -1,0 +1,84 @@
+{
+  "git_sha": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "git_sha_started": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:42:02.262Z",
+  "failures": [
+    "self-frames/app: /app rendered inside a frame on its own origin",
+    "self-frames/admin: /admin rendered inside a frame on its own origin",
+    "stranger-frames/app: /app rendered inside a frame on another origin (http://localhost:5192)",
+    "stranger-frames/admin: /admin rendered inside a frame on another origin (http://localhost:5192)"
+  ],
+  "warnings": [
+    "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
+    "Assumes Netlify matches [[headers]] `for` against the REQUESTED path, not the /index.html the SPA rewrite serves. Unproved until the live rerun after publish (ROADMAP 9.1b)."
+  ],
+  "artifacts": [
+    ".manager-shots/9.1c/preview-break-blanket-allow-1440.png",
+    ".manager-shots/9.1c/preview-break-blanket-allow-392.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844"
+    ],
+    "item": "9.1c",
+    "break": "blanket-allow",
+    "origins": {
+      "app": "http://localhost:5191",
+      "stranger": "http://localhost:5192"
+    }
+  },
+  "check_id": "preview-frame-headers",
+  "started_at": "2026-10-13T12:41:36.881Z",
+  "status": "fail",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 16,
+  "assertion_floor": "3 header-merge + 1 parse + 2 sizes x 3 + 2 own-origin + 3 stranger + 1 canary = 16, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "unprotected-path-renders-for-stranger",
+    "observed_failure": true
+  },
+  "observed": {
+    "effective": {
+      "/app": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      },
+      "/admin": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      },
+      "/book/demo-detail": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
+      }
+    },
+    "sizes": {
+      "1440x900": {
+        "src": "http://localhost:5191/book/demo-detail?pv=1",
+        "shown": true,
+        "console": []
+      },
+      "392x844": {
+        "src": "http://localhost:5191/book/demo-detail?pv=1",
+        "shown": true,
+        "console": []
+      }
+    },
+    "refusals": {
+      "self /app": "RENDERED",
+      "self /admin": "RENDERED",
+      "stranger /app": "RENDERED",
+      "stranger /admin": "RENDERED",
+      "stranger /book/demo-detail": "refused"
+    }
+  }
+}

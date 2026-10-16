@@ -48,6 +48,42 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Unfinished receipt cleanup (ROADMAP 14.39)
+
+The fix is built and committed locally: a receipt upload remains recorded even
+if its reply is lost or the tab closes, so the nightly job can reclaim it.
+The local proof passes and catches a deliberately retained file. The required
+real-R2 cleanup proof is unfinished because this runner has none of the existing
+R2 environment that is configured in your Supabase function secrets.
+
+**Your move:** arrange a proof runner with that existing R2 environment;
+keep secret values out of chat and docs. Recommendation: use the committed
+proof's real-R2 mode before releasing, rather than treating the local result
+as evidence about Cloudflare. It saves a manifest before writing each fixture
+and has a recovery command for an interrupted run.
+
+**Release step, not a decision:** apply this item's two new migrations in order,
+then publish `photo-door` and `photo-reconcile`. A session repeats the real-R2
+sabotage, successful receipt and scheduled-cleanup proof before ticking 14.39.
+The exact files, commands and limits are in
+[the unfinished-receipt release guide](docs/receipt-abandonment-release.md).
+No new public upload origin, account setup or allowance decision is requested.
+
+## RELEASE STEP · Expense receipts use the new photo store (ROADMAP 0.11cc)
+
+The final upload switch is committed locally. Your cron, its timeout and the
+10 GB allowance were already live; they were checked again without changing
+the database. No new account setup or decision is needed for those steps.
+
+Before publishing the app, have the session for **98.5** repair the stale photo
+checks and get the full photo and Spanish run green. The protected tests were
+left unchanged by this job, and their failed output is saved. Then include the
+receipt switch in your ordinary app release; a session verifies the published
+upload and ticks 0.11cc. The control-room copy on port 5180 has a separate
+browser-origin restriction, so its transport check records that limitation.
+The failed-upload cleanup gap found during proof is now numbered **14.39**;
+all of this job's temporary receipt files and expenses were removed.
+
 ## DO · Let deleted gallery images leave Cloudflare's cache (ROADMAP 0.11bd)
 
 The deletion fix is built locally. It needs a new Cloudflare **Cache Purge**
@@ -151,11 +187,15 @@ The profit screen is finished and proven: a session typed four test bills into i
 
 You approved publishing both pieces and checking them live. Piece one (4.3b) puts orphaned history rows onto the live panel — publish `platform-admin`. Piece two (4.3c) is the support-session lock: the migration plus the functions sharing `_shared/tenant.ts`. **Known consequence, your call:** until 4.3c part (a) is built, the preview's "Let me make changes" button promises what the server refuses — pressing it shows *WORKING in … Anything you change is theirs* while every save is refused. If that is acceptable for now, publish in this order: migration first, then the functions, then check Coastline's detail (4.3b) and the preview banner (4.3c) live. A session ticks the boxes after.
 
+**Update 2026-10-13, about the "merge it" questions on 4.3c: please don't answer them yet.** Two separate jobs built the fix for that button, each in its own way, and the two versions can't both be kept. One also has the two-hour time limit. The other keeps your button working if the website goes live before the server half does. A follow-up job (ROADMAP 4.3e) combines them into one version and then asks you once. Nothing needs doing from you until then.
+
 **Recommendation:** publish, since you said go — but expect the unlock mismatch above until (a) lands, and do not demo the unlock button live before then.
 
 ## DO · Publish the booking-preview fix after it is prepared (ROADMAP 9.1b)
 
 You already said go, and the live comparison ran. The same demo business shows **9 of 12** on the dashboard and both back-office views at phone and laptop widths. However, the booking preview in Business is blank: the live site's protection header forbids loading that page inside the dashboard. That leaves the required browser check red, so 9.1b and 9.1 remain open. Nothing was published or changed in the live business records.
+
+**Update 2026-10-13: the fix is built and proved (ROADMAP 9.1c).** One new line in the site's settings lets only our own dashboard show booking pages inside its frame. The dashboard and back office still refuse to be shown inside anyone's frame, and checked on a copy of the site on this computer they both refused. The preview showed the real booking page at phone and laptop width with no errors. Your step: publish as usual. Ten seconds after publishing, open Business on your phone; under "What customers see" you should see your booking page instead of a white box.
 
 **Recommendation (Andrew said fix now, 2026-10-12 — ROADMAP 9.1c builds it):** have a separate session prepare and verify a narrowly scoped fix that allows the intended booking preview while keeping the dashboard and back office protected. Once that fix is ready, you publish it; a session then reruns `node --env-file=.env scripts/live-setup-counts.mjs` and its `--break=count` control. This is a publication step after a fix is prepared, not another request to authorize the comparison. Proof: `receipts/live-setup-counts.json` and `.sabotage.json`; commands, revisions, discovered-of-expected targets, console findings, and inspected screenshots are recorded under ROADMAP 9.1b.
 
@@ -878,21 +918,21 @@ a push publishes at all** before spending one.
 website published before `photo-door` exists answers every photo action with
 *"Photo storage is not set up on the server yet"*.
 
-**AND NOW TWO LINES TO FLIP AFTER `photo-door` IS LIVE, WHICH IS NOT A PUBLISH AND
-IS EASY TO FORGET.** Two parts of the photo job are written, tested and
-**switched off** by one word each, both in `app/src/lib/photo-door.js`:
+**THE TWO RELEASE SWITCHES ARE NOW ON LOCALLY.** Both are in
+`app/src/lib/photo-door.js`; the app still needs your publish after the
+98.5 photo-test repair passes.
 
-* **`RECEIPTS_VIA_DOOR`, currently `false`** — receipts for expenses.
+* **`RECEIPTS_VIA_DOOR`, now `true` locally (0.11cc, 2026-10-13)** — receipts for expenses.
   **Needs:** `photo-door` published (step 9c).
-* **`MEDIA_VIA_DOOR`, currently `false`** — your logo, the marketing gallery and
+* **`MEDIA_VIA_DOOR`, already `true` locally (0.11bc2, 2026-10-10)** — your logo, the marketing gallery and
   the website-intake photographs. **Needs:** `photo-door` published **and** the
   public web address from step 9a2, **and** the CORS rule on `business-media`.
   *Added 2026-10-08.*
 
-Publish the function, meet each one's conditions, then have a session flip it to
-`true`; the website has to be published afterwards for either to take effect.
-**Why they are off at all:** both of those features work today, so switching them
-over before the function existed would break something that works. (Job
+The function, public address and CORS prerequisites above are already live.
+The website has to be published afterwards for the local receipt switch to take effect.
+**Why these switches originally stayed off:** switching working uploads
+over before the function existed would break them. (Job
 photographs have no switch, because they were already going through a door that
 did not exist — there was nothing working to lose.) **If you publish and nobody
 flips them, nothing breaks and nothing says so** — both keep going the old way,

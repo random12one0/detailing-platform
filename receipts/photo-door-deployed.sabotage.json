@@ -1,0 +1,39 @@
+{
+  "git_sha": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
+  "git_sha_started": "e58b0dc78e9af7e62d2dbab053320f2cee930b54",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:50:48.532Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/photo-door-deployed.sabotage.log"
+  ],
+  "dimensions": {
+    "break": "accept-stranger",
+    "unjudgeable": 0,
+    "canaries_caught": 9,
+    "canaries_missed": [
+      "mode \"serves-stranger-start\" went UNNOTICED by refuses-another-business",
+      "mode \"serves-stranger-remove\" went UNNOTICED by refuses-another-business"
+    ],
+    "door_deployed": true,
+    "base_source": "--base="
+  },
+  "check_id": "photo-door-deployed",
+  "started_at": "2026-10-13T12:50:42.115Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 12,
+  "min_assertions": 12,
+  "assertion_floor": "one assertion per stand-in mode (8) plus one per fabricated account world (4). The count is fixed by construction, so the floor is the same number by design: removing a mode drops below it.",
+  "canary": {
+    "id": "eleven-handed-over-defects",
+    "observed_failure": false,
+    "detail": "caught 9 of 11; MISSED mode \"serves-stranger-start\" went UNNOTICED by refuses-another-business | mode \"serves-stranger-remove\" went UNNOTICED by refuses-another-business"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "git_sha": "0cdab2bcf6817b363353a060cb45a5119e5dd3a6",
+  "git_sha_started": "0cdab2bcf6817b363353a060cb45a5119e5dd3a6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:48:59.202Z",
+  "failures": [],
+  "warnings": [
+    "STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md)."
+  ],
+  "artifacts": [
+    "artifacts/restore-nightly/report.txt"
+  ],
+  "dimensions": {
+    "project": "kguqylyzgyzfktkfnhjb",
+    "source": "file fixture-proof.pgc, 20469 bytes",
+    "target": "throwaway local Postgres, deleted after the run",
+    "accounts": 6,
+    "files": 9,
+    "rows": {
+      "auth.users": 6,
+      "public.bookings": 126,
+      "public.business_settings": 6,
+      "public.businesses": 6,
+      "public.customers": 42,
+      "storage.objects": 9
+    }
+  },
+  "check_id": "restore-nightly",
+  "started_at": "2026-10-13T12:48:55.892Z",
+  "status": "pass",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 9,
+  "canary": {
+    "id": "altered-booking-text",
+    "observed_failure": true,
+    "note": "named: public.bookings: 126 rows, but their contents differ from the backup"
+  }
+}

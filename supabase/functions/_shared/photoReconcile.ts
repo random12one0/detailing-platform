@@ -6,7 +6,7 @@
 // first appear as an invoice. The point is not to fix drift automatically. The point is that it shows
 // up as a number somewhere on a schedule."*
 //
-// THIS FILE IS THAT, AND IT NEVER WRITES TO R2 OR TO `job_photos`. There is no `del` call, no update and no
+// Job-photo reconciliation never writes to R2 or to `job_photos`. There is no `del` call, no update and no
 // "repair" anywhere in it: a reconcile that quietly fixes drift hides the very thing it is there to show,
 // and a deletion driven by a listing is how one tenant's photographs become another's loss. The numbers go
 // to one place, the `photo-reconcile` row of `job_heartbeats`, which already exists, already shows on the
@@ -31,7 +31,9 @@
 // pg_cron calls it with no session. A caller who hammers it could otherwise spend R2 list requests, so it
 // refuses unless the last real run is older than `MIN_INTERVAL_MS` (read from the heartbeat, which a caller
 // cannot write) and it sits behind a global rate limit. All it can ever do for a stranger is the reading
-// the next scheduled run would have done, and it reads, it does not change anything.
+// the next scheduled run would have done. Since 14.39 it also invokes a separate
+// receipt reaper: only expired durable attempts, locked against finish, may be
+// deleted. Callers cannot provide keys or choose which attempt is due.
 
 import { parseObjectKey } from "./photoKey.ts";
 import { listAll, type ListedObject, type R2Store } from "./r2.ts";
@@ -66,6 +68,7 @@ export interface BusinessReport {
 export interface Allowance { total_bytes: number; share_bytes: number }
 
 export interface Report {
+  receipt_cleanup?: { claimed: number; removed: number; failed: number; batch_full: boolean };
   clean: boolean;
   r2_objects: number; r2_bytes: number; db_rows: number; db_bytes: number;
   drift_bytes: number;
@@ -174,6 +177,8 @@ export interface ReconcileDeps {
   loadRows(): Promise<DbPhoto[]>;
   /** The caps, or `null` when they could not be read. */
   allowance(): Promise<Allowance | null>;
+  /** 14.39: only durable, expired receipt attempts; never job-photo repair. */
+  reclaimReceipts?(): Promise<NonNullable<Report["receipt_cleanup"]>>;
   stamp(detail: Report): Promise<void>;
   log(...args: unknown[]): void;
 }
@@ -213,6 +218,14 @@ export async function handlePhotoReconcile(req: Request, deps: ReconcileDeps): P
   try { allowance = await deps.allowance(); } catch (e) { deps.log("photo-reconcile: allowance unreadable:", (e as Error)?.message); }
 
   const report = reconcile(objects, rows, allowance);
+  if (deps.reclaimReceipts) {
+    try {
+      report.receipt_cleanup = await deps.reclaimReceipts();
+      if (report.receipt_cleanup.failed || report.receipt_cleanup.batch_full) report.clean = false;
+    } catch {
+      return json({ error: "Could not reclaim unfinished receipts.", ran: false }, 502);
+    }
+  }
   try { await deps.stamp(report); }
   catch (e) {
     // A reconcile nobody can read is not a run. Say so rather than answer 200.

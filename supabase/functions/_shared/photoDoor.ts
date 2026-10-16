@@ -253,6 +253,9 @@ export interface PhotoDeps {
   saveReceipt?(row: ReceiptRow): Promise<ReceiptRow>;
   /** Sets the five columns back to null. */
   clearReceipt?(businessId: string, expenseId: string): Promise<void>;
+  /** Durable attempts own failed-upload deletion. A lost database reply may
+   * already have committed; inline deletion would destroy that saved receipt. */
+  receiptAttemptsManaged?: boolean;
 
   // ------------------------------------------------------- business-media
   // ROADMAP 0.11 slice 4. **A FUNCTION RATHER THAN AN IMPORT OF `r2.ts`, AND
@@ -557,7 +560,7 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
       // would count as free against the allowance for ever.
       const rBytes = rStored.bytes;
       if (!isInt(rBytes) || rBytes <= 0 || rBytes > store.maxBytes) {
-        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unusable receipt", expenseId));
+        if (!deps.receiptAttemptsManaged) await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unusable receipt", expenseId));
         return bad("The stored receipt has no usable size, so it was not saved.", 422);
       }
 
@@ -565,12 +568,12 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
       // client that under-reported its size meets.
       const rb = await deps.budget(member.businessId, token);
       if (!rb || !(Number(rb.cap_bytes) > 0) || !Number.isFinite(Number(rb.used_bytes))) {
-        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unchecked receipt", expenseId));
+        if (!deps.receiptAttemptsManaged) await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unchecked receipt", expenseId));
         return bad("Could not check your photo storage. Nothing was saved. Try again in a minute.", 503);
       }
       const rBudget = { used_bytes: Number(rb.used_bytes), cap_bytes: Number(rb.cap_bytes) };
       if (rBudget.used_bytes + rBytes > rBudget.cap_bytes) {
-        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an over-cap receipt", expenseId));
+        if (!deps.receiptAttemptsManaged) await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an over-cap receipt", expenseId));
         return bad(fullSentence(rBudget), 409);
       }
 
@@ -583,9 +586,9 @@ export async function handlePhotoDoor(req: Request, deps: PhotoDeps): Promise<Re
         });
         return json({ expense: saved });
       } catch {
-        // The columns did not land, so the object goes: an object with no row
-        // is invisible to everything except the nightly reconcile.
-        await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unrecorded receipt", expenseId));
+        // Managed attempts are reclaimed only after the database claims them.
+        // An exception may mean the commit's REPLY was lost, not its write.
+        if (!deps.receiptAttemptsManaged) await r2.del(store.bucket, rKey).catch(() => deps.log("photo-door: could not remove an unrecorded receipt", expenseId));
         return bad("Could not save the receipt. Try again.", 500);
       }
     }

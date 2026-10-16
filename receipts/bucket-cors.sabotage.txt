@@ -1,4 +1,4 @@
-bucket cors · 2026-10-13T09:21:12.682Z
+bucket cors · 2026-10-13T12:41:05.368Z
 endpoint: https://3ebc9f9dfd8b21c849e43fcd9e22887c.r2.cloudflarestorage.com · media: https://media.detailingplatform.com
 origins: https://detailingplatform.com https://www.detailingplatform.com http://localhost:5173 http://127.0.0.1:5173 https://*.netlify.app https://*.netlify.live
 buckets: job-photos expense-receipts business-media

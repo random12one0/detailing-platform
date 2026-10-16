@@ -1,0 +1,85 @@
+{
+  "git_sha": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "git_sha_started": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T12:41:39.756Z",
+  "failures": [
+    "cron: exactly one active daily 03:40 UTC anonymous platform HTTP call, with 60s timeout, same transport as refresh-weather"
+  ],
+  "warnings": [
+    "Checks migration effects, not an applied-migrations ledger. No release history can prove simultaneous changes retroactively. A publish of this checkout is still required for its flags to reach customers."
+  ],
+  "artifacts": [
+    "receipts/photo-cron-live.sabotage.txt"
+  ],
+  "dimensions": {
+    "break": "no-timeout",
+    "project": "kguqylyzgyzfktkfnhjb",
+    "state": {
+      "cron": [
+        {
+          "active": true,
+          "schedule": "40 3 * * *",
+          "anonymous": true,
+          "http_post": true,
+          "timeout_60s": false,
+          "platform_url": true
+        }
+      ],
+      "allowance": [
+        10
+      ],
+      "heartbeat": [
+        {
+          "detail": {
+            "clean": true,
+            "named": {},
+            "db_rows": 0,
+            "missing": 0,
+            "orphans": 0,
+            "db_bytes": 0,
+            "misfiled": 0,
+            "r2_bytes": 0,
+            "allowance": {
+              "share_bytes": 107374182,
+              "total_bytes": 10737418240,
+              "store_used_pct": 0,
+              "store_used_bytes": 0,
+              "businesses_over_share": 0
+            },
+            "mismatched": 0,
+            "r2_objects": 0,
+            "drift_bytes": 0,
+            "orphan_bytes": 0,
+            "missing_bytes": 0,
+            "mismatch_bytes": 0,
+            "businesses_seen": 0,
+            "named_truncated": false,
+            "unknown_size_rows": 0,
+            "unattributed_bytes": 0,
+            "businesses_drifting": 0,
+            "unattributed_objects": 0
+          },
+          "ran_at": "2026-10-13T03:40:06.380794+00:00",
+          "stale_after_seconds": 90000
+        }
+      ],
+      "refresh_weather": 1
+    }
+  },
+  "check_id": "photo-cron-live",
+  "started_at": "2026-10-13T12:41:37.047Z",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 5,
+  "min_assertions": 4,
+  "status": "fail",
+  "canary": {
+    "id": "missing-cron-timeout",
+    "observed_failure": true
+  }
+}

@@ -462,7 +462,9 @@ export function writeReceipt(r) {
   // evidence stays complete and readable in its own file and the real
   // receipt keeps the last honest verdict about the product. The directory
   // validator below skips these the way it already skips `holds.json`.
-  const sabotage = String(full.dimensions?.break || full.dimensions?.sabotage || "");
+  // `broken_on_purpose` is the third spelling, used by photo-release-order and cors-rule; until
+  // 2026-10-13 their sabotage runs still clobbered the real receipt (found on ROADMAP 0.11cb).
+  const sabotage = String(full.dimensions?.break || full.dimensions?.sabotage || full.dimensions?.broken_on_purpose || "");
   const path = join(RECEIPTS, name + (sabotage ? ".sabotage" : "") + ".json");
   writeFileSync(path, JSON.stringify(full, null, 2) + "\n");
   return { path, receipt: full };

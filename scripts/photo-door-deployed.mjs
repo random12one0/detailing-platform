@@ -659,7 +659,8 @@ say("");
 say(status === "pass" ? "PASS — 0.11bb's four criteria are met by the deployed door."
   : `FAIL — ${failures.length} failed, ${unjudgeable.length} unjudgeable, ${missed.length} canaries missed.`);
 
-const log = path.join(REPO, "receipts/photo-door-deployed.log");
+const logArtifact = `receipts/photo-door-deployed${BREAK ? ".sabotage" : ""}.log`;
+const log = path.join(REPO, logArtifact);
 writeFileSync(log, lines.join("\n") + "\n");
 
 writeReceipt({
@@ -682,7 +683,7 @@ writeReceipt({
     + "construction, so the floor is the same number by design: removing a mode drops below it.",
   failures,
   warnings: unjudgeable,
-  artifacts: ["receipts/photo-door-deployed.log"],
+  artifacts: [logArtifact],
   // THE NEGATIVE CONTROL IS THE WHOLE STAND-IN RUN. Eleven defects are handed
   // over every run — seven wrong loopback doors and four fabricated account
   // worlds — and `observed_failure` is false the moment ONE goes unnoticed,
