@@ -1,0 +1,43 @@
+{
+  "git_sha": "58c14ce8788351f837890a2bb22570e79772b5b7",
+  "git_sha_started": "58c14ce8788351f837890a2bb22570e79772b5b7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T21:03:23.781Z",
+  "failures": [],
+  "warnings": [
+    "create-booking is a browser stand-in mirroring the committed guard; nothing reaches the database.",
+    "The two-car setting and the per-car quote legs are fed in the browser; demo-detail stays a one-car business."
+  ],
+  "artifacts": [
+    "receipts/price-changed-split.txt",
+    "artifacts/price-changed-split/"
+  ],
+  "dimensions": {
+    "roadmap": "97.8",
+    "break": null,
+    "base": "http://127.0.0.1:5180",
+    "env_from": "http://localhost:5173"
+  },
+  "check_id": "price-changed-split",
+  "started_at": "2026-10-16T21:00:47.620Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 48,
+  "assertion_floor": "11 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, sentence names price, language, on screen, console) plus 1 env signature with --env-from.",
+  "canary": {
+    "id": "unguarded-car-2-saved-unshown",
+    "observed_failure": true,
+    "caught": [
+      "car 2 was NOT saved at a price the page never showed",
+      "the page says car 1 is booked and names car 2's new price ($85)",
+      "the sentence is in English"
+    ],
+    "what": "an extra 390 walk against a stand-in with the guard off saves car 2 at shown + $20; the walk must name it"
+  }
+}

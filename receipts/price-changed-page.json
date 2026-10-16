@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
-  "git_sha_started": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
+  "git_sha": "ebcde1011aea46a759f7f93dd43405854c0f5ab7",
+  "git_sha_started": "ebcde1011aea46a759f7f93dd43405854c0f5ab7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T20:17:46.162Z",
+  "finished_at": "2026-10-16T20:51:16.695Z",
   "failures": [],
   "warnings": [
     "create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
@@ -20,7 +20,7 @@
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-page",
-  "started_at": "2026-10-16T20:15:45.209Z",
+  "started_at": "2026-10-16T20:49:12.343Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
