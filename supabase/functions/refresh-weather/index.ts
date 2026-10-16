@@ -25,14 +25,15 @@
 // on the morning of the job, confidently wrong. So nothing here is written
 // once: every value is overwritten by the next run that finds it due.
 //
-// **AND IT IS NOT AUTHENTICATED, for the same reason the reminder sweep is
-// not.** A caller who hammers it can only make it write the forecast a
-// scheduled run would have written minutes later; there is no message, no slot
-// and no money on the other side of it.
+// **ONLY PG_CRON MAY START IT (ROADMAP 97.3).** Public at the gateway because
+// the scheduler has no session, so the call must carry `x-cron-secret`
+// (`_shared/cronAuth.ts`). Before that, anyone could make it write every
+// tenant's bookings.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { cronRefusal } from "../_shared/cronAuth.ts";
 import { gridKey, gridWeek, jobAddress, periodAt, pointFor } from "../_shared/weatherCache.ts";
 
 // THE HORIZON. The NWS hourly endpoint answers about 156 one-hour periods —
@@ -67,6 +68,8 @@ type Row = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
+  const refused = cronRefusal(req);
+  if (refused) return refused;
 
   try {
     const now = Date.now();

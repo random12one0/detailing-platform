@@ -164,21 +164,24 @@ for (const f of MIGS) {
 console.log("1. the entry, as the migrations declare it");
 // AN EQUALITY, not a floor: a third reschedule is something somebody has to
 // justify, and `docs/gotchas.md` 98 is about exactly the slack a floor leaves.
-check("1a . exactly two migrations schedule photo-reconcile", ours.length === 2,
+// THE THIRD IS ROADMAP 97.3: the call now carries the cron secret, read from Vault.
+check("1a . exactly three migrations schedule photo-reconcile", ours.length === 3,
   `${ours.length} (${ours.map((o) => o.file).join(", ")})`);
 const eff = ours[ours.length - 1] || {};     // last applied wins: cron.schedule replaces by name
 const first = ours[0] || {};
-check("1b . the one that wins is the timeout migration",
-  eff.file === "20261009120000_photo_reconcile_cron_timeout.sql", String(eff.file));
+check("1b . the one that wins is the cron-secret migration",
+  eff.file === "20261016100000_cron_jobs_send_secret.sql", String(eff.file));
 check("1c . the reschedule did not quietly change the cadence",
   !!eff.expr && eff.expr === first.expr, `${first.expr} then ${eff.expr}`);
 check("1d . it is daily at 03:40 UTC", eff.expr === "40 3 * * *", String(eff.expr));
 check("1e . the header argument holds no bracket, so reading to the first ')' is whole",
   typeof eff.headers === "string" && eff.headers.endsWith(")") && eff.headers.slice(0, -1).indexOf(")") === -1,
   String(eff.headers));
-check("1f . it posts Content-Type application/json and an empty object",
-  eff.headers === "jsonb_build_object('Content-Type', 'application/json')" && eff.body === "{}",
+check("1f . it posts Content-Type application/json, the cron secret, and an empty object",
+  eff.headers === "jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', s.decrypted_secret)" && eff.body === "{}",
   `${eff.headers} / ${eff.body}`);
+check("1g . and the secret is read from Vault by name, never written in the migration",
+  /\)\s*from vault\.decrypted_secrets s where s\.name = 'cron_secret';/.test(eff.job ?? ""), String(eff.job).slice(-120));
 
 // -- 2 . WHERE IT POINTS. A security question before it is a plumbing one ---
 console.log("\n2. the address");
@@ -360,16 +363,16 @@ const { path: receiptPath } = writeReceipt({
   check_id: "photo-cron-call",
   started_at,
   status: failed ? "fail" : "pass",
-  // The two migrations that schedule this job. An equality, asserted in 1a.
-  expected_targets: 2,
+  // The three migrations that schedule this job. An equality, asserted in 1a.
+  expected_targets: 3,
   discovered_targets: ours.length,
   attempted_targets: ours.length,
   completed_targets: ours.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 37,
-  assertion_floor: "6 in s1 + 5 in s2 + 5 in s3 + (2 + 3 + 5 judged + 5 figures + 1) in s4 + 3 in s5 + 2 in s6 "
-    + "= 37. DECLARED STRUCTURAL, and stated as an equality rather than with slack under it: every check() "
+  min_assertions: 38,
+  assertion_floor: "7 in s1 + 5 in s2 + 5 in s3 + (2 + 3 + 5 judged + 5 figures + 1) in s4 + 3 in s5 + 2 in s6 "
+    + "= 38. DECLARED STRUCTURAL, and stated as an equality rather than with slack under it: every check() "
     + "runs unconditionally, with no early return and no conditional section, and the only multipliers are "
     + "FIVE and EXPECT, whose length is the criterion's own five drift kinds. So the count is fixed by the "
     + "question list and cannot fall without a diff somebody has to justify - a tripwire on the code rather "
