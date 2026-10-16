@@ -54,7 +54,7 @@ import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessCo
 import {
   blockers as coreBlockers,
   bookable, bookingRequests, campaignFor, closedUntil,
-  groupedWith, initialForm,
+  groupedWith, initialForm, retryConfirmation,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor,
@@ -549,12 +549,12 @@ function BookingFlow({ notFound = null }) {
       // `quote.plan_id` rather than `planId` on purpose — it is the id the
       // SERVER resolved, so a retired plan is not carried forward.
       rememberCustomer(slug, form, quote?.plan_id);
-      setConfirmed(r.booking);
+      setConfirmed(r.duplicate ? retryConfirmation(r.booking, payloads[0], quote) : r.booking);
     } catch (e) {
       // A 409 here means the slot went while they were filling the form, or
       // a rule rejected it. Say so plainly and send them back to pick again.
       setSubmitError(e.message === "sms_consent_not_saved"
-        ? t("Your booking is saved, but we couldn't save your text choice. Try again to save it.")
+        ? t("Your booking is saved, but we couldn't save your text choice.")
         : e.message || t("We couldn't complete that booking."));
       setSubmitting(false);
     }

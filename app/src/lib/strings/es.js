@@ -44,7 +44,7 @@
 // believe every key here is discovered.
 
 export const es = {
-  "Your booking is saved, but we couldn't save your text choice. Try again to save it.": "Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto. Inténtalo de nuevo para guardarla.",
+  "Your booking is saved, but we couldn't save your text choice.": "Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto.",
   "Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.": "Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.",
   "Privacy": "Privacidad",
   "Terms": "Términos",

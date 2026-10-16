@@ -46,9 +46,15 @@ import { saveBookingSmsConsent } from "../_shared/bookingConsent.ts";
  * ROADMAP 6.4 / F-022 — is this request a booking that already exists?
  *
  * Same business, same instant, same phone AND same name, not cancelled. The
- * name is there because the answer is the whole row, id included, and the id
- * is the key to the manage page: phone and time alone are things a stranger
- * can know. A retry sends the identical name, so it costs a real retry nothing.
+ * name is there because the answer carries the id, and the id is the key to
+ * the manage page: phone and time alone are things a stranger can know. A
+ * retry sends the identical name, so it costs a real retry nothing.
+ *
+ * ROADMAP 97.2 — AND THE ANSWER IS THREE COLUMNS, NEVER THE ROW. It used to be
+ * `select("*")`, so anybody holding a name, a phone and a time was handed the
+ * customer's email, home address and notes and the detailer's private
+ * `admin_notes`. The page fills the rest of its confirmation from what it
+ * just sent.
  */
 // ROADMAP 99.8 — the same rule as `phoneComplete` in `app/src/book/core.js`:
 // a US number counts with exactly 10 digits (a leading 1 dropped); a number
@@ -65,7 +71,7 @@ const phoneComplete = (v: unknown) => {
 const sameBooking = (businessId: string, startIso: string, body: Record<string, unknown>) =>
   supabase
     .from("bookings")
-    .select("*")
+    .select("id, start_at, status")
     .eq("business_id", businessId)
     .eq("start_at", startIso)
     .eq("customer_phone", String(body.customer_phone).trim())
@@ -265,9 +271,11 @@ Deno.serve(async (req) => {
     // the gate and before any limit is spent, so a retry costs nothing.
     const asked = localDateTimeToInstant(business.timezone, String(body.booking_date), String(body.start_time).slice(0, 5));
     if (!Number.isNaN(asked.getTime())) {
+      // ROADMAP 97.2 — NO CONSENT WRITE HERE. This answer is reachable by
+      // anybody with a name, a phone and a time, so it must not be able to
+      // switch on texts for a customer who never ticked the box.
       const { data: mine } = await sameBooking(business.id, asked.toISOString(), body);
       if (mine) {
-        await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
         return json({ booking: mine, duplicate: true });
       }
     }
@@ -592,11 +600,10 @@ Deno.serve(async (req) => {
         // and already scopes the customer upsert by it; email is optional.
         const { data: mine } = await sameBooking(business.id, check.startAt!.toISOString(), body);
         if (mine) {
-          await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
-          // The SAME shape a fresh booking returns, so the confirmation page
-          // and the emails behave identically — a retry must be
-          // indistinguishable from the first press, including for the
-          // customer who never knew there was one.
+          // ROADMAP 97.2 — three columns and no consent write, as above.
+          // A retry must still LOOK like the first press to the customer who
+          // never knew there was one: the page fills the date, times and
+          // price from what it just sent (BookingPage `submit`).
           return json({ booking: mine, duplicate: true });
         }
         return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
@@ -775,7 +782,9 @@ Deno.serve(async (req) => {
     }
 
     // The booking and its email are already saved before a consent failure
-    // reaches the page. Both duplicate exits retry only the consent write.
+    // reaches the page. A retry does NOT save it: ROADMAP 97.2 took the
+    // consent write out of both duplicate exits, because a stranger can reach
+    // them.
     await saveBookingSmsConsent(supabase, business.id, customerId, body.sms_consent, member);
 
     return json({
