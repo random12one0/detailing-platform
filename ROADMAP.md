@@ -251,6 +251,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): the app, plus the `create-booking` and `calculate-booking` functions (both read the changed `_shared/pricing.ts`; `reschedule-booking`, `update-booking`, `send-invoice`, `validate-promo-code` and `preview-emails` import it too and will show as drifted in `deployed-inventory.mjs`). Box left open until the live functions run this code.
 
 - [ ] **97.7 — Different-day multi-car bookings are quoted at car 1's day and charged at each car's own day (C-H3).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.7-20261016163112937`. Answer "merge it" to keep it, or say what to change.
   `core.js:328-331` sends only size and model for the other cars; `calculate-booking/index.ts:67-71` matches price rules once, against car 1's date; `create-booking/index.ts:231-235` matches each car against its own date. Proved with a +$30 weekend rate: car 1 Monday, car 2 Saturday is quoted **$400** and charged **$430**; reversed, quoted $460 and charged $430. Send each car's date and time with the quote and match rules per car, so the quote and the save run the same inputs.
   Acceptance criteria:
   - Both orders of the Monday/Saturday case quote exactly what `create-booking` saves ($430), in a test that runs the quote and the save on the same input
