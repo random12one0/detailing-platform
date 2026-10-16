@@ -11,6 +11,14 @@
 //   node tests/retry-safety.test.mjs                     this checkout's functions, run locally
 //   RETRY_TARGET=deployed node tests/retry-safety.test.mjs   what is live today
 //   node tests/retry-safety.test.mjs --break=no-client-id    sabotage: must go red
+//   node tests/retry-safety.test.mjs --only=3e               the fleet-job race alone (ROADMAP 97.66):
+//                                                            no booking allowance spent, so it can be run ten times
+//   node tests/retry-safety.test.mjs --only=3e --break=no-collision-handling
+//                                                            sabotage: the real bulkJob.js with its collision
+//                                                            handling cut out must go red
+//   node tests/retry-safety.test.mjs --only=3e --break=swallow-23505
+//                                                            sabotage: handling that forgives EVERY 23505 without
+//                                                            reading the row back must go red on the REFUSED line
 //
 // LOCAL is the default because deploying is Andrew's: `scripts/lib/edgeLocal.mjs`
 // runs `supabase/functions/<name>/index.ts` from THIS checkout in Node, against
@@ -27,12 +35,32 @@
 import "./_env.mjs";
 import { sink } from "./_mail.mjs";
 import { startEdge } from "../scripts/lib/edgeLocal.mjs";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+const { createClient } = createRequire(new URL("../app/package.json", import.meta.url))("@supabase/supabase-js");
 
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ANON = process.env.SUPABASE_ANON_KEY;
 const TARGET = process.env.RETRY_TARGET === "deployed" ? "deployed" : "local";
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8) || null;
+const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").slice(7) || null;
+if (ONLY && ONLY !== "3e") { console.log(`NOT RUN — --only knows 3e, not ${ONLY}.`); process.exit(1); }
+
+// THE PRODUCT'S OWN SAVE, NOT A COPY OF IT. The sabotage cuts the collision
+// handling out of the real file between its markers and refuses to run if the
+// cut did not land (docs/gotchas.md 102).
+const BULK_SRC = new URL("../app/src/lib/bulkJob.js", import.meta.url);
+let { saveBulkJob } = await import(BULK_SRC.href);
+if (BREAK === "no-collision-handling" || BREAK === "swallow-23505") {
+  const src = readFileSync(BULK_SRC, "utf8");
+  const cut = BREAK === "no-collision-handling"
+    ? src.replace(/\/\/ collision: begin[\s\S]*?\/\/ collision: end\r?\n/, "")
+    : src.replace("if (data) return { error: null };", "return { error: null };");
+  const landed = BREAK === "no-collision-handling" ? !cut.includes(`"23505"`) : !cut.includes("if (data)");
+  if (cut === src || !landed) { console.log(`NOT RUN — --break=${BREAK} did not land in bulkJob.js.`); process.exit(1); }
+  ({ saveBulkJob } = await import(`data:text/javascript,${encodeURIComponent(cut)}`));
+}
 
 if (!URL_ || !SERVICE || !ANON) {
   console.log("NOT RUN — needs SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY (.env).");
@@ -61,7 +89,7 @@ const count = async (table, filter) => {
 };
 const mails = (to) => count("email_sends", `to_email=eq.${encodeURIComponent(to)}`);
 
-const edge = TARGET === "local"
+const edge = TARGET === "local" && !ONLY
   ? await startEdge(["create-booking", "update-booking", "cancel-booking", "reschedule-booking", "respond-to-booking", "accept-quote"])
   : null;
 const BASE = edge ? edge.url : URL_;
@@ -139,6 +167,7 @@ try {
   })).json()).access_token;
   check("setup · own fixture business, service, hours and a signed-in owner", !!biz?.id && !!service?.id && !!jwt);
 
+  if (!ONLY) {
   // ── 1. (c) A BOOKING SUBMITTED TWICE LEAVES ONE BOOKING ────────────────
   console.log("\n1. (c) the same booking submitted twice");
   const submit = (d, phone, i) => () => fn("create-booking", {
@@ -237,16 +266,54 @@ try {
     fr.map((r) => r.status).join(","));
   check("3d · ROWS: still one booking for that customer", (await count("bookings", `business_id=eq.${biz.id}&customer_phone=eq.${job.customer_phone}`)) === 1);
 
+  }
+
   // The bulk-job sheet (`BulkJobModal`) inserts a whole booking from the
-  // browser. Same mechanism, same proof.
-  const bulkId = crypto.randomUUID();
-  const bulk = () => rest("bookings?on_conflict=id", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates" }, body: JSON.stringify([{
-    id: bulkId, business_id: biz.id, customer_name: "Dealer Lot", customer_phone: "555-0300", service_type: "dropoff",
-    start_at: at(day(-3), "09:00"), end_at: at(day(-3), "15:00"), status: "completed", bulk_vehicle_count: 10, total_price: 900,
-  }]) }, owner);
-  const bw = [...await twice(bulk), await bulk()];
-  check("3e · a logged bulk job pressed three times: accepted, ONE row", bw.every((r) => r.status < 300)
-    && (await count("bookings", `id=eq.${bulkId}`)) === 1, bw.map((r) => `${r.status} ${JSON.stringify(r.body).slice(0, 80)}`).join(" | "));
+  // browser, through `saveBulkJob` — called here as the owner, exactly as the
+  // sheet calls it. ROADMAP 97.66: two presses landing at once could answer
+  // 409 23505 off the second unique key over a row that WAS saved.
+  // TEN JOBS, NOT ONE, because the race is a matter of milliseconds: with the
+  // handling cut out, a single job pressed twice at once went red 2 runs in 10
+  // (measured 2026-10-16), so one job's green proved almost nothing.
+  const ownerDb = createClient(URL_, ANON, { auth: { persistSession: false }, global: { headers: { Authorization: `Bearer ${jwt}` } } });
+  const JOBS = 10;
+  const bad = [];
+  for (let j = 0; j < JOBS; j++) {
+    const bulkId = crypto.randomUUID();
+    const bulk = () => saveBulkJob(ownerDb, {
+      id: bulkId, business_id: biz.id, customer_name: `Dealer Lot ${j + 1}`, customer_phone: "555-0300", service_type: "dropoff",
+      start_at: at(day(-3), "09:00"), end_at: at(day(-3), "15:00"), status: "completed", bulk_vehicle_count: 10, total_price: 900,
+    });
+    const bw = [...await Promise.all([bulk(), bulk(), bulk()]), await bulk()];
+    const rows = await count("bookings", `id=eq.${bulkId}`);
+    if (bw.some((r) => r.error) || rows !== 1) {
+      bad.push(`job ${j + 1}: ${bw.map((r) => (r.error ? `${r.error.code} ${r.error.message}` : "saved")).join(" | ")} · ${rows} row(s)`);
+    }
+  }
+  check(`3e · ${JOBS} logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each`,
+    bad.length === 0, `${bad.length} of ${JOBS} jobs wrong\n        ${bad.join("\n        ")}`);
+
+  // THE RACE'S ANSWER, EVERY TIME. Even ten jobs only meet the race now and
+  // then — 0 to 2 jobs in 10 at 3, 6 and 12 presses at once, measured — so
+  // the live half above cannot make the sabotage red on demand. This half
+  // can: the write really happens, and the reply is the one the database gave
+  // the losing press, word for word. And the refusal half: the same reply over
+  // a job that was NOT saved must stay an error, or the handling is just
+  // swallowing every 23505.
+  const RACE = { code: "23505", message: 'duplicate key value violates unique constraint "bookings_id_business_key"' };
+  const lostRace = (writes) => ({ from: (t) => ({
+    upsert: async (row, opts) => { if (writes) await ownerDb.from(t).upsert(row, opts); return { data: null, error: RACE }; },
+    select: (...a) => ownerDb.from(t).select(...a),
+  }) });
+  const job = (id) => ({ id, business_id: biz.id, customer_name: "Dealer Lot replay", customer_phone: "555-0300", service_type: "dropoff",
+    start_at: at(day(-3), "09:00"), end_at: at(day(-3), "15:00"), status: "completed", bulk_vehicle_count: 10, total_price: 900 });
+  const savedId = crypto.randomUUID(), unsavedId = crypto.randomUUID();
+  const won = await saveBulkJob(lostRace(true), job(savedId));
+  const lost = await saveBulkJob(lostRace(false), job(unsavedId));
+  check("3e · the race's 23505 over a job that IS saved answers as saved",
+    !won.error && (await count("bookings", `id=eq.${savedId}`)) === 1, won.error ? `${won.error.code} ${won.error.message}` : "");
+  check("3e · REFUSED: the same 23505 over a job that was never saved stays an error",
+    lost.error?.code === "23505" && (await count("bookings", `id=eq.${unsavedId}`)) === 0, JSON.stringify(lost.error));
 } catch (err) {
   failed++;
   console.log(`\nCRASHED: ${err.stack || err.message}`);
@@ -258,5 +325,5 @@ try {
   check("teardown · the fixture business is gone", left === 0, `${left} left`);
 }
 
-console.log(`\n${passed} passed, ${failed} failed  (target ${TARGET}${BREAK ? `, --break=${BREAK}` : ""})`);
+console.log(`\n${passed} passed, ${failed} failed  (target ${TARGET}${ONLY ? `, --only=${ONLY}` : ""}${BREAK ? `, --break=${BREAK}` : ""})`);
 process.exit(failed ? 1 : 0);

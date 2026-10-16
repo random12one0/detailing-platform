@@ -31,6 +31,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
+import { saveBulkJob } from "../lib/bulkJob.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
 import Sheet from "./Sheet.jsx";
@@ -81,7 +82,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
     const startAt = localDateTimeToInstant(business.timezone, date, "08:00");
     const endAt = localDateTimeToInstant(business.timezone, date, "17:00");
     const n = Math.round(Number(cars));
-    const { error: err } = await supabase.from("bookings").upsert({
+    const { error: err } = await saveBulkJob(supabase, {
       id: jobId,
       business_id: business.id,
       customer_name: company.trim(),
@@ -109,7 +110,7 @@ export default function BulkJobModal({ onClose, onSaved }) {
       payment_status: "paid",
       finalized_at: new Date().toISOString(),
       admin_notes: notes.trim() || null,
-    }, { onConflict: "id", ignoreDuplicates: true });
+    });
     if (err) {
       setError(err.message);
       setBusy(false);
