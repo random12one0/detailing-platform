@@ -81,6 +81,7 @@ const TABLES = {
   business_settings: [{ business_id: B1, email_customer_reminder: true, email_owner_reminder: false, push_enabled: false }],
   job_heartbeats: [{ job: "photo-reconcile", ran_at: new Date().toISOString(), detail: {} }],
 };
+const LEAK_ROW = { ...TABLES.bookings[0], id: LEAK_ID, business_id: "gone" };
 let mode = "normal";          // "leak": the sweep finds a booking that fails; "raw": an RPC answers an error
 const log = [];
 const relay = [];
@@ -107,7 +108,7 @@ globalThis.fetch = async (input, init) => {
     if (fn === "get_bookings_due_for_reminder" && mode === "raw") return send(400, { message: RAW, code: "P0001" });
     if (fn === "get_bookings_due_for_reminder" && mode === "leak") {
       const args = JSON.parse(text || "{}");
-      if (args.target === "owner") return send(200, [{ ...TABLES.bookings[0], id: LEAK_ID, business_id: "gone" }]);
+      if (args.target === "owner") return send(200, [LEAK_ROW]);
     }
     if (fn === "rate_take") return send(200, true);
     if (fn === "note_heartbeat") return send(200, null);
@@ -116,11 +117,20 @@ globalThis.fetch = async (input, init) => {
   const tbl = u.pathname.match(/^\/rest\/v1\/([a-z_]+)$/);
   if (tbl) {
     let rows = TABLES[tbl[1]] ?? [];
+    if (tbl[1] === "bookings" && mode === "leak") rows = [...rows, LEAK_ROW];
     for (const [k, v] of u.searchParams) {
       const m = String(v).match(/^eq\.(.*)$/);
       if (m) rows = rows.filter((r) => String(r[k]) === m[1]);
+      if (v === "is.null") rows = rows.filter((r) => r[k] == null);
     }
-    if (req.method !== "GET" && req.method !== "HEAD") return send(200, [], { "Content-Range": "*/0" });
+    // ROADMAP 97.4: the sweep CLAIMS a due booking (a PATCH that matches only
+    // while the marker is empty, returning the row) before it sends, so a
+    // write answers with the rows it matched, as PostgREST does. Answering []
+    // reads as "another sweep claimed it first" and the booking is skipped.
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      const back = /return=representation/.test(req.headers.get("prefer") || "") ? rows : [];
+      return send(200, back, { "Content-Range": `*/${back.length}` });
+    }
     if (String(req.headers.get("accept") || "").includes("vnd.pgrst.object")) {
       return rows.length === 1 ? send(200, rows[0]) : send(406, { code: "PGRST116", message: "0 rows" });
     }
