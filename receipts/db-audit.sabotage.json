@@ -1,14 +1,14 @@
 {
-  "git_sha": "63d5e8a4b59423db0643c8a2e47db76f94a2c9fb",
-  "git_sha_started": "63d5e8a4b59423db0643c8a2e47db76f94a2c9fb",
+  "git_sha": "c38f1859d9abc2df6a95af66f20157b5ae931222",
+  "git_sha_started": "c38f1859d9abc2df6a95af66f20157b5ae931222",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T14:11:16.971Z",
+  "finished_at": "2026-10-15T15:12:50.461Z",
   "failures": [
     "1 finding(s) to look at — see FOUND above"
   ],
   "warnings": [
-    "run with --break=regrant; this receipt is a sabotage, not a result"
+    "run with --break=stranger; this receipt is a sabotage, not a result"
   ],
   "artifacts": [
     "scripts/db-audit.mjs"
@@ -16,10 +16,10 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "checks": 6,
-    "break": "regrant"
+    "break": "stranger"
   },
   "check_id": "db-audit",
-  "started_at": "2026-10-13T14:11:03.575Z",
+  "started_at": "2026-10-15T15:12:46.787Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
