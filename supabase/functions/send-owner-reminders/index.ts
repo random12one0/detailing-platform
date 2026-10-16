@@ -21,7 +21,7 @@ import {
 } from "../_shared/email.ts";
 import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, ownerReminderSubject, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
-import { sendToEachOwner } from "../_shared/ownerFanout.ts";
+import { requireOwnerReached, sendToEachOwner } from "../_shared/ownerFanout.ts";
 import { businessSiteUrl, receiptUrl, unsubscribeUrl } from "../_shared/config.ts";
 import { maintenanceVerdict, STAGES, stageDue } from "../_shared/maintenance.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -146,32 +146,32 @@ async function sendOwnerReminder(b: BookingRow) {
   const data = await emailDataFor(business, b);
   // The owner reminder reuses the owner notification layout — same info, new
   // subject line.
-  // ROADMAP 97.5 — every address is tried; this throws only if NONE went out,
-  // so one bad address cannot hold the marker back and re-send to the rest.
-  // The push sits after the loop, so a partial failure no longer skips it.
-  let failed: string[] = [];
-  if (settings.email_owner_reminder) {
-    ({ failed } = await sendToEachOwner(ownerRecipients(business, settings), async (to) => {
-      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
-      const lang = await recipientLang(to, business.id);
-      const msg = ownerNewBookingEmail(brand, data, false, undefined, lang);
-      return await sendTenantEmail({ bookingId: b.id,
-        businessId: business.id,
-        to,
-        // ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". This
-        // was typed here with the raw 2026-10-03 date in it.
-        subject: ownerReminderSubject(brand, data, lang),
-        html: msg.html,
-        text: msg.text,
-      });
-    }, "owner reminder"));
-  }
-  if (settings.push_enabled) await sendOwnerPush(business.id, {
+  // ROADMAP 97.5 — every address is tried and the push always goes after
+  // them; this throws only if neither an email nor the push reached the
+  // owner, so one bad address cannot hold the marker back and re-send to the
+  // rest. See _shared/ownerFanout.ts for why a delivered push counts.
+  const recipients = settings.email_owner_reminder ? ownerRecipients(business, settings) : [];
+  const { sent, failed } = await sendToEachOwner(recipients, async (to) => {
+    // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+    const lang = await recipientLang(to, business.id);
+    const msg = ownerNewBookingEmail(brand, data, false, undefined, lang);
+    return await sendTenantEmail({ bookingId: b.id,
+      businessId: business.id,
+      to,
+      // ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". This
+      // was typed here with the raw 2026-10-03 date in it.
+      subject: ownerReminderSubject(brand, data, lang),
+      html: msg.html,
+      text: msg.text,
+    });
+  });
+  const pushed = settings.push_enabled ? await sendOwnerPush(business.id, {
     title: "Upcoming job reminder",
     body: `${b.customer_name} · ${formatTime12hr(data.startTime)}`,
     url: `/job/${b.id}`,
     tag: `booking-${b.id}`,
-  }).catch((e) => console.error("push failed", e));
+  }).then((r) => r.sent, (e) => { console.error("push failed", e); return 0; }) : 0;
+  requireOwnerReached({ addresses: recipients.length, sent, pushed }, "owner reminder");
   return failed;
 }
 
@@ -340,20 +340,25 @@ Deno.serve(async (req) => {
         const waited = Math.round((Date.now() - new Date(b.created_at).getTime()) / 3600_000);
         const brand = await buildBrand(business, settings);
         const data = await emailDataFor(business, b);
-        // ROADMAP 97.5 — same rule as the owner reminder: throws only if no
-        // address got it. The push used to go BEFORE this loop, so a refused
-        // address re-sent the push (and every other address's email) each sweep.
-        const { failed } = await sendToEachOwner(ownerRecipients(business, settings), async (to) => {
+        // ROADMAP 97.5 — same rule as the owner reminder: every address is
+        // tried, the push always goes, and this throws only if NEITHER reached
+        // the owner. Before 97.5 a refused address re-sent the push and every
+        // other address's email each sweep; the first 97.5 version then threw
+        // before the push, so a one-address business got NO push at all while
+        // email was down. A delivered push now marks it, so it goes once.
+        const recipients = ownerRecipients(business, settings);
+        const { sent, failed } = await sendToEachOwner(recipients, async (to) => {
           // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
           const msg = staleRequestEmail(brand, data, waited, await recipientLang(to, business.id));
           return await sendTenantEmail({ bookingId: b.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
-        }, "stale request nudge");
-        await sendOwnerPush(business.id, {
+        });
+        const pushed = await sendOwnerPush(business.id, {
           title: "Still waiting on you",
           body: `${b.customer_name} asked for ${when} · ${waited}h ago, no answer yet`,
           url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
-        }).catch((e) => console.error("push failed", e));
+        }).then((r) => r.sent, (e) => { console.error("push failed", e); return 0; });
+        requireOwnerReached({ addresses: recipients.length, sent, pushed }, "stale request nudge");
         await mark(b.id, "owner_request_nudge_sent_at");
         results.push({ id: b.id, kind: "request_nudge", sent: true });
         if (failed.length) results.push({ id: b.id, kind: "request_nudge", sent: false, error: `refused for ${failed.length} of the owner addresses` });
