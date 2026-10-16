@@ -30,7 +30,7 @@
 //   node scripts/receipt.mjs receipts/tz-clock-change.json
 
 import { execSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -179,6 +179,12 @@ console.log(`\n${assertions - failed} passed, ${failed} failed, ${assertions} as
 console.log(`canary: the old one-pass function failed ${canaryMisses.length} of ${grid.length} conversions`);
 
 const EXPECTED = ZONES.length * DAYS.length * 24;
+// Every conversion and what it read back, so a person can look; a sabotage run
+// writes its own file and never overwrites the clean one.
+const artifact = `artifacts/tz-clock-change/grid${BREAK ? ".sabotage" : ""}.json`;
+mkdirSync(join(REPO, "artifacts/tz-clock-change"), { recursive: true });
+writeFileSync(join(REPO, artifact), JSON.stringify({ break: BREAK || null, failures, grid }, null, 2) + "
+");
 const { path } = writeReceipt({
   check_id: "tz-clock-change",
   started_at,
@@ -191,6 +197,7 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   // 144 round-trips + 6 spacing + 7 figures + 8 callers + 2 copy searches + 1 canary.
   min_assertions: 168,
+  assertion_floor: "structural: the grid is 2 zones x 3 days x 24 hours and every other assertion is a fixed list, so the count cannot vary between runs",
   failures,
   dimensions: {
     roadmap: "97.1",
@@ -200,6 +207,7 @@ const { path } = writeReceipt({
     ...(BREAK ? { break: BREAK } : {}),
     files_searched_for_second_copy: tracked.length,
   },
+  artifacts: [artifact],
   canary,
 });
 console.log(`receipt: ${path}`);
