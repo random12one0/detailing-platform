@@ -2,6 +2,8 @@
 //
 //   node scripts/bookings-grant-drill.mjs                 # exit 0 = proved
 //   node scripts/bookings-grant-drill.mjs --break=regrant # sabotage: must exit 1
+//   node scripts/bookings-grant-drill.mjs --parse-only    # only the source read below: no
+//                                                         # credentials, no database (ROADMAP 97.66)
 //
 // Needs SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF (`.env`). Sends ONE
 // statement to the Management API: a DO block that creates schema
@@ -32,13 +34,6 @@ import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-for (const line of readFileSync(path.join(ROOT, ".env"), "utf8").split(/\r?\n/)) {
-  const i = line.indexOf("=");
-  if (line && !line.startsWith("#") && i > 0 && !process.env[line.slice(0, i).trim()]) process.env[line.slice(0, i).trim()] = line.slice(i + 1).trim();
-}
-const { SUPABASE_ACCESS_TOKEN: TOKEN, SUPABASE_PROJECT_REF: REF } = process.env;
-if (!TOKEN || !REF) { console.error("SKIPPED — nothing was measured: missing SUPABASE_ACCESS_TOKEN or SUPABASE_PROJECT_REF."); process.exit(1); }
-if (REF !== "kguqylyzgyzfktkfnhjb") { console.error(`REFUSED — ${REF} is not this platform's database. Stop and ask.`); process.exit(1); }
 const BREAK = process.argv.find((a) => a.startsWith("--break="))?.slice(8);
 
 // --- the migration, retargeted. Refuse if anything could still reach public.
@@ -51,9 +46,15 @@ if (!migSql.includes("public.bookings") || /\bpublic\./i.test(retargeted)) {
 }
 
 // --- the browser's only direct write, read off the source so it cannot drift.
+// ROADMAP 97.66: the sheet hands its row to `saveBulkJob` (app/src/lib/bulkJob.js),
+// which does the upsert — so the FIELDS are read off the sheet and the
+// ON CONFLICT (id) DO NOTHING off the helper. Both halves must be found.
 const bulk = readFileSync(path.join(ROOT, "app/src/components/BulkJobModal.jsx"), "utf8");
-const block = bulk.match(/from\("bookings"\)\.upsert\(\{([\s\S]*?)\},\s*\{\s*onConflict:\s*"id",\s*ignoreDuplicates:\s*true/);
-if (!block) { console.error("FAIL — BulkJobModal's bookings upsert (with ignoreDuplicates) was not found; re-read the browser's writes."); process.exit(1); }
+const saver = readFileSync(path.join(ROOT, "app/src/lib/bulkJob.js"), "utf8");
+const block = bulk.match(/saveBulkJob\(supabase,\s*\{([\s\S]*?)\n\s*\}\);/);
+if (!block || !/from\("bookings"\)\.upsert\(row,\s*\{\s*onConflict:\s*"id",\s*ignoreDuplicates:\s*true\s*\}\)/.test(saver)) {
+  console.error("FAIL — BulkJobModal's saveBulkJob row, or bulkJob.js's bookings upsert (with ignoreDuplicates), was not found; re-read the browser's writes."); process.exit(1);
+}
 const keys = [...block[1].matchAll(/^\s*([a-z_]+):/gm)].map((m) => m[1]).sort();
 const fleet = (id) => ({
   id, business_id: randomUUID(), customer_name: "Drill Motors", customer_phone: "",
@@ -66,6 +67,18 @@ const payloadKeys = Object.keys(fleet("x")).sort();
 if (keys.join() !== payloadKeys.join()) {
   console.error(`FAIL — BulkJobModal now writes [${keys}] and this drill sends [${payloadKeys}]. Update fleet() to match.`); process.exit(1);
 }
+if (process.argv.includes("--parse-only")) {
+  console.log(`PARSED ONLY — BulkJobModal writes ${keys.length} fields through bulkJob.js's ignore-duplicates upsert, matching fleet(). No credentials read, nothing sent to the database.`);
+  process.exit(0);
+}
+
+for (const line of readFileSync(path.join(ROOT, ".env"), "utf8").split(/\r?\n/)) {
+  const i = line.indexOf("=");
+  if (line && !line.startsWith("#") && i > 0 && !process.env[line.slice(0, i).trim()]) process.env[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+}
+const { SUPABASE_ACCESS_TOKEN: TOKEN, SUPABASE_PROJECT_REF: REF } = process.env;
+if (!TOKEN || !REF) { console.error("SKIPPED — nothing was measured: missing SUPABASE_ACCESS_TOKEN or SUPABASE_PROJECT_REF."); process.exit(1); }
+if (REF !== "kguqylyzgyzfktkfnhjb") { console.error(`REFUSED — ${REF} is not this platform's database. Stop and ask.`); process.exit(1); }
 
 const lit = (s) => `'${String(s).replaceAll("'", "''")}'`;
 const seedId = randomUUID(), fleetId = randomUUID();
