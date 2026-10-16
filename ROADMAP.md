@@ -171,6 +171,9 @@ product-readiness gaps and the cleanup are in the second audit block at the end
 of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build jobs.
 
 - [ ] **97.1 — On the two clock-change Sundays, morning bookings are saved an hour off (C-H1).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/timezone-and-slots.test.mjs, tests/tz-clock-change.test.mjs.
+  The work is safe on branch `belt/97.1-20261016042658330`. Answer "merge it" to keep it, or say what to change.
+  **Supervisor 2026-10-16: reproduced on that branch (`dbce96b9`).** `node tests/tz-clock-change.test.mjs` 169 passed, 0 failed; `BREAK=one-pass` 31 failed. An independent sweep of the branch's `tz.ts` (7 zones incl. Phoenix, Honolulu, Sydney, London; every half hour of 2026) had exactly the 10 times that do not exist on a clock fail to round-trip, nothing else. The two test edits are fair, not moved goalposts: `timezone-and-slots`' independent oracle carried the same one-pass bug, and `seed-demo.mjs` now imports `tz.ts` rather than a third copy. **Recommendation: merge it.** Merging fixes the code only; the live booking functions still need deploying before 2026-11-01.
   `supabase/functions/_shared/tz.ts:15-35` (`localToDate`) reads the zone offset once, at a guessed instant that lands on the wrong side of the clock change. Proved in node for America/Los_Angeles: on 2026-03-08 08:00 is saved as 9:00 AM and 09:00 and 10:00 both become 17:00Z; on 2026-11-01 08:00 is saved as 7:00 AM. **The next clock change is 2026-11-01.** Callers: `slotValidation.ts:149` (the stored `start_at` for `create-booking/index.ts:489-490` and `reschedule-booking/index.ts:108`), `available-slots/index.ts:381`, `pricing.ts:352,358`, `BulkJobModal.jsx:81`. Fix the one function (two-pass offset) so every caller is fixed at once; grep for a browser copy of the same math too.
   Acceptance criteria:
   - A credential-free test converts all 24 hours of 2026-03-08, 2026-11-01 and one ordinary day in America/Los_Angeles (plus one other US zone) and every result round-trips to the same wall-clock time
@@ -30805,3 +30808,15 @@ Added by the Control Room's Audit tab from run 1, after a second check by a diff
   Acceptance criteria:
   - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
   - The Control Room's audit re-check of R1-08 passes after this box is ticked
+
+- [ ] **100.6 — The photo cache-purge address `api.cloudflare.com` is classified by neither privacy check, so both are red on main.**
+  Added by 0.11bd (`0c9dbaab`) in `supabase/functions/_shared/mediaCache.ts`. `node --test tests/legal-promises.test.mjs` (§ 5) and `node --test tests/privacy-processors.test.mjs` (§ 2c) each fail naming only that host, measured by the supervisor at `57cc2323`. Cloudflare is already a named processor (R2 photos); say whether the purge call carries anything personal (it sends public photo addresses) and classify the host in both tables. Do not loosen either check.
+  Acceptance criteria:
+  - Both tests green at the fixing commit
+  - Deleting the new classification turns both red again, naming `api.cloudflare.com` (sabotage run and recorded)
+
+- [ ] **100.7 — `sweep-methods-are-pinned` is red on main: the audit's open items (97.10 onward) are named by no commit it can see.**
+  `node --test tests/sweep-methods-are-pinned.test.mjs` at `57cc2323`: 5 passed, 3 failed (§ 3 and § 3b); § 3b's arriving list starts `97.10, 97.11, …` and runs to 61 items. The audit commits do name items (`audit: 100.5 from finding R1-08`), so first find out whether the test's commit match misses that message shape or the items really have no commit. Fix the cause; only declare items in `NO_COMMIT_YET` if they truly have none.
+  Acceptance criteria:
+  - The test is green, and the commit says which of the two causes it was
+  - Its existing sabotage still turns it red (re-run in the same edit, gotchas 95)
