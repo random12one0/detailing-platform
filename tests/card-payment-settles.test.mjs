@@ -204,9 +204,7 @@ writeFileSync(path(logName), [
   ...probed.map((p) => `${p.got === p.want ? "ok  " : "FAIL"}  ${p.name}: want ${p.want}, got ${p.got}`),
   ...failures.map((f) => `FAIL  ${f}`),
   `${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${EXPECTED} fixtures.`,
-].join("
-") + "
-");
+].join("\n") + "\n");
 const { path: receiptPath } = writeReceipt({
   // One sabotage receipt per switch, so a later break never overwrites an earlier one.
   check_id: BREAK ? `card-payment-settles-${BREAK}` : "card-payment-settles",
