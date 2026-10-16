@@ -30844,3 +30844,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (Money > Expenses > Add, type -50, pick a category: Save expense is enabled and saves.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-05 passes after this box is ticked
+
+- [ ] **101.3 — On Promo codes, 'Code added' and error messages appear below the whole list, and failures to switch a code on or off are never shown (audit R2-06).**
+  `app/src/screens/more/Promos.jsx:118`, `app/src/screens/more/Promos.jsx:124-127`, `app/src/screens/more/Promos.jsx:279-306`, `app/src/screens/more/Promos.jsx:308`. One shared message is drawn at the very bottom of the screen, under the Your codes list (and the 390px screenshot shows the Save sale and Add code buttons are 400-700px above it). A duplicate code prints the database's own message, not a sentence. toggleCode awaits the update but ignores its error, and the list has no loading or 'no codes yet' state (a failed load looks the same as no codes). A detailer taps Add code, nothing visible changes where they are looking, so they tap again or give up; a duplicate code shows text like 'duplicate key value violates unique constraint'; a Deactivate that failed looks like it did nothing.
+  Supposed to: After pressing Save sale, Add code or Deactivate the detailer sees straight away whether it worked, in plain words.
+  Fix: Draw the message directly under the button that was pressed (two messages: sale and code), replace the duplicate error with 'You already have a code called X', check the error in toggleCode, and show a short 'No codes yet' line.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-06.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (At 390px open Settings > Promo codes, add the same code twice: the red box appears under the whole codes list, outside the first screen's view, and reads as a database error.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-06 passes after this box is ticked
