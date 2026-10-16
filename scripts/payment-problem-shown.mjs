@@ -20,7 +20,10 @@
 // mismatch scenarios must go red.
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
-//   node scripts/payment-problem-shown.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook]
+//   node scripts/payment-problem-shown.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook] [--freeze]
+//
+// --freeze also writes the belt's Before/After review pages at 390x844: Before is
+// the job as the OLD webhook left it (marked paid on a $1 payment), After as now.
 
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -71,7 +74,8 @@ lp.on("response", async (r) => {
   if (jobId || !/\/rest\/v1\/bookings\?/.test(r.url()) || r.request().method() !== "GET") return;
   try {
     const rows = await r.json();
-    const row = (Array.isArray(rows) ? rows : [rows]).find((b) => b?.id && b.status !== "cancelled" && !b.deleted_at);
+    // A CONFIRMED job: a request nobody accepted can never take a card (payability).
+    const row = (Array.isArray(rows) ? rows : [rows]).find((b) => b?.id && b.status === "confirmed" && !b.deleted_at);
     if (row) jobId = row.id;
   } catch {}
 });
@@ -141,6 +145,37 @@ for (const sc of jobId ? SCENARIOS : []) {
     completed++;
     await ctx.close();
   }
+}
+if (process.argv.includes("--freeze") && jobId && !BREAK) {
+  const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+  const DIR = "C:/Users/rando/Downloads/claude/belt/shots/97.10";
+  const open = async (patch) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: state });
+    await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
+    const page = await ctx.newPage();
+    await page.route("**/rest/v1/bookings?**", async (route) => {
+      if (route.request().method() !== "GET" || !route.request().url().includes(jobId)) return route.continue();
+      const res = await route.fetch();
+      const body = await res.json().catch(() => null);
+      const edit = (b) => (b && b.id === jobId ? { ...b, ...patch } : b);
+      await route.fulfill({ response: res, json: Array.isArray(body) ? body.map(edit) : edit(body) });
+    });
+    await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".jobbar", { timeout: 30000 });
+    await page.waitForTimeout(1200);
+    return { ctx, page };
+  };
+  const b = await open(OLD);
+  await freeze(b.page, { out: `${DIR}/before.html`, label: "Before",
+    note: "A $1 card payment on a $150 job: the old webhook marked the job Paid and said nothing.",
+    highlight: ".pill.paid" });
+  await b.ctx.close();
+  const a = await open(SCENARIOS[0].patch);
+  await freeze(a.page, { out: `${DIR}/after.html`, label: "After",
+    note: "The same $1 payment: the job stays Unpaid and the red line says what came in, what is owed, and where to check.",
+    highlight: "[data-payment-problem]" });
+  console.log(`differs: ${await differs(a.page, `${DIR}/before.html`, `${DIR}/after.html`)}`);
+  await a.ctx.close();
 }
 await browser.close();
 
