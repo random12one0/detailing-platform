@@ -264,6 +264,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - A sabotage that drops the per-car date turns the test red
 
 - [ ] **97.8 — `create-booking` saves whatever total it works out, even when the page showed a different one (C-H3, C-L7).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.8-20261016202647397`. Answer "merge it" to keep it, or say what to change.
   The product's first rule is that a customer is never charged a price they were not shown. Besides 97.7, the rush fee is re-checked at submit against the current clock (`pricing.ts:362`), so a customer who crosses the cut-off while typing is charged a fee the page never showed. The cheapest general guard: the page sends the total it showed, and `create-booking` refuses with a plain "the price changed" answer when its own total differs, and the page shows the new price and asks again.
   Acceptance criteria:
   - A booking whose shown total differs from the server's total is refused with a plain-words reason and nothing is saved (test)
