@@ -529,11 +529,11 @@ function BookingFlow({ notFound = null }) {
         // button. Their emails follow it from here.
         lang: getLocale(),
       });
-      refs.current = bookingRefs(payloads, refs.current);
+      refs.current = bookingRefs(payloads, refs.current ?? []);
       let r = null;
       for (let i = 0; i < payloads.length; i++) {
         try {
-          const body = { ...payloads[i], booking_ref: refs.current.refs[i] };
+          const body = { ...payloads[i], booking_ref: refs.current[i].ref };
           const one = await api.createBooking(
             slug, i === 0 ? body : groupedWith(body, r?.booking?.id),
           );

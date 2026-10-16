@@ -1526,14 +1526,18 @@ export const groupedWith = (payload, firstBookingId) =>
 // ROADMAP 97.64 — ONE RANDOM REF PER BOOKING, KEPT ACROSS RETRIES. The server
 // uses it as the booking's id and hands the id back on a repeat answer only to
 // a request carrying it, so a stranger who re-posts somebody's name, phone and
-// time never gets the manage link. Same requests as last time: the same refs,
-// so a retry after a lost answer is recognised. Anything changed (another
-// time, another car) is a new booking and gets new ones.
+// time never gets the manage link. EACH BOOKING keeps its own ref while its
+// own request is unchanged, so a retry after a lost answer is recognised and a
+// booking whose request changed (another time) gets a new one. Per booking,
+// not per list: changing car 2's time must not re-key car 1, or car 1's retry
+// loses its id and car 2 is booked without `group_with` (review, 2026-10-16).
 // ponytail: no fallback where crypto.randomUUID is missing (plain-http pages);
 // those send no ref and a retry falls back to "the link is in your email".
-export function bookingRefs(payloads, held) {
-  const key = JSON.stringify(payloads);
-  return held?.key === key ? held : { key, refs: payloads.map(() => globalThis.crypto?.randomUUID?.() ?? null) };
+export function bookingRefs(payloads, held = []) {
+  return payloads.map((p, i) => {
+    const key = JSON.stringify(p);
+    return held[i]?.key === key ? held[i] : { key, ref: globalThis.crypto?.randomUUID?.() ?? null };
+  });
 }
 
 // ROADMAP 97.2 — A RETRY'S ANSWER IS ONLY `id`, `start_at` AND `status`.

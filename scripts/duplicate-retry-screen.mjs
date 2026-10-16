@@ -61,7 +61,7 @@ async function routes(page, fixture, { loseFirst }) {
       }
       if (BREAK === 'no-ref' && /\/src\/book\/BookingPage\.jsx$/.test(url.pathname)) {
         const response = await route.fetch(), src = await response.text();
-        const changed = src.replace('booking_ref: refs.current.refs[i]', 'booking_ref: undefined');
+        const changed = src.replace('booking_ref: refs.current[i].ref', 'booking_ref: undefined');
         if (changed === src) throw Error('no-ref sabotage did not land');
         return route.fulfill({ response, body: changed });
       }
