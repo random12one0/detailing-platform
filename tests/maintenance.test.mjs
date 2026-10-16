@@ -208,16 +208,23 @@ console.log("\n6. the detailer's own words");
   // stage once it is RECORDED, or a 15-minute cron logs 96 skips a day. So the
   // send path is measured from the template call, and the skip path's stamp
   // must come after the record's error check.
+  //
+  // ROADMAP 97.4 TURNED THE ORDER ROUND ON PURPOSE: two overlapping sweeps
+  // both sent the same stage, so the stage is now CLAIMED before the send (it
+  // moves only from the value this sweep read) and the `catch` gives it back.
+  // A bounced relay still leaves the stage where it was — that is RUN, not
+  // read, in tests/reminder-claim.test.mjs § 2d; these hold the wiring.
   const at = block.indexOf("maintenanceDueEmail(brand,");
   const sendPath = block.slice(at);
-  check("the stage is stamped only after a successful send",
-    at >= 0 && sendPath.indexOf("await sendTenantEmail") >= 0
-      && sendPath.indexOf("reminded_stage: stage + 1") > sendPath.indexOf("await sendTenantEmail"),
+  const claimAt = block.indexOf(`.eq("reminded_stage", d.reminded_stage)`);
+  const catchAt = block.indexOf("} catch (e) {");
+  const givesBack = catchAt > at && block.indexOf("reminded_stage: d.reminded_stage", catchAt) > catchAt;
+  check("the stage is claimed before the send and given back when the send fails",
+    at >= 0 && sendPath.indexOf("await sendTenantEmail") >= 0 && claimAt >= 0 && claimAt < at && givesBack,
     "a bounced relay must not spend the stage — that is a warranty lost to one failed email");
   const skipPath = block.slice(0, at);
-  check("a skip spends the stage only after the skip is recorded",
-    skipPath.indexOf("if (logged.error) throw") >= 0
-      && skipPath.indexOf("reminded_stage: stage + 1") > skipPath.indexOf("if (logged.error) throw"));
+  check("a skip keeps the stage only once the skip is recorded",
+    claimAt >= 0 && skipPath.indexOf("if (logged.error) throw") > claimAt && givesBack);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
