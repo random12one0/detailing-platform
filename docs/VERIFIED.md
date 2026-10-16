@@ -3716,3 +3716,13 @@ landing, not a pass.
 `ec8d003c`: 169 / 0 clean, `BREAK=one-pass` 138 / 31. Its other finding (importing `scripts/receipt.mjs`
 runs `git rev-parse`) is every receipt-writing test in the repo and is no longer a review finding.
 Receipts touched by these runs on main were restored from HEAD.
+
+## Supervisor 2026-10-16 night — 97.2 merged by hand at `a8ca034a`, as Andrew decided
+
+**97.2** (duplicate booking answer narrowed to `id, start_at, status`, no consent write): branch
+`belt/97.2-20261016192228772` at `5418346c`. Its review's only finding was that criterion 3 had never run.
+Run here with credentials: `node tests/retry-safety.test.mjs` (this branch's functions, run locally, own
+fixture business) 30 / 0 twice and 29 / 1 once, the 1 being `3e` (bulk job, untouched by 97.2; filed
+97.66); main at `11588f40` 30 / 0. On the merged tree: `npm run build --prefix app` exit 0; the six
+credential-free suites 11 / 0; `node tests/duplicate-answer.test.mjs` 16 / 0, `BREAK=select-star` 12 / 4.
+`booking-engine` not run: it measures the deployed server. Not live until `create-booking` is deployed.
