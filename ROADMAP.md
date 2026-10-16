@@ -181,6 +181,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - Every caller listed above still imports the fixed function, with no second copy of the offset math left behind
 
 - [ ] **97.2 — `create-booking`'s duplicate answer hands the whole booking row to anyone who knows a name, phone and time (S-H1).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/duplicate-answer.test.mjs.
+  The work is safe on branch `belt/97.2-20261016092238889`. Answer "merge it" to keep it, or say what to change.
   `supabase/functions/create-booking/index.ts:65-75` (`sameBooking`, `.select("*")`) and `:260-263` (`return json({ booking: mine, duplicate: true })`). The public caller gets email, home address, notes, the detailer's private `admin_notes`, and the booking id that opens the manage page. The same path writes SMS consent (`:262`). The retry-safety work that added this exit (Wave 5 region, "compare-and-set") must keep working: a real retry still gets 200 and "you're booked".
   Acceptance criteria:
   - The duplicate answer carries only id, start time and status; `admin_notes`, email, address, phone and notes are absent, proved by a test that reads the response keys
