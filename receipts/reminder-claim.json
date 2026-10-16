@@ -1,0 +1,32 @@
+{
+  "git_sha": "5d32028fe0fa425769e6f9d85590d66b43a544f1",
+  "git_sha_started": "5d32028fe0fa425769e6f9d85590d66b43a544f1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T21:53:38.358Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/reminder-claim/clean.txt"
+  ],
+  "dimensions": {
+    "function": "send-owner-reminders",
+    "sweeps_at_once": 2
+  },
+  "check_id": "reminder-claim",
+  "started_at": "2026-10-16T21:53:38.207Z",
+  "status": "pass",
+  "expected_targets": 20,
+  "discovered_targets": 20,
+  "attempted_targets": 20,
+  "completed_targets": 20,
+  "skipped_targets": 0,
+  "assertions_executed": 54,
+  "min_assertions": 54,
+  "assertion_floor": "3 in §0 (+1 under BREAK) + 3 in §1 + one per expected send in §1 + 6 in §2 + one per expected send in §2 + 2 in §3; the fixture is fixed, so nothing the run finds changes the count",
+  "canary": {
+    "id": "send-owner-reminders-with-its-claims-removed",
+    "observed_failure": true,
+    "reported": 20
+  }
+}
