@@ -1,0 +1,198 @@
+{
+  "git_sha": "35effcfb60761004314b4143c4b802642953a5ef",
+  "git_sha_started": "35effcfb60761004314b4143c4b802642953a5ef",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T15:50:33.483Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.10/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "probed": [
+      {
+        "scenario": "mismatch",
+        "width": 1440,
+        "shown": true,
+        "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-1440x900.png"
+      },
+      {
+        "scenario": "mismatch",
+        "width": 768,
+        "shown": true,
+        "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-768x1024.png"
+      },
+      {
+        "scenario": "mismatch",
+        "width": 390,
+        "shown": true,
+        "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-390x844.png"
+      },
+      {
+        "scenario": "mismatch",
+        "width": 320,
+        "shown": true,
+        "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-320x700.png"
+      },
+      {
+        "scenario": "currency",
+        "width": 1440,
+        "shown": true,
+        "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-1440x900.png"
+      },
+      {
+        "scenario": "currency",
+        "width": 768,
+        "shown": true,
+        "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-768x1024.png"
+      },
+      {
+        "scenario": "currency",
+        "width": 390,
+        "shown": true,
+        "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-390x844.png"
+      },
+      {
+        "scenario": "currency",
+        "width": 320,
+        "shown": true,
+        "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-320x700.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 1440,
+        "shown": true,
+        "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-1440x900.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 768,
+        "shown": true,
+        "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-768x1024.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 390,
+        "shown": true,
+        "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-390x844.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 320,
+        "shown": true,
+        "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-320x700.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-1440x900.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-768x1024.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-390x844.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-320x700.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-1440x900.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-768x1024.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-390x844.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-320x700.png"
+      }
+    ]
+  },
+  "check_id": "payment-problem-shown",
+  "started_at": "2026-10-16T15:49:27.604Z",
+  "status": "pass",
+  "expected_targets": 20,
+  "discovered_targets": 20,
+  "attempted_targets": 20,
+  "completed_targets": 20,
+  "skipped_targets": 0,
+  "assertions_executed": 101,
+  "min_assertions": 100,
+  "canary": {
+    "id": "settled-job-hides-the-line",
+    "observed_failure": true
+  }
+}

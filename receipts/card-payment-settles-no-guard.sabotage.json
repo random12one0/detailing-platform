@@ -1,0 +1,96 @@
+{
+  "git_sha": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
+  "git_sha_started": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T15:51:28.477Z",
+  "failures": [
+    "account check → settled guard → verdict → refused-guard → paid write — account 1886, settled 2045, verdict 2155, guard -1, write 2671",
+    "a refused verdict returns before the paid write",
+    "and records why in payment_problem"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/card-payment-settles-no-guard.sabotage.txt"
+  ],
+  "dimensions": {
+    "base": "3c5bf515",
+    "break": "no-guard",
+    "probed": [
+      {
+        "name": "R2 · completed session still unpaid (bank transfer pending)",
+        "want": "leave",
+        "got": "leave"
+      },
+      {
+        "name": "R2 · completed session with no payment_status at all",
+        "want": "leave",
+        "got": "leave"
+      },
+      {
+        "name": "R3 · paid $1.00 on a $150 job",
+        "want": "amount",
+        "got": "amount"
+      },
+      {
+        "name": "R3 · paid $200 on a $150 job (overpaid also differs)",
+        "want": "amount",
+        "got": "amount"
+      },
+      {
+        "name": "R3 · right number, wrong currency (EUR)",
+        "want": "currency",
+        "got": "currency"
+      },
+      {
+        "name": "R3 · the quote paid after the detailer agreed $120",
+        "want": "amount",
+        "got": "amount"
+      },
+      {
+        "name": "R4 · paid exactly $150",
+        "want": "settle",
+        "got": "settle"
+      },
+      {
+        "name": "R4 · paid the agreed $120 (final_amount wins)",
+        "want": "settle",
+        "got": "settle"
+      },
+      {
+        "name": "R4 · $19.99 rounds to 1999 cents, not 1998",
+        "want": "settle",
+        "got": "settle"
+      },
+      {
+        "name": "intent · succeeded for $150",
+        "want": "settle",
+        "got": "settle"
+      },
+      {
+        "name": "intent · still processing",
+        "want": "leave",
+        "got": "leave"
+      },
+      {
+        "name": "intent · succeeded for $1.00 on a $150 job",
+        "want": "amount",
+        "got": "amount"
+      }
+    ]
+  },
+  "check_id": "card-payment-settles-no-guard",
+  "started_at": "2026-10-16T15:51:28.275Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 33,
+  "min_assertions": 30,
+  "canary": {
+    "id": "break-no-guard",
+    "observed_failure": true
+  }
+}
