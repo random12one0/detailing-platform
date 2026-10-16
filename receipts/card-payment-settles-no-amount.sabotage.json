@@ -1,9 +1,9 @@
 {
-  "git_sha": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
-  "git_sha_started": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
+  "git_sha": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
+  "git_sha_started": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T15:51:28.107Z",
+  "finished_at": "2026-10-16T16:02:01.587Z",
   "failures": [
     "R3 · paid $1.00 on a $150 job — expected amount, got settle",
     "R3 · paid $1.00 on a $150 job — the problem names both figures",
@@ -85,7 +85,7 @@
     ]
   },
   "check_id": "card-payment-settles-no-amount",
-  "started_at": "2026-10-16T15:51:27.916Z",
+  "started_at": "2026-10-16T16:02:01.268Z",
   "status": "fail",
   "expected_targets": 12,
   "discovered_targets": 12,

@@ -1,9 +1,9 @@
 {
-  "git_sha": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
-  "git_sha_started": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
+  "git_sha": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
+  "git_sha_started": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T15:51:27.749Z",
+  "finished_at": "2026-10-16T16:02:00.998Z",
   "failures": [
     "R2 · completed session still unpaid (bank transfer pending) — expected leave, got settle",
     "R2 · completed session with no payment_status at all — expected leave, got settle",
@@ -80,7 +80,7 @@
     ]
   },
   "check_id": "card-payment-settles-no-status",
-  "started_at": "2026-10-16T15:51:27.412Z",
+  "started_at": "2026-10-16T16:02:00.659Z",
   "status": "fail",
   "expected_targets": 12,
   "discovered_targets": 12,

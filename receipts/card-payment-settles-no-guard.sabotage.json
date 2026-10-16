@@ -1,9 +1,9 @@
 {
-  "git_sha": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
-  "git_sha_started": "2dcd1ebc8a3180934d42f5a187536756d16622ad",
+  "git_sha": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
+  "git_sha_started": "11d92479cf7a4f3ce3e456ff8493e388af5a9af6",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T15:51:28.477Z",
+  "finished_at": "2026-10-16T16:02:02.056Z",
   "failures": [
     "account check → settled guard → verdict → refused-guard → paid write — account 1886, settled 2045, verdict 2155, guard -1, write 2671",
     "a refused verdict returns before the paid write",
@@ -80,7 +80,7 @@
     ]
   },
   "check_id": "card-payment-settles-no-guard",
-  "started_at": "2026-10-16T15:51:28.275Z",
+  "started_at": "2026-10-16T16:02:01.808Z",
   "status": "fail",
   "expected_targets": 12,
   "discovered_targets": 12,
