@@ -357,7 +357,10 @@ const table = [
   `  ${JSON.stringify(PRE_FIX)}`,
   `  judged: ${JSON.stringify(pv)}`,
 ].join("\n") + "\n";
-writeFileSync(path.join(REPO, "receipts", "photo-cron-call.txt"), table);
+// A sabotage keeps its own log: a clean re-run must not overwrite the evidence
+// the `.sabotage.json` receipt points at (found on ROADMAP 97.3).
+const TXT = BREAK ? "receipts/photo-cron-call.sabotage.txt" : "receipts/photo-cron-call.txt";
+writeFileSync(path.join(REPO, TXT), table);
 
 const { path: receiptPath } = writeReceipt({
   check_id: "photo-cron-call",
@@ -385,7 +388,7 @@ const { path: receiptPath } = writeReceipt({
     rule: FIVE.join(" + "),
   },
   failures,
-  artifacts: ["receipts/photo-cron-call.txt"],
+  artifacts: [TXT],
   dimensions: {
     roadmap: "0.11d3a",
     criterion: "a cron-triggered photo-reconcile run records numeric drift in job_heartbeats",
