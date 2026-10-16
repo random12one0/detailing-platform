@@ -155,7 +155,7 @@ check("pricing.ts receives localDateTimeToInstant rather than defining one",
 const SABOTAGE_HOLDERS = ["tests/tz-clock-change.test.mjs", "scripts/tz-clock-change-browser.mjs"];
 // Read from disk, not `git ls-files`: the belt refuses to run a test that starts a program (supervision 2026-10-16).
 const SKIP_DIR = /(^|\/)(node_modules|dist|reference|\.[^/]+)(\/|$)/;
-const tracked = readdirSync(REPO, { recursive: true }).map((f) => String(f).split("\\").join("/"))
+const tracked = readdirSync(REPO, { recursive: true }).map((f) => String(f).replace(/\\/g, "/"))
   .filter((f) => /\.(ts|js|jsx|mjs)$/.test(f) && !SKIP_DIR.test(f) && !SABOTAGE_HOLDERS.includes(f));
 const SECOND_COPY = /([\w.()]+)\s*\+\s*\(\s*\1\s*-\s*asIfUtc\s*\)/;
 const copies = tracked.filter((f) => { try { return SECOND_COPY.test(readFileSync(join(REPO, f), "utf8")); } catch { return false; } });
