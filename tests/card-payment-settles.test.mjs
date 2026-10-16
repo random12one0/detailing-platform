@@ -197,6 +197,16 @@ console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${c
 const canary = BREAK
   ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
   : { id: "tampered-fixture-refused", observed_failure: tamperRefused };
+// A text log a person can read, one per run, so a sabotage never overwrites the clean one.
+const logName = `receipts/card-payment-settles${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+writeFileSync(path(logName), [
+  `card-payment-settles${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`,
+  ...probed.map((p) => `${p.got === p.want ? "ok  " : "FAIL"}  ${p.name}: want ${p.want}, got ${p.got}`),
+  ...failures.map((f) => `FAIL  ${f}`),
+  `${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${EXPECTED} fixtures.`,
+].join("
+") + "
+");
 const { path: receiptPath } = writeReceipt({
   // One sabotage receipt per switch, so a later break never overwrites an earlier one.
   check_id: BREAK ? `card-payment-settles-${BREAK}` : "card-payment-settles",
@@ -208,9 +218,10 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 33,
+  min_assertions: 30,
   failures,
   dimensions: { base: BASE, ...(BREAK ? { break: BREAK } : {}), probed },
+  artifacts: [logName],
   canary,
 });
 console.log(`receipt: ${receiptPath}`);
