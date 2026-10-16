@@ -1706,6 +1706,8 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/spanish.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/spanish.test.mjs :: tests/spanish.test.mjs.
+  The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
   HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/0.11be-20261013093840 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 1af7a26a 0.11be: entry note and clean receipt (16/16 presses, 62/62, PASS at 740882b2); 740882b2 0.11be: browser check for Gallery Remove, with two caught sabotages; 0021a08f 0.11be: Gallery Remove erases its stored photo(s) before the row..
   The work is safe on branch `belt/0.11be-20261013093840`. The next attempt resumes from it and follows the ruling below.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
