@@ -1,0 +1,113 @@
+retry-safety 3e · 10 runs in a row · commit 89148cce · 2026-10-16T22:55:26Z
+
+=== run 1 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 2 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 3 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 4 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 5 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 6 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 7 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 8 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 9 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+=== run 10 of 10
+retry-safety · target LOCAL (this checkout, run in Node)
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+5 passed, 0 failed  (target local, --only=3e)
+
+COUNTED: 10 of 10 runs exited 0
