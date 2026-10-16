@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
-export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '' } = {}) {
+export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [] } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
     const changed = helperSrc.replace('sms_consent_source: "booking_form"', 'sms_consent_source: "owner_entered"');
@@ -20,14 +20,18 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     { business_id: 'tenant-b', id: 'customer-b', phone: '(555) 012-3456', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null },
   ], bookings: [], booking_services: [], booking_add_ons: [] };
   const operations = [], sends = [], errors = [];
-  const oldBooking = { id: 'booking-a', business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '(555) 012-3456', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', deleted_at: null };
+  // 97.2 — the private columns a real row carries, so a duplicate answer that
+  // hands back the row is caught by its keys.
+  const oldBooking = { id: 'booking-a', business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '(555) 012-3456', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', end_at: '2026-10-30T18:00:00.000Z', deleted_at: null,
+    customer_email: 'maria@example.invalid', customer_address: '9 Private Ln', customer_notes: 'gate code 1234', admin_notes: 'owner-only note', total_price: 185 };
   if (duplicate) rows.bookings.push(oldBooking);
   const db = {
     from(table) {
       if (!rows[table]) throw Error('Fixture needs table ' + table);
-      const filters = [], query = { table, operation: 'read', value: null };
+      const filters = [], query = { table, operation: 'read', value: null, cols: null };
       const chain = {
-        select() { return chain; }, eq(k,v) { filters.push(r => r[k] === v); return chain; },
+        // A column list is honoured, as PostgREST does; none or "*" is the whole row.
+        select(cols) { if (cols && cols.trim() !== '*') query.cols = cols.split(',').map(c => c.trim()); return chain; }, eq(k,v) { filters.push(r => r[k] === v); return chain; },
         neq(k,v) { filters.push(r => r[k] !== v); return chain; },
         is(k,v) { filters.push(r => (r[k] ?? null) === v); return chain; },
         insert(value) { query.operation = 'insert'; query.value = value; return chain; },
@@ -37,17 +41,18 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
       };
       async function execute(single) {
         operations.push({ ...query });
+        const pick = r => query.cols ? Object.fromEntries(query.cols.map(c => [c, r[c]])) : r;
         if (query.operation === 'insert') {
           if (collision && table === 'bookings') { rows.bookings.push(oldBooking); return { error: { code: '23P01' }, data: null }; }
           const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : 'booking-a', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
-          rows[table].push(...created); return { data: single ? created[0] : created, error: null };
+          rows[table].push(...created); return { data: single ? pick(created[0]) : created.map(pick), error: null };
         }
         const found = rows[table].filter(r => filters.every(f => f(r)));
         if (query.operation === 'update') {
           if (failedWrite) return { error: new Error('Consent write refused'), data: null };
           found.forEach(r => Object.assign(r,query.value));
         }
-        return { data: single ? found[0] || null : found, error: null };
+        return { data: single ? (found[0] ? pick(found[0]) : null) : found.map(pick), error: null };
       }
       return chain;
     },
@@ -75,6 +80,10 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
   if (handlerBreak === 'plan-refusal') { const changed = src.replace('if (body.plan_id && body.group_with)', 'if (false)'); if (changed === src) throw Error('Plan-refusal sabotage did not land'); src = changed; }
+  for (const [from, to] of srcPatch) {
+    if (!src.includes(from)) throw Error('Source sabotage did not land: ' + from);
+    src = src.split(from).join(to);
+  }
   src = src.replace(/^import\s+(?:"[^"\n]+"|[\s\S]*?\sfrom\s+"[^"\n]+")\s*;\s*$/gm,'');
   const names = Object.keys(dependencies);
   // stripTypeScriptTypes is the parser, rather than node --check on TS (gotcha 101).

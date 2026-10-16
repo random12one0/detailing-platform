@@ -1523,6 +1523,25 @@ export function bookingRequests(form, opts = {}) {
 export const groupedWith = (payload, firstBookingId) =>
   ({ ...payload, group_with: firstBookingId || null });
 
+// ROADMAP 97.2 — A RETRY'S ANSWER IS ONLY `id`, `start_at` AND `status`.
+// Anybody holding a name, a phone and a time can ask for it, so the server no
+// longer hands back the row. The confirmation screen gets the rest from what
+// this page just sent: the date and time it asked for, the end from the quote's
+// duration, the price it was quoted, and the manage link the id opens.
+export function retryConfirmation(answer, payload, quote) {
+  const [h, m] = String(payload.start_time).split(":").map(Number);
+  const end = h * 60 + m + (Number(quote?.total_duration) || 0);
+  const hhmm = (n) => String(n).padStart(2, "0");
+  return {
+    ...answer,
+    booking_date: payload.booking_date,
+    start_time: payload.start_time,
+    end_time: `${hhmm(Math.floor(end / 60) % 24)}:${hhmm(end % 60)}`,
+    total_price: quote?.total,
+    receipt_url: `/booking/${answer.id}`,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // What this device remembers. Roadmap 2.14 step 3, in the owner's own words:
 // "we should definitely log people, log their browsers and with cookies."

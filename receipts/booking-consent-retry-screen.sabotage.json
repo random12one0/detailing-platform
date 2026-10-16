@@ -1,0 +1,404 @@
+{
+  "git_sha": "68ca8143d9c93f26389d82e4d97c152726da776b",
+  "git_sha_started": "68ca8143d9c93f26389d82e4d97c152726da776b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T19:30:40.498Z",
+  "failures": [
+    "en-390-checked retry screen shows the appointment: 2026-10-31 | YOUR APPOINTMENT\nInvalid Date\n\n–\n\nDrop-off · we’ll confirm the address\n\nEstimated total\n$0",
+    "en-390-checked retry screen links to manage page: null",
+    "es-390-checked retry screen shows the appointment: 2026-10-31 | TU CITA\nInvalid Date\n\n–\n\nEntrega en el local · te confirmamos la dirección\n\nTotal estimado\n$0",
+    "es-390-checked retry screen links to manage page: null",
+    "en-1440-checked retry screen shows the appointment: 2026-10-31 | YOUR APPOINTMENT\nInvalid Date\n\n–\n\nDrop-off · we’ll confirm the address\n\nEstimated total\n$0",
+    "en-1440-checked retry screen links to manage page: null",
+    "es-1440-checked retry screen shows the appointment: 2026-10-31 | TU CITA\nInvalid Date\n\n–\n\nEntrega en el local · te confirmamos la dirección\n\nTotal estimado\n$0",
+    "es-1440-checked retry screen links to manage page: null",
+    "en-768-checked retry screen shows the appointment: 2026-10-31 | YOUR APPOINTMENT\nInvalid Date\n\n–\n\nDrop-off · we’ll confirm the address\n\nEstimated total\n$0",
+    "en-768-checked retry screen links to manage page: null",
+    "es-768-checked retry screen shows the appointment: 2026-10-31 | TU CITA\nInvalid Date\n\n–\n\nEntrega en el local · te confirmamos la dirección\n\nTotal estimado\n$0",
+    "es-768-checked retry screen links to manage page: null",
+    "en-392-checked retry screen shows the appointment: 2026-10-31 | YOUR APPOINTMENT\nInvalid Date\n\n–\n\nDrop-off · we’ll confirm the address\n\nEstimated total\n$0",
+    "en-392-checked retry screen links to manage page: null",
+    "es-392-checked retry screen shows the appointment: 2026-10-31 | TU CITA\nInvalid Date\n\n–\n\nEntrega en el local · te confirmamos la dirección\n\nTotal estimado\n$0",
+    "es-392-checked retry screen links to manage page: null",
+    "en-390-lite-checked retry screen shows the appointment: 2026-10-31 | YOUR APPOINTMENT\nInvalid Date\n\n–\n\nDrop-off · we’ll confirm the address\n\nEstimated total\n$0",
+    "en-390-lite-checked retry screen links to manage page: null",
+    "es-390-lite-checked retry screen shows the appointment: 2026-10-31 | TU CITA\nInvalid Date\n\n–\n\nEntrega en el local · te confirmamos la dirección\n\nTotal estimado\n$0",
+    "es-390-lite-checked retry screen links to manage page: null"
+  ],
+  "warnings": [
+    "Live delivery and deployed consent saving are not measured."
+  ],
+  "artifacts": [
+    ".manager-shots/99.2f/details-en-390-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-en-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-390-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-es-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-390-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-1440-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-en-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-1440-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-1440-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-es-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-1440-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-1440-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-768-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-en-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-768-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-768-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-es-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-768-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-768-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-392-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-en-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-392-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-392-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-es-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-392-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-392-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-320-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-320-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-320-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-320-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-320-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-320-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-en-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-390-lite-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/save-failed-es-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-390-lite-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-390-lite-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-844-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-844-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-en-844-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-844-unchecked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-844-checked-break-retry-screen.jpg",
+    ".manager-shots/99.2f/details-es-844-uncheck-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-390-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-1440-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-768-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-392-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-320-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-390-lite-break-retry-screen.jpg",
+    ".manager-shots/99.2f/privacy-844-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-390-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-1440-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-768-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-392-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-320-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-390-lite-break-retry-screen.jpg",
+    ".manager-shots/99.2f/terms-844-break-retry-screen.jpg",
+    ".manager-shots/99.2f/server-retry-screen.json"
+  ],
+  "dimensions": {
+    "break": "retry-screen",
+    "server_only": false,
+    "seen": [
+      {
+        "tag": "en-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-390-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-1440-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-1440-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-768-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-768-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-768-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-392-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-392-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-320-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-390-lite-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "en-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-390-lite-checked",
+        "choice": "checked",
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      {
+        "tag": "es-390-lite-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "en-844-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-unchecked",
+        "choice": "unchecked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-checked",
+        "choice": "checked",
+        "calls": 1,
+        "console": []
+      },
+      {
+        "tag": "es-844-uncheck",
+        "choice": "uncheck",
+        "calls": 1,
+        "console": []
+      }
+    ],
+    "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
+  },
+  "check_id": "booking-consent-retry-screen",
+  "started_at": "2026-10-16T19:25:13.436Z",
+  "status": "fail",
+  "expected_targets": 76,
+  "discovered_targets": 76,
+  "attempted_targets": 76,
+  "completed_targets": 76,
+  "skipped_targets": 0,
+  "assertions_executed": 1050,
+  "min_assertions": 650,
+  "canary": {
+    "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
+    "observed_failure": true
+  }
+}

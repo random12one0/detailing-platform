@@ -1,0 +1,63 @@
+{
+  "git_sha": "c0b7bf15b455128960daadf83fec09e669a484cc",
+  "git_sha_started": "c0b7bf15b455128960daadf83fec09e669a484cc",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T19:24:50.862Z",
+  "failures": [
+    "before the slot gate · no consent write was attempted: 1 update(s) to customers",
+    "before the slot gate · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T19:24:50.791Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an insert collision · no consent write was attempted: 1 update(s) to customers",
+    "on an insert collision · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T19:24:50.797Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/duplicate-answer/consent.json"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/create-booking/index.ts",
+    "break": "consent"
+  },
+  "check_id": "duplicate-answer-consent",
+  "started_at": "2026-10-16T19:24:50.746Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 15,
+  "canary": {
+    "id": "pre-97.2-select-star-and-consent-write",
+    "observed_failure": true,
+    "reported": [
+      {
+        "exit": "before the slot gate",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true
+      },
+      {
+        "exit": "on an insert collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true
+      }
+    ]
+  }
+}
