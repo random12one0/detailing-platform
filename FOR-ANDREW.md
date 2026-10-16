@@ -48,6 +48,22 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
+
+Your "merge it" this afternoon did not go through for either. Nothing in the
+work was wrong. The belt tripped over its own rules:
+
+- **97.1, the clock-change Sunday bookings.** One of its tests ran a small
+  program, which the belt does not allow. The supervisor changed that one line
+  and re-checked it. The next clock change is 1 November.
+- **97.2, the duplicate-booking answer that showed private details.** It was
+  held because an unrelated test got a different error page from the internet.
+  The belt no longer holds work for that.
+
+**Recommendation: say "merge it" on both.** The belt restarts itself on the
+fixed rules when this supervision ends.
+97.3 needs a builder to rewrite one test first; it does not need you yet.
+
 ## DO · Unfinished receipt cleanup (ROADMAP 14.39)
 
 The fix is built and committed locally: a receipt upload remains recorded even
