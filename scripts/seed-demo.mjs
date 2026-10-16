@@ -33,6 +33,7 @@ const TZ = "America/Los_Angeles";
 // They are read from the environment now and this file has no credential in it.
 // `.env` is gitignored; CLAUDE.md documents the load line.
 import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
+import { localDateTimeToInstant } from "../supabase/functions/_shared/tz.ts";
 const OWNER = demoOwner();  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
 const STAFF = demoStaff();  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
 
@@ -73,19 +74,8 @@ async function ensureUser({ email, password }) {
 const localDate = (offsetDays) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" })
     .format(new Date(Date.now() + offsetDays * 86400_000));
-const toUtc = (dateStr, hhmm) => {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  const [hh, mi] = hhmm.split(":").map(Number);
-  const guess = Date.UTC(y, m - 1, d, hh, mi);
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: TZ, hour12: false, year: "numeric", month: "2-digit",
-      day: "2-digit", hour: "2-digit", minute: "2-digit",
-    }).formatToParts(new Date(guess)).map((x) => [x.type, x.value]),
-  );
-  const asIfUtc = Date.UTC(+p.year, +p.month - 1, +p.day, p.hour === "24" ? 0 : +p.hour, +p.minute);
-  return new Date(guess + (guess - asIfUtc)).toISOString();
-};
+// ROADMAP 97.1: the product's own conversion, not a second copy of the maths.
+const toUtc = (dateStr, hhmm) => localDateTimeToInstant(TZ, dateStr, hhmm).toISOString();
 const addMinutes = (iso, mins) => new Date(new Date(iso).getTime() + mins * 60_000).toISOString();
 
 console.log("Re-seeding the demo business…");
