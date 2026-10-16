@@ -134,6 +134,14 @@ Deno.serve(async (req) => {
     if (!body.customer_name?.trim()) return json({ error: "Customer name is required" }, 400);
     if (!body.customer_phone?.trim()) return json({ error: "Customer phone is required" }, 400);
     if (!phoneComplete(body.customer_phone)) return json({ error: "Customer phone number is incomplete" }, 400);
+    // ROADMAP 97.6 — A PLAN COVERS ONE CAR, SO IT RIDES THE FIRST BOOKING OF A
+    // SET AND NEVER A GROUPED ONE. Each grouped call is priced as its own
+    // one-car booking, so a plan here makes every car "the first car" and the
+    // whole set free. The form never sends it (`bookingRequests`); this stops a
+    // hand-made post doing it, before anything is read or written.
+    if (body.plan_id && body.group_with) {
+      return json({ error: "A plan covers the first car only. Book the other cars without it." }, 400);
+    }
     if (!body.booking_date) return json({ error: "Booking date is required" }, 400);
     if (!body.start_time) return json({ error: "Start time is required" }, 400);
     const serviceType = body.service_type === "dropoff" ? "dropoff" : "mobile";
