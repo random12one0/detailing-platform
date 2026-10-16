@@ -1,0 +1,26 @@
+promo-one-use-group 2026-10-16T23:50:02.003Z break=count-twice
+  ok    1a · 2 cars on 2 days quote 10% off on both cars ($19 + $19)
+  ok    2a · car 1 books
+  ok    2b · car 2 books (was refused with 409)
+  ok    2c · two booking rows saved
+  ok    2d · discount saved equals discount quoted, and is not zero
+  ok    2e · both rows carry the code
+  ok    2f · both rows are one group
+  FAIL  2g · the code counts as used ONCE for the group - got 2 RPC calls, times_used 2
+  ok    3a · a later ungrouped booking with the same code gets 409
+  ok    3b · a third car hand-grouped past the 2-car cap gets 409
+  ok    3c · somebody else grouping onto the booking gets 409
+  ok    3d · and nothing more was saved in either world
+  ok    4a · both cars book
+  ok    4b · discount saved equals discount quoted, and is not zero
+  ok    4c · a later separate booking by the same customer gets 409
+  ok    6a · grouping onto the customer's 3-week-old booking to reuse a used one-use code gets 409
+  ok    6b · grouping onto a cancelled booking (made minutes ago) gets 409
+  ok    6c · once-per-customer: grouping onto the old booking gets 409
+  ok    6d · nothing was saved and nothing counted in any of the three
+  ok    7a · a grouped call carrying an extra car (3 cars, cap 2) gets 409
+  ok    7b · car 1 already holds 2 cars, so a grouped third car gets 409
+  ok    7c · one row saved in each, the code counted once in each
+  ok    8 · canary: without the share, car 2 is refused (the original defect)
+22 passed, 1 failed
+FAIL 2g · the code counts as used ONCE for the group - got 2 RPC calls, times_used 2

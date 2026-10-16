@@ -849,8 +849,9 @@ export const planInputFor = (row: any): PlanInput | null =>
   row ? { name: row.name, priceKind: row.price_kind, priceAmount: Number(row.price_amount) || 0 } : null;
 
 // A usable promo code for THIS business (active, not expired, under any usage
-// limit), or null.
-export async function resolvePromo(db: DB, businessId: string, code: string | null | undefined) {
+// limit), or null. `ignoreLimit` is for a car sharing its group's one use of
+// the code (ROADMAP 97.9, create-booking) — active and expiry still apply.
+export async function resolvePromo(db: DB, businessId: string, code: string | null | undefined, { ignoreLimit = false } = {}) {
   if (!code) return null;
   const nowIso = new Date().toISOString();
   const { data, error } = await db
@@ -862,6 +863,6 @@ export async function resolvePromo(db: DB, businessId: string, code: string | nu
     .or(`expires_at.is.null,expires_at.gte.${nowIso}`)
     .maybeSingle();
   if (error || !data) return null;
-  if (!data.usage_limit || data.usage_limit === 0 || data.times_used < data.usage_limit) return data;
+  if (ignoreLimit || !data.usage_limit || data.usage_limit === 0 || data.times_used < data.usage_limit) return data;
   return null;
 }
