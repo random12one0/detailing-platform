@@ -1,9 +1,9 @@
 {
-  "git_sha": "187d73c01243c49d9596a5c03541f2e10a9967d3",
-  "git_sha_started": "187d73c01243c49d9596a5c03541f2e10a9967d3",
+  "git_sha": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
+  "git_sha_started": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T22:21:09.582Z",
+  "finished_at": "2026-10-16T22:40:19.736Z",
   "failures": [
     "390x844 genuine · both presses carry the same booking_ref: undefined / undefined",
     "390x844 genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
@@ -203,18 +203,25 @@
     "scope": "Real create-booking handler on an in-memory table; profile, quote and slots are stand-ins; no live booking or send."
   },
   "check_id": "duplicate-retry-screen-no-ref",
-  "started_at": "2026-10-16T22:15:16.443Z",
+  "started_at": "2026-10-16T22:34:24.768Z",
   "status": "fail",
   "expected_targets": 10,
   "discovered_targets": 10,
   "attempted_targets": 10,
   "completed_targets": 10,
   "skipped_targets": 0,
-  "assertions_executed": 75,
-  "min_assertions": 75,
+  "assertions_executed": 76,
+  "min_assertions": 69,
   "canary": {
-    "id": "stranger-sees-no-link",
-    "observed_failure": null,
-    "note": "Sabotage via --break=hand-back-id (server) and --break=no-ref (page)."
+    "id": "pre-97.64-handler-hands-a-stranger-the-id",
+    "observed_failure": true,
+    "reported": {
+      "booking": {
+        "id": "3f6c2a9e-8b1d-4c7a-9e2f-5a1b7c3d9e04",
+        "start_at": "2026-10-30T17:00:00.000Z",
+        "status": "confirmed"
+      },
+      "duplicate": true
+    }
   }
 }
