@@ -1,0 +1,30 @@
+ROADMAP 0.11d3a - the cron's own call, answered by the real handler
+
+THE ENTRY, in apply order (cron.schedule replaces by name, so the last one wins):
+  WAS   20261006060000_photo_reconcile_cron.sql
+         40 3 * * *  ->  https://adtlnvihwrcqcasqcjwd.supabase.co/functions/v1/photo-reconcile
+         timeout_milliseconds: NOT PASSED - pg_net gives up after 5000ms
+  WAS   20261009120000_photo_reconcile_cron_timeout.sql
+         40 3 * * *  ->  https://adtlnvihwrcqcasqcjwd.supabase.co/functions/v1/photo-reconcile
+         timeout_milliseconds: 60000
+  NOW   20261016100000_cron_jobs_send_secret.sql
+         40 3 * * *  ->  https://adtlnvihwrcqcasqcjwd.supabase.co/functions/v1/photo-reconcile
+         timeout_milliseconds: 60000
+
+THE REQUEST BUILT FROM IT: POST https://adtlnvihwrcqcasqcjwd.supabase.co/functions/v1/photo-reconcile
+  headers: {"content-type":"application/json"}
+  body:    {}
+
+THE ANSWER: 200  ran=true
+
+THE HEARTBEAT ROW IT STAMPED:
+  orphans              2
+  missing              1
+  mismatched           1
+  unknown_size_rows    1
+  misfiled             1
+  clean                false
+
+WAS (the pre-criterion-4 heartbeat shape, re-judged every run):
+  {"clean":true,"ran_at":"2026-10-09T03:40:30Z"}
+  judged: {"orphans":false,"missing":false,"mismatched":false,"unknown_size_rows":false,"misfiled":false}
