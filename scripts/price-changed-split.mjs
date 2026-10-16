@@ -207,7 +207,7 @@ for (const tg of [...TARGETS, CANARY]) {
         !!box && !!bar && box.y >= 0 && box.y + box.height <= bar.y + 0.5 && box.x >= 0 && box.x + box.width <= tg.w,
         JSON.stringify({ box, barY: bar?.y }));
     }
-    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}-split.png`, animations: "disabled" });
+    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-split.png`, animations: "disabled" });
     if (FREEZE && !inCanary && tg.w === 390 && tg.lang === "en") {
       mkdirSync(`${SHOTS}/png`, { recursive: true });
       await page.screenshot({ path: `${SHOTS}/png/390x844-split-${FREEZE}.png`, animations: "disabled" });
@@ -223,7 +223,7 @@ for (const tg of [...TARGETS, CANARY]) {
     if (!inCanary) completed++;
   } catch (e) {
     check(label, "walk completed", false, e.message.split("\n")[0]);
-    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}-error.png` }).catch(() => {});
+    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-error.png` }).catch(() => {});
   }
   await ctx.close();
 }

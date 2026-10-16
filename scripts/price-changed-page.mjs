@@ -40,10 +40,18 @@ const TARGETS = [
   { w: 768, h: 1024, lang: "en" }, { w: 320, h: 700, lang: "en" },
   { w: 390, h: 844, lang: "es" }, { w: 1440, h: 900, lang: "es" },
 ];
+// THE CANARY, every run: one more walk at 390 against the stand-in with its
+// guard OFF (the pre-97.8 server). Its findings are not this run's pass or
+// fail; the property must call that save wrong, or the receipt is invalid.
+// (Until the 2026-10-16 review this was a constant sum that could not fail.)
+const CANARY = { w: 390, h: 844, lang: "en", canary: true };
+const canaryCaught = [];
+let inCanary = false;
 const started_at = new Date().toISOString();
 let assertions = 0, passed = 0, completed = 0;
 const failures = [], transcript = [];
 const check = (label, name, ok, got = "") => {
+  if (inCanary) { if (!ok) canaryCaught.push(name); return ok; }
   assertions++;
   const line = `${ok ? "  ok  " : "  FAIL"}  ${label} · ${name}${ok || !got ? "" : ` - got ${got}`}`;
   console.log(line); transcript.push(line);
@@ -79,8 +87,10 @@ const injectEnv = (ctx) => env && ctx.route(/\/src\/lib\/(api|supabase)\.js(\?|$
   return route.fulfill({ response: res, body: `${src}\n;window.__envInjected = (window.__envInjected || 0) + 1;\n` });
 });
 
-for (const tg of TARGETS) {
-  const label = `${tg.w}x${tg.h} ${tg.lang}`;
+for (const tg of [...TARGETS, CANARY]) {
+  inCanary = !!tg.canary;
+  const guardOff = BREAK === "no-guard" || inCanary;
+  const label = `${tg.w}x${tg.h} ${tg.lang}${inCanary ? " CANARY" : ""}`;
   const ctx = await browser.newContext({ viewport: { width: tg.w, height: tg.h } });
   await injectEnv(ctx);
   await ctx.addInitScript((lang) => { try { localStorage.setItem("dp.lang", lang); } catch {} }, tg.lang);
@@ -116,7 +126,7 @@ for (const tg of TARGETS) {
     posts.push(body);
     const ok = (total) => route.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ success: true, booking: { id: "00000000-0000-4000-8000-000000000978", booking_date: body.booking_date, start_time: body.start_time, end_time: body.start_time, total_price: total, status: "confirmed", receipt_url: null } }) });
-    if (BREAK !== "no-guard" && body.shown_total != null && Math.abs(Number(body.shown_total) - serverTotal) > 0.005) {
+    if (!guardOff && body.shown_total != null && Math.abs(Number(body.shown_total) - serverTotal) > 0.005) {
       refusals++;
       return route.fulfill({ status: 409, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify({ error: "price_changed", message: "The price changed while you were booking. Check the new total and confirm again.", total: serverTotal, shown_total: Number(body.shown_total) }) });
@@ -161,7 +171,7 @@ for (const tg of TARGETS) {
     check(label, `a notice names the new price (${newMoney})`, noticeText.includes(newMoney), JSON.stringify(noticeText));
     check(label, `the notice is in ${tg.lang === "es" ? "Spanish" : "English"}`,
       (tg.lang === "es" ? /El precio cambió/ : /The price changed/).test(noticeText), JSON.stringify(noticeText));
-    if (FREEZE && tg.w === 390 && tg.lang === "en") {
+    if (FREEZE && !inCanary && tg.w === 390 && tg.lang === "en") {
       const { freeze } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
       await freeze(page, FREEZE === "before"
         ? { out: `${SHOTS}/before.html`, label: "Before", highlight: ".bk-confirmed, .bk", highlightText: `$${serverTotal}`,
@@ -177,7 +187,7 @@ for (const tg of TARGETS) {
         !!box && box.y >= 0 && box.y + box.height <= bar.y + 0.5 && box.x >= 0 && box.x + box.width <= tg.w,
         JSON.stringify({ box, barY: bar.y }));
       check(label, "the bar shows the new price", (await barMoney(page)) === Math.round(serverTotal * 100), String(await barMoney(page)));
-      await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}-notice.png`, animations: "disabled" });
+      await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-notice.png`, animations: "disabled" });
       if (!BREAK && tg.lang === "en" && [390, 768, 1440].includes(tg.w)) {
         mkdirSync(`${SHOTS}/png`, { recursive: true });
         await page.screenshot({ path: `${SHOTS}/png/${tg.w}x${tg.h}-price-changed.png`, animations: "disabled" });
@@ -191,25 +201,21 @@ for (const tg of TARGETS) {
       check(label, "saved at exactly the figure on the bar when pressed", Math.round(serverTotal * 100) === shownNow, `${serverTotal} vs ${shownNow / 100}`);
       check(label, "one booking call per press, no car booked twice", posts.length === 2, String(posts.length));
     }
-    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}-end.png`, animations: "disabled" });
+    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-end.png`, animations: "disabled" });
     check(label, "console clean: nothing but one designed 409 line per refusal",
       consoleBad.length === 0 && refusalLines.length === refusals,
       [...consoleBad, `${refusalLines.length} refusal line(s) for ${refusals} refusal(s)`].slice(0, 4).join(" | "));
-    completed++;
+    if (!inCanary) completed++;
   } catch (e) {
     check(label, "walk completed", false, e.message.split("\n")[0]);
-    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}-error.png` }).catch(() => {});
+    await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-error.png` }).catch(() => {});
   }
   await ctx.close();
 }
 await browser.close();
 
-// CANARY, every run: the stand-in with the guard OFF is the pre-97.8 server,
-// and the property must call its answer wrong. Pure function, no browser.
-const canarySaved = (() => { const shown = 185, server = shown + RUSH; return server; })();
-const canaryCaught = canarySaved !== 185;
-
 const failed = assertions - passed;
+console.log(`canary (guard off at 390): ${canaryCaught.length ? "caught - " + canaryCaught.join("; ") : "NOT CAUGHT"}`);
 console.log(`\n${completed} of ${TARGETS.length} targets walked, ${passed} passed, ${failed} failed${BREAK ? `  (--break=${BREAK}: MUST be red)` : ""}`);
 const txt = BREAK ? `receipts/price-changed-page.sabotage-${BREAK}.txt` : "receipts/price-changed-page.txt";
 writeFileSync(txt, [`price-changed-page ${new Date().toISOString()} base=${BASE} break=${BREAK || "none"}`, ...transcript,
@@ -223,7 +229,7 @@ writeReceipt({
   assertions_executed: assertions,
   min_assertions: TARGETS.length * (env ? 12 : 11),
   assertion_floor: "11 per target when the refusal is shown (walk, first post, not saved, notice names price, notice language, on-screen, bar, second post, figure, one call each, console), plus 1 env signature with --env-from.",
-  canary: { id: "unguarded-server-saves-unshown", observed_failure: canaryCaught, what: "a server that ignores the shown total saves $205 over a page that showed $185" },
+  canary: { id: "unguarded-server-saves-unshown", observed_failure: canaryCaught.includes("the booking was NOT saved at a price the page never showed"), caught: canaryCaught, what: "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it" },
   failures,
   artifacts: [txt, ART],
   dimensions: { roadmap: "97.8", break: BREAK || null, base: BASE, env_from: ENV_FROM || null },
