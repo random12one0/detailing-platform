@@ -201,16 +201,26 @@ try {
 } finally { await browser.close(); }
 
 if (!BEFORE) {
+  // THE CANARY, every run: the pre-97.64 handler, asked by a stranger after a
+  // genuine booking, must be caught by the same "no id" comparator.
+  const old = bookingFixture({ bookingId: 'server-made', srcPatch: [OLD_ID] });
+  const ask = { business_slug: 'consent-proof', customer_name: PERSON.name, customer_phone: PERSON.phone, customer_email: PERSON.email,
+    service_type: 'dropoff', vehicle_size: 'small', service_ids: ['service-a'], booking_date: '2026-10-30', start_time: '10:00' };
+  await old.book({ ...ask, booking_ref: '3f6c2a9e-8b1d-4c7a-9e2f-5a1b7c3d9e04' });
+  const leak = (await old.book(ask)).data;
+  const canary = { id: 'pre-97.64-handler-hands-a-stranger-the-id', observed_failure: 'id' in (leak?.booking || {}), reported: leak };
+  check('the canary — the pre-97.64 handler hands a stranger the id', canary.observed_failure, JSON.stringify(leak));
   console.log(`\n${assertions - failures.length} passed, ${failures.length} failed, ${assertions} assertions, ${completed} of ${VIEWS.length * 2} scenarios.`);
   const { path } = writeReceipt({
     // One file per sabotage, so the second never overwrites the first.
     check_id: BREAK ? `duplicate-retry-screen-${BREAK}` : 'duplicate-retry-screen', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: VIEWS.length * 2, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
-    // 8 genuine + 7 stranger per view.
-    assertions_executed: assertions, min_assertions: 15 * VIEWS.length, artifacts, failures,
+    // 8 genuine + 7 stranger per view, + 1 canary = 76; the floor sits one
+    // stranger's worth below it so a scenario that stops early drops under.
+    assertions_executed: assertions, min_assertions: 15 * VIEWS.length - 6, artifacts, failures,
     dimensions: { views: VIEWS.map((v) => v.join('')), seen, ...(BREAK ? { break: BREAK } : {}),
       scope: 'Real create-booking handler on an in-memory table; profile, quote and slots are stand-ins; no live booking or send.' },
-    canary: { id: 'stranger-sees-no-link', observed_failure: null, note: 'Sabotage via --break=hand-back-id (server) and --break=no-ref (page).' },
+    canary,
   });
   console.log('receipt:', path);
   process.exit(failures.length ? 1 : 0);
