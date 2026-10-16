@@ -1,9 +1,9 @@
 {
-  "git_sha": "c38f1859d9abc2df6a95af66f20157b5ae931222",
-  "git_sha_started": "c38f1859d9abc2df6a95af66f20157b5ae931222",
+  "git_sha": "68ca8143d9c93f26389d82e4d97c152726da776b",
+  "git_sha_started": "68ca8143d9c93f26389d82e4d97c152726da776b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-15T15:12:10.401Z",
+  "finished_at": "2026-10-16T19:36:24.109Z",
   "failures": [],
   "warnings": [
     "Live delivery and deployed consent saving are not measured."
@@ -11,31 +11,43 @@
   "artifacts": [
     ".manager-shots/99.2f/details-en-390-unchecked.jpg",
     ".manager-shots/99.2f/details-en-390-checked.jpg",
+    ".manager-shots/99.2f/save-failed-en-390-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-390-checked.jpg",
     ".manager-shots/99.2f/details-en-390-uncheck.jpg",
     ".manager-shots/99.2f/details-es-390-unchecked.jpg",
     ".manager-shots/99.2f/details-es-390-checked.jpg",
+    ".manager-shots/99.2f/save-failed-es-390-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-390-checked.jpg",
     ".manager-shots/99.2f/details-es-390-uncheck.jpg",
     ".manager-shots/99.2f/details-en-1440-unchecked.jpg",
     ".manager-shots/99.2f/details-en-1440-checked.jpg",
     ".manager-shots/99.2f/save-failed-en-1440-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-1440-checked.jpg",
     ".manager-shots/99.2f/details-en-1440-uncheck.jpg",
     ".manager-shots/99.2f/details-es-1440-unchecked.jpg",
     ".manager-shots/99.2f/details-es-1440-checked.jpg",
     ".manager-shots/99.2f/save-failed-es-1440-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-1440-checked.jpg",
     ".manager-shots/99.2f/details-es-1440-uncheck.jpg",
     ".manager-shots/99.2f/details-en-768-unchecked.jpg",
     ".manager-shots/99.2f/details-en-768-checked.jpg",
+    ".manager-shots/99.2f/save-failed-en-768-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-768-checked.jpg",
     ".manager-shots/99.2f/details-en-768-uncheck.jpg",
     ".manager-shots/99.2f/details-es-768-unchecked.jpg",
     ".manager-shots/99.2f/details-es-768-checked.jpg",
+    ".manager-shots/99.2f/save-failed-es-768-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-768-checked.jpg",
     ".manager-shots/99.2f/details-es-768-uncheck.jpg",
     ".manager-shots/99.2f/details-en-392-unchecked.jpg",
     ".manager-shots/99.2f/details-en-392-checked.jpg",
     ".manager-shots/99.2f/save-failed-en-392-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-392-checked.jpg",
     ".manager-shots/99.2f/details-en-392-uncheck.jpg",
     ".manager-shots/99.2f/details-es-392-unchecked.jpg",
     ".manager-shots/99.2f/details-es-392-checked.jpg",
     ".manager-shots/99.2f/save-failed-es-392-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-392-checked.jpg",
     ".manager-shots/99.2f/details-es-392-uncheck.jpg",
     ".manager-shots/99.2f/details-en-320-unchecked.jpg",
     ".manager-shots/99.2f/details-en-320-checked.jpg",
@@ -45,9 +57,13 @@
     ".manager-shots/99.2f/details-es-320-uncheck.jpg",
     ".manager-shots/99.2f/details-en-390-lite-unchecked.jpg",
     ".manager-shots/99.2f/details-en-390-lite-checked.jpg",
+    ".manager-shots/99.2f/save-failed-en-390-lite-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-en-390-lite-checked.jpg",
     ".manager-shots/99.2f/details-en-390-lite-uncheck.jpg",
     ".manager-shots/99.2f/details-es-390-lite-unchecked.jpg",
     ".manager-shots/99.2f/details-es-390-lite-checked.jpg",
+    ".manager-shots/99.2f/save-failed-es-390-lite-checked.jpg",
+    ".manager-shots/99.2f/retry-confirmed-es-390-lite-checked.jpg",
     ".manager-shots/99.2f/details-es-390-lite-uncheck.jpg",
     ".manager-shots/99.2f/details-en-844-unchecked.jpg",
     ".manager-shots/99.2f/details-en-844-checked.jpg",
@@ -84,8 +100,10 @@
       {
         "tag": "en-390-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "en-390-uncheck",
@@ -102,8 +120,10 @@
       {
         "tag": "es-390-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "es-390-uncheck",
@@ -160,8 +180,10 @@
       {
         "tag": "en-768-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "en-768-uncheck",
@@ -178,8 +200,10 @@
       {
         "tag": "es-768-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "es-768-uncheck",
@@ -272,8 +296,10 @@
       {
         "tag": "en-390-lite-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "en-390-lite-uncheck",
@@ -290,8 +316,10 @@
       {
         "tag": "es-390-lite-checked",
         "choice": "checked",
-        "calls": 1,
-        "console": []
+        "calls": 2,
+        "console": [
+          "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
       },
       {
         "tag": "es-390-lite-uncheck",
@@ -339,14 +367,14 @@
     "scope": "Browser requests execute real local create-booking and consent helper against an in-memory database. Imported pricing, slot and email dependencies are stand-ins; no live booking or real send."
   },
   "check_id": "booking-consent",
-  "started_at": "2026-10-15T15:06:48.136Z",
+  "started_at": "2026-10-16T19:30:54.902Z",
   "status": "pass",
   "expected_targets": 76,
   "discovered_targets": 76,
   "attempted_targets": 76,
   "completed_targets": 76,
   "skipped_targets": 0,
-  "assertions_executed": 1009,
+  "assertions_executed": 1053,
   "min_assertions": 650,
   "canary": {
     "id": "real helper broken to accept string true creates consent that the strict-choice assertion rejects",
