@@ -38,6 +38,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
         // every row, so a fixture promo must not expire.
         ilike(k,v) { filters.push(r => String(r[k] ?? '').toLowerCase() === String(v).toLowerCase()); return chain; },
         limit(n) { query.limit = n; return chain; }, or() { return chain; },
+        in(k,vs) { filters.push(r => vs.includes(r[k])); return chain; },
         is(k,v) { filters.push(r => (r[k] ?? null) === v); return chain; },
         insert(value) { query.operation = 'insert'; query.value = value; return chain; },
         update(value) { query.operation = 'update'; query.value = value; return chain; },
@@ -49,7 +50,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
         const pick = r => query.cols ? Object.fromEntries(query.cols.map(c => [c, r[c]])) : r;
         if (query.operation === 'insert') {
           if (collision && table === 'bookings') { rows.bookings.push(oldBooking); return { error: { code: '23P01' }, data: null }; }
-          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : table === 'bookings' && rows.bookings.length ? 'booking-' + (rows.bookings.length + 1) : 'booking-a', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
+          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : table === 'bookings' && rows.bookings.length ? 'booking-' + (rows.bookings.length + 1) : 'booking-a', ...(table === 'bookings' ? { created_at: new Date().toISOString() } : {}), sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
           rows[table].push(...created); return { data: single ? pick(created[0]) : created.map(pick), error: null };
         }
         const found = rows[table].filter(r => filters.every(f => f(r))).slice(0, query.limit ?? Infinity);

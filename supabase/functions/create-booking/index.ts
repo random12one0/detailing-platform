@@ -212,12 +212,15 @@ Deno.serve(async (req) => {
     // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
     // checks a crafted id would staple somebody's booking onto a stranger's
     // group — and a group is a set of appointments a customer is shown.
-    let sib: { id: string; booking_group_id: string | null; applied_promo_code: string | null } | null = null;
+    let sib: {
+      id: string; booking_group_id: string | null; applied_promo_code: string | null;
+      status: string; deleted_at: string | null; created_at: string;
+    } | null = null;
     let samePerson = false;
     if (body.group_with) {
       const { data } = await supabase
         .from("bookings")
-        .select("id, booking_group_id, customer_email, customer_phone, applied_promo_code")
+        .select("id, booking_group_id, customer_email, customer_phone, applied_promo_code, status, deleted_at, created_at")
         .eq("business_id", business.id)
         .eq("id", String(body.group_with))
         .maybeSingle();
@@ -241,28 +244,6 @@ Deno.serve(async (req) => {
       const compared = (!!data?.customer_email && !!email) || (!!data?.customer_phone && !!phone);
       samePerson = !!data && compared && emailOk && phoneOk;
     }
-
-    const promoCode = body.applied_promo_code || null;
-    // ROADMAP 97.9 — ONE USE OF A CODE COVERS THE WHOLE SET OF CARS. The quote
-    // discounts every car of a different-day booking (`computeQuote`'s split
-    // branch), but each car is saved by its own call, so car 1 spent a
-    // one-use code and car 2 was refused — as "not valid" at the usage limit,
-    // or as "already used" by the once-per-customer check below. A grouped car
-    // whose sibling (same person, checked above) already carries THIS code
-    // shares that use: the limit and the once-per-customer check are not asked
-    // again and the counter is not bumped again. Bounded by the business's own
-    // car cap, so a hand-made `group_with` gets no more cars at the code's
-    // price than one form could carry.
-    let sharesGroupUse = false;
-    if (promoCode && samePerson && sib!.applied_promo_code === promoCode) {
-      const inGroup = sib!.booking_group_id
-        ? ((await supabase.from("bookings").select("id")
-          .eq("business_id", business.id).eq("booking_group_id", sib!.booking_group_id)).data?.length ?? 0)
-        : 1;
-      sharesGroupUse = inGroup < (Number(settings.max_vehicles_per_booking) || 1);
-    }
-    const promo = await resolvePromo(supabase, business.id, promoCode, { ignoreLimit: sharesGroupUse });
-    if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
 
     // ROADMAP 2.14 STEP 3 — THE PLAN, RESOLVED HERE AND PRICED BY THE SAME
     // ENGINE. The client sends an id; the name, the kind and the amount all
@@ -291,6 +272,43 @@ Deno.serve(async (req) => {
     const size = vehicles[0];
     const vehicleSize = size.key;
     const extraVehicles = vehicles.slice(1);
+
+    const promoCode = body.applied_promo_code || null;
+    // ROADMAP 97.9 — ONE USE OF A CODE COVERS THE WHOLE SET OF CARS. The quote
+    // discounts every car of a different-day booking (`computeQuote`'s split
+    // branch), but each car is saved by its own call, so car 1 spent a
+    // one-use code and car 2 was refused — as "not valid" at the usage limit,
+    // or as "already used" by the once-per-customer check below. A grouped car
+    // whose sibling (same person, checked above) already carries THIS code
+    // shares that use: the limit and the once-per-customer check are not asked
+    // again and the counter is not bumped again.
+    //
+    // ONLY FOR THE SET BEING BOOKED RIGHT NOW. The page posts every car in one
+    // press, so the sibling is seconds old. An old or cancelled booking does not
+    // share: its id is in the customer's own receipt link, and without this a
+    // code used weeks ago could be used again by naming that booking.
+    //
+    // AND NO MORE CARS THAN ONE FORM COULD CARRY — counted as CARS, not rows,
+    // because a hand-made grouped call can carry `extra_vehicles` of its own.
+    // A failed count shares nothing.
+    let sharesGroupUse = false;
+    const fresh = !!sib && !sib.deleted_at && sib.status !== "cancelled"
+      // ponytail: fixed 30-minute window; the form's calls land seconds apart.
+      && Date.now() - new Date(sib.created_at).getTime() < 30 * 60 * 1000;
+    if (promoCode && samePerson && fresh && sib!.applied_promo_code === promoCode) {
+      const { data: rows, error: rowsErr } = sib!.booking_group_id
+        ? await supabase.from("bookings").select("id")
+          .eq("business_id", business.id).eq("booking_group_id", sib!.booking_group_id)
+        : { data: [{ id: sib!.id }], error: null };
+      const ids = (rows ?? []).map((r: { id: string }) => r.id);
+      const { data: more, error: moreErr } = await supabase.from("booking_vehicles").select("id")
+        .eq("business_id", business.id).in("booking_id", ids);
+      const cars = ids.length + (more?.length ?? 0) + vehicles.length;
+      sharesGroupUse = !rowsErr && !moreErr && ids.length > 0
+        && cars <= (Number(settings.max_vehicles_per_booking) || 1);
+    }
+    const promo = await resolvePromo(supabase, business.id, promoCode, { ignoreLimit: sharesGroupUse });
+    if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
     // ROADMAP 2.8c — travel and the time-based surcharges, resolved through the
     // SAME shared helpers the quote endpoint uses. The customer's own
     // travel_zone is a key, never a price: the fee comes off the business's

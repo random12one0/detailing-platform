@@ -5,6 +5,8 @@
 //   PROMO_BREAK=no-share node tests/promo-one-use-group.test.mjs     # must go red (the original defect)
 //   PROMO_BREAK=count-twice node tests/promo-one-use-group.test.mjs  # must go red
 //   PROMO_BREAK=no-cap node tests/promo-one-use-group.test.mjs       # must go red
+//   PROMO_BREAK=no-window node tests/promo-one-use-group.test.mjs    # must go red (review finding 1)
+//   PROMO_BREAK=count-rows node tests/promo-one-use-group.test.mjs   # must go red (review finding 2)
 //
 // Credential-free, no dev server, no browser, no network, no database. Run from
 // the repo root (the handler fixture reads files by relative path). The breaks
@@ -30,9 +32,13 @@ import { bookingFixture } from "../scripts/lib/bookingConsentFixture.mjs";
 const started_at = new Date().toISOString();
 const BREAK = process.env.PROMO_BREAK || "";
 const PATCHES = {
-  "no-share": ["sharesGroupUse = inGroup <", "sharesGroupUse = false && inGroup <"],
+  "no-share": ["sharesGroupUse = !rowsErr", "sharesGroupUse = false && !rowsErr"],
   "count-twice": ["if (promo && !sharesGroupUse) {", "if (promo) {"],
-  "no-cap": ["sharesGroupUse = inGroup < (Number(settings.max_vehicles_per_booking) || 1);", "sharesGroupUse = true;"],
+  "no-cap": ["&& cars <= (Number(settings.max_vehicles_per_booking) || 1);", ";"],
+  // The first version of the fix: any same-person sibling, however old or cancelled.
+  "no-window": ["if (promoCode && samePerson && fresh && sib!", "if (promoCode && samePerson && sib!"],
+  // The first version's cap: rows in the group, not cars.
+  "count-rows": ["const cars = ids.length + (more?.length ?? 0) + vehicles.length;", "const cars = ids.length + 1;"],
 };
 if (BREAK && !PATCHES[BREAK]) { console.error(`Unknown PROMO_BREAK=${BREAK}. Known: ${Object.keys(PATCHES).join(", ")}.`); process.exit(2); }
 
@@ -42,7 +48,7 @@ const load = async (path) => {
   return import("data:text/javascript;base64," + Buffer.from(src).toString("base64"));
 };
 const core = await load("app/src/book/core.js");
-const { computeQuote, resolvePromo } = await load("supabase/functions/_shared/pricing.ts");
+const { computeQuote, resolvePromo, resolveVehicles, vehicleSizeFee } = await load("supabase/functions/_shared/pricing.ts");
 
 let passed = 0, assertions = 0;
 const failures = [], transcript = [];
@@ -62,11 +68,11 @@ const promoRow = (over) => ({ id: "promo-1", business_id: "tenant-a", code: "ONC
   is_active: true, expires_at: null, usage_limit: 1, times_used: 0, once_per_customer: false, ...over });
 const instant = (_tz, date, time) => new Date(`${date}T${String(time).slice(0, 5)}:00Z`);
 
-function world(promo, patch = BREAK ? [PATCHES[BREAK]] : []) {
+function world(promo, { patch = BREAK ? [PATCHES[BREAK]] : [], bookings = [] } = {}) {
   const usage = [];
   const f = bookingFixture({
     srcPatch: patch,
-    tables: { promo_codes: [promoRow(promo)] },
+    tables: { promo_codes: [promoRow(promo)], booking_vehicles: [] },
     rpc: async (name, args, rows) => {
       if (name !== "increment_promo_usage") throw Error("Unexpected RPC " + name);
       usage.push(args);
@@ -75,7 +81,7 @@ function world(promo, patch = BREAK ? [PATCHES[BREAK]] : []) {
       return { error: null };
     },
     deps: {
-      resolvePromo, computeQuote,
+      resolvePromo, computeQuote, resolveVehicles, vehicleSizeFee,
       getSettings: async () => ({ booking_mode: "reserve", vehicle_sizes: [{ key: "small", label: "Small" }],
         max_vehicles_per_booking: 2, email_customer_confirmation: false, email_owner_new_booking: false, push_enabled: false }),
       localDateTimeToInstant: instant,
@@ -85,8 +91,15 @@ function world(promo, patch = BREAK ? [PATCHES[BREAK]] : []) {
       },
     },
   });
+  f.rows.bookings.push(...bookings);
   return { ...f, usage };
 }
+// A booking this customer already made with the code, for the reuse cases.
+const DAY = 864e5;
+const earlier = (over) => ({ id: "booking-old", business_id: "tenant-a", customer_name: "Maria Lopez",
+  customer_phone: "(555) 012-3456", customer_email: "maria@example.invalid", applied_promo_code: "ONCE10",
+  promo_discount: 19, status: "confirmed", deleted_at: null, booking_group_id: null,
+  start_at: "2026-09-26T17:00:00.000Z", created_at: new Date(Date.now() - 21 * DAY).toISOString(), ...over });
 
 const form = {
   customerName: "Maria Lopez", customerPhone: "(555) 012-3456", customerEmail: "maria@example.invalid",
@@ -145,11 +158,40 @@ check("4b · discount saved equals discount quoted, and is not zero", sumSaved(o
 const oSep = await o.book({ ...core.bookingRequests(form, { promoApplied: "ONCE10" })[0], booking_date: "2026-11-05" });
 check("4c · a later separate booking by the same customer gets 409", oSep.status === 409, status(oSep));
 
+console.log("6. the share is only for the set being booked now (review finding 1)");
+const one = (over = {}) => ({ ...core.bookingRequests(form, { promoApplied: "ONCE10" })[1], ...over });
+const old = world({ times_used: 1 }, { bookings: [earlier()] });
+const oldR = await old.book(core.groupedWith(one(), "booking-old"));
+check("6a · grouping onto the customer's 3-week-old booking to reuse a used one-use code gets 409", oldR.status === 409, status(oldR));
+const can = world({ times_used: 1 }, { bookings: [earlier({ created_at: new Date().toISOString(), status: "cancelled" })] });
+const canR = await can.book(core.groupedWith(one(), "booking-old"));
+check("6b · grouping onto a cancelled booking (made minutes ago) gets 409", canR.status === 409, status(canR));
+const opc = world({ usage_limit: null, once_per_customer: true }, { bookings: [earlier()] });
+const opcR = await opc.book(core.groupedWith(one(), "booking-old"));
+check("6c · once-per-customer: grouping onto the old booking gets 409", opcR.status === 409, status(opcR));
+check("6d · nothing was saved and nothing counted in any of the three",
+  [old, can, opc].every((x) => x.rows.bookings.length === 1 && x.usage.length === 0),
+  JSON.stringify([old, can, opc].map((x) => [x.rows.bookings.length, x.usage.length])));
+
+console.log("7. the cap counts cars, not rows (review finding 2)");
+const xv = world({});
+const xv1 = await xv.book(core.bookingRequests(form, { promoApplied: "ONCE10" })[0]);
+const xv2 = await xv.book(core.groupedWith(one({ extra_vehicles: [{ size: "small" }] }), xv1.data?.booking?.id));
+check("7a · a grouped call carrying an extra car (3 cars, cap 2) gets 409", xv2.status === 409, status(xv2));
+const two = world({});
+const two1 = await two.book({ ...core.bookingRequests(form, { promoApplied: "ONCE10" })[0], extra_vehicles: [{ size: "small" }] });
+const two2 = await two.book(core.groupedWith(one(), two1.data?.booking?.id));
+check("7b · car 1 already holds 2 cars, so a grouped third car gets 409", two1.status === 200 && two2.status === 409,
+  `${status(two1)} / ${status(two2)}`);
+check("7c · one row saved in each, the code counted once in each",
+  [xv, two].every((x) => x.rows.bookings.length === 1 && x.usage.length === 1),
+  JSON.stringify([xv, two].map((x) => [x.rows.bookings.length, x.usage.length])));
+
 // CANARY: the handler with the share switched off must reproduce the defect.
-const c = world({}, [PATCHES["no-share"]]);
+const c = world({}, { patch: [PATCHES["no-share"]] });
 const [, cCar2] = await bookAll(c);
 const canaryCaught = cCar2.status === 409 && c.rows.bookings.length === 1;
-check("5 · canary: without the share, car 2 is refused (the original defect)", canaryCaught, status(cCar2));
+check("8 · canary: without the share, car 2 is refused (the original defect)", canaryCaught, status(cCar2));
 
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (PROMO_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
@@ -160,10 +202,10 @@ writeReceipt({
   check_id: BREAK ? `promo-one-use-group-${BREAK}` : "promo-one-use-group",
   started_at,
   status: failed ? "fail" : "pass",
-  expected_targets: 3, discovered_targets: 3, attempted_targets: 3, completed_targets: 3, skipped_targets: 0,
+  expected_targets: 5, discovered_targets: 5, attempted_targets: 5, completed_targets: 5, skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 16,
-  assertion_floor: "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 1 canary = 16, every check() unconditional; targets are the three refusals that used to stop car 2 or must still stop a stranger (usage limit, once per customer, group cap).",
+  min_assertions: 23,
+  assertion_floor: "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 4 old-or-cancelled + 3 car-count + 1 canary = 23, every check() unconditional; targets are the five limits on the share (usage limit, once per customer, group cap in cars, freshness, status).",
   canary: { id: "share-switched-off", observed_failure: canaryCaught, what: "the handler with the group share removed refuses car 2 with 409, as the defect did" },
   failures,
   artifacts: [txt],
