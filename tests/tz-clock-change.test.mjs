@@ -29,8 +29,7 @@
 //   BREAK=one-pass node tests/tz-clock-change.test.mjs     # must fail
 //   node scripts/receipt.mjs receipts/tz-clock-change.json
 
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { REPO, writeReceipt } from "../scripts/receipt.mjs";
@@ -63,7 +62,10 @@ async function loadOnePass() {
   if (broken === source || !broken.includes("utcGuess.getTime() - asIfUtc")) {
     throw new Error("the sabotage did not land: localToDate was not found in tz.ts to replace");
   }
-  const file = join(mkdtempSync(join(tmpdir(), "tz-one-pass-")), "tz.ts");
+  // Inside the copy (artifacts/ is ignored by git), never the system temp folder.
+  const dir = join(REPO, "artifacts/tz-clock-change");
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, "tz-one-pass.ts");
   writeFileSync(file, broken);
   return import(pathToFileURL(file).href);
 }
@@ -154,7 +156,7 @@ check("pricing.ts receives localDateTimeToInstant rather than defining one",
 // cannot go stale quietly and a copy anywhere else still goes red.
 const SABOTAGE_HOLDERS = ["tests/tz-clock-change.test.mjs", "scripts/tz-clock-change-browser.mjs"];
 // Read from disk, not `git ls-files`: the belt refuses to run a test that starts a program (supervision 2026-10-16).
-const SKIP_DIR = /(^|\/)(node_modules|dist|reference|\.[^/]+)(\/|$)/;
+const SKIP_DIR = /(^|\/)(node_modules|dist|reference|artifacts|\.[^/]+)(\/|$)/;   // artifacts/ is git-ignored and holds this test's own sabotage copy
 const tracked = readdirSync(REPO, { recursive: true }).map((f) => String(f).replace(/\\/g, "/"))
   .filter((f) => /\.(ts|js|jsx|mjs)$/.test(f) && !SKIP_DIR.test(f) && !SABOTAGE_HOLDERS.includes(f));
 const SECOND_COPY = /([\w.()]+)\s*\+\s*\(\s*\1\s*-\s*asIfUtc\s*\)/;
