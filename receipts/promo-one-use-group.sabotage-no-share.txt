@@ -1,4 +1,4 @@
-promo-one-use-group 2026-10-16T23:44:45.428Z break=no-share
+promo-one-use-group 2026-10-16T23:50:01.669Z break=no-share
   ok    1a · 2 cars on 2 days quote 10% off on both cars ($19 + $19)
   ok    2a · car 1 books
   FAIL  2b · car 2 books (was refused with 409) - got 409 "That promo code is not valid."
@@ -14,8 +14,15 @@ promo-one-use-group 2026-10-16T23:44:45.428Z break=no-share
   FAIL  4a · both cars book - got 200 "" / 409 "The code ONCE10 is limited to one use per customer, and it looks like you've already used it."
   FAIL  4b · discount saved equals discount quoted, and is not zero - got 19
   ok    4c · a later separate booking by the same customer gets 409
-  ok    5 · canary: without the share, car 2 is refused (the original defect)
-9 passed, 7 failed
+  ok    6a · grouping onto the customer's 3-week-old booking to reuse a used one-use code gets 409
+  ok    6b · grouping onto a cancelled booking (made minutes ago) gets 409
+  ok    6c · once-per-customer: grouping onto the old booking gets 409
+  ok    6d · nothing was saved and nothing counted in any of the three
+  ok    7a · a grouped call carrying an extra car (3 cars, cap 2) gets 409
+  ok    7b · car 1 already holds 2 cars, so a grouped third car gets 409
+  ok    7c · one row saved in each, the code counted once in each
+  ok    8 · canary: without the share, car 2 is refused (the original defect)
+16 passed, 7 failed
 FAIL 2b · car 2 books (was refused with 409) - got 409 "That promo code is not valid."
 FAIL 2c · two booking rows saved - got 1
 FAIL 2d · discount saved equals discount quoted, and is not zero - got 19 vs 38
