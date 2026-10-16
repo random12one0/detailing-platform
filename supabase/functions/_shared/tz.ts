@@ -10,11 +10,9 @@ const partsOf = (tz: string, d: Date, opts: Intl.DateTimeFormatOptions) =>
       .map((p) => [p.type, p.value]),
   ) as Record<string, string>;
 
-// Convert a business-local wall-clock (y, mo, d, hh, mi) into the correct
-// absolute instant, accounting for that zone's DST.
-export function localToDate(tz: string, y: number, mo: number, d: number, hh: number, mi: number): Date {
-  const utcGuess = new Date(Date.UTC(y, mo - 1, d, hh, mi));
-  const p = partsOf(tz, utcGuess, {
+// The zone's offset from UTC at an instant, in ms (Los Angeles in summer: -7h).
+function offsetAt(tz: string, ms: number): number {
+  const p = partsOf(tz, new Date(ms), {
     hour12: false,
     year: "numeric",
     month: "2-digit",
@@ -31,7 +29,28 @@ export function localToDate(tz: string, y: number, mo: number, d: number, hh: nu
     Number(p.minute),
     Number(p.second),
   );
-  return new Date(utcGuess.getTime() + (utcGuess.getTime() - asIfUtc));
+  return asIfUtc - ms;
+}
+
+// Convert a business-local wall-clock (y, mo, d, hh, mi) into the correct
+// absolute instant, accounting for that zone's DST.
+//
+// ROADMAP 97.1 — this used to read the offset ONCE, at the wall time taken as
+// UTC, which on a clock-change Sunday lands on the other side of the change:
+// 08:00 on 2026-03-08 in Los Angeles was saved as 9:00 AM. A zone is on at most
+// two offsets around any one day, so try both and keep the one the zone is
+// really on at the resulting instant. An hour that happens twice (01:30 in
+// November) gets the earlier one; an hour that never happens (02:30 in March)
+// is moved forward by the gap, to 03:30, as phones and calendars do.
+// `tests/tz-clock-change.test.mjs` holds all 24 hours of both Sundays.
+export function localToDate(tz: string, y: number, mo: number, d: number, hh: number, mi: number): Date {
+  const wall = Date.UTC(y, mo - 1, d, hh, mi);
+  const before = offsetAt(tz, wall - 86_400_000);
+  const after = offsetAt(tz, wall + 86_400_000);
+  for (const o of before > after ? [before, after] : [after, before]) {
+    if (offsetAt(tz, wall - o) === o) return new Date(wall - o);
+  }
+  return new Date(wall - before);
 }
 
 // "YYYY-MM-DD" for an instant, in the business's zone.

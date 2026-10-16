@@ -82,19 +82,21 @@ const daysOut = (n) => {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 };
 // The instant a business-local wall clock refers to, computed independently
-// of the app so the test can't inherit the app's own bug.
+// of the app so the test can't inherit the app's own bug: the offset is read
+// from the zone's NAME ("GMT-07:00") rather than by formatting the time back,
+// and it is read twice, because one read at the guessed instant lands on the
+// wrong side of a clock change (ROADMAP 97.1).
 const localToUtcISO = (tz, dateStr, hhmm) => {
   const [y, m, d] = dateStr.split("-").map(Number);
   const [hh, mi] = hhmm.split(":").map(Number);
-  const guess = Date.UTC(y, m - 1, d, hh, mi);
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: tz, hour12: false, year: "numeric", month: "2-digit",
-      day: "2-digit", hour: "2-digit", minute: "2-digit",
-    }).formatToParts(new Date(guess)).map((x) => [x.type, x.value]),
-  );
-  const asIfUtc = Date.UTC(+p.year, +p.month - 1, +p.day, p.hour === "24" ? 0 : +p.hour, +p.minute);
-  return new Date(guess + (guess - asIfUtc)).toISOString();
+  const offset = (ms) => {
+    const name = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "longOffset" })
+      .formatToParts(new Date(ms)).find((x) => x.type === "timeZoneName").value;
+    const o = name.match(/GMT([+-])(\d{2}):(\d{2})/);
+    return o ? (o[1] === "-" ? -1 : 1) * (+o[2] * 60 + +o[3]) * 60_000 : 0;
+  };
+  const wall = Date.UTC(y, m - 1, d, hh, mi);
+  return new Date(wall - offset(wall - offset(wall))).toISOString();
 };
 
 // ---------------------------------------------------------------------------

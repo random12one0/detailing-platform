@@ -1,0 +1,7 @@
+1440x900: 144/144 round-trip, console clean
+768x1024: 144/144 round-trip, console clean
+390x844: 144/144 round-trip, console clean
+canary: old module served=true, wrong 22 of 144
+
+436 passed, 0 failed, 436 assertions.
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.1-20261016042658330\receipts\tz-clock-change-browser.json
