@@ -272,6 +272,22 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ROADMAP 97.8 — NEVER CHARGE A PRICE THE PAGE DID NOT SHOW. The page
+    // sends the total it displayed; when this total differs (a rush fee that
+    // started while they typed, a rule the quote and this call read
+    // differently) the booking is refused before anything is written, and the
+    // page shows the new figure and asks again. AFTER the retry check above,
+    // so a lost answer still gets its booking back. A caller that sends no
+    // figure (the owner's dashboard) is priced exactly as before.
+    if (body.shown_total != null && Math.abs(Number(body.shown_total) - quote.total) > 0.005) {
+      return json({
+        error: "price_changed",
+        message: "The price changed while you were booking. Check the new total and confirm again.",
+        total: quote.total,
+        shown_total: Number(body.shown_total),
+      }, 409);
+    }
+
     // --- The authoritative slot gate ---------------------------------------
     const check = await validateSlot({
       business,
