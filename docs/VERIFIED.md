@@ -3695,3 +3695,24 @@ taken with `PGLITE_REQUIRED=1`, which this checkout cannot repeat. `CONTRACT_BRE
 Main's four 'regressions' in the belt's suite: `figures-carry-their-command` passes here (9 of 9)
 and failed in the belt only because its suite had no bash on PATH (belt fixed). The other three are
 real and filed as 100.6 and 100.7.
+
+## Supervision 2026-10-16 (evening) — 97.10 and 97.6 re-taken at `062920b0`
+
+**97.10 (card payment must match what is owed):** `node tests/card-payment-settles.test.mjs` 33 passed / 0
+failed; `BREAK=no-amount` 25 / 8 (caught). `node scripts/payment-problem-shown.mjs` against the dev server,
+demo owner, one job's read rewritten in the browser (no database write): 101 passed / 0 failed over 20 of 20
+views; `--break=old-webhook` 49 / 12 (caught). Screenshots looked at by eye at 1440x900 and 390x844: the red
+line reads "A card payment of $1 came in, but this job is owed $150..." under the Unpaid pill, inside the
+viewport. Diff read: the verdict compares Stripe's amount against `amountDueCents`, the same figure
+`pay-booking` charges, and the job record hides the line once paid or waived. Not live until the one-column
+migration and the webhook are published.
+
+**97.6 (a plan covers car 1 of a split-day booking only):** `node tests/plan-one-car-split.test.mjs` 12 / 0;
+`PLAN_BREAK=quote-every-car` 9 / 3 and `PLAN_BREAK=no-refusal` 10 / 2 (both caught). The variable is
+`PLAN_BREAK`, not `BREAK` — a run with `BREAK=` set prints a clean 12 / 0, which is the sabotage not
+landing, not a pass.
+
+**97.1:** the review's finding (sabotage copy written to the system temp folder) fixed on its branch at
+`ec8d003c`: 169 / 0 clean, `BREAK=one-pass` 138 / 31. Its other finding (importing `scripts/receipt.mjs`
+runs `git rev-parse`) is every receipt-writing test in the repo and is no longer a review finding.
+Receipts touched by these runs on main were restored from HEAD.

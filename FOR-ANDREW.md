@@ -50,21 +50,20 @@ Updated 2026-09-21.
 
 ## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
 
-Your "merge it" this afternoon did not go through for either. Nothing in the
-work was wrong. The belt tripped over its own rules:
+Both fixes are right. Neither has reached main yet, for the belt's reasons, not yours.
 
-- **97.1, the clock-change Sunday bookings.** One of its tests ran a small
-  program, which the belt does not allow. The supervisor changed that one line
-  and re-checked it. The next clock change is 1 November.
-- **97.2, the duplicate-booking answer that showed private details.** It was
-  held because an unrelated test got a different error page from the internet.
-  The belt no longer holds work for that.
+- **97.1, the clock-change Sunday bookings.** Your second "merge it" was held
+  because its new test wrote a scratch file to the computer's temp folder. The
+  supervisor moved that file inside the project on 16 October and re-checked it
+  (169 checks pass; the old broken version fails 31).
+  The next clock change is 1 November.
+- **97.2, the duplicate-booking answer that showed private details.** Held only
+  for an unrelated test that got a web page instead of data from the internet.
+  The belt stopped holding work for that this afternoon; its review said OK.
 
-**Recommendation: say "merge it" on both.** The belt restarts itself on the
-fixed rules when this supervision ends.
-97.3's test has now been rewritten; it has its own row just below.
+**Recommendation: say "merge it" on both.**
 
-## DO · Say "merge it" on 97.3, then set up the scheduler's key at your next release (ROADMAP 97.3)
+## DO · Set up the scheduler's key at your next release (ROADMAP 97.3)
 
 Until now anybody on the internet could start the reminder sweep, the weather
 refresh, the job watcher and the nightly photo check. That is fixed in the code:
@@ -73,11 +72,7 @@ the scheduler is set up to send it. Proved here, without touching the internet
 or any real key: all four refuse a call without it and run with it, and the
 "send reminder" button in a job still works with no change.
 
-**First, say "merge it" on 97.3.** The test the belt refused last time has been
-rewritten the way the supervisor asked: no local server, no fake keys, no
-secret read.
-
-**Then, at your next back-end release, these steps in this order.** Nothing is
+97.3 is already in main (merged 16 October). **At your next back-end release, these steps in this order.** Nothing is
 decided here; these are the setup steps.
 
 1. **Make the value.** In your password manager, generate a random 40-character
