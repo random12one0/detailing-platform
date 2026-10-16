@@ -221,6 +221,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - A send that fails leaves its marker clear so the next sweep retries it
   - Removing the claim (sabotage) makes the double-run test go red
 
+  **ANDREW, 2026-10-16:** Andrew said merge it. The saved work on belt/97.4-20261016144914209 passed review but now clashes with fixes merged since (97.1, 97.3, 97.5, 97.6, 97.10). Redo it on current main, reusing that branch's approach and tests, and resolve the overlap with the merged reminder and booking changes.
+
 - [ ] **97.5 — One bad owner address makes the other owner addresses get the same email every 15 minutes (C-H6).**
   `send-owner-reminders/index.ts:149-165`: `mustSend` throws inside the loop over recipients, so recipient A's successful send leaves no marker when recipient B fails, and the push at `:167` is skipped as well. The stale-request nudge (`335-351`) does the same. Keep a marker per recipient (or mark once at least one send succeeded and log the rest), and send the push outside the email loop.
   Acceptance criteria:
