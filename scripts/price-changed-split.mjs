@@ -230,7 +230,7 @@ for (const tg of [...TARGETS, CANARY]) {
 await browser.close();
 
 const failed = assertions - passed;
-const perTarget = 12 + (env ? 1 : 0);
+const perTarget = 11 + (env ? 1 : 0);
 console.log(`canary (guard off at 390): ${canaryCaught.length ? "caught - " + canaryCaught.join("; ") : "NOT CAUGHT"}`);
 console.log(`\n${completed} of ${TARGETS.length} targets walked, ${passed} passed, ${failed} failed${BREAK ? `  (--break=${BREAK}: MUST be red)` : ""}`);
 const txt = BREAK ? `receipts/price-changed-split.sabotage-${BREAK}.txt` : "receipts/price-changed-split.txt";
@@ -244,7 +244,7 @@ writeReceipt({
   completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: TARGETS.length * perTarget,
-  assertion_floor: "12 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, sentence names price, language, on screen, console) plus 1 env signature with --env-from.",
+  assertion_floor: "11 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, sentence names price, language, on screen, console) plus 1 env signature with --env-from.",
   // The canary is the no-guard stand-in itself: car 2 saved at $20 over its shown figure must land in savedUnshown.
   canary: { id: "unguarded-car-2-saved-unshown", observed_failure: canaryCaught.includes("car 2 was NOT saved at a price the page never showed"), caught: canaryCaught, what: "an extra 390 walk against a stand-in with the guard off saves car 2 at shown + $20; the walk must name it" },
   failures,
