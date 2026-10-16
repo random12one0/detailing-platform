@@ -190,6 +190,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - A genuine double press still answers 200 with `duplicate: true` and creates one booking (existing retry-safety test passes)
 
 - [ ] **97.3 — The reminder sweep and three other background jobs can be triggered by anyone (S-H2, S-L1).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/cron-secret.test.mjs, tests/customer-reminder.test.mjs, tests/dead-mans-switch.test.mjs, tests/photo-cron-call.test.mjs.
+  The work is safe on branch `belt/97.3-20261016093151153`. Answer "merge it" to keep it, or say what to change.
   `send-owner-reminders`, `refresh-weather`, `watch-jobs` and `photo-reconcile` are in `PUBLIC_FUNCTIONS` (`scripts/deploy-functions.mjs:25-47`). The sweep branch of `send-owner-reminders/index.ts` (`:210` onward) has no caller check, and its response returns booking ids and error strings (`:583`). `refresh-weather/index.ts:68-90` writes every tenant's bookings with no caller check. Build a shared check: the call must carry a secret header that pg_cron sends, read from an environment value. **Setting that secret and updating the cron jobs to send it is Andrew's** (a secret, and his publish); build and prove everything up to that point, and add the steps to `FOR-ANDREW.md`.
   Acceptance criteria:
   - With the secret configured, each of the four functions refuses a call without the header (401) and runs normally with it, proved locally for all four
