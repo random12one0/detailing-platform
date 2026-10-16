@@ -44,7 +44,7 @@ const started_at = new Date().toISOString();
 const WIDTHS = [[1440, 900], [768, 1024], [390, 844], [320, 700]];
 const AMOUNT = { kind: "amount", paid_cents: 100, owed_cents: 15000, currency: "usd", at: "2026-10-16T15:00:00.000Z" };
 const CURRENCY = { kind: "currency", paid_cents: 15000, owed_cents: 15000, currency: "eur", at: "2026-10-16T15:00:00.000Z" };
-const OLD = { payment_status: "paid", paid_online_at: "2026-10-16T15:00:00.000Z", payment_problem: null };
+const OLD = { payment_status: "paid", paid_online_at: "2026-10-16T15:00:00.000Z", payment_problem: null, final_amount: null, total_price: 150 };
 const SCENARIOS = [
   { id: "mismatch", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
     want: ["A card payment of $1 came in, but this job is owed $150.", "We did not mark it paid."] },
