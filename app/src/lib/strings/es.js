@@ -339,7 +339,7 @@ export const es = {
   "The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.":
     "El precio cambió a {total} mientras reservabas. Todavía no hay nada reservado. Revisa el nuevo total y vuelve a confirmar.",
   "Your first car is booked. The price for car {n} changed to {total}, so it was not booked. Please book it separately.":
-    "Tu primer auto está reservado. El precio del auto {n} cambió a {total}, así que no se reservó. Resérvalo por separado.",
+    "Tu primer carro está reservado. El precio del carro {n} cambió a {total}, así que no se reservó. Resérvalo por separado.",
 
   // ── The picker itself ──────────────────────────────────────────────────
   "Language": "Idioma",
