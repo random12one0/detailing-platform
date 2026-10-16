@@ -1,0 +1,50 @@
+price-changed-split 2026-10-16T21:35:20.273Z base=http://127.0.0.1:5180 break=none
+  ok    390x844 en split · this server's modules ran with the injected env (signature read back)
+  ok    390x844 en split · the profile was fed as a two-car business
+  ok    390x844 en split · the calendar offers a time for each of two cars
+  ok    390x844 en split · reached the last step
+  ok    390x844 en split · the quote came back as two cars, priced separately
+  ok    390x844 en split · the bar shows both cars
+  ok    390x844 en split · one call per car, each carrying that car's own figure
+  ok    390x844 en split · car 2 was NOT saved at a price the page never showed
+  ok    390x844 en split · the page says car 1 is booked and names car 2's new price ($85)
+  ok    390x844 en split · the sentence is in English
+  ok    390x844 en split · the sentence is on screen and clear of the price bar
+  ok    390x844 en split · console clean: nothing but one designed 409 line per refusal
+  ok    1440x900 en split · this server's modules ran with the injected env (signature read back)
+  ok    1440x900 en split · the profile was fed as a two-car business
+  ok    1440x900 en split · the calendar offers a time for each of two cars
+  ok    1440x900 en split · reached the last step
+  ok    1440x900 en split · the quote came back as two cars, priced separately
+  ok    1440x900 en split · the bar shows both cars
+  ok    1440x900 en split · one call per car, each carrying that car's own figure
+  ok    1440x900 en split · car 2 was NOT saved at a price the page never showed
+  ok    1440x900 en split · the page says car 1 is booked and names car 2's new price ($85)
+  ok    1440x900 en split · the sentence is in English
+  ok    1440x900 en split · the sentence is on screen and clear of the price bar
+  ok    1440x900 en split · console clean: nothing but one designed 409 line per refusal
+  ok    768x1024 en split · this server's modules ran with the injected env (signature read back)
+  ok    768x1024 en split · the profile was fed as a two-car business
+  ok    768x1024 en split · the calendar offers a time for each of two cars
+  ok    768x1024 en split · reached the last step
+  ok    768x1024 en split · the quote came back as two cars, priced separately
+  ok    768x1024 en split · the bar shows both cars
+  ok    768x1024 en split · one call per car, each carrying that car's own figure
+  ok    768x1024 en split · car 2 was NOT saved at a price the page never showed
+  ok    768x1024 en split · the page says car 1 is booked and names car 2's new price ($85)
+  ok    768x1024 en split · the sentence is in English
+  ok    768x1024 en split · the sentence is on screen and clear of the price bar
+  ok    768x1024 en split · console clean: nothing but one designed 409 line per refusal
+  ok    390x844 es split · this server's modules ran with the injected env (signature read back)
+  ok    390x844 es split · the profile was fed as a two-car business
+  ok    390x844 es split · the calendar offers a time for each of two cars
+  ok    390x844 es split · reached the last step
+  ok    390x844 es split · the quote came back as two cars, priced separately
+  ok    390x844 es split · the bar shows both cars
+  ok    390x844 es split · one call per car, each carrying that car's own figure
+  ok    390x844 es split · car 2 was NOT saved at a price the page never showed
+  ok    390x844 es split · the page says car 1 is booked and names car 2's new price ($85)
+  ok    390x844 es split · the sentence is in Spanish
+  ok    390x844 es split · the sentence is on screen and clear of the price bar
+  ok    390x844 es split · console clean: nothing but one designed 409 line per refusal
+4 of 4 targets, 48 passed, 0 failed

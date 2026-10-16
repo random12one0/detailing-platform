@@ -1,0 +1,74 @@
+price-changed-page 2026-10-16T21:32:45.838Z base=http://127.0.0.1:5180 break=none
+  ok    390x844 en · this server's modules ran with the injected env (signature read back)
+  ok    390x844 en · reached the last step
+  ok    390x844 en · the first press told the server the figure on the bar
+  ok    390x844 en · the booking was NOT saved at a price the page never showed
+  ok    390x844 en · a notice names the new price ($85)
+  ok    390x844 en · the notice is in English
+  ok    390x844 en · the notice is on screen and clear of the price bar
+  ok    390x844 en · the bar shows the new price
+  ok    390x844 en · pressing again sends the new figure and books
+  ok    390x844 en · saved at exactly the figure on the bar when pressed
+  ok    390x844 en · one booking call per press, no car booked twice
+  ok    390x844 en · console clean: nothing but one designed 409 line per refusal
+  ok    1440x900 en · this server's modules ran with the injected env (signature read back)
+  ok    1440x900 en · reached the last step
+  ok    1440x900 en · the first press told the server the figure on the bar
+  ok    1440x900 en · the booking was NOT saved at a price the page never showed
+  ok    1440x900 en · a notice names the new price ($85)
+  ok    1440x900 en · the notice is in English
+  ok    1440x900 en · the notice is on screen and clear of the price bar
+  ok    1440x900 en · the bar shows the new price
+  ok    1440x900 en · pressing again sends the new figure and books
+  ok    1440x900 en · saved at exactly the figure on the bar when pressed
+  ok    1440x900 en · one booking call per press, no car booked twice
+  ok    1440x900 en · console clean: nothing but one designed 409 line per refusal
+  ok    768x1024 en · this server's modules ran with the injected env (signature read back)
+  ok    768x1024 en · reached the last step
+  ok    768x1024 en · the first press told the server the figure on the bar
+  ok    768x1024 en · the booking was NOT saved at a price the page never showed
+  ok    768x1024 en · a notice names the new price ($85)
+  ok    768x1024 en · the notice is in English
+  ok    768x1024 en · the notice is on screen and clear of the price bar
+  ok    768x1024 en · the bar shows the new price
+  ok    768x1024 en · pressing again sends the new figure and books
+  ok    768x1024 en · saved at exactly the figure on the bar when pressed
+  ok    768x1024 en · one booking call per press, no car booked twice
+  ok    768x1024 en · console clean: nothing but one designed 409 line per refusal
+  ok    320x700 en · this server's modules ran with the injected env (signature read back)
+  ok    320x700 en · reached the last step
+  ok    320x700 en · the first press told the server the figure on the bar
+  ok    320x700 en · the booking was NOT saved at a price the page never showed
+  ok    320x700 en · a notice names the new price ($85)
+  ok    320x700 en · the notice is in English
+  ok    320x700 en · the notice is on screen and clear of the price bar
+  ok    320x700 en · the bar shows the new price
+  ok    320x700 en · pressing again sends the new figure and books
+  ok    320x700 en · saved at exactly the figure on the bar when pressed
+  ok    320x700 en · one booking call per press, no car booked twice
+  ok    320x700 en · console clean: nothing but one designed 409 line per refusal
+  ok    390x844 es · this server's modules ran with the injected env (signature read back)
+  ok    390x844 es · reached the last step
+  ok    390x844 es · the first press told the server the figure on the bar
+  ok    390x844 es · the booking was NOT saved at a price the page never showed
+  ok    390x844 es · a notice names the new price ($85)
+  ok    390x844 es · the notice is in Spanish
+  ok    390x844 es · the notice is on screen and clear of the price bar
+  ok    390x844 es · the bar shows the new price
+  ok    390x844 es · pressing again sends the new figure and books
+  ok    390x844 es · saved at exactly the figure on the bar when pressed
+  ok    390x844 es · one booking call per press, no car booked twice
+  ok    390x844 es · console clean: nothing but one designed 409 line per refusal
+  ok    1440x900 es · this server's modules ran with the injected env (signature read back)
+  ok    1440x900 es · reached the last step
+  ok    1440x900 es · the first press told the server the figure on the bar
+  ok    1440x900 es · the booking was NOT saved at a price the page never showed
+  ok    1440x900 es · a notice names the new price ($85)
+  ok    1440x900 es · the notice is in Spanish
+  ok    1440x900 es · the notice is on screen and clear of the price bar
+  ok    1440x900 es · the bar shows the new price
+  ok    1440x900 es · pressing again sends the new figure and books
+  ok    1440x900 es · saved at exactly the figure on the bar when pressed
+  ok    1440x900 es · one booking call per press, no car booked twice
+  ok    1440x900 es · console clean: nothing but one designed 409 line per refusal
+6 of 6 targets, 72 passed, 0 failed

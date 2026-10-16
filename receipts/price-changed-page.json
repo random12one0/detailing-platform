@@ -1,0 +1,43 @@
+{
+  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T21:32:45.909Z",
+  "failures": [],
+  "warnings": [
+    "create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
+    "The rush fee is simulated as +$20 on the server's figure and on later quotes; the demo tenant's own rules are untouched."
+  ],
+  "artifacts": [
+    "receipts/price-changed-page.txt",
+    "artifacts/price-changed-page/"
+  ],
+  "dimensions": {
+    "roadmap": "97.8",
+    "break": null,
+    "base": "http://127.0.0.1:5180",
+    "env_from": "http://localhost:5173"
+  },
+  "check_id": "price-changed-page",
+  "started_at": "2026-10-16T21:29:53.295Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 72,
+  "min_assertions": 72,
+  "assertion_floor": "11 per target when the refusal is shown (walk, first post, not saved, notice names price, notice language, on-screen, bar, second post, figure, one call each, console), plus 1 env signature with --env-from.",
+  "canary": {
+    "id": "unguarded-server-saves-unshown",
+    "observed_failure": true,
+    "caught": [
+      "the booking was NOT saved at a price the page never showed",
+      "a notice names the new price ($85)",
+      "the notice is in English"
+    ],
+    "what": "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it"
+  }
+}

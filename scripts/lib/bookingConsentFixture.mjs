@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
-export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [] } = {}) {
+export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [], quoteTotal = 185 } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
     const changed = helperSrc.replace('sms_consent_source: "booking_form"', 'sms_consent_source: "owner_entered"');
@@ -60,7 +60,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   };
   const business = { id: 'tenant-a', slug: 'consent-proof', name: "Andrew's Auto Detail", timezone: 'America/Los_Angeles' };
   const settings = { email_customer_confirmation: true, email_owner_new_booking: false, push_enabled: false, booking_mode: 'reserve', vehicle_sizes: [{ key:'small',label:'Small' }] };
-  const pricing = { sizeAdd:0, total:185, subtotalAfterSite:185, totalDurationMinutes:60, adjustmentLines:[], travelFee:0, siteDiscount:0, promoDiscount:0 };
+  const pricing = { sizeAdd:0, total:quoteTotal, subtotalAfterSite:quoteTotal, totalDurationMinutes:60, adjustmentLines:[], travelFee:0, siteDiscount:0, promoDiscount:0 };
   let handler;
   const dependencies = {
     Deno: { serve(fn) { handler = fn; } }, supabase: db,
@@ -80,6 +80,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
   if (handlerBreak === 'plan-refusal') { const changed = src.replace('if (body.plan_id && body.group_with)', 'if (false)'); if (changed === src) throw Error('Plan-refusal sabotage did not land'); src = changed; }
+  if (handlerBreak === 'price-guard') { const changed = src.replace('if (body.shown_total != null &&', 'if (false &&'); if (changed === src) throw Error('Price-guard sabotage did not land'); src = changed; }
   for (const [from, to] of srcPatch) {
     if (!src.includes(from)) throw Error('Source sabotage did not land: ' + from);
     src = src.split(from).join(to);

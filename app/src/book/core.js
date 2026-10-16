@@ -1492,8 +1492,17 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
 // the set one thing. **A failure part way through is not corruption** — each
 // call is a complete booking of its own — so a caller reports what was booked
 // and what was not, and never pretends to roll anything back.
+//
+// ROADMAP 97.8 — EACH CALL CARRIES THE TOTAL THE PAGE SHOWED FOR IT, from
+// `opts.quote` (the `calculate-booking` answer on screen): the whole figure
+// for one booking, each car's own `per_vehicle` figure on a split one, since
+// each call is priced as that car alone. `create-booking` refuses with
+// `price_changed` when its own total differs, so a customer is never charged
+// a figure they were not shown. No quote, no field: priced as before.
 export function bookingRequests(form, opts = {}) {
-  const base = bookingRequest(form, opts);
+  const shown = (t) => ({ shown_total: t == null ? undefined : Number(t) });
+  const legs = opts.quote?.per_vehicle;
+  const base = { ...bookingRequest(form, opts), ...shown(legs ? legs[0]?.total : opts.quote?.total) };
   const extras = form.extraVehicles ?? [];
   if (!form.splitDays || !extras.length) return [base];
   // On a split booking NO call carries extra vehicles: each is one car on one
@@ -1502,8 +1511,9 @@ export function bookingRequests(form, opts = {}) {
   const first = { ...base, extra_vehicles: null };
   return [
     first,
-    ...extras.map((v) => ({
+    ...extras.map((v, i) => ({
       ...first,
+      ...shown(legs?.[i + 1]?.total),
       vehicle_size: v.size,
       vehicle_model: (v.model ?? "").trim() || null,
       booking_date: v.date,

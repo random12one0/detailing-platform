@@ -1,0 +1,68 @@
+price-changed-page 2026-10-16T21:20:41.876Z base=http://127.0.0.1:5180 break=page-strips
+  ok    390x844 en · this server's modules ran with the injected env (signature read back)
+  ok    390x844 en · reached the last step
+  FAIL  390x844 en · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  390x844 en · a notice names the new price ($85) - got ""
+  FAIL  390x844 en · the notice is in English - got ""
+  ok    390x844 en · console clean: nothing but one designed 409 line per refusal
+  ok    1440x900 en · this server's modules ran with the injected env (signature read back)
+  ok    1440x900 en · reached the last step
+  FAIL  1440x900 en · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  1440x900 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  1440x900 en · a notice names the new price ($85) - got ""
+  FAIL  1440x900 en · the notice is in English - got ""
+  ok    1440x900 en · console clean: nothing but one designed 409 line per refusal
+  ok    768x1024 en · this server's modules ran with the injected env (signature read back)
+  ok    768x1024 en · reached the last step
+  FAIL  768x1024 en · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  768x1024 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  768x1024 en · a notice names the new price ($85) - got ""
+  FAIL  768x1024 en · the notice is in English - got ""
+  ok    768x1024 en · console clean: nothing but one designed 409 line per refusal
+  ok    320x700 en · this server's modules ran with the injected env (signature read back)
+  ok    320x700 en · reached the last step
+  FAIL  320x700 en · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  320x700 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  320x700 en · a notice names the new price ($85) - got ""
+  FAIL  320x700 en · the notice is in English - got ""
+  ok    320x700 en · console clean: nothing but one designed 409 line per refusal
+  ok    390x844 es · this server's modules ran with the injected env (signature read back)
+  ok    390x844 es · reached the last step
+  FAIL  390x844 es · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  390x844 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  390x844 es · a notice names the new price ($85) - got ""
+  FAIL  390x844 es · the notice is in Spanish - got ""
+  ok    390x844 es · console clean: nothing but one designed 409 line per refusal
+  ok    1440x900 es · this server's modules ran with the injected env (signature read back)
+  ok    1440x900 es · reached the last step
+  FAIL  1440x900 es · the first press told the server the figure on the bar - got undefined vs bar 65
+  FAIL  1440x900 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+  FAIL  1440x900 es · a notice names the new price ($85) - got ""
+  FAIL  1440x900 es · the notice is in Spanish - got ""
+  ok    1440x900 es · console clean: nothing but one designed 409 line per refusal
+6 of 6 targets, 18 passed, 24 failed
+FAIL 390x844 en · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 390x844 en · a notice names the new price ($85) - got ""
+FAIL 390x844 en · the notice is in English - got ""
+FAIL 1440x900 en · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 1440x900 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 1440x900 en · a notice names the new price ($85) - got ""
+FAIL 1440x900 en · the notice is in English - got ""
+FAIL 768x1024 en · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 768x1024 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 768x1024 en · a notice names the new price ($85) - got ""
+FAIL 768x1024 en · the notice is in English - got ""
+FAIL 320x700 en · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 320x700 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 320x700 en · a notice names the new price ($85) - got ""
+FAIL 320x700 en · the notice is in English - got ""
+FAIL 390x844 es · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 390x844 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 390x844 es · a notice names the new price ($85) - got ""
+FAIL 390x844 es · the notice is in Spanish - got ""
+FAIL 1440x900 es · the first press told the server the figure on the bar - got undefined vs bar 65
+FAIL 1440x900 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65
+FAIL 1440x900 es · a notice names the new price ($85) - got ""
+FAIL 1440x900 es · the notice is in Spanish - got ""
