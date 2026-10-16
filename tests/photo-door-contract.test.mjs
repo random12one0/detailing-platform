@@ -18,12 +18,32 @@
 // function is not deployed", so a missing booking would have been reported as
 // "Photo storage is not set up on the server yet."
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import * as door from "../supabase/functions/_shared/photoDoor.ts";
-import { DOOR_WORDS, doorError, readFinish, readRemoved, readStart, readUrls } from "../app/src/lib/photo-door.js";
+import * as realApp from "../app/src/lib/photo-door.js";
+
+// BREAK IT ON PURPOSE: `CONTRACT_BREAK=fivexx node --test tests/photo-door-contract.test.mjs` runs every case
+// against a copy of the real photo-door.js with 0.11a's `!spoke` taken off the 5xx branch, so every 5xx becomes
+// the generic retry line again. § 3 must go red (ROADMAP 98.5). An env var, not a flag: docs/gotchas.md 104.
+async function broken(name) {
+  const from = "s >= 500 && !spoke", to = "s >= 500";
+  const src = readFileSync("app/src/lib/photo-door.js", "utf8")
+    .replace('"./photo-rules.js"', JSON.stringify(pathToFileURL(path.resolve("app/src/lib/photo-rules.js")).href));
+  assert.equal(src.split(from).length - 1, 1, `CONTRACT_BREAK=${name}: the line to sabotage is not unique or not there`);
+  const file = path.join(mkdtempSync(path.join(tmpdir(), "photo-contract-")), "photo-door.mjs");
+  writeFileSync(file, src.replace(from, to));
+  console.log(`  note  CONTRACT_BREAK=${name}: running against a copy with "${from}" -> "${to}"`);
+  return import(pathToFileURL(file).href);
+}
+const BREAK = process.env.CONTRACT_BREAK || "";
+if (BREAK && BREAK !== "fivexx") throw new Error(`CONTRACT_BREAK=${BREAK} is not a known sabotage (fivexx)`);
+const { DOOR_WORDS, doorError, readFinish, readRemoved, readStart, readUrls } = BREAK ? await broken(BREAK) : realApp;
 
 const MB = 1024 * 1024;
 const A = "11111111-1111-4111-8111-111111111111";
@@ -127,12 +147,16 @@ test("3 · what the app does with each way the door can say no", async () => {
   // 413, 400s: the sentence as written.
   assert.match((await fail({ ...start, claimed_bytes: 11 * MB })).message, /larger than 10\.0 MB/);
   assert.match((await fail({ ...start, kind: "gallery" })).message, /before, after or damage/);
-  // An unreadable budget is the door's 503: the app says the service had a problem.
+  // An unreadable budget is the door's 503 WITH a sentence, and since 0.11a the app shows that sentence
+  // rather than the generic retry line (`doorError`'s `!spoke`; ROADMAP 98.5 brought this case into line).
   w.budget = undefined; w.deps.budget = async () => null;
-  assert.equal((await fail(start)).message, DOOR_WORDS.failed);
-  // No credentials on the server: the same.
+  assert.equal((await fail(start)).message, "Could not check your photo storage. Nothing was saved. Try again in a minute.");
+  // No credentials on the server: the door's own 503 sentence, which is configuration, not "try again".
   w.deps.r2 = null;
-  assert.equal((await fail(start)).message, DOOR_WORDS.failed);
+  assert.equal((await fail(start)).message, "Photo storage is not set up on the server yet.");
+  // A 5xx with NO sentence (a gateway, a crash before the door ran) is still the generic line.
+  const bare = Object.assign(new Error("Request failed (502)"), { status: 502, body: { code: "BAD_GATEWAY" } });
+  assert.equal(doorError(bare).message, DOOR_WORDS.failed);
   // A rate refusal is a sentence, not a status.
   w.deps.withinLimits = async () => false;
   assert.match((await fail(start)).message, /Too many photo requests/);

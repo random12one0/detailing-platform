@@ -1,0 +1,801 @@
+✔ 1 · the two halves of the rule are real: storagePath refuses a missing booking, and KINDS is the table's own list (3.0929ms)
+✔ 2 · SABOTAGE — the checker sees the call that used to be in SiteIntake.jsx (1.1164ms)
+✔ 3 · THE REAL RESULT — every call to addPhoto in app/src gives it a booking and a valid kind (68.5815ms)
+✔ 5 · SABOTAGE — the checker sees the binding every call site used before slice 4 (2.0789ms)
+✔ 6 · THE REAL RESULT — every uploadBusinessPhoto caller in app/src takes its result correctly (95.6615ms)
+✔ 4 · the website-intake photos go to the business's own folder, and nothing is published from there (1.0746ms)
+1. the entry, as the migrations declare it
+  ok    1a . exactly two migrations schedule photo-reconcile
+  ok    1b . the one that wins is the timeout migration
+  ok    1c . the reschedule did not quietly change the cadence
+  ok    1d . it is daily at 03:40 UTC
+  ok    1e . the header argument holds no bracket, so reading to the first ')' is whole
+  ok    1f . it posts Content-Type application/json and an empty object
+
+2. the address
+  ok    2a . the cron entries already installed all name one project
+  ok    2b . the reconcile names that same project
+  ok    2c . and it is this platform's database, never the real business
+  ok    2d . the slug is production's own name for this job
+  ok    2e . and it names a function that exists in this checkout
+
+3. the timeout nobody passed
+  ok    3a . the winning entry passes timeout_milliseconds at all
+  ok    3b . it is 60000
+  ok    3c . at least the 30000 the 2026-09-13 repair chose for the sweep
+  ok    3d . and inside the heartbeat's own staleness window, so a slow run still reports in time
+  ok    3e . a daily call is never refused as too soon
+
+4. the function answers that exact call
+  ok    4a . the request carries no Authorization header, the way pg_net sends it
+  ok    4b . and it carries the Content-Type the migration names
+  ok    4c . the handler answers 200, not a refusal
+  ok    4d . it says it RAN, rather than skipped
+  ok    4e . it read the bucket once and stamped the heartbeat once
+  ok    4f.orphans . the stamped row carries a number for it
+  ok    4f.missing . the stamped row carries a number for it
+  ok    4f.mismatched . the stamped row carries a number for it
+  ok    4f.unknown_size_rows . the stamped row carries a number for it
+  ok    4f.misfiled . the stamped row carries a number for it
+  ok    4g.orphans . and it is 2, the drift the fixture really holds
+  ok    4g.missing . and it is 1, the drift the fixture really holds
+  ok    4g.mismatched . and it is 1, the drift the fixture really holds
+  ok    4g.unknown_size_rows . and it is 1, the drift the fixture really holds
+  ok    4g.misfiled . and it is 1, the drift the fixture really holds
+  ok    4h . and the row says it is not clean
+
+5. the rate limit, as production asked for it
+  ok    5a . exactly one limit was consulted
+  ok    5b . it is bucketed under this job's own name
+  ok    5c . and one call a day fits inside it
+
+6. the judge still catches a heartbeat that counts nothing
+  ok    6a . a heartbeat with no drift numbers is judged a failure on all five
+  ok    6b . and the opposite direction: the real one passes all five
+
+37 passed, 0 failed, 37 assertions.
+
+receipt  C:\Users\rando\Downloads\claude\belt-jobs\belt_98.5-20261013141316\receipts\photo-cron-call.json  -  validate: node scripts/receipt.mjs
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_98.5-20261013141316\tests\photo-cron-call.test.mjs (764.4209ms)
+✔ 1 · every answer the door gives is accepted by the app's readers (48.3141ms)
+✔ 2 · the fields the app sends are exactly the fields the door reads (6.1137ms)
+✖ 3 · what the app does with each way the door can say no (8.2368ms)
+✔ 4 · SABOTAGE — drift on the server's side is refused on the app's (2.5293ms)
+✔ 1 · gallery, branding and intake each complete through the real door, with no bucket call (100.3117ms)
+✔ 2 · the stored url is r2.ts's own publicUrl for the key that was uploaded (16.0554ms)
+✔ 3 · an unconfigured public address refuses in words, and nothing is uploaded (12.5945ms)
+✔ 4 · over the per-file ceiling is refused in the server's words, and a lie about the size is bound by the signature (48.1444ms)
+✔ 5 · an unsupported image type is refused before a door call is spent (137.5021ms)
+✔ 6 · a business the caller is not a member of is refused, and a tampered key is refused before the PUT (45.7254ms)
+✔ 7 · remove takes the caller's own object and 404s another business's, leaving it alone (11.4807ms)
+✔ 8 · a member without the settings permission is refused on both actions, in the server's words (12.2847ms)
+✔ 9 · the flag chooses one path; a door that fails does not reopen the bucket (33.9645ms)
+✔ 10 · SABOTAGE — each guard removed is seen (control first) (143.0749ms)
+✔ 11 · the suite's own population (1.2251ms)
+✔ 0 · the store profile and both key rules come from the bucket's own declaration (3.9295ms)
+✔ 1 · the key is the shape the isolation reads, and the app mints the same one (1.8101ms)
+✔ 2 · ISOLATION — remove is by KEY, so the guard is the only thing standing in for a row (66.7214ms)
+✔ 3 · `settings` on BOTH actions — the other two stores' asymmetry would be wrong here (3.1855ms)
+✔ 4 · THE CEILING — refused in words at the claim, and bound by the signature below it (1.3362ms)
+✔ 5 · NOT METERED, stated rather than left as an absence (0.9022ms)
+✔ 6 · TWO ACTIONS. `finish` and `urls` do not exist here, and say so (0.9986ms)
+✔ 7 · no public address is a refusal, and nothing is signed (0.6933ms)
+✔ 8 · the folder, the id and the type are all allowlists (8.4195ms)
+✔ 9 · the rate ceiling is asked before any store work, and the store name is still explicit (1.823ms)
+    caught  the ownership guard on remove — the ONLY thing standing in for a row here
+    caught  the settings permission on the public store
+    caught  the bucket's 10 MB per-file ceiling
+    caught  signing the declared length, which is the only thing making the claim binding
+    caught  the folder allowlist — a free folder puts a traversal segment in the minted key
+    caught  the file_id shape — a free id puts a traversal segment in the minted key
+    caught  refusing when there is no public address to read the image back from
+    caught  refusing the two actions this store does not have
+✔ 10 · the public base and the signed length are real, not shaped like it (38.2521ms)
+✔ 11 · the app's reader refuses an answer it cannot use (1.1158ms)
+✔ 12 · the app half is switched ON, and there is no second way in (1.0079ms)
+✔ 14 · FLAG OFF — today's path, byte for byte, and the return shape the screens read (22.5871ms)
+✔ 15 · FLAG ON — start, one PUT, the public url, and no bucket call at all (49.7935ms)
+✔ 16 · remove goes to the door when the flag is on and to the bucket when it is off (30.6071ms)
+✔ 13 · SABOTAGE — each guard removed is seen (control first) (98.1632ms)
+✔ 1 · FLAG ON — start, one PUT, finish, and the size is R2's not the client's (73.5333ms)
+✔ 2 · FLAG ON — an UNDER-CLAIM is caught at finish, the object goes, the row does not land (29.0832ms)
+✔ 3 · FLAG ON — the 5 MB ceiling is the server's sentence, shown as written, before anything is sent (31.6438ms)
+✔ 4 · FLAG ON — OVER CAP names what is used, the limit, and how to free it (54.4204ms)
+✔ 5 · FLAG ON — REPLACEMENT is remove then add, and DELETION takes the object and the columns (44.0164ms)
+✔ 6 · FLAG ON — ISOLATION: another business's expense, and a key this press did not ask for (56.9299ms)
+✔ 7 · FLAG ON — URLS: one request for a list, chunked, and a key refused is absent not fatal (39.3602ms)
+✔ 8 · FLAG OFF — today's path, unchanged, and ONE request for a list (95.737ms)
+✔ 9 · THERE IS NO SECOND DOOR, and the flag is read in a known number of places (15.9356ms)
+✖ 10 · SABOTAGE — each guard removed is seen (control first) (111.8298ms)
+    caught  the expense-belongs guard (both halves of it)
+    caught  the ownership guard on urls
+    caught  the 5 MB receipts ceiling
+    caught  the second cap check at finish
+    caught  failing closed on a cap that cannot be read
+    caught  one receipt per expense
+    caught  the settings permission on remove
+    caught  removing the object when the row fails
+✔ 0 · the store profile is what the migration declared (1.9787ms)
+✔ 1 · the key is the shape the bucket policy reads, and the app mints the same one (0.5485ms)
+✔ 2 · ISOLATION — no action reaches another business's receipt (55.8717ms)
+✔ 3 · the key is minted from the MEMBER, so a forged path cannot steer it (1.4265ms)
+✔ 4 · THE CAP is 5 MB for a receipt and 10 for a job photo, from one request shape (3.6706ms)
+✔ 5 · THE ALLOWANCE — one budget across both stores, checked twice, failing closed (2.9439ms)
+✔ 6 · a size R2 will not state is a refusal, never a zero that counts as free (0.7602ms)
+✔ 7 · ONE RECEIPT PER EXPENSE, and a retry is not a second one (3.288ms)
+✔ 8 · remove needs `settings`, clears the columns BEFORE the object, and is 404 when absent (2.6604ms)
+✔ 9 · an unsaved row takes its object with it, and no credential reaches a reply or a log (1.1372ms)
+✔ 10 · the store is chosen explicitly, defaults to job, and an unwired receipt store says so (1.45ms)
+✔ 11 · the rate ceiling is asked before any store or database work (0.5552ms)
+✔ 12 · SABOTAGE — each guard removed is seen (control first) (110.9716ms)
+✔ 1 · SigV4 is Amazon's own published example, to the character (47.0348ms)
+✔ 2 · what the store signs for R2: path-style, auto region, the content type bound in, no secret in the URL (10.6761ms)
+✔ 3 · credentials are named, never echoed (0.562ms)
+✔ 4 · the store measures with R2, and a failed request never carries its URL (40.6462ms)
+✔ 5 · WHO: no session, another business, no business_id, a bad action (11.8653ms)
+✔ 6 · the ceiling comes before any work (1.0949ms)
+✔ 7 · no R2 credentials: 503 in words, and nothing else happens (0.5944ms)
+✔ 8 · START: the minted key is the app's, the URL is bound to the type, bad input is refused in words (6.1425ms)
+✔ 9 · START: over the cap says what is used, the limit, and what frees room; and an unreadable budget REFUSES (2.3637ms)
+✔ 10 · START: a photo id that is already saved is refused, not overwritten (1.1459ms)
+✔ 11 · FINISH: the row records R2's size, never the client's; finishing twice is one row (1.4987ms)
+✔ 12 · FINISH, TRAP ONE: no object, no size, a zero size, or an oversize object saves nothing (1.0844ms)
+✔ 13 · FINISH, TRAP TWO: a client that under-claimed is refused against what R2 holds, and its object goes (0.9099ms)
+✔ 14 · FINISH: a row that cannot be written takes the object back out; another business's booking is a 404 (0.7661ms)
+✔ 15 · URLS: only keys this business owns are signed; everything else is simply absent (2.2391ms)
+✔ 16 · REMOVE: needs the settings permission, row first then object, a leftover object is not a failure (2.2051ms)
+✔ 17 · a credential value is in no response, no log line and no URL, across every action and failure (83.5013ms)
+✔ 18 · SABOTAGE — each guard removed is seen (control first) (116.4499ms)
+✔ 19 · SABOTAGE — the signer and the store's error handling are seen too (41.1987ms)
+✔ 20 · the function's own wiring: verify_jwt stays on, nothing is printed, the limit exists (1.5738ms)
+✔ 1 · start: the exact key and an https url, or a plain refusal (3.8722ms)
+✔ 2 · finish: a positive whole-number size, our id and our key, or a plain refusal (0.9561ms)
+✔ 3 · urls and remove: a real map, a literal true (0.7284ms)
+✔ 4 · what a failed call becomes (1.3143ms)
+✔ 5 · SABOTAGE — each guard, removed, is seen (26.5804ms)
+✔ 6 · the app has ONE way in, and a preview tab on Looking may only read (0.9242ms)
+
+1. the manifest
+  ok    1a · one row per photo
+  ok    1b · the job's customer and service reach the row
+  ok    1c · the file name carries date, customer and kind
+  ok    1d · every row has 10 columns, same as the header
+  ok    1e · CRLF and a trailing newline
+
+2. the gallery half of the promise
+  ok    2a · a single image is one row, a pair is two
+  ok    2b · the pair keeps before and after apart
+  ok    2c · the file extension follows the url, not a guess
+  ok    2d · job photos and gallery are counted together
+
+3. the tenant guard
+  ok    3a · rows that all belong pass through
+  ok    3b · ONE foreign row THROWS — it is not filtered out quietly
+  ok    3c · a foreign row throws even when it is the only row
+  ok    3d · no business id at all is refused, never treated as 'any'
+  ok    3e · a path inside the business is accepted
+  ok    3f · a path in ANOTHER business throws
+  ok    3g · a path with no folder at all throws
+  ok    3h · a traversal-looking path throws
+  ok    3i · the error names the business asked for, never the one found
+
+4. the archive
+  ok    4a · crc32 matches the published check value
+  ok    4b · starts with a local file header
+  ok    4c · ends with an end-of-central-directory record
+  ok    4d · the directory counts every file
+  ok    4e · every name round-trips
+  ok    4f · every stored CRC matches the bytes actually in the archive
+  ok    4g · an empty archive is still a valid zip
+  ok    4h · canary — a one-file archive reports one file, so 4d can fail
+
+5. the file name
+  ok    5a · business and date, ending .zip
+  ok    5b · a business with no name still gets a file
+  ok    5c · a photo with no booking still gets a name
+
+29 passed, 0 failed
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_98.5-20261013141316\tests\photo-export.test.mjs (365.3925ms)
+1. the guard accepts exactly what storagePath() mints
+  ok   1a "image/jpeg" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "image/png" -> d309ca9b.png parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "image/webp" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "undefined" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1z the minter was actually called, four ways
+
+2. B is refused A's object, however the key is dressed up
+  ok   2 · B is refused: A's own key, handed to B
+  ok   2 · B is refused: traversal out of B's prefix
+  ok   2 · B is refused: traversal with a dot segment
+  ok   2 · B is refused: double slash then traversal
+  ok   2 · B is refused: percent-encoded separator
+  ok   2 · B is refused: backslash separators
+  ok   2 · B is refused: leading slash
+  ok   2 · B is refused: bucket name glued on the front
+  ok   2 · B is refused: an absolute URL
+  ok   2 · B is refused: a query string smuggling the tenant
+  ok   2 · B is refused: null byte truncation
+  ok   2 · B is refused: uppercase variant of A's id
+  ok   2 · B is refused: A's id with a trailing space
+  ok   2 · B is refused: A's prefix with no object
+  ok   2 · B is refused: A's prefix alone
+  ok   2 · B is refused: a listing wildcard
+  ok   2 · B is refused: the empty string
+  ok   2y and A is refused B's object too — the rule is not one-directional
+  ok   2z the wrong-tenant battery has subjects
+
+3. a missing or wildcard business id opens nothing
+  ok   3 · undefined is refused A's object
+  ok   3 · null is refused A's object
+  ok   3 · empty string is refused A's object
+  ok   3 · a wildcard is refused A's object
+  ok   3 · a prefix of A is refused A's object
+  ok   3 · an array containing A is refused A's object
+  ok   3 · an object is refused A's object
+  ok   3 · A with a trailing slash is refused A's object
+  ok   3 · A uppercased is refused A's object
+  ok   3 · a SQL-ish fragment is refused A's object
+  ok   3y assertBusinessOwnsKey throws on the wrong tenant
+  ok   3z ...and its message names neither the key nor the other tenant
+
+4. the two obvious implementations are fooled by a key the real guard refuses
+  ok   4a split("/")[0] === id says YES to the traversal
+  ok   4b startsWith(id + "/") says YES to the traversal
+  ok   4c the real guard says NO to the same key
+
+5. the prefix for summing one business's objects
+  ok   5a a business prefix carries its separator
+  ok   5b a prefix cannot be minted from a non-id
+  ok   5c A's prefix does not cover B's key
+  ok   5d both private buckets are named, so neither is forgotten at the door
+
+6. the canary — a constant guard must fail one direction or the other
+  ok   6a an always-yes guard would allow B A's object, which § 2 refuses
+  ok   6b an always-no guard would refuse A its own object, which § 1 requires
+
+7. the public bucket's shape, and that the two shapes do not bleed
+  ok   7a the guard accepts exactly what mediaPath() mints
+  ok   7b and refuses it to B
+  ok   7c every folder and every type round-trips
+  ok   7d the app and the server allow the same folders
+  ok   7e every extension the app can mint is one the guard can parse
+  ok   7f the public bucket is named, and is not in the private list
+  ok   7g a job-photo key is not a business image
+  ok   7h a business image is not a job-photo key
+  ok   7i the default shape is still the private one, so no existing caller moved
+  ok   7j every wrong-tenant key ·2 lists is refused as a business image too
+  ok   7m the control: the real guard refuses a folder outside the list
+  ok   7m a loosened folder group accepts a folder outside the list
+  ok   7m a loosened folder group reopens a one-level escape
+  ok   7m the deeper traversal is closed by the segment count, not by the folder list
+  ok   7k A is refused: a folder outside the list
+  ok   7k A is refused: an uppercase folder
+  ok   7k A is refused: an extension the bucket refuses
+  ok   7k A is refused: no extension
+  ok   7k A is refused: a traversal in the folder slot
+  ok   7k A is refused: a fourth segment
+  ok   7k A is refused: a bare prefix
+  ok   7k A is refused: its own key under an unknown shape name
+
+   4 minted keys · 17 wrong-tenant keys · 10 bad callers · 2 naive guards fooled · 15 media keys round-tripped · 8 media keys refused
+
+83 passed, 0 failed
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_98.5-20261013141316\tests\photo-key-isolation.test.mjs (443.1226ms)
+✖ 1 · the cron migration seeds the heartbeat as NOT YET REPORTED, with a 25-hour window, and schedules the call (1679.7213ms)
+✖ 2 · applying it again changes nothing that was there, and a real report is not overwritten by the seed (919.98ms)
+✖ 3 · the first real run keeps the window and replaces the seed, so the function stops reading the row as 'never run' (1382.4551ms)
+✖ 4 · the allowance migration moves the default 1 to 10, and twice is the same as once (1506.5257ms)
+✖ 5 · and it never overwrites a number a person chose (1500.5547ms)
+✖ 6 · without `on conflict do nothing` a second apply fails; without the `where` a chosen number is overwritten (1521.9458ms)
+✔ 1a · a listing page is read: keys, whole-number sizes, and the continuation (3.7347ms)
+✔ 1b · an unreadable size, a cut-short page and a non-listing all THROW rather than read as zero or as the end (0.9687ms)
+✔ 1c · keys with XML entities come back as the real key (0.3111ms)
+✔ 1d · listAll follows every page, and a bucket past the page ceiling throws instead of returning part of it (1.6339ms)
+✔ 2a · makeR2.list asks for a v2 listing and signs it exactly as an independent SigV4 does, with and without a token (81.6128ms)
+✔ 2b · a failed listing call says nothing about the URL, and a non-200 says only the status (11.0765ms)
+✔ 3a · agreement is clean, with the allowance numbers beside it (8.5799ms)
+✔ 3b · an object with no row, a row with no object, and a size that does not match are each their own number (0.8331ms)
+✔ 3c · a row with no recorded size is UNKNOWN, never zero (0.4774ms)
+✔ 3d · a row filed under one business whose key sits under another's prefix is a fault of its own (0.5003ms)
+✔ 3e · a key this product does not mint is counted as unattributed, under no budget (0.283ms)
+✔ 3f · over the share is read from the larger of what R2 holds and what the rows say; an unreadable allowance is null, not false (0.4679ms)
+✔ 3g · the totals cover every business, and only the worst are named (0.6211ms)
+✔ 3h · it does not change what it was given (0.379ms)
+✔ 4a · a normal run lists, reads the rows, stamps the report once and returns it (3.9357ms)
+✔ 4b · over the rate limit it answers 429 and touches nothing (1.5331ms)
+✔ 4c · R2 not configured is a 503 in words, logs only the NAME, and stamps NOTHING (1.3626ms)
+✔ 4d · a run less than six hours after the last real one is refused before R2 is touched (2.7045ms)
+✔ 4e · a failed listing is a 502, says nothing about the URL, and stamps NOTHING (1.085ms)
+✔ 4f · a failed read of the rows is a 500 and stamps NOTHING (0.8829ms)
+✔ 4g · an unreadable allowance still stamps the drift, with the allowance null (0.8614ms)
+✔ 4h · a result that could not be recorded is a 500, not a 200 (0.926ms)
+✔ 4i · it can reach nothing on R2 but `list`: the world throws on any other property (2.9804ms)
+✔ 5a · the edge function connects the handler to the real things and writes nothing itself (0.7504ms)
+✔ 7 · every property holds on the real module, and each guard removed alone turns its own probe red (118.9387ms)
+✔ 1 · judge returns exactly the ten declared rules, in order (4.336ms)
+✔ 2 · the pre-release and correct post-release worlds both pass (0.8225ms)
+✔ 3 · every violation reddens its own rule and no other (0.9562ms)
+✔ 4 · an unobserved world is unjudgeable, never a pass (0.4721ms)
+✔ 5 · doorMarkers parses the real photo-door.js and throws when it cannot (2.2977ms)
+✖ 6 · the repo's own flags and public list still match what PRE assumes (1.8611ms)
+✔ 7 · the migrations named in the failure sentences exist and say what the rules claim (1.2869ms)
+✔ 8 · forgetMarkers parses the real delete-customer and throws when it cannot (1.2671ms)
+✔ 1 · a photo that is only in R2 is removed, and the count is of files confirmed gone (3.1806ms)
+✔ 2 · a photo that is only in Supabase Storage still goes (the deployed integration test's case) (0.4333ms)
+✔ 3 · a customer with some of each, a png, and an older-shaped path: all gone (0.532ms)
+✔ 4 · nothing to remove needs neither store (0.374ms)
+✔ 5 · SILENCE IS NOT SUCCESS: a file that is still there after a quiet delete is a refusal, in either store (0.5286ms)
+✔ 6 · every way a store can fail stops the whole thing (1.8248ms)
+✔ 7 · another business's key is refused before anything is touched (0.5865ms)
+✔ 8 · the real store: a signed DELETE then a signed HEAD, and a failed request carries no URL (90.3238ms)
+✔ 9 · delete-customer: the source calls it in the right place, owner-only, nothing personal logged (1.4569ms)
+✔ 10 · SABOTAGE — each guard removed is seen (control first) (28.6877ms)
+✔ 11 · the real delete-customer loads and refuses what it should before reading anything (272.8964ms)
+
+1. the resize, which is this feature's economics
+  ok    1a · a big landscape photo comes down to the cap
+  ok    1b · a big portrait photo comes down on its LONG edge
+  ok    1c · the shape is kept
+  ok    1d · and kept on an extreme one too
+  ok    1e · a small photo is left exactly alone
+  ok    1f · one exactly at the cap is left alone
+  ok    1g · a zero-sized image does not produce NaN
+  ok    1h · no dimension is ever rounded to zero
+  ok    1i · quality is a real JPEG quality
+
+2. the budget, which must never reassure by accident
+  ok    2a · an empty allowance is ok
+  ok    2b · half is still ok
+  ok    2c · the warning starts exactly at the threshold
+  ok    2d · just under the threshold is not a warning
+  ok    2e · full is full at exactly the cap
+  ok    2f · and over the cap is still full
+  ok    2g · no cap is UNKNOWN, not ok
+  ok    2g-ii · a NULL budget is unknown and does not throw
+  ok    2g-iii · and its words are silent rather than a crash
+  ok    2g-iv · and it does not block an upload
+  ok    2h · a zero cap is UNKNOWN too
+  ok    2i · and unknown never draws a reassuring sentence
+  ok    2j · a quiet allowance says nothing at all
+  ok    2k · a nearly-full one names the number
+  ok    2l · a full one says what to DO, not just what is wrong
+  ok    2m · there is room below the cap
+  ok    2n · there is no room past it
+  ok    2o · an unknown cap does NOT block
+
+3. before, after — and damage
+  ok    3a · three kinds in the order a job happens
+  ok    3b · every kind has a word for the screen
+  ok    3c · the table allows "before"
+  ok    3c · the table allows "after"
+  ok    3c · the table allows "damage"
+  ok    3d · and allows nothing the screen cannot offer
+
+4. the promises
+  ok    4a · the job-photos bucket is created PRIVATE
+  ok    4b · and photos are shown through signed URLs
+  ok    4c · which expire
+  ok    4d · any member of the business may add a photo
+  ok    4e · but removing one needs the settings permission
+  ok    4f · and the row follows the same asymmetry
+  ok    4g · the file is put before the door is asked to finish
+  ok    4h · and a put that fails never reaches finish
+  ok    4h2 · photos.js has no second door: nothing reads or writes the job-photos bucket directly
+  ok    4h3 · and neither does the gallery export
+  ok    4i · publishing to the gallery COPIES into the public bucket
+  ok    4i2 · and the copy it just made is removed if the row does not land
+  ok    4j · nothing is uploaded without being shrunk first
+  ok    4k · the size sent is the SHRUNK size, labelled a claim, and no bare `bytes:` is sent
+
+5. the allowance is a share of the whole store
+  ok    5a · the divisor is a hundred, and it is his number
+  ok    5b · a detailer's cap is DERIVED from the total, never stored beside it
+  ok    5c · the total is a COLUMN, not a key inside prices
+  ok    5d · and nothing reads it out of the prices jsonb any more
+  ok    5e · the default total is the storage that actually exists today
+  ok    5f · the back office can see what has been COMMITTED, not just used
+  ok    5g · and the store-wide view is not reachable from a browser
+
+6. the storage path
+  ok    6a . THE FIRST FOLDER IS THE BUSINESS ID - what the bucket policy checks
+  ok    6b . and it is not the owner id, which is the reordering that would pass every cross-tenant test
+  ok    6c . three segments, business / owner / file
+  ok    6d . the owner is the middle segment
+  ok    6e . a JPEG is stored .jpg
+  ok    6f . a PNG is the one type that survives as itself
+  ok    6g . anything else becomes .jpg, because shrink() re-encodes to JPEG
+  ok    6h . a missing business id throws rather than building an empty first folder
+  ok    6i . a missing owner or file id throws too
+  ok    6j . a segment containing a slash throws - it would invent a fourth segment
+  ok    6k . called with nothing at all it throws, rather than 'undefined/undefined'
+  ok    6l . the receipts bucket really does test foldername[1] against the business ids
+  ok    6m . and that bucket is private
+
+67 passed, 0 failed
+✔ tests\job-photos.test.mjs (365.975ms)
+1. the catalogue and the call sites agree
+  ok    1a · the check has subjects — call sites were found
+  ok    1b · every translated call site has a Spanish entry
+  ok    1c · and no Spanish entry is left describing English that is gone
+  ok    1d · the four keys no extractor can follow are translated
+2. the failures a person who cannot read it would never see
+  ok    2a-0 - the check has subjects, the booking catalogue was read
+  ok    2a · nothing was copied across untranslated
+  ok    2b · every placeholder survives translation, and none is invented
+  ok    2c · no entry is empty
+  ok    2d · the register does not drift into usted
+3. the plumbing
+  ok    3a · an untranslated key falls back to the English
+  ok    3b · Intl is given es-US, so dollars and the 12-hour clock survive
+  ok    3c · the picker is on the booking page itself
+  ok    3c-ii · and it offers every installed language
+  ok    3c-iii · each language's own name is the accessible label, untranslated
+  ok    3c-iv · and the chip itself is short enough not to wrap the masthead
+  ok    3d · every localStorage access is wrapped
+  ok    3e · the default reads navigator.languages, not navigator.language alone
+  ok    3f · changing language notifies rather than reloads
+4. what is still hard-coded on the booking surface
+  ok    4a · no hard-coded English prose is left in the booking surface
+  ok    4b · the check has subjects — both plan pages were read
+  ok    4b-ii · and each of them offers the choice it can now honour
+  ok    4c · the check has subjects — the generators are called here
+  ok    4c-ii · and every one of them is given the language
+  ok    4d · the check has subjects — dateLong is called on the member page
+  ok    4d-ii · and every call passes the language
+  ok    4e · the plan generators never read the active locale
+  ok    4e-ii · the check has subjects — the generators were found
+  ok    4e-iii · and every one defaults to English, so the dashboard is unaffected
+5. the formatters the booking surface calls
+  ok    5a · the check has subjects — duration() is called here
+  ok    5b · every duration() on the booking surface is given the language
+  ok    5c · English stays the default, so the dashboard is unaffected
+  ok    5c-ii · and the formatter never reads the active locale itself
+6. the emails, where a mistake cannot be taken back
+  ok    6a · the check has subjects — the email kit and catalogue were read
+  ok    6b · the check has subjects — the templates look words up
+  ok    6b-iii · the check has subjects — the senders were read for lookups
+  ok    6b-ii · and the catalogue has entries to compare against
+  ok    6c · every looked-up sentence has a Spanish entry
+  ok    6c-i · the check has subjects — the two dynamic labels are catalogued
+  ok    6c-ii · and no Spanish entry describes English that is gone
+  ok    6d · the check has subjects — the catalogue's pairs were read
+  ok    6d-ii · no placeholder is dropped or invented in translation
+  ok    6e · the register never drifts into usted
+  ok    6f · the check has subjects — every named template was found
+  ok    6f-ii · every customer template binds the language
+  ok    6f-iii · and hands it to the shell, which owns the footer
+  ok    6g · the check has subjects — every owner template was found
+  ok    6g-ii · every detailer / staff / platform template takes a language and hands it to the shell
+  ok    6g-iii · and none of them reads the CUSTOMER's language
+  ok    6h · the check has subjects — the senders were discovered
+  ok    6h-ii · and every one of them carries the language
+  ok    6i · the column exists, defaults to English and cannot hold a typo
+  ok    6j · create-booking narrows the language rather than trusting it
+  ok    6k · the booking core sends it, and still imports nothing
+7. what the language column actually refuses
+  ok    7a · the check has a subject — a demo booking was found
+  ok    7b · Spanish is accepted
+  ok    7b-ii · and stored as asked
+  ok    7c · English is accepted
+  ok    7d · a language this product does not have is refused
+  ok    7d-ii · and so is an empty one
+  ok    7e · nothing was migrated into a language nobody chose
+  ok    7f · the demo booking is put back as it was
+  ok    9f · no duplicate keys in appEs.js (2241 keys)
+  ok    9f · no duplicate keys in es.js (289 keys)
+  ok    9a · dashboard strings with no Spanish entry (0 of 1711)
+  ok    9b · the check has subjects — the dashboard catalogue was read
+  ok    9c · no placeholder is dropped or invented on a dashboard string
+  ok    9d · the dashboard register does not drift into usted
+  ok    9e · no dashboard entry is empty
+
+10. the two scopes, and whose words get translated
+  ok    10a · a ?lang= link sets the customer's language
+  ok    10b · and NEVER the detailer's dashboard
+  ok    10c · a link's language lasts the visit, not the device
+  ok    10d · but pressing the picker does persist
+  ok    10e · the check has subjects — the default tiers were read from core.js
+  ok    10f · every default tier word has Spanish (3 tiers, 6 words)
+  ok    10f-canary · a tier word with no Spanish is caught
+  ok    10g · a detailer's own tier wording never reaches the translator
+11. text that only exists after an action
+  ok    11a · the check has subjects — native dialogs were found
+  ok    11b · every dialog a detailer can reach puts its words through t()
+  ok    11c · skipped on purpose — 2 word lists in admin/, which stays English
+  ok    12a · the check has subjects — all 19 listed constants were read and hold words
+  ok    12b · every word held in a constant has Spanish (144 words in 19 constants)
+  ok    12b-canary · a list word with no Spanish is caught
+  ok    12c · every constant that looks like a word list is checked or excluded with a reason (27 found)
+
+83 passed, 0 failed
+✔ tests\spanish.test.mjs (6578.1035ms)
+ℹ tests 142
+ℹ suites 0
+ℹ pass 133
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19097.0077
+
+✖ failing tests:
+
+test at tests\photo-door-contract.test.mjs:114:1
+✖ 3 · what the app does with each way the door can say no (8.2368ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Could not check your photo storage. Nothing was saved. Try again in a minute.'
+  - 'The photo service had a problem. Try again in a minute.'
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/belt-jobs/belt_98.5-20261013141316/tests/photo-door-contract.test.mjs:132:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Could not check your photo storage. Nothing was saved. Try again in a minute.',
+    expected: 'The photo service had a problem. Try again in a minute.',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\photo-door-receipt-wire.test.mjs:685:1
+✖ 10 · SABOTAGE — each guard removed is seen (control first) (111.8298ms)
+  AssertionError [ERR_ASSERTION]: the line to sabotage is not unique: remove falls through to the old store
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/belt-jobs/belt_98.5-20261013141316/tests/photo-door-receipt-wire.test.mjs:696:12)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 1 · the cron migration seeds the heartbeat as NOT YET REPORTED, with a 25-hour window, and schedules the call (1679.7213ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\non conflict (job) do nothing;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 2 · applying it again changes nothing that was there, and a real report is not overwritten by the seed (919.98ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\non conflict (job) do nothing;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 3 · the first real run keeps the window and replaces the seed, so the function stops reading the row as 'never run' (1382.4551ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\non conflict (job) do nothing;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 4 · the allowance migration moves the default 1 to 10, and twice is the same as once (1506.5257ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\non conflict (job) do nothing;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 5 · and it never overwrites a number a person chose (1500.5547ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\non conflict (job) do nothing;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-reconcile-sql.test.mjs:44:25
+✖ 6 · without `on conflict do nothing` a second apply fails; without the `where` a chosen number is overwritten (1521.9458ms)
+  error: extension "pg_net" is not available
+      at pe.Ue (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+      at pe.tt (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+      at pe.parse (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+      at N.qe (file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+      at file:///C:/Users/rando/AppData/Local/Temp/pglite/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+      at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+      at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+      at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+      at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+      at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d {
+    length: 193,
+    severity: 'ERROR',
+    code: '0A000',
+    detail: undefined,
+    hint: 'The extension must first be installed on the system where PostgreSQL is running.',
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'extension.c',
+    line: '673',
+    routine: 'parse_extension_control_file',
+    query: '-- ROADMAP 0.11 slice 6 — THE PHOTO RECONCILE, ON A CRON ENTRY THE WAY `refresh-weather` IS.\r\n--\r\n-- Calls the `photo-reconcile` edge function once a day. The function sums what R2 actually holds against\r\n-- what `job_photos` says, per business, and writes the numbers to this table\'s `photo-reconcile` row\r\n-- (`docs/the-photo-allowance.md` § 6). It reads; it never deletes or repairs anything.\r\n--\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- APPLY THIS AFTER `photo-reconcile` IS PUBLISHED, NOT BEFORE\r\n-- ---------------------------------------------------------------------------------------------------------\r\n-- The row seeded below is read by the dead-man\'s switch (`20260907004000_dead_mans_switch.sql`) as a job that\r\n-- should report inside `stale_after_seconds`. Applied before the function exists, nothing would ever report,\r\n-- and 25 hours later the owner would be emailed that a job has stopped, which is true of a job that was\r\n-- never started. **And `photo-reconcile` must be in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs`\r\n-- before it is published**, or the gateway refuses this anonymous call and the same email follows.\r\n--\r\n-- The seed says `seeded: true`, which the back office reads as "not reported yet" and never as green\r\n-- (ROADMAP 6.2a), and which the function itself reads as "no real run yet", so the first call is not\r\n-- refused as too soon.\r\n--\r\n-- 25 hours (90,000 seconds): one daily run plus an hour\'s slack, the same shape as the nightly accrual\'s\r\n-- own window. The expression is daily at 03:40 UTC, off the hour so it does not queue behind the others.\r\ncreate extension if not exists pg_net;\r\ncreate extension if not exists pg_cron;\r\n\r\ninsert into public.job_heartbeats (job, ran_at, detail, stale_after_seconds)\r\nvalues (\'photo-reconcile\', now(), jsonb_build_object(\'seeded\', true), 90000)\r\n;\r\n\r\nselect cron.schedule(\r\n  \'photo-reconcile\',\r\n  \'40 3 * * *\',\r\n  $job$\r\n  select net.http_post(\r\n    url := \'https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile\',\r\n    headers := jsonb_build_object(\'Content-Type\', \'application/json\'),\r\n    body := \'{}\'::jsonb\r\n  );\r\n  $job$\r\n);\r\n',
+    params: undefined,
+    queryOptions: undefined
+  }
+
+test at tests\photo-release-order.test.mjs:253:1
+✖ 6 · the repo's own flags and public list still match what PRE assumes (1.8611ms)
+  AssertionError [ERR_ASSERTION]: RECEIPTS_VIA_DOOR is still false — if this fails, the flag was flipped: run `node scripts/photo-release-order.mjs` and read app-flag-before-door before changing this line
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/belt-jobs/belt_98.5-20261013141316/tests/photo-release-order.test.mjs:255:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '// ROADMAP 0.11, SLICE 1 — THE APP\'S SIDE OF THE PHOTO DOOR, AND THE CONTRACT\r\n// THE SERVER HALF HAS TO KEEP.\r\n//\r\n// `docs/the-photo-allowance.md` § 4: the browser never holds R2 credentials,\r\n// so an edge function is the ONE door to photo storage, and it asks two\r\n// questions there — is this your business, and do you have room. This file is\r\n// everything the app needs to know about that door and nothing else: no\r\n// import of the Supabase client, so `tests/photo-door.test.mjs` runs it with\r\n// no browser and no environment (the reason `photo-rules.js` is split off from\r\n// `photos.js` too).\r\n//\r\n// **THE SERVER HALF DOES NOT EXIST YET.** `supabase/functions/photo-door` is\r\n// not written, not deployed, and the R2 bucket needs a CORS rule before a\r\n// browser may PUT to it. Until all three are true every call below fails, and\r\n// it fails IN WORDS — the way the back office\'s costs and email-log screens\r\n// do, and for the same reason: an `error` read as "nothing there" is a lie.\r\n// There is deliberately NO fallback to Supabase Storage. A second door is the\r\n// one thing the design forbids ("If a second one is ever added, the cap stops\r\n// meaning anything again, quietly").\r\n//\r\n// ---------------------------------------------------------------------------\r\n// THE CONTRACT — `POST /functions/v1/photo-door`, the owner\'s session JWT.\r\n// ---------------------------------------------------------------------------\r\n// Every body carries `business_id` and an `action`. The caller must be a member\r\n// of that business; `remove` needs the `settings` permission, because deleting\r\n// a photo is not taking one (`job photos settings delete` in the migration).\r\n// Every key is checked on the server by `_shared/photoKey.ts`, never trusted.\r\n//\r\n//   start    { business_id, booking_id, photo_id, kind, content_type,\r\n//              claimed_bytes, width, height }\r\n//     200    { upload_url, key, expires_in }\r\n//            `key` MUST equal `storagePath({ businessId, ownerId: booking_id,\r\n//            id: photo_id, type: content_type })` — the browser mints `photo_id`\r\n//            and the server confirms the key it will accept, so a retry of the\r\n//            same press names the same object. `upload_url` is an https PUT\r\n//            URL signed for exactly `content_type`.\r\n//     over the cap: a 4xx whose `error` is ONE plain sentence naming what is\r\n//            used, what the limit is, and that deleting old job photos frees\r\n//            room. The app shows it as written. `claimed_bytes` may be used to\r\n//            refuse here; it is NEVER what gets recorded.\r\n//\r\n//   (the browser then PUTs the shrunk file to `upload_url`; nothing else)\r\n//\r\n//   finish   { business_id, booking_id, photo_id, kind, width, height, caption }\r\n//     200    { photo: { id, business_id, booking_id, kind, path, bytes, width,\r\n//              height, caption, created_at } }\r\n//            The server asks R2 how big the stored object is and writes THAT as\r\n//            `bytes` (docs § 5, trap two) in the same step that inserts the\r\n//            `job_photos` row, `id = photo_id`, on conflict doing nothing and\r\n//            returning the row already there, so finishing twice is one row.\r\n//            No object, or no size: no row and an error. `bytes` is a positive\r\n//            integer or the answer is wrong (trap one: a zero lands as an\r\n//            unlimited cap), and `readFinish` below refuses anything else.\r\n//\r\n//   urls     { business_id, keys: [key, …] }          (at most DOOR_BATCH keys)\r\n//     200    { urls: { [key]: https GET url }, expires_in }\r\n//            Read only. A key the caller may not read is simply absent.\r\n//\r\n//   remove   { business_id, photo_id }\r\n//     200    { removed: true }\r\n//            Row first, then the object: the other order leaves a row pointing\r\n//            at nothing, this one can at worst leave bytes the reconcile counts.\r\n//\r\n// ---------------------------------------------------------------------------\r\n// AND TWO MORE STORES SINCE, EACH ASKED FOR BY A `store` FIELD. Slice 1\'s\r\n// bodies send none, which still means `job`, so nothing above changed.\r\n//\r\n//   store: "receipt"   `expense-receipts`. Same four actions; the parent is an\r\n//            EXPENSE and `finish` UPDATES five columns rather than inserting a\r\n//            row. The exact bodies are in `ROADMAP.md` 0.11, slice 5.\r\n//\r\n//   store: "media"     `business-media` — the logo, the marketing gallery and\r\n//            the website-intake photographs. **TWO ACTIONS, NOT FOUR**, because\r\n//            a business image hangs off no row:\r\n//\r\n//     start  { business_id, store:"media", folder, file_id, content_type,\r\n//              claimed_bytes }\r\n//       200  { upload_url, key, public_url, expires_in }\r\n//            `folder` is one of `gallery` / `branding` / `intake`. The PUT URL\r\n//            is signed for the declared `content-length` as well as the type,\r\n//            so the body must be exactly `claimed_bytes` long — that signature\r\n//            is the only thing holding the bucket\'s 10 MB per-file ceiling,\r\n//            since there is no `finish` to measure the real size at.\r\n//            `public_url` is where anybody reads it, and it is the thing that\r\n//            gets stored in a row.\r\n//\r\n//     remove { business_id, store:"media", key }\r\n//       200  { removed: true }\r\n//            BY KEY, because there is no row to name. A key belonging to\r\n//            another business is 404, exactly like one that does not exist.\r\n//\r\n//     There is no `finish` (nothing to record) and no `urls` (the bucket is\r\n//     public-read, so there is nothing to sign). Both answer in words.\r\n//\r\n// Both stores use the published door. The flags remain explicit release\r\n// switches; neither path falls back when the door refuses an upload.\r\n// Job photos have no flag because they never had a working path to lose.\r\n// ---------------------------------------------------------------------------\r\n\r\nimport { mediaPath, storagePath } from "./photo-rules.js";\r\n\r\nexport const DOOR = "photo-door";\r\n\r\n// ── ROADMAP 0.11 SLICE 5 — THE RECEIPTS FLAG, AND WHY RECEIPTS HAVE ONE WHEN\r\n//    JOB PHOTOS DO NOT ────────────────────────────────────────────────────\r\n// **FLIP THIS TO `true` ONCE `photo-door` IS PUBLISHED.** It is named in\r\n// `FOR-ANDREW.md`\'s publish list beside the function, because a published door\r\n// with this still `false` means receipts keep bypassing the meter, and nothing\r\n// goes red to say so.\r\n//\r\n// **IT IS A FLAG AND NOT A FALLBACK, AND THE DIFFERENCE IS THE WHOLE POINT.**\r\n// A fallback that catches the door\'s 503 and writes to Supabase Storage anyway\r\n// is a SECOND DOOR, live exactly when the function is down — and this file\'s\r\n// own header forbids that in those words, because a second door is how the cap\r\n// stops meaning anything again, quietly. This chooses one door, once, in the\r\n// open. There is never a moment when both are reachable.\r\n//\r\n// **AND THE ASYMMETRY IS DELIBERATE: `photos.js` HAS NO FLAG.** Slice 1\r\n// re-pointed job photos at the door with nothing to fall back to, which was\r\n// right because job photos were ALREADY going through a door that did not\r\n// exist — they fail in words today either way, so a flag would have guarded\r\n// nothing. Receipts WORK today. Re-pointing them unconditionally would take a\r\n// working feature and break it on the next push, before the function Andrew\r\n// has not published yet. Same destination, different starting state, so a\r\n// different switch.\r\n// ON since 2026-10-13 (ROADMAP 0.11cc): the deployed door retains JWT\r\n// verification, the reconcile cron is installed, and photo_total_gb is 10.\r\nexport const RECEIPTS_VIA_DOOR = true;\r\n\r\n// ── ROADMAP 0.11 SLICE 4 — THE PUBLIC IMAGES FLAG ───────────────────────────\r\n// **FLIP THIS TO `true` ONCE `photo-door` IS PUBLISHED *AND* `business-media`\r\n// HAS A PUBLIC ADDRESS AND A CORS RULE IN CLOUDFLARE.** It is a flag for the\r\n// same reason `RECEIPTS_VIA_DOOR` is one and not for a different reason:\r\n// logos, the marketing gallery and the website-intake photographs all WORK\r\n// today, so re-pointing them unconditionally would break a working feature on\r\n// the next push, before a publish only Andrew can do.\r\n//\r\n// **IT NEEDS ONE THING RECEIPTS DO NOT, AND IT IS NOT A KEY.** `business-media`\r\n// is public-read: a logo is rendered to an anonymous visitor on a booking page,\r\n// so a signed URL is no use and the bucket needs a real public address.\r\n// Supabase gives a public bucket one for free; **R2 gives it none until\r\n// somebody binds one in the Cloudflare dashboard.** So there is a third\r\n// condition behind this flag that is a DECISION rather than a publish —\r\n// `FOR-ANDREW.md` step 9 puts it in his words, and the recommendation is a\r\n// custom domain, because `gallery_images.image_url` stores an ABSOLUTE url and\r\n// whatever host is live on the day of the switch is written permanently into\r\n// every row made after it.\r\n//\r\n// **AND NOTHING GOES RED IF IT IS LEFT `false` AFTER ALL THREE ARE TRUE** — the\r\n// old path keeps working, which is exactly why this comment and the row in\r\n// `FOR-ANDREW.md` exist.\r\n// **ON since 2026-10-10 (ROADMAP 0.11bc2):** photo-door is published, business-media\r\n// has its public address and CORS rule. Turning it off again re-opens the old\r\n// Supabase Storage path for logos, gallery and intake photos.\r\nexport const MEDIA_VIA_DOOR = true;\r\n/** The most keys one `urls` call may carry; `signedUrls` chunks to this. */\r\nexport const DOOR_BATCH = 100;\r\n\r\n// THE PLAIN SENTENCES. Named DOOR_WORDS so `tests/spanish.test.mjs` § 12 reads\r\n// them: they are shown on the dashboard in whichever language it is set to.\r\n//\r\n// THE THREE ABOUT THE SERVICE ITSELF SAY NOTHING ABOUT WHAT WAS SAVED, ON PURPOSE.\r\n// They were first written "Nothing was saved" and then PRESSED: the same\r\n// sentence also appears when a job record asks for the links to show photos that\r\n// already exist, and when a customer'... 10763 more characters,
+    expected: /export const RECEIPTS_VIA_DOOR = false;/,
+    operator: 'match',
+    diff: 'simple'
+  }

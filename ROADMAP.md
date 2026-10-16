@@ -30383,10 +30383,23 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   new `--break=stranger` added an unexplained locked table and it was FOUND 1, exit 1. Sabotage runs now record
   `dimensions.break`, so they no longer overwrite `receipts/db-audit.json`. No browser access or policy was added.
 
-- [ ] **98.5 — Repair the photo checks for the completed release and Windows files.**
-  HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/98.5-20261013141316 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: cfde50d4 98.5: tick; 17 photo files 142/142 at 9090be30, live release-order 10/10, CONTRACT_BREAK=fivexx caught; 9090be30 98.5: photo checks read LF on a Windows checkout, contract follows 0.11a, release-order pins the 0.11cc flag; CONTRACT_BREAK=fivexx..
-  The work is safe on branch `belt/98.5-20261013141316`. The next attempt resumes from it and follows the ruling below.
-  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send back for changes before merging: every one of the 17 files must pass with no skips before anything merges. Resume from branch `belt/98.5-20261013141316`.
+- [x] **98.5 — Repair the photo checks for the completed release and Windows files.**
+  **DONE 2026-10-13 (fixes in `9090be30`).** The same 17-file command, re-taken: red at `a087c24b`,
+  133 of 142, 9 failed, 0 skipped (`receipts/98.5-photo-tests-before.txt`, the same nine as 0.11cc's run).
+  After, at `9090be30`: 142 of 142, 0 failed, 0 skipped (`receipts/98.5-photo-tests-after.txt`).
+  The four fixes. (1) `photo-release-order` § 6 now pins `RECEIPTS_VIA_DOOR = true`, but only after the
+  live reading its own message asks for: `node scripts/photo-release-order.mjs` at `9090be30` reports
+  app-flag-before-door ok, "2 of 2" flags on, 10 of 10 rules, 0 failed, 1 UNJUDGEABLE (bucket-cors, as
+  always). The PRE and POST worlds and the JWT rules are untouched. (2) `photo-door-contract` § 3 now expects
+  the door's own 503 sentences, which is the 0.11a decision ("Could not check your photo storage…" and
+  "Photo storage is not set up on the server yet."). A new assertion keeps the generic line for a 5xx that
+  has NO sentence. (3) and (4) `photo-door-receipt-wire` and `photo-reconcile-sql` convert the file text to
+  LF when they read it. Git stores these files with LF, and this checkout (core.autocrlf) writes CRLF. All
+  six migration assertions now run, including the idempotency and chosen-allowance checks. Both § 6
+  sabotages and all six § 10 sabotages now land; each test asserts the edit landed before it believes the
+  red. New sabotage: `CONTRACT_BREAK=fivexx` loads a copy of the real `photo-door.js` without 0.11a's
+  `!spoke`. It went red on § 3 alone, 3 passed and 1 failed, showing the old generic line
+  (`receipts/98.5-contract-fivexx.sabotage.txt`). No browser check: nothing a person sees changed.
   Found while working 0.11cc; this is a checking-tool repair, not a new product feature. The protected
   tests are unchanged. `receipts/0.11cc-photo-tests.txt`, taken at `b92bdb21`, retains the full run of
   the 17 requested files: `$env:PGLITE_DIR='C:/Users/rando/AppData/Local/Temp/pglite';
@@ -30407,6 +30420,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   and pass; each affected sabotage demonstrably lands and catches its original missing behavior.
   Keep the POST-release green-world assertions, the JWT checks and the migration idempotency and
   chosen-allowance protections. Preserve this red output and do not relax or delete protections.
+  HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/98.5-20261013141316 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: cfde50d4 98.5: tick; 17 photo files 142/142 at 9090be30, live release-order 10/10, CONTRACT_BREAK=fivexx caught; 9090be30 98.5: photo checks read LF on a Windows checkout, contract follows 0.11a, release-order pins the 0.11cc flag; CONTRACT_BREAK=fivexx..
+  The work is safe on branch `belt/98.5-20261013141316`. The next attempt resumes from it and follows the ruling below.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send back for changes before merging: every one of the 17 files must pass with no skips before anything merges. Resume from branch `belt/98.5-20261013141316`.
 
 - [x] **98.1 — Repair the route-contract check (broken by 9.12d)**
   REPAIR CHECK route-contract. Job 9.12d turned the quality check "route-contract" red; it passed before that job. Find why and make it pass again without undoing 9.12d's work. The check is: `node --test tests/route-contract.test.mjs`.

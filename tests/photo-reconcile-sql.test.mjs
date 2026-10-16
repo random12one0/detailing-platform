@@ -29,9 +29,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 const MIG = "supabase/migrations/";
-const CRON_SQL = readFileSync(`${MIG}20261006060000_photo_reconcile_cron.sql`, "utf8");
-const GB_SQL = readFileSync(`${MIG}20261006061000_photo_total_gb_ten.sql`, "utf8");
-const HEARTBEATS_SQL = readFileSync(`${MIG}20260906006000_job_heartbeats.sql`, "utf8");
+// LF, whatever the checkout wrote. Git stores these files with "\n" and a Windows checkout (core.autocrlf)
+// hands back "\r\n", so `noExtensions` below matched nothing, PGlite refused pg_net, and all six cases died
+// before asserting anything (ROADMAP 98.5).
+const sql = (f) => readFileSync(`${MIG}${f}`, "utf8").replace(/\r\n/g, "\n");
+const CRON_SQL = sql("20261006060000_photo_reconcile_cron.sql");
+const GB_SQL = sql("20261006061000_photo_total_gb_ten.sql");
+const HEARTBEATS_SQL = sql("20260906006000_job_heartbeats.sql");
 
 let PGlite = null;
 const dir = process.env.PGLITE_DIR;
