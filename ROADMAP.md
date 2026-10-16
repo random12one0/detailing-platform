@@ -200,6 +200,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - `FOR-ANDREW.md` has the exact steps for the secret and the cron header (where it lives, never its value)
 
 - [ ] **97.4 — Two overlapping reminder runs send every due reminder twice (C-H5, S-H2).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/customer-reminder.test.mjs, tests/maintenance.test.mjs, tests/reminder-claim.test.mjs.
+  The work is safe on branch `belt/97.4-20261016095239989`. Answer "merge it" to keep it, or say what to change.
   `send-owner-reminders/index.ts` sends first and marks second, e.g. `await sendOwnerReminder(b); await mark(b.id, "owner_reminder_sent_at");` (`:242-243`, also `:256-258`, `:266-268`, the stages around `:274-318`, `:351`, the maintenance stages `385-495` and the digest `513-546`). Nothing refuses a second run while one is in progress (compare `photo-reconcile/index.ts:9`; `watch-jobs` already claims). Change every stage to claim first (`update … set x_sent_at = now() where id = ? and x_sent_at is null returning`), send only when a row came back, and clear the marker if the send fails.
   Acceptance criteria:
   - Two sweeps started at the same moment against the same due bookings send each reminder exactly once, counted in `email_sends` (test, local functions)
