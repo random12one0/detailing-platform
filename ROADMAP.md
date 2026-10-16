@@ -30855,3 +30855,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (At 390px open Settings > Promo codes, add the same code twice: the red box appears under the whole codes list, outside the first screen's view, and reads as a database error.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-06 passes after this box is ticked
+
+- [ ] **101.4 — If 'Your subscription' cannot load, the detailer sees a raw error with no way to try again (audit R2-07).**
+  `app/src/screens/more/Billing.jsx:162-169`, `app/src/screens/more/Billing.jsx:311`, `app/src/screens/more/Billing.jsx:324-329`. load() stores String(e.message) and the screen then draws only that text in an error box. There is no retry button and no timeout on the 'Checking your subscription…' state. Every other billing error (subscribe, cancel, card refused) is also shown as the raw message. The Billing screenshot at 390px is a single grey line 'Checking your subscription…' with nothing else; if the server answers with an error (cold start, no signal) the detailer sees whatever text it sent and must leave and re-enter the screen. This is the page they open when they are worried about a charge.
+  Supposed to: A billing screen that fails should say so in plain words and offer Try again.
+  Fix: Show a fixed sentence ('We could not load your subscription.') plus a Try again button that calls load(), and keep the server's text only as small detail.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-07.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (Open Settings > Your subscription with the network blocked to the billing function: you get an error box and no button.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-07 passes after this box is ticked
