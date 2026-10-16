@@ -30833,3 +30833,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (Money > Expenses > Add, save any amount, then try to tap the new row: nothing opens.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-04 passes after this box is ticked
+
+- [ ] **101.2 — The expense form accepts a negative amount, which would raise profit instead of lowering it (audit R2-05).**
+  `app/src/components/ExpenseModal.jsx:201-209`, `app/src/components/ExpenseModal.jsx:121`, `app/src/components/ExpenseModal.jsx:284-285`, `supabase/migrations/20260827000200_tenant_data.sql:342`. The amount box is a number input with no minimum, and Save is enabled for any non-zero number, so -50 passes. The column is 'numeric not null' with no check that it is above zero. Pressing the minus key on a phone number pad (or a pasted -189) records a negative expense: 'Earned less expenses' goes up and the accountant file shows a positive line.
+  Supposed to: An expense is money that went out, so the amount should be more than zero.
+  Fix: Add min="0" and require Number(amount) > 0 in the Save check, and add a check (amount > 0) on the table.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-05.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (Money > Expenses > Add, type -50, pick a category: Save expense is enabled and saves.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-05 passes after this box is ticked
