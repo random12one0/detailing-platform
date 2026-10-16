@@ -10,6 +10,10 @@
 //   fetch(`${edge.url}/functions/v1/cancel-booking`, …)   // same paths as Supabase
 //   await edge.close();
 //
+// `loadEdge(names, env)` returns the handlers WITHOUT a server, for a test that
+// must open no socket and read no secret (ROADMAP 97.3): `env` is a plain object
+// the functions read instead of `process.env`, and the caller stubs `fetch`.
+//
 // WHAT IS NOT LOCAL: `send-email`. Functions reach it over HTTP at
 // SUPABASE_URL, so mail goes through the DEPLOYED relay — which drops reserved
 // domains (`fixture.test`) above the claim and records an `email_sends` row.
@@ -17,7 +21,6 @@
 // The service-role key comes from `.env`; every write is a real write.
 
 import { registerHooks } from "node:module";
-import { createServer } from "node:http";
 import { pathToFileURL } from "node:url";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -42,8 +45,8 @@ function hook() {
   });
 }
 
-/** Load the named functions from this checkout and serve them on a free port. */
-export async function startEdge(names) {
+/** Load the named functions; returns name -> handler. `env` replaces process.env when given. */
+export async function loadEdge(names, env) {
   hook();
   const handlers = new Map();
   let loading = null;
@@ -53,7 +56,7 @@ export async function startEdge(names) {
     // 2026-10-06: the deployed `send-email` answers 401 to the JWT and 400
     // (past its auth check) to the secret key. Hand the functions what the
     // runtime hands them, or every email silently fails to relay.
-    env: { get: (k) => (k === "SUPABASE_SERVICE_ROLE_KEY" && process.env.SUPABASE_SECRET_KEY) || process.env[k] },
+    env: { get: env ? (k) => env[k] : (k) => (k === "SUPABASE_SERVICE_ROLE_KEY" && process.env.SUPABASE_SECRET_KEY) || process.env[k] },
     serve: (h) => { handlers.set(loading, typeof h === "function" ? h : h.handler); },
   };
   for (const name of names) {
@@ -61,7 +64,13 @@ export async function startEdge(names) {
     await import(pathToFileURL(join(ROOT, "supabase", "functions", name, "index.ts")).href);
     if (!handlers.has(name)) throw new Error(`${name} never called Deno.serve`);
   }
+  return handlers;
+}
 
+/** Load the named functions from this checkout and serve them on a free port. */
+export async function startEdge(names) {
+  const handlers = await loadEdge(names);
+  const { createServer } = await import("node:http"); // here, so loadEdge's callers never load a server
   const server = createServer(async (req, res) => {
     const name = (req.url.match(/^\/functions\/v1\/([a-z0-9-]+)/) || [])[1];
     const h = handlers.get(name);
