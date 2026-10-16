@@ -30885,3 +30885,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   Acceptance criteria:
   - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
   - The Control Room's audit re-check of R2-01 passes after this box is ticked
+
+- [ ] **101.7 — How you get paid and the sale switch lose changes if you leave without pressing Save, and some controls act without warning (audit R2-09).**
+  `app/src/screens/more/Payments.jsx:233`, `app/src/screens/more/Payments.jsx:495-499`, `app/src/screens/more/Payments.jsx:573`, `app/src/screens/more/Promos.jsx:180-184`, `app/src/screens/more/Promos.jsx:201`. On How you get paid, switches, handles and Remove on a custom method only change local state until the Save button at the very bottom, with no unsaved marker. Remove on a custom method has no confirmation. Disconnecting Stripe uses the browser's native confirm() box, unlike the app's own ConfirmTap and Sheet. On Promo codes the 'Sale is running' switch only takes effect after a separate outlined Save sale button, which sits well below it. A detailer who flips Venmo on, types the handle and goes back with the arrow, or switches a sale on and moves on, has changed nothing: customers still see the old payment options or no sale, and nothing said so.
+  Supposed to: A settings screen should either save as you go or clearly show there is something unsaved.
+  Fix: Save the sale switch and the payment switches as they are changed (or show 'Unsaved changes' and warn on back), use ConfirmTap for Remove and Disconnect, and make Save sale a primary button next to its group.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-09.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (At 390px open How you get paid, switch Venmo on, type a handle, press the back arrow, reopen: the handle is gone.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-09 passes after this box is ticked
