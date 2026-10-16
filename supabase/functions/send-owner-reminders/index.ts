@@ -15,6 +15,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { retryRead, supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { cronRefusal } from "../_shared/cronAuth.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import {
   buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, recipientLang, sendTenantEmail,
@@ -178,11 +179,15 @@ async function sendOwnerReminder(b: BookingRow) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
+  // Set once the manual branch is entered: only a member's own re-send may see
+  // an error's text. The sweep's answer never carries one (ROADMAP 97.3).
+  let manual = false;
   try {
     const body = await req.json().catch(() => ({}));
 
     // --- Manual mode: one booking, member-gated -----------------------------
     if (body.booking_id) {
+      manual = true;
       const member = await requireMember(req, body.business_id ?? null);
       if (!member) return json({ error: "Unauthorized" }, 401);
       const { data: b } = await supabase
@@ -211,6 +216,9 @@ Deno.serve(async (req) => {
     }
 
     // --- Scheduled sweep (idempotent; every send is marker-guarded) ---------
+    // ROADMAP 97.3: only pg_cron, carrying the shared secret, may start it.
+    const refused = cronRefusal(req);
+    if (refused) return refused;
     const results: { id: string; kind: string; sent: boolean; error?: string }[] = [];
     const mark = (id: string, col: string) =>
       supabase.from("bookings").update({ [col]: new Date().toISOString() }).eq("id", id);
@@ -561,9 +569,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Aggregate counts only. This endpoint is unauthenticated by necessity —
-    // the scheduler cannot carry the service-role key without that key being
-    // committed in a migration — and in this system a booking's UUID IS the
+    // Aggregate counts only. The sweep is public at the gateway (pg_cron has no
+    // session; since ROADMAP 97.3 it must carry `x-cron-secret`), and in this system a booking's UUID IS the
     // credential for its receipt, cancel and reschedule pages. Returning ids
     // here would let anyone poll the sweep and harvest them. Per-booking
     // detail, including errors, goes to the function log instead.
@@ -594,6 +601,7 @@ Deno.serve(async (req) => {
     }
     return json({ success: true, count: results.length, summary });
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error(manual ? "manual reminder failed" : "reminder sweep failed", err);
+    return json({ error: manual ? (err as Error).message : "The reminder sweep failed." }, 500);
   }
 });

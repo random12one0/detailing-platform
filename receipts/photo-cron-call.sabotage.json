@@ -1,0 +1,78 @@
+{
+  "git_sha": "cb7f219facaa7d2bc5572dedf7f78f69811a1ea5",
+  "git_sha_started": "cb7f219facaa7d2bc5572dedf7f78f69811a1ea5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T15:22:35.979Z",
+  "failures": [
+    "2b . the reconcile names that same project - got adtlnvihwrcqcasqcjwd",
+    "2c . and it is this platform's database, never the real business - got adtlnvihwrcqcasqcjwd"
+  ],
+  "warnings": [
+    "The five numbers are asserted on the detail handed to stamp(), not on a row read back from Postgres."
+  ],
+  "artifacts": [
+    "receipts/photo-cron-call.sabotage.txt"
+  ],
+  "dimensions": {
+    "roadmap": "0.11d3a",
+    "criterion": "a cron-triggered photo-reconcile run records numeric drift in job_heartbeats",
+    "entries": [
+      {
+        "file": "20261006060000_photo_reconcile_cron.sql",
+        "expr": "40 3 * * *",
+        "timeout_ms": null
+      },
+      {
+        "file": "20261009120000_photo_reconcile_cron_timeout.sql",
+        "expr": "40 3 * * *",
+        "timeout_ms": 60000
+      },
+      {
+        "file": "20261016100000_cron_jobs_send_secret.sql",
+        "expr": "40 3 * * *",
+        "timeout_ms": 60000
+      }
+    ],
+    "cron_url": "https://adtlnvihwrcqcasqcjwd.supabase.co/functions/v1/photo-reconcile",
+    "cron_body": "{}",
+    "cron_headers": "jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', s.decrypted_secret)",
+    "stamped": {
+      "orphans": 2,
+      "missing": 1,
+      "mismatched": 1,
+      "unknown_size_rows": 1,
+      "misfiled": 1
+    },
+    "rate_limit": {
+      "bucket": "photo-reconcile",
+      "key": "all",
+      "windowSeconds": 3600,
+      "limit": 6
+    },
+    "sabotage": "wrong-ref",
+    "unjudgeable": [
+      "that pg_cron fires the entry - the schedule is not installed; it is FOR-ANDREW step 9f",
+      "that the gateway admits the anonymous call - photo-reconcile is undeployed",
+      "that R2 answers the listing - no R2 credential exists outside the edge-function secrets",
+      "that note_heartbeat writes the row in the live database - stamp is in-memory here"
+    ]
+  },
+  "check_id": "photo-cron-call",
+  "started_at": "2026-10-16T15:22:35.879Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 38,
+  "min_assertions": 38,
+  "assertion_floor": "7 in s1 + 5 in s2 + 5 in s3 + (2 + 3 + 5 judged + 5 figures + 1) in s4 + 3 in s5 + 2 in s6 = 38. DECLARED STRUCTURAL, and stated as an equality rather than with slack under it: every check() runs unconditionally, with no early return and no conditional section, and the only multipliers are FIVE and EXPECT, whose length is the criterion's own five drift kinds. So the count is fixed by the question list and cannot fall without a diff somebody has to justify - a tripwire on the code rather than a run-time check (`docs/gotchas.md` 98: a ceiling with room in it is how 196 came to sit over an actual 192).",
+  "canary": {
+    "id": "a-heartbeat-that-counts-nothing",
+    "observed_failure": true,
+    "what": "the pre-criterion-4 heartbeat shape: clean true or false and not one of the five drift numbers",
+    "rule": "orphans + missing + mismatched + unknown_size_rows + misfiled"
+  }
+}

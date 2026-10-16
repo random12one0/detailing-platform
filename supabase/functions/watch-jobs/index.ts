@@ -31,7 +31,9 @@
 // exists to remove.
 //
 // ---------------------------------------------------------------------------
-// NO AUTHORIZATION, SAME REASONING AS THE REMINDER SWEEP.
+// THE SCHEDULER'S KEY SINCE ROADMAP 97.3 — the call must carry `x-cron-secret`
+// (`_shared/cronAuth.ts`), read from Vault by the cron job. What follows is the
+// earlier reasoning for running without one, kept because it is what that fixed:
 // ---------------------------------------------------------------------------
 // `pg_cron` posts to it with no header, because the only key that would
 // satisfy a check is the service-role key and that must never be written into
@@ -47,6 +49,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { cronRefusal } from "../_shared/cronAuth.ts";
 import { sendTenantEmail } from "../_shared/email.ts";
 import { platformAlertEmail } from "../_shared/emailTemplates.ts";
 import { PLATFORM_NAME, platformBrand } from "../_shared/platformBrand.ts";
@@ -105,6 +108,8 @@ async function pingOutside(url: string | null): Promise<boolean> {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
+  const refused = cronRefusal(req);
+  if (refused) return refused;
 
   try {
     // -----------------------------------------------------------------------
