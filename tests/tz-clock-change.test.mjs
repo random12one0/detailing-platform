@@ -150,12 +150,19 @@ check("pricing.ts receives localDateTimeToInstant rather than defining one",
 
 // The one-pass signature is `guess + (guess - asIfUtc)`: a value plus its own
 // difference from the formatted reading. Searched in every tracked source file.
+// Two files carry it ON PURPOSE, as the sabotage they swap into tz.ts; they are
+// named here rather than hidden, and each must still hold it, so the list
+// cannot go stale quietly and a copy anywhere else still goes red.
+const SABOTAGE_HOLDERS = ["tests/tz-clock-change.test.mjs", "scripts/tz-clock-change-browser.mjs"];
 const tracked = execSync("git ls-files -- \"*.ts\" \"*.js\" \"*.jsx\" \"*.mjs\"", { cwd: REPO, encoding: "utf8" })
-  .split("\n").filter((f) => f && !f.startsWith("reference/") && f !== "tests/tz-clock-change.test.mjs");
+  .split("\n").filter((f) => f && !f.startsWith("reference/") && !SABOTAGE_HOLDERS.includes(f));
 const SECOND_COPY = /([\w.()]+)\s*\+\s*\(\s*\1\s*-\s*asIfUtc\s*\)/;
 const copies = tracked.filter((f) => { try { return SECOND_COPY.test(readFileSync(join(REPO, f), "utf8")); } catch { return false; } });
 check(`no tracked file carries the one-pass formula (${tracked.length} files searched)`, copies.length === 0 && tracked.length > 500, copies.join(", "));
 check("the search pattern recognises the original formula", SECOND_COPY.test(ONE_PASS));
+const holdersWithout = SABOTAGE_HOLDERS.filter((f) => !SECOND_COPY.test(readFileSync(join(REPO, f), "utf8")));
+check("each file excused from the search really is a sabotage holder", holdersWithout.length === 0,
+  `no longer holds the formula, so take it off SABOTAGE_HOLDERS: ${holdersWithout.join(", ")}`);
 
 // ---------------------------------------------------------------------------
 // THE CANARY — the original one-pass function, run through the same grid.
@@ -194,8 +201,8 @@ const { path } = writeReceipt({
   completed_targets: grid.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  // 144 round-trips + 6 spacing + 7 figures + 8 callers + 2 copy searches + 1 canary.
-  min_assertions: 168,
+  // 144 round-trips + 6 spacing + 7 figures + 8 callers + 3 copy searches + 1 canary.
+  min_assertions: 169,
   assertion_floor: "structural: the grid is 2 zones x 3 days x 24 hours and every other assertion is a fixed list, so the count cannot vary between runs",
   failures,
   dimensions: {
