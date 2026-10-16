@@ -96,3 +96,15 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
 }
 
 export const fixtureBooking = { business_slug:'consent-proof',customer_name:'Maria Lopez',customer_phone:'(555) 012-3456',customer_email:'maria@example.invalid',service_type:'dropoff',vehicle_size:'small',service_ids:['service-a'],booking_date:'2026-10-30',start_time:'10:00' };
+
+// ROADMAP 97.8 — answer a browser walk's create-booking call with the REAL
+// handler above (fake database, quote stubbed to `total`), so a walk and its
+// canary exercise the production guard rather than a copy of it. `guardOff`
+// is the same text sabotage the handler test uses. `saved` is what the handler
+// actually wrote to bookings.total_price.
+export async function answerCreateBooking(route, body, { total, guardOff = false }) {
+  const f = bookingFixture({ quoteTotal: total, handlerBreak: guardOff ? 'price-guard' : '' });
+  const r = await f.book(body);
+  await route.fulfill({ status: r.status, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(r.data) });
+  return { status: r.status, data: r.data, saved: f.rows.bookings.map((b) => Number(b.total_price)), errors: f.errors };
+}

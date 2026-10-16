@@ -3,6 +3,7 @@
 //   node scripts/price-changed-split.mjs --env-from=http://localhost:5173
 //   node scripts/price-changed-split.mjs --break=no-guard     # server ignores the figure: MUST go red
 //   node scripts/price-changed-split.mjs --break=page-strips  # page's figure stripped in flight: MUST go red
+//   node scripts/price-changed-split.mjs --break=canary-guarded # the canary walk keeps the guard ON: MUST go red (canary not caught)
 //   BASE=http://127.0.0.1:5180 ...                            # which dev server
 //
 // A split booking is one `create-booking` call per car, each priced as that car
@@ -16,19 +17,22 @@
 // answers are fed in the browser: the public profile says this business takes
 // two cars (`demo-detail` is a one-car business on purpose, seed-demo.mjs), and
 // the quote gains the two legs the real engine returns for a split booking
-// (each car priced at the one-car figure). `create-booking` is a stand-in
-// mirroring the committed guard; tests/price-shown-equals-charged.test.mjs 3b
-// proves the real handler's per-car payload.
+// (each car priced at the one-car figure). Each `create-booking` call is
+// answered by the REAL handler source, run in this process against the
+// fixture's in-memory tables (`scripts/lib/bookingConsentFixture.mjs`), its
+// quote stubbed to that car's figure (car 2 + $20). Until the 2026-10-16
+// re-attempt this was a browser stand-in that mirrored the guard.
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { answerCreateBooking } from "./lib/bookingConsentFixture.mjs";
 import { barMoney, countQuotes, pickDay, quoted, settle, stepNow, advance } from "./lib/bookingWalk.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = (process.env.BASE || process.env.BASE_URL || "http://localhost:5173").replace(/\/$/, "");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8);
-if (BREAK && !["no-guard", "page-strips"].includes(BREAK)) { console.error(`Unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["no-guard", "page-strips", "canary-guarded"].includes(BREAK)) { console.error(`Unknown --break=${BREAK}`); process.exit(2); }
 const RUSH = 20;
 // --freeze=before|after: also write Andrew's review copy of the 390 English walk.
 const FREEZE = (process.argv.find((a) => a.startsWith("--freeze=")) || "").slice(9);
@@ -40,9 +44,11 @@ const TARGETS = [
   { w: 390, h: 844, lang: "en" }, { w: 1440, h: 900, lang: "en" },
   { w: 768, h: 1024, lang: "en" }, { w: 390, h: 844, lang: "es" },
 ];
-// THE CANARY, every run: one more walk at 390 with the stand-in's guard OFF
-// (the pre-97.8 server). Its findings are not this run's pass or fail; the
-// property must call car 2's save wrong, or the run is graded invalid.
+// THE CANARY, every run: one more walk at 390 against the real handler with
+// its guard removed from the source text (the pre-97.8 server). Its findings
+// are not this run's pass or fail; the property must call car 2's save wrong,
+// or the run is red. --break=canary-guarded leaves the guard ON for that walk,
+// which nothing can catch, so it proves the canary is not a constant.
 const CANARY = { w: 390, h: 844, lang: "en", canary: true };
 let canaryCaught = [];
 const started_at = new Date().toISOString();
@@ -90,7 +96,7 @@ const twoCars = (o) => {
 
 for (const tg of [...TARGETS, CANARY]) {
   inCanary = !!tg.canary;
-  const guardOff = BREAK === "no-guard" || inCanary;
+  const guardOff = BREAK === "no-guard" || (inCanary && BREAK !== "canary-guarded");
   const label = `${tg.w}x${tg.h} ${tg.lang} split${inCanary ? " CANARY" : ""}`;
   const ctx = await browser.newContext({ viewport: { width: tg.w, height: tg.h } });
   await injectEnv(ctx);
@@ -131,15 +137,10 @@ for (const tg of [...TARGETS, CANARY]) {
     posts.push(body);
     // Car 1 is priced as shown; car 2's own day carries the $20 the quote missed.
     const serverTotal = legTotal + (posts.length >= 2 ? RUSH : 0);
-    const cors = { "Access-Control-Allow-Origin": "*" };
-    if (!guardOff && body.shown_total != null && Math.abs(Number(body.shown_total) - serverTotal) > 0.005) {
-      refusals++;
-      return route.fulfill({ status: 409, contentType: "application/json", headers: cors,
-        body: JSON.stringify({ error: "price_changed", message: "The price changed while you were booking. Check the new total and confirm again.", total: serverTotal, shown_total: Number(body.shown_total) }) });
-    }
-    if (serverTotal !== legTotal) savedUnshown.push(`car ${posts.length} saved at $${serverTotal}, page showed $${legTotal}`);
-    return route.fulfill({ status: 200, contentType: "application/json", headers: cors,
-      body: JSON.stringify({ success: true, booking: { id: `00000000-0000-4000-8000-00000000097${posts.length}`, booking_date: body.booking_date, start_time: body.start_time, end_time: body.start_time, total_price: serverTotal, status: "confirmed", receipt_url: null } }) });
+    const car = posts.length;
+    const r = await answerCreateBooking(route, body, { total: serverTotal, guardOff });
+    if (r.status === 409 && r.data?.error === "price_changed") refusals++;
+    for (const t of r.saved) if (Math.abs(t - legTotal) > 0.005) savedUnshown.push(`car ${car} saved at $${t}, page showed $${legTotal}`);
   });
 
   try {
@@ -230,6 +231,8 @@ for (const tg of [...TARGETS, CANARY]) {
 await browser.close();
 
 const failed = assertions - passed;
+const canaryObserved = canaryCaught.includes("car 2 was NOT saved at a price the page never showed");
+const red = failed || completed < TARGETS.length || !canaryObserved;
 const perTarget = 11 + (env ? 1 : 0);
 console.log(`canary (guard off at 390): ${canaryCaught.length ? "caught - " + canaryCaught.join("; ") : "NOT CAUGHT"}`);
 console.log(`\n${completed} of ${TARGETS.length} targets walked, ${passed} passed, ${failed} failed${BREAK ? `  (--break=${BREAK}: MUST be red)` : ""}`);
@@ -239,18 +242,18 @@ writeFileSync(txt, [`price-changed-split ${new Date().toISOString()} base=${BASE
 writeReceipt({
   check_id: BREAK ? `price-changed-split-${BREAK}` : "price-changed-split",
   started_at,
-  status: failed || completed < TARGETS.length ? "fail" : "pass",
+  status: red ? "fail" : "pass",
   expected_targets: TARGETS.length, discovered_targets: TARGETS.length, attempted_targets: TARGETS.length,
   completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: TARGETS.length * perTarget,
   assertion_floor: "11 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, sentence names price, language, on screen, console) plus 1 env signature with --env-from.",
-  // The canary is the no-guard stand-in itself: car 2 saved at $20 over its shown figure must land in savedUnshown.
-  canary: { id: "unguarded-car-2-saved-unshown", observed_failure: canaryCaught.includes("car 2 was NOT saved at a price the page never showed"), caught: canaryCaught, what: "an extra 390 walk against a stand-in with the guard off saves car 2 at shown + $20; the walk must name it" },
+  // The canary is the real handler with its guard removed: car 2 saved at $20 over its shown figure must land in savedUnshown.
+  canary: { id: "unguarded-car-2-saved-unshown", observed_failure: canaryObserved, caught: canaryCaught, what: "an extra 390 walk against the real create-booking handler with its guard removed saves car 2 at shown + $20; the walk must name it" },
   failures,
   artifacts: [txt, ART],
-  dimensions: { roadmap: "97.8", break: BREAK || null, base: BASE, env_from: ENV_FROM || null },
-  warnings: ["create-booking is a browser stand-in mirroring the committed guard; nothing reaches the database.",
+  dimensions: { roadmap: "97.8", break: BREAK || null, canary_guard: BREAK === "canary-guarded" ? "on" : "off", base: BASE, env_from: ENV_FROM || null },
+  warnings: ["create-booking is the committed handler source run in this process against fake tables, its quote stubbed per car; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
     "The two-car setting and the per-car quote legs are fed in the browser; demo-detail stays a one-car business."],
 });
-process.exit(failed || completed < TARGETS.length ? 1 : 0);
+process.exit(red ? 1 : 0);

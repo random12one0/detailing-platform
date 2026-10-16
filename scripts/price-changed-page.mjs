@@ -3,17 +3,18 @@
 //   node scripts/price-changed-page.mjs                    # 320, 390, 768, 1440; English and Spanish at 390 and 1440
 //   node scripts/price-changed-page.mjs --break=no-guard   # server without the 97.8 guard: MUST go red
 //   node scripts/price-changed-page.mjs --break=page-strips # page's shown total stripped in flight: MUST go red
+//   node scripts/price-changed-page.mjs --break=canary-guarded # the canary walk keeps the guard ON: MUST go red (canary not caught)
 //   BASE=http://127.0.0.1:5180 ...                         # which dev server (default localhost:5173)
 //   --freeze=before|after                                  # also write the Before/After review copy (390)
 //   --env-from=http://localhost:5173                       # job copy with no app/.env.local: borrow the public pair (below)
 //
 // Dev server + seeded demo, no credentials. NOTHING IS WRITTEN TO THE DATABASE:
-// `create-booking` is answered in the browser by a stand-in that behaves like
-// the real function — it refuses with 409 `price_changed` when a shown total
-// differs from its own, and saves when the figure matches or none was sent
-// (which is what the deployed function does today). Its own total is the
+// each `create-booking` call the page makes is answered by the REAL handler
+// source, run in this process against the fixture's in-memory tables
+// (`scripts/lib/bookingConsentFixture.mjs`), with its quote stubbed to the
 // page's figure plus $20, the rush fee the entry names: the clock crossed the
-// 24-hour cut-off while the customer typed. After that moment the quote
+// 24-hour cut-off while the customer typed. (Until the 2026-10-16 re-attempt
+// this was a browser stand-in that mirrored the guard.) After that moment the quote
 // endpoint's answer gets the same +$20 line, because it reads the same clock.
 //
 // THE PROPERTY, per target: whatever the booking is saved at is the figure the
@@ -23,13 +24,14 @@ import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { answerCreateBooking } from "./lib/bookingConsentFixture.mjs";
 import { barMoney, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, advance } from "./lib/bookingWalk.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = (process.env.BASE || process.env.BASE_URL || "http://localhost:5173").replace(/\/$/, "");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8);
 const FREEZE = (process.argv.find((a) => a.startsWith("--freeze=")) || "").slice(9);
-if (BREAK && !["no-guard", "page-strips"].includes(BREAK)) { console.error(`Unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["no-guard", "page-strips", "canary-guarded"].includes(BREAK)) { console.error(`Unknown --break=${BREAK}`); process.exit(2); }
 const RUSH = 20;
 const ART = BREAK ? `artifacts/price-changed-page-sabotage-${BREAK}/` : "artifacts/price-changed-page/";
 mkdirSync(ART, { recursive: true });
@@ -40,9 +42,11 @@ const TARGETS = [
   { w: 768, h: 1024, lang: "en" }, { w: 320, h: 700, lang: "en" },
   { w: 390, h: 844, lang: "es" }, { w: 1440, h: 900, lang: "es" },
 ];
-// THE CANARY, every run: one more walk at 390 against the stand-in with its
-// guard OFF (the pre-97.8 server). Its findings are not this run's pass or
-// fail; the property must call that save wrong, or the receipt is invalid.
+// THE CANARY, every run: one more walk at 390 against the real handler with
+// its guard removed from the source text (the pre-97.8 server). Its findings
+// are not this run's pass or fail; the property must call that save wrong, or
+// the run is red. --break=canary-guarded leaves the guard ON for that walk,
+// which nothing can catch, so it proves the canary is not a constant.
 // (Until the 2026-10-16 review this was a constant sum that could not fail.)
 const CANARY = { w: 390, h: 844, lang: "en", canary: true };
 const canaryCaught = [];
@@ -89,7 +93,7 @@ const injectEnv = (ctx) => env && ctx.route(/\/src\/lib\/(api|supabase)\.js(\?|$
 
 for (const tg of [...TARGETS, CANARY]) {
   inCanary = !!tg.canary;
-  const guardOff = BREAK === "no-guard" || inCanary;
+  const guardOff = BREAK === "no-guard" || (inCanary && BREAK !== "canary-guarded");
   const label = `${tg.w}x${tg.h} ${tg.lang}${inCanary ? " CANARY" : ""}`;
   const ctx = await browser.newContext({ viewport: { width: tg.w, height: tg.h } });
   await injectEnv(ctx);
@@ -108,7 +112,7 @@ for (const tg of [...TARGETS, CANARY]) {
   });
   page.on("pageerror", (e) => consoleBad.push(`pageerror: ${e.message}`));
 
-  const posts = [];
+  const posts = [], saved = [];
   let refusals = 0;
   let serverTotal = null;   // set at the first press: the clock has crossed from here on
   await page.route(/functions\/v1\/calculate-booking/, async (route) => {
@@ -124,14 +128,9 @@ for (const tg of [...TARGETS, CANARY]) {
     const body = route.request().postDataJSON();
     if (BREAK === "page-strips") delete body.shown_total;
     posts.push(body);
-    const ok = (total) => route.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ success: true, booking: { id: "00000000-0000-4000-8000-000000000978", booking_date: body.booking_date, start_time: body.start_time, end_time: body.start_time, total_price: total, status: "confirmed", receipt_url: null } }) });
-    if (!guardOff && body.shown_total != null && Math.abs(Number(body.shown_total) - serverTotal) > 0.005) {
-      refusals++;
-      return route.fulfill({ status: 409, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "price_changed", message: "The price changed while you were booking. Check the new total and confirm again.", total: serverTotal, shown_total: Number(body.shown_total) }) });
-    }
-    return ok(serverTotal);
+    const r = await answerCreateBooking(route, body, { total: serverTotal, guardOff });
+    if (r.status === 409 && r.data?.error === "price_changed") refusals++;
+    saved.push(...r.saved);
   });
 
   try {
@@ -166,8 +165,8 @@ for (const tg of [...TARGETS, CANARY]) {
     const confirmedEarly = await page.locator(".bk-bar").count() === 0;
     const noticeText = await page.locator(".bk-price-changed").first().innerText().catch(() => "");
     const newMoney = `$${serverTotal.toFixed(2)}`.replace(/\.00$/, "");
-    check(label, "the booking was NOT saved at a price the page never showed", !confirmedEarly,
-      `confirmed at $${serverTotal} after showing $${shownCents / 100}`);
+    check(label, "the booking was NOT saved at a price the page never showed", !confirmedEarly && saved.length === 0,
+      `confirmed at $${serverTotal} after showing $${shownCents / 100}; handler saved ${JSON.stringify(saved)}`);
     check(label, `a notice names the new price (${newMoney})`, noticeText.includes(newMoney), JSON.stringify(noticeText));
     check(label, `the notice is in ${tg.lang === "es" ? "Spanish" : "English"}`,
       (tg.lang === "es" ? /El precio cambió/ : /The price changed/).test(noticeText), JSON.stringify(noticeText));
@@ -198,7 +197,7 @@ for (const tg of [...TARGETS, CANARY]) {
       const secondPost = posts[1];
       check(label, "pressing again sends the new figure and books", !!secondPost && (await page.locator(".bk-bar").count()) === 0,
         `posts ${posts.length}, shown ${secondPost?.shown_total}`);
-      check(label, "saved at exactly the figure on the bar when pressed", Math.round(serverTotal * 100) === shownNow, `${serverTotal} vs ${shownNow / 100}`);
+      check(label, "the handler saved exactly the figure on the bar when pressed", saved.length === 1 && Math.round(saved[0] * 100) === shownNow, `saved ${JSON.stringify(saved)} vs bar ${shownNow / 100}`);
       check(label, "one booking call per press, no car booked twice", posts.length === 2, String(posts.length));
     }
     await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-end.png`, animations: "disabled" });
@@ -215,6 +214,8 @@ for (const tg of [...TARGETS, CANARY]) {
 await browser.close();
 
 const failed = assertions - passed;
+const canaryObserved = canaryCaught.includes("the booking was NOT saved at a price the page never showed");
+const red = failed || completed < TARGETS.length || !canaryObserved;
 console.log(`canary (guard off at 390): ${canaryCaught.length ? "caught - " + canaryCaught.join("; ") : "NOT CAUGHT"}`);
 console.log(`\n${completed} of ${TARGETS.length} targets walked, ${passed} passed, ${failed} failed${BREAK ? `  (--break=${BREAK}: MUST be red)` : ""}`);
 const txt = BREAK ? `receipts/price-changed-page.sabotage-${BREAK}.txt` : "receipts/price-changed-page.txt";
@@ -223,17 +224,17 @@ writeFileSync(txt, [`price-changed-page ${new Date().toISOString()} base=${BASE}
 writeReceipt({
   check_id: BREAK ? `price-changed-page-${BREAK}` : "price-changed-page",
   started_at,
-  status: failed || completed < TARGETS.length ? "fail" : "pass",
+  status: red ? "fail" : "pass",
   expected_targets: TARGETS.length, discovered_targets: TARGETS.length, attempted_targets: TARGETS.length,
   completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: TARGETS.length * (env ? 12 : 11),
   assertion_floor: "11 per target when the refusal is shown (walk, first post, not saved, notice names price, notice language, on-screen, bar, second post, figure, one call each, console), plus 1 env signature with --env-from.",
-  canary: { id: "unguarded-server-saves-unshown", observed_failure: canaryCaught.includes("the booking was NOT saved at a price the page never showed"), caught: canaryCaught, what: "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it" },
+  canary: { id: "unguarded-server-saves-unshown", observed_failure: canaryObserved, caught: canaryCaught, what: "an extra 390 walk against the real create-booking handler with its guard removed saves at the bar's figure + $20; the walk must name it" },
   failures,
   artifacts: [txt, ART],
-  dimensions: { roadmap: "97.8", break: BREAK || null, base: BASE, env_from: ENV_FROM || null },
-  warnings: ["create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
+  dimensions: { roadmap: "97.8", break: BREAK || null, canary_guard: BREAK === "canary-guarded" ? "on" : "off", base: BASE, env_from: ENV_FROM || null },
+  warnings: ["create-booking is the committed handler source run in this process against fake tables, its quote stubbed to the walk's figure; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
     "The rush fee is simulated as +$20 on the server's figure and on later quotes; the demo tenant's own rules are untouched."],
 });
-process.exit(failed || completed < TARGETS.length ? 1 : 0);
+process.exit(red ? 1 : 0);
