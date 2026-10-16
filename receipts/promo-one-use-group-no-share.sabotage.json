@@ -1,0 +1,42 @@
+{
+  "git_sha": "9543a676ff9b2685dba023e71f92b531aa75a95b",
+  "git_sha_started": "9543a676ff9b2685dba023e71f92b531aa75a95b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T23:44:45.476Z",
+  "failures": [
+    "2b · car 2 books (was refused with 409) - got 409 \"That promo code is not valid.\"",
+    "2c · two booking rows saved - got 1",
+    "2d · discount saved equals discount quoted, and is not zero - got 19 vs 38",
+    "2f · both rows are one group - got [null]",
+    "3d · and nothing more was saved in either world - got 1, 1",
+    "4a · both cars book - got 200 \"\" / 409 \"The code ONCE10 is limited to one use per customer, and it looks like you've already used it.\"",
+    "4b · discount saved equals discount quoted, and is not zero - got 19"
+  ],
+  "warnings": [
+    "The handler runs in-process against the fixture's fake Supabase; pricing and resolvePromo are the real pricing.ts, the payloads the real core.js. The fixture does not honour resolvePromo's expiry filter (`or`), so only non-expiring codes are exercised. The deployed create-booking is not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/promo-one-use-group.sabotage-no-share.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.9",
+    "break": "no-share"
+  },
+  "check_id": "promo-one-use-group-no-share",
+  "started_at": "2026-10-16T23:44:45.371Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 16,
+  "assertion_floor": "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 1 canary = 16, every check() unconditional; targets are the three refusals that used to stop car 2 or must still stop a stranger (usage limit, once per customer, group cap).",
+  "canary": {
+    "id": "share-switched-off",
+    "observed_failure": true,
+    "what": "the handler with the group share removed refuses car 2 with 409, as the defect did"
+  }
+}

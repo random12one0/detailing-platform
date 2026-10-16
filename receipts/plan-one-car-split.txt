@@ -1,4 +1,4 @@
-plan-one-car-split 2026-10-16T19:24:51.364Z break=none
+plan-one-car-split 2026-10-16T23:45:01.631Z break=none
   ok    1a · 3 cars on one day is $400 (one car covered)
   ok    1b · 3 cars on 3 days quotes the same $400
   ok    1c · exactly one plan line on the split quote

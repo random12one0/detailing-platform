@@ -1,0 +1,36 @@
+{
+  "git_sha": "9543a676ff9b2685dba023e71f92b531aa75a95b",
+  "git_sha_started": "9543a676ff9b2685dba023e71f92b531aa75a95b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T23:44:45.741Z",
+  "failures": [
+    "2g · the code counts as used ONCE for the group - got 2 RPC calls, times_used 2"
+  ],
+  "warnings": [
+    "The handler runs in-process against the fixture's fake Supabase; pricing and resolvePromo are the real pricing.ts, the payloads the real core.js. The fixture does not honour resolvePromo's expiry filter (`or`), so only non-expiring codes are exercised. The deployed create-booking is not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/promo-one-use-group.sabotage-count-twice.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.9",
+    "break": "count-twice"
+  },
+  "check_id": "promo-one-use-group-count-twice",
+  "started_at": "2026-10-16T23:44:45.632Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 16,
+  "min_assertions": 16,
+  "assertion_floor": "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 1 canary = 16, every check() unconditional; targets are the three refusals that used to stop car 2 or must still stop a stranger (usage limit, once per customer, group cap).",
+  "canary": {
+    "id": "share-switched-off",
+    "observed_failure": true,
+    "what": "the handler with the group share removed refuses car 2 with 409, as the defect did"
+  }
+}
