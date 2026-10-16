@@ -1,12 +1,12 @@
 {
-  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
-  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha": "e968766bd08ec2c43836b8ce595c9101b521b4af",
+  "git_sha_started": "e968766bd08ec2c43836b8ce595c9101b521b4af",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T21:32:45.909Z",
+  "finished_at": "2026-10-16T23:20:15.733Z",
   "failures": [],
   "warnings": [
-    "create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
+    "create-booking is the committed handler source run in this process against fake tables, its quote stubbed to the walk's figure; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
     "The rush fee is simulated as +$20 on the server's figure and on later quotes; the demo tenant's own rules are untouched."
   ],
   "artifacts": [
@@ -16,11 +16,12 @@
   "dimensions": {
     "roadmap": "97.8",
     "break": null,
+    "canary_guard": "off",
     "base": "http://127.0.0.1:5180",
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-page",
-  "started_at": "2026-10-16T21:29:53.295Z",
+  "started_at": "2026-10-16T23:17:10.871Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -38,6 +39,6 @@
       "a notice names the new price ($85)",
       "the notice is in English"
     ],
-    "what": "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it"
+    "what": "an extra 390 walk against the real create-booking handler with its guard removed saves at the bar's figure + $20; the walk must name it"
   }
 }

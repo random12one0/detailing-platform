@@ -1,12 +1,12 @@
 {
-  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
-  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha": "e968766bd08ec2c43836b8ce595c9101b521b4af",
+  "git_sha_started": "e968766bd08ec2c43836b8ce595c9101b521b4af",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T21:35:20.347Z",
+  "finished_at": "2026-10-16T23:23:24.860Z",
   "failures": [],
   "warnings": [
-    "create-booking is a browser stand-in mirroring the committed guard; nothing reaches the database.",
+    "create-booking is the committed handler source run in this process against fake tables, its quote stubbed per car; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
     "The two-car setting and the per-car quote legs are fed in the browser; demo-detail stays a one-car business."
   ],
   "artifacts": [
@@ -16,11 +16,12 @@
   "dimensions": {
     "roadmap": "97.8",
     "break": null,
+    "canary_guard": "off",
     "base": "http://127.0.0.1:5180",
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-split",
-  "started_at": "2026-10-16T21:32:46.572Z",
+  "started_at": "2026-10-16T23:20:45.154Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
@@ -38,6 +39,6 @@
       "the page says car 1 is booked and names car 2's new price ($85)",
       "the sentence is in English"
     ],
-    "what": "an extra 390 walk against a stand-in with the guard off saves car 2 at shown + $20; the walk must name it"
+    "what": "an extra 390 walk against the real create-booking handler with its guard removed saves car 2 at shown + $20; the walk must name it"
   }
 }
