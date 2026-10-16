@@ -30816,3 +30816,20 @@ Added by the Control Room's Audit tab from run 1, after a second check by a diff
   Acceptance criteria:
   - The test is green, and the commit says which of the two causes it was
   - Its existing sabotage still turns it red (re-run in the same edit, gotchas 95)
+
+---
+
+## Audit run 2, 2026-10-15 (101.x)
+
+Added by the Control Room's Audit tab from run 2, after a second check by a different AI and Andrew's yes. Each item names its audit finding; the evidence is in `docs/audits/`.
+
+- [ ] **101.1 — A wrong expense can never be fixed or deleted; the only way to add one is permanent (audit R2-04).**
+  `app/src/screens/Money.jsx:997-1028`, `app/src/components/ExpenseModal.jsx:120-131`. The expense list rows are plain text (no tap action) and the only code that writes to the expenses table is the insert in ExpenseModal. The Money screen's own comment says the sheet is add-only. Receipts can be removed, the expense itself cannot. One slip of the thumb on a phone number pad permanently lowers 'Earned less expenses' and the accountant export for that month, and the detailer has no way to correct it short of contacting support.
+  Supposed to: A detailer who typed $1,890 instead of $189 should be able to correct or remove the expense so profit is right.
+  Fix: Make each expense row open the same sheet with the saved values, with Save changes and a ConfirmTap Delete.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-04.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (Money > Expenses > Add, save any amount, then try to tap the new row: nothing opens.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-04 passes after this box is ticked
