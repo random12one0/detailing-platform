@@ -200,6 +200,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): deploy `create-booking` and publish the app (the confirmation screen fills itself on a retry). Until then the live server still hands the whole row to a duplicate. Tick after a post-publish `node tests/booking-engine.test.mjs` run alone.
 
 - [ ] **97.64 — The duplicate answer still hands the booking id — the manage page's only key — to anyone who knows a name, phone and time (follow-on to 97.2).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.64-20261016215820673`. Answer "merge it" to keep it, or say what to change.
   97.2's acceptance criteria keep `id` in the duplicate answer, and `/booking/:id` needs nothing else (`supabase/functions/_shared/config.ts` `receiptUrl`: "the row's UUID is the credential"). So a stranger who knows a customer's name, phone and appointment time can still re-post the booking and get a link that cancels or moves it. Options: the page sends a random retry token with the first press and only the same token gets the id back; or the duplicate answer drops the id and the page shows "you're booked, check your email for the link".
   Acceptance criteria:
   - A duplicate request that did not come from the original press gets no booking id, proved by a test that reads the response keys
