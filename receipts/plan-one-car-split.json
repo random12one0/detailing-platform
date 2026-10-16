@@ -1,9 +1,9 @@
 {
-  "git_sha": "0a693b0fdc3ceaad3f1b19c42c81d1655e038b25",
-  "git_sha_started": "0a693b0fdc3ceaad3f1b19c42c81d1655e038b25",
+  "git_sha": "1b05856b330443cf646de2582d75bb3668f25c96",
+  "git_sha_started": "1b05856b330443cf646de2582d75bb3668f25c96",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T15:30:55.067Z",
+  "finished_at": "2026-10-16T16:52:06.614Z",
   "failures": [],
   "warnings": [
     "The handler runs in-process against the fixture's fake Supabase; pricing is the real pricing.ts. The deployed functions are not this checkout until Andrew publishes."
@@ -16,7 +16,7 @@
     "break": null
   },
   "check_id": "plan-one-car-split",
-  "started_at": "2026-10-16T15:30:54.925Z",
+  "started_at": "2026-10-16T16:52:06.442Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,
