@@ -1,9 +1,9 @@
 {
-  "git_sha": "58c14ce8788351f837890a2bb22570e79772b5b7",
-  "git_sha_started": "58c14ce8788351f837890a2bb22570e79772b5b7",
+  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T20:56:10.821Z",
+  "finished_at": "2026-10-16T21:25:18.466Z",
   "failures": [
     "390x844 en split · car 2 was NOT saved at a price the page never showed - got car 2 saved at $85, page showed $65",
     "390x844 en split · the page says car 1 is booked and names car 2's new price ($85) - got \"\"",
@@ -33,7 +33,7 @@
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-split-no-guard",
-  "started_at": "2026-10-16T20:51:34.473Z",
+  "started_at": "2026-10-16T21:20:42.354Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -1,4 +1,4 @@
-price-changed-page 2026-10-16T20:15:34.831Z base=http://127.0.0.1:5180 break=page-strips
+price-changed-page 2026-10-16T21:20:41.876Z base=http://127.0.0.1:5180 break=page-strips
   ok    390x844 en · this server's modules ran with the injected env (signature read back)
   ok    390x844 en · reached the last step
   FAIL  390x844 en · the first press told the server the figure on the bar - got undefined vs bar 65

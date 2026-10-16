@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
-  "git_sha_started": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
+  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T20:15:34.884Z",
+  "finished_at": "2026-10-16T21:20:41.953Z",
   "failures": [
     "390x844 en · the first press told the server the figure on the bar - got undefined vs bar 65",
     "390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
@@ -45,7 +45,7 @@
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-page-page-strips",
-  "started_at": "2026-10-16T20:10:26.271Z",
+  "started_at": "2026-10-16T21:14:46.213Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -58,6 +58,12 @@
   "canary": {
     "id": "unguarded-server-saves-unshown",
     "observed_failure": true,
-    "what": "a server that ignores the shown total saves $205 over a page that showed $185"
+    "caught": [
+      "the first press told the server the figure on the bar",
+      "the booking was NOT saved at a price the page never showed",
+      "a notice names the new price ($85)",
+      "the notice is in English"
+    ],
+    "what": "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it"
   }
 }

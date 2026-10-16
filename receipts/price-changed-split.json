@@ -1,9 +1,9 @@
 {
-  "git_sha": "58c14ce8788351f837890a2bb22570e79772b5b7",
-  "git_sha_started": "58c14ce8788351f837890a2bb22570e79772b5b7",
+  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T21:03:23.781Z",
+  "finished_at": "2026-10-16T21:35:20.347Z",
   "failures": [],
   "warnings": [
     "create-booking is a browser stand-in mirroring the committed guard; nothing reaches the database.",
@@ -20,7 +20,7 @@
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-split",
-  "started_at": "2026-10-16T21:00:47.620Z",
+  "started_at": "2026-10-16T21:32:46.572Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
