@@ -93,7 +93,7 @@ for (const tg of TARGETS) {
   const refusalLines = [];
   page.on("console", (m) => {
     if (!["error", "warning"].includes(m.type())) return;
-    if (/status of 409/.test(m.text()) && /functions/v1/create-booking/.test(m.location()?.url ?? "")) refusalLines.push(m.text());
+    if (/status of 409/.test(m.text()) && /functions\/v1\/create-booking/.test(m.location()?.url ?? "")) refusalLines.push(m.text());
     else consoleBad.push(`${m.type()}: ${m.text()}`);
   });
   page.on("pageerror", (e) => consoleBad.push(`pageerror: ${e.message}`));
