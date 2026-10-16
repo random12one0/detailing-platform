@@ -546,6 +546,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     && (booking.payment_status === "paid" || booking.payment_status === "partial");
   const refundAmount = booking.payment_status === "partial"
     ? null : money(booking.final_amount ?? booking.total_price);
+  // ROADMAP 97.10 — a card payment came in that did not match what the job
+  // owes, so the webhook left it unpaid. Shown while the job is unsettled;
+  // once the detailer sorts it and marks it paid or waived, it has done its job.
+  const payProblem = booking.payment_problem
+    && booking.payment_status !== "paid" && booking.payment_status !== "waived"
+    ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
@@ -607,6 +613,18 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {refundAmount
                 ? t("This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.", { amount: refundAmount })
                 : t("Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.")}
+            </div>
+          )}
+          {/* ROADMAP 97.10 — same place and red as the refund line: it names
+              something to go and do, in their own Stripe account. */}
+          {payProblem && (
+            <div className="error-box" role="status" data-payment-problem={payProblem.kind} style={{ color: "var(--bad)" }}>
+              {payProblem.kind === "currency"
+                ? t("A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.")
+                : t("A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.", {
+                  paid: money(Number(payProblem.paid_cents) / 100),
+                  owed: money(Number(payProblem.owed_cents) / 100),
+                })}
             </div>
           )}
           {/* ROADMAP 3.4f S1 — an email about this job did not arrive. Same

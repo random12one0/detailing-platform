@@ -376,7 +376,7 @@ The list is not written here, because a typed list goes stale within the hour.
 3. **`platform-billing` alone.** It charges detailers for the platform.
 4. **The payment webhook last and alone.** It touches money, so if anything goes
    wrong there is only one thing it can have been. This is your rule and it has not
-   changed.
+   changed. One small database change goes just before it (ROADMAP 97.10).
 
 **Held back on purpose: `platform-admin`.** Published today, it would make your "Let
 me make changes" button promise you can edit while every save is refused (ROADMAP
@@ -423,9 +423,14 @@ stops if the list comes out empty, and never hands it zero names.
 node scripts/deploy-functions.mjs platform-billing
 ```
 
-**Step 4 · the payment webhook, last and alone. Nothing else running:**
+**Step 4 · the payment webhook, last and alone. Nothing else running.** The first
+line adds the one empty column the webhook now writes when a card payment does not
+match what the job owes (ROADMAP 97.10). It goes **before** the webhook: the other
+way round, a wrong-amount payment gets an error and Stripe keeps retrying it (the
+job still stays unpaid, so nothing is lost).
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 
@@ -726,9 +731,11 @@ refused with a sentence.
 ### Step 8 · Publish `stripe-webhook`, last and alone
 
 **Last because it touches money.** The ceilings (14.9, 14.18) and the email
-wording (3.4) on the one program that handles payments.
+wording (3.4) on the one program that handles payments. Since 97.10 it needs one
+column first, so the database line comes before it.
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 

@@ -200,6 +200,62 @@ export function amountDueCents(b: PayableBooking | null | undefined): number {
   return Math.round(n * 100);
 }
 
+/** Why a card payment did not settle a job. Stored on `bookings.payment_problem`. */
+export interface PaymentProblem {
+  kind: "amount" | "currency";
+  paid_cents: number;
+  owed_cents: number;
+  currency: string;
+  at: string;
+}
+
+export type CardPaymentVerdict =
+  | { settle: true }
+  | { settle: false; problem: null }
+  | { settle: false; problem: PaymentProblem };
+
+/**
+ * DOES THIS STRIPE PAYMENT SETTLE THIS JOB — ROADMAP 97.10.
+ *
+ * The webhook used to mark a job paid the moment either payment event arrived.
+ * A completed checkout is not money: a session finishes `unpaid` when the
+ * customer chose a bank transfer that has not cleared. And the amount was
+ * never read, so a session created for the wrong figure settled the job
+ * anyway — the detailer's record says paid and the money says otherwise.
+ *
+ * Not yet paid → `problem: null`: leave the job alone and record nothing,
+ * because nothing is wrong yet (97.11 handles the late event). Paid, but not
+ * the figure owed → a problem the detailer is shown on the job. The figure owed
+ * is `amountDueCents`, the same sum `pay-booking` charged, so a correct payment
+ * matches to the cent.
+ */
+export function cardPaymentVerdict(
+  type: string,
+  object: Record<string, unknown>,
+  booking: PayableBooking,
+  now: Date = new Date(),
+): CardPaymentVerdict {
+  const received = type === "payment_intent.succeeded"
+    ? object.status === "succeeded"
+    : object.payment_status === "paid";
+  if (!received) return { settle: false, problem: null };
+
+  const paid = Number(type === "payment_intent.succeeded" ? object.amount_received : object.amount_total);
+  const owed = amountDueCents(booking);
+  const currency = String(object.currency ?? "").toLowerCase();
+  if (currency === "usd" && paid === owed && owed > 0) return { settle: true };
+  return {
+    settle: false,
+    problem: {
+      kind: currency === "usd" ? "amount" : "currency",
+      paid_cents: Number.isFinite(paid) ? paid : 0,
+      owed_cents: owed,
+      currency,
+      at: now.toISOString(),
+    },
+  };
+}
+
 /** Stripe refuses anything under 50 cents, and says so in a way nobody reads. */
 export const STRIPE_MIN_CHARGE_CENTS = 50;
 

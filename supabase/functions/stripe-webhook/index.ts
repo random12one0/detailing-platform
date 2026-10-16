@@ -58,6 +58,7 @@ import { ourStatus } from "../_shared/platformBilling.ts";
 import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
+import { cardPaymentVerdict } from "../_shared/connect.ts";
 
 const BILLING_URL = `${PLATFORM_URL}/app?settings=billing`;
 
@@ -623,7 +624,7 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
 
   const { data: booking } = await supabase
     .from("bookings")
-    .select("id, business_id, payment_status, stripe_payment_intent")
+    .select("id, business_id, payment_status, stripe_payment_intent, total_price, final_amount")
     .eq("id", bookingId)
     .is("deleted_at", null)
     .maybeSingle();
@@ -658,6 +659,24 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
   // who marked a job paid in cash and then got a duplicate card payment has a
   // refund to make, not a status to flip.
   if (booking.payment_status === "paid" || booking.payment_status === "waived") return;
+
+  // ROADMAP 97.10 — THE MONEY HAS TO HAVE ARRIVED, AND BE THE FIGURE OWED.
+  // A completed checkout can still be unpaid, and nothing read the amount.
+  // Not arrived: the job is left alone. Wrong figure or currency: the job
+  // stays unpaid and the reason goes on the job, where the detailer reads it
+  // (the red line under the status pills). Never into `payment_notes` — that
+  // field is printed on the customer's own invoice.
+  const verdict = cardPaymentVerdict(type, object, booking);
+  if (!verdict.settle) {
+    if (!verdict.problem) return;
+    console.error("card payment does not match what is owed", bookingId, verdict.problem);
+    const { error: noted } = await supabase
+      .from("bookings")
+      .update({ payment_problem: verdict.problem })
+      .eq("id", booking.id);
+    if (noted) throw new Error(`could not record the payment problem: ${noted.message}`);
+    return;
+  }
 
   const { error } = await supabase
     .from("bookings")
