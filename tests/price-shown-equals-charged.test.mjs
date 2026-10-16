@@ -100,6 +100,20 @@ const canaryCaught = leaked.status === 200 && fCanary.rows.bookings[0]?.total_pr
 check("2g · canary: without the guard the same post saves $205 the page never showed", canaryCaught,
   `${leaked.status} ${JSON.stringify(fCanary.rows.bookings.map((b) => b.total_price))}`);
 
+console.log("3. the page's payload (core.js bookingRequests)");
+// What every booking page posts: the figure on the bar, per call.
+const { bookingRequests, initialForm } = await import("../app/src/book/core.js");
+const form = { ...initialForm({}), customerName: "M", customerPhone: "5550123456", customerEmail: "m@example.invalid",
+  serviceIds: ["service-a"], bookingDate: DATE, startTime: TIME };
+const one = bookingRequests(form, { quote: { total: 185 } });
+check("3a · one booking carries the bar's total as shown_total", one.length === 1 && one[0].shown_total === 185, JSON.stringify(one.map((p) => p.shown_total)));
+const split = bookingRequests({ ...form, splitDays: true, extraVehicles: [{ size: "large", date: "2026-10-31", time: "11:00" }, { size: "small", date: "2026-11-01", time: "12:00" }] },
+  { quote: { total: 450, per_vehicle: [{ total: 185 }, { total: 140 }, { total: 125 }] } });
+check("3b · a split booking carries each car's own figure, never the sum",
+  JSON.stringify(split.map((p) => p.shown_total)) === "[185,140,125]", JSON.stringify(split.map((p) => p.shown_total)));
+const none = bookingRequests(form);
+check("3c · no quote, no field: posted exactly as before", JSON.parse(JSON.stringify(none[0])).shown_total === undefined, String(none[0].shown_total));
+
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (PRICE_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
 const txt = BREAK ? `receipts/price-shown-equals-charged.sabotage-${BREAK}.txt` : "receipts/price-shown-equals-charged.txt";
@@ -109,10 +123,10 @@ writeReceipt({
   check_id: BREAK ? `price-shown-equals-charged-${BREAK}` : "price-shown-equals-charged",
   started_at,
   status: failed ? "fail" : "pass",
-  expected_targets: 4, discovered_targets: 4, attempted_targets: 4, completed_targets: 4, skipped_targets: 0,
+  expected_targets: 5, discovered_targets: 5, attempted_targets: 5, completed_targets: 5, skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 9,
-  assertion_floor: "2 frozen-clock pricing + 6 handler + 1 canary = 9, every check() unconditional; targets are the four handler cases (mismatch, match, no field, retry).",
+  min_assertions: 12,
+  assertion_floor: "2 frozen-clock pricing + 6 handler + 1 canary + 3 page payload = 12, every check() unconditional; targets are the four handler cases (mismatch, match, no field, retry) and the page payload.",
   canary: { id: "guard-removed-saves-unshown-price", observed_failure: canaryCaught, what: "the handler with the guard removed saves $205 over a page that showed $185" },
   failures,
   artifacts: [txt],

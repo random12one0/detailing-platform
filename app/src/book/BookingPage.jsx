@@ -255,6 +255,12 @@ function BookingFlow({ notFound = null }) {
   const [promoState, setPromoState] = useState({ checking: false, error: "", applied: null });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  // ROADMAP 97.8 — the server's new total after a `price_changed` refusal.
+  const [priceChanged, setPriceChanged] = useState(null);
+  const priceChangedRef = useRef(null);
+  useEffect(() => {
+    if (priceChanged != null) priceChangedRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [priceChanged]);
   const [confirmed, setConfirmed] = useState(null);
   const topRef = useRef(null);
 
@@ -505,6 +511,7 @@ function BookingFlow({ notFound = null }) {
     }
     setSubmitting(true);
     setSubmitError("");
+    setPriceChanged(null);
     try {
       // ROADMAP 8.10 — ONE CALL, OR ONE PER CAR. `bookingRequests` is the
       // core's rule for which: cars on the same day are one booking, cars on
@@ -526,6 +533,9 @@ function BookingFlow({ notFound = null }) {
         // is whatever the person had chosen when they actually pressed the
         // button. Their emails follow it from here.
         lang: getLocale(),
+        // ROADMAP 97.8 — the figure on the bar rides along, and the server
+        // refuses rather than charge a different one.
+        quote,
       });
       let r = null;
       for (let i = 0; i < payloads.length; i++) {
@@ -536,6 +546,12 @@ function BookingFlow({ notFound = null }) {
           if (i === 0) r = one;
         } catch (e) {
           if (i === 0) throw e;
+          if (e.body?.error === "price_changed") {
+            setSubmitError(t("Your first car is booked. The price for car {n} changed to {total}, so it was not booked. Please book it separately.",
+              { n: i + 1, total: money(e.body.total) }));
+            setSubmitting(false);
+            return;
+          }
           setSubmitError(
             `Your first car is booked. The time for the ${NTH[i] ?? `car ${i + 1}`} `
             + `was taken while you were filling this in. Please book it separately. (${e.message})`,
@@ -551,6 +567,16 @@ function BookingFlow({ notFound = null }) {
       rememberCustomer(slug, form, quote?.plan_id);
       setConfirmed(r.booking);
     } catch (e) {
+      // ROADMAP 97.8 — THE PRICE MOVED (a rush fee whose cut-off passed while
+      // they typed). Nothing was saved. Re-quote so the bar and the receipt
+      // show the new figure and its line, name it, and let them press again;
+      // the button stays busy until the new quote is on screen.
+      if (e.body?.error === "price_changed") {
+        await fetchQuote();
+        setPriceChanged(e.body.total);
+        setSubmitting(false);
+        return;
+      }
       // A 409 here means the slot went while they were filling the form, or
       // a rule rejected it. Say so plainly and send them back to pick again.
       setSubmitError(e.message === "sms_consent_not_saved"
@@ -956,6 +982,12 @@ function BookingFlow({ notFound = null }) {
           </div>
         )}
         {submitError && <div className="bk-error">{submitError}</div>}
+        {priceChanged != null && (
+          <div className="bk-note bk-price-changed" role="status" ref={priceChangedRef}>
+            {t("The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.",
+              { total: money(priceChanged) })}
+          </div>
+        )}
       </div>
 
       {/* W20 — BACK LIVES IN THE BAR NOW, and the call was ours: he asked for
