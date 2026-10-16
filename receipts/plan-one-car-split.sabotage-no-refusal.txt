@@ -1,0 +1,16 @@
+plan-one-car-split 2026-10-16T15:30:48.588Z break=no-refusal
+  ok    1a · 3 cars on one day is $400 (one car covered)
+  ok    1b · 3 cars on 3 days quotes the same $400
+  ok    1c · exactly one plan line on the split quote
+  ok    2a · three calls, one per car
+  ok    2b · the plan rides car 1
+  ok    2c · cars 2 and 3 carry no plan
+  ok    2d · the saved total is the same $400 the quote showed
+  ok    2e · canary: plan-on-every-car payloads are caught ($0, not $400)
+  FAIL  3a · a plan on a grouped row is refused with 400 - got 200 {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":185,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+  FAIL  3b · and nothing was read or written first - got 6
+  ok    3c · car 1 with its plan still books
+  ok    3d · a grouped row without a plan still books
+10 passed, 2 failed
+FAIL 3a · a plan on a grouped row is refused with 400 - got 200 {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":185,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+FAIL 3b · and nothing was read or written first - got 6

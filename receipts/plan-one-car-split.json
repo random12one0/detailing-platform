@@ -1,0 +1,34 @@
+{
+  "git_sha": "0a693b0fdc3ceaad3f1b19c42c81d1655e038b25",
+  "git_sha_started": "0a693b0fdc3ceaad3f1b19c42c81d1655e038b25",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T15:30:55.067Z",
+  "failures": [],
+  "warnings": [
+    "The handler runs in-process against the fixture's fake Supabase; pricing is the real pricing.ts. The deployed functions are not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/plan-one-car-split.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.6",
+    "break": null
+  },
+  "check_id": "plan-one-car-split",
+  "started_at": "2026-10-16T15:30:54.925Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 12,
+  "min_assertions": 12,
+  "assertion_floor": "3 quote + 5 save + 4 handler = 12, every check() unconditional; targets are the three places the rule lives (quote, form payload, handler).",
+  "canary": {
+    "id": "plan-on-every-car-payloads",
+    "observed_failure": true,
+    "what": "the pre-fix form payloads priced as create-booking prices them total $0, not $400"
+  }
+}
