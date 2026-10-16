@@ -203,7 +203,8 @@ try {
 if (!BEFORE) {
   console.log(`\n${assertions - failures.length} passed, ${failures.length} failed, ${assertions} assertions, ${completed} of ${VIEWS.length * 2} scenarios.`);
   const { path } = writeReceipt({
-    check_id: 'duplicate-retry-screen', started_at, status: failures.length ? 'fail' : 'pass',
+    // One file per sabotage, so the second never overwrites the first.
+    check_id: BREAK ? `duplicate-retry-screen-${BREAK}` : 'duplicate-retry-screen', started_at, status: failures.length ? 'fail' : 'pass',
     expected_targets: VIEWS.length * 2, discovered_targets: discovered, attempted_targets: attempted, completed_targets: completed, skipped_targets: 0,
     // 8 genuine + 7 stranger per view.
     assertions_executed: assertions, min_assertions: 15 * VIEWS.length, artifacts, failures,
