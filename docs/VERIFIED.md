@@ -3659,3 +3659,20 @@ is fair, but an invented dump falsely certifies platform nightly provenance;
 branch stays held for 98.8. No actual encrypted nightly was opened and no
 restore heartbeat was written. Broad deployed inventory and migration drift
 remain red, already owned by the release queue. No publish or live DDL.
+
+## Supervision 2026-10-15 — 99.11 and 98.6 re-taken at `c38f1859`
+
+99.11: `node scripts/booking-consent.mjs` (dev server on 127.0.0.1:5182, every
+outside request intercepted) gave 76 of 76 views, 1009 assertions, 0 failures.
+The 1440 and 390 English unchecked, checked and uncheck shots now hash three
+different ways; opened the 390 pair: the checked shot shows a ticked box, the
+unchecked one an empty box. `--break=half` gave 36 failures, all of them the
+width and line questions, as the entry says. The server hit its 10-minute
+background limit near the end of that run; its output has no connection error.
+Before the re-run, the main checkout's shots were the pre-fix ones (gotchas 132).
+
+98.6: `node scripts/db-audit.mjs` (read-only Management API queries, project
+`kguqylyzgyzfktkfnhjb`) exit 0; section 2 excuses `action_log`,
+`platform_costs` and `send_invoice_attempts` only as "grants revoked".
+`--break=stranger` printed FOUND 1, `zz_unexplained_lock`, and went to the
+sabotage receipt. Both ticks stand.

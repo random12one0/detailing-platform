@@ -1,0 +1,49 @@
+{
+  "git_sha": "612d72b39206c85df90ca0dff2db6cbbf1d39f1e",
+  "git_sha_started": "612d72b39206c85df90ca0dff2db6cbbf1d39f1e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T14:06:23.072Z",
+  "failures": [],
+  "warnings": [
+    "run with --break=canary; this receipt is a sabotage, not a result",
+    "STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md)."
+  ],
+  "artifacts": [
+    "artifacts/restore-nightly/report.fixture.sabotage-canary.txt"
+  ],
+  "dimensions": {
+    "project": "fixture",
+    "source": "fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)",
+    "provenance": {
+      "kind": "fixture"
+    },
+    "target": "throwaway local Postgres, deleted after the run",
+    "break": "canary",
+    "accounts": 6,
+    "files": 9,
+    "rows": {
+      "auth.users": 6,
+      "public.bookings": 126,
+      "public.business_settings": 6,
+      "public.businesses": 6,
+      "public.customers": 42,
+      "storage.objects": 9
+    }
+  },
+  "check_id": "restore-nightly",
+  "started_at": "2026-10-13T14:06:19.592Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 9,
+  "canary": {
+    "id": "altered-booking-text",
+    "observed_failure": false,
+    "note": "skipped on purpose (--break=canary)"
+  }
+}
