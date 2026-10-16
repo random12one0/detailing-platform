@@ -1,9 +1,9 @@
 {
-  "git_sha": "1b05856b330443cf646de2582d75bb3668f25c96",
-  "git_sha_started": "1b05856b330443cf646de2582d75bb3668f25c96",
+  "git_sha": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
+  "git_sha_started": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T16:52:06.223Z",
+  "finished_at": "2026-10-16T20:18:04.634Z",
   "failures": [],
   "warnings": [
     "The handler runs in-process against the fixture's fake Supabase with computeQuote stubbed to the figure part 1 priced with the real pricing.ts. The deployed create-booking is not this checkout until Andrew publishes."
@@ -16,16 +16,16 @@
     "break": null
   },
   "check_id": "price-shown-equals-charged",
-  "started_at": "2026-10-16T16:52:06.102Z",
+  "started_at": "2026-10-16T20:18:04.551Z",
   "status": "pass",
-  "expected_targets": 4,
-  "discovered_targets": 4,
-  "attempted_targets": 4,
-  "completed_targets": 4,
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
   "skipped_targets": 0,
-  "assertions_executed": 9,
-  "min_assertions": 9,
-  "assertion_floor": "2 frozen-clock pricing + 6 handler + 1 canary = 9, every check() unconditional; targets are the four handler cases (mismatch, match, no field, retry).",
+  "assertions_executed": 12,
+  "min_assertions": 12,
+  "assertion_floor": "2 frozen-clock pricing + 6 handler + 1 canary + 3 page payload = 12, every check() unconditional; targets are the four handler cases (mismatch, match, no field, retry) and the page payload.",
   "canary": {
     "id": "guard-removed-saves-unshown-price",
     "observed_failure": true,
