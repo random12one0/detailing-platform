@@ -1,0 +1,220 @@
+{
+  "git_sha": "187d73c01243c49d9596a5c03541f2e10a9967d3",
+  "git_sha_started": "187d73c01243c49d9596a5c03541f2e10a9967d3",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T22:21:09.582Z",
+  "failures": [
+    "390x844 genuine · both presses carry the same booking_ref: undefined / undefined",
+    "390x844 genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
+    "390x844 genuine · \"Add to my calendar\" opens this booking's file: null",
+    "390x844 genuine · the manage link opens this booking: null",
+    "768x1024 genuine · both presses carry the same booking_ref: undefined / undefined",
+    "768x1024 genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
+    "768x1024 genuine · \"Add to my calendar\" opens this booking's file: null",
+    "768x1024 genuine · the manage link opens this booking: null",
+    "1440x900 genuine · both presses carry the same booking_ref: undefined / undefined",
+    "1440x900 genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
+    "1440x900 genuine · \"Add to my calendar\" opens this booking's file: null",
+    "1440x900 genuine · the manage link opens this booking: null",
+    "320x844 genuine · both presses carry the same booking_ref: undefined / undefined",
+    "320x844 genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
+    "320x844 genuine · \"Add to my calendar\" opens this booking's file: null",
+    "320x844 genuine · the manage link opens this booking: null",
+    "390x844-lite genuine · both presses carry the same booking_ref: undefined / undefined",
+    "390x844-lite genuine · ONE booking exists, and its id is the ref: 1 rows, id server-made",
+    "390x844-lite genuine · \"Add to my calendar\" opens this booking's file: null",
+    "390x844-lite genuine · the manage link opens this booking: null"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-390x844-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-390x844-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-768x1024-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-768x1024-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-1440x900-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-1440x900-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-320x844-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-320x844-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-390x844-lite-break-no-ref.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-390x844-lite-break-no-ref.png"
+  ],
+  "dimensions": {
+    "views": [
+      "390844",
+      "7681024",
+      "1440900",
+      "320844",
+      "390844?lite=1"
+    ],
+    "seen": [
+      {
+        "view": "390x844",
+        "who": "genuine",
+        "calls": [
+          null,
+          null
+        ],
+        "retry_answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": null,
+        "manage": null
+      },
+      {
+        "view": "390x844",
+        "who": "stranger",
+        "ref": null,
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "768x1024",
+        "who": "genuine",
+        "calls": [
+          null,
+          null
+        ],
+        "retry_answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": null,
+        "manage": null
+      },
+      {
+        "view": "768x1024",
+        "who": "stranger",
+        "ref": null,
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "1440x900",
+        "who": "genuine",
+        "calls": [
+          null,
+          null
+        ],
+        "retry_answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": null,
+        "manage": null
+      },
+      {
+        "view": "1440x900",
+        "who": "stranger",
+        "ref": null,
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "320x844",
+        "who": "genuine",
+        "calls": [
+          null,
+          null
+        ],
+        "retry_answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": null,
+        "manage": null
+      },
+      {
+        "view": "320x844",
+        "who": "stranger",
+        "ref": null,
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "390x844-lite",
+        "who": "genuine",
+        "calls": [
+          null,
+          null
+        ],
+        "retry_answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": null,
+        "manage": null
+      },
+      {
+        "view": "390x844-lite",
+        "who": "stranger",
+        "ref": null,
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      }
+    ],
+    "break": "no-ref",
+    "scope": "Real create-booking handler on an in-memory table; profile, quote and slots are stand-ins; no live booking or send."
+  },
+  "check_id": "duplicate-retry-screen-no-ref",
+  "started_at": "2026-10-16T22:15:16.443Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 75,
+  "min_assertions": 75,
+  "canary": {
+    "id": "stranger-sees-no-link",
+    "observed_failure": null,
+    "note": "Sabotage via --break=hand-back-id (server) and --break=no-ref (page)."
+  }
+}
