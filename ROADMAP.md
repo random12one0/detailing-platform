@@ -195,6 +195,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
 
   **ANDREW, 2026-10-16:** Andrew said merge it. The saved work on belt/97.2-20261016144312184 passed review but now clashes with fixes merged since (97.1, 97.3, 97.5, 97.6, 97.10). Redo it on current main, reusing that branch's approach and tests, and resolve the overlap with the merged reminder and booking changes.
 
+  **ANDREW, 2026-10-16:** Andrew said merge it. The saved work on belt/97.2-20261016144312184 passed review but now clashes with fixes merged since (97.1, 97.3, 97.5, 97.6, 97.10). Redo it on current main, reusing that branch's approach and tests, and resolve the overlap with the merged reminder and booking changes. (your words w-1)
+
 - [ ] **97.3 — The reminder sweep and three other background jobs can be triggered by anyone (S-H2, S-L1).**
   Andrew said "merge it" (2026-10-16 14:48); the belt could not run the tests, so this is back with a builder (supervisor note below). It changed test(s) that grade it: tests/cron-secret.test.mjs, tests/customer-reminder.test.mjs, tests/dead-mans-switch.test.mjs, tests/photo-cron-call.test.mjs.
   The work is safe on branch `belt/97.3-20261016093151153`. Answer "merge it" to keep it, or say what to change.
