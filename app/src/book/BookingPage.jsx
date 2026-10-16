@@ -261,6 +261,13 @@ function BookingFlow({ notFound = null }) {
   useEffect(() => {
     if (priceChanged != null) priceChangedRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [priceChanged]);
+  // And the refusal sentence the same way: it renders under the fold, and at
+  // 390 it sat behind the fixed bar ("your first car is booked, car 2 is not"
+  // painted where nobody could read it; scripts/price-changed-split.mjs).
+  const submitErrorRef = useRef(null);
+  useEffect(() => {
+    if (submitError) submitErrorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [submitError]);
   const [confirmed, setConfirmed] = useState(null);
   const topRef = useRef(null);
 
@@ -981,7 +988,7 @@ function BookingFlow({ notFound = null }) {
             </button>
           </div>
         )}
-        {submitError && <div className="bk-error">{submitError}</div>}
+        {submitError && <div className="bk-error" ref={submitErrorRef}>{submitError}</div>}
         {priceChanged != null && (
           <div className="bk-note bk-price-changed" role="status" ref={priceChangedRef}>
             {t("The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.",
