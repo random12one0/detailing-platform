@@ -334,18 +334,25 @@ console.log("\n2. every send in the sweep reports a refusal");
   check("2c mustSend throws rather than returning", /function mustSend[\s\S]{0,200}?throw new Error/.test(code),
     "mustSend must throw, because throwing is what reaches the catch that skips the marker");
 
-  // The shape that matters: the send comes before the mark, inside one try.
+  // The shape that matters: a failed send must not keep the marker. Until
+  // ROADMAP 97.4 that meant "the mark comes after the send". 97.4 turned the
+  // order round on purpose (two overlapping sweeps both sent everything), so
+  // the marker is now CLAIMED first by `once()`, which gives it back when the
+  // send throws or returns false. That behavior is RUN, not read, in
+  // tests/reminder-claim.test.mjs § 2; this only holds the wiring.
   for (const [kind, marker] of [
     ["customer_reminder", "customer_reminder_sent_at"],
     ["customer_reminder_2", "customer_reminder_2_sent_at"],
     ["owner_reminder", "owner_reminder_sent_at"],
   ]) {
-    const at = code.indexOf(`mark(b.id, "${marker}")`);
-    const before = at < 0 ? "" : code.slice(Math.max(0, at - 600), at);
-    check(`2d the ${kind} marker is written after its send, not before`,
-      at > 0 && /await send(Customer|Owner)Reminder\(/.test(before),
-      `no send found in the 600 characters before the ${marker} write`);
+    check(`2d the ${kind} marker goes through the claim-then-send helper`,
+      // The owner one is a block since 97.5 (it also reports refused addresses).
+      new RegExp(`once\\(b\\.id, "${marker}", "${kind}", (async )?\\(\\) => (\\{[^}]{0,80}?await )?send(Customer|Owner)Reminder\\(`).test(code),
+      `no once(b.id, "${marker}", ...) wrapping its send`);
   }
+  check("2d the helper gives the claim back on a skipped send and on a failed one",
+    /const once = [\s\S]*?=== false\)[\s\S]*?release\(id, col, stamp\)[\s\S]*?catch \(e\)[\s\S]*?release\(id, col, stamp\)/.test(code),
+    "once() must release the claim in both the skip branch and the catch");
 
   // The maintenance block's comment claimed a throw that had never existed.
   check("2e the maintenance reminder no longer claims sendTenantEmail throws",
