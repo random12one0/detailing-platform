@@ -183,8 +183,7 @@ const EXPECTED = ZONES.length * DAYS.length * 24;
 // writes its own file and never overwrites the clean one.
 const artifact = `artifacts/tz-clock-change/grid${BREAK ? ".sabotage" : ""}.json`;
 mkdirSync(join(REPO, "artifacts/tz-clock-change"), { recursive: true });
-writeFileSync(join(REPO, artifact), JSON.stringify({ break: BREAK || null, failures, grid }, null, 2) + "
-");
+writeFileSync(join(REPO, artifact), JSON.stringify({ break: BREAK || null, failures, grid }, null, 2) + "\n");
 const { path } = writeReceipt({
   check_id: "tz-clock-change",
   started_at,
