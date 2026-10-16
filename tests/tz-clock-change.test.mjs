@@ -29,8 +29,7 @@
 //   BREAK=one-pass node tests/tz-clock-change.test.mjs     # must fail
 //   node scripts/receipt.mjs receipts/tz-clock-change.json
 
-import { execSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -154,8 +153,10 @@ check("pricing.ts receives localDateTimeToInstant rather than defining one",
 // named here rather than hidden, and each must still hold it, so the list
 // cannot go stale quietly and a copy anywhere else still goes red.
 const SABOTAGE_HOLDERS = ["tests/tz-clock-change.test.mjs", "scripts/tz-clock-change-browser.mjs"];
-const tracked = execSync("git ls-files -- \"*.ts\" \"*.js\" \"*.jsx\" \"*.mjs\"", { cwd: REPO, encoding: "utf8" })
-  .split("\n").filter((f) => f && !f.startsWith("reference/") && !SABOTAGE_HOLDERS.includes(f));
+// Read from disk, not `git ls-files`: the belt refuses to run a test that starts a program (supervision 2026-10-16).
+const SKIP_DIR = /(^|\/)(node_modules|dist|reference|\.[^/]+)(\/|$)/;
+const tracked = readdirSync(REPO, { recursive: true }).map((f) => String(f).split("\\").join("/"))
+  .filter((f) => /\.(ts|js|jsx|mjs)$/.test(f) && !SKIP_DIR.test(f) && !SABOTAGE_HOLDERS.includes(f));
 const SECOND_COPY = /([\w.()]+)\s*\+\s*\(\s*\1\s*-\s*asIfUtc\s*\)/;
 const copies = tracked.filter((f) => { try { return SECOND_COPY.test(readFileSync(join(REPO, f), "utf8")); } catch { return false; } });
 check(`no tracked file carries the one-pass formula (${tracked.length} files searched)`, copies.length === 0 && tracked.length > 500, copies.join(", "));
