@@ -30877,3 +30877,11 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (Switch the dashboard language to Spanish and open Your subscription (not subscribed) and Cancel.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-08 passes after this box is ticked
+
+- [ ] **101.6 — 2 end-to-end tests cannot be pointed at a test copy, so the audit cannot run them (audit R2-01).**
+  `scripts/e2e-receipt-trail.mjs:77`, `scripts/e2e-browser-features.mjs:103`. e2e-receipt-trail.mjs: hard-wires http://localhost:5173 and always sends one real email; e2e-browser-features.mjs: hard-wires http://localhost:5173, the copy of the app that talks to the live server
+  Fix: Read the app address from BASE (as e2e-booking.mjs does) and take a --to= address for mail, so they can run on staging for free.
+  Found by the audit (run 2, journey auditor, engine, commit `01f23ea3`); second check confirmed by engine: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-01.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - The Control Room's audit re-check of R2-01 passes after this box is ticked
