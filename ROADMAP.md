@@ -30896,3 +30896,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (At 390px open How you get paid, switch Venmo on, type a handle, press the back arrow, reopen: the handle is gone.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-09 passes after this box is ticked
+
+- [ ] **101.8 — A site-wide sale can be saved as running at 0% off, which tells customers 'Every booking is 0% cheaper' (audit R2-10).**
+  `app/src/screens/more/Promos.jsx:90-94`, `app/src/screens/more/Promos.jsx:129-138`, `app/src/screens/more/Promos.jsx:181-184`. The sale starts with percent '0' from settings; turning Sale is running on shows the Custom field with 0 (no preset selected), and saveSale writes active true with Number(percent) || 0 without refusing 0. The switch help line then reads 'Every booking is 0% cheaper right now.' A detailer who turns the sale on and presses Save sale without picking a percentage publishes a sale that gives nothing, and a customer may see a sale label with no discount.
+  Supposed to: A running sale should have a real percentage.
+  Fix: Disable Save sale while the sale is on and the percentage is 0 (or default it to 10 when it is first switched on).
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-10.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (On a business with no sale set, open Promo codes, switch Sale is running on, press Save sale.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-10 passes after this box is ticked
