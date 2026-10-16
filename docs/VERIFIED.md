@@ -3676,3 +3676,22 @@ Before the re-run, the main checkout's shots were the pre-fix ones (gotchas 132)
 `platform_costs` and `send_invoice_attempts` only as "grants revoked".
 `--break=stranger` printed FOUND 1, `zz_unexplained_lock`, and went to the
 sabotage receipt. Both ticks stand.
+
+## Supervision 2026-10-16 — 97.1 (held), 99.9 and 98.5 re-taken at `57cc2323`
+
+97.1, on its held branch at `dbce96b9`: `node tests/tz-clock-change.test.mjs` 169 of 169;
+`BREAK=one-pass` 31 failures. A separate sweep of that `tz.ts` across 7 zones, every half hour
+of 2026, round-tripped every time except the 10 that do not exist on a clock. Recommended merge.
+
+99.9: `node --test tests/create-booking-phone.test.mjs` 4 of 4. With the handler's
+`phoneComplete` refusal commented out in a scratch copy (`git diff --numstat` 1/1), test 3 went
+red: `200 !== 400`. Tick stands.
+
+98.5: the four repaired photo tests, run together in the main checkout: 22 passed, 0 failed,
+6 SKIPPED — `photo-reconcile-sql` skips without `PGLITE_DIR` here; the entry's 142 of 142 was
+taken with `PGLITE_REQUIRED=1`, which this checkout cannot repeat. `CONTRACT_BREAK=fivexx` went red
+(1 failed). The flag pin to `true` matches `app/src/lib/photo-door.js:128`. Tick stands.
+
+Main's four 'regressions' in the belt's suite: `figures-carry-their-command` passes here (9 of 9)
+and failed in the belt only because its suite had no bash on PATH (belt fixed). The other three are
+real and filed as 100.6 and 100.7.
