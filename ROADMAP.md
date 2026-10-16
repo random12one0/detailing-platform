@@ -30866,3 +30866,14 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (Open Settings > Your subscription with the network blocked to the billing function: you get an error box and no button.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-07 passes after this box is ticked
+
+- [ ] **101.5 — Several money screens print some sentences in English on a Spanish dashboard (audit R2-08).**
+  `app/src/screens/more/Billing.jsx:411-413`, `app/src/screens/more/Billing.jsx:428-430`, `app/src/screens/more/Billing.jsx:582`, `app/src/screens/more/Billing.jsx:883`, `app/src/screens/more/Billing.jsx:896-898`, `app/src/screens/more/Payments.jsx:272`, `app/src/screens/Money.jsx:992`. These strings are bare JSX or template text: Billing's 'Everything you have already set up stays exactly as it is…', 'Every one of these also includes the one-time', 'Code {promo.code}', 'You committed to {n} months', 'After that your booking page stops taking new bookings…', Payments' 'Saved.' and the raw error.message, Money's expense heading and 'more in' line use period.label without t(), and Billing builds sentences from fragments (', and '). A Spanish-speaking detailer sees mixed languages on the screen that explains what they are charged and what happens when they cancel.
+  Supposed to: Every sentence on the dashboard goes through t() so a Spanish dashboard reads in Spanish.
+  Fix: Wrap each of those strings in t() with one key per sentence (no glued fragments) and add the Spanish text.
+  Found by the audit (run 2, looks auditor, claude-sonnet-5-5, commit `01f23ea3`); second check confirmed by opus: . Full evidence: `docs/audits/audit-run-2-2026-10-15.md` § R2-08.
+  Acceptance criteria:
+  - The problem above no longer happens, proved by a check that fails on the old code and passes on the fix (break it on purpose before trusting it)
+  - Following the reproduction in the evidence (Switch the dashboard language to Spanish and open Your subscription (not subscribed) and Cancel.) now gives the right result
+  - Checked at 390 first, then 1440, console clean
+  - The Control Room's audit re-check of R2-08 passes after this box is ticked
