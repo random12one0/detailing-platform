@@ -465,7 +465,8 @@ console.log("\n4. the deployed sweep actually reminds a due customer");
       if (id2) {
         const r = await fetch(`${SB_URL}/functions/v1/send-owner-reminders`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+          // ROADMAP 97.3: the published sweep needs the cron secret (CRON_SECRET in .env).
+          headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json", ...(process.env.CRON_SECRET ? { "x-cron-secret": process.env.CRON_SECRET } : {}) },
           body: "{}",
         });
         const out = await r.json().catch(() => ({}));

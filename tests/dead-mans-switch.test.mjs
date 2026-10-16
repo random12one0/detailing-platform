@@ -256,7 +256,9 @@ if (!URL_ || !SERVICE) {
   const rest = (p, init = {}) =>
     fetch(`${URL_}/rest/v1/${p}`, { ...init, headers: { ...H, ...(init.headers || {}) } });
   const JOB = `test-dms-${Math.random().toString(36).slice(2, 8)}`;
-  const run = () => fetch(`${URL_}/functions/v1/watch-jobs`, { method: "POST", headers: H, body: "{}" })
+  const run = () => // ROADMAP 97.3: the deployed watcher refuses a call without the cron secret
+  // once it is published; `CRON_SECRET` in .env is the same value as in Vault.
+  fetch(`${URL_}/functions/v1/watch-jobs`, { method: "POST", headers: { ...H, ...(process.env.CRON_SECRET ? { "x-cron-secret": process.env.CRON_SECRET } : {}) }, body: "{}" })
     .then((r) => r.json());
   const rowFor = async (job) =>
     (await rest(`job_heartbeats?job=eq.${job}&select=*`).then((r) => r.json()))[0];
