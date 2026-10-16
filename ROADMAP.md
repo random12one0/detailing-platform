@@ -171,6 +171,8 @@ product-readiness gaps and the cleanup are in the second audit block at the end
 of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build jobs.
 
 - [ ] **97.1 — On the two clock-change Sundays, morning bookings are saved an hour off (C-H1).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — it changed test(s) that grade it: tests/timezone-and-slots.test.mjs, tests/tz-clock-change.test.mjs.
+  The work is safe on branch `belt/97.1-20261016042658330`. Answer "merge it" to keep it, or say what to change.
   `supabase/functions/_shared/tz.ts:15-35` (`localToDate`) reads the zone offset once, at a guessed instant that lands on the wrong side of the clock change. Proved in node for America/Los_Angeles: on 2026-03-08 08:00 is saved as 9:00 AM and 09:00 and 10:00 both become 17:00Z; on 2026-11-01 08:00 is saved as 7:00 AM. **The next clock change is 2026-11-01.** Callers: `slotValidation.ts:149` (the stored `start_at` for `create-booking/index.ts:489-490` and `reschedule-booking/index.ts:108`), `available-slots/index.ts:381`, `pricing.ts:352,358`, `BulkJobModal.jsx:81`. Fix the one function (two-pass offset) so every caller is fixed at once; grep for a browser copy of the same math too.
   Acceptance criteria:
   - A credential-free test converts all 24 hours of 2026-03-08, 2026-11-01 and one ordinary day in America/Los_Angeles (plus one other US zone) and every result round-trips to the same wall-clock time
