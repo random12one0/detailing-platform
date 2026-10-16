@@ -6,7 +6,8 @@
 //
 // **PUBLIC, LIKE `refresh-weather`, AND IT MUST BE.** pg_cron calls it with no session
 // (`20261006060000_photo_reconcile_cron.sql`). It is bounded instead of authenticated: it refuses unless the
-// last real run is older than six hours, and it sits behind a global rate limit.
+// last real run is older than six hours, and it sits behind a global rate limit. Since ROADMAP 97.3 it is also
+// authenticated: the call must carry `x-cron-secret` (`_shared/cronAuth.ts`), checked before anything else.
 //
 // **THE LINE IS THERE NOW — corrected 2026-10-09 (ROADMAP 0.11c).** This header said `photo-reconcile` was NOT
 // yet in `PUBLIC_FUNCTIONS` in `scripts/deploy-functions.mjs` and sent the reader to `FOR-ANDREW.md` to have it
@@ -23,6 +24,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
+import { cronRefusal } from "../_shared/cronAuth.ts";
 import { withinLimits } from "../_shared/rateLimit.ts";
 import { listAll, makeR2, r2Config } from "../_shared/r2.ts";
 import { type DbPhoto, handlePhotoReconcile, JOB, type ReconcileDeps } from "../_shared/photoReconcile.ts";
@@ -92,4 +94,4 @@ const deps = (): ReconcileDeps => {
   };
 };
 
-Deno.serve((req) => handlePhotoReconcile(req, deps()));
+Deno.serve((req) => (req.method === "OPTIONS" ? null : cronRefusal(req)) ?? handlePhotoReconcile(req, deps()));

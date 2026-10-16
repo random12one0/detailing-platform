@@ -202,7 +202,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-TWO specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-THREE specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
@@ -890,3 +890,7 @@ revisions read as fabricated. The suite now refuses before judging them.
 **131 → 132 on 2026-10-15, supervision.** A proof under an excluded folder written
 inside a job's worktree never reaches the main checkout, so hashing the main copy
 refuted 99.11's correct fix. `rg -c '^## ' docs/gotchas.md` run before and after: 132.
+
+**132 → 133 on 2026-10-16, supervision.** A whole-file crash in a credential-less live test changed
+its message because the internet answered with HTML instead of JSON, and the belt held a passed
+security fix (97.2) for it. `grep -c "^## " docs/gotchas.md` run before and after: 133.

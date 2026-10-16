@@ -1628,6 +1628,11 @@ export const appEs = {
   "Receipt sent again.": "Recibo mandado otra vez.",
   "Receipt + thank-you sent.": "Recibo y agradecimiento mandados.",
   "Paid by card on {date}": "Pagado con tarjeta el {date}",
+  // ROADMAP 97.10 — a card payment that did not match what the job owes.
+  "A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.":
+    "Llegó un pago con tarjeta de {paid}, pero este trabajo debe {owed}. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
+  "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.":
+    "Llegó un pago con tarjeta, pero no en dólares estadounidenses. No marcamos este trabajo como pagado. Revisa el pago en tu cuenta de Stripe.",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",

@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
-export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false } = {}) {
+export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '' } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
     const changed = helperSrc.replace('sms_consent_source: "booking_form"', 'sms_consent_source: "owner_entered"');
@@ -74,6 +74,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     sendTenantEmail: async message => { sends.push(message); }, saveBookingSmsConsent: helper,
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
+  if (handlerBreak === 'plan-refusal') { const changed = src.replace('if (body.plan_id && body.group_with)', 'if (false)'); if (changed === src) throw Error('Plan-refusal sabotage did not land'); src = changed; }
   src = src.replace(/^import\s+(?:"[^"\n]+"|[\s\S]*?\sfrom\s+"[^"\n]+")\s*;\s*$/gm,'');
   const names = Object.keys(dependencies);
   // stripTypeScriptTypes is the parser, rather than node --check on TS (gotcha 101).

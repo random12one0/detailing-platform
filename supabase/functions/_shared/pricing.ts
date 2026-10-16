@@ -535,8 +535,11 @@ export function computeQuote(inp: QuoteInput): Quote {
   // if the customer had booked the two cars separately.
   const legs = (inp.extraVehicles ?? []).filter(Boolean);
   if (inp.splitDays && legs.length) {
+    // ROADMAP 97.6 — `plan: null`: the plan covers the FIRST car and only the
+    // first call carries it (`bookingRequests` in core.js). Passing it here
+    // priced every car as the first, and three cars on three days came to $0.
     const one = (v: { key: string; label: string; model?: string | null }) =>
-      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false });
+      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false, plan: null });
     const first = computeQuote({ ...inp, extraVehicles: [], splitDays: false });
     const rest = legs.map(one);
     const all = [first, ...rest];

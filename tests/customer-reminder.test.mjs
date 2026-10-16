@@ -322,7 +322,11 @@ console.log("\n2. every send in the sweep reports a refusal");
   // `sendTenantEmail` is the one call that can silently fail. Every occurrence
   // of it in this file must be wrapped.
   const calls = [...code.matchAll(/await\s+sendTenantEmail\(/g)].length;
-  const wrapped = [...code.matchAll(/mustSend\(\s*\n?\s*await\s+sendTenantEmail\(/g)].length;
+  // ROADMAP 97.5 — an OWNER send returns its boolean to `sendToEachOwner`, and
+  // `requireOwnerReached` throws when neither an email nor the push reached the
+  // owner (tests/owner-fanout.test.mjs runs both).
+  const fannedOut = [...code.matchAll(/sendToEachOwner\([^]{0,600}?return\s+await\s+sendTenantEmail\(/g)].length;
+  const wrapped = [...code.matchAll(/mustSend\(\s*\n?\s*await\s+sendTenantEmail\(/g)].length + fannedOut;
   check("2a there are send call sites to check at all", calls >= 4, `found ${calls}`);
   check("2b every sendTenantEmail in the sweep is inside mustSend", calls === wrapped,
     `${calls} calls, ${wrapped} wrapped - an unwrapped one marks a failed send as delivered`);

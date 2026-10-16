@@ -1508,6 +1508,11 @@ export function bookingRequests(form, opts = {}) {
       vehicle_model: (v.model ?? "").trim() || null,
       booking_date: v.date,
       start_time: v.time,
+      // ROADMAP 97.6 — THE PLAN RIDES CAR 1 ONLY. A plan covers one car, and
+      // each of these calls is priced as its own one-car booking, so a plan on
+      // every call made every car "the first" and the whole carload free.
+      // `create-booking` refuses a plan beside `group_with` for the same reason.
+      plan_id: null,
     })),
   ];
 }

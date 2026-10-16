@@ -780,7 +780,7 @@ console.log("\n§ 11 — both payment events fire for ONE payment, and what make
   // AND IT HAS TO SIT AFTER THE READ AND BEFORE THE UPDATE. A guard moved
   // above the read has nothing to read; one moved below the update is
   // decoration.
-  const readAt = hook.indexOf('.select("id, business_id, payment_status, stripe_payment_intent")');
+  const readAt = hook.indexOf('.select("id, business_id, payment_status, stripe_payment_intent, total_price, final_amount")');
   const guardAt = hook.indexOf('if (booking.payment_status === "paid"');
   const writeAt = hook.indexOf('payment_status: "paid",');
   check("11b-i · and it is between the read and the write",

@@ -48,6 +48,72 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
+
+Your "merge it" this afternoon did not go through for either. Nothing in the
+work was wrong. The belt tripped over its own rules:
+
+- **97.1, the clock-change Sunday bookings.** One of its tests ran a small
+  program, which the belt does not allow. The supervisor changed that one line
+  and re-checked it. The next clock change is 1 November.
+- **97.2, the duplicate-booking answer that showed private details.** It was
+  held because an unrelated test got a different error page from the internet.
+  The belt no longer holds work for that.
+
+**Recommendation: say "merge it" on both.** The belt restarts itself on the
+fixed rules when this supervision ends.
+97.3's test has now been rewritten; it has its own row just below.
+
+## DO · Say "merge it" on 97.3, then set up the scheduler's key at your next release (ROADMAP 97.3)
+
+Until now anybody on the internet could start the reminder sweep, the weather
+refresh, the job watcher and the nightly photo check. That is fixed in the code:
+each one now needs a password-like value (the "cron secret") on every call, and
+the scheduler is set up to send it. Proved here, without touching the internet
+or any real key: all four refuse a call without it and run with it, and the
+"send reminder" button in a job still works with no change.
+
+**First, say "merge it" on 97.3.** The test the belt refused last time has been
+rewritten the way the supervisor asked: no local server, no fake keys, no
+secret read.
+
+**Then, at your next back-end release, these steps in this order.** Nothing is
+decided here; these are the setup steps.
+
+1. **Make the value.** In your password manager, generate a random 40-character
+   password (letters and numbers only) and save it as "Detailing platform —
+   cron secret". It lives there and nowhere else. Never paste it into a chat, a
+   document or this repo.
+2. **Put it in Vault.** Supabase dashboard, project `kguqylyzgyzfktkfnhjb` (not
+   your business's project) → Vault (under Integrations; or type "Vault" in the
+   dashboard search) → Add new secret. Name: `cron_secret`. Value: the password
+   from step 1.
+3. **Put the same value on the server programs.** Same project → Edge Functions →
+   Secrets → Add. Name: `CRON_SECRET`. Value: the same password.
+4. **Check step 2 landed.** SQL editor, run
+   `select name from vault.secrets where name = 'cron_secret';` — it must show
+   one row (it prints the name only, never the value).
+5. **Update the four scheduled jobs.** SQL editor: paste and run the whole of
+   `supabase/migrations/20261016100000_cron_jobs_send_secret.sql`. It is safe
+   before step 6: the programs running today ignore the extra value.
+6. **Publish the four programs**, with your next back-end release:
+   `send-owner-reminders`, `refresh-weather`, `watch-jobs`, `photo-reconcile`.
+   **Not before steps 2–5** — published first, every scheduled run is refused
+   and reminders stop going out.
+7. **Check it worked, about 20 minutes later.** SQL editor:
+   `select status_code, count(*) from net._http_response where created > now() - interval '30 minutes' group by 1;`
+   You want only `200`. A `401` means the two values in steps 2 and 3 differ;
+   a `503` means step 3 is missing.
+8. **For two of the test suites, afterwards.** `tests/dead-mans-switch.test.mjs`
+   and `tests/customer-reminder.test.mjs` call the live watcher and sweep, and
+   once step 6 is done they will be refused too. Add `CRON_SECRET=` with the same
+   value to the repo's `.env` yourself, then ask any session to add the header
+   line to those two suites (ROADMAP 97.3 names the exact change). The supervisor
+   kept that out of this item so its own test reads no secret.
+
+If you skip this row, nothing breaks: the jobs stay open to strangers exactly as
+they are today, until the four programs are published.
+
 ## DO · Unfinished receipt cleanup (ROADMAP 14.39)
 
 The fix is built and committed locally: a receipt upload remains recorded even
@@ -310,7 +376,7 @@ The list is not written here, because a typed list goes stale within the hour.
 3. **`platform-billing` alone.** It charges detailers for the platform.
 4. **The payment webhook last and alone.** It touches money, so if anything goes
    wrong there is only one thing it can have been. This is your rule and it has not
-   changed.
+   changed. One small database change goes just before it (ROADMAP 97.10).
 
 **Held back on purpose: `platform-admin`.** Published today, it would make your "Let
 me make changes" button promise you can edit while every save is refused (ROADMAP
@@ -357,9 +423,14 @@ stops if the list comes out empty, and never hands it zero names.
 node scripts/deploy-functions.mjs platform-billing
 ```
 
-**Step 4 · the payment webhook, last and alone. Nothing else running:**
+**Step 4 · the payment webhook, last and alone. Nothing else running.** The first
+line adds the one empty column the webhook now writes when a card payment does not
+match what the job owes (ROADMAP 97.10). It goes **before** the webhook: the other
+way round, a wrong-amount payment gets an error and Stripe keeps retrying it (the
+job still stays unpaid, so nothing is lost).
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 
@@ -660,9 +731,11 @@ refused with a sentence.
 ### Step 8 · Publish `stripe-webhook`, last and alone
 
 **Last because it touches money.** The ceilings (14.9, 14.18) and the email
-wording (3.4) on the one program that handles payments.
+wording (3.4) on the one program that handles payments. Since 97.10 it needs one
+column first, so the database line comes before it.
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 
