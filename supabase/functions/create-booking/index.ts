@@ -206,8 +206,62 @@ Deno.serve(async (req) => {
       }
     }
 
+    // --- The booking this one belongs with (ROADMAP 8.10) — READ ONLY here;
+    // the group id is written just before the insert, further down.
+    //
+    // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
+    // checks a crafted id would staple somebody's booking onto a stranger's
+    // group — and a group is a set of appointments a customer is shown.
+    let sib: { id: string; booking_group_id: string | null; applied_promo_code: string | null } | null = null;
+    let samePerson = false;
+    if (body.group_with) {
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, booking_group_id, customer_email, customer_phone, applied_promo_code")
+        .eq("business_id", business.id)
+        .eq("id", String(body.group_with))
+        .maybeSingle();
+      sib = data;
+      const email = String(body.customer_email ?? "").trim().toLowerCase();
+      const phone = String(body.customer_phone ?? "").trim();
+      // EVERY IDENTIFIER THEY BOTH CARRY HAS TO AGREE, not just one of them.
+      // The first version accepted a match on EITHER, and the probe caught it
+      // immediately: two bookings made from the same household email but
+      // different phone numbers were put in one group. A form filling this in
+      // legitimately sends the identical customer fields both times, so the
+      // stricter reading costs the real case nothing.
+      //
+      // AND AT LEAST ONE COMPARISON MUST ACTUALLY HAVE HAPPENED — two rows
+      // with no address and no number in common would otherwise satisfy
+      // "nothing disagrees", which is the vacuous-check family in live code.
+      const emailOk = !data?.customer_email || !email
+        || String(data.customer_email).toLowerCase() === email;
+      const phoneOk = !data?.customer_phone || !phone
+        || String(data.customer_phone) === phone;
+      const compared = (!!data?.customer_email && !!email) || (!!data?.customer_phone && !!phone);
+      samePerson = !!data && compared && emailOk && phoneOk;
+    }
+
     const promoCode = body.applied_promo_code || null;
-    const promo = await resolvePromo(supabase, business.id, promoCode);
+    // ROADMAP 97.9 — ONE USE OF A CODE COVERS THE WHOLE SET OF CARS. The quote
+    // discounts every car of a different-day booking (`computeQuote`'s split
+    // branch), but each car is saved by its own call, so car 1 spent a
+    // one-use code and car 2 was refused — as "not valid" at the usage limit,
+    // or as "already used" by the once-per-customer check below. A grouped car
+    // whose sibling (same person, checked above) already carries THIS code
+    // shares that use: the limit and the once-per-customer check are not asked
+    // again and the counter is not bumped again. Bounded by the business's own
+    // car cap, so a hand-made `group_with` gets no more cars at the code's
+    // price than one form could carry.
+    let sharesGroupUse = false;
+    if (promoCode && samePerson && sib!.applied_promo_code === promoCode) {
+      const inGroup = sib!.booking_group_id
+        ? ((await supabase.from("bookings").select("id")
+          .eq("business_id", business.id).eq("booking_group_id", sib!.booking_group_id)).data?.length ?? 0)
+        : 1;
+      sharesGroupUse = inGroup < (Number(settings.max_vehicles_per_booking) || 1);
+    }
+    const promo = await resolvePromo(supabase, business.id, promoCode, { ignoreLimit: sharesGroupUse });
     if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
 
     // ROADMAP 2.14 STEP 3 — THE PLAN, RESOLVED HERE AND PRICED BY THE SAME
@@ -302,7 +356,7 @@ Deno.serve(async (req) => {
 
     // Per-person promo limit (authoritative — the widget's early check is
     // advisory only).
-    if (promo?.once_per_customer) {
+    if (promo?.once_per_customer && !sharesGroupUse) {
       const email = String(body.customer_email || "").trim();
       const phone = String(body.customer_phone).trim();
       const [byEmail, byPhone] = await Promise.all([
@@ -420,35 +474,9 @@ Deno.serve(async (req) => {
     // partial failure leaves one real confirmed appointment rather than a
     // half-written group.
     //
-    // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
-    // checks a crafted id would staple somebody's booking onto a stranger's
-    // group — and a group is a set of appointments a customer is shown.
+    // The sibling was looked up and checked above, before the promo.
     let groupId: string | null = null;
-    if (body.group_with) {
-      const { data: sib } = await supabase
-        .from("bookings")
-        .select("id, booking_group_id, customer_email, customer_phone")
-        .eq("business_id", business.id)
-        .eq("id", String(body.group_with))
-        .maybeSingle();
-      const email = String(body.customer_email ?? "").trim().toLowerCase();
-      const phone = String(body.customer_phone ?? "").trim();
-      // EVERY IDENTIFIER THEY BOTH CARRY HAS TO AGREE, not just one of them.
-      // The first version accepted a match on EITHER, and the probe caught it
-      // immediately: two bookings made from the same household email but
-      // different phone numbers were put in one group. A form filling this in
-      // legitimately sends the identical customer fields both times, so the
-      // stricter reading costs the real case nothing.
-      //
-      // AND AT LEAST ONE COMPARISON MUST ACTUALLY HAVE HAPPENED — two rows
-      // with no address and no number in common would otherwise satisfy
-      // "nothing disagrees", which is the vacuous-check family in live code.
-      const emailOk = !sib?.customer_email || !email
-        || String(sib.customer_email).toLowerCase() === email;
-      const phoneOk = !sib?.customer_phone || !phone
-        || String(sib.customer_phone) === phone;
-      const compared = (!!sib?.customer_email && !!email) || (!!sib?.customer_phone && !!phone);
-      const samePerson = !!sib && compared && emailOk && phoneOk;
+    if (sib) {
       if (samePerson) {
         groupId = sib!.booking_group_id ?? crypto.randomUUID();
         if (!sib!.booking_group_id) {
@@ -681,7 +709,7 @@ Deno.serve(async (req) => {
     }
 
     // Promo usage counter — best-effort, never fails the booking.
-    if (promo) {
+    if (promo && !sharesGroupUse) {
       const { error: usageErr } = await supabase.rpc("increment_promo_usage", {
         p_business_id: business.id,
         p_code: promo.code,

@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
-export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [] } = {}) {
+export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [], deps = {}, tables = {}, rpc = null } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
     const changed = helperSrc.replace('sms_consent_source: "booking_form"', 'sms_consent_source: "owner_entered"');
@@ -18,7 +18,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   const rows = { customers: [
     ...(existing ? [{ business_id: 'tenant-a', id: 'customer-a', phone: '(555) 012-3456', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...existing }] : []),
     { business_id: 'tenant-b', id: 'customer-b', phone: '(555) 012-3456', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null },
-  ], bookings: [], booking_services: [], booking_add_ons: [] };
+  ], bookings: [], booking_services: [], booking_add_ons: [], ...tables };
   const operations = [], sends = [], errors = [];
   // 97.2 — the private columns a real row carries, so a duplicate answer that
   // hands back the row is caught by its keys.
@@ -33,6 +33,11 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
         // A column list is honoured, as PostgREST does; none or "*" is the whole row.
         select(cols) { if (cols && cols.trim() !== '*') query.cols = cols.split(',').map(c => c.trim()); return chain; }, eq(k,v) { filters.push(r => r[k] === v); return chain; },
         neq(k,v) { filters.push(r => r[k] !== v); return chain; },
+        // 97.9 — ilike as a case-blind equality (no wildcards are sent), limit
+        // as a slice. `or` is NOT honoured: resolvePromo's expiry filter passes
+        // every row, so a fixture promo must not expire.
+        ilike(k,v) { filters.push(r => String(r[k] ?? '').toLowerCase() === String(v).toLowerCase()); return chain; },
+        limit(n) { query.limit = n; return chain; }, or() { return chain; },
         is(k,v) { filters.push(r => (r[k] ?? null) === v); return chain; },
         insert(value) { query.operation = 'insert'; query.value = value; return chain; },
         update(value) { query.operation = 'update'; query.value = value; return chain; },
@@ -44,10 +49,10 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
         const pick = r => query.cols ? Object.fromEntries(query.cols.map(c => [c, r[c]])) : r;
         if (query.operation === 'insert') {
           if (collision && table === 'bookings') { rows.bookings.push(oldBooking); return { error: { code: '23P01' }, data: null }; }
-          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : 'booking-a', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
+          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : table === 'bookings' && rows.bookings.length ? 'booking-' + (rows.bookings.length + 1) : 'booking-a', sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
           rows[table].push(...created); return { data: single ? pick(created[0]) : created.map(pick), error: null };
         }
-        const found = rows[table].filter(r => filters.every(f => f(r)));
+        const found = rows[table].filter(r => filters.every(f => f(r))).slice(0, query.limit ?? Infinity);
         if (query.operation === 'update') {
           if (failedWrite) return { error: new Error('Consent write refused'), data: null };
           found.forEach(r => Object.assign(r,query.value));
@@ -56,7 +61,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
       }
       return chain;
     },
-    rpc() { throw Error('Unexpected RPC'); },
+    rpc(name, args) { if (!rpc) throw Error('Unexpected RPC'); return rpc(name, args, rows); },
   };
   const business = { id: 'tenant-a', slug: 'consent-proof', name: "Andrew's Auto Detail", timezone: 'America/Los_Angeles' };
   const settings = { email_customer_confirmation: true, email_owner_new_booking: false, push_enabled: false, booking_mode: 'reserve', vehicle_sizes: [{ key:'small',label:'Small' }] };
@@ -77,6 +82,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     buildBrand: async () => ({}), siteFor: async () => 'https://detailingplatform.com', receiptUrl: (base,id) => base + '/booking/' + id,
     timeStrIn: () => '10:00', customerConfirmationEmail: () => ({ subject:'Confirmation',html:'stub',text:'stub' }),
     sendTenantEmail: async message => { sends.push(message); }, saveBookingSmsConsent: helper,
+    ...deps,
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
   if (handlerBreak === 'plan-refusal') { const changed = src.replace('if (body.plan_id && body.group_with)', 'if (false)'); if (changed === src) throw Error('Plan-refusal sabotage did not land'); src = changed; }
@@ -89,7 +95,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   // stripTypeScriptTypes is the parser, rather than node --check on TS (gotcha 101).
   new Function(...names, stripTypeScriptTypes(src))(...names.map(k => dependencies[k]));
   if (!handler) throw Error('create-booking handler did not load');
-  return { rows, operations, sends, errors, helperErrors, helper, failWrites(value) { failedWrite = value; }, save: (...args) => helper(db,...args),
+  return { rows, db, operations, sends, errors, helperErrors, helper, failWrites(value) { failedWrite = value; }, save: (...args) => helper(db,...args),
     async book(payload) { return handler({ method:'POST',json:async () => payload }); },
   };
 }
