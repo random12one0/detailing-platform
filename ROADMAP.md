@@ -229,6 +229,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
 
   **ANDREW, 2026-10-16:** Andrew said merge it. The saved work on belt/97.4-20261016144914209 passed review but now clashes with fixes merged since (97.1, 97.3, 97.5, 97.6, 97.10). Redo it on current main, reusing that branch's approach and tests, and resolve the overlap with the merged reminder and booking changes. (your words w-2)
 
+  **ANDREW, 2026-10-16:** Merge it. The saved work on belt/97.4-20261016144914209 passed review once but now clashes with send-owner-reminders changes merged since (97.3, 97.5). Redo it on current main, reusing that approach and its tests, and resolve the overlap. (your words w-4)
+
 - [ ] **97.5 — One bad owner address makes the other owner addresses get the same email every 15 minutes (C-H6).**
   `send-owner-reminders/index.ts:149-165`: `mustSend` throws inside the loop over recipients, so recipient A's successful send leaves no marker when recipient B fails, and the push at `:167` is skipped as well. The stale-request nudge (`335-351`) does the same. Keep a marker per recipient (or mark once at least one send succeeded and log the rest), and send the push outside the email loop.
   Acceptance criteria:
