@@ -54,7 +54,7 @@ import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessCo
 import {
   blockers as coreBlockers,
   bookable, bookingRequests, campaignFor, closedUntil,
-  groupedWith, initialForm, retryConfirmation,
+  bookingRefs, groupedWith, initialForm, retryConfirmation,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor,
@@ -254,6 +254,8 @@ function BookingFlow({ notFound = null }) {
   const [quoting, setQuoting] = useState(false);
   const [promoState, setPromoState] = useState({ checking: false, error: "", applied: null });
   const [submitting, setSubmitting] = useState(false);
+  // ROADMAP 97.64 — this press's booking refs, kept so a retry sends the same.
+  const refs = useRef(null);
   const [submitError, setSubmitError] = useState("");
   const [confirmed, setConfirmed] = useState(null);
   const topRef = useRef(null);
@@ -527,11 +529,13 @@ function BookingFlow({ notFound = null }) {
         // button. Their emails follow it from here.
         lang: getLocale(),
       });
+      refs.current = bookingRefs(payloads, refs.current);
       let r = null;
       for (let i = 0; i < payloads.length; i++) {
         try {
+          const body = { ...payloads[i], booking_ref: refs.current.refs[i] };
           const one = await api.createBooking(
-            slug, i === 0 ? payloads[0] : groupedWith(payloads[i], r?.booking?.id),
+            slug, i === 0 ? body : groupedWith(body, r?.booking?.id),
           );
           if (i === 0) r = one;
         } catch (e) {

@@ -141,7 +141,11 @@ try {
 
   // ── 1. (c) A BOOKING SUBMITTED TWICE LEAVES ONE BOOKING ────────────────
   console.log("\n1. (c) the same booking submitted twice");
+  // 97.64: a retry carries the first press's booking_ref, or it is answered
+  // without the id. One ref per booking, the same on every press of it.
+  const refs = {};
   const submit = (d, phone, i) => () => fn("create-booking", {
+    booking_ref: (refs[i] ??= crypto.randomUUID()),
     business_slug: SLUG, customer_name: "Driveway Customer", customer_phone: phone,
     customer_email: sink(`retry-${tag}-c${i}`), service_type: "dropoff", vehicle_size: "small",
     service_ids: [service.id], add_ons: [], booking_date: d, start_time: "10:00",
