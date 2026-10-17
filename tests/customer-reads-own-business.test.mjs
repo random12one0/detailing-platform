@@ -17,8 +17,13 @@
 // `email_sends` row, which the browser cannot write (20260916010000).
 //
 // The canary removes the business filter from the sweep's REAL source and requires the check to catch it.
+//
+// RUN, NOT ONLY READ (review of 97.72): the sweep is RUN with a deadline naming another business's customer in
+// `tests/reminder-claim.test.mjs` § 4. `plan-link`'s `loadMember` is run here (case 5): its real source, types
+// stripped, against a stand-in database holding a membership that names another business's customer.
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { stripTypeScriptTypes } from "node:module";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
@@ -69,4 +74,43 @@ test("4 · canary: the sweep's real source with the business filter removed is c
   const broken = real.replace(`.eq("business_id", d.business_id).maybeSingle()`, ".maybeSingle()");
   assert.notEqual(broken, real, "the canary did not apply");
   assert.deepEqual(followed(broken), [{ row: "d", scoped: false }], "the check missed the removed filter");
+});
+
+// The real `loadMember`, run against an in-memory stand-in of the three tables it reads. Returns the customer it
+// would put on the plan page.
+async function planPageCustomer(src, member, customers) {
+  const m = /async function loadMember[\s\S]*?\n}\n/.exec(src);
+  assert.ok(m, "loadMember not found in plan-link/index.ts");
+  const T = { plan_members: [member], plan_visits: [], bookings: [], customers };
+  const from = (t) => {
+    const f = [];
+    const q = {
+      select: () => q, neq: (c, v) => (f.push((r) => r[c] !== v), q), is: (c, v) => (f.push((r) => (r[c] ?? null) === v), q),
+      eq: (c, v) => (f.push((r) => r[c] === v), q),
+      maybeSingle: () => Promise.resolve({ data: T[t].find((r) => f.every((x) => x(r))) ?? null }),
+      then: (ok, no) => Promise.resolve({ data: T[t].filter((r) => f.every((x) => x(r))) }).then(ok, no),
+    };
+    return q;
+  };
+  const loadMember = new Function("supabase", `${stripTypeScriptTypes(m[0])}; return loadMember;`)({ from });
+  const out = await loadMember(member.id);
+  assert.ok(out, "loadMember found no member, so the customer read was never reached");
+  return out.customer;
+}
+const MEMBER = (customer_id) => ({ id: "m-1", business_id: "biz-A", customer_id, plan: { name: "Monthly" } });
+const CUSTOMERS = [
+  { id: "cu-own", business_id: "biz-A", name: "Pat", email: "pat@example.test" },
+  { id: "cu-foreign", business_id: "biz-B", name: "Sam", email: "stranger@example.test" },
+];
+
+test("5 · plan-link, RUN: a membership naming another business's customer shows nobody; its own customer still shows", async () => {
+  const src = read(`${FN}/plan-link/index.ts`);
+  assert.equal(await planPageCustomer(src, MEMBER("cu-foreign"), CUSTOMERS), null, "the plan page named another business's customer");
+  const own = await planPageCustomer(src, MEMBER("cu-own"), CUSTOMERS);
+  assert.ok(own && own.email === "pat@example.test", `the member's own customer was lost: ${JSON.stringify(own)}`);
+  // sabotage: the same function with its business filter removed must hand over the stranger
+  const broken = src.replace(`.eq("business_id", member.business_id)`, "");
+  assert.notEqual(broken, src, "the sabotage did not apply");
+  const leaked = await planPageCustomer(broken, MEMBER("cu-foreign"), CUSTOMERS);
+  assert.equal(leaked?.email, "stranger@example.test", "without the filter the stranger was not returned, so case 5 cannot see the filter");
 });
