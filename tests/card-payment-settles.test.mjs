@@ -154,7 +154,9 @@ check("account check → settled guard → verdict → refused-guard → paid wr
   `account ${accountAt}, settled ${settledAt}, verdict ${verdictAt}, guard ${guardAt}, write ${writeAt}`);
 const refusedBranch = guardAt > 0 ? fn.slice(guardAt, writeAt) : "";
 check("a refused verdict returns before the paid write", /\n\s*return;\n\s*\}/.test(refusedBranch), refusedBranch.slice(0, 120));
-check("and records why in payment_problem", /\.update\(\{ payment_problem: verdict\.problem \}\)/.test(refusedBranch));
+// ROADMAP 97.11 (supervision 2026-10-17): added to the note already on the job, never written over it.
+check("and records why in payment_problem, added to what is already there",
+  /\.update\(\{ payment_problem: keepReasons\(\{ \.\.\.verdict\.problem, intent \}, row\?\.payment_problem/.test(refusedBranch));
 check("never in payment_notes (printed on the customer's invoice)", !/payment_notes/.test(fn));
 check("the read carries both amounts the verdict needs",
   /\.select\("id, business_id, payment_status, stripe_payment_intent, total_price, final_amount"\)/.test(fn));

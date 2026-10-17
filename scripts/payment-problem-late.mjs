@@ -34,7 +34,10 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-if (BREAK && BREAK !== "old-webhook") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && BREAK !== "old-webhook" && BREAK !== "overwrite") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+const OLDHOOK = BREAK === "old-webhook";
+// --freeze-reasons=before|after: only freeze the two-reasons view at 390 (Andrew's review pair), no receipt.
+const FREEZE_REASONS = arg("freeze-reasons");
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/97.11/png";
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
@@ -46,15 +49,24 @@ const FAILED = { kind: "failed", paid_cents: 15000, owed_cents: 15000, currency:
 const EXTRA = { kind: "extra", paid_cents: 15000, owed_cents: 0, currency: "usd", at: AT, payments: [{ intent: "pi_2", paid_cents: 15000, currency: "usd", at: AT }] };
 const PAID = { payment_status: "paid", paid_online_at: AT, final_amount: null, total_price: 150 };
 const OLD = { ...PAID, payment_problem: null };
+// Supervision 2026-10-17: a $100 wrong-amount payment, then an unrelated bank
+// payment that failed, with a refund still owed. BOTH reasons must show.
+// `--break=overwrite` feeds what the overwriting webhook left: the newest note only.
+const TWO = { ...FAILED, intent: "pi_4", payments: EXTRA.payments, earlier: [{ kind: "amount", paid_cents: 10000, owed_cents: 15000, currency: "usd", at: AT, intent: "pi_3" }] };
+const UNPAID = { payment_status: "pending", paid_online_at: null, final_amount: null, total_price: 150 };
+const TWO_PATCH = { ...UNPAID, payment_problem: TWO };
+const TWO_WANT = ["A bank payment of $150 did not go through", "A card payment of $100 came in, but this job is owed $150.", "Another payment of $150 came in after this job was settled."];
 const SCENARIOS = [
-  { id: "failed", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: FAILED, final_amount: null, total_price: 150 },
+  { id: "failed", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: FAILED, final_amount: null, total_price: 150 },
     want: ["A bank payment of $150 did not go through, so this job is not paid."] },
-  { id: "extra", patch: BREAK ? OLD : { ...PAID, payment_problem: EXTRA },
+  { id: "extra", patch: OLDHOOK ? OLD : { ...PAID, payment_problem: EXTRA },
     want: ["Another payment of $150 came in after this job was settled.", "Refund it from your own Stripe."] },
-  { id: "spanish", lang: "es", patch: BREAK ? OLD : { ...PAID, payment_problem: EXTRA },
+  { id: "spanish", lang: "es", patch: OLDHOOK ? OLD : { ...PAID, payment_problem: EXTRA },
     want: ["Llegó otro pago de $150 después de que este trabajo ya estaba saldado."] },
-  { id: "failed-refund", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: { ...FAILED, payments: EXTRA.payments }, final_amount: null, total_price: 150 },
+  { id: "failed-refund", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: { ...FAILED, payments: EXTRA.payments }, final_amount: null, total_price: 150 },
     want: ["A bank payment of $150 did not go through", "Another payment of $150 came in after this job was settled."] },
+  { id: "two-reasons", patch: BREAK === "old-webhook" ? OLD : BREAK === "overwrite" ? { ...UNPAID, payment_problem: { ...FAILED, payments: EXTRA.payments } } : TWO_PATCH,
+    want: TWO_WANT },
   { id: "settled", patch: { ...PAID, payment_problem: AMOUNT }, want: null },
   { id: "clean", patch: { ...PAID, payment_problem: null }, want: null },
 ];
@@ -94,6 +106,34 @@ for (let i = 0; i < 40 && !jobId; i++) await lp.waitForTimeout(250);
 const state = await login.storageState();
 await login.close();
 check("a demo job was found to open", !!jobId, "no bookings response carried a usable row");
+
+if (FREEZE_REASONS && jobId) {
+  const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+  const DIR = "C:/Users/rando/Downloads/claude/belt/shots/97.11";
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: state });
+  await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
+  const page = await ctx.newPage();
+  await page.route("**/rest/v1/bookings?**", async (route) => {
+    if (route.request().method() !== "GET" || !route.request().url().includes(jobId)) return route.continue();
+    const res = await route.fetch();
+    const body = await res.json().catch(() => null);
+    const edit = (b) => (b && b.id === jobId ? { ...b, ...TWO_PATCH } : b);
+    await route.fulfill({ response: res, json: Array.isArray(body) ? body.map(edit) : edit(body) });
+  });
+  await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".jobbar", { timeout: 30000 });
+  await page.waitForTimeout(1200);
+  const before = FREEZE_REASONS === "before";
+  await freeze(page, { out: `${DIR}/${FREEZE_REASONS}-reasons.html`, label: before ? "Before" : "After",
+    note: before
+      ? "A $100 card payment was the wrong figure, then a different bank payment failed. Only the failed line shows: the $100 still in the detailer's Stripe is not mentioned."
+      : "The same job: the failed bank payment AND the $100 wrong-figure payment each get their own red line, with the refund line under them.",
+    highlight: "[data-payment-problem]" });
+  if (!before) console.log(`differs: ${await differs(page, `${DIR}/before-reasons.html`, `${DIR}/after-reasons.html`)}`);
+  console.log("text:", await page.locator("[data-payment-problem]").innerText().catch(() => "(none)"));
+  await browser.close();
+  process.exit(0);
+}
 
 let discovered = 0, attempted = 0, completed = 0;
 const probed = [];

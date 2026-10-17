@@ -215,7 +215,29 @@ export interface PaymentProblem {
   owed_cents: number;
   currency: string;
   at: string;
+  /** The payment this note is about, so one payment's two events note it once. */
+  intent?: string;
   payments?: { intent: string; paid_cents: number; currency: string; at: string }[];
+  /** Older reasons still true, newest last — a new note is added, never written over one (`keepReasons`). */
+  earlier?: Omit<PaymentProblem, "payments" | "earlier">[];
+}
+
+/**
+ * ADD A REASON, NEVER REPLACE ONE — ROADMAP 97.11 (supervision 2026-10-17).
+ * Two webhook writes used to put `next` over the row's note wholesale, so a
+ * later, unrelated event erased a wrong-amount note (money still sitting in the
+ * detailer's Stripe) or the list of refunds owed. `next` goes on top; every
+ * older reason except this same payment's own goes into `earlier`; the refunds
+ * owed come over unless `next` brings its own list.
+ */
+export function keepReasons(next: PaymentProblem, existing: PaymentProblem | null | undefined): PaymentProblem {
+  const older = existing ? [...(existing.earlier ?? []), ...(existing.kind === "extra" ? [] : [existing])] : [];
+  const earlier = older
+    .filter((r) => !(next.intent && r.intent === next.intent && r.kind === next.kind))
+    .map(({ payments: _p, earlier: _e, ...r }) => r);
+  const payments = next.payments ?? existing?.payments;
+  const { payments: _p, earlier: _e, ...top } = next;
+  return { ...top, ...(payments?.length ? { payments } : {}), ...(earlier.length ? { earlier } : {}) };
 }
 
 /**
@@ -304,7 +326,7 @@ export function extraPayment(
   if (!money.received || !intent || intent === booking.stripe_payment_intent) return null;
   const earlier = Array.isArray(existing?.payments) ? existing.payments : [];
   if (earlier.some((p) => p.intent === intent)) return null;
-  return extraProblem([...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }], now);
+  return keepReasons(extraProblem([...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }], now), existing);
 }
 
 const extraProblem = (payments: NonNullable<PaymentProblem["payments"]>, now: Date): PaymentProblem => ({
@@ -329,9 +351,10 @@ const extraProblem = (payments: NonNullable<PaymentProblem["payments"]>, now: Da
  *   · otherwise → `failed`, and the job goes back to unpaid if this payment had
  *     marked it paid.
  *
- * Every extra payment already recorded is carried onto what replaces it. The
- * first version wrote a bare `failed` over the row and erased a refund the
- * detailer still owed (review, 2026-10-16).
+ * Every extra payment and every earlier reason already recorded is carried onto
+ * what replaces it (`keepReasons`). The first version wrote a bare `failed` over
+ * the row and erased a refund the detailer still owed (review, 2026-10-16), and
+ * the next still erased a wrong-amount note (supervision, 2026-10-17).
  */
 export function failedBankPayment(
   object: Record<string, unknown>,
@@ -346,8 +369,8 @@ export function failedBankPayment(
   const owed = amountDueCents(booking);
   const cover = ours ? extras.find((p) => p.currency === "usd" && p.paid_cents === owed && owed > 0) : undefined;
   if (cover) {
-    const rest = extras.filter((p) => p !== cover);
-    return { stripe_payment_intent: cover.intent, payment_problem: rest.length ? extraProblem(rest, now) : null };
+    const left = keepReasons(extraProblem(extras.filter((p) => p !== cover), now), existing);
+    return { stripe_payment_intent: cover.intent, payment_problem: left.payments || left.earlier ? left : null };
   }
   const money = cardMoney("checkout.session.async_payment_failed", object);
   const problem: PaymentProblem = {
@@ -356,11 +379,12 @@ export function failedBankPayment(
     owed_cents: owed,
     currency: money.currency,
     at: now.toISOString(),
-    ...(extras.length ? { payments: extras } : {}),
+    intent,
   };
+  const kept = keepReasons(problem, existing);
   return ours
-    ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: problem }
-    : { payment_problem: problem };
+    ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: kept }
+    : { payment_problem: kept };
 }
 
 /** `stripe()` from `_shared/stripe.ts`, passed in so this module imports nothing and a test can stand in for Stripe. */

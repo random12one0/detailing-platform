@@ -58,7 +58,7 @@ import { ourStatus } from "../_shared/platformBilling.ts";
 import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
-import { cardPaymentVerdict, extraPayment, failedBankPayment, type PaymentProblem } from "../_shared/connect.ts";
+import { cardPaymentVerdict, extraPayment, failedBankPayment, keepReasons, type PaymentProblem } from "../_shared/connect.ts";
 
 const BILLING_URL = `${PLATFORM_URL}/app?settings=billing`;
 
@@ -684,9 +684,14 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
   if (!verdict.settle) {
     if (!verdict.problem) return;
     console.error("card payment does not match what is owed", bookingId, verdict.problem);
+    // ROADMAP 97.11 — added to the note already on the job, never written over
+    // it: a refund owed or an earlier reason stays (`keepReasons`).
+    const { data: row, error: readError } = await supabase
+      .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+    if (readError) throw new Error(`could not read the payment problem: ${readError.message}`);
     const { error: noted } = await supabase
       .from("bookings")
-      .update({ payment_problem: verdict.problem })
+      .update({ payment_problem: keepReasons({ ...verdict.problem, intent }, row?.payment_problem as PaymentProblem | null) })
       .eq("id", booking.id);
     if (noted) throw new Error(`could not record the payment problem: ${noted.message}`);
     return;
