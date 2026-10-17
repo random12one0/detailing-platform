@@ -14,10 +14,15 @@
 // nothing was written" is a measurement.
 //
 //   node tests/closed-until-server.test.mjs
-//   CLOSED_BREAK=guard node tests/closed-until-server.test.mjs   # the guard cut: MUST be red
+//   CLOSED_BREAK=guard   node tests/closed-until-server.test.mjs   # the guard cut: MUST be red
+//   CLOSED_BREAK=unmoved node tests/closed-until-server.test.mjs   # update-booking re-checks an unmoved job again: MUST be red
 //
-// A clean run also runs that sabotage itself, as a child, and is red unless it
-// fails exactly the three away-day cases (§ 4).
+// A clean run also runs both sabotages itself, as children, and is red unless
+// each fails exactly the cases it targets (§ 4).
+//
+// THE SECOND BUSINESS (`fx-open`, no away date) books and moves the very day
+// `fx-away` refuses, so the refusal is shown to come from that business's own
+// setting and not from the date.
 //
 // An env var, not a flag: `node --test` swallows extra arguments (gotchas 104).
 // The sabotage rewrites the PRODUCTION file as it loads, and refuses to run if
@@ -32,16 +37,21 @@ import { writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.CLOSED_BREAK || "";
-const CUT = "if (closedUntil && bookingDate < closedUntil) {";
-if (BREAK && BREAK !== "guard") { console.error(`Unknown CLOSED_BREAK=${BREAK}. Known: guard.`); process.exit(2); }
+const CUTS = {
+  guard: { file: "/_shared/slotValidation.ts", from: "if (closedUntil && bookingDate < closedUntil) {", to: "if (false) {" },
+  unmoved: { file: "/update-booking/index.ts", from: "if ((body.booking_date || body.start_time) && !unmoved) {", to: "if (body.booking_date || body.start_time) {" },
+};
+// Which cases each sabotage must turn red, and no others.
+const TARGETS = { guard: "1a,2a,3a", unmoved: "3d" };
+if (BREAK && !CUTS[BREAK]) { console.error(`Unknown CLOSED_BREAK=${BREAK}. Known: ${Object.keys(CUTS).join(", ")}.`); process.exit(2); }
 let landed = false;
 if (BREAK) {
   registerHooks({
     load(url, ctx, next) {
       const r = next(url, ctx);
-      if (!url.endsWith("/_shared/slotValidation.ts")) return r;
+      if (!url.endsWith(CUTS[BREAK].file)) return r;
       const src = String(r.source);
-      const cut = src.replace(CUT, "if (false) {");
+      const cut = src.replace(CUTS[BREAK].from, CUTS[BREAK].to);
       landed = cut !== src;
       return { ...r, source: cut };
     },
@@ -77,18 +87,21 @@ const isoAt = (day, hh) => new Date(`${day}T${hh}:00-07:00`).toISOString(); // o
 // ── THE FAKE SUPABASE ───────────────────────────────────────────────────────
 const FAKE = "https://fake-supabase.invalid";
 const BIZ = "22222222-2222-4222-8222-222222222222";
+const BIZ2 = "44444444-4444-4444-8444-444444444444";   // the second business: never away
 const STAFF = "33333333-3333-4333-8333-333333333333";
 let db;
 const fresh = () => {
   db = {
     businesses: [{ id: BIZ, slug: "fx-away", name: "Away Detail", status: "active", timezone: TZ, contact_email: "owner@fixture.test",
-      contact_phone: "5555550100", closed_until: BACK, closed_note: null }],
-    business_settings: [{ business_id: BIZ, buffer_minutes: 0, min_advance_minutes: 0, max_advance_days: null, slot_interval_minutes: 30,
+      contact_phone: "5555550100", closed_until: BACK, closed_note: null },
+      { id: BIZ2, slug: "fx-open", name: "Open Detail", status: "active", timezone: TZ, contact_email: "owner2@fixture.test",
+      contact_phone: "5555550101", closed_until: null, closed_note: null }],
+    business_settings: [BIZ, BIZ2].map((b) => ({ business_id: b, buffer_minutes: 0, min_advance_minutes: 0, max_advance_days: null, slot_interval_minutes: 30,
       max_bookings_per_day: null, mobile_enabled: true, dropoff_enabled: true, cancellation_window_hours: 0,
-      water_requirement: "not_needed", power_requirement: "not_needed", require_approval: false }],
-    business_hours: [0, 1, 2, 3, 4, 5, 6, 7].map((w) => ({ business_id: BIZ, weekday: w, open_time: "08:00:00", close_time: "18:00:00" })),
-    services: [{ id: "svc-1", business_id: BIZ, name: "Wash", price: 100, duration_minutes: 60, active: true, is_active: true,
-      vehicle_size_adjustments: {}, group_id: null, allows_mobile: true, allows_dropoff: true, available_weekdays: null }],
+      water_requirement: "not_needed", power_requirement: "not_needed", require_approval: false })),
+    business_hours: [BIZ, BIZ2].flatMap((b) => [0, 1, 2, 3, 4, 5, 6, 7].map((w) => ({ business_id: b, weekday: w, open_time: "08:00:00", close_time: "18:00:00" }))),
+    services: [[BIZ, "svc-1"], [BIZ2, "svc-2"]].map(([b, id]) => ({ id, business_id: b, name: "Wash", price: 100, duration_minutes: 60, active: true, is_active: true,
+      vehicle_size_adjustments: {}, group_id: null, allows_mobile: true, allows_dropoff: true, available_weekdays: null })),
     business_users: [{ business_id: BIZ, user_id: STAFF, role: "owner", permissions: [] }],
     bookings: [],
   };
@@ -145,7 +158,7 @@ globalThis.fetch = async (input, init) => {
 const ENV = { SUPABASE_URL: FAKE, SUPABASE_SERVICE_ROLE_KEY: "placeholder", SUPABASE_ANON_KEY: "placeholder" };
 const { loadEdge } = await import("../scripts/lib/edgeLocal.mjs");
 const handlers = await loadEdge(["create-booking", "reschedule-booking", "update-booking"], ENV);
-if (BREAK && !landed) { console.log(`NOT RUN — CLOSED_BREAK=${BREAK} did not land in _shared/slotValidation.ts.`); process.exit(1); }
+if (BREAK && !landed) { console.log(`NOT RUN — CLOSED_BREAK=${BREAK} did not land in ${CUTS[BREAK].file}.`); process.exit(1); }
 
 const post = async (fn, body, auth) => {
   writes.length = 0;
@@ -157,13 +170,13 @@ const post = async (fn, body, auth) => {
   const bookingWrites = writes.filter((w) => w.table === "bookings" && w.rows > 0).length;
   return { status: r.status, data, bookingWrites };
 };
-const bookingBody = (day) => ({
-  business_slug: "fx-away", customer_name: "Pat Fixture", customer_phone: "(555) 555-0123", customer_email: "pat@fixture.test",
-  booking_date: day, start_time: "10:00", service_type: "mobile", service_ids: ["svc-1"], add_ons: [], vehicle_size: "medium",
+const bookingBody = (day, slug = "fx-away", svc = "svc-1") => ({
+  business_slug: slug, customer_name: "Pat Fixture", customer_phone: "(555) 555-0123", customer_email: "pat@fixture.test",
+  booking_date: day, start_time: "10:00", service_type: "mobile", service_ids: [svc], add_ons: [], vehicle_size: "medium",
   address: "1 Fixture Way", lang: "en",
 });
-const existing = (id, day) => ({
-  id, business_id: BIZ, status: "confirmed", deleted_at: null, customer_name: "Pat Fixture", customer_email: "pat@fixture.test",
+const existing = (id, day, biz = BIZ) => ({
+  id, business_id: biz, status: "confirmed", deleted_at: null, customer_name: "Pat Fixture", customer_email: "pat@fixture.test",
   start_at: isoAt(day, "10:00"), end_at: isoAt(day, "11:00"), service_type: "mobile", vehicle_size: "medium",
   subtotal: 100, total_price: 100, lang: "en", bulk_vehicle_count: null,
 });
@@ -171,7 +184,7 @@ const reason = new RegExp(`away until ${BACK_WORDS}\\. Please choose ${BACK_WORD
 const transcript = [`closed_until ${BACK} (${BACK_WORDS}); before ${BEFORE}; after ${AFTER}`];
 const note = (s) => transcript.push(s);
 let completed = 0;
-const SCENARIOS = 9;
+const SCENARIOS = 12;
 
 // ── create-booking ──────────────────────────────────────────────────────────
 console.log(`\n1. create-booking, closed until ${BACK}`);
@@ -187,6 +200,15 @@ for (const [tag, day, refused] of [["1a", BEFORE, true], ["1b", BACK, false], ["
       r.status === 200 && r.data?.success === true && db.bookings.length === 1,
       `${r.status} ${JSON.stringify(r.data).slice(0, 300)}`);
   if (ok) completed++;
+}
+
+{
+  fresh();
+  const r = await post("create-booking", bookingBody(BEFORE, "fx-open", "svc-2"));
+  note(`1d create on fx-open ${BEFORE}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)}`);
+  if (check(`1d . the SECOND business (no away date) books ${BEFORE}, the day fx-away refuses`,
+    r.status === 200 && r.data?.success === true && db.bookings.length === 1 && db.bookings[0].business_id === BIZ2,
+    `${r.status} ${JSON.stringify(r.data).slice(0, 300)}`)) completed++;
 }
 
 // ── reschedule-booking (the customer's own move) ───────────────────────────
@@ -207,6 +229,16 @@ for (const [tag, day, refused] of [["2a", BEFORE, true], ["2b", BACK, false], ["
   if (ok) completed++;
 }
 
+{
+  fresh();
+  db.bookings.push(existing("b-move2", localDay(14), BIZ2));
+  const r = await post("reschedule-booking", { booking_id: "b-move2", booking_date: BEFORE, start_time: "10:00" });
+  note(`2d reschedule on fx-open -> ${BEFORE}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)}`);
+  if (check(`2d . the SECOND business moves a booking to ${BEFORE}`,
+    r.status === 200 && r.data?.success === true && r.data?.booking?.booking_date === BEFORE,
+    `${r.status} ${JSON.stringify(r.data).slice(0, 300)}`)) completed++;
+}
+
 // ── update-booking (the detailer's own date change) ────────────────────────
 console.log("\n3. update-booking, the detailer moving a job");
 for (const [tag, day, refused] of [["3a", BEFORE, true], ["3b", BACK, false], ["3c", AFTER, false]]) {
@@ -225,6 +257,21 @@ for (const [tag, day, refused] of [["3a", BEFORE, true], ["3b", BACK, false], ["
   if (ok) completed++;
 }
 
+// The reviewer's case: a job already inside the away stretch, and the edit form
+// sends its unchanged date and time back with a phone fix.
+console.log("\n3d. the detailer fixes a phone number on a job inside the away stretch");
+{
+  fresh();
+  db.bookings.push(existing("b-inside", BEFORE));
+  const r = await post("update-booking", { business_id: BIZ, booking_id: "b-inside", customer_phone: "(555) 555-0199",
+    booking_date: BEFORE, start_time: "10:00" }, "staff-token");
+  const row = db.bookings[0];
+  note(`3d edit inside away: ${r.status} ${JSON.stringify(r.data).slice(0, 200)} | phone ${row.customer_phone} start_at ${row.start_at}`);
+  if (check("3d . saved: the phone changed and the job did not move",
+    r.status === 200 && r.data?.success === true && row.customer_phone === "(555) 555-0199" && row.start_at === isoAt(BEFORE, "10:00"),
+    `${r.status} ${JSON.stringify(r.data).slice(0, 300)} phone ${row.customer_phone}`)) completed++;
+}
+
 console.log("\n0. the run itself");
 check("0a . no socket was opened", sockets === 0, String(sockets));
 check("0b . no request went anywhere but the in-memory fake", outside.length === 0, outside.join(", "));
@@ -235,13 +282,15 @@ check("0b . no request went anywhere but the in-memory fake", outside.length ===
 // so its module cache cannot see this run's.
 let canaryCaught = null;
 if (!BREAK) {
-  const kid = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
-    env: { ...process.env, CLOSED_BREAK: "guard" }, encoding: "utf8", timeout: 120_000,
-  });
-  const red = (kid.stdout.match(/^\s*FAIL\s+\d[a-z]\b/gm) || []).map((l) => l.trim().split(/\s+/)[1]).sort().join(",");
-  canaryCaught = kid.status === 1 && red === "1a,2a,3a";
-  console.log("\n4. the canary");
-  check("4a . with the guard cut, exactly 1a, 2a and 3a go red (the away day books again)", canaryCaught, `exit ${kid.status}, red [${red}]`);
+  console.log("\n4. the canaries");
+  canaryCaught = true;
+  for (const [cut, want] of Object.entries(TARGETS)) {
+    const kid = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
+      env: { ...process.env, CLOSED_BREAK: cut }, encoding: "utf8", timeout: 120_000,
+    });
+    const red = (kid.stdout.match(/^\s*FAIL\s+\d[a-z]\b/gm) || []).map((l) => l.trim().split(/\s+/)[1]).sort().join(",");
+    canaryCaught = check(`4 . CLOSED_BREAK=${cut} turns exactly [${want}] red`, kid.status === 1 && red === want, `exit ${kid.status}, red [${red}]`) && canaryCaught;
+  }
 }
 
 const failed = failures.length;
@@ -261,8 +310,8 @@ writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: BREAK ? 11 : 12,
-  assertion_floor: "9 scenario checks (3 handlers x before/on/after) + 2 run checks = 11, + the canary check on a clean run = 12, every check() unconditional (docs/gotchas.md 98).",
+  min_assertions: BREAK ? 14 : 16,
+  assertion_floor: "12 scenario checks (3 handlers x before/on/after, a second business on create and reschedule, the unmoved edit) + 2 run checks = 14, + the 2 canary checks on a clean run = 16, every check() unconditional (docs/gotchas.md 98).",
   canary: { id: "pre-fix-away-booking", observed_failure: BREAK ? failed > 0 : canaryCaught, what: "CLOSED_BREAK=guard cuts the closed_until guard from _shared/slotValidation.ts as it loads" },
   failures,
   artifacts: [txt],
