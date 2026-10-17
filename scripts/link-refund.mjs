@@ -187,8 +187,9 @@ for (const sc of SCENARIOS) {
           }
           return null;
         });
-        check(`${tag} · Tracking links' read asks for the refund columns`,
-          !!linkRead && ["payment_status", "stripe_payment_intent", "payment_problem"].every((c) => linkRead.includes(c)), linkRead ?? "never read");
+        // `*`, not a named list: naming payment_problem 400s the read where its migration has not run.
+        check(`${tag} · Tracking links' read takes every column, the refund ones included`,
+          !!linkRead && linkRead.includes("select=*&"), linkRead ?? "never read");
         check(`${tag} · the real server accepts that read`, linkStatus === 200, `status ${linkStatus}`);
         check(`${tag} · the row reads "${want()}"`, !!line && line.includes(want()), JSON.stringify(line));
         check(`${tag} · the opened panel's earned reads ${money(sc.earned)}`, panel === money(sc.earned), JSON.stringify(panel));
