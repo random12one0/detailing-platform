@@ -1,11 +1,11 @@
 {
-  "git_sha": "5614ada3a10a247d7cac1fe5064188c71d097ead",
-  "git_sha_started": "5614ada3a10a247d7cac1fe5064188c71d097ead",
+  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:05:26.559Z",
+  "finished_at": "2026-10-17T00:15:47.238Z",
   "failures": [
-    "R4 · a second live page paid: its two events make ONE refund entry, not two — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T00:05:26.468Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:05:26.468Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:05:26.468Z\"}]} · HTTP 200,200"
+    "R4 · a second live page paid: its two events make ONE refund entry, not two — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.168Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.167Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.168Z\"}]} · HTTP 200,200"
   ],
   "warnings": [],
   "artifacts": [
@@ -35,7 +35,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.462Z"
+          "at": "2026-10-17T00:15:47.163Z"
         }
       },
       {
@@ -50,7 +50,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.464Z"
+          "at": "2026-10-17T00:15:47.164Z"
         }
       },
       {
@@ -65,7 +65,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.465Z"
+          "at": "2026-10-17T00:15:47.165Z"
         }
       },
       {
@@ -98,13 +98,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.467Z",
+          "at": "2026-10-17T00:15:47.167Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.467Z"
+              "at": "2026-10-17T00:15:47.167Z"
             }
           ]
         }
@@ -122,19 +122,19 @@
           "paid_cents": 30000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.468Z",
+          "at": "2026-10-17T00:15:47.168Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.468Z"
+              "at": "2026-10-17T00:15:47.167Z"
             },
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.468Z"
+              "at": "2026-10-17T00:15:47.168Z"
             }
           ]
         }
@@ -152,19 +152,74 @@
           "paid_cents": 25000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.469Z",
+          "at": "2026-10-17T00:15:47.168Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.469Z"
+              "at": "2026-10-17T00:15:47.168Z"
             },
             {
               "intent": "pi_3",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.469Z"
+              "at": "2026-10-17T00:15:47.168Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:47.169Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:47.170Z",
+          "payments": [
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
             }
           ]
         }
@@ -181,13 +236,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.470Z",
+          "at": "2026-10-17T00:15:47.170Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:26.470Z"
+              "at": "2026-10-17T00:15:47.170Z"
             }
           ]
         }
@@ -272,15 +327,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-no-dedupe",
-  "started_at": "2026-10-17T00:05:26.347Z",
+  "started_at": "2026-10-17T00:15:47.094Z",
   "status": "fail",
-  "expected_targets": 19,
-  "discovered_targets": 19,
-  "attempted_targets": 19,
-  "completed_targets": 19,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 22,
-  "min_assertions": 21,
+  "assertions_executed": 25,
+  "min_assertions": 24,
   "canary": {
     "id": "break-no-dedupe",
     "observed_failure": true

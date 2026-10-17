@@ -1,4 +1,4 @@
-checkout-page-lifecycle BREAK=no-async — 2026-10-17T00:05:25.400Z
+checkout-page-lifecycle BREAK=no-async — 2026-10-17T00:15:45.625Z
 FAIL  R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 FAIL  R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 FAIL  R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
@@ -8,6 +8,9 @@ ok    R2 · refused: a late event from ANOTHER detailer's account changes nothin
 ok    R4 · a card payment after the detailer marked cash: still paid, refund owed recorded
 ok    R4 · a second live page paid: its two events make ONE refund entry, not two
 ok    R4 · a third payment is added to the list, never written over the second
+FAIL  R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left
+FAIL  R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased
+FAIL  R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back
 ok    R4 · money for a WAIVED job is a refund owed too
 ok    R4 · refused: the SAME payment's second event is not a second payment
 ok    R4 · refused: a page still processing on a settled job records nothing yet
@@ -22,4 +25,7 @@ FAIL  R2 · bank payment arrives late: async_payment_succeeded marks the job pai
 FAIL  R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named) — null · HTTP 200
 FAIL  R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason — paid pi_1 null · HTTP 200
 FAIL  R2 · a failed bank debit on an unpaid job stays unpaid and says why — pending null · HTTP 200
-18 passed, 4 failed, 22 assertions, 19 of 19 scenarios.
+FAIL  R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left — paid pi_1 {"kind":"extra","paid_cents":15000,"owed_cents":0,"currency":"usd","at":"x","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"x"}]} · HTTP 200
+FAIL  R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased — paid {"kind":"extra","paid_cents":10000,"owed_cents":0,"currency":"usd","at":"x","payments":[{"intent":"pi_2","paid_cents":10000,"currency":"usd","at":"x"}]} · HTTP 200
+FAIL  R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back — paid pi_1 {"kind":"extra","paid_cents":25000,"owed_cents":0,"currency":"usd","at":"x","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"x"},{"intent":"pi_3","paid_cents":10000,"currency":"usd","at":"x"}]} · HTTP 200
+18 passed, 7 failed, 25 assertions, 22 of 22 scenarios.

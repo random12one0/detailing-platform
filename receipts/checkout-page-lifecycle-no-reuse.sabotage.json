@@ -1,9 +1,9 @@
 {
-  "git_sha": "5614ada3a10a247d7cac1fe5064188c71d097ead",
-  "git_sha_started": "5614ada3a10a247d7cac1fe5064188c71d097ead",
+  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:05:27.425Z",
+  "finished_at": "2026-10-17T00:15:47.846Z",
   "failures": [
     "R3 · same price, page still open: handed back, no second live page — GET /checkout/sessions/cs_old | POST /checkout/sessions/cs_old/expire | POST /checkout/sessions"
   ],
@@ -35,7 +35,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.268Z"
+          "at": "2026-10-17T00:15:47.770Z"
         }
       },
       {
@@ -50,7 +50,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.270Z"
+          "at": "2026-10-17T00:15:47.771Z"
         }
       },
       {
@@ -65,7 +65,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.271Z"
+          "at": "2026-10-17T00:15:47.772Z"
         }
       },
       {
@@ -98,13 +98,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.275Z",
+          "at": "2026-10-17T00:15:47.774Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:27.275Z"
+              "at": "2026-10-17T00:15:47.774Z"
             }
           ]
         }
@@ -122,13 +122,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.277Z",
+          "at": "2026-10-17T00:15:47.775Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:27.277Z"
+              "at": "2026-10-17T00:15:47.775Z"
             }
           ]
         }
@@ -146,19 +146,74 @@
           "paid_cents": 25000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.281Z",
+          "at": "2026-10-17T00:15:47.776Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:27.279Z"
+              "at": "2026-10-17T00:15:47.776Z"
             },
             {
               "intent": "pi_3",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:27.281Z"
+              "at": "2026-10-17T00:15:47.776Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:47.777Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:47.777Z",
+          "payments": [
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
             }
           ]
         }
@@ -175,13 +230,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:05:27.282Z",
+          "at": "2026-10-17T00:15:47.777Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:05:27.282Z"
+              "at": "2026-10-17T00:15:47.777Z"
             }
           ]
         }
@@ -268,15 +323,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-no-reuse",
-  "started_at": "2026-10-17T00:05:27.174Z",
+  "started_at": "2026-10-17T00:15:47.703Z",
   "status": "fail",
-  "expected_targets": 19,
-  "discovered_targets": 19,
-  "attempted_targets": 19,
-  "completed_targets": 19,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 22,
-  "min_assertions": 21,
+  "assertions_executed": 25,
+  "min_assertions": 24,
   "canary": {
     "id": "break-no-reuse",
     "observed_failure": true

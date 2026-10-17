@@ -1,9 +1,9 @@
 {
-  "git_sha": "5614ada3a10a247d7cac1fe5064188c71d097ead",
-  "git_sha_started": "5614ada3a10a247d7cac1fe5064188c71d097ead",
+  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:05:26.150Z",
+  "finished_at": "2026-10-17T00:15:46.952Z",
   "failures": [
     "R4 · a card payment after the detailer marked cash: still paid, refund owed recorded — null · HTTP 200",
     "R4 · a second live page paid: its two events make ONE refund entry, not two — null · HTTP 200,200",
@@ -38,7 +38,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.074Z"
+          "at": "2026-10-17T00:15:46.879Z"
         }
       },
       {
@@ -53,7 +53,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.075Z"
+          "at": "2026-10-17T00:15:46.880Z"
         }
       },
       {
@@ -68,7 +68,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:05:26.075Z"
+          "at": "2026-10-17T00:15:46.881Z"
         }
       },
       {
@@ -117,6 +117,61 @@
         ],
         "payment_status": "paid",
         "problem": null
+      },
+      {
+        "name": "R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:46.885Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T00:15:46.885Z",
+          "payments": [
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
       },
       {
         "name": "R4 · money for a WAIVED job is a refund owed too",
@@ -207,15 +262,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-silent-extra",
-  "started_at": "2026-10-17T00:05:25.992Z",
+  "started_at": "2026-10-17T00:15:46.809Z",
   "status": "fail",
-  "expected_targets": 19,
-  "discovered_targets": 19,
-  "attempted_targets": 19,
-  "completed_targets": 19,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 22,
-  "min_assertions": 21,
+  "assertions_executed": 25,
+  "min_assertions": 24,
   "canary": {
     "id": "break-silent-extra",
     "observed_failure": true
