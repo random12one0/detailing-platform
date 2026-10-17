@@ -35,3 +35,19 @@ test("every label the pill can show has a Spanish key", async () => {
   const { appEs: es } = await import("../app/src/lib/strings/appEs.js");
   for (const label of Object.values(PAY_LABELS)) assert.ok(es[label], `no Spanish for "${label}"`);
 });
+
+// ROADMAP 97.81 — the totals read the same refund. Browser half: `scripts/refund-totals.mjs`
+// (--break=status-only).
+test("a refunded job counts only what it kept, on Today and in the accountant's file", async () => {
+  const { keptOf } = await import("../app/src/lib/payPill.js");
+  const { paidWords } = await import("../app/src/lib/accountant-export.js");
+  assert.equal(keptOf(job({ payment_problem: refunds(15000) }), 150), 0, "refunded in full keeps nothing");
+  assert.equal(keptOf(job({ payment_problem: refunds(5000) }), 150), 100, "a $50 refund keeps $100");
+  assert.equal(keptOf(job({ payment_problem: refunds(15000, "pi_2") }), 150), 150, "another payment's refund");
+  assert.equal(keptOf(job({}), 150), 150, "nothing refunded");
+  assert.equal(paidWords(job({ payment_problem: refunds(15000), total_price: 150 })), "Refunded");
+  assert.equal(paidWords(job({ payment_problem: refunds(5000), total_price: 150 })), "Part refunded: 50.00 of 150.00 returned, 100.00 kept");
+  assert.equal(paidWords(job({ payment_status: "partial", payment_problem: refunds(5000), total_price: 150 })), "Part paid, 50.00 refunded");
+  assert.equal(paidWords(job({ total_price: 150 })), "Paid");
+  assert.equal(paidWords(job({ payment_status: "pending" })), "Unpaid");
+});
