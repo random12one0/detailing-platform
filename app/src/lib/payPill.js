@@ -8,10 +8,22 @@ export const PAY_LABELS = {
   refunded: "Refunded", part_refunded: "Part refunded",
 };
 
+const ownRefund = (b) => (b?.stripe_payment_intent ? b.payment_problem?.refunds?.[b.stripe_payment_intent] : null);
+export const refundedCents = (b) => Number(ownRefund(b)?.refunded_cents) || 0;
+
 export function payPill(b) {
-  const own = b?.stripe_payment_intent ? b.payment_problem?.refunds?.[b.stripe_payment_intent] : null;
-  const refunded = Number(own?.refunded_cents) || 0;
+  const refunded = refundedCents(b);
   // Only money that moved can be refunded: `pending` took nothing, `waived` was given away.
   if (refunded <= 0 || (b.payment_status !== "paid" && b.payment_status !== "partial")) return b?.payment_status;
-  return refunded >= (Number(own.paid_cents) || 0) ? "refunded" : "part_refunded";
+  return refunded >= (Number(ownRefund(b).paid_cents) || 0) ? "refunded" : "part_refunded";
+}
+
+// ROADMAP 97.81 — HOW MUCH OF `price` THE JOB KEPT, for any total that says "collected".
+// The pill was fixed and the totals still read `payment_status` alone, so a job refunded
+// in full counted as money kept on Today and in the accountant's file. Same reading as
+// the pill, so the card and the figure under it cannot disagree.
+export function keptOf(b, price) {
+  const pill = payPill(b);
+  if (pill === "refunded") return 0;
+  return pill === "part_refunded" ? Math.max(0, price - refundedCents(b) / 100) : price;
 }

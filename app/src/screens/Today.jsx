@@ -50,6 +50,7 @@ import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
 import { addDays, money, time12, todayLocal } from "../lib/format.js";
 import { asOfLabel } from "../lib/offlineJobs.js";
+import { keptOf } from "../lib/payPill.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
@@ -267,7 +268,8 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const expected = todays.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
   const collected = todays
     .filter((b) => b.payment_status === "paid")
-    .reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+    // A refund made in Stripe leaves the job "paid"; only what was kept is collected (97.81).
+    .reduce((s, b) => s + keptOf(b, Number(b.final_amount ?? b.total_price)), 0);
   const done = todays.filter((b) => b.status === "completed").length;
 
   // THE THREE RUNS, each named for the work it holds.
