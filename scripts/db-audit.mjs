@@ -40,7 +40,7 @@
 // makes — is that lookup. It is the difference between fast at fifty detailers
 // and slow at five hundred, and it is invisible until it is not.
 
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 
 const env = Object.fromEntries(
@@ -76,7 +76,8 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // locked-with-nothing-to-unlock, open-to-a-caller's-own-schema, unindexed
 // foreign keys, and (2026-09-21) locked-by-RLS-with-grants-still-open. So
 // a check that stops running is a failure rather than a smaller audit.
-const EXPECTED_CHECKS = 6;
+// 2026-10-17 (ROADMAP 97.12): 6 -> 7, the booking-child pair-key check (section 6).
+const EXPECTED_CHECKS = 7;
 let checksRun = 0;
 
 async function q(sql) {
@@ -221,6 +222,7 @@ const UNINDEXED_BY_DESIGN = new Set([
 ]);
 
 let findings = 0;
+let blindPairCheck = false;
 const say = (label, rows, fmt) => {
   checksRun++;
   if (!rows.length) { console.log(`  ok    ${label}`); return; }
@@ -372,6 +374,84 @@ console.log("\n5. a table locked by RLS alone, with its grants still open");
       + `one permissive policy would open the writes too`);
 }
 
+// **ADDED 2026-10-17, ROADMAP 97.12.** A tenant policy asks *is this row
+// MINE*; it has no opinion on whether `booking_id` points at one of my
+// bookings. So on a table a signed-in detailer may write, a row carrying
+// business A's id and business B's booking id passes the policy AND a
+// `booking_id`-only foreign key, and lands on B's paperwork. The fix is a
+// foreign key on the PAIR `(booking_id, business_id)` -> `bookings(id,
+// business_id)`. This asks the live database which writable tables lack it,
+// and for each one names the migration in this repo that declares the pair
+// key — so an unapplied fix is named by file, and a gap nobody has fixed says
+// so. Only tables a browser can write are asked: a server-only table
+// (`send_invoice_attempts`) or a read-only one (`email_sends`) cannot be
+// written by a detailer at all.
+//
+// TRACKED, NOT EXCUSED: a gap with its own open roadmap entry prints by name on
+// every run and does not fail it; the moment the table gains the pair key the
+// entry is reported as stale, so this list cannot quietly outlive its reason.
+// `booking_vehicles` has carried the pair key since 20260907000600 and is the
+// positive control: if it does not come back paired, the question is blind.
+// `--break=forget-pair` makes every table read as unpaired, which must name it.
+//
+// AWAITS APPLY, NOT A FINDING (supervision 2026-10-17): an unpaired table whose
+// pair key IS declared by a migration file in this repo is a fix that exists and
+// has not been applied. That is `migration-drift.mjs`'s red, already standing,
+// so here it prints `AWAITS APPLY <table> — <file>` by name and does not fail
+// the run. An unpaired table with NO declaring file is a gap nobody has fixed
+// and stays a finding. `--break=hide-declaring` ignores the declaring files, so
+// every AWAITS APPLY table must come back as a finding and the run go red.
+const UNPAIRED_TRACKED = new Map([
+  ["job_photos", "ROADMAP 97.71"],
+  ["maintenance_deadlines", "ROADMAP 97.71"],
+]);
+console.log("\n6. a booking's child a detailer can write points at a booking of the SAME business");
+{
+  const pairFile = new Map();
+  const migDir = new URL("../supabase/migrations/", import.meta.url);
+  for (const f of readdirSync(migDir).filter((x) => x.endsWith(".sql")).sort()) {
+    const src = readFileSync(new URL(f, migDir), "utf8");
+    for (const m of src.matchAll(/alter table public\.(\w+)\s+add constraint \w+\s+foreign key \(booking_id, business_id\)\s+references public\.bookings \(id, business_id\)/gi)) {
+      if (BREAK !== "hide-declaring") pairFile.set(m[1], f);
+    }
+  }
+  const rows = await q(`
+    select c.relname as table,
+           exists (select 1 from pg_constraint k where k.conrelid = c.oid and k.contype = 'f'
+                    and k.confrelid = 'public.bookings'::regclass
+                    and k.conkey = array[
+                      (select attnum from pg_attribute where attrelid = c.oid and attname = 'booking_id'),
+                      (select attnum from pg_attribute where attrelid = c.oid and attname = 'business_id')]::int2[]) as paired
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+     where n.nspname = 'public' and c.relkind = 'r'
+       and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'booking_id' and not a.attisdropped)
+       and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'business_id' and not a.attisdropped)
+       and (has_table_privilege('authenticated', c.oid, 'insert') or has_table_privilege('authenticated', c.oid, 'update'))
+       and exists (select 1 from pg_policy p where p.polrelid = c.oid and p.polcmd in ('*', 'a', 'w'))
+     order by 1`);
+  const paired = (r) => BREAK === "forget-pair" ? false : r.paired === true;
+  const control = rows.find((r) => r.table === "booking_vehicles");
+  if (!control || !paired(control)) {
+    blindPairCheck = true;
+    console.log(`  BLIND booking_vehicles did not come back paired (${control ? "unpaired" : "absent"}) — this question cannot see a pair key, so its silence means nothing`);
+  }
+  for (const r of rows.filter((x) => paired(x) && UNPAIRED_TRACKED.has(x.table))) {
+    console.log(`  STALE ${r.table} is paired now — remove it from UNPAIRED_TRACKED (${UNPAIRED_TRACKED.get(r.table)})`);
+    findings++;
+  }
+  for (const r of rows.filter((x) => !paired(x) && UNPAIRED_TRACKED.has(x.table))) {
+    console.log(`  TRACKED ${r.table} — booking_id-only reference, open as ${UNPAIRED_TRACKED.get(r.table)}`);
+  }
+  const open = rows.filter((x) => !paired(x) && !UNPAIRED_TRACKED.has(x.table));
+  for (const r of open.filter((x) => pairFile.has(x.table))) {
+    console.log(`  AWAITS APPLY ${r.table} — ${pairFile.get(r.table)}`);
+  }
+  say("every writable booking child references bookings by (booking_id, business_id), or a migration here declares it",
+    open.filter((x) => !pairFile.has(x.table)),
+    (r) => `${r.table} — references a booking by id alone; no migration declares the pair key`);
+}
+
 // --- THE CANARY -----------------------------------------------------------
 // **WHAT SILENTLY BREAKS HERE IS `q()`, NOT THE SCHEMA.** Every check is
 // `say(label, rows)` where `rows` came back from one query, and `say` prints
@@ -405,6 +485,9 @@ if (checksRun === 0) {
 }
 // **AND THE FINDINGS NOW FAIL THE RUN.** They never did: there was no
 // `process.exit` on them at all, so two real problems printed and exited 0.
+if (blindPairCheck) {
+  auditFailures.push("section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired");
+}
 if (findings > 0) {
   auditFailures.push(`${findings} finding(s) to look at — see FOUND above`);
 }

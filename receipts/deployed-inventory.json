@@ -1,47 +1,47 @@
 {
-  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
-  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
+  "git_sha_started": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T01:47:40.315Z",
+  "finished_at": "2026-10-17T03:30:46.484Z",
   "failures": [
-    "37 function(s) are running something other than this checkout: refresh-weather, owner-push-subscribe, owner-push-unsubscribe, translate-content, verify-domain, forecast, get-booking-receipt, pay-booking, cancel-booking, send-invoice, update-booking, connect-account, stripe-webhook, create-booking, validate-promo-code, reschedule-booking, preview-emails, send-owner-reminders, calculate-booking, watch-jobs, photo-reconcile, platform-admin, available-slots, accept-quote, respond-to-booking, photo-door, report-problem, plan-link, create-business, invite-user, send-campaign, platform-billing, accept-invite, track-visit, booking-ics, delete-customer, send-email",
+    "37 function(s) are running something other than this checkout: refresh-weather, owner-push-subscribe, owner-push-unsubscribe, translate-content, verify-domain, forecast, report-problem, create-booking, get-booking-receipt, platform-admin, send-owner-reminders, accept-invite, available-slots, pay-booking, track-visit, validate-promo-code, accept-quote, plan-link, reschedule-booking, booking-ics, cancel-booking, send-invoice, respond-to-booking, update-booking, create-business, invite-user, preview-emails, send-campaign, connect-account, platform-billing, photo-door, delete-customer, stripe-webhook, calculate-booking, watch-jobs, photo-reconcile, send-email",
     "refresh-weather: 2 file(s) differ - index.ts, _shared/cronAuth.ts (newest commit is 32.4d after the deploy)",
-    "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "owner-push-unsubscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "translate-content: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "verify-domain: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "forecast: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 20.3d after the deploy)",
-    "get-booking-receipt: 4 file(s) differ - _shared/tenant.ts, _shared/tz.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "pay-booking: 4 file(s) differ - index.ts, _shared/tenant.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "cancel-booking: 9 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "send-invoice: 9 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "update-booking: 11 file(s) differ - _shared/pricing.ts, _shared/tenant.ts, _shared/actionLog.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "connect-account: 3 file(s) differ - _shared/tenant.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
+    "owner-push-subscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 25.4d after the deploy)",
+    "owner-push-unsubscribe: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 25.4d after the deploy)",
+    "translate-content: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 25.4d after the deploy)",
+    "verify-domain: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 25.4d after the deploy)",
+    "forecast: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 25.4d after the deploy)",
+    "report-problem: 6 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailKit.ts, _shared/reachedProvider.ts, _shared/strings/es.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "create-booking: 11 file(s) differ - index.ts, _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailKit.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/bookingConsent.ts, _shared/reachedProvider.ts, _shared/supportSession.ts, _shared/strings/es.ts (newest commit is 6.8d after the deploy)",
+    "get-booking-receipt: 5 file(s) differ - index.ts, _shared/tenant.ts, _shared/tz.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "platform-admin: 10 file(s) differ - index.ts, _shared/supportSession.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 6.8d after the deploy)",
+    "send-owner-reminders: 11 file(s) differ - index.ts, _shared/cronAuth.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/ownerFanout.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "accept-invite: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "available-slots: 3 file(s) differ - _shared/tenant.ts, _shared/tz.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "pay-booking: 4 file(s) differ - index.ts, _shared/tenant.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "track-visit: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "validate-promo-code: 3 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "accept-quote: 9 file(s) differ - index.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "plan-link: 7 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/reachedProvider.ts, _shared/supportSession.ts, _shared/strings/es.ts (newest commit is 6.8d after the deploy)",
+    "reschedule-booking: 9 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "booking-ics: 3 file(s) differ - index.ts, _shared/tenant.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "cancel-booking: 9 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "send-invoice: 10 file(s) differ - index.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "respond-to-booking: 9 file(s) differ - index.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "update-booking: 11 file(s) differ - _shared/pricing.ts, _shared/tenant.ts, _shared/actionLog.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "create-business: 8 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tenant.ts, _shared/supportSession.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 6.8d after the deploy)",
+    "invite-user: 9 file(s) differ - index.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/actionLog.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "preview-emails: 9 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "send-campaign: 7 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "connect-account: 3 file(s) differ - _shared/tenant.ts, _shared/connect.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "platform-billing: 4 file(s) differ - _shared/tenant.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "photo-door: 6 file(s) differ - index.ts, _shared/tenant.ts, _shared/photoDoor.ts, _shared/mediaCache.ts, _shared/receiptAttempts.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
+    "delete-customer: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 6.8d after the deploy)",
     "stripe-webhook: 7 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/connect.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 6.7d after the deploy)",
-    "create-booking: 11 file(s) differ - index.ts, _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailKit.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/bookingConsent.ts, _shared/reachedProvider.ts, _shared/supportSession.ts, _shared/strings/es.ts (newest commit is 6.7d after the deploy)",
-    "validate-promo-code: 3 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "reschedule-booking: 9 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "preview-emails: 9 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.7d after the deploy)",
-    "send-owner-reminders: 11 file(s) differ - index.ts, _shared/cronAuth.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/ownerFanout.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 6.6d after the deploy)",
-    "calculate-booking: 4 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/tz.ts, _shared/supportSession.ts (newest commit is 6.3d after the deploy)",
+    "calculate-booking: 4 file(s) differ - _shared/tenant.ts, _shared/pricing.ts, _shared/tz.ts, _shared/supportSession.ts (newest commit is 6.5d after the deploy)",
     "watch-jobs: 7 file(s) differ - index.ts, _shared/cronAuth.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 6.3d after the deploy)",
     "photo-reconcile: 4 file(s) differ - index.ts, _shared/cronAuth.ts, _shared/photoReconcile.ts, _shared/receiptAttempts.ts (newest commit is 6.3d after the deploy)",
-    "platform-admin: 10 file(s) differ - index.ts, _shared/supportSession.ts, _shared/tz.ts, _shared/buildStartStamp.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 5.9d after the deploy)",
-    "available-slots: 3 file(s) differ - _shared/tenant.ts, _shared/tz.ts, _shared/supportSession.ts (newest commit is 5.9d after the deploy)",
-    "accept-quote: 8 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/tz.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 5.9d after the deploy)",
-    "respond-to-booking: 8 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tz.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 5.9d after the deploy)",
-    "photo-door: 6 file(s) differ - index.ts, _shared/tenant.ts, _shared/photoDoor.ts, _shared/mediaCache.ts, _shared/receiptAttempts.ts, _shared/supportSession.ts (newest commit is 3.2d after the deploy)",
-    "report-problem: 6 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailKit.ts, _shared/reachedProvider.ts, _shared/strings/es.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "plan-link: 7 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/reachedProvider.ts, _shared/supportSession.ts, _shared/strings/es.ts (newest commit is 1.7d after the deploy)",
-    "create-business: 8 file(s) differ - index.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/tenant.ts, _shared/supportSession.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts (newest commit is 1.7d after the deploy)",
-    "invite-user: 9 file(s) differ - index.ts, _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/actionLog.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "send-campaign: 7 file(s) differ - _shared/tenant.ts, _shared/email.ts, _shared/emailTemplates.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/reachedProvider.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "platform-billing: 4 file(s) differ - _shared/tenant.ts, _shared/emailKit.ts, _shared/strings/es.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "accept-invite: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "track-visit: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "booking-ics: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
-    "delete-customer: 2 file(s) differ - _shared/tenant.ts, _shared/supportSession.ts (newest commit is 1.7d after the deploy)",
     "send-email: 1 file(s) differ - index.ts (newest commit is 0.1d after the deploy)",
     "1 function(s) exist in this repo and are NOT DEPLOYED AT ALL: google-business"
   ],
@@ -65,36 +65,36 @@
       "translate-content",
       "verify-domain",
       "forecast",
+      "report-problem",
+      "create-booking",
       "get-booking-receipt",
+      "platform-admin",
+      "send-owner-reminders",
+      "accept-invite",
+      "available-slots",
       "pay-booking",
+      "track-visit",
+      "validate-promo-code",
+      "accept-quote",
+      "plan-link",
+      "reschedule-booking",
+      "booking-ics",
       "cancel-booking",
       "send-invoice",
+      "respond-to-booking",
       "update-booking",
-      "connect-account",
-      "stripe-webhook",
-      "create-booking",
-      "validate-promo-code",
-      "reschedule-booking",
+      "create-business",
+      "invite-user",
       "preview-emails",
-      "send-owner-reminders",
+      "send-campaign",
+      "connect-account",
+      "platform-billing",
+      "photo-door",
+      "delete-customer",
+      "stripe-webhook",
       "calculate-booking",
       "watch-jobs",
       "photo-reconcile",
-      "platform-admin",
-      "available-slots",
-      "accept-quote",
-      "respond-to-booking",
-      "photo-door",
-      "report-problem",
-      "plan-link",
-      "create-business",
-      "invite-user",
-      "send-campaign",
-      "platform-billing",
-      "accept-invite",
-      "track-visit",
-      "booking-ics",
-      "delete-customer",
       "send-email"
     ],
     "not_deployed": [
@@ -144,12 +144,90 @@
           "_shared/supportSession.ts"
         ]
       },
-      "get-booking-receipt": {
+      "report-problem": {
         "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailKit.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/strings/es.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "create-booking": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/pricing.ts",
+          "_shared/email.ts",
+          "_shared/emailKit.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/tz.ts",
+          "_shared/bookingConsent.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts",
+          "_shared/strings/es.ts"
+        ]
+      },
+      "get-booking-receipt": {
+        "function_local": [
+          "index.ts"
+        ],
         "shared_modules": [
           "_shared/tenant.ts",
           "_shared/tz.ts",
           "_shared/connect.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "platform-admin": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/supportSession.ts",
+          "_shared/tz.ts",
+          "_shared/buildStartStamp.ts",
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/emailKit.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts"
+        ]
+      },
+      "send-owner-reminders": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/cronAuth.ts",
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/ownerFanout.ts",
+          "_shared/tz.ts",
+          "_shared/emailKit.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "accept-invite": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "available-slots": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/tz.ts",
           "_shared/supportSession.ts"
         ]
       },
@@ -160,6 +238,71 @@
         "shared_modules": [
           "_shared/tenant.ts",
           "_shared/connect.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "track-visit": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "validate-promo-code": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/pricing.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "accept-quote": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/emailKit.ts",
+          "_shared/tz.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "plan-link": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/emailKit.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts",
+          "_shared/strings/es.ts"
+        ]
+      },
+      "reschedule-booking": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/pricing.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/tz.ts",
+          "_shared/emailKit.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "booking-ics": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
           "_shared/supportSession.ts"
         ]
       },
@@ -178,7 +321,9 @@
         ]
       },
       "send-invoice": {
-        "function_local": [],
+        "function_local": [
+          "index.ts"
+        ],
         "shared_modules": [
           "_shared/tenant.ts",
           "_shared/email.ts",
@@ -186,6 +331,21 @@
           "_shared/connect.ts",
           "_shared/emailKit.ts",
           "_shared/tz.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "respond-to-booking": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/tz.ts",
+          "_shared/emailKit.ts",
           "_shared/strings/es.ts",
           "_shared/reachedProvider.ts",
           "_shared/supportSession.ts"
@@ -207,60 +367,29 @@
           "_shared/supportSession.ts"
         ]
       },
-      "connect-account": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/connect.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "stripe-webhook": {
+      "create-business": {
         "function_local": [
           "index.ts"
         ],
         "shared_modules": [
           "_shared/email.ts",
           "_shared/emailTemplates.ts",
-          "_shared/connect.ts",
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts",
           "_shared/emailKit.ts",
           "_shared/strings/es.ts",
           "_shared/reachedProvider.ts"
         ]
       },
-      "create-booking": {
+      "invite-user": {
         "function_local": [
           "index.ts"
         ],
         "shared_modules": [
           "_shared/tenant.ts",
-          "_shared/pricing.ts",
-          "_shared/email.ts",
-          "_shared/emailKit.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/tz.ts",
-          "_shared/bookingConsent.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts",
-          "_shared/strings/es.ts"
-        ]
-      },
-      "validate-promo-code": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/pricing.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "reschedule-booking": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/pricing.ts",
           "_shared/email.ts",
           "_shared/emailTemplates.ts",
-          "_shared/tz.ts",
+          "_shared/actionLog.ts",
           "_shared/emailKit.ts",
           "_shared/strings/es.ts",
           "_shared/reachedProvider.ts",
@@ -281,21 +410,65 @@
           "_shared/supportSession.ts"
         ]
       },
-      "send-owner-reminders": {
-        "function_local": [
-          "index.ts"
-        ],
+      "send-campaign": {
+        "function_local": [],
         "shared_modules": [
-          "_shared/cronAuth.ts",
           "_shared/tenant.ts",
           "_shared/email.ts",
           "_shared/emailTemplates.ts",
-          "_shared/ownerFanout.ts",
-          "_shared/tz.ts",
           "_shared/emailKit.ts",
           "_shared/strings/es.ts",
           "_shared/reachedProvider.ts",
           "_shared/supportSession.ts"
+        ]
+      },
+      "connect-account": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/connect.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "platform-billing": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/emailKit.ts",
+          "_shared/strings/es.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "photo-door": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/photoDoor.ts",
+          "_shared/mediaCache.ts",
+          "_shared/receiptAttempts.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "delete-customer": {
+        "function_local": [],
+        "shared_modules": [
+          "_shared/tenant.ts",
+          "_shared/supportSession.ts"
+        ]
+      },
+      "stripe-webhook": {
+        "function_local": [
+          "index.ts"
+        ],
+        "shared_modules": [
+          "_shared/email.ts",
+          "_shared/emailTemplates.ts",
+          "_shared/connect.ts",
+          "_shared/emailKit.ts",
+          "_shared/strings/es.ts",
+          "_shared/reachedProvider.ts"
         ]
       },
       "calculate-booking": {
@@ -330,169 +503,6 @@
           "_shared/receiptAttempts.ts"
         ]
       },
-      "platform-admin": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/supportSession.ts",
-          "_shared/tz.ts",
-          "_shared/buildStartStamp.ts",
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts"
-        ]
-      },
-      "available-slots": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/tz.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "accept-quote": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/emailKit.ts",
-          "_shared/tz.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "respond-to-booking": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/tz.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "photo-door": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/photoDoor.ts",
-          "_shared/mediaCache.ts",
-          "_shared/receiptAttempts.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "report-problem": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailKit.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/strings/es.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "plan-link": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/emailKit.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts",
-          "_shared/strings/es.ts"
-        ]
-      },
-      "create-business": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts"
-        ]
-      },
-      "invite-user": {
-        "function_local": [
-          "index.ts"
-        ],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/actionLog.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "send-campaign": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/email.ts",
-          "_shared/emailTemplates.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/reachedProvider.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "platform-billing": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/emailKit.ts",
-          "_shared/strings/es.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "accept-invite": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "track-visit": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "booking-ics": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
-      "delete-customer": {
-        "function_local": [],
-        "shared_modules": [
-          "_shared/tenant.ts",
-          "_shared/supportSession.ts"
-        ]
-      },
       "send-email": {
         "function_local": [
           "index.ts"
@@ -513,33 +523,33 @@
         "translate-content",
         "verify-domain",
         "forecast",
+        "report-problem",
+        "create-booking",
         "get-booking-receipt",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-invite",
+        "available-slots",
         "pay-booking",
+        "track-visit",
+        "validate-promo-code",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "booking-ics",
         "cancel-booking",
         "send-invoice",
-        "update-booking",
-        "connect-account",
-        "create-booking",
-        "validate-promo-code",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "calculate-booking",
-        "platform-admin",
-        "available-slots",
-        "accept-quote",
         "respond-to-booking",
-        "photo-door",
-        "report-problem",
-        "plan-link",
+        "update-booking",
         "create-business",
         "invite-user",
+        "preview-emails",
         "send-campaign",
+        "connect-account",
         "platform-billing",
-        "accept-invite",
-        "track-visit",
-        "booking-ics",
-        "delete-customer"
+        "photo-door",
+        "delete-customer",
+        "calculate-booking"
       ],
       "_shared/supportSession.ts": [
         "owner-push-subscribe",
@@ -547,48 +557,155 @@
         "translate-content",
         "verify-domain",
         "forecast",
+        "report-problem",
+        "create-booking",
         "get-booking-receipt",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-invite",
+        "available-slots",
         "pay-booking",
+        "track-visit",
+        "validate-promo-code",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "booking-ics",
         "cancel-booking",
         "send-invoice",
+        "respond-to-booking",
         "update-booking",
+        "create-business",
+        "invite-user",
+        "preview-emails",
+        "send-campaign",
         "connect-account",
+        "platform-billing",
+        "photo-door",
+        "delete-customer",
+        "calculate-booking"
+      ],
+      "_shared/email.ts": [
+        "report-problem",
+        "create-booking",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "cancel-booking",
+        "send-invoice",
+        "respond-to-booking",
+        "update-booking",
+        "create-business",
+        "invite-user",
+        "preview-emails",
+        "send-campaign",
+        "stripe-webhook",
+        "watch-jobs"
+      ],
+      "_shared/emailKit.ts": [
+        "report-problem",
+        "create-booking",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "cancel-booking",
+        "send-invoice",
+        "respond-to-booking",
+        "update-booking",
+        "create-business",
+        "invite-user",
+        "preview-emails",
+        "send-campaign",
+        "platform-billing",
+        "stripe-webhook",
+        "watch-jobs"
+      ],
+      "_shared/reachedProvider.ts": [
+        "report-problem",
+        "create-booking",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "cancel-booking",
+        "send-invoice",
+        "respond-to-booking",
+        "update-booking",
+        "create-business",
+        "invite-user",
+        "preview-emails",
+        "send-campaign",
+        "stripe-webhook",
+        "watch-jobs"
+      ],
+      "_shared/strings/es.ts": [
+        "report-problem",
+        "create-booking",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
+        "cancel-booking",
+        "send-invoice",
+        "respond-to-booking",
+        "update-booking",
+        "create-business",
+        "invite-user",
+        "preview-emails",
+        "send-campaign",
+        "platform-billing",
+        "stripe-webhook",
+        "watch-jobs"
+      ],
+      "_shared/pricing.ts": [
         "create-booking",
         "validate-promo-code",
         "reschedule-booking",
+        "update-booking",
         "preview-emails",
-        "send-owner-reminders",
-        "calculate-booking",
-        "platform-admin",
-        "available-slots",
-        "accept-quote",
-        "respond-to-booking",
-        "photo-door",
-        "report-problem",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign",
-        "platform-billing",
-        "accept-invite",
-        "track-visit",
-        "booking-ics",
-        "delete-customer"
+        "calculate-booking"
       ],
-      "_shared/tz.ts": [
-        "get-booking-receipt",
+      "_shared/emailTemplates.ts": [
+        "create-booking",
+        "platform-admin",
+        "send-owner-reminders",
+        "accept-quote",
+        "plan-link",
+        "reschedule-booking",
         "cancel-booking",
         "send-invoice",
+        "respond-to-booking",
         "update-booking",
-        "create-booking",
-        "reschedule-booking",
+        "create-business",
+        "invite-user",
         "preview-emails",
-        "send-owner-reminders",
-        "calculate-booking",
+        "send-campaign",
+        "stripe-webhook",
+        "watch-jobs"
+      ],
+      "_shared/tz.ts": [
+        "create-booking",
+        "get-booking-receipt",
         "platform-admin",
+        "send-owner-reminders",
         "available-slots",
         "accept-quote",
-        "respond-to-booking"
+        "reschedule-booking",
+        "cancel-booking",
+        "send-invoice",
+        "respond-to-booking",
+        "update-booking",
+        "preview-emails",
+        "calculate-booking"
+      ],
+      "_shared/bookingConsent.ts": [
+        "create-booking"
       ],
       "_shared/connect.ts": [
         "get-booking-receipt",
@@ -599,141 +716,34 @@
         "connect-account",
         "stripe-webhook"
       ],
-      "_shared/email.ts": [
-        "cancel-booking",
-        "send-invoice",
-        "update-booking",
-        "stripe-webhook",
-        "create-booking",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "watch-jobs",
-        "platform-admin",
-        "accept-quote",
-        "respond-to-booking",
-        "report-problem",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign"
-      ],
-      "_shared/emailTemplates.ts": [
-        "cancel-booking",
-        "send-invoice",
-        "update-booking",
-        "stripe-webhook",
-        "create-booking",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "watch-jobs",
-        "platform-admin",
-        "accept-quote",
-        "respond-to-booking",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign"
-      ],
-      "_shared/emailKit.ts": [
-        "cancel-booking",
-        "send-invoice",
-        "update-booking",
-        "stripe-webhook",
-        "create-booking",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "watch-jobs",
-        "platform-admin",
-        "accept-quote",
-        "respond-to-booking",
-        "report-problem",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign",
-        "platform-billing"
-      ],
-      "_shared/strings/es.ts": [
-        "cancel-booking",
-        "send-invoice",
-        "update-booking",
-        "stripe-webhook",
-        "create-booking",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "watch-jobs",
-        "platform-admin",
-        "accept-quote",
-        "respond-to-booking",
-        "report-problem",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign",
-        "platform-billing"
-      ],
-      "_shared/reachedProvider.ts": [
-        "cancel-booking",
-        "send-invoice",
-        "update-booking",
-        "stripe-webhook",
-        "create-booking",
-        "reschedule-booking",
-        "preview-emails",
-        "send-owner-reminders",
-        "watch-jobs",
-        "platform-admin",
-        "accept-quote",
-        "respond-to-booking",
-        "report-problem",
-        "plan-link",
-        "create-business",
-        "invite-user",
-        "send-campaign"
-      ],
-      "_shared/pricing.ts": [
-        "update-booking",
-        "create-booking",
-        "validate-promo-code",
-        "reschedule-booking",
-        "preview-emails",
-        "calculate-booking"
-      ],
-      "_shared/actionLog.ts": [
-        "update-booking",
-        "invite-user"
-      ],
-      "_shared/bookingConsent.ts": [
-        "create-booking"
+      "_shared/buildStartStamp.ts": [
+        "platform-admin"
       ],
       "_shared/ownerFanout.ts": [
         "send-owner-reminders"
       ],
-      "_shared/photoReconcile.ts": [
-        "photo-reconcile"
-      ],
-      "_shared/receiptAttempts.ts": [
-        "photo-reconcile",
-        "photo-door"
-      ],
-      "_shared/buildStartStamp.ts": [
-        "platform-admin"
+      "_shared/actionLog.ts": [
+        "update-booking",
+        "invite-user"
       ],
       "_shared/photoDoor.ts": [
         "photo-door"
       ],
       "_shared/mediaCache.ts": [
         "photo-door"
+      ],
+      "_shared/receiptAttempts.ts": [
+        "photo-door",
+        "photo-reconcile"
+      ],
+      "_shared/photoReconcile.ts": [
+        "photo-reconcile"
       ]
     },
     "widest_gap_days": 32.4
   },
   "check_id": "deployed-inventory",
-  "started_at": "2026-10-17T01:46:34.356Z",
+  "started_at": "2026-10-17T03:29:36.570Z",
   "status": "fail",
   "expected_targets": 42,
   "discovered_targets": 42,

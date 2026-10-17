@@ -175,6 +175,18 @@ After those releases, have a session run `node scripts/deployed-inventory.mjs` a
 `node scripts/receipt.mjs receipts/deployed-inventory.json`, retain the receipt, and tick 98.2 only when both pass.
 The session has not pushed, published, deployed or changed a check to hide the backlog.
 
+## DO, AT YOUR NEXT RELEASE · Stop another business adding lines to a customer's receipt (ROADMAP 97.12)
+
+Today a detailer who learned another business's booking number could add a service, add-on or charge to that booking,
+and it would print on the other business's receipt and invoice. The fix is built and tested on a throwaway copy of the
+database. Your live database has no such stray lines today (0 of 50 checked), so nothing needs cleaning first.
+
+**Your move:** at your next release, apply the database change `20261017000000_booking_lines_same_business.sql`, and
+publish five programs: `get-booking-receipt`, `send-invoice`, `accept-quote`, `respond-to-booking`, `booking-ics`.
+Either order is safe. Nothing a customer sees changes. Until you apply it, the database health check (`db-audit`) lists
+the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
+session has not pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
 
 The email formatter is built locally: `10:00 AM` becomes `10 AM`, real minutes stay, and the long date loses its year.

@@ -11,7 +11,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessById, getSettings, ownLines, requireMember } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { followupEmail, invoiceEmail, type InvoiceRow } from "../_shared/emailTemplates.ts";
 import { cardStatus } from "../_shared/connect.ts";
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     const [bookingRes, lineItemsRes] = await Promise.all([
       supabase
         .from("bookings")
-        .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
+        .select("*, services:booking_services(business_id, name_at_booking), add_ons:booking_add_ons(business_id, add_on:add_ons(name))")
         .eq("id", id)
         .eq("business_id", member.businessId)
         .maybeSingle(),
@@ -82,7 +82,8 @@ Deno.serve(async (req) => {
         .eq("business_id", member.businessId)
         .order("created_at", { ascending: true }),
     ]);
-    const booking = bookingRes.data;
+    // ROADMAP 97.12 — only lines of this booking's own business reach the invoice.
+    const booking = bookingRes.data && ownLines(bookingRes.data);
     if (!booking) return json({ error: "not_found" }, 404);
 
     const isFinalized = booking.final_amount !== null && booking.final_amount !== undefined && !!booking.payment_status;

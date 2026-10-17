@@ -29,7 +29,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
-import { businessById, getSettings } from "../_shared/tenant.ts";
+import { businessById, getSettings, ownLines } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
@@ -58,13 +58,15 @@ Deno.serve(async (req) => {
       return json({ error: "booking_id is required" }, 400);
     }
 
-    const { data: booking } = await supabase
+    const { data: found } = await supabase
       .from("bookings")
-      .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
+      .select("*, services:booking_services(business_id, name_at_booking), add_ons:booking_add_ons(business_id, add_on:add_ons(name))")
       .eq("id", booking_id.trim())
       .is("deleted_at", null)
       .maybeSingle();
-    if (!booking) return json({ error: "not_found" }, 404);
+    if (!found) return json({ error: "not_found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the customer.
+    const booking = ownLines(found);
     // ROADMAP 6.4 — the customer pressed Accept again after it landed. The
     // quote is cleared on acceptance, so without this the retry was told
     // "there is no quote waiting" about the quote they had just accepted.
