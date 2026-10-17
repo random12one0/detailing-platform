@@ -58,7 +58,7 @@ import { ourStatus } from "../_shared/platformBilling.ts";
 import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
-import { cardPaymentVerdict, extraPayment, failedBankPayment, keepReasons, type PaymentProblem } from "../_shared/connect.ts";
+import { cardPaymentVerdict, extraPayment, failedBankPayment, keepReasons, settleProblem, type PaymentProblem } from "../_shared/connect.ts";
 
 const BILLING_URL = `${PLATFORM_URL}/app?settings=billing`;
 
@@ -697,12 +697,18 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
     return;
   }
 
+  // ROADMAP 97.69 — a wrong-figure payment kept on the job is now a refund owed.
+  const { data: noteRow, error: noteError } = await supabase
+    .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+  if (noteError) throw new Error(`could not read the payment problem: ${noteError.message}`);
+  const owedBack = settleProblem(intent, noteRow?.payment_problem as PaymentProblem | null);
   const { error } = await supabase
     .from("bookings")
     .update({
       payment_status: "paid",
       paid_online_at: new Date().toISOString(),
       stripe_payment_intent: intent,
+      ...(owedBack ? { payment_problem: owedBack } : {}),
     })
     .eq("id", booking.id);
 

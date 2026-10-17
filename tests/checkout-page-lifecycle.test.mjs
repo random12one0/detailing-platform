@@ -25,6 +25,7 @@
 //   BREAK=no-dedupe     one extra payment's two events are counted twice
 //   BREAK=no-expire     the stale page is left open when a new one is made
 //   BREAK=no-reuse      an open page at the same amount is replaced, not reused
+//   BREAK=no-carry      a wrong-amount payment is left hidden when the job is then paid (97.69, the original defect)
 //
 //   node tests/checkout-page-lifecycle.test.mjs          (or node --test …)
 //   BREAK=no-expire node tests/checkout-page-lifecycle.test.mjs
@@ -68,6 +69,7 @@ const SABOTAGE = {
   "no-dedupe": ["connect", "if (earlier.some((p) => p.intent === intent)) return null;", ""],
   "no-expire": ["connect", "await call(`/checkout/sessions/${o.previousId}/expire`, {}, {", "void ({"],
   "no-reuse": ["connect", "if (Number(previous.amount_total) === o.amountCents) {", "if (false) {"],
+  "no-carry": ["hook", "...(owedBack ? { payment_problem: owedBack } : {}),", ""],
 };
 if (BREAK) {
   const s = SABOTAGE[BREAK];
@@ -275,6 +277,37 @@ const WEBHOOK = [
     job(), [["checkout.session.completed", session("pi_1", { payment_status: "paid", amount_total: 10000 })],
       ["payment_intent.succeeded", intent("pi_1", { amount_received: 10000 })]],
     (r) => [r.payment_problem?.kind === "amount" && r.payment_problem.earlier === undefined, JSON.stringify(r.payment_problem)]],
+  // ROADMAP 97.69 — a wrong-amount payment, then the job is paid: the first payment is a refund owed.
+  ["97.69 · a $100 card payment on a $150 job, then the right $150 payment: paid, and the $100 is a refund owed",
+    job(), [["checkout.session.completed", session("pi_1", { payment_status: "paid", amount_total: 10000 })],
+      ["checkout.session.completed", session("pi_2", { payment_status: "paid" })]],
+    (r) => [r.payment_status === "paid" && r.stripe_payment_intent === "pi_2" && r.payment_problem?.kind === "extra"
+      && r.payment_problem.paid_cents === 10000 && r.payment_problem.earlier === undefined
+      && r.payment_problem.payments?.map((x) => `${x.intent}:${x.paid_cents}:${x.reason}`).join() === "pi_1:10000:amount", JSON.stringify(r.payment_problem)]],
+  ["97.69 · a payment in the wrong currency, then the right one: the first is a refund owed, named as a currency problem",
+    job(), [["payment_intent.succeeded", intent("pi_1", { currency: "eur" })], ["payment_intent.succeeded", intent("pi_2")]],
+    (r) => [r.payment_status === "paid" && r.payment_problem?.payments?.map((x) => `${x.intent}:${x.currency}:${x.reason}`).join() === "pi_1:eur:currency",
+      JSON.stringify(r.payment_problem)]],
+  ["97.69 · the wrong payment's own late second event, after the job is paid, does not owe it back twice",
+    job(), [["checkout.session.completed", session("pi_1", { payment_status: "paid", amount_total: 10000 })],
+      ["checkout.session.completed", session("pi_2", { payment_status: "paid" })],
+      ["payment_intent.succeeded", intent("pi_1", { amount_received: 10000 })], ["payment_intent.succeeded", intent("pi_2")]],
+    (r) => [r.payment_problem?.payments?.map((x) => x.intent).join() === "pi_1" && r.payment_problem.paid_cents === 10000, JSON.stringify(r.payment_problem)]],
+  ["97.69 · two wrong payments and a failed bank debit, then paid: both wrong payments owed back, the failed debit kept as a reason",
+    job(), [["checkout.session.completed", session("pi_1", { payment_status: "paid", amount_total: 10000 })],
+      ["checkout.session.async_payment_failed", session("pi_3", { payment_status: "unpaid" })],
+      ["checkout.session.completed", session("pi_4", { payment_status: "paid", amount_total: 12000 })],
+      ["checkout.session.completed", session("pi_2", { payment_status: "paid" })]],
+    (r) => [r.payment_status === "paid" && r.payment_problem?.payments?.map((x) => `${x.intent}:${x.reason}`).join() === "pi_1:amount,pi_4:amount"
+      && r.payment_problem.paid_cents === 22000 && r.payment_problem.earlier?.map((x) => `${x.kind}:${x.intent}`).join() === "failed:pi_3",
+      JSON.stringify(r.payment_problem)]],
+  ["97.69 · refused: a job paid first time, with nothing wrong before, gets no refund note",
+    job(), [["checkout.session.completed", session("pi_1", { payment_status: "paid" })], ["payment_intent.succeeded", intent("pi_1")]],
+    (r) => [r.payment_status === "paid" && r.payment_problem === null, JSON.stringify(r.payment_problem)]],
+  ["97.69 · refused: a failed bank debit alone is not money owed back when the job is then paid",
+    job(), [["checkout.session.async_payment_failed", session("pi_1", { payment_status: "unpaid" })],
+      ["checkout.session.completed", session("pi_2", { payment_status: "paid" })]],
+    (r) => [r.payment_status === "paid" && r.payment_problem?.kind === "failed" && !r.payment_problem.payments, JSON.stringify(r.payment_problem)]],
   ["R4 · money for a WAIVED job is a refund owed too",
     job({ payment_status: "waived" }), [["payment_intent.succeeded", intent("pi_2")]],
     (r) => [r.payment_status === "waived" && r.payment_problem?.kind === "extra", `${r.payment_status} ${JSON.stringify(r.payment_problem)}`]],
