@@ -187,6 +187,18 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · Stop another business attaching photos or warranty dates to a customer's job (ROADMAP 97.71)
+
+Today a detailer who learned another business's booking number could attach a job photo or a warranty reminder to it.
+Nothing showed up on the other business's screens or in its emails. But if that business deleted the booking, the
+stray photo record vanished with it. The fix is one database change, built and tested on a throwaway copy. Your live
+database has nothing to clean first: 0 photos, and 3 warranty reminders, none tied to a booking.
+
+**Your move:** at your next release, apply `20261017010000_photos_deadlines_same_business.sql`. No program needs
+publishing. Nothing a customer sees changes. Until it is applied, the health check (`db-audit`) lists the two tables
+as "awaits apply" and stays green, and the unapplied-change check (`migration-drift`) names the file. The session
+has not pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
 
 The email formatter is built locally: `10:00 AM` becomes `10 AM`, real minutes stay, and the long date loses its year.
