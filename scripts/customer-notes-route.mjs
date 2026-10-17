@@ -184,6 +184,11 @@ for (const [w, h] of WIDTHS) {
     await p.locator(".rows.cols.clients .row-item").nth(n).click();
     const box = p.locator("label.field:has-text('Notes') textarea").first();
     await box.waitFor({ state: "visible", timeout: 15000 });
+    // The record arrives with four 180ms animations (column-in, arrive) still running when the box is first visible.
+    // Typing then means the screen's reveal scrolls against a panel mid-slide and the line settles off screen —
+    // measured at 1440 in a view-as tab, 853-917 on a 900px viewport. Nobody types that fast, so wait them out.
+    await p.evaluate(() => Promise.all((document.querySelector(".record")?.getAnimations({ subtree: true }) ?? [])
+      .filter((a) => a.effect?.getComputedTiming().duration !== Infinity).map((a) => a.finished.catch(() => {}))));
     return box;
   };
   const save = async (p, box, text) => {
