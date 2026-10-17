@@ -184,7 +184,10 @@ try {
         note: "The bar now says when the view ends (30 minutes), and Close signs this view's session out, so its token stops working." });
       // The 4.3c guard, RUN: Auth's own updateUser (password, email) from inside the view.
       const upd = await v.popup.evaluate(async () => {
-        const m = await import("/src/lib/supabase.js");
+        // The EXACT address the app loaded (Vite adds ?t=… to a file edited since it started), so
+        // this is the app's own client and not a second instance beside it.
+        const url = performance.getEntriesByType("resource").map((e) => e.name).find((n) => /\/src\/lib\/supabase\.js(\?|$)/.test(n)) || "/src/lib/supabase.js";
+        const m = await import(url);
         try { await m.supabase.auth.updateUser({ data: { probe_97_15: 1 } }); return "ALLOWED"; } catch (e) { return e.message; }
       });
       check(`${tag} · Auth's own updateUser (password, email) is refused inside the view`, /Looking only/.test(upd), upd);
