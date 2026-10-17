@@ -30461,14 +30461,6 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - Every listed item is checked against the rule
   - Anything that broke the rule is fixed, with proof
-- [ ] **99.16 — Hold the release and have the builder fix the problems first; the problems are not named.**
-  Hold it and have the builder fix the problems first (your words w-11)
-
-  **ANDREW, 2026-10-17:** Hold it and have the builder fix the problems first (your words w-11)
-- [ ] **99.17 — Flag the item the owner just approved, adding a note that says 'If you meant to keep it, ignore this'**
-  Yes, flag it, with wording that says "If you meant to keep it, ignore this" (your words w-10)
-
-  **ANDREW, 2026-10-17:** Yes, flag it, with wording that says "If you meant to keep it, ignore this" (your words w-10)
 
 
 
