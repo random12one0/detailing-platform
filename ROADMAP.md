@@ -737,6 +737,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): apply `20261017200000_campaigns_get_a_daily_share.sql`, publish the website, then publish `send-email` and `send-campaign`, in that order (FOR-ANDREW.md, "Stop one detailer's promo emails…"). After that, a session reruns `scripts/migration-drift.mjs` and `scripts/deployed-inventory.mjs` and ticks this.
 
 - [ ] **97.20 — "Delete for good" leaves the customer's email address and full email copies behind (S-M6).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.20-20261017211539491`. Answer "merge it" to keep it, or say what to change.
   `forget_customer` (`supabase/migrations/20260907001000_forget_customer.sql`) predates `email_sends` (`customer_id … on delete set null`, `to_email text not null`, `20260916010000_every_email_leaves_a_row.sql:56,58`), which now stores `body_html` with the customer's name, address and phone (`20261010010000_email_sends_keeps_the_body.sql:20`). The privacy page says "it is deleted" (`app/src/landing/legal.js:289`). New migration extending `forget_customer` to remove or blank that customer's `email_sends` rows (by `customer_id` and by booking), plus a test that lists every table with a customer-identifying column so the next one cannot be missed.
   Acceptance criteria:
   - On a throwaway local copy, after `forget_customer` no `email_sends` row holds that customer's address, name or body
