@@ -3,6 +3,12 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
+// ROADMAP 97.18 — the handler's day-rule mapping, taken from slotValidation.ts's own text so the fixture
+// runs the production mapping rather than a copy of it.
+const dayRuleSrc = /export const DAY_FULL[\s\S]*?code === "BK002" \? TOO_CLOSE : null;/.exec(readFileSync('supabase/functions/_shared/slotValidation.ts', 'utf8'))?.[0];
+if (!dayRuleSrc) throw Error('slotValidation.ts no longer holds DAY_FULL / TOO_CLOSE / dayRuleRefusal');
+export const { DAY_FULL, TOO_CLOSE, dayRuleRefusal } = new Function(stripTypeScriptTypes(dayRuleSrc).replace(/export /g, '') + '; return { DAY_FULL, TOO_CLOSE, dayRuleRefusal };')();
+
 export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, bookingId = 'booking-a', failedWrite = false, handlerBreak = '', srcPatch = [], deps = {}, tables = {}, rpc = null, quoteTotal = 185 } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
@@ -62,7 +68,12 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
       }
       return chain;
     },
-    rpc(name, args) { if (!rpc) throw Error('Unexpected RPC'); return rpc(name, args, rows); },
+    // ROADMAP 97.18 — create-booking writes its booking through insert_booking_checked; answered as the same
+    // bookings insert, `collision` included (a BK001/BK002 code is a racing booking refused by the day rules).
+    rpc(name, args) {
+      if (name === 'insert_booking_checked') return db.from('bookings').insert(args.p_row).select().single();
+      if (!rpc) throw Error('Unexpected RPC'); return rpc(name, args, rows);
+    },
   };
   const business = { id: 'tenant-a', slug: 'consent-proof', name: "Andrew's Auto Detail", timezone: 'America/Los_Angeles' };
   const settings = { email_customer_confirmation: true, email_owner_new_booking: false, push_enabled: false, booking_mode: 'reserve', vehicle_sizes: [{ key:'small',label:'Small' }] };
@@ -82,7 +93,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     looksAutomated: () => false, withinLimits: async () => true, ipOf: () => 'fixture', LIMITS: {},
     buildBrand: async () => ({}), siteFor: async () => 'https://detailingplatform.com', receiptUrl: (base,id) => base + '/booking/' + id,
     timeStrIn: () => '10:00', customerConfirmationEmail: () => ({ subject:'Confirmation',html:'stub',text:'stub' }),
-    sendTenantEmail: async message => { sends.push(message); }, saveBookingSmsConsent: helper,
+    sendTenantEmail: async message => { sends.push(message); }, saveBookingSmsConsent: helper, dayRuleRefusal,
     ...deps,
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
