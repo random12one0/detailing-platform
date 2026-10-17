@@ -213,6 +213,17 @@ publishing. Nothing a customer sees changes. Until it is applied, the health che
 as "awaits apply" and stays green, and the unapplied-change check (`migration-drift`) names the file. The session
 has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · Let Stripe tell us about refunds (ROADMAP 97.68)
+
+When a detailer refunds a payment in their own Stripe, the red "refund it" line on the job now goes away: on a
+cancelled job (the job still says Paid, and its money section says "Refunded $150 in your Stripe on …") and on an
+extra payment. After a partial refund the line names only what is left. A refund Stripe reports before the payment
+itself is kept too. It is built and tested, but Stripe only sends that news if the connected-account webhook
+endpoint is subscribed to it. In Stripe, Developers, Webhooks, open the endpoint for connected accounts and add the
+event `charge.refunded`. While there, check that `checkout.session.async_payment_succeeded` and
+`checkout.session.async_payment_failed` are on it too; 97.11 needs them. Then publish `stripe-webhook` after 97.10,
+97.11 and 97.69. If you skip this, nothing breaks; the line just stays until it is subscribed. No database change.
+
 ## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
 
 The email formatter is built locally: `10:00 AM` becomes `10 AM`, real minutes stay, and the long date loses its year.

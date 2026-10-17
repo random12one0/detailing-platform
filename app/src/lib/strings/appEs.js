@@ -1644,6 +1644,37 @@ export const appEs = {
     "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
     "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y este trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  // ROADMAP 97.70 — the same payment, and the detailer has since marked the job paid: maybe owed back.
+  "A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
+  "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
+  // ROADMAP 97.75 — the same payment, and the detailer has since waived the job: maybe owed back.
+  "A card payment of {paid} did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+  "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+  // ROADMAP 97.78 — a 97.70/97.75 possible refund, partly refunded already.
+  "A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. You refunded part of it, and {left} is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Ya devolviste una parte, y {left} todavía no se ha devuelto. Si te pagaron completo de otra forma, devuelve el resto desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
+  "A card payment that was not in US dollars came in, and the job has since been marked paid. Part of it is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como pagado. Una parte todavía no se ha devuelto. Si te pagaron completo de otra forma, devuelve el resto desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
+  "A card payment of {paid} did not match what this job was owed, and the job has since been waived. You refunded part of it, and {left} is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Ya devolviste una parte, y {left} todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+  "A card payment that was not in US dollars came in, and the job has since been waived. Part of it is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como perdonado. Una parte todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+  // ROADMAP 97.68 — a 97.69 wrong-figure payment, partly refunded already.
+  "A card payment that was not in US dollars came in, and this job has since been paid. Part of it is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y este trabajo ya se pagó. Una parte todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  "A card payment of {paid} did not match what this job was owed, and the job has since been paid. You refunded part of it, and {left} is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Ya devolviste una parte, y {left} todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  // ROADMAP 97.68 — a cancelled job's own card payment, refunded in part / recorded.
+  "This was paid. You refunded {refunded} in your Stripe, and {left} is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Esto ya se pagó. Devolviste {refunded} en tu Stripe, y {left} todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  "Refunded {amount} in your Stripe on {date}": "Devolviste {amount} en tu Stripe el {date}",
+  // ROADMAP 97.68 — part of that payment is already refunded.
+  "Another payment came in after this job was settled, and {left} of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Llegó otro pago después de que este trabajo ya estaba saldado, y {left} todavía no se ha devuelto. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",

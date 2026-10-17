@@ -3751,3 +3751,22 @@ sits above the price bar. 97.11: `node tests/checkout-page-lifecycle.test.mjs` 2
 2, `silent-extra` 6, `no-expire` 2 failed; `node tests/card-payment-settles.test.mjs` 33 / 0, `BREAK=no-guard`
 3 failed. Unmerged 97.69 on its branch: lifecycle 35 / 0, `BREAK=no-carry` 3 failed. None of it is live until
 Andrew publishes the functions. Receipts these runs rewrote were restored to HEAD.
+
+**Supervision 2026-10-17 (second), at `d6b66964`, run in the foreground.** 97.73 (ticked):
+`node scripts/db-audit.mjs` against `kguqylyzgyzfktkfnhjb`, exit 0; section 7 prints AWAITS APPLY for `bookings`,
+`maintenance_deadlines`, `plan_members` (`20261017020000`). `--break=hide-declaring` exit 1, section 7 FOUND 3 naming
+the same three tables; `--break=forget-pair` exit 1; `--break=blind` exit 1 with a BLIND line. 97.72:
+`node tests/reminder-claim.test.mjs` 59 / 0; `BREAK=no-business` reddens 4a (the other business's customer is
+emailed). 97.69 (merged): `node --test tests/checkout-page-lifecycle.test.mjs` all pass, `BREAK=no-carry` red;
+`node scripts/payment-problem-late.mjs` (dev server, demo owner sign-in, the job read fed through `page.route`, no
+database write) 245 / 0, 40 of 40 views at 1440, 768, 390 and 320, console clean at each. Its screenshots are not
+saved to disk, so the owed-back line was judged by the script's paint and hit-test assertions, not by my eyes.
+Not live: none of these functions or migrations are published. Receipts these runs rewrote were restored to HEAD.
+Still red on main: `privacy-processors` and `legal-promises` name only `api.cloudflare.com` (100.6), and
+`sweep-methods-are-pinned` (100.7). The belt now offers a ready "red on main" item first.
+
+## Supervision 2026-10-17 (second pass) — 97.70, 100.6, 100.9
+
+- **97.70** (a job marked paid after a wrong-figure card payment shows it as a possible refund): `node scripts/payment-problem-late.mjs` at `885b2003` (the receipts' own git_sha), demo owner, job read fed through `page.route` (no database write): 397 passed / 0 failed, 56 of 56 views. `--break=hide-hand-paid`: 349 / 24 failed, every hand-paid view red. Looked at the 1440 and 390 screenshots myself: the red line reads "…If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.", inside the viewport, above the action buttons, matching Andrew's 05:12 ruling. Receipts committed with this entry.
+- **100.6** (photo cache purge classified): `mediaCache.ts` sends Cloudflare only `{ files: [url] }` for one already-public address, as both test rows claim; the two test edits add a row and are fair.
+- **100.9** (fixed by the supervisor, `885b2003`): `sweep-methods-are-pinned` 8 / 0 with the live roadmap at 146 open against a declared 149; `PIN_CANARY=fragment` red on § 3, `PIN_CANARY=scope` red on § 4.

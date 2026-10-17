@@ -62,8 +62,14 @@
           job_photos — references a booking by id alone; no migration declares the pair key
           maintenance_deadlines — references a booking by id alone; no migration declares the pair key
 
+7. a table a detailer can write names a customer of the SAME business
+  FOUND every writable table naming a customer references customers by (customer_id, business_id), or a migration here declares it — 3
+          bookings — names a customer by id alone; no migration declares the pair key
+          maintenance_deadlines — names a customer by id alone; no migration declares the pair key
+          plan_members — names a customer by id alone; no migration declares the pair key
+
 canary  public must contain tables -> 5 returned  caught: queries are really answering, so an `ok` above means something
 
-5 to look at
-  · 5 finding(s) to look at — see FOUND above
-Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.71-20261017033404646\receipts\db-audit.sabotage.json
+8 to look at
+  · 8 finding(s) to look at — see FOUND above
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.73-20261017044633511\receipts\db-audit.sabotage.json

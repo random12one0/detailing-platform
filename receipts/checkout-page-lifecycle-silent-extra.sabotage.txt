@@ -1,4 +1,4 @@
-checkout-page-lifecycle BREAK=silent-extra — 2026-10-17T01:54:54.566Z
+checkout-page-lifecycle BREAK=silent-extra — 2026-10-17T11:10:26.936Z
 ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
@@ -24,6 +24,25 @@ ok    97.69 · refused: a failed bank debit alone is not money owed back when th
 FAIL  R4 · money for a WAIVED job is a refund owed too
 ok    R4 · refused: the SAME payment's second event is not a second payment
 ok    R4 · refused: a page still processing on a settled job records nothing yet
+ok    97.68 · the only refund owed is refunded in full: nothing is owed, so the line goes
+ok    97.68 · two owed, one refunded: only that one is settled, the other is still owed in full
+ok    97.68 · a partial refund keeps the payment on the list, with what is left beside it
+ok    97.68 · refunded in two steps ($50, then the other $100): nothing owed after the second
+ok    97.68 · review: two partial refunds' events arrive the wrong way round ($100 total, then the older $50): $50 still owed, not $100
+ok    97.68 · review: a late copy of a refunded payment's own event does not put it back as owed
+ok    97.68 · an older wrong-amount reason under the list is kept when the refund is recorded
+ok    97.68 · a failed note carrying the list keeps its own reason when the payment is refunded
+ok    97.68 · a 97.69 wrong-figure payment owed back is refunded in full: nothing owed, its reason kept
+ok    97.68 · a cancelled job's own payment refunded in full: recorded on a job that had no note, nothing left
+ok    97.68 · a cancelled job's own payment refunded in part: $100 left
+ok    97.68 · a cancelled job's own payment, found by the payment when the charge carries no booking id
+FAIL  97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing
+ok    97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing
+ok    97.68 · a recorded refund survives a later wrong-figure note written over the row
+ok    refused: a refund sent from ANOTHER detailer's account records nothing
+ok    refused: another detailer's refund of a cancelled job's own payment leaves its line
+ok    refused: a refund of a payment no job here took, carrying no booking id, changes nothing
+ok    refused: a partly refunded payment no longer counts as covering the job when its own debit fails
 ok    R3 · first page: one create, cards only, nothing to expire
 ok    R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order
 ok    R3 · same price, page still open: handed back, no second live page
@@ -34,7 +53,8 @@ ok    R3 · refused: an already-paid job reaches Stripe not at all
 FAIL  R4 · a card payment after the detailer marked cash: still paid, refund owed recorded — null · HTTP 200
 FAIL  R4 · a second live page paid: its two events make ONE refund entry, not two — null · HTTP 200,200
 FAIL  R4 · a third payment is added to the list, never written over the second — null · HTTP 200,200
-FAIL  keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:54.542Z","intent":"pi_3","earlier":[{"kind":"failed","paid_cents":15000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:54.541Z","intent":"pi_1"}]} · HTTP 200,200,200
+FAIL  keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:26.866Z","intent":"pi_3","earlier":[{"kind":"failed","paid_cents":15000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:26.865Z","intent":"pi_1"}]} · HTTP 200,200,200
 FAIL  keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund — {"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"x","intent":"pi_1"} · HTTP 200
 FAIL  R4 · money for a WAIVED job is a refund owed too — waived null · HTTP 200
-29 passed, 6 failed, 35 assertions, 32 of 32 scenarios.
+FAIL  97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing — {"kind":"extra","paid_cents":0,"owed_cents":0,"currency":"usd","at":"2026-10-17T11:10:26.883Z","refunds":{"pi_2":{"paid_cents":15000,"refunded_cents":15000,"at":"2026-10-17T11:10:26.883Z"}}} · HTTP 200,200,200
+48 passed, 7 failed, 55 assertions, 51 of 51 scenarios.
