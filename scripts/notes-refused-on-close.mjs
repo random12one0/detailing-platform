@@ -105,7 +105,7 @@ for (const [w, h] of WIDTHS) {
   for (const c of CASES) {
     await openRecord();
     sent = 0;
-    const name = await page.locator(".record [aria-label], .sheet [aria-label]").first().getAttribute("aria-label").catch(() => null);
+    const name = await page.locator(".record h2, .sheet h2").first().textContent().catch(() => null); // the client this case opened
     await box.click();
     await box.fill(`97.79 ${c} ${w}`);
     if (c === "control") await page.locator("label.field:has-text('Notes') > span").first().click();
