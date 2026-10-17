@@ -30454,6 +30454,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - Anything that broke the rule is fixed, with proof
 - [ ] **99.14 — Hold it and tell us what to change (unclear which item; likely a pause plus a request for proposed changes)**
   Hold it and tell us what to change (your words w-6)
+- [ ] **99.15 — Send the work back to fix six problems before it goes further**
+  Send it back to fix the six problems first (your words w-8)
+
 
 
 
