@@ -238,10 +238,9 @@ if (!BREAK) {
   const kid = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
     env: { ...process.env, CLOSED_BREAK: "guard" }, encoding: "utf8", timeout: 120_000,
   });
-  const red = (kid.stdout.match(/^s*FAILs+(d[a-z])/gm) || []).map((l) => l.trim().split(/s+/)[1]).sort().join(",");
+  const red = (kid.stdout.match(/^\s*FAIL\s+\d[a-z]\b/gm) || []).map((l) => l.trim().split(/\s+/)[1]).sort().join(",");
   canaryCaught = kid.status === 1 && red === "1a,2a,3a";
-  console.log("
-4. the canary");
+  console.log("\n4. the canary");
   check("4a . with the guard cut, exactly 1a, 2a and 3a go red (the away day books again)", canaryCaught, `exit ${kid.status}, red [${red}]`);
 }
 
