@@ -187,6 +187,18 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · A web address only goes live when its owner proves it (ROADMAP 97.13)
+
+Today anybody on a detailer's team can mark a web address as live without proving anything, including the
+platform's own address or another business's. The fix is built and tested on a throwaway copy of the database and
+in the browser. The "Your web address" screen now asks for one extra line at the domain company: a TXT record
+holding a code the screen shows.
+
+**Your move:** at your next release, publish the `verify-domain` program FIRST, then apply the database change
+`20261017030000_domain_claims_need_proof.sql` and publish the site. The other way round, nobody can add an
+address until the program lands. The live-database test `owner-writes` stays red until the change is applied. The
+session has not pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
 
 Today a detailer who learned another business's customer number could put that customer on their own job, plan or
