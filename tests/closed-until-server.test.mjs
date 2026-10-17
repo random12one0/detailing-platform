@@ -82,7 +82,11 @@ const BACK = localDay(10);           // closed_until: the day they are back
 const BEFORE = localDay(9);          // the last day they are away
 const AFTER = localDay(11);
 const BACK_WORDS = new Date(`${BACK}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
-const isoAt = (day, hh) => new Date(`${day}T${hh}:00-07:00`).toISOString(); // only needs to be the right day
+// The zone's own offset ON THAT DAY, not a fixed -07:00: from Nov 1 Los Angeles is -08:00, and a fixed
+// summer offset turned the seeded 10:00 into 09:00, so case 3d read an unmoved job as moved (supervisor, 2026-10-17).
+const offsetOn = (day) => new Intl.DateTimeFormat("en-US", { timeZone: TZ, timeZoneName: "longOffset" })
+  .formatToParts(new Date(`${day}T12:00:00Z`)).find((x) => x.type === "timeZoneName").value.replace("GMT", "") || "+00:00";
+const isoAt = (day, hh) => new Date(`${day}T${hh}:00${offsetOn(day)}`).toISOString();
 
 // ── THE FAKE SUPABASE ───────────────────────────────────────────────────────
 const FAKE = "https://fake-supabase.invalid";

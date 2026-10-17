@@ -1,4 +1,4 @@
-closed-until-server 2026-10-17T19:28:58.458Z break=unmoved
+closed-until-server 2026-10-17T20:18:50.599Z break=unmoved
 closed_until 2026-10-27 (October 27); before 2026-10-26; after 2026-10-28
 1a create 2026-10-26: 409 {"error":"We're away until October 27. Please choose October 27 or a later date."} | booking writes 0
 1b create 2026-10-27: 200 {"success":true,"booking":{"id":"row-2","booking_date":"2026-10-27","start_time":"10:00","end_time":"11:00","total_price":100,"receipt_url":"https://detailingplatform.com/booking/row-2","status":"conf | booking writes 1
