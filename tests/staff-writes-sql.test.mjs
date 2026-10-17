@@ -199,8 +199,9 @@ test("97.14 · a staff session's direct DELETE on bookings and direct writes on 
   const preSup = await as(pre, A, `update public.customers set notes = 'support' where id = '${CUST_A}'`, "authenticated", SUPPORT_SID);
   check("support: before 97.14, a support session's direct notes update changed nothing", !preSup.error && preSup.affected === 0 && (await notesOf(pre, CUST_A)) === null, JSON.stringify(preSup));
   await pre.close();
+  const held = await notesOf(db, CUST_A);
   const sup = await as(db, A, setNotes(A, CUST_A, "support wrote this"), "authenticated", SUPPORT_SID);
-  const supRefused = /read-only support view/.test(sup.error ?? "") && (await notesOf(db, CUST_A)) === null;
+  const supRefused = /read-only support view/.test(sup.error ?? "") && (await notesOf(db, CUST_A)) === held;
   check("support: a support session's set_customer_notes is refused and stores nothing", supRefused, JSON.stringify(sup));
   const own = await as(db, A, setNotes(A, CUST_A, "Own login"), "authenticated", OWN_SID);
   check("support: the same user's own login still saves notes", !own.error && (await notesOf(db, CUST_A)) === "Own login", JSON.stringify(own));
