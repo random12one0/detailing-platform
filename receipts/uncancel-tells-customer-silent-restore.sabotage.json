@@ -1,0 +1,37 @@
+{
+  "git_sha": "98fb57617993c9596133025dd294848bf18588ab",
+  "git_sha_started": "98fb57617993c9596133025dd294848bf18588ab",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T22:54:23.635Z",
+  "failures": [
+    "un-cancel · exactly one email went — 0 sent",
+    "un-cancel · it is the back-on email",
+    "un-cancel · to the customer, filed against the booking (the mail log row) — {}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/uncancel-tells-customer-silent-restore.sabotage.txt"
+  ],
+  "dimensions": {
+    "handlers": [
+      "supabase/functions/update-booking/index.ts",
+      "supabase/functions/respond-to-booking/index.ts"
+    ],
+    "break": "silent-restore"
+  },
+  "check_id": "uncancel-tells-customer-silent-restore",
+  "started_at": "2026-10-17T22:54:23.500Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "canary": {
+    "id": "break-silent-restore",
+    "observed_failure": true
+  }
+}

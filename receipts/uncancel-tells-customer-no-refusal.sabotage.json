@@ -1,0 +1,40 @@
+{
+  "git_sha": "98fb57617993c9596133025dd294848bf18588ab",
+  "git_sha_started": "98fb57617993c9596133025dd294848bf18588ab",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T22:54:23.314Z",
+  "failures": [
+    "declined → confirmed · refused 409 with code declined_request — {\"success\":true,\"booking\":{\"id\":\"bk_1\",\"business_id\":\"biz_1\",\"status\":\"confirmed\",\"declined_at\":\"2026-10-16T15:00:00.000Z\",\"deleted_at\":null,\"lang\":\"es\",\"quoted_amount\":null,\"quoted_note\":null,\"quoted",
+    "declined → confirmed · the reason names the right path — undefined",
+    "declined → confirmed · the row is untouched and nothing was sent — confirmed, declined_at 2026-10-16T15:00:00.000Z, 1 sent",
+    "declined → completed · refused 409 with code declined_request — {\"success\":true,\"booking\":{\"id\":\"bk_1\",\"business_id\":\"biz_1\",\"status\":\"completed\",\"declined_at\":\"2026-10-16T15:00:00.000Z\",\"deleted_at\":null,\"lang\":\"es\",\"quoted_amount\":null,\"quoted_note\":null,\"quoted",
+    "declined → completed · the reason names the right path — undefined",
+    "declined → completed · the row is untouched and nothing was sent — completed, declined_at 2026-10-16T15:00:00.000Z, 0 sent"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/uncancel-tells-customer-no-refusal.sabotage.txt"
+  ],
+  "dimensions": {
+    "handlers": [
+      "supabase/functions/update-booking/index.ts",
+      "supabase/functions/respond-to-booking/index.ts"
+    ],
+    "break": "no-refusal"
+  },
+  "check_id": "uncancel-tells-customer-no-refusal",
+  "started_at": "2026-10-17T22:54:23.159Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "canary": {
+    "id": "break-no-refusal",
+    "observed_failure": true
+  }
+}

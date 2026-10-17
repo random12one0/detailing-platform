@@ -76,7 +76,12 @@ Deno.serve(async (req) => {
       (action === "accept" && booking.status === "confirmed")
       || (action === "decline" && booking.status === "cancelled" && !!booking.declined_at);
     if (already) return json({ success: true, duplicate: true, booking });
-    if (booking.status !== "pending") {
+    // ROADMAP 97.24 — A DECLINED REQUEST CAN STILL BE ACCEPTED, HERE AND ONLY
+    // HERE. `update-booking` refuses to un-cancel one, because that left
+    // `declined_at` set and told the customer nothing. Accepting it after all
+    // is the same answer as accepting it the first time, with the same email.
+    const declined = booking.status === "cancelled" && !!booking.declined_at;
+    if (booking.status !== "pending" && !(action === "accept" && declined)) {
       return json({ error: "This booking is not waiting to be accepted." }, 409);
     }
 
@@ -87,7 +92,7 @@ Deno.serve(async (req) => {
       // to the price the customer already has. Leaving a stale `quoted_amount`
       // on a confirmed booking would put a second number on the record with no
       // rule saying which one is charged.
-      update = { status: "confirmed", quoted_amount: null, quoted_note: null, quoted_at: null };
+      update = { status: "confirmed", quoted_amount: null, quoted_note: null, quoted_at: null, declined_at: null };
     } else if (action === "decline") {
       // 'cancelled' is what frees the slot and what every existing filter
       // already understands; `declined_at` is the one fact it cannot carry.
@@ -112,10 +117,12 @@ Deno.serve(async (req) => {
       // Only from the state read above: of two concurrent presses one
       // answers and emails, the other finds nothing to change. For a quote
       // that includes the quote already on it, so two quotes are not sent.
-      .eq("status", "pending")
+      .eq("status", booking.status)
       .filter("quoted_at", booking.quoted_at === null ? "is" : "eq", booking.quoted_at)
       .select()
       .maybeSingle();
+    // A declined request's slot was freed, so somebody else may have it now.
+    if (error?.code === "23P01") return json({ error: "That time overlaps another booking." }, 409);
     if (error) throw error;
     if (!updated) {
       const { data: now } = await supabase.from("bookings").select("*").eq("id", booking.id).maybeSingle();

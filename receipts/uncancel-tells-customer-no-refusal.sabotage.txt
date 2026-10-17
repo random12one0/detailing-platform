@@ -1,0 +1,22 @@
+uncancel-tells-customer BREAK=no-refusal — 2026-10-17T22:54:23.264Z
+ok    both production handlers loaded with every import replaced
+ok    un-cancel · the write succeeded and the job is confirmed
+ok    un-cancel · exactly one email went
+ok    un-cancel · it is the back-on email
+ok    un-cancel · to the customer, filed against the booking (the mail log row)
+ok    pressed again · succeeds and sends nothing more
+ok    no address · confirmed, nothing sent
+ok    cancel still sends the cancellation email
+FAIL  declined → confirmed · refused 409 with code declined_request — {"success":true,"booking":{"id":"bk_1","business_id":"biz_1","status":"confirmed","declined_at":"2026-10-16T15:00:00.000Z","deleted_at":null,"lang":"es","quoted_amount":null,"quoted_note":null,"quoted
+FAIL  declined → confirmed · the reason names the right path — undefined
+FAIL  declined → confirmed · the row is untouched and nothing was sent — confirmed, declined_at 2026-10-16T15:00:00.000Z, 1 sent
+FAIL  declined → completed · refused 409 with code declined_request — {"success":true,"booking":{"id":"bk_1","business_id":"biz_1","status":"completed","declined_at":"2026-10-16T15:00:00.000Z","deleted_at":null,"lang":"es","quoted_amount":null,"quoted_note":null,"quoted
+FAIL  declined → completed · the reason names the right path — undefined
+FAIL  declined → completed · the row is untouched and nothing was sent — completed, declined_at 2026-10-16T15:00:00.000Z, 0 sent
+ok    accept after decline · confirmed
+ok    accept after decline · declined_at cleared
+ok    accept after decline · one 'accepted' email to the customer, filed against the booking
+ok    quote on a declined request · still refused, nothing sent
+ok    pending accept · unchanged: confirmed and one 'accepted' email
+ok    slot taken since the decline · 409 'overlaps', row untouched, nothing sent
+14 passed, 6 failed, 10 of 10 scenarios.
