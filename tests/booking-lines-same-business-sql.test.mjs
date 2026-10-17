@@ -29,7 +29,8 @@ import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-const SQL = readFileSync("supabase/migrations/20261017000000_booking_lines_same_business.sql", "utf8");
+// CRLF normalised: on a Windows checkout the sabotage patterns in case 5 never match otherwise.
+const SQL = readFileSync("supabase/migrations/20261017000000_booking_lines_same_business.sql", "utf8").replace(/\r\n/g, "\n");
 const BASE = readFileSync("supabase/migrations/20260827000200_tenant_data.sql", "utf8");
 const PRIOR = readFileSync("supabase/migrations/20260907000600_vehicle_belongs_to_its_booking.sql", "utf8");
 const TARGET = /alter table public\.bookings\n  add constraint bookings_id_business_key unique \(id, business_id\);/.exec(PRIOR.replace(/\r\n/g, "\n"))?.[0];
