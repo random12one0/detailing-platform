@@ -1,0 +1,27 @@
+accept-quote-page 2026-10-17T19:12:52.375Z break=old-server base=http://127.0.0.1:5180
+390 normal: row confirmed 200 | console 0
+390 stale: row confirmed 300 | error "" | button "" | console 
+320 normal: row confirmed 200 | console 0
+320 stale: row confirmed 300 | error "" | button "" | console 
+768 normal: row confirmed 200 | console 0
+768 stale: row confirmed 300 | error "" | button "" | console 
+1440 normal: row confirmed 200 | console 0
+1440 stale: row confirmed 300 | error "" | button "" | console 
+page calls answered by the catch-all {}: none
+29 passed, 16 failed
+FAIL 390 stale . NOT accepted: still waiting, price unchanged - got confirmed 300
+FAIL 390 stale . a plain reason naming the new $300 - got ""
+FAIL 390 stale . the page now offers the $300 it was refused over - got ""
+FAIL 390 stale . the reason fits the screen width - got null
+FAIL 320 stale . NOT accepted: still waiting, price unchanged - got confirmed 300
+FAIL 320 stale . a plain reason naming the new $300 - got ""
+FAIL 320 stale . the page now offers the $300 it was refused over - got ""
+FAIL 320 stale . the reason fits the screen width - got null
+FAIL 768 stale . NOT accepted: still waiting, price unchanged - got confirmed 300
+FAIL 768 stale . a plain reason naming the new $300 - got ""
+FAIL 768 stale . the page now offers the $300 it was refused over - got ""
+FAIL 768 stale . the reason fits the screen width - got null
+FAIL 1440 stale . NOT accepted: still waiting, price unchanged - got confirmed 300
+FAIL 1440 stale . a plain reason naming the new $300 - got ""
+FAIL 1440 stale . the page now offers the $300 it was refused over - got ""
+FAIL 1440 stale . the reason fits the screen width - got null
