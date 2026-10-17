@@ -1,0 +1,37 @@
+{
+  "git_sha": "508e1d6e93d55e5ee04fab988495ea717d6766ad",
+  "git_sha_started": "508e1d6e93d55e5ee04fab988495ea717d6766ad",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T23:10:32.836Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.24/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "runs": [
+      "en 320x700",
+      "en 390x844",
+      "en 768x1024",
+      "en 1440x900",
+      "es 390x844"
+    ]
+  },
+  "check_id": "uncancel-screen",
+  "started_at": "2026-10-17T23:09:22.381Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 46,
+  "min_assertions": 40,
+  "canary": {
+    "id": "uncancel-absent-on-declined",
+    "observed_failure": true
+  }
+}
