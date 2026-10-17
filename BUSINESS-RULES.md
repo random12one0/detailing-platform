@@ -58,3 +58,6 @@ From the same Planning conversation; each needs Andrew:
 6. Billing lockdown — exact 14-day deadline; does billing continue while locked?
 7. Signup — no live booking page before the first successful payment?
 8. Promo email title — "Ready for a clean car?"
+
+## Rules from your words (sorted automatically)
+- "Fix it but also the owners should be able to like set specific permissions for staff not urgent tho cuz the website isn’t public yet" — Fix an unnamed issue, and separately let owners set specific permissions for staff (not urgent; the website is not public yet) (back office; 2026-10-16; from Inbox) <!-- rule r-9 -->
