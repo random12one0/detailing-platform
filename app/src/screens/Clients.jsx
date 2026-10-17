@@ -172,8 +172,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [notesError, setNotesError] = useState("");
   // A refusal under the Notes box renders below the record panel's edge at
   // 1440 (ROADMAP 97.14); a line nobody sees is the silent failure it replaced.
+  // Twice, because the panel is sticky: the first scroll can move the page,
+  // the panel then sticks, and its own edge rises over the line again.
   const notesErrorRef = useRef(null);
-  useEffect(() => { if (notesError) notesErrorRef.current?.scrollIntoView({ block: "nearest" }); }, [notesError]);
+  useEffect(() => {
+    if (!notesError) return;
+    const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
+    reveal();
+    requestAnimationFrame(reveal);
+  }, [notesError]);
 
   const load = useCallback(async () => {
     setBusy(true);
