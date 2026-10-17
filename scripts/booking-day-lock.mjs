@@ -273,6 +273,7 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 18,
+  assertion_floor: "1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 3 speed; every check() unconditional.",
   failures,
   warnings: [
     "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
