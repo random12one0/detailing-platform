@@ -1,0 +1,71 @@
+1. every table a browser can reach is behind row-level security
+  ok    no table in public has RLS switched off
+
+2. RLS on, and something to enforce
+  ok    action_log — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    address_points — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    job_heartbeats — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_admin_events — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_admins — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_costs — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_email_days — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_promo_codes — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    platform_settings — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    rate_hits — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    send_invoice_attempts — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    session_pings — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    site_probe_events — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    site_probes — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    stripe_events — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    tenant_watch — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    translation_usage — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    weather_grids — no policies, and that is the design (grants revoked, so the lock still holds)
+  ok    no allowlisted table has lost the grant lock its entry depends on
+  ok    no other table is locked with nothing to unlock it
+
+3. every security-definer function pins its search_path
+  ok    none is left open to a caller's own schema
+
+4. every foreign key has an index to look it up by
+  ok    business_invites (invited_by) — only walked by deleting an auth user, which never happens
+  ok    job_photos (created_by) — only walked by deleting an auth user, which never happens
+  ok    owner_push_subscriptions (user_id) — only walked by deleting an auth user, which never happens
+  ok    platform_admin_events (admin_id) — only walked by deleting an auth user, which never happens
+  ok    no other foreign key is left without one
+
+5. a table locked by RLS alone, with its grants still open
+  ok    action_log — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    address_points — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    job_heartbeats — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_admin_events — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_admins — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_costs — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_email_days — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_promo_codes — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    platform_settings — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    rate_hits — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    send_invoice_attempts — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    session_pings — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    site_probe_events — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    site_probes — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    stripe_events — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    tenant_watch — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    translation_usage — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    weather_grids — RLS on, no policy, AND the grants revoked: a browser is refused outright
+  ok    no table is held shut by RLS alone while its grants stay open to a browser
+
+6. a booking's child a detailer can write points at a booking of the SAME business
+  BLIND booking_vehicles did not come back paired (unpaired) — this question cannot see a pair key, so its silence means nothing
+  AWAITS APPLY booking_add_ons — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_line_items — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_services — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_vehicles — 20260907000600_vehicle_belongs_to_its_booking.sql
+  AWAITS APPLY job_photos — 20261017010000_photos_deadlines_same_business.sql
+  AWAITS APPLY maintenance_deadlines — 20261017010000_photos_deadlines_same_business.sql
+  ok    every writable booking child references bookings by (booking_id, business_id), or a migration here declares it
+
+canary  public must contain tables -> 5 returned  caught: queries are really answering, so an `ok` above means something
+
+clean
+  · section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.71-20261017033404646\receipts\db-audit.sabotage.json
