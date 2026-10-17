@@ -1,4 +1,4 @@
-checkout-page-lifecycle — 2026-10-17T11:10:31.961Z
+checkout-page-lifecycle — 2026-10-17T11:43:39.951Z
 ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
