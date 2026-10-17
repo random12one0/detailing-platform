@@ -1,13 +1,14 @@
 {
-  "git_sha": "4e2c066f51c6af5ee77107cfa86776ff43fce4ad",
-  "git_sha_started": "4e2c066f51c6af5ee77107cfa86776ff43fce4ad",
+  "git_sha": "645971e61615f19eda2206e82b301a4b0eeaa177",
+  "git_sha_started": "645971e61615f19eda2206e82b301a4b0eeaa177",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T18:19:41.099Z",
+  "finished_at": "2026-10-17T18:23:18.978Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "supabase/functions/_shared/supportSession.ts"
+    "supabase/functions/_shared/supportSession.ts",
+    "supabase/functions/_shared/tenant.ts"
   ],
   "dimensions": {
     "functions": {
@@ -36,7 +37,7 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-17T18:19:40.988Z",
+  "started_at": "2026-10-17T18:23:18.825Z",
   "status": "pass",
   "expected_targets": 22,
   "discovered_targets": 22,
@@ -45,7 +46,7 @@
   "skipped_targets": 0,
   "assertions_executed": 52,
   "min_assertions": 52,
-  "assertion_floor": "structural: six decision cases, six 97.15 deadline cases, three gate checks, one per discovered function, three fixed checks, nine on the impersonate hand-over, two on the browser",
+  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true
