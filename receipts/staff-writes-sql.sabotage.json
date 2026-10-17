@@ -1,37 +1,40 @@
 {
-  "git_sha": "ea72ca728e2a50dc703da46eba3029b047516c33",
-  "git_sha_started": "ea72ca728e2a50dc703da46eba3029b047516c33",
+  "git_sha": "aae746b87964631b56549f0fc3b84946241f43d7",
+  "git_sha_started": "aae746b87964631b56549f0fc3b84946241f43d7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:17:14.306Z",
+  "finished_at": "2026-10-17T12:25:36.150Z",
   "failures": [
-    "notes: A naming B's business is refused {\"affected\":0,\"rows\":[{\"set_customer_notes\":\"\"}]}",
-    "notes: B's customer's notes are untouched"
+    "support: a support session's set_customer_notes is refused and stores nothing {\"affected\":0,\"rows\":[{\"set_customer_notes\":\"\"}]}"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/staff-writes-sql/results.break-no-member.txt"
+    "artifacts/staff-writes-sql/results.break-no-support.txt"
   ],
   "dimensions": {
-    "break": "no-member",
-    "migration": "20261017030000_staff_cannot_delete_bookings_or_write_customers.sql",
+    "break": "no-support",
+    "migrations": [
+      "20261017030000_staff_cannot_delete_bookings_or_write_customers.sql",
+      "20261017130000_set_customer_notes_refuses_support_sessions.sql"
+    ],
+    "support_session_refused": false,
     "write_paths": 4,
     "reproduced_before": 4,
     "refused_after": 4
   },
   "check_id": "staff-writes-sql",
-  "started_at": "2026-10-17T04:16:57.046Z",
+  "started_at": "2026-10-17T12:25:14.227Z",
   "status": "fail",
-  "expected_targets": 8,
-  "discovered_targets": 8,
-  "attempted_targets": 8,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
   "completed_targets": 8,
   "skipped_targets": 0,
-  "assertions_executed": 19,
-  "min_assertions": 19,
-  "assertion_floor": "structural: one assertion per write path before and after, plus fixed route checks, so the count cannot vary between runs",
+  "assertions_executed": 23,
+  "min_assertions": 23,
+  "assertion_floor": "structural: one assertion per write path before and after, plus fixed route, support-session and canary checks, so the count cannot vary between runs",
   "canary": {
-    "id": "notes-without-membership",
+    "id": "notes-without-membership-or-support-refusal",
     "observed_failure": true
   }
 }

@@ -1,33 +1,37 @@
 {
-  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
-  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha": "aae746b87964631b56549f0fc3b84946241f43d7",
+  "git_sha_started": "aae746b87964631b56549f0fc3b84946241f43d7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:42:49.109Z",
+  "finished_at": "2026-10-17T12:26:05.398Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/staff-writes-sql/results.txt"
   ],
   "dimensions": {
-    "migration": "20261017030000_staff_cannot_delete_bookings_or_write_customers.sql",
+    "migrations": [
+      "20261017030000_staff_cannot_delete_bookings_or_write_customers.sql",
+      "20261017130000_set_customer_notes_refuses_support_sessions.sql"
+    ],
+    "support_session_refused": true,
     "write_paths": 4,
     "reproduced_before": 4,
     "refused_after": 4
   },
   "check_id": "staff-writes-sql",
-  "started_at": "2026-10-17T04:42:32.301Z",
+  "started_at": "2026-10-17T12:25:43.850Z",
   "status": "pass",
-  "expected_targets": 8,
-  "discovered_targets": 8,
-  "attempted_targets": 8,
-  "completed_targets": 8,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 19,
-  "min_assertions": 19,
-  "assertion_floor": "structural: one assertion per write path before and after, plus fixed route checks, so the count cannot vary between runs",
+  "assertions_executed": 23,
+  "min_assertions": 23,
+  "assertion_floor": "structural: one assertion per write path before and after, plus fixed route, support-session and canary checks, so the count cannot vary between runs",
   "canary": {
-    "id": "notes-without-membership",
+    "id": "notes-without-membership-or-support-refusal",
     "observed_failure": true
   }
 }
