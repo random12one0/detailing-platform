@@ -823,6 +823,9 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
   corner-shape: var(--bk-corner);
   font-size: var(--bk-t-body); color: var(--bk-text-2); line-height: 1.5;
 }
+/* ROADMAP 97.8 — a new price to agree to, not a failure: the note's calm box
+   with the accent's edge and full-strength text, so it is not skimmed past. */
+.bk-price-changed { color: var(--bk-text); box-shadow: inset 0 0 0 1px var(--bk-accent-line); }
 
 /* ---------------------------------------------------------- CONTROLS */
 .bk-btn {
