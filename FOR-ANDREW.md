@@ -187,6 +187,20 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
+
+Today a detailer who learned another business's customer number could put that customer on their own job, plan or
+warranty reminder. If they had switched on the warranty email, which is off by default and has no button, that
+customer would get their "coating due" email. Their plan page would also show that customer's name and email. The fix
+is one database change plus two small server changes. All three were built and tested on a throwaway copy. Your live
+database has nothing to clean first: 0 of 50 bookings, 0 of 4 plan members and 0 of 3 warranty reminders name
+another business's customer.
+
+**Your move:** at your next release, apply `20261017020000_customer_same_business.sql`, and publish
+`send-owner-reminders` and `plan-link` with the other programs. Either order is safe. Nothing a customer sees
+changes. Until it is applied, the unapplied-change check (`migration-drift`) names the file. The session has not
+pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Stop another business attaching photos or warranty dates to a customer's job (ROADMAP 97.71)
 
 Today a detailer who learned another business's booking number could attach a job photo or a warranty reminder to it.
