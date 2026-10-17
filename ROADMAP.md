@@ -2150,7 +2150,7 @@ and how the wait ends.
   check. Final warmed public-URL proof follows Andrew's 0.11bd release.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
-  ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED; BOTH APP SWITCHES ARE NOT YET ON THE
+  ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED (AT ITS 2026-10-10 VERSIONS); BOTH APP SWITCHES ARE NOT YET ON THE
   PUBLISHED WEBSITE. Read-only: nothing deployed, applied, published or pushed; no DDL; no secret value touched. The box
   stays `[ ]`.***
 
@@ -2186,19 +2186,27 @@ and how the wait ends.
   not re-run today. R3 (secrets): met today. R4: the door came before the app (met); the allowance went to 10 on
   2026-10-10 alongside the job-photo door, while the receipt and media switches are still unpublished, so
   **the "same release" half is not met for receipts and media until the website is published.** R5: met today. R12
-  (pre-publish gate): the 17-file photo and Spanish run is **142 of 142, 0 failed, 0 skipped** at `baee877f`
-  (the 98.5 command, PGlite required). **Spanish section 7 printed SKIPPED: it writes a demo booking's language
-  and needs credentials this copy does not have.**
+  (pre-publish gate): **NOT MET.** The 17-file photo and Spanish command (98.5's, PGlite required) at `baee877f`
+  reported 142 of 142 node tests passed and 0 failed, **but it was not a clean run: Spanish section 7 printed
+  SKIPPED** - it writes a demo booking's language and needs credentials this copy does not have, and running a
+  credentialed suite needs a manager's go-ahead. Node's own `skipped 0` counts test() calls, not that inner
+  section, so it is not evidence of no skips. **Andrew ruled 2026-10-13 (ROADMAP 98.5) that every one of the 17
+  files must pass with no skips**, so this run does not satisfy the gate. *Corrected 2026-10-17 after review: this
+  line first read "142 of 142, 0 failed, 0 skipped" and contradicted its own next sentence.*
 
   **ALSO SEEN, ALREADY NUMBERED:** `node scripts/deployed-inventory.mjs` exits 1 and names most functions as
   about 7.5 days behind this checkout, photo-door and photo-reconcile included (14.39, 0.11bd and 4.3c server
-  halves). That is 98.2's release backlog, not this item's. **No browser screenshots:** this sitting changed no
+  halves). That is 98.2's release backlog, not this item's. **So "the server half is live" means the 2026-10-10
+  versions of photo-door, delete-customer and photo-reconcile, not this checkout's;** 14.39's two migrations and
+  its republish of photo-door and photo-reconcile are still outstanding (`FOR-ANDREW.md` 14.39 row). **No browser screenshots:** this sitting changed no
   screen.
 
-  AWAITS PUBLISH (built and proved; no decision asked of Andrew): the website publish that carries both
-  switches (`FOR-ANDREW.md`, "RELEASE STEP · Expense receipts use the new photo store"). Then a session confirms
-  the live bundle matches the both-ON counts above, re-runs `photo-release-order.mjs`, and ticks 0.11cc and this
-  item.
+  Waits on: 0.11cc. How the wait ends: 0.11cc is ticked.
+  **Release step, not a decision:** the website publish that carries both switches (`FOR-ANDREW.md`, "RELEASE
+  STEP · Expense receipts use the new photo store"). **Next buildable part, before that publish:** a session with
+  the manager's go-ahead for credentials runs the full 17-file photo and Spanish command with Spanish section 7
+  executing, and records it clean with no skips. After the publish, a session confirms the live bundle matches the
+  both-ON counts above, re-runs `photo-release-order.mjs`, and ticks 0.11cc and this item.
 
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
   Part 3 of 4 of item 0.11, split out so it can be
@@ -2560,8 +2568,11 @@ and how the wait ends.
   the allowance is 10 GB. `scripts/photo-cron-live.mjs` retains these effects without reading cron
   commands into a log. The app change is committed at `b92bdb21`: receipts now use the door;
   media was already switched on. No migration was applied and nothing was pushed or published.
-  **98.5 is done (ticked 2026-10-13); its waits line is removed 2026-10-17 by 0.11c's re-measure,** which
-  re-ran the same 17-file photo and Spanish command: 142 of 142, 0 failed (Spanish section 7 skipped, no credentials).
+  **Waits on: a full 17-file photo and Spanish run with NO skips (Andrew's 2026-10-13 ruling under 98.5).**
+  98.5's repair itself is done (ticked 2026-10-13). 0.11c's 2026-10-17 run of the same command was 142 of 142
+  node tests, 0 failed, **with Spanish section 7 SKIPPED for want of credentials, so it does not clear this line.**
+  The session that runs it with section 7 executing removes this line. *(Briefly removed on 2026-10-17 on the
+  strength of that skipped run; restored after review.)*
   **Release step, not a decision:** after that repair and successful browser proof, Andrew publishes
   the app; a session verifies the published routing and ticks this box. The original allowance and
   cron changes happened earlier, so this entry does not claim that a later local switch proves a
