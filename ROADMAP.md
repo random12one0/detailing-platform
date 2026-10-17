@@ -30476,6 +30476,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 - [ ] **99.17 — Flag the item the owner just approved, adding a note that says 'If you meant to keep it, ignore this'**
   Yes, flag it, with wording that says "If you meant to keep it, ignore this" (your words w-10)
 
+  **ANDREW, 2026-10-17:** Yes, flag it, with wording that says "If you meant to keep it, ignore this" (your words w-10)
+
 
 
 
