@@ -314,6 +314,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): written into `FOR-ANDREW.md` "YOURS, WHEN YOU LAUNCH" step 4 and the older list's step 8, both now applying the migration on the line before the webhook. (1) apply `supabase/migrations/20261016160000_booking_payment_problem.sql`, THEN (2) deploy `stripe-webhook` with `--no-verify-jwt`. In the other order a mismatched payment's write fails with a 500 and Stripe retries; the job still stays unpaid. Tick after one test-mode payment on a connected account marks a job paid, and one session created for the wrong amount leaves it unpaid with the red line.
 
 - [ ] **97.11 — Delayed card payments and stale checkout pages can leave a job paid when it is not (C-H4).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.11-20261016235531043`. Answer "merge it" to keep it, or say what to change.
   There is no handler for `checkout.session.async_payment_succeeded` or `async_payment_failed`, and `pay-booking/index.ts:121-148` neither limits payment methods nor expires an older checkout page when the amount changes. Scenarios from the audit: a bank debit that fails stays "paid"; a $100 page still open after the total became $150 marks $150 paid; two live pages can both be paid and the second payment is ignored with no refund flag.
   Acceptance criteria:
   - `async_payment_succeeded` marks paid and `async_payment_failed` marks unpaid with a visible reason (fixture events)
