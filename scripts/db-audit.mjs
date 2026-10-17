@@ -401,10 +401,11 @@ console.log("\n5. a table locked by RLS alone, with its grants still open");
 // the run. An unpaired table with NO declaring file is a gap nobody has fixed
 // and stays a finding. `--break=hide-declaring` ignores the declaring files, so
 // every AWAITS APPLY table must come back as a finding and the run go red.
-const UNPAIRED_TRACKED = new Map([
-  ["job_photos", "ROADMAP 97.71"],
-  ["maintenance_deadlines", "ROADMAP 97.71"],
-]);
+//
+// EMPTY SINCE ROADMAP 97.71: `job_photos` and `maintenance_deadlines` left this
+// list when `20261017010000_photos_deadlines_same_business.sql` declared their
+// pair keys, so until it is applied they print AWAITS APPLY like 97.12's three.
+const UNPAIRED_TRACKED = new Map([]);
 console.log("\n6. a booking's child a detailer can write points at a booking of the SAME business");
 {
   const pairFile = new Map();
