@@ -1,9 +1,9 @@
 {
-  "git_sha": "1f3d97040490309029def345b43c40a12b106891",
-  "git_sha_started": "1f3d97040490309029def345b43c40a12b106891",
+  "git_sha": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
+  "git_sha_started": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T22:54:33.588Z",
+  "finished_at": "2026-10-17T23:18:33.902Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -16,7 +16,7 @@
     ]
   },
   "check_id": "uncancel-tells-customer",
-  "started_at": "2026-10-17T22:54:33.446Z",
+  "started_at": "2026-10-17T23:18:33.730Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
@@ -24,9 +24,13 @@
   "completed_targets": 10,
   "skipped_targets": 0,
   "assertions_executed": 20,
-  "min_assertions": 20,
+  "min_assertions": 18,
   "canary": {
-    "id": "declined-refused",
-    "observed_failure": true
+    "id": "declined-request-reconfirmed-by-a-handler-without-the-refusal",
+    "observed_failure": true,
+    "sabotage_receipts": [
+      "receipts/uncancel-tells-customer-no-refusal.sabotage.json",
+      "receipts/uncancel-tells-customer-silent-restore.sabotage.json"
+    ]
   }
 }

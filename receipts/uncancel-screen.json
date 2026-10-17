@@ -1,9 +1,9 @@
 {
-  "git_sha": "508e1d6e93d55e5ee04fab988495ea717d6766ad",
-  "git_sha_started": "508e1d6e93d55e5ee04fab988495ea717d6766ad",
+  "git_sha": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
+  "git_sha_started": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T23:10:32.836Z",
+  "finished_at": "2026-10-17T23:19:23.730Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -21,7 +21,7 @@
     ]
   },
   "check_id": "uncancel-screen",
-  "started_at": "2026-10-17T23:09:22.381Z",
+  "started_at": "2026-10-17T23:18:35.432Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
@@ -31,7 +31,11 @@
   "assertions_executed": 46,
   "min_assertions": 40,
   "canary": {
-    "id": "uncancel-absent-on-declined",
-    "observed_failure": true
+    "id": "old-declined-screen-offering-un-cancel",
+    "observed_failure": true,
+    "rewrite_ran": true,
+    "sabotage_receipts": [
+      "receipts/uncancel-screen.sabotage.json"
+    ]
   }
 }
