@@ -1,9 +1,9 @@
 {
-  "git_sha": "6d7f5d6c96d410b97eb1822bac6779167632d2f7",
-  "git_sha_started": "6d7f5d6c96d410b97eb1822bac6779167632d2f7",
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:50:12.729Z",
+  "finished_at": "2026-10-17T00:26:38.007Z",
   "failures": [],
   "warnings": [
     "The handler runs in-process against the fixture's fake Supabase; pricing and resolvePromo are the real pricing.ts, the payloads the real core.js. The fixture does not honour resolvePromo's expiry filter (`or`), so only non-expiring codes are exercised. The deployed create-booking is not this checkout until Andrew publishes."
@@ -16,7 +16,7 @@
     "break": null
   },
   "check_id": "promo-one-use-group",
-  "started_at": "2026-10-16T23:50:12.578Z",
+  "started_at": "2026-10-17T00:26:37.683Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,

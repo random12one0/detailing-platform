@@ -1,4 +1,4 @@
-promo-one-use-group 2026-10-16T23:50:12.661Z break=none
+promo-one-use-group 2026-10-17T00:26:37.853Z break=none
   ok    1a · 2 cars on 2 days quote 10% off on both cars ($19 + $19)
   ok    2a · car 1 books
   ok    2b · car 2 books (was refused with 409)

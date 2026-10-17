@@ -1,9 +1,9 @@
 {
-  "git_sha": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
-  "git_sha_started": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:50:01.722Z",
+  "finished_at": "2026-10-17T00:26:38.657Z",
   "failures": [
     "2b · car 2 books (was refused with 409) - got 409 \"That promo code is not valid.\"",
     "2c · two booking rows saved - got 1",
@@ -24,7 +24,7 @@
     "break": "no-share"
   },
   "check_id": "promo-one-use-group-no-share",
-  "started_at": "2026-10-16T23:50:01.594Z",
+  "started_at": "2026-10-17T00:26:38.385Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,

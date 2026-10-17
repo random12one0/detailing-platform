@@ -1,9 +1,9 @@
 {
-  "git_sha": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
-  "git_sha_started": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:50:02.376Z",
+  "finished_at": "2026-10-17T00:26:40.111Z",
   "failures": [
     "3b · a third car hand-grouped past the 2-car cap gets 409 - got 200 \"\"",
     "3d · and nothing more was saved in either world - got 3, 2",
@@ -22,7 +22,7 @@
     "break": "no-cap"
   },
   "check_id": "promo-one-use-group-no-cap",
-  "started_at": "2026-10-16T23:50:02.230Z",
+  "started_at": "2026-10-17T00:26:39.815Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,

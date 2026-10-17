@@ -3726,3 +3726,17 @@ fixture business) 30 / 0 twice and 29 / 1 once, the 1 being `3e` (bulk job, unto
 97.66); main at `11588f40` 30 / 0. On the merged tree: `npm run build --prefix app` exit 0; the six
 credential-free suites 11 / 0; `node tests/duplicate-answer.test.mjs` 16 / 0, `BREAK=select-star` 12 / 4.
 `booking-engine` not run: it measures the deployed server. Not live until `create-booking` is deployed.
+
+## Supervisor 2026-10-17 — 97.66 and 97.9 re-run at `33d386be`
+
+**97.66** (fleet job pressed twice at once answers saved, not 409): `node tests/retry-safety.test.mjs --only=3e`
+(own fixture business, removed after) 5 / 0; `--break=swallow-23505` 4 / 1 on the REFUSED line;
+`--break=no-collision-handling` 4 / 1 on the replay line. The live ten-race half stayed green under both
+sabotages this run, as its own comment says it usually will; the replay half is what catches it. In the
+browser (localhost:5173, demo owner, Money → "Add a fleet job", Save pressed twice in one tick) at 1440×900
+and 392×844: one row saved each time, the sheet closed, no console errors or warnings. The two rows were
+deleted afterwards by name.
+**97.9** (one-use promo shared across a different-day car set): `node tests/promo-one-use-group.test.mjs`
+23 / 0; `PROMO_BREAK=` no-share 7 failed, count-twice 1, no-cap 5, no-window 4, count-rows 3. Credential-free,
+real handler, fake database. Not seen in a browser: the page calls the deployed `create-booking`, which does
+not run this code until Andrew publishes.

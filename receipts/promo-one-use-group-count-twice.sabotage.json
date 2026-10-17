@@ -1,9 +1,9 @@
 {
-  "git_sha": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
-  "git_sha_started": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:50:02.068Z",
+  "finished_at": "2026-10-17T00:26:39.415Z",
   "failures": [
     "2g · the code counts as used ONCE for the group - got 2 RPC calls, times_used 2"
   ],
@@ -18,7 +18,7 @@
     "break": "count-twice"
   },
   "check_id": "promo-one-use-group-count-twice",
-  "started_at": "2026-10-16T23:50:01.912Z",
+  "started_at": "2026-10-17T00:26:39.088Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,
