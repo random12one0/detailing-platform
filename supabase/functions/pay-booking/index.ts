@@ -39,7 +39,7 @@ import { businessById } from "../_shared/tenant.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { stripe, stripeConfigured, StripeError } from "../_shared/stripe.ts";
-import { checkoutLineName, payability } from "../_shared/connect.ts";
+import { checkoutLineName, checkoutSession, payability } from "../_shared/connect.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 /** `reason` decides the status code, so the screen and the server agree. */
@@ -118,10 +118,28 @@ Deno.serve(async (req) => {
       })
       : null;
 
-    const session = await stripe(
-      "/checkout/sessions",
-      {
+    // ROADMAP 97.11 — ONE OPEN PAGE PER BOOKING. An earlier page still open at
+    // a different amount is expired before this one is made, and one open at
+    // this amount is handed back rather than doubled. `checkoutSession` has the
+    // three cases; `tests/checkout-page-lifecycle.test.mjs` holds them.
+    const session = await checkoutSession(stripe, {
+      // Idempotent on the AMOUNT as well as the booking: a customer whose
+      // price changed between two taps must get a second session, not the
+      // stale one. Without the amount in the key, Stripe returns the first
+      // session and quietly charges the old figure. `checkoutSession` adds
+      // the previous page's id, so a page made after one finished is new.
+      idempotencyKey: `pay:${booking.id}:${verdict.amountCents}`,
+      amountCents: verdict.amountCents,
+      previousId: booking.stripe_session_id,
+      stripeAccount: conn!.stripe_account_id!,
+      params: {
         mode: "payment",
+        // CARDS ONLY — ROADMAP 97.11. Left unset, Stripe offers whatever the
+        // detailer switched on in their own dashboard, including bank debits
+        // that report "complete" now and fail days later. Apple Pay and Google
+        // Pay are cards here and still show. The late events are handled in
+        // `stripe-webhook` for any page made before this line.
+        payment_method_types: ["card"],
         success_url: `${back}?paid=1`,
         cancel_url: back,
         // Stripe emails its own receipt from the DETAILER's account, which is
@@ -146,21 +164,13 @@ Deno.serve(async (req) => {
           metadata: { booking_id: booking.id, business_id: business.id },
         },
       },
-      {
-        stripeAccount: conn!.stripe_account_id!,
-        // Idempotent on the AMOUNT as well as the booking: a customer whose
-        // price changed between two taps must get a second session, not the
-        // stale one. Without the amount in the key, Stripe returns the first
-        // session and quietly charges the old figure.
-        idempotencyKey: `pay:${booking.id}:${verdict.amountCents}`,
-      },
-    );
+    });
 
     // Recorded before the customer is sent anywhere, so the webhook can find
     // this booking from the session even if the customer closes the tab.
     await supabase
       .from("bookings")
-      .update({ stripe_session_id: session.id as string })
+      .update({ stripe_session_id: session.id })
       .eq("id", booking.id);
 
     return json({ url: session.url, amount_cents: verdict.amountCents });
