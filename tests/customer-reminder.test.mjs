@@ -283,9 +283,16 @@ if (!SB_URL || !KEY) {
       if (!past) {
         skip("1g a job that has already started is not reminded", "no free hour in the last 24h to move the fixture into");
       } else {
-        const moved = await patchBooking({ start_at: past.start.toISOString(), end_at: past.end.toISOString() });
-        check("1g the fixture could be moved into the past at all", moved.status < 300,
-          `without the move the check below reads a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
+        // ASKS FOR THE ROW BACK and requires it to hold the new time. A bare
+        // "status below 300" also passes a PATCH that matched no row (204) - the
+        // booking stays in the future and the check below measures nothing.
+        const moved = await rest(`bookings?id=eq.${bookingId}`, {
+          method: "PATCH", headers: { Prefer: "return=representation" },
+          body: JSON.stringify({ start_at: past.start.toISOString(), end_at: past.end.toISOString() }),
+        });
+        const movedTo = Array.isArray(moved.body) && moved.body.length === 1 ? Date.parse(moved.body[0].start_at) : NaN;
+        check("1g the fixture was moved into the past", moved.status === 200 && movedTo === past.start.getTime(),
+          `status ${moved.status}, row now starts ${movedTo} not ${past.start.getTime()} - the check below would read a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
         check("1g a job that has already started is not reminded", !(await isDue()));
       }
     }
