@@ -1,9 +1,9 @@
 {
-  "git_sha": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
-  "git_sha_started": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
+  "git_sha": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
+  "git_sha_started": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T21:47:55.777Z",
+  "finished_at": "2026-10-17T23:32:23.239Z",
   "failures": [
     "390x844: no row but Eli's shared-address one names Dana — Dana Doe, see you Saturdaydana.work@example.comMon, Oct 19 · Delivered | Spring specialdana@example.comWed, Oct 14 · Del",
     "390x844: her campaign email opens to \"not saved\"",
@@ -21,7 +21,7 @@
   "warnings": [],
   "artifacts": [
     "artifacts/forget-customer-sql/business-a-mail-before-fix.json",
-    "C:/Users/rando/Downloads/claude/belt/shots/97.20/png/sabotage-pre-fix"
+    "artifacts/mail-log-forgotten/sabotage-pre-fix"
   ],
   "dimensions": {
     "break": "pre-fix",
@@ -35,7 +35,7 @@
     ]
   },
   "check_id": "mail-log-forgotten",
-  "started_at": "2026-10-17T21:47:29.006Z",
+  "started_at": "2026-10-17T23:32:02.307Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -1,14 +1,14 @@
 {
-  "git_sha": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
-  "git_sha_started": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
+  "git_sha": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
+  "git_sha_started": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T21:48:17.857Z",
+  "finished_at": "2026-10-17T23:32:41.797Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/forget-customer-sql/business-a-mail-after.json",
-    "C:/Users/rando/Downloads/claude/belt/shots/97.20/png"
+    "artifacts/mail-log-forgotten"
   ],
   "dimensions": {
     "base": "http://localhost:5173",
@@ -21,7 +21,7 @@
     ]
   },
   "check_id": "mail-log-forgotten",
-  "started_at": "2026-10-17T21:47:56.513Z",
+  "started_at": "2026-10-17T23:32:23.908Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

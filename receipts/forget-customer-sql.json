@@ -1,9 +1,9 @@
 {
-  "git_sha": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
-  "git_sha_started": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
+  "git_sha": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
+  "git_sha_started": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T21:47:27.663Z",
+  "finished_at": "2026-10-17T23:31:29.783Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -17,7 +17,7 @@
     "canary_rows_leaking": 5
   },
   "check_id": "forget-customer-sql",
-  "started_at": "2026-10-17T21:47:12.463Z",
+  "started_at": "2026-10-17T23:31:18.879Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
