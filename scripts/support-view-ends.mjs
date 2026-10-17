@@ -18,9 +18,11 @@
 // and one Auth session for the demo owner on kguqylyzgyzfktkfnhjb. Every session it opens is
 // signed out by the product (that is the thing measured) or, failing that, by the cleanup below.
 //
-// Per width (390x844, 768x1024, 1440x900), two scenarios: CLOSE (press Close, the token must stop
+// Per width (390x844, 768x1024, 1440x900), three scenarios: CLOSE (press Close, the token must stop
 // working at Auth, and the back office's own session must not) and EXPIRE (wait out the deadline,
-// the tab must show the ended page and the token must stop working). 6 targets.
+// the tab must show the ended page and the token must stop working), and REAL SERVER (no stand-in:
+// the live answer, which must still leave the tab no refresh token). 9 targets. Before them, once:
+// the minute job's delete, run by hand on one fresh session, must stop that token at Auth.
 // CANARY, every run: a session this script signs out itself must read as refused by the same
 // probe, so a "refused" below is the probe seeing a signed-out session and not a broken probe.
 
@@ -71,6 +73,31 @@ const leftOpen = new Set(); // access tokens to sign out if the product did not
   check(`canary: the probe sees a live session (${live}) and the same session signed out (${dead})`, canaryCaught);
 }
 
+// THE DATABASE, read through the Management API (as `postgres`, the role the minute job runs as).
+const { SUPABASE_ACCESS_TOKEN } = process.env;
+if (!SUPABASE_ACCESS_TOKEN) { console.error("Missing SUPABASE_ACCESS_TOKEN. NOTHING WAS MEASURED."); process.exit(3); }
+const sql = async (query) => {
+  const r = await fetch("https://api.supabase.com/v1/projects/kguqylyzgyzfktkfnhjb/database/query", {
+    method: "POST", headers: { Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify({ query }) });
+  return r.json();
+};
+const sidOf = (t) => JSON.parse(Buffer.from(t.split(".")[1], "base64url").toString()).session_id;
+const authRowCount = async (t) => Number((await sql(`select count(*)::int n from auth.sessions where id = '${sidOf(t)}'`))?.[0]?.n ?? -1);
+
+// REVIEW FIX 4, ON THE REAL AUTH: what the minute job does (delete the Auth session row, as
+// postgres) must stop the token at Auth, INCLUDING updateUser, the password/email door. WRITES:
+// one fresh demo-owner session, created here and deleted here; nothing else is touched.
+{
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, { method: "POST", headers: H, body: JSON.stringify(owner) });
+  const s = await r.json();
+  const before = await authStatus(s.access_token);
+  const del = await sql(`delete from auth.sessions where id = '${sidOf(s.access_token)}' returning id`);
+  const get = await authStatus(s.access_token);
+  const put = (await fetch(`${SUPABASE_URL}/auth/v1/user`, { method: "PUT", headers: { ...H, Authorization: `Bearer ${s.access_token}` }, body: JSON.stringify({ data: {} }) })).status;
+  check(`minute job's delete, on real Auth: live ${before}, row deleted ${Array.isArray(del) && del.length === 1}, then /user ${get} and updateUser ${put}`,
+    before === 200 && Array.isArray(del) && del.length === 1 && get !== 200 && put !== 200, JSON.stringify(del).slice(0, 200));
+}
+
 async function openView(browser, [w, h], expiresIn, stub = !FREEZE || FREEZE === "after") {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const errors = [];
@@ -95,7 +122,7 @@ async function openView(browser, [w, h], expiresIn, stub = !FREEZE || FREEZE ===
     });
   }
   if (BREAK === "no-signout") {
-    await ctx.route(/\/src\/lib\/supabase\.js/, async (route) => {
+    await ctx.route(/\/src\/lib\/signout\.js/, async (route) => {
       const res = await route.fetch();
       const src = await res.text();
       await route.fulfill({ response: res, body: src.replace(`supabase.auth.signOut({ scope: "local" })`, "Promise.resolve({ error: null })") });
@@ -155,12 +182,21 @@ try {
       await v.popup.screenshot({ path: `${SHOTS}/png/open-${tag}.png` });
       if (FREEZE === "after") await freeze(v.popup, { out: `${SHOTS}/after.html`, label: "After", highlight: ".impbar",
         note: "The bar now says when the view ends (30 minutes), and Close signs this view's session out, so its token stops working." });
+      // The 4.3c guard, RUN: Auth's own updateUser (password, email) from inside the view.
+      const upd = await v.popup.evaluate(async () => {
+        const m = await import("/src/lib/supabase.js");
+        try { await m.supabase.auth.updateUser({ data: { probe_97_15: 1 } }); return "ALLOWED"; } catch (e) { return e.message; }
+      });
+      check(`${tag} · Auth's own updateUser (password, email) is refused inside the view`, /Looking only/.test(upd), upd);
       const closed = v.popup.waitForEvent("close", { timeout: 15_000 }).then(() => true, () => false);
       await v.popup.getByRole("button", { name: "Close" }).click();
       const didClose = await closed;
       await new Promise((r) => setTimeout(r, 800));
       const after = at ? await authStatus(at) : 0;
       check(`${tag} · Close ends the view's session: its token is refused (${after})`, after !== 200 && after !== 0, `closed tab=${didClose}`);
+      // Review fix 3: the database's read rule keys on this row being gone.
+      const rows = at ? await authRowCount(at) : -1;
+      check(`${tag} · Close removes the view's Auth session row, which the database's read rule now asks (${rows} left)`, rows === 0);
       if (after !== 200) leftOpen.delete(at);
       const ownStatus = v.own ? await authStatus(v.own) : 0;
       check(`${tag} · the back office's own session still works (local scope, ${ownStatus})`, ownStatus === 200);
@@ -168,8 +204,24 @@ try {
       results.push({ size: tag, scenario: "close", token_after: after, own_after: ownStatus });
       await v.ctx.close();
     }
-    if (FREEZE === "after") {
-      // only the ended page is still to freeze
+    // OLDER SERVER, NOT STOOD IN — review fix 6. The live platform-admin may still answer with a
+    // link the tab exchanges itself, which hands the tab a REAL refresh token; it must not keep it.
+    if (!FREEZE) {
+      const v = await openView(browser, size, 1800, false);
+      const at = v.state.auth?.access_token;
+      check(`${tag} · real server's answer: opens read-only, and the tab holds NO refresh token`,
+        v.state.brand.trim() === BIZ && v.state.mode === "look" && v.state.auth?.refresh_token === "none",
+        `brand=${v.state.brand} mode=${v.state.mode} refresh_token=${v.state.auth?.refresh_token === "none" ? "none" : v.state.auth?.refresh_token ? "(a real one)" : "missing"}`);
+      const closed = v.popup.waitForEvent("close", { timeout: 15_000 }).then(() => true, () => false);
+      await v.popup.getByRole("button", { name: "Close" }).click();
+      await closed;
+      await new Promise((r) => setTimeout(r, 800));
+      const after = at ? await authStatus(at) : 0;
+      check(`${tag} · real server's answer: Close makes its token refused (${after})`, after !== 200 && after !== 0);
+      if (after !== 200) leftOpen.delete(at);
+      check(`${tag} · console clean (real server)`, v.errors.length === 0, v.errors.join(" | ").slice(0, 400));
+      results.push({ size: tag, scenario: "real-server", token_after: after });
+      await v.ctx.close();
     }
 
     // EXPIRE — the deadline passes with the tab open.
@@ -198,7 +250,7 @@ try {
 }
 
 if (!FREEZE) {
-  const expected = SIZES.length * 2;
+  const expected = SIZES.length * 3;
   writeReceipt({
     check_id: "support-view-ends",
     started_at,
@@ -209,13 +261,13 @@ if (!FREEZE) {
     completed_targets: results.filter((r) => r.token_after !== 200).length,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 1 + SIZES.length * (8 + 3),
-    assertion_floor: "structural: one canary, eight per width for opening and closing, three per width for the deadline",
+    min_assertions: 2 + SIZES.length * (10 + 3 + 3),
+    assertion_floor: "structural: one canary, one minute-job mechanism, ten per width for opening and closing, three for the deadline, three for the real server",
     failures,
     canary: { id: "self-signed-out-session-reads-refused", observed_failure: canaryCaught },
     artifacts: SIZES.flatMap(([w, h]) => [`${SHOTS}/png/open-${w}x${h}.png`, `${SHOTS}/png/ended-${w}x${h}.png`]),
     dimensions: { break: BREAK || undefined, base: BASE, expires_in_s: EXP_S, results },
   });
 }
-console.log(`\n${failures.length ? "FAIL" : "PASS"} — ${assertions} assertions, ${failures.length} failed, ${results.length} of ${SIZES.length * 2} scenarios reached`);
+console.log(`\n${failures.length ? "FAIL" : "PASS"} — ${assertions} assertions, ${failures.length} failed, ${results.length} of ${SIZES.length * 3} scenarios reached`);
 process.exit(failures.length ? 1 : 0);
