@@ -207,6 +207,17 @@ lists database functions will name the new notes route until it is added to its 
 pushed, published, deployed or changed the database. Separately, letting you pick what each team member may do is
 ROADMAP 99.13, not urgent, as you said.
 
+## DO, AT YOUR NEXT RELEASE · Customers who unsubscribe from promo emails still get appointment reminders (ROADMAP 97.21)
+
+Today a customer who presses "unsubscribe" on a come-back email also stops getting the reminder about their own
+appointment, which is exactly the no-show the reminder is there to prevent. The unsubscribe page promises the opposite.
+The fix is one database change: reminders now ignore the promo opt-out, and still skip an address that bounced. Promo
+emails still skip anyone who unsubscribed. Tested on a throwaway copy of the database, with nothing sent.
+
+**Your move:** at your next release, apply `20261017220000_reminders_ignore_marketing_opt_out.sql`. Nothing needs
+publishing with it, and it can go in any order with the others. The session has not pushed, published, deployed or
+changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Stop one detailer's promo emails using up everyone's booking emails (ROADMAP 97.19)
 
 Today all detailers share one daily email allowance, and a detailer emailing their old customers could press Send

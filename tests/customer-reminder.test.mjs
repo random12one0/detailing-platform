@@ -217,13 +217,16 @@ if (!SB_URL || !KEY) {
       await patchSettings({ email_customer_reminder: true });
       check("1b and switching it back on returns it", await isDue());
 
-      // ── 1c · THE THREE WAYS A CUSTOMER IS UNREACHABLE ────────────────────
-      // The same three the Clients count, `send-campaign` and the maintenance
-      // reminder already ask. Without them a bad address is retried every
-      // fifteen minutes until the appointment - about forty-eight sends of a
-      // hundred-a-day allowance for one broken booking.
+      // ── 1c · THE TWO WAYS A CUSTOMER IS UNREACHABLE, AND ONE THAT IS NOT ──
+      // No address and a bounced address. Without them a bad address is retried
+      // every fifteen minutes until the appointment - about forty-eight sends of
+      // a hundred-a-day allowance for one broken booking. The MARKETING opt-out
+      // is not one of them: a reminder about a booking the customer made is
+      // transactional (ROADMAP 97.21, migration 20261017220000). Until that
+      // migration is applied to this database, this line is red, and correctly.
       await patchCustomer({ unsubscribed_at: new Date().toISOString() });
-      check("1c an unsubscribed customer removes it", !(await isDue()));
+      check("1c an unsubscribed customer is STILL reminded", await isDue(),
+        "the marketing opt-out is silencing an appointment reminder - is migration 20261017220000 applied?");
       await patchCustomer({ unsubscribed_at: null });
 
       await patchCustomer({ email_failed_at: new Date().toISOString(), email_failed_reason: "fixture" });
@@ -280,9 +283,16 @@ if (!SB_URL || !KEY) {
       if (!past) {
         skip("1g a job that has already started is not reminded", "no free hour in the last 24h to move the fixture into");
       } else {
-        const moved = await patchBooking({ start_at: past.start.toISOString(), end_at: past.end.toISOString() });
-        check("1g the fixture could be moved into the past at all", moved.status < 300,
-          `without the move the check below reads a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
+        // ASKS FOR THE ROW BACK and requires it to hold the new time. A bare
+        // "status below 300" also passes a PATCH that matched no row (204) - the
+        // booking stays in the future and the check below measures nothing.
+        const moved = await rest(`bookings?id=eq.${bookingId}`, {
+          method: "PATCH", headers: { Prefer: "return=representation" },
+          body: JSON.stringify({ start_at: past.start.toISOString(), end_at: past.end.toISOString() }),
+        });
+        const movedTo = Array.isArray(moved.body) && moved.body.length === 1 ? Date.parse(moved.body[0].start_at) : NaN;
+        check("1g the fixture was moved into the past", moved.status === 200 && movedTo === past.start.getTime(),
+          `status ${moved.status}, row now starts ${movedTo} not ${past.start.getTime()} - the check below would read a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
         check("1g a job that has already started is not reminded", !(await isDue()));
       }
     }
