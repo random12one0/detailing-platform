@@ -58,7 +58,7 @@ import { ourStatus } from "../_shared/platformBilling.ts";
 import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
-import { amountDueCents, cardMoney, cardPaymentVerdict, extraPayment, type PaymentProblem } from "../_shared/connect.ts";
+import { cardPaymentVerdict, extraPayment, failedBankPayment, type PaymentProblem } from "../_shared/connect.ts";
 
 const BILLING_URL = `${PLATFORM_URL}/app?settings=billing`;
 
@@ -730,33 +730,20 @@ async function recordExtraPayment(
 }
 
 /**
- * ROADMAP 97.11 — A BANK PAYMENT THAT DID NOT GO THROUGH.
- *
- * If this payment is what marked the job paid (the webhook before 97.10 marked
- * a completed checkout paid before the money arrived), the job goes back to
- * unpaid. A job settled some other way is left alone: nothing was taken. Either
- * unsettled outcome records why, on the job, where the detailer reads it.
+ * ROADMAP 97.11 — A BANK PAYMENT THAT DID NOT GO THROUGH. `failedBankPayment`
+ * decides; it is handed the row's current `payment_problem` so a refund already
+ * owed on the job is carried, never written over.
  */
 async function bankPaymentFailed(
   object: Obj,
   intent: string,
   booking: { id: string; payment_status: string; stripe_payment_intent: string | null; total_price: unknown; final_amount: unknown },
 ): Promise<void> {
-  const ours = booking.stripe_payment_intent === intent;
-  if (!ours && (booking.payment_status === "paid" || booking.payment_status === "waived")) return;
-  const money = cardMoney("checkout.session.async_payment_failed", object);
-  const problem: PaymentProblem = {
-    kind: "failed",
-    paid_cents: money.cents,
-    owed_cents: amountDueCents(booking),
-    currency: money.currency,
-    at: new Date().toISOString(),
-  };
-  const { error } = await supabase
-    .from("bookings")
-    .update(ours
-      ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: problem }
-      : { payment_problem: problem })
-    .eq("id", booking.id);
+  const { data: row, error: readError } = await supabase
+    .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+  if (readError) throw new Error(`could not read the payment problem: ${readError.message}`);
+  const patch = failedBankPayment(object, intent, booking, row?.payment_problem as PaymentProblem | null);
+  if (!patch) return;
+  const { error } = await supabase.from("bookings").update(patch).eq("id", booking.id);
   if (error) throw new Error(`could not record the failed bank payment: ${error.message}`);
 }

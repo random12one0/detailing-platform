@@ -287,9 +287,10 @@ export function cardPaymentVerdict(
  * record: the money has not arrived, it is the payment that settled the job
  * (each payment sends two events), or it is already on the list.
  *
- * `existing` is the row's current `payment_problem`; an earlier `extra` list is
- * kept and added to, never replaced, so a third payment does not erase the
- * second.
+ * `existing` is the row's current `payment_problem`; an earlier list of extra
+ * payments is kept and added to, never replaced, so a third payment does not
+ * erase the second. (A `failed` problem can carry the list too — see
+ * `failedBankPayment`.)
  */
 export function extraPayment(
   type: string,
@@ -301,17 +302,65 @@ export function extraPayment(
 ): PaymentProblem | null {
   const money = cardMoney(type, object);
   if (!money.received || !intent || intent === booking.stripe_payment_intent) return null;
-  const earlier = existing?.kind === "extra" && Array.isArray(existing.payments) ? existing.payments : [];
+  const earlier = Array.isArray(existing?.payments) ? existing.payments : [];
   if (earlier.some((p) => p.intent === intent)) return null;
-  const payments = [...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }];
-  return {
-    kind: "extra",
-    paid_cents: payments.reduce((sum, p) => sum + p.paid_cents, 0),
-    owed_cents: 0,
+  return extraProblem([...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }], now);
+}
+
+const extraProblem = (payments: NonNullable<PaymentProblem["payments"]>, now: Date): PaymentProblem => ({
+  kind: "extra",
+  paid_cents: payments.reduce((sum, p) => sum + p.paid_cents, 0),
+  owed_cents: 0,
+  currency: payments[payments.length - 1]?.currency ?? "usd",
+  at: now.toISOString(),
+  payments,
+});
+
+/**
+ * A BANK PAYMENT THAT DID NOT GO THROUGH — ROADMAP 97.11. Returns the patch for
+ * the job's row, or null to leave it alone.
+ *
+ *   · it is not the payment that settled the job, and the job is settled
+ *     (cash, a waiver, another payment) → null: nothing was taken from anyone;
+ *   · it IS the payment that marked the job paid (the webhook before 97.10 did
+ *     that while a bank debit was still on its way), and an extra payment
+ *     already on the job is exactly the figure owed → that payment now settles
+ *     the job: it stays paid, and only the OTHER extras stay owed back;
+ *   · otherwise → `failed`, and the job goes back to unpaid if this payment had
+ *     marked it paid.
+ *
+ * Every extra payment already recorded is carried onto what replaces it. The
+ * first version wrote a bare `failed` over the row and erased a refund the
+ * detailer still owed (review, 2026-10-16).
+ */
+export function failedBankPayment(
+  object: Record<string, unknown>,
+  intent: string,
+  booking: PayableBooking & { stripe_payment_intent?: string | null },
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): Record<string, unknown> | null {
+  const ours = booking.stripe_payment_intent === intent;
+  if (!ours && (booking.payment_status === "paid" || booking.payment_status === "waived")) return null;
+  const extras = Array.isArray(existing?.payments) ? existing.payments : [];
+  const owed = amountDueCents(booking);
+  const cover = ours ? extras.find((p) => p.currency === "usd" && p.paid_cents === owed && owed > 0) : undefined;
+  if (cover) {
+    const rest = extras.filter((p) => p !== cover);
+    return { stripe_payment_intent: cover.intent, payment_problem: rest.length ? extraProblem(rest, now) : null };
+  }
+  const money = cardMoney("checkout.session.async_payment_failed", object);
+  const problem: PaymentProblem = {
+    kind: "failed",
+    paid_cents: money.cents,
+    owed_cents: owed,
     currency: money.currency,
     at: now.toISOString(),
-    payments,
+    ...(extras.length ? { payments: extras } : {}),
   };
+  return ours
+    ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: problem }
+    : { payment_problem: problem };
 }
 
 /** `stripe()` from `_shared/stripe.ts`, passed in so this module imports nothing and a test can stand in for Stripe. */

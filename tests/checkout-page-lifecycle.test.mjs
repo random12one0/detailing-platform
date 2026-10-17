@@ -16,6 +16,8 @@
 // to a COPY, and the run prints that it landed (`docs/gotchas.md` 102):
 //   BREAK=no-async      the webhook stops taking the two late events
 //   BREAK=no-unpay      a failed bank payment no longer un-pays the job it paid
+//   BREAK=drop-extras   a failed bank payment writes over a refund already owed (review finding, 2026-10-16)
+//   BREAK=no-cover      a recorded extra payment that covers the job is not allowed to settle it
 //   BREAK=silent-extra  money for a settled job is dropped again (the original defect)
 //   BREAK=no-dedupe     one extra payment's two events are counted twice
 //   BREAK=no-expire     the stale page is left open when a new one is made
@@ -53,7 +55,9 @@ const src = {
 };
 const SABOTAGE = {
   "no-async": ["hook", '\n    && type !== "checkout.session.async_payment_succeeded" && type !== "checkout.session.async_payment_failed") return;', ") return;"],
-  "no-unpay": ["hook", "const ours = booking.stripe_payment_intent === intent;", "const ours = false;"],
+  "no-unpay": ["connect", "const ours = booking.stripe_payment_intent === intent;", "const ours = false;"],
+  "drop-extras": ["connect", "...(extras.length ? { payments: extras } : {}),", ""],
+  "no-cover": ["connect", "if (cover) {", "if (false) {"],
   "silent-extra": ["hook", "if (settled) await recordExtraPayment(type, object, intent, booking);", ""],
   "no-dedupe": ["connect", "if (earlier.some((p) => p.intent === intent)) return null;", ""],
   "no-expire": ["connect", "await call(`/checkout/sessions/${o.previousId}/expire`, {}, {", "void ({"],
@@ -63,7 +67,7 @@ if (BREAK) {
   const s = SABOTAGE[BREAK];
   if (!s) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
   const [file, from, to] = s;
-  if (!src[file].includes(from)) { console.error(`BREAK=${BREAK} did not land — the edit matched nothing`); process.exit(2); }
+  if (src[file].split(from).length !== 2) { console.error(`BREAK=${BREAK} did not land — the edit must match exactly once`); process.exit(2); }
   src[file] = src[file].replace(from, to);
   console.log(`BREAK=${BREAK} landed in ${file}: ${from.length - to.length} characters removed`);
 }
@@ -221,6 +225,26 @@ const WEBHOOK = [
     job({ payment_status: "paid", stripe_payment_intent: "pi_1" }),
     [["checkout.session.completed", session("pi_2", { payment_status: "paid" })], ["checkout.session.completed", session("pi_3", { payment_status: "paid", amount_total: 10000 })]],
     (r) => [r.payment_problem?.payments?.map((p) => p.intent).join(",") === "pi_2,pi_3" && r.payment_problem.paid_cents === 25000, JSON.stringify(r.payment_problem)]],
+  ["R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left",
+    job({ payment_status: "paid", stripe_payment_intent: "pi_1", paid_online_at: "2026-10-16T10:00:00Z",
+      payment_problem: { kind: "extra", paid_cents: 15000, owed_cents: 0, currency: "usd", at: "x", payments: [{ intent: "pi_2", paid_cents: 15000, currency: "usd", at: "x" }] } }),
+    [["checkout.session.async_payment_failed", session("pi_1", { payment_status: "unpaid" })]],
+    (r) => [r.payment_status === "paid" && r.stripe_payment_intent === "pi_2" && r.payment_problem === null,
+      `${r.payment_status} ${r.stripe_payment_intent} ${JSON.stringify(r.payment_problem)}`]],
+  ["R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased",
+    job({ payment_status: "paid", stripe_payment_intent: "pi_1",
+      payment_problem: { kind: "extra", paid_cents: 10000, owed_cents: 0, currency: "usd", at: "x", payments: [{ intent: "pi_2", paid_cents: 10000, currency: "usd", at: "x" }] } }),
+    [["checkout.session.async_payment_failed", session("pi_1", { payment_status: "unpaid" })]],
+    (r) => [r.payment_status === "pending" && r.payment_problem?.kind === "failed" && r.payment_problem.payments?.map((x) => x.intent).join() === "pi_2",
+      `${r.payment_status} ${JSON.stringify(r.payment_problem)}`]],
+  ["R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back",
+    job({ payment_status: "paid", stripe_payment_intent: "pi_1",
+      payment_problem: { kind: "extra", paid_cents: 25000, owed_cents: 0, currency: "usd", at: "x", payments: [
+        { intent: "pi_2", paid_cents: 15000, currency: "usd", at: "x" }, { intent: "pi_3", paid_cents: 10000, currency: "usd", at: "x" }] } }),
+    [["checkout.session.async_payment_failed", session("pi_1", { payment_status: "unpaid" })]],
+    (r) => [r.payment_status === "paid" && r.stripe_payment_intent === "pi_2" && r.payment_problem?.kind === "extra"
+      && r.payment_problem.payments?.map((x) => x.intent).join() === "pi_3" && r.payment_problem.paid_cents === 10000,
+      `${r.payment_status} ${r.stripe_payment_intent} ${JSON.stringify(r.payment_problem)}`]],
   ["R4 · money for a WAIVED job is a refund owed too",
     job({ payment_status: "waived" }), [["payment_intent.succeeded", intent("pi_2")]],
     (r) => [r.payment_status === "waived" && r.payment_problem?.kind === "extra", `${r.payment_status} ${JSON.stringify(r.payment_problem)}`]],
