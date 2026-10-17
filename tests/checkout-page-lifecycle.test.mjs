@@ -11,6 +11,8 @@
 //   § 2  R4  money for a job already paid or waived is recorded as a refund owed
 //   § 3  R3  `pay-booking` against a stubbed Stripe: an open page at another
 //            amount is expired BEFORE the new one is made
+//   § 4  97.68  signed `charge.refunded` fixtures: a refund made in the
+//            detailer's own Stripe takes that payment off the refund-owed list
 //
 // SABOTAGE — an env var, never a flag (`docs/gotchas.md` 104). Each edit is made
 // to a COPY, and the run prints that it landed (`docs/gotchas.md` 102):
@@ -26,12 +28,20 @@
 //   BREAK=no-expire     the stale page is left open when a new one is made
 //   BREAK=no-reuse      an open page at the same amount is replaced, not reused
 //   BREAK=no-carry      a wrong-amount payment is left hidden when the job is then paid (97.69, the original defect)
+//   BREAK=no-refund     the webhook stops taking `charge.refunded` (97.68's original defect)
+//   BREAK=refund-any-account  a refund from ANOTHER detailer's account clears the job's refund
+//   BREAK=refund-partial-clears  a partial refund counts as the whole payment refunded
+//   BREAK=refund-shrinks  an older event's smaller refund total overwrites a larger one (review, 2026-10-17)
+//   BREAK=refund-early-dropped  a refund arriving before its payment's own event is dropped (review, 2026-10-17, the original defect)
+//   BREAK=refund-lost-keep    a new note written over the row loses the refunds recorded on it
+//   BREAK=refund-lost-settle  the settle write (97.69) loses the refunds recorded on the job
+//   BREAK=refund-covers       a partly refunded extra payment still counts as covering the job when its own debit fails
 //
 //   node tests/checkout-page-lifecycle.test.mjs          (or node --test …)
 //   BREAK=no-expire node tests/checkout-page-lifecycle.test.mjs
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
+import { createRequire, stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { writeReceipt } from "../scripts/receipt.mjs";
 
@@ -70,6 +80,14 @@ const SABOTAGE = {
   "no-expire": ["connect", "await call(`/checkout/sessions/${o.previousId}/expire`, {}, {", "void ({"],
   "no-reuse": ["connect", "if (Number(previous.amount_total) === o.amountCents) {", "if (false) {"],
   "no-carry": ["hook", "...(owedBack ? { payment_problem: owedBack } : {}),", ""],
+  "no-refund": ["hook", '  if (type === "charge.refunded") return await chargeRefunded(object, account);\n', ""],
+  "refund-any-account": ["hook", 'if (!conn?.stripe_account_id || conn.stripe_account_id !== account) {\n      console.error("refund for', 'if (false) {\n      console.error("refund for'],
+  "refund-partial-clears": ["connect", "const refunded = Math.min(Math.max(Number(charge.amount_refunded) || 0, 0), paid);", "const refunded = paid;"],
+  "refund-shrinks": ["connect", "if (!intent || refunded <= was) return undefined;", "if (!intent || refunded === was) return undefined;"],
+  "refund-early-dropped": ["hook", '    ...(typeof bookingId === "string" && bookingId ? [() => live().eq("id", bookingId)] : []),\n', ""],
+  "refund-lost-keep": ["connect", "const refunds = next.refunds ?? existing?.refunds;", "const refunds = next.refunds;"],
+  "refund-lost-settle": ["connect", ", ...(existing.refunds ? { refunds: existing.refunds } : {}) };", " };"],
+  "refund-covers": ["connect", "&& !refundedCents(existing, p.intent)) : undefined;", ") : undefined;"],
 };
 if (BREAK) {
   const s = SABOTAGE[BREAK];
@@ -95,12 +113,19 @@ const supabase = {
       delete() { q.op = "delete"; return b; },
       eq(c, v) { q.filters.push((r) => r[c] === v); return b; },
       is(c, v) { q.filters.push((r) => (r[c] ?? null) === v); return b; },
+      // jsonb `@>` (PostgREST `cs`): every key of `v` is in the column, an array element matched by any element.
+      contains(c, v) { q.filters.push((r) => within(v, r[c])); return b; },
       maybeSingle() { q.single = true; return b; },
       then(ok, bad) { return Promise.resolve(run(q)).then(ok, bad); },
     };
     return b;
   },
 };
+const within = (want, have) => Array.isArray(want)
+  ? Array.isArray(have) && want.every((w) => have.some((h) => within(w, h)))
+  : want && typeof want === "object"
+  ? !!have && typeof have === "object" && Object.entries(want).every(([k, w]) => within(w, have[k]))
+  : want === have;
 function run(q) {
   const rows = (db.tables[q.t] ??= []);
   const hit = rows.filter((r) => q.filters.every((f) => f(r)));
@@ -344,6 +369,107 @@ let tamperRefused = false;
   check("an event edited after signing is refused and changes nothing", tamperRefused, `HTTP ${res.status}, ${row().payment_status}`);
 }
 
+// ── § 4 — 97.68: the detailer refunds from their own Stripe ────────────────
+console.log("\n§ 4 — charge.refunded through the production webhook");
+// A charge as Stripe sends it: `pay-booking` puts the booking id on the payment intent, and the charge takes a copy.
+const charge = (pi, refunded, o) => ({ object: "charge", id: `ch_${pi}`, payment_intent: pi, metadata: { booking_id: "b1" }, currency: "usd", amount: 15000, amount_refunded: refunded, refunded: refunded >= 15000, ...o });
+const owed = (...ps) => ({ kind: "extra", paid_cents: ps.reduce((s, [, c]) => s + c, 0), owed_cents: 0, currency: "usd", at: "x",
+  payments: ps.map(([pi, c]) => ({ intent: pi, paid_cents: c, currency: "usd", at: "x" })) });
+const refunded = (pi, paid, ref) => ({ [pi]: { paid_cents: paid, refunded_cents: ref, at: "x" } });
+const PAID_JOB = { payment_status: "paid", stripe_payment_intent: "pi_1" };
+const CANCELLED = { ...PAID_JOB, status: "cancelled", paid_online_at: "x" };
+const left = (r, pi) => (r.payment_problem?.refunds?.[pi]?.paid_cents ?? 0) - (r.payment_problem?.refunds?.[pi]?.refunded_cents ?? 0);
+// What is still owed, per payment on the list: the job's line shows exactly these (BookingDetail.jsx).
+const stillOwed = (r) => (r.payment_problem?.payments ?? []).map((p) => `${p.intent}:${p.paid_cents - (r.payment_problem?.refunds?.[p.intent]?.refunded_cents ?? 0)}`).join();
+const REFUND = [
+  ["97.68 · the only refund owed is refunded in full: nothing is owed, so the line goes",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_2", 15000)]],
+    (r) => [r.payment_status === "paid" && stillOwed(r) === "pi_2:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · two owed, one refunded: only that one is settled, the other is still owed in full",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000], ["pi_3", 10000]) }), [["charge.refunded", charge("pi_2", 15000)]],
+    (r) => [r.payment_problem?.kind === "extra" && stillOwed(r) === "pi_2:0,pi_3:10000", JSON.stringify(r.payment_problem)]],
+  ["97.68 · a partial refund keeps the payment on the list, with what is left beside it",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_2", 5000)]],
+    (r) => [r.payment_problem?.payments?.length === 1 && stillOwed(r) === "pi_2:10000", JSON.stringify(r.payment_problem)]],
+  ["97.68 · refunded in two steps ($50, then the other $100): nothing owed after the second",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_2", 5000)], ["charge.refunded", charge("pi_2", 15000)]],
+    (r) => [stillOwed(r) === "pi_2:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · review: two partial refunds' events arrive the wrong way round ($100 total, then the older $50): $50 still owed, not $100",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_2", 10000)], ["charge.refunded", charge("pi_2", 5000)]],
+    (r) => [stillOwed(r) === "pi_2:5000", JSON.stringify(r.payment_problem)]],
+  ["97.68 · review: a late copy of a refunded payment's own event does not put it back as owed",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }),
+    [["checkout.session.completed", session("pi_2", { payment_status: "paid" })], ["charge.refunded", charge("pi_2", 15000)], ["payment_intent.succeeded", intent("pi_2")]],
+    (r) => [stillOwed(r) === "pi_2:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · an older wrong-amount reason under the list is kept when the refund is recorded",
+    job({ ...PAID_JOB, payment_problem: { ...owed(["pi_2", 15000]), earlier: [{ kind: "amount", paid_cents: 10000, owed_cents: 15000, currency: "usd", at: "x", intent: "pi_0" }] } }),
+    [["charge.refunded", charge("pi_2", 15000)]],
+    (r) => [stillOwed(r) === "pi_2:0" && r.payment_problem.earlier?.map((x) => `${x.kind}:${x.intent}`).join() === "amount:pi_0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · a failed note carrying the list keeps its own reason when the payment is refunded",
+    job({ payment_problem: { kind: "failed", paid_cents: 15000, owed_cents: 15000, currency: "usd", at: "x", intent: "pi_1", payments: owed(["pi_2", 10000]).payments } }),
+    [["charge.refunded", charge("pi_2", 10000, { amount: 10000 })]],
+    (r) => [r.payment_status === "pending" && r.payment_problem?.kind === "failed" && stillOwed(r) === "pi_2:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · a 97.69 wrong-figure payment owed back is refunded in full: nothing owed, its reason kept",
+    job({ ...PAID_JOB, payment_problem: { ...owed(["pi_0", 10000]), payments: [{ ...owed(["pi_0", 10000]).payments[0], reason: "amount" }] } }),
+    [["charge.refunded", charge("pi_0", 10000, { amount: 10000 })]],
+    (r) => [stillOwed(r) === "pi_0:0" && r.payment_problem.payments[0].reason === "amount", JSON.stringify(r.payment_problem)]],
+  // ── Andrew 2026-10-17 (1): the cancelled job's own payment (ROADMAP 14.4) ──
+  ["97.68 · a cancelled job's own payment refunded in full: recorded on a job that had no note, nothing left",
+    job(CANCELLED), [["charge.refunded", charge("pi_1", 15000)]],
+    (r) => [r.status === "cancelled" && r.payment_status === "paid" && left(r, "pi_1") === 0 && r.payment_problem?.refunds?.pi_1?.refunded_cents === 15000, JSON.stringify(r.payment_problem)]],
+  ["97.68 · a cancelled job's own payment refunded in part: $100 left",
+    job(CANCELLED), [["charge.refunded", charge("pi_1", 5000)]],
+    (r) => [left(r, "pi_1") === 10000, JSON.stringify(r.payment_problem)]],
+  ["97.68 · a cancelled job's own payment, found by the payment when the charge carries no booking id",
+    job(CANCELLED), [["charge.refunded", charge("pi_1", 15000, { metadata: {} })]],
+    (r) => [left(r, "pi_1") === 0 && r.payment_problem?.refunds?.pi_1?.refunded_cents === 15000, JSON.stringify(r.payment_problem)]],
+  // ── Andrew 2026-10-17 (3): the refund arrives BEFORE Stripe's notice of the payment ──
+  ["97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing",
+    job(PAID_JOB), [["charge.refunded", charge("pi_2", 15000)], ["checkout.session.completed", session("pi_2", { payment_status: "paid" })], ["payment_intent.succeeded", intent("pi_2")]],
+    (r) => [stillOwed(r) === "pi_2:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing",
+    job({}), [["checkout.session.completed", session("pi_0", { payment_status: "paid", amount_total: 10000 })], ["charge.refunded", charge("pi_0", 10000, { amount: 10000 })],
+      ["checkout.session.completed", session("pi_1", { payment_status: "paid" })]],
+    (r) => [r.payment_status === "paid" && stillOwed(r) === "pi_0:0", JSON.stringify(r.payment_problem)]],
+  ["97.68 · a recorded refund survives a later wrong-figure note written over the row",
+    job({ payment_problem: { kind: "extra", paid_cents: 0, owed_cents: 0, currency: "usd", at: "x", refunds: refunded("pi_2", 15000, 15000) } }),
+    [["checkout.session.completed", session("pi_0", { payment_status: "paid", amount_total: 10000 })]],
+    (r) => [r.payment_problem?.kind === "amount" && r.payment_problem.refunds?.pi_2?.refunded_cents === 15000, JSON.stringify(r.payment_problem)]],
+  ["refused: a refund sent from ANOTHER detailer's account records nothing",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_2", 15000), "acct_stranger"]],
+    (r) => [stillOwed(r) === "pi_2:15000" && !r.payment_problem.refunds, JSON.stringify(r.payment_problem)]],
+  ["refused: another detailer's refund of a cancelled job's own payment leaves its line",
+    job(CANCELLED), [["charge.refunded", charge("pi_1", 15000), "acct_stranger"]],
+    (r) => [r.payment_problem === null, JSON.stringify(r.payment_problem)]],
+  ["refused: a refund of a payment no job here took, carrying no booking id, changes nothing",
+    job({ ...PAID_JOB, payment_problem: owed(["pi_2", 15000]) }), [["charge.refunded", charge("pi_9", 15000, { metadata: {} })]],
+    (r) => [stillOwed(r) === "pi_2:15000" && !r.payment_problem.refunds, JSON.stringify(r.payment_problem)]],
+  ["refused: a partly refunded payment no longer counts as covering the job when its own debit fails",
+    job({ ...PAID_JOB, paid_online_at: "x", payment_problem: { ...owed(["pi_2", 15000]), refunds: refunded("pi_2", 15000, 5000) } }),
+    [["checkout.session.async_payment_failed", session("pi_1", { payment_status: "unpaid" })]],
+    (r) => [r.payment_status === "pending" && r.payment_problem?.kind === "failed" && r.payment_problem.refunds?.pi_2?.refunded_cents === 5000, `${r.payment_status} ${JSON.stringify(r.payment_problem)}`]],
+];
+for (const [name, booking, events, expect] of REFUND) {
+  discovered++; attempted++;
+  fresh(booking);
+  const statuses = [];
+  for (const [type, object, acct] of events) statuses.push(await deliver(type, object, acct));
+  const [ok, detail] = expect(row());
+  check(name, ok && statuses.every((s) => s === 200), `${detail} · HTTP ${statuses.join(",")}`);
+  probed.push({ name, ok, statuses, payment_status: row().payment_status, problem: row().payment_problem });
+  completed++;
+}
+// The lookup's query string, built by the real client library: `payment_problem=cs.{...}`.
+// The in-memory `contains` above stands in for Postgres's `@>`; this proves what is SENT.
+{
+  const { createClient } = createRequire(new URL("../app/package.json", import.meta.url))("@supabase/supabase-js");
+  let url = "";
+  const client = createClient("https://db.test", "anon", { global: { fetch: async (u) => { url = String(u); return new Response("[]", { status: 200, headers: { "content-type": "application/json" } }); } } });
+  await client.from("bookings").select("id").contains("payment_problem", { payments: [{ intent: "pi_2" }] });
+  const sent = decodeURIComponent(url.split("?")[1] ?? "");
+  check("the refund lookup is sent as jsonb contains on the payment's intent", sent.includes('payment_problem=cs.{"payments":[{"intent":"pi_2"}]}'), sent);
+}
+
 // ── § 3 — pay-booking against a stubbed Stripe ─────────────────────────────
 console.log("\n§ 3 — pay-booking: the stale page is expired before a new one is made");
 const page = (id, o) => ({ id, object: "checkout.session", url: `https://checkout.stripe.test/${id}`, ...o });
@@ -394,7 +520,7 @@ for (const [name, booking, answer, expect] of PAY) {
   probed.push({ name, ok, status: res.status, calls: stripeCalls.map((c) => `${c.method} ${c.path}`) });
   completed++;
 }
-const EXPECTED = WEBHOOK.length + PAY.length;
+const EXPECTED = WEBHOOK.length + REFUND.length + PAY.length;
 check(`all ${EXPECTED} scenarios ran`, completed === EXPECTED, `${completed} of ${EXPECTED}`);
 
 // ── Receipt ────────────────────────────────────────────────────────────────
@@ -420,7 +546,7 @@ const { path: receiptPath } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: EXPECTED + 2,
+  min_assertions: EXPECTED + 3,
   failures,
   dimensions: { ...(BREAK ? { break: BREAK } : {}), probed },
   artifacts: [logName],
