@@ -30,6 +30,7 @@ declare
   v_buf integer;
   v_day date;
   v_n integer;
+  v_close boolean;
 begin
   select b.timezone, s.max_bookings_per_day, coalesce(s.buffer_minutes, 60)
     into v_tz, v_cap, v_buf
@@ -41,29 +42,24 @@ begin
   -- One lock per business per local day, held until this transaction ends, so it spans the write.
   perform pg_advisory_xact_lock(hashtextextended('booking-day:' || p_business || ':' || v_day, 0));
 
-  select count(*) into v_n
+  -- One pass over the day, as a start_at range from local midnight to the next local midnight (the same
+  -- day validateSlot buckets by), so it reads bookings_business_start_idx rather than the whole history.
+  select count(*),
+         coalesce(bool_or(p_start <= b.end_at + make_interval(mins => v_buf)
+                          and b.start_at - make_interval(mins => v_buf) <= p_end), false)
+    into v_n, v_close
     from public.bookings b
    where b.business_id = p_business
+     and b.deleted_at is null
+     and b.start_at >= (v_day::timestamp at time zone v_tz)
+     and b.start_at < ((v_day + 1)::timestamp at time zone v_tz)
      and b.status <> 'cancelled'
      and b.bulk_vehicle_count is null
-     and b.deleted_at is null
-     and (p_exclude is null or b.id <> p_exclude)
-     and (b.start_at at time zone v_tz)::date = v_day;
+     and (p_exclude is null or b.id <> p_exclude);
   if v_cap is not null and v_n >= v_cap then
     raise exception 'booking_day_full' using errcode = 'BK001';
   end if;
-
-  if exists (
-    select 1 from public.bookings b
-     where b.business_id = p_business
-       and b.status <> 'cancelled'
-       and b.bulk_vehicle_count is null
-       and b.deleted_at is null
-       and (p_exclude is null or b.id <> p_exclude)
-       and (b.start_at at time zone v_tz)::date = v_day
-       and p_start <= b.end_at + make_interval(mins => v_buf)
-       and b.start_at - make_interval(mins => v_buf) <= p_end
-  ) then
+  if v_close then
     raise exception 'booking_too_close' using errcode = 'BK002';
   end if;
 end;
