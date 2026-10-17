@@ -8,7 +8,8 @@
 // So the RPC the screen sends is ANSWERED BY A THROWAWAY POSTGRES RUNNING THE REAL MIGRATION: the request's own
 // business and customer ids are seeded into it, the caller is made a member of that business, and the function's
 // real result or real error goes back. Everything else — sign-in, the list, the record — is the live demo tenant.
-// Signs in as the STAFF login (the role this item is about). Nothing is written to the live database.
+// Signs in as the STAFF login (the role this item is about); LOGIN=owner signs in as the owner instead, the second
+// account R3 asks for, and writes its own receipt. Nothing is written to the live database.
 //
 // Two scenarios per width: MEMBER (the save must succeed and no error line appear) and NOT A MEMBER (the function
 // refuses, and the screen must SAY so — the old direct update failed silently). Expected 3 widths × 2 = 6 targets.
@@ -23,14 +24,14 @@ import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
-import { demoStaff } from "./lib/demoOwner.mjs";
+import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
 
 const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
 const BASE = process.env.BASE || "http://localhost:5173";
 const BREAK = process.env.BREAK || "";
 const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
-const SHOTS = process.env.SHOTS || "artifacts/customer-notes-route";
+const SHOTS = process.env.SHOTS || `artifacts/customer-notes-route${process.env.LOGIN === "owner" ? "-owner" : ""}`;
 const started_at = new Date().toISOString();
 const { PGlite } = await import(pathToFileURL(path.join(process.env.PGLITE_DIR ?? "", "node_modules/@electric-sql/pglite/dist/index.js")).href);
 const read = (f) => readFileSync(path.join("supabase/migrations", f), "utf8").replace(/\r\n/g, "\n");
@@ -74,7 +75,8 @@ const check = (name, ok, detail = "") => {
 
 const browser = await chromium.launch();
 mkdirSync(SHOTS, { recursive: true });
-const STAFF = demoStaff();
+const OWNER_RUN = process.env.LOGIN === "owner";
+const STAFF = OWNER_RUN ? demoOwner() : demoStaff();
 for (const [w, h] of WIDTHS) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const page = await ctx.newPage();
@@ -146,7 +148,7 @@ for (const [w, h] of WIDTHS) {
 await browser.close();
 
 writeReceipt({
-  check_id: "customer-notes-route",
+  check_id: OWNER_RUN ? "customer-notes-route-owner" : "customer-notes-route",
   started_at,
   status: failures.length ? "fail" : "pass",
   expected_targets: WIDTHS.length * 2,
@@ -160,6 +162,6 @@ writeReceipt({
   assertion_floor: "structural: two per scenario plus a next-record and a console check per width",
   artifacts: [SHOTS],
   canary: { id: "direct-write-refused", observed_failure: BREAK === "direct" ? failures.length > 0 : true },
-  dimensions: { break: BREAK || undefined, login: "demo staff", calls: calls.length },
+  dimensions: { break: BREAK || undefined, login: OWNER_RUN ? "demo owner" : "demo staff", calls: calls.length },
 });
 process.exit(failures.length ? 1 : 0);
