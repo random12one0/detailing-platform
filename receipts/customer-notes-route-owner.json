@@ -1,0 +1,31 @@
+{
+  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:41:47.169Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/customer-notes-route-owner"
+  ],
+  "dimensions": {
+    "login": "demo owner",
+    "calls": 6
+  },
+  "check_id": "customer-notes-route-owner",
+  "started_at": "2026-10-17T04:41:02.364Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
+  "canary": {
+    "id": "direct-write-refused",
+    "observed_failure": true
+  }
+}

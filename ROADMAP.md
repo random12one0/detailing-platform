@@ -411,6 +411,18 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - It has a positive control that exists today (it can be `booking_vehicles`'s booking pair, asked through the same generalized query), and a `--break=` that makes it go red
   - `EXPECTED_CHECKS` is moved on purpose, and the commit says which check changed
 
+- [ ] **97.74 — The dashboard's New booking refuses a booking with no email, though the box says "Email (optional)" (found by 97.14).**
+  `api.createBooking` (`app/src/lib/api.js:80`) goes through `bookingTransport`, the PUBLIC transport, which sends the
+  anon key and no session. So `create-booking` sees no member (`index.ts:117`) and applies the public rule at
+  `index.ts:174`: `{"error":"Customer email is required"}`, 400. Measured 2026-10-17 by
+  `scripts/customer-add-delete-walk.mjs` as the demo owner at 390: name + phone, Drop-off, first service, an open
+  slot, no email -> 400 with that body. Every member-only allowance the function grants (logging a phone booking
+  without email, and whatever else keys on `member`) is unreachable from the dashboard. Fix: send the session on the
+  dashboard's create call (the core's transport is shared with tenant sites, so the token must be optional there).
+  Acceptance criteria:
+  - The owner's New booking with no email succeeds in the running app, and a public `/book/:slug` booking with no
+    email is still refused
+  - Every `member` branch in `create-booking` is listed in the entry with which caller now reaches it
 - [ ] **97.13 — A detailer can mark any domain "verified", or keep the badge after switching domains (S-M1, S-L6).**
   INSERT on `business_domains` is allowed with only a tenant check (`20260904000000_custom_roles.sql:155-157`); the later lockdown revokes UPDATE but grants back `update (domain)` (`20260907003000_column_revokes_actually_apply.sql:82,88`), so a member can insert a row with `verified_at` filled in, or verify domain A and rename it to B. Every platform domain serves the same marker (`verify-domain/index.ts:35`, `MARKER = "detailing-platform-host-v1"`), and `verify-domain/index.ts:95` follows redirects. New migration: revoke INSERT and `update (domain)` from `authenticated` (add domains through an edge function), clear `verified_at` when `domain` changes, serve a per-row token, and fetch with `redirect: "manual"`.
   Acceptance criteria:
@@ -425,7 +437,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - On a throwaway local copy, a staff session's direct DELETE on `bookings` and direct writes on `customers` are refused
   - Every customer edit the app offers still works through a function, checked in the running app (adding, editing and the owner-only delete)
   - `node scripts/fixture-not-deletable.mjs` still passes
-  **Progress 2026-10-17 (belt run, commits `ea72ca72` + `e0bef0d9`). Box NOT ticked: the browser half (R3, R4) is unrun, see the Waits on line.**
+  **Progress 2026-10-17 (belt run, then a review round). Box NOT ticked: the migration is not running on the live database, so the Notes route is proved only against the real migration on a throwaway copy — see AWAITS PUBLISH at the end.**
   - **Every direct browser write, grepped in `app/src` at `34a75b4f`** (`from("customers")` / `from("bookings")`, every hit read):
     adding a customer = `create-booking` (NewBookingModal.jsx, service role, untouched); **editing = ONE direct write,
     Clients.jsx `saveNotes`, `update({ notes })`**; deleting a customer = `delete-customer` (owner-only, untouched);
@@ -455,12 +467,34 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
     screen shows "Your notes were not saved"; console clean apart from the one 403 each width deliberately served.
     Sabotage `BREAK=direct` (every save answered as a revoked direct write) reddened the member case at all 3 widths.
     Screenshots in `artifacts/customer-notes-route/` (gitignored), opened and read at 390.
-  - **Still unrun:** R3's adding (create-booking) and owner-only delete (delete-customer) walks, and R4. Neither path
-    is touched by this change (both write as the service role), but neither was re-run in a browser here.
-  - Waits on: a belt server (for R4 and the add / delete walks) that carries the app's Supabase address — this copy's server at 127.0.0.1:5180 renders
-    nothing (`Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY`, then `createBookingTransport needs supabaseUrl`),
-    so `fixture-not-deletable.mjs` timed out twice at sign-in and R3's add / edit / owner-only-delete walk (owner AND
-    staff login, 390 / 768 / 1440) could not be run. The next run removes this line by running both.
+  - **Review round 2026-10-17, three findings, all real, all fixed:**
+    (3) the refusal line followed onto the NEXT client opened — `openCustomer` now clears it (`3eb03b1a`), and
+    `customer-notes-route.mjs` opens a second record after the refusal and requires the line gone; with the clear
+    removed again (sabotage, put back by `git checkout`) it went red at 390, 768 and 1440 ("shown 1").
+    (2) **R4 MET:** `node scripts/fixture-not-deletable.mjs` **PASS, 2 of 2 widths, 17 assertions, canary caught** at
+    `3eb03b1a`. It timed out before only because this job's server has no app env; it ran unedited under the new
+    `scripts/lib/inject-app-env.mjs` preload (`node --import`), which hands the page the root `.env`'s Supabase
+    address and anon key and refuses to start without them.
+    (1) **R3 adding and owner-only delete, two accounts, in the running app:** `scripts/customer-add-delete-walk.mjs`
+    at `a891c0c8` — per width the OWNER adds "Walk 97.14 <w>" through New booking (`create-booking` 200, appears in
+    Clients), the STAFF login is offered no delete on that record and a direct `delete-customer` call with the staff
+    session is refused 403 with the customer still there, then the OWNER deletes them with `Delete for good`
+    (`delete-customer` 200, gone). Receipt **PASS, 9 of 9 targets (390 / 768 / 1440 x add, staff refused, owner
+    delete), 18 assertions**; console clean apart from the one deliberate 403. Sabotage `BREAK=staff-is-owner` red
+    at all 3 widths. Writes to the demo tenant: 3 bookings 70+ days out, each customer deleted, bookings kept
+    anonymised (as any deletion keeps them); the email box carried Resend's simulator address, as e2e-booking does.
+    **R3 editing, second account:** `LOGIN=owner node scripts/customer-notes-route.mjs` **PASS, 6 of 6, 18 assertions**
+    (`receipts/customer-notes-route-owner.json`), its own `BREAK=direct` red at 3 widths; the staff run re-taken, PASS
+    6 of 6, 18 assertions.
+    **The reviewer's third point stands and cannot be closed by a session:** the Notes save is answered by a
+    throwaway Postgres running the real migration, because the live database has not run it and changing its
+    structure is Andrew's. Adding and deleting ran against the live database for real.
+  - Found on the way, numbered separately: **97.74** — the dashboard's New booking refuses a booking with no email
+    although the box says "Email (optional)".
+  - **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** apply `20261017030000` and publish the app in
+    the same sitting; then re-run `customer-notes-route.mjs` with its RPC answer removed (or by hand: type a note on a
+    client, reopen it) to see the Notes save against the live function, and tick. Once applied,
+    `tests/definer-grants.test.mjs` 1b names `set_customer_notes` until an ALLOWED line is added for it.
 
 - [ ] **97.15 — Support ("view as") sessions never expire and hand out a refresh token (S-M4).**
   `platform-admin/index.ts:1177-1221` creates a real owner session and returns both `access_token` and `refresh_token`; nothing in `support_sessions` or `_shared/supportSession.ts` holds an expiry, and Supabase Auth's own `updateUser` (password, email) never consults `support_sessions` (the only guard is `app/src/lib/supabase.js:117`). Give the marker an `expires_at` (30 minutes), check it in `is_support_session()` and `isSupportSession`, stop returning the refresh token, and sign the session out when the view ends or expires.

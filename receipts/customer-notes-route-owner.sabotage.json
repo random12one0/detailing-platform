@@ -1,0 +1,36 @@
+{
+  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:41:01.527Z",
+  "failures": [
+    "390: member: the function stored the text and no error line is shown {\"call\":{\"width\":390,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 390\",\"saved\":null},\"shown\":1}",
+    "768: member: the function stored the text and no error line is shown {\"call\":{\"width\":768,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 768\",\"saved\":null},\"shown\":1}",
+    "1440: member: the function stored the text and no error line is shown {\"call\":{\"width\":1440,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 1440\",\"saved\":null},\"shown\":1}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/customer-notes-route-owner"
+  ],
+  "dimensions": {
+    "break": "direct",
+    "login": "demo owner",
+    "calls": 6
+  },
+  "check_id": "customer-notes-route-owner",
+  "started_at": "2026-10-17T04:40:17.003Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
+  "canary": {
+    "id": "direct-write-refused",
+    "observed_failure": true
+  }
+}

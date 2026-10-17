@@ -1,9 +1,9 @@
 {
-  "git_sha": "ea72ca728e2a50dc703da46eba3029b047516c33",
-  "git_sha_started": "ea72ca728e2a50dc703da46eba3029b047516c33",
+  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:17:37.368Z",
+  "finished_at": "2026-10-17T04:42:49.109Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -16,7 +16,7 @@
     "refused_after": 4
   },
   "check_id": "staff-writes-sql",
-  "started_at": "2026-10-17T04:17:21.377Z",
+  "started_at": "2026-10-17T04:42:32.301Z",
   "status": "pass",
   "expected_targets": 8,
   "discovered_targets": 8,
