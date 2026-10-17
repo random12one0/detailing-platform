@@ -454,10 +454,13 @@ Deno.serve(async (req) => {
           // `maintenanceVerdict`, which tests/maintenance-legal runs for real.
           if (!settings.email_customer_reminder) continue;
           if (!settings.email_customer_maintenance_due) continue;
+          // ROADMAP 97.72 — THE DEADLINE'S OWN BUSINESS, NOT THE ID ALONE. This is the service role, so no policy
+          // scopes it: a deadline in A naming B's customer would otherwise email B's customer under A's name.
+          // 20261017020000 makes such a row impossible; this read refuses it on its own until that is applied.
           const { data: customer } = await supabase
             .from("customers")
             .select("name, email, unsubscribed_at, email_failed_at")
-            .eq("id", d.customer_id).maybeSingle();
+            .eq("id", d.customer_id).eq("business_id", d.business_id).maybeSingle();
           const verdict = maintenanceVerdict({ settings, customer, mailingAddress: business.mailing_address });
           if (!verdict.send && verdict.reason !== "no_mailing_address") continue;
           // ROADMAP 8.17 — a deadline belongs to a CUSTOMER rather than to

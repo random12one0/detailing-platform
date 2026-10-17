@@ -30,6 +30,9 @@
 //   node tests/reminder-claim.test.mjs                  (credential-free, no network)
 //   BREAK=no-claim node tests/reminder-claim.test.mjs   (the graded run itself loses
 //                                                        its claims; must go red)
+//   BREAK=no-business node tests/reminder-claim.test.mjs (ROADMAP 97.72: the graded run
+//                                                        reads the deadline's customer by id
+//                                                        alone again; must go red)
 //   REMINDER_SRC=<file> node tests/reminder-claim.test.mjs   (another copy of the
 //                                                        function, e.g. the pre-fix one;
 //                                                        writes no receipt)
@@ -45,7 +48,7 @@ import * as ownerFanout from "../supabase/functions/_shared/ownerFanout.ts";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.BREAK || "";
-if (BREAK && BREAK !== "no-claim") { console.error(`unknown BREAK=${BREAK}; the only one is no-claim`); process.exit(2); }
+if (BREAK && !["no-claim", "no-business"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}; the two are no-claim and no-business`); process.exit(2); }
 const SRC_PATH = process.env.REMINDER_SRC || "supabase/functions/send-owner-reminders/index.ts";
 const SOURCE = readFileSync(SRC_PATH, "utf8");
 
@@ -69,12 +72,20 @@ const CLAIMS = [
   [`ignoreDuplicates: true`, `ignoreDuplicates: false`],                             // the morning digest
 ];
 
-function prepare(src, removeClaims) {
+// ROADMAP 97.72 — the maintenance sweep reads the deadline's customer by id AND the deadline's business.
+// Removing that filter is the second sabotage: it puts back the read that emailed another business's customer.
+const BUSINESS_SCOPE = [`.eq("id", d.customer_id).eq("business_id", d.business_id)`, `.eq("id", d.customer_id)`];
+
+function prepare(src, removeClaims, removeBusiness = false) {
   let s = src, landed = 0;
   if (removeClaims) {
     for (const [from, to] of CLAIMS) {
       if (s.split(from).length - 1 === 1) { s = s.replace(from, to); landed++; }
     }
+  }
+  if (removeBusiness) {
+    const [from, to] = BUSINESS_SCOPE;
+    if (s.split(from).length - 1 === 1) { s = s.replace(from, to); landed++; }
   }
   let js = stripTypeScriptTypes(s);
   js = js.replace(/^import\s+"jsr:[^"]+";\s*$/m, "");
@@ -137,7 +148,8 @@ function world() {
   const dueOn = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
   T.maintenance_deadlines.push({ id: "md-1", business_id: BIZ.id, customer_id: "cu-1", label: "Ceramic coating",
     vehicle: "Civic", due_on: dueOn, repeat_months: 12, last_done_on: null, reminded_stage: 0, cancelled_at: null });
-  T.customers.push({ id: "cu-1", name: "Pat", email: "pat@example.test", unsubscribed_at: null, email_failed_at: null });
+  // ROADMAP 97.72: a customer belongs to a business, and the sweep now asks for the deadline's own one.
+  T.customers.push({ id: "cu-1", business_id: BIZ.id, name: "Pat", email: "pat@example.test", unsubscribed_at: null, email_failed_at: null });
 
   const pushes = [];
   const relay = { refuse: new Set(), failPush: () => false };
@@ -281,11 +293,14 @@ say(`\nsource: ${SRC_PATH}${BREAK ? `   BREAK=${BREAK}` : ""}`);
 say(`expected sends: ${EXPECTED.length}`);
 
 say("\n§ 0 — the production file loads as itself");
-const clean = prepare(SOURCE, BREAK === "no-claim");
+const clean = prepare(SOURCE, BREAK === "no-claim", BREAK === "no-business");
 check("0a all twelve _shared imports were swapped and none is left", clean.rewritten === 12 && !clean.leftover,
   `${clean.rewritten} rewritten, leftover import: ${clean.leftover}`);
 if (BREAK === "no-claim") {
   check("0b (sabotage) all three claims were removed from the graded copy", clean.landed === 3, `${clean.landed} of 3 landed`);
+}
+if (BREAK === "no-business") {
+  check("0b (sabotage) the business filter was removed from the graded copy", clean.landed === 1, `${clean.landed} of 1 landed`);
 }
 // A module binds its stand-ins when it LOADS, so every isolate is loaded after
 // the world it is meant to run in.
@@ -357,6 +372,36 @@ const canary = { id: "send-owner-reminders-with-its-claims-removed", observed_fa
   reported: doubled.length };
 say(`  canary: ${doubled.length} of ${EXPECTED.length} sends doubled without the claims`);
 
+say("\n§ 4 — ROADMAP 97.72: a deadline naming ANOTHER business's customer emails nobody; the own customer still gets theirs");
+// A second deadline in this business names a customer of business biz-2, the row a detailer could write before
+// 20261017020000. The real sweep runs once. The same run is repeated on the file with the business filter removed,
+// which must email the stranger, or this section cannot tell the filter from a fixture that never reaches it.
+async function strangerRun(js) {
+  const w = world();
+  const due = w.T.maintenance_deadlines[0].due_on;
+  w.T.maintenance_deadlines.push({ id: "md-2", business_id: BIZ.id, customer_id: "cu-9", label: "Ceramic coating",
+    vehicle: "Tacoma", due_on: due, repeat_months: 12, last_done_on: null, reminded_stage: 0, cancelled_at: null });
+  w.T.customers.push({ id: "cu-9", business_id: "biz-2", name: "Sam", email: "stranger@example.test", unsubscribed_at: null, email_failed_at: null });
+  const h = await isolate(js);
+  await quietly(() => h(req()));
+  const rows = (to) => w.T.email_sends.filter((r) => r.to_email === to);
+  return { w, stranger: rows("stranger@example.test"), own: rows("pat@example.test").filter((r) => r.status === "sent") };
+}
+{
+  const S = await strangerRun(clean.js);
+  check("4a the other business's customer gets no email and no email_sends row", S.stranger.length === 0,
+    `${S.stranger.length} row(s): ${S.stranger.map((r) => r.status).join(",")}`);
+  check("4b the deadline naming them is not claimed (reminded_stage stays 0)", S.w.T.maintenance_deadlines[1].reminded_stage === 0,
+    `reminded_stage is ${S.w.T.maintenance_deadlines[1].reminded_stage}`);
+  check("4c this business's own customer still gets their maintenance email exactly once", S.own.length === 1, `${S.own.length} sent`);
+  const unscoped = prepare(SOURCE, false, true);
+  check("4d (in-run sabotage) the business filter was found once and removed", unscoped.landed === 1, `${unscoped.landed} of 1 landed`);
+  const U = await strangerRun(unscoped.js);
+  check("4e ...and without it the stranger IS emailed, so 4a is measuring the filter", U.stranger.some((r) => r.status === "sent"),
+    `${U.stranger.length} row(s) to the stranger`);
+  say(`  stranger rows: ${S.stranger.length} with the filter, ${U.stranger.length} without`);
+}
+
 // ---------------------------------------------------------------------------
 const failed = failures.length;
 say(`\n${passed} passed, ${failed} failed, ${assertions} assertions.`);
@@ -387,10 +432,10 @@ if (process.env.REMINDER_SRC) {
     skipped_targets: 0,
     assertions_executed: assertions,
     // § 0's three (four under sabotage), § 1's three plus one per send, § 2's six
-    // plus one per send, § 3's two.
-    min_assertions: 3 + (BREAK ? 1 : 0) + 3 + EXPECTED.length + 6 + EXPECTED.length + 2,
+    // plus one per send, § 3's two, § 4's five (97.72).
+    min_assertions: 3 + (BREAK ? 1 : 0) + 3 + EXPECTED.length + 6 + EXPECTED.length + 2 + 5,
     assertion_floor: "3 in §0 (+1 under BREAK) + 3 in §1 + one per expected send in §1 + 6 in §2 + one per expected send in §2 "
-      + "+ 2 in §3; the fixture is fixed, so nothing the run finds changes the count",
+      + "+ 2 in §3 + 5 in §4; the fixture is fixed, so nothing the run finds changes the count",
     failures,
     dimensions: { function: "send-owner-reminders", sweeps_at_once: 2, ...(BREAK ? { break: BREAK } : {}) },
     artifacts: [artifact],
