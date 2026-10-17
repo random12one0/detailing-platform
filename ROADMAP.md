@@ -30447,6 +30447,12 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   DONE WHEN: the three state shots differ where the page differs (the checked shot shows a ticked box); the clean run still passes with the same targets and the `--break=half` run is still red through the width and line questions; the receipt re-grades green.
 - [ ] **99.12 — Flag a payment as a possible refund, with a note saying to ignore the flag if the customer keeps the money.**
   Flag it as a possible refund, with a note saying to ignore it if kept (your words w-5)
+- [ ] **99.13 — Check built back office work follows your new rule: Fix an unnamed issue, and separately let owners set specific permissions for st…**
+  Andrew's rule (2026-10-16, word for word): "Fix it but also the owners should be able to like set specific permissions for staff not urgent tho cuz the website isn’t public yet". Already-built items in this area: 97.65, 97.66, 0.11b, 0.11ba, 0.11bc, 0.11ca, 0.11cb, 0.1, 0.2, 0.6b, 1.1, 2.1 and more. Check each still follows the rule and fix any that do not. (your words w-7)
+  Acceptance criteria:
+  - Every listed item is checked against the rule
+  - Anything that broke the rule is fixed, with proof
+
 
 
 ## Belt repairs
