@@ -2467,8 +2467,9 @@ button.menu-name { display: flex; flex-direction: column; justify-content: cente
 }
 .pill.live.next { border-color: var(--accent-line); color: var(--accent-text); }
 .pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: none; color: var(--bad); }
-.pill.pending, .pill.partial { border-color: var(--line-2); color: var(--text-muted); }
-.pill.waived { border-color: var(--hairline); color: var(--text-muted); }
+.pill.pending, .pill.partial, .pill.part_refunded { border-color: var(--line-2); color: var(--text-muted); }
+/* ROADMAP 97.80: money that went back reads as quietly as money given away, never as the green "Paid". */
+.pill.waived, .pill.refunded { border-color: var(--hairline); color: var(--text-muted); }
 
 /* ----------------------------------------------------------------- FORM */
 label.field { display: block; }

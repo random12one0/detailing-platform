@@ -1045,7 +1045,7 @@ console.log("11. text that only exists after an action");
   // [file under app/src, constant, catalogue]
   const LISTS = [
     ["components/BookingDetail.jsx", "STATUS_LABELS", "app"],
-    ["components/BookingDetail.jsx", "PAY_LABELS", "app"],
+    ["lib/payPill.js", "PAY_LABELS", "app"], // 97.80: moved out of BookingDetail, shared with BookingCard
     ["components/BookingDetail.jsx", "SIZE_LABELS", "app"],
     ["components/BookingDetail.jsx", "CONDITION_LABELS", "app"],
     ["components/BookingCard.jsx", "STATUS_LABEL", "app"],

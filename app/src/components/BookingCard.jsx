@@ -19,6 +19,7 @@ import ConfirmTap, { jobDoneQuestion } from "./ConfirmTap.jsx";
 import { t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import JobWeather from "./JobWeather.jsx";
+import { PAY_LABELS, payPill } from "../lib/payPill.js";
 
 const STATUS_LABEL = {
   confirmed: "Confirmed", completed: "Completed",
@@ -46,6 +47,7 @@ export default function BookingCard({
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const isMobile = booking.service_type === "mobile";
   const amount = booking.final_amount ?? booking.total_price;
+  const pay = payPill(booking);
 
   // The action buttons sit OUTSIDE the tappable info region so a thumb
   // aiming for Call never opens the detail sheet instead.
@@ -83,7 +85,8 @@ export default function BookingCard({
             <span className={`pill ${live ? `live ${live}` : booking.status}`}>
               {t(live ? LIVE_LABEL[live] : (STATUS_LABEL[booking.status] ?? booking.status))}
             </span>
-            {booking.payment_status === "paid" && <span className="pill paid">{t("Paid")}</span>}
+            {/* ROADMAP 97.80: a refund in Stripe replaces "Paid", never sits beside it. */}
+            {["paid", "refunded", "part_refunded"].includes(pay) && <span className={`pill ${pay}`} data-pay-pill>{t(PAY_LABELS[pay])}</span>}
             {/* THE SKY, IN THE STRIP THAT ALREADY SAYS WHAT KIND OF JOB THIS
                 IS — 2026-09-13. It is the same class of fact as *Mobile* and
                 the status, so it wraps with them rather than opening a line of

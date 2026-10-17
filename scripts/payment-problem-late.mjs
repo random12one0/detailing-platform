@@ -30,6 +30,8 @@
 //   cancelled  ROADMAP 14.4: a cancelled job paid by card, nothing refunded → "Refund $150" (still shown)
 //   cancelled-refunded  its own payment refunded in Stripe → NO red line, and "Refunded $150 in your Stripe on …"
 //   cancelled-part-refunded(-es)  $50 refunded → the line names the $100 left
+//   97.80: the payment pill on those views reads "Refunded" / "Part refunded" (-es "Devuelto" / "Devuelto en parte"),
+//              never the green "Paid"; own-refunded is a confirmed job refunded in full; cancelled and clean stay "Paid"
 //   hand-paid-part-refunded(-es, -currency)  ROADMAP 97.78: 97.70's kept $100 payment, $50 refunded
 //              → the possible-refund line names the $50 left, never "A card payment of $100 … refund it"
 //   waived-part-refunded(-es, -currency)  the same on 97.75's waived job
@@ -51,6 +53,9 @@
 // original defect, and every one of them except `cancelled` must go red.
 // --break=whole-payment (97.78) rewrites the served module so a partly refunded
 // possible-refund line names the whole payment again (the original defect), signed and read back.
+// --break=plain-pill (97.80) rewrites the served module so the payment pill reads `payment_status`
+// alone again (the original defect: "Cancelled · Paid" in green over a full refund), signed and read back;
+// every view that asserts "Refunded" or "Part refunded" must go red, and "Paid" stays green.
 // --break=browser-day (97.68) rewrites the served module so the refund's date is
 // read in the BROWSER's day instead of the business's: under the frozen clock and
 // the Tokyo browser below, "Friday, October 16" becomes Saturday, so it must go red.
@@ -63,11 +68,12 @@
 // the 17th for the browser, so the date printed proves whose day it is.
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
-//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day|whole-payment] [--now=<iso>] [--tz=<zone>] [--freeze]
+//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day|whole-payment|plain-pill] [--now=<iso>] [--tz=<zone>] [--freeze] [--env-shim]
 //   --freeze-owed=before|after   97.69's review pair at 390, no receipt
 //   --freeze-hand=before|after   97.70's review pair at 390, no receipt
 //   --shots=<dir>                where the PNGs go (default: the 97.11 folder)
 //   --freeze-left=before|after   97.78's review pairs at 390 (hand-paid, waived), no receipt
+//   --freeze-pill=before|after   97.80's review pairs at 390, no receipt
 //   --freeze-refund=<dir> [--pair=<place>] [--side=before|after]   97.68's pairs at 390, no receipt
 
 import { mkdirSync } from "node:fs";
@@ -82,7 +88,7 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-if (BREAK && !["old-webhook", "overwrite", "hide-hand-paid", "no-refund", "browser-day", "whole-payment"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["old-webhook", "overwrite", "hide-hand-paid", "no-refund", "browser-day", "whole-payment", "plain-pill"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 const OLDHOOK = BREAK === "old-webhook";
 // --freeze-reasons=before|after: only freeze the two-reasons view at 390 (Andrew's review pair), no receipt.
 const FREEZE_REASONS = arg("freeze-reasons");
@@ -93,6 +99,7 @@ const REWRITE = {
   "hide-hand-paid": ['booking.payment_status === "paid" ? kept.filter(', "false ? kept.filter("],
   "browser-day": ["localDate(ownRefund.at, business.timezone)", "localDate(ownRefund.at)"],
   "whole-payment": ["const partlyRefunded = (r) => refundedOf(r.intent) > 0;", "const partlyRefunded = (r) => false;"],
+  "plain-pill": ["const pay = payPill(booking);", "const pay = booking.payment_status;"],
 }[BREAK];
 const NOW = arg("now") || process.env.BELT_FROZEN_NOW || "2026-10-17T06:30:00.000Z";
 const TZ = arg("tz") || "Asia/Tokyo";
@@ -172,7 +179,7 @@ const SCENARIOS = [
     want: ["A card payment that was not in US dollars came in, and the job has since been marked paid.", "If you kept this payment"], wantNot: "$" },
   { id: "hand-paid-extra", patch: HAND_EXTRA,
     want: ["A card payment of $100 did not match", "If you kept this payment", "Another payment of $50 came in after this job was settled."] },
-  { id: "clean", patch: { ...PAID, payment_problem: null }, want: null },
+  { id: "clean", patch: { ...PAID, payment_problem: null }, want: null, pill: "Paid" },
   // ROADMAP 97.78 — a kept wrong-figure payment, partly refunded: the possible-refund line names what is left.
   { id: "hand-paid-part-refunded", patch: HAND_PART,
     want: ["A card payment of $100 did not match what this job was owed, and the job has since been marked paid. " + LEFT,
@@ -211,15 +218,18 @@ const SCENARIOS = [
   { id: "unpaid-wrong-refunded", patch: { ...UNPAID, payment_problem: refund(WRONG, "pi_1", 10000, 10000) }, want: null },
   // ROADMAP 14.4 — the cancelled job's own payment. The first is the case that must STILL show.
   { id: "cancelled", sel: "[data-refund-cancelled]", patch: CANCELLED,
-    want: ["This was paid. Refund $150 from your own Stripe."] },
-  { id: "cancelled-refunded", patch: cancelledRefunded(15000), want: null,
+    want: ["This was paid. Refund $150 from your own Stripe."], pill: "Paid" },
+  { id: "cancelled-refunded", patch: cancelledRefunded(15000), want: null, pill: "Refunded",
     note: "Refunded $150 in your Stripe on Friday, October 16" },
   { id: "cancelled-part-refunded", sel: "[data-refund-cancelled]", patch: cancelledRefunded(5000),
     want: ["This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet.", "Refund the rest from your own Stripe."],
-    note: "Refunded $50 in your Stripe on Friday, October 16" },
+    note: "Refunded $50 in your Stripe on Friday, October 16", pill: "Part refunded" },
   { id: "cancelled-part-refunded-es", lang: "es", sel: "[data-refund-cancelled]", patch: cancelledRefunded(5000),
     want: ["Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto."],
-    note: "Devolviste $50 en tu Stripe el viernes, 16 de octubre" },
+    note: "Devolviste $50 en tu Stripe el viernes, 16 de octubre", pill: "Devuelto en parte" },
+  { id: "cancelled-refunded-es", lang: "es", patch: cancelledRefunded(15000), want: null, pill: "Devuelto" },
+  // ROADMAP 97.80 — a job that is NOT cancelled, its own card payment refunded in full: the pill says so too.
+  { id: "own-refunded", patch: { ...PAID, stripe_payment_intent: "pi_1", payment_problem: refund(BASE_NOTE, "pi_1", 15000, 15000) }, want: null, pill: "Refunded" },
 ];
 const EXPECTED = SCENARIOS.length * WIDTHS.length;
 
@@ -232,6 +242,32 @@ const check = (name, ok, detail = "") => {
 };
 
 const browser = await chromium.launch();
+// --env-shim (97.80): a belt job copy's server has no app/.env.local, so the app it serves
+// cannot reach Supabase ("Missing VITE_SUPABASE_URL") and nothing signs in. This writes the
+// two public values the app reads (the URL and the anon key, both in the live bundle) from
+// the loaded .env into each served module's `import.meta.env`, and only for THIS platform's
+// project. The product code is served untouched otherwise.
+if (process.argv.includes("--env-shim")) {
+  const url = process.env.SUPABASE_URL ?? "", anon = process.env.SUPABASE_ANON_KEY ?? "";
+  if (!url.includes("kguqylyzgyzfktkfnhjb") || !anon) { console.error("--env-shim needs SUPABASE_URL for kguqylyzgyzfktkfnhjb and SUPABASE_ANON_KEY loaded"); process.exit(2); }
+  const inject = `import.meta.env = {"VITE_SUPABASE_URL": ${JSON.stringify(url)}, "VITE_SUPABASE_ANON_KEY": ${JSON.stringify(anon)}, `;
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (opts) => {
+    const ctx = await newContext(opts);
+    await ctx.route(/\/src\/.*\.(js|jsx|ts|tsx)(\?|$)/, async (route) => {
+      // A fetch can reset when the view closes with a module still loading; retry, then let it go.
+      for (let i = 0; i < 3; i++) {
+        try {
+          const res = await route.fetch();
+          const text = await res.text();
+          return await route.fulfill({ response: res, body: text.includes('"VITE_SUPABASE_URL"') ? text : text.replace("import.meta.env = {", inject) });
+        } catch {}
+      }
+      await route.abort().catch(() => {});
+    });
+    return ctx;
+  };
+}
 // Sign in once.
 const login = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const lp = await login.newPage();
@@ -380,6 +416,45 @@ if (FREEZE_LEFT && jobId) {
   process.exit(0);
 }
 
+// --freeze-pill=before|after: 97.80's review pairs at 390 (refunded in full, in part), no receipt.
+const FREEZE_PILL = arg("freeze-pill");
+if (FREEZE_PILL && jobId) {
+  const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+  const DIR = "C:/Users/rando/Downloads/claude/belt/shots/97.80";
+  mkdirSync(DIR, { recursive: true });
+  const before = FREEZE_PILL === "before";
+  for (const [place, patch, note] of [
+    ["", cancelledRefunded(15000), before
+      ? "A cancelled job whose $150 card payment the detailer refunded in full in Stripe: the money section says Refunded, but the pill at the top still says Paid in green."
+      : "The same job: the pill now says Refunded, in a quiet outline, so a glance no longer reads the money as kept."],
+    ["-part", cancelledRefunded(5000), before
+      ? "A cancelled job with $50 of its $150 card payment refunded in Stripe: the pill still says Paid in green."
+      : "The same job: the pill now says Part refunded, and the red line under it names the $100 left."],
+  ]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: state, timezoneId: TZ });
+    await ctx.clock.setFixedTime(new Date(NOW));
+    await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
+    const page = await ctx.newPage();
+    await page.route("**/rest/v1/bookings?**", async (route) => {
+      if (route.request().method() !== "GET" || !route.request().url().includes(jobId)) return route.continue();
+      const res = await route.fetch();
+      const body = await res.json().catch(() => null);
+      const edit = (b) => (b && b.id === jobId ? { ...b, ...patch } : b);
+      await route.fulfill({ response: res, json: Array.isArray(body) ? body.map(edit) : edit(body) });
+    });
+    await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".jobbar", { timeout: 30000 });
+    await page.waitForTimeout(1200);
+    const out = `${DIR}/${FREEZE_PILL}${place}.html`;
+    await freeze(page, { out, label: before ? "Before" : "After", note, highlight: before ? ".pill.paid" : "[data-pay-pill]" });
+    if (!before) console.log(`differs${place}: ${await differs(page, `${DIR}/before${place}.html`, out)}`);
+    console.log("pills:", await page.locator(".pill").allInnerTexts());
+    await ctx.close();
+  }
+  await browser.close();
+  process.exit(0);
+}
+
 if (FREEZE_REFUND && jobId) {
   const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
   const open = async (patch) => {
@@ -478,6 +553,12 @@ for (const sc of jobId ? SCENARIOS : []) {
     } else {
       check(`${tag} · no red refund or payment-problem line`, !box, box?.text ?? "");
     }
+    // ROADMAP 97.80: the payment pill. textContent, not innerText (docs/gotchas.md 115: CSS case).
+    if (sc.pill) {
+      const pill = await page.evaluate(() => { const el = document.querySelector("[data-pay-pill]"); return el && { text: el.textContent.trim(), paid: el.classList.contains("paid") }; });
+      check(`${tag} · the payment pill says "${sc.pill}"`, pill?.text === sc.pill, JSON.stringify(pill));
+      check(`${tag} · the pill is ${sc.pill === "Paid" ? "" : "NOT "}the green Paid one`, !!pill && pill.paid === (sc.pill === "Paid"), JSON.stringify(pill));
+    }
     if (sc.note) check(`${tag} · the record says "${sc.note}"`, !!note?.includes(sc.note), String(note));
     check(`${tag} · console clean`, errors.length === 0, errors.slice(0, 3).join(" | "));
     const file = `${SHOTS}/${BREAK ? `break-${BREAK}-` : ""}${sc.id}-${w}x${h}.png`;
@@ -533,7 +614,7 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   min_assertions: 100,
   failures,
-  dimensions: { base: BASE, job: jobId, frozen_now: NOW, browser_tz: TZ, business_tz: "America/Los_Angeles (the demo business)", widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
+  dimensions: { base: BASE, job: jobId, frozen_now: NOW, browser_tz: TZ, business_tz: "America/Los_Angeles (the demo business)", widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), env_shim: process.argv.includes("--env-shim"), probed },
   artifacts: [SHOTS],
   // The canary: a scenario that must NOT show the line (a paid job with no
   // problem; 97.70 made the stale-problem job SHOW one) is measured with the same probe, so a probe that finds the line
