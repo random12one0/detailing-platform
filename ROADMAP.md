@@ -448,7 +448,16 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
     old app + new database loses the Notes save (silently, as before), new app + old database shows the new refusal
     line. Once applied, `tests/definer-grants.test.mjs` 1b will name `set_customer_notes` until an `ALLOWED` line is
     added for it (adding it before the apply turns its 1d red, so it was not added here).
-  - Waits on: a belt server that carries the app's Supabase address — this copy's server at 127.0.0.1:5180 renders
+  - **R3 editing, in a real browser:** `scripts/customer-notes-route.mjs` at `254e5b20` signs in as the STAFF login,
+    opens a client record and saves the Notes box; the screen's RPC is answered by a throwaway Postgres running the real
+    migration (the live database does not have it yet). Receipt PASS, **6 of 6 targets (390 / 768 / 1440 x member,
+    not-a-member), 15 assertions**: the member's text is stored with no error line; a non-member is refused and the
+    screen shows "Your notes were not saved"; console clean apart from the one 403 each width deliberately served.
+    Sabotage `BREAK=direct` (every save answered as a revoked direct write) reddened the member case at all 3 widths.
+    Screenshots in `artifacts/customer-notes-route/` (gitignored), opened and read at 390.
+  - **Still unrun:** R3's adding (create-booking) and owner-only delete (delete-customer) walks, and R4. Neither path
+    is touched by this change (both write as the service role), but neither was re-run in a browser here.
+  - Waits on: a belt server (for R4 and the add / delete walks) that carries the app's Supabase address — this copy's server at 127.0.0.1:5180 renders
     nothing (`Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY`, then `createBookingTransport needs supabaseUrl`),
     so `fixture-not-deletable.mjs` timed out twice at sign-in and R3's add / edit / owner-only-delete walk (owner AND
     staff login, 390 / 768 / 1440) could not be run. The next run removes this line by running both.
