@@ -1,0 +1,32 @@
+{
+  "git_sha": "1f3d97040490309029def345b43c40a12b106891",
+  "git_sha_started": "1f3d97040490309029def345b43c40a12b106891",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T22:54:33.588Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/uncancel-tells-customer.txt"
+  ],
+  "dimensions": {
+    "handlers": [
+      "supabase/functions/update-booking/index.ts",
+      "supabase/functions/respond-to-booking/index.ts"
+    ]
+  },
+  "check_id": "uncancel-tells-customer",
+  "started_at": "2026-10-17T22:54:33.446Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "canary": {
+    "id": "declined-refused",
+    "observed_failure": true
+  }
+}
