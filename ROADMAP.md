@@ -420,6 +420,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The settings screen still adds and verifies a domain end to end, checked at 390 and 1440
 
 - [ ] **97.14 — Staff logins can hard-delete bookings and edit or delete customers directly, whatever their permissions (S-M3).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.14-20261017041208108`. Answer "merge it" to keep it, or say what to change.
   `customers` and `bookings` get `for all to authenticated using (business_id in (select current_business_ids()))` (`20260827000200_tenant_data.sql:394-397`). Bookings had UPDATE revoked (`20261006040000_bookings_browser_updates_nothing.sql:50`) but not DELETE; `customers` has no revoke. `delete-customer` requires the owner (`delete-customer/index.ts:63`), but the REST API skips it. New migration: revoke DELETE on `bookings` from `authenticated` (the app soft-deletes with `deleted_at`), and revoke insert/update/delete on `customers`, routing any browser write that breaks through permission-checked functions. Grep `app/src` for every direct `customers` write first and list them in the entry.
   Acceptance criteria:
   - On a throwaway local copy, a staff session's direct DELETE on `bookings` and direct writes on `customers` are refused
