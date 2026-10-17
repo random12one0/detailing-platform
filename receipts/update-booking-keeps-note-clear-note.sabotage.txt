@@ -1,0 +1,41 @@
+update-booking-keeps-note BREAK=clear-note — 2026-10-17T06:21:56.003Z
+ok    the production update-booking handler loaded with every import replaced
+ok    job record · amount · the write succeeded
+ok    job record · amount · the row is now paid
+FAIL  job record · amount · its note is untouched — null
+FAIL  job record · amount · the response carries the note to the screen — null
+ok    job record · currency · the write succeeded
+ok    job record · currency · the row is now paid
+FAIL  job record · currency · its note is untouched — null
+FAIL  job record · currency · the response carries the note to the screen — null
+ok    job record · kept under a later extra payment · the write succeeded
+ok    job record · kept under a later extra payment · the row is now paid
+FAIL  job record · kept under a later extra payment · its note is untouched — null
+FAIL  job record · kept under a later extra payment · the response carries the note to the screen — null
+ok    Money · amount · the write succeeded
+ok    Money · amount · the row is now paid
+FAIL  Money · amount · its note is untouched — null
+FAIL  Money · amount · the response carries the note to the screen — null
+ok    Money · currency · the write succeeded
+ok    Money · currency · the row is now paid
+FAIL  Money · currency · its note is untouched — null
+FAIL  Money · currency · the response carries the note to the screen — null
+ok    Money · kept under a later extra payment · the write succeeded
+ok    Money · kept under a later extra payment · the row is now paid
+FAIL  Money · kept under a later extra payment · its note is untouched — null
+FAIL  Money · kept under a later extra payment · the response carries the note to the screen — null
+ok    finalize · amount · the write succeeded
+ok    finalize · amount · the row is now paid
+FAIL  finalize · amount · its note is untouched — null
+FAIL  finalize · amount · the response carries the note to the screen — null
+ok    finalize · currency · the write succeeded
+ok    finalize · currency · the row is now paid
+FAIL  finalize · currency · its note is untouched — null
+FAIL  finalize · currency · the response carries the note to the screen — null
+ok    finalize · kept under a later extra payment · the write succeeded
+ok    finalize · kept under a later extra payment · the row is now paid
+FAIL  finalize · kept under a later extra payment · its note is untouched — null
+FAIL  finalize · kept under a later extra payment · the response carries the note to the screen — null
+ok    the write succeeded and the job is paid
+FAIL  payment_problem in the payload was ignored (not on the allowlist) — null
+20 passed, 19 failed, 10 of 10 scenarios.
