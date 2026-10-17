@@ -207,6 +207,21 @@ lists database functions will name the new notes route until it is added to its 
 pushed, published, deployed or changed the database. Separately, letting you pick what each team member may do is
 ROADMAP 99.13, not urgent, as you said.
 
+## DO, AT YOUR NEXT RELEASE · Stop one detailer's promo emails using up everyone's booking emails (ROADMAP 97.19)
+
+Today all detailers share one daily email allowance, and a detailer emailing their old customers could press Send
+twice and use all of it, so other detailers' booking confirmations and reminders stopped going out for the rest of the
+day. The fix gives each business 20 promo emails a day of its own. All promo emails together stop while 40 of the
+day's emails are still left, and only booking emails can use those 40. Pressing Send twice now sends once. When a
+detailer's 20 run out partway, the result screen says how many are waiting for tomorrow, where it used to tell them
+to try again in a few minutes. Tested on a throwaway copy of the database and in the running app at four screen
+sizes, with nothing sent.
+
+**Your move:** at your next release, in this order: (1) apply `20261017200000_campaigns_get_a_daily_share.sql`;
+(2) publish the website; (3) publish `send-email` and `send-campaign`. Doing (3) before (1) stops promo emails
+sending until (1) is done. Booking emails are unaffected in every order. The 20 and the 40 are settings you can change
+later. The session has not pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
 
 Today a detailer who learned another business's customer number could put that customer on their own job, plan or

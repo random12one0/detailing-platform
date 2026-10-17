@@ -1,0 +1,35 @@
+{
+  "git_sha": "55d132b12bdc0f1a991d4bc5b5788e01cd50ce6c",
+  "git_sha_started": "55d132b12bdc0f1a991d4bc5b5788e01cd50ce6c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T20:56:57.407Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/campaign-share-sql/results.txt"
+  ],
+  "dimensions": {
+    "migration": "20261017200000_campaigns_get_a_daily_share.sql",
+    "a_campaign_claimed": 20,
+    "all_campaigns_claimed": 40,
+    "booking_after_campaigns": 40,
+    "interleaved_booking_refusals": 67,
+    "violations": 0
+  },
+  "check_id": "campaign-share-sql",
+  "started_at": "2026-10-17T20:56:50.961Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 20,
+  "min_assertions": 20,
+  "assertion_floor": "structural: a fixed list of checks over fixed scenarios A, B and C",
+  "canary": {
+    "id": "pre-97.19-one-pool",
+    "observed_failure": true
+  }
+}
