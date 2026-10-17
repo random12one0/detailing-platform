@@ -61,4 +61,32 @@ export async function isSupportSession(token: string, lookup: MarkerLookup): Pro
   return (await supportSessionState(token, lookup)) !== "none";
 }
 
+export type SupportViewDeps = {
+  /** Exchange the sign-in link for a session (platform-admin: verifyOtp on a fresh anon client). */
+  exchange: () => Promise<{ session: { access_token: string; refresh_token?: string; user: { id: string } } | null; error: unknown }>;
+  /** Write the marker; answers with its deadline (the column's 30-minute default). */
+  mark: (row: { session_id: string; user_id: string }) => Promise<{ expires_at?: string | null; error: unknown }>;
+  /** End a session that must not be handed over. */
+  end: (accessToken: string) => Promise<unknown>;
+};
+
+/**
+ * ROADMAP 4.3c + 97.15 — THE VIEW-AS HAND-OVER. Exchange the link, mark the session read-only,
+ * and only then answer with the access token and its deadline. NEVER the refresh token: with one
+ * the session renewed itself for ever; without it, it dies with its access token. Null means
+ * refuse and hand over nothing — no session id, or a marker that did not land (that session is
+ * ended rather than left about).
+ */
+export async function openSupportView(deps: SupportViewDeps, as: string): Promise<{ access_token: string; expires_at: string; as: string } | null> {
+  const { session, error } = await deps.exchange();
+  const sid = session ? sessionIdOf(session.access_token) : null;
+  if (error || !session || !sid) return null;
+  const { expires_at, error: markErr } = await deps.mark({ session_id: sid, user_id: session.user.id });
+  if (markErr || !expires_at) {
+    try { await deps.end(session.access_token); } catch { /* refused either way */ }
+    return null;
+  }
+  return { access_token: session.access_token, expires_at, as };
+}
+
 export const SUPPORT_READ_ONLY = "This is a read-only support view, so nothing can be changed here.";

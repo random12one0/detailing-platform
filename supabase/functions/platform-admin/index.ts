@@ -29,7 +29,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { SUPABASE_URL, supabase } from "../_shared/db.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.58.0";
-import { sessionIdOf } from "../_shared/supportSession.ts";
+import { openSupportView } from "../_shared/supportSession.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
@@ -1203,26 +1203,27 @@ Deno.serve(async (req) => {
       if (!hashed) return json({ error: fail }, 500);
       const anon = Deno.env.get("SUPABASE_ANON_KEY");
       if (!anon) return json({ error: fail }, 500);
-      const { data: ex, error: exErr } = await createClient(SUPABASE_URL, anon, {
-        auth: { persistSession: false, autoRefreshToken: false },
-      }).auth.verifyOtp({ token_hash: hashed, type: "magiclink" });
-      const session = ex?.session;
-      const sid = session ? sessionIdOf(session.access_token) : null;
-      if (exErr || !session || !sid) return json({ error: fail }, 500);
-      // ROADMAP 97.15: the deadline is the column's default (30 minutes), read back so the tab
-      // ends itself at the same moment the database stops answering it.
-      const { data: mark, error: markErr } = await supabase.from("support_sessions").insert({
-        session_id: sid, user_id: session.user.id, business_id: id, admin_id: admin.id,
-      }).select("expires_at").single();
-      if (markErr || !mark?.expires_at) {
-        // The session exists but is unmarked: end it rather than leave it about.
-        await supabase.auth.admin.signOut(session.access_token, "local").catch(() => {});
-        console.error("platform-admin: support marker not written:", markErr?.message ?? "no expires_at");
-        return json({ error: fail }, 500);
-      }
-      // NO REFRESH TOKEN (ROADMAP 97.15). With one, this session renewed itself for ever; without
-      // it, it dies with its access token (an hour at most) even if nobody ever ends it.
-      return json({ success: true, access_token: session.access_token, expires_at: mark.expires_at, as: email });
+      // The hand-over itself is `openSupportView` (_shared/supportSession.ts), so
+      // tests/support-sessions-edge.test.mjs runs the real thing. ROADMAP 97.15: the answer is the
+      // access token and the marker's deadline (the column's 30-minute default, read back so the
+      // tab ends itself when the database stops answering it) — never the refresh token.
+      const view = await openSupportView({
+        exchange: async () => {
+          const { data, error } = await createClient(SUPABASE_URL, anon, {
+            auth: { persistSession: false, autoRefreshToken: false },
+          }).auth.verifyOtp({ token_hash: hashed, type: "magiclink" });
+          return { session: data?.session ?? null, error };
+        },
+        mark: async (row) => {
+          const { data, error } = await supabase.from("support_sessions")
+            .insert({ ...row, business_id: id, admin_id: admin.id }).select("expires_at").single();
+          if (error) console.error("platform-admin: support marker not written:", error.message);
+          return { expires_at: data?.expires_at, error };
+        },
+        end: (token) => supabase.auth.admin.signOut(token, "local").catch(() => {}),
+      }, email);
+      if (!view) return json({ error: fail }, 500);
+      return json({ success: true, ...view });
     }
 
     return json({ error: "Unknown action" }, 400);

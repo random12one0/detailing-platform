@@ -1,25 +1,29 @@
-// ROADMAP 4.3c — EDGE FUNCTIONS REFUSE A READ-ONLY SUPPORT SESSION. Credential-free: no .env, no
-// network, no database. Reads the function sources and imports `_shared/supportSession.ts` (Node 24
-// strips the types).
+// ROADMAP 4.3c + 97.15 — EDGE FUNCTIONS REFUSE A READ-ONLY SUPPORT SESSION, AN EXPIRED ONE
+// EVERYWHERE, AND VIEW-AS NEVER HANDS OUT A REFRESH TOKEN. Credential-free: no .env, no network,
+// no database.
 //
 //   node --test tests/support-sessions-edge.test.mjs
-//   BREAK=fail-open node tests/support-sessions-edge.test.mjs   # a failed marker read ALLOWS the write
-//   BREAK=no-gate   node tests/support-sessions-edge.test.mjs   # requireMember stops asking
-//   BREAK=unmarked  node tests/support-sessions-edge.test.mjs   # impersonate hands over a session with no id
-//   BREAK=no-expiry node tests/support-sessions-edge.test.mjs   # 97.15: a marker past its deadline still counts as live
-//   BREAK=refresh   node tests/support-sessions-edge.test.mjs   # 97.15: impersonate hands the refresh token back again
+//   BREAK=fail-open   node tests/support-sessions-edge.test.mjs  # a failed marker read ALLOWS the write
+//   BREAK=no-gate     node tests/support-sessions-edge.test.mjs  # requireMember stops asking
+//   BREAK=unmarked    node tests/support-sessions-edge.test.mjs  # view-as hands over a session with no id
+//   BREAK=no-expiry   node tests/support-sessions-edge.test.mjs  # 97.15: a marker past its deadline counts as live
+//   BREAK=refresh     node tests/support-sessions-edge.test.mjs  # 97.15: view-as hands the refresh token back again
+//   BREAK=no-signout  node tests/support-sessions-edge.test.mjs  # 97.15: requireMember leaves an expired session alive
 //
-// Edge functions run as the service role, so the database rules in
-// 20261010030000_support_sessions_read_only.sql never see their writes. Every function that
-// authenticates a USER is discovered here (not listed), and each must be one of:
-//   - a requireMember caller WITHOUT `allowSupport` — refused by default inside requireMember;
-//   - a requireMember caller WITH `allowSupport`, and named in READ_ONLY below, which is an
-//     EQUALITY: opting a function in is a decision somebody has to write down here;
-//   - a function that calls getUser itself AND asks `supportSession(token)`.
-// BREAK is an env var because `node --test` swallows flags (docs/gotchas.md 104). Sabotage is aimed
-// at the PRODUCTION source, loaded from a modified temp copy, never at a copy kept in this file.
+// THE FIRST TEST RUNS THE CODE. `_shared/supportSession.ts`, `_shared/tenant.ts` and
+// `_shared/retryRead.ts` are copied byte for byte into a temp folder (Node 24 strips the types) beside
+// a stand-in `db.ts` — the one Deno-only file, whose `supabase` client is a recording fake — and the
+// real `requireMember` and the real view-as hand-over (`openSupportView`, which platform-admin calls)
+// are called and their answers checked. BREAK edits the PRODUCTION file in that temp copy (mutation),
+// never a copy kept in this file. BREAK is an env var because `node --test` swallows flags
+// (docs/gotchas.md 104).
+//
+// THE SECOND TEST IS A LINT-STYLE GUARD OVER SOURCE, ON PURPOSE (4.3c). Its subject is the source:
+// every edge function that authenticates a USER, discovered from the folder, must route through the
+// support-session question, and opting one in is a decision written down here (READ_ONLY, an
+// equality). No running test can discover a function somebody adds next month; this can.
 
-import { readFileSync, readdirSync, writeFileSync, mkdtempSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync, copyFileSync, mkdtempSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -42,14 +46,58 @@ const READ_ONLY = {
 // refused by default, re-counted 2026-10-17 by 97.15, which found this line red on HEAD.
 const EXPECTED_USER_AUTH = 22;
 
-let sessionSrc = readFileSync(`${FN}/_shared/supportSession.ts`, "utf8");
-let tenantSrc = readFileSync(`${FN}/_shared/tenant.ts`, "utf8");
-if (BREAK === "fail-open") sessionSrc = sessionSrc.replace(`? "none" : "live";`, `? "none" : "none";`);
-if (BREAK === "no-gate") tenantSrc = tenantSrc.replace("if (!supportAdmits(state, !!opts.allowSupport)) {", "if (false) {");
-if (BREAK === "no-expiry") sessionSrc = sessionSrc.replace("ends <= Date.now() ?", "false ?");
+// ---- load the production modules into a temp folder, db.ts stood in ------------------------------
+const MUTATIONS = {
+  "fail-open": ["supportSession.ts", `? "none" : "live";`, `? "none" : "none";`],
+  "no-expiry": ["supportSession.ts", "ends <= Date.now() ?", "false ?"],
+  "unmarked": ["supportSession.ts", "if (error || !session || !sid) return null;", "if (error || !session) return null;"],
+  "refresh": ["supportSession.ts", "return { access_token: session.access_token, expires_at, as };", "return { access_token: session.access_token, refresh_token: session.refresh_token, expires_at, as };"],
+  "no-gate": ["tenant.ts", "if (!supportAdmits(state, !!opts.allowSupport)) {", "if (false) {"],
+  "no-signout": ["tenant.ts", `if (state === "expired") await supabase.auth.admin.signOut(token, "local").catch(() => {});`, ""],
+};
 const tmp = mkdtempSync(path.join(tmpdir(), "support-edge-"));
-writeFileSync(path.join(tmp, "supportSession.ts"), sessionSrc);
-const { sessionIdOf, isSupportSession, supportSessionState, supportAdmits } = await import(pathToFileURL(path.join(tmp, "supportSession.ts")).href);
+for (const f of ["supportSession.ts", "tenant.ts", "retryRead.ts"]) copyFileSync(`${FN}/_shared/${f}`, path.join(tmp, f));
+let mutationLanded = null;
+if (MUTATIONS[BREAK]) {
+  const [file, from, to] = MUTATIONS[BREAK];
+  const p = path.join(tmp, file);
+  const before = readFileSync(p, "utf8");
+  writeFileSync(p, before.replace(from, to));
+  mutationLanded = readFileSync(p, "utf8") !== before; // docs/gotchas.md 102: prove the break landed
+  console.log(`BREAK=${BREAK}: mutation ${mutationLanded ? "landed" : "DID NOT LAND"} in ${file}`);
+}
+// The stand-in database: a recording fake of exactly the calls requireMember makes.
+writeFileSync(path.join(tmp, "db.ts"), `
+const f = globalThis.__fakeDb;
+export const supabase = {
+  auth: {
+    getUser: async (token: string) => f.user ? { data: { user: f.user }, error: null } : { data: { user: null }, error: { message: "invalid" } },
+    admin: { signOut: async (token: string, scope: string) => { f.signedOut.push([token, scope]); return { error: null }; } },
+  },
+  from(table: string) {
+    f.reads.push(table);
+    const b: any = {
+      select: () => b, eq: (c: string, v: unknown) => { f.filters.push([table, c, v]); return b; },
+      maybeSingle: async () => table === "support_sessions" ? (f.markerError ? { data: null, error: f.markerError } : { data: f.marker, error: null }) : { data: null, error: null },
+      then: (ok: any, no: any) => Promise.resolve({ data: table === "business_users" ? f.members : [], error: null }).then(ok, no),
+    };
+    return b;
+  },
+};
+`);
+// ONE object, reset in place: the stand-in captured it when it loaded.
+const DB = (globalThis.__fakeDb = {});
+const fake = (over = {}) => {
+  for (const k of Object.keys(DB)) delete DB[k];
+  return Object.assign(DB, {
+    user: { id: "user-1" }, marker: null, markerError: null,
+    members: [{ business_id: "biz-1", role: "owner", permissions: [] }],
+    signedOut: [], reads: [], filters: [],
+  }, over);
+};
+fake();
+const S = await import(pathToFileURL(path.join(tmp, "supportSession.ts")).href);
+const T = await import(pathToFileURL(path.join(tmp, "tenant.ts")).href);
 
 let assertions = 0;
 const failures = [];
@@ -60,44 +108,82 @@ const check = (name, cond, detail = "") => {
 };
 const jwt = (claims) => `h.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.s`;
 const SID = "44444444-4444-4444-4444-444444444444";
-const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+const req = (token) => new Request("http://edge.test/fn", { headers: { Authorization: `Bearer ${token}` } });
+const backDated = () => ({ session_id: SID, created_at: new Date(Date.now() - 31 * 60e3).toISOString(), expires_at: new Date(Date.now() - 60e3).toISOString() });
+const live = () => ({ session_id: SID, expires_at: new Date(Date.now() + 29 * 60e3).toISOString() });
 
-test("4.3c · edge functions refuse a read-only support session; the owner's own session passes", async () => {
-  // 1. The decision itself, against the production function.
-  check("session id is read from the token", sessionIdOf(jwt({ sub: "u", session_id: SID })) === SID);
+test("4.3c + 97.15 · the real requireMember and the real view-as hand-over, run", async () => {
+  // 1. The decision, called.
+  check("session id is read from the token", S.sessionIdOf(jwt({ sub: "u", session_id: SID })) === SID);
   check("a token with no session id is not a support session (and the marker is not asked)",
-    (await isSupportSession(jwt({ sub: "u" }), async () => { throw new Error("asked"); })) === false);
+    (await S.isSupportSession(jwt({ sub: "u" }), async () => { throw new Error("asked"); })) === false);
   check("a listed session IS a support session",
-    (await isSupportSession(jwt({ session_id: SID }), async () => ({ data: { session_id: SID }, error: null }))) === true);
+    (await S.isSupportSession(jwt({ session_id: SID }), async () => ({ data: { session_id: SID }, error: null }))) === true);
   check("the owner's own session (not listed) is NOT a support session",
-    (await isSupportSession(jwt({ session_id: "other" }), async () => ({ data: null, error: null }))) === false);
+    (await S.isSupportSession(jwt({ session_id: "other" }), async () => ({ data: null, error: null }))) === false);
   check("a marker read that fails counts as a support session (fails closed)",
-    (await isSupportSession(jwt({ session_id: SID }), async () => ({ data: null, error: { code: "08006", message: "connection" } }))) === true);
+    (await S.isSupportSession(jwt({ session_id: SID }), async () => ({ data: null, error: { code: "08006", message: "connection" } }))) === true);
   check("no marker table at all (migration not yet applied) is not a support session",
-    (await isSupportSession(jwt({ session_id: SID }), async () => ({ data: null, error: { code: "PGRST205" } }))) === false);
-
-  // 1b. ROADMAP 97.15 — the deadline. A back-dated marker, as the item asks: opened 31 minutes ago.
-  const at31 = { session_id: SID, created_at: new Date(Date.now() - 31 * 60e3).toISOString(), expires_at: new Date(Date.now() - 60e3).toISOString() };
-  const backDated = await supportSessionState(jwt({ session_id: SID }), async () => ({ data: at31, error: null }));
-  check("97.15: a marker 1 minute past its deadline is an EXPIRED support session", backDated === "expired", backDated);
-  check("97.15: requireMember's rule refuses an expired support session even where support is allowed", supportAdmits("expired", true) === false && supportAdmits("expired", false) === false);
-  check("97.15: an expired session is still a support session (writes stay refused everywhere)",
-    (await isSupportSession(jwt({ session_id: SID }), async () => ({ data: at31, error: null }))) === true);
-  const fresh = await supportSessionState(jwt({ session_id: SID }), async () => ({ data: { session_id: SID, expires_at: new Date(Date.now() + 29 * 60e3).toISOString() }, error: null }));
-  check("97.15: a marker inside its 30 minutes is live, admitted only where support is allowed", fresh === "live" && supportAdmits("live", true) && !supportAdmits("live", false), fresh);
+    (await S.isSupportSession(jwt({ session_id: SID }), async () => ({ data: null, error: { code: "PGRST205" } }))) === false);
+  check("97.15: a back-dated marker (opened 31 minutes ago) is EXPIRED",
+    (await S.supportSessionState(jwt({ session_id: SID }), async () => ({ data: backDated(), error: null }))) === "expired");
   check("97.15: a marker with no deadline (column not yet applied) is live, not expired",
-    (await supportSessionState(jwt({ session_id: SID }), async () => ({ data: { session_id: SID }, error: null }))) === "live");
-  check("97.15: the owner's own session is admitted", supportAdmits(await supportSessionState(jwt({ session_id: "other" }), async () => ({ data: null, error: null })), false) === true);
+    (await S.supportSessionState(jwt({ session_id: SID }), async () => ({ data: { session_id: SID }, error: null }))) === "live");
 
-  // 2. requireMember asks, before it reads any membership, and only allowSupport skips it.
-  const gate = tenantSrc.indexOf("if (!supportAdmits(state, !!opts.allowSupport))");
-  const membership = tenantSrc.indexOf(`from("business_users").select("business_id, role, permissions")`);
-  check("requireMember refuses a support session before reading membership", gate > 0 && gate < membership, `gate@${gate} membership@${membership}`);
-  const gateBlock = tenantSrc.slice(gate, membership);
-  check("97.15: requireMember ends an expired session at Auth (local scope only)", gateBlock.includes(`if (state === "expired") await supabase.auth.admin.signOut(token, "local")`));
-  check("97.15: the marker is read with * so a missing expires_at column cannot fail every read", tenantSrc.includes(`from("support_sessions").select("*")`));
+  // 2. requireMember, called with a request, against the stand-in database.
+  const token = jwt({ sub: "user-1", session_id: SID });
+  fake({ marker: null });
+  const own = await T.requireMember(req(token), "biz-1");
+  check("the owner's own session gets its membership", own?.role === "owner" && own?.businessId === "biz-1", JSON.stringify(own));
+  check("the marker is looked up by THIS token's session id", globalThis.__fakeDb.filters.some(([t, c, v]) => t === "support_sessions" && c === "session_id" && v === SID));
 
-  // 3. Every function that authenticates a user, discovered from source.
+  fake({ marker: live() });
+  const liveNo = await T.requireMember(req(token), "biz-1");
+  check("a live support session is refused by default", liveNo === null && !globalThis.__fakeDb.reads.includes("business_users"), JSON.stringify({ liveNo, reads: globalThis.__fakeDb.reads }));
+  fake({ marker: live() });
+  const liveYes = await T.requireMember(req(token), "biz-1", { allowSupport: true });
+  check("a live support session passes where support is allowed (read-only functions)", liveYes?.role === "owner", JSON.stringify(liveYes));
+  check("a live support session is not signed out", globalThis.__fakeDb.signedOut.length === 0);
+
+  fake({ marker: backDated() });
+  const expYes = await T.requireMember(req(token), "biz-1", { allowSupport: true });
+  const db = globalThis.__fakeDb;
+  check("97.15: a back-dated support session is refused EVEN where support is allowed", expYes === null, JSON.stringify(expYes));
+  check("97.15: …before any membership is read", !db.reads.includes("business_users"), JSON.stringify(db.reads));
+  check("97.15: …and its session is signed out at Auth, this session only (local)", db.signedOut.length === 1 && db.signedOut[0][0] === token && db.signedOut[0][1] === "local", JSON.stringify(db.signedOut));
+  fake({ marker: backDated() });
+  check("97.15: a back-dated support session is refused by default too", (await T.requireMember(req(token), "biz-1")) === null);
+
+  fake({ markerError: { code: "08006", message: "connection" } });
+  check("a failed marker read refuses by default (fails closed)", (await T.requireMember(req(token), "biz-1")) === null);
+
+  // 3. The view-as hand-over, called with a session that HAS a refresh token.
+  const REFRESH = "real-refresh-token-must-not-leave";
+  const DEADLINE = new Date(Date.now() + 30 * 60e3).toISOString();
+  const calls = { mark: [], end: [] };
+  const deps = (over = {}) => ({
+    exchange: async () => ({ session: { access_token: token, refresh_token: REFRESH, user: { id: "user-1" } }, error: null }),
+    mark: async (row) => { calls.mark.push(row); return { expires_at: DEADLINE, error: null }; },
+    end: async (t) => { calls.end.push(t); },
+    ...over,
+  });
+  const answer = await S.openSupportView(deps(), "owner@example.com");
+  check("97.15: the view-as answer carries NO refresh token", !!answer && !("refresh_token" in answer) && !JSON.stringify(answer).includes(REFRESH), JSON.stringify(answer));
+  check("97.15: the view-as answer carries the access token and the marker's deadline", answer?.access_token === token && answer?.expires_at === DEADLINE && answer?.as === "owner@example.com", JSON.stringify(answer));
+  check("the session was marked, by its own session id, before anything was handed over", calls.mark.length === 1 && calls.mark[0].session_id === SID && calls.mark[0].user_id === "user-1", JSON.stringify(calls.mark));
+
+  calls.mark = []; calls.end = [];
+  const noSid = await S.openSupportView(deps({ exchange: async () => ({ session: { access_token: jwt({ sub: "user-1" }), refresh_token: REFRESH, user: { id: "user-1" } }, error: null }) }), "x");
+  check("a session with no id is refused and never marked", noSid === null && calls.mark.length === 0, JSON.stringify({ noSid, mark: calls.mark }));
+  const markFailed = await S.openSupportView(deps({ mark: async () => ({ expires_at: null, error: { message: "insert failed" } }) }), "x");
+  check("a marker that did not land hands nothing over and ends the session", markFailed === null && calls.end.length === 1 && calls.end[0] === token, JSON.stringify({ markFailed, end: calls.end }));
+  calls.end = [];
+  const noDeadline = await S.openSupportView(deps({ mark: async () => ({ expires_at: null, error: null }) }), "x");
+  check("97.15: a marker with no deadline hands nothing over and ends the session", noDeadline === null && calls.end.length === 1, JSON.stringify({ noDeadline, end: calls.end }));
+});
+
+test("4.3c · LINT-STYLE GUARD over source: every user-authenticating function asks the support question", () => {
+  const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const fns = readdirSync(FN).filter((d) => !d.startsWith("_") && existsSync(`${FN}/${d}/index.ts`));
   const userAuth = [];
   const classify = (name, src) => {
@@ -119,32 +205,17 @@ test("4.3c · edge functions refuse a read-only support session; the owner's own
   check("the functions that may serve a support session are exactly the recorded read-only list", JSON.stringify(optedIn) === JSON.stringify(Object.keys(READ_ONLY).sort()), JSON.stringify(optedIn));
   const door = stripComments(readFileSync(`${FN}/_shared/photoDoor.ts`, "utf8"));
   check("photo-door lets a support session through for `urls` only", /requireMember\(req, businessId, \{ allowSupport: action === "urls" \}\)/.test(door));
-
-  // 4. impersonate marks the session BEFORE handing it over, and refuses without an id.
-  let pa = stripComments(readFileSync(`${FN}/platform-admin/index.ts`, "utf8"));
-  if (BREAK === "unmarked") pa = pa.replace("if (exErr || !session || !sid)", "if (exErr || !session)");
-  if (BREAK === "refresh") pa = pa.replace("access_token: session.access_token, expires_at", "access_token: session.access_token, refresh_token: session.refresh_token, expires_at");
+  // Wiring, which only Deno could run: platform-admin's view-as goes through the hand-over tested above.
+  const pa = stripComments(readFileSync(`${FN}/platform-admin/index.ts`, "utf8"));
   const imp = pa.slice(pa.indexOf('action === "impersonate"'));
-  const at = (s) => imp.indexOf(s);
-  check("impersonate exchanges the link on a fresh client, not the shared service-role one", /createClient\(SUPABASE_URL, anon/.test(imp) && at("verifyOtp(") > 0);
-  check("impersonate refuses when the token carries no session id", imp.includes("if (exErr || !session || !sid) return json({ error: fail }, 500)"));
-  check("the marker is written before the tokens are returned", at('from("support_sessions").insert') > 0 && at('from("support_sessions").insert') < at("access_token: session.access_token"));
-  check("a marker that did not land ends the session and hands nothing over", /if \(markErr \|\| !mark\?\.expires_at\) \{[^}]*signOut\(session\.access_token[\s\S]*?return json\(\{ error: fail \}, 500\)/.test(imp));
-  check("97.15: the view-as answer carries NO refresh token", !/refresh_token/.test(imp), (imp.match(/.{0,60}refresh_token.{0,40}/) || [""])[0]);
-  check("97.15: the view-as answer carries the marker's deadline", imp.includes("expires_at: mark.expires_at") && imp.includes(`.select("expires_at").single()`));
-  check("the audit row is still written before the link is made", imp.indexOf('logIt(admin, "impersonate"') < at("generateLink("));
-  const entry = readFileSync("app/src/admin/PreviewEntry.jsx", "utf8");
-  check("97.15: the preview door takes the server's session WITHOUT a refresh token", /setSession\(\{ access_token: at, refresh_token: NO_REFRESH \}\)/.test(entry) && !/q\.get\("rt"\)/.test(entry));
-  const panel = readFileSync("app/src/admin/office/DetailerPanel.jsx", "utf8");
-  check("97.15: the back office never passes a refresh token to the preview tab", !/refresh_token|[#&]rt=/.test(panel), (panel.match(/.{0,40}(refresh_token|rt=).{0,20}/) || [""])[0]);
-  check("97.15: ending the view signs out THIS session only (local scope)", /signOut\(\{ scope: "local" \}\)/.test(readFileSync("app/src/lib/supabase.js", "utf8")));
-  const client = readFileSync("app/src/lib/supabase.js", "utf8");
-  check("the browser guard also covers auth.updateUser in a preview tab", /supabase\.auth\.updateUser = \(\.\.\.args\) => \{ guardWrite\(\);/.test(client));
+  check("platform-admin's view-as answers with openSupportView's result and nothing else", /const view = await openSupportView\(/.test(imp) && /return json\(\{ success: true, \.\.\.view \}\)/.test(imp) && !/refresh_token/.test(imp));
+  check("the audit row is still written before the link is made", imp.indexOf('logIt(admin, "impersonate"') < imp.indexOf("generateLink("));
 
   // CANARY, every run: a function that checks the user itself and forgets the support question.
   const canary = classify("canary", `const { data } = await supabase.auth.getUser(token); await supabase.from("x").insert({});`);
   const canaryCaught = canary === "UNGUARDED getUser";
   check("canary: an unguarded getUser function is caught", canaryCaught, canary);
+  if (BREAK) check(`BREAK=${BREAK} landed in the production copy`, mutationLanded === true);
 
   writeReceipt({
     check_id: "support-sessions-edge",
@@ -156,12 +227,12 @@ test("4.3c · edge functions refuse a read-only support session; the owner's own
     completed_targets: userAuth.filter((u) => !/UNGUARDED|WITHOUT/.test(u.verdict)).length,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 7 + 6 + 3 + EXPECTED_USER_AUTH + 3 + 9 + 2,
-    assertion_floor: "structural: six decision cases, six 97.15 deadline cases, three gate checks, one per discovered function, three fixed checks, nine on the impersonate hand-over, two on the browser",
+    min_assertions: 8 + 10 + 6 + 1 + EXPECTED_USER_AUTH + 4 + 1,
+    assertion_floor: "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
     failures,
     canary: { id: "unguarded-getUser", observed_failure: canaryCaught },
-    artifacts: ["supabase/functions/_shared/supportSession.ts"],
-    dimensions: { break: BREAK || undefined, functions: Object.fromEntries(userAuth.map((u) => [u.fn, u.verdict])) },
+    artifacts: ["supabase/functions/_shared/supportSession.ts", "supabase/functions/_shared/tenant.ts"],
+    dimensions: { break: BREAK || undefined, mutation_landed: mutationLanded ?? undefined, functions: Object.fromEntries(userAuth.map((u) => [u.fn, u.verdict])) },
   });
   assert.deepEqual(failures, []);
 });
