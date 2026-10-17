@@ -210,6 +210,14 @@ test("4.3c · LINT-STYLE GUARD over source: every user-authenticating function a
   const imp = pa.slice(pa.indexOf('action === "impersonate"'));
   check("platform-admin's view-as answers with openSupportView's result and nothing else", /const view = await openSupportView\(/.test(imp) && /return json\(\{ success: true, \.\.\.view \}\)/.test(imp) && !/refresh_token/.test(imp));
   check("the audit row is still written before the link is made", imp.indexOf('logIt(admin, "impersonate"') < imp.indexOf("generateLink("));
+  // Restored after review (97.15): three 4.3c checks the first rewrite dropped. Each is also RUN in
+  // the browser by scripts/support-view-ends.mjs (the updateUser refusal, the placeholder refresh
+  // token on both paths); here they hold the source between browser runs.
+  check("impersonate exchanges the link on a fresh client, not the shared service-role one", /createClient\(SUPABASE_URL, anon/.test(imp) && imp.indexOf("verifyOtp(") > 0);
+  const client = stripComments(readFileSync("app/src/lib/supabase.js", "utf8"));
+  check("the browser guard covers auth.updateUser in a preview tab (the only thing between a preview tab and the owner's password and email at Auth)", /supabase\.auth\.updateUser = \(\.\.\.args\) => \{ guardWrite\(\);/.test(client));
+  const entry = stripComments(readFileSync("app/src/admin/PreviewEntry.jsx", "utf8"));
+  check("the preview door holds the placeholder refresh token on BOTH paths (server session and older link)", (entry.match(/refresh_token: NO_REFRESH/g) || []).length === 2 && !/q\.get\("rt"\)/.test(entry));
 
   // CANARY, every run: a function that checks the user itself and forgets the support question.
   const canary = classify("canary", `const { data } = await supabase.auth.getUser(token); await supabase.from("x").insert({});`);
@@ -227,8 +235,8 @@ test("4.3c · LINT-STYLE GUARD over source: every user-authenticating function a
     completed_targets: userAuth.filter((u) => !/UNGUARDED|WITHOUT/.test(u.verdict)).length,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 8 + 10 + 6 + 1 + EXPECTED_USER_AUTH + 4 + 1,
-    assertion_floor: "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
+    min_assertions: 8 + 10 + 6 + 1 + EXPECTED_USER_AUTH + 7 + 1,
+    assertion_floor: "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, seven fixed, one canary)",
     failures,
     canary: { id: "unguarded-getUser", observed_failure: canaryCaught },
     artifacts: ["supabase/functions/_shared/supportSession.ts", "supabase/functions/_shared/tenant.ts"],

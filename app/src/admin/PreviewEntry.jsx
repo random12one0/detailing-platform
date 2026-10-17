@@ -57,7 +57,11 @@ export default function PreviewEntry() {
       // marked read-only; `token` is the older server's one-time link token.
       const enter = at
         ? supabase.auth.setSession({ access_token: at, refresh_token: NO_REFRESH })
-        : supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" });
+        // 97.15 review fix 6: the older server's link puts a REAL refresh token in the tab, so it is
+        // swapped for the placeholder at once — this tab cannot renew on either path.
+        : supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" }).then(({ data, error: e }) => e || !data?.session
+          ? { error: e || new Error("The link did not open a session.") }
+          : supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: NO_REFRESH }));
       enter.then(({ error: e }) => {
         if (e) { setError(e.message); return; }
         // replace, not push: the token is spent, so Back must not return here.

@@ -128,7 +128,10 @@ console.log("2. sign out means signed out, everywhere");
   // import — this repo's most repeated test defect, and baselining caught it
   // here on the very break these two checks exist for.
   const doorAt = OUT.indexOf("export async function signOutEverything");
-  const door = doorAt > -1 ? OUT.slice(doorAt) : "";
+  // ...AND ENDED AT THE NEXT EXPORT (97.15), because the file now holds a second, deliberately
+  // different door after this one — the preview tab's `endPreview`.
+  const doorEnd = doorAt > -1 ? OUT.indexOf("\nexport ", doorAt + 1) : -1;
+  const door = doorAt > -1 ? OUT.slice(doorAt, doorEnd > -1 ? doorEnd : undefined) : "";
   check("2b · the check has a subject — the function body was found",
     door.length > 60 && door.includes("auth.signOut"), `${door.length} chars`);
   check("2b-i · it ends the parked sessions rather than only forgetting them",
@@ -143,7 +146,17 @@ console.log("2. sign out means signed out, everywhere");
   check("2c · it still drops the impersonation note", /endImpersonation\(\)/.test(door));
   // A LOCAL-SCOPE SIGN-OUT WOULD LEAVE THE LIVE SESSION ALIVE ON EVERY OTHER
   // DEVICE, which is the opposite of what the button promises.
-  check("2c-ii · and the live sign-out is not scoped", !/scope/.test(OUT));
+  check("2c-ii · and the live sign-out is not scoped", door.length > 60 && !/scope/.test(door));
+  // THE ONE DELIBERATE EXCEPTION, 97.15: the PREVIEW TAB's door. A support view lives in its own
+  // tab's drawer; the parked accounts and the impersonation note belong to the back office's tab
+  // next door, so signOutEverything from there would end things nobody asked to leave, and an
+  // unscoped sign-out of a support view would sign the DETAILER out of every device. So it ends
+  // exactly its own session — and it is the only scoped sign-out this file may hold.
+  const scoped = [...OUT.matchAll(/auth\.signOut\(([^)]*)\)/g)].map((m) => m[1]).filter((a) => /scope/.test(a));
+  const preview = OUT.slice(OUT.indexOf("export async function endPreview"));
+  check("2c-iii · the only scoped sign-out is the preview tab's own, local, door",
+    scoped.length === 1 && /scope: "local"/.test(scoped[0]) && /^export async function endPreview\(\) \{\s*await supabase\.auth\.signOut\(\{ scope: "local" \}\)/.test(preview),
+    JSON.stringify(scoped));
 
   // THE REVOCATION IS A REAL ONE. A parked access token is usually expired —
   // they last about an hour — so it has to be refreshed before it can be used

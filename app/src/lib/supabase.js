@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { guardWrite, isPreviewTab, leavePreview } from "./preview.js";
+import { guardWrite, isPreviewTab } from "./preview.js";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -121,12 +121,4 @@ if (isPreviewTab) {
   const RPC_READS = new Set(["founding_offer", "platform_prices", "job_photo_budget"]);
   const rpc = supabase.rpc.bind(supabase);
   supabase.rpc = (fn, ...args) => { if (!RPC_READS.has(fn)) guardWrite(); return rpc(fn, ...args); };
-}
-
-// ROADMAP 97.15: ENDING A VIEW ENDS ITS SESSION AT AUTH, so the token stops working rather than
-// living on in a closed tab. Scope "local" is THIS session only: the default, "global", would
-// sign the detailer out of every device they are on.
-export async function endPreview() {
-  await supabase.auth.signOut({ scope: "local" }).catch(() => {});
-  leavePreview();
 }
