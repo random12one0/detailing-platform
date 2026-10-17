@@ -41,7 +41,7 @@
 //                name on the one screen where the name is the least useful
 //                thing in the row. A history row is date · what · total.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPlus, ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
@@ -170,6 +170,10 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const [forgetting, setForgetting] = useState(null);
   const [forgetError, setForgetError] = useState("");
   const [notesError, setNotesError] = useState("");
+  // A refusal under the Notes box renders below the record panel's edge at
+  // 1440 (ROADMAP 97.14); a line nobody sees is the silent failure it replaced.
+  const notesErrorRef = useRef(null);
+  useEffect(() => { if (notesError) notesErrorRef.current?.scrollIntoView({ block: "nearest" }); }, [notesError]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -929,7 +933,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
-            {notesError && <div className="error-box" role="alert">{notesError}</div>}
+            {notesError && <div ref={notesErrorRef} className="error-box" role="alert">{notesError}</div>}
 
             <div className="tight">
               <span className="label">{t("History")}</span>
