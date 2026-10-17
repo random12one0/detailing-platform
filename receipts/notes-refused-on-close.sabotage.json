@@ -1,0 +1,147 @@
+{
+  "git_sha": "20a6eb773fb5a24633e97daa87f724a4c43268cd",
+  "git_sha_started": "20a6eb773fb5a24633e97daa87f724a4c43268cd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T16:32:36.271Z",
+  "failures": [
+    "390: control: a refusal with the record open is found {\"sent\":1,\"found\":0}",
+    "768: control: a refusal with the record open is found {\"sent\":1,\"found\":0}",
+    "1440: control: a refusal with the record open is found {\"sent\":1,\"found\":0}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/notes-refused-on-close"
+  ],
+  "dimensions": {
+    "break": "accept",
+    "login": "demo staff",
+    "answer_ms": 600,
+    "calls": 9,
+    "cases": [
+      {
+        "width": 390,
+        "case": "control",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Marcus Webb",
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 390,
+        "case": "close",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 390,
+        "case": "escape",
+        "save_sent": 0,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 390,
+        "case": "next",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Dana Ruiz",
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 768,
+        "case": "control",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Marcus Webb",
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 768,
+        "case": "close",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 768,
+        "case": "escape",
+        "save_sent": 0,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 768,
+        "case": "next",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Dana Ruiz",
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 1440,
+        "case": "control",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Marcus Webb",
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 1440,
+        "case": "close",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 1440,
+        "case": "escape",
+        "save_sent": 0,
+        "line_found": 0,
+        "record_open": false,
+        "record_title": null,
+        "opened_as": "Marcus Webb"
+      },
+      {
+        "width": 1440,
+        "case": "next",
+        "save_sent": 1,
+        "line_found": 0,
+        "record_open": true,
+        "record_title": "Dana Ruiz",
+        "opened_as": "Marcus Webb"
+      }
+    ]
+  },
+  "check_id": "notes-refused-on-close",
+  "started_at": "2026-10-17T16:31:29.915Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 7,
+  "min_assertions": 7,
+  "assertion_floor": "structural: a control and a page-error check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-sentence-is-found",
+    "observed_failure": true
+  }
+}
