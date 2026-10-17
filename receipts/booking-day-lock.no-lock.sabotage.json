@@ -1,0 +1,99 @@
+{
+  "git_sha": "60c0ea915a6df1d1a3ed760ea91c66406dbfd723",
+  "git_sha_started": "60c0ea915a6df1d1a3ed760ea91c66406dbfd723",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T19:50:08.353Z",
+  "failures": [
+    "race-cap: B was not refused as day-full (exit 0)",
+    "race-cap: 3 bookings on a cap-2 day",
+    "race-cap: B answered in 76ms, so it never waited for A's lock",
+    "race-buffer: B was not refused as too-close (exit 0)",
+    "race-buffer: 2 saved, 20 minutes apart on a 45-minute buffer",
+    "race-move: B's move was not refused as day-full (exit 0)",
+    "race-move: 3 bookings on a cap-2 day after two moves"
+  ],
+  "warnings": [
+    "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
+  ],
+  "artifacts": [
+    "artifacts/booking-day-lock/run.no-lock.json"
+  ],
+  "dimensions": {
+    "break": "no-lock",
+    "item": "97.18",
+    "postgres": "17.8"
+  },
+  "check_id": "booking-day-lock.no-lock",
+  "started_at": "2026-10-17T19:49:51.439Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "canary": {
+    "id": "plain-insert-beats-cap-and-buffer",
+    "observed_failure": true
+  },
+  "observed": {
+    "defect-cap": {
+      "id": "defect-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "bookings_on_cap_2_day": 3
+    },
+    "defect-buffer": {
+      "id": "defect-buffer",
+      "a_exit": 0,
+      "b_exit": 0,
+      "saved": 2
+    },
+    "race-cap": {
+      "id": "race-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 76,
+      "bookings_on_cap_2_day": 3
+    },
+    "race-buffer": {
+      "id": "race-buffer",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 78,
+      "saved": 2
+    },
+    "race-move-cap": {
+      "id": "race-move-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 76,
+      "bookings_on_cap_2_day": 3
+    },
+    "ordinary-and-exemptions": {
+      "id": "ordinary-and-exemptions",
+      "returned": "confirmed|true|true|null",
+      "second_exit": 0
+    },
+    "fence-holds": {
+      "id": "fence-holds",
+      "exit": 0,
+      "rows": "0",
+      "unchanged": "t"
+    },
+    "speed": {
+      "id": "speed",
+      "n_each": 300,
+      "plain_median_ms": 0.491,
+      "plain_p95_ms": 0.776,
+      "checked_median_ms": 0.644,
+      "checked_p95_ms": 1.012
+    }
+  }
+}
