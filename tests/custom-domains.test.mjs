@@ -38,6 +38,8 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--).*
 
 const config = read("supabase/functions/_shared/config.ts");
 const verify = read("supabase/functions/verify-domain/index.ts");
+// ROADMAP 97.13 moved the fetch itself into a shared module the function imports.
+const proof = read("supabase/functions/_shared/domainProof.ts");
 const migration = read("supabase/migrations/20260906000000_custom_domains.sql");
 const hostLib = read("app/src/lib/host.js");
 
@@ -131,7 +133,11 @@ console.log("\n4. no call site forgot the tenant");
 // ─── 5. Verification is a fetch, not a tick ───────────────────────────────
 console.log("\n5. a domain is proved, not claimed");
 {
-  const v = strip(verify);
+  const v = strip(verify) + strip(proof);
+  check("verify-domain uses the shared proof",
+    verify.includes('import { proveHost } from "../_shared/domainProof.ts"') &&
+    strip(verify).includes("await proveHost(host, row.verification_token)"),
+    "the per-row token check lives in the shared module; a function that stops calling it checks nothing");
   check("it fetches the address itself", /await fetch\(/.test(v) && /platform-host\.txt/.test(v),
     "nothing a detailer types can make a host serve our marker file");
   check("the marker file really exists in the build",
@@ -140,7 +146,7 @@ console.log("\n5. a domain is proved, not claimed");
   check("the fetch cannot hang", /AbortSignal\.timeout/.test(v),
     "a verification that hangs looks exactly like one that failed");
   check("it compares the trimmed body, not the whole response",
-    /\.trim\(\) *(===|==) *MARKER|text === MARKER/.test(v),
+    /\.trim\(\) *(===|==|!==) *MARKER|text === MARKER/.test(v),
     "a proxy may add a newline; a missing file returns the whole SPA");
   check("it only stamps a row belonging to the caller's business",
     /\.eq\("business_id", member\.businessId\)/.test(v));
