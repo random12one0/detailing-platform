@@ -1,9 +1,9 @@
 {
-  "git_sha": "4aa660df188383abbfe1508198faf5f659b18a64",
-  "git_sha_started": "4aa660df188383abbfe1508198faf5f659b18a64",
+  "git_sha": "20a6eb773fb5a24633e97daa87f724a4c43268cd",
+  "git_sha_started": "20a6eb773fb5a24633e97daa87f724a4c43268cd",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T16:25:13.511Z",
+  "finished_at": "2026-10-17T16:32:36.271Z",
   "failures": [
     "390: control: a refusal with the record open is found {\"sent\":1,\"found\":0}",
     "768: control: a refusal with the record open is found {\"sent\":1,\"found\":0}",
@@ -26,7 +26,7 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Marcus Webb",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 390,
@@ -35,7 +35,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 390,
@@ -44,7 +44,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 390,
@@ -53,7 +53,7 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Dana Ruiz",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 768,
@@ -62,7 +62,7 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Marcus Webb",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 768,
@@ -71,7 +71,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 768,
@@ -80,7 +80,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 768,
@@ -89,7 +89,7 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Dana Ruiz",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 1440,
@@ -98,7 +98,7 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Marcus Webb",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 1440,
@@ -107,7 +107,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 1440,
@@ -116,7 +116,7 @@
         "line_found": 0,
         "record_open": false,
         "record_title": null,
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       },
       {
         "width": 1440,
@@ -125,12 +125,12 @@
         "line_found": 0,
         "record_open": true,
         "record_title": "Dana Ruiz",
-        "opened_as": "Close"
+        "opened_as": "Marcus Webb"
       }
     ]
   },
   "check_id": "notes-refused-on-close",
-  "started_at": "2026-10-17T16:24:10.765Z",
+  "started_at": "2026-10-17T16:31:29.915Z",
   "status": "fail",
   "expected_targets": 12,
   "discovered_targets": 12,
