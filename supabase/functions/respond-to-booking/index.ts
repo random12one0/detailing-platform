@@ -24,7 +24,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById, can, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessById, can, getSettings, ownLines, requireMember } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { requestDecisionEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -58,14 +58,16 @@ Deno.serve(async (req) => {
     // and without them `moneyBlock` prints a total with no lines under it. The
     // embed is `accept-quote`'s and `send-invoice`'s, character for character,
     // because three spellings of one join is how they start to disagree.
-    const { data: booking } = await supabase
+    const { data: found } = await supabase
       .from("bookings")
-      .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
+      .select("*, services:booking_services(business_id, name_at_booking), add_ons:booking_add_ons(business_id, add_on:add_ons(name))")
       .eq("id", body.booking_id)
       .eq("business_id", member.businessId)
       .is("deleted_at", null)
       .maybeSingle();
-    if (!booking) return json({ error: "Booking not found" }, 404);
+    if (!found) return json({ error: "Booking not found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the customer.
+    const booking = ownLines(found);
     // ROADMAP 6.4 — THE SAME ANSWER, PRESSED AGAIN AFTER IT LANDED. Before
     // this the retry was told "not waiting to be accepted" about a request it
     // had itself just accepted, which reads as failure to a detailer in a

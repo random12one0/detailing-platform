@@ -328,3 +328,24 @@ export async function requireMember(
     permissions: rows[0].permissions ?? [],
   };
 }
+
+// ROADMAP 97.12 (S-M2) — A BOOKING'S OWN LINES, AND NOBODY ELSE'S.
+// `booking_services` and `booking_add_ons` used to point at a booking by id
+// alone, so another business could insert a row carrying ITS business_id and
+// THIS booking's id, and a service-role embed would print it on this booking's
+// receipt or email. `20261017000000_booking_lines_same_business.sql` makes the
+// database refuse such a row; this drops any that got in before it ran, or
+// while it has not. Every embed passed through here selects `business_id`, and
+// the column is removed again so no reply's shape changes.
+// `tests/booking-lines-own-business.test.mjs` holds every caller to it.
+// deno-lint-ignore no-explicit-any
+export function ownLines<T extends Record<string, any>>(booking: T): T {
+  // deno-lint-ignore no-explicit-any
+  const keep = (rows: any) => Array.isArray(rows)
+    // deno-lint-ignore no-explicit-any
+    ? rows.filter((r: any) => r?.business_id === booking.business_id).map(({ business_id: _b, ...r }: any) => r)
+    : rows;
+  const out: Record<string, unknown> = { ...booking };
+  for (const k of ["services", "add_ons"]) if (k in booking) out[k] = keep(booking[k]);
+  return out as T;
+}

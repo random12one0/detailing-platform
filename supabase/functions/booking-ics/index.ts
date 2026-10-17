@@ -24,7 +24,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { CORS_HEADERS, json, preflight } from "../_shared/http.ts";
-import { businessById, requireMember } from "../_shared/tenant.ts";
+import { businessById, ownLines, requireMember } from "../_shared/tenant.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { buildIcs, icsFilename } from "../_shared/ics.ts";
 
@@ -51,13 +51,15 @@ Deno.serve(async (req) => {
     }
     if (!id?.trim()) return json({ error: "id is required" }, 400);
 
-    const { data: booking } = await supabase
+    const { data: found } = await supabase
       .from("bookings")
-      .select("*, services:booking_services(name_at_booking)")
+      .select("*, services:booking_services(business_id, name_at_booking)")
       .eq("id", id.trim())
       .is("deleted_at", null)
       .maybeSingle();
-    if (!booking) return json({ error: "not_found" }, 404);
+    if (!found) return json({ error: "not_found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the customer.
+    const booking = ownLines(found);
     if (booking.status === "cancelled") return json({ error: "cancelled" }, 410);
 
     const business = await businessById(booking.business_id);
