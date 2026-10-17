@@ -30469,6 +30469,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Send it back to fix the six problems first (your words w-8)
 - [ ] **99.16 — Hold the release and have the builder fix the problems first; the problems are not named.**
   Hold it and have the builder fix the problems first (your words w-11)
+- [ ] **99.17 — Flag the item the owner just approved, adding a note that says 'If you meant to keep it, ignore this'**
+  Yes, flag it, with wording that says "If you meant to keep it, ignore this" (your words w-10)
+
 
 
 
