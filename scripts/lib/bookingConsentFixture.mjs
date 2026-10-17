@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 
-export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, failedWrite = false, handlerBreak = '', srcPatch = [], deps = {}, tables = {}, rpc = null } = {}) {
+export function bookingFixture({ consentBreak = '', existing = null, member = null, refused = false, duplicate = false, collision = false, bookingId = 'booking-a', failedWrite = false, handlerBreak = '', srcPatch = [], deps = {}, tables = {}, rpc = null } = {}) {
   let helperSrc = readFileSync('supabase/functions/_shared/bookingConsent.ts', 'utf8');
   if (consentBreak === 'save') {
     const changed = helperSrc.replace('sms_consent_source: "booking_form"', 'sms_consent_source: "owner_entered"');
@@ -22,7 +22,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   const operations = [], sends = [], errors = [];
   // 97.2 — the private columns a real row carries, so a duplicate answer that
   // hands back the row is caught by its keys.
-  const oldBooking = { id: 'booking-a', business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '(555) 012-3456', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', end_at: '2026-10-30T18:00:00.000Z', deleted_at: null,
+  const oldBooking = { id: bookingId, business_id: 'tenant-a', customer_id: 'customer-a', customer_phone: '(555) 012-3456', customer_name: 'Maria Lopez', status: 'confirmed', start_at: '2026-10-30T17:00:00.000Z', end_at: '2026-10-30T18:00:00.000Z', deleted_at: null,
     customer_email: 'maria@example.invalid', customer_address: '9 Private Ln', customer_notes: 'gate code 1234', admin_notes: 'owner-only note', total_price: 185 };
   if (duplicate) rows.bookings.push(oldBooking);
   const db = {
@@ -49,8 +49,8 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
         operations.push({ ...query });
         const pick = r => query.cols ? Object.fromEntries(query.cols.map(c => [c, r[c]])) : r;
         if (query.operation === 'insert') {
-          if (collision && table === 'bookings') { rows.bookings.push(oldBooking); return { error: { code: '23P01' }, data: null }; }
-          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : table === 'bookings' && rows.bookings.length ? 'booking-' + (rows.bookings.length + 1) : 'booking-a', ...(table === 'bookings' ? { created_at: new Date().toISOString() } : {}), sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
+          if (collision && table === 'bookings') { rows.bookings.push(oldBooking); return { error: { code: collision === true ? '23P01' : collision }, data: null }; }
+          const created = (Array.isArray(query.value) ? query.value : [query.value]).map((value,i) => ({ id: table === 'customers' ? 'customer-a' : table === 'bookings' && rows.bookings.length ? 'booking-' + (rows.bookings.length + 1) : bookingId, ...(table === 'bookings' ? { created_at: new Date().toISOString() } : {}), sms_consent_at: null, sms_consent_source: null, sms_stopped_at: null, ...value }));
           rows[table].push(...created); return { data: single ? pick(created[0]) : created.map(pick), error: null };
         }
         const found = rows[table].filter(r => filters.every(f => f(r))).slice(0, query.limit ?? Infinity);

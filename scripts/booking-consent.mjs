@@ -240,7 +240,8 @@ try {
         const asked = network.calls[1]?.booking_date || '', day = String(Number(asked.slice(8)));
         const heading = await page.locator('.bk-card h3').last().innerText();
         check(`${tag} retry screen shows the appointment`, new RegExp(`\\b${day}\\b`).test(heading) && /10 AM/.test(card) && /11 AM/.test(card) && /\$185/.test(card) && !/Invalid|NaN|undefined/.test(card), `${asked} | ${card}`);
-        check(`${tag} retry screen links to manage page`, link === '/booking/booking-a', String(link));
+        // 97.64: the retry carries the first press's booking_ref, which is the id.
+        check(`${tag} retry screen links to manage page`, !!network.calls[0]?.booking_ref && network.calls[1]?.booking_ref === network.calls[0].booking_ref && link === `/booking/${network.calls[0].booking_ref}`, String(link));
         check(`${tag} retry left consent unsaved`, !network.fixture.rows.customers.find(r => r.business_id === 'tenant-a')?.sms_consent_at);
         await photograph(page, 'retry-confirmed-' + tag);
         // 97.2's review pair for Andrew, outside the repo: Before is the

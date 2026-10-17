@@ -1,9 +1,9 @@
 {
-  "git_sha": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
-  "git_sha_started": "da0b892321fbdba14120a4e94fe3bf394ca02abb",
+  "git_sha": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
+  "git_sha_started": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:50:11.885Z",
+  "finished_at": "2026-10-16T22:33:25.751Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,17 +13,17 @@
     "handler": "supabase/functions/create-booking/index.ts"
   },
   "check_id": "duplicate-answer",
-  "started_at": "2026-10-16T23:50:11.784Z",
+  "started_at": "2026-10-16T22:33:25.626Z",
   "status": "pass",
-  "expected_targets": 2,
-  "discovered_targets": 2,
-  "attempted_targets": 2,
-  "completed_targets": 2,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 16,
-  "min_assertions": 15,
+  "assertions_executed": 67,
+  "min_assertions": 66,
   "canary": {
-    "id": "pre-97.2-select-star-and-consent-write",
+    "id": "pre-97.2-select-star-consent-write-and-id-to-anybody",
     "observed_failure": true,
     "reported": [
       {
@@ -37,10 +37,11 @@
           "customer_name",
           "customer_id"
         ],
-        "consented": true
+        "consented": true,
+        "stranger_got_id": true
       },
       {
-        "exit": "on an insert collision",
+        "exit": "on an overlap collision",
         "leaked": [
           "admin_notes",
           "customer_email",
@@ -50,7 +51,22 @@
           "customer_name",
           "customer_id"
         ],
-        "consented": true
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an id collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
       }
     ]
   }

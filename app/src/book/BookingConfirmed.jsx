@@ -82,12 +82,20 @@ export default function BookingConfirmed({ booking, form }) {
           </div>
         </div>
 
-        <a className="bk-btn primary" href={icsUrl(booking.id, "customer")}>
-          {t("Add to my calendar")}
-        </a>
-        <a className="bk-btn" style={{ marginTop: 10 }} href={booking.receipt_url}>
-          {isRequest ? t("View, change or cancel this request") : t("View, change or cancel this booking")}
-        </a>
+        {/* ROADMAP 97.64 — a repeat answer that did not come from the first
+            press carries no id, so there is nothing to link to. */}
+        {booking.id ? <>
+          <a className="bk-btn primary" href={icsUrl(booking.id, "customer")}>
+            {t("Add to my calendar")}
+          </a>
+          <a className="bk-btn" style={{ marginTop: 10 }} href={booking.receipt_url}>
+            {isRequest ? t("View, change or cancel this request") : t("View, change or cancel this booking")}
+          </a>
+        </> : (
+          <p className="bk-muted" style={{ textAlign: "center" }}>
+            {t("The link to view, change or cancel it is in your confirmation email.")}
+          </p>
+        )}
 
         {business.phone && (
           <p className="bk-muted" style={{ marginTop: 18, textAlign: "center" }}>

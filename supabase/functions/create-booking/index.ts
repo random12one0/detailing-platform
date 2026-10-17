@@ -80,6 +80,21 @@ const sameBooking = (businessId: string, startIso: string, body: Record<string, 
     .is("deleted_at", null)
     .maybeSingle();
 
+// ROADMAP 97.64 — THE ID GOES BACK ONLY TO THE PRESS THAT MADE IT. The page
+// sends a random `booking_ref` with its first press and the same one on every
+// retry, and the insert uses it as the booking's id. So "is this the original
+// press" is one comparison, with no column to add: a stranger who knows a
+// name, a phone and a time gets `start_at` and `status` and not the id, which
+// is the manage page's only key (`receiptUrl`: "the row's UUID is the
+// credential"). To get it they would have to guess the id itself.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const bookingRef = (body: Record<string, unknown>) =>
+  UUID.test(String(body.booking_ref ?? "")) ? String(body.booking_ref).toLowerCase() : null;
+const duplicateAnswer = (mine: { id: string }, body: Record<string, unknown>) => {
+  const { id, ...rest } = mine;
+  return { booking: id === bookingRef(body) ? mine : rest, duplicate: true };
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -348,7 +363,7 @@ Deno.serve(async (req) => {
       // switch on texts for a customer who never ticked the box.
       const { data: mine } = await sameBooking(business.id, asked.toISOString(), body);
       if (mine) {
-        return json({ booking: mine, duplicate: true });
+        return json(duplicateAnswer(mine, body));
       }
     }
 
@@ -513,6 +528,7 @@ Deno.serve(async (req) => {
     const { data: booking, error: insertErr } = await supabase
       .from("bookings")
       .insert({
+        ...(bookingRef(body) ? { id: bookingRef(body) } : {}),
         business_id: business.id,
         customer_id: customerId,
         booking_group_id: groupId,
@@ -619,7 +635,9 @@ Deno.serve(async (req) => {
       .single();
 
     if (insertErr) {
-      if (insertErr.code === "23P01") {
+      // 23505 too: two presses racing with the same `booking_ref` can meet
+      // on the id before the overlap rule (97.64).
+      if (insertErr.code === "23P01" || insertErr.code === "23505") {
         // **THE OVERLAP MAY BE THEIR OWN BOOKING, AND UNTIL 2026-09-06 THIS
         // TOLD THEM A STRANGER HAD TAKEN IT** — testing loop F-022, found by
         // walking C7, the customer on a bad connection.
@@ -650,9 +668,9 @@ Deno.serve(async (req) => {
           // A retry must still LOOK like the first press to the customer who
           // never knew there was one: the page fills the date, times and
           // price from what it just sent (BookingPage `submit`).
-          return json({ booking: mine, duplicate: true });
+          return json(duplicateAnswer(mine, body));
         }
-        return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
+        if (insertErr.code === "23P01") return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
       }
       // **NOT `insertErr.message`.** That is a Postgres string — it names
       // columns, constraints and checks — and this endpoint is public, so it
