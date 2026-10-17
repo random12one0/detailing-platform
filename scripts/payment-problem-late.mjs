@@ -9,6 +9,7 @@
 //   failed     unpaid + a failed bank payment  → the red line says it did not go through
 //   extra      PAID + an extra payment         → the refund line, ON A PAID JOB
 //   spanish    the extra payment, in Spanish   → the Spanish line
+//   failed-refund  unpaid + failed, carrying a refund owed → BOTH lines (review, 2026-10-16)
 //   settled    paid + a stale amount problem   → NO line (97.10's refused case still holds)
 //   clean      paid, no problem                → NO line
 //
@@ -52,6 +53,8 @@ const SCENARIOS = [
     want: ["Another payment of $150 came in after this job was settled.", "Refund it from your own Stripe."] },
   { id: "spanish", lang: "es", patch: BREAK ? OLD : { ...PAID, payment_problem: EXTRA },
     want: ["Llegó otro pago de $150 después de que este trabajo ya estaba saldado."] },
+  { id: "failed-refund", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: { ...FAILED, payments: EXTRA.payments }, final_amount: null, total_price: 150 },
+    want: ["A bank payment of $150 did not go through", "Another payment of $150 came in after this job was settled."] },
   { id: "settled", patch: { ...PAID, payment_problem: AMOUNT }, want: null },
   { id: "clean", patch: { ...PAID, payment_problem: null }, want: null },
 ];
