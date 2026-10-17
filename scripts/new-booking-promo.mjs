@@ -95,7 +95,8 @@ for (const [w, h] of WIDTHS) {
       `line ${lineShown} discount ${JSON.stringify(discount)}`);
   if (ok1) completed++;
   console.log(`  ${w}: discount shown: ${JSON.stringify(discount)}`);
-  await p.screenshot({ path: `${SHOTS}/good-${w}x${h}${tag}.png` });
+  const shoot = async (path, sel) => { await p.locator(sel).first().scrollIntoViewIfNeeded().catch(() => {}); await p.screenshot({ path }); };
+  await shoot(`${SHOTS}/good-${w}x${h}${tag}.png`, okText.length ? "span:text-is('Promo SUMMER10')" : ".error-box, .ok-box");
   if (freezeTool && w === 390) {
     await freezeTool.freeze(p, {
       out: `${process.env.FREEZE_OUT}/${FREEZE}.html`, label: FREEZE === "before" ? "Before" : "After",
@@ -112,7 +113,7 @@ for (const [w, h] of WIDTHS) {
   const ok2 = check(`${w}: "nope9723" -> validate ${badStatus}, sheet shows the refusal and no Applied.`,
     badStatus === 404 && errText.length === 1 && errText[0].trim().length > 0 && (await p.locator(".ok-box").count()) === 0,
     JSON.stringify(errText));
-  await p.screenshot({ path: `${SHOTS}/bad-${w}x${h}${tag}.png` });
+  await shoot(`${SHOTS}/bad-${w}x${h}${tag}.png`, ".error-box");
   console.log(`  ${w}: refusal shown: ${JSON.stringify(errText)}; allowed console 404s: ${allowed.length}`);
   const ok3 = check(`${w}: no console errors besides the refusal's own 404`, errors.length === 0, JSON.stringify(errors));
   if (ok2 && ok3) completed++;
