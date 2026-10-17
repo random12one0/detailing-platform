@@ -1,9 +1,9 @@
 {
-  "git_sha": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
-  "git_sha_started": "8e98591b2f9398db81b2fa1db77f17f092c8ac5f",
+  "git_sha": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
+  "git_sha_started": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T22:41:20.382Z",
+  "finished_at": "2026-10-17T00:36:53.184Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -31,24 +31,24 @@
         "view": "390x844",
         "who": "genuine",
         "calls": [
-          "23e1f50f-30d6-44af-b175-14f34cdc9f46",
-          "23e1f50f-30d6-44af-b175-14f34cdc9f46"
+          "7ac23350-da2b-4102-98d4-f838206e694b",
+          "7ac23350-da2b-4102-98d4-f838206e694b"
         ],
         "retry_answer": {
           "booking": {
-            "id": "23e1f50f-30d6-44af-b175-14f34cdc9f46",
+            "id": "7ac23350-da2b-4102-98d4-f838206e694b",
             "start_at": "2026-10-30T17:00:00.000Z",
             "status": "confirmed"
           },
           "duplicate": true
         },
-        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=23e1f50f-30d6-44af-b175-14f34cdc9f46&audience=customer&apikey=fixture-anon",
-        "manage": "/booking/23e1f50f-30d6-44af-b175-14f34cdc9f46"
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=7ac23350-da2b-4102-98d4-f838206e694b&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/7ac23350-da2b-4102-98d4-f838206e694b"
       },
       {
         "view": "390x844",
         "who": "stranger",
-        "ref": "b5e6f000-265e-485f-af5e-c07d57e357e0",
+        "ref": "bfbb54c9-a7d5-4104-a33d-005e123a9229",
         "answer": {
           "booking": {
             "start_at": "2026-10-30T17:00:00.000Z",
@@ -62,24 +62,24 @@
         "view": "768x1024",
         "who": "genuine",
         "calls": [
-          "d72c5b5f-e769-4758-ae51-7adf8d45f665",
-          "d72c5b5f-e769-4758-ae51-7adf8d45f665"
+          "e83f291b-778f-4b92-93cf-7cbe669e3f76",
+          "e83f291b-778f-4b92-93cf-7cbe669e3f76"
         ],
         "retry_answer": {
           "booking": {
-            "id": "d72c5b5f-e769-4758-ae51-7adf8d45f665",
+            "id": "e83f291b-778f-4b92-93cf-7cbe669e3f76",
             "start_at": "2026-10-30T17:00:00.000Z",
             "status": "confirmed"
           },
           "duplicate": true
         },
-        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=d72c5b5f-e769-4758-ae51-7adf8d45f665&audience=customer&apikey=fixture-anon",
-        "manage": "/booking/d72c5b5f-e769-4758-ae51-7adf8d45f665"
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=e83f291b-778f-4b92-93cf-7cbe669e3f76&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/e83f291b-778f-4b92-93cf-7cbe669e3f76"
       },
       {
         "view": "768x1024",
         "who": "stranger",
-        "ref": "5103105a-4f68-444c-8e46-afbbe65734b2",
+        "ref": "3e1f9647-e80e-4ed7-abff-c75423084913",
         "answer": {
           "booking": {
             "start_at": "2026-10-30T17:00:00.000Z",
@@ -93,24 +93,24 @@
         "view": "1440x900",
         "who": "genuine",
         "calls": [
-          "3ec2b702-0ae4-4384-a918-872d5d0f1473",
-          "3ec2b702-0ae4-4384-a918-872d5d0f1473"
+          "d4b9c6b0-e310-47eb-b17f-377092826999",
+          "d4b9c6b0-e310-47eb-b17f-377092826999"
         ],
         "retry_answer": {
           "booking": {
-            "id": "3ec2b702-0ae4-4384-a918-872d5d0f1473",
+            "id": "d4b9c6b0-e310-47eb-b17f-377092826999",
             "start_at": "2026-10-30T17:00:00.000Z",
             "status": "confirmed"
           },
           "duplicate": true
         },
-        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=3ec2b702-0ae4-4384-a918-872d5d0f1473&audience=customer&apikey=fixture-anon",
-        "manage": "/booking/3ec2b702-0ae4-4384-a918-872d5d0f1473"
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=d4b9c6b0-e310-47eb-b17f-377092826999&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/d4b9c6b0-e310-47eb-b17f-377092826999"
       },
       {
         "view": "1440x900",
         "who": "stranger",
-        "ref": "699dbed5-e411-4ade-b416-dd8e5cc64ce6",
+        "ref": "f4f84cc9-4e2b-495a-b64b-9ff2128fa527",
         "answer": {
           "booking": {
             "start_at": "2026-10-30T17:00:00.000Z",
@@ -124,24 +124,24 @@
         "view": "320x844",
         "who": "genuine",
         "calls": [
-          "26340881-854b-4fe0-a055-69a47d60ee70",
-          "26340881-854b-4fe0-a055-69a47d60ee70"
+          "030b9e52-8970-467b-863e-e80b04a27760",
+          "030b9e52-8970-467b-863e-e80b04a27760"
         ],
         "retry_answer": {
           "booking": {
-            "id": "26340881-854b-4fe0-a055-69a47d60ee70",
+            "id": "030b9e52-8970-467b-863e-e80b04a27760",
             "start_at": "2026-10-30T17:00:00.000Z",
             "status": "confirmed"
           },
           "duplicate": true
         },
-        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=26340881-854b-4fe0-a055-69a47d60ee70&audience=customer&apikey=fixture-anon",
-        "manage": "/booking/26340881-854b-4fe0-a055-69a47d60ee70"
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=030b9e52-8970-467b-863e-e80b04a27760&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/030b9e52-8970-467b-863e-e80b04a27760"
       },
       {
         "view": "320x844",
         "who": "stranger",
-        "ref": "15dfcb51-dcc9-4852-b0cf-07f4a136858a",
+        "ref": "dae62f93-b86d-4212-9854-3e2d6bcbf66e",
         "answer": {
           "booking": {
             "start_at": "2026-10-30T17:00:00.000Z",
@@ -155,24 +155,24 @@
         "view": "390x844-lite",
         "who": "genuine",
         "calls": [
-          "85dd6fe9-962e-4e31-a85d-7cd86bfbd91e",
-          "85dd6fe9-962e-4e31-a85d-7cd86bfbd91e"
+          "9fec55f1-bf7f-44cd-aafc-c21349ec555d",
+          "9fec55f1-bf7f-44cd-aafc-c21349ec555d"
         ],
         "retry_answer": {
           "booking": {
-            "id": "85dd6fe9-962e-4e31-a85d-7cd86bfbd91e",
+            "id": "9fec55f1-bf7f-44cd-aafc-c21349ec555d",
             "start_at": "2026-10-30T17:00:00.000Z",
             "status": "confirmed"
           },
           "duplicate": true
         },
-        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=85dd6fe9-962e-4e31-a85d-7cd86bfbd91e&audience=customer&apikey=fixture-anon",
-        "manage": "/booking/85dd6fe9-962e-4e31-a85d-7cd86bfbd91e"
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=9fec55f1-bf7f-44cd-aafc-c21349ec555d&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/9fec55f1-bf7f-44cd-aafc-c21349ec555d"
       },
       {
         "view": "390x844-lite",
         "who": "stranger",
-        "ref": "ca20a15f-3a50-45a0-b4b6-6d7176ed2f8d",
+        "ref": "e13d6d68-56bc-4eaf-9daa-d23f1d865b44",
         "answer": {
           "booking": {
             "start_at": "2026-10-30T17:00:00.000Z",
@@ -186,7 +186,7 @@
     "scope": "Real create-booking handler on an in-memory table; profile, quote and slots are stand-ins; no live booking or send."
   },
   "check_id": "duplicate-retry-screen",
-  "started_at": "2026-10-16T22:40:20.378Z",
+  "started_at": "2026-10-17T00:35:53.361Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
