@@ -139,6 +139,12 @@ async function load(name, src) {
 }
 const updateBooking = await load("update-booking", ub);
 const respondToBooking = await load("respond-to-booking", rb);
+// THE CANARY, IN EVERY RUN (97.24 review). The refusal predicate below is also
+// put to a copy of update-booking with the refusal taken out — the original
+// defect — and must call that copy's answer NOT refused. A predicate that
+// passed anything would pass this too, and the run would fail on it.
+const refusedRight = (r) => r.status === 409 && r.body?.code === "declined_request";
+const canaryHandler = BREAK ? null : await load("update-booking-canary", ub.replace(SABOTAGE["no-refusal"][0], SABOTAGE["no-refusal"][1]));
 check("both production handlers loaded with every import replaced",
   typeof updateBooking === "function" && typeof respondToBooking === "function" && unknown.length === 0, unknown.join(" | "));
 
@@ -186,7 +192,7 @@ for (const to of ["confirmed", "completed"]) {
   fresh({ declined_at: "2026-10-16T15:00:00.000Z" });
   r = await call(updateBooking, { status: to });
   reached++;
-  check(`declined → ${to} · refused 409 with code declined_request`, r.status === 409 && r.body.code === "declined_request", JSON.stringify(r.body).slice(0, 200));
+  check(`declined → ${to} · refused 409 with code declined_request`, refusedRight(r), JSON.stringify(r.body).slice(0, 200));
   check(`declined → ${to} · the reason names the right path`, /Accept it after all/.test(String(r.body.error)), String(r.body.error));
   check(`declined → ${to} · the row is untouched and nothing was sent`,
     db.bookings[0].status === "cancelled" && db.bookings[0].declined_at !== null && sent.length === 0,
@@ -221,6 +227,15 @@ check("slot taken since the decline · 409 'overlaps', row untouched, nothing se
   r.status === 409 && /overlaps/.test(String(r.body.error)) && db.bookings[0].status === "cancelled" && sent.length === 0,
   `${r.status} ${JSON.stringify(r.body)}`);
 
+let canaryCaught = false;
+if (canaryHandler) {
+  fresh({ declined_at: "2026-10-16T15:00:00.000Z" });
+  const c = await call(canaryHandler, { status: "confirmed" });
+  canaryCaught = !refusedRight(c) && db.bookings[0].status === "confirmed" && db.bookings[0].declined_at !== null;
+  console.log(`
+canary  a handler without the refusal re-confirmed a declined request (${c.status}, declined_at still set): ${canaryCaught ? "caught" : "NOT CAUGHT"}`);
+  if (!canaryCaught) failures.push("canary not caught: the refusal predicate accepted a handler with no refusal");
+}
 const failed = failures.length;
 console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`);
 const logName = `receipts/uncancel-tells-customer${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
@@ -229,21 +244,26 @@ writeFileSync(path(logName), [`uncancel-tells-customer${BREAK ? ` BREAK=${BREAK}
 const { path: receipt } = writeReceipt({
   check_id: BREAK ? `uncancel-tells-customer-${BREAK}` : "uncancel-tells-customer",
   started_at,
-  status: failed || reached !== SCENARIOS ? "fail" : "pass",
+  status: failed || reached !== SCENARIOS || (!BREAK && !canaryCaught) ? "fail" : "pass",
   expected_targets: SCENARIOS,
   discovered_targets: reached,
   attempted_targets: reached,
   completed_targets: reached,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 20,
+  // Genuinely below the 20 a clean run executes (receipt.mjs refuses an equal floor);
+  // the 10-of-10 scenario count is what binds a run that quietly did less.
+  min_assertions: 18,
   failures,
   dimensions: { handlers: ["supabase/functions/update-booking/index.ts", "supabase/functions/respond-to-booking/index.ts"], ...(BREAK ? { break: BREAK } : {}) },
   artifacts: [logName],
   // The canary: the refusal and the back-on email are measured by the same
   // checks the two sabotages switch off, so a check that compared nothing
   // could not pass this run AND go red under them.
-  canary: BREAK ? { id: `break-${BREAK}`, observed_failure: failed > 0 } : { id: "declined-refused", observed_failure: failures.length === 0 },
+  canary: BREAK
+    ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
+    : { id: "declined-request-reconfirmed-by-a-handler-without-the-refusal", observed_failure: canaryCaught,
+      sabotage_receipts: Object.keys(SABOTAGE).map((b) => `receipts/uncancel-tells-customer-${b}.sabotage.json`) },
 });
 console.log(`receipt: ${receipt}`);
-process.exitCode = failed || reached !== SCENARIOS ? 1 : 0;
+process.exitCode = failed || reached !== SCENARIOS || (!BREAK && !canaryCaught) ? 1 : 0;

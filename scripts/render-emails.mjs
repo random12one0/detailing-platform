@@ -73,7 +73,9 @@ const ACCENT = arg("accent", "#38E08B");
 // render too — the money still has to reach its total, the colours still have
 // to clear their floors, and `undefined` is still a defect in either language.
 const LANG = arg("lang", "en");
-const OUT = arg("out", "email-preview");
+// ROADMAP 97.24 review: a Spanish run keeps its own folder and its own receipt,
+// so it no longer overwrites the English record, and the English one cannot hide it.
+const OUT = arg("out", LANG === "en" ? "email-preview" : `email-preview-${LANG}`);
 
 /* ══ --long : EVERY TENANT-TYPED NAME AT THE CAP — ROADMAP 2.15a ══════════
    The names a detailer types for their business, their services and their
@@ -969,7 +971,7 @@ if (EMAILS.length === 0) {
 if (bad) failures.push(`${bad} problem(s) in the rendered emails - see FAIL above`);
 
 const { path: receiptPath } = writeReceipt({
-  check_id: "render-emails",
+  check_id: LANG === "en" ? "render-emails" : `render-emails-${LANG}`,
   started_at,
   status: failures.length === 0 && canaryCaught ? "pass" : "fail",
   expected_targets: EXPECTED_EMAILS,
@@ -982,7 +984,7 @@ const { path: receiptPath } = writeReceipt({
   failures,
   artifacts: [`${OUT}/index.html`],
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
-  dimensions: { accent: ACCENT, rot_patterns: ROT.length, out: OUT },
+  dimensions: { accent: ACCENT, rot_patterns: ROT.length, out: OUT, lang: LANG },
   canary: {
     id: "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",
     observed_failure: canaryCaught,

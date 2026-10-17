@@ -71,7 +71,7 @@ const SITUATIONS = {
   cancelled: { status: "cancelled", declined_at: null, customer_email: "maya@example.test" },
 };
 
-async function open(sit, [w, h], lang = "en") {
+async function open(sit, [w, h], lang = "en", broken = BREAK === "old-screen") {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state });
   await ctx.addInitScript((l) => localStorage.setItem("dp.lang.app", l), lang);
   const page = await ctx.newPage();
@@ -92,7 +92,7 @@ async function open(sit, [w, h], lang = "en") {
     calls.push({ fn, body: route.request().postDataJSON() });
     await route.fulfill({ json: { success: true, booking: { id: jobId, status: "confirmed" } } });
   });
-  if (BREAK === "old-screen") {
+  if (broken) {
     await page.route("**/src/components/BookingDetail.jsx*", async (route) => {
       const res = await route.fetch();
       const text = await res.text();
@@ -104,7 +104,7 @@ async function open(sit, [w, h], lang = "en") {
   await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".jobbar", { timeout: 30000 });
   await page.waitForTimeout(1200);
-  if (BREAK === "old-screen") check(`${sit} ${w} · the sabotage ran in the page`, await page.evaluate(() => window.__break9724 === true));
+  if (broken && BREAK) check(`${sit} ${w} · the sabotage ran in the page`, await page.evaluate(() => window.__break9724 === true));
   return { ctx, page, errors, calls };
 }
 
@@ -132,6 +132,14 @@ const T = {
   en: { accept: "Accept it after all", uncancel: "Un-cancel", ask: "back on? The customer is emailed." },
   es: { accept: "Aceptarla después de todo", uncancel: "Descancelar", ask: "Se avisa al cliente por correo." },
 };
+// The two questions asked of a declined request, in one place so the canary
+// below puts the SAME questions to the old screen.
+async function rightPath(page, s) {
+  return {
+    accept: await page.getByRole("button", { name: s.accept }).isVisible().catch(() => false),
+    noUncancel: (await page.getByRole("button", { name: s.uncancel, exact: true }).count()) === 0,
+  };
+}
 for (const [lang, size] of jobId ? RUNS : []) {
   const tag = `${lang} ${size[0]}x${size[1]}`;
   const s = T[lang];
@@ -140,8 +148,9 @@ for (const [lang, size] of jobId ? RUNS : []) {
   let { ctx, page, errors, calls } = await open("declined", size, lang);
   reached++;
   const accept = page.getByRole("button", { name: s.accept });
-  check(`declined ${tag} · "${s.accept}" is offered`, await accept.isVisible().catch(() => false));
-  check(`declined ${tag} · "${s.uncancel}" is not`, (await page.getByRole("button", { name: s.uncancel, exact: true }).count()) === 0);
+  const path = await rightPath(page, s);
+  check(`declined ${tag} · "${s.accept}" is offered`, path.accept);
+  check(`declined ${tag} · "${s.uncancel}" is not`, path.noUncancel);
   await page.getByText(s.accept).or(page.getByText(s.uncancel, { exact: true })).first().scrollIntoViewIfNeeded().catch(() => {});
   await page.screenshot({ path: `${SHOTS}/png/${BREAK ? `sabotage-${BREAK}-` : ""}declined-${lang}-${size[0]}x${size[1]}.png` });
   if (await accept.isVisible().catch(() => false)) {
@@ -174,6 +183,20 @@ for (const [lang, size] of jobId ? RUNS : []) {
   check(`cancelled ${tag} · console clean`, errors.length === 0, errors.join(" | ").slice(0, 300));
   await ctx.close();
 }
+// THE CANARY, IN EVERY CLEAN RUN (97.24 review): the declined screen with the
+// fix taken out of the served module (the original defect, Un-cancel offered on
+// a declined request). The same two questions must call it wrong.
+let canaryCaught = false, canaryRan = false;
+if (!BREAK && jobId) {
+  const { ctx, page } = await open("declined", [390, 844], "en", true);
+  canaryRan = await page.evaluate(() => window.__break9724 === true);
+  const p = await rightPath(page, T.en);
+  canaryCaught = canaryRan && !(p.accept && p.noUncancel);
+  console.log(`
+canary  the old declined screen (rewrite ran: ${canaryRan}; Accept ${p.accept}, no Un-cancel ${p.noUncancel}): ${canaryCaught ? "caught" : "NOT CAUGHT"}`);
+  if (!canaryCaught) failures.push("canary not caught: the old declined screen passed the right-path questions");
+  await ctx.close();
+}
 await browser.close();
 
 const failed = failures.length;
@@ -181,7 +204,7 @@ console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${
 const { path: receipt } = writeReceipt({
   check_id: "uncancel-screen",
   started_at,
-  status: failed || reached !== EXPECTED ? "fail" : "pass",
+  status: failed || reached !== EXPECTED || (!BREAK && !canaryCaught) ? "fail" : "pass",
   expected_targets: EXPECTED,
   discovered_targets: reached,
   attempted_targets: reached,
@@ -192,7 +215,10 @@ const { path: receipt } = writeReceipt({
   failures,
   dimensions: { base: BASE, job: jobId, runs: RUNS.map(([l, [w, h]]) => `${l} ${w}x${h}`), ...(BREAK ? { break: BREAK } : {}) },
   artifacts: [`${SHOTS}/png`],
-  canary: BREAK ? { id: `break-${BREAK}`, observed_failure: failed > 0 } : { id: "uncancel-absent-on-declined", observed_failure: failed === 0 },
+  canary: BREAK
+    ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
+    : { id: "old-declined-screen-offering-un-cancel", observed_failure: canaryCaught, rewrite_ran: canaryRan,
+      sabotage_receipts: ["receipts/uncancel-screen.sabotage.json"] },
 });
 console.log(`receipt: ${receipt}`);
-process.exitCode = failed || reached !== EXPECTED ? 1 : 0;
+process.exitCode = failed || reached !== EXPECTED || (!BREAK && !canaryCaught) ? 1 : 0;

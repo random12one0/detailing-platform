@@ -1,4 +1,4 @@
-uncancel-tells-customer BREAK=no-refusal — 2026-10-17T22:54:23.264Z
+uncancel-tells-customer BREAK=no-refusal — 2026-10-17T23:17:28.791Z
 ok    both production handlers loaded with every import replaced
 ok    un-cancel · the write succeeded and the job is confirmed
 ok    un-cancel · exactly one email went
