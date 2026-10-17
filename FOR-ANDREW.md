@@ -187,6 +187,22 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · Stop team logins deleting bookings or changing customers behind the app's back (ROADMAP 97.14)
+
+Today any team login, whatever you have ticked for it, can skip the app and delete a booking outright, or add,
+change or delete a customer. The fix takes those abilities away from every browser. The one thing the app still
+changed directly, a client's Notes box, now saves through a checked route that refuses anyone outside the business and
+any "view as" look. A "view as" tab left on Looking now says so under the Notes box instead of quietly saving. Built and
+tested on a throwaway copy of the database and in the running app, with the staff and the owner logins.
+
+**Your move:** at your next release, apply `20261017030000_staff_cannot_delete_bookings_or_write_customers.sql` and
+then `20261017130000_set_customer_notes_refuses_support_sessions.sql`, and publish the website in the same sitting. If
+only one half goes live, the Notes box stops saving (old website, new database) or shows "Your notes were not saved"
+(new website, old database). Adding customers and "Delete for good" are unchanged. After the apply, the check that
+lists database functions will name the new notes route until it is added to its allowed list. The session has not
+pushed, published, deployed or changed the database. Separately, letting you pick what each team member may do is
+ROADMAP 99.13, not urgent, as you said.
+
 ## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
 
 Today a detailer who learned another business's customer number could put that customer on their own job, plan or
