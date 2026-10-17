@@ -192,7 +192,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
         </p>
       )}
 
-      {error && <div className="error-box">{error}</div>}
+      {error && <div className="error-box">{t(error)}</div>}
 
       {confirming ? (
         <div className="confirm-box">
