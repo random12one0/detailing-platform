@@ -1,9 +1,9 @@
 {
-  "git_sha": "60c0ea915a6df1d1a3ed760ea91c66406dbfd723",
-  "git_sha_started": "60c0ea915a6df1d1a3ed760ea91c66406dbfd723",
+  "git_sha": "423447f48a62fc70b2640667b6d0f269b60f1746",
+  "git_sha_started": "423447f48a62fc70b2640667b6d0f269b60f1746",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T19:50:25.841Z",
+  "finished_at": "2026-10-17T19:51:44.007Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
@@ -25,7 +25,7 @@
     "postgres": "17.8"
   },
   "check_id": "booking-day-lock.no-recheck",
-  "started_at": "2026-10-17T19:50:08.867Z",
+  "started_at": "2026-10-17T19:51:28.055Z",
   "status": "fail",
   "expected_targets": 8,
   "discovered_targets": 8,
@@ -34,6 +34,7 @@
   "skipped_targets": 0,
   "assertions_executed": 18,
   "min_assertions": 18,
+  "assertion_floor": "1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 3 speed; every check() unconditional.",
   "canary": {
     "id": "plain-insert-beats-cap-and-buffer",
     "observed_failure": true
@@ -56,7 +57,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2015,
+      "b_waited_ms": 1903,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -64,7 +65,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2019,
+      "b_waited_ms": 1882,
       "saved": 2
     },
     "race-move-cap": {
@@ -72,7 +73,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2022,
+      "b_waited_ms": 1897,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
@@ -89,10 +90,10 @@
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.235,
-      "plain_p95_ms": 0.416,
-      "checked_median_ms": 0.325,
-      "checked_p95_ms": 0.569
+      "plain_median_ms": 0.238,
+      "plain_p95_ms": 0.445,
+      "checked_median_ms": 0.332,
+      "checked_p95_ms": 0.591
     }
   }
 }
