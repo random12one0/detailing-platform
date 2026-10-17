@@ -154,7 +154,8 @@ export default function Campaigns() {
       // at a thousand, and this screen would be the wrong place to find that
       // out — the row count is what tells us, not a guess now.
       supabase.from("campaign_visits").select("campaign_id, visitor_id, created_at").eq("business_id", business.id),
-      supabase.from("bookings").select("campaign_id, status, total_price, final_amount")
+      // The three refund columns are what `whereFrom` needs to value a job by what it KEPT (97.83).
+      supabase.from("bookings").select("campaign_id, status, total_price, final_amount, payment_status, stripe_payment_intent, payment_problem")
         .eq("business_id", business.id)
         .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null),
     ]);

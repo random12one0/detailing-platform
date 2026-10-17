@@ -470,7 +470,10 @@ export function whereFrom({ campaigns = [], visits = [], bookings = [], period }
   const peopleIn = (rows) => new Set(rows.map((v) => v.visitor_id).filter(Boolean)).size;
 
   const live = bookings.filter((b) => b.status !== "cancelled");
-  const paidOf = (b) => num(b.final_amount ?? b.total_price);
+  // ROADMAP 97.83 — WHAT THE JOB KEPT, the same reading as `advancedMoney` (97.82). The
+  // bare price here left a job refunded in full counted as earned under its link, on
+  // Tracking links and Money's Booking sources, after Money's own Earned stopped counting it.
+  const kept = (b) => keptOf(b, num(b.final_amount ?? b.total_price));
 
   const links = campaigns.map((c) => {
     const mine = seen.filter((v) => v.campaign_id === c.id);
@@ -480,7 +483,7 @@ export function whereFrom({ campaigns = [], visits = [], bookings = [], period }
       id: c.id, name: c.name, slug: c.slug, active: c.is_active !== false,
       people, visits: mine.length,
       bookings: booked.length,
-      revenue: booked.reduce((s, b) => s + paidOf(b), 0),
+      revenue: booked.reduce((s, b) => s + kept(b), 0),
       // **EARNED AND REVENUE ARE TWO DIFFERENT NUMBERS AND BOTH ARE RETURNED.**
       // `revenue` is every live booking the link produced, which is what the
       // link DID. `earned` is completed jobs only, because money that has not
@@ -488,7 +491,7 @@ export function whereFrom({ campaigns = [], visits = [], bookings = [], period }
       // links all draw that line in the same place, and a fourth definition of
       // revenue is how two screens start disagreeing about the same flyer.
       earned: booked.filter((b) => b.status === "completed")
-        .reduce((s, b) => s + paidOf(b), 0),
+        .reduce((s, b) => s + kept(b), 0),
       // **THE RATE IS BOOKINGS OVER PEOPLE, AND IT CAN EXCEED 100%.** A regular
       // who books twice off one visit is two bookings and one person, which is
       // a good month rather than a bug — so it is not clamped, and the screen
