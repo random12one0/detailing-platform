@@ -402,8 +402,8 @@ console.log("\n5. a table locked by RLS alone, with its grants still open");
 // and stays a finding. `--break=hide-declaring` ignores the declaring files, so
 // every AWAITS APPLY table must come back as a finding and the run go red.
 const UNPAIRED_TRACKED = new Map([
-  ["job_photos", "ROADMAP 97.70"],
-  ["maintenance_deadlines", "ROADMAP 97.70"],
+  ["job_photos", "ROADMAP 97.71"],
+  ["maintenance_deadlines", "ROADMAP 97.71"],
 ]);
 console.log("\n6. a booking's child a detailer can write points at a booking of the SAME business");
 {
