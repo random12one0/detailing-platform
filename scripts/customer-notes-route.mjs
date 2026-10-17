@@ -201,8 +201,12 @@ for (const [w, h] of WIDTHS) {
   }
   // A refusal belongs to the record it happened on: open a DIFFERENT client and the line must be gone.
   await page.locator("button.x[aria-label='Close']").first().click();
+  const notesBox = page.locator("label.field:has-text('Notes') textarea").first();
+  await notesBox.waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
   await page.locator(".rows.cols.clients .row-item").nth(1).click();
-  await page.locator("label.field:has-text('Notes') textarea").first().waitFor({ state: "visible", timeout: 15000 });
+  // One retry: a click landing while the closing record is still leaving opened nothing, once in 12 runs.
+  await notesBox.waitFor({ state: "visible", timeout: 15000 })
+    .catch(() => page.locator(".rows.cols.clients .row-item").nth(1).click().then(() => notesBox.waitFor({ state: "visible", timeout: 15000 })));
   const stale = await onScreen(page, page.locator(".error-box", { hasText: NOT_SAVED }), false);
   check(`${w}: the refusal line does not follow onto a different client's record`, !stale, `on screen ${stale}`);
   await page.screenshot({ path: `${SHOTS}/next-record-${w}x${h}${tag}.png` });
