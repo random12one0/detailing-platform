@@ -1,18 +1,20 @@
 {
-  "git_sha": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
-  "git_sha_started": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
+  "git_sha": "d62936fa44ce84616ca5030254c923c31f14eaa7",
+  "git_sha_started": "d62936fa44ce84616ca5030254c923c31f14eaa7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:40:31.377Z",
+  "finished_at": "2026-10-17T18:23:09.743Z",
   "failures": [
-    "a marker read that fails counts as a support session (fails closed)"
+    "97.15: …and its session is signed out at Auth, this session only (local) []"
   ],
   "warnings": [],
   "artifacts": [
-    "supabase/functions/_shared/supportSession.ts"
+    "supabase/functions/_shared/supportSession.ts",
+    "supabase/functions/_shared/tenant.ts"
   ],
   "dimensions": {
-    "break": "fail-open",
+    "break": "no-signout",
+    "mutation_landed": true,
     "functions": {
       "booking-ics": "requireMember, opted in as read-only",
       "connect-account": "requireMember, refused by default",
@@ -20,6 +22,7 @@
       "create-business": "own getUser + supportSession",
       "delete-customer": "requireMember, refused by default",
       "forecast": "requireMember, opted in as read-only",
+      "google-business": "requireMember, refused by default",
       "invite-user": "requireMember, refused by default",
       "owner-push-subscribe": "requireMember, refused by default",
       "owner-push-unsubscribe": "requireMember, refused by default",
@@ -38,16 +41,16 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-10T15:40:31.301Z",
+  "started_at": "2026-10-17T18:23:09.592Z",
   "status": "fail",
-  "expected_targets": 21,
-  "discovered_targets": 21,
-  "attempted_targets": 21,
-  "completed_targets": 21,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 39,
-  "min_assertions": 38,
-  "assertion_floor": "structural: six decision cases, one gate check, one per discovered function, three fixed checks, seven on the impersonate hand-over",
+  "assertions_executed": 53,
+  "min_assertions": 52,
+  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true
