@@ -1,9 +1,9 @@
 {
-  "git_sha": "2762a689caa419af4f03ae3b82cc687b4e774b22",
-  "git_sha_started": "2762a689caa419af4f03ae3b82cc687b4e774b22",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:08:54.496Z",
+  "finished_at": "2026-10-17T01:46:34.171Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -75,7 +75,7 @@
     ]
   },
   "check_id": "card-payment-settles",
-  "started_at": "2026-10-17T00:08:54.294Z",
+  "started_at": "2026-10-17T01:46:33.986Z",
   "status": "pass",
   "expected_targets": 12,
   "discovered_targets": 12,

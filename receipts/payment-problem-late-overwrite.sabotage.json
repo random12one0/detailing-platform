@@ -1,0 +1,268 @@
+{
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T01:42:32.389Z",
+  "failures": [
+    "two-reasons @ 1440x900 · it says \"A card payment of $100 came in, but this job is ow\" — A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "two-reasons @ 768x1024 · it says \"A card payment of $100 came in, but this job is ow\" — A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "two-reasons @ 390x844 · it says \"A card payment of $100 came in, but this job is ow\" — A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+    "two-reasons @ 320x700 · it says \"A card payment of $100 came in, but this job is ow\" — A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.11/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "break": "overwrite",
+    "probed": [
+      {
+        "scenario": "failed",
+        "width": 1440,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-1440x900.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 768,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-768x1024.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 390,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-390x844.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 320,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-320x700.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 1440,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-extra-1440x900.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 768,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-extra-768x1024.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 390,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-extra-390x844.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 320,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-extra-320x700.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 1440,
+        "shown": true,
+        "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-spanish-1440x900.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 768,
+        "shown": true,
+        "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-spanish-768x1024.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 390,
+        "shown": true,
+        "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-spanish-390x844.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 320,
+        "shown": true,
+        "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-spanish-320x700.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 1440,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-refund-1440x900.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 768,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-refund-768x1024.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 390,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-refund-390x844.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 320,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-failed-refund-320x700.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 1440,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-two-reasons-1440x900.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 768,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-two-reasons-768x1024.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 390,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-two-reasons-390x844.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 320,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-two-reasons-320x700.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-settled-1440x900.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-settled-768x1024.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-settled-390x844.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-settled-320x700.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-clean-1440x900.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-clean-768x1024.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-clean-390x844.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-overwrite-clean-320x700.png"
+      }
+    ]
+  },
+  "check_id": "payment-problem-late-overwrite",
+  "started_at": "2026-10-17T01:41:10.718Z",
+  "status": "fail",
+  "expected_targets": 28,
+  "discovered_targets": 28,
+  "attempted_targets": 28,
+  "completed_targets": 28,
+  "skipped_targets": 0,
+  "assertions_executed": 161,
+  "min_assertions": 100,
+  "canary": {
+    "id": "break-overwrite",
+    "observed_failure": true
+  }
+}

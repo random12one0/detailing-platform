@@ -1,9 +1,9 @@
 {
-  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
-  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:15:47.543Z",
+  "finished_at": "2026-10-17T01:41:02.645Z",
   "failures": [
     "R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order — GET /checkout/sessions/cs_old  | POST /checkout/sessions pay:b1:15000:cs_old",
     "R3 · refused: when Stripe will not expire the old page, no new page is made — HTTP 200 · GET /checkout/sessions/cs_old | POST /checkout/sessions"
@@ -36,7 +36,8 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.469Z"
+          "at": "2026-10-17T01:41:02.507Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -51,7 +52,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.470Z"
+          "at": "2026-10-17T01:41:02.509Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -66,7 +68,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.471Z"
+          "at": "2026-10-17T01:41:02.510Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -99,13 +102,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.473Z",
+          "at": "2026-10-17T01:41:02.517Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.473Z"
+              "at": "2026-10-17T01:41:02.517Z"
             }
           ]
         }
@@ -123,13 +126,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.473Z",
+          "at": "2026-10-17T01:41:02.518Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.473Z"
+              "at": "2026-10-17T01:41:02.518Z"
             }
           ]
         }
@@ -147,19 +150,19 @@
           "paid_cents": 25000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.475Z",
+          "at": "2026-10-17T01:41:02.522Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.474Z"
+              "at": "2026-10-17T01:41:02.521Z"
             },
             {
               "intent": "pi_3",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.475Z"
+              "at": "2026-10-17T01:41:02.522Z"
             }
           ]
         }
@@ -185,7 +188,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.476Z",
+          "at": "2026-10-17T01:41:02.524Z",
+          "intent": "pi_1",
           "payments": [
             {
               "intent": "pi_2",
@@ -208,7 +212,7 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.476Z",
+          "at": "2026-10-17T01:41:02.525Z",
           "payments": [
             {
               "intent": "pi_3",
@@ -217,6 +221,119 @@
               "at": "x"
             }
           ]
+        }
+      },
+      {
+        "name": "keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive",
+        "ok": true,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 12000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.528Z",
+          "intent": "pi_3",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.526Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "failed",
+              "paid_cents": 15000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.527Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.529Z",
+          "intent": "pi_2",
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.529Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.530Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.530Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "x",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "refused: one wrong-amount payment's two events note it ONCE, not as two reasons",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.531Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -231,13 +348,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.476Z",
+          "at": "2026-10-17T01:41:02.532Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.476Z"
+              "at": "2026-10-17T01:41:02.532Z"
             }
           ]
         }
@@ -321,15 +438,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-no-expire",
-  "started_at": "2026-10-17T00:15:47.401Z",
+  "started_at": "2026-10-17T01:41:02.401Z",
   "status": "fail",
-  "expected_targets": 22,
-  "discovered_targets": 22,
-  "attempted_targets": 22,
-  "completed_targets": 22,
+  "expected_targets": 26,
+  "discovered_targets": 26,
+  "attempted_targets": 26,
+  "completed_targets": 26,
   "skipped_targets": 0,
-  "assertions_executed": 25,
-  "min_assertions": 24,
+  "assertions_executed": 29,
+  "min_assertions": 28,
   "canary": {
     "id": "break-no-expire",
     "observed_failure": true

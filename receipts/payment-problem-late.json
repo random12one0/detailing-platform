@@ -1,9 +1,9 @@
 {
-  "git_sha": "663d76a3a3d59d6423efbedea119a9d9b1c12bd5",
-  "git_sha_started": "663d76a3a3d59d6423efbedea119a9d9b1c12bd5",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:20:01.914Z",
+  "finished_at": "2026-10-17T01:45:27.661Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -148,6 +148,38 @@
         "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/failed-refund-320x700.png"
       },
       {
+        "scenario": "two-reasons",
+        "width": 1440,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/two-reasons-1440x900.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 768,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/two-reasons-768x1024.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 390,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/two-reasons-390x844.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 320,
+        "shown": true,
+        "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/two-reasons-320x700.png"
+      },
+      {
         "scenario": "settled",
         "width": 1440,
         "shown": false,
@@ -214,14 +246,14 @@
     ]
   },
   "check_id": "payment-problem-late",
-  "started_at": "2026-10-17T00:18:40.984Z",
+  "started_at": "2026-10-17T01:44:01.606Z",
   "status": "pass",
-  "expected_targets": 24,
-  "discovered_targets": 24,
-  "attempted_targets": 24,
-  "completed_targets": 24,
+  "expected_targets": 28,
+  "discovered_targets": 28,
+  "attempted_targets": 28,
+  "completed_targets": 28,
   "skipped_targets": 0,
-  "assertions_executed": 129,
+  "assertions_executed": 161,
   "min_assertions": 100,
   "canary": {
     "id": "settled-job-hides-the-line",

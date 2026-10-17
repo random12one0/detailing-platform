@@ -1,4 +1,4 @@
-card-payment-settles — 2026-10-17T00:08:54.446Z
+card-payment-settles — 2026-10-17T01:46:34.123Z
 ok    R2 · completed session still unpaid (bank transfer pending): want leave, got leave
 ok    R2 · completed session with no payment_status at all: want leave, got leave
 ok    R3 · paid $1.00 on a $150 job: want amount, got amount

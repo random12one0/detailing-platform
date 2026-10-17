@@ -1,13 +1,15 @@
 {
-  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
-  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:15:46.952Z",
+  "finished_at": "2026-10-17T01:41:01.830Z",
   "failures": [
     "R4 · a card payment after the detailer marked cash: still paid, refund owed recorded — null · HTTP 200",
     "R4 · a second live page paid: its two events make ONE refund entry, not two — null · HTTP 200,200",
     "R4 · a third payment is added to the list, never written over the second — null · HTTP 200,200",
+    "keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive — {\"kind\":\"amount\",\"paid_cents\":12000,\"owed_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T01:41:01.722Z\",\"intent\":\"pi_3\",\"earlier\":[{\"kind\":\"failed\",\"paid_cents\":15000,\"owed_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T01:41:01.721Z\",\"intent\":\"pi_1\"}]} · HTTP 200,200,200",
+    "keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund — {\"kind\":\"amount\",\"paid_cents\":10000,\"owed_cents\":15000,\"currency\":\"usd\",\"at\":\"x\",\"intent\":\"pi_1\"} · HTTP 200",
     "R4 · money for a WAIVED job is a refund owed too — waived null · HTTP 200"
   ],
   "warnings": [],
@@ -38,7 +40,8 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:46.879Z"
+          "at": "2026-10-17T01:41:01.711Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -53,7 +56,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:46.880Z"
+          "at": "2026-10-17T01:41:01.713Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -68,7 +72,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:46.881Z"
+          "at": "2026-10-17T01:41:01.714Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -139,7 +144,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:46.885Z",
+          "at": "2026-10-17T01:41:01.720Z",
+          "intent": "pi_1",
           "payments": [
             {
               "intent": "pi_2",
@@ -162,7 +168,7 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:46.885Z",
+          "at": "2026-10-17T01:41:01.720Z",
           "payments": [
             {
               "intent": "pi_3",
@@ -171,6 +177,94 @@
               "at": "x"
             }
           ]
+        }
+      },
+      {
+        "name": "keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive",
+        "ok": false,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 12000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:01.722Z",
+          "intent": "pi_3",
+          "earlier": [
+            {
+              "kind": "failed",
+              "paid_cents": 15000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:01.721Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:01.723Z",
+          "intent": "pi_2",
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:01.722Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund",
+        "ok": false,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "x",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "refused: one wrong-amount payment's two events note it ONCE, not as two reasons",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:01.724Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -262,15 +356,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-silent-extra",
-  "started_at": "2026-10-17T00:15:46.809Z",
+  "started_at": "2026-10-17T01:41:01.624Z",
   "status": "fail",
-  "expected_targets": 22,
-  "discovered_targets": 22,
-  "attempted_targets": 22,
-  "completed_targets": 22,
+  "expected_targets": 26,
+  "discovered_targets": 26,
+  "attempted_targets": 26,
+  "completed_targets": 26,
   "skipped_targets": 0,
-  "assertions_executed": 25,
-  "min_assertions": 24,
+  "assertions_executed": 29,
+  "min_assertions": 28,
   "canary": {
     "id": "break-silent-extra",
     "observed_failure": true

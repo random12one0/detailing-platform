@@ -1,11 +1,11 @@
 {
-  "git_sha": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
-  "git_sha_started": "30181ddbf6b50aaeb620aa410e71cc9d4a105e0c",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:15:47.238Z",
+  "finished_at": "2026-10-17T01:41:02.225Z",
   "failures": [
-    "R4 · a second live page paid: its two events make ONE refund entry, not two — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.168Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.167Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T00:15:47.168Z\"}]} · HTTP 200,200"
+    "R4 · a second live page paid: its two events make ONE refund entry, not two — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T01:41:02.089Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T01:41:02.088Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T01:41:02.089Z\"}]} · HTTP 200,200"
   ],
   "warnings": [],
   "artifacts": [
@@ -35,7 +35,8 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.163Z"
+          "at": "2026-10-17T01:41:02.082Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -50,7 +51,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.164Z"
+          "at": "2026-10-17T01:41:02.084Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -65,7 +67,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.165Z"
+          "at": "2026-10-17T01:41:02.085Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -98,13 +101,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.167Z",
+          "at": "2026-10-17T01:41:02.087Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.167Z"
+              "at": "2026-10-17T01:41:02.087Z"
             }
           ]
         }
@@ -122,19 +125,19 @@
           "paid_cents": 30000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.168Z",
+          "at": "2026-10-17T01:41:02.089Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.167Z"
+              "at": "2026-10-17T01:41:02.088Z"
             },
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.168Z"
+              "at": "2026-10-17T01:41:02.089Z"
             }
           ]
         }
@@ -152,19 +155,19 @@
           "paid_cents": 25000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.168Z",
+          "at": "2026-10-17T01:41:02.090Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.168Z"
+              "at": "2026-10-17T01:41:02.090Z"
             },
             {
               "intent": "pi_3",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.168Z"
+              "at": "2026-10-17T01:41:02.090Z"
             }
           ]
         }
@@ -190,7 +193,8 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.169Z",
+          "at": "2026-10-17T01:41:02.091Z",
+          "intent": "pi_1",
           "payments": [
             {
               "intent": "pi_2",
@@ -213,7 +217,7 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.170Z",
+          "at": "2026-10-17T01:41:02.092Z",
           "payments": [
             {
               "intent": "pi_3",
@@ -222,6 +226,119 @@
               "at": "x"
             }
           ]
+        }
+      },
+      {
+        "name": "keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive",
+        "ok": true,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 12000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.093Z",
+          "intent": "pi_3",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.093Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "failed",
+              "paid_cents": 15000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.093Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.095Z",
+          "intent": "pi_2",
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.094Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.096Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T01:41:02.096Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "x",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "refused: one wrong-amount payment's two events note it ONCE, not as two reasons",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T01:41:02.098Z",
+          "intent": "pi_1"
         }
       },
       {
@@ -236,13 +353,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T00:15:47.170Z",
+          "at": "2026-10-17T01:41:02.099Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T00:15:47.170Z"
+              "at": "2026-10-17T01:41:02.099Z"
             }
           ]
         }
@@ -327,15 +444,15 @@
     ]
   },
   "check_id": "checkout-page-lifecycle-no-dedupe",
-  "started_at": "2026-10-17T00:15:47.094Z",
+  "started_at": "2026-10-17T01:41:01.991Z",
   "status": "fail",
-  "expected_targets": 22,
-  "discovered_targets": 22,
-  "attempted_targets": 22,
-  "completed_targets": 22,
+  "expected_targets": 26,
+  "discovered_targets": 26,
+  "attempted_targets": 26,
+  "completed_targets": 26,
   "skipped_targets": 0,
-  "assertions_executed": 25,
-  "min_assertions": 24,
+  "assertions_executed": 29,
+  "min_assertions": 28,
   "canary": {
     "id": "break-no-dedupe",
     "observed_failure": true

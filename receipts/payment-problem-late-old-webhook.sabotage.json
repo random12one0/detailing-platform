@@ -1,9 +1,9 @@
 {
-  "git_sha": "663d76a3a3d59d6423efbedea119a9d9b1c12bd5",
-  "git_sha_started": "663d76a3a3d59d6423efbedea119a9d9b1c12bd5",
+  "git_sha": "426e28aed59edcbbc23f9dc44cdab4548666466e",
+  "git_sha_started": "426e28aed59edcbbc23f9dc44cdab4548666466e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:18:32.327Z",
+  "finished_at": "2026-10-17T01:43:56.555Z",
   "failures": [
     "failed @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
     "failed @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
@@ -20,7 +20,11 @@
     "failed-refund @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
     "failed-refund @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
     "failed-refund @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
-    "failed-refund @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing"
+    "failed-refund @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing"
   ],
   "warnings": [],
   "artifacts": [
@@ -166,6 +170,38 @@
         "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-old-webhook-failed-refund-320x700.png"
       },
       {
+        "scenario": "two-reasons",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-old-webhook-two-reasons-1440x900.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-old-webhook-two-reasons-768x1024.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-old-webhook-two-reasons-390x844.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.11/png/break-old-webhook-two-reasons-320x700.png"
+      },
+      {
         "scenario": "settled",
         "width": 1440,
         "shown": false,
@@ -232,14 +268,14 @@
     ]
   },
   "check_id": "payment-problem-late-old-webhook",
-  "started_at": "2026-10-17T00:17:17.142Z",
+  "started_at": "2026-10-17T01:42:32.833Z",
   "status": "fail",
-  "expected_targets": 24,
-  "discovered_targets": 24,
-  "attempted_targets": 24,
-  "completed_targets": 24,
+  "expected_targets": 28,
+  "discovered_targets": 28,
+  "attempted_targets": 28,
+  "completed_targets": 28,
   "skipped_targets": 0,
-  "assertions_executed": 73,
+  "assertions_executed": 85,
   "min_assertions": 100,
   "canary": {
     "id": "break-old-webhook",
