@@ -46,6 +46,7 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
+const OLDHOOK = BREAK === "old-webhook";
 const HIDE = BREAK === "hide-waived";
 const FREEZE_WAIVED = arg("freeze-waived");
 if (BREAK && BREAK !== "old-webhook" && !HIDE) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
@@ -64,11 +65,11 @@ const WAIVED = { payment_status: "waived", paid_online_at: null, final_amount: n
 const WAIVED_WANT = ["A card payment of $1 did not match what this job was owed, and the job has since been waived.",
   "Refund it from your own Stripe.", "If you meant to keep it, ignore this."];
 const SCENARIOS = [
-  { id: "mismatch", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
+  { id: "mismatch", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
     want: ["A card payment of $1 came in, but this job is owed $150.", "We did not mark it paid."] },
-  { id: "currency", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: CURRENCY },
+  { id: "currency", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: CURRENCY },
     want: ["not in US dollars"] },
-  { id: "spanish", lang: "es", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
+  { id: "spanish", lang: "es", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
     want: ["Llegó un pago con tarjeta de $1, pero este trabajo debe $150."] },
   { id: "settled", patch: { payment_status: "paid", paid_online_at: "2026-10-16T15:00:00.000Z", payment_problem: AMOUNT },
     want: ["A card payment of $1 did not match what this job was owed", "If you kept this payment as part of what they paid, ignore this."],
@@ -192,7 +193,7 @@ for (const sc of jobId ? SCENARIOS : []) {
       return { text: el.innerText, left: r.left, right: r.right, width: r.width, vw: window.innerWidth, hit: !!hit && (hit === el || el.contains(hit)), color: getComputedStyle(el).color };
     });
     if (sc.want) {
-      check(`${tag} · the red line is there`, !!box, BREAK ? "the old webhook marked it paid and recorded nothing" : "no [data-payment-problem]");
+      check(`${tag} · the red line is there`, !!box, OLDHOOK ? "the old webhook marked it paid and recorded nothing" : "no [data-payment-problem]");
       if (box) {
         for (const s of sc.want) check(`${tag} · it says "${s.slice(0, 50)}"`, box.text.includes(s), box.text);
         for (const n of [].concat(sc.wantNot ?? [])) check(`${tag} · it does not say "${n}"`, !box.text.includes(n), box.text);
