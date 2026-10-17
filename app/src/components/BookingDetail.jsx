@@ -552,15 +552,19 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // ROADMAP 97.11: `payments` is money that came in AFTER the job was settled.
   // It is a refund still to make, so it shows whatever the job's status, and
   // whichever note carries it (an `extra`, or a `failed` bank payment).
+  // ROADMAP 97.69: a payment carrying a `reason` is a wrong-figure payment that
+  // came in BEFORE the job was paid another way, so it gets its own line each —
+  // "came in after this job was settled" would be untrue of it.
   const payUnsettled = booking.payment_status !== "paid" && booking.payment_status !== "waived";
-  const refundCents = Array.isArray(booking.payment_problem?.payments)
-    ? booking.payment_problem.payments.reduce((sum, p) => sum + (Number(p.paid_cents) || 0), 0) : 0;
+  const refundPayments = Array.isArray(booking.payment_problem?.payments) ? booking.payment_problem.payments : [];
+  const owedBack = refundPayments.filter((p) => p?.reason);
+  const refundCents = refundPayments.filter((p) => !p?.reason).reduce((sum, p) => sum + (Number(p.paid_cents) || 0), 0);
   // Every reason the webhook kept (`earlier`, newest note first), one line each.
   const payReasons = payUnsettled && booking.payment_problem
     ? [booking.payment_problem, ...(Array.isArray(booking.payment_problem.earlier) ? [...booking.payment_problem.earlier].reverse() : [])]
       .filter((r) => r?.kind && r.kind !== "extra")
     : [];
-  const payProblem = booking.payment_problem && (refundCents > 0 || payReasons.length > 0)
+  const payProblem = booking.payment_problem && (refundCents > 0 || owedBack.length > 0 || payReasons.length > 0)
     ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
@@ -638,6 +642,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 : t("A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.", {
                   paid: money(Number(r.paid_cents) / 100),
                   owed: money(Number(r.owed_cents) / 100),
+                })}</div>)}
+              {owedBack.map((p, i) => <div key={`owed-${i}`} data-refund-owed={p.reason}>{p.reason === "currency"
+                ? t("A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.")
+                : t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  paid: money(Number(p.paid_cents) / 100),
                 })}</div>)}
               {refundCents > 0 && <div data-refund-owed="">
                 {t("Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {

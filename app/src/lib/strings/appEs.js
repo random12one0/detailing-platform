@@ -1638,6 +1638,11 @@ export const appEs = {
     "Un pago bancario de {paid} no se completó, así que este trabajo no está pagado. Revisa el pago en tu cuenta de Stripe.",
   "Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
     "Llegó otro pago de {paid} después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  // ROADMAP 97.69 — a wrong-figure payment, and the job has since been paid another way.
+  "A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+  "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y este trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",

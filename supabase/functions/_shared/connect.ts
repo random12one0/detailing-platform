@@ -217,7 +217,8 @@ export interface PaymentProblem {
   at: string;
   /** The payment this note is about, so one payment's two events note it once. */
   intent?: string;
-  payments?: { intent: string; paid_cents: number; currency: string; at: string }[];
+  /** `reason`: a wrong-figure payment kept unpaid by 97.10, owed back once the job was paid another way (97.69). */
+  payments?: { intent: string; paid_cents: number; currency: string; at: string; reason?: "amount" | "currency" }[];
   /** Older reasons still true, newest last — a new note is added, never written over one (`keepReasons`). */
   earlier?: Omit<PaymentProblem, "payments" | "earlier">[];
 }
@@ -337,6 +338,36 @@ const extraProblem = (payments: NonNullable<PaymentProblem["payments"]>, now: Da
   at: now.toISOString(),
   payments,
 });
+
+/**
+ * THE JOB IS PAID, SO A WRONG-FIGURE PAYMENT KEPT ON IT IS NOW OWED BACK —
+ * ROADMAP 97.69. 97.10 leaves a job unpaid and notes a payment of the wrong
+ * figure or currency; when the right payment `intent` then settles the job, that
+ * note was left behind and hidden (it is only shown on an unpaid job), with the
+ * money still in the detailer's Stripe. Every kept `amount`/`currency` note about
+ * ANOTHER payment moves onto the refunds-owed list; other reasons stay in
+ * `earlier`. Returns undefined when there is nothing to move, so the settle
+ * write leaves the column alone.
+ */
+export function settleProblem(
+  intent: string,
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): PaymentProblem | undefined {
+  if (!existing) return undefined;
+  const reasons = [...(existing.earlier ?? []), ...(existing.kind === "extra" ? [] : [existing])];
+  const owedBack = (r: Omit<PaymentProblem, "payments" | "earlier">) =>
+    (r.kind === "amount" || r.kind === "currency") && !!r.intent && r.intent !== intent;
+  const payments = [...(existing.payments ?? [])];
+  for (const r of reasons) {
+    if (owedBack(r) && !payments.some((p) => p.intent === r.intent)) {
+      payments.push({ intent: r.intent!, paid_cents: r.paid_cents, currency: r.currency, at: r.at, reason: r.kind as "amount" | "currency" });
+    }
+  }
+  if (payments.length === (existing.payments?.length ?? 0)) return undefined;
+  const rest = reasons.filter((r) => !owedBack(r)).map(({ payments: _p, earlier: _e, ...r }) => r);
+  return { ...extraProblem(payments, now), ...(rest.length ? { earlier: rest } : {}) };
+}
 
 /**
  * A BANK PAYMENT THAT DID NOT GO THROUGH — ROADMAP 97.11. Returns the patch for
