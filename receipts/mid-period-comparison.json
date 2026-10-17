@@ -1,7 +1,9 @@
 {
-  "git_sha": "9a4dd5bcc2cf09c3ec038cd661036755c57cffd4",
+  "git_sha": "c0c9a979b2e1d5f77306c385e2c785d16bde59df",
+  "git_sha_started": "c0c9a979b2e1d5f77306c385e2c785d16bde59df",
+  "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-09-20T17:44:18.448Z",
+  "finished_at": "2026-10-17T15:56:11.072Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -27,7 +29,7 @@
     }
   },
   "check_id": "mid-period-comparison",
-  "started_at": "2026-09-20T17:44:18.323Z",
+  "started_at": "2026-10-17T15:56:10.964Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,

@@ -1,0 +1,227 @@
+  ok    refunded @ 390x844 · the Money screen's bookings read was fed
+  ok    refunded @ 390x844 · the breakdown is drawn
+  FAIL  refunded @ 390x844 · Earned reads $60
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  refunded @ 390x844 · Collected reads $0
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 390x844 · Still owed reads $60 — the refund is not owed
+  FAIL  refunded @ 390x844 · Net reads $20
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 390x844 · the screen's own cells add up: earned = collected + still owed
+  ok    refunded @ 390x844 · the export's Amount column adds up to the Net the screen prints
+  FAIL  refunded @ 390x844 · the export's Net row prints 20.00
+        ,Net,,,,170.00,0
+  ok    refunded @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded @ 390x844 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    refunded @ 390x844 · console clean
+  ok    refunded @ 320x640 · the Money screen's bookings read was fed
+  ok    refunded @ 320x640 · the breakdown is drawn
+  FAIL  refunded @ 320x640 · Earned reads $60
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  refunded @ 320x640 · Collected reads $0
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 320x640 · Still owed reads $60 — the refund is not owed
+  FAIL  refunded @ 320x640 · Net reads $20
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 320x640 · the screen's own cells add up: earned = collected + still owed
+  ok    refunded @ 320x640 · the export's Amount column adds up to the Net the screen prints
+  FAIL  refunded @ 320x640 · the export's Net row prints 20.00
+        ,Net,,,,170.00,0
+  ok    refunded @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded @ 320x640 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    refunded @ 320x640 · console clean
+  ok    refunded @ 768x1024 · the Money screen's bookings read was fed
+  ok    refunded @ 768x1024 · the breakdown is drawn
+  FAIL  refunded @ 768x1024 · Earned reads $60
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  refunded @ 768x1024 · Collected reads $0
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 768x1024 · Still owed reads $60 — the refund is not owed
+  FAIL  refunded @ 768x1024 · Net reads $20
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 768x1024 · the screen's own cells add up: earned = collected + still owed
+  ok    refunded @ 768x1024 · the export's Amount column adds up to the Net the screen prints
+  FAIL  refunded @ 768x1024 · the export's Net row prints 20.00
+        ,Net,,,,170.00,0
+  ok    refunded @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded @ 768x1024 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    refunded @ 768x1024 · console clean
+  ok    refunded @ 1440x900 · the Money screen's bookings read was fed
+  ok    refunded @ 1440x900 · the breakdown is drawn
+  FAIL  refunded @ 1440x900 · Earned reads $60
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  refunded @ 1440x900 · Collected reads $0
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 1440x900 · Still owed reads $60 — the refund is not owed
+  FAIL  refunded @ 1440x900 · Net reads $20
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    refunded @ 1440x900 · the screen's own cells add up: earned = collected + still owed
+  ok    refunded @ 1440x900 · the export's Amount column adds up to the Net the screen prints
+  FAIL  refunded @ 1440x900 · the export's Net row prints 20.00
+        ,Net,,,,170.00,0
+  ok    refunded @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded @ 1440x900 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    refunded @ 1440x900 · console clean
+  ok    part-refunded @ 390x844 · the Money screen's bookings read was fed
+  ok    part-refunded @ 390x844 · the breakdown is drawn
+  FAIL  part-refunded @ 390x844 · Earned reads $160
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  part-refunded @ 390x844 · Collected reads $100
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 390x844 · Still owed reads $60 — the refund is not owed
+  FAIL  part-refunded @ 390x844 · Net reads $120
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 390x844 · the screen's own cells add up: earned = collected + still owed
+  ok    part-refunded @ 390x844 · the export's Amount column adds up to the Net the screen prints
+  FAIL  part-refunded @ 390x844 · the export's Net row prints 120.00
+        ,Net,,,,170.00,0
+  ok    part-refunded @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded @ 390x844 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    part-refunded @ 390x844 · console clean
+  ok    part-refunded @ 320x640 · the Money screen's bookings read was fed
+  ok    part-refunded @ 320x640 · the breakdown is drawn
+  FAIL  part-refunded @ 320x640 · Earned reads $160
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  part-refunded @ 320x640 · Collected reads $100
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 320x640 · Still owed reads $60 — the refund is not owed
+  FAIL  part-refunded @ 320x640 · Net reads $120
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 320x640 · the screen's own cells add up: earned = collected + still owed
+  ok    part-refunded @ 320x640 · the export's Amount column adds up to the Net the screen prints
+  FAIL  part-refunded @ 320x640 · the export's Net row prints 120.00
+        ,Net,,,,170.00,0
+  ok    part-refunded @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded @ 320x640 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    part-refunded @ 320x640 · console clean
+  ok    part-refunded @ 768x1024 · the Money screen's bookings read was fed
+  ok    part-refunded @ 768x1024 · the breakdown is drawn
+  FAIL  part-refunded @ 768x1024 · Earned reads $160
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  part-refunded @ 768x1024 · Collected reads $100
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 768x1024 · Still owed reads $60 — the refund is not owed
+  FAIL  part-refunded @ 768x1024 · Net reads $120
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 768x1024 · the screen's own cells add up: earned = collected + still owed
+  ok    part-refunded @ 768x1024 · the export's Amount column adds up to the Net the screen prints
+  FAIL  part-refunded @ 768x1024 · the export's Net row prints 120.00
+        ,Net,,,,170.00,0
+  ok    part-refunded @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded @ 768x1024 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    part-refunded @ 768x1024 · console clean
+  ok    part-refunded @ 1440x900 · the Money screen's bookings read was fed
+  ok    part-refunded @ 1440x900 · the breakdown is drawn
+  FAIL  part-refunded @ 1440x900 · Earned reads $160
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  FAIL  part-refunded @ 1440x900 · Collected reads $100
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 1440x900 · Still owed reads $60 — the refund is not owed
+  FAIL  part-refunded @ 1440x900 · Net reads $120
+        {"cells":{"Earned":"$210","Expenses":"$40","Avg job":"$105","Jobs done":"2","Collected":"$150","Still owed":"$60","Quoted up front":"$210","Added on site":"+$0"},"net":"$170"}
+  ok    part-refunded @ 1440x900 · the screen's own cells add up: earned = collected + still owed
+  ok    part-refunded @ 1440x900 · the export's Amount column adds up to the Net the screen prints
+  FAIL  part-refunded @ 1440x900 · the export's Net row prints 120.00
+        ,Net,,,,170.00,0
+  ok    part-refunded @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded @ 1440x900 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    part-refunded @ 1440x900 · console clean
+  ok    other-payment @ 390x844 · the Money screen's bookings read was fed
+  ok    other-payment @ 390x844 · the breakdown is drawn
+  ok    other-payment @ 390x844 · Earned reads $210
+  ok    other-payment @ 390x844 · Collected reads $150
+  ok    other-payment @ 390x844 · Still owed reads $60 — the refund is not owed
+  ok    other-payment @ 390x844 · Net reads $170
+  ok    other-payment @ 390x844 · the screen's own cells add up: earned = collected + still owed
+  ok    other-payment @ 390x844 · the export's Amount column adds up to the Net the screen prints
+  ok    other-payment @ 390x844 · the export's Net row prints 170.00
+  ok    other-payment @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment @ 390x844 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    other-payment @ 390x844 · console clean
+  ok    other-payment @ 320x640 · the Money screen's bookings read was fed
+  ok    other-payment @ 320x640 · the breakdown is drawn
+  ok    other-payment @ 320x640 · Earned reads $210
+  ok    other-payment @ 320x640 · Collected reads $150
+  ok    other-payment @ 320x640 · Still owed reads $60 — the refund is not owed
+  ok    other-payment @ 320x640 · Net reads $170
+  ok    other-payment @ 320x640 · the screen's own cells add up: earned = collected + still owed
+  ok    other-payment @ 320x640 · the export's Amount column adds up to the Net the screen prints
+  ok    other-payment @ 320x640 · the export's Net row prints 170.00
+  ok    other-payment @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment @ 320x640 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    other-payment @ 320x640 · console clean
+  ok    other-payment @ 768x1024 · the Money screen's bookings read was fed
+  ok    other-payment @ 768x1024 · the breakdown is drawn
+  ok    other-payment @ 768x1024 · Earned reads $210
+  ok    other-payment @ 768x1024 · Collected reads $150
+  ok    other-payment @ 768x1024 · Still owed reads $60 — the refund is not owed
+  ok    other-payment @ 768x1024 · Net reads $170
+  ok    other-payment @ 768x1024 · the screen's own cells add up: earned = collected + still owed
+  ok    other-payment @ 768x1024 · the export's Amount column adds up to the Net the screen prints
+  ok    other-payment @ 768x1024 · the export's Net row prints 170.00
+  ok    other-payment @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment @ 768x1024 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    other-payment @ 768x1024 · console clean
+  ok    other-payment @ 1440x900 · the Money screen's bookings read was fed
+  ok    other-payment @ 1440x900 · the breakdown is drawn
+  ok    other-payment @ 1440x900 · Earned reads $210
+  ok    other-payment @ 1440x900 · Collected reads $150
+  ok    other-payment @ 1440x900 · Still owed reads $60 — the refund is not owed
+  ok    other-payment @ 1440x900 · Net reads $170
+  ok    other-payment @ 1440x900 · the screen's own cells add up: earned = collected + still owed
+  ok    other-payment @ 1440x900 · the export's Amount column adds up to the Net the screen prints
+  ok    other-payment @ 1440x900 · the export's Net row prints 170.00
+  ok    other-payment @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment @ 1440x900 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    other-payment @ 1440x900 · console clean
+  ok    paid @ 390x844 · the Money screen's bookings read was fed
+  ok    paid @ 390x844 · the breakdown is drawn
+  ok    paid @ 390x844 · Earned reads $210
+  ok    paid @ 390x844 · Collected reads $150
+  ok    paid @ 390x844 · Still owed reads $60 — the refund is not owed
+  ok    paid @ 390x844 · Net reads $170
+  ok    paid @ 390x844 · the screen's own cells add up: earned = collected + still owed
+  ok    paid @ 390x844 · the export's Amount column adds up to the Net the screen prints
+  ok    paid @ 390x844 · the export's Net row prints 170.00
+  ok    paid @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid @ 390x844 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    paid @ 390x844 · console clean
+  ok    paid @ 320x640 · the Money screen's bookings read was fed
+  ok    paid @ 320x640 · the breakdown is drawn
+  ok    paid @ 320x640 · Earned reads $210
+  ok    paid @ 320x640 · Collected reads $150
+  ok    paid @ 320x640 · Still owed reads $60 — the refund is not owed
+  ok    paid @ 320x640 · Net reads $170
+  ok    paid @ 320x640 · the screen's own cells add up: earned = collected + still owed
+  ok    paid @ 320x640 · the export's Amount column adds up to the Net the screen prints
+  ok    paid @ 320x640 · the export's Net row prints 170.00
+  ok    paid @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid @ 320x640 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    paid @ 320x640 · console clean
+  ok    paid @ 768x1024 · the Money screen's bookings read was fed
+  ok    paid @ 768x1024 · the breakdown is drawn
+  ok    paid @ 768x1024 · Earned reads $210
+  ok    paid @ 768x1024 · Collected reads $150
+  ok    paid @ 768x1024 · Still owed reads $60 — the refund is not owed
+  ok    paid @ 768x1024 · Net reads $170
+  ok    paid @ 768x1024 · the screen's own cells add up: earned = collected + still owed
+  ok    paid @ 768x1024 · the export's Amount column adds up to the Net the screen prints
+  ok    paid @ 768x1024 · the export's Net row prints 170.00
+  ok    paid @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid @ 768x1024 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    paid @ 768x1024 · console clean
+  ok    paid @ 1440x900 · the Money screen's bookings read was fed
+  ok    paid @ 1440x900 · the breakdown is drawn
+  ok    paid @ 1440x900 · Earned reads $210
+  ok    paid @ 1440x900 · Collected reads $150
+  ok    paid @ 1440x900 · Still owed reads $60 — the refund is not owed
+  ok    paid @ 1440x900 · Net reads $170
+  ok    paid @ 1440x900 · the screen's own cells add up: earned = collected + still owed
+  ok    paid @ 1440x900 · the export's Amount column adds up to the Net the screen prints
+  ok    paid @ 1440x900 · the export's Net row prints 170.00
+  ok    paid @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid @ 1440x900 · the sabotage landed in the export and the MEASURED copy carries it
+  ok    paid @ 1440x900 · console clean
+
+160 passed, 32 failed, 16 of 16 views.
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.82-20261017154706895\receipts\money-refund-status-only.sabotage.json

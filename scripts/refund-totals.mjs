@@ -198,7 +198,9 @@ for (const sc of SCENARIOS) {
         amount: exportMod.accountantRows({ jobs })[0]?.amount ?? null, csv: exportMod.accountantCsv({ jobs }) };
     })() : null;
     check(`${tag} · the export's Status says "${sc.status}"`, exp?.status === sc.status, JSON.stringify(exp));
-    check(`${tag} · the export's Amount still ties to the screen's earned figure (150.00)`, exp?.amount === 150, JSON.stringify(exp));
+    // RE-POINTED BY 97.82, NOT RELAXED: Amount is now what the job KEPT, which is how the
+    // Money screen's Net counts it, so it ties out there (scripts/money-refund.mjs).
+    check(`${tag} · the export's Amount is what the job kept (${sc.collected}.00)`, exp?.amount === sc.collected, JSON.stringify(exp));
     if (REWRITES) {
       const ran = await page.evaluate(() => window.__beltToday === true);
       check(`${tag} · the sabotage landed once in Today and RAN`, ran && hits["Today.jsx"] === 1, `ran ${ran}, ${JSON.stringify(hits)}`);
