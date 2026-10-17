@@ -5,6 +5,8 @@
 //   BREAK=no-booking-match PGLITE_DIR=… node tests/forget-customer-sql.test.mjs  # sabotage: the owner's alert about their booking is missed
 //   BREAK=no-address-match PGLITE_DIR=… node tests/forget-customer-sql.test.mjs  # sabotage: mail to their address with no customer link is missed
 //   BREAK=keep-subject     PGLITE_DIR=… node tests/forget-customer-sql.test.mjs  # sabotage: "New booking: <name>" keeps the name
+//   BREAK=no-team          PGLITE_DIR=… node tests/forget-customer-sql.test.mjs  # sabotage: the team's own addresses are not recognised
+//   BREAK=no-stay          PGLITE_DIR=… node tests/forget-customer-sql.test.mjs  # sabotage: a late webhook write refills a forgotten row
 //
 // PGlite is real PostgreSQL in WebAssembly, in-process: nothing touches the live database, and it is
 // in no package.json (same arrangement as tests/campaign-share-sql.test.mjs). Without it every case
@@ -19,8 +21,21 @@
 // THE SCENARIO: business A has Dana and Eli; business B has its own customer at Dana's SAME address.
 // A's mail log holds, for Dana: (1) her confirmation, (2) the owner's "New booking: Dana Doe" alert
 // about her booking, (3) mail to her address sent before it matched a customer row, in another case,
-// (4) a campaign. For Eli: (5) his confirmation, (6) the owner's alert about his booking, (7) mail
+// (4) a campaign, (9) her reminder at the different address she typed on the booking. For Eli: (5) his confirmation, (6) the owner's alert about his booking, (7) mail
 // linked to Eli at Dana's address (a shared household address — his mail too). B: (8).
+// A's team addresses: owner@shine.test (contact_email), Alerts@Shine.test (notification_emails),
+// staff@shine.test (business_users).
+//
+// THE OWNER'S OWN TEST BOOKING (review, 2026-10-17): `send-email` links a row to whichever customer has
+// the recipient's address, so a detailer who booked themselves has every alert they were ever sent linked
+// to that test customer. For EACH of the three team addresses, a test customer at that address is
+// forgotten: the alert about Eli's booking and a digest about nobody must survive (only the link goes, by
+// the foreign key), and the alert about the test customer's own booking loses its subject and body but
+// keeps its recipient.
+//
+// LATE WEBHOOK (review): after forgetting Dana, an outcome written by provider id must not refill her
+// row's address, body or bounce text, must still record the status, and must leave a team row's
+// `detail` and every other row alone.
 //
 // CANARY, EVERY RUN: the same scenario on the PRE-97.20 function (20260907001000 alone) must still
 // hold Dana's address, name and body — the defect reproduced. Otherwise the green is not about the fix.
@@ -39,13 +54,15 @@ const BREAK = process.env.BREAK || "";
 const read = (f) => readFileSync(path.join(DIR, f), "utf8").replace(/\r\n/g, "\n");
 
 let SQL = read(MIGRATION);
-const EMAIL_STEP = /  -- 97\.20\. BEFORE[\s\S]*?get diagnostics v_emails = row_count;\n/.exec(SQL)?.[0];
+const EMAIL_STEP = /  -- 97\.20\. BEFORE[\s\S]*?v_emails := v_emails \+ v_alerts;\n/.exec(SQL)?.[0];
 assert.ok(EMAIL_STEP, "could not find the 97.20 email step in the migration");
 const SABOTAGE = {
   "after-bookings": () => SQL.replace(EMAIL_STEP, "").replace("get diagnostics v_bookings = row_count;\n", `get diagnostics v_bookings = row_count;\n${EMAIL_STEP}`),
   "no-booking-match": () => SQL.replace(/      or e\.booking_id in \([\s\S]*?\n      \)\n/, ""),
   "no-address-match": () => SQL.replace("      or (e.customer_id is null and v_email is not null and lower(btrim(e.to_email)) = v_email)\n", ""),
   "keep-subject": () => SQL.replace("subject     = 'Deleted customer',", "subject     = e.subject,"),
+  "no-team": () => SQL.replace("    and not (lower(btrim(e.to_email)) = any (v_team))\n", ""),
+  "no-stay": () => SQL.replace("  if old.subject = 'Deleted customer' and old.body_html is null then", "  if false then"),
 };
 if (BREAK) {
   if (!SABOTAGE[BREAK]) throw new Error(`unknown BREAK=${BREAK}; known: ${Object.keys(SABOTAGE).join(", ")}`);
@@ -75,7 +92,7 @@ const BK_DANA = "b1b1b1b1-b1b1-4b1b-8b1b-b1b1b1b1b1b1", BK_ELI = "b2b2b2b2-b2b2-
 const DANA_BODY = "<p>Hi Dana Doe, see you at 12 Elm St. We will call 555-0101.</p>";
 const ELI_BODY = "<p>Hi Eli Park, see you at 9 Oak Ave.</p>";
 // The things about Dana no row may still hold. Her address is checked separately: row 7 is Eli's.
-const DANA_TRACES = [/dana doe/i, /12 elm/i, /555-0101/];
+const DANA_TRACES = [/dana doe/i, /12 elm/i, /555-0101/, /dana\.work@/i];
 const ROWS = [
   // n, business, customer, booking, to, subject, body, detail
   [1, A, DANA, BK_DANA, "dana@example.com", "Your booking is confirmed", DANA_BODY, "bounced: dana@example.com mailbox full"],
@@ -86,6 +103,8 @@ const ROWS = [
   [6, A, null, BK_ELI, "owner@shine.test", "New booking: Eli Park, Sun 9am ($120)", ELI_BODY, null],
   [7, A, ELI, null, "dana@example.com", "Your receipt", ELI_BODY, null],
   [8, B, DANA_B, BK_B, "dana@example.com", "Your booking is confirmed", "<p>Hi Dana Doe (B)</p>", null],
+  // Her booking carried a DIFFERENT address from her record, so send-email linked no customer.
+  [9, A, null, BK_DANA, "dana.work@example.com", "Dana Doe, see you Saturday", DANA_BODY, "deferred: dana.work@example.com"],
 ];
 const id = (n) => `00000000-0000-4000-8000-00000000000${n}`;
 const q = (v) => (v === null ? "null" : `'${String(v).replace(/'/g, "''")}'`);
@@ -95,7 +114,9 @@ async function fixture(fn) {
   await db.exec(`
     create role anon; create role authenticated; create role service_role;
     create function public.set_updated_at() returns trigger language plpgsql as $f$ begin new.updated_at = now(); return new; end $f$;
-    create table public.businesses (id uuid primary key);
+    create table public.businesses (id uuid primary key, contact_email text);
+    create table public.business_settings (business_id uuid primary key references public.businesses(id), notification_emails text[] not null default '{}');
+    create table public.business_users (business_id uuid not null references public.businesses(id), email text);
     create table public.customers (id uuid primary key, business_id uuid not null references public.businesses(id) on delete cascade,
       name text not null, email text, phone text, address text);
     create table public.bookings (id uuid primary key, business_id uuid not null references public.businesses(id) on delete cascade,
@@ -105,7 +126,9 @@ async function fixture(fn) {
     ${EMAIL_TABLE}
     ${BOOKING_COL}
     ${BODY_COL}
-    insert into public.businesses values ('${A}'), ('${B}');
+    insert into public.businesses values ('${A}', 'owner@shine.test'), ('${B}', null);
+    insert into public.business_settings values ('${A}', '{Alerts@Shine.test}');
+    insert into public.business_users values ('${A}', 'staff@shine.test'), ('${A}', null);
     insert into public.customers values
       ('${DANA}', '${A}', 'Dana Doe', 'dana@example.com', '555-0101', '12 Elm St'),
       ('${ELI}', '${A}', 'Eli Park', 'eli@example.com', '555-0202', '9 Oak Ave'),
@@ -143,10 +166,10 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   const old = await fixture(read(OLD));
   const oldRes = (await old.query(`select public.forget_customer('${A}', '${DANA}') r`)).rows[0].r;
   const oldMail = await mail(old);
-  const OLD_ROWS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ ...oldMail[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
-  const leaked = [1, 2, 3, 4].filter((n) => holdsDana(oldMail[n]).length || holdsDanaAddress(oldMail[n]));
-  const canaryCaught = oldRes.ok === true && leaked.length === 4;
-  log.push(`CANARY pre-97.20: rows still holding Dana ${JSON.stringify(leaked)} (want [1,2,3,4])`);
+  const OLD_ROWS = [1, 2, 3, 4, 5, 6, 7, 9].map((n) => ({ ...oldMail[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
+  const leaked = [1, 2, 3, 4, 9].filter((n) => holdsDana(oldMail[n]).length || holdsDanaAddress(oldMail[n]));
+  const canaryCaught = oldRes.ok === true && leaked.length === 5;
+  log.push(`CANARY pre-97.20: rows still holding Dana ${JSON.stringify(leaked)} (want [1,2,3,4,9])`);
   await old.close();
 
   const db = await fixture(`${read(OLD)}\n${SQL}`);
@@ -155,16 +178,16 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   const after = await mail(db);
 
   // R2 — nothing of Dana's left in any row of the table.
-  for (const n of [1, 2, 3, 4, 5, 6, 7]) {
+  for (const n of [1, 2, 3, 4, 5, 6, 7, 9]) {
     const hits = holdsDana(after[n]);
     check(`row ${n}: holds none of Dana's name, phone, street or body`, hits.length === 0, hits.map(String).join(", "));
   }
-  for (const n of [1, 2, 3, 4]) {
+  for (const n of [1, 2, 3, 4, 9]) {
     check(`row ${n}: holds no copy of the email`, after[n].body_html === null, String(after[n].body_html).slice(0, 60));
     check(`row ${n}: no longer linked to a customer`, after[n].customer_id === null);
     check(`row ${n}: keeps its delivery outcome`, after[n].status === "delivered" && after[n].booking_id === before[n].booking_id);
   }
-  for (const n of [1, 3, 4]) check(`row ${n}: sent to her, holds no address of hers`, !holdsDanaAddress(after[n]) && after[n].to_email === "Deleted customer", after[n].to_email);
+  for (const n of [1, 3, 4, 9]) check(`row ${n}: sent to her, holds no address of hers`, !holdsDanaAddress(after[n]) && after[n].to_email === "Deleted customer", after[n].to_email);
   check("row 2: the owner's alert keeps the OWNER's address and note", after[2].to_email === "owner@shine.test" && after[2].detail === "owner inbox note", `${after[2].to_email} / ${after[2].detail}`);
 
   // R4 — every other customer's mail, in this business and the other, byte for byte.
@@ -178,7 +201,7 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   check("her photo row is gone and Eli's stays", photos.length === 1 && photos[0] === BK_ELI, JSON.stringify(photos));
   const custs = (await db.query(`select id from public.customers order by id`)).rows.map((r) => r.id);
   check("her customer row is gone, Eli's and B's stay", custs.length === 2 && !custs.includes(DANA), JSON.stringify(custs));
-  check("the result counts what it did", res.ok === true && res.bookings_anonymised === 1 && res.photos_deleted === 1 && res.emails_forgotten === 4, JSON.stringify(res));
+  check("the result counts what it did", res.ok === true && res.bookings_anonymised === 1 && res.photos_deleted === 1 && res.emails_forgotten === 5, JSON.stringify(res));
 
   // Still refuses a customer of another business, and still belongs to the service role alone.
   const cross = (await db.query(`select public.forget_customer('${A}', '${DANA_B}') r`)).rows[0].r;
@@ -186,7 +209,40 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   const g = (await db.query(`select has_function_privilege('authenticated', 'public.forget_customer(uuid, uuid)', 'execute') a,
     has_function_privilege('anon', 'public.forget_customer(uuid, uuid)', 'execute') n, has_function_privilege('service_role', 'public.forget_customer(uuid, uuid)', 'execute') s`)).rows[0];
   check("only the service role may call it", !g.a && !g.n && g.s, JSON.stringify(g));
+
+  // LATE WEBHOOK: resend-webhook's own update shape, by provider id, plus a write that tries to refill.
+  await db.exec(`update public.email_sends set status = 'bounced', detail = '550 dana@example.com unknown', to_email = 'dana@example.com', body_html = '<p>Dana Doe</p>', subject = 'Hi Dana Doe' where id = '${id(1)}';
+    update public.email_sends set status = 'bounced', detail = 'owner mailbox full' where id = '${id(2)}';
+    update public.email_sends set detail = 'eli note' where id = '${id(5)}';`);
+  const late = await mail(db);
+  check("late webhook: her row records the bounce and holds nothing of hers", late[1].status === "bounced" && late[1].detail === null && late[1].to_email === "Deleted customer" && late[1].body_html === null && late[1].subject === "Deleted customer", JSON.stringify(late[1]));
+  check("late webhook: the owner's alert keeps its own bounce note and stays blank", late[2].status === "bounced" && late[2].detail === "owner mailbox full" && late[2].subject === "Deleted customer" && late[2].body_html === null, JSON.stringify(late[2]));
+  check("late webhook: another customer's row takes the write", late[5].detail === "eli note");
   await db.close();
+
+  // THE OWNER'S OWN TEST BOOKING, once per team address.
+  const TEST = "f0f0f0f0-f0f0-4f0f-8f0f-f0f0f0f0f0f0", BK_TEST = "b9b9b9b9-b9b9-4b9b-8b9b-b9b9b9b9b9b9";
+  const ALERT = "00000000-0000-4000-8000-0000000000a1", DIGEST = "00000000-0000-4000-8000-0000000000a2", OWN = "00000000-0000-4000-8000-0000000000a3";
+  for (const addr of ["owner@shine.test", "alerts@shine.test", "Staff@Shine.test"]) {
+    const t = await fixture(`${read(OLD)}\n${SQL}
+      insert into public.customers values ('${TEST}', '${A}', 'Andrew Test', '${addr}', null, null);
+      insert into public.bookings values ('${BK_TEST}', '${A}', '${TEST}', 'Andrew Test', '', '${addr}', null, null, null, 1);
+      insert into public.email_sends (id, business_id, customer_id, booking_id, to_email, subject, body_html, detail, status) values
+        ('${ALERT}', '${A}', '${TEST}', '${BK_ELI}', '${addr}', 'New booking: Eli Park, Sun 9am ($120)', '${ELI_BODY}', 'team note', 'delivered'),
+        ('${DIGEST}', '${A}', '${TEST}', null, '${addr}', 'Your day: 2 jobs', '<p>Eli Park, Dana Doe</p>', null, 'delivered'),
+        ('${OWN}', '${A}', '${TEST}', '${BK_TEST}', '${addr}', 'New booking: Andrew Test, Mon 8am ($1)', '<p>Andrew Test</p>', 'team note', 'delivered');`);
+    const rows = async () => Object.fromEntries((await t.query(`select id, business_id, customer_id, booking_id, to_email, subject, body_html, detail, status, provider_id from public.email_sends`)).rows.map((r) => [r.id, r]));
+    const pre = await rows();
+    const r = (await t.query(`select public.forget_customer('${A}', '${TEST}') r`)).rows[0].r;
+    const post = await rows();
+    const unlinked = (x) => JSON.stringify({ ...x, customer_id: null });
+    check(`team ${addr}: the alert about another customer's booking survives, only unlinked`, unlinked(post[ALERT]) === unlinked(pre[ALERT]) && post[ALERT].customer_id === null, JSON.stringify(post[ALERT]).slice(0, 160));
+    check(`team ${addr}: the digest about nobody survives, only unlinked`, unlinked(post[DIGEST]) === unlinked(pre[DIGEST]) && post[DIGEST].customer_id === null, JSON.stringify(post[DIGEST]).slice(0, 160));
+    check(`team ${addr}: the alert about the test customer's own booking is blanked and keeps its recipient`, post[OWN].subject === "Deleted customer" && post[OWN].body_html === null && post[OWN].to_email === addr && post[OWN].detail === "team note", JSON.stringify(post[OWN]).slice(0, 160));
+    const others = Object.keys(pre).filter((k) => ![ALERT, DIGEST, OWN].includes(k));
+    check(`team ${addr}: every other row is byte for byte unchanged, and the count says 1`, others.every((k) => JSON.stringify(post[k]) === JSON.stringify(pre[k])) && r.emails_forgotten === 1, JSON.stringify(r));
+    await t.close();
+  }
 
   // The exact rows left behind, for the browser check (scripts/mail-log-forgotten.mjs feeds them to the mail log).
   const ART = `artifacts/forget-customer-sql/results${BREAK ? `.sabotage-${BREAK}` : ""}.txt`;
@@ -194,7 +250,7 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   writeFileSync(ART, `break: ${BREAK || "none"}\n${log.join("\n")}\n`);
   const artifacts = [ART];
   if (!BREAK) {
-    const rows = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ ...after[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
+    const rows = [1, 2, 3, 4, 5, 6, 7, 9].map((n) => ({ ...after[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
     writeFileSync("artifacts/forget-customer-sql/business-a-mail-after.json", JSON.stringify(rows, null, 2) + "\n");
     artifacts.push("artifacts/forget-customer-sql/business-a-mail-after.json");
     // What the PRE-97.20 function left: the browser check's sabotage feeds these to the mail log.
@@ -202,12 +258,12 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
     artifacts.push("artifacts/forget-customer-sql/business-a-mail-before-fix.json");
   }
 
-  const EXPECTED = 34;
+  const EXPECTED = 54;
   writeReceipt({
     check_id: "forget-customer-sql",
     started_at,
     status: failures.length || !canaryCaught ? "fail" : "pass",
-    expected_targets: 8,
+    expected_targets: 9,
     discovered_targets: Object.keys(after).length,
     attempted_targets: Object.keys(after).length,
     completed_targets: Object.keys(after).length,
@@ -221,7 +277,7 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
     dimensions: { break: BREAK || undefined, migration: MIGRATION, emails_forgotten: res.emails_forgotten, canary_rows_leaking: leaked.length },
   });
   console.log(log.join("\n"));
-  assert.ok(canaryCaught, `canary: the pre-97.20 function left ${leaked.length} of 4 of Dana's rows holding her data, want 4`);
+  assert.ok(canaryCaught, `canary: the pre-97.20 function left ${leaked.length} of 5 of Dana's rows holding her data, want 5`);
   assert.equal(assertions, EXPECTED, `ran ${assertions} assertions, expected ${EXPECTED}`);
   assert.deepEqual(failures, []);
 });
