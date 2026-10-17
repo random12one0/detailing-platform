@@ -1,0 +1,69 @@
+{
+  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T21:20:41.953Z",
+  "failures": [
+    "390x844 en · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "390x844 en · a notice names the new price ($85) - got \"\"",
+    "390x844 en · the notice is in English - got \"\"",
+    "1440x900 en · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "1440x900 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "1440x900 en · a notice names the new price ($85) - got \"\"",
+    "1440x900 en · the notice is in English - got \"\"",
+    "768x1024 en · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "768x1024 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "768x1024 en · a notice names the new price ($85) - got \"\"",
+    "768x1024 en · the notice is in English - got \"\"",
+    "320x700 en · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "320x700 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "320x700 en · a notice names the new price ($85) - got \"\"",
+    "320x700 en · the notice is in English - got \"\"",
+    "390x844 es · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "390x844 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "390x844 es · a notice names the new price ($85) - got \"\"",
+    "390x844 es · the notice is in Spanish - got \"\"",
+    "1440x900 es · the first press told the server the figure on the bar - got undefined vs bar 65",
+    "1440x900 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "1440x900 es · a notice names the new price ($85) - got \"\"",
+    "1440x900 es · the notice is in Spanish - got \"\""
+  ],
+  "warnings": [
+    "create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
+    "The rush fee is simulated as +$20 on the server's figure and on later quotes; the demo tenant's own rules are untouched."
+  ],
+  "artifacts": [
+    "receipts/price-changed-page.sabotage-page-strips.txt",
+    "artifacts/price-changed-page-sabotage-page-strips/"
+  ],
+  "dimensions": {
+    "roadmap": "97.8",
+    "break": "page-strips",
+    "base": "http://127.0.0.1:5180",
+    "env_from": "http://localhost:5173"
+  },
+  "check_id": "price-changed-page-page-strips",
+  "started_at": "2026-10-16T21:14:46.213Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 42,
+  "min_assertions": 72,
+  "assertion_floor": "11 per target when the refusal is shown (walk, first post, not saved, notice names price, notice language, on-screen, bar, second post, figure, one call each, console), plus 1 env signature with --env-from.",
+  "canary": {
+    "id": "unguarded-server-saves-unshown",
+    "observed_failure": true,
+    "caught": [
+      "the first press told the server the figure on the bar",
+      "the booking was NOT saved at a price the page never showed",
+      "a notice names the new price ($85)",
+      "the notice is in English"
+    ],
+    "what": "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it"
+  }
+}

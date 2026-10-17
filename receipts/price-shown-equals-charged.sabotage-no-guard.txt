@@ -1,0 +1,17 @@
+price-shown-equals-charged 2026-10-16T20:18:04.325Z break=no-guard
+  ok    1a · the page's quote, 24h05m before, has no rush fee ($185)
+  ok    1b · the same booking pressed 10 minutes later is $205
+  FAIL  2a · a shown total that differs is refused with 409 price_changed - got 200 {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":205,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+  FAIL  2b · the refusal carries the new total and a plain sentence - got {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":205,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+  FAIL  2c · nothing was saved: no booking, no customer, no email, no write at all - got bookings 1, customers 2, sends 1, writes 3
+  ok    2d · totals that match are saved (200, one booking at $205)
+  ok    2e · and saved exactly as today: same rows, same writes, same email as a post with no shown total
+  ok    2f · a retry whose first press landed still gets its booking back
+  ok    2g · canary: without the guard the same post saves $205 the page never showed
+  ok    3a · one booking carries the bar's total as shown_total
+  ok    3b · a split booking carries each car's own figure, never the sum
+  ok    3c · no quote, no field: posted exactly as before
+9 passed, 3 failed
+FAIL 2a · a shown total that differs is refused with 409 price_changed - got 200 {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":205,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+FAIL 2b · the refusal carries the new total and a plain sentence - got {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":205,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}
+FAIL 2c · nothing was saved: no booking, no customer, no email, no write at all - got bookings 1, customers 2, sends 1, writes 3
