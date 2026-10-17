@@ -169,6 +169,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // front of them once and then let them do it.
   const [forgetting, setForgetting] = useState(null);
   const [forgetError, setForgetError] = useState("");
+  const [notesError, setNotesError] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -308,10 +309,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     setHistory((data ?? []).map((b) => withLocal(b, business.timezone)));
   };
 
+  // ROADMAP 97.14 — the browser holds no write on `customers`; the notes go
+  // through `set_customer_notes`, which checks membership and writes nothing
+  // else. A refusal is shown: the old direct update failed silently.
   const saveNotes = async () => {
-    await supabase.from("customers").update({ notes: notes || null })
-      .eq("id", open.id).eq("business_id", business.id);
-    load();
+    const { error } = await supabase.rpc("set_customer_notes", {
+      p_business_id: business.id, p_customer_id: open.id, p_notes: notes,
+    });
+    setNotesError(error ? t("Your notes were not saved. Please try again.") : "");
+    if (!error) load();
   };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
@@ -917,6 +923,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
+            {notesError && <div className="error-box" role="alert">{notesError}</div>}
 
             <div className="tight">
               <span className="label">{t("History")}</span>
