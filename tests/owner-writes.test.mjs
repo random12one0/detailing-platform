@@ -178,6 +178,22 @@ for (const [table, row, patch, retire] of CASES) {
   }
 }
 
+// ROADMAP 97.13 — business_domains is ADD-THROUGH-THE-FUNCTION and DELETE-DIRECT: the owner may no longer
+// insert or rename a row (refused in the columns block below), but removing one stays theirs. The row is
+// added the way verify-domain adds it, under the service role, and the owner's own session removes it.
+// `exercised` is filled only when that DELETE actually removed one row, so test 7 cannot count the table
+// on a promise.
+const exercised = new Set();
+{
+  const d = (await svc.post("/rest/v1/business_domains",
+    [{ business_id: biz.id, domain: "owner-writes-remove.test" }])).data?.[0];
+  const del = d ? await as("DELETE", `/rest/v1/business_domains?id=eq.${d.id}`) : { status: 0 };
+  const removed = del.status === 200 && (del.data ?? []).length === 1;
+  check("business_domains: owner can DELETE (97.13 keeps removal direct)", removed,
+    `${del.status} ${JSON.stringify(del.data).slice(0, 160)}`);
+  if (removed) exercised.add("business_domains");
+}
+
 // business_hours is keyed (business_id, weekday) and has no id column: the
 // dashboard upserts one row per day rather than inserting and deleting.
 {
@@ -292,7 +308,8 @@ console.log("test 7: no owner-writable table is missing from this suite");
   const covered = new Set([
     "business_branding", "business_settings", "businesses", "business_users",
     "business_invites", "bookings", "booking_services", "booking_line_items",
-    "business_hours", "business_domains",
+    "business_hours",
+    ...exercised,
     ...CASES.map(([t]) => t),
   ]);
   const expected = [

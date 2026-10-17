@@ -70,13 +70,13 @@ console.log("\n2. the browser, the edge function and SQL agree on a hostname");
   // do is disagree: a stored domain that does not equal what the by-host RPC
   // computes from a real request resolves nothing, and the detailer is told a
   // working address does not work.
-  check("the edge function drops www. too", /replace\(\/\^www\\\.\/, ""\)/.test(verify),
-    "verify-domain normaliseHost");
-  check("the edge function lower-cases", /\.toLowerCase\(\)/.test(verify));
+  check("the edge function drops www. too", /replace\(\/\^www\\\.\/, ""\)/.test(proof),
+    "normaliseHost, in _shared/domainProof.ts since 97.13");
+  check("the edge function lower-cases", /\.toLowerCase\(\)/.test(proof));
   check("SQL drops www. too", /www\\\./.test(migration) && /lower\(/.test(migration),
     "get_public_business_profile_by_host");
   check("the edge function stores the NORMALISED host, not what was typed",
-    /update\(\{[^}]*domain: host/.test(strip(verify)),
+    /update\(\{[^}]*domain: host/.test(strip(proof)),
     "a verified row whose domain does not match what a browser sends proved nothing");
 }
 
@@ -135,8 +135,9 @@ console.log("\n5. a domain is proved, not claimed");
 {
   const v = strip(verify) + strip(proof);
   check("verify-domain uses the shared proof",
-    verify.includes('import { proveHost } from "../_shared/domainProof.ts"') &&
-    strip(verify).includes("await proveHost(host, row.verification_token)"),
+    verify.includes('import { handleDomainRequest } from "../_shared/domainProof.ts"') &&
+    strip(verify).includes("await handleDomainRequest(body, member, supabase)") &&
+    strip(proof).includes("await proveHost(host, row.verification_token, fetch)"),
     "the per-row token check lives in the shared module; a function that stops calling it checks nothing");
   check("it fetches the address itself", /await fetch\(/.test(v) && /platform-host\.txt/.test(v),
     "nothing a detailer types can make a host serve our marker file");
