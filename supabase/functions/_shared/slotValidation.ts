@@ -21,6 +21,14 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const fromMin = (m: number) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 const overlaps = (aS: string, aE: string, bS: string, bE: string) => !(hm(aE) <= hm(bS) || hm(aS) >= hm(bE));
 
+// The per-day cap and buffer refusals. ROADMAP 97.18: the database raises the same two, as BK001 and
+// BK002 from booking_day_rules_check, when a booking racing this one saved first; the callers that write
+// through insert_booking_checked / move_booking_checked turn the code back into the same sentence.
+export const DAY_FULL = "That day is fully booked. Please choose another day.";
+export const TOO_CLOSE = "That time is too close to another booking. Please choose a different time.";
+export const dayRuleRefusal = (code?: string) =>
+  code === "BK001" ? DAY_FULL : code === "BK002" ? TOO_CLOSE : null;
+
 export interface SlotCheck {
   ok: boolean;
   status?: number;   // HTTP status to return when !ok
@@ -307,7 +315,7 @@ export async function validateSlot(opts: {
     settings.max_bookings_per_day !== undefined &&
     sameDay.length >= settings.max_bookings_per_day
   ) {
-    return { ok: false, status: 409, error: "That day is fully booked. Please choose another day." };
+    return { ok: false, status: 409, error: DAY_FULL };
   }
 
   // Buffered-conflict guard — a minimum buffer_minutes gap on BOTH sides of
@@ -323,7 +331,7 @@ export async function validateSlot(opts: {
     return {
       ok: false,
       status: 409,
-      error: "That time is too close to another booking. Please choose a different time.",
+      error: TOO_CLOSE,
     };
   }
 
