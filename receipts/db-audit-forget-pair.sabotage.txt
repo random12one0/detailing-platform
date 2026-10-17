@@ -64,8 +64,14 @@
   AWAITS APPLY maintenance_deadlines — 20261017010000_photos_deadlines_same_business.sql
   ok    every writable booking child references bookings by (booking_id, business_id), or a migration here declares it
 
+7. a table a detailer can write names a customer of the SAME business
+  AWAITS APPLY bookings — 20261017020000_customer_same_business.sql
+  AWAITS APPLY maintenance_deadlines — 20261017020000_customer_same_business.sql
+  AWAITS APPLY plan_members — 20261017020000_customer_same_business.sql
+  ok    every writable table naming a customer references customers by (customer_id, business_id), or a migration here declares it
+
 canary  public must contain tables -> 5 returned  caught: queries are really answering, so an `ok` above means something
 
 clean
-  · section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired
-Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.71-20261017033404646\receipts\db-audit.sabotage.json
+  · the pair-key question is BLIND — booking_id: booking_vehicles, which carries the pair key, did not come back paired
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.73-20261017044633511\receipts\db-audit.sabotage.json
