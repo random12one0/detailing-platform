@@ -19,7 +19,8 @@
 // on Looking, made the way platform-admin's door makes one — the tab's own session in sessionStorage plus the preview
 // flag — must send NO save and must show the Looking-only line). Expected 3 widths × 3 = 9 targets.
 // "Shown" means ON SCREEN, not present in the DOM: inside the viewport, painted (not hidden, not faded out) and the
-// topmost thing at its own centre. CANARY, EVERY RUN: two lines planted in the page — one above the viewport, one at
+// topmost thing at its own centre — AFTER the line is scrolled to its nearest position, as a reader would scroll. At
+// rest it can sit below the record panel's edge at 1440, which this does not see: ROADMAP 97.79. CANARY, EVERY RUN: two lines planted in the page — one above the viewport, one at
 // opacity 0 — must both read as NOT on screen, or the check is counting rather than looking.
 // Sabotage: BREAK=direct answers every save with the 42501 a revoked direct write gets (MEMBER goes red);
 // BREAK=unguarded strips the guard out of the served module and records that the cut landed (VIEW-AS goes red).

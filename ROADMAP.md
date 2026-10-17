@@ -379,6 +379,18 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - A hand-paid or waived job whose kept wrong-figure payment is partly refunded names the amount left, in English and Spanish, proved at 390 and 1440
 
+- [ ] **97.79 — A refused Notes save's line can sit below the client record's visible edge at 1440 (found by 97.14).**
+  In the record's right-hand column at 1440x900, the line under the Notes box ("Your notes were not saved…", or a
+  view-as tab's "Looking only…") renders about 36px below the box, and with the box just scrolled into view the
+  column's bottom edge cuts it to a red sliver — seen at rest in 97.14's review capture
+  (`belt/shots/97.14/png/after-viewas-1440x900.png`, outside the repo). `scripts/customer-notes-route.mjs` scrolls the line
+  to the nearest position before judging it, so it cannot see this. Fix: bring the line into view when it appears
+  (`scrollIntoView({ block: "nearest" })`), then drop that scroll from the check's `onScreen` so it measures at rest.
+  Not measured, worth checking in the same pass: closing the record is itself a blur, so a refusal on close may land
+  in a record that is already gone.
+  Acceptance criteria:
+  - At 390, 768 and 1440 a refused Notes save's line is fully on screen with no scroll made by the check
+  - Whether a refusal while closing the record is shown anywhere is measured and written here
 - [ ] **97.12 — Another tenant can insert lines into a business's receipts and invoices (S-M2).**
   `booking_services`, `booking_add_ons` and `booking_line_items` reference `bookings(id)` by `booking_id` alone (`supabase/migrations/20260827000200_tenant_data.sql:292,308,321`), and their policy checks only the row's own `business_id` (`:394-397`). The public receipt and the invoice embed them through the service role with no business filter (`get-booking-receipt/index.ts:84-85`, `send-invoice/index.ts:73`). A detailer in business A who knows a booking id of business B can add lines to B's paperwork. New migration (append-only): a unique constraint on `bookings(id, business_id)` and composite foreign keys `(booking_id, business_id)` on all three tables; plus `.eq("business_id", …)` on the embeds. **Applying the migration to the live database is Andrew's.**
   Acceptance criteria:
@@ -516,10 +528,48 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
     structure is Andrew's. Adding and deleting ran against the live database for real.
   - Found on the way, numbered separately: **97.74** — the dashboard's New booking refuses a booking with no email
     although the box says "Email (optional)".
-  - **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** apply `20261017030000` and publish the app in
-    the same sitting; then re-run `customer-notes-route.mjs` with its RPC answer removed (or by hand: type a note on a
-    client, reopen it) to see the Notes save against the live function, and tick. Once applied,
-    `tests/definer-grants.test.mjs` 1b names `set_customer_notes` until an ALLOWED line is added for it.
+  - **Second review round 2026-10-17 (belt run 2, `runs/2026-10-17T04-12-00-923Z-97.14.manifest.json`), four findings, all fixed:**
+    (1) `set_customer_notes` had no support-session refusal, so a "view as" session — whose direct notes update the
+    restrictive `support_read_only_update` rule had refused — could write notes through the definer, which skips that
+    rule. **New migration `20261017130000_set_customer_notes_refuses_support_sessions.sql`** re-creates it with layer C's
+    line, word for word (a new file because migrations are append-only; it must be applied with 20261017030000).
+    (2) the browser's view-as guard wrapped `from()` verbs only, never `rpc`. **Reproduced first**: a Looking tab sent the
+    note at 390, 768 and 1440 and showed nothing. `lib/supabase.js` now refuses every `rpc` in a Looking tab except the
+    three that only read (`founding_offer`, `platform_prices`, `job_photo_budget`) — the same deny-by-default shape as
+    `api.js`'s `PREVIEW_READS` — and `Clients.jsx` shows the Looking-only line under the Notes box (`93754cdd`).
+    (3) `tests/staff-writes-sql.test.mjs` now runs the REAL 20261010030000 and both 97.14 files: a support session's
+    `set_customer_notes` is refused and stores nothing, the same user's own login still saves, and before 97.14 the
+    support session's direct update changed nothing. `PGLITE_DIR=… PGLITE_REQUIRED=1 node --test
+    tests/staff-writes-sql.test.mjs` at `aae746b8`: **PASS, 9 of 9 targets, 23 assertions, both canaries caught**
+    (membership check removed; support refusal removed). Sabotage, each red on exactly its own rows: `BREAK=no-support`
+    1, `BREAK=no-member` 2, `BREAK=customers` 4, `BREAK=bookings-delete` 1 (`receipts/staff-writes-sql.sabotage.json`
+    holds `no-support`; the other three are `artifacts/staff-writes-sql/results.break-*.txt`, local).
+    (4) `scripts/customer-notes-route.mjs` no longer counts `.error-box` elements: a line is "shown" only when it is
+    inside the viewport, painted (no hidden/faded ancestor) and topmost at its own centre, and an every-run canary plants
+    one line above the viewport and one at opacity 0 that must both read as not shown. It adds a third scenario, a
+    view-as tab on Looking (made the way the door makes one), which must send nothing and show the Looking-only line.
+    At `9d900871`: **staff and owner (`LOGIN=owner`) each PASS, 9 of 9 (390 / 768 / 1440 × member, not a member,
+    view-as), 25 assertions, canary caught**. Sabotage at 3 widths for both logins: `BREAK=unguarded` (the guard cut
+    out of the served module; the run checks the cut landed) **6 red each — the view-as save went out and no line
+    showed**, the original defect; `BREAK=direct` red on the member case only. The member case is still answered by a
+    throwaway Postgres (the live database has not run the migrations), so the reviewer's "cannot fail on real data"
+    stands until the apply.
+    **R4 re-taken after this round's product change:** `node --import ./scripts/lib/inject-app-env.mjs
+    scripts/fixture-not-deletable.mjs` at `50aa5998`: **PASS, 2 of 2 widths, 17 assertions, canary caught.**
+    **Gates at `50aa5998`:** composition, design-contrast, route-contract, landing-pricing,
+    no-credentials-in-tracked-text, every-open-item-is-citable and decisions-index all green.
+  - **Old → new, every control this item touches:** Notes box (leave it to save) — was a direct `customers` update any
+    member could send and that failed silently → `set_customer_notes` (member of the business, not a support session),
+    refusal shown; proof: customer-notes-route, both logins. Adding a customer (New booking → `create-booking`) and
+    `Delete for good` (owner → `delete-customer`) — unchanged, server-side; proof: `customer-add-delete-walk` and
+    `fixture-not-deletable` above. Deleting a booking — the app never offered a hard delete; it soft-deletes through
+    `update-booking`, unchanged. The fleet job's booking INSERT — kept. Nothing was removed.
+  - Found on the way, numbered separately: **97.79** — at 1440 the Notes refusal line can sit below the record panel's
+    visible edge (the check above scrolls it into view before judging, so it does not see that).
+  - **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** apply `20261017030000` AND `20261017130000`, in
+    that order, and publish the app in the same sitting; then re-run `customer-notes-route.mjs` with its RPC answer
+    removed (or by hand: type a note on a client, reopen it) to see the Notes save against the live function, and tick.
+    Once applied, `tests/definer-grants.test.mjs` 1b names `set_customer_notes` until an ALLOWED line is added for it.
 
 - [ ] **97.15 — Support ("view as") sessions never expire and hand out a refresh token (S-M4).**
   `platform-admin/index.ts:1177-1221` creates a real owner session and returns both `access_token` and `refresh_token`; nothing in `support_sessions` or `_shared/supportSession.ts` holds an expiry, and Supabase Auth's own `updateUser` (password, email) never consults `support_sessions` (the only guard is `app/src/lib/supabase.js:117`). Give the marker an `expires_at` (30 minutes), check it in `is_support_session()` and `isSupportSession`, stop returning the refresh token, and sign the session out when the view ends or expires.
