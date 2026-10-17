@@ -1,9 +1,9 @@
 {
-  "git_sha": "2013f16e05f35b4925bcdc5a59e834f8bdd431f3",
-  "git_sha_started": "2013f16e05f35b4925bcdc5a59e834f8bdd431f3",
+  "git_sha": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
+  "git_sha_started": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T14:30:47.165Z",
+  "finished_at": "2026-10-17T14:53:41.358Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -1178,7 +1178,7 @@
     ]
   },
   "check_id": "payment-problem-late",
-  "started_at": "2026-10-17T14:23:04.808Z",
+  "started_at": "2026-10-17T14:46:25.137Z",
   "status": "pass",
   "expected_targets": 144,
   "discovered_targets": 144,
