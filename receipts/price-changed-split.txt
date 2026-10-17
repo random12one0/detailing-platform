@@ -1,4 +1,4 @@
-price-changed-split 2026-10-16T23:23:24.804Z base=http://127.0.0.1:5180 break=none
+price-changed-split 2026-10-17T01:15:11.256Z base=http://127.0.0.1:5180 break=none
   ok    390x844 en split · this server's modules ran with the injected env (signature read back)
   ok    390x844 en split · the profile was fed as a two-car business
   ok    390x844 en split · the calendar offers a time for each of two cars

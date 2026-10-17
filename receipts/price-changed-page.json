@@ -1,9 +1,9 @@
 {
-  "git_sha": "e968766bd08ec2c43836b8ce595c9101b521b4af",
-  "git_sha_started": "e968766bd08ec2c43836b8ce595c9101b521b4af",
+  "git_sha": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
+  "git_sha_started": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T23:20:15.733Z",
+  "finished_at": "2026-10-17T01:30:27.088Z",
   "failures": [],
   "warnings": [
     "create-booking is the committed handler source run in this process against fake tables, its quote stubbed to the walk's figure; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
@@ -21,7 +21,7 @@
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-page",
-  "started_at": "2026-10-16T23:17:10.871Z",
+  "started_at": "2026-10-17T01:27:32.588Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,

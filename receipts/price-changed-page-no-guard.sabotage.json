@@ -1,31 +1,31 @@
 {
-  "git_sha": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
-  "git_sha_started": "8b4af72cbe84d4422a4e50617b0ac714210b9c82",
+  "git_sha": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
+  "git_sha_started": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T21:14:45.768Z",
+  "finished_at": "2026-10-17T01:06:23.962Z",
   "failures": [
-    "390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "390x844 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "390x844 en · a notice names the new price ($85) - got \"\"",
     "390x844 en · the notice is in English - got \"\"",
-    "1440x900 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "1440x900 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "1440x900 en · a notice names the new price ($85) - got \"\"",
     "1440x900 en · the notice is in English - got \"\"",
-    "768x1024 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "768x1024 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "768x1024 en · a notice names the new price ($85) - got \"\"",
     "768x1024 en · the notice is in English - got \"\"",
-    "320x700 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "320x700 en · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "320x700 en · a notice names the new price ($85) - got \"\"",
     "320x700 en · the notice is in English - got \"\"",
-    "390x844 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "390x844 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "390x844 es · a notice names the new price ($85) - got \"\"",
     "390x844 es · the notice is in Spanish - got \"\"",
-    "1440x900 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65",
+    "1440x900 es · the booking was NOT saved at a price the page never showed - got confirmed at $85 after showing $65; handler saved [85]",
     "1440x900 es · a notice names the new price ($85) - got \"\"",
     "1440x900 es · the notice is in Spanish - got \"\""
   ],
   "warnings": [
-    "create-booking is a browser stand-in that mirrors the committed guard (tests/price-shown-equals-charged.test.mjs proves the real handler); nothing reaches the database.",
+    "create-booking is the committed handler source run in this process against fake tables, its quote stubbed to the walk's figure; nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
     "The rush fee is simulated as +$20 on the server's figure and on later quotes; the demo tenant's own rules are untouched."
   ],
   "artifacts": [
@@ -35,11 +35,12 @@
   "dimensions": {
     "roadmap": "97.8",
     "break": "no-guard",
+    "canary_guard": "off",
     "base": "http://127.0.0.1:5180",
     "env_from": "http://localhost:5173"
   },
   "check_id": "price-changed-page-no-guard",
-  "started_at": "2026-10-16T21:08:49.022Z",
+  "started_at": "2026-10-17T01:00:30.005Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
@@ -57,6 +58,6 @@
       "a notice names the new price ($85)",
       "the notice is in English"
     ],
-    "what": "an extra 390 walk against the stand-in with its guard off saves at the bar's figure + $20; the walk must name it"
+    "what": "an extra 390 walk against the real create-booking handler with its guard removed saves at the bar's figure + $20; the walk must name it"
   }
 }

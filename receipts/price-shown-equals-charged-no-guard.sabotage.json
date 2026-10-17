@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
-  "git_sha_started": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
+  "git_sha": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
+  "git_sha_started": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T20:18:04.373Z",
+  "finished_at": "2026-10-17T00:44:58.815Z",
   "failures": [
     "2a · a shown total that differs is refused with 409 price_changed - got 200 {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":205,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}",
     "2b · the refusal carries the new total and a plain sentence - got {\"success\":true,\"booking\":{\"id\":\"booking-a\",\"booking_date\":\"2026-10-30\",\"start_time\":\"10:00\",\"end_time\":\"10:00\",\"total_price\":205,\"receipt_url\":\"https://detailingplatform.com/booking/booking-a\",\"status\":\"confirmed\"}}",
@@ -20,7 +20,7 @@
     "break": "no-guard"
   },
   "check_id": "price-shown-equals-charged-no-guard",
-  "started_at": "2026-10-16T20:18:04.287Z",
+  "started_at": "2026-10-17T00:44:58.649Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,

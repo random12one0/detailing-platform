@@ -1,9 +1,9 @@
 {
-  "git_sha": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
-  "git_sha_started": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
+  "git_sha": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
+  "git_sha_started": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T00:35:43.806Z",
+  "finished_at": "2026-10-17T00:44:28.006Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +13,7 @@
     "handler": "supabase/functions/create-booking/index.ts"
   },
   "check_id": "duplicate-answer",
-  "started_at": "2026-10-17T00:35:43.663Z",
+  "started_at": "2026-10-17T00:44:27.882Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,

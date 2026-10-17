@@ -1,4 +1,4 @@
-price-shown-equals-charged 2026-10-16T20:18:04.325Z break=no-guard
+price-shown-equals-charged 2026-10-17T00:44:58.716Z break=no-guard
   ok    1a · the page's quote, 24h05m before, has no rush fee ($185)
   ok    1b · the same booking pressed 10 minutes later is $205
   FAIL  2a · a shown total that differs is refused with 409 price_changed - got 200 {"success":true,"booking":{"id":"booking-a","booking_date":"2026-10-30","start_time":"10:00","end_time":"10:00","total_price":205,"receipt_url":"https://detailingplatform.com/booking/booking-a","status":"confirmed"}}

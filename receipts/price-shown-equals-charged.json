@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
-  "git_sha_started": "1a0768208ac3cf55c78dc716a68b96b72e30ea15",
+  "git_sha": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
+  "git_sha_started": "dabbcdf858f1129da2a42922b52767b9451c7d3e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T20:18:04.634Z",
+  "finished_at": "2026-10-17T01:27:08.737Z",
   "failures": [],
   "warnings": [
     "The handler runs in-process against the fixture's fake Supabase with computeQuote stubbed to the figure part 1 priced with the real pricing.ts. The deployed create-booking is not this checkout until Andrew publishes."
@@ -16,7 +16,7 @@
     "break": null
   },
   "check_id": "price-shown-equals-charged",
-  "started_at": "2026-10-16T20:18:04.551Z",
+  "started_at": "2026-10-17T01:27:08.645Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,
