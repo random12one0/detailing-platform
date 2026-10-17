@@ -45,9 +45,19 @@
 // --break=no-refund feeds every 97.68 scenario as the webhook left them before
 // `charge.refunded` was handled: no refund recorded anywhere. That is 97.68's
 // original defect, and every one of them except `cancelled` must go red.
+// --break=browser-day (97.68) rewrites the served module so the refund's date is
+// read in the BROWSER's day instead of the business's: under the frozen clock and
+// the Tokyo browser below, "Friday, October 16" becomes Saturday, so it must go red.
+//
+// A FROZEN CLOCK AND A FAR-OFF BROWSER, ALWAYS (97.68's contract asks for the clock).
+// Every view runs with the page's clock fixed (--now=, or the belt's BELT_FROZEN_NOW;
+// default 2026-10-17T06:30Z, still the 16th in Los Angeles and already the 17th in
+// Tokyo) and the browser in --tz= (default Asia/Tokyo). The refund recorded at
+// 15:00Z on the 16th is the 16th for the demo business (America/Los_Angeles) and
+// the 17th for the browser, so the date printed proves whose day it is.
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
-//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund] [--freeze]
+//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day] [--now=<iso>] [--tz=<zone>] [--freeze]
 //   --freeze-owed=before|after   97.69's review pair at 390, no receipt
 //   --freeze-hand=before|after   97.70's review pair at 390, no receipt
 //   --shots=<dir>                where the PNGs go (default: the 97.11 folder)
@@ -65,13 +75,19 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-if (BREAK && BREAK !== "old-webhook" && BREAK !== "overwrite" && BREAK !== "hide-hand-paid" && BREAK !== "no-refund") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["old-webhook", "overwrite", "hide-hand-paid", "no-refund", "browser-day"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 const OLDHOOK = BREAK === "old-webhook";
 // --freeze-reasons=before|after: only freeze the two-reasons view at 390 (Andrew's review pair), no receipt.
 const FREEZE_REASONS = arg("freeze-reasons");
 const FREEZE_OWED = arg("freeze-owed");
 const FREEZE_HAND = arg("freeze-hand");
-const HIDE = BREAK === "hide-hand-paid";
+// The served-module rewrites, each signed and read back from the page (docs/gotchas.md 113).
+const REWRITE = {
+  "hide-hand-paid": ['booking.payment_status === "paid" ? kept.filter(', "false ? kept.filter("],
+  "browser-day": ["localDate(ownRefund.at, business.timezone)", "localDate(ownRefund.at)"],
+}[BREAK];
+const NOW = arg("now") || process.env.BELT_FROZEN_NOW || "2026-10-17T06:30:00.000Z";
+const TZ = arg("tz") || "Asia/Tokyo";
 const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.11/png";
 const FREEZE_REFUND = arg("freeze-refund");
 mkdirSync(SHOTS, { recursive: true });
@@ -164,13 +180,13 @@ const SCENARIOS = [
   { id: "cancelled", sel: "[data-refund-cancelled]", patch: CANCELLED,
     want: ["This was paid. Refund $150 from your own Stripe."] },
   { id: "cancelled-refunded", patch: cancelledRefunded(15000), want: null,
-    note: "Refunded $150 in your Stripe on" },
+    note: "Refunded $150 in your Stripe on Friday, October 16" },
   { id: "cancelled-part-refunded", sel: "[data-refund-cancelled]", patch: cancelledRefunded(5000),
     want: ["This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet.", "Refund the rest from your own Stripe."],
-    note: "Refunded $50 in your Stripe on" },
+    note: "Refunded $50 in your Stripe on Friday, October 16" },
   { id: "cancelled-part-refunded-es", lang: "es", sel: "[data-refund-cancelled]", patch: cancelledRefunded(5000),
     want: ["Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto."],
-    note: "Devolviste $50 en tu Stripe el" },
+    note: "Devolviste $50 en tu Stripe el viernes, 16 de octubre" },
 ];
 const EXPECTED = SCENARIOS.length * WIDTHS.length;
 
@@ -337,7 +353,8 @@ const probed = [];
 for (const sc of jobId ? SCENARIOS : []) {
   for (const [w, h] of WIDTHS) {
     discovered++;
-    const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state });
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state, timezoneId: TZ });
+    await ctx.clock.setFixedTime(new Date(NOW));
     await ctx.addInitScript((lang) => { localStorage.setItem("dp.lang.app", lang); }, sc.lang ?? "en");
     const page = await ctx.newPage();
     const errors = [];
@@ -355,12 +372,11 @@ for (const sc of jobId ? SCENARIOS : []) {
       await route.fulfill({ response: res, json: body });
     });
     let hid = 0;
-    if (HIDE) await page.route("**/src/components/BookingDetail.jsx*", async (route) => {
+    if (REWRITE) await page.route("**/src/components/BookingDetail.jsx*", async (route) => {
       const res = await route.fetch();
       const text = await res.text();
-      const from = 'booking.payment_status === "paid" ? kept.filter(';
-      hid = text.split(from).length - 1;
-      await route.fulfill({ response: res, body: text.replace(from, "false ? kept.filter(") + "\nwindow.__break9770 = true;\n" });
+      hid = text.split(REWRITE[0]).length - 1;
+      await route.fulfill({ response: res, body: text.replace(REWRITE[0], REWRITE[1]) + "\nwindow.__beltBreak = true;\n" });
     });
     attempted++;
     await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
@@ -368,7 +384,9 @@ for (const sc of jobId ? SCENARIOS : []) {
     await page.waitForTimeout(1200);
     const tag = `${sc.id} @ ${w}x${h}`;
     check(`${tag} · the job's read was fed`, fed > 0, "page.route never matched the job read");
-    if (HIDE) check(`${tag} · the sabotage landed once and RAN`, hid === 1 && await page.evaluate(() => window.__break9770 === true), `matched ${hid}`);
+    if (REWRITE) check(`${tag} · the sabotage landed once and RAN`, hid === 1 && await page.evaluate(() => window.__beltBreak === true), `matched ${hid}`);
+    const clock = await page.evaluate(() => [new Date().toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone]);
+    check(`${tag} · the page's clock is frozen at ${NOW} in ${TZ}`, clock[0] === new Date(NOW).toISOString() && clock[1] === TZ, clock.join(" "));
     const sel = sc.want ? sc.sel ?? "[data-payment-problem]" : "[data-payment-problem], [data-refund-cancelled]";
     const note = await page.evaluate(() => document.querySelector("[data-own-refund]")?.innerText ?? null);
     const box = await page.evaluate((sel) => {
@@ -446,7 +464,7 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   min_assertions: 100,
   failures,
-  dimensions: { base: BASE, job: jobId, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
+  dimensions: { base: BASE, job: jobId, frozen_now: NOW, browser_tz: TZ, business_tz: "America/Los_Angeles (the demo business)", widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
   artifacts: [SHOTS],
   // The canary: a scenario that must NOT show the line (a paid job with no
   // problem; 97.70 made the stale-problem job SHOW one) is measured with the same probe, so a probe that finds the line
