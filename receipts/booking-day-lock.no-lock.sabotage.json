@@ -1,13 +1,13 @@
 {
-  "git_sha": "423447f48a62fc70b2640667b6d0f269b60f1746",
-  "git_sha_started": "423447f48a62fc70b2640667b6d0f269b60f1746",
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T19:51:27.611Z",
+  "finished_at": "2026-10-17T20:06:27.569Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
-    "race-cap: B answered in 78ms, so it never waited for A's lock",
+    "race-cap: B answered in 71ms, so it never waited for A's lock",
     "race-buffer: B was not refused as too-close (exit 0)",
     "race-buffer: 2 saved, 20 minutes apart on a 45-minute buffer",
     "race-move: B's move was not refused as day-full (exit 0)",
@@ -15,7 +15,8 @@
   ],
   "warnings": [
     "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
-    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's.",
+    "ROADMAP 97.18 R4 (\"a single ordinary booking takes no longer than before\") is NOT met as written: the checked save's median is 0.091 ms longer than the plain insert's (0.328 vs 0.237 ms). The speed check that passes is a regression guard, not R4."
   ],
   "artifacts": [
     "artifacts/booking-day-lock/run.no-lock.json"
@@ -26,7 +27,7 @@
     "postgres": "17.8"
   },
   "check_id": "booking-day-lock.no-lock",
-  "started_at": "2026-10-17T19:51:11.180Z",
+  "started_at": "2026-10-17T20:06:11.313Z",
   "status": "fail",
   "expected_targets": 8,
   "discovered_targets": 8,
@@ -58,7 +59,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 78,
+      "b_waited_ms": 71,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -66,7 +67,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 90,
+      "b_waited_ms": 71,
       "saved": 2
     },
     "race-move-cap": {
@@ -74,7 +75,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 83,
+      "b_waited_ms": 70,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
@@ -91,10 +92,12 @@
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.249,
-      "plain_p95_ms": 0.483,
-      "checked_median_ms": 0.341,
-      "checked_p95_ms": 0.628
+      "plain_median_ms": 0.237,
+      "plain_p95_ms": 0.387,
+      "checked_median_ms": 0.328,
+      "checked_p95_ms": 0.587,
+      "extra_median_ms": 0.091,
+      "r4_met_as_written": false
     }
   }
 }

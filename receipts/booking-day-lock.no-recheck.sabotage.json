@@ -1,9 +1,9 @@
 {
-  "git_sha": "423447f48a62fc70b2640667b6d0f269b60f1746",
-  "git_sha_started": "423447f48a62fc70b2640667b6d0f269b60f1746",
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T19:51:44.007Z",
+  "finished_at": "2026-10-17T20:06:44.486Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
@@ -14,7 +14,8 @@
   ],
   "warnings": [
     "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
-    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's.",
+    "ROADMAP 97.18 R4 (\"a single ordinary booking takes no longer than before\") is NOT met as written: the checked save's median is 0.106 ms longer than the plain insert's (0.376 vs 0.27 ms). The speed check that passes is a regression guard, not R4."
   ],
   "artifacts": [
     "artifacts/booking-day-lock/run.no-recheck.json"
@@ -25,7 +26,7 @@
     "postgres": "17.8"
   },
   "check_id": "booking-day-lock.no-recheck",
-  "started_at": "2026-10-17T19:51:28.055Z",
+  "started_at": "2026-10-17T20:06:28.187Z",
   "status": "fail",
   "expected_targets": 8,
   "discovered_targets": 8,
@@ -57,7 +58,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1903,
+      "b_waited_ms": 1856,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -65,7 +66,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1882,
+      "b_waited_ms": 2003,
       "saved": 2
     },
     "race-move-cap": {
@@ -73,7 +74,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1897,
+      "b_waited_ms": 2022,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
@@ -90,10 +91,12 @@
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.238,
-      "plain_p95_ms": 0.445,
-      "checked_median_ms": 0.332,
-      "checked_p95_ms": 0.591
+      "plain_median_ms": 0.27,
+      "plain_p95_ms": 0.506,
+      "checked_median_ms": 0.376,
+      "checked_p95_ms": 0.648,
+      "extra_median_ms": 0.106,
+      "r4_met_as_written": false
     }
   }
 }

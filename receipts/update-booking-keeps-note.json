@@ -1,9 +1,9 @@
 {
-  "git_sha": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
-  "git_sha_started": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T10:38:46.588Z",
+  "finished_at": "2026-10-17T20:07:18.597Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -25,7 +25,7 @@
     ]
   },
   "check_id": "update-booking-keeps-note",
-  "started_at": "2026-10-17T10:38:46.471Z",
+  "started_at": "2026-10-17T20:07:18.467Z",
   "status": "pass",
   "expected_targets": 16,
   "discovered_targets": 16,

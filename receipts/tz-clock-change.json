@@ -1,9 +1,9 @@
 {
-  "git_sha": "eb725091c0f2af407be4ece56408e7f2721f0032",
-  "git_sha_started": "eb725091c0f2af407be4ece56408e7f2721f0032",
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T16:23:18.818Z",
+  "finished_at": "2026-10-17T20:07:18.064Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -21,10 +21,10 @@
       "2026-07-15"
     ],
     "nonexistent_hour": "02:00-02:59 on 2026-03-08 moves forward to 03:xx",
-    "files_searched_for_second_copy": 640
+    "files_searched_for_second_copy": 677
   },
   "check_id": "tz-clock-change",
-  "started_at": "2026-10-16T16:23:18.263Z",
+  "started_at": "2026-10-17T20:07:16.939Z",
   "status": "pass",
   "expected_targets": 144,
   "discovered_targets": 144,

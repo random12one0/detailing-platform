@@ -1,9 +1,9 @@
 {
-  "git_sha": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
-  "git_sha_started": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T22:02:34.649Z",
+  "finished_at": "2026-10-17T20:06:46.273Z",
   "failures": [
     "before the slot gate · a stranger with no ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
     "before the slot gate · a stranger with no ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
@@ -33,7 +33,7 @@
     "break": "select-star"
   },
   "check_id": "duplicate-answer-select-star",
-  "started_at": "2026-10-16T22:02:34.514Z",
+  "started_at": "2026-10-17T20:06:46.157Z",
   "status": "fail",
   "expected_targets": 9,
   "discovered_targets": 9,
