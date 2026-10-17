@@ -549,8 +549,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // ROADMAP 97.10 — a card payment came in that did not match what the job
   // owes, so the webhook left it unpaid. Shown while the job is unsettled;
   // once the detailer sorts it and marks it paid or waived, it has done its job.
-  const payProblem = booking.payment_problem
-    && booking.payment_status !== "paid" && booking.payment_status !== "waived"
+  // ROADMAP 97.11: `extra` is money that came in AFTER the job was settled, so
+  // it is the one kind shown on a paid job — it is a refund still to make.
+  const payProblem = booking.payment_problem && (booking.payment_problem.kind === "extra"
+    || (booking.payment_status !== "paid" && booking.payment_status !== "waived"))
     ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
@@ -619,7 +621,15 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               something to go and do, in their own Stripe account. */}
           {payProblem && (
             <div className="error-box" role="status" data-payment-problem={payProblem.kind} style={{ color: "var(--bad)" }}>
-              {payProblem.kind === "currency"
+              {payProblem.kind === "extra"
+                ? t("Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  paid: money(Number(payProblem.paid_cents) / 100),
+                })
+                : payProblem.kind === "failed"
+                ? t("A bank payment of {paid} did not go through, so this job is not paid. Check the payment in your Stripe account.", {
+                  paid: money(Number(payProblem.paid_cents) / 100),
+                })
+                : payProblem.kind === "currency"
                 ? t("A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.")
                 : t("A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.", {
                   paid: money(Number(payProblem.paid_cents) / 100),
