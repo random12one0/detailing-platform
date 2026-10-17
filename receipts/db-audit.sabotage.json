@@ -1,14 +1,14 @@
 {
-  "git_sha": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
-  "git_sha_started": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
+  "git_sha": "f4f0f1e27954cd035b6f4a91a25a9807e485c07b",
+  "git_sha_started": "f4f0f1e27954cd035b6f4a91a25a9807e485c07b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T03:28:49.780Z",
+  "finished_at": "2026-10-17T03:41:28.638Z",
   "failures": [
-    "3 finding(s) to look at — see FOUND above"
+    "section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired"
   ],
   "warnings": [
-    "run with --break=hide-declaring; this receipt is a sabotage, not a result"
+    "run with --break=forget-pair; this receipt is a sabotage, not a result"
   ],
   "artifacts": [
     "scripts/db-audit.mjs"
@@ -16,10 +16,10 @@
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
     "checks": 7,
-    "break": "hide-declaring"
+    "break": "forget-pair"
   },
   "check_id": "db-audit",
-  "started_at": "2026-10-17T03:28:45.471Z",
+  "started_at": "2026-10-17T03:41:24.429Z",
   "status": "fail",
   "expected_targets": 7,
   "discovered_targets": 7,
