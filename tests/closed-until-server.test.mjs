@@ -1,0 +1,252 @@
+// ROADMAP 97.17 — "CLOSED UNTIL" IS A RULE ON THE WAY IN, NOT ONLY A CALENDAR.
+// RUN, NOT READ.
+//
+// `available-slots` closed every day before `closed_until`, so the booking page
+// never offered one. Nothing that WRITES a booking read it: `validateSlot`, the
+// gate create-, reschedule- and update-booking all route through, never looked,
+// so a stale tab or a hand-made post booked a detailer who was away.
+//
+// THIS LOADS THE REAL `create-booking`, `reschedule-booking` and
+// `update-booking` handlers (`loadEdge` in `scripts/lib/edgeLocal.mjs`) and
+// calls them as functions against a fake Supabase held in this file — the
+// `accept-quote-stale.test.mjs` pattern. No socket, no secret, no database row.
+// Every insert and update the functions make is logged, so "refused, and
+// nothing was written" is a measurement.
+//
+//   node tests/closed-until-server.test.mjs
+//   CLOSED_BREAK=guard node tests/closed-until-server.test.mjs   # the guard cut: MUST be red
+//
+// An env var, not a flag: `node --test` swallows extra arguments (gotchas 104).
+// The sabotage rewrites the PRODUCTION file as it loads, and refuses to run if
+// the rewrite did not land (gotchas 102).
+
+import { registerHooks } from "node:module";
+import net from "node:net";
+import { writeFileSync } from "node:fs";
+import { writeReceipt } from "../scripts/receipt.mjs";
+
+const started_at = new Date().toISOString();
+const BREAK = process.env.CLOSED_BREAK || "";
+const CUT = "if (closedUntil && bookingDate < closedUntil) {";
+if (BREAK && BREAK !== "guard") { console.error(`Unknown CLOSED_BREAK=${BREAK}. Known: guard.`); process.exit(2); }
+let landed = false;
+if (BREAK) {
+  registerHooks({
+    load(url, ctx, next) {
+      const r = next(url, ctx);
+      if (!url.endsWith("/_shared/slotValidation.ts")) return r;
+      const src = String(r.source);
+      const cut = src.replace(CUT, "if (false) {");
+      landed = cut !== src;
+      return { ...r, source: cut };
+    },
+  });
+}
+
+let sockets = 0;
+net.Socket.prototype.connect = function () { sockets++; throw new Error("closed-until-server.test opens no network connection"); };
+
+let passed = 0, assertions = 0;
+const failures = [];
+const check = (name, ok, got = "") => {
+  assertions++;
+  if (ok) { passed++; console.log(`  ok    ${name}`); return true; }
+  failures.push(got ? `${name} - got ${got}` : name);
+  console.log(`  FAIL  ${name}${got ? ` - got ${got}` : ""}`);
+  return false;
+};
+
+// ── THE DATES, in the business's own zone ───────────────────────────────────
+const TZ = "America/Los_Angeles";
+const localDay = (plus) => {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date());
+  const [y, m, d] = today.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + plus)).toISOString().slice(0, 10);
+};
+const BACK = localDay(10);           // closed_until: the day they are back
+const BEFORE = localDay(9);          // the last day they are away
+const AFTER = localDay(11);
+const BACK_WORDS = new Date(`${BACK}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
+const isoAt = (day, hh) => new Date(`${day}T${hh}:00-07:00`).toISOString(); // only needs to be the right day
+
+// ── THE FAKE SUPABASE ───────────────────────────────────────────────────────
+const FAKE = "https://fake-supabase.invalid";
+const BIZ = "22222222-2222-4222-8222-222222222222";
+const STAFF = "33333333-3333-4333-8333-333333333333";
+let db;
+const fresh = () => {
+  db = {
+    businesses: [{ id: BIZ, slug: "fx-away", name: "Away Detail", status: "active", timezone: TZ, contact_email: "owner@fixture.test",
+      contact_phone: "5555550100", closed_until: BACK, closed_note: null }],
+    business_settings: [{ business_id: BIZ, buffer_minutes: 0, min_advance_minutes: 0, max_advance_days: null, slot_interval_minutes: 30,
+      max_bookings_per_day: null, mobile_enabled: true, dropoff_enabled: true, cancellation_window_hours: 0,
+      water_requirement: "not_needed", power_requirement: "not_needed", require_approval: false }],
+    business_hours: [0, 1, 2, 3, 4, 5, 6, 7].map((w) => ({ business_id: BIZ, weekday: w, open_time: "08:00:00", close_time: "18:00:00" })),
+    services: [{ id: "svc-1", business_id: BIZ, name: "Wash", price: 100, duration_minutes: 60, active: true, is_active: true,
+      vehicle_size_adjustments: {}, group_id: null, allows_mobile: true, allows_dropoff: true, available_weekdays: null }],
+    business_users: [{ business_id: BIZ, user_id: STAFF, role: "owner", permissions: [] }],
+    bookings: [],
+  };
+};
+const writes = [];
+const outside = [];
+let nextId = 1;
+
+const send = (status, body, headers = {}) =>
+  new Response(body === undefined ? "" : JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
+
+globalThis.fetch = async (input, init) => {
+  const req = new Request(input, init);
+  const u = new URL(req.url);
+  const text = ["GET", "HEAD"].includes(req.method) ? "" : await req.text();
+  if (u.origin !== FAKE) { outside.push(`${req.method} ${u.origin}${u.pathname}`); return send(502, { message: "outside" }); }
+  if (u.pathname === "/auth/v1/user") {
+    return /Bearer staff-token/.test(req.headers.get("authorization") || "")
+      ? send(200, { id: STAFF, aud: "authenticated", role: "authenticated", email: "owner@fixture.test" })
+      : send(401, { message: "invalid token" });
+  }
+  if (u.pathname.startsWith("/functions/v1/")) return send(200, { ok: true });
+  if (u.pathname.startsWith("/rest/v1/rpc/")) return send(200, u.pathname.endsWith("/rate_take") ? true : null);
+  const tbl = (u.pathname.match(/^\/rest\/v1\/([a-z_]+)$/) || [])[1];
+  if (!tbl) return send(404, { message: "no fake for " + u.pathname });
+  db[tbl] ??= [];
+  let rows = db[tbl];
+  for (const [k, v] of u.searchParams) {
+    const s = String(v);
+    let m;
+    if ((m = s.match(/^eq\.(.*)$/))) rows = rows.filter((r) => String(r[k]) === m[1]);
+    else if ((m = s.match(/^neq\.(.*)$/))) rows = rows.filter((r) => String(r[k]) !== m[1]);
+    else if ((m = s.match(/^in\.\((.*)\)$/))) { const set = m[1].split(",").map((x) => x.replace(/^"|"$/g, "")); rows = rows.filter((r) => set.includes(String(r[k]))); }
+    else if (s === "is.null") rows = rows.filter((r) => r[k] == null);
+  }
+  const one = String(req.headers.get("accept") || "").includes("vnd.pgrst.object");
+  if (req.method === "POST") {
+    const body = JSON.parse(text || "[]");
+    const list = (Array.isArray(body) ? body : [body]).map((r) => ({ id: `row-${nextId++}`, ...r }));
+    db[tbl].push(...list);
+    writes.push({ table: tbl, kind: "insert", rows: list.length });
+    return one ? send(201, list[0]) : send(201, list);
+  }
+  if (req.method === "PATCH") {
+    const patch = JSON.parse(text || "{}");
+    for (const r of rows) Object.assign(r, patch);
+    writes.push({ table: tbl, kind: "update", rows: rows.length, patch });
+    return one ? (rows.length ? send(200, rows[0]) : send(406, { code: "PGRST116", message: "0 rows" })) : send(200, rows);
+  }
+  if (one) return rows.length === 1 ? send(200, rows[0]) : rows.length === 0 ? send(406, { code: "PGRST116", message: "0 rows" }) : send(406, {});
+  return send(200, rows, { "Content-Range": `0-${Math.max(rows.length - 1, 0)}/${rows.length}` });
+};
+
+const ENV = { SUPABASE_URL: FAKE, SUPABASE_SERVICE_ROLE_KEY: "placeholder", SUPABASE_ANON_KEY: "placeholder" };
+const { loadEdge } = await import("../scripts/lib/edgeLocal.mjs");
+const handlers = await loadEdge(["create-booking", "reschedule-booking", "update-booking"], ENV);
+if (BREAK && !landed) { console.log(`NOT RUN — CLOSED_BREAK=${BREAK} did not land in _shared/slotValidation.ts.`); process.exit(1); }
+
+const post = async (fn, body, auth) => {
+  writes.length = 0;
+  const r = await handlers.get(fn)(new Request(`http://local/functions/v1/${fn}`, {
+    method: "POST", headers: { "Content-Type": "application/json", ...(auth ? { Authorization: `Bearer ${auth}` } : {}) }, body: JSON.stringify(body),
+  }));
+  const t = await r.text();
+  let data = null; try { data = JSON.parse(t); } catch { data = t; }
+  const bookingWrites = writes.filter((w) => w.table === "bookings" && w.rows > 0).length;
+  return { status: r.status, data, bookingWrites };
+};
+const bookingBody = (day) => ({
+  business_slug: "fx-away", customer_name: "Pat Fixture", customer_phone: "(555) 555-0123", customer_email: "pat@fixture.test",
+  booking_date: day, start_time: "10:00", service_type: "mobile", service_ids: ["svc-1"], add_ons: [], vehicle_size: "medium",
+  address: "1 Fixture Way", lang: "en",
+});
+const existing = (id, day) => ({
+  id, business_id: BIZ, status: "confirmed", deleted_at: null, customer_name: "Pat Fixture", customer_email: "pat@fixture.test",
+  start_at: isoAt(day, "10:00"), end_at: isoAt(day, "11:00"), service_type: "mobile", vehicle_size: "medium",
+  subtotal: 100, total_price: 100, lang: "en", bulk_vehicle_count: null,
+});
+const reason = new RegExp(`away until ${BACK_WORDS}\\. Please choose ${BACK_WORDS} or a later date`);
+const transcript = [`closed_until ${BACK} (${BACK_WORDS}); before ${BEFORE}; after ${AFTER}`];
+const note = (s) => transcript.push(s);
+let completed = 0;
+const SCENARIOS = 9;
+
+// ── create-booking ──────────────────────────────────────────────────────────
+console.log(`\n1. create-booking, closed until ${BACK}`);
+for (const [tag, day, refused] of [["1a", BEFORE, true], ["1b", BACK, false], ["1c", AFTER, false]]) {
+  fresh();
+  const r = await post("create-booking", bookingBody(day));
+  note(`${tag} create ${day}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)} | booking writes ${r.bookingWrites}`);
+  const ok = refused
+    ? check(`${tag} . ${day} (the day before they are back) is refused with the plain reason, nothing written`,
+      r.status === 409 && reason.test(r.data?.error ?? "") && r.bookingWrites === 0 && db.bookings.length === 0,
+      `${r.status} ${JSON.stringify(r.data)} writes ${r.bookingWrites}`)
+    : check(`${tag} . ${day} ${day === BACK ? "(the day they are back)" : "(after)"} books`,
+      r.status === 200 && r.data?.success === true && db.bookings.length === 1,
+      `${r.status} ${JSON.stringify(r.data).slice(0, 300)}`);
+  if (ok) completed++;
+}
+
+// ── reschedule-booking (the customer's own move) ───────────────────────────
+console.log("\n2. reschedule-booking, from a booking after the return date");
+for (const [tag, day, refused] of [["2a", BEFORE, true], ["2b", BACK, false], ["2c", AFTER, false]]) {
+  fresh();
+  db.bookings.push(existing("b-move", localDay(14)));
+  const r = await post("reschedule-booking", { booking_id: "b-move", booking_date: day, start_time: "10:00" });
+  const now = db.bookings[0].start_at;
+  note(`${tag} reschedule -> ${day}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)} | start_at ${now}`);
+  const ok = refused
+    ? check(`${tag} . moving to ${day} is refused with the plain reason, the booking unmoved`,
+      r.status === 409 && reason.test(r.data?.error ?? "") && r.bookingWrites === 0 && now === isoAt(localDay(14), "10:00"),
+      `${r.status} ${JSON.stringify(r.data)} start_at ${now}`)
+    : check(`${tag} . moving to ${day} works`,
+      r.status === 200 && r.data?.success === true && r.data?.booking?.booking_date === day,
+      `${r.status} ${JSON.stringify(r.data).slice(0, 300)}`);
+  if (ok) completed++;
+}
+
+// ── update-booking (the detailer's own date change) ────────────────────────
+console.log("\n3. update-booking, the detailer moving a job");
+for (const [tag, day, refused] of [["3a", BEFORE, true], ["3b", BACK, false], ["3c", AFTER, false]]) {
+  fresh();
+  db.bookings.push(existing("b-staff", localDay(14)));
+  const r = await post("update-booking", { business_id: BIZ, booking_id: "b-staff", id: "b-staff", booking_date: day, start_time: "10:00" }, "staff-token");
+  const now = db.bookings[0].start_at;
+  note(`${tag} update -> ${day}: ${r.status} ${JSON.stringify(r.data).slice(0, 200)} | start_at ${now}`);
+  const ok = refused
+    ? check(`${tag} . moving to ${day} is refused with the plain reason, the booking unmoved`,
+      r.status === 409 && reason.test(r.data?.error ?? "") && r.bookingWrites === 0 && now === isoAt(localDay(14), "10:00"),
+      `${r.status} ${JSON.stringify(r.data)} start_at ${now}`)
+    : check(`${tag} . moving to ${day} works`,
+      r.status === 200 && r.data?.success === true && db.bookings[0].start_at !== isoAt(localDay(14), "10:00"),
+      `${r.status} ${JSON.stringify(r.data).slice(0, 300)} start_at ${now}`);
+  if (ok) completed++;
+}
+
+console.log("\n0. the run itself");
+check("0a . no socket was opened", sockets === 0, String(sockets));
+check("0b . no request went anywhere but the in-memory fake", outside.length === 0, outside.join(", "));
+
+const failed = failures.length;
+console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${SCENARIOS} scenarios complete.`);
+if (BREAK) console.log(`  note  CLOSED_BREAK=${BREAK} was set: this run is a sabotage and MUST be red.`);
+
+const txt = BREAK ? `receipts/closed-until-server.sabotage-${BREAK}.txt` : "receipts/closed-until-server.txt";
+writeFileSync(txt, [`closed-until-server ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
+  `${passed} passed, ${failed} failed`, ...failures.map((f) => "FAIL " + f)].join("\n") + "\n");
+writeReceipt({
+  check_id: "closed-until-server",
+  started_at,
+  status: failed ? "fail" : "pass",
+  expected_targets: SCENARIOS,
+  discovered_targets: SCENARIOS,
+  attempted_targets: SCENARIOS,
+  completed_targets: completed,
+  skipped_targets: 0,
+  assertions_executed: assertions,
+  min_assertions: 11,
+  assertion_floor: "9 scenario checks (3 handlers x before/on/after) + 2 run checks = 11, every check() unconditional (docs/gotchas.md 98).",
+  canary: { id: "pre-fix-away-booking", observed_failure: BREAK ? failed > 0 : null, what: "CLOSED_BREAK=guard cuts the closed_until guard from _shared/slotValidation.ts as it loads" },
+  failures,
+  artifacts: [txt],
+  dimensions: { roadmap: "97.17", break: BREAK || null },
+  warnings: ["The handlers run in-process against a fake Supabase in this file, not the live database; it proves the functions' own decisions."],
+});
+process.exit(failed ? 1 : 0);
