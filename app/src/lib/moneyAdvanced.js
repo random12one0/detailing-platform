@@ -100,6 +100,8 @@
 // give, not work the detailer sold, and this file already reports tips on their
 // own (`tipTotal`, `tipRate`, `avgTip`). Counting a tip here would show the
 // same dollar twice and stop `quoted + onSite + tips = earned` adding up.
+import { keptOf } from "./payPill.js";
+
 export const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"]);
 
 // A DISCOUNT IS NOT A SALE EITHER, EVEN THOUGH ITS MONEY BELONGS ABOVE. It
@@ -159,7 +161,14 @@ export function advancedMoney({
   const jobs = jobsIn(period);
   const prevJobs = jobsIn(previous);
 
-  const paidOf = (b) => num(b.final_amount ?? b.total_price);
+  // ROADMAP 97.82 — A REFUND COMES OFF EARNED. Money refunded in Stripe leaves
+  // `payment_status` at "paid" (97.68), so this read the bare price and the Money
+  // screen counted a job refunded in full as earned AND collected. Subtracting it from
+  // collected alone would have shown it as OWED, which is false; a third bucket would
+  // have left Net counting money handed back. So the job is worth what it KEPT — the
+  // same reading as the pill and Today (`keptOf`) — and earned, collected, owed, Net,
+  // the chart and the accountant file's Amount all follow, still adding up.
+  const paidOf = (b) => keptOf(b, num(b.final_amount ?? b.total_price));
   const sum = (rows, f) => rows.reduce((s, r) => s + f(r), 0);
 
   const earned = sum(jobs, paidOf);

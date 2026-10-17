@@ -64,8 +64,8 @@ export const HEADER = ["Date", "Type", "Description", "Customer", "Status", "Amo
 // ROADMAP 97.81 — THE STATUS CELL READS THE JOB'S OWN REFUND, NOT ONLY ITS STATUS.
 // A refund made in Stripe leaves `payment_status` at "paid", so a job refunded in full
 // went to the accountant as "Paid". A part refund says in words what went back and what
-// was kept. Amount is untouched: it is the earned figure the screen's Net is built from,
-// and whether a refund comes off that is ROADMAP 97.82.
+// was kept. Amount is what the job kept (ROADMAP 97.82), so it still adds up to the
+// screen's Net, which a refund now comes off too.
 export function paidWords(b) {
   const pill = payPill(b);
   if (pill === "refunded") return "Refunded";
@@ -91,7 +91,9 @@ export function accountantRows({ jobs = [], expenses = [] }) {
         b.customer_name ?? "",
         paidWords(b),
       ],
-      amount: Number(b.final_amount ?? b.total_price ?? 0),
+      // What the job KEPT, so a refund comes off here as it comes off the screen's Net
+      // (ROADMAP 97.82); the Status cell beside it says why the figure is lower.
+      amount: keptOf(b, Number(b.final_amount ?? b.total_price ?? 0)),
       // NULL STAYS BLANK RATHER THAN BECOMING 0. A detailer who does not log
       // miles must not hand their accountant a column of noughts that reads
       // as "I drove nowhere"; and zero is a real answer for a drop-off at
