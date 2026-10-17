@@ -1,0 +1,219 @@
+  ok    refunded · tracking @ 390x844 · Tracking links' read takes every column, the refund ones included
+  ok    refunded · tracking @ 390x844 · the real server accepts that read
+  FAIL  refunded · tracking @ 390x844 · the row reads "$60 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  refunded · tracking @ 390x844 · the opened panel's earned reads $60
+        "$210"
+  ok    refunded · tracking @ 390x844 · the screen's bookings read was fed
+  ok    refunded · tracking @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · tracking @ 390x844 · console clean
+  ok    refunded · money @ 390x844 · Booking sources draws the link
+  FAIL  refunded · money @ 390x844 · Booking sources reads "$60 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    refunded · money @ 390x844 · the screen's bookings read was fed
+  ok    refunded · money @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · money @ 390x844 · console clean
+  ok    refunded · tracking @ 320x640 · Tracking links' read takes every column, the refund ones included
+  ok    refunded · tracking @ 320x640 · the real server accepts that read
+  FAIL  refunded · tracking @ 320x640 · the row reads "$60 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  refunded · tracking @ 320x640 · the opened panel's earned reads $60
+        "$210"
+  ok    refunded · tracking @ 320x640 · the screen's bookings read was fed
+  ok    refunded · tracking @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · tracking @ 320x640 · console clean
+  ok    refunded · money @ 320x640 · Booking sources draws the link
+  FAIL  refunded · money @ 320x640 · Booking sources reads "$60 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    refunded · money @ 320x640 · the screen's bookings read was fed
+  ok    refunded · money @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · money @ 320x640 · console clean
+  ok    refunded · tracking @ 768x1024 · Tracking links' read takes every column, the refund ones included
+  ok    refunded · tracking @ 768x1024 · the real server accepts that read
+  FAIL  refunded · tracking @ 768x1024 · the row reads "$60 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  refunded · tracking @ 768x1024 · the opened panel's earned reads $60
+        "$210"
+  ok    refunded · tracking @ 768x1024 · the screen's bookings read was fed
+  ok    refunded · tracking @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · tracking @ 768x1024 · console clean
+  ok    refunded · money @ 768x1024 · Booking sources draws the link
+  FAIL  refunded · money @ 768x1024 · Booking sources reads "$60 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    refunded · money @ 768x1024 · the screen's bookings read was fed
+  ok    refunded · money @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · money @ 768x1024 · console clean
+  ok    refunded · tracking @ 1440x900 · Tracking links' read takes every column, the refund ones included
+  ok    refunded · tracking @ 1440x900 · the real server accepts that read
+  FAIL  refunded · tracking @ 1440x900 · the row reads "$60 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  refunded · tracking @ 1440x900 · the opened panel's earned reads $60
+        "$210"
+  ok    refunded · tracking @ 1440x900 · the screen's bookings read was fed
+  ok    refunded · tracking @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · tracking @ 1440x900 · console clean
+  ok    refunded · money @ 1440x900 · Booking sources draws the link
+  FAIL  refunded · money @ 1440x900 · Booking sources reads "$60 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    refunded · money @ 1440x900 · the screen's bookings read was fed
+  ok    refunded · money @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    refunded · money @ 1440x900 · console clean
+  ok    part-refunded · tracking @ 390x844 · Tracking links' read takes every column, the refund ones included
+  ok    part-refunded · tracking @ 390x844 · the real server accepts that read
+  FAIL  part-refunded · tracking @ 390x844 · the row reads "$160 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  part-refunded · tracking @ 390x844 · the opened panel's earned reads $160
+        "$210"
+  ok    part-refunded · tracking @ 390x844 · the screen's bookings read was fed
+  ok    part-refunded · tracking @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · tracking @ 390x844 · console clean
+  ok    part-refunded · money @ 390x844 · Booking sources draws the link
+  FAIL  part-refunded · money @ 390x844 · Booking sources reads "$160 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    part-refunded · money @ 390x844 · the screen's bookings read was fed
+  ok    part-refunded · money @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · money @ 390x844 · console clean
+  ok    part-refunded · tracking @ 320x640 · Tracking links' read takes every column, the refund ones included
+  ok    part-refunded · tracking @ 320x640 · the real server accepts that read
+  FAIL  part-refunded · tracking @ 320x640 · the row reads "$160 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  part-refunded · tracking @ 320x640 · the opened panel's earned reads $160
+        "$210"
+  ok    part-refunded · tracking @ 320x640 · the screen's bookings read was fed
+  ok    part-refunded · tracking @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · tracking @ 320x640 · console clean
+  ok    part-refunded · money @ 320x640 · Booking sources draws the link
+  FAIL  part-refunded · money @ 320x640 · Booking sources reads "$160 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    part-refunded · money @ 320x640 · the screen's bookings read was fed
+  ok    part-refunded · money @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · money @ 320x640 · console clean
+  ok    part-refunded · tracking @ 768x1024 · Tracking links' read takes every column, the refund ones included
+  ok    part-refunded · tracking @ 768x1024 · the real server accepts that read
+  FAIL  part-refunded · tracking @ 768x1024 · the row reads "$160 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  part-refunded · tracking @ 768x1024 · the opened panel's earned reads $160
+        "$210"
+  ok    part-refunded · tracking @ 768x1024 · the screen's bookings read was fed
+  ok    part-refunded · tracking @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · tracking @ 768x1024 · console clean
+  ok    part-refunded · money @ 768x1024 · Booking sources draws the link
+  FAIL  part-refunded · money @ 768x1024 · Booking sources reads "$160 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    part-refunded · money @ 768x1024 · the screen's bookings read was fed
+  ok    part-refunded · money @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · money @ 768x1024 · console clean
+  ok    part-refunded · tracking @ 1440x900 · Tracking links' read takes every column, the refund ones included
+  ok    part-refunded · tracking @ 1440x900 · the real server accepts that read
+  FAIL  part-refunded · tracking @ 1440x900 · the row reads "$160 earned"
+        "2 opened · 2 booked · $210 earned"
+  FAIL  part-refunded · tracking @ 1440x900 · the opened panel's earned reads $160
+        "$210"
+  ok    part-refunded · tracking @ 1440x900 · the screen's bookings read was fed
+  ok    part-refunded · tracking @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · tracking @ 1440x900 · console clean
+  ok    part-refunded · money @ 1440x900 · Booking sources draws the link
+  FAIL  part-refunded · money @ 1440x900 · Booking sources reads "$160 earned"
+        "2 opened · 100% booked · $210 earned"
+  ok    part-refunded · money @ 1440x900 · the screen's bookings read was fed
+  ok    part-refunded · money @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    part-refunded · money @ 1440x900 · console clean
+  ok    other-payment · tracking @ 390x844 · Tracking links' read takes every column, the refund ones included
+  ok    other-payment · tracking @ 390x844 · the real server accepts that read
+  ok    other-payment · tracking @ 390x844 · the row reads "$210 earned"
+  ok    other-payment · tracking @ 390x844 · the opened panel's earned reads $210
+  ok    other-payment · tracking @ 390x844 · the screen's bookings read was fed
+  ok    other-payment · tracking @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · tracking @ 390x844 · console clean
+  ok    other-payment · money @ 390x844 · Booking sources draws the link
+  ok    other-payment · money @ 390x844 · Booking sources reads "$210 earned"
+  ok    other-payment · money @ 390x844 · the screen's bookings read was fed
+  ok    other-payment · money @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · money @ 390x844 · console clean
+  ok    other-payment · tracking @ 320x640 · Tracking links' read takes every column, the refund ones included
+  ok    other-payment · tracking @ 320x640 · the real server accepts that read
+  ok    other-payment · tracking @ 320x640 · the row reads "$210 earned"
+  ok    other-payment · tracking @ 320x640 · the opened panel's earned reads $210
+  ok    other-payment · tracking @ 320x640 · the screen's bookings read was fed
+  ok    other-payment · tracking @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · tracking @ 320x640 · console clean
+  ok    other-payment · money @ 320x640 · Booking sources draws the link
+  ok    other-payment · money @ 320x640 · Booking sources reads "$210 earned"
+  ok    other-payment · money @ 320x640 · the screen's bookings read was fed
+  ok    other-payment · money @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · money @ 320x640 · console clean
+  ok    other-payment · tracking @ 768x1024 · Tracking links' read takes every column, the refund ones included
+  ok    other-payment · tracking @ 768x1024 · the real server accepts that read
+  ok    other-payment · tracking @ 768x1024 · the row reads "$210 earned"
+  ok    other-payment · tracking @ 768x1024 · the opened panel's earned reads $210
+  ok    other-payment · tracking @ 768x1024 · the screen's bookings read was fed
+  ok    other-payment · tracking @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · tracking @ 768x1024 · console clean
+  ok    other-payment · money @ 768x1024 · Booking sources draws the link
+  ok    other-payment · money @ 768x1024 · Booking sources reads "$210 earned"
+  ok    other-payment · money @ 768x1024 · the screen's bookings read was fed
+  ok    other-payment · money @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · money @ 768x1024 · console clean
+  ok    other-payment · tracking @ 1440x900 · Tracking links' read takes every column, the refund ones included
+  ok    other-payment · tracking @ 1440x900 · the real server accepts that read
+  ok    other-payment · tracking @ 1440x900 · the row reads "$210 earned"
+  ok    other-payment · tracking @ 1440x900 · the opened panel's earned reads $210
+  ok    other-payment · tracking @ 1440x900 · the screen's bookings read was fed
+  ok    other-payment · tracking @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · tracking @ 1440x900 · console clean
+  ok    other-payment · money @ 1440x900 · Booking sources draws the link
+  ok    other-payment · money @ 1440x900 · Booking sources reads "$210 earned"
+  ok    other-payment · money @ 1440x900 · the screen's bookings read was fed
+  ok    other-payment · money @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    other-payment · money @ 1440x900 · console clean
+  ok    paid · tracking @ 390x844 · Tracking links' read takes every column, the refund ones included
+  ok    paid · tracking @ 390x844 · the real server accepts that read
+  ok    paid · tracking @ 390x844 · the row reads "$210 earned"
+  ok    paid · tracking @ 390x844 · the opened panel's earned reads $210
+  ok    paid · tracking @ 390x844 · the screen's bookings read was fed
+  ok    paid · tracking @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · tracking @ 390x844 · console clean
+  ok    paid · money @ 390x844 · Booking sources draws the link
+  ok    paid · money @ 390x844 · Booking sources reads "$210 earned"
+  ok    paid · money @ 390x844 · the screen's bookings read was fed
+  ok    paid · money @ 390x844 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · money @ 390x844 · console clean
+  ok    paid · tracking @ 320x640 · Tracking links' read takes every column, the refund ones included
+  ok    paid · tracking @ 320x640 · the real server accepts that read
+  ok    paid · tracking @ 320x640 · the row reads "$210 earned"
+  ok    paid · tracking @ 320x640 · the opened panel's earned reads $210
+  ok    paid · tracking @ 320x640 · the screen's bookings read was fed
+  ok    paid · tracking @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · tracking @ 320x640 · console clean
+  ok    paid · money @ 320x640 · Booking sources draws the link
+  ok    paid · money @ 320x640 · Booking sources reads "$210 earned"
+  ok    paid · money @ 320x640 · the screen's bookings read was fed
+  ok    paid · money @ 320x640 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · money @ 320x640 · console clean
+  ok    paid · tracking @ 768x1024 · Tracking links' read takes every column, the refund ones included
+  ok    paid · tracking @ 768x1024 · the real server accepts that read
+  ok    paid · tracking @ 768x1024 · the row reads "$210 earned"
+  ok    paid · tracking @ 768x1024 · the opened panel's earned reads $210
+  ok    paid · tracking @ 768x1024 · the screen's bookings read was fed
+  ok    paid · tracking @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · tracking @ 768x1024 · console clean
+  ok    paid · money @ 768x1024 · Booking sources draws the link
+  ok    paid · money @ 768x1024 · Booking sources reads "$210 earned"
+  ok    paid · money @ 768x1024 · the screen's bookings read was fed
+  ok    paid · money @ 768x1024 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · money @ 768x1024 · console clean
+  ok    paid · tracking @ 1440x900 · Tracking links' read takes every column, the refund ones included
+  ok    paid · tracking @ 1440x900 · the real server accepts that read
+  ok    paid · tracking @ 1440x900 · the row reads "$210 earned"
+  ok    paid · tracking @ 1440x900 · the opened panel's earned reads $210
+  ok    paid · tracking @ 1440x900 · the screen's bookings read was fed
+  ok    paid · tracking @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · tracking @ 1440x900 · console clean
+  ok    paid · money @ 1440x900 · Booking sources draws the link
+  ok    paid · money @ 1440x900 · Booking sources reads "$210 earned"
+  ok    paid · money @ 1440x900 · the screen's bookings read was fed
+  ok    paid · money @ 1440x900 · the sabotage landed once in moneyAdvanced and RAN
+  ok    paid · money @ 1440x900 · console clean
+
+168 passed, 24 failed, 32 of 32 views.
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.83-20261017160354594\receipts\link-refund-bare-price.sabotage.json
