@@ -347,6 +347,11 @@ const HOSTS = {
   "translation.googleapis.com": { names: "Google's translation service" },
   "api.stripe.com": { names: "Stripe" },
   "connect.stripe.com": { names: "Stripe" },
+  // ROADMAP 100.6 — the public-photo cache purge in `_shared/mediaCache.ts`. It is sent our zone id, our
+  // token and ONE already-public `business-media` address (`<business id>/<folder>/<random id>.<ext>`) for a
+  // file Cloudflare already stores and serves. Nothing about any customer or visitor; named because it is
+  // the same company the page already names for photos.
+  "api.cloudflare.com": { names: "Cloudflare" },
 
   "www.geoapify.com": { why: "the attribution LINK Geoapify's licence requires us to print; this product makes no request to it" },
   "www.openstreetmap.org": { why: "the same attribution line's second link, printed and never fetched" },
