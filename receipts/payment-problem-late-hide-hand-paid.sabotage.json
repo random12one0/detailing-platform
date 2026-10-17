@@ -1,9 +1,9 @@
 {
-  "git_sha": "378996e517683ac07942ac898990d0b3dbbb6fcc",
-  "git_sha_started": "378996e517683ac07942ac898990d0b3dbbb6fcc",
+  "git_sha": "885b20034669d513a2258ade13e0beea21b2722c",
+  "git_sha_started": "885b20034669d513a2258ade13e0beea21b2722c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T06:17:29.993Z",
+  "finished_at": "2026-10-17T07:46:42.047Z",
   "failures": [
     "settled @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
     "settled @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
@@ -32,10 +32,10 @@
   ],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break"
+    "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
+    "base": "http://localhost:5173",
     "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
     "widths": [
       "1440x900",
@@ -51,7 +51,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-1440x900.png"
       },
       {
         "scenario": "failed",
@@ -59,7 +59,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-768x1024.png"
       },
       {
         "scenario": "failed",
@@ -67,7 +67,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-390x844.png"
       },
       {
         "scenario": "failed",
@@ -75,7 +75,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-320x700.png"
       },
       {
         "scenario": "extra",
@@ -83,7 +83,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-extra-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-extra-1440x900.png"
       },
       {
         "scenario": "extra",
@@ -91,7 +91,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-extra-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-extra-768x1024.png"
       },
       {
         "scenario": "extra",
@@ -99,7 +99,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-extra-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-extra-390x844.png"
       },
       {
         "scenario": "extra",
@@ -107,7 +107,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-extra-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-extra-320x700.png"
       },
       {
         "scenario": "spanish",
@@ -115,7 +115,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-spanish-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-spanish-1440x900.png"
       },
       {
         "scenario": "spanish",
@@ -123,7 +123,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-spanish-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-spanish-768x1024.png"
       },
       {
         "scenario": "spanish",
@@ -131,7 +131,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-spanish-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-spanish-390x844.png"
       },
       {
         "scenario": "spanish",
@@ -139,7 +139,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-spanish-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-spanish-320x700.png"
       },
       {
         "scenario": "failed-refund",
@@ -147,7 +147,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-refund-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-refund-1440x900.png"
       },
       {
         "scenario": "failed-refund",
@@ -155,7 +155,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-refund-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-refund-768x1024.png"
       },
       {
         "scenario": "failed-refund",
@@ -163,7 +163,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-refund-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-refund-390x844.png"
       },
       {
         "scenario": "failed-refund",
@@ -171,7 +171,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-failed-refund-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-failed-refund-320x700.png"
       },
       {
         "scenario": "two-reasons",
@@ -179,7 +179,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-two-reasons-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-two-reasons-1440x900.png"
       },
       {
         "scenario": "two-reasons",
@@ -187,7 +187,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-two-reasons-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-two-reasons-768x1024.png"
       },
       {
         "scenario": "two-reasons",
@@ -195,7 +195,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-two-reasons-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-two-reasons-390x844.png"
       },
       {
         "scenario": "two-reasons",
@@ -203,7 +203,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-two-reasons-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-two-reasons-320x700.png"
       },
       {
         "scenario": "owed-back",
@@ -211,7 +211,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-1440x900.png"
       },
       {
         "scenario": "owed-back",
@@ -219,7 +219,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-768x1024.png"
       },
       {
         "scenario": "owed-back",
@@ -227,7 +227,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-390x844.png"
       },
       {
         "scenario": "owed-back",
@@ -235,7 +235,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-320x700.png"
       },
       {
         "scenario": "owed-back-es",
@@ -243,7 +243,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-es-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-es-1440x900.png"
       },
       {
         "scenario": "owed-back-es",
@@ -251,7 +251,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-es-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-es-768x1024.png"
       },
       {
         "scenario": "owed-back-es",
@@ -259,7 +259,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-es-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-es-390x844.png"
       },
       {
         "scenario": "owed-back-es",
@@ -267,7 +267,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-es-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-es-320x700.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -275,7 +275,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-currency-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-currency-1440x900.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -283,7 +283,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-currency-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-currency-768x1024.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -291,7 +291,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-currency-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-currency-390x844.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -299,7 +299,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-owed-back-currency-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-owed-back-currency-320x700.png"
       },
       {
         "scenario": "settled",
@@ -307,7 +307,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-settled-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-settled-1440x900.png"
       },
       {
         "scenario": "settled",
@@ -315,7 +315,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-settled-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-settled-768x1024.png"
       },
       {
         "scenario": "settled",
@@ -323,7 +323,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-settled-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-settled-390x844.png"
       },
       {
         "scenario": "settled",
@@ -331,7 +331,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-settled-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-settled-320x700.png"
       },
       {
         "scenario": "hand-paid",
@@ -339,7 +339,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-1440x900.png"
       },
       {
         "scenario": "hand-paid",
@@ -347,7 +347,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-768x1024.png"
       },
       {
         "scenario": "hand-paid",
@@ -355,7 +355,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-390x844.png"
       },
       {
         "scenario": "hand-paid",
@@ -363,7 +363,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-320x700.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -371,7 +371,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-es-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-es-1440x900.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -379,7 +379,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-es-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-es-768x1024.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -387,7 +387,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-es-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-es-390x844.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -395,7 +395,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-es-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-es-320x700.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -403,7 +403,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-currency-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-currency-1440x900.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -411,7 +411,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-currency-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-currency-768x1024.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -419,7 +419,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-currency-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-currency-390x844.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -427,7 +427,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-currency-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-currency-320x700.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -435,7 +435,7 @@
         "shown": true,
         "text": "Another payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-extra-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-extra-1440x900.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -443,7 +443,7 @@
         "shown": true,
         "text": "Another payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-extra-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-extra-768x1024.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -451,7 +451,7 @@
         "shown": true,
         "text": "Another payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-extra-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-extra-390x844.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -459,7 +459,7 @@
         "shown": true,
         "text": "Another payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-hand-paid-extra-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-hand-paid-extra-320x700.png"
       },
       {
         "scenario": "clean",
@@ -467,7 +467,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-clean-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-clean-1440x900.png"
       },
       {
         "scenario": "clean",
@@ -475,7 +475,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-clean-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-clean-768x1024.png"
       },
       {
         "scenario": "clean",
@@ -483,7 +483,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-clean-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-clean-390x844.png"
       },
       {
         "scenario": "clean",
@@ -491,12 +491,12 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.70/png/break/break-hide-hand-paid-clean-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/sup-9770/brk/break-hide-hand-paid-clean-320x700.png"
       }
     ]
   },
   "check_id": "payment-problem-late-hide-hand-paid",
-  "started_at": "2026-10-17T06:14:38.264Z",
+  "started_at": "2026-10-17T07:42:50.853Z",
   "status": "fail",
   "expected_targets": 56,
   "discovered_targets": 56,
