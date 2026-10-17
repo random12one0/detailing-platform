@@ -253,14 +253,16 @@ export default function NewBookingModal({ onClose, onCreated, initialDate, initi
   }, [selKey, business.slug]);
 
   const applyPromo = async () => {
-    const code = form.promoCode.trim();
+    // ROADMAP 97.23 — codes are stored in capitals (`Promos.jsx`), and the
+    // endpoint answers `{ success, promo }`, never `valid`.
+    const code = form.promoCode.trim().toUpperCase();
     if (!code) return;
     setCheckingPromo(true);
     try {
       const r = await api.validatePromo(business.slug, code, form.customerEmail || null, form.customerPhone || null);
-      setPromoState(r?.valid
+      setPromoState(r?.success
         ? { ok: true, code, text: t("Applied.") }
-        : { ok: false, code, text: r?.reason || t("That code cannot be used.") });
+        : { ok: false, code, text: r?.error || t("That code cannot be used.") });
     } catch (e) {
       setPromoState({ ok: false, code, text: e.message });
     }
