@@ -1,0 +1,34 @@
+{
+  "git_sha": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "git_sha_started": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T21:32:29.716Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/forget-customer-sql/results.txt",
+    "artifacts/forget-customer-sql/business-a-mail-after.json",
+    "artifacts/forget-customer-sql/business-a-mail-before-fix.json"
+  ],
+  "dimensions": {
+    "migration": "20261017210000_forget_customer_forgets_their_email.sql",
+    "emails_forgotten": 4,
+    "canary_rows_leaking": 4
+  },
+  "check_id": "forget-customer-sql",
+  "started_at": "2026-10-17T21:32:25.732Z",
+  "status": "pass",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 34,
+  "min_assertions": 34,
+  "assertion_floor": "structural: a fixed list of checks over eight fixed email_sends rows",
+  "canary": {
+    "id": "pre-97.20-forget-customer",
+    "observed_failure": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "git_sha": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "git_sha_started": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T21:32:25.261Z",
+  "failures": [
+    "row 2: holds none of Dana's name, phone, street or body — /dana doe/i, /12 elm/i, /555-0101/",
+    "row 2: holds no copy of the email — <p>Hi Dana Doe, see you at 12 Elm St. We will call 555-0101.",
+    "the result counts what it did — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":1,\"emails_forgotten\":3,\"bookings_anonymised\":1}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/forget-customer-sql/results.sabotage-no-booking-match.txt"
+  ],
+  "dimensions": {
+    "break": "no-booking-match",
+    "migration": "20261017210000_forget_customer_forgets_their_email.sql",
+    "emails_forgotten": 3,
+    "canary_rows_leaking": 4
+  },
+  "check_id": "forget-customer-sql",
+  "started_at": "2026-10-17T21:32:22.122Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 34,
+  "min_assertions": 34,
+  "assertion_floor": "structural: a fixed list of checks over eight fixed email_sends rows",
+  "canary": {
+    "id": "pre-97.20-forget-customer",
+    "observed_failure": true
+  }
+}

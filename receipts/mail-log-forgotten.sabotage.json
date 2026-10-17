@@ -1,0 +1,52 @@
+{
+  "git_sha": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "git_sha_started": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T21:32:49.831Z",
+  "failures": [
+    "390x844: no row but Eli's shared-address one names Dana — Spring specialdana@example.comWed, Oct 14 · Delivered | Thanks for asking about a quoteDana@Example.com Tue, Oct 13 · De",
+    "390x844: her campaign email opens to \"not saved\"",
+    "390x844: her opened email names nothing of hers — dana@example",
+    "320x740: no row but Eli's shared-address one names Dana — Spring specialdana@example.comWed, Oct 14 · Delivered | Thanks for asking about a quoteDana@Example.com Tue, Oct 13 · De",
+    "320x740: her campaign email opens to \"not saved\"",
+    "320x740: her opened email names nothing of hers — dana@example",
+    "768x1024: no row but Eli's shared-address one names Dana — Spring specialdana@example.comWed, Oct 14 · Delivered | Thanks for asking about a quoteDana@Example.com Tue, Oct 13 · De",
+    "768x1024: her campaign email opens to \"not saved\"",
+    "768x1024: her opened email names nothing of hers — dana@example",
+    "1440x900: no row but Eli's shared-address one names Dana — Spring specialdana@example.comWed, Oct 14 · Delivered | Thanks for asking about a quoteDana@Example.com Tue, Oct 13 · De",
+    "1440x900: her campaign email opens to \"not saved\"",
+    "1440x900: her opened email names nothing of hers — dana@example"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/forget-customer-sql/business-a-mail-before-fix.json",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.20/png/sabotage-pre-fix"
+  ],
+  "dimensions": {
+    "break": "pre-fix",
+    "base": "http://localhost:5173",
+    "rows": 7,
+    "sizes": [
+      "390x844",
+      "320x740",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "check_id": "mail-log-forgotten",
+  "started_at": "2026-10-17T21:32:31.264Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 32,
+  "min_assertions": 32,
+  "assertion_floor": "structural: eight checks at each of four widths",
+  "canary": {
+    "id": "pre-97.20-rows",
+    "observed_failure": true
+  }
+}
