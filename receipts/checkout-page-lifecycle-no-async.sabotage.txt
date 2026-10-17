@@ -1,0 +1,25 @@
+checkout-page-lifecycle BREAK=no-async — 2026-10-17T00:05:25.400Z
+FAIL  R2 · bank payment arrives late: async_payment_succeeded marks the job paid
+FAIL  R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
+FAIL  R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
+FAIL  R2 · a failed bank debit on an unpaid job stays unpaid and says why
+ok    R2 · refused: a failed bank debit does not touch a job the detailer marked paid in cash
+ok    R2 · refused: a late event from ANOTHER detailer's account changes nothing
+ok    R4 · a card payment after the detailer marked cash: still paid, refund owed recorded
+ok    R4 · a second live page paid: its two events make ONE refund entry, not two
+ok    R4 · a third payment is added to the list, never written over the second
+ok    R4 · money for a WAIVED job is a refund owed too
+ok    R4 · refused: the SAME payment's second event is not a second payment
+ok    R4 · refused: a page still processing on a settled job records nothing yet
+ok    R3 · first page: one create, cards only, nothing to expire
+ok    R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order
+ok    R3 · same price, page still open: handed back, no second live page
+ok    R3 · previous page finished: a fresh page, nothing expired
+ok    R3 · previous page unknown to Stripe (404, account reconnected): a fresh page
+ok    R3 · refused: when Stripe will not expire the old page, no new page is made
+ok    R3 · refused: an already-paid job reaches Stripe not at all
+FAIL  R2 · bank payment arrives late: async_payment_succeeded marks the job paid — pending null · HTTP 200
+FAIL  R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named) — null · HTTP 200
+FAIL  R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason — paid pi_1 null · HTTP 200
+FAIL  R2 · a failed bank debit on an unpaid job stays unpaid and says why — pending null · HTTP 200
+18 passed, 4 failed, 22 assertions, 19 of 19 scenarios.
