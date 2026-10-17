@@ -1,17 +1,17 @@
 {
-  "git_sha": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
-  "git_sha_started": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
+  "git_sha": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "git_sha_started": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T16:14:32.801Z",
+  "finished_at": "2026-10-17T16:43:30.913Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
     "C:/Users/rando/Downloads/claude/belt/shots/97.83/png"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
-    "frozen_now": "2026-10-17T16:12:00.000Z",
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-17T16:41:00.000Z",
     "widths": [
       "390x844",
       "320x640",
@@ -311,7 +311,7 @@
     ]
   },
   "check_id": "link-refund",
-  "started_at": "2026-10-17T16:12:47.035Z",
+  "started_at": "2026-10-17T16:41:43.572Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,

@@ -1,9 +1,9 @@
 {
-  "git_sha": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
-  "git_sha_started": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
-  "head_moved": false,
+  "git_sha": "77037852e11c7b7ffb44c127fbd70866d371f583",
+  "git_sha_started": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "head_moved": true,
   "environment": "local",
-  "finished_at": "2026-10-17T16:12:38.030Z",
+  "finished_at": "2026-10-17T16:46:17.964Z",
   "failures": [
     "refunded · tracking @ 390x844 · the row reads \"$60 earned\" — \"2 opened · 2 booked · $210 earned\"",
     "refunded · tracking @ 390x844 · the opened panel's earned reads $60 — \"$210\"",
@@ -35,8 +35,8 @@
     "C:/Users/rando/Downloads/claude/belt/shots/97.83/png"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
-    "frozen_now": "2026-10-17T16:10:00.000Z",
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-17T16:44:00.000Z",
     "widths": [
       "390x844",
       "320x640",
@@ -337,7 +337,7 @@
     ]
   },
   "check_id": "link-refund-bare-price",
-  "started_at": "2026-10-17T16:10:52.924Z",
+  "started_at": "2026-10-17T16:44:28.782Z",
   "status": "fail",
   "expected_targets": 32,
   "discovered_targets": 32,

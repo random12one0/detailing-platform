@@ -1,9 +1,9 @@
 {
-  "git_sha": "bc3f0f4c27ac7dbad200edf4d4e26ba82d1962f7",
-  "git_sha_started": "bc3f0f4c27ac7dbad200edf4d4e26ba82d1962f7",
+  "git_sha": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "git_sha_started": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T15:52:27.494Z",
+  "finished_at": "2026-10-17T16:40:35.473Z",
   "failures": [
     "refunded @ 390x844 · Earned reads $60 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
     "refunded @ 390x844 · Collected reads $0 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
@@ -43,8 +43,8 @@
     "C:/Users/rando/Downloads/claude/belt/shots/97.82/png"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
-    "frozen_now": "2026-10-17T15:51:00.000Z",
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-17T16:39:00.000Z",
     "widths": [
       "390x844",
       "320x640",
@@ -345,7 +345,7 @@
     ]
   },
   "check_id": "money-refund-status-only",
-  "started_at": "2026-10-17T15:51:31.480Z",
+  "started_at": "2026-10-17T16:39:39.209Z",
   "status": "fail",
   "expected_targets": 16,
   "discovered_targets": 16,
@@ -353,7 +353,7 @@
   "completed_targets": 16,
   "skipped_targets": 0,
   "assertions_executed": 192,
-  "min_assertions": 176,
+  "min_assertions": 160,
   "canary": {
     "id": "break-status-only",
     "observed_failure": true
