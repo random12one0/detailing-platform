@@ -1,9 +1,9 @@
 {
-  "git_sha": "254e5b20f2a75014d7e5145a0bb693f040b13da9",
-  "git_sha_started": "254e5b20f2a75014d7e5145a0bb693f040b13da9",
+  "git_sha": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
+  "git_sha_started": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:23:23.501Z",
+  "finished_at": "2026-10-17T04:28:55.758Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,16 +14,16 @@
     "calls": 6
   },
   "check_id": "customer-notes-route",
-  "started_at": "2026-10-17T04:22:52.961Z",
+  "started_at": "2026-10-17T04:28:11.834Z",
   "status": "pass",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 15,
-  "min_assertions": 15,
-  "assertion_floor": "structural: two per scenario plus one console check per width",
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
   "canary": {
     "id": "direct-write-refused",
     "observed_failure": true

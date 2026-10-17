@@ -1,34 +1,34 @@
 {
-  "git_sha": "254e5b20f2a75014d7e5145a0bb693f040b13da9",
-  "git_sha_started": "254e5b20f2a75014d7e5145a0bb693f040b13da9",
+  "git_sha": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
+  "git_sha_started": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:22:52.208Z",
+  "finished_at": "2026-10-17T04:27:57.135Z",
   "failures": [
-    "390: member: the function stored the text and no error line is shown {\"call\":{\"width\":390,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 390\",\"saved\":null},\"shown\":1}",
-    "768: member: the function stored the text and no error line is shown {\"call\":{\"width\":768,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 768\",\"saved\":null},\"shown\":1}",
-    "1440: member: the function stored the text and no error line is shown {\"call\":{\"width\":1440,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 1440\",\"saved\":null},\"shown\":1}"
+    "390: the refusal line does not follow onto a different client's record shown 1",
+    "768: the refusal line does not follow onto a different client's record shown 1",
+    "1440: the refusal line does not follow onto a different client's record shown 1"
   ],
   "warnings": [],
   "artifacts": [
     "artifacts/customer-notes-route"
   ],
   "dimensions": {
-    "break": "direct",
+    "break": "stale-line",
     "login": "demo staff",
     "calls": 6
   },
   "check_id": "customer-notes-route",
-  "started_at": "2026-10-17T04:22:08.156Z",
+  "started_at": "2026-10-17T04:27:06.803Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
   "attempted_targets": 6,
-  "completed_targets": 3,
+  "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 15,
-  "min_assertions": 15,
-  "assertion_floor": "structural: two per scenario plus one console check per width",
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
   "canary": {
     "id": "direct-write-refused",
     "observed_failure": true
