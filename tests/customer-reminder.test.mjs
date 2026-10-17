@@ -217,13 +217,16 @@ if (!SB_URL || !KEY) {
       await patchSettings({ email_customer_reminder: true });
       check("1b and switching it back on returns it", await isDue());
 
-      // ── 1c · THE THREE WAYS A CUSTOMER IS UNREACHABLE ────────────────────
-      // The same three the Clients count, `send-campaign` and the maintenance
-      // reminder already ask. Without them a bad address is retried every
-      // fifteen minutes until the appointment - about forty-eight sends of a
-      // hundred-a-day allowance for one broken booking.
+      // ── 1c · THE TWO WAYS A CUSTOMER IS UNREACHABLE, AND ONE THAT IS NOT ──
+      // No address and a bounced address. Without them a bad address is retried
+      // every fifteen minutes until the appointment - about forty-eight sends of
+      // a hundred-a-day allowance for one broken booking. The MARKETING opt-out
+      // is not one of them: a reminder about a booking the customer made is
+      // transactional (ROADMAP 97.21, migration 20261017220000). Until that
+      // migration is applied to this database, this line is red, and correctly.
       await patchCustomer({ unsubscribed_at: new Date().toISOString() });
-      check("1c an unsubscribed customer removes it", !(await isDue()));
+      check("1c an unsubscribed customer is STILL reminded", await isDue(),
+        "the marketing opt-out is silencing an appointment reminder - is migration 20261017220000 applied?");
       await patchCustomer({ unsubscribed_at: null });
 
       await patchCustomer({ email_failed_at: new Date().toISOString(), email_failed_reason: "fixture" });
