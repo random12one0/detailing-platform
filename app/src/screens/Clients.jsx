@@ -276,6 +276,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const openCustomer = async (c) => {
     setOpen(c);
     setNotes(c.notes || "");
+    setNotesError("");
     setHistory(null);
     setMail(null);
     // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser

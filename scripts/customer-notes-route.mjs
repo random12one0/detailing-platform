@@ -129,6 +129,14 @@ for (const [w, h] of WIDTHS) {
     else ok = check(`${w}: not a member: the function refused and the screen says so`, call?.status === 403 && shown === 1, JSON.stringify({ call, shown })) && ok;
     if (ok) completed++;
   }
+  // A refusal belongs to the record it happened on: open a DIFFERENT client and the line must be gone.
+  await page.locator("button.x[aria-label='Close']").first().click();
+  await page.locator(".rows.cols.clients .row-item").nth(1).click();
+  await page.locator("label.field:has-text('Notes') textarea").first().waitFor({ state: "visible", timeout: 15000 });
+  await page.waitForTimeout(500);
+  const stale = await page.locator(".error-box", { hasText: "Your notes were not saved" }).count();
+  check(`${w}: the refusal line does not follow onto a different client's record`, stale === 0, `shown ${stale}`);
+  await page.screenshot({ path: `${SHOTS}/next-record-${w}x${h}${BREAK ? `.break-${BREAK}` : ""}.png` });
   // Every refusal this script serves is logged by Chromium as a failed 403 — one per refused save, and no other.
   const served403 = calls.filter((c) => c.width === w && c.status === 403).length;
   const logged403 = errors.filter((e) => /status of 403/.test(e)).length;
@@ -147,9 +155,9 @@ writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: WIDTHS.length * 5,
+  min_assertions: WIDTHS.length * 6,
   failures,
-  assertion_floor: "structural: two per scenario plus one console check per width",
+  assertion_floor: "structural: two per scenario plus a next-record and a console check per width",
   artifacts: [SHOTS],
   canary: { id: "direct-write-refused", observed_failure: BREAK === "direct" ? failures.length > 0 : true },
   dimensions: { break: BREAK || undefined, login: "demo staff", calls: calls.length },
