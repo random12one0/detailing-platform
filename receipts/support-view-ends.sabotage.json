@@ -1,0 +1,79 @@
+{
+  "git_sha": "4e2c066f51c6af5ee77107cfa86776ff43fce4ad",
+  "git_sha_started": "4e2c066f51c6af5ee77107cfa86776ff43fce4ad",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T18:15:27.944Z",
+  "failures": [
+    "390x844 · Close ends the view's session: its token is refused (200) closed tab=true",
+    "390x844 · after the deadline its token is refused (200)",
+    "768x1024 · Close ends the view's session: its token is refused (200) closed tab=true",
+    "768x1024 · after the deadline its token is refused (200)",
+    "1440x900 · Close ends the view's session: its token is refused (200) closed tab=true",
+    "1440x900 · after the deadline its token is refused (200)"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-1440x900.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-1440x900.png"
+  ],
+  "dimensions": {
+    "break": "no-signout",
+    "base": "http://127.0.0.1:5180",
+    "expires_in_s": 25,
+    "results": [
+      {
+        "size": "390x844",
+        "scenario": "close",
+        "token_after": 200,
+        "own_after": 200
+      },
+      {
+        "size": "390x844",
+        "scenario": "expire",
+        "token_after": 200
+      },
+      {
+        "size": "768x1024",
+        "scenario": "close",
+        "token_after": 200,
+        "own_after": 200
+      },
+      {
+        "size": "768x1024",
+        "scenario": "expire",
+        "token_after": 200
+      },
+      {
+        "size": "1440x900",
+        "scenario": "close",
+        "token_after": 200,
+        "own_after": 200
+      },
+      {
+        "size": "1440x900",
+        "scenario": "expire",
+        "token_after": 200
+      }
+    ]
+  },
+  "check_id": "support-view-ends",
+  "started_at": "2026-10-17T18:12:59.291Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 34,
+  "min_assertions": 34,
+  "assertion_floor": "structural: one canary, eight per width for opening and closing, three per width for the deadline",
+  "canary": {
+    "id": "self-signed-out-session-reads-refused",
+    "observed_failure": true
+  }
+}

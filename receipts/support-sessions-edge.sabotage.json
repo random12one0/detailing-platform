@@ -1,18 +1,18 @@
 {
-  "git_sha": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
-  "git_sha_started": "8bd5d24be9d252a9642ab139966ca8c67f71f271",
+  "git_sha": "be3d93724ec64e666fdbb5db0c8d254e6b2ee33b",
+  "git_sha_started": "be3d93724ec64e666fdbb5db0c8d254e6b2ee33b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T15:40:31.377Z",
+  "finished_at": "2026-10-17T18:10:10.694Z",
   "failures": [
-    "a marker read that fails counts as a support session (fails closed)"
+    "impersonate refuses when the token carries no session id"
   ],
   "warnings": [],
   "artifacts": [
     "supabase/functions/_shared/supportSession.ts"
   ],
   "dimensions": {
-    "break": "fail-open",
+    "break": "unmarked",
     "functions": {
       "booking-ics": "requireMember, opted in as read-only",
       "connect-account": "requireMember, refused by default",
@@ -20,6 +20,7 @@
       "create-business": "own getUser + supportSession",
       "delete-customer": "requireMember, refused by default",
       "forecast": "requireMember, opted in as read-only",
+      "google-business": "requireMember, refused by default",
       "invite-user": "requireMember, refused by default",
       "owner-push-subscribe": "requireMember, refused by default",
       "owner-push-unsubscribe": "requireMember, refused by default",
@@ -38,16 +39,16 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-10T15:40:31.301Z",
+  "started_at": "2026-10-17T18:10:10.602Z",
   "status": "fail",
-  "expected_targets": 21,
-  "discovered_targets": 21,
-  "attempted_targets": 21,
-  "completed_targets": 21,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 39,
-  "min_assertions": 38,
-  "assertion_floor": "structural: six decision cases, one gate check, one per discovered function, three fixed checks, seven on the impersonate hand-over",
+  "assertions_executed": 52,
+  "min_assertions": 52,
+  "assertion_floor": "structural: six decision cases, six 97.15 deadline cases, three gate checks, one per discovered function, three fixed checks, nine on the impersonate hand-over, two on the browser",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true
