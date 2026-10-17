@@ -30432,6 +30432,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): finish the live booking check, then merge it. Resume from branch `belt/99.9-20261013130814`; the handler-level test the UNTICKED note below asks for is the missing piece.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/99.10-20261017074944799`. Answer "merge it" to keep it, or say what to change.
   ANDREW RULED AGAIN 2026-10-17 05:14 and 07:14 (control room): "Send it back to fix the six listed problems first" — the same ruling as 2026-10-13 below; queued as NEXT. Resume from `belt/99.10-20261017052717140`. The `sweep-methods-are-pinned` red it was held on is fixed on main (100.9, supervisor); the `admin-preconditions` and `growth-lines` reds are its own. Held for: the full test suite found 1 new failing test(s): tests/admin-preconditions.test.mjs :: the office uses these, and the duplicate card is gone; 1 known failure(s) now fail differently: tests/growth-lines.test.mjs :: 6 · the screen: no second copy of the questions, headlines for every key, notes drawn, bookabilityOf handed in.
   The work is safe on branch `belt/99.10-20261017052717140`. Answer "merge it" to keep it, or say what to change.
   Older held attempt, superseded by the one above: `belt/99.10-20261016035950309`.
