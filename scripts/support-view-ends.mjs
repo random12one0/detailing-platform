@@ -178,9 +178,9 @@ try {
       const at = v.state.auth?.access_token;
       const ended = await v.popup.waitForURL(/ended=expired/, { timeout: (EXP_S + 20) * 1000 }).then(() => true, () => false);
       const text = ended ? await v.popup.locator("p").first().innerText().catch(() => "") : "";
-      check(`${tag} · at the deadline the tab shows the ended page`, ended && /ended/i.test(text), JSON.stringify(text));
+      check(`${tag} · at the deadline the tab shows the ended page`, ended && /closed after 30 minutes/.test(text), JSON.stringify(text));
       await v.popup.screenshot({ path: `${SHOTS}/png/ended-${tag}.png` });
-      if (FREEZE === "after") await freeze(v.popup, { out: `${SHOTS}/after-ended.html`, label: "After", highlightText: "has ended",
+      if (FREEZE === "after") await freeze(v.popup, { out: `${SHOTS}/after-ended.html`, label: "After", highlightText: "closed after 30 minutes",
         note: "New: when the 30 minutes run out, the tab signs itself out and says so, with a way back to the back office." });
       await new Promise((r) => setTimeout(r, 800));
       const after = at ? await authStatus(at) : 0;
