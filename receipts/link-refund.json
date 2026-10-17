@@ -1,0 +1,327 @@
+{
+  "git_sha": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
+  "git_sha_started": "b7a9e7d0ba870549049497eb3c5a6843e5dad887",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T16:14:32.801Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.83/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "frozen_now": "2026-10-17T16:12:00.000Z",
+    "widths": [
+      "390x844",
+      "320x640",
+      "768x1024",
+      "1440x900"
+    ],
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $60 earned",
+        "panel": "$60",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $60 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $60 earned",
+        "panel": "$60",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $60 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $60 earned",
+        "panel": "$60",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $60 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $60 earned",
+        "panel": "$60",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-refunded-1440x900.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $60 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $160 earned",
+        "panel": "$160",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $160 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $160 earned",
+        "panel": "$160",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $160 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $160 earned",
+        "panel": "$160",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $160 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $160 earned",
+        "panel": "$160",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $160 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/tracking-paid-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/money-paid-1440x900.png"
+      }
+    ]
+  },
+  "check_id": "link-refund",
+  "started_at": "2026-10-17T16:12:47.035Z",
+  "status": "pass",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 160,
+  "min_assertions": 128,
+  "canary": {
+    "id": "unrefunded-job-still-counts-in-full",
+    "observed_failure": true
+  }
+}
