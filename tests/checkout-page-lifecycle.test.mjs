@@ -81,7 +81,7 @@ const SABOTAGE = {
   "no-reuse": ["connect", "if (Number(previous.amount_total) === o.amountCents) {", "if (false) {"],
   "no-carry": ["hook", "...(owedBack ? { payment_problem: owedBack } : {}),", ""],
   "no-refund": ["hook", '  if (type === "charge.refunded") return await chargeRefunded(object, account);\n', ""],
-  "refund-any-account": ["hook", 'if (!conn?.stripe_account_id || conn.stripe_account_id !== account) {\n      console.error("refund for', 'if (false) {\n      console.error("refund for'],
+  "refund-any-account": ["hook", 'if (!conn?.stripe_account_id || conn.stripe_account_id !== account) {\n    console.error("refund for', 'if (false) {\n    console.error("refund for'],
   "refund-partial-clears": ["connect", "const refunded = Math.min(Math.max(Number(charge.amount_refunded) || 0, 0), paid);", "const refunded = paid;"],
   "refund-shrinks": ["connect", "if (!intent || refunded <= was) return undefined;", "if (!intent || refunded === was) return undefined;"],
   "refund-early-dropped": ["hook", '    ...(typeof bookingId === "string" && bookingId ? [() => live().eq("id", bookingId)] : []),\n', ""],
