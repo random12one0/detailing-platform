@@ -1,0 +1,49 @@
+{
+  "git_sha": "47e85375671b553d4e27cdcebea25af5da5b0e53",
+  "git_sha_started": "47e85375671b553d4e27cdcebea25af5da5b0e53",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T17:53:48.800Z",
+  "failures": [
+    "390: owner: New booking with no email -> create-booking 400 (session sent: false) {\"error\":\"Customer email is required\"}",
+    "390: owner: the sheet shows no error [\"Customer email is required\"]",
+    "390: owner: the booking is saved with no email, confirmed, and kept the private note null",
+    "390: owner: no console errors [\"Failed to load resource: the server responded with a status of 400 ()\"]",
+    "768: owner: New booking with no email -> create-booking 400 (session sent: false) {\"error\":\"Customer email is required\"}",
+    "768: owner: the sheet shows no error [\"Customer email is required\"]",
+    "768: owner: the booking is saved with no email, confirmed, and kept the private note null",
+    "768: owner: no console errors [\"Failed to load resource: the server responded with a status of 400 ()\"]",
+    "1440: owner: New booking with no email -> create-booking 400 (session sent: false) {\"error\":\"Customer email is required\"}",
+    "1440: owner: the sheet shows no error [\"Customer email is required\"]",
+    "1440: owner: the booking is saved with no email, confirmed, and kept the private note null",
+    "1440: owner: no console errors [\"Failed to load resource: the server responded with a status of 400 ()\"]",
+    "390: staff: New booking with no email -> create-booking 400 (session sent: false) {\"error\":\"Customer email is required\"}",
+    "390: staff: the sheet shows no error [\"Customer email is required\"]",
+    "390: staff: the booking is saved with no email, confirmed, and kept the private note null",
+    "390: staff: no console errors [\"Failed to load resource: the server responded with a status of 400 ()\"]"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/new-booking-no-email"
+  ],
+  "dimensions": {
+    "break": "no-session",
+    "logins": "demo owner + demo staff + anonymous",
+    "writes": "one booking + one customer per width, both removed"
+  },
+  "check_id": "new-booking-no-email",
+  "started_at": "2026-10-17T17:53:19.297Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 1,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "structural: email empty, 200, no error shown, row saved as a member's, clean console per width; one public refusal",
+  "canary": {
+    "id": "no-session",
+    "observed_failure": true
+  }
+}

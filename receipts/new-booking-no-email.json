@@ -1,0 +1,31 @@
+{
+  "git_sha": "47e85375671b553d4e27cdcebea25af5da5b0e53",
+  "git_sha_started": "47e85375671b553d4e27cdcebea25af5da5b0e53",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T17:54:45.945Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/new-booking-no-email"
+  ],
+  "dimensions": {
+    "logins": "demo owner + demo staff + anonymous",
+    "writes": "one booking + one customer per width, both removed"
+  },
+  "check_id": "new-booking-no-email",
+  "started_at": "2026-10-17T17:53:49.243Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "structural: email empty, 200, no error shown, row saved as a member's, clean console per width; one public refusal",
+  "canary": {
+    "id": "no-session",
+    "observed_failure": true
+  }
+}
