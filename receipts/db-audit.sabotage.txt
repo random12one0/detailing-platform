@@ -1,0 +1,35 @@
+# db-audit sabotage runs at 31fbe949, 2026-10-17T03:28:40Z. Both must exit 1.
+
+=== node scripts/db-audit.mjs --break=forget-pair
+6. a booking's child a detailer can write points at a booking of the SAME business
+  BLIND booking_vehicles did not come back paired (unpaired) — this question cannot see a pair key, so its silence means nothing
+  TRACKED job_photos — booking_id-only reference, open as ROADMAP 97.71
+  TRACKED maintenance_deadlines — booking_id-only reference, open as ROADMAP 97.71
+  AWAITS APPLY booking_add_ons — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_line_items — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_services — 20261017000000_booking_lines_same_business.sql
+  AWAITS APPLY booking_vehicles — 20260907000600_vehicle_belongs_to_its_booking.sql
+  ok    every writable booking child references bookings by (booking_id, business_id), or a migration here declares it
+
+canary  public must contain tables -> 5 returned  caught: queries are really answering, so an `ok` above means something
+
+clean
+  · section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.12-20261017032307155\receipts\db-audit.sabotage.json
+exit=1
+
+=== node scripts/db-audit.mjs --break=hide-declaring
+6. a booking's child a detailer can write points at a booking of the SAME business
+  TRACKED job_photos — booking_id-only reference, open as ROADMAP 97.71
+  TRACKED maintenance_deadlines — booking_id-only reference, open as ROADMAP 97.71
+  FOUND every writable booking child references bookings by (booking_id, business_id), or a migration here declares it — 3
+          booking_add_ons — references a booking by id alone; no migration declares the pair key
+          booking_line_items — references a booking by id alone; no migration declares the pair key
+          booking_services — references a booking by id alone; no migration declares the pair key
+
+canary  public must contain tables -> 5 returned  caught: queries are really answering, so an `ok` above means something
+
+3 to look at
+  · 3 finding(s) to look at — see FOUND above
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.12-20261017032307155\receipts\db-audit.sabotage.json
+exit=1

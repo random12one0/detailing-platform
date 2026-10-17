@@ -1,9 +1,9 @@
 {
-  "git_sha": "c38f1859d9abc2df6a95af66f20157b5ae931222",
-  "git_sha_started": "c38f1859d9abc2df6a95af66f20157b5ae931222",
+  "git_sha": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
+  "git_sha_started": "31fbe949c5c623fcf2a6f93deaaff4bf4b3fab28",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-15T15:12:42.337Z",
+  "finished_at": "2026-10-17T03:28:54.223Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -11,17 +11,17 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "checks": 6
+    "checks": 7
   },
   "check_id": "db-audit",
-  "started_at": "2026-10-15T15:12:38.099Z",
+  "started_at": "2026-10-17T03:28:49.993Z",
   "status": "pass",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 6,
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
   "skipped_targets": 0,
-  "assertions_executed": 7,
+  "assertions_executed": 8,
   "min_assertions": 5,
   "canary": {
     "id": "public must contain tables · an empty answer means the queries are not answering",
