@@ -826,10 +826,6 @@ correctly waiting.** None of the five is forgotten; each says what it waits on
 and how the wait ends.
 
 - [ ] **0.11 — Move photo storage to Cloudflare R2.** Buckets already exist and
-  **BELT PARKED after 3 attempts, 2026-10-09 17:19:27.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T17-19-22-341Z-0.11.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   already match the code names. **The allowance goes from 1 GB to 10 GB IN THE
   SAME CHANGE as the upload switch, never a commit earlier**, so the screen
   never promises storage that does not exist. **And the move loses the
