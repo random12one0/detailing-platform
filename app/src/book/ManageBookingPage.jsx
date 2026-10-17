@@ -307,10 +307,13 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
     setBusy(true);
     setError("");
     try {
-      await api.acceptQuote(booking.id);
+      await api.acceptQuote(booking.id, booking.quoted_at);
       onChanged();
     } catch (e) {
       setError(e.message);
+      // ROADMAP 97.16 — refused because the price changed: reload so the
+      // price the refusal names is the one on screen.
+      onChanged();
     }
     setBusy(false);
   };

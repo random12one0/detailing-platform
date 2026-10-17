@@ -689,6 +689,8 @@ try {
       store.invite_token = inv.data?.[0]?.token ?? null;
       store.disposable_customer_id = disposable.data?.[0]?.id ?? null;
       store.quoted_booking_id = bkQuoted.data?.[0]?.id ?? null;
+      // ROADMAP 97.16 — the press names the quote it accepts.
+      store.quoted_at = bkQuoted.data?.[0]?.quoted_at ?? null;
       store.pending_booking_id = bkPending.data?.[0]?.id ?? null;
       store.reschedule_booking_id = bkResch.data?.[0]?.id ?? null;
       store.reschedule_day = day7;
@@ -860,7 +862,7 @@ try {
       // functions standing on each other's rows.
       "reschedule-booking": (ids) => ({
         booking_id: ids.reschedule_booking_id, booking_date: ids.reschedule_day, start_time: "11:00" }),
-      "accept-quote": (ids) => ({ booking_id: ids.quoted_booking_id }),
+      "accept-quote": (ids) => ({ booking_id: ids.quoted_booking_id, quoted_at: ids.quoted_at }),
       "respond-to-booking": (ids) => ({ action: "accept", booking_id: ids.pending_booking_id }),
       "delete-customer": (ids) => ({ customer_id: ids.disposable_customer_id }),
       "pay-booking": (ids) => ({ booking_id: ids.pay_booking_id }),

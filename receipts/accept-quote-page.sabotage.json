@@ -1,0 +1,59 @@
+{
+  "git_sha": "302a0224152f927b64cf148dab4a6462ab29eccd",
+  "git_sha_started": "302a0224152f927b64cf148dab4a6462ab29eccd",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T19:12:52.437Z",
+  "failures": [
+    "390 stale . NOT accepted: still waiting, price unchanged - got confirmed 300",
+    "390 stale . a plain reason naming the new $300 - got \"\"",
+    "390 stale . the page now offers the $300 it was refused over - got \"\"",
+    "390 stale . the reason fits the screen width - got null",
+    "320 stale . NOT accepted: still waiting, price unchanged - got confirmed 300",
+    "320 stale . a plain reason naming the new $300 - got \"\"",
+    "320 stale . the page now offers the $300 it was refused over - got \"\"",
+    "320 stale . the reason fits the screen width - got null",
+    "768 stale . NOT accepted: still waiting, price unchanged - got confirmed 300",
+    "768 stale . a plain reason naming the new $300 - got \"\"",
+    "768 stale . the page now offers the $300 it was refused over - got \"\"",
+    "768 stale . the reason fits the screen width - got null",
+    "1440 stale . NOT accepted: still waiting, price unchanged - got confirmed 300",
+    "1440 stale . a plain reason naming the new $300 - got \"\"",
+    "1440 stale . the page now offers the $300 it was refused over - got \"\"",
+    "1440 stale . the reason fits the screen width - got null"
+  ],
+  "warnings": [
+    "The booking is in memory and the press runs this checkout's handler in-process; the deployed function is not exercised (publishing is Andrew's)."
+  ],
+  "artifacts": [
+    "receipts/accept-quote-page.sabotage.txt",
+    ".tmp-97.16/png-before"
+  ],
+  "dimensions": {
+    "roadmap": "97.16",
+    "break": "old-server",
+    "base": "http://127.0.0.1:5180",
+    "widths": [
+      "390x844",
+      "320x700",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "check_id": "accept-quote-page",
+  "started_at": "2026-10-17T19:04:03.292Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 45,
+  "min_assertions": 45,
+  "assertion_floor": "5 normal + 6 stale per width, + 1 run check; every check() unconditional.",
+  "canary": {
+    "id": "pre-fix-server",
+    "observed_failure": true,
+    "what": "--break=old-server answers the press with accept-quote at 9a7f5cb9"
+  }
+}

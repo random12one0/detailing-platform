@@ -217,7 +217,9 @@ export const api = {
   cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
   // Roadmap 2.12. Saying NO to a quote is cancelBooking above — a customer who
   // won't pay the price is cancelling, and the slot has to go back either way.
-  acceptQuote: (bookingId) => callFn("accept-quote", { booking_id: bookingId }),
+  // ROADMAP 97.16 — the quote the page SHOWED goes with the press, so a quote
+  // the detailer replaced after the page loaded is refused, not accepted.
+  acceptQuote: (bookingId, quotedAt) => callFn("accept-quote", { booking_id: bookingId, quoted_at: quotedAt }),
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
 
