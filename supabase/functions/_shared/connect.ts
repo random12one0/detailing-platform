@@ -200,13 +200,38 @@ export function amountDueCents(b: PayableBooking | null | undefined): number {
   return Math.round(n * 100);
 }
 
-/** Why a card payment did not settle a job. Stored on `bookings.payment_problem`. */
+/**
+ * Why a card payment did not settle a job. Stored on `bookings.payment_problem`.
+ *
+ * ROADMAP 97.11 added two kinds. `failed`: a bank payment that was on its way
+ * did not go through. `extra`: money came in for a job already settled, so a
+ * refund is owed — `payments` records each one, keyed on its payment intent,
+ * and `paid_cents` is their sum. `extra` is shown on a PAID job; the other
+ * three only while the job is unsettled.
+ */
 export interface PaymentProblem {
-  kind: "amount" | "currency";
+  kind: "amount" | "currency" | "failed" | "extra";
   paid_cents: number;
   owed_cents: number;
   currency: string;
   at: string;
+  payments?: { intent: string; paid_cents: number; currency: string; at: string }[];
+}
+
+/**
+ * What a Stripe payment event says arrived. A session reports `payment_status`
+ * and `amount_total`; an intent reports `status` and `amount_received`. Every
+ * event that is not `payment_intent.succeeded` here is a checkout session —
+ * `completed`, and 97.11's `async_payment_succeeded` / `async_payment_failed`.
+ */
+export function cardMoney(type: string, object: Record<string, unknown>) {
+  const isIntent = type === "payment_intent.succeeded";
+  const cents = Number(isIntent ? object.amount_received : object.amount_total);
+  return {
+    received: isIntent ? object.status === "succeeded" : object.payment_status === "paid",
+    cents: Number.isFinite(cents) ? cents : 0,
+    currency: String(object.currency ?? "").toLowerCase(),
+  };
 }
 
 export type CardPaymentVerdict =
@@ -235,25 +260,118 @@ export function cardPaymentVerdict(
   booking: PayableBooking,
   now: Date = new Date(),
 ): CardPaymentVerdict {
-  const received = type === "payment_intent.succeeded"
-    ? object.status === "succeeded"
-    : object.payment_status === "paid";
+  const { received, cents: paid, currency } = cardMoney(type, object);
   if (!received) return { settle: false, problem: null };
 
-  const paid = Number(type === "payment_intent.succeeded" ? object.amount_received : object.amount_total);
   const owed = amountDueCents(booking);
-  const currency = String(object.currency ?? "").toLowerCase();
   if (currency === "usd" && paid === owed && owed > 0) return { settle: true };
   return {
     settle: false,
     problem: {
       kind: currency === "usd" ? "amount" : "currency",
-      paid_cents: Number.isFinite(paid) ? paid : 0,
+      paid_cents: paid,
       owed_cents: owed,
       currency,
       at: now.toISOString(),
     },
   };
+}
+
+/**
+ * MONEY FOR A JOB THAT WAS ALREADY SETTLED — ROADMAP 97.11.
+ *
+ * The webhook used to return in silence when a payment arrived for a job
+ * already paid or waived: a second open page paid, or a card paid after the
+ * detailer marked cash. The customer is out the money and nobody is told.
+ * This returns the `extra` problem to record, or null when there is nothing to
+ * record: the money has not arrived, it is the payment that settled the job
+ * (each payment sends two events), or it is already on the list.
+ *
+ * `existing` is the row's current `payment_problem`; an earlier `extra` list is
+ * kept and added to, never replaced, so a third payment does not erase the
+ * second.
+ */
+export function extraPayment(
+  type: string,
+  object: Record<string, unknown>,
+  intent: string,
+  booking: PayableBooking & { stripe_payment_intent?: string | null },
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): PaymentProblem | null {
+  const money = cardMoney(type, object);
+  if (!money.received || !intent || intent === booking.stripe_payment_intent) return null;
+  const earlier = existing?.kind === "extra" && Array.isArray(existing.payments) ? existing.payments : [];
+  if (earlier.some((p) => p.intent === intent)) return null;
+  const payments = [...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }];
+  return {
+    kind: "extra",
+    paid_cents: payments.reduce((sum, p) => sum + p.paid_cents, 0),
+    owed_cents: 0,
+    currency: money.currency,
+    at: now.toISOString(),
+    payments,
+  };
+}
+
+/** `stripe()` from `_shared/stripe.ts`, passed in so this module imports nothing and a test can stand in for Stripe. */
+export type StripeCall = (
+  path: string,
+  body?: Record<string, unknown>,
+  opts?: { method?: string; idempotencyKey?: string; stripeAccount?: string },
+) => Promise<Record<string, unknown>>;
+
+/**
+ * ONE OPEN CHECKOUT PAGE PER BOOKING — ROADMAP 97.11.
+ *
+ * `pay-booking` made a new Stripe page whenever the amount changed and left the
+ * old one open, so a $100 page could still be paid after the job became $150,
+ * and two live pages could both be paid. Now, before a page is made:
+ *
+ *   · the previous page is still open at THIS amount → it is handed back, so a
+ *     second tap or a reopened email link never makes a second live page;
+ *   · it is open at a DIFFERENT amount → it is expired first, and only then is
+ *     the new one made;
+ *   · it is finished, expired, or Stripe no longer knows it (a 404: the detailer
+ *     reconnected another Stripe account) → a new page is made.
+ *
+ * The caller's idempotency key gains the previous page's id, so a page made
+ * after one finished is a fresh one rather than Stripe's cached answer to the
+ * old key — the cached answer was the finished page itself.
+ */
+export async function checkoutSession(
+  call: StripeCall,
+  o: {
+    /** `pay:<booking>:<cents>` — the previous page's id is added here. */
+    idempotencyKey: string;
+    amountCents: number;
+    previousId: string | null | undefined;
+    stripeAccount: string;
+    params: Record<string, unknown>;
+  },
+): Promise<{ id: string; url: string; reused: boolean }> {
+  let previous: Record<string, unknown> | null = null;
+  if (o.previousId) {
+    try {
+      previous = await call(`/checkout/sessions/${o.previousId}`, undefined, { stripeAccount: o.stripeAccount });
+    } catch (e) {
+      if ((e as { status?: number })?.status !== 404) throw e;
+    }
+  }
+  if (previous?.status === "open") {
+    if (Number(previous.amount_total) === o.amountCents) {
+      return { id: String(previous.id), url: String(previous.url), reused: true };
+    }
+    await call(`/checkout/sessions/${o.previousId}/expire`, {}, {
+      stripeAccount: o.stripeAccount,
+      idempotencyKey: `expire:${o.previousId}`,
+    });
+  }
+  const s = await call("/checkout/sessions", o.params, {
+    stripeAccount: o.stripeAccount,
+    idempotencyKey: `${o.idempotencyKey}:${o.previousId || "first"}`,
+  });
+  return { id: String(s.id), url: String(s.url), reused: false };
 }
 
 /** Stripe refuses anything under 50 cents, and says so in a way nobody reads. */
