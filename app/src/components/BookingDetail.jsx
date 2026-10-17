@@ -549,8 +549,18 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // ROADMAP 97.10 — a card payment came in that did not match what the job
   // owes, so the webhook left it unpaid. Shown while the job is unsettled;
   // once the detailer sorts it and marks it paid or waived, it has done its job.
-  const payProblem = booking.payment_problem
-    && booking.payment_status !== "paid" && booking.payment_status !== "waived"
+  // ROADMAP 97.11: `payments` is money that came in AFTER the job was settled.
+  // It is a refund still to make, so it shows whatever the job's status, and
+  // whichever note carries it (an `extra`, or a `failed` bank payment).
+  const payUnsettled = booking.payment_status !== "paid" && booking.payment_status !== "waived";
+  const refundCents = Array.isArray(booking.payment_problem?.payments)
+    ? booking.payment_problem.payments.reduce((sum, p) => sum + (Number(p.paid_cents) || 0), 0) : 0;
+  // Every reason the webhook kept (`earlier`, newest note first), one line each.
+  const payReasons = payUnsettled && booking.payment_problem
+    ? [booking.payment_problem, ...(Array.isArray(booking.payment_problem.earlier) ? [...booking.payment_problem.earlier].reverse() : [])]
+      .filter((r) => r?.kind && r.kind !== "extra")
+    : [];
+  const payProblem = booking.payment_problem && (refundCents > 0 || payReasons.length > 0)
     ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
@@ -619,12 +629,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               something to go and do, in their own Stripe account. */}
           {payProblem && (
             <div className="error-box" role="status" data-payment-problem={payProblem.kind} style={{ color: "var(--bad)" }}>
-              {payProblem.kind === "currency"
+              {payReasons.map((r, i) => <div key={i} data-payment-reason={r.kind}>{r.kind === "failed"
+                ? t("A bank payment of {paid} did not go through, so this job is not paid. Check the payment in your Stripe account.", {
+                  paid: money(Number(r.paid_cents) / 100),
+                })
+                : r.kind === "currency"
                 ? t("A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.")
                 : t("A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.", {
-                  paid: money(Number(payProblem.paid_cents) / 100),
-                  owed: money(Number(payProblem.owed_cents) / 100),
+                  paid: money(Number(r.paid_cents) / 100),
+                  owed: money(Number(r.owed_cents) / 100),
+                })}</div>)}
+              {refundCents > 0 && <div data-refund-owed="">
+                {t("Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  paid: money(refundCents / 100),
                 })}
+              </div>}
             </div>
           )}
           {/* ROADMAP 3.4f S1 — an email about this job did not arrive. Same

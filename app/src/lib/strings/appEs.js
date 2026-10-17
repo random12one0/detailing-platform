@@ -1633,6 +1633,11 @@ export const appEs = {
     "Llegó un pago con tarjeta de {paid}, pero este trabajo debe {owed}. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
   "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.":
     "Llegó un pago con tarjeta, pero no en dólares estadounidenses. No marcamos este trabajo como pagado. Revisa el pago en tu cuenta de Stripe.",
+  // ROADMAP 97.11 — a late bank payment that failed, and money for a job already settled.
+  "A bank payment of {paid} did not go through, so this job is not paid. Check the payment in your Stripe account.":
+    "Un pago bancario de {paid} no se completó, así que este trabajo no está pagado. Revisa el pago en tu cuenta de Stripe.",
+  "Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.":
+    "Llegó otro pago de {paid} después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",
