@@ -5818,7 +5818,10 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
    than `break-word` because the string has no spaces at all — there is no
    better break point to prefer. Scoped here, never on `.label` itself, which
    is short uppercase furniture everywhere else and should keep refusing. */
-.wa-host { overflow-wrap: anywhere; }
+/* ROADMAP 97.13: also on the TXT record's name and 32-character code, which sit in
+   `.num` spans — and `.num` is nowrap, so without the second declaration the code
+   pushed the page 102px sideways at 320. */
+.wa-host { overflow-wrap: anywhere; white-space: normal; }
 
 /* THE WAY OUT OF AN EDITOR, AT THE TOP. His review, 2026-09-11: *"once I click
    on a monthly plan to edit it, I can't close that tab. There's an x, but that
