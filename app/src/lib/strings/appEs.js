@@ -2645,6 +2645,8 @@ export const appEs = {
   "At the company you bought the address from — GoDaddy, Namecheap, Squarespace, Cloudflare, whoever it was — find DNS records and add one:":
     "En la compañía donde compraste la dirección — GoDaddy, Namecheap, Squarespace, Cloudflare, la que haya sido — busca los registros DNS y agrega uno:",
   "the one we send you": "el que te enviamos",
+  "Then add a second record, so we know the address is yours:":
+    "Luego agrega un segundo registro, para que sepamos que la dirección es tuya:",
   "Name is just": "Name es solo",
   ", not the whole address. The company adds the rest, and if it asks for a TTL, leave it alone.":
     ", no la dirección completa. La compañía agrega el resto, y si te pide un TTL, déjalo como está.",

@@ -22,6 +22,13 @@
 // itself for a marker file this app serves. Nothing the detailer types can
 // make that true, which is why `verified_at` is revoked from `authenticated`
 // at column level — RLS chooses rows, not columns.
+//
+// ROADMAP 97.13 — ADDING GOES THROUGH THE FUNCTION TOO, and the check needs a
+// SECOND record: a TXT at `_detailing-platform.<address>` holding this row's
+// own code. The browser can no longer insert or rename a row (a row inserted
+// with `verified_at` filled in, or verified and then renamed, was a badge
+// nobody had earned), and the shared marker file every platform address
+// serves cannot say WHO owns an address — only DNS can.
 
 import { useCallback, useEffect, useState } from "react";
 import { Check, X } from "lucide-react";
@@ -72,14 +79,14 @@ export default function WebAddress() {
     const domain = tidy(input);
     if (!domain) return;
     setNote(null);
-    const { error: err } = await supabase.from("business_domains")
-      .insert({ business_id: business.id, domain });
     // The column is UNIQUE across every business, so this is the one error
     // worth translating: "duplicate key" tells a detailer nothing.
-    if (err) {
-      setNote({ ok: false, text: /duplicate|unique/i.test(err.message)
+    try {
+      await api.addDomain(business.id, domain);
+    } catch (e) {
+      setNote({ ok: false, text: /taken|duplicate|unique/i.test(e.message)
         ? t("{domain} is already set up on an account.", { domain })
-        : err.message });
+        : e.message });
       return;
     }
     setInput("");
@@ -248,6 +255,26 @@ export default function WebAddress() {
                       {t("This is a bare domain with no subdomain in front of it, and most domain companies will not point one of those at another site. Ask them for an ALIAS or ANAME record, or add a subdomain address instead — book.{domain} — which always works.", { domain: r.domain })}
                     </p>
                   )}
+                  {/* ROADMAP 97.13 — THE PROOF RECORD. The CNAME makes the
+                      address reach us; this proves it is THEIRS. Name is
+                      relative, the same way the CNAME's is, so the common
+                      mistake of typing the whole address cannot happen here
+                      either. The code is 32 characters with nowhere to break,
+                      hence `wa-host` (overflow-wrap: anywhere) at 320. */}
+                  <p className="body" style={{ marginTop: 8 }}>
+                    {t("Then add a second record, so we know the address is yours:")}
+                  </p>
+                  <div className="facts" style={{ marginTop: 8 }}>
+                    <div><span>{t("Type")}</span><span className="v strong num">TXT</span></div>
+                    <div>
+                      <span>{t("Name")}</span>
+                      <span className="v strong num wa-host">{sub ? `_detailing-platform.${sub}` : "_detailing-platform"}</span>
+                    </div>
+                    <div>
+                      <span>{t("Value")}</span>
+                      <span className="v strong num wa-host">{r.verification_token}</span>
+                    </div>
+                  </div>
                   {/* THE HONEST SENTENCE ABOUT WAITING, because the commonest
                       outcome of pressing Check within a minute is failure, and
                       a detailer who reads that as "wrong" starts changing

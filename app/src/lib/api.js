@@ -125,6 +125,9 @@ export const api = {
   // address and a client cannot perform its own proof.
   verifyDomain: (businessId, domainId) =>
     callFn("verify-domain", { business_id: businessId, domain_id: domainId }),
+  // ROADMAP 97.13 — the only way a row is added: INSERT is revoked from the browser.
+  addDomain: (businessId, domain) =>
+    callFn("verify-domain", { business_id: businessId, action: "add", domain }),
 
   // ROADMAP 4.2 — "what does my customer actually get?", answered without
   // making a real booking and deleting it. The server picks the recipients
