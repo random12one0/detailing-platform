@@ -3220,6 +3220,11 @@ export const appEs = {
   "{count} did not go out. Try those again in a few minutes.": "{count} no se enviaron. Inténtalo de nuevo en unos minutos.",
   "{count} more were left out — {cap} is the most that can go at once. Send the rest tomorrow.":
     "Quedaron {count} más fuera: {cap} es el máximo que se puede enviar a la vez. Envía el resto mañana.",
+  "{count} were not sent — your customer emails for today are used up. Send the rest tomorrow.":
+    "{count} no se enviaron: ya se usaron los correos a clientes de hoy. Envía el resto mañana.",
+  // ROADMAP 97.19 — send-campaign's own refusals, shown through t() by CampaignModal.
+  "This email was already sent. Nothing was sent twice.": "Este correo ya se envió. No se envió dos veces.",
+  "Reload the page and try again.": "Vuelve a cargar la página e inténtalo otra vez.",
   "{count} of them has no email address": "{count} no tiene correo",
   "{count} of them have no email address": "{count} no tienen correo",
   "{count} asked not to get these": "No quieren recibirlos: {count}",

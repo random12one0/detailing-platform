@@ -298,6 +298,15 @@ export async function sendTenantEmail(opts: {
    * about. See `reachedProvider.ts`.
    */
   mustReachProvider?: boolean;
+  /**
+   * ROADMAP 97.19 — A CAMPAIGN, NOT A BOOKING EMAIL. Set only by
+   * `send-campaign`. It is charged to the business's daily campaign share and
+   * stops short of the headroom kept for booking mail.
+   */
+  campaign?: boolean;
+  /** Called when the day's budget refused this send (`reason: "daily_cap"`),
+   *  so a loop can stop instead of trying every remaining address. */
+  onDailyCap?: () => void;
 }): Promise<boolean> {
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
@@ -316,9 +325,14 @@ export async function sendTenantEmail(opts: {
         sender_name: opts.senderName,
         // ROADMAP 3.1 — the one hop where the booking used to be dropped.
         booking_id: opts.bookingId,
+        campaign: opts.campaign === true,
       }),
     });
-    if (!res.ok) console.error("send-email relay failed:", await res.text());
+    if (!res.ok) {
+      const failure = await res.text();
+      console.error("send-email relay failed:", failure);
+      if (res.status === 429 && failure.includes('"daily_cap"')) opts.onDailyCap?.();
+    }
     if (!opts.mustReachProvider || !res.ok) return res.ok;
     const answer = await res.json().catch(() => null);
     if (!reachedProvider(res.ok, answer)) console.error("send-email skipped a send that had to reach the provider:", answer);

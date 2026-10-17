@@ -1,0 +1,36 @@
+{
+  "git_sha": "11c36373ebbe6ea6f8c2c985fe2a5934c577aeb5",
+  "git_sha_started": "11c36373ebbe6ea6f8c2c985fe2a5934c577aeb5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T21:10:31.483Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/campaign-double-press/results.txt"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x640"
+    ]
+  },
+  "check_id": "campaign-double-press",
+  "started_at": "2026-10-17T21:09:01.670Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 44,
+  "min_assertions": 44,
+  "assertion_floor": "structural: a fixed list of checks per width",
+  "canary": {
+    "id": "guard-stripped-in-page",
+    "observed_failure": true
+  }
+}

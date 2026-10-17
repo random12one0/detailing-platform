@@ -8,7 +8,9 @@
 // business.
 //
 // Input: { business_id, to, subject, body, text?, attachments?, sender_name?,
-//          booking_id? }
+//          booking_id?, campaign? }
+// `campaign: true` comes only from `send-campaign` (ROADMAP 97.19): it is
+// charged to the business's daily campaign share, not the booking mail budget.
 // `business_id` is required for every tenant email and optional for the two
 // kinds the PLATFORM sends in its own name (roadmap 2.20 stage 2 and 8.12).
 //
@@ -195,7 +197,7 @@ Deno.serve(async (req) => {
   let ctx: SendContext = { business_id: null, to: "", subject: "", booking_id: null, body_html: null };
 
   try {
-    const { business_id, to, subject, body, text, attachments, sender_name, booking_id } = await req.json();
+    const { business_id, to, subject, body, text, attachments, sender_name, booking_id, campaign } = await req.json();
     ctx = {
       business_id: business_id ?? null,
       to: typeof to === "string" ? to : "",
@@ -326,7 +328,14 @@ Deno.serve(async (req) => {
     // ignored.
     let claimAllowed = true;
     try {
-      const { data, error } = await supabase.rpc("claim_email_send", { p_platform: fromPlatform });
+      // ROADMAP 97.19 — WHOSE, AND WHAT KIND. A campaign is charged to its
+      // business's daily share and stops short of the booking mail's headroom;
+      // a booking email is not. Migration 20261017200000.
+      const { data, error } = await supabase.rpc("claim_email_send", {
+        p_platform: fromPlatform,
+        p_business_id: business_id ?? null,
+        p_campaign: campaign === true,
+      });
       if (error) console.error("could not claim the send against today's budget - sending anyway:", error);
       else claimAllowed = data !== false;
     } catch (e) {
@@ -362,6 +371,8 @@ Deno.serve(async (req) => {
         retryable: true,
         details: fromPlatform
           ? "The provider's whole daily allowance is spent, including the platform's reserve."
+          : campaign === true
+          ? "This business's campaign emails for today are spent, or the rest of today's allowance is kept for booking emails."
           : "Tenant mail has spent its share of today's allowance. The platform's own alerts are still reserved.",
       }, 429);
     }

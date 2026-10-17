@@ -144,8 +144,9 @@ export const api = {
   // (an address, and not having opted out) are promises to the customer rather
   // than to the detailer, and a promise honoured only by the UI is not
   // honoured. The counts come back so the screen can say what happened.
-  sendCampaign: (businessId, customerIds, subject, message) =>
-    callFn("send-campaign", { business_id: businessId, customer_ids: customerIds, subject, message }),
+  // ROADMAP 97.19: `pressId` is made once per compose, so a double press sends once.
+  sendCampaign: (businessId, customerIds, subject, message, pressId) =>
+    callFn("send-campaign", { business_id: businessId, customer_ids: customerIds, subject, message, press_id: pressId }),
 
   // PUSH, THE BROWSER HALF (roadmap 2.11 step 6 stage 6). All three of these
   // functions already existed and nothing in `app/` had ever called one.
