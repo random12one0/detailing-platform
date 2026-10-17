@@ -979,6 +979,9 @@ export const appEs = {
   "A member rate with no set visits. They book when they like.":
     "Una tarifa de socio sin visitas fijas. Reservan cuando quieren.",
   "Part paid": "Pagado en parte",
+  // ROADMAP 97.80 — the payment pill once the job's own card payment was refunded in Stripe.
+  "Refunded": "Devuelto",
+  "Part refunded": "Devuelto en parte",
   "Not yet": "Todavía no",
   "Waived": "Perdonado",
   "paid": "pagado",

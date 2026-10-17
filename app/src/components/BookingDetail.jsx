@@ -44,6 +44,7 @@ import { useJobWeather } from "../hooks/useJobWeather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import { jobMailWarning } from "../lib/mailWarning.js";
 import { businessToday } from "../book/core.js";
+import { PAY_LABELS, payPill } from "../lib/payPill.js";
 
 // One vocabulary for the values a person reads, so the same booking does
 // not say "completed" in the sheet and "Completed" on the card, or show the
@@ -54,9 +55,6 @@ const STATUS_LABELS = {
   // ROADMAP 2.12 — "Pending" is what the database calls it and nobody says it
   // out loud. The detailer's own word for this row is that somebody is waiting.
   pending: "Waiting on you",
-};
-const PAY_LABELS = {
-  paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
 };
 // ROADMAP 4.7 — THE SAME FOUR STATES, AS A CONTROL, IN THIS RECORD'S OWN WORDS.
 // Derived from `PAY_LABELS` rather than written out again, so the choice a
@@ -601,6 +599,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
   const waiting = booking.status === "pending";
+  const pay = payPill(booking);
   // A QUOTE ONLY MEANS ANYTHING WHILE THE BOOKING IS STILL PENDING, and the
   // guard is here rather than on each write for a reason: a declined request
   // and a customer cancellation both end the wait, and so will whatever path
@@ -622,9 +621,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           {/* These read as raw enum values — lowercase here, title case on
               the card for the same booking. One vocabulary, one casing. */}
           <span className={`pill ${booking.status}`}>{t(STATUS_LABELS[booking.status] ?? booking.status)}</span>
-          <span className={`pill ${booking.payment_status}`}>
-            {t(PAY_LABELS[booking.payment_status] ?? booking.payment_status)}
-          </span>
+          {/* ROADMAP 97.80: refunded in Stripe, the pill says so rather than "Paid". */}
+          <span className={`pill ${pay}`} data-pay-pill>{t(PAY_LABELS[pay] ?? pay)}</span>
           {/* Roadmap 2.14 step 3. The same fact the request card carries, on
               the record you open from it — a plan booking's price is the
               member's, and the one thing that explains it is its name. A
