@@ -1,16 +1,16 @@
 {
-  "git_sha": "f6521b039888559b6f5f34d0ea135aa120cbddd7",
-  "git_sha_started": "f6521b039888559b6f5f34d0ea135aa120cbddd7",
+  "git_sha": "678bb3070a5b61d81b0622e81efbc660850484ba",
+  "git_sha_started": "678bb3070a5b61d81b0622e81efbc660850484ba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T03:54:19.414Z",
+  "finished_at": "2026-10-17T22:23:47.638Z",
   "failures": [
-    "6 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)",
-    "2 function(s) in the database do NOT match the repo's newest definition: accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
-    "3 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql), receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql)",
-    "3 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql), bookings.payment_problem (declared by 20261016160000_booking_payment_problem.sql), email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
+    "9 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261017180000_support_sessions_expire.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql), set_customer_notes (declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql), support_session_expired (declared by 20261017190000_support_sessions_end_at_auth.sql), end_expired_support_sessions (declared by 20261017190000_support_sessions_end_at_auth.sql)",
+    "6 function(s) in the database do NOT match the repo's newest definition: get_bookings_due_for_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), reset_reminder_markers_on_edit (the repo's newest definition is 20261017230000_reminder_reset_covers_every_marker.sql), get_bookings_due_for_second_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), claim_email_send (the repo's newest definition is 20261017200000_campaigns_get_a_daily_share.sql)",
+    "5 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql), receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql), email_campaign_days (declared by 20261017200000_campaigns_get_a_daily_share.sql), campaign_presses (declared by 20261017200000_campaigns_get_a_daily_share.sql)",
+    "5 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql), bookings.payment_problem (declared by 20261016160000_booking_payment_problem.sql), platform_settings.email_booking_headroom (declared by 20261017200000_campaigns_get_a_daily_share.sql), platform_settings.email_campaign_share (declared by 20261017200000_campaigns_get_a_daily_share.sql), email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)",
     "1 polic(y/ies) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013131000_receipt_attempts_late_put.sql)",
-    "20 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
+    "43 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.bookings — authenticated should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.bookings — anon should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.customers — authenticated should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.customers — anon should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.set_customer_notes(uuid, uuid, text) — public should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — anon should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — authenticated should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — service_role should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.support_session_expired() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — authenticated should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — service_role should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — authenticated should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.email_campaign_days — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.email_campaign_days — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.campaign_presses — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.campaign_presses — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — public should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — anon should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — authenticated should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — service_role should HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
     "10 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: receipt_attempts_due on receipt_upload_attempts — not in the database (declared by 20261013130000_receipt_upload_attempts.sql); booking_services_booking_business_idx on booking_services — not in the database (declared by 20261017000000_booking_lines_same_business.sql); booking_add_ons_booking_business_idx on booking_add_ons — not in the database (declared by 20261017000000_booking_lines_same_business.sql); booking_line_items_booking_business_idx on booking_line_items — not in the database (declared by 20261017000000_booking_lines_same_business.sql); job_photos_booking_business_idx on job_photos — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); maintenance_deadlines_booking_business_idx on maintenance_deadlines — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); maintenance_deadlines_last_done_business_idx on maintenance_deadlines — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); bookings_customer_business_idx on bookings — not in the database (declared by 20261017020000_customer_same_business.sql); plan_members_customer_business_idx on plan_members — not in the database (declared by 20261017020000_customer_same_business.sql); maintenance_deadlines_customer_business_idx on maintenance_deadlines — not in the database (declared by 20261017020000_customer_same_business.sql)"
   ],
   "warnings": [
@@ -23,16 +23,20 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "migration_files": 124,
-    "tables_declared": 61,
+    "migration_files": 131,
+    "tables_declared": 63,
     "tables_absent": [
       "support_sessions (declared by 20261010030000_support_sessions_read_only.sql)",
       "google_business_links (declared by 20261010040000_google_business_links.sql)",
-      "receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql)"
+      "receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql)",
+      "email_campaign_days (declared by 20261017200000_campaigns_get_a_daily_share.sql)",
+      "campaign_presses (declared by 20261017200000_campaigns_get_a_daily_share.sql)"
     ],
     "columns_absent": [
       "business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql)",
       "bookings.payment_problem (declared by 20261016160000_booking_payment_problem.sql)",
+      "platform_settings.email_booking_headroom (declared by 20261017200000_campaigns_get_a_daily_share.sql)",
+      "platform_settings.email_campaign_share (declared by 20261017200000_campaigns_get_a_daily_share.sql)",
       "email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)"
     ],
     "type_mismatch": [],
@@ -41,14 +45,16 @@
       "public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013131000_receipt_attempts_late_put.sql)"
     ],
     "policies_unjudgeable": 0,
-    "grant_claims_declared": 591,
-    "grant_targets": 104,
+    "grant_claims_declared": 638,
+    "grant_targets": 110,
     "grant_statements": {
-      "naive": 176,
-      "judged": 176,
+      "naive": 194,
+      "judged": 194,
       "unjudgeable": 0
     },
     "grants_absent": [
+      "public.bookings — authenticated should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql)",
+      "public.bookings — anon should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql)",
       "public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
       "public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
       "public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
@@ -56,9 +62,9 @@
       "public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
       "public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
       "public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
-      "public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
-      "public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
-      "public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database",
+      "public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database",
       "public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database",
       "public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database",
       "public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database",
@@ -68,7 +74,28 @@
       "public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
       "public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
       "public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
-      "public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database"
+      "public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database",
+      "public.customers — authenticated should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql)",
+      "public.customers — anon should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql)",
+      "public.set_customer_notes(uuid, uuid, text) — public should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database",
+      "public.set_customer_notes(uuid, uuid, text) — anon should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database",
+      "public.set_customer_notes(uuid, uuid, text) — authenticated should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database",
+      "public.set_customer_notes(uuid, uuid, text) — service_role should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database",
+      "public.support_session_expired() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.support_session_expired() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.support_session_expired() — authenticated should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.support_session_expired() — service_role should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.end_expired_support_sessions() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.end_expired_support_sessions() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.end_expired_support_sessions() — authenticated should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database",
+      "public.email_campaign_days — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.email_campaign_days — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.campaign_presses — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.campaign_presses — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.claim_email_send(boolean, uuid, boolean) — public should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.claim_email_send(boolean, uuid, boolean) — anon should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.claim_email_send(boolean, uuid, boolean) — authenticated should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database",
+      "public.claim_email_send(boolean, uuid, boolean) — service_role should HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database"
     ],
     "indexes_declared": 76,
     "index_statements": {
@@ -91,26 +118,33 @@
     "method": "replay create/drop function/table/policy in file and statement order; compare function bodies against pg_get_functiondef, tables/columns/policies by existence",
     "absent": [
       "is_support_session (declared by 20261010030000_support_sessions_read_only.sql)",
-      "refuse_support_writes (declared by 20261010030000_support_sessions_read_only.sql)",
+      "refuse_support_writes (declared by 20261017180000_support_sessions_expire.sql)",
       "start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
       "finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
       "ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql)",
-      "claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)"
+      "claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql)",
+      "set_customer_notes (declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql)",
+      "support_session_expired (declared by 20261017190000_support_sessions_end_at_auth.sql)",
+      "end_expired_support_sessions (declared by 20261017190000_support_sessions_end_at_auth.sql)"
     ],
     "drifted": [
+      "get_bookings_due_for_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql)",
+      "reset_reminder_markers_on_edit (the repo's newest definition is 20261017230000_reminder_reset_covers_every_marker.sql)",
+      "get_bookings_due_for_second_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql)",
       "accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
-      "set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)"
+      "set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql)",
+      "claim_email_send (the repo's newest definition is 20261017200000_campaigns_get_a_daily_share.sql)"
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-17T03:53:43.320Z",
+  "started_at": "2026-10-17T22:23:07.713Z",
   "status": "fail",
-  "expected_targets": 387,
-  "discovered_targets": 361,
-  "attempted_targets": 387,
-  "completed_targets": 387,
+  "expected_targets": 398,
+  "discovered_targets": 359,
+  "attempted_targets": 398,
+  "completed_targets": 398,
   "skipped_targets": 0,
-  "assertions_executed": 2113,
+  "assertions_executed": 2167,
   "min_assertions": 1000,
   "canary": {
     "id": "a function name, a column and a policy name no migration could have created must each be reported ABSENT; a grant claim and an index claim the database contradicts must each be reported",
