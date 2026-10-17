@@ -204,8 +204,13 @@ console.log("\n2. send-email claims after the free exits and before the provider
   // `fromPlatform` is the discriminator and it already existed. Asserting the
   // VARIABLE rather than the string `sender_name`, per trap (k).
   check("2d the claim is told whether this is platform mail",
-    /claim_email_send",\s*\{\s*p_platform:\s*fromPlatform\s*\}/.test(src),
+    /claim_email_send",\s*\{\s*p_platform:\s*fromPlatform\s*[,}]/.test(src),
     "without fromPlatform the reserve protects nothing in particular");
+  // ROADMAP 97.19 — and whose it is, and whether it is a campaign. Without these
+  // two the per-business campaign share and the booking headroom never apply.
+  check("2k the claim is told the business and whether this is a campaign",
+    /p_business_id:\s*business_id \?\? null,\s*p_campaign:\s*campaign === true/.test(src),
+    "a campaign claimed as booking mail spends every other tenant's confirmations again");
 
   // The refusal has to be loud, must not blame the customer, and must show up
   // in the day's numbers.

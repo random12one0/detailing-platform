@@ -23,7 +23,7 @@
 // here are a DISPLAY and the function is the gate. An opt-out honoured only by
 // a browser is not honoured.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
@@ -82,17 +82,25 @@ export default function CampaignModal({ people, onClose, onSent }) {
     return next;
   });
 
+  // ROADMAP 97.19 — ONE PRESS, ONE SEND. The id is made once per compose and
+  // the server records it before the first email, so the same press arriving
+  // twice sends once. The ref stops a second click before `busy` re-renders.
+  const [pressId] = useState(() => crypto.randomUUID());
+  const sending = useRef(false);
   const send = async () => {
+    if (sending.current) return;
+    sending.current = true;
     setBusy(true);
     setError("");
     try {
-      const r = await api.sendCampaign(business.id, chosen.map((p) => p.id), subject.trim(), message.trim());
+      const r = await api.sendCampaign(business.id, chosen.map((p) => p.id), subject.trim(), message.trim(), pressId);
       setResult(r);
       onSent?.();
     } catch (e) {
       setError(e.message);
       setConfirming(false);
     }
+    sending.current = false;
     setBusy(false);
   };
 
@@ -111,6 +119,11 @@ export default function CampaignModal({ people, onClose, onSent }) {
         {result.capped > 0 && (
           <p className="body">
             {t("{count} more were left out — {cap} is the most that can go at once. Send the rest tomorrow.", { count: result.capped, cap: result.cap })}
+          </p>
+        )}
+        {result.held > 0 && (
+          <p className="body">
+            {t("{count} were not sent — your customer emails for today are used up. Send the rest tomorrow.", { count: result.held })}
           </p>
         )}
         <p className="quiet">
