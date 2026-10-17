@@ -30467,6 +30467,9 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Hold it and tell us what to change (your words w-6)
 - [ ] **99.15 — Send the work back to fix six problems before it goes further**
   Send it back to fix the six problems first (your words w-8)
+- [ ] **99.16 — Hold the release and have the builder fix the problems first; the problems are not named.**
+  Hold it and have the builder fix the problems first (your words w-11)
+
 
 
 
