@@ -54,7 +54,7 @@ const check = (name, ok, detail = "") => {
 };
 
 // The questions, asked of any version of the function. Returns what it saw.
-function scenarios(bookingRefs, say) {
+function scenarios({ bookingRefs, bookingRequests, initialForm }, say) {
   const first = bookingRefs([car1, car2], []);
   say("each car gets its own random ref", first.length === 2 && first.every((r) => UUID.test(r.ref)) && first[0].ref !== first[1].ref, JSON.stringify(first));
   const retry = bookingRefs([car1, car2], first);
@@ -67,17 +67,28 @@ function scenarios(bookingRefs, say) {
   say("moving car 1 gives car 1 a new ref", car1Moved[0].ref !== first[0].ref);
   const single = bookingRefs([car1], []);
   say("a one-car booking gets one ref and keeps it on retry", single.length === 1 && bookingRefs([car1], single)[0].ref === single[0].ref);
-  return moved[0].ref === first[0].ref;
+  // THE PAGE'S OWN PAYLOADS (BookingPage `submit`: bookingRequests, then
+  // bookingRefs). A split two-car form; car 2's time is taken and the customer
+  // moves it. Car 1's payload must not change, so its ref must not either.
+  const form = { ...initialForm({}), customerName: car1.customer_name, customerPhone: car1.customer_phone,
+    customerEmail: "maria@example.invalid", serviceIds: ["service-a"], bookingDate: car1.booking_date, startTime: car1.start_time,
+    splitDays: true, extraVehicles: [{ size: "large", model: "", date: car2.booking_date, time: "10:00" }] };
+  const pressed = bookingRefs(bookingRequests(form), []);
+  const carMoved = { ...form, extraVehicles: [{ ...form.extraVehicles[0], time: "14:00" }] };
+  const again = bookingRefs(bookingRequests(carMoved), pressed);
+  say("page payloads: a split two-car form sends two calls with two different refs", pressed.length === 2 && pressed[0].ref !== pressed[1].ref);
+  say("page payloads: moving car 2 on the form keeps car 1's ref", again[0].ref === pressed[0].ref, `${pressed[0].ref} -> ${again[0].ref}`);
+  say("page payloads: and gives car 2 a new ref", again[1].ref !== pressed[1].ref);
+  return moved[0].ref === first[0].ref && again[0].ref === pressed[0].ref;
 }
 
 console.log(BREAK ? `BREAK=${BREAK}` : "production bookingRefs");
-const { bookingRefs } = await load(BREAK ? LIST_KEYED : null);
-scenarios(bookingRefs, check);
+scenarios(await load(BREAK ? LIST_KEYED : null), check);
 completed++;
 
 console.log("\ncanary — the list-keyed version");
 const old = await load(LIST_KEYED);
-const kept = scenarios(old.bookingRefs, () => {});
+const kept = scenarios(old, () => {});
 const canary = { id: "list-keyed-bookingRefs-re-keys-car-1", observed_failure: !kept };
 check("the canary — the list-keyed version re-keys car 1 when car 2 moves", canary.observed_failure);
 
@@ -91,8 +102,8 @@ writeReceipt({
   check_id: BREAK ? `booking-refs-${BREAK}` : "booking-refs",
   started_at, status: failures.length ? "fail" : "pass",
   expected_targets: 1, discovered_targets: 1, attempted_targets: 1, completed_targets: completed, skipped_targets: 0,
-  // six scenario checks + one canary = 7; the floor sits one below.
-  assertions_executed: assertions, min_assertions: 6, failures, artifacts: [artifact],
+  // nine scenario checks + one canary = 10; the floor sits one below.
+  assertions_executed: assertions, min_assertions: 9, failures, artifacts: [artifact],
   dimensions: { function: "app/src/book/core.js bookingRefs", ...(BREAK ? { break: BREAK } : {}) },
   canary,
 });
