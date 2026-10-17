@@ -1,9 +1,9 @@
 {
-  "git_sha": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
-  "git_sha_started": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "git_sha": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
+  "git_sha_started": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T06:28:36.645Z",
+  "finished_at": "2026-10-17T10:38:45.983Z",
   "failures": [
     "job record · amount · its note is untouched — null",
     "job record · amount · the response carries the note to the screen — null",
@@ -23,6 +23,18 @@
     "finalize · currency · the response carries the note to the screen — null",
     "finalize · kept under a later extra payment · its note is untouched — null",
     "finalize · kept under a later extra payment · the response carries the note to the screen — null",
+    "job record waive · amount · its note is untouched — null",
+    "job record waive · amount · the response carries the note to the screen — null",
+    "job record waive · currency · its note is untouched — null",
+    "job record waive · currency · the response carries the note to the screen — null",
+    "job record waive · kept under a later extra payment · its note is untouched — null",
+    "job record waive · kept under a later extra payment · the response carries the note to the screen — null",
+    "finalize waive · amount · its note is untouched — null",
+    "finalize waive · amount · the response carries the note to the screen — null",
+    "finalize waive · currency · its note is untouched — null",
+    "finalize waive · currency · the response carries the note to the screen — null",
+    "finalize waive · kept under a later extra payment · its note is untouched — null",
+    "finalize waive · kept under a later extra payment · the response carries the note to the screen — null",
     "payment_problem in the payload was ignored (not on the allowlist) — null"
   ],
   "warnings": [],
@@ -34,7 +46,9 @@
     "payloads": [
       "job record",
       "Money",
-      "finalize"
+      "finalize",
+      "job record waive",
+      "finalize waive"
     ],
     "notes": [
       "amount",
@@ -44,15 +58,15 @@
     "break": "clear-note"
   },
   "check_id": "update-booking-keeps-note-clear-note",
-  "started_at": "2026-10-17T06:28:36.509Z",
+  "started_at": "2026-10-17T10:38:45.845Z",
   "status": "fail",
-  "expected_targets": 10,
-  "discovered_targets": 10,
-  "attempted_targets": 10,
-  "completed_targets": 10,
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
   "skipped_targets": 0,
-  "assertions_executed": 39,
-  "min_assertions": 38,
+  "assertions_executed": 63,
+  "min_assertions": 62,
   "canary": {
     "id": "break-clear-note",
     "observed_failure": true
