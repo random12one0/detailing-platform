@@ -1381,6 +1381,8 @@ and how the wait ends.
   Split on 2026-10-09 because this entry is 547 lines
   long and no single session was finishing it.
 
+  **ANDREW, 2026-10-17:** No more code to write. After Andrew does FOR-ANDREW.md step 9 (publish photo-door and photo-reconcile, choose a web address of his own such as media.detailingplatform.com for business-media, add the CORS rule to job-photos, expense-receipts and business-media), a session should turn on the upload switches, raise the allowance from 1 GB to 10 GB in that same change, run the photo suites plus deployed-inventory.mjs, and then tick 0.11.
+
 - [x] **0.11a — Route expense receipt uploads through the R2 photo door**
   Complete the app-side receipt integration with the existing multi-store photo door, including upload, read, replacement and removal flows. This leaves business-media objects, coordinated deployment and live R2 verification to later pieces.
   Part 1 of 4 of item 0.11, split out so it can be
