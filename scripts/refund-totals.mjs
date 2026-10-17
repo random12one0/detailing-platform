@@ -11,10 +11,9 @@
 //   other-payment   a DIFFERENT payment refunded    → collected $150, export "Paid" (refused case)
 //   paid            nothing refunded                → collected $150, export "Paid" (the canary)
 //
-// The export half is asserted in the SAME page against the SERVED module
-// (`/src/lib/accountant-export.js`), fed the same row Today drew.
+// The export half is asserted in Node on the exact row Today drew (see EXPORT_SRC).
 //
-// SABOTAGE: --break=status-only rewrites both served modules back to reading
+// SABOTAGE: --break=status-only rewrites the served Today and a scratch copy of the export back to reading
 // `payment_status === "paid"` alone (the original defect), signed and read back from
 // the page (docs/gotchas.md 113). refunded and part-refunded must go red on both halves.
 //
@@ -24,7 +23,7 @@
 //   set -a; . <main checkout>/.env; set +a      (DEMO_OWNER_PW; SUPABASE_URL + SUPABASE_ANON_KEY for --env-shim)
 //   node scripts/refund-totals.mjs [--base=http://127.0.0.1:5180] [--env-shim] [--break=status-only] [--freeze=before|after]
 
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { writeReceipt } from "./receipt.mjs";
@@ -48,6 +47,22 @@ const BELT = "C:/Users/rando/Downloads/claude/belt/shots/97.81";
 const SHOTS = arg("shots") || `${BELT}/png`;
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
+
+// THE EXPORT HALF RUNS HERE, IN NODE, on the exact row Today drew. It is a pure function of
+// that row; asserting it inside the page was measured to read an UNSABOTAGED copy of the
+// module while the route reported the rewrite landed. Under --break the real file is
+// rewritten into a scratch copy, signed, and the signature is read off the module measured.
+const EXPORT_SRC = new URL("../app/src/lib/accountant-export.js", import.meta.url);
+let exportMod, exportHits = null;
+if (BREAK) {
+  const [from, to] = REWRITES["accountant-export.js"];
+  const text = readFileSync(EXPORT_SRC, "utf8");
+  exportHits = text.split(from).length - 1;
+  const tmp = new URL("./refund-totals-break.tmp.mjs", import.meta.url);
+  const payPill = JSON.stringify(new URL("../app/src/lib/payPill.js", import.meta.url).href);
+  writeFileSync(tmp, text.replace(from, to).replace('from "./payPill.js"', `from ${payPill}`) + "\nexport const __beltBroken = true;\n");
+  try { exportMod = await import(tmp.href); } finally { unlinkSync(tmp); }
+} else exportMod = await import(EXPORT_SRC.href);
 
 // The page's clock is frozen at the REAL minute (a clock ahead of the sign-in made its
 // token look expired — pay-pill-card.mjs). The job runs from a minute ago to a minute on.
@@ -142,12 +157,15 @@ for (const sc of SCENARIOS) {
       } catch { await route.abort().catch(() => {}); }
     });
     const hits = {};
-    if (REWRITES) for (const [file, [from, to]] of Object.entries(REWRITES)) {
+    if (REWRITES) for (const [file, [from, to]] of Object.entries(REWRITES).filter(([f]) => f === "Today.jsx")) {
       await page.route(new RegExp(`/src/(screens|lib)/${file.replace(".", "\\.")}(\\?|$)`), async (route) => {
         const res = await route.fetch();
         const text = await res.text();
         hits[file] = text.split(from).length - 1;
-        await route.fulfill({ response: res, body: text.replace(from, to) + `\nwindow.__beltBreak = (window.__beltBreak || 0) + 1;\n` });
+        // Signed IN THE MODULE: the export measured below is a fresh import, not the app's
+        // own copy, so a window flag could not say which copy ran (docs/gotchas.md 113).
+        const sign = file === "Today.jsx" ? "\nwindow.__beltToday = true;\n" : "\nexport const __beltBroken = true;\n";
+        await route.fulfill({ response: res, body: text.replace(from, to) + sign });
       });
     }
     attempted++;
@@ -173,18 +191,19 @@ for (const sc of SCENARIOS) {
       check(`${tag} · expected is the job's whole price, $150`, today.phone ? today.figs[0] === money(150) : today.figs.includes(money(150)), JSON.stringify(today));
       check(`${tag} · collected reads "${want}"`, shown === want, JSON.stringify(today));
     }
-    // The export, from the module the page itself is serving, fed the row Today drew.
-    const exp = fed ? await page.evaluate(async (j) => {
-      const m = await import("/src/lib/accountant-export.js");
-      const rows = m.accountantRows({ jobs: [{ ...j, status: "completed" }] });
-      return { status: rows[0]?.cells[3] ?? null, amount: rows[0]?.amount ?? null, csv: m.accountantCsv({ jobs: [{ ...j, status: "completed" }] }) };
-    }, fed).catch((e) => ({ error: String(e) })) : null;
+    // The export, fed the row Today drew (see EXPORT_SRC above).
+    const exp = fed ? (() => {
+      const jobs = [{ ...fed, status: "completed" }];
+      return { broken: exportMod.__beltBroken === true, status: exportMod.accountantRows({ jobs })[0]?.cells[3] ?? null,
+        amount: exportMod.accountantRows({ jobs })[0]?.amount ?? null, csv: exportMod.accountantCsv({ jobs }) };
+    })() : null;
     check(`${tag} · the export's Status says "${sc.status}"`, exp?.status === sc.status, JSON.stringify(exp));
     check(`${tag} · the export's Amount still ties to the screen's earned figure (150.00)`, exp?.amount === 150, JSON.stringify(exp));
     if (REWRITES) {
-      const ran = await page.evaluate(() => window.__beltBreak || 0);
-      check(`${tag} · the sabotage landed once in each module and RAN`, ran === 2 && Object.values(hits).every((n) => n === 1) && Object.keys(hits).length === 2, `ran ${ran}, ${JSON.stringify(hits)}`);
-    }
+      const ran = await page.evaluate(() => window.__beltToday === true);
+      check(`${tag} · the sabotage landed once in Today and RAN`, ran && hits["Today.jsx"] === 1, `ran ${ran}, ${JSON.stringify(hits)}`);
+      check(`${tag} · the sabotage landed in the export and the MEASURED copy carries it`, exp?.broken === true && exportHits === 1, `matched ${exportHits} ${JSON.stringify(exp)}`);
+    } else check(`${tag} · the export measured is the unaltered module`, exp?.broken === false, JSON.stringify(exp));
     check(`${tag} · console clean`, errors.length === 0, errors.slice(0, 3).join(" | "));
     if (FREEZE) {
       const { freeze } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
