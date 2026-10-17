@@ -712,6 +712,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - Dates on and after `closed_until` still book
 
 - [ ] **97.18 — Two bookings sent at once can both beat the daily cap and the buffer (C-M9).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.18-20261017193703231`. Answer "merge it" to keep it, or say what to change.
   `slotValidation.ts:281-328` checks and `create-booking/index.ts:489` inserts, with no lock between. `bookings_no_overlap` (`20260907000400_multiple_vehicles.sql:154-158`) catches only true overlaps; nothing enforces `max_bookings_per_day` or `buffer_minutes` at insert time. Take a lock per business per day around the check and the insert (`pg_advisory_xact_lock` in an RPC), or re-check in a trigger. New migration; applying it live is Andrew's.
   Acceptance criteria:
   - On a throwaway local copy, two concurrent bookings that together exceed `max_bookings_per_day` save one and refuse the other
