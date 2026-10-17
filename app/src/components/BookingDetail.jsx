@@ -548,7 +548,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     ? null : money(booking.final_amount ?? booking.total_price);
   // ROADMAP 97.10 — a card payment came in that did not match what the job
   // owes, so the webhook left it unpaid. Shown while the job is unsettled;
-  // once the detailer sorts it and marks it paid or waived, it has done its job.
+  // once the detailer marks it paid it becomes a possible refund (97.70, below),
+  // and once they waive it, it is hidden.
   // ROADMAP 97.11: `payments` is money that came in AFTER the job was settled.
   // It is a refund still to make, so it shows whatever the job's status, and
   // whichever note carries it (an `extra`, or a `failed` bank payment).
@@ -560,11 +561,20 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const owedBack = refundPayments.filter((p) => p?.reason);
   const refundCents = refundPayments.filter((p) => !p?.reason).reduce((sum, p) => sum + (Number(p.paid_cents) || 0), 0);
   // Every reason the webhook kept (`earlier`, newest note first), one line each.
-  const payReasons = payUnsettled && booking.payment_problem
+  const kept = booking.payment_problem
     ? [booking.payment_problem, ...(Array.isArray(booking.payment_problem.earlier) ? [...booking.payment_problem.earlier].reverse() : [])]
       .filter((r) => r?.kind && r.kind !== "extra")
     : [];
-  const payProblem = booking.payment_problem && (refundCents > 0 || owedBack.length > 0 || payReasons.length > 0)
+  const payReasons = payUnsettled ? kept : [];
+  // ROADMAP 97.70 — Andrew, 2026-10-17: a wrong-figure card payment still noted
+  // on a job that is now PAID (the detailer marked it paid by hand, which leaves
+  // the note as it was) is flagged as a POSSIBLE refund. Only the detailer knows
+  // whether they kept it as part of what the customer paid, so the line says to
+  // ignore it if they did. One the webhook already moved onto the refunds owed
+  // (97.69) has its own line above and is not repeated.
+  const maybeOwed = booking.payment_status === "paid" ? kept.filter((r) => (r.kind === "amount" || r.kind === "currency")
+    && !(r.intent && refundPayments.some((p) => p?.intent === r.intent))) : [];
+  const payProblem = booking.payment_problem && (refundCents > 0 || owedBack.length > 0 || payReasons.length > 0 || maybeOwed.length > 0)
     ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
@@ -647,6 +657,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 ? t("A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.")
                 : t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
                   paid: money(Number(p.paid_cents) / 100),
+                })}</div>)}
+              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{r.kind === "currency"
+                ? t("A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.")
+                : t("A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.", {
+                  paid: money(Number(r.paid_cents) / 100),
                 })}</div>)}
               {refundCents > 0 && <div data-refund-owed="">
                 {t("Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {

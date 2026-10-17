@@ -8,7 +8,10 @@
 //   mismatch   unpaid + an amount problem   → the red line names both figures
 //   currency   unpaid + a currency problem  → the red line says "not in US dollars"
 //   spanish    the mismatch, dashboard in Spanish → the Spanish line
-//   settled    paid  + a stale problem      → NO line (the refused case)
+//   settled    paid  + a stale problem      → a POSSIBLE refund line (ROADMAP 97.70: Andrew ruled
+//              2026-10-17 that a job marked paid after a wrong-figure payment flags it;
+//              until then this was the refused case)
+//   waived     waived + a stale problem     → NO line (the refused case now)
 //   clean      unpaid, no problem           → NO line
 //
 // For each line shown: inside the viewport, painted (hit test at its centre lands
@@ -52,7 +55,9 @@ const SCENARIOS = [
     want: ["not in US dollars"] },
   { id: "spanish", lang: "es", patch: BREAK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: AMOUNT, final_amount: null, total_price: 150 },
     want: ["Llegó un pago con tarjeta de $1, pero este trabajo debe $150."] },
-  { id: "settled", patch: { payment_status: "paid", paid_online_at: "2026-10-16T15:00:00.000Z", payment_problem: AMOUNT }, want: null },
+  { id: "settled", patch: { payment_status: "paid", paid_online_at: "2026-10-16T15:00:00.000Z", payment_problem: AMOUNT },
+    want: ["A card payment of $1 did not match what this job was owed", "If you kept this payment as part of what they paid, ignore this."] },
+  { id: "waived", patch: { payment_status: "waived", paid_online_at: null, payment_problem: AMOUNT }, want: null },
   { id: "clean", patch: { payment_status: "pending", paid_online_at: null, payment_problem: null }, want: null },
 ];
 const EXPECTED = SCENARIOS.length * WIDTHS.length;
@@ -194,10 +199,10 @@ const { path } = writeReceipt({
   failures,
   dimensions: { base: BASE, job: jobId, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
   artifacts: [SHOTS],
-  // The canary: a scenario that must NOT show the line (a paid job with a stale
-  // problem) is measured with the same probe, so a probe that finds the line
+  // The canary: a scenario that must NOT show the line (a WAIVED job with a stale
+  // problem; 97.70 made the paid one show a possible refund) is measured with the same probe, so a probe that finds the line
   // everywhere, or nowhere, cannot pass both halves.
-  canary: { id: "settled-job-hides-the-line", observed_failure: probed.filter((p) => p.scenario === "settled").every((p) => !p.shown) && probed.some((p) => p.scenario === "settled") },
+  canary: { id: "waived-job-hides-the-line", observed_failure: probed.filter((p) => p.scenario === "waived").every((p) => !p.shown) && probed.some((p) => p.scenario === "waived") },
 });
 console.log(`receipt: ${path}`);
 process.exit(failures.length || completed !== EXPECTED ? 1 : 0);
