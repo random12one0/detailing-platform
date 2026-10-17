@@ -1,0 +1,40 @@
+{
+  "git_sha": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "git_sha_started": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T12:38:17.679Z",
+  "failures": [
+    "390: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":390,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 390\",\"saved\":\"97.14 view-as 390\"}}",
+    "390: view-as: the Looking-only line is on screen under the box on screen false",
+    "768: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":768,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 768\",\"saved\":\"97.14 view-as 768\"}}",
+    "768: view-as: the Looking-only line is on screen under the box on screen false",
+    "1440: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":1440,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 1440\",\"saved\":\"97.14 view-as 1440\"}}",
+    "1440: view-as: the Looking-only line is on screen under the box on screen false"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-owner"
+  ],
+  "dimensions": {
+    "break": "unguarded",
+    "login": "demo owner",
+    "calls": 9,
+    "unguarded_cuts": 9
+  },
+  "check_id": "customer-notes-route-owner",
+  "started_at": "2026-10-17T12:36:51.161Z",
+  "status": "fail",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 26,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-lines-read-as-not-shown",
+    "observed_failure": true
+  }
+}

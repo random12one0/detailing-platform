@@ -1,0 +1,36 @@
+{
+  "git_sha": "eef4f994c4f00bd166382a0d5e7c896b254343a7",
+  "git_sha_started": "eef4f994c4f00bd166382a0d5e7c896b254343a7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T13:16:17.204Z",
+  "failures": [
+    "1440: not a member: the function refused and the screen shows it {\"call\":{\"width\":1440,\"member\":false,\"status\":403,\"notes_in\":\"97.14 not-member 1440\",\"saved\":null},\"shown\":false,\"why\":\"clipped by div.record-body.swap (line 853-898, box 149-874)\"}",
+    "1440: view-as: the Looking-only line is on screen under the box on screen false: outside the viewport (line 853-917, viewport 0-900)"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-staff"
+  ],
+  "dimensions": {
+    "break": "no-scroll",
+    "login": "demo staff",
+    "calls": 6,
+    "scroll_cuts": 18
+  },
+  "check_id": "customer-notes-route",
+  "started_at": "2026-10-17T13:14:47.335Z",
+  "status": "fail",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 26,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-lines-read-as-not-shown",
+    "observed_failure": true
+  }
+}

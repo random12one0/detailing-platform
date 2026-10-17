@@ -1,0 +1,31 @@
+{
+  "git_sha": "a891c0c85aa49d892d6801e21378e0bb102d81eb",
+  "git_sha_started": "a891c0c85aa49d892d6801e21378e0bb102d81eb",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:38:34.745Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/customer-add-delete-walk"
+  ],
+  "dimensions": {
+    "logins": "demo owner + demo staff",
+    "writes": "one booking + one customer per width, customer deleted"
+  },
+  "check_id": "customer-add-delete-walk",
+  "started_at": "2026-10-17T04:37:01.433Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: add, two staff refusals, owner delete and two console checks per width",
+  "canary": {
+    "id": "staff-is-owner",
+    "observed_failure": true
+  }
+}

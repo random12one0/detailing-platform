@@ -1,0 +1,31 @@
+{
+  "git_sha": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "git_sha_started": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T12:39:23.558Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-owner"
+  ],
+  "dimensions": {
+    "login": "demo owner",
+    "calls": 6
+  },
+  "check_id": "customer-notes-route-owner",
+  "started_at": "2026-10-17T12:38:18.492Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 25,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-lines-read-as-not-shown",
+    "observed_failure": true
+  }
+}
