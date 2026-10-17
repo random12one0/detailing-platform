@@ -1,9 +1,9 @@
 {
-  "git_sha": "d62936fa44ce84616ca5030254c923c31f14eaa7",
-  "git_sha_started": "d62936fa44ce84616ca5030254c923c31f14eaa7",
+  "git_sha": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
+  "git_sha_started": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T18:23:09.743Z",
+  "finished_at": "2026-10-17T20:16:34.456Z",
   "failures": [
     "97.15: …and its session is signed out at Auth, this session only (local) []"
   ],
@@ -41,16 +41,16 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-17T18:23:09.592Z",
+  "started_at": "2026-10-17T20:16:34.327Z",
   "status": "fail",
   "expected_targets": 22,
   "discovered_targets": 22,
   "attempted_targets": 22,
   "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 53,
-  "min_assertions": 52,
-  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
+  "assertions_executed": 56,
+  "min_assertions": 55,
+  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, seven fixed, one canary)",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true

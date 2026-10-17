@@ -1,9 +1,9 @@
 {
-  "git_sha": "47e85375671b553d4e27cdcebea25af5da5b0e53",
-  "git_sha_started": "47e85375671b553d4e27cdcebea25af5da5b0e53",
+  "git_sha": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
+  "git_sha_started": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T17:54:45.945Z",
+  "finished_at": "2026-10-17T20:15:43.317Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,7 +14,7 @@
     "writes": "one booking + one customer per width, both removed"
   },
   "check_id": "new-booking-no-email",
-  "started_at": "2026-10-17T17:53:49.243Z",
+  "started_at": "2026-10-17T20:14:40.163Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,
