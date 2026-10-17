@@ -1,12 +1,12 @@
 {
-  "git_sha": "b27ce2499bcebc90be75d0d099ccf86d8046e507",
-  "git_sha_started": "b27ce2499bcebc90be75d0d099ccf86d8046e507",
+  "git_sha": "67cd82231187a74d047b4b092be6aad36e757197",
+  "git_sha_started": "67cd82231187a74d047b4b092be6aad36e757197",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-09T22:29:46.723Z",
+  "finished_at": "2026-10-17T15:19:28.506Z",
   "failures": [],
   "warnings": [
-    "column_live=false: `customers.is_test` is NOT in the database yet, so this refusal is INERT in production today — as inert as the `!c.is_test` filter beside it, and switched on by the same one command (ROADMAP 0.3b, Andrew's). The SCREEN is proved; the COLUMN is not.",
+    "column_live=true: `customers.is_test` is in the database and the injection did nothing.",
     "fixtures_fabricated=true: the database supplied NO flagged row, so one was appended to the intercepted response in the browser (\"ROADMAP 0.3 supplied fixture row\") and is written nowhere. The demo tenant cannot hold one: `seed-demo.mjs:92` deletes the business and the customer rows cascade.",
     "Nothing is written: no row is created, changed or deleted, and neither delete button is ever pressed."
   ],
@@ -22,7 +22,7 @@
       "1440x900",
       "392x844"
     ],
-    "column_live": false,
+    "column_live": true,
     "fixtures_fabricated": true,
     "observed": [
       "1440x900: 14 rows, 1 flagged · flagged record danger=[] refusal painted=true · real record danger=[\"Delete for good\"]",
@@ -31,7 +31,7 @@
     "sabotage": null
   },
   "check_id": "fixture-not-deletable",
-  "started_at": "2026-10-09T22:29:31.941Z",
+  "started_at": "2026-10-17T15:19:11.283Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,

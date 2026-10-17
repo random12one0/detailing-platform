@@ -41,7 +41,7 @@
 //                name on the one screen where the name is the least useful
 //                thing in the row. A history row is date · what · total.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPlus, ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
@@ -169,6 +169,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // front of them once and then let them do it.
   const [forgetting, setForgetting] = useState(null);
   const [forgetError, setForgetError] = useState("");
+  const [notesError, setNotesError] = useState("");
+  // A refusal under the Notes box renders below the record panel's edge at
+  // 1440 (ROADMAP 97.14); a line nobody sees is the silent failure it replaced.
+  // Twice, because the panel is sticky: the first scroll can move the page,
+  // the panel then sticks, and its own edge rises over the line again.
+  const notesErrorRef = useRef(null);
+  useEffect(() => {
+    if (!notesError) return;
+    const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
+    reveal();
+    requestAnimationFrame(reveal);
+  }, [notesError]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -275,6 +287,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   const openCustomer = async (c) => {
     setOpen(c);
     setNotes(c.notes || "");
+    setNotesError("");
     setHistory(null);
     setMail(null);
     // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser
@@ -308,10 +321,20 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     setHistory((data ?? []).map((b) => withLocal(b, business.timezone)));
   };
 
+  // ROADMAP 97.14 — the browser holds no write on `customers`; the notes go
+  // through `set_customer_notes`, which checks membership and writes nothing
+  // else. A refusal is shown: the old direct update failed silently. A view-as
+  // tab on Looking throws before anything is sent, and says so here too.
   const saveNotes = async () => {
-    await supabase.from("customers").update({ notes: notes || null })
-      .eq("id", open.id).eq("business_id", business.id);
-    load();
+    try {
+      const { error } = await supabase.rpc("set_customer_notes", {
+        p_business_id: business.id, p_customer_id: open.id, p_notes: notes,
+      });
+      setNotesError(error ? t("Your notes were not saved. Please try again.") : "");
+      if (!error) load();
+    } catch (e) {
+      setNotesError(e.message);
+    }
   };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
@@ -917,6 +940,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
+            {notesError && <div ref={notesErrorRef} className="error-box" role="alert">{notesError}</div>}
 
             <div className="tight">
               <span className="label">{t("History")}</span>

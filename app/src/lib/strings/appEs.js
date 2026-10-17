@@ -458,6 +458,7 @@ export const appEs = {
   "On a plan": "En un plan",
   "Notes": "Notas",
   "Gate code, dog's name, preferences…": "Código del portón, nombre del perro, preferencias…",
+  "Your notes were not saved. Please try again.": "Tus notas no se guardaron. Inténtalo de nuevo.",
   "Nothing booked yet.": "Nada agendado todavía.",
 
   // ROADMAP 14.3 — the emails we sent this customer, and what became of them.
