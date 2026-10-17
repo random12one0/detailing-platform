@@ -143,6 +143,7 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
   const old = await fixture(read(OLD));
   const oldRes = (await old.query(`select public.forget_customer('${A}', '${DANA}') r`)).rows[0].r;
   const oldMail = await mail(old);
+  const OLD_ROWS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ ...oldMail[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
   const leaked = [1, 2, 3, 4].filter((n) => holdsDana(oldMail[n]).length || holdsDanaAddress(oldMail[n]));
   const canaryCaught = oldRes.ok === true && leaked.length === 4;
   log.push(`CANARY pre-97.20: rows still holding Dana ${JSON.stringify(leaked)} (want [1,2,3,4])`);
@@ -196,6 +197,9 @@ test("97.20 · after forget_customer no email_sends row holds the customer's add
     const rows = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ ...after[n], sent_at: `2026-10-1${n}T17:00:00.000Z` }));
     writeFileSync("artifacts/forget-customer-sql/business-a-mail-after.json", JSON.stringify(rows, null, 2) + "\n");
     artifacts.push("artifacts/forget-customer-sql/business-a-mail-after.json");
+    // What the PRE-97.20 function left: the browser check's sabotage feeds these to the mail log.
+    writeFileSync("artifacts/forget-customer-sql/business-a-mail-before-fix.json", JSON.stringify(OLD_ROWS, null, 2) + "\n");
+    artifacts.push("artifacts/forget-customer-sql/business-a-mail-before-fix.json");
   }
 
   const EXPECTED = 34;
