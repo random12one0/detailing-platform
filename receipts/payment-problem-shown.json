@@ -1,13 +1,13 @@
 {
-  "git_sha": "378996e517683ac07942ac898990d0b3dbbb6fcc",
-  "git_sha_started": "378996e517683ac07942ac898990d0b3dbbb6fcc",
+  "git_sha": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
+  "git_sha_started": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T06:21:46.785Z",
+  "finished_at": "2026-10-17T10:38:38.566Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/belt/shots/97.10/png"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.75/png"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -25,7 +25,7 @@
         "shown": true,
         "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/mismatch-1440x900.png"
       },
       {
         "scenario": "mismatch",
@@ -33,7 +33,7 @@
         "shown": true,
         "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/mismatch-768x1024.png"
       },
       {
         "scenario": "mismatch",
@@ -41,7 +41,7 @@
         "shown": true,
         "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/mismatch-390x844.png"
       },
       {
         "scenario": "mismatch",
@@ -49,7 +49,7 @@
         "shown": true,
         "text": "A card payment of $1 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/mismatch-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/mismatch-320x700.png"
       },
       {
         "scenario": "currency",
@@ -57,7 +57,7 @@
         "shown": true,
         "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/currency-1440x900.png"
       },
       {
         "scenario": "currency",
@@ -65,7 +65,7 @@
         "shown": true,
         "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/currency-768x1024.png"
       },
       {
         "scenario": "currency",
@@ -73,7 +73,7 @@
         "shown": true,
         "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/currency-390x844.png"
       },
       {
         "scenario": "currency",
@@ -81,7 +81,7 @@
         "shown": true,
         "text": "A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/currency-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/currency-320x700.png"
       },
       {
         "scenario": "spanish",
@@ -89,7 +89,7 @@
         "shown": true,
         "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/spanish-1440x900.png"
       },
       {
         "scenario": "spanish",
@@ -97,7 +97,7 @@
         "shown": true,
         "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/spanish-768x1024.png"
       },
       {
         "scenario": "spanish",
@@ -105,7 +105,7 @@
         "shown": true,
         "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/spanish-390x844.png"
       },
       {
         "scenario": "spanish",
@@ -113,7 +113,7 @@
         "shown": true,
         "text": "Llegó un pago con tarjeta de $1, pero este trabajo debe $150. No lo marcamos como pagado. Revisa el pago en tu cuenta de Stripe.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/spanish-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/spanish-320x700.png"
       },
       {
         "scenario": "settled",
@@ -121,7 +121,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/settled-1440x900.png"
       },
       {
         "scenario": "settled",
@@ -129,7 +129,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/settled-768x1024.png"
       },
       {
         "scenario": "settled",
@@ -137,7 +137,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/settled-390x844.png"
       },
       {
         "scenario": "settled",
@@ -145,39 +145,103 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/settled-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/settled-320x700.png"
       },
       {
         "scenario": "waived",
         "width": 1440,
-        "shown": false,
-        "text": null,
+        "shown": true,
+        "text": "A card payment of $1 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/waived-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-1440x900.png"
       },
       {
         "scenario": "waived",
         "width": 768,
-        "shown": false,
-        "text": null,
+        "shown": true,
+        "text": "A card payment of $1 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/waived-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-768x1024.png"
       },
       {
         "scenario": "waived",
         "width": 390,
-        "shown": false,
-        "text": null,
+        "shown": true,
+        "text": "A card payment of $1 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/waived-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-390x844.png"
       },
       {
         "scenario": "waived",
         "width": 320,
-        "shown": false,
-        "text": null,
+        "shown": true,
+        "text": "A card payment of $1 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/waived-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-320x700.png"
+      },
+      {
+        "scenario": "waived-es",
+        "width": 1440,
+        "shown": true,
+        "text": "Un pago con tarjeta de $1 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-es-1440x900.png"
+      },
+      {
+        "scenario": "waived-es",
+        "width": 768,
+        "shown": true,
+        "text": "Un pago con tarjeta de $1 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-es-768x1024.png"
+      },
+      {
+        "scenario": "waived-es",
+        "width": 390,
+        "shown": true,
+        "text": "Un pago con tarjeta de $1 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-es-390x844.png"
+      },
+      {
+        "scenario": "waived-es",
+        "width": 320,
+        "shown": true,
+        "text": "Un pago con tarjeta de $1 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-es-320x700.png"
+      },
+      {
+        "scenario": "waived-currency",
+        "width": 1440,
+        "shown": true,
+        "text": "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-currency-1440x900.png"
+      },
+      {
+        "scenario": "waived-currency",
+        "width": 768,
+        "shown": true,
+        "text": "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-currency-768x1024.png"
+      },
+      {
+        "scenario": "waived-currency",
+        "width": 390,
+        "shown": true,
+        "text": "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-currency-390x844.png"
+      },
+      {
+        "scenario": "waived-currency",
+        "width": 320,
+        "shown": true,
+        "text": "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/waived-currency-320x700.png"
       },
       {
         "scenario": "clean",
@@ -185,7 +249,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/clean-1440x900.png"
       },
       {
         "scenario": "clean",
@@ -193,7 +257,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/clean-768x1024.png"
       },
       {
         "scenario": "clean",
@@ -201,7 +265,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/clean-390x844.png"
       },
       {
         "scenario": "clean",
@@ -209,22 +273,22 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.10/png/clean-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png/clean-320x700.png"
       }
     ]
   },
   "check_id": "payment-problem-shown",
-  "started_at": "2026-10-17T06:20:33.133Z",
+  "started_at": "2026-10-17T10:37:03.335Z",
   "status": "pass",
-  "expected_targets": 24,
-  "discovered_targets": 24,
-  "attempted_targets": 24,
-  "completed_targets": 24,
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
   "skipped_targets": 0,
-  "assertions_executed": 129,
+  "assertions_executed": 225,
   "min_assertions": 100,
   "canary": {
-    "id": "waived-job-hides-the-line",
+    "id": "clean-job-hides-the-line",
     "observed_failure": true
   }
 }

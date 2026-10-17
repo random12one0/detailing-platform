@@ -1,9 +1,9 @@
 {
-  "git_sha": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
-  "git_sha_started": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "git_sha": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
+  "git_sha_started": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T06:28:37.276Z",
+  "finished_at": "2026-10-17T10:38:46.588Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,7 +14,9 @@
     "payloads": [
       "job record",
       "Money",
-      "finalize"
+      "finalize",
+      "job record waive",
+      "finalize waive"
     ],
     "notes": [
       "amount",
@@ -23,15 +25,15 @@
     ]
   },
   "check_id": "update-booking-keeps-note",
-  "started_at": "2026-10-17T06:28:37.139Z",
+  "started_at": "2026-10-17T10:38:46.471Z",
   "status": "pass",
-  "expected_targets": 10,
-  "discovered_targets": 10,
-  "attempted_targets": 10,
-  "completed_targets": 10,
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
   "skipped_targets": 0,
-  "assertions_executed": 39,
-  "min_assertions": 38,
+  "assertions_executed": 63,
+  "min_assertions": 62,
   "canary": {
     "id": "clear-attempt-refused",
     "observed_failure": true

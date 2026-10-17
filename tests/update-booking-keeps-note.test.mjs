@@ -14,6 +14,9 @@
 //   finalize     `FinalizeModal.jsx`: { status: "completed", final_amount, payment_status, payment_notes, miles }
 //
 // and asks: the row is now paid, and its note is byte-for-byte the note it had.
+// ROADMAP 97.75 adds the two screens that can WAIVE a job (the job record, which
+// clears payment_notes; the finalize sheet), because a waived job now flags the
+// same note as a possible refund. Money cannot waive.
 // REFUSED: a payload that tries to clear the note (`payment_problem: null`) is
 // ignored by the field allowlist. `BulkJobModal.jsx` is not here: it INSERTS a
 // new fleet job, which can never have had a card payment.
@@ -136,6 +139,8 @@ const PAYLOADS = [
   ["job record", { payment_status: "paid", payment_notes: "Cash" }],
   ["Money", { payment_status: "paid", final_amount: 150, finalized_at: AT }],
   ["finalize", { status: "completed", final_amount: 150, payment_status: "paid", payment_notes: "Cash", miles: 12 }],
+  ["job record waive", { payment_status: "waived", payment_notes: null }],
+  ["finalize waive", { status: "completed", final_amount: 150, payment_status: "waived", payment_notes: null, miles: 12 }],
 ];
 const NOTES = [["amount", WRONG], ["currency", WRONG_EUR], ["kept under a later extra payment", KEPT]];
 const call = async (body) => {
@@ -153,7 +158,7 @@ for (const [screen, payload] of PAYLOADS) {
     reached++;
     const stored = db.bookings[0];
     check(`${screen} · ${label} · the write succeeded`, r.status === 200 && r.body.success === true, JSON.stringify(r.body).slice(0, 200));
-    check(`${screen} · ${label} · the row is now paid`, stored.payment_status === "paid", stored.payment_status);
+    check(`${screen} · ${label} · the row is now ${payload.payment_status}`, stored.payment_status === payload.payment_status, stored.payment_status);
     check(`${screen} · ${label} · its note is untouched`, isDeepStrictEqual(stored.payment_problem, note), JSON.stringify(stored.payment_problem));
     check(`${screen} · ${label} · the response carries the note to the screen`, isDeepStrictEqual(r.body.booking?.payment_problem, note), JSON.stringify(r.body.booking?.payment_problem));
   }
@@ -181,7 +186,7 @@ const { path: receipt } = writeReceipt({
   completed_targets: reached,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 38,
+  min_assertions: 62,
   failures,
   dimensions: { handler: "supabase/functions/update-booking/index.ts", payloads: PAYLOADS.map(([s]) => s), notes: NOTES.map(([n]) => n), ...(BREAK ? { break: BREAK } : {}) },
   artifacts: [logName],

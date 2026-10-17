@@ -1648,6 +1648,11 @@ export const appEs = {
     "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
   "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.":
     "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
+  // ROADMAP 97.75 — the same payment, and the detailer has since waived the job: maybe owed back.
+  "A card payment of {paid} did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.":
+    "Un pago con tarjeta de {paid} no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
+  "A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.":
+    "Llegó un pago con tarjeta que no estaba en dólares estadounidenses, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.",
   "Email your customers": "Escríbeles a tus clientes",
   "Email": "Correo",
   "Ends": "Termina",

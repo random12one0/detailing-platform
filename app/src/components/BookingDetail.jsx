@@ -549,7 +549,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // ROADMAP 97.10 — a card payment came in that did not match what the job
   // owes, so the webhook left it unpaid. Shown while the job is unsettled;
   // once the detailer marks it paid it becomes a possible refund (97.70, below),
-  // and once they waive it, it is hidden.
+  // and so does waiving it (97.75).
   // ROADMAP 97.11: `payments` is money that came in AFTER the job was settled.
   // It is a refund still to make, so it shows whatever the job's status, and
   // whichever note carries it (an `extra`, or a `failed` bank payment).
@@ -572,7 +572,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // whether they kept it as part of what the customer paid, so the line says to
   // ignore it if they did. One the webhook already moved onto the refunds owed
   // (97.69) has its own line above and is not repeated.
-  const maybeOwed = booking.payment_status === "paid" ? kept.filter((r) => (r.kind === "amount" || r.kind === "currency")
+  // ROADMAP 97.75 — Andrew, 2026-10-17: a WAIVED job flags it too (the card money
+  // is still in their Stripe), ending "If you meant to keep it, ignore this."
+  const waived = booking.payment_status === "waived";
+  const maybeOwed = booking.payment_status === "waived" || booking.payment_status === "paid" ? kept.filter((r) => (r.kind === "amount" || r.kind === "currency")
     && !(r.intent && refundPayments.some((p) => p?.intent === r.intent))) : [];
   const payProblem = booking.payment_problem && (refundCents > 0 || owedBack.length > 0 || payReasons.length > 0 || maybeOwed.length > 0)
     ? booking.payment_problem : null;
@@ -658,7 +661,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 : t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
                   paid: money(Number(p.paid_cents) / 100),
                 })}</div>)}
-              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{r.kind === "currency"
+              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{waived
+                ? (r.kind === "currency"
+                  ? t("A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.")
+                  : t("A card payment of {paid} did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.", {
+                    paid: money(Number(r.paid_cents) / 100),
+                  }))
+                : r.kind === "currency"
                 ? t("A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.")
                 : t("A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.", {
                   paid: money(Number(r.paid_cents) / 100),

@@ -1,4 +1,4 @@
-update-booking-keeps-note — 2026-10-17T06:28:37.213Z
+update-booking-keeps-note — 2026-10-17T10:38:46.538Z
 ok    the production update-booking handler loaded with every import replaced
 ok    job record · amount · the write succeeded
 ok    job record · amount · the row is now paid
@@ -36,6 +36,30 @@ ok    finalize · kept under a later extra payment · the write succeeded
 ok    finalize · kept under a later extra payment · the row is now paid
 ok    finalize · kept under a later extra payment · its note is untouched
 ok    finalize · kept under a later extra payment · the response carries the note to the screen
+ok    job record waive · amount · the write succeeded
+ok    job record waive · amount · the row is now waived
+ok    job record waive · amount · its note is untouched
+ok    job record waive · amount · the response carries the note to the screen
+ok    job record waive · currency · the write succeeded
+ok    job record waive · currency · the row is now waived
+ok    job record waive · currency · its note is untouched
+ok    job record waive · currency · the response carries the note to the screen
+ok    job record waive · kept under a later extra payment · the write succeeded
+ok    job record waive · kept under a later extra payment · the row is now waived
+ok    job record waive · kept under a later extra payment · its note is untouched
+ok    job record waive · kept under a later extra payment · the response carries the note to the screen
+ok    finalize waive · amount · the write succeeded
+ok    finalize waive · amount · the row is now waived
+ok    finalize waive · amount · its note is untouched
+ok    finalize waive · amount · the response carries the note to the screen
+ok    finalize waive · currency · the write succeeded
+ok    finalize waive · currency · the row is now waived
+ok    finalize waive · currency · its note is untouched
+ok    finalize waive · currency · the response carries the note to the screen
+ok    finalize waive · kept under a later extra payment · the write succeeded
+ok    finalize waive · kept under a later extra payment · the row is now waived
+ok    finalize waive · kept under a later extra payment · its note is untouched
+ok    finalize waive · kept under a later extra payment · the response carries the note to the screen
 ok    the write succeeded and the job is paid
 ok    payment_problem in the payload was ignored (not on the allowlist)
-39 passed, 0 failed, 10 of 10 scenarios.
+63 passed, 0 failed, 16 of 16 scenarios.
