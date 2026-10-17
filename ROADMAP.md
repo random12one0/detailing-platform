@@ -30989,11 +30989,12 @@ Added by the Control Room's Audit tab from run 1, after a second check by a diff
   - § 6 counts both `fetchImpl(` call sites and states the new total, green at the fixing commit
   - `LEGAL_BREAK=call` still turns it red (re-run in the same edit, gotchas 95), and a synthetic `fetchImpl(` site does too
 
-- [ ] **100.7 — `sweep-methods-are-pinned` is red on main: the audit's open items (97.10 onward) are named by no commit it can see.**
+- [x] **100.7 — `sweep-methods-are-pinned` is red on main: the audit's open items (97.10 onward) are named by no commit it can see.**
   `node --test tests/sweep-methods-are-pinned.test.mjs` at `57cc2323`: 5 passed, 3 failed (§ 3 and § 3b); § 3b's arriving list starts `97.10, 97.11, …` and runs to 61 items. The audit commits do name items (`audit: 100.5 from finding R1-08`), so first find out whether the test's commit match misses that message shape or the items really have no commit. Fix the cause; only declare items in `NO_COMMIT_YET` if they truly have none.
   Acceptance criteria:
   - The test is green, and the commit says which of the two causes it was
   - Its existing sabotage still turns it red (re-run in the same edit, gotchas 95)
+  **DONE 2026-10-17, ticked. Cause: the SECOND one — the items truly had no commit; the match was fine.** `audit: 100.5 from finding R1-08` is matched correctly and no 100.x/101.x item was ever in the red list. The 50 red items (97.13, 97.15–97.62, 98.4) were added by `c38f1859` (97.1–97.63, subject names no number) and `4b047b1b` (98.4, supervision subject). `afba56d4` names all 50, each with its audit finding code and the commit that added it, so `NO_COMMIT_YET` stays empty rather than holding 50 names that would each redden the file on that item's first commit. The three § 3 figures were moved with their cause, walked over 281 ROADMAP revisions by `node scripts/sweep-figures-walk.mjs 9ce2e5f6` (new, committed; reproduces the 59/35/412 declared at `9ce2e5f6`): 145/27/374 at `b039c769`, 144 with this tick. Checked: `node --test tests/sweep-methods-are-pinned.test.mjs` with this tick in the tree, pass 8 / fail 0; `PIN_CANARY=scope` red on § 4 (boundary rule), `PIN_CANARY=fragment` red on § 3 (quoteFragments 437 against 374), both re-run in the same edit. Recurrence, not filed as an item: a batch commit that adds roadmap items should name them in its message.
 
 ---
 
