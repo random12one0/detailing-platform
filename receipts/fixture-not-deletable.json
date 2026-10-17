@@ -1,9 +1,9 @@
 {
-  "git_sha": "50aa5998994cdfd1e3ffe5674d24ce3b3f1af04e",
-  "git_sha_started": "50aa5998994cdfd1e3ffe5674d24ce3b3f1af04e",
+  "git_sha": "67cd82231187a74d047b4b092be6aad36e757197",
+  "git_sha_started": "67cd82231187a74d047b4b092be6aad36e757197",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T12:42:36.593Z",
+  "finished_at": "2026-10-17T15:19:28.506Z",
   "failures": [],
   "warnings": [
     "column_live=true: `customers.is_test` is in the database and the injection did nothing.",
@@ -31,7 +31,7 @@
     "sabotage": null
   },
   "check_id": "fixture-not-deletable",
-  "started_at": "2026-10-17T12:42:10.393Z",
+  "started_at": "2026-10-17T15:19:11.283Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,

@@ -1,9 +1,9 @@
 {
-  "git_sha": "aae746b87964631b56549f0fc3b84946241f43d7",
-  "git_sha_started": "aae746b87964631b56549f0fc3b84946241f43d7",
+  "git_sha": "67cd82231187a74d047b4b092be6aad36e757197",
+  "git_sha_started": "67cd82231187a74d047b4b092be6aad36e757197",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T12:25:36.150Z",
+  "finished_at": "2026-10-17T15:18:30.243Z",
   "failures": [
     "support: a support session's set_customer_notes is refused and stores nothing {\"affected\":0,\"rows\":[{\"set_customer_notes\":\"\"}]}"
   ],
@@ -23,7 +23,7 @@
     "refused_after": 4
   },
   "check_id": "staff-writes-sql",
-  "started_at": "2026-10-17T12:25:14.227Z",
+  "started_at": "2026-10-17T15:18:09.530Z",
   "status": "fail",
   "expected_targets": 9,
   "discovered_targets": 9,

@@ -404,6 +404,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - At 390, 768 and 1440 a refused Notes save's line is fully on screen with no scroll made by the check
   - Whether a refusal while closing the record is shown anywhere is measured and written here
+  **Progress 2026-10-17 (97.14 review round 3, re-proved in its attempt 2 at `67cd8223`): the first criterion is MET** — the line scrolls itself into view and `customer-notes-route.mjs` judges it with no scroll of its own, PASS 9 of 9 for staff and owner at 390/768/1440, `BREAK=no-scroll` red at 1440 only (97.14's entry has the figures). **Open: the second criterion** — a refusal while closing the record — was not measured.
 - [ ] **97.12 — Another tenant can insert lines into a business's receipts and invoices (S-M2).**
   `booking_services`, `booking_add_ons` and `booking_line_items` reference `bookings(id)` by `booking_id` alone (`supabase/migrations/20260827000200_tenant_data.sql:292,308,321`), and their policy checks only the row's own `business_id` (`:394-397`). The public receipt and the invoice embed them through the service role with no business filter (`get-booking-receipt/index.ts:84-85`, `send-invoice/index.ts:73`). A detailer in business A who knows a booking id of business B can add lines to B's paperwork. New migration (append-only): a unique constraint on `bookings(id, business_id)` and composite foreign keys `(booking_id, business_id)` on all three tables; plus `.eq("business_id", …)` on the embeds. **Applying the migration to the live database is Andrew's.**
   Acceptance criteria:
@@ -579,6 +580,45 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
     `update-booking`, unchanged. The fleet job's booking INSERT — kept. Nothing was removed.
   - Found on the way, numbered separately: **97.79** — at 1440 the Notes refusal line can sit below the record panel's
     visible edge (the check above scrolls it into view before judging, so it does not see that).
+  - **Third review round 2026-10-17 (belt run 3), two findings, both fixed — this is 97.79's first criterion:**
+    (1) the refusal line under the Notes box could sit below the record panel's edge at 1440. `Clients.jsx` now scrolls
+    it into view when it appears, twice (once now, once a frame later), because the panel is sticky: the first scroll
+    can move the page, the panel sticks, and its edge covers the line again (`081f119e`, `fdb956af`). (2)
+    `customer-notes-route.mjs` makes NO scroll of its own: a line counts as shown only wholly inside the viewport and
+    every box that clips it, painted, and topmost at its top, middle and bottom, and a red names the rule it failed
+    (`3956a4fd`, `542c5e08`); it waits out the record's 180ms opening animations before typing, as a person does
+    (`eef4f994`). New sabotage `BREAK=no-scroll` cuts the screen's scroll out of the served `Clients.jsx` and checks the
+    cut landed.
+  - **Attempt 2 (2026-10-17): the run above could not merge onto main (a ROADMAP clash beside 97.80/97.81, both sides
+    kept, `67cd8223`); every proof was re-taken on the merged tree, at `67cd8223`, sabotage before each clean run:**
+    - Browser, STAFF login: `customer-notes-route.mjs` **PASS, 9 of 9 (390 / 768 / 1440 × member, not a member,
+      view-as), 25 assertions, canary caught.** `BREAK=unguarded` 6 red (view-as save sent, no line, all 3 widths — the
+      original defect); `BREAK=direct` 3 red (member save refused); `BREAK=no-scroll` 2 red, both at 1440 and only
+      there: not-member "clipped by div.record-body.swap (line 853-898, box 149-874)", view-as "outside the viewport
+      (line 853-917, viewport 0-900)" — the review's finding reproduced. `receipts/customer-notes-route.sabotage.json`
+      holds `no-scroll`; the other runs' logs are `belt/shots/97.14/logs/` (outside the repo).
+    - Browser, OWNER login (`LOGIN=owner`, the second account): **PASS, 9 of 9, 25 assertions, canary caught**;
+      `unguarded` 6 red, `direct` 3 red, `no-scroll` 2 red (sabotage receipt holds `no-scroll`). Two of the ten
+      browser runs died on `route.fetch: read ECONNRESET` from the job's dev server before judging anything (no receipt
+      written, so no false pass) and were re-run.
+    - Looked at, not only measured: `not-member-1440x900.png` shows the whole line under the box;
+      `…break-no-scroll.png` shows the same line cut to a red sliver by the panel edge; `view-as-390x844.png` shows the
+      "Looking only" line whole under the box. Copies as `belt/shots/97.14/png/before-1440-notes-line.png` /
+      `after-1440-notes-line.png`.
+    - Throwaway database (R2): `PGLITE_DIR=… PGLITE_REQUIRED=1 node --test tests/staff-writes-sql.test.mjs` **PASS, 9 of 9,
+      23 assertions, both canaries caught**; `BREAK=bookings-delete` 1 red, `customers` 4, `no-member` 2, `no-support`
+      1, each on exactly its own rows (sabotage receipt holds `no-support`).
+    - R3 adding and owner-only delete, two accounts, live demo business: `customer-add-delete-walk.mjs` **PASS, 9 of 9,
+      18 assertions** (3 bookings 70+ days out, each "Walk 97.14 <width>" customer deleted by the owner; its
+      `staff-is-owner` sabotage was caught at `a891c0c8` and not re-run, to spend no more demo bookings or emails).
+    - R4: `node --import ./scripts/lib/inject-app-env.mjs scripts/fixture-not-deletable.mjs` **PASS, 2 of 2 widths, 17
+      assertions, canary caught.**
+    - Inventory re-grepped on the merged tree: no `from("customers")` insert/update/delete/upsert and no
+      `from("bookings")` delete anywhere in `app/src`; four `rpc` callers, the three reads plus `set_customer_notes`.
+    - Gates at `67cd8223`: composition, design-contrast, route-contract, landing-pricing, no-credentials-in-tracked-text,
+      every-open-item-is-citable and decisions-index all green. `label-guard.mjs` is red on 7 stale labels in other
+      screens' scripts (build-start, platform-costs/net, shots-99-4, suspend-delete-waive), the same 7 main's own
+      committed receipt holds at `0e8f0783` — not this item's.
   - **AWAITS PUBLISH (built and proved; no decision asked of Andrew):** apply `20261017030000` AND `20261017130000`, in
     that order, and publish the app in the same sitting; then re-run `customer-notes-route.mjs` with its RPC answer
     removed (or by hand: type a note on a client, reopen it) to see the Notes save against the live function, and tick.
