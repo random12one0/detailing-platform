@@ -489,7 +489,31 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - `EXPECTED_CHECKS` is moved on purpose, and the commit says which check changed
   **DONE 2026-10-17 (e232e617).** Section 6 is now one loop over two pairs asked through one query: `booking_id` → `bookings` (its output is line-for-line what it printed before) and, new as section 7, `customer_id` → `customers(id, business_id)`. Against the live database (kguqylyzgyzfktkfnhjb), the clean run printed `AWAITS APPLY bookings`, `maintenance_deadlines` and `plan_members — 20261017020000_customer_same_business.sql`, exit 0, receipt `PASS 8/8 targets, 9 assertions` at e232e617 (`receipts/db-audit.json`). Before the change the same command printed `clean` with nothing about customers. Positive control: `booking_vehicles`'s booking pair, asked through the same generalized query; each pair also carries a discovery floor (no writable table with the column = BLIND, a failure). Sabotage, all at e232e617, each exit 1: `--break=forget-pair` → the control reads BLIND (`receipts/db-audit.sabotage.json`, `db-audit-forget-pair.sabotage.txt`); `--break=hide-declaring` → the three customer tables become findings, 8 found (`db-audit-hide-declaring.sabotage.txt`) — which is what a new writable table with a `customer_id` and no pair key now looks like; `--break=blind` → both pairs' discovery floors fire (`db-audit-blind.sabotage.txt`). `EXPECTED_CHECKS` 7 → 8, the added check being the customer pair `say()`; the commit says so. Old-to-new inventory: every section 6 line, `--break=forget-pair`, `--break=hide-declaring` and the BLIND failure are kept; `UNPAIRED_TRACKED` is now keyed `<table>.<column>` (it was empty, so nothing moved). Also: the `.env` read tolerates a missing file, because a belt worktree has none and the script crashed there before reaching a query. Section 7 keeps printing AWAITS APPLY until Andrew applies 20261017020000; after that it should print `ok` with no AWAITS lines.
 
-- [ ] **97.74 — The dashboard's New booking refuses a booking with no email, though the box says "Email (optional)" (found by 97.14).**
+- [x] **97.74 — The dashboard's New booking refuses a booking with no email, though the box says "Email (optional)" (found by 97.14).**
+  **Done 2026-10-17 (belt; `94bc4c0c` fix + check, `47e85375` staff run).** `api.createMemberBooking` (`app/src/lib/api.js`)
+  sends `create-booking` through `callFn`, which carries the session (and the preview tab's write guard); `NewBookingModal.jsx`
+  calls it. `api.createBooking` is unchanged and still public, for `/book/:slug`; `book/core.js` is untouched, so tenant
+  sites send exactly what they sent before. **Checked by** `scripts/new-booking-no-email.mjs` (credentials + dev server), at
+  `47e85375`: `receipts/new-booking-no-email.json` PASS **5 of 5 targets, 21 assertions**: the owner at 390, 768 and 1440
+  and the demo STAFF login at 390 each create a booking with the email box empty -> 200, the session was sent, no error shown,
+  the row saved with no email, `confirmed` and with its private note, console clean; then the same body with no email, the
+  anon key and no session -> 400 `Customer email is required`. Run before the fix it printed the original 400 at all three
+  widths. `BREAK=no-session` strips the session off the sheet's call: `receipts/new-booking-no-email.sabotage.json` FAIL,
+  16 failures, 1 of 5 (only the public refusal passes). Every booking and throwaway customer the runs made was removed.
+  **Every `member` branch in `create-booking/index.ts`, and who reaches it now.** `member` is set at :117 by `requireMember`:
+  any `business_users` row for THIS business (owner or staff, any role); a read-only support session counts as the public.
+  Member side is reached by the dashboard's New booking (Today, Calendar, Clients and the header `+`; owner or staff);
+  public side by `/book/:slug` and every tenant site (core transport, no session). Before this fix the dashboard reached only
+  the public side.
+  - :140: honeypot and the per-IP public ceiling are skipped for members.
+  - :174: email optional for members, required for the public. This item.
+  - :481 / :491: a plan booking is a plan sign-up request only for the public; from the dashboard it is not.
+  - :500: the per-IP and per-phone booking limits are skipped for members.
+  - :628: `admin_notes` is kept only for members. **Same fix, sibling defect closed:** the sheet's "Private note" was being
+    silently dropped on every dashboard booking; the check now asserts it is saved.
+  - :646: status is `pending` only for the public in request mode or a plan sign-up; a dashboard booking is `confirmed`.
+  - :868: SMS consent is never recorded from a member call. The dashboard sheet has no consent box and always sends
+    `false`, so nothing changes there.
   `api.createBooking` (`app/src/lib/api.js:80`) goes through `bookingTransport`, the PUBLIC transport, which sends the
   anon key and no session. So `create-booking` sees no member (`index.ts:117`) and applies the public rule at
   `index.ts:174`: `{"error":"Customer email is required"}`, 400. Measured 2026-10-17 by
