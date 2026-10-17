@@ -591,6 +591,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // ROADMAP 97.75 — Andrew, 2026-10-17: a WAIVED job flags it too (the card money
   // is still in their Stripe), ending "If you meant to keep it, ignore this."
   const waived = booking.payment_status === "waived";
+  // ROADMAP 97.78: partly refunded in Stripe, the line names what is left, as 97.69's does.
+  const partlyRefunded = (r) => refundedOf(r.intent) > 0;
   const maybeOwed = booking.payment_status === "waived" || booking.payment_status === "paid" ? kept.filter((r) => (r.kind === "amount" || r.kind === "currency")
     && !(r.intent && refundPayments.some((p) => p?.intent === r.intent))) : [];
   const payProblem = booking.payment_problem && (extrasOwed.length > 0 || owedBack.length > 0 || payReasons.length > 0 || maybeOwed.length > 0)
@@ -689,7 +691,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 : t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
                   paid: money(Number(p.paid_cents) / 100),
                 })}</div>)}
-              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{waived
+              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{partlyRefunded(r)
+                ? (waived
+                  ? (r.kind === "currency"
+                    ? t("A card payment that was not in US dollars came in, and the job has since been waived. Part of it is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.")
+                    : t("A card payment of {paid} did not match what this job was owed, and the job has since been waived. You refunded part of it, and {left} is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.", {
+                      paid: money(Number(r.paid_cents) / 100),
+                      left: money((Number(r.paid_cents) - refundedOf(r.intent)) / 100),
+                    }))
+                  : r.kind === "currency"
+                  ? t("A card payment that was not in US dollars came in, and the job has since been marked paid. Part of it is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.")
+                  : t("A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. You refunded part of it, and {left} is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.", {
+                    paid: money(Number(r.paid_cents) / 100),
+                    left: money((Number(r.paid_cents) - refundedOf(r.intent)) / 100),
+                  }))
+                : waived
                 ? (r.kind === "currency"
                   ? t("A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.")
                   : t("A card payment of {paid} did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.", {
