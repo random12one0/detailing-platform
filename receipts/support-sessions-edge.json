@@ -1,9 +1,9 @@
 {
-  "git_sha": "645971e61615f19eda2206e82b301a4b0eeaa177",
-  "git_sha_started": "645971e61615f19eda2206e82b301a4b0eeaa177",
+  "git_sha": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
+  "git_sha_started": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T18:23:18.978Z",
+  "finished_at": "2026-10-17T18:38:39.886Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -37,16 +37,16 @@
     }
   },
   "check_id": "support-sessions-edge",
-  "started_at": "2026-10-17T18:23:18.825Z",
+  "started_at": "2026-10-17T18:38:39.722Z",
   "status": "pass",
   "expected_targets": 22,
   "discovered_targets": 22,
   "attempted_targets": 22,
   "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 52,
-  "min_assertions": 52,
-  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, four fixed, one canary)",
+  "assertions_executed": 55,
+  "min_assertions": 55,
+  "assertion_floor": "structural: eight decision calls, ten requireMember calls, six hand-over calls, then the lint guard (one count, one per discovered function, seven fixed, one canary)",
   "canary": {
     "id": "unguarded-getUser",
     "observed_failure": true
