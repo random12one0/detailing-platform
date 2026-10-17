@@ -1,34 +1,45 @@
 {
-  "git_sha": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
-  "git_sha_started": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "git_sha": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
+  "git_sha_started": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T21:32:25.261Z",
+  "finished_at": "2026-10-17T21:47:11.894Z",
   "failures": [
-    "row 2: holds none of Dana's name, phone, street or body — /dana doe/i, /12 elm/i, /555-0101/",
-    "row 2: holds no copy of the email — <p>Hi Dana Doe, see you at 12 Elm St. We will call 555-0101.",
-    "the result counts what it did — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":1,\"emails_forgotten\":3,\"bookings_anonymised\":1}"
+    "row 2: the owner's alert keeps the OWNER's address and note — Deleted customer / null",
+    "late webhook: the owner's alert keeps its own bounce note and stays blank — {\"id\":\"00000000-0000-4000-8000-000000000002\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b1b1b1b1-b1b1-4b1b-8b1b-b1b1b1b1b1b1\",\"to_email\":\"Deleted customer\",\"subject\":\"Deleted customer\",\"body_html\":null,\"detail\":null,\"status\":\"bounced\",\"provider_id\":null}",
+    "team owner@shine.test: the alert about another customer's booking survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a1\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b2b2b2b2-b2b2-4b2b-8b2b-b2b2b",
+    "team owner@shine.test: the digest about nobody survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a2\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":null,\"to_email\":\"Deleted custo",
+    "team owner@shine.test: the alert about the test customer's own booking is blanked and keeps its recipient — {\"id\":\"00000000-0000-4000-8000-0000000000a3\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b9b9b9b9-b9b9-4b9b-8b9b-b9b9b",
+    "team owner@shine.test: every other row is byte for byte unchanged, and the count says 1 — {\"ok\":true,\"name\":\"Andrew Test\",\"photos_deleted\":0,\"emails_forgotten\":5,\"bookings_anonymised\":1}",
+    "team alerts@shine.test: the alert about another customer's booking survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a1\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b2b2b2b2-b2b2-4b2b-8b2b-b2b2b",
+    "team alerts@shine.test: the digest about nobody survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a2\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":null,\"to_email\":\"Deleted custo",
+    "team alerts@shine.test: the alert about the test customer's own booking is blanked and keeps its recipient — {\"id\":\"00000000-0000-4000-8000-0000000000a3\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b9b9b9b9-b9b9-4b9b-8b9b-b9b9b",
+    "team alerts@shine.test: every other row is byte for byte unchanged, and the count says 1 — {\"ok\":true,\"name\":\"Andrew Test\",\"photos_deleted\":0,\"emails_forgotten\":3,\"bookings_anonymised\":1}",
+    "team Staff@Shine.test: the alert about another customer's booking survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a1\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b2b2b2b2-b2b2-4b2b-8b2b-b2b2b",
+    "team Staff@Shine.test: the digest about nobody survives, only unlinked — {\"id\":\"00000000-0000-4000-8000-0000000000a2\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":null,\"to_email\":\"Deleted custo",
+    "team Staff@Shine.test: the alert about the test customer's own booking is blanked and keeps its recipient — {\"id\":\"00000000-0000-4000-8000-0000000000a3\",\"business_id\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"customer_id\":null,\"booking_id\":\"b9b9b9b9-b9b9-4b9b-8b9b-b9b9b",
+    "team Staff@Shine.test: every other row is byte for byte unchanged, and the count says 1 — {\"ok\":true,\"name\":\"Andrew Test\",\"photos_deleted\":0,\"emails_forgotten\":3,\"bookings_anonymised\":1}"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/forget-customer-sql/results.sabotage-no-booking-match.txt"
+    "artifacts/forget-customer-sql/results.sabotage-no-team.txt"
   ],
   "dimensions": {
-    "break": "no-booking-match",
+    "break": "no-team",
     "migration": "20261017210000_forget_customer_forgets_their_email.sql",
-    "emails_forgotten": 3,
-    "canary_rows_leaking": 4
+    "emails_forgotten": 5,
+    "canary_rows_leaking": 5
   },
   "check_id": "forget-customer-sql",
-  "started_at": "2026-10-17T21:32:22.122Z",
+  "started_at": "2026-10-17T21:46:57.144Z",
   "status": "fail",
-  "expected_targets": 8,
-  "discovered_targets": 8,
-  "attempted_targets": 8,
-  "completed_targets": 8,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 34,
-  "min_assertions": 34,
+  "assertions_executed": 54,
+  "min_assertions": 54,
   "assertion_floor": "structural: a fixed list of checks over eight fixed email_sends rows",
   "canary": {
     "id": "pre-97.20-forget-customer",

@@ -1,9 +1,9 @@
 {
-  "git_sha": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
-  "git_sha_started": "4e9d9b310ef01d27007d423cd79dc39600105ea1",
+  "git_sha": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
+  "git_sha_started": "ea8cb26397f443283ddf0d0c84a0191bbaad74bd",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T21:33:07.767Z",
+  "finished_at": "2026-10-17T21:48:17.857Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -12,7 +12,7 @@
   ],
   "dimensions": {
     "base": "http://localhost:5173",
-    "rows": 7,
+    "rows": 8,
     "sizes": [
       "390x844",
       "320x740",
@@ -21,7 +21,7 @@
     ]
   },
   "check_id": "mail-log-forgotten",
-  "started_at": "2026-10-17T21:32:50.373Z",
+  "started_at": "2026-10-17T21:47:56.513Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -212,7 +212,8 @@ ROADMAP 99.13, not urgent, as you said.
 Today, deleting a customer for good removes them from your clients and bookings, but the list of emails you sent still
 shows their email address and opens to full copies of what they were sent: their name, address and phone. Your own
 "New booking" alerts also keep their name in the title. After the fix, every email to or about that customer stays in
-the list as "Deleted customer", with no address and no copy, and your other customers' emails are untouched. Tested
+the list as "Deleted customer", with no address and no copy, and your other customers' emails are untouched. If you
+ever booked yourself to test, deleting that test customer leaves your own alerts about everybody else alone. Tested
 on a throwaway copy of the database and on the real email list screen at four screen sizes. Nothing was deleted from
 the real database.
 
