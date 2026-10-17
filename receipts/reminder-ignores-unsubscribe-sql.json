@@ -1,9 +1,9 @@
 {
-  "git_sha": "8a7cdad261d4c6b8ea805f4025cfe2c370918da8",
-  "git_sha_started": "8a7cdad261d4c6b8ea805f4025cfe2c370918da8",
+  "git_sha": "60ec9ea07e3b1ebe98e58930df51f003ef13c43f",
+  "git_sha_started": "60ec9ea07e3b1ebe98e58930df51f003ef13c43f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T22:02:17.223Z",
+  "finished_at": "2026-10-17T22:07:59.498Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -18,7 +18,7 @@
     "before_second_due": "SN"
   },
   "check_id": "reminder-ignores-unsubscribe-sql",
-  "started_at": "2026-10-17T22:02:11.858Z",
+  "started_at": "2026-10-17T22:07:54.196Z",
   "status": "pass",
   "expected_targets": 2,
   "discovered_targets": 2,
