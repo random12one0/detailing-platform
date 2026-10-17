@@ -271,7 +271,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate, initi
     setBusy(true);
     setError("");
     try {
-      await api.createBooking(business.slug, {
+      await api.createMemberBooking(business.slug, {
         ...bookingRequest(form, {
           planId: plan?.plan_id,
           promoApplied: promoState?.ok ? promoState.code : null,

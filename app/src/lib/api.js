@@ -78,6 +78,12 @@ export const api = {
   // Booking writes — the one write path. Through the core's transport, like
   // every tenant site.
   createBooking: (businessSlug, payload) => bookingTransport.createBooking(businessSlug, payload),
+  // ROADMAP 97.74 — THE DASHBOARD'S NEW BOOKING CARRIES THE SESSION. Through the
+  // public transport the owner arrived as a stranger, so create-booking refused
+  // a phone booking with no email and dropped the private note. The public page
+  // and tenant sites keep `createBooking` above, with no session.
+  createMemberBooking: (businessSlug, payload) =>
+    callFn("create-booking", { business_slug: businessSlug, ...payload }),
   updateBooking: (businessId, payload) => callFn("update-booking", { business_id: businessId, ...payload }),
   softDeleteBooking: (businessId, bookingId) =>
     callFn("update-booking", { business_id: businessId, booking_id: bookingId, soft_delete: true }),
