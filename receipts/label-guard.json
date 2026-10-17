@@ -1,9 +1,9 @@
 {
-  "git_sha": "780aaeb761b7fa5f8d0e3993aec31a05bab8f35c",
-  "git_sha_started": "780aaeb761b7fa5f8d0e3993aec31a05bab8f35c",
+  "git_sha": "2673cfdc7839e045cb0c7fdf92ec301933dfd10e",
+  "git_sha_started": "2673cfdc7839e045cb0c7fdf92ec301933dfd10e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T02:05:23.286Z",
+  "finished_at": "2026-10-17T11:12:30.980Z",
   "failures": [
     "declared label no longer in the product: \"Build started\" (build-start-live.mjs)",
     "declared label no longer in the product: \"Tell them work has started\" (build-start-live.mjs)",
@@ -31,7 +31,7 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-17T02:05:23.156Z",
+  "started_at": "2026-10-17T11:12:30.851Z",
   "status": "fail",
   "expected_targets": 99,
   "discovered_targets": 99,
