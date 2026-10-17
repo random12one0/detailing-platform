@@ -1,36 +1,40 @@
 {
-  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
-  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "git_sha_started": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:41:01.527Z",
+  "finished_at": "2026-10-17T12:38:17.679Z",
   "failures": [
-    "390: member: the function stored the text and no error line is shown {\"call\":{\"width\":390,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 390\",\"saved\":null},\"shown\":1}",
-    "768: member: the function stored the text and no error line is shown {\"call\":{\"width\":768,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 768\",\"saved\":null},\"shown\":1}",
-    "1440: member: the function stored the text and no error line is shown {\"call\":{\"width\":1440,\"member\":true,\"status\":403,\"notes_in\":\"97.14 member 1440\",\"saved\":null},\"shown\":1}"
+    "390: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":390,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 390\",\"saved\":\"97.14 view-as 390\"}}",
+    "390: view-as: the Looking-only line is on screen under the box on screen false",
+    "768: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":768,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 768\",\"saved\":\"97.14 view-as 768\"}}",
+    "768: view-as: the Looking-only line is on screen under the box on screen false",
+    "1440: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":1440,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 1440\",\"saved\":\"97.14 view-as 1440\"}}",
+    "1440: view-as: the Looking-only line is on screen under the box on screen false"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/customer-notes-route-owner"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-owner"
   ],
   "dimensions": {
-    "break": "direct",
+    "break": "unguarded",
     "login": "demo owner",
-    "calls": 6
+    "calls": 9,
+    "unguarded_cuts": 9
   },
   "check_id": "customer-notes-route-owner",
-  "started_at": "2026-10-17T04:40:17.003Z",
+  "started_at": "2026-10-17T12:36:51.161Z",
   "status": "fail",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 3,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 18,
-  "min_assertions": 18,
-  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
+  "assertions_executed": 26,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
   "canary": {
-    "id": "direct-write-refused",
+    "id": "planted-hidden-lines-read-as-not-shown",
     "observed_failure": true
   }
 }

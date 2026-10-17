@@ -1,31 +1,31 @@
 {
-  "git_sha": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
-  "git_sha_started": "7669baf312eeb7112c923cf64e2f0fcf31d8a681",
+  "git_sha": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
+  "git_sha_started": "9d90087144345d1f5f5ebaf3a118817433ff8a83",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:40:08.224Z",
+  "finished_at": "2026-10-17T12:40:36.433Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "artifacts/customer-notes-route"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-staff"
   ],
   "dimensions": {
     "login": "demo staff",
     "calls": 6
   },
   "check_id": "customer-notes-route",
-  "started_at": "2026-10-17T04:39:32.401Z",
+  "started_at": "2026-10-17T12:39:24.383Z",
   "status": "pass",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 6,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 18,
-  "min_assertions": 18,
-  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
+  "assertions_executed": 25,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
   "canary": {
-    "id": "direct-write-refused",
+    "id": "planted-hidden-lines-read-as-not-shown",
     "observed_failure": true
   }
 }

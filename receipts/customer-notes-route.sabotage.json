@@ -1,36 +1,40 @@
 {
-  "git_sha": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
-  "git_sha_started": "3eb03b1a00d24d70ef7b936d66e3171c108c2c02",
+  "git_sha": "feab6cc3e665a551ee177295e5fc17ed01b96cec",
+  "git_sha_started": "feab6cc3e665a551ee177295e5fc17ed01b96cec",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T04:27:57.135Z",
+  "finished_at": "2026-10-17T12:31:58.779Z",
   "failures": [
-    "390: the refusal line does not follow onto a different client's record shown 1",
-    "768: the refusal line does not follow onto a different client's record shown 1",
-    "1440: the refusal line does not follow onto a different client's record shown 1"
+    "390: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":390,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 390\",\"saved\":\"97.14 view-as 390\"}}",
+    "390: view-as: the Looking-only line is on screen under the box on screen false",
+    "768: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":768,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 768\",\"saved\":\"97.14 view-as 768\"}}",
+    "768: view-as: the Looking-only line is on screen under the box on screen false",
+    "1440: view-as: the tab is a Looking preview and no save left the browser {\"bar\":1,\"sent\":{\"width\":1440,\"member\":true,\"status\":204,\"notes_in\":\"97.14 view-as 1440\",\"saved\":\"97.14 view-as 1440\"}}",
+    "1440: view-as: the Looking-only line is on screen under the box on screen false"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/customer-notes-route"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.14/png/notes-route-staff"
   ],
   "dimensions": {
-    "break": "stale-line",
+    "break": "unguarded",
     "login": "demo staff",
-    "calls": 6
+    "calls": 9,
+    "unguarded_cuts": 9
   },
   "check_id": "customer-notes-route",
-  "started_at": "2026-10-17T04:27:06.803Z",
+  "started_at": "2026-10-17T12:30:34.038Z",
   "status": "fail",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 18,
-  "min_assertions": 18,
-  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width",
+  "assertions_executed": 26,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
   "canary": {
-    "id": "direct-write-refused",
+    "id": "planted-hidden-lines-read-as-not-shown",
     "observed_failure": true
   }
 }
