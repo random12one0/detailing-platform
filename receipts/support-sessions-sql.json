@@ -1,9 +1,9 @@
 {
-  "git_sha": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
-  "git_sha_started": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
+  "git_sha": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
+  "git_sha_started": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T18:38:39.384Z",
+  "finished_at": "2026-10-17T20:16:59.624Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -20,7 +20,7 @@
     "allowed_for_owner": 8
   },
   "check_id": "support-sessions-sql",
-  "started_at": "2026-10-17T18:38:36.431Z",
+  "started_at": "2026-10-17T20:16:56.050Z",
   "status": "pass",
   "expected_targets": 28,
   "discovered_targets": 28,
