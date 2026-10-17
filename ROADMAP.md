@@ -345,6 +345,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - A job that had a wrong-amount payment and is then paid shows the first payment as a refund owed (fixture events through the production webhook, as `tests/checkout-page-lifecycle.test.mjs` does)
 - [ ] **97.68 — The "refund it" line on a job never goes away, even after the detailer refunds (found reviewing 97.11).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.68-20261017020950854`. Answer "merge it" to keep it, or say what to change.
   97.11's refund-owed line shows whenever extra payments are on record, and nothing removes them: no button marks a refund done, and `stripe-webhook` does not listen for Stripe's refund event. The cancelled-job refund line (ROADMAP 14.4) behaves the same way today. A detailer who refunded keeps seeing a red instruction to refund.
   Acceptance criteria:
   - A refund made in the detailer's own Stripe (`charge.refunded` on the connected account, fixture events) removes that payment from the job's refund-owed list, and the line goes when the list is empty
