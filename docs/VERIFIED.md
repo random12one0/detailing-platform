@@ -3751,3 +3751,16 @@ sits above the price bar. 97.11: `node tests/checkout-page-lifecycle.test.mjs` 2
 2, `silent-extra` 6, `no-expire` 2 failed; `node tests/card-payment-settles.test.mjs` 33 / 0, `BREAK=no-guard`
 3 failed. Unmerged 97.69 on its branch: lifecycle 35 / 0, `BREAK=no-carry` 3 failed. None of it is live until
 Andrew publishes the functions. Receipts these runs rewrote were restored to HEAD.
+
+**Supervision 2026-10-17 (second), at `d6b66964`, run in the foreground.** 97.73 (ticked):
+`node scripts/db-audit.mjs` against `kguqylyzgyzfktkfnhjb`, exit 0; section 7 prints AWAITS APPLY for `bookings`,
+`maintenance_deadlines`, `plan_members` (`20261017020000`). `--break=hide-declaring` exit 1, section 7 FOUND 3 naming
+the same three tables; `--break=forget-pair` exit 1; `--break=blind` exit 1 with a BLIND line. 97.72:
+`node tests/reminder-claim.test.mjs` 59 / 0; `BREAK=no-business` reddens 4a (the other business's customer is
+emailed). 97.69 (merged): `node --test tests/checkout-page-lifecycle.test.mjs` all pass, `BREAK=no-carry` red;
+`node scripts/payment-problem-late.mjs` (dev server, demo owner sign-in, the job read fed through `page.route`, no
+database write) 245 / 0, 40 of 40 views at 1440, 768, 390 and 320, console clean at each. Its screenshots are not
+saved to disk, so the owed-back line was judged by the script's paint and hit-test assertions, not by my eyes.
+Not live: none of these functions or migrations are published. Receipts these runs rewrote were restored to HEAD.
+Still red on main: `privacy-processors` and `legal-promises` name only `api.cloudflare.com` (100.6), and
+`sweep-methods-are-pinned` (100.7). The belt now offers a ready "red on main" item first.
