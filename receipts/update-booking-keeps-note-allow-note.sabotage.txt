@@ -1,4 +1,4 @@
-update-booking-keeps-note BREAK=allow-note — 2026-10-17T06:21:56.307Z
+update-booking-keeps-note BREAK=allow-note — 2026-10-17T06:28:36.888Z
 ok    the production update-booking handler loaded with every import replaced
 ok    job record · amount · the write succeeded
 ok    job record · amount · the row is now paid
