@@ -13,9 +13,10 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { SCREENS } from "./screens/more/index.js";
-import { supabase } from "./lib/supabase.js";
+import { endPreview, supabase } from "./lib/supabase.js";
+import { time12 } from "./lib/format.js";
 import { impersonation } from "./lib/impersonation.js";
-import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
+import { isPreviewTab, previewEndsAt, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
 // booking page's. See `lib/appI18n.js` for why they are two keys.
@@ -211,6 +212,20 @@ export default function App() {
   // hidden — he asked for that explicitly — the writes simply refuse until
   // he flips the switch, so a stray click cannot finalise somebody's payment.
   const [mode, setMode] = useState(previewMode());
+  // ROADMAP 97.15: A VIEW ENDS ITSELF AT ITS DEADLINE (30 minutes, the server's), signing its
+  // session out so the token stops working, and says so instead of going quietly blank.
+  const endsAt = isPreviewTab ? previewEndsAt() : 0;
+  useEffect(() => {
+    if (!endsAt) return;
+    const id = setTimeout(async () => {
+      await endPreview();
+      window.location.replace("/preview#ended=expired");
+    }, Math.max(0, endsAt - Date.now()));
+    return () => clearTimeout(id);
+  }, [endsAt]);
+  const endsLabel = endsAt
+    ? time12(`${new Date(endsAt).getHours()}:${String(new Date(endsAt).getMinutes()).padStart(2, "0")}`)
+    : "";
 
   // WHAT OPENS BY ITSELF, AND EXACTLY ONCE. Runs when the tenant lands, never
   // again in this session — a detailer who skips the form must not meet it
@@ -385,14 +400,20 @@ export default function App() {
             {mode === "look"
               ? `Looking at ${previewWho() || "their dashboard"}. Nothing here can be changed.`
               : `WORKING in ${previewWho() || "their dashboard"}. Anything you change is theirs.`}
+            {endsLabel && ` Open until ${endsLabel}.`}
           </span>
           <button type="button" onClick={() => {
             const next = mode === "look" ? "work" : "look";
             setPreviewMode(next); setMode(next);
           }}>{mode === "look" ? "Let me make changes" : "Back to looking"}</button>
-          {/* Closing the tab IS the exit — the session lives in this tab and
-              the browser throws it away. Nothing to sign out of. */}
-          <button type="button" onClick={() => window.close()}>Close</button>
+          {/* ROADMAP 97.15: Close ends the session first, so its token stops
+              working, then closes the tab (a tab the back office opened always
+              closes; the replace is for one that somehow will not). */}
+          <button type="button" onClick={async () => {
+            await endPreview();
+            window.close();
+            window.location.replace("/preview#ended=closed");
+          }}>Close</button>
         </div>
       )}
       {!isPreviewTab && imp && (

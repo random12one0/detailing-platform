@@ -1209,16 +1209,20 @@ Deno.serve(async (req) => {
       const session = ex?.session;
       const sid = session ? sessionIdOf(session.access_token) : null;
       if (exErr || !session || !sid) return json({ error: fail }, 500);
-      const { error: markErr } = await supabase.from("support_sessions").insert({
+      // ROADMAP 97.15: the deadline is the column's default (30 minutes), read back so the tab
+      // ends itself at the same moment the database stops answering it.
+      const { data: mark, error: markErr } = await supabase.from("support_sessions").insert({
         session_id: sid, user_id: session.user.id, business_id: id, admin_id: admin.id,
-      });
-      if (markErr) {
+      }).select("expires_at").single();
+      if (markErr || !mark?.expires_at) {
         // The session exists but is unmarked: end it rather than leave it about.
         await supabase.auth.admin.signOut(session.access_token, "local").catch(() => {});
-        console.error("platform-admin: support marker not written:", markErr.message);
+        console.error("platform-admin: support marker not written:", markErr?.message ?? "no expires_at");
         return json({ error: fail }, 500);
       }
-      return json({ success: true, access_token: session.access_token, refresh_token: session.refresh_token, as: email });
+      // NO REFRESH TOKEN (ROADMAP 97.15). With one, this session renewed itself for ever; without
+      // it, it dies with its access token (an hour at most) even if nobody ever ends it.
+      return json({ success: true, access_token: session.access_token, expires_at: mark.expires_at, as: email });
     }
 
     return json({ error: "Unknown action" }, 400);

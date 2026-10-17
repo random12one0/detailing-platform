@@ -25,8 +25,30 @@ export function sessionIdOf(token: string): string | null {
 
 export type MarkerLookup = (sessionId: string) => Promise<{ data: unknown; error: { code?: string; message?: string } | null }>;
 
+export type SupportState = "none" | "live" | "expired";
+
 /**
- * True when the token's session is listed in `support_sessions`.
+ * ROADMAP 97.15: none, live, or past its `expires_at` (30 minutes after platform-admin opened it).
+ * A failed read is "live" — refused everywhere except the read-only functions, as before. A row
+ * with no `expires_at` (the column's migration not yet applied) is "live" too: no deadline is known.
+ */
+export async function supportSessionState(token: string, lookup: MarkerLookup): Promise<SupportState> {
+  const sid = sessionIdOf(token);
+  if (!sid) return "none";
+  const { data, error } = await lookup(sid);
+  if (error) return error.code === "42P01" || error.code === "PGRST205" ? "none" : "live";
+  if (!data) return "none";
+  const ends = Date.parse((data as { expires_at?: string }).expires_at ?? "");
+  return Number.isFinite(ends) && ends <= Date.now() ? "expired" : "live";
+}
+
+/** May a request in this state pass requireMember? An expired support session passes nowhere. */
+export const supportAdmits = (state: SupportState, allowSupport: boolean): boolean =>
+  state === "none" || (state === "live" && allowSupport);
+
+/**
+ * True when the token's session is listed in `support_sessions` (expired or not: a listed
+ * session is read-only for ever, and expiry only takes away the reads too).
  *
  * FAILS CLOSED: a lookup that errors counts as a support session, so a broken
  * read refuses a write rather than allowing one. ONE error is not closed, on
@@ -36,11 +58,7 @@ export type MarkerLookup = (sessionId: string) => Promise<{ data: unknown; error
  * before the migration would refuse every detailer's every save.
  */
 export async function isSupportSession(token: string, lookup: MarkerLookup): Promise<boolean> {
-  const sid = sessionIdOf(token);
-  if (!sid) return false;
-  const { data, error } = await lookup(sid);
-  if (error) return !(error.code === "42P01" || error.code === "PGRST205");
-  return !!data;
+  return (await supportSessionState(token, lookup)) !== "none";
 }
 
 export const SUPPORT_READ_ONLY = "This is a read-only support view, so nothing can be changed here.";

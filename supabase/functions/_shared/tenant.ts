@@ -9,7 +9,7 @@
 
 import { supabase } from "./db.ts";
 import { readFailed, retryRead } from "./retryRead.ts";
-import { isSupportSession } from "./supportSession.ts";
+import { isSupportSession, supportAdmits, supportSessionState } from "./supportSession.ts";
 
 export interface Business {
   id: string;
@@ -280,8 +280,10 @@ export function cleanPermissions(input: unknown): Permission[] {
 }
 
 /** ROADMAP 4.3c. Call only with a token getUser has already verified. */
-export const supportSession = (token: string) =>
-  isSupportSession(token, (sid) => supabase.from("support_sessions").select("session_id").eq("session_id", sid).maybeSingle());
+// `*`, not `expires_at`: naming a column the database does not have yet would fail every read,
+// and a failed read counts as a support session — every detailer's every save refused.
+const markerOf = (sid: string) => supabase.from("support_sessions").select("*").eq("session_id", sid).maybeSingle();
+export const supportSession = (token: string) => isSupportSession(token, markerOf);
 
 export type Member = { userId: string; businessId: string; role: string; permissions: string[] };
 
@@ -311,8 +313,12 @@ export async function requireMember(
   const { data: userData, error } = await supabase.auth.getUser(token);
   const user = userData?.user;
   if (error || !user) return null;
-  if (!opts.allowSupport && await supportSession(token)) {
-    console.warn("requireMember: refused a read-only support session");
+  // ROADMAP 97.15: past its 30 minutes, a support session is refused even by the read-only
+  // functions, and its session is ended so the token stops working at Auth as well.
+  const state = await supportSessionState(token, markerOf);
+  if (!supportAdmits(state, !!opts.allowSupport)) {
+    console.warn(`requireMember: refused a read-only support session (${state})`);
+    if (state === "expired") await supabase.auth.admin.signOut(token, "local").catch(() => {});
     return null;
   }
 

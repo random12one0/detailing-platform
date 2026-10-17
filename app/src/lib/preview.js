@@ -59,7 +59,17 @@ export function leavePreview() {
     sessionStorage.removeItem(FLAG);
     sessionStorage.removeItem(MODE);
     sessionStorage.removeItem("dp.preview.who");
+    sessionStorage.removeItem(ENDS);
   } catch { /* private mode never set them */ }
+}
+
+// ROADMAP 97.15: when this view ends (ms since 1970), from the server's `expires_at`. 0 = unknown.
+const ENDS = "dp.preview.ends";
+export function previewEndsAt() {
+  try { return Number(sessionStorage.getItem(ENDS)) || 0; } catch { return 0; }
+}
+export function setPreviewEnds(ms) {
+  try { sessionStorage.setItem(ENDS, String(ms)); } catch { /* private mode */ }
 }
 
 export const LOOKING_ONLY = "Looking only. Flip the switch at the top to Working if you meant to change this.";
