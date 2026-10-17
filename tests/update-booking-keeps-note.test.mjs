@@ -41,8 +41,10 @@ const started_at = new Date().toISOString();
 
 let assertions = 0;
 const failures = [];
+const lines = [];
 const check = (name, cond, detail = "") => {
   assertions++;
+  lines.push(`${cond ? "ok  " : "FAIL"}  ${name}${cond || !detail ? "" : ` — ${detail}`}`);
   if (cond) console.log(`  ok    ${name}`);
   else { failures.push(`${name}${detail ? ` — ${detail}` : ""}`); console.error(`  FAIL  ${name}\n        ${detail}`); }
 };
@@ -166,6 +168,9 @@ check("payment_problem in the payload was ignored (not on the allowlist)", isDee
 
 const failed = failures.length;
 console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`);
+const logName = `receipts/update-booking-keeps-note${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+writeFileSync(path(logName), [`update-booking-keeps-note${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`, ...lines,
+  `${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`].join("\n") + "\n");
 const { path: receipt } = writeReceipt({
   check_id: BREAK ? `update-booking-keeps-note-${BREAK}` : "update-booking-keeps-note",
   started_at,
@@ -179,7 +184,7 @@ const { path: receipt } = writeReceipt({
   min_assertions: 38,
   failures,
   dimensions: { handler: "supabase/functions/update-booking/index.ts", payloads: PAYLOADS.map(([s]) => s), notes: NOTES.map(([n]) => n), ...(BREAK ? { break: BREAK } : {}) },
-  artifacts: [],
+  artifacts: [logName],
   // The canary: the refused payload is measured by the same deep-equal, so a
   // check that compared nothing could not pass it AND the sabotages.
   canary: BREAK ? { id: `break-${BREAK}`, observed_failure: failed > 0 } : { id: "clear-attempt-refused", observed_failure: isDeepStrictEqual(db.bookings[0].payment_problem, WRONG) },
