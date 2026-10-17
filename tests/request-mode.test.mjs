@@ -293,7 +293,9 @@ let quotedId;
 // to it — services + add-ons + travel + price_adjustments = subtotal = total.
 console.log("\ntest 8: the customer accepts, and the receipt still adds up");
 {
-  const ok = await fn("accept-quote", { booking_id: quotedId });
+  // ROADMAP 97.16 — the press names the quote it was shown.
+  const shown = (await rowOf(quotedId))?.quoted_at;
+  const ok = await fn("accept-quote", { booking_id: quotedId, quoted_at: shown });
   check("accept-quote succeeds", ok.status === 200, JSON.stringify(ok.data));
 
   const row = await rowOf(quotedId);
@@ -316,7 +318,7 @@ console.log("\ntest 8: the customer accepts, and the receipt still adds up");
 
   // ROADMAP 6.4 — was "→ 409". The customer pressing Accept again after it
   // landed is told it is done; the price line is NOT added a second time.
-  const again = await fn("accept-quote", { booking_id: quotedId });
+  const again = await fn("accept-quote", { booking_id: quotedId, quoted_at: shown });
   const after = await rowOf(quotedId);
   check("accepting the quote again is answered as done, and adds no second price line",
     again.status === 200 && again.data?.duplicate === true

@@ -231,9 +231,10 @@ try {
     async (b) => check("2e · ROWS: confirmed", (await rowOf(b.id))?.status === "confirmed"));
   await fence("2f customer accepts a quote", async () => {
     const b = await booking("pending");
-    await rest(`bookings?id=eq.${b.id}`, { method: "PATCH", body: JSON.stringify({ quoted_amount: 260, quoted_at: new Date().toISOString() }) });
-    return b;
-  }, (b) => fn("accept-quote", { booking_id: b.id }),
+    const quoted_at = new Date().toISOString();
+    await rest(`bookings?id=eq.${b.id}`, { method: "PATCH", body: JSON.stringify({ quoted_amount: 260, quoted_at }) });
+    return { ...b, quoted_at };
+  }, (b) => fn("accept-quote", { booking_id: b.id, quoted_at: b.quoted_at }),
   async (b) => {
     const r = await rowOf(b.id);
     check("2f · ROWS: confirmed at the quoted price, with ONE adjustment line",
