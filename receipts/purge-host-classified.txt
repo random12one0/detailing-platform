@@ -1,0 +1,9 @@
+2026-10-17T05:03:46.707Z clean
+  ok   tests/legal-promises.test.mjs is green: exit 0, pass 7 / fail 0
+  ok   tests/privacy-processors.test.mjs is green: exit 0, pass 8 / fail 0
+  ok   canary landed in tests/legal-promises.test.mjs: 1 line removed, text changed true
+  ok   without the row, tests/legal-promises.test.mjs is red (exit 1, pass 6 / fail 1) and names api.cloudflare.com: true
+  ok   canary landed in tests/privacy-processors.test.mjs: 1 line removed, text changed true
+  ok   without the row, tests/privacy-processors.test.mjs is red (exit 1, pass 6 / fail 2) and names api.cloudflare.com: true
+
+PASS — 6 assertions, 0 failed, canary 2/2. Receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_100.6-20261017050023875\receipts\purge-host-classified.json
