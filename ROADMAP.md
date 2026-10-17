@@ -379,6 +379,12 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - A hand-paid or waived job whose kept wrong-figure payment is partly refunded names the amount left, in English and Spanish, proved at 390 and 1440
 
+- [ ] **97.80 — A cancelled job whose card payment was refunded in full still wears a green "Paid" pill (found by the supervisor, 2026-10-17).**
+  Seen in `payment-problem-late`'s own screenshot `cancelled-refunded-1440x900.png` (belt/shots/97.11/png) at `0e8f0783`: the pills read **Cancelled · Paid** in green while THE MONEY says "Refunded $150 in your Stripe on Friday, October 16". 97.68 now records the refund on the job (`payment_problem.refunds`), but the status pill still reads `payment_status` alone, so a detailer scanning the record (or any list that shows the same pill) reads the money as kept. Grep every place that renders the payment pill before changing one.
+  Acceptance criteria:
+  - A job whose own payment is refunded in full shows a pill that says so (e.g. "Refunded"), never green "Paid"; a partial refund names that too; English and Spanish keys in the same edit
+  - `payment-problem-late`'s `cancelled-refunded` and `cancelled-part-refunded` views assert the pill text at 1440 and 390, and a sabotage that restores the plain `payment_status` pill turns them red
+
 - [ ] **97.12 — Another tenant can insert lines into a business's receipts and invoices (S-M2).**
   `booking_services`, `booking_add_ons` and `booking_line_items` reference `bookings(id)` by `booking_id` alone (`supabase/migrations/20260827000200_tenant_data.sql:292,308,321`), and their policy checks only the row's own `business_id` (`:394-397`). The public receipt and the invoice embed them through the service role with no business filter (`get-booking-receipt/index.ts:84-85`, `send-invoice/index.ts:73`). A detailer in business A who knows a booking id of business B can add lines to B's paperwork. New migration (append-only): a unique constraint on `bookings(id, business_id)` and composite foreign keys `(booking_id, business_id)` on all three tables; plus `.eq("business_id", …)` on the embeds. **Applying the migration to the live database is Andrew's.**
   Acceptance criteria:

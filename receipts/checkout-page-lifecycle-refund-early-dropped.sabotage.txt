@@ -1,4 +1,4 @@
-checkout-page-lifecycle BREAK=refund-early-dropped — 2026-10-17T11:10:30.525Z
+checkout-page-lifecycle BREAK=refund-early-dropped — 2026-10-17T13:23:07.838Z
 ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
@@ -50,6 +50,6 @@ ok    R3 · previous page finished: a fresh page, nothing expired
 ok    R3 · previous page unknown to Stripe (404, account reconnected): a fresh page
 ok    R3 · refused: when Stripe will not expire the old page, no new page is made
 ok    R3 · refused: an already-paid job reaches Stripe not at all
-FAIL  97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing — {"kind":"extra","paid_cents":15000,"owed_cents":0,"currency":"usd","at":"2026-10-17T11:10:30.472Z","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"2026-10-17T11:10:30.472Z"}]} · HTTP 200,200,200
-FAIL  97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing — {"kind":"extra","paid_cents":10000,"owed_cents":0,"currency":"usd","at":"2026-10-17T11:10:30.473Z","payments":[{"intent":"pi_0","paid_cents":10000,"currency":"usd","at":"2026-10-17T11:10:30.473Z","reason":"amount"}]} · HTTP 200,200,200
+FAIL  97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing — {"kind":"extra","paid_cents":15000,"owed_cents":0,"currency":"usd","at":"2026-10-17T13:23:07.778Z","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"2026-10-17T13:23:07.778Z"}]} · HTTP 200,200,200
+FAIL  97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing — {"kind":"extra","paid_cents":10000,"owed_cents":0,"currency":"usd","at":"2026-10-17T13:23:07.779Z","payments":[{"intent":"pi_0","paid_cents":10000,"currency":"usd","at":"2026-10-17T13:23:07.779Z","reason":"amount"}]} · HTTP 200,200,200
 53 passed, 2 failed, 55 assertions, 51 of 51 scenarios.

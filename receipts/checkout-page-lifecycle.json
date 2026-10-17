@@ -1,9 +1,9 @@
 {
-  "git_sha": "47e932502dcc402ae4e60b39ec99f96c85145d09",
-  "git_sha_started": "47e932502dcc402ae4e60b39ec99f96c85145d09",
+  "git_sha": "0e8f07833db3ffbbcf894d22b447455ce1863896",
+  "git_sha_started": "0e8f07833db3ffbbcf894d22b447455ce1863896",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T11:43:40.023Z",
+  "finished_at": "2026-10-17T13:23:07.017Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -32,7 +32,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.817Z",
+          "at": "2026-10-17T13:23:06.621Z",
           "intent": "pi_1"
         }
       },
@@ -48,7 +48,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.818Z",
+          "at": "2026-10-17T13:23:06.626Z",
           "intent": "pi_1"
         }
       },
@@ -64,7 +64,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.819Z",
+          "at": "2026-10-17T13:23:06.631Z",
           "intent": "pi_1"
         }
       },
@@ -98,13 +98,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.821Z",
+          "at": "2026-10-17T13:23:06.653Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.821Z"
+              "at": "2026-10-17T13:23:06.653Z"
             }
           ]
         }
@@ -122,13 +122,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.822Z",
+          "at": "2026-10-17T13:23:06.662Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.822Z"
+              "at": "2026-10-17T13:23:06.662Z"
             }
           ]
         }
@@ -146,19 +146,19 @@
           "paid_cents": 25000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.824Z",
+          "at": "2026-10-17T13:23:06.668Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.824Z"
+              "at": "2026-10-17T13:23:06.666Z"
             },
             {
               "intent": "pi_3",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.824Z"
+              "at": "2026-10-17T13:23:06.668Z"
             }
           ]
         }
@@ -184,7 +184,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.825Z",
+          "at": "2026-10-17T13:23:06.671Z",
           "intent": "pi_1",
           "payments": [
             {
@@ -208,7 +208,7 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.826Z",
+          "at": "2026-10-17T13:23:06.673Z",
           "payments": [
             {
               "intent": "pi_3",
@@ -233,14 +233,14 @@
           "paid_cents": 12000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.827Z",
+          "at": "2026-10-17T13:23:06.678Z",
           "intent": "pi_3",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.826Z"
+              "at": "2026-10-17T13:23:06.674Z"
             }
           ],
           "earlier": [
@@ -249,7 +249,7 @@
               "paid_cents": 15000,
               "owed_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.826Z",
+              "at": "2026-10-17T13:23:06.676Z",
               "intent": "pi_1"
             }
           ]
@@ -268,7 +268,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.828Z",
+          "at": "2026-10-17T13:23:06.682Z",
           "intent": "pi_2",
           "earlier": [
             {
@@ -276,7 +276,7 @@
               "paid_cents": 10000,
               "owed_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.827Z",
+              "at": "2026-10-17T13:23:06.680Z",
               "intent": "pi_1"
             }
           ]
@@ -294,13 +294,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.828Z",
+          "at": "2026-10-17T13:23:06.683Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.828Z"
+              "at": "2026-10-17T13:23:06.683Z"
             }
           ],
           "earlier": [
@@ -328,7 +328,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.829Z",
+          "at": "2026-10-17T13:23:06.685Z",
           "intent": "pi_1"
         }
       },
@@ -345,13 +345,13 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.830Z",
+          "at": "2026-10-17T13:23:06.688Z",
           "payments": [
             {
               "intent": "pi_1",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.829Z",
+              "at": "2026-10-17T13:23:06.687Z",
               "reason": "amount"
             }
           ]
@@ -370,13 +370,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "eur",
-          "at": "2026-10-17T11:43:39.830Z",
+          "at": "2026-10-17T13:23:06.691Z",
           "payments": [
             {
               "intent": "pi_1",
               "paid_cents": 15000,
               "currency": "eur",
-              "at": "2026-10-17T11:43:39.830Z",
+              "at": "2026-10-17T13:23:06.690Z",
               "reason": "currency"
             }
           ]
@@ -397,13 +397,13 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.831Z",
+          "at": "2026-10-17T13:23:06.695Z",
           "payments": [
             {
               "intent": "pi_1",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.831Z",
+              "at": "2026-10-17T13:23:06.693Z",
               "reason": "amount"
             }
           ]
@@ -424,20 +424,20 @@
           "paid_cents": 22000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.833Z",
+          "at": "2026-10-17T13:23:06.705Z",
           "payments": [
             {
               "intent": "pi_1",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.832Z",
+              "at": "2026-10-17T13:23:06.699Z",
               "reason": "amount"
             },
             {
               "intent": "pi_4",
               "paid_cents": 12000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.833Z",
+              "at": "2026-10-17T13:23:06.703Z",
               "reason": "amount"
             }
           ],
@@ -447,7 +447,7 @@
               "paid_cents": 15000,
               "owed_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.832Z",
+              "at": "2026-10-17T13:23:06.701Z",
               "intent": "pi_3"
             }
           ]
@@ -476,7 +476,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.834Z",
+          "at": "2026-10-17T13:23:06.709Z",
           "intent": "pi_1"
         }
       },
@@ -492,13 +492,13 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.835Z",
+          "at": "2026-10-17T13:23:06.712Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.835Z"
+              "at": "2026-10-17T13:23:06.712Z"
             }
           ]
         }
@@ -546,7 +546,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.837Z"
+              "at": "2026-10-17T13:23:06.721Z"
             }
           }
         }
@@ -582,7 +582,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.838Z"
+              "at": "2026-10-17T13:23:06.722Z"
             }
           }
         }
@@ -612,7 +612,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 5000,
-              "at": "2026-10-17T11:43:39.838Z"
+              "at": "2026-10-17T13:23:06.723Z"
             }
           }
         }
@@ -643,7 +643,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.839Z"
+              "at": "2026-10-17T13:23:06.726Z"
             }
           }
         }
@@ -674,7 +674,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 10000,
-              "at": "2026-10-17T11:43:39.839Z"
+              "at": "2026-10-17T13:23:06.727Z"
             }
           }
         }
@@ -706,7 +706,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.840Z"
+              "at": "2026-10-17T13:23:06.730Z"
             }
           }
         }
@@ -746,7 +746,7 @@
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.842Z"
+              "at": "2026-10-17T13:23:06.733Z"
             }
           }
         }
@@ -777,7 +777,7 @@
             "pi_2": {
               "paid_cents": 10000,
               "refunded_cents": 10000,
-              "at": "2026-10-17T11:43:39.842Z"
+              "at": "2026-10-17T13:23:06.734Z"
             }
           }
         }
@@ -808,7 +808,7 @@
             "pi_0": {
               "paid_cents": 10000,
               "refunded_cents": 10000,
-              "at": "2026-10-17T11:43:39.843Z"
+              "at": "2026-10-17T13:23:06.735Z"
             }
           }
         }
@@ -825,12 +825,12 @@
           "paid_cents": 0,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.844Z",
+          "at": "2026-10-17T13:23:06.736Z",
           "refunds": {
             "pi_1": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.844Z"
+              "at": "2026-10-17T13:23:06.736Z"
             }
           }
         }
@@ -847,12 +847,12 @@
           "paid_cents": 0,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.845Z",
+          "at": "2026-10-17T13:23:06.737Z",
           "refunds": {
             "pi_1": {
               "paid_cents": 15000,
               "refunded_cents": 5000,
-              "at": "2026-10-17T11:43:39.845Z"
+              "at": "2026-10-17T13:23:06.737Z"
             }
           }
         }
@@ -869,12 +869,12 @@
           "paid_cents": 0,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.845Z",
+          "at": "2026-10-17T13:23:06.738Z",
           "refunds": {
             "pi_1": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.845Z"
+              "at": "2026-10-17T13:23:06.738Z"
             }
           }
         }
@@ -893,20 +893,20 @@
           "paid_cents": 15000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.846Z",
+          "at": "2026-10-17T13:23:06.739Z",
           "payments": [
             {
               "intent": "pi_2",
               "paid_cents": 15000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.846Z"
+              "at": "2026-10-17T13:23:06.739Z"
             }
           ],
           "refunds": {
             "pi_2": {
               "paid_cents": 15000,
               "refunded_cents": 15000,
-              "at": "2026-10-17T11:43:39.846Z"
+              "at": "2026-10-17T13:23:06.738Z"
             }
           }
         }
@@ -925,13 +925,13 @@
           "paid_cents": 10000,
           "owed_cents": 0,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.847Z",
+          "at": "2026-10-17T13:23:06.744Z",
           "payments": [
             {
               "intent": "pi_0",
               "paid_cents": 10000,
               "currency": "usd",
-              "at": "2026-10-17T11:43:39.847Z",
+              "at": "2026-10-17T13:23:06.742Z",
               "reason": "amount"
             }
           ],
@@ -939,7 +939,7 @@
             "pi_0": {
               "paid_cents": 10000,
               "refunded_cents": 10000,
-              "at": "2026-10-17T11:43:39.847Z"
+              "at": "2026-10-17T13:23:06.743Z"
             }
           }
         }
@@ -956,7 +956,7 @@
           "paid_cents": 10000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.847Z",
+          "at": "2026-10-17T13:23:06.745Z",
           "intent": "pi_0",
           "refunds": {
             "pi_2": {
@@ -1034,7 +1034,7 @@
           "paid_cents": 15000,
           "owed_cents": 15000,
           "currency": "usd",
-          "at": "2026-10-17T11:43:39.849Z",
+          "at": "2026-10-17T13:23:06.750Z",
           "intent": "pi_1",
           "payments": [
             {
@@ -1115,7 +1115,7 @@
     ]
   },
   "check_id": "checkout-page-lifecycle",
-  "started_at": "2026-10-17T11:43:39.722Z",
+  "started_at": "2026-10-17T13:23:06.488Z",
   "status": "pass",
   "expected_targets": 51,
   "discovered_targets": 51,

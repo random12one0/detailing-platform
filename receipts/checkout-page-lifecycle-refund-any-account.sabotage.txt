@@ -1,4 +1,4 @@
-checkout-page-lifecycle BREAK=refund-any-account — 2026-10-17T11:10:29.310Z
+checkout-page-lifecycle BREAK=refund-any-account — 2026-10-17T13:23:15.432Z
 ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
@@ -50,6 +50,6 @@ ok    R3 · previous page finished: a fresh page, nothing expired
 ok    R3 · previous page unknown to Stripe (404, account reconnected): a fresh page
 ok    R3 · refused: when Stripe will not expire the old page, no new page is made
 ok    R3 · refused: an already-paid job reaches Stripe not at all
-FAIL  refused: a refund sent from ANOTHER detailer's account records nothing — {"kind":"extra","paid_cents":15000,"owed_cents":0,"currency":"usd","at":"x","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"x"}],"refunds":{"pi_2":{"paid_cents":15000,"refunded_cents":15000,"at":"2026-10-17T11:10:29.263Z"}}} · HTTP 200
-FAIL  refused: another detailer's refund of a cancelled job's own payment leaves its line — {"kind":"extra","paid_cents":0,"owed_cents":0,"currency":"usd","at":"2026-10-17T11:10:29.263Z","refunds":{"pi_1":{"paid_cents":15000,"refunded_cents":15000,"at":"2026-10-17T11:10:29.263Z"}}} · HTTP 200
+FAIL  refused: a refund sent from ANOTHER detailer's account records nothing — {"kind":"extra","paid_cents":15000,"owed_cents":0,"currency":"usd","at":"x","payments":[{"intent":"pi_2","paid_cents":15000,"currency":"usd","at":"x"}],"refunds":{"pi_2":{"paid_cents":15000,"refunded_cents":15000,"at":"2026-10-17T13:23:15.052Z"}}} · HTTP 200
+FAIL  refused: another detailer's refund of a cancelled job's own payment leaves its line — {"kind":"extra","paid_cents":0,"owed_cents":0,"currency":"usd","at":"2026-10-17T13:23:15.053Z","refunds":{"pi_1":{"paid_cents":15000,"refunded_cents":15000,"at":"2026-10-17T13:23:15.053Z"}}} · HTTP 200
 53 passed, 2 failed, 55 assertions, 51 of 51 scenarios.
