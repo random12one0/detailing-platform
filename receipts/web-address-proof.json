@@ -1,9 +1,9 @@
 {
-  "git_sha": "e8e01ef121a5651237eafd74c8b0df3b0795339d",
-  "git_sha_started": "e8e01ef121a5651237eafd74c8b0df3b0795339d",
+  "git_sha": "539b903da5d88ae56093c45034b3c3d52be175a0",
+  "git_sha_started": "539b903da5d88ae56093c45034b3c3d52be175a0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T07:11:18.361Z",
+  "finished_at": "2026-10-17T07:28:46.142Z",
   "failures": [],
   "warnings": [
     "Every business_domains read and every verify-domain answer is played by page.route; nothing reaches the database. It proves the SCREEN uses the function and shows the token, not that the deployed function or the applied migration exist."
@@ -30,7 +30,7 @@
     "served_new_screen": true
   },
   "check_id": "web-address-proof",
-  "started_at": "2026-10-17T07:10:46.457Z",
+  "started_at": "2026-10-17T07:28:02.539Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
