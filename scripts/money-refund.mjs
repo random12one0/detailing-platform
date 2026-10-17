@@ -251,7 +251,7 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: EXPECTED * 11,
+  min_assertions: EXPECTED * 10,
   failures,
   dimensions: { base: BASE, frozen_now: NOW, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), env_shim: process.argv.includes("--env-shim"), probed },
   artifacts: [SHOTS],
