@@ -358,6 +358,7 @@ were made more than once.
 - **Roadmap 14.39 — Receipt attempts outlive the tab** — durable server attempts rather than browser-only cleanup; finish and cleanup lock the same record; a receipt listing can revive an expired tombstone but cannot authorize deleting an unknown key. Real R2 and publication remain separate proofs.
 - **Supervision 2026-10-13 (eleventh)** — R2 closures reproduced; preview proved locally; readable sabotage evidence separated; held nightly restore cannot certify an arbitrary dump.
 - **Supervision 2026-10-16 (second)** — a test-safety refusal is not a regression; a recrash is not a new failure; 97.1's held test fixed on its branch; 97.3 back to a builder under Andrew's yes.
+- **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19162,3 +19163,27 @@ copy still caught. Done here rather than queued because the item was blocked on
 Andrew, who had already said yes, and the clock change is 2026-11-01. 97.3 is a
 test rewrite, so its NEEDS ANDREW tag was replaced with a note sending it back to
 a builder under that same yes. 97.4's hold is a real review finding; left alone.
+
+## Supervision 2026-10-17
+
+**db-audit red means a live gap that nothing in this repo fixes yet.** 97.12 added
+a section to `scripts/db-audit.mjs` that exits red until Andrew applies its
+migration, and the belt held it as a gate regression. Both are right about the
+facts and the result is a dead end: the item can never merge, and if it did,
+db-audit would join `deployed-inventory` and `migration-drift` as a standing red
+that guards nothing. An unapplied migration already has its red
+(`migration-drift.mjs`). So a gap whose fix is declared in the repo prints by
+name as AWAITS APPLY and does not fail; a gap with no declaring file still
+fails. The gap stays visible, and db-audit stays able to catch the next one.
+Sent back to a builder on 97.12's branch.
+
+97.69 was held for "no usable review" over a review that said REVIEW OK on its
+third line. Belt-staging `5ffb69e` already reads past a short preamble; not
+installed yet. Its proof reproduced on the branch (35/0, `BREAK=no-carry` 3
+red). Recommendation to Andrew: merge it, before 97.68.
+
+Re-run this pass, credential-free, at `753c727d`: 97.64 duplicate-answer 67/0
+(`hand-back-id` 6 red), booking-refs 10/0 (`list-key` 2 red); 97.8
+price-shown-equals-charged 12/0 (`no-guard` 3 red) and `price-changed-page.mjs`
+66/0 over 6 targets with the canary caught; 97.11 checkout-page-lifecycle 29/0
+(three breaks red), card-payment-settles 33/0 (`no-guard` 3 red).

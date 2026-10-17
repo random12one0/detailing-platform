@@ -3740,3 +3740,14 @@ deleted afterwards by name.
 23 / 0; `PROMO_BREAK=` no-share 7 failed, count-twice 1, no-cap 5, no-window 4, count-rows 3. Credential-free,
 real handler, fake database. Not seen in a browser: the page calls the deployed `create-booking`, which does
 not run this code until Andrew publishes.
+
+**Supervision 2026-10-17, at `753c727d`, credential-free, run in the foreground.** 97.64:
+`node tests/duplicate-answer.test.mjs` 67 / 0, `BREAK=hand-back-id` 6 failed; `node tests/booking-refs.test.mjs`
+10 / 0, `BREAK=list-key` 2 failed. 97.8: `node tests/price-shown-equals-charged.test.mjs` 12 / 0,
+`PRICE_BREAK=no-guard` 3 failed; `node scripts/price-changed-page.mjs` against the local dev server, 6 of 6
+targets, 66 / 0, canary caught (the committed 72 includes six job-copy env-signature lines that only run with
+`--env-from`; the other 66 lines match one for one). Notice screenshots read at 390 and 1440: it names $85 and
+sits above the price bar. 97.11: `node tests/checkout-page-lifecycle.test.mjs` 29 / 0, `BREAK=overwrite-amount`
+2, `silent-extra` 6, `no-expire` 2 failed; `node tests/card-payment-settles.test.mjs` 33 / 0, `BREAK=no-guard`
+3 failed. Unmerged 97.69 on its branch: lifecycle 35 / 0, `BREAK=no-carry` 3 failed. None of it is live until
+Andrew publishes the functions. Receipts these runs rewrote were restored to HEAD.
