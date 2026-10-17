@@ -115,4 +115,10 @@ if (isPreviewTab) {
   // or profile change on the owner's account), so a stray click stops here too.
   const updateUser = supabase.auth.updateUser.bind(supabase.auth);
   supabase.auth.updateUser = (...args) => { guardWrite(); return updateUser(...args); };
+  // ROADMAP 97.14: a database function can write too (the Notes box saves
+  // through `set_customer_notes`), so every rpc is refused on Looking except
+  // the ones that only READ — the same shape as lib/api.js's PREVIEW_READS.
+  const RPC_READS = new Set(["founding_offer", "platform_prices", "job_photo_budget"]);
+  const rpc = supabase.rpc.bind(supabase);
+  supabase.rpc = (fn, ...args) => { if (!RPC_READS.has(fn)) guardWrite(); return rpc(fn, ...args); };
 }

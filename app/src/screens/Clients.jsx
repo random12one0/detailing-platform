@@ -312,13 +312,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
 
   // ROADMAP 97.14 — the browser holds no write on `customers`; the notes go
   // through `set_customer_notes`, which checks membership and writes nothing
-  // else. A refusal is shown: the old direct update failed silently.
+  // else. A refusal is shown: the old direct update failed silently. A view-as
+  // tab on Looking throws before anything is sent, and says so here too.
   const saveNotes = async () => {
-    const { error } = await supabase.rpc("set_customer_notes", {
-      p_business_id: business.id, p_customer_id: open.id, p_notes: notes,
-    });
-    setNotesError(error ? t("Your notes were not saved. Please try again.") : "");
-    if (!error) load();
+    try {
+      const { error } = await supabase.rpc("set_customer_notes", {
+        p_business_id: business.id, p_customer_id: open.id, p_notes: notes,
+      });
+      setNotesError(error ? t("Your notes were not saved. Please try again.") : "");
+      if (!error) load();
+    } catch (e) {
+      setNotesError(e.message);
+    }
   };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
