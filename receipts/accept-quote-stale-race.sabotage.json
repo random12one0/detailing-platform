@@ -1,0 +1,36 @@
+{
+  "git_sha": "43f5afcc0a24efa45a24199a969f45f9d1ffacd1",
+  "git_sha_started": "43f5afcc0a24efa45a24199a969f45f9d1ffacd1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T18:48:40.996Z",
+  "failures": [
+    "5a . NOT answered as a success - got 200 {\"success\":true,\"duplicate\":true,\"booking\":{\"id\":\"b-race\",\"status\":\"confirmed\"}}"
+  ],
+  "warnings": [
+    "The handler runs in-process against a fake Supabase in this file, not the live database; it proves the function's own decisions."
+  ],
+  "artifacts": [
+    "receipts/accept-quote-stale.sabotage-race.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.16",
+    "break": "race"
+  },
+  "check_id": "accept-quote-stale-race",
+  "started_at": "2026-10-17T18:48:40.766Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 15,
+  "assertion_floor": "2+3+2+2+2+2 scenario checks + 2 run checks = 15, every check() unconditional (docs/gotchas.md 98).",
+  "canary": {
+    "id": "pre-fix-stale-accept",
+    "observed_failure": true,
+    "what": "QUOTE_BREAK=stale|past|race cut the production guard as it loads"
+  }
+}
