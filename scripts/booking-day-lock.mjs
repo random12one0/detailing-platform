@@ -262,7 +262,8 @@ writeFileSync(join(REPO, LOG), JSON.stringify({ postgres: version, break: BREAK 
 const defect = cases.filter((c) => c.id.startsWith("defect-")).every((c) => c.a_exit === 0 && c.b_exit === 0);
 const status = failures.length ? "fail" : "pass";
 const { path } = writeReceipt({
-  check_id: "booking-day-lock",
+  // One receipt per sabotage (receipts/booking-day-lock.<break>.sabotage.json), so neither overwrites the other.
+  check_id: BREAK ? `booking-day-lock.${BREAK}` : "booking-day-lock",
   started_at: new Date(Date.now() - process.uptime() * 1000).toISOString(),
   status,
   expected_targets: EXPECTED,
