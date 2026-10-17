@@ -40,11 +40,13 @@
 // makes — is that lookup. It is the difference between fast at fifty detailers
 // and slow at five hundred, and it is invisible until it is not.
 
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
 
+// A belt worktree has no .env; its credentials arrive in the environment (97.73).
+const envFile = new URL("../.env", import.meta.url);
 const env = Object.fromEntries(
-  readFileSync(new URL("../.env", import.meta.url), "utf8")
+  (existsSync(envFile) ? readFileSync(envFile, "utf8") : "")
     .split(/\r?\n/).filter((l) => l.includes("=") && !l.startsWith("#"))
     .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()]),
 );
@@ -77,7 +79,8 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // foreign keys, and (2026-09-21) locked-by-RLS-with-grants-still-open. So
 // a check that stops running is a failure rather than a smaller audit.
 // 2026-10-17 (ROADMAP 97.12): 6 -> 7, the booking-child pair-key check (section 6).
-const EXPECTED_CHECKS = 7;
+// 2026-10-17 (ROADMAP 97.73): 7 -> 8, the customer pair-key check (section 7).
+const EXPECTED_CHECKS = 8;
 let checksRun = 0;
 
 async function q(sql) {
@@ -222,7 +225,7 @@ const UNINDEXED_BY_DESIGN = new Set([
 ]);
 
 let findings = 0;
-let blindPairCheck = false;
+const blindPairs = [];
 const say = (label, rows, fmt) => {
   checksRun++;
   if (!rows.length) { console.log(`  ok    ${label}`); return; }
@@ -405,52 +408,83 @@ console.log("\n5. a table locked by RLS alone, with its grants still open");
 // EMPTY SINCE ROADMAP 97.71: `job_photos` and `maintenance_deadlines` left this
 // list when `20261017010000_photos_deadlines_same_business.sql` declared their
 // pair keys, so until it is applied they print AWAITS APPLY like 97.12's three.
+//
+// **AND THE SAME QUESTION ABOUT A CUSTOMER - 2026-10-17, ROADMAP 97.73.** A
+// tenant policy has no opinion on whether `customer_id` points at one of my
+// customers either, and this section asked only about bookings: it printed
+// "clean" at f6521b03 while `bookings`, `plan_members` and
+// `maintenance_deadlines` named customers by id alone on the live database. So
+// one loop now asks both pairs with one query. Its positive control is
+// `booking_vehicles`'s booking pair, asked through that same query; no customer
+// pair key exists live until 20261017020000 is applied, so each pair also
+// carries a discovery floor: finding no writable table with the column at all
+// means the question is blind, not clean.
+// `--break=forget-pair` and `--break=hide-declaring` reach both pairs.
+//
+// Keyed `<table>.<column>`, because one table can sit in both questions.
 const UNPAIRED_TRACKED = new Map([]);
-console.log("\n6. a booking's child a detailer can write points at a booking of the SAME business");
+const PAIRS = [
+  { col: "booking_id", parent: "bookings", control: "booking_vehicles",
+    heading: "6. a booking's child a detailer can write points at a booking of the SAME business",
+    label: "every writable booking child references bookings by (booking_id, business_id), or a migration here declares it",
+    gap: "references a booking by id alone" },
+  { col: "customer_id", parent: "customers",
+    heading: "7. a table a detailer can write names a customer of the SAME business",
+    label: "every writable table naming a customer references customers by (customer_id, business_id), or a migration here declares it",
+    gap: "names a customer by id alone" },
+];
+const pairFile = new Map();
 {
-  const pairFile = new Map();
   const migDir = new URL("../supabase/migrations/", import.meta.url);
   for (const f of readdirSync(migDir).filter((x) => x.endsWith(".sql")).sort()) {
     const src = readFileSync(new URL(f, migDir), "utf8");
-    for (const m of src.matchAll(/alter table public\.(\w+)\s+add constraint \w+\s+foreign key \(booking_id, business_id\)\s+references public\.bookings \(id, business_id\)/gi)) {
-      if (BREAK !== "hide-declaring") pairFile.set(m[1], f);
+    for (const m of src.matchAll(/alter table public\.(\w+)\s+add constraint \w+\s+foreign key \((\w+), business_id\)\s+references public\.(\w+) \(id, business_id\)/gi)) {
+      if (BREAK !== "hide-declaring") pairFile.set(`${m[3]}:${m[1]}.${m[2]}`, f);
     }
   }
+}
+for (const { col, parent, control: controlTable, heading, label, gap } of PAIRS) {
+  console.log(`\n${heading}`);
   const rows = await q(`
     select c.relname as table,
            exists (select 1 from pg_constraint k where k.conrelid = c.oid and k.contype = 'f'
-                    and k.confrelid = 'public.bookings'::regclass
+                    and k.confrelid = 'public.${parent}'::regclass
                     and k.conkey = array[
-                      (select attnum from pg_attribute where attrelid = c.oid and attname = 'booking_id'),
+                      (select attnum from pg_attribute where attrelid = c.oid and attname = '${col}'),
                       (select attnum from pg_attribute where attrelid = c.oid and attname = 'business_id')]::int2[]) as paired
       from pg_class c
       join pg_namespace n on n.oid = c.relnamespace
      where n.nspname = 'public' and c.relkind = 'r'
-       and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'booking_id' and not a.attisdropped)
+       and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = '${col}' and not a.attisdropped)
        and exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'business_id' and not a.attisdropped)
        and (has_table_privilege('authenticated', c.oid, 'insert') or has_table_privilege('authenticated', c.oid, 'update'))
        and exists (select 1 from pg_policy p where p.polrelid = c.oid and p.polcmd in ('*', 'a', 'w'))
      order by 1`);
   const paired = (r) => BREAK === "forget-pair" ? false : r.paired === true;
-  const control = rows.find((r) => r.table === "booking_vehicles");
-  if (!control || !paired(control)) {
-    blindPairCheck = true;
-    console.log(`  BLIND booking_vehicles did not come back paired (${control ? "unpaired" : "absent"}) — this question cannot see a pair key, so its silence means nothing`);
+  const key = (r) => `${r.table}.${col}`;
+  if (controlTable) {
+    const control = rows.find((r) => r.table === controlTable);
+    if (!control || !paired(control)) {
+      blindPairs.push(`${col}: ${controlTable}, which carries the pair key, did not come back paired`);
+      console.log(`  BLIND ${controlTable} did not come back paired (${control ? "unpaired" : "absent"}) — this question cannot see a pair key, so its silence means nothing`);
+    }
   }
-  for (const r of rows.filter((x) => paired(x) && UNPAIRED_TRACKED.has(x.table))) {
-    console.log(`  STALE ${r.table} is paired now — remove it from UNPAIRED_TRACKED (${UNPAIRED_TRACKED.get(r.table)})`);
+  if (!rows.length) {
+    blindPairs.push(`${col}: no writable table carrying ${col} came back, so the question reached nothing`);
+    console.log(`  BLIND no writable table with ${col} came back — this question reached nothing, so its silence means nothing`);
+  }
+  for (const r of rows.filter((x) => paired(x) && UNPAIRED_TRACKED.has(key(x)))) {
+    console.log(`  STALE ${key(r)} is paired now — remove it from UNPAIRED_TRACKED (${UNPAIRED_TRACKED.get(key(r))})`);
     findings++;
   }
-  for (const r of rows.filter((x) => !paired(x) && UNPAIRED_TRACKED.has(x.table))) {
-    console.log(`  TRACKED ${r.table} — booking_id-only reference, open as ${UNPAIRED_TRACKED.get(r.table)}`);
+  for (const r of rows.filter((x) => !paired(x) && UNPAIRED_TRACKED.has(key(x)))) {
+    console.log(`  TRACKED ${r.table} — ${col}-only reference, open as ${UNPAIRED_TRACKED.get(key(r))}`);
   }
-  const open = rows.filter((x) => !paired(x) && !UNPAIRED_TRACKED.has(x.table));
-  for (const r of open.filter((x) => pairFile.has(x.table))) {
-    console.log(`  AWAITS APPLY ${r.table} — ${pairFile.get(r.table)}`);
-  }
-  say("every writable booking child references bookings by (booking_id, business_id), or a migration here declares it",
-    open.filter((x) => !pairFile.has(x.table)),
-    (r) => `${r.table} — references a booking by id alone; no migration declares the pair key`);
+  const open = rows.filter((x) => !paired(x) && !UNPAIRED_TRACKED.has(key(x)));
+  const declared = (r) => pairFile.get(`${parent}:${key(r)}`);
+  for (const r of open.filter(declared)) console.log(`  AWAITS APPLY ${r.table} — ${declared(r)}`);
+  say(label, open.filter((x) => !declared(x)),
+    (r) => `${r.table} — ${gap}; no migration declares the pair key`);
 }
 
 // --- THE CANARY -----------------------------------------------------------
@@ -486,9 +520,7 @@ if (checksRun === 0) {
 }
 // **AND THE FINDINGS NOW FAIL THE RUN.** They never did: there was no
 // `process.exit` on them at all, so two real problems printed and exited 0.
-if (blindPairCheck) {
-  auditFailures.push("section 6 is BLIND: booking_vehicles, which carries the pair key, did not come back paired");
-}
+for (const b of blindPairs) auditFailures.push(`the pair-key question is BLIND — ${b}`);
 if (findings > 0) {
   auditFailures.push(`${findings} finding(s) to look at — see FOUND above`);
 }
