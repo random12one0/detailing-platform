@@ -2147,10 +2147,6 @@ and how the wait ends.
   check. Final warmed public-URL proof follows Andrew's 0.11bd release.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
-  **BELT PARKED after 3 attempts, 2026-10-09 21:10:49.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T21-10-44-582Z-0.11c.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   Configure Cloudflare CORS and function secrets, publish the photo-door, delete-customer and photo-reconcile functions, ship the app changes, install the reconcile cron, and apply the 10 GB migration in the same release as the upload switch. This piece leaves only post-release proof and drift observation.
   Part 3 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
