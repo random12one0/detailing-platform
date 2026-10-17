@@ -304,6 +304,8 @@ export const es = {
     "Nadie más puede tomarla mientras revisamos tu solicitud. Te escribimos a {email} en cuanto se acepte.",
   "We’ve emailed your confirmation to {email}.":
     "Te enviamos la confirmación a {email}.",
+  "The link to view, change or cancel it is in your confirmation email.":
+    "El enlace para ver, cambiar o cancelarla está en tu correo de confirmación.",
   "What you asked for": "Lo que pediste",
   "Your appointment": "Tu cita",
   "We’ll come to {address}": "Vamos a {address}",

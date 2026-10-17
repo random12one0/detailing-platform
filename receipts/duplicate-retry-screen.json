@@ -1,0 +1,210 @@
+{
+  "git_sha": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
+  "git_sha_started": "df23a22e5fc15f4206ce638d833d4fc6362df69c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T00:36:53.184Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-1440x900.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-1440x900.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-320x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-320x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/genuine-390x844-lite.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.64/png/stranger-390x844-lite.png"
+  ],
+  "dimensions": {
+    "views": [
+      "390844",
+      "7681024",
+      "1440900",
+      "320844",
+      "390844?lite=1"
+    ],
+    "seen": [
+      {
+        "view": "390x844",
+        "who": "genuine",
+        "calls": [
+          "7ac23350-da2b-4102-98d4-f838206e694b",
+          "7ac23350-da2b-4102-98d4-f838206e694b"
+        ],
+        "retry_answer": {
+          "booking": {
+            "id": "7ac23350-da2b-4102-98d4-f838206e694b",
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=7ac23350-da2b-4102-98d4-f838206e694b&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/7ac23350-da2b-4102-98d4-f838206e694b"
+      },
+      {
+        "view": "390x844",
+        "who": "stranger",
+        "ref": "bfbb54c9-a7d5-4104-a33d-005e123a9229",
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "768x1024",
+        "who": "genuine",
+        "calls": [
+          "e83f291b-778f-4b92-93cf-7cbe669e3f76",
+          "e83f291b-778f-4b92-93cf-7cbe669e3f76"
+        ],
+        "retry_answer": {
+          "booking": {
+            "id": "e83f291b-778f-4b92-93cf-7cbe669e3f76",
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=e83f291b-778f-4b92-93cf-7cbe669e3f76&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/e83f291b-778f-4b92-93cf-7cbe669e3f76"
+      },
+      {
+        "view": "768x1024",
+        "who": "stranger",
+        "ref": "3e1f9647-e80e-4ed7-abff-c75423084913",
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "1440x900",
+        "who": "genuine",
+        "calls": [
+          "d4b9c6b0-e310-47eb-b17f-377092826999",
+          "d4b9c6b0-e310-47eb-b17f-377092826999"
+        ],
+        "retry_answer": {
+          "booking": {
+            "id": "d4b9c6b0-e310-47eb-b17f-377092826999",
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=d4b9c6b0-e310-47eb-b17f-377092826999&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/d4b9c6b0-e310-47eb-b17f-377092826999"
+      },
+      {
+        "view": "1440x900",
+        "who": "stranger",
+        "ref": "f4f84cc9-4e2b-495a-b64b-9ff2128fa527",
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "320x844",
+        "who": "genuine",
+        "calls": [
+          "030b9e52-8970-467b-863e-e80b04a27760",
+          "030b9e52-8970-467b-863e-e80b04a27760"
+        ],
+        "retry_answer": {
+          "booking": {
+            "id": "030b9e52-8970-467b-863e-e80b04a27760",
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=030b9e52-8970-467b-863e-e80b04a27760&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/030b9e52-8970-467b-863e-e80b04a27760"
+      },
+      {
+        "view": "320x844",
+        "who": "stranger",
+        "ref": "dae62f93-b86d-4212-9854-3e2d6bcbf66e",
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      },
+      {
+        "view": "390x844-lite",
+        "who": "genuine",
+        "calls": [
+          "9fec55f1-bf7f-44cd-aafc-c21349ec555d",
+          "9fec55f1-bf7f-44cd-aafc-c21349ec555d"
+        ],
+        "retry_answer": {
+          "booking": {
+            "id": "9fec55f1-bf7f-44cd-aafc-c21349ec555d",
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "calendar": "https://fixture.supabase.invalid/functions/v1/booking-ics?id=9fec55f1-bf7f-44cd-aafc-c21349ec555d&audience=customer&apikey=fixture-anon",
+        "manage": "/booking/9fec55f1-bf7f-44cd-aafc-c21349ec555d"
+      },
+      {
+        "view": "390x844-lite",
+        "who": "stranger",
+        "ref": "e13d6d68-56bc-4eaf-9daa-d23f1d865b44",
+        "answer": {
+          "booking": {
+            "start_at": "2026-10-30T17:00:00.000Z",
+            "status": "confirmed"
+          },
+          "duplicate": true
+        },
+        "hrefs": []
+      }
+    ],
+    "scope": "Real create-booking handler on an in-memory table; profile, quote and slots are stand-ins; no live booking or send."
+  },
+  "check_id": "duplicate-retry-screen",
+  "started_at": "2026-10-17T00:35:53.361Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 76,
+  "min_assertions": 69,
+  "canary": {
+    "id": "pre-97.64-handler-hands-a-stranger-the-id",
+    "observed_failure": true,
+    "reported": {
+      "booking": {
+        "id": "3f6c2a9e-8b1d-4c7a-9e2f-5a1b7c3d9e04",
+        "start_at": "2026-10-30T17:00:00.000Z",
+        "status": "confirmed"
+      },
+      "duplicate": true
+    }
+  }
+}

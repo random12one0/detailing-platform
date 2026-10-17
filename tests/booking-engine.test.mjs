@@ -917,11 +917,13 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
   check("18a-ii · and asks the same question BEFORE the slot gate, so a retry after a lost answer is not refused",
     /sameBooking\(business\.id, asked\.toISOString\(\), body\)[\s\S]{0,400}?const check = await validateSlot\(/.test(cb));
   check("18b · and returns it as a booking rather than a conflict",
-    /if \(mine\) \{[\s\S]{0,400}?return json\(\{ booking: mine/.test(cb));
+    /if \(mine\) \{[\s\S]{0,400}?return json\(duplicateAnswer\(mine, body\)\)/.test(cb));
   // The retry must be INDISTINGUISHABLE from the first press — same key, so
-  // the confirmation page and the emails behave identically.
+  // the confirmation page and the emails behave identically. ROADMAP 97.64:
+  // `duplicateAnswer` builds it, keeping the shape and dropping only the id
+  // for a caller without the first press's booking_ref.
   check("18c · in the same shape a fresh booking returns",
-    /return json\(\{ booking: mine, duplicate: true \}\);/.test(cb));
+    /return \{ booking: id === bookingRef\(body\) \? mine : rest, duplicate: true \};/.test(cb));
   // AND THE CLASH THAT REALLY IS SOMEBODY ELSE STILL SAYS SO.
   check("18d · a genuine clash is still a 409 with a sentence",
     /That time was just taken by another booking[\s\S]{0,80}?409\);/.test(cb));

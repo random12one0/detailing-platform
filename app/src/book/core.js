@@ -1523,6 +1523,23 @@ export function bookingRequests(form, opts = {}) {
 export const groupedWith = (payload, firstBookingId) =>
   ({ ...payload, group_with: firstBookingId || null });
 
+// ROADMAP 97.64 — ONE RANDOM REF PER BOOKING, KEPT ACROSS RETRIES. The server
+// uses it as the booking's id and hands the id back on a repeat answer only to
+// a request carrying it, so a stranger who re-posts somebody's name, phone and
+// time never gets the manage link. EACH BOOKING keeps its own ref while its
+// own request is unchanged, so a retry after a lost answer is recognised and a
+// booking whose request changed (another time) gets a new one. Per booking,
+// not per list: changing car 2's time must not re-key car 1, or car 1's retry
+// loses its id and car 2 is booked without `group_with` (review, 2026-10-16).
+// ponytail: no fallback where crypto.randomUUID is missing (plain-http pages);
+// those send no ref and a retry falls back to "the link is in your email".
+export function bookingRefs(payloads, held = []) {
+  return payloads.map((p, i) => {
+    const key = JSON.stringify(p);
+    return held[i]?.key === key ? held[i] : { key, ref: globalThis.crypto?.randomUUID?.() ?? null };
+  });
+}
+
 // ROADMAP 97.2 — A RETRY'S ANSWER IS ONLY `id`, `start_at` AND `status`.
 // Anybody holding a name, a phone and a time can ask for it, so the server no
 // longer hands back the row. The confirmation screen gets the rest from what
@@ -1538,7 +1555,8 @@ export function retryConfirmation(answer, payload, quote) {
     start_time: payload.start_time,
     end_time: `${hhmm(Math.floor(end / 60) % 24)}:${hhmm(end % 60)}`,
     total_price: quote?.total,
-    receipt_url: `/booking/${answer.id}`,
+    // 97.64: no id when the request was not the original press.
+    receipt_url: answer.id ? `/booking/${answer.id}` : null,
   };
 }
 

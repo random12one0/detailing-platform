@@ -1,14 +1,28 @@
 {
-  "git_sha": "c0b7bf15b455128960daadf83fec09e669a484cc",
-  "git_sha_started": "c0b7bf15b455128960daadf83fec09e669a484cc",
+  "git_sha": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
+  "git_sha_started": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T19:24:50.558Z",
+  "finished_at": "2026-10-16T22:02:34.649Z",
   "failures": [
-    "before the slot gate · the answer's keys are exactly id, start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, id, start_at, status, total_price",
-    "before the slot gate · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
-    "on an insert collision · the answer's keys are exactly id, start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, id, start_at, status, total_price",
-    "on an insert collision · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id"
+    "before the slot gate · a stranger with no ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "before the slot gate · a stranger with no ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "before the slot gate · a stranger with a wrong ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "before the slot gate · a stranger with a wrong ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "before the slot gate · the original press · the answer's keys are exactly id, start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, id, start_at, status, total_price",
+    "before the slot gate · the original press · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an overlap collision · a stranger with no ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "on an overlap collision · a stranger with no ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an overlap collision · a stranger with a wrong ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "on an overlap collision · a stranger with a wrong ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an overlap collision · the original press · the answer's keys are exactly id, start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, id, start_at, status, total_price",
+    "on an overlap collision · the original press · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an id collision · a stranger with no ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "on an id collision · a stranger with no ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an id collision · a stranger with a wrong ref · the answer's keys are exactly start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, start_at, status, total_price",
+    "on an id collision · a stranger with a wrong ref · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id",
+    "on an id collision · the original press · the answer's keys are exactly id, start_at, status: got admin_notes, business_id, customer_address, customer_email, customer_id, customer_name, customer_notes, customer_phone, deleted_at, end_at, id, start_at, status, total_price",
+    "on an id collision · the original press · none of the private columns is present: admin_notes, customer_email, customer_address, customer_phone, customer_notes, customer_name, customer_id"
   ],
   "warnings": [],
   "artifacts": [
@@ -19,17 +33,17 @@
     "break": "select-star"
   },
   "check_id": "duplicate-answer-select-star",
-  "started_at": "2026-10-16T19:24:50.447Z",
+  "started_at": "2026-10-16T22:02:34.514Z",
   "status": "fail",
-  "expected_targets": 2,
-  "discovered_targets": 2,
-  "attempted_targets": 2,
-  "completed_targets": 2,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 16,
-  "min_assertions": 15,
+  "assertions_executed": 67,
+  "min_assertions": 66,
   "canary": {
-    "id": "pre-97.2-select-star-and-consent-write",
+    "id": "pre-97.2-select-star-consent-write-and-id-to-anybody",
     "observed_failure": true,
     "reported": [
       {
@@ -43,10 +57,11 @@
           "customer_name",
           "customer_id"
         ],
-        "consented": true
+        "consented": true,
+        "stranger_got_id": true
       },
       {
-        "exit": "on an insert collision",
+        "exit": "on an overlap collision",
         "leaked": [
           "admin_notes",
           "customer_email",
@@ -56,7 +71,22 @@
           "customer_name",
           "customer_id"
         ],
-        "consented": true
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an id collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
       }
     ]
   }
