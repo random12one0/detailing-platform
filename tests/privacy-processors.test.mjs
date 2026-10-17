@@ -177,6 +177,7 @@ const TABLE = {
   "waze.com": { kind: "processor", processor: "Waze", why: "the same address, when the detailer's maps preference is Waze" },
   "calendar.google.com": { kind: "processor", processor: "Google Calendar", why: "customer name, address, phone AND free-text notes, when the calendar preference is Google" },
   "r2.cloudflarestorage.com": { kind: "processor", processor: "Cloudflare", why: "job photographs — the store `photo-door`, `photo-reconcile` and `delete-customer` sign for" },
+  "api.cloudflare.com": { kind: "processor", processor: "Cloudflare", why: "the public-photo cache purge (ROADMAP 100.6): one already-public business-media address, business id and random file id only, no customer or visitor data" },
 
   // --- platform: the floor the product stands on, 7.8 clause (c)'s exception -
   "netlify.app": { kind: "platform", processor: null, why: "a Netlify preview hostname, used to recognise one" },
@@ -243,7 +244,7 @@ const VOCAB = [
   { name: "Apple Maps", hosts: ["maps.apple.com"], says: ["Apple Maps"] },
   { name: "Waze", hosts: ["waze.com"], says: ["Waze"] },
   { name: "Google Calendar", hosts: ["calendar.google.com"], says: ["Google Calendar"] },
-  { name: "Cloudflare", hosts: ["r2.cloudflarestorage.com"], says: ["Cloudflare"] },
+  { name: "Cloudflare", hosts: ["r2.cloudflarestorage.com", "api.cloudflare.com"], says: ["Cloudflare"] },
   // must NEVER be earned, so must never appear on the page
   { name: "OpenStreetMap", hosts: [], says: ["OpenStreetMap"] },
   { name: "Sentry", hosts: [], says: ["Sentry"] },

@@ -1,0 +1,32 @@
+{
+  "git_sha": "48217665f510d4be91dfa29223c8ac5ecc84215f",
+  "git_sha_started": "48217665f510d4be91dfa29223c8ac5ecc84215f",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T05:03:46.706Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/purge-host-classified.txt"
+  ],
+  "dimensions": {
+    "roadmap": "100.6",
+    "host": "api.cloudflare.com"
+  },
+  "check_id": "purge-host-classified",
+  "started_at": "2026-10-17T05:03:45.819Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 6,
+  "min_assertions": 6,
+  "assertion_floor": "Per suite: the subject is green (1), the canary row removal landed as exactly one line (1), and the de-classified copy is red naming the host (1). Two suites, six.",
+  "canary": {
+    "id": "unclassify",
+    "observed_failure": true,
+    "what": "2 of 2 suites went red naming api.cloudflare.com with its classification row removed"
+  }
+}

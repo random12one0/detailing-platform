@@ -1,0 +1,13 @@
+2026-10-17T05:03:45.686Z --break=unclassify
+  FAIL tests/legal-promises.test.mjs (row removed — SABOTAGE) is green: exit 1, pass 6 / fail 1
+        +   'api.cloudflare.com'
+        actual: [ 'api.cloudflare.com' ],
+  FAIL tests/privacy-processors.test.mjs (row removed — SABOTAGE) is green: exit 1, pass 6 / fail 2
+        AssertionError [ERR_ASSERTION]: the vocabulary says api.cloudflare.com earns "Cloudflare" and the table disagrees — the two halves of this check are keyed on each other and have come apart
+        api.cloudflare.com
+  ok   canary landed in tests/legal-promises.test.mjs: 1 line removed, text changed true
+  ok   without the row, tests/legal-promises.test.mjs is red (exit 1, pass 6 / fail 1) and names api.cloudflare.com: true
+  ok   canary landed in tests/privacy-processors.test.mjs: 1 line removed, text changed true
+  ok   without the row, tests/privacy-processors.test.mjs is red (exit 1, pass 6 / fail 2) and names api.cloudflare.com: true
+
+FAIL — 6 assertions, 2 failed, canary 2/2. Receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_100.6-20261017050023875\receipts\purge-host-classified.sabotage.json
