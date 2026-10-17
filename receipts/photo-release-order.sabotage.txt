@@ -1,11 +1,11 @@
-photo release order · 2026-10-13T12:50:42.070Z · project kguqylyzgyzfktkfnhjb
+photo release order · 2026-10-17T20:25:43.193Z · project kguqylyzgyzfktkfnhjb
 photo-door deployed: true · photo-reconcile deployed: true
 photo_total_gb: 10 · flags: {"RECEIPTS_VIA_DOOR":true,"MEDIA_VIA_DOOR":true}
 live bundle: assets/index-CT8xjH8F.js
-delete-customer bundle: 5775746 bytes, 3 of 3 R2 markers
+delete-customer bundle: 5775746 bytes, 0 of 3 R2 markers
 R2 secrets present (names only): R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 R2_MEDIA_BASE set: true
-broken on purpose: door-public
+broken on purpose: forget-stale
 
 PASS  app-flag-before-door (criterion 3)
     photo-door is deployed, so the flags are free to be on (2 of 2 are)
@@ -15,16 +15,16 @@ PASS  allowance-before-switch (criterion 3)
     photo_total_gb is 10 and photo-door is deployed
 PASS  allowance-with-switch (criterion 3)
     photo-door is deployed and photo_total_gb is 10
-FAIL  door-keeps-jwt (criterion 4)
-    photo-door is in PUBLIC_FUNCTIONS in scripts/deploy-functions.mjs — it would deploy with the sign-in check OFF, and every action on it needs a signed-in person
+PASS  door-keeps-jwt (criterion 4)
+    photo-door is absent from PUBLIC_FUNCTIONS and is deployed with verify_jwt=true
 PASS  reconcile-public-for-cron (criterion 4)
     photo-reconcile is in PUBLIC_FUNCTIONS and deployed with verify_jwt=false, like refresh-weather
 PASS  r2-secrets-present (criterion 2)
     all 4 required R2 secret(s) are set on the functions (names read, no value touched)
 PASS  cron-after-reconcile (criterion 4)
     photo-reconcile is deployed and its cron entry is installed
-PASS  forget-reaches-r2 (criterion 3)
-    the deployed delete-customer carries all 3 R2 markers, so forgetting a customer removes their photos from both stores
+FAIL  forget-reaches-r2 (criterion 3)
+    photo-door is live and the deployed delete-customer carries 0 of 3 R2 markers — forgetting a customer deletes their job_photos rows and leaves their photos in R2, and because the rows that named those objects are gone the files are then unreachable by anything, for ever. Nothing refuses and nothing logs it. Run step 9d: node scripts/deploy-functions.mjs delete-customer
 UNJUDGEABLE  bucket-cors (criterion 1)
     the CORS rules on job-photos, expense-receipts and business-media need a Cloudflare credential this program does not have and must not acquire; the buckets are unreachable anonymously (two are private, the third has no public address yet). 0.11d's first browser upload is the proof
 
