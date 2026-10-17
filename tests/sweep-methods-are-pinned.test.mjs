@@ -119,7 +119,9 @@ function openItems(text) {
 const bound = (id) =>
   CANARY === "scope"
     ? new RegExp(id.replace(".", "\\."))                            // SABOTAGE: unbounded
-    : new RegExp(`(^|[^0-9.])${id.replace(".", "\\.")}([^0-9.]|$)`);
+    // A sentence-ending period is a boundary: "filed as 97.84." names 97.84. Without it
+    // § 3b called a just-filed item unnamed and held 97.79 (supervision 2026-10-17).
+    : new RegExp(`(^|[^0-9.])${id.replace(".", "\\.")}([^0-9.]|\\.(?![0-9])|$)`);
 
 function commitScope(ids) {
   const raw = git(["log", "--format=%H%x1f%s%x1f%b%x1e"]);
@@ -978,5 +980,7 @@ test("the two sweep methods are pinned, not described", async (t) => {
     );
     assert.equal(re.test("fixes 1.3 today"), true, "1.3 must match as its own token");
     assert.equal(re.test("1.30 is different"), false, "1.3 must not match inside 1.30");
+    assert.equal(re.test("filed as 1.3."), true, "a sentence-ending period is a boundary");
+    assert.equal(re.test("1.3.2 is different"), false, "1.3 must not match inside 1.3.2");
   });
 });
