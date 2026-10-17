@@ -288,7 +288,8 @@ Deno.serve(async (req) => {
     const vehicleSize = size.key;
     const extraVehicles = vehicles.slice(1);
 
-    const promoCode = body.applied_promo_code || null;
+    // Capitals, as stored, so the sibling comparison below matches (97.23).
+    const promoCode = String(body.applied_promo_code ?? "").trim().toUpperCase() || null;
     // ROADMAP 97.9 — ONE USE OF A CODE COVERS THE WHOLE SET OF CARS. The quote
     // discounts every car of a different-day booking (`computeQuote`'s split
     // branch), but each car is saved by its own call, so car 1 spent a
