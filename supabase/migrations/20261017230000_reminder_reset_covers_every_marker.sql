@@ -12,17 +12,19 @@
 --     not: the trigger names its columns, so a new column is never cleared.
 --
 -- THE FIX: the function body restated exactly as `20260829000100` left it,
--- plus two lines:
---   * time moved: all SEVEN markers clear (the five, the second reminder, the
---     request nudge).
---   * same time, but something the reminder email states changed: the second
---     customer reminder clears alongside the first. It is the same email
---     (`sendCustomerReminder(b, true)` builds it from the same booking), so it
---     goes stale for the same reason. The request nudge is NOT added here: it
---     is a push to the owner about answering, and states none of those fields.
--- Unchanged on purpose: a plain status change still clears nothing (pending ->
--- confirmed must not mail a customer twice), and the trigger itself is not
--- recreated — `create or replace function` keeps it bound to this body.
+-- plus two lines in the time-moved branch, so all SEVEN markers clear (the
+-- five, the second reminder, the request nudge).
+-- Unchanged on purpose:
+--   * the same-time detail-change branch still clears only the first customer
+--     reminder and the owner reminder. The second customer reminder is NOT
+--     added there: its marker is only ever stamped once the booking is inside
+--     its window (`now() >= start_at - customer_reminder_2_lead_minutes`), so
+--     clearing it on a rename makes it due again at once and the customer gets
+--     the same reminder twice. That would be a new rule, not this fix
+--     (review of 97.22, 2026-10-17).
+--   * a plain status change still clears nothing (pending -> confirmed must
+--     not mail a customer twice), and the trigger itself is not recreated —
+--     `create or replace function` keeps it bound to this body.
 --
 -- Proved on a throwaway in-memory Postgres, never the live database:
 -- `tests/reminder-reset-markers-sql.test.mjs`.
@@ -54,9 +56,8 @@ begin
      or new.vehicle_model    is distinct from old.vehicle_model
      or new.total_price      is distinct from old.total_price
      or new.final_amount     is distinct from old.final_amount then
-    new.owner_reminder_sent_at      := null;
-    new.customer_reminder_sent_at   := null;
-    new.customer_reminder_2_sent_at := null;
+    new.owner_reminder_sent_at    := null;
+    new.customer_reminder_sent_at := null;
   end if;
   return new;
 end;

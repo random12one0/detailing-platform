@@ -3,7 +3,7 @@
 //   PGLITE_DIR=<folder holding @electric-sql/pglite> PGLITE_REQUIRED=1 node --test tests/reminder-reset-markers-sql.test.mjs
 //   BREAK=drop-cu2         PGLITE_DIR=… node tests/reminder-reset-markers-sql.test.mjs  # sabotage: a move leaves the second reminder stamped
 //   BREAK=drop-req         PGLITE_DIR=… node tests/reminder-reset-markers-sql.test.mjs  # sabotage: a move leaves the request nudge stamped
-//   BREAK=drop-content-cu2 PGLITE_DIR=… node tests/reminder-reset-markers-sql.test.mjs  # sabotage: a name change leaves the second reminder stamped
+//   BREAK=add-content-cu2  PGLITE_DIR=… node tests/reminder-reset-markers-sql.test.mjs  # sabotage: a name change re-arms the second reminder (a duplicate email)
 //
 // Same pattern as tests/reminder-ignores-unsubscribe-sql.test.mjs: PGlite (Postgres in WebAssembly,
 // in-process, no network, no account), because no DDL touches the live database. BREAK is an env var,
@@ -32,7 +32,7 @@ const read = (f) => readFileSync(path.join(DIR, f), "utf8").replace(/\r\n/g, "\n
 const SABOTAGE = {
   "drop-cu2": ["    new.customer_reminder_2_sent_at     := null;\n", ""],
   "drop-req": ["    new.owner_request_nudge_sent_at     := null;\n", ""],
-  "drop-content-cu2": ["    new.customer_reminder_2_sent_at := null;\n", ""],
+  "add-content-cu2": ["    new.customer_reminder_sent_at := null;\n  end if;", "    new.customer_reminder_sent_at := null;\n    new.customer_reminder_2_sent_at := null;\n  end if;"],
 };
 let SQL = read(MIGRATION);
 if (BREAK) {
@@ -80,8 +80,10 @@ const ALL = COLS.map((c) => MARKERS[c]).join(",");
 const EXPECT = {
   move_start: ALL,
   move_end: ALL,
-  rename: "own,cus,cu2",
-  reprice: "own,cus,cu2",
+  // Same time: only what 20260829000100 already cleared. The second reminder is NOT re-armed: its
+  // marker is only stamped inside its window, so clearing it would mail the customer twice.
+  rename: "own,cus",
+  reprice: "own,cus",
   status: "",
   notes: "",
 };
@@ -116,7 +118,7 @@ const check = (name, cond, detail = "") => {
   else { failures.push(`${name} ${detail}`.trim()); console.error(`  ${line}`); }
 };
 
-test("97.22 · moving a booking clears all seven reminder markers; a detail change clears both customer reminders; nothing else moved", { skip: PGlite || REQUIRED ? false : MISSING }, async () => {
+test("97.22 · moving a booking clears all seven reminder markers; a detail change still clears only the first reminder pair; nothing else moved", { skip: PGlite || REQUIRED ? false : MISSING }, async () => {
   assert.ok(PGlite, `PGLITE_REQUIRED=1 and ${MISSING}`);
   const started_at = new Date().toISOString();
 
