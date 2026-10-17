@@ -393,6 +393,14 @@ console.log("\n5. a table locked by RLS alone, with its grants still open");
 // `booking_vehicles` has carried the pair key since 20260907000600 and is the
 // positive control: if it does not come back paired, the question is blind.
 // `--break=forget-pair` makes every table read as unpaired, which must name it.
+//
+// AWAITS APPLY, NOT A FINDING (supervision 2026-10-17): an unpaired table whose
+// pair key IS declared by a migration file in this repo is a fix that exists and
+// has not been applied. That is `migration-drift.mjs`'s red, already standing,
+// so here it prints `AWAITS APPLY <table> — <file>` by name and does not fail
+// the run. An unpaired table with NO declaring file is a gap nobody has fixed
+// and stays a finding. `--break=hide-declaring` ignores the declaring files, so
+// every AWAITS APPLY table must come back as a finding and the run go red.
 const UNPAIRED_TRACKED = new Map([
   ["job_photos", "ROADMAP 97.70"],
   ["maintenance_deadlines", "ROADMAP 97.70"],
@@ -404,7 +412,7 @@ console.log("\n6. a booking's child a detailer can write points at a booking of 
   for (const f of readdirSync(migDir).filter((x) => x.endsWith(".sql")).sort()) {
     const src = readFileSync(new URL(f, migDir), "utf8");
     for (const m of src.matchAll(/alter table public\.(\w+)\s+add constraint \w+\s+foreign key \(booking_id, business_id\)\s+references public\.bookings \(id, business_id\)/gi)) {
-      pairFile.set(m[1], f);
+      if (BREAK !== "hide-declaring") pairFile.set(m[1], f);
     }
   }
   const rows = await q(`
@@ -435,12 +443,13 @@ console.log("\n6. a booking's child a detailer can write points at a booking of 
   for (const r of rows.filter((x) => !paired(x) && UNPAIRED_TRACKED.has(x.table))) {
     console.log(`  TRACKED ${r.table} — booking_id-only reference, open as ${UNPAIRED_TRACKED.get(r.table)}`);
   }
-  say("every writable booking child references bookings by (booking_id, business_id)",
-    rows.filter((x) => !paired(x) && !UNPAIRED_TRACKED.has(x.table)),
-    (r) => `${r.table} — references a booking by id alone; `
-      + (pairFile.has(r.table)
-        ? `the pair key is declared by ${pairFile.get(r.table)}, which has NOT been applied`
-        : "no migration declares the pair key"));
+  const open = rows.filter((x) => !paired(x) && !UNPAIRED_TRACKED.has(x.table));
+  for (const r of open.filter((x) => pairFile.has(x.table))) {
+    console.log(`  AWAITS APPLY ${r.table} — ${pairFile.get(r.table)}`);
+  }
+  say("every writable booking child references bookings by (booking_id, business_id), or a migration here declares it",
+    open.filter((x) => !pairFile.has(x.table)),
+    (r) => `${r.table} — references a booking by id alone; no migration declares the pair key`);
 }
 
 // --- THE CANARY -----------------------------------------------------------
