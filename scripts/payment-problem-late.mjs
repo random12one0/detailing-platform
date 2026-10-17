@@ -30,6 +30,10 @@
 //   cancelled  ROADMAP 14.4: a cancelled job paid by card, nothing refunded → "Refund $150" (still shown)
 //   cancelled-refunded  its own payment refunded in Stripe → NO red line, and "Refunded $150 in your Stripe on …"
 //   cancelled-part-refunded(-es)  $50 refunded → the line names the $100 left
+//   hand-paid-part-refunded(-es, -currency)  ROADMAP 97.78: 97.70's kept $100 payment, $50 refunded
+//              → the possible-refund line names the $50 left, never "A card payment of $100 … refund it"
+//   waived-part-refunded(-es, -currency)  the same on 97.75's waived job
+//   hand-paid-refunded, waived-refunded  refunded in full → NO line (the refused case)
 // Every row is what `tests/checkout-page-lifecycle.test.mjs` § 4 shows the webhook writes:
 // refunds are kept in `payment_problem.refunds`, by payment.
 //
@@ -45,6 +49,8 @@
 // --break=no-refund feeds every 97.68 scenario as the webhook left them before
 // `charge.refunded` was handled: no refund recorded anywhere. That is 97.68's
 // original defect, and every one of them except `cancelled` must go red.
+// --break=whole-payment (97.78) rewrites the served module so a partly refunded
+// possible-refund line names the whole payment again (the original defect), signed and read back.
 // --break=browser-day (97.68) rewrites the served module so the refund's date is
 // read in the BROWSER's day instead of the business's: under the frozen clock and
 // the Tokyo browser below, "Friday, October 16" becomes Saturday, so it must go red.
@@ -57,10 +63,11 @@
 // the 17th for the browser, so the date printed proves whose day it is.
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
-//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day] [--now=<iso>] [--tz=<zone>] [--freeze]
+//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day|whole-payment] [--now=<iso>] [--tz=<zone>] [--freeze]
 //   --freeze-owed=before|after   97.69's review pair at 390, no receipt
 //   --freeze-hand=before|after   97.70's review pair at 390, no receipt
 //   --shots=<dir>                where the PNGs go (default: the 97.11 folder)
+//   --freeze-left=before|after   97.78's review pairs at 390 (hand-paid, waived), no receipt
 //   --freeze-refund=<dir> [--pair=<place>] [--side=before|after]   97.68's pairs at 390, no receipt
 
 import { mkdirSync } from "node:fs";
@@ -75,7 +82,7 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-if (BREAK && !["old-webhook", "overwrite", "hide-hand-paid", "no-refund", "browser-day"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && !["old-webhook", "overwrite", "hide-hand-paid", "no-refund", "browser-day", "whole-payment"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 const OLDHOOK = BREAK === "old-webhook";
 // --freeze-reasons=before|after: only freeze the two-reasons view at 390 (Andrew's review pair), no receipt.
 const FREEZE_REASONS = arg("freeze-reasons");
@@ -85,11 +92,13 @@ const FREEZE_HAND = arg("freeze-hand");
 const REWRITE = {
   "hide-hand-paid": ['booking.payment_status === "paid" ? kept.filter(', "false ? kept.filter("],
   "browser-day": ["localDate(ownRefund.at, business.timezone)", "localDate(ownRefund.at)"],
+  "whole-payment": ["const partlyRefunded = (r) => refundedOf(r.intent) > 0;", "const partlyRefunded = (r) => false;"],
 }[BREAK];
 const NOW = arg("now") || process.env.BELT_FROZEN_NOW || "2026-10-17T06:30:00.000Z";
 const TZ = arg("tz") || "Asia/Tokyo";
 const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.11/png";
 const FREEZE_REFUND = arg("freeze-refund");
+const FREEZE_LEFT = arg("freeze-left");
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
 
@@ -133,6 +142,11 @@ const HAND_EUR = { ...HAND, payment_problem: WRONG_EUR };
 const HAND_EXTRA = { ...HAND, payment_problem: { ...EXTRA, paid_cents: 5000, payments: [{ intent: "pi_9", paid_cents: 5000, currency: "usd", at: AT }], earlier: [WRONG] } };
 const HAND_WANT = ["A card payment of $100 did not match what this job was owed, and the job has since been marked paid.",
   "If they paid you in full another way, refund it from your own Stripe.", "If you kept this payment as part of what they paid, ignore this."];
+// ROADMAP 97.78: the same kept payments, then $50 of the $100 refunded in Stripe (or all of it).
+const WAIVED = { ...HAND, payment_status: "waived" };
+const HAND_PART = { ...HAND, payment_problem: refund(WRONG, "pi_1", 10000, 5000) };
+const WAIVED_PART = { ...WAIVED, payment_problem: refund(WRONG, "pi_1", 10000, 5000) };
+const LEFT = "You refunded part of it, and $50 is not refunded yet.";
 const OWED_WANT = ["A card payment of $100 did not match what this job was owed, and the job has since been paid.", "Refund it from your own Stripe."];
 const SCENARIOS = [
   { id: "failed", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: FAILED, final_amount: null, total_price: 150 },
@@ -159,6 +173,25 @@ const SCENARIOS = [
   { id: "hand-paid-extra", patch: HAND_EXTRA,
     want: ["A card payment of $100 did not match", "If you kept this payment", "Another payment of $50 came in after this job was settled."] },
   { id: "clean", patch: { ...PAID, payment_problem: null }, want: null },
+  // ROADMAP 97.78 — a kept wrong-figure payment, partly refunded: the possible-refund line names what is left.
+  { id: "hand-paid-part-refunded", patch: HAND_PART,
+    want: ["A card payment of $100 did not match what this job was owed, and the job has since been marked paid. " + LEFT,
+      "If they paid you in full another way, refund the rest from your own Stripe.", "If you kept this payment as part of what they paid, ignore this."],
+    wantNot: ["refund it from your own Stripe"] },
+  { id: "hand-paid-part-refunded-es", lang: "es", patch: HAND_PART,
+    want: ["y luego el trabajo se marcó como pagado. Ya devolviste una parte, y $50 todavía no se ha devuelto.", "devuelve el resto desde tu propio Stripe"] },
+  { id: "hand-paid-part-refunded-currency", patch: { ...HAND_EUR, payment_problem: refund(WRONG_EUR, "pi_1", 15000, 5000) },
+    want: ["A card payment that was not in US dollars came in, and the job has since been marked paid. Part of it is not refunded yet.", "refund the rest from your own Stripe"], wantNot: "$" },
+  { id: "waived-part-refunded", patch: WAIVED_PART,
+    want: ["A card payment of $100 did not match what this job was owed, and the job has since been waived. " + LEFT,
+      "Refund the rest from your own Stripe. If you meant to keep it, ignore this."],
+    wantNot: ["Refund it from your own Stripe", "marked paid"] },
+  { id: "waived-part-refunded-es", lang: "es", patch: WAIVED_PART,
+    want: ["y luego el trabajo se marcó como perdonado. Ya devolviste una parte, y $50 todavía no se ha devuelto.", "Devuelve el resto desde tu propio Stripe. Si querías quedártelo, ignora este aviso."] },
+  { id: "waived-part-refunded-currency", patch: { ...WAIVED, payment_problem: refund(WRONG_EUR, "pi_1", 15000, 5000) },
+    want: ["A card payment that was not in US dollars came in, and the job has since been waived. Part of it is not refunded yet.", "Refund the rest from your own Stripe."], wantNot: "$" },
+  { id: "hand-paid-refunded", patch: { ...HAND, payment_problem: refund(WRONG, "pi_1", 10000, 10000) }, want: null },
+  { id: "waived-refunded", patch: { ...WAIVED, payment_problem: refund(WRONG, "pi_1", 10000, 10000) }, want: null },
   // ROADMAP 97.68 — rows exactly as `tests/checkout-page-lifecycle.test.mjs` § 4 shows the webhook leaves them.
   { id: "refunded", patch: { ...PAID, payment_problem: REFUNDED }, want: null },
   { id: "part-refunded", patch: { ...PAID, payment_problem: PART },
@@ -307,6 +340,42 @@ if (FREEZE_HAND && jobId) {
     highlight: before ? ".pill.paid" : "[data-refund-maybe]" });
   if (!before) console.log(`differs: ${await differs(page, `${DIR}/before.html`, `${DIR}/after.html`)}`);
   console.log("text:", await page.locator("[data-payment-problem]").innerText().catch(() => "(none)"));
+  await browser.close();
+  process.exit(0);
+}
+
+if (FREEZE_LEFT && jobId) {
+  const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+  const DIR = "C:/Users/rando/Downloads/claude/belt/shots/97.78";
+  mkdirSync(DIR, { recursive: true });
+  const before = FREEZE_LEFT === "before";
+  for (const [place, patch, note] of [
+    ["", HAND_PART, before
+      ? "A $100 card payment was the wrong figure, the detailer marked the job paid, then refunded $50 of it in Stripe. The red line still names the whole $100 and says to refund it."
+      : "The same job: the red line now says $50 was already refunded and names the $50 left."],
+    ["-waived", WAIVED_PART, before
+      ? "The same $100 payment on a job the detailer waived, with $50 already refunded in Stripe. The red line still names the whole $100."
+      : "The same waived job: the red line says $50 was already refunded and names the $50 left."],
+  ]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: state });
+    await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
+    const page = await ctx.newPage();
+    await page.route("**/rest/v1/bookings?**", async (route) => {
+      if (route.request().method() !== "GET" || !route.request().url().includes(jobId)) return route.continue();
+      const res = await route.fetch();
+      const body = await res.json().catch(() => null);
+      const edit = (b) => (b && b.id === jobId ? { ...b, ...patch } : b);
+      await route.fulfill({ response: res, json: Array.isArray(body) ? body.map(edit) : edit(body) });
+    });
+    await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("[data-refund-maybe]", { timeout: 30000 });
+    await page.waitForTimeout(1200);
+    const out = `${DIR}/${FREEZE_LEFT}${place}.html`;
+    await freeze(page, { out, label: before ? "Before" : "After", note, highlight: "[data-refund-maybe]" });
+    if (!before) console.log(`differs${place}: ${await differs(page, `${DIR}/before${place}.html`, out)}`);
+    console.log("text:", await page.locator("[data-refund-maybe]").innerText());
+    await ctx.close();
+  }
   await browser.close();
   process.exit(0);
 }
