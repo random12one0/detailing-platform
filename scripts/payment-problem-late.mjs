@@ -255,9 +255,15 @@ if (process.argv.includes("--env-shim")) {
   browser.newContext = async (opts) => {
     const ctx = await newContext(opts);
     await ctx.route(/\/src\/.*\.(js|jsx|ts|tsx)(\?|$)/, async (route) => {
-      const res = await route.fetch();
-      const text = await res.text();
-      await route.fulfill({ response: res, body: text.includes('"VITE_SUPABASE_URL"') ? text : text.replace("import.meta.env = {", inject) });
+      // A fetch can reset when the view closes with a module still loading; retry, then let it go.
+      for (let i = 0; i < 3; i++) {
+        try {
+          const res = await route.fetch();
+          const text = await res.text();
+          return await route.fulfill({ response: res, body: text.includes('"VITE_SUPABASE_URL"') ? text : text.replace("import.meta.env = {", inject) });
+        } catch {}
+      }
+      await route.abort().catch(() => {});
     });
     return ctx;
   };
