@@ -1,9 +1,9 @@
 {
-  "git_sha": "fffbafd1907623645d3a920a6eb88d0fee8a72c1",
-  "git_sha_started": "fffbafd1907623645d3a920a6eb88d0fee8a72c1",
+  "git_sha": "38849f1ecddbfa4cec344ec8a3942e5af347c637",
+  "git_sha_started": "38849f1ecddbfa4cec344ec8a3942e5af347c637",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T11:10:09.717Z",
+  "finished_at": "2026-10-17T11:43:01.338Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -12,6 +12,9 @@
   "dimensions": {
     "base": "http://127.0.0.1:5180",
     "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "frozen_now": "2026-10-17T06:30:00.000Z",
+    "browser_tz": "Asia/Tokyo",
+    "business_tz": "America/Los_Angeles (the demo business)",
     "widths": [
       "1440x900",
       "768x1024",
@@ -854,14 +857,14 @@
     ]
   },
   "check_id": "payment-problem-late",
-  "started_at": "2026-10-17T11:05:09.731Z",
+  "started_at": "2026-10-17T11:37:58.303Z",
   "status": "pass",
   "expected_targets": 104,
   "discovered_targets": 104,
   "attempted_targets": 104,
   "completed_targets": 104,
   "skipped_targets": 0,
-  "assertions_executed": 669,
+  "assertions_executed": 773,
   "min_assertions": 100,
   "canary": {
     "id": "clean-paid-job-hides-the-line",
