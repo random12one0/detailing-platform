@@ -5,7 +5,7 @@
 //   BREAK=no-session …   # sabotage: strips the session off the sheet's create-booking call — the original defect,
 //                        # so every owner booking must come back 400 "Customer email is required" and go red
 //
-// Per width (390, 768, 1440) the demo OWNER fills the New booking sheet with a name, a phone and a private note and
+// Per width (390, 768, 1440) the demo OWNER (and the demo STAFF login at 390) fills the New booking sheet with a name, a phone and a private note and
 // NO email, Drop-off, the first service and the first open time from 80 days ahead, and presses Create booking. Asked:
 // create-booking answered 200, the row exists with no email, is `confirmed`, and kept the private note (the note is a
 // member-only field, so it is the evidence the server saw a member, not a stranger), no error is shown and the console
@@ -14,7 +14,7 @@
 //
 // WRITES TO THE DEMO BUSINESS, ON PURPOSE AND CLEANED UP: each booking is soft-deleted (`update-booking`) and its
 // throwaway customer "NoEmail 97.74 <width>" removed (`delete-customer`) with the owner's own session. No email is
-// given, so no customer email is sent. Expected targets: 3 widths + 1 public refusal = 4.
+// given, so no customer email is sent. Expected targets: 3 owner widths + staff at 390 + 1 public refusal = 5.
 //
 // FREEZE=before|after with FREEZE_TOOL=<path to belt freeze.mjs> and FREEZE_OUT=<dir> saves the 390 result as a
 // Before/After review page (the belt's review aid; nothing in the check depends on it).
@@ -23,7 +23,7 @@ import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
-import { demoOwner } from "./lib/demoOwner.mjs";
+import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
 
 const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
@@ -80,17 +80,21 @@ const asOwner = (page, path, init = {}) => page.evaluate(async ({ url, anon, pat
 const freezeTool = FREEZE ? await import(pathToFileURL(process.env.FREEZE_TOOL).href) : null;
 const browser = await chromium.launch();
 const OWNER = demoOwner();
+// The owner at every width, then the STAFF login at 390 — the second account: staff are members too, so they reach
+// the same allowances, and a fix keyed on "is the owner" rather than "sent a session" would fail here.
+const RUNS = [...WIDTHS.map((size) => ({ role: "owner", who: OWNER, size })), { role: "staff", who: demoStaff(), size: [390, 844] }];
 let publicBody = null;
-for (const [i, [w, h]] of WIDTHS.entries()) {
-  const name = `NoEmail 97.74 ${w}`;
-  const phone = `55574${String(w).padStart(5, "0")}`;
-  const note = `97.74 private note ${w}`;
-  const { ctx, page: p } = await signedIn(browser, OWNER, [w, h]);
+const made = [];
+for (const [i, { role, who, size: [w, h] }] of RUNS.entries()) {
+  const name = `NoEmail 97.74 ${role} ${w}`;
+  const phone = `5557${role === "staff" ? 6 : 4}${String(w).padStart(5, "0")}`;
+  const note = `97.74 private note ${role} ${w}`;
+  const { ctx, page: p } = await signedIn(browser, who, [w, h]);
   await p.locator("button[aria-label='New booking']").first().click();
   await p.getByLabel("Customer name").fill(name);
   await p.getByLabel("Phone").first().fill(phone);
   const email = p.getByLabel("Email (optional)");
-  check(`${w}: the sheet's email box is labelled optional and left empty`, (await email.count()) === 1 && (await email.inputValue()) === "");
+  check(`${w}: ${role}: the sheet's email box is labelled optional and left empty`, (await email.count()) === 1 && (await email.inputValue()) === "");
   await p.locator("label", { hasText: "Private note" }).locator("input").fill(note);
   const dropoff = p.locator(".nb-block", { hasText: "Where" }).getByRole("button", { name: "Drop-off" });
   if (await dropoff.count()) await dropoff.first().click();
@@ -112,13 +116,13 @@ for (const [i, [w, h]] of WIDTHS.entries()) {
   const shownError = await p.locator(".error-box").allInnerTexts();
   const id = body?.booking?.id;
   const row = id ? (await asOwner(p, `/rest/v1/bookings?id=eq.${id}&select=status,customer_email,admin_notes,customer_id,business_id`)).body?.[0] : null;
-  const ok = check(`${w}: owner: New booking with no email -> create-booking ${cr.status()} (session sent: ${sentJwt})`, cr.ok() && !!id, JSON.stringify(body).slice(0, 200))
-    & check(`${w}: owner: the sheet shows no error`, shownError.length === 0, JSON.stringify(shownError))
-    & check(`${w}: owner: the booking is saved with no email, confirmed, and kept the private note`,
+  const ok = check(`${w}: ${role}: New booking with no email -> create-booking ${cr.status()} (session sent: ${sentJwt})`, cr.ok() && !!id, JSON.stringify(body).slice(0, 200))
+    & check(`${w}: ${role}: the sheet shows no error`, shownError.length === 0, JSON.stringify(shownError))
+    & check(`${w}: ${role}: the booking is saved with no email, confirmed, and kept the private note`,
       !!row && !row.customer_email && row.status === "confirmed" && row.admin_notes === note, JSON.stringify(row));
   if (ok) completed++;
-  await p.screenshot({ path: `${SHOTS}/owner-${w}x${h}${tag}.png` });
-  if (freezeTool && w === 390) {
+  await p.screenshot({ path: `${SHOTS}/${role}-${w}x${h}${tag}.png` });
+  if (freezeTool && role === "owner" && w === 390) {
     const out = `${process.env.FREEZE_OUT}/${FREEZE}.html`;
     if (shownError.length) {
       await freezeTool.freeze(p, { out, label: "Before", highlight: ".error-box",
@@ -132,12 +136,18 @@ for (const [i, [w, h]] of WIDTHS.entries()) {
         note: "The same booking with no email now goes through: the sheet closed and the new customer is in Clients." });
     }
   }
-  check(`${w}: owner: no console errors`, p.errors.length === 0, JSON.stringify(p.errors));
-  // Cleanup: the booking, then the throwaway customer.
-  if (row) {
-    const sd = await asOwner(p, "/functions/v1/update-booking", { method: "POST", body: JSON.stringify({ business_id: row.business_id, booking_id: id, soft_delete: true }) });
-    const dc = await asOwner(p, "/functions/v1/delete-customer", { method: "POST", body: JSON.stringify({ business_id: row.business_id, customer_id: row.customer_id }) });
-    console.log(`  cleanup ${w}: update-booking ${sd.status}, delete-customer ${dc.status}`);
+  check(`${w}: ${role}: no console errors`, p.errors.length === 0, JSON.stringify(p.errors));
+  if (row) made.push({ label: `${role} ${w}`, id, ...row });
+  await ctx.close();
+}
+
+// Cleanup, as the OWNER (staff may not delete a customer): each booking, then its throwaway customer.
+if (made.length) {
+  const { ctx, page: p } = await signedIn(browser, OWNER, [390, 844]);
+  for (const m of made) {
+    const sd = await asOwner(p, "/functions/v1/update-booking", { method: "POST", body: JSON.stringify({ business_id: m.business_id, booking_id: m.id, soft_delete: true }) });
+    const dc = await asOwner(p, "/functions/v1/delete-customer", { method: "POST", body: JSON.stringify({ business_id: m.business_id, customer_id: m.customer_id }) });
+    console.log(`  cleanup ${m.label}: update-booking ${sd.status}, delete-customer ${dc.status}`);
   }
   await ctx.close();
 }
@@ -162,17 +172,17 @@ writeReceipt({
   check_id: "new-booking-no-email",
   started_at,
   status: failures.length ? "fail" : "pass",
-  expected_targets: WIDTHS.length + 1,
-  discovered_targets: WIDTHS.length + 1,
-  attempted_targets: WIDTHS.length + 1,
+  expected_targets: RUNS.length + 1,
+  discovered_targets: RUNS.length + 1,
+  attempted_targets: RUNS.length + 1,
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: WIDTHS.length * 5 + 1,
+  min_assertions: RUNS.length * 5 + 1,
   failures,
   assertion_floor: "structural: email empty, 200, no error shown, row saved as a member's, clean console per width; one public refusal",
   artifacts: [SHOTS],
   canary: { id: "no-session", observed_failure: BREAK === "no-session" ? failures.length > 0 : true },
-  dimensions: { break: BREAK || undefined, logins: "demo owner + anonymous", writes: "one booking + one customer per width, both removed" },
+  dimensions: { break: BREAK || undefined, logins: "demo owner + demo staff + anonymous", writes: "one booking + one customer per width, both removed" },
 });
 process.exit(failures.length ? 1 : 0);
