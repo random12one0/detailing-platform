@@ -425,6 +425,33 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - On a throwaway local copy, a staff session's direct DELETE on `bookings` and direct writes on `customers` are refused
   - Every customer edit the app offers still works through a function, checked in the running app (adding, editing and the owner-only delete)
   - `node scripts/fixture-not-deletable.mjs` still passes
+  **Progress 2026-10-17 (belt run, commits `ea72ca72` + `e0bef0d9`). Box NOT ticked: the browser half (R3, R4) is unrun, see the Waits on line.**
+  - **Every direct browser write, grepped in `app/src` at `34a75b4f`** (`from("customers")` / `from("bookings")`, every hit read):
+    adding a customer = `create-booking` (NewBookingModal.jsx, service role, untouched); **editing = ONE direct write,
+    Clients.jsx `saveNotes`, `update({ notes })`**; deleting a customer = `delete-customer` (owner-only, untouched);
+    deleting a booking = none (soft delete via `update-booking`). The fleet job's booking INSERT (BulkJobModal.jsx) is
+    the browser's only booking write and keeps INSERT. Every other `customers` hit is a read.
+  - **Built:** `20261017030000_staff_cannot_delete_bookings_or_write_customers.sql` revokes DELETE on `bookings` and
+    INSERT/UPDATE/DELETE on `customers` from `authenticated` and `anon`, and adds `set_customer_notes(business, customer,
+    notes)` — security definer, refuses a caller not in `current_business_ids()` and a customer not of that business,
+    writes `notes` only, EXECUTE for `authenticated` + `service_role` only. Notes are member-level by design
+    (`permissions.js`), so membership is the whole check. `Clients.jsx`'s Notes box now calls it and SHOWS a refusal
+    ("Your notes were not saved. Please try again.", Spanish key added) — the old direct update failed silently.
+  - **R2 proved on a throwaway copy:** `PGLITE_DIR=<pglite folder> PGLITE_REQUIRED=1 node --test tests/staff-writes-sql.test.mjs`
+    at `ea72ca72`: receipt PASS, **8 of 8 targets, 19 assertions**, canary caught. Before the migration a member of A
+    hard-deletes A's booking and inserts, renames and deletes A's customer (4 of 4 reproduced); after it all 4 are
+    `permission denied`, reads and the fleet insert still work, the notes route works and refuses B's customer, B's
+    business and anon. Sabotage (env var): `BREAK=bookings-delete` reddened exactly the booking delete,
+    `BREAK=customers` exactly the three customer writes plus the old notes update, `BREAK=no-member` exactly the
+    cross-business notes write (2 failures; `receipts/staff-writes-sql.sabotage.json`).
+  - **Publish order (Andrew's, no decision in it):** apply the migration and publish the app in the same sitting —
+    old app + new database loses the Notes save (silently, as before), new app + old database shows the new refusal
+    line. Once applied, `tests/definer-grants.test.mjs` 1b will name `set_customer_notes` until an `ALLOWED` line is
+    added for it (adding it before the apply turns its 1d red, so it was not added here).
+  - Waits on: a belt server that carries the app's Supabase address — this copy's server at 127.0.0.1:5180 renders
+    nothing (`Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY`, then `createBookingTransport needs supabaseUrl`),
+    so `fixture-not-deletable.mjs` timed out twice at sign-in and R3's add / edit / owner-only-delete walk (owner AND
+    staff login, 390 / 768 / 1440) could not be run. The next run removes this line by running both.
 
 - [ ] **97.15 — Support ("view as") sessions never expire and hand out a refresh token (S-M4).**
   `platform-admin/index.ts:1177-1221` creates a real owner session and returns both `access_token` and `refresh_token`; nothing in `support_sessions` or `_shared/supportSession.ts` holds an expiry, and Supabase Auth's own `updateUser` (password, email) never consults `support_sessions` (the only guard is `app/src/lib/supabase.js:117`). Give the marker an `expires_at` (30 minutes), check it in `is_support_session()` and `isSupportSession`, stop returning the refresh token, and sign the session out when the view ends or expires.
