@@ -435,6 +435,8 @@ const EMAILS = [
   ["customer-invoice-card", "Customer · invoice (unpaid, card accepted)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null, true)],
   ["customer-reschedule", "Customer · rescheduled", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", false)],
   ["customer-cancellation", "Customer · cancelled", () => T.cancellationEmail(brand, booking, false)],
+  // ROADMAP 97.24 — the detailer pressed "Un-cancel".
+  ["customer-restored", "Customer · back on (un-cancelled)", () => T.restoredEmail(brand, booking)],
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],
   // ROADMAP 3.4 FAULT 4 — EVERY NON-CUSTOMER EMAIL TAKES `LANG` TOO. In
   // production it is the RECIPIENT's dashboard language (`recipientLang`), not
@@ -666,7 +668,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // are constructed, so a naive source parse returns 54. Declaring it separately
 // is the point - delete a template from that list and the two numbers stop
 // agreeing.
-const EXPECTED_EMAILS = 34;
+const EXPECTED_EMAILS = 35;
 
 // **EVERY TEMPLATE THE PRODUCT EXPORTS HAS TO BE IN `EMAILS`, AND UNTIL
 // 2026-09-13 NOTHING SAID SO.** That list is hand-maintained. A seventeenth
