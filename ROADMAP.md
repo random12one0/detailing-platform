@@ -2417,6 +2417,8 @@ and how the wait ends.
   Split on 2026-10-09 because this entry is 192 lines
   long and no single session was finishing it.
 
+  **ANDREW, 2026-10-17:** Leave this parked until you have about an hour for the photo-storage release, then follow the steps in FOR-ANDREW.md in order. Put the photo-door program live first and the forget-customer program second. Then switch on uploads and change the allowance to 10 GB in the same sitting.
+
 - [x] **0.11ca — Configure R2 CORS and verify function secrets**
   **DONE 2026-10-13, and the "dashboard-only" half turned out to be checkable from outside.** Andrew applied the
   rule to all three buckets on 2026-10-10 (his note on 0.11). A browser asks a bucket *"may this site upload?"*
