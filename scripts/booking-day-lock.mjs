@@ -20,8 +20,10 @@
 // SPEED: 300 plain inserts (the statement PostgREST runs for `.from("bookings").insert(...)`) against 300
 // calls of insert_booking_checked, alternating, one autocommit statement each, timed by psql's \timing
 // (round trip, plan, execute, commit). The day each lands on already holds two bookings, so the re-check
-// has rows to read. WHAT IT DOES NOT PROVE: the edge functions calling these over PostgREST (no Deno here,
-// and they are not deployed), or the live database (applying the migration is Andrew's).
+// has rows to read. The difference is RECORDED (`extra_median_ms`, `r4_met_as_written`), not passed: the
+// one speed bar here is a regression guard against the first draft's whole-history read, not ROADMAP R4.
+// WHAT IT DOES NOT PROVE: the edge functions calling these over PostgREST (tests/day-rule-refusal.test.mjs
+// runs the handlers in memory), or the live database (applying the migration is Andrew's).
 
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -248,10 +250,14 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
   const locked = times.filter((_, i) => i % 2 === 1).sort((a, b) => a - b);
   const q = (a, p) => a[Math.min(a.length - 1, Math.floor(a.length * p))];
   const s = { n_each: plain.length, plain_median_ms: q(plain, 0.5), plain_p95_ms: q(plain, 0.95), checked_median_ms: q(locked, 0.5), checked_p95_ms: q(locked, 0.95) };
+  s.extra_median_ms = Math.round((s.checked_median_ms - s.plain_median_ms) * 1000) / 1000;
+  // R4 ("a single ordinary booking takes no longer than before") is RECORDED here, never passed: the checked
+  // save is slower by `extra_median_ms`, and `r4_met_as_written` says so in the receipt.
+  s.r4_met_as_written = s.checked_median_ms <= s.plain_median_ms;
   check(times.length === 2 * N, `speed: ${times.length} timings of ${2 * N}`);
   check(live(biz) === 6 * N, `speed: ${live(biz)} bookings after the timed run, expected ${6 * N} (a timed insert was refused)`);
-  // "No longer than before": the new path's typical booking sits inside the old path's own normal spread.
-  check(s.checked_median_ms <= s.plain_p95_ms, `speed: a checked booking's median ${s.checked_median_ms}ms is past the plain insert's p95 ${s.plain_p95_ms}ms`);
+  // A REGRESSION GUARD, NOT R4: the first draft read the whole history (+0.52 ms median) and fails this bar.
+  check(s.checked_median_ms <= s.plain_p95_ms, `speed regression guard: a checked booking's median ${s.checked_median_ms}ms is past the plain insert's p95 ${s.plain_p95_ms}ms`);
   done("speed", s);
 }
 
@@ -278,6 +284,8 @@ const { path } = writeReceipt({
   warnings: [
     "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
     "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's.",
+    ...cases.filter((c) => c.id === "speed" && !c.r4_met_as_written).map((c) =>
+      `ROADMAP 97.18 R4 ("a single ordinary booking takes no longer than before") is NOT met as written: the checked save's median is ${c.extra_median_ms} ms longer than the plain insert's (${c.checked_median_ms} vs ${c.plain_median_ms} ms). The speed check that passes is a regression guard, not R4.`),
   ],
   artifacts: [LOG],
   canary: { id: "plain-insert-beats-cap-and-buffer", observed_failure: defect },
