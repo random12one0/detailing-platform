@@ -190,8 +190,10 @@ for (const size of SIZES) {
     const held = { body: { sent: 20, failed: 0, no_email: 0, unsubscribed: 0, bounced: 0, capped: 0, cap: 50, held: 30 } };
     const s = await open(size, () => held);
     await s.yes.click();
-    const line = s.page.getByText("30 were not sent — your customer emails for today are used up. Send the rest tomorrow.");
-    const seen = await line.waitFor({ timeout: 10000 }).then(() => true, () => false);
+    // The product's string is "{count} were not sent — …", so the fixed words are matched and the
+    // count is read separately (scripts/label-guard.mjs looks for these words in the product).
+    const line = s.page.getByText("were not sent — your customer emails for today are used up. Send the rest tomorrow.", { exact: false });
+    const seen = await line.waitFor({ timeout: 10000 }).then(async () => (await line.textContent()).trim().startsWith("30 "), () => false);
     check(`${tag} 4 a send stopped by the day's limit says the rest wait for tomorrow`, seen);
     const box = seen ? await line.boundingBox() : null;
     check(`${tag} 4 the held line is inside the screen`, !!box && box.x >= 0 && box.x + box.width <= size[0] + 0.5, JSON.stringify(box));
