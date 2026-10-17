@@ -351,7 +351,12 @@ const DECLARED = {
   // ordinary filing, splitting and ticking, each step printed by that command with the
   // ids that arrived and left. 145 -> 144 is this edit ticking 100.7. Nobody moved this
   // constant across those 281 revisions, which is why main was red.
-  numberedOpenItems: 144,
+  // 144 -> 149, 2026-10-17, 100.7 REVIEW. 144 held at `445cef43` and was red at the merged
+  // tree `92b38884` (148): `node scripts/sweep-figures-walk.mjs 445cef43 92b38884` names
+  // exactly four arrivals, 99.12 (`e0a574c1`), 99.13 (`930fd546`), 99.14 (`49a0336e`) and
+  // 99.15 (`c6a96b70`), the belt's "Andrew's words became 99.x" filings, none of which moved
+  // this constant; nothing left. +1 is 100.9, filed in this edit for exactly that recurrence.
+  numberedOpenItems: 149,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
