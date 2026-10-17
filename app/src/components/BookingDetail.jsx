@@ -1232,10 +1232,31 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                       is right about it — which leaves "Cancelled" saying the
                       customer backed out when in fact the detailer said no. A
                       column nothing prints is a column nobody can trust. */}
-                  {booking.declined_at && (
-                    <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
+                  {/* ROADMAP 97.24 — A DECLINED REQUEST IS TAKEN BACK BY ACCEPTING
+                      IT, not by "Un-cancel": `update-booking` refuses that now,
+                      and `respond-to-booking` clears `declined_at` and sends the
+                      "You're confirmed" email. A plain cancellation's way back
+                      emails the customer too, so it asks like "Cancel the job". */}
+                  {booking.declined_at ? (
+                    <>
+                      <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
+                      <button className="btn" disabled={busy} onClick={() => respond("accept")}>
+                        <Check size={18} strokeWidth={2} /> {t("Accept it after all")}
+                      </button>
+                    </>
+                  ) : (
+                    <ConfirmTap
+                      className="btn"
+                      disabled={busy}
+                      label={t("Un-cancel")}
+                      question={booking.customer_email
+                        ? t("Put {job} back on? The customer is emailed.", { job })
+                        : t("Put {job} back on?", { job })}
+                      confirmClassName="btn"
+                      confirmLabel={t("Yes, put it back on")}
+                      onConfirm={() => setStatus("confirmed")}
+                    />
                   )}
-                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>{t("Un-cancel")}</button>
                 </>
               ) : (
                 <>

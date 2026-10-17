@@ -1,0 +1,22 @@
+uncancel-tells-customer — 2026-10-17T23:18:33.829Z
+ok    both production handlers loaded with every import replaced
+ok    un-cancel · the write succeeded and the job is confirmed
+ok    un-cancel · exactly one email went
+ok    un-cancel · it is the back-on email
+ok    un-cancel · to the customer, filed against the booking (the mail log row)
+ok    pressed again · succeeds and sends nothing more
+ok    no address · confirmed, nothing sent
+ok    cancel still sends the cancellation email
+ok    declined → confirmed · refused 409 with code declined_request
+ok    declined → confirmed · the reason names the right path
+ok    declined → confirmed · the row is untouched and nothing was sent
+ok    declined → completed · refused 409 with code declined_request
+ok    declined → completed · the reason names the right path
+ok    declined → completed · the row is untouched and nothing was sent
+ok    accept after decline · confirmed
+ok    accept after decline · declined_at cleared
+ok    accept after decline · one 'accepted' email to the customer, filed against the booking
+ok    quote on a declined request · still refused, nothing sent
+ok    pending accept · unchanged: confirmed and one 'accepted' email
+ok    slot taken since the decline · 409 'overlaps', row untouched, nothing sent
+20 passed, 0 failed, 10 of 10 scenarios.

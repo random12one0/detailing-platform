@@ -73,7 +73,9 @@ const ACCENT = arg("accent", "#38E08B");
 // render too — the money still has to reach its total, the colours still have
 // to clear their floors, and `undefined` is still a defect in either language.
 const LANG = arg("lang", "en");
-const OUT = arg("out", "email-preview");
+// ROADMAP 97.24 review: a Spanish run keeps its own folder and its own receipt,
+// so it no longer overwrites the English record, and the English one cannot hide it.
+const OUT = arg("out", LANG === "en" ? "email-preview" : `email-preview-${LANG}`);
 
 /* ══ --long : EVERY TENANT-TYPED NAME AT THE CAP — ROADMAP 2.15a ══════════
    The names a detailer types for their business, their services and their
@@ -435,6 +437,8 @@ const EMAILS = [
   ["customer-invoice-card", "Customer · invoice (unpaid, card accepted)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null, true)],
   ["customer-reschedule", "Customer · rescheduled", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", false)],
   ["customer-cancellation", "Customer · cancelled", () => T.cancellationEmail(brand, booking, false)],
+  // ROADMAP 97.24 — the detailer pressed "Un-cancel".
+  ["customer-restored", "Customer · back on (un-cancelled)", () => T.restoredEmail(brand, booking)],
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],
   // ROADMAP 3.4 FAULT 4 — EVERY NON-CUSTOMER EMAIL TAKES `LANG` TOO. In
   // production it is the RECIPIENT's dashboard language (`recipientLang`), not
@@ -666,7 +670,7 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("
 // are constructed, so a naive source parse returns 54. Declaring it separately
 // is the point - delete a template from that list and the two numbers stop
 // agreeing.
-const EXPECTED_EMAILS = 34;
+const EXPECTED_EMAILS = 35;
 
 // **EVERY TEMPLATE THE PRODUCT EXPORTS HAS TO BE IN `EMAILS`, AND UNTIL
 // 2026-09-13 NOTHING SAID SO.** That list is hand-maintained. A seventeenth
@@ -967,7 +971,7 @@ if (EMAILS.length === 0) {
 if (bad) failures.push(`${bad} problem(s) in the rendered emails - see FAIL above`);
 
 const { path: receiptPath } = writeReceipt({
-  check_id: "render-emails",
+  check_id: LANG === "en" ? "render-emails" : `render-emails-${LANG}`,
   started_at,
   status: failures.length === 0 && canaryCaught ? "pass" : "fail",
   expected_targets: EXPECTED_EMAILS,
@@ -980,7 +984,7 @@ const { path: receiptPath } = writeReceipt({
   failures,
   artifacts: [`${OUT}/index.html`],
   warnings: BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : [],
-  dimensions: { accent: ACCENT, rot_patterns: ROT.length, out: OUT },
+  dimensions: { accent: ACCENT, rot_patterns: ROT.length, out: OUT, lang: LANG },
   canary: {
     id: "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",
     observed_failure: canaryCaught,

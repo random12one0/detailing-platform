@@ -1242,6 +1242,30 @@ export function rescheduleEmail(
 }
 
 // ---------------------------------------------------------------------------
+// 8b · CUSTOMER — BACK ON (ROADMAP 97.24)
+//
+// The detailer pressed "Un-cancel". Until this existed that sent nothing, so a
+// customer whose last email said "cancelled" next heard "See you soon" from the
+// reminder. Customer only: the detailer is the one who just pressed it.
+// ---------------------------------------------------------------------------
+export function restoredEmail(brand: TenantBrand, b: BookingEmailData): Mail {
+  const tt = T(b.lang);
+  const dateLong = formatDateLong(b.dateStr, b.lang);
+  const blocks = [
+    labBlock(tt("Back on")),
+    headlineBlock(tt("Your booking is back on")),
+    proseBlock(tt("Your booking was cancelled. It's back on now, for the time below.")),
+    markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
+    factsBlock(jobFacts(brand, b, b.lang)),
+    buttonBlock(brand, tt("View your booking"), b.receiptUrl),
+    keepLink(b.lang),
+    signOff(brand, b.lang),
+  ];
+  const subject = tt("Back on: {when}", { when: upcoming(brand, b.dateStr, b.startTime, b.lang).when });
+  return mail(subject, shell(brand, blocks, subject, { lang: b.lang }));
+}
+
+// ---------------------------------------------------------------------------
 // 9 · OWNER — A REQUEST NOBODY ANSWERED (roadmap 2.12 follow-up)
 //
 // Goes to the DETAILER, so it says what to do rather than apologising. Short

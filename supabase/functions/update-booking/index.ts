@@ -45,7 +45,7 @@ import { validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { recordActions } from "../_shared/actionLog.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
-import { cancellationEmail, rescheduleEmail } from "../_shared/emailTemplates.ts";
+import { cancellationEmail, rescheduleEmail, restoredEmail } from "../_shared/emailTemplates.ts";
 import { refundOwed } from "../_shared/connect.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -115,6 +115,19 @@ Deno.serve(async (req) => {
     const updateData: Record<string, unknown> = {};
     for (const field of EDITABLE_FIELDS) {
       if (body[field] !== undefined) updateData[field] = body[field];
+    }
+
+    // ROADMAP 97.24 — A DECLINED REQUEST IS NOT UN-CANCELLED HERE. A decline is
+    // stored as `cancelled` plus `declined_at`, so "Un-cancel" used to confirm
+    // it with `declined_at` still set and the customer still holding "we can't
+    // make that one". Taking it after all is `respond-to-booking`'s accept: it
+    // clears `declined_at` and sends the "You're confirmed" email.
+    if (updateData.status !== undefined && updateData.status !== current.status
+      && current.status === "cancelled" && current.declined_at) {
+      return json({
+        error: "You declined this request. To take it after all, press \"Accept it after all\" so the customer is told.",
+        code: "declined_request",
+      }, 409);
     }
 
     // W9 — MOVING THE SIZE MOVES ITS SNAPSHOT WITH IT. `vehicle_size_label`
@@ -235,8 +248,12 @@ Deno.serve(async (req) => {
       // A CANCELLED JOB'S NEW TIME IS NOT NEWS. If one call does both, the
       // cancellation is the only true thing left to say.
       && String(data.status) !== "cancelled";
+    // ROADMAP 97.24 — UN-CANCELLED IS NEWS TOO. The customer's last email said
+    // cancelled; without this their next one was the reminder's "See you soon".
+    const justRestored = String(current.status) === "cancelled"
+      && String(data.status) === "confirmed";
 
-    if ((justCancelled || justMoved) && data.customer_email) {
+    if ((justCancelled || justMoved || justRestored) && data.customer_email) {
       // Read from `data` rather than `current`: name, email, address and
       // vehicle are all editable in the same call, and the email must describe
       // the booking as it now stands.
@@ -285,8 +302,13 @@ Deno.serve(async (req) => {
         // question, and `rescheduleEmail` does not read this field.
         refundOwed: justCancelled ? refundOwed(data).owed : false,
       };
+      // Back on beats a move made in the same save: it states the time the
+      // booking is back on for, and "your booking has moved" would be news
+      // about a booking the customer believes is cancelled.
       const msg = justCancelled
         ? cancellationEmail(brand, emailData, false)
+        : justRestored
+        ? restoredEmail(brand, emailData)
         : rescheduleEmail(
           brand,
           emailData,

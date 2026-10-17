@@ -2492,6 +2492,12 @@ export const appEs = {
   // record and the request card on Today ask with these.
   "Decline {job}? The customer is emailed.": "¿Rechazar {job}? Se avisa al cliente por correo.",
   "Decline {job}?": "¿Rechazar {job}?",
+  // ROADMAP 97.24 - "Un-cancel" emails the customer now, so it asks first; a
+  // declined request is taken back by accepting it instead.
+  "Put {job} back on? The customer is emailed.": "¿Reactivar {job}? Se avisa al cliente por correo.",
+  "Put {job} back on?": "¿Reactivar {job}?",
+  "Yes, put it back on": "Sí, reactivarlo",
+  "Accept it after all": "Aceptarla después de todo",
   // Feminine, agreeing with "la solicitud" - the same choice "Sí, cancélala" makes.
   "Yes, decline it": "Sí, recházala",
   "Remove {job} from your records?": "¿Quitar {job} de tus registros?",

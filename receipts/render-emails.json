@@ -1,28 +1,29 @@
 {
-  "git_sha": "77a8bada0f46326f92573dba1efcf6e1424e6e60",
-  "git_sha_started": "77a8bada0f46326f92573dba1efcf6e1424e6e60",
+  "git_sha": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
+  "git_sha_started": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T05:49:58.001Z",
+  "finished_at": "2026-10-17T23:18:34.403Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:\\Users\\rando\\AppData\\Local\\Temp\\email-render-IDFebJ\\es/index.html"
+    "email-preview/index.html"
   ],
   "dimensions": {
     "accent": "#38E08B",
     "rot_patterns": 4,
-    "out": "C:\\Users\\rando\\AppData\\Local\\Temp\\email-render-IDFebJ\\es"
+    "out": "email-preview",
+    "lang": "en"
   },
   "check_id": "render-emails",
-  "started_at": "2026-10-12T05:49:57.687Z",
+  "started_at": "2026-10-17T23:18:34.200Z",
   "status": "pass",
-  "expected_targets": 34,
-  "discovered_targets": 34,
-  "attempted_targets": 34,
-  "completed_targets": 34,
+  "expected_targets": 35,
+  "discovered_targets": 35,
+  "attempted_targets": 35,
+  "completed_targets": 35,
   "skipped_targets": 0,
-  "assertions_executed": 171,
+  "assertions_executed": 176,
   "min_assertions": 100,
   "canary": {
     "id": "a body full of NaN / Invalid Date / undefined must be caught by the rot patterns",

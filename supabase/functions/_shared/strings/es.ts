@@ -278,6 +278,13 @@ export const es: Record<string, string> = {
     "Nuevo horario: {when}",
   "Rescheduled to {date}": "Reprogramada para el {date}",
 
+  // ── 8b · Back on (ROADMAP 97.24) ───────────────────────────────────────
+  "Back on": "De nuevo en pie",
+  "Your booking is back on": "Tu reserva vuelve a estar en pie",
+  "Your booking was cancelled. It's back on now, for the time below.":
+    "Tu reserva se había cancelado. Ya está de nuevo en pie, para el horario de abajo.",
+  "Back on: {when}": "De nuevo en pie: {when}",
+
   // ── 11 · The plan link ─────────────────────────────────────────────────
   "Your plan": "Tu plan",
   "Here's your link": "Aquí está tu enlace",
