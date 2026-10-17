@@ -68,7 +68,7 @@
 // the 17th for the browser, so the date printed proves whose day it is.
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
-//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day|whole-payment|plain-pill] [--now=<iso>] [--tz=<zone>] [--freeze]
+//   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook|overwrite|hide-hand-paid|no-refund|browser-day|whole-payment|plain-pill] [--now=<iso>] [--tz=<zone>] [--freeze] [--env-shim]
 //   --freeze-owed=before|after   97.69's review pair at 390, no receipt
 //   --freeze-hand=before|after   97.70's review pair at 390, no receipt
 //   --shots=<dir>                where the PNGs go (default: the 97.11 folder)
@@ -242,6 +242,26 @@ const check = (name, ok, detail = "") => {
 };
 
 const browser = await chromium.launch();
+// --env-shim (97.80): a belt job copy's server has no app/.env.local, so the app it serves
+// cannot reach Supabase ("Missing VITE_SUPABASE_URL") and nothing signs in. This writes the
+// two public values the app reads (the URL and the anon key, both in the live bundle) from
+// the loaded .env into each served module's `import.meta.env`, and only for THIS platform's
+// project. The product code is served untouched otherwise.
+if (process.argv.includes("--env-shim")) {
+  const url = process.env.SUPABASE_URL ?? "", anon = process.env.SUPABASE_ANON_KEY ?? "";
+  if (!url.includes("kguqylyzgyzfktkfnhjb") || !anon) { console.error("--env-shim needs SUPABASE_URL for kguqylyzgyzfktkfnhjb and SUPABASE_ANON_KEY loaded"); process.exit(2); }
+  const inject = `import.meta.env = {"VITE_SUPABASE_URL": ${JSON.stringify(url)}, "VITE_SUPABASE_ANON_KEY": ${JSON.stringify(anon)}, `;
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (opts) => {
+    const ctx = await newContext(opts);
+    await ctx.route(/\/src\/.*\.(js|jsx|ts|tsx)(\?|$)/, async (route) => {
+      const res = await route.fetch();
+      const text = await res.text();
+      await route.fulfill({ response: res, body: text.includes('"VITE_SUPABASE_URL"') ? text : text.replace("import.meta.env = {", inject) });
+    });
+    return ctx;
+  };
+}
 // Sign in once.
 const login = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const lp = await login.newPage();
@@ -588,7 +608,7 @@ const { path } = writeReceipt({
   assertions_executed: assertions,
   min_assertions: 100,
   failures,
-  dimensions: { base: BASE, job: jobId, frozen_now: NOW, browser_tz: TZ, business_tz: "America/Los_Angeles (the demo business)", widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
+  dimensions: { base: BASE, job: jobId, frozen_now: NOW, browser_tz: TZ, business_tz: "America/Los_Angeles (the demo business)", widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), env_shim: process.argv.includes("--env-shim"), probed },
   artifacts: [SHOTS],
   // The canary: a scenario that must NOT show the line (a paid job with no
   // problem; 97.70 made the stale-problem job SHOW one) is measured with the same probe, so a probe that finds the line
