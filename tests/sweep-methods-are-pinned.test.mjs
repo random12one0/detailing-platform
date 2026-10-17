@@ -360,8 +360,7 @@ const DECLARED = {
   // exactly four arrivals, 99.12 (`e0a574c1`), 99.13 (`930fd546`), 99.14 (`49a0336e`) and
   // 99.15 (`c6a96b70`), the belt's "Andrew's words became 99.x" filings, none of which moved
   // this constant; nothing left. +1 is 100.9, filed in this edit for exactly that recurrence.
-  // 149 -> 150, 2026-10-17, 97.68: one arrival, 97.78, filed by 97.68 in the same edit; nothing else moved.
-  numberedOpenItems: 150,
+  numberedOpenItems: 149,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
