@@ -30461,10 +30461,6 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - Every listed item is checked against the rule
   - Anything that broke the rule is fixed, with proof
-- [ ] **99.15 — Send the work back to fix six problems before it goes further**
-  Send it back to fix the six problems first (your words w-8)
-
-  **ANDREW, 2026-10-17:** Send it back to fix the six listed problems first (your words w-12)
 - [ ] **99.16 — Hold the release and have the builder fix the problems first; the problems are not named.**
   Hold it and have the builder fix the problems first (your words w-11)
 
