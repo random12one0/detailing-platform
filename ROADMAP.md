@@ -704,6 +704,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The normal accept still works on the manage page, checked at 390 and 1440
 
 - [ ] **97.17 — "Closed until" (away mode) hides days on screen but the server still books them (C-M4).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.17-20261017191652851`. Answer "merge it" to keep it, or say what to change.
   `closed_until` is read only at `available-slots/index.ts:302-335`; `_shared/slotValidation.ts` never checks it, nor do create-, reschedule- or update-booking. The value is already loaded at `tenant.ts:250`. About three lines in `validateSlot`.
   Acceptance criteria:
   - A direct post to `create-booking` and to `reschedule-booking` for a date before `closed_until` is refused with a plain reason (test)
