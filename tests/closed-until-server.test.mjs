@@ -16,6 +16,9 @@
 //   node tests/closed-until-server.test.mjs
 //   CLOSED_BREAK=guard node tests/closed-until-server.test.mjs   # the guard cut: MUST be red
 //
+// A clean run also runs that sabotage itself, as a child, and is red unless it
+// fails exactly the three away-day cases (§ 4).
+//
 // An env var, not a flag: `node --test` swallows extra arguments (gotchas 104).
 // The sabotage rewrites the PRODUCTION file as it loads, and refuses to run if
 // the rewrite did not land (gotchas 102).
@@ -23,6 +26,8 @@
 import { registerHooks } from "node:module";
 import net from "node:net";
 import { writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
@@ -224,6 +229,22 @@ console.log("\n0. the run itself");
 check("0a . no socket was opened", sockets === 0, String(sockets));
 check("0b . no request went anywhere but the in-memory fake", outside.length === 0, outside.join(", "));
 
+// THE CANARY, run every clean time: this same file with the guard cut must
+// fail EXACTLY the three "the day before they are back" cases — the original
+// defect, on production code, through all three handlers. A child process,
+// so its module cache cannot see this run's.
+let canaryCaught = null;
+if (!BREAK) {
+  const kid = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
+    env: { ...process.env, CLOSED_BREAK: "guard" }, encoding: "utf8", timeout: 120_000,
+  });
+  const red = (kid.stdout.match(/^s*FAILs+(d[a-z])/gm) || []).map((l) => l.trim().split(/s+/)[1]).sort().join(",");
+  canaryCaught = kid.status === 1 && red === "1a,2a,3a";
+  console.log("
+4. the canary");
+  check("4a . with the guard cut, exactly 1a, 2a and 3a go red (the away day books again)", canaryCaught, `exit ${kid.status}, red [${red}]`);
+}
+
 const failed = failures.length;
 console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${SCENARIOS} scenarios complete.`);
 if (BREAK) console.log(`  note  CLOSED_BREAK=${BREAK} was set: this run is a sabotage and MUST be red.`);
@@ -241,9 +262,9 @@ writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 11,
-  assertion_floor: "9 scenario checks (3 handlers x before/on/after) + 2 run checks = 11, every check() unconditional (docs/gotchas.md 98).",
-  canary: { id: "pre-fix-away-booking", observed_failure: BREAK ? failed > 0 : null, what: "CLOSED_BREAK=guard cuts the closed_until guard from _shared/slotValidation.ts as it loads" },
+  min_assertions: BREAK ? 11 : 12,
+  assertion_floor: "9 scenario checks (3 handlers x before/on/after) + 2 run checks = 11, + the canary check on a clean run = 12, every check() unconditional (docs/gotchas.md 98).",
+  canary: { id: "pre-fix-away-booking", observed_failure: BREAK ? failed > 0 : canaryCaught, what: "CLOSED_BREAK=guard cuts the closed_until guard from _shared/slotValidation.ts as it loads" },
   failures,
   artifacts: [txt],
   dimensions: { roadmap: "97.17", break: BREAK || null },
