@@ -177,7 +177,10 @@ function quoteSweep(roadmapText) {
 // DECLARED — measured 2026-10-02 at the commit recorded below.
 // Move these in the SAME EDIT as whatever really changed, and say why.
 // ===========================================================================
-const TAKEN_AT = "31f6e32";          // re-taken 2026-10-07 (was 45e98bd, before that 3398470).
+const TAKEN_AT = "b039c769";         // re-taken 2026-10-17, ROADMAP 100.7 (was 31f6e32, 45e98bd, 3398470).
+// 2026-10-17: all three figures re-taken at `b039c769` (145 / 27 / 374); `numberedOpenItems`
+// is declared at the tree that ticks 100.7, the commit this edit lands in, which reads 144.
+// The paragraph below is the 2026-10-07 state and is kept, not rewritten.
 // PER-FIGURE REVISIONS ARE IN THE COMMENTS BELOW WHERE THEY DIFFER FROM THIS ONE:
 // `quoteCriteria` and `quoteFragments` are both taken at `31f6e32`. `numberedOpenItems`
 // is taken at the tree that adds ROADMAP 4.7, which is the commit this edit lands in --
@@ -199,6 +202,17 @@ const TAKEN_AT = "31f6e32";          // re-taken 2026-10-07 (was 45e98bd, before
 // **An item arriving here uninvited is the finding**: something in the backlog
 // that no commit has ever mentioned, and therefore invisible to every sweep that
 // keys on the item number (`tests/every-open-item-is-citable.test.mjs`).
+//
+// 2026-10-17, ROADMAP 100.7: FIFTY ITEMS ARRIVED HERE, AND THE MATCH WAS NOT THE CAUSE.
+// `audit: 100.5 from finding R1-08` is matched correctly — 100.x and 101.x were never in
+// the red list. The fifty (97.13–97.62 and 98.4) truly had no commit naming them:
+// `c38f1859` added 97.1–97.63 as "roadmap: add items from 2026-10-14 … audits" and
+// `4b047b1b` added 98.4 under a supervision subject, and neither message names a number.
+// They were NOT declared here, because this list is an equality and each of the fifty
+// would then redden this file the day its first job committed. Instead 100.7's commit
+// names every one with its audit finding and the commit that added it — what the
+// per-item `audit:` commits already do — so `git log --grep` now finds each one's
+// source. **A batch commit that adds items should name them**; that is the recurrence.
 const NO_COMMIT_YET = [];
 
 const DECLARED = {
@@ -329,7 +343,20 @@ const DECLARED = {
   // so the accountable changes below are 36 -> 35 and 414 -> 412. These
   // figures were re-taken before moving this declaration, not fitted to silence
   // an unexplained red.
-  numberedOpenItems: 59,
+  // 59 -> 144, 2026-10-17, ROADMAP 100.7. Walked revision by revision with
+  // `node scripts/sweep-figures-walk.mjs 9ce2e5f6` (this file's own parser, lifted out
+  // by text; it reproduces 59/35/412 at `9ce2e5f6`, the anchor), 281 ROADMAP revisions
+  // to `b039c769` = 145. The large legs: `c38f1859` +63 (97.1–97.63, the 2026-10-14
+  // audits) and thirteen `audit:` commits +13 (100.1–100.5, 101.1–101.8); the rest is
+  // ordinary filing, splitting and ticking, each step printed by that command with the
+  // ids that arrived and left. 145 -> 144 is this edit ticking 100.7. Nobody moved this
+  // constant across those 281 revisions, which is why main was red.
+  // 144 -> 149, 2026-10-17, 100.7 REVIEW. 144 held at `445cef43` and was red at the merged
+  // tree `92b38884` (148): `node scripts/sweep-figures-walk.mjs 445cef43 92b38884` names
+  // exactly four arrivals, 99.12 (`e0a574c1`), 99.13 (`930fd546`), 99.14 (`49a0336e`) and
+  // 99.15 (`c6a96b70`), the belt's "Andrew's words became 99.x" filings, none of which moved
+  // this constant; nothing left. +1 is 100.9, filed in this edit for exactly that recurrence.
+  numberedOpenItems: 149,
   // 37 criteria / 276 fragments. The prose sweep's criteria figure was 36 and
   // reproduced exactly at its own revision; 37 is 36 plus 14.31. Its fragment
   // figure was 247 and does not reproduce under any faithful reading.
@@ -435,7 +462,11 @@ const DECLARED = {
   // already predicted this figure would have to move once its cause was named
   // — it had been left red on purpose, which is the right call and is why this
   // is a move with a reason rather than a fit to the output.
-  quoteCriteria: 35,
+  // 35 -> 27, 2026-10-17, ROADMAP 100.7, the same walk, which prints each move with the
+  // commit that made it: items ticked or split, and Done-when prose added or cut inside
+  // entries still open (the 9.12a steps, then `d3a07f81` unparking 9.12). It has stood
+  // at 27 since `e79df9e8` (2026-10-12), unchanged through `b039c769` and this edit.
+  quoteCriteria: 27,
   // 276 -> 280: ROADMAP 3.1 gained a Done-when zone quoting four more strings
   // (the Lane A render spec). Moved in the same edit as that prose.
   // 280 -> 254, 2026-10-06: the same, and the same caveat that this figure is a count of this method, not of the prose sweep's.
@@ -809,7 +840,9 @@ const DECLARED = {
   // leg whose cause is known is moved, and the rest stays visible for whoever
   // caused it. The figure above was re-measured at 414 AFTER 0.3's blocks were
   // in the tree, not predicted from 407 + 7.
-  quoteFragments: 412,
+  // 412 -> 374, 2026-10-17, ROADMAP 100.7: the same walk and the same causes as
+  // `quoteCriteria` above; 374 since `e79df9e8`, unchanged by this edit.
+  quoteFragments: 374,
 };
 // A floor, not an equality: guards the PARSER, never the backlog.
 const ITEM_FLOOR = 40;
