@@ -1,0 +1,32 @@
+1. every table a browser can reach is behind row-level security
+  ok    no table in public has RLS switched off
+
+2. RLS on, and something to enforce
+  ok    no allowlisted table has lost the grant lock its entry depends on
+  ok    no other table is locked with nothing to unlock it
+
+3. every security-definer function pins its search_path
+  ok    none is left open to a caller's own schema
+
+4. every foreign key has an index to look it up by
+  ok    no other foreign key is left without one
+
+5. a table locked by RLS alone, with its grants still open
+  ok    no table is held shut by RLS alone while its grants stay open to a browser
+
+6. a booking's child a detailer can write points at a booking of the SAME business
+  BLIND booking_vehicles did not come back paired (absent) — this question cannot see a pair key, so its silence means nothing
+  BLIND no writable table with booking_id came back — this question reached nothing, so its silence means nothing
+  ok    every writable booking child references bookings by (booking_id, business_id), or a migration here declares it
+
+7. a table a detailer can write names a customer of the SAME business
+  BLIND no writable table with customer_id came back — this question reached nothing, so its silence means nothing
+  ok    every writable table naming a customer references customers by (customer_id, business_id), or a migration here declares it
+
+canary  public must contain tables -> 0 returned  NOT CAUGHT — the database answered nothing, so every `ok` above is about nothing
+
+clean
+  · the pair-key question is BLIND — booking_id: booking_vehicles, which carries the pair key, did not come back paired
+  · the pair-key question is BLIND — booking_id: no writable table carrying booking_id came back, so the question reached nothing
+  · the pair-key question is BLIND — customer_id: no writable table carrying customer_id came back, so the question reached nothing
+Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.73-20261017044633511\receipts\db-audit.sabotage.json
