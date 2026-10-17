@@ -89,24 +89,38 @@ async function answer(body) {
 
 // ON SCREEN AS IT SITS — no scroll here: wholly inside the viewport and every clipping ancestor, painted, and topmost at
 // its top, middle and bottom. Polled, because the line can arrive mid-transition (docs/gotchas.md 119, 122).
+// `why` names the rule a line failed, so a red says which one rather than only "false".
+let why = "";
 const onScreen = async (page, loc, wantOn) => {
   let on = false;
   for (let i = 0; i < 20; i++) {
-    on = (await loc.count()) > 0 && await loc.first().evaluate((n) => {
+    why = (await loc.count()) === 0 ? "absent" : await loc.first().evaluate((n) => {
       const r = n.getBoundingClientRect();
+      const box = (b) => `${Math.round(b.top)}-${Math.round(b.bottom)}`;
       const inside = (b) => r.top >= b.top - 0.5 && r.bottom <= b.bottom + 0.5 && r.left >= b.left - 0.5 && r.right <= b.right + 0.5;
-      if (!r.width || !r.height || !inside({ top: 0, left: 0, bottom: innerHeight, right: innerWidth })) return false;
+      if (!r.width || !r.height) return "no size";
+      if (!inside({ top: 0, left: 0, bottom: innerHeight, right: innerWidth })) return `outside the viewport (line ${box(r)}, viewport 0-${innerHeight})`;
+      // A box clips only what it contains: html and body hand their overflow to the viewport (checked above), and
+      // nothing above a fixed element contains it. The first version tested every ancestor and called a fully painted
+      // line "clipped by body" at whichever width the page happened to be scrolled — a false defect.
+      let contained = true;
       for (let e = n; e; e = e.parentElement) {
         const s = getComputedStyle(e);
-        if (s.visibility === "hidden" || s.display === "none" || Number(s.opacity) < 0.9) return false;
-        if (e !== n && (s.overflowX !== "visible" || s.overflowY !== "visible") && !inside(e.getBoundingClientRect())) return false;
+        const name = e.tagName.toLowerCase() + (e.className && typeof e.className === "string" ? "." + e.className.trim().split(/\s+/).join(".") : "");
+        if (s.visibility === "hidden" || s.display === "none") return `hidden by ${name}`;
+        if (Number(s.opacity) < 0.9) return `faded by ${name} (opacity ${s.opacity})`;
+        if (contained && e !== n && e !== document.body && e !== document.documentElement
+          && (s.overflowX !== "visible" || s.overflowY !== "visible") && !inside(e.getBoundingClientRect())) return `clipped by ${name} (line ${box(r)}, box ${box(e.getBoundingClientRect())})`;
+        if (s.position === "fixed") contained = false;
       }
       const x = r.left + r.width / 2;
-      return [r.top + 2, r.top + r.height / 2, r.bottom - 2].every((y) => {
+      for (const y of [r.top + 2, r.top + r.height / 2, r.bottom - 2]) {
         const hit = document.elementFromPoint(x, y);
-        return !!hit && (hit === n || n.contains(hit));
-      });
-    }).catch(() => false);
+        if (!hit || !(hit === n || n.contains(hit))) return `covered at y=${Math.round(y)} by ${hit ? hit.tagName.toLowerCase() + "." + String(hit.className) : "nothing"}`;
+      }
+      return "";
+    }).catch((e) => `unreadable: ${e.message.slice(0, 60)}`);
+    on = why === "";
     if (on === wantOn) break;
     await page.waitForTimeout(150);
   }
@@ -207,8 +221,8 @@ for (const [w, h] of WIDTHS) {
     const shown = await onScreen(page, line, !member);
     await page.screenshot({ path: `${SHOTS}/${scenario}-${w}x${h}${tag}.png` });
     let ok = check(`${w}: ${scenario}: the screen sent its save to set_customer_notes`, !!call && call.notes_in === text, JSON.stringify(call));
-    if (member) ok = check(`${w}: member: the function stored the text and no error line is on screen`, call?.status === 204 && call.saved === text && !shown, JSON.stringify({ call, shown })) && ok;
-    else ok = check(`${w}: not a member: the function refused and the screen shows it`, call?.status === 403 && shown, JSON.stringify({ call, shown })) && ok;
+    if (member) ok = check(`${w}: member: the function stored the text and no error line is on screen`, call?.status === 204 && call.saved === text && !shown, JSON.stringify({ call, shown, why })) && ok;
+    else ok = check(`${w}: not a member: the function refused and the screen shows it`, call?.status === 403 && shown, JSON.stringify({ call, shown, why })) && ok;
     if (ok) completed++;
   }
   // A refusal belongs to the record it happened on: open a DIFFERENT client and the line must be gone.
@@ -238,7 +252,7 @@ for (const [w, h] of WIDTHS) {
   const lookingShown = await onScreen(look, look.locator(".error-box", { hasText: LOOKING }), true);
   await look.screenshot({ path: `${SHOTS}/view-as-${w}x${h}${tag}.png` });
   let ok = check(`${w}: view-as: the tab is a Looking preview and no save left the browser`, bar > 0 && !sent, JSON.stringify({ bar, sent }));
-  ok = check(`${w}: view-as: the Looking-only line is on screen under the box`, lookingShown, `on screen ${lookingShown}`) && ok;
+  ok = check(`${w}: view-as: the Looking-only line is on screen under the box`, lookingShown, `on screen ${lookingShown}: ${why}`) && ok;
   if (ok) completed++;
 
   // Every refusal this script serves is logged by Chromium as a failed 403 — one per refused save, and no other.
