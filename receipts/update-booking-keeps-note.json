@@ -1,0 +1,39 @@
+{
+  "git_sha": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "git_sha_started": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T06:28:37.276Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/update-booking-keeps-note.txt"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/update-booking/index.ts",
+    "payloads": [
+      "job record",
+      "Money",
+      "finalize"
+    ],
+    "notes": [
+      "amount",
+      "currency",
+      "kept under a later extra payment"
+    ]
+  },
+  "check_id": "update-booking-keeps-note",
+  "started_at": "2026-10-17T06:28:37.139Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 39,
+  "min_assertions": 38,
+  "canary": {
+    "id": "clear-attempt-refused",
+    "observed_failure": true
+  }
+}

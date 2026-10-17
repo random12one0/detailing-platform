@@ -1,0 +1,60 @@
+{
+  "git_sha": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "git_sha_started": "afd3e71527a415b5af92d15aaeff6de8cbac0c01",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T06:28:36.645Z",
+  "failures": [
+    "job record · amount · its note is untouched — null",
+    "job record · amount · the response carries the note to the screen — null",
+    "job record · currency · its note is untouched — null",
+    "job record · currency · the response carries the note to the screen — null",
+    "job record · kept under a later extra payment · its note is untouched — null",
+    "job record · kept under a later extra payment · the response carries the note to the screen — null",
+    "Money · amount · its note is untouched — null",
+    "Money · amount · the response carries the note to the screen — null",
+    "Money · currency · its note is untouched — null",
+    "Money · currency · the response carries the note to the screen — null",
+    "Money · kept under a later extra payment · its note is untouched — null",
+    "Money · kept under a later extra payment · the response carries the note to the screen — null",
+    "finalize · amount · its note is untouched — null",
+    "finalize · amount · the response carries the note to the screen — null",
+    "finalize · currency · its note is untouched — null",
+    "finalize · currency · the response carries the note to the screen — null",
+    "finalize · kept under a later extra payment · its note is untouched — null",
+    "finalize · kept under a later extra payment · the response carries the note to the screen — null",
+    "payment_problem in the payload was ignored (not on the allowlist) — null"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/update-booking-keeps-note-clear-note.sabotage.txt"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/update-booking/index.ts",
+    "payloads": [
+      "job record",
+      "Money",
+      "finalize"
+    ],
+    "notes": [
+      "amount",
+      "currency",
+      "kept under a later extra payment"
+    ],
+    "break": "clear-note"
+  },
+  "check_id": "update-booking-keeps-note-clear-note",
+  "started_at": "2026-10-17T06:28:36.509Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 39,
+  "min_assertions": 38,
+  "canary": {
+    "id": "break-clear-note",
+    "observed_failure": true
+  }
+}

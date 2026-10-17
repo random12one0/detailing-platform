@@ -10,8 +10,14 @@
 //   extra      PAID + an extra payment         → the refund line, ON A PAID JOB
 //   spanish    the extra payment, in Spanish   → the Spanish line
 //   failed-refund  unpaid + failed, carrying a refund owed → BOTH lines (review, 2026-10-16)
-//   settled    paid + a stale amount problem   → NO line (97.10's refused case still holds)
-//   clean      paid, no problem                → NO line
+//   settled    paid + a stale amount problem   → the POSSIBLE refund line (97.70: Andrew ruled
+//              2026-10-17 that this is flagged; until then it was 97.10's refused case)
+//   clean      paid, no problem                → NO line (the refused case and the canary)
+//   hand-paid  97.70: a $100 wrong-figure payment, then the DETAILER marks the job paid
+//              (`update-booking` leaves the note untouched, tests/update-booking-keeps-note.test.mjs)
+//              → "possible refund … if you kept this payment …, ignore this"; -es, -currency,
+//              -extra (a later extra payment on top keeps the note in `earlier`)
+//   owed-back must NOT carry the "if you kept" wording: there the webhook KNOWS it is owed
 //   owed-back  97.69: a $100 wrong-figure payment, then the job paid → its own refund
 //              line, fed the note `settleProblem` (production code) writes; -es, -currency
 //
@@ -21,10 +27,14 @@
 // SABOTAGE: --break=old-webhook feeds failed/extra as the OLD webhook left them
 // (a failed debit still paid; a second payment recorded nowhere). That is the
 // original defect, and those scenarios must go red.
+// --break=hide-hand-paid (97.70) rewrites the served BookingDetail module so a
+// paid job hides its kept wrong-figure note again (the original defect); the
+// rewrite is signed and the signature read back from the page (docs/gotchas.md 113).
 //
 //   set -a; . ./.env; set +a      (DEMO_OWNER_PW; the demo owner signs in)
 //   node scripts/payment-problem-late.mjs [--base=http://127.0.0.1:5180] [--break=old-webhook] [--freeze]
 //   --freeze-owed=before|after   97.69's review pair at 390, no receipt
+//   --freeze-hand=before|after   97.70's review pair at 390, no receipt
 //   --shots=<dir>                where the PNGs go (default: the 97.11 folder)
 
 import { mkdirSync } from "node:fs";
@@ -39,11 +49,13 @@ const { chromium } = require("playwright");
 const arg = (k) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=").slice(1).join("=") ?? "";
 const BASE = arg("base") || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = arg("break");
-if (BREAK && BREAK !== "old-webhook" && BREAK !== "overwrite") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+if (BREAK && BREAK !== "old-webhook" && BREAK !== "overwrite" && BREAK !== "hide-hand-paid") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 const OLDHOOK = BREAK === "old-webhook";
 // --freeze-reasons=before|after: only freeze the two-reasons view at 390 (Andrew's review pair), no receipt.
 const FREEZE_REASONS = arg("freeze-reasons");
 const FREEZE_OWED = arg("freeze-owed");
+const FREEZE_HAND = arg("freeze-hand");
+const HIDE = BREAK === "hide-hand-paid";
 const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.11/png";
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
@@ -70,6 +82,13 @@ const WRONG_EUR = { kind: "currency", paid_cents: 15000, owed_cents: 15000, curr
 const OWED_OLD = { ...PAID, payment_problem: WRONG };
 const OWED = { ...PAID, payment_problem: settleProblem("pi_2", WRONG, new Date(AT)) };
 const OWED_EUR = { ...PAID, payment_problem: settleProblem("pi_2", WRONG_EUR, new Date(AT)) };
+// ROADMAP 97.70: the same $100 payment, then the DETAILER marks the job paid. `update-booking`
+// cannot write `payment_problem`, so the row is the paid status over the untouched note.
+const HAND = { payment_status: "paid", paid_online_at: null, final_amount: null, total_price: 150, payment_problem: WRONG };
+const HAND_EUR = { ...HAND, payment_problem: WRONG_EUR };
+const HAND_EXTRA = { ...HAND, payment_problem: { ...EXTRA, paid_cents: 5000, payments: [{ intent: "pi_9", paid_cents: 5000, currency: "usd", at: AT }], earlier: [WRONG] } };
+const HAND_WANT = ["A card payment of $100 did not match what this job was owed, and the job has since been marked paid.",
+  "If they paid you in full another way, refund it from your own Stripe.", "If you kept this payment as part of what they paid, ignore this."];
 const OWED_WANT = ["A card payment of $100 did not match what this job was owed, and the job has since been paid.", "Refund it from your own Stripe."];
 const SCENARIOS = [
   { id: "failed", patch: OLDHOOK ? OLD : { payment_status: "pending", paid_online_at: null, payment_problem: FAILED, final_amount: null, total_price: 150 },
@@ -82,12 +101,19 @@ const SCENARIOS = [
     want: ["A bank payment of $150 did not go through", "Another payment of $150 came in after this job was settled."] },
   { id: "two-reasons", patch: BREAK === "old-webhook" ? OLD : BREAK === "overwrite" ? { ...UNPAID, payment_problem: { ...FAILED, payments: EXTRA.payments } } : TWO_PATCH,
     want: TWO_WANT },
-  { id: "owed-back", patch: OLDHOOK ? OWED_OLD : OWED, want: OWED_WANT, wantNot: "after this job was settled" },
+  { id: "owed-back", patch: OLDHOOK ? OWED_OLD : OWED, want: OWED_WANT, wantNot: ["after this job was settled", "If you kept"] },
   { id: "owed-back-es", lang: "es", patch: OLDHOOK ? OWED_OLD : OWED,
     want: ["Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó."] },
   { id: "owed-back-currency", patch: OLDHOOK ? { ...PAID, payment_problem: WRONG_EUR } : OWED_EUR,
     want: ["A card payment that was not in US dollars came in, and this job has since been paid."], wantNot: "$" },
-  { id: "settled", patch: { ...PAID, payment_problem: AMOUNT }, want: null },
+  { id: "settled", patch: { ...PAID, payment_problem: AMOUNT }, want: ["A card payment of $1 did not match what this job was owed", "If you kept this payment"] },
+  { id: "hand-paid", patch: HAND, want: HAND_WANT, wantNot: ["We did not mark it paid", "Refund it from your own Stripe."] },
+  { id: "hand-paid-es", lang: "es", patch: HAND,
+    want: ["Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado.", "ignora este aviso"] },
+  { id: "hand-paid-currency", patch: HAND_EUR,
+    want: ["A card payment that was not in US dollars came in, and the job has since been marked paid.", "If you kept this payment"], wantNot: "$" },
+  { id: "hand-paid-extra", patch: HAND_EXTRA,
+    want: ["A card payment of $100 did not match", "If you kept this payment", "Another payment of $50 came in after this job was settled."] },
   { id: "clean", patch: { ...PAID, payment_problem: null }, want: null },
 ];
 const EXPECTED = SCENARIOS.length * WIDTHS.length;
@@ -184,6 +210,35 @@ if (FREEZE_OWED && jobId) {
   process.exit(0);
 }
 
+if (FREEZE_HAND && jobId) {
+  const { freeze, differs } = await import("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs");
+  const DIR = "C:/Users/rando/Downloads/claude/belt/shots/97.70";
+  mkdirSync(DIR, { recursive: true });
+  const before = FREEZE_HAND === "before";
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, storageState: state });
+  await ctx.addInitScript(() => localStorage.setItem("dp.lang.app", "en"));
+  const page = await ctx.newPage();
+  await page.route("**/rest/v1/bookings?**", async (route) => {
+    if (route.request().method() !== "GET" || !route.request().url().includes(jobId)) return route.continue();
+    const res = await route.fetch();
+    const body = await res.json().catch(() => null);
+    const edit = (b) => (b && b.id === jobId ? { ...b, ...HAND } : b);
+    await route.fulfill({ response: res, json: Array.isArray(body) ? body.map(edit) : edit(body) });
+  });
+  await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".jobbar", { timeout: 30000 });
+  await page.waitForTimeout(1200);
+  await freeze(page, { out: `${DIR}/${FREEZE_HAND}.html`, label: before ? "Before" : "After",
+    note: before
+      ? "A $100 card payment came in for a $150 job, then the detailer marked the job paid by hand. The job says Paid and nothing else: the $100 card payment is never mentioned, even if the customer paid the full $150 in cash on top."
+      : "The same job: still Paid, and a red line names the $100 card payment as a possible refund, with a note to ignore it if the detailer kept it as part of what the customer paid.",
+    highlight: before ? ".pill.paid" : "[data-refund-maybe]" });
+  if (!before) console.log(`differs: ${await differs(page, `${DIR}/before.html`, `${DIR}/after.html`)}`);
+  console.log("text:", await page.locator("[data-payment-problem]").innerText().catch(() => "(none)"));
+  await browser.close();
+  process.exit(0);
+}
+
 let discovered = 0, attempted = 0, completed = 0;
 const probed = [];
 for (const sc of jobId ? SCENARIOS : []) {
@@ -206,12 +261,21 @@ for (const sc of jobId ? SCENARIOS : []) {
       fed++;
       await route.fulfill({ response: res, json: body });
     });
+    let hid = 0;
+    if (HIDE) await page.route("**/src/components/BookingDetail.jsx*", async (route) => {
+      const res = await route.fetch();
+      const text = await res.text();
+      const from = 'booking.payment_status === "paid" ? kept.filter(';
+      hid = text.split(from).length - 1;
+      await route.fulfill({ response: res, body: text.replace(from, "false ? kept.filter(") + "\nwindow.__break9770 = true;\n" });
+    });
     attempted++;
     await page.goto(`${BASE}/job/${jobId}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".jobbar, .error-box, h1", { timeout: 30000 }).catch(() => {});
     await page.waitForTimeout(1200);
     const tag = `${sc.id} @ ${w}x${h}`;
     check(`${tag} · the job's read was fed`, fed > 0, "page.route never matched the job read");
+    if (HIDE) check(`${tag} · the sabotage landed once and RAN`, hid === 1 && await page.evaluate(() => window.__break9770 === true), `matched ${hid}`);
     const box = await page.evaluate(() => {
       const el = document.querySelector("[data-payment-problem]");
       if (!el) return null;
@@ -224,7 +288,7 @@ for (const sc of jobId ? SCENARIOS : []) {
       check(`${tag} · the red line is there`, !!box, BREAK ? "the old webhook marked it paid and recorded nothing" : "no [data-payment-problem]");
       if (box) {
         for (const s of sc.want) check(`${tag} · it says "${s.slice(0, 50)}"`, box.text.includes(s), box.text);
-        if (sc.wantNot) check(`${tag} · it does not say "${sc.wantNot}"`, !box.text.includes(sc.wantNot), box.text);
+        for (const n of [].concat(sc.wantNot ?? [])) check(`${tag} · it does not say "${n}"`, !box.text.includes(n), box.text);
         check(`${tag} · inside the screen`, box.left >= 0 && box.right <= box.vw + 0.5, `left ${box.left}, right ${box.right}, viewport ${box.vw}`);
         check(`${tag} · painted on top (hit test lands on it)`, box.hit);
       }
@@ -287,10 +351,10 @@ const { path } = writeReceipt({
   failures,
   dimensions: { base: BASE, job: jobId, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), probed },
   artifacts: [SHOTS],
-  // The canary: a scenario that must NOT show the line (a paid job with a stale
-  // problem) is measured with the same probe, so a probe that finds the line
+  // The canary: a scenario that must NOT show the line (a paid job with no
+  // problem; 97.70 made the stale-problem job SHOW one) is measured with the same probe, so a probe that finds the line
   // everywhere, or nowhere, cannot pass both halves.
-  canary: BREAK ? { id: `break-${BREAK}`, observed_failure: failures.length > 0 } : { id: "settled-job-hides-the-line", observed_failure: probed.filter((p) => p.scenario === "settled").every((p) => !p.shown) && probed.some((p) => p.scenario === "settled") },
+  canary: BREAK ? { id: `break-${BREAK}`, observed_failure: failures.length > 0 } : { id: "clean-paid-job-hides-the-line", observed_failure: probed.filter((p) => p.scenario === "clean").every((p) => !p.shown) && probed.some((p) => p.scenario === "clean") },
 });
 console.log(`receipt: ${path}`);
 process.exit(failures.length || completed !== EXPECTED ? 1 : 0);
