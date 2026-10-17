@@ -852,6 +852,8 @@ export const planInputFor = (row: any): PlanInput | null =>
 // limit), or null. `ignoreLimit` is for a car sharing its group's one use of
 // the code (ROADMAP 97.9, create-booking) — active and expiry still apply.
 export async function resolvePromo(db: DB, businessId: string, code: string | null | undefined, { ignoreLimit = false } = {}) {
+  // ROADMAP 97.23 — codes are stored in capitals, so "summer10" is SUMMER10.
+  code = String(code ?? "").trim().toUpperCase();
   if (!code) return null;
   const nowIso = new Date().toISOString();
   const { data, error } = await db
