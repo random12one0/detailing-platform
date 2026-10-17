@@ -72,6 +72,7 @@ check("2c · nothing was saved: no booking, no customer, no email, no write at a
   f1.rows.bookings.length === 0 && f1.rows.customers.length === 1 && f1.sends.length === 0 && writes(f1) === 0,
   `bookings ${f1.rows.bookings.length}, customers ${f1.rows.customers.length}, sends ${f1.sends.length}, writes ${writes(f1)}`);
 
+const same = (f) => JSON.stringify([f.rows, f.operations, f.sends.length]).replace(/"created_at":"[^"]*"/g, "");
 // 2d-2e: the customer saw $205 and confirmed it; a match saves exactly as a
 // post without the field does today.
 const fMatch = bookingFixture({ quoteTotal: charged, handlerBreak });
@@ -82,7 +83,9 @@ check("2d · totals that match are saved (200, one booking at $205)",
   matched.status === 200 && fMatch.rows.bookings.length === 1 && fMatch.rows.bookings[0].total_price === 205,
   `${matched.status} ${JSON.stringify(fMatch.rows.bookings.map((b) => b.total_price))}`);
 check("2e · and saved exactly as today: same rows, same writes, same email as a post with no shown total",
-  JSON.stringify([fMatch.rows, fMatch.operations, fMatch.sends.length]) === JSON.stringify([fToday.rows, fToday.operations, fToday.sends.length])
+  // created_at is the fixture's wall clock (97.64), so it differs by milliseconds
+  // between two runs; everything else must be byte-identical.
+  same(fMatch) === same(fToday)
     && today.status === 200,
   `${fMatch.operations.length} vs ${fToday.operations.length} operations`);
 
