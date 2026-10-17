@@ -1,12 +1,15 @@
-closed-until-server 2026-10-17T19:21:34.392Z break=none
+closed-until-server 2026-10-17T19:28:58.524Z break=none
 closed_until 2026-10-27 (October 27); before 2026-10-26; after 2026-10-28
 1a create 2026-10-26: 409 {"error":"We're away until October 27. Please choose October 27 or a later date."} | booking writes 0
 1b create 2026-10-27: 200 {"success":true,"booking":{"id":"row-2","booking_date":"2026-10-27","start_time":"10:00","end_time":"11:00","total_price":100,"receipt_url":"https://detailingplatform.com/booking/row-2","status":"conf | booking writes 1
 1c create 2026-10-28: 200 {"success":true,"booking":{"id":"row-5","booking_date":"2026-10-28","start_time":"10:00","end_time":"11:00","total_price":100,"receipt_url":"https://detailingplatform.com/booking/row-5","status":"conf | booking writes 1
+1d create on fx-open 2026-10-26: 200 {"success":true,"booking":{"id":"row-8","booking_date":"2026-10-26","start_time":"10:00","end_time":"11:00","total_price":100,"receipt_url":"https://detailingplatform.com/booking/row-8","status":"conf
 2a reschedule -> 2026-10-26: 409 {"error":"We're away until October 27. Please choose October 27 or a later date."} | start_at 2026-10-31T17:00:00.000Z
 2b reschedule -> 2026-10-27: 200 {"success":true,"booking":{"id":"b-move","booking_date":"2026-10-27","start_time":"10:00","end_time":"11:00"}} | start_at 2026-10-27T17:00:00.000Z
 2c reschedule -> 2026-10-28: 200 {"success":true,"booking":{"id":"b-move","booking_date":"2026-10-28","start_time":"10:00","end_time":"11:00"}} | start_at 2026-10-28T17:00:00.000Z
+2d reschedule on fx-open -> 2026-10-26: 200 {"success":true,"booking":{"id":"b-move2","booking_date":"2026-10-26","start_time":"10:00","end_time":"11:00"}}
 3a update -> 2026-10-26: 409 {"error":"We're away until October 27. Please choose October 27 or a later date."} | start_at 2026-10-31T17:00:00.000Z
 3b update -> 2026-10-27: 200 {"success":true,"booking":{"id":"b-staff","business_id":"22222222-2222-4222-8222-222222222222","status":"confirmed","deleted_at":null,"customer_name":"Pat Fixture","customer_email":"pat@fixture.test", | start_at 2026-10-27T17:00:00.000Z
 3c update -> 2026-10-28: 200 {"success":true,"booking":{"id":"b-staff","business_id":"22222222-2222-4222-8222-222222222222","status":"confirmed","deleted_at":null,"customer_name":"Pat Fixture","customer_email":"pat@fixture.test", | start_at 2026-10-28T17:00:00.000Z
-12 passed, 0 failed
+3d edit inside away: 200 {"success":true,"booking":{"id":"b-inside","business_id":"22222222-2222-4222-8222-222222222222","status":"confirmed","deleted_at":null,"customer_name":"Pat Fixture","customer_email":"pat@fixture.test" | phone (555) 555-0199 start_at 2026-10-26T17:00:00.000Z
+16 passed, 0 failed

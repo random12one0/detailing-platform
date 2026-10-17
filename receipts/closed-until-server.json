@@ -1,9 +1,9 @@
 {
-  "git_sha": "a995c8a15aa8bf9935e719f4c97d7ba2b76bb7fc",
-  "git_sha_started": "a995c8a15aa8bf9935e719f4c97d7ba2b76bb7fc",
+  "git_sha": "50bf4b50e36f8739d8b4f2c9eac61493205b31d4",
+  "git_sha_started": "50bf4b50e36f8739d8b4f2c9eac61493205b31d4",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T19:21:34.441Z",
+  "finished_at": "2026-10-17T19:28:58.578Z",
   "failures": [],
   "warnings": [
     "The handlers run in-process against a fake Supabase in this file, not the live database; it proves the functions' own decisions."
@@ -16,16 +16,16 @@
     "break": null
   },
   "check_id": "closed-until-server",
-  "started_at": "2026-10-17T19:21:33.752Z",
+  "started_at": "2026-10-17T19:28:57.430Z",
   "status": "pass",
-  "expected_targets": 9,
-  "discovered_targets": 9,
-  "attempted_targets": 9,
-  "completed_targets": 9,
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
   "skipped_targets": 0,
-  "assertions_executed": 12,
-  "min_assertions": 12,
-  "assertion_floor": "9 scenario checks (3 handlers x before/on/after) + 2 run checks = 11, + the canary check on a clean run = 12, every check() unconditional (docs/gotchas.md 98).",
+  "assertions_executed": 16,
+  "min_assertions": 16,
+  "assertion_floor": "12 scenario checks (3 handlers x before/on/after, a second business on create and reschedule, the unmoved edit) + 2 run checks = 14, + the 2 canary checks on a clean run = 16, every check() unconditional (docs/gotchas.md 98).",
   "canary": {
     "id": "pre-fix-away-booking",
     "observed_failure": true,
