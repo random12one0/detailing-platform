@@ -63,6 +63,9 @@ create table if not exists public.email_campaign_days (
 alter table public.email_campaign_days enable row level security;
 alter table public.email_campaign_days force row level security;
 revoke all on public.email_campaign_days from anon, authenticated;
+-- ROADMAP 4.3c: every new RLS table refuses writes from a read-only support
+-- session, as tests/support-sessions-sql.test.mjs requires of every later migration.
+select public.refuse_support_writes('public.email_campaign_days');
 comment on table public.email_campaign_days is
   'Campaign emails claimed per business per UTC day, against '
   'platform_settings.email_campaign_share. Written only by claim_email_send. '
@@ -77,6 +80,7 @@ create table if not exists public.campaign_presses (
 alter table public.campaign_presses enable row level security;
 alter table public.campaign_presses force row level security;
 revoke all on public.campaign_presses from anon, authenticated;
+select public.refuse_support_writes('public.campaign_presses');
 comment on table public.campaign_presses is
   'One row per press of Send on a campaign. send-campaign inserts it before '
   'the first email, so the same press arriving twice sends once. ROADMAP 97.19.';

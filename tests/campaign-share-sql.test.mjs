@@ -4,6 +4,7 @@
 //   BREAK=no-share     PGLITE_DIR=… node tests/campaign-share-sql.test.mjs  # sabotage: a business's share is never compared
 //   BREAK=one-pool     PGLITE_DIR=… node tests/campaign-share-sql.test.mjs  # sabotage: campaigns draw on the whole tenant pool again
 //   BREAK=no-press-key PGLITE_DIR=… node tests/campaign-share-sql.test.mjs  # sabotage: the same press can be recorded twice
+//   BREAK=no-support   PGLITE_DIR=… node tests/campaign-share-sql.test.mjs  # sabotage: campaign_presses skips the support-session refusal
 //
 // Same pattern as tests/support-sessions-sql.test.mjs: PGlite (Postgres in WebAssembly, in-process,
 // no network, no account), because no DDL touches the live database. BREAK is an env var, not a flag:
@@ -41,6 +42,7 @@ const MIGRATION = "20261017200000_campaigns_get_a_daily_share.sql";
 const BREAK = process.env.BREAK || "";
 const read = (f) => readFileSync(path.join(DIR, f), "utf8").replace(/\r\n/g, "\n");
 const SABOTAGE = {
+  "no-support": ["select public.refuse_support_writes('public.campaign_presses');", "select 1;"],
   "no-share": ["v_mine > coalesce(v_share, 0)", "false"],
   "one-pool": ["when v_campaign then greatest(v_cap - coalesce(v_reserve, 0) - coalesce(v_headroom, 0), 0)", "when v_campaign then greatest(v_cap - coalesce(v_reserve, 0), 0)"],
   "no-press-key": ["press_id    uuid not null,\n  pressed_at  timestamptz not null default now(),\n  primary key (business_id, press_id)", "press_id    uuid not null,\n  pressed_at  timestamptz not null default now()"],
@@ -75,9 +77,22 @@ insert into public.platform_settings (id) values (true);
 create table public.platform_email_days (day date primary key, sent integer not null default 0, failed integer not null default 0);
 `;
 
+// THE REAL refuse_support_writes (ROADMAP 4.3c), cut from its own migration so 97.19's calls run the
+// production body. Only is_support_session() is a stand-in: it reads no session here.
+const SUPPORT = (() => {
+  const src = read("20261010030000_support_sessions_read_only.sql");
+  const a = src.indexOf("create or replace function public.refuse_support_writes");
+  const end = "revoke execute on function public.refuse_support_writes(regclass) from public, anon, authenticated;";
+  const b = src.indexOf(end, a);
+  if (a < 0 || b < 0) throw new Error("refuse_support_writes not found in 20261010030000 — the fixture cannot load it");
+  return "create function public.is_support_session() returns boolean language sql stable as 'select false';\n"
+    + src.slice(a, b + end.length);
+})();
+
 async function fresh(withFix) {
   const db = new PGlite();
   await db.exec(FIXTURE);
+  await db.exec(SUPPORT);
   for (const f of BEFORE) await db.exec(read(f));
   if (withFix) await db.exec(SQL);
   return db;
@@ -182,12 +197,16 @@ test("97.19 · campaigns get a daily share, booking mail is claimed ahead of the
   }
   const fx = (await db.query(`select has_function_privilege('authenticated', 'public.claim_email_send(boolean, uuid, boolean)', 'execute') a`)).rows[0].a;
   check("D: authenticated cannot call claim_email_send", fx === false);
+  for (const t of ["email_campaign_days", "campaign_presses"]) {
+    const n = (await db.query(`select count(*)::int n from pg_policies where tablename = $1 and policyname like 'support_read_only_%' and permissive = 'RESTRICTIVE'`, [t])).rows[0].n;
+    check(`D: ${t} refuses writes from a read-only support session (4.3c)`, n === 3, `${n} of 3 restrictive rules`);
+  }
 
   const ART = `artifacts/campaign-share-sql/results${BREAK ? `.sabotage-${BREAK}` : ""}.txt`;
   mkdirSync(path.dirname(ART), { recursive: true });
   writeFileSync(ART, `break: ${BREAK || "none"}\n${log.join("\n")}\n`);
 
-  const EXPECTED = 20;
+  const EXPECTED = 22;
   writeReceipt({
     check_id: "campaign-share-sql",
     started_at,
