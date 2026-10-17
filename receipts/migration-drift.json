@@ -1,9 +1,9 @@
 {
-  "git_sha": "28130db822489f0641d7db8ea355379a43e4438b",
-  "git_sha_started": "28130db822489f0641d7db8ea355379a43e4438b",
+  "git_sha": "678bb3070a5b61d81b0622e81efbc660850484ba",
+  "git_sha_started": "678bb3070a5b61d81b0622e81efbc660850484ba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T22:16:47.632Z",
+  "finished_at": "2026-10-17T22:23:47.638Z",
   "failures": [
     "9 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261017180000_support_sessions_expire.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql), set_customer_notes (declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql), support_session_expired (declared by 20261017190000_support_sessions_end_at_auth.sql), end_expired_support_sessions (declared by 20261017190000_support_sessions_end_at_auth.sql)",
     "6 function(s) in the database do NOT match the repo's newest definition: get_bookings_due_for_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), reset_reminder_markers_on_edit (the repo's newest definition is 20261017230000_reminder_reset_covers_every_marker.sql), get_bookings_due_for_second_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), claim_email_send (the repo's newest definition is 20261017200000_campaigns_get_a_daily_share.sql)",
@@ -137,7 +137,7 @@
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-17T22:16:09.191Z",
+  "started_at": "2026-10-17T22:23:07.713Z",
   "status": "fail",
   "expected_targets": 398,
   "discovered_targets": 359,

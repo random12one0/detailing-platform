@@ -1,25 +1,25 @@
 {
-  "git_sha": "49e12cf5615ca3b513633b6be4f5ff149d5d4b2e",
-  "git_sha_started": "49e12cf5615ca3b513633b6be4f5ff149d5d4b2e",
+  "git_sha": "678bb3070a5b61d81b0622e81efbc660850484ba",
+  "git_sha_started": "678bb3070a5b61d81b0622e81efbc660850484ba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T22:15:13.018Z",
+  "finished_at": "2026-10-17T22:22:31.130Z",
   "failures": [
-    "rename: clears exactly [own,cus,cu2] cleared [own,cus]",
-    "reprice: clears exactly [own,cus,cu2] cleared [own,cus]"
+    "rename: clears exactly [own,cus] cleared [own,cus,cu2]",
+    "reprice: clears exactly [own,cus] cleared [own,cus,cu2]"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/reminder-reset-markers-sql/results.sabotage-drop-content-cu2.txt"
+    "artifacts/reminder-reset-markers-sql/results.sabotage-add-content-cu2.txt"
   ],
   "dimensions": {
-    "break": "drop-content-cu2",
+    "break": "add-content-cu2",
     "migration": "20261017230000_reminder_reset_covers_every_marker.sql",
     "cleared": {
       "move_start": "own,cus,cu2,nud,wra,fin,req",
       "move_end": "own,cus,cu2,nud,wra,fin,req",
-      "rename": "own,cus",
-      "reprice": "own,cus",
+      "rename": "own,cus,cu2",
+      "reprice": "own,cus,cu2",
       "status": "",
       "notes": ""
     },
@@ -33,7 +33,7 @@
     }
   },
   "check_id": "reminder-reset-markers-sql",
-  "started_at": "2026-10-17T22:15:00.981Z",
+  "started_at": "2026-10-17T22:22:23.918Z",
   "status": "fail",
   "expected_targets": 6,
   "discovered_targets": 6,
