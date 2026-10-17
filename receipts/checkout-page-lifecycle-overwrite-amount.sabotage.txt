@@ -1,4 +1,4 @@
-checkout-page-lifecycle BREAK=overwrite-amount — 2026-10-17T01:54:53.533Z
+checkout-page-lifecycle BREAK=overwrite-amount — 2026-10-17T11:10:25.487Z
 ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
 ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
 ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
@@ -24,6 +24,25 @@ ok    97.69 · refused: a failed bank debit alone is not money owed back when th
 ok    R4 · money for a WAIVED job is a refund owed too
 ok    R4 · refused: the SAME payment's second event is not a second payment
 ok    R4 · refused: a page still processing on a settled job records nothing yet
+ok    97.68 · the only refund owed is refunded in full: nothing is owed, so the line goes
+ok    97.68 · two owed, one refunded: only that one is settled, the other is still owed in full
+ok    97.68 · a partial refund keeps the payment on the list, with what is left beside it
+ok    97.68 · refunded in two steps ($50, then the other $100): nothing owed after the second
+ok    97.68 · review: two partial refunds' events arrive the wrong way round ($100 total, then the older $50): $50 still owed, not $100
+ok    97.68 · review: a late copy of a refunded payment's own event does not put it back as owed
+ok    97.68 · an older wrong-amount reason under the list is kept when the refund is recorded
+ok    97.68 · a failed note carrying the list keeps its own reason when the payment is refunded
+ok    97.68 · a 97.69 wrong-figure payment owed back is refunded in full: nothing owed, its reason kept
+ok    97.68 · a cancelled job's own payment refunded in full: recorded on a job that had no note, nothing left
+ok    97.68 · a cancelled job's own payment refunded in part: $100 left
+ok    97.68 · a cancelled job's own payment, found by the payment when the charge carries no booking id
+ok    97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing
+FAIL  97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing
+FAIL  97.68 · a recorded refund survives a later wrong-figure note written over the row
+ok    refused: a refund sent from ANOTHER detailer's account records nothing
+ok    refused: another detailer's refund of a cancelled job's own payment leaves its line
+ok    refused: a refund of a payment no job here took, carrying no booking id, changes nothing
+ok    refused: a partly refunded payment no longer counts as covering the job when its own debit fails
 ok    R3 · first page: one create, cards only, nothing to expire
 ok    R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order
 ok    R3 · same price, page still open: handed back, no second live page
@@ -31,9 +50,11 @@ ok    R3 · previous page finished: a fresh page, nothing expired
 ok    R3 · previous page unknown to Stripe (404, account reconnected): a fresh page
 ok    R3 · refused: when Stripe will not expire the old page, no new page is made
 ok    R3 · refused: an already-paid job reaches Stripe not at all
-FAIL  keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:53.495Z"} · HTTP 200,200,200
-FAIL  keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives — {"kind":"failed","paid_cents":15000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:53.497Z","intent":"pi_2","earlier":[{"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:53.496Z"}]} · HTTP 200,200
-FAIL  97.69 · a $100 card payment on a $150 job, then the right $150 payment: paid, and the $100 is a refund owed — {"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:53.499Z"} · HTTP 200,200
-FAIL  97.69 · a payment in the wrong currency, then the right one: the first is a refund owed, named as a currency problem — {"kind":"currency","paid_cents":15000,"owed_cents":15000,"currency":"eur","at":"2026-10-17T01:54:53.500Z"} · HTTP 200,200
-FAIL  97.69 · two wrong payments and a failed bank debit, then paid: both wrong payments owed back, the failed debit kept as a reason — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T01:54:53.505Z"} · HTTP 200,200,200,200
-30 passed, 5 failed, 35 assertions, 32 of 32 scenarios.
+FAIL  keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.413Z"} · HTTP 200,200,200
+FAIL  keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives — {"kind":"failed","paid_cents":15000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.414Z","intent":"pi_2","earlier":[{"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.414Z"}]} · HTTP 200,200
+FAIL  97.69 · a $100 card payment on a $150 job, then the right $150 payment: paid, and the $100 is a refund owed — {"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.416Z"} · HTTP 200,200
+FAIL  97.69 · a payment in the wrong currency, then the right one: the first is a refund owed, named as a currency problem — {"kind":"currency","paid_cents":15000,"owed_cents":15000,"currency":"eur","at":"2026-10-17T11:10:25.417Z"} · HTTP 200,200
+FAIL  97.69 · two wrong payments and a failed bank debit, then paid: both wrong payments owed back, the failed debit kept as a reason — {"kind":"amount","paid_cents":12000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.420Z"} · HTTP 200,200,200,200
+FAIL  97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing — {"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.434Z","refunds":{"pi_0":{"paid_cents":10000,"refunded_cents":10000,"at":"2026-10-17T11:10:25.435Z"}}} · HTTP 200,200,200
+FAIL  97.68 · a recorded refund survives a later wrong-figure note written over the row — {"kind":"amount","paid_cents":10000,"owed_cents":15000,"currency":"usd","at":"2026-10-17T11:10:25.435Z"} · HTTP 200
+48 passed, 7 failed, 55 assertions, 51 of 51 scenarios.

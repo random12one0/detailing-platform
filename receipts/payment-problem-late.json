@@ -1,17 +1,20 @@
 {
-  "git_sha": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
-  "git_sha_started": "7fa36f8b715b0db4e393e93f56c3bb1e21035e0c",
+  "git_sha": "38849f1ecddbfa4cec344ec8a3942e5af347c637",
+  "git_sha_started": "38849f1ecddbfa4cec344ec8a3942e5af347c637",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T10:44:24.297Z",
+  "finished_at": "2026-10-17T11:43:01.338Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.68/png"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
     "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "frozen_now": "2026-10-17T06:30:00.000Z",
+    "browser_tz": "Asia/Tokyo",
+    "business_tz": "America/Los_Angeles (the demo business)",
     "widths": [
       "1440x900",
       "768x1024",
@@ -25,7 +28,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-1440x900.png"
       },
       {
         "scenario": "failed",
@@ -33,7 +36,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-768x1024.png"
       },
       {
         "scenario": "failed",
@@ -41,7 +44,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-390x844.png"
       },
       {
         "scenario": "failed",
@@ -49,7 +52,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-320x700.png"
       },
       {
         "scenario": "extra",
@@ -57,7 +60,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/extra-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/extra-1440x900.png"
       },
       {
         "scenario": "extra",
@@ -65,7 +68,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/extra-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/extra-768x1024.png"
       },
       {
         "scenario": "extra",
@@ -73,7 +76,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/extra-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/extra-390x844.png"
       },
       {
         "scenario": "extra",
@@ -81,7 +84,7 @@
         "shown": true,
         "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/extra-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/extra-320x700.png"
       },
       {
         "scenario": "spanish",
@@ -89,7 +92,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/spanish-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/spanish-1440x900.png"
       },
       {
         "scenario": "spanish",
@@ -97,7 +100,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/spanish-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/spanish-768x1024.png"
       },
       {
         "scenario": "spanish",
@@ -105,7 +108,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/spanish-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/spanish-390x844.png"
       },
       {
         "scenario": "spanish",
@@ -113,7 +116,7 @@
         "shown": true,
         "text": "Llegó otro pago de $150 después de que este trabajo ya estaba saldado. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/spanish-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/spanish-320x700.png"
       },
       {
         "scenario": "failed-refund",
@@ -121,7 +124,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-refund-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-refund-1440x900.png"
       },
       {
         "scenario": "failed-refund",
@@ -129,7 +132,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-refund-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-refund-768x1024.png"
       },
       {
         "scenario": "failed-refund",
@@ -137,7 +140,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-refund-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-refund-390x844.png"
       },
       {
         "scenario": "failed-refund",
@@ -145,7 +148,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/failed-refund-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/failed-refund-320x700.png"
       },
       {
         "scenario": "two-reasons",
@@ -153,7 +156,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/two-reasons-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/two-reasons-1440x900.png"
       },
       {
         "scenario": "two-reasons",
@@ -161,7 +164,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/two-reasons-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/two-reasons-768x1024.png"
       },
       {
         "scenario": "two-reasons",
@@ -169,7 +172,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/two-reasons-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/two-reasons-390x844.png"
       },
       {
         "scenario": "two-reasons",
@@ -177,7 +180,7 @@
         "shown": true,
         "text": "A bank payment of $150 did not go through, so this job is not paid. Check the payment in your Stripe account.\nA card payment of $100 came in, but this job is owed $150. We did not mark it paid. Check the payment in your Stripe account.\nAnother payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/two-reasons-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/two-reasons-320x700.png"
       },
       {
         "scenario": "owed-back",
@@ -185,7 +188,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-1440x900.png"
       },
       {
         "scenario": "owed-back",
@@ -193,7 +196,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-768x1024.png"
       },
       {
         "scenario": "owed-back",
@@ -201,7 +204,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-390x844.png"
       },
       {
         "scenario": "owed-back",
@@ -209,7 +212,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-320x700.png"
       },
       {
         "scenario": "owed-back-es",
@@ -217,7 +220,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-es-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-es-1440x900.png"
       },
       {
         "scenario": "owed-back-es",
@@ -225,7 +228,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-es-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-es-768x1024.png"
       },
       {
         "scenario": "owed-back-es",
@@ -233,7 +236,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-es-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-es-390x844.png"
       },
       {
         "scenario": "owed-back-es",
@@ -241,7 +244,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-es-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-es-320x700.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -249,7 +252,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-currency-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-currency-1440x900.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -257,7 +260,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-currency-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-currency-768x1024.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -265,7 +268,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-currency-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-currency-390x844.png"
       },
       {
         "scenario": "owed-back-currency",
@@ -273,7 +276,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/owed-back-currency-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-currency-320x700.png"
       },
       {
         "scenario": "settled",
@@ -281,7 +284,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/settled-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/settled-1440x900.png"
       },
       {
         "scenario": "settled",
@@ -289,7 +292,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/settled-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/settled-768x1024.png"
       },
       {
         "scenario": "settled",
@@ -297,7 +300,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/settled-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/settled-390x844.png"
       },
       {
         "scenario": "settled",
@@ -305,7 +308,7 @@
         "shown": true,
         "text": "A card payment of $1 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/settled-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/settled-320x700.png"
       },
       {
         "scenario": "hand-paid",
@@ -313,7 +316,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-1440x900.png"
       },
       {
         "scenario": "hand-paid",
@@ -321,7 +324,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-768x1024.png"
       },
       {
         "scenario": "hand-paid",
@@ -329,7 +332,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-390x844.png"
       },
       {
         "scenario": "hand-paid",
@@ -337,7 +340,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-320x700.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -345,7 +348,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-es-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-es-1440x900.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -353,7 +356,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-es-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-es-768x1024.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -361,7 +364,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-es-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-es-390x844.png"
       },
       {
         "scenario": "hand-paid-es",
@@ -369,7 +372,7 @@
         "shown": true,
         "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-es-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-es-320x700.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -377,7 +380,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-currency-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-currency-1440x900.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -385,7 +388,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-currency-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-currency-768x1024.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -393,7 +396,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-currency-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-currency-390x844.png"
       },
       {
         "scenario": "hand-paid-currency",
@@ -401,7 +404,7 @@
         "shown": true,
         "text": "A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-currency-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-currency-320x700.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -409,7 +412,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.\nAnother payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-extra-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-extra-1440x900.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -417,7 +420,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.\nAnother payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-extra-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-extra-768x1024.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -425,7 +428,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.\nAnother payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-extra-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-extra-390x844.png"
       },
       {
         "scenario": "hand-paid-extra",
@@ -433,7 +436,7 @@
         "shown": true,
         "text": "A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.\nAnother payment of $50 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/hand-paid-extra-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/hand-paid-extra-320x700.png"
       },
       {
         "scenario": "clean",
@@ -441,7 +444,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/clean-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/clean-1440x900.png"
       },
       {
         "scenario": "clean",
@@ -449,7 +452,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/clean-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/clean-768x1024.png"
       },
       {
         "scenario": "clean",
@@ -457,7 +460,7 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/clean-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/clean-390x844.png"
       },
       {
         "scenario": "clean",
@@ -465,19 +468,403 @@
         "shown": false,
         "text": null,
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.75/png-late/clean-320x700.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/clean-320x700.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/refunded-1440x900.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/refunded-320x700.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 1440,
+        "shown": true,
+        "text": "Another payment came in after this job was settled, and $100 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 768,
+        "shown": true,
+        "text": "Another payment came in after this job was settled, and $100 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "shown": true,
+        "text": "Another payment came in after this job was settled, and $100 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 320,
+        "shown": true,
+        "text": "Another payment came in after this job was settled, and $100 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-320x700.png"
+      },
+      {
+        "scenario": "part-refunded-es",
+        "width": 1440,
+        "shown": true,
+        "text": "Llegó otro pago después de que este trabajo ya estaba saldado, y $100 todavía no se ha devuelto. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-es-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded-es",
+        "width": 768,
+        "shown": true,
+        "text": "Llegó otro pago después de que este trabajo ya estaba saldado, y $100 todavía no se ha devuelto. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-es-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded-es",
+        "width": 390,
+        "shown": true,
+        "text": "Llegó otro pago después de que este trabajo ya estaba saldado, y $100 todavía no se ha devuelto. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-es-390x844.png"
+      },
+      {
+        "scenario": "part-refunded-es",
+        "width": 320,
+        "shown": true,
+        "text": "Llegó otro pago después de que este trabajo ya estaba saldado, y $100 todavía no se ha devuelto. Devuélvelo desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/part-refunded-es-320x700.png"
+      },
+      {
+        "scenario": "mixed",
+        "width": 1440,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.\nAnother payment came in after this job was settled, and $50 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/mixed-1440x900.png"
+      },
+      {
+        "scenario": "mixed",
+        "width": 768,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.\nAnother payment came in after this job was settled, and $50 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/mixed-768x1024.png"
+      },
+      {
+        "scenario": "mixed",
+        "width": 390,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.\nAnother payment came in after this job was settled, and $50 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/mixed-390x844.png"
+      },
+      {
+        "scenario": "mixed",
+        "width": 320,
+        "shown": true,
+        "text": "Another payment of $150 came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.\nAnother payment came in after this job was settled, and $50 of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/mixed-320x700.png"
+      },
+      {
+        "scenario": "owed-back-refunded",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-refunded-1440x900.png"
+      },
+      {
+        "scenario": "owed-back-refunded",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-refunded-768x1024.png"
+      },
+      {
+        "scenario": "owed-back-refunded",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-refunded-390x844.png"
+      },
+      {
+        "scenario": "owed-back-refunded",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-refunded-320x700.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded",
+        "width": 1440,
+        "shown": true,
+        "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. You refunded part of it, and $50 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded",
+        "width": 768,
+        "shown": true,
+        "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. You refunded part of it, and $50 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded",
+        "width": 390,
+        "shown": true,
+        "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. You refunded part of it, and $50 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded",
+        "width": 320,
+        "shown": true,
+        "text": "A card payment of $100 did not match what this job was owed, and the job has since been paid. You refunded part of it, and $50 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-320x700.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded-es",
+        "width": 1440,
+        "shown": true,
+        "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Ya devolviste una parte, y $50 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-es-1440x900.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded-es",
+        "width": 768,
+        "shown": true,
+        "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Ya devolviste una parte, y $50 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-es-768x1024.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded-es",
+        "width": 390,
+        "shown": true,
+        "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Ya devolviste una parte, y $50 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-es-390x844.png"
+      },
+      {
+        "scenario": "owed-back-part-refunded-es",
+        "width": 320,
+        "shown": true,
+        "text": "Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y el trabajo ya se pagó. Ya devolviste una parte, y $50 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/owed-back-part-refunded-es-320x700.png"
+      },
+      {
+        "scenario": "unpaid-wrong-refunded",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/unpaid-wrong-refunded-1440x900.png"
+      },
+      {
+        "scenario": "unpaid-wrong-refunded",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/unpaid-wrong-refunded-768x1024.png"
+      },
+      {
+        "scenario": "unpaid-wrong-refunded",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/unpaid-wrong-refunded-390x844.png"
+      },
+      {
+        "scenario": "unpaid-wrong-refunded",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/unpaid-wrong-refunded-320x700.png"
+      },
+      {
+        "scenario": "cancelled",
+        "width": 1440,
+        "shown": true,
+        "text": "This was paid. Refund $150 from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-1440x900.png"
+      },
+      {
+        "scenario": "cancelled",
+        "width": 768,
+        "shown": true,
+        "text": "This was paid. Refund $150 from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-768x1024.png"
+      },
+      {
+        "scenario": "cancelled",
+        "width": 390,
+        "shown": true,
+        "text": "This was paid. Refund $150 from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-390x844.png"
+      },
+      {
+        "scenario": "cancelled",
+        "width": 320,
+        "shown": true,
+        "text": "This was paid. Refund $150 from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-320x700.png"
+      },
+      {
+        "scenario": "cancelled-refunded",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-refunded-1440x900.png"
+      },
+      {
+        "scenario": "cancelled-refunded",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-refunded-768x1024.png"
+      },
+      {
+        "scenario": "cancelled-refunded",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-refunded-390x844.png"
+      },
+      {
+        "scenario": "cancelled-refunded",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-refunded-320x700.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded",
+        "width": 1440,
+        "shown": true,
+        "text": "This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded",
+        "width": 768,
+        "shown": true,
+        "text": "This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded",
+        "width": 390,
+        "shown": true,
+        "text": "This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded",
+        "width": 320,
+        "shown": true,
+        "text": "This was paid. You refunded $50 in your Stripe, and $100 is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-320x700.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded-es",
+        "width": 1440,
+        "shown": true,
+        "text": "Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-es-1440x900.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded-es",
+        "width": 768,
+        "shown": true,
+        "text": "Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-es-768x1024.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded-es",
+        "width": 390,
+        "shown": true,
+        "text": "Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-es-390x844.png"
+      },
+      {
+        "scenario": "cancelled-part-refunded-es",
+        "width": 320,
+        "shown": true,
+        "text": "Esto ya se pagó. Devolviste $50 en tu Stripe, y $100 todavía no se ha devuelto. Devuelve el resto desde tu propio Stripe. El dinero entró directo a tu cuenta, así que nosotros no podemos devolverlo por ti.",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.68/png/cancelled-part-refunded-es-320x700.png"
       }
     ]
   },
   "check_id": "payment-problem-late",
-  "started_at": "2026-10-17T10:41:38.269Z",
+  "started_at": "2026-10-17T11:37:58.303Z",
   "status": "pass",
-  "expected_targets": 56,
-  "discovered_targets": 56,
-  "attempted_targets": 56,
-  "completed_targets": 56,
+  "expected_targets": 104,
+  "discovered_targets": 104,
+  "attempted_targets": 104,
+  "completed_targets": 104,
   "skipped_targets": 0,
-  "assertions_executed": 397,
+  "assertions_executed": 773,
   "min_assertions": 100,
   "canary": {
     "id": "clean-paid-job-hides-the-line",

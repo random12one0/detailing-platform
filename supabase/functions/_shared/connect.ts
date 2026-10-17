@@ -220,8 +220,14 @@ export interface PaymentProblem {
   /** `reason`: a wrong-figure payment kept unpaid by 97.10, owed back once the job was paid another way (97.69). */
   payments?: { intent: string; paid_cents: number; currency: string; at: string; reason?: "amount" | "currency" }[];
   /** Older reasons still true, newest last — a new note is added, never written over one (`keepReasons`). */
-  earlier?: Omit<PaymentProblem, "payments" | "earlier">[];
+  earlier?: Omit<PaymentProblem, "payments" | "earlier" | "refunds">[];
+  /** What the detailer has refunded in their own Stripe, by payment intent (97.68, `refundedPayment`). */
+  refunds?: Record<string, { paid_cents: number; refunded_cents: number; at: string }>;
 }
+
+/** What the detailer has refunded of this payment so far, in cents (97.68). */
+export const refundedCents = (problem: PaymentProblem | null | undefined, intent: string | null | undefined): number =>
+  (intent && Number(problem?.refunds?.[intent]?.refunded_cents)) || 0;
 
 /**
  * ADD A REASON, NEVER REPLACE ONE — ROADMAP 97.11 (supervision 2026-10-17).
@@ -235,10 +241,11 @@ export function keepReasons(next: PaymentProblem, existing: PaymentProblem | nul
   const older = existing ? [...(existing.earlier ?? []), ...(existing.kind === "extra" ? [] : [existing])] : [];
   const earlier = older
     .filter((r) => !(next.intent && r.intent === next.intent && r.kind === next.kind))
-    .map(({ payments: _p, earlier: _e, ...r }) => r);
+    .map(({ payments: _p, earlier: _e, refunds: _r, ...r }) => r);
   const payments = next.payments ?? existing?.payments;
-  const { payments: _p, earlier: _e, ...top } = next;
-  return { ...top, ...(payments?.length ? { payments } : {}), ...(earlier.length ? { earlier } : {}) };
+  const refunds = next.refunds ?? existing?.refunds;
+  const { payments: _p, earlier: _e, refunds: _r, ...top } = next;
+  return { ...top, ...(payments?.length ? { payments } : {}), ...(earlier.length ? { earlier } : {}), ...(refunds ? { refunds } : {}) };
 }
 
 /**
@@ -365,8 +372,8 @@ export function settleProblem(
     }
   }
   if (payments.length === (existing.payments?.length ?? 0)) return undefined;
-  const rest = reasons.filter((r) => !owedBack(r)).map(({ payments: _p, earlier: _e, ...r }) => r);
-  return { ...extraProblem(payments, now), ...(rest.length ? { earlier: rest } : {}) };
+  const rest = reasons.filter((r) => !owedBack(r)).map(({ payments: _p, earlier: _e, refunds: _r, ...r }) => r);
+  return { ...extraProblem(payments, now), ...(rest.length ? { earlier: rest } : {}), ...(existing.refunds ? { refunds: existing.refunds } : {}) };
 }
 
 /**
@@ -398,10 +405,10 @@ export function failedBankPayment(
   if (!ours && (booking.payment_status === "paid" || booking.payment_status === "waived")) return null;
   const extras = Array.isArray(existing?.payments) ? existing.payments : [];
   const owed = amountDueCents(booking);
-  const cover = ours ? extras.find((p) => p.currency === "usd" && p.paid_cents === owed && owed > 0) : undefined;
+  const cover = ours ? extras.find((p) => p.currency === "usd" && p.paid_cents === owed && owed > 0 && !refundedCents(existing, p.intent)) : undefined;
   if (cover) {
     const left = keepReasons(extraProblem(extras.filter((p) => p !== cover), now), existing);
-    return { stripe_payment_intent: cover.intent, payment_problem: left.payments || left.earlier ? left : null };
+    return { stripe_payment_intent: cover.intent, payment_problem: left.payments || left.earlier || left.refunds ? left : null };
   }
   const money = cardMoney("checkout.session.async_payment_failed", object);
   const problem: PaymentProblem = {
@@ -416,6 +423,41 @@ export function failedBankPayment(
   return ours
     ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: kept }
     : { payment_problem: kept };
+}
+
+/**
+ * A REFUND THE DETAILER MADE IN THEIR OWN STRIPE — ROADMAP 97.68.
+ *
+ * `charge.refunded` carries the charge's amount and its running total refunded,
+ * and both go into the job's `refunds`, keyed by the payment. Every line that
+ * says "refund it" reads what is LEFT from there: an extra payment (97.11), a
+ * wrong-figure payment owed back (97.69, 97.70), and the cancelled job's own
+ * payment (14.4). So a payment refunded in full is owed nothing wherever it is
+ * listed, and nothing has to be taken off a list.
+ *
+ * IT IS KEPT EVEN WHEN THE PAYMENT IS NOT ON THE JOB YET. Stripe does not deliver
+ * events in order, so a refund can arrive before the payment's own event puts it
+ * on the list, or while it is still only a wrong-figure reason. Recorded here,
+ * the payment arrives already refunded (review, 2026-10-17: the first version
+ * dropped such a refund in silence).
+ *
+ * The figure only ever goes UP: two partial refunds' events arriving the wrong
+ * way round must not shrink what was refunded. Returns `undefined` when it would
+ * not change, so the caller writes nothing.
+ */
+export function refundedPayment(
+  existing: PaymentProblem | null | undefined,
+  intent: string,
+  charge: Record<string, unknown>,
+  now: Date = new Date(),
+): PaymentProblem | undefined {
+  const paid = Number(charge.amount) || 0;
+  const was = refundedCents(existing, intent);
+  const refunded = Math.min(Math.max(Number(charge.amount_refunded) || 0, 0), paid);
+  if (!intent || refunded <= was) return undefined;
+  const base: PaymentProblem = existing
+    ?? { kind: "extra", paid_cents: 0, owed_cents: 0, currency: String(charge.currency ?? "usd").toLowerCase(), at: now.toISOString() };
+  return { ...base, refunds: { ...existing?.refunds, [intent]: { paid_cents: paid, refunded_cents: refunded, at: now.toISOString() } } };
 }
 
 /** `stripe()` from `_shared/stripe.ts`, passed in so this module imports nothing and a test can stand in for Stripe. */
