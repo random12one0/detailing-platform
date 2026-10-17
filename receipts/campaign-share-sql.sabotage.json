@@ -1,9 +1,9 @@
 {
-  "git_sha": "ffce5fbe118605a5c6cb7e827f7f36ad2de3ad9e",
-  "git_sha_started": "ffce5fbe118605a5c6cb7e827f7f36ad2de3ad9e",
+  "git_sha": "6287032cc6249f7f669e7f001a775c4f3d7ac3a5",
+  "git_sha_started": "6287032cc6249f7f669e7f001a775c4f3d7ac3a5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T20:50:37.313Z",
+  "finished_at": "2026-10-17T21:07:53.983Z",
   "failures": [
     "C: the second arrival of the same press is refused 1 rows"
   ],
@@ -21,15 +21,15 @@
     "violations": 0
   },
   "check_id": "campaign-share-sql",
-  "started_at": "2026-10-17T20:50:34.145Z",
+  "started_at": "2026-10-17T21:07:47.671Z",
   "status": "fail",
   "expected_targets": 3,
   "discovered_targets": 3,
   "attempted_targets": 3,
   "completed_targets": 3,
   "skipped_targets": 0,
-  "assertions_executed": 20,
-  "min_assertions": 20,
+  "assertions_executed": 22,
+  "min_assertions": 22,
   "assertion_floor": "structural: a fixed list of checks over fixed scenarios A, B and C",
   "canary": {
     "id": "pre-97.19-one-pool",

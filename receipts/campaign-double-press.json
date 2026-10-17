@@ -1,9 +1,9 @@
 {
-  "git_sha": "55d132b12bdc0f1a991d4bc5b5788e01cd50ce6c",
-  "git_sha_started": "55d132b12bdc0f1a991d4bc5b5788e01cd50ce6c",
+  "git_sha": "11c36373ebbe6ea6f8c2c985fe2a5934c577aeb5",
+  "git_sha_started": "11c36373ebbe6ea6f8c2c985fe2a5934c577aeb5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T20:56:26.584Z",
+  "finished_at": "2026-10-17T21:10:31.483Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -19,7 +19,7 @@
     ]
   },
   "check_id": "campaign-double-press",
-  "started_at": "2026-10-17T20:55:06.080Z",
+  "started_at": "2026-10-17T21:09:01.670Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
