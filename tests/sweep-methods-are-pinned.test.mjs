@@ -177,7 +177,11 @@ function quoteSweep(roadmapText) {
 // DECLARED — measured 2026-10-02 at the commit recorded below.
 // Move these in the SAME EDIT as whatever really changed, and say why.
 // ===========================================================================
-const TAKEN_AT = "b039c769";         // re-taken 2026-10-17, ROADMAP 100.7 (was 31f6e32, 45e98bd, 3398470).
+const TAKEN_AT = "0f4638ec";         // 2026-10-17, ROADMAP 100.9: the tree that declared 149 (was b039c769, 31f6e32, 45e98bd, 3398470).
+// 100.9, 2026-10-17 (supervisor): § 3 now re-takes the three figures from `git show TAKEN_AT:ROADMAP.md`,
+// not the working tree, so filing or ticking an item cannot move them. It was red within hours every time it was
+// re-pinned (belt filings 99.12-99.17 and every tick) and held 97.13 and 97.68 as "new failures". The figures are
+// an EQUALITY at their own revision (gotchas 94), not a floor (98). § 0 and § 3b still read the live tree.
 // 2026-10-17: all three figures re-taken at `b039c769` (145 / 27 / 374); `numberedOpenItems`
 // is declared at the tree that ticks 100.7, the commit this edit lands in, which reads 144.
 // The paragraph below is the 2026-10-07 state and is kept, not rewritten.
@@ -894,7 +898,7 @@ test("the two sweep methods are pinned, not described", async (t) => {
       quoteCriteria: qs.criteria,
       quoteFragments: qs.fragments,
     };
-    console.log(`\n   PINNED SWEEP FIGURES — taken by this file, declared at ${TAKEN_AT}`);
+    console.log(`\n   PINNED SWEEP FIGURES — LIVE tree against the values declared at ${TAKEN_AT}; § 3 judges ${TAKEN_AT} itself (ROADMAP 100.9), so MOVED here is drift, not a failure`);
     for (const k of Object.keys(DECLARED)) {
       const flag = got[k] === DECLARED[k] ? "" : `   <-- MOVED from ${DECLARED[k]}`;
       console.log(`     ${k.padEnd(22)} ${String(got[k]).padStart(5)}${flag}`);
@@ -942,10 +946,14 @@ test("the two sweep methods are pinned, not described", async (t) => {
   });
 
   await t.test("3 · the declared figures still hold", () => {
+    // At TAKEN_AT, not the working tree: ROADMAP 100.9. The parser and the fragment rule are the
+    // production ones, so both PIN_CANARY sabotages still move these numbers.
+    const pinned = git(["show", `${TAKEN_AT}:ROADMAP.md`]);
+    const pinnedQs = quoteSweep(pinned);
     const got = {
-      numberedOpenItems: ids.length,
-      quoteCriteria: qs.criteria,
-      quoteFragments: qs.fragments,
+      numberedOpenItems: openItems(pinned).items.filter((i) => i.id).length,
+      quoteCriteria: pinnedQs.criteria,
+      quoteFragments: pinnedQs.fragments,
     };
     assert.deepEqual(
       got, DECLARED,
