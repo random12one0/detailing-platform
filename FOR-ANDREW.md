@@ -136,11 +136,12 @@ The final upload switch is committed locally. Your cron, its timeout and the
 10 GB allowance were already live; they were checked again without changing
 the database. No new account setup or decision is needed for those steps.
 
-Before publishing the app, have the session for **98.5** repair the stale photo
-checks and get the full photo and Spanish run green. The protected tests were
-left unchanged by this job, and their failed output is saved. Then include the
-receipt switch in your ordinary app release; a session verifies the published
-upload and ticks 0.11cc. The control-room copy on port 5180 has a separate
+**Checked again 2026-10-17: everything else in the photo release is already live** — the photo program,
+the forget-customer program, the nightly clean-up, the 10 GB allowance, and job photos. The photo tests and the Spanish checks are green (142 of 142). **Not live yet: two switches, this
+one for receipts and the one for logos and gallery pictures. The website you have published still saves
+both the old way.** Nothing to redo and
+nothing to decide — both go out with your next ordinary website publish. Then a session checks the live
+site and ticks 0.11cc and 0.11c. The control-room copy on port 5180 has a separate
 browser-origin restriction, so its transport check records that limitation.
 The failed-upload cleanup gap found during proof is now numbered **14.39**;
 all of this job's temporary receipt files and expenses were removed.

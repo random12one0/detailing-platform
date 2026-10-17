@@ -1,9 +1,9 @@
 {
-  "git_sha": "cb7f219facaa7d2bc5572dedf7f78f69811a1ea5",
-  "git_sha_started": "cb7f219facaa7d2bc5572dedf7f78f69811a1ea5",
+  "git_sha": "baee877f5c71b5cebafd0a8ddf31e448390e47ad",
+  "git_sha_started": "baee877f5c71b5cebafd0a8ddf31e448390e47ad",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-16T15:22:36.441Z",
+  "finished_at": "2026-10-17T20:23:31.110Z",
   "failures": [],
   "warnings": [
     "The five numbers are asserted on the detail handed to stamp(), not on a row read back from Postgres."
@@ -56,7 +56,7 @@
     ]
   },
   "check_id": "photo-cron-call",
-  "started_at": "2026-10-16T15:22:36.315Z",
+  "started_at": "2026-10-17T20:23:30.251Z",
   "status": "pass",
   "expected_targets": 3,
   "discovered_targets": 3,
