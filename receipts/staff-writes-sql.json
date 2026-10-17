@@ -1,0 +1,33 @@
+{
+  "git_sha": "ea72ca728e2a50dc703da46eba3029b047516c33",
+  "git_sha_started": "ea72ca728e2a50dc703da46eba3029b047516c33",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:17:37.368Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/staff-writes-sql/results.txt"
+  ],
+  "dimensions": {
+    "migration": "20261017030000_staff_cannot_delete_bookings_or_write_customers.sql",
+    "write_paths": 4,
+    "reproduced_before": 4,
+    "refused_after": 4
+  },
+  "check_id": "staff-writes-sql",
+  "started_at": "2026-10-17T04:17:21.377Z",
+  "status": "pass",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 19,
+  "min_assertions": 19,
+  "assertion_floor": "structural: one assertion per write path before and after, plus fixed route checks, so the count cannot vary between runs",
+  "canary": {
+    "id": "notes-without-membership",
+    "observed_failure": true
+  }
+}
