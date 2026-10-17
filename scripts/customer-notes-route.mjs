@@ -18,12 +18,16 @@
 // function refuses, and the screen must SAY so — the old direct update failed silently) and VIEW-AS (a "view as" tab
 // on Looking, made the way platform-admin's door makes one — the tab's own session in sessionStorage plus the preview
 // flag — must send NO save and must show the Looking-only line). Expected 3 widths × 3 = 9 targets.
-// "Shown" means ON SCREEN, not present in the DOM: inside the viewport, painted (not hidden, not faded out) and the
-// topmost thing at its own centre — AFTER the line is scrolled to its nearest position, as a reader would scroll. At
-// rest it can sit below the record panel's edge at 1440, which this does not see: ROADMAP 97.79. CANARY, EVERY RUN: two lines planted in the page — one above the viewport, one at
+// "Shown" means ON SCREEN AS THE PAGE SITS, not present in the DOM: the check makes NO scroll of its own (the box is
+// where typing into it put it, as for a detailer), and the line must lie wholly inside the viewport AND inside every
+// box that clips it (the record panel), be painted (no hidden or faded ancestor), and be the topmost thing at its top,
+// middle and bottom. Until 2026-10-17 it scrolled the line into view first, so a line cut by the panel's edge at 1440
+// read as shown (the review's finding; ROADMAP 97.14, round 3). CANARY, EVERY RUN: two lines planted in the page — one above the viewport, one at
 // opacity 0 — must both read as NOT on screen, or the check is counting rather than looking.
 // Sabotage: BREAK=direct answers every save with the 42501 a revoked direct write gets (MEMBER goes red);
-// BREAK=unguarded strips the guard out of the served module and records that the cut landed (VIEW-AS goes red).
+// BREAK=unguarded strips the guard out of the served module and records that the cut landed (VIEW-AS goes red);
+// BREAK=no-scroll cuts the screen's own scroll-the-line-into-view out of the served Clients.jsx and records that the
+// cut landed (the line falls back to where it renders, under the panel's edge at 1440).
 //
 // No-.env servers: a belt job's server starts without the app's Supabase address, so the two VITE_ values are
 // supplied to the page here, from the root `.env`'s SUPABASE_URL / SUPABASE_ANON_KEY (the anon key ships in every
@@ -55,6 +59,8 @@ const LOOKING = "Looking only";
 
 let member = true; // which scenario the next save is answered under
 let unguardedCuts = 0; // BREAK=unguarded: served modules the guard was cut out of (docs/gotchas.md 102)
+const SCROLL = /\b\w+\.current\?\.scrollIntoView\(\{\s*block:\s*"nearest"\s*\}\)/;
+let scrollCuts = 0; // BREAK=no-scroll: the same proof that the cut landed
 const calls = [];
 async function answer(body) {
   const db = new PGlite();
@@ -81,21 +87,25 @@ async function answer(body) {
   } finally { await db.close(); }
 }
 
-// ON SCREEN: inside the viewport, painted, and the topmost thing at its own centre. Polled, because the line can
-// arrive mid-transition (docs/gotchas.md 119, 122).
+// ON SCREEN AS IT SITS — no scroll here: wholly inside the viewport and every clipping ancestor, painted, and topmost at
+// its top, middle and bottom. Polled, because the line can arrive mid-transition (docs/gotchas.md 119, 122).
 const onScreen = async (page, loc, wantOn) => {
   let on = false;
   for (let i = 0; i < 20; i++) {
     on = (await loc.count()) > 0 && await loc.first().evaluate((n) => {
-      n.scrollIntoView({ block: "nearest" });
       const r = n.getBoundingClientRect();
-      if (!r.width || !r.height || r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) return false;
+      const inside = (b) => r.top >= b.top - 0.5 && r.bottom <= b.bottom + 0.5 && r.left >= b.left - 0.5 && r.right <= b.right + 0.5;
+      if (!r.width || !r.height || !inside({ top: 0, left: 0, bottom: innerHeight, right: innerWidth })) return false;
       for (let e = n; e; e = e.parentElement) {
         const s = getComputedStyle(e);
         if (s.visibility === "hidden" || s.display === "none" || Number(s.opacity) < 0.9) return false;
+        if (e !== n && (s.overflowX !== "visible" || s.overflowY !== "visible") && !inside(e.getBoundingClientRect())) return false;
       }
-      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-      return !!hit && (hit === n || n.contains(hit));
+      const x = r.left + r.width / 2;
+      return [r.top + 2, r.top + r.height / 2, r.bottom - 2].every((y) => {
+        const hit = document.elementFromPoint(x, y);
+        return !!hit && (hit === n || n.contains(hit));
+      });
     }).catch(() => false);
     if (on === wantOn) break;
     await page.waitForTimeout(150);
@@ -132,6 +142,7 @@ for (const [w, h] of WIDTHS) {
       .replaceAll("import.meta.env.VITE_SUPABASE_URL", JSON.stringify(process.env.SUPABASE_URL))
       .replaceAll("import.meta.env.VITE_SUPABASE_ANON_KEY", JSON.stringify(process.env.SUPABASE_ANON_KEY));
     if (BREAK === "unguarded" && body.includes(GUARD)) { body = body.replace(GUARD, ""); unguardedCuts++; }
+    if (BREAK === "no-scroll" && SCROLL.test(body)) { body = body.replace(SCROLL, "void 0"); scrollCuts++; }
     await route.fulfill({ response: res, body });
   });
   await ctx.route(/\/rest\/v1\/rpc\/set_customer_notes/, async (route) => {
@@ -238,6 +249,7 @@ for (const [w, h] of WIDTHS) {
 }
 await browser.close();
 if (BREAK === "unguarded") check("sabotage landed: the rpc guard was cut out of the served module", unguardedCuts > 0, `cuts ${unguardedCuts}`);
+if (BREAK === "no-scroll") check("sabotage landed: the screen's scroll-into-view was cut out of the served Clients.jsx", scrollCuts > 0, `cuts ${scrollCuts}`);
 
 writeReceipt({
   check_id: OWNER_RUN ? "customer-notes-route-owner" : "customer-notes-route",
@@ -254,6 +266,6 @@ writeReceipt({
   assertion_floor: "structural: two per scenario plus a next-record and a console check per width, and the canary once",
   artifacts: [SHOTS],
   canary: { id: "planted-hidden-lines-read-as-not-shown", observed_failure: canaryCaught === true },
-  dimensions: { break: BREAK || undefined, login: OWNER_RUN ? "demo owner" : "demo staff", calls: calls.length, unguarded_cuts: BREAK === "unguarded" ? unguardedCuts : undefined },
+  dimensions: { break: BREAK || undefined, login: OWNER_RUN ? "demo owner" : "demo staff", calls: calls.length, unguarded_cuts: BREAK === "unguarded" ? unguardedCuts : undefined, scroll_cuts: BREAK === "no-scroll" ? scrollCuts : undefined },
 });
 process.exit(failures.length ? 1 : 0);
