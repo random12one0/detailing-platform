@@ -85,7 +85,15 @@ Deno.serve(async (req) => {
       addOns,
       vehicleSize: vehicles[0].key,
       vehicleSizeLabel: vehicles[0].label,
-      extraVehicles: vehicles.slice(1),
+      // ROADMAP 97.7 — on a split booking each car is matched against ITS OWN
+      // day, exactly as its own `create-booking` call will match it. Index i
+      // lines up because `resolveVehicles` keeps the order and only truncates.
+      extraVehicles: vehicles.slice(1).map((v, i) => body.split_days === true
+        ? { ...v, adjustments: matchPriceRules(settings.price_rules, whenContextFor(
+            business.timezone, body.extra_vehicles?.[i]?.booking_date, body.extra_vehicles?.[i]?.start_time,
+            localDateTimeToInstant, weekdayOf,
+          )) }
+        : v),
       extraVehicleMinutesSaved: Number(settings.extra_vehicle_minutes_saved) || 0,
       splitDays: body.split_days === true,
       siteDiscountPercent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,

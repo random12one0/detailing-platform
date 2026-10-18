@@ -156,6 +156,15 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
                 <span className="bk-price">{money(v.total)}</span>
               </div>
               <p className="bk-muted">{[v.model, v.label].filter(Boolean).join(" · ")}</p>
+              {/* ROADMAP 97.7 — THAT CAR'S OWN LINES, UNDER THAT CAR. A weekend
+                  rate belongs to the Saturday car, not the order. Absent from
+                  the currently deployed function, which prints nothing here. */}
+              {(v.adjustments ?? []).map((a, j) => (
+                <div className="bk-row between bk-muted" key={j}>
+                  <span>{adjustmentLabel(a)}</span>
+                  <span>{money(a.amount)}</span>
+                </div>
+              ))}
             </div>
           ))
         ) : (
