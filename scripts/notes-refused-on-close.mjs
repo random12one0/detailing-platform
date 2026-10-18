@@ -123,6 +123,7 @@ const REWRITES = {
 const failures = [];
 const results = [];
 let assertions = 0, completed = 0, canaryCaught = null, calls = 0, rewriteMisses = 0;
+const fetchFailures = [];
 const check = (name, ok, detail = "") => {
   assertions++;
   console.log(`  ${ok ? "ok  " : "FAIL"}  ${name}${ok ? "" : " " + detail}`);
@@ -183,7 +184,14 @@ for (const [w, h] of WIDTHS) {
   const page = await ctx.newPage();
   watch(page);
   await ctx.route(/\/src\/.*\.(js|jsx)(\?.*)?$/, async (route) => {
-    const res = await route.fetch();
+    // A busy dev server resets the odd module fetch (ECONNRESET, 2026-10-18, three runs in a row). Retried, and a
+    // fetch that still fails is a named red line at the end, never a crash with no receipt and never a quiet pass.
+    let res = null;
+    for (let i = 0; i < 4 && !res; i++) {
+      res = await route.fetch().catch(() => null);
+      if (!res) await new Promise((r) => setTimeout(r, 500));
+    }
+    if (!res) { fetchFailures.push(route.request().url().replace(BASE, "")); return route.abort().catch(() => {}); }
     let body = (await res.text())
       .replaceAll("import.meta.env.VITE_SUPABASE_URL", JSON.stringify(process.env.SUPABASE_URL))
       .replaceAll("import.meta.env.VITE_SUPABASE_ANON_KEY", JSON.stringify(process.env.SUPABASE_ANON_KEY));
@@ -362,6 +370,7 @@ for (const [w, h] of WIDTHS) {
   await ctx.close();
 }
 await browser.close();
+check("every module the page asked for was served (after retries)", fetchFailures.length === 0, JSON.stringify(fetchFailures));
 if (SIGNED) check("sabotage: every rewrite matched the served module", rewriteMisses === 0, `${rewriteMisses} missed`);
 
 const textLines = CASES.filter((c) => !c.look).length;
@@ -375,7 +384,7 @@ writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: WIDTHS.length * (CASES.length + textLines + 3) + 1,
+  min_assertions: WIDTHS.length * (CASES.length + textLines + 3) + 2,
   failures,
   assertion_floor: "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
   artifacts: [SHOTS],
