@@ -418,6 +418,12 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - A refusal never shows on a different client's record
   - `scripts/notes-refused-on-close.mjs` turns from instrument into gate for these cases, with a sabotage that restores today's close
 
+- [ ] **97.85 — Today at 1440 says "Nothing collected yet" when the day's only paid job was refunded in full; at 390 the same day says "$0 collected" (found by the supervisor, 2026-10-18).**
+  Seen in `belt/shots/97.81/png/today-refunded-1440x900.png` against `today-refunded-390x844.png` (`node scripts/refund-totals.mjs`, refunded scenario). "Yet" promises money that is still coming; this money came and went back. `app/src/screens/Today.jsx` picks the words when collected is 0 (`t("Nothing collected yet")`), without asking whether anything was refunded. Small copy fix; Spanish key in the same edit.
+  Acceptance criteria:
+  - At 1440 and 390, a day whose paid jobs were all refunded does not say "yet"; a day with nothing paid still does
+  - `scripts/refund-totals.mjs` asserts the words in the refunded scenario at both widths, with its existing sabotage still red
+
 - [x] **97.79 — A refused Notes save's line can sit below the client record's visible edge at 1440 (found by 97.14).**
   In the record's right-hand column at 1440x900, the line under the Notes box ("Your notes were not saved…", or a
   view-as tab's "Looking only…") renders about 36px below the box, and with the box just scrolled into view the
@@ -726,6 +732,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
   The work is safe on branch `belt/97.18-20261017193703231`. Answer "merge it" to keep it, or say what to change.
   Supervisor 2026-10-17: two findings, one for Andrew and one for the next attempt. (a) R4 as written, "takes no longer than before", cannot be met by ANY lock: the measured cost is +0.142 thousandths of a second per booking (0.000142 s), far below anything a person or a phone can notice. Recommendation: amend R4 to "no more than 5 ms slower at the median, measured and written in the entry", which this work already meets. (b) The race was proved on cut-down copies of three tables, not the real schema, so the new insert/update functions have never met the real `bookings` columns or triggers. That is real and not Andrew's: the next attempt should replay `supabase/migrations/` into the throwaway Postgres and re-run both proofs there. Recommendation: "amend R4 as above, then carry on".
+  Supervisor 2026-10-18: Andrew answered 23:11, "Keep the fix and change the speed rule to 5 milliseconds" (R4 becomes: the lock adds no more than 5 ms per booking). AND the branch's migration `20261017200000_booking_day_rules_lock.sql` shares its version with 97.19's `20261017200000_campaigns_get_a_daily_share.sql`, already on main: rename it to a version later than every file on main when this lands, and update every place that names it. `tests/migration-versions-unique.test.mjs` is red on the merged tree until then (measured: it names both files).
   `slotValidation.ts:281-328` checks and `create-booking/index.ts:489` inserts, with no lock between. `bookings_no_overlap` (`20260907000400_multiple_vehicles.sql:154-158`) catches only true overlaps; nothing enforces `max_bookings_per_day` or `buffer_minutes` at insert time. Take a lock per business per day around the check and the insert (`pg_advisory_xact_lock` in an RPC), or re-check in a trigger. New migration; applying it live is Andrew's.
   Acceptance criteria:
   - On a throwaway local copy, two concurrent bookings that together exceed `max_bookings_per_day` save one and refuse the other

@@ -359,6 +359,7 @@ were made more than once.
 - **Supervision 2026-10-13 (eleventh)** — R2 closures reproduced; preview proved locally; readable sabotage evidence separated; held nightly restore cannot certify an arbitrary dump.
 - **Supervision 2026-10-16 (second)** — a test-safety refusal is not a regression; a recrash is not a new failure; 97.1's held test fixed on its branch; 97.3 back to a builder under Andrew's yes.
 - **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
+- **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19187,3 +19188,24 @@ Re-run this pass, credential-free, at `753c727d`: 97.64 duplicate-answer 67/0
 price-shown-equals-charged 12/0 (`no-guard` 3 red) and `price-changed-page.mjs`
 66/0 over 6 targets with the canary caught; 97.11 checkout-page-lifecycle 29/0
 (three breaks red), card-payment-settles 33/0 (`no-guard` 3 red).
+
+## Supervision 2026-10-18
+
+**Andrew's "merge it" on a held branch is carried out by the supervisor when the merge is
+mechanical, rather than by a fresh belt job.** The belt turns the answer into a new attempt
+that starts from main whenever the old branch conflicts, and every one of these conflicted only
+on paperwork (FOR-ANDREW rows, receipts, the NEEDS ANDREW lines). 97.13 and 97.17 were merged in
+a separate worktree with their own proofs re-run on the merged tree; 97.20's re-run had already
+merged its held branch and was waiting only on a reviewer that was out of usage. Receipts that
+conflicted kept main's copy, because main's had been re-taken more recently; the item's own
+proof receipts came from the branch untouched.
+
+**An unapplied migration whose version collides with one on main is renamed, not kept.**
+"Migrations are append-only" protects files that may have run. 97.13's
+`20261017030000_domain_claims_need_proof.sql` had never been on main and is not applied (its
+entry says AWAITS PUBLISH), while 97.14 had already landed `20261017030000_staff_cannot_...`.
+Keeping both would leave a release row saying "apply 20261017030000" that names two files, and
+`supabase db push` refuses duplicate versions. Renamed to `20261018010000_`, every reference
+moved in the same commit. The same is owed by 97.18 (`20261017200000`, against 97.19). The guard
+is `tests/migration-versions-unique.test.mjs`, an equality over the one old pair
+(`20260913010000`) that was on main before it existed.

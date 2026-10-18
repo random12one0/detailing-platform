@@ -5579,3 +5579,19 @@ Same sitting, same shape: a test-safety REFUSAL ("no check was run") was
 reported as "regressed checks that pass on main" for 97.1 and 97.3, and two of
 Andrew's merge requests stopped under that false reason. A check that did not
 run is not a check that failed. Say which of the two it was.
+
+## 134. `node --test a.mjs missing.mjs` drops the missing file and goes green
+
+Supervision 2026-10-18. Run alone, `node --test tests/does-not-exist.test.mjs`
+exits 1 ("Could not find"). Named beside ANY file that exists, the missing one is
+silently dropped: `node --test tests/does-not-exist.test.mjs tests/composition.test.mjs`
+printed `tests 1, pass 1, fail 0`, exit 0. Node 24 reads the arguments as patterns,
+and a pattern that matches nothing is not an error once something else matched.
+
+It bit the supervisor on itself: a new guard was listed in a ten-file run inside a
+worktree that did not yet have the file, the run said `pass 22 / fail 0`, and that
+figure went into merge commit `956e0136` as though the guard had run. It had not.
+
+A list of test files that a gate, a belt config or a release note names will go on
+reporting green after one of them is renamed or deleted. Check `ℹ tests` against the
+number of files you meant to run, or run a new file on its own once before batching it.
