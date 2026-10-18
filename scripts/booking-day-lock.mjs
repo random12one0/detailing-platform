@@ -3,6 +3,7 @@
 //   node scripts/booking-day-lock.mjs                    # clean run
 //   node scripts/booking-day-lock.mjs --break=no-lock    # the lock line removed: the races must go red
 //   node scripts/booking-day-lock.mjs --break=no-recheck # the two refusals removed: the races must go red
+//   node scripts/booking-day-lock.mjs --break=slow       # the lock made 6 ms slow: the R4 speed bar must go red
 //
 // WHERE IT RUNS: a brand-new Postgres 17 cluster in a temporary folder, from the same tools
 // `scripts/restore-nightly.mjs` uses (RESTORE_TOOLS, or %LOCALAPPDATA%\detailing-platform\tools). Deleted on
@@ -42,6 +43,8 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8
 const BREAKS = {
   "no-lock": [/^\s*perform pg_advisory_xact_lock\(.*\);\n/m, ""],
   "no-recheck": [/^\s*raise exception 'booking_(day_full|too_close)' using errcode = 'BK00[12]';\n/gm, "null;\n"],
+  // a lock 6 ms slow: only the R4 speed bar may go red
+  "slow": [/^([ \t]*)perform pg_advisory_xact_lock\(/m, "$1perform pg_sleep(0.006);\n$1perform pg_advisory_xact_lock("],
 };
 if (BREAK && !BREAKS[BREAK]) { console.error(`unknown --break=${BREAK}; known: ${Object.keys(BREAKS).join(", ")}`); process.exit(2); }
 
