@@ -21,7 +21,11 @@
 //                    # tab, gear and job-tab may go red (at 1440; at 390 and 768 the sheet covers both)
 //   BREAK=job …      # sabotage: a refused hold no longer closes a History job covering the record, so the tab just
 //                    # does not move with the line hidden under the job (review, 2026-10-18) — ONLY 1440 job-tab may go red
-//                    # All seven write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
+//   BREAK=reopen …   # sabotage: making or changing a job re-opens the client from scratch again (ROADMAP 97.89: the
+//                    # Notes box back to the old text, the line gone) — ONLY book-again and job-change may go red
+//   ONLY=a,b …       # run only the named cases (for a sabotage run; a clean run is always every case)
+//   FREEZE=before|after FREEZE_DIR=<dir> …   # the review pages: book-again at 390 is frozen to <dir>/<FREEZE>.html
+//                    # All eight write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
 //                    # each run's own shots carry its name, so a clean run never overwrites them.
 //
 // The Notes box saves on blur, and pressing Close is itself a blur: the save used to leave as the record left, so
@@ -74,6 +78,12 @@
 //              the text and the line, Clients still lit. Where the job is a sheet the tap is NOT pressed (it would land
 //              on the job's own buttons, which write): the line asserts the tab bar is covered, then the job's Close
 //              puts the record back with the text and the line.
+//   book-again (ROADMAP 97.89) type, press Book again (the blur sends the save; refused), pick a service and a time and
+//              press Create booking → the record is back holding the text and the line, one save, and its History
+//              was re-read (so "stop refreshing" cannot pass). Nothing is written: create-booking and the open times
+//              are answered here.
+//   job-change type, open a past job from the History (the blur's save is refused), change its status (update-booking
+//              or the request's Accept; the writes answered here), close the job → the same: the text, the line, one save, the History re-read.
 //   "Close anyway" must be ON SCREEN (the same test as the line) before it is pressed, in every case that uses it
 // EVERY save is checked for WHAT it sent, in its own line per case: each request's p_notes must be exactly the typed
 // text. Whether the text is then STORED is the function's half, proven against the real migration by
@@ -102,9 +112,10 @@ const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
 const BASE = process.env.BASE || "http://localhost:5173";
 const BREAK = process.env.BREAK || "";
-if (BREAK && !["close", "accept", "reject", "text", "stale", "reset", "tab", "job"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
+if (BREAK && !["close", "accept", "reject", "text", "stale", "reset", "tab", "job", "reopen"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
 const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
-const CASES = [
+const ONLY = (process.env.ONLY || "").split(",").filter(Boolean);
+const ALL_CASES = [
   { id: "control", leave: "blur", answer: "refuse" },
   { id: "close", leave: "close", answer: "refuse" },
   { id: "escape", leave: "escape", answer: "refuse" },
@@ -123,7 +134,11 @@ const CASES = [
   { id: "gear", leave: "tab", to: "gear", answer: "refuse" },
   { id: "gear-ok", leave: "tab", to: "gear", answer: "accept" },
   { id: "job-tab", leave: "tab", to: "today", answer: "refuse", job: true },
+  { id: "book-again", leave: "make", made: "create", answer: "refuse" },
+  { id: "job-change", leave: "make", made: "change", answer: "refuse" },
 ];
+const CASES = ALL_CASES.filter((c) => !ONLY.length || ONLY.includes(c.id));
+if (!CASES.length || CASES.length !== (ONLY.length || ALL_CASES.length)) { console.error(`ONLY=${ONLY} names no case or an unknown one`); process.exit(2); }
 const ANSWER_MS = 600;
 const PRODUCT_WAIT_MS = 5000;   // Clients.jsx NOTES_WAIT_MS
 const NOT_SAVED = "Your notes were not saved";
@@ -133,7 +148,7 @@ const ANYWAY = "Close anyway";
 const SHOTS = process.env.SHOTS || "artifacts/notes-refused-on-close";
 const started_at = new Date().toISOString();
 const FROZEN = new Date(started_at);
-const SIGNED = ["close", "reject", "text", "stale", "reset", "tab", "job"].includes(BREAK);
+const SIGNED = ["close", "reject", "text", "stale", "reset", "tab", "job", "reopen"].includes(BREAK);
 const SLOW_MS = 1500;   // escape-after: how long the FIRST save is held back
 const NEXT_MS = 1200;   // hang-next: how long after Close the next record must already be gone (exit is 180ms)
 
@@ -163,6 +178,11 @@ const REWRITES = {
   tab: [["if (holdLeave) holdLeave.current = open ? holdNotes : null;", ""]],
   // a refused hold leaves the History job over the record (review, 2026-10-18)
   job: [["if (!ok) setSelected(null);", ""]],
+  // making or changing a job re-opens the client from scratch (ROADMAP 97.89)
+  reopen: [
+    ["setBooking(null);\n            refreshRecord(open);", "setBooking(null);\n            openCustomer(open);"],
+    ["if (open) refreshRecord(open);", "if (open) openCustomer(open);"],
+  ],
 };
 
 const failures = [];
@@ -249,6 +269,15 @@ for (const [w, h] of WIDTHS) {
     }
     await route.fulfill({ response: res, body });
   });
+  // ROADMAP 97.89 — making or changing a job, answered here so nothing is written: the two writes, and the open times
+  // the New Booking sheet asks for. `reread` counts the record's own History reads (by the client's phone).
+  let made = 0, reread = 0;
+  await ctx.route(/\/functions\/v1\/(create-booking|update-booking|respond-to-booking|available-slots)/, async (route) => {
+    const fn = route.request().url().match(/v1\/([a-z-]+)/)[1];
+    if (fn !== "available-slots") made++;
+    await route.fulfill({ status: 200, json: fn === "available-slots" ? { slots: ["10:00"], dropoff_slots: [], mobile_slots: [] } : { success: true } });
+  });
+  await ctx.route(/\/rest\/v1\/bookings\?.*customer_phone=eq/, (route) => { reread++; return route.fallback(); });
   let sent = 0, answer = "refuse", notesIn = [], slowFirst = false;
   await ctx.route(/\/rest\/v1\/rpc\/set_customer_notes/, async (route) => {
     sent++; calls++;
@@ -362,7 +391,39 @@ for (const [w, h] of WIDTHS) {
       await settle(p, ANSWER_MS + 800);
       jobOver = (await box.count()) === 0;
     }
-    if (c.leave === "blur") await p.locator("label.field:has-text('Notes') > span").first().click();
+    if (c.leave === "make") {   // ROADMAP 97.89 — the blur's save is refused, then a job is made or changed
+      const notice = p.locator(".ok-box");   // "Accepted. They’ve been emailed.", "Marked as …"
+      if (c.made === "create") {
+        await p.locator("button", { hasText: "Book again" }).first().click();
+        const create = p.locator("button.btn.primary", { hasText: "Create booking" });
+        await create.waitFor({ state: "visible", timeout: 15000 });
+        await p.locator("button.chip", { hasText: "·" }).first().click();
+        await p.locator("button.chip").filter({ hasText: /\d\s*(AM|PM)/i }).first().click({ timeout: 20000 });
+        await settle(p, ANSWER_MS + 400);   // the refusal lands while the sheet is open
+        made = 0; reread = 0;
+        await create.click();
+        await create.waitFor({ state: "detached", timeout: 15000 });
+      } else {
+        await p.locator(".record .rows:not(.clients) .row-item, .sheet .rows:not(.clients) .row-item").first().click({ timeout: 15000 });
+        await settle(p, ANSWER_MS + 800);
+        jobOver = (await box.count()) === 0;
+        made = 0; reread = 0;
+        // Whichever status change this job offers (it depends on the job): a one-tap undo, or a tap and its confirm.
+        const STATUS = [["Accept"], ["Not completed after all"], ["Showed up after all"], ["Didn’t show up", "Yes, they didn’t show"],
+          ["Mark completed", "Yes, it’s done"], ["Un-cancel", "Yes, put it back on"]];
+        await p.locator(".record button, .sheet button").filter({ hasText: /Accept|after all|show up|Mark completed|Un-cancel/ }).first().waitFor({ timeout: 15000 })
+          .catch(async (e) => {   // say what the job DID offer, rather than a bare timeout
+            await p.screenshot({ path: `${SHOTS}/${c.id}-no-status-${w}x${h}${tag}.png` });
+            throw new Error(`${w} ${c.id}: no status change found; buttons: ${JSON.stringify(await p.locator("button").allInnerTexts())}`);
+          });
+        let pair = null;
+        for (const s of STATUS) if (await p.locator("button", { hasText: s[0] }).count()) { pair = s; break; }
+        for (const label of pair) await p.locator("button", { hasText: label }).first().click({ timeout: 10000 });
+        await notice.first().waitFor({ state: "visible", timeout: 15000 });
+        await closeX(p);
+      }
+    }
+    else if (c.leave === "blur") await p.locator("label.field:has-text('Notes') > span").first().click();
     else if (c.leave === "escape") await p.keyboard.press("Escape");
     else if (c.leave === "close") await closeX(p);
     else if (c.leave === "tab") {   // a real tap where the tab (or the gear) is drawn; whatever is on top there takes it
@@ -380,6 +441,16 @@ for (const [w, h] of WIDTHS) {
     }
     await settle(p, c.answer === "hang" ? PRODUCT_WAIT_MS + 1500 : c.after ? SLOW_MS + ANSWER_MS + 1500 : undefined);
     const first = await state(p, line);
+    if (c.leave === "make") Object.assign(first, { made, reread, job_over: jobOver });
+    if (c.id === "book-again" && w === 390 && process.env.FREEZE) {   // the review page (belt): the Notes box and its line
+      const { freeze } = await import(new URL("file:///C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
+      await p.evaluate(() => document.querySelector("label.field textarea")?.closest("label")?.parentElement?.setAttribute("data-freeze-spot", ""));
+      await freeze(p, { out: `${process.env.FREEZE_DIR}/${process.env.FREEZE}.html`, label: process.env.FREEZE === "before" ? "Before" : "After",
+        note: process.env.FREEZE === "before"
+          ? "A note was typed and refused, then Book again made a job: the box is back to the old text and the not-saved line is gone."
+          : "The same: the typed note is still in the box and the not-saved line is still under it.",
+        highlight: "[data-freeze-spot]" });
+    }
     if (c.leave === "tab") Object.assign(first, {
       tapped,
       sheet,
@@ -449,6 +520,8 @@ for (const [w, h] of WIDTHS) {
         && (c.answer === "refuse" ? held(back ?? first) && (back ?? first).sent === 1 : first.found === 0 && (!back || back.found === 0)), detail);
     else if (c.job) ok = check(`${w} ${c.id}: with a past job over the record, a tap on Today sent the note again; refused, the job closed and ${name}'s record is back with the text and the line, Clients still lit`,
       first.job_over && held(first) && first.sent === 2 && first.tapped === "today" && first.lit_tab === "clients" && !first.gear_open, detail);
+    else if (c.leave === "make") ok = check(`${w} ${c.id}: ${c.made === "create" ? "a job made with Book again" : "a status change on a job from the History"}: ${name}'s record is back holding the text and the line, one save, the History re-read`,
+      held(first) && first.sent === 1 && first.made === 1 && first.reread > 0 && (c.made === "create" || first.job_over), detail);
     else if (c.leave === "tab" && c.answer === "refuse") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; refused, the screen stayed on Clients with ${name}'s record holding the text and the line`,
       held(first) && first.sent === 1 && first.tapped === c.to && first.lit_tab === "clients" && !first.gear_open, detail);
     else if (c.leave === "tab") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; accepted, ${c.to} is the screen, no record, no line anywhere`,
@@ -489,6 +562,6 @@ writeReceipt({
   assertion_floor: "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
   artifacts: [SHOTS],
   canary: { id: "planted-hidden-faded-offscreen-lines-found-not-shown", observed_failure: canaryCaught === true },
-  dimensions: { break: BREAK || undefined, login: "demo staff", answer_ms: ANSWER_MS, product_wait_ms: PRODUCT_WAIT_MS, frozen_clock: started_at, calls, rewrite_misses: SIGNED ? rewriteMisses : undefined, cases: results },
+  dimensions: { break: BREAK || undefined, only: ONLY.length ? ONLY : undefined, login: "demo staff", answer_ms: ANSWER_MS, product_wait_ms: PRODUCT_WAIT_MS, frozen_clock: started_at, calls, rewrite_misses: SIGNED ? rewriteMisses : undefined, cases: results },
 });
 process.exit(failures.length ? 1 : 0);
