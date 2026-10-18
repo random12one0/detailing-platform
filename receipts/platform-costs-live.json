@@ -1,9 +1,9 @@
 {
-  "git_sha": "4d56642415e4b46c0df2d7424a9d9a52f4f9c610",
-  "git_sha_started": "4d56642415e4b46c0df2d7424a9d9a52f4f9c610",
+  "git_sha": "6e95466f5bfd9d513b5373f634c1064ef3acd0fa",
+  "git_sha_started": "6e95466f5bfd9d513b5373f634c1064ef3acd0fa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T17:34:23.014Z",
+  "finished_at": "2026-10-18T23:09:59.654Z",
   "failures": [],
   "warnings": [
     "There is no applied-migrations ledger in this project (supabase_migrations.schema_migrations does not exist), so 'recorded as applied' is the live shape matching the file, including its last statement, plus commit 0087d1dd. Nothing here can show WHEN it ran.",
@@ -12,7 +12,9 @@
   ],
   "artifacts": [
     "scripts/platform-costs-live.mjs",
-    "supabase/migrations/20261006020000_hand_entered_platform_costs.sql"
+    "supabase/migrations/20261006020000_hand_entered_platform_costs.sql",
+    "app/src/admin/office/OfficePage.jsx",
+    "app/src/admin/office/places/money/Kept.jsx"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
@@ -134,10 +136,12 @@
     },
     "cost_rows_now": 0,
     "screen_1440": {
-      "text": "Did we make money?October 2026Paid to us in October 2026$0Costs not entered for October 2026Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2026HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed ",
+      "text": "You kept · October so farNot entered4 bills not entered$0 came inMoney out not entered",
+      "label": "You kept · October so far",
       "err": null,
       "unknown": true,
-      "net": "Costs not entered for October 2026"
+      "net": "Not entered",
+      "out": "Money out not entered"
     },
     "browser_1440": {
       "asAdmin": {
@@ -175,10 +179,12 @@
       "probe_lines": 8
     },
     "screen_392": {
-      "text": "Did we make money?October 2026Paid to us in October 2026$0Costs not entered for October 2026Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2026HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed ",
+      "text": "You kept · October so farNot entered4 bills not entered$0 came inMoney out not entered",
+      "label": "You kept · October so far",
       "err": null,
       "unknown": true,
-      "net": "Costs not entered for October 2026"
+      "net": "Not entered",
+      "out": "Money out not entered"
     },
     "browser_392": {
       "asAdmin": {
@@ -217,7 +223,7 @@
     }
   },
   "check_id": "platform-costs-live",
-  "started_at": "2026-10-10T17:34:05.108Z",
+  "started_at": "2026-10-18T23:09:25.279Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
