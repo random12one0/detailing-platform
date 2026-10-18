@@ -1,12 +1,13 @@
 {
-  "git_sha": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
-  "git_sha_started": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
+  "git_sha": "49a612ce8a4dc3d03b2e0f9a8feb1c491a7351ea",
+  "git_sha_started": "49a612ce8a4dc3d03b2e0f9a8feb1c491a7351ea",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T12:23:33.245Z",
+  "finished_at": "2026-10-18T17:44:01.498Z",
   "failures": [
-    "FOR-ANDREW.md:255 \"97.18 — Stop two bookings at the same moment beating your daily limit\" is not covered by any step",
-    "FOR-ANDREW.md:255 \"97.18 — Stop two bookings at the same moment beating your daily limit\" carries a release instruction and has NO step on the sheet (no declaration in scripts/release-sheet.mjs, and not excluded)"
+    "FOR-ANDREW.md:264 \"97.18 — Stop two bookings at the same moment beating your daily limit\" is not covered by any step",
+    "FOR-ANDREW.md:264 \"97.18 — Stop two bookings at the same moment beating your daily limit\" carries a release instruction and has NO step on the sheet (no declaration in scripts/release-sheet.mjs, and not excluded)",
+    "ROADMAP.md:764 \"97.18 — Two bookings sent at once can both beat the daily cap and the buffer\" has a release line and is neither declared nor excluded in scripts/release-sheet.mjs"
   ],
   "warnings": [
     "run with --break=drop-step; this receipt is a sabotage, not a result",
@@ -20,7 +21,7 @@
   ],
   "dimensions": {
     "break": "drop-step",
-    "head": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
+    "head": "49a612ce8a4dc3d03b2e0f9a8feb1c491a7351ea",
     "drift_receipt_sha": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
     "inventory_receipt_sha": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
     "migrations_from_drift": [
@@ -47,6 +48,7 @@
       "20261018050000_forget_customer_forgets_their_street.sql"
     ],
     "migrations_from_rows_only": [
+      "20261010020000_action_log_invites.sql",
       "20261016100000_cron_jobs_send_secret.sql"
     ],
     "programs_named": 38,
@@ -80,6 +82,59 @@
       "0.6b",
       "3.1d"
     ],
+    "roadmap_release_lines_read": 44,
+    "roadmap_rules_declared": [
+      "97.64",
+      "97.3",
+      "97.7",
+      "97.10",
+      "97.11",
+      "97.68",
+      "97.12",
+      "97.71",
+      "97.72",
+      "97.13",
+      "97.14",
+      "97.15",
+      "97.16",
+      "97.19",
+      "97.20",
+      "97.21",
+      "0.11cc",
+      "3.1d",
+      "4.1d",
+      "4.3b",
+      "14.39",
+      "99.2",
+      "98.2"
+    ],
+    "roadmap_excluded": [
+      "97.1",
+      "97.2",
+      "97.4",
+      "97.5",
+      "97.6",
+      "97.8",
+      "97.9",
+      "97.69",
+      "97.17",
+      "97.18",
+      "97.20a",
+      "97.22",
+      "97.24",
+      "97.25",
+      "97.90",
+      "0.11c",
+      "0.4",
+      "0.4g",
+      "0.6c",
+      "1.3",
+      "9.1c"
+    ],
+    "after_the_website": [
+      "accept-quote",
+      "create-booking"
+    ],
     "at_your_next_release_rows": [
       "98.2",
       "97.7",
@@ -95,17 +150,17 @@
       "97.68",
       "99.2a"
     ],
-    "steps": 69
+    "steps": 70
   },
   "check_id": "release-sheet.drop-step",
-  "started_at": "2026-10-18T12:23:31.994Z",
+  "started_at": "2026-10-18T17:43:59.768Z",
   "status": "fail",
-  "expected_targets": 82,
-  "discovered_targets": 80,
-  "attempted_targets": 82,
-  "completed_targets": 82,
+  "expected_targets": 126,
+  "discovered_targets": 123,
+  "attempted_targets": 126,
+  "completed_targets": 126,
   "skipped_targets": 0,
-  "assertions_executed": 176,
+  "assertions_executed": 314,
   "min_assertions": 60,
   "canary": {
     "id": "a release row and a migration file the sheet never heard of must both be reported",
