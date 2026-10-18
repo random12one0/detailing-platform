@@ -66,6 +66,7 @@ const isProse = (v) => typeof v === "string" && v.length > 1
   && !/^#[0-9a-f]{3,8}$/i.test(v)
   && !/^[A-Z][A-Z0-9_]*$/.test(v)           // SCREAMING_CASE is a constant
   && !/^\//.test(v)                         // a route, not a sentence: "/ex1"
+  && !/^https:\/\/[^\s]+$/.test(v)          // a web address, not a sentence: photo-rules' MEDIA_PUBLIC_BASE (0.11be)
   && !/^\{\{[a-z_]+\}\}$/i.test(v)          // a template placeholder, NEVER translated
   && !NOT_OURS.has(v);
 
