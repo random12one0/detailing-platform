@@ -1,0 +1,200 @@
+{
+  "git_sha": "822b10278ce5940d7190b6b968adda95df2af0e4",
+  "git_sha_started": "822b10278ce5940d7190b6b968adda95df2af0e4",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T14:41:15.930Z",
+  "failures": [
+    {
+      "assertion": "1440 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png",
+      "detail": "got row 00000000-0000-4000-8000-000000000001 ok"
+    },
+    {
+      "assertion": "1440 · r2 — refused by the door: the row stays",
+      "detail": ""
+    },
+    {
+      "assertion": "1440 · r2 — refused by the door: the screen says why",
+      "detail": "no message"
+    },
+    {
+      "assertion": "1440 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width",
+      "detail": ""
+    },
+    {
+      "assertion": "1440 · r2 — retried: its tile was there to press",
+      "detail": ""
+    },
+    {
+      "assertion": "1440 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000002 ok"
+    },
+    {
+      "assertion": "1440 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000003 ok"
+    },
+    {
+      "assertion": "1440 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 refused"
+    },
+    {
+      "assertion": "1440 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 ok"
+    },
+    {
+      "assertion": "768 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png",
+      "detail": "got row 00000000-0000-4000-8000-000000000001 ok"
+    },
+    {
+      "assertion": "768 · r2 — refused by the door: the row stays",
+      "detail": ""
+    },
+    {
+      "assertion": "768 · r2 — refused by the door: the screen says why",
+      "detail": "no message"
+    },
+    {
+      "assertion": "768 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width",
+      "detail": ""
+    },
+    {
+      "assertion": "768 · r2 — retried: its tile was there to press",
+      "detail": ""
+    },
+    {
+      "assertion": "768 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000002 ok"
+    },
+    {
+      "assertion": "768 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000003 ok"
+    },
+    {
+      "assertion": "768 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 refused"
+    },
+    {
+      "assertion": "768 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 ok"
+    },
+    {
+      "assertion": "392 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png",
+      "detail": "got row 00000000-0000-4000-8000-000000000001 ok"
+    },
+    {
+      "assertion": "392 · r2 — refused by the door: the row stays",
+      "detail": ""
+    },
+    {
+      "assertion": "392 · r2 — refused by the door: the screen says why",
+      "detail": "no message"
+    },
+    {
+      "assertion": "392 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width",
+      "detail": ""
+    },
+    {
+      "assertion": "392 · r2 — retried: its tile was there to press",
+      "detail": ""
+    },
+    {
+      "assertion": "392 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000002 ok"
+    },
+    {
+      "assertion": "392 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000003 ok"
+    },
+    {
+      "assertion": "392 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 refused"
+    },
+    {
+      "assertion": "392 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 ok"
+    },
+    {
+      "assertion": "390 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png",
+      "detail": "got row 00000000-0000-4000-8000-000000000001 ok"
+    },
+    {
+      "assertion": "390 · r2 — refused by the door: the row stays",
+      "detail": ""
+    },
+    {
+      "assertion": "390 · r2 — refused by the door: the screen says why",
+      "detail": "no message"
+    },
+    {
+      "assertion": "390 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width",
+      "detail": ""
+    },
+    {
+      "assertion": "390 · r2 — retried: its tile was there to press",
+      "detail": ""
+    },
+    {
+      "assertion": "390 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000002 ok"
+    },
+    {
+      "assertion": "390 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000003 ok"
+    },
+    {
+      "assertion": "390 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 refused"
+    },
+    {
+      "assertion": "390 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok",
+      "detail": "got row 00000000-0000-4000-8000-000000000006 ok"
+    },
+    {
+      "assertion": "exactly the two served refusals logged per width",
+      "detail": "1440 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 768 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 392 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 390 · https://stand-in.supabase.invalid/rest/v1/gallery_images"
+    }
+  ],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/gallery-remove-offline-row-only-1440-refused.png",
+    ".manager-shots/gallery-remove-offline-row-only-1440-end.png",
+    ".manager-shots/gallery-remove-offline-row-only-768-refused.png",
+    ".manager-shots/gallery-remove-offline-row-only-768-end.png",
+    ".manager-shots/gallery-remove-offline-row-only-392-refused.png",
+    ".manager-shots/gallery-remove-offline-row-only-392-end.png",
+    ".manager-shots/gallery-remove-offline-row-only-390-refused.png",
+    ".manager-shots/gallery-remove-offline-row-only-390-end.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "390x844"
+    ],
+    "sabotage": "row-only",
+    "break": "row-only",
+    "back_end": "stood in inside the browser at https://stand-in.supabase.invalid: no credential read, no Supabase host contacted, nothing written",
+    "unjudgeable": [
+      "That the deployed door really erases the R2 object and that a warmed public URL stops answering: that is 0.11bd's live proof, after Andrew's release."
+    ]
+  },
+  "check_id": "gallery-remove-offline",
+  "started_at": "2026-10-18T14:36:56.914Z",
+  "status": "fail",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 28,
+  "skipped_targets": 0,
+  "assertions_executed": 118,
+  "min_assertions": 122,
+  "assertion_floor": "per width: 1 six-tiles + 8 presses x 3 (calls, row state, message-or-none) + 2 refusals x 1 painted + 3 closing (no foreign/external storage call, nothing unexpected, gallery ends empty) = 30; x 4 widths + 2 console = 122, +1 per width with --break (the swap landed).",
+  "canary": {
+    "id": "the-row-only-handler",
+    "observed_failure": true,
+    "what": "Gallery.jsx remove() before 0.11be deleted the row and sent no storage call",
+    "rule": "the per-press verdict (exact call sequence) rejects a press that sent only the row delete"
+  }
+}
