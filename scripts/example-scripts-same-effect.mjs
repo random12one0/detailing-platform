@@ -28,7 +28,7 @@
 //
 // Needs `npm run build --prefix app` first. No credentials, writes nothing.
 import { createServer } from "node:http";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { createRequire } from "node:module";
 import { REPO, writeReceipt } from "./receipt.mjs";
@@ -39,6 +39,11 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8
 if (BREAK && BREAK !== "drop-script") throw new Error(`unknown --break=${BREAK}`);
 if (!existsSync(join(DIST, "ex1", "index.html"))) throw new Error("app/dist has no /ex1 — run `npm run build --prefix app` first");
 
+// A sabotage writes its own folder, so a clean run never overwrites its pictures or report.
+const SHOTS = `.manager-shots/97.90/same-effect-${BREAK || "clean"}`;
+mkdirSync(join(REPO, SHOTS), { recursive: true });
+const artifacts = [];
+const shotOf = (path, s) => `${SHOTS}/${path.replace(/\W+/g, "-").replace(/^-|-$/g, "")}-${s.w}.png`;
 const SIZES = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
 const PAGES = ["/ex1", "/ex1/work.html", "/ex1/prices.html", "/ex2", "/ex3", "/ex3/prices.html", "/ex4", "/ex5", "/map.html"];
 const toml = readFileSync(join(REPO, "app", "netlify.toml"), "utf8");
@@ -123,7 +128,7 @@ async function press(page, path) {
 }
 
 // One page, one size, one mode: fresh context so storage never carries over.
-async function visit(browser, mode, path, s) {
+async function visit(browser, mode, path, s, shot) {
   const ctx = await browser.newContext({ viewport: { width: s.w, height: s.h } });
   const page = await ctx.newPage();
   const errors = [], violations = [];
@@ -139,6 +144,10 @@ async function visit(browser, mode, path, s) {
   let pressed, refused = null;
   try { pressed = await press(page, path); } catch (e) { pressed = true; refused = "PRESS FAILED " + String(e.message).split("\n")[0]; }
   const after = pressed ? [...(await page.evaluate(fingerprint)), ...(refused ? [refused] : [])] : null;
+  if (mode === "after" && shot) {
+    await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(600);
+    await page.screenshot({ path: join(REPO, shot) });
+  }
   await ctx.close();
   return { load, scroll, press: after, errors, violations };
 }
@@ -160,11 +169,12 @@ if (BREAK === "drop-script") for (const path of PAGES) missing.add(observed.inve
 let reached = 0;
 for (const s of SIZES) {
   // One size at a time; its pages, and each page's two sides, side by side.
-  const runs = await Promise.all(PAGES.map((path) => Promise.all([visit(browser, "before", path, s), visit(browser, "after", path, s)])));
+  const runs = await Promise.all(PAGES.map((path) => Promise.all([visit(browser, "before", path, s), visit(browser, "after", path, s, shotOf(path, s))])));
   for (const [i, path] of PAGES.entries()) {
     const id = `${path}@${s.w}`;
     const [before, after] = runs[i];
     reached++;
+    artifacts.push(shotOf(path, s));
     const d = { load: firstDiff(before.load, after.load), scroll: firstDiff(before.scroll, after.scroll), press: firstDiff(before.press, after.press) };
     observed.views[id] = { lines: after.load.length, pressed: !!after.press, same: !d.load && !d.scroll && !d.press, errors: after.errors.length, violations: after.violations.length };
     ok(before.errors.length === 0, id + " before-errors", `the page as it was threw: ${before.errors.join(" | ")}`);
@@ -196,6 +206,11 @@ const EXPECTED = VIEWS * 4 + SIZES.length * PRESS_PAGES;
 ok(assertions === EXPECTED, "assertion-count", `ran ${assertions}, declared ${EXPECTED}`);
 assertions--;
 const status = failures.length ? "fail" : "pass";
+const REPORT = `${SHOTS}/report.txt`;
+writeFileSync(join(REPO, REPORT), [`97.90 example-scripts-same-effect${BREAK ? " --break=" + BREAK : ""}: ${status}, ${failures.length} failed`,
+  ...Object.entries(observed.views).map(([id, v]) => `${v.same ? "same" : "DIFF"}  ${id}  ${v.lines} lines${v.pressed ? ", pressed" : ""}`),
+  "", ...failures, "", `canary ${observed.canary.caught ? "caught" : "NOT CAUGHT"}: ${observed.canary.diff}`].join("\n") + "\n");
+artifacts.unshift(REPORT);
 const { path: receipt } = writeReceipt({
   check_id: `example-scripts-same-effect${BREAK ? "-" + BREAK : ""}`,
   started_at: new Date(Date.now() - process.uptime() * 1000).toISOString(),
@@ -205,7 +220,7 @@ const { path: receipt } = writeReceipt({
   assertion_floor: `${VIEWS} views x 4 (before ran clean, after ran clean under the enforced policy, same on load, same after scroll) + 3 sizes x ${PRESS_PAGES} pages with controls (same after press) = ${EXPECTED}, an EQUALITY (docs/gotchas.md 98).`,
   failures,
   warnings: ["Chromium only, app/dist served by this script, not Netlify. `style` attributes are not compared (animation frames). ex1's cursor glow only moves on pointer movement, which this does not make; its effect is a style property, outside the fingerprint either way.", ...warnings],
-  artifacts: [],
+  artifacts,
   dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), pages: PAGES, break: BREAK, item: "97.90", served_as: "Content-Security-Policy (enforcing) in AFTER, none in BEFORE" },
   canary: { id: "ex3-paint-switcher-missing-is-seen", observed_failure: observed.canary.caught },
   observed,
