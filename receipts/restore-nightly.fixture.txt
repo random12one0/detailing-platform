@@ -1,0 +1,15 @@
+throwaway Postgres 17.8 on 127.0.0.1:51663, folder C:\Users\rando\AppData\Local\Temp\restore-nightly-kba2Bu
+restoring: fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)
+  ok   auth.users                                 6 rows
+  ok   public.bookings                            126 rows
+  ok   public.business_settings                   6 rows
+  ok   public.businesses                          6 rows
+  ok   public.customers                           42 rows
+  ok   public.empty_on_purpose                    0 rows
+  ok   storage.buckets                            2 rows
+  ok   storage.objects                            9 rows
+  note: STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md).
+canary: caught — rows caught: named: public.bookings: 126 rows, but their contents differ from the backup | privileges caught: undid `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;`; named: FUNCTION public.count_bookings(): the backup holds `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;` and the restored copy does not
+privileges: 21 grant/revoke statement(s) on 10 object(s) in the backup, 21 on 10 in the restored copy, 0 difference(s)
+PASS: 8 of 8 tables came back identical (the backup's index lists 8). Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.25-20261018034916320\receipts\restore-nightly.json
+restore date NOT recorded: drilled project fixture, not kguqylyzgyzfktkfnhjb; source is fixture, not a nightly fetched from random12one0/detailing-platform-backups

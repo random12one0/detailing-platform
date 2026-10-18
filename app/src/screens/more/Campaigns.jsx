@@ -154,7 +154,11 @@ export default function Campaigns() {
       // at a thousand, and this screen would be the wrong place to find that
       // out — the row count is what tells us, not a guess now.
       supabase.from("campaign_visits").select("campaign_id, visitor_id, created_at").eq("business_id", business.id),
-      supabase.from("bookings").select("campaign_id, status, total_price, final_amount")
+      // EVERY COLUMN, AS MONEY READS IT (97.83): `whereFrom` values a job by what it KEPT, which
+      // needs payment_status, stripe_payment_intent and payment_problem. Naming them 400s the
+      // whole read on a database where the payment_problem migration has not run yet (measured
+      // 2026-10-17); `*` reads the refund once it exists and the bare price until then.
+      supabase.from("bookings").select("*")
         .eq("business_id", business.id)
         .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null),
     ]);

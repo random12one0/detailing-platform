@@ -1,0 +1,35 @@
+FAIL America/Los_Angeles 2026-03-08 03:00 round-trips — stored 2026-03-08T11:00:00.000Z, reads back 2026-03-08 04:00, want 2026-03-08 03:00
+FAIL America/Los_Angeles 2026-03-08 04:00 round-trips — stored 2026-03-08T12:00:00.000Z, reads back 2026-03-08 05:00, want 2026-03-08 04:00
+FAIL America/Los_Angeles 2026-03-08 05:00 round-trips — stored 2026-03-08T13:00:00.000Z, reads back 2026-03-08 06:00, want 2026-03-08 05:00
+FAIL America/Los_Angeles 2026-03-08 06:00 round-trips — stored 2026-03-08T14:00:00.000Z, reads back 2026-03-08 07:00, want 2026-03-08 06:00
+FAIL America/Los_Angeles 2026-03-08 07:00 round-trips — stored 2026-03-08T15:00:00.000Z, reads back 2026-03-08 08:00, want 2026-03-08 07:00
+FAIL America/Los_Angeles 2026-03-08 08:00 round-trips — stored 2026-03-08T16:00:00.000Z, reads back 2026-03-08 09:00, want 2026-03-08 08:00
+FAIL America/Los_Angeles 2026-03-08 09:00 round-trips — stored 2026-03-08T17:00:00.000Z, reads back 2026-03-08 10:00, want 2026-03-08 09:00
+FAIL America/Los_Angeles 2026-11-01 02:00 round-trips — stored 2026-11-01T09:00:00.000Z, reads back 2026-11-01 01:00, want 2026-11-01 02:00
+FAIL America/Los_Angeles 2026-11-01 03:00 round-trips — stored 2026-11-01T10:00:00.000Z, reads back 2026-11-01 02:00, want 2026-11-01 03:00
+FAIL America/Los_Angeles 2026-11-01 04:00 round-trips — stored 2026-11-01T11:00:00.000Z, reads back 2026-11-01 03:00, want 2026-11-01 04:00
+FAIL America/Los_Angeles 2026-11-01 05:00 round-trips — stored 2026-11-01T12:00:00.000Z, reads back 2026-11-01 04:00, want 2026-11-01 05:00
+FAIL America/Los_Angeles 2026-11-01 06:00 round-trips — stored 2026-11-01T13:00:00.000Z, reads back 2026-11-01 05:00, want 2026-11-01 06:00
+FAIL America/Los_Angeles 2026-11-01 07:00 round-trips — stored 2026-11-01T14:00:00.000Z, reads back 2026-11-01 06:00, want 2026-11-01 07:00
+FAIL America/Los_Angeles 2026-11-01 08:00 round-trips — stored 2026-11-01T15:00:00.000Z, reads back 2026-11-01 07:00, want 2026-11-01 08:00
+FAIL America/New_York 2026-03-08 03:00 round-trips — stored 2026-03-08T08:00:00.000Z, reads back 2026-03-08 04:00, want 2026-03-08 03:00
+FAIL America/New_York 2026-03-08 04:00 round-trips — stored 2026-03-08T09:00:00.000Z, reads back 2026-03-08 05:00, want 2026-03-08 04:00
+FAIL America/New_York 2026-03-08 05:00 round-trips — stored 2026-03-08T10:00:00.000Z, reads back 2026-03-08 06:00, want 2026-03-08 05:00
+FAIL America/New_York 2026-03-08 06:00 round-trips — stored 2026-03-08T11:00:00.000Z, reads back 2026-03-08 07:00, want 2026-03-08 06:00
+FAIL America/New_York 2026-11-01 02:00 round-trips — stored 2026-11-01T06:00:00.000Z, reads back 2026-11-01 01:00, want 2026-11-01 02:00
+FAIL America/New_York 2026-11-01 03:00 round-trips — stored 2026-11-01T07:00:00.000Z, reads back 2026-11-01 02:00, want 2026-11-01 03:00
+FAIL America/New_York 2026-11-01 04:00 round-trips — stored 2026-11-01T08:00:00.000Z, reads back 2026-11-01 03:00, want 2026-11-01 04:00
+FAIL America/New_York 2026-11-01 05:00 round-trips — stored 2026-11-01T09:00:00.000Z, reads back 2026-11-01 04:00, want 2026-11-01 05:00
+FAIL America/Los_Angeles 2026-03-08 hours are one hour apart — steps [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1]
+FAIL America/Los_Angeles 2026-11-01 hours are one hour apart — steps [1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+FAIL America/New_York 2026-03-08 hours are one hour apart — steps [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+FAIL America/New_York 2026-11-01 hours are one hour apart — steps [1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+FAIL 2026-03-08 08:00 LA is 15:00Z (was 9:00 AM) — 2026-03-08T16:00:00.000Z
+FAIL 2026-03-08 09:00 LA is 16:00Z — 2026-03-08T17:00:00.000Z
+FAIL 2026-03-08 10:00 LA is 17:00Z, not the same instant as 09:00 — 2026-03-08T17:00:00.000Z
+FAIL 2026-11-01 08:00 LA is 16:00Z (was 7:00 AM) — 2026-11-01T15:00:00.000Z
+FAIL localToDate itself agrees with the wrapper
+
+138 passed, 31 failed, 169 assertions (BREAK=one-pass).
+canary: the old one-pass function failed 22 of 144 conversions
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.1-20261016042658330\receipts\tz-clock-change.sabotage.json

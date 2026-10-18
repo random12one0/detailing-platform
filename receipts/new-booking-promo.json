@@ -1,0 +1,31 @@
+{
+  "git_sha": "ba9ae7bf9badc31c6a760eff3fe0cc9a094316f6",
+  "git_sha_started": "ba9ae7bf9badc31c6a760eff3fe0cc9a094316f6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T01:25:41.415Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/new-booking-promo"
+  ],
+  "dimensions": {
+    "logins": "demo owner",
+    "writes": "none"
+  },
+  "check_id": "new-booking-promo",
+  "started_at": "2026-10-18T01:25:06.997Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 12,
+  "min_assertions": 12,
+  "assertion_floor": "per width: lower-case good code says Applied. and prices a Promo SUMMER10 discount; unknown code shows the refusal; clean console",
+  "canary": {
+    "id": "as-typed",
+    "observed_failure": true
+  }
+}

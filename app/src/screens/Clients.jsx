@@ -41,7 +41,7 @@
 //                name on the one screen where the name is the least useful
 //                thing in the row. A history row is date · what · total.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPlus, ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { api } from "../lib/api.js";
@@ -94,6 +94,9 @@ const HISTORY_CAP = 50;
 // it answers is "did the last one arrive", and a detailer scrolling two years
 // of reminders to find it is the failure mode.
 const MAIL_CAP = 12;
+// ROADMAP 97.84 — how long a close waits on a Notes save that has not answered
+// before it stays put and says so. Several network round trips, not a stall.
+const NOTES_WAIT_MS = 5000;
 
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
@@ -101,7 +104,7 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
 // `intent` is App's one-word answer to "what was this screen opened for" —
 // "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
 // read once, on arrival: turning the chip off has to stick.
-export default function Clients({ intent = null, onSetup = null, refreshKey = 0 }) {
+export default function Clients({ intent = null, onSetup = null, refreshKey = 0, holdLeave = null }) {
   // ROADMAP 8.17 STAGE 2B — `lib/plans.js`'s generators are SHARED with the
   // customer's plan page and default to English on purpose, because
   // `dp.lang` is a per-device choice a CUSTOMER makes. The dashboard has to
@@ -169,6 +172,34 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // front of them once and then let them do it.
   const [forgetting, setForgetting] = useState(null);
   const [forgetError, setForgetError] = useState("");
+  const [notesError, setNotesError] = useState("");
+  // A refusal under the Notes box renders below the record panel's edge at
+  // 1440 (ROADMAP 97.14); a line nobody sees is the silent failure it replaced.
+  // Twice, because the panel is sticky: the first scroll can move the page,
+  // the panel then sticks, and its own edge rises over the line again.
+  const notesErrorRef = useRef(null);
+  // ROADMAP 97.84 — A NOTE IS ANSWERED ON THE RECORD IT WAS TYPED IN. The box
+  // saves on blur, and closing the record (or opening another client) used to
+  // race that save: Close lost the refusal, Escape never sent it, and a slow
+  // refusal printed under the NEXT client's box. Now a close or a switch waits
+  // for the save (`settleNotes`, RecordHost's `beforeClose`) and stays put on a
+  // refusal, the pattern `forget()` uses; and an answer for a client who is no
+  // longer open is never printed. EVERY refused close stays — a second Close
+  // re-sends and stays again (review, 2026-10-17: the first fix let it go and
+  // took the note with it). The way out of a refusal that keeps happening
+  // (offline, a view-as tab on Looking) is "Close anyway" under the line, which
+  // is the person choosing to drop the text, never a close doing it for them.
+  // A save that never answers is waited on for NOTES_WAIT_MS, then says so.
+  const openId = useRef(null);       // the client whose record is on screen
+  openId.current = open?.id ?? null;
+  const savedNotes = useRef("");     // what the server holds for that client
+  const saving = useRef(null);       // the save in flight, if any
+  useEffect(() => {
+    if (!notesError) return;
+    const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
+    reveal();
+    requestAnimationFrame(reveal);
+  }, [notesError, selected]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -273,8 +304,20 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   }, [people, totals, today, owner]);
 
   const openCustomer = async (c) => {
+    // A save still waiting belongs to the record that was open; this one must not
+    // wait on it (Close anyway on a save that never answered, review 2026-10-18).
+    saving.current = null;
     setOpen(c);
     setNotes(c.notes || "");
+    savedNotes.current = c.notes || "";
+    setNotesError("");
+    return refreshRecord(c);
+  };
+  // ROADMAP 97.89 — the SAME client after a job is made or changed from the
+  // record: its History and its email trail are read again, and the Notes box,
+  // its "not saved" line and a save still waiting are left exactly as they are.
+  // Re-running openCustomer here put the box back to the old text.
+  const refreshRecord = async (c) => {
     setHistory(null);
     setMail(null);
     // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser
@@ -308,11 +351,69 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     setHistory((data ?? []).map((b) => withLocal(b, business.timezone)));
   };
 
-  const saveNotes = async () => {
-    await supabase.from("customers").update({ notes: notes || null })
-      .eq("id", open.id).eq("business_id", business.id);
-    load();
+  // ROADMAP 97.14 — the browser holds no write on `customers`; the notes go
+  // through `set_customer_notes`, which checks membership and writes nothing
+  // else. A refusal is shown: the old direct update failed silently. A view-as
+  // tab on Looking throws before anything is sent, and says so here too.
+  // The refusal's wording, or "" when it saved. A view-as tab's guard THROWS
+  // before anything is sent, synchronously, so this is caught here and the
+  // bookkeeping below runs in a `.then`, after `p` exists.
+  const sendNotes = async (id, sent) => {
+    try {
+      const { error } = await supabase.rpc("set_customer_notes", {
+        p_business_id: business.id, p_customer_id: id, p_notes: sent,
+      });
+      return error ? t("Your notes were not saved. Please try again.") : "";
+    } catch (e) {
+      return e.message || t("Your notes were not saved. Please try again.");
+    }
   };
+  const saveNotes = () => {
+    const id = open.id, sent = notes;
+    const p = sendNotes(id, sent).then((refusal) => {
+      if (saving.current === p) saving.current = null;
+      if (openId.current !== id) return !refusal;
+      setNotesError(refusal);
+      if (!refusal) {
+        savedNotes.current = sent;
+        setOpen((o) => (o?.id === id ? { ...o, notes: sent } : o));
+        load();
+      }
+      return !refusal;
+    });
+    saving.current = p;
+    return p;
+  };
+  // May the record close (or another client open)? Waits for a save in flight,
+  // or sends one (Escape closes with the box still focused, so no blur sent
+  // it). Refused, or no answer within NOTES_WAIT_MS: stay, with the line.
+  const settleNotes = async () => {
+    const id = open.id;
+    const late = new Promise((r) => setTimeout(() => r(null), NOTES_WAIT_MS));
+    const answer = (p) => Promise.race([p, late]);
+    let ok = await answer(saving.current ?? (notes === savedNotes.current || saveNotes()));
+    // The save in flight may have left BEFORE the latest typing (type, tap away,
+    // tap back, type more, Escape: no blur). Once it lands, send what is in the
+    // box now, or the close goes on an answer about older text (review, 2026-10-18).
+    if (ok === true && notes !== savedNotes.current) ok = await answer(saveNotes());
+    // A late answer still lands through saveNotes' `.then` and replaces this line.
+    if (ok === null && openId.current === id) setNotesError(t("Your notes have not saved yet. Check your connection, then try again."));
+    return ok === true;
+  };
+  // ROADMAP 97.88 — a tab press or the gear unmounts this screen with no close,
+  // so App asks the open record first, exactly as RecordHost's beforeClose does.
+  // A job opened from the History covers the record (`open && !selected`), so a
+  // refusal closes the job and puts the record and its line back on screen —
+  // otherwise the tab would just not move, with the reason hidden (review, 2026-10-18).
+  const holdNotes = async () => {
+    const ok = await settleNotes();
+    if (!ok) setSelected(null);
+    return ok;
+  };
+  if (holdLeave) holdLeave.current = open ? holdNotes : null;
+  useEffect(() => () => { if (holdLeave) holdLeave.current = null; }, [holdLeave]);
+  // "Close anyway" — the person drops the unsaved text; the record goes at once.
+  const dropNotes = () => { saving.current = null; setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
   // SERVER decides everything else, including whether this person may do it.
@@ -698,7 +799,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // elements answering one selector is a silently wrong target —
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
-            onClick={() => openCustomer(c)}
+            onClick={async () => { if (!open || await settleNotes()) openCustomer(c); }}
             aria-label={`${c.is_test ? `${t("Test")}, ` : ""}${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : n(visits, "{count} visit", "{count} visits")}, ${phone(c.phone)}`}>
             {/* ROADMAP 1.3 — THE MARK GOES BEFORE THE NAME, NOT AFTER IT, AND
                 THAT IS THE WHOLE REASON IT IS UNMISTAKABLE. `.c-who` is
@@ -753,7 +854,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           the only screen with no panel on it and a right-hand card would end
           that, so the rows sit directly on the ground at both widths. */}
       {open && !selected && (
-        <RecordHost bare onClose={() => setOpen(null)} title={open.name} subtitle={phone(open.phone)}>
+        <RecordHost bare onClose={() => setOpen(null)} beforeClose={settleNotes} title={open.name} subtitle={phone(open.phone)}>
           <div className="group">
             {/* IT LEADS WITH THE NUMBERS — F8, 2 of 2: both documented
                 products lead a client with a figure. Today's bare-figure
@@ -903,20 +1004,30 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             </div>
             {/* ROADMAP 9.7 — same conditional shape App.jsx/Calendar.jsx/
                 Today.jsx already use to open this modal, a fourth instance
-                of it rather than a new mechanism. `onCreated` re-runs the
-                existing `openCustomer` so the record reflects the booking
-                just made instead of going stale. */}
+                of it rather than a new mechanism. `onCreated` re-reads the
+                record (`refreshRecord`) so it reflects the booking just made
+                instead of going stale, without touching the Notes box (97.89). */}
             {booking && (
               <NewBookingModal
                 initialCustomer={booking}
                 onClose={() => setBooking(null)}
-                onCreated={() => { setBooking(null); openCustomer(open); }}
+                onCreated={() => { setBooking(null); refreshRecord(open); }}
               />
             )}
 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
+            {/* The line and its way out are one thought, revealed together: at a
+                desk the button sat under the fold beneath a scrolled-in line. */}
+            {notesError && (
+              <div ref={notesErrorRef} className="tight">
+                <div className="error-box" role="alert">{notesError}</div>
+                {notes !== savedNotes.current && (
+                  <button type="button" className="btn sm" onClick={dropNotes}>{t("Close anyway")}</button>
+                )}
+              </div>
+            )}
 
             <div className="tight">
               <span className="label">{t("History")}</span>
@@ -1051,11 +1162,11 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
         <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
           {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
               change" — see Today.jsx for the fuller note; same fix, same
-              reason. `openCustomer` refreshes the client's own history list
+              reason. `refreshRecord` refreshes the client's own history list
               but not this snapshot, so it is re-fetched by id too. */}
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
             onChanged={() => {
-              load(); if (open) openCustomer(open);
+              load(); if (open) refreshRecord(open);
               fetchBooking(selected.id, business.id, business.timezone).then(setSelected);
             }} />
         </RecordHost>

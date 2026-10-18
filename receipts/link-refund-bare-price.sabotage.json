@@ -1,0 +1,353 @@
+{
+  "git_sha": "77037852e11c7b7ffb44c127fbd70866d371f583",
+  "git_sha_started": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "head_moved": true,
+  "environment": "local",
+  "finished_at": "2026-10-17T16:46:17.964Z",
+  "failures": [
+    "refunded · tracking @ 390x844 · the row reads \"$60 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "refunded · tracking @ 390x844 · the opened panel's earned reads $60 — \"$210\"",
+    "refunded · money @ 390x844 · Booking sources reads \"$60 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "refunded · tracking @ 320x640 · the row reads \"$60 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "refunded · tracking @ 320x640 · the opened panel's earned reads $60 — \"$210\"",
+    "refunded · money @ 320x640 · Booking sources reads \"$60 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "refunded · tracking @ 768x1024 · the row reads \"$60 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "refunded · tracking @ 768x1024 · the opened panel's earned reads $60 — \"$210\"",
+    "refunded · money @ 768x1024 · Booking sources reads \"$60 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "refunded · tracking @ 1440x900 · the row reads \"$60 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "refunded · tracking @ 1440x900 · the opened panel's earned reads $60 — \"$210\"",
+    "refunded · money @ 1440x900 · Booking sources reads \"$60 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "part-refunded · tracking @ 390x844 · the row reads \"$160 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "part-refunded · tracking @ 390x844 · the opened panel's earned reads $160 — \"$210\"",
+    "part-refunded · money @ 390x844 · Booking sources reads \"$160 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "part-refunded · tracking @ 320x640 · the row reads \"$160 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "part-refunded · tracking @ 320x640 · the opened panel's earned reads $160 — \"$210\"",
+    "part-refunded · money @ 320x640 · Booking sources reads \"$160 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "part-refunded · tracking @ 768x1024 · the row reads \"$160 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "part-refunded · tracking @ 768x1024 · the opened panel's earned reads $160 — \"$210\"",
+    "part-refunded · money @ 768x1024 · Booking sources reads \"$160 earned\" — \"2 opened · 100% booked · $210 earned\"",
+    "part-refunded · tracking @ 1440x900 · the row reads \"$160 earned\" — \"2 opened · 2 booked · $210 earned\"",
+    "part-refunded · tracking @ 1440x900 · the opened panel's earned reads $160 — \"$210\"",
+    "part-refunded · money @ 1440x900 · Booking sources reads \"$160 earned\" — \"2 opened · 100% booked · $210 earned\""
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.83/png"
+  ],
+  "dimensions": {
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-17T16:44:00.000Z",
+    "widths": [
+      "390x844",
+      "320x640",
+      "768x1024",
+      "1440x900"
+    ],
+    "break": "bare-price",
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-refunded-1440x900.png"
+      },
+      {
+        "scenario": "refunded",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 390,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 390,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 320,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 320,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 768,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 768,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "tracking",
+        "width": 1440,
+        "line": "2 opened · 2 booked · $210 earned",
+        "panel": "$210",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-tracking-paid-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "screen": "money",
+        "width": 1440,
+        "line": "2 opened · 100% booked · $210 earned",
+        "panel": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.83/png/break-bare-price-money-paid-1440x900.png"
+      }
+    ]
+  },
+  "check_id": "link-refund-bare-price",
+  "started_at": "2026-10-17T16:44:28.782Z",
+  "status": "fail",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 192,
+  "min_assertions": 128,
+  "canary": {
+    "id": "break-bare-price",
+    "observed_failure": true
+  }
+}

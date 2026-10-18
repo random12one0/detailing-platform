@@ -1,0 +1,40 @@
+{
+  "git_sha": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
+  "git_sha_started": "ca768bd3a11ec2aac495e9aa8939a873360ec06e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T20:16:32.508Z",
+  "failures": [
+    "2a . refused (409) - got 200 {\"success\":true,\"booking\":{\"id\":\"b-stale\",\"status\":\"confirmed\",\"total_price\":300}}",
+    "2b . with a plain reason naming the new price",
+    "2c . and nothing was written: still pending at $150 - got wrote 1, confirmed 300",
+    "3a . refused (409) with a plain reason - got 200 {\"success\":true,\"booking\":{\"id\":\"b-none\",\"status\":\"confirmed\",\"total_price\":200}}",
+    "3b . and nothing was written - got wrote 1"
+  ],
+  "warnings": [
+    "The handler runs in-process against a fake Supabase in this file, not the live database; it proves the function's own decisions."
+  ],
+  "artifacts": [
+    "receipts/accept-quote-stale.sabotage-stale.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.16",
+    "break": "stale"
+  },
+  "check_id": "accept-quote-stale-stale",
+  "started_at": "2026-10-17T20:16:32.232Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 15,
+  "assertion_floor": "2+3+2+2+2+2 scenario checks + 2 run checks = 15, every check() unconditional (docs/gotchas.md 98).",
+  "canary": {
+    "id": "pre-fix-stale-accept",
+    "observed_failure": true,
+    "what": "QUOTE_BREAK=stale|past|race cut the production guard as it loads"
+  }
+}

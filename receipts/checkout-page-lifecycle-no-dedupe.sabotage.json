@@ -1,0 +1,1167 @@
+{
+  "git_sha": "fffbafd1907623645d3a920a6eb88d0fee8a72c1",
+  "git_sha_started": "fffbafd1907623645d3a920a6eb88d0fee8a72c1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T11:10:27.455Z",
+  "failures": [
+    "R4 · a second live page paid: its two events make ONE refund entry, not two — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.284Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.283Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.284Z\"}]} · HTTP 200,200",
+    "97.69 · the wrong payment's own late second event, after the job is paid, does not owe it back twice — {\"kind\":\"extra\",\"paid_cents\":20000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.302Z\",\"payments\":[{\"intent\":\"pi_1\",\"paid_cents\":10000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.300Z\",\"reason\":\"amount\"},{\"intent\":\"pi_1\",\"paid_cents\":10000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.302Z\"}]} · HTTP 200,200,200,200",
+    "97.68 · review: a late copy of a refunded payment's own event does not put it back as owed — {\"kind\":\"extra\",\"paid_cents\":45000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.321Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"x\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.321Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.321Z\"}],\"refunds\":{\"pi_2\":{\"paid_cents\":15000,\"refunded_cents\":15000,\"at\":\"2026-10-17T11:10:27.321Z\"}}} · HTTP 200,200,200",
+    "97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing — {\"kind\":\"extra\",\"paid_cents\":30000,\"owed_cents\":0,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.325Z\",\"payments\":[{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.325Z\"},{\"intent\":\"pi_2\",\"paid_cents\":15000,\"currency\":\"usd\",\"at\":\"2026-10-17T11:10:27.325Z\"}],\"refunds\":{\"pi_2\":{\"paid_cents\":15000,\"refunded_cents\":15000,\"at\":\"2026-10-17T11:10:27.324Z\"}}} · HTTP 200,200,200"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/checkout-page-lifecycle-no-dedupe.sabotage.txt"
+  ],
+  "dimensions": {
+    "break": "no-dedupe",
+    "probed": [
+      {
+        "name": "R2 · bank payment arrives late: async_payment_succeeded marks the job paid",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.276Z",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.278Z",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "R2 · a failed bank debit on an unpaid job stays unpaid and says why",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.279Z",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "R2 · refused: a failed bank debit does not touch a job the detailer marked paid in cash",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R2 · refused: a late event from ANOTHER detailer's account changes nothing",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": null
+      },
+      {
+        "name": "R4 · a card payment after the detailer marked cash: still paid, refund owed recorded",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.283Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.283Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · a second live page paid: its two events make ONE refund entry, not two",
+        "ok": false,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 30000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.284Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.283Z"
+            },
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.284Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · a third payment is added to the list, never written over the second",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 25000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.286Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.285Z"
+            },
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.286Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.288Z",
+          "intent": "pi_1",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.288Z",
+          "payments": [
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive",
+        "ok": true,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 12000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.291Z",
+          "intent": "pi_3",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.289Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "failed",
+              "paid_cents": 15000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.290Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.293Z",
+          "intent": "pi_2",
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.292Z",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.293Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.293Z"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "x",
+              "intent": "pi_1"
+            }
+          ]
+        }
+      },
+      {
+        "name": "refused: one wrong-amount payment's two events note it ONCE, not as two reasons",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.295Z",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "97.69 · a $100 card payment on a $150 job, then the right $150 payment: paid, and the $100 is a refund owed",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.297Z",
+          "payments": [
+            {
+              "intent": "pi_1",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.296Z",
+              "reason": "amount"
+            }
+          ]
+        }
+      },
+      {
+        "name": "97.69 · a payment in the wrong currency, then the right one: the first is a refund owed, named as a currency problem",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "eur",
+          "at": "2026-10-17T11:10:27.299Z",
+          "payments": [
+            {
+              "intent": "pi_1",
+              "paid_cents": 15000,
+              "currency": "eur",
+              "at": "2026-10-17T11:10:27.298Z",
+              "reason": "currency"
+            }
+          ]
+        }
+      },
+      {
+        "name": "97.69 · the wrong payment's own late second event, after the job is paid, does not owe it back twice",
+        "ok": false,
+        "statuses": [
+          200,
+          200,
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 20000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.302Z",
+          "payments": [
+            {
+              "intent": "pi_1",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.300Z",
+              "reason": "amount"
+            },
+            {
+              "intent": "pi_1",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.302Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "97.69 · two wrong payments and a failed bank debit, then paid: both wrong payments owed back, the failed debit kept as a reason",
+        "ok": true,
+        "statuses": [
+          200,
+          200,
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 22000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.306Z",
+          "payments": [
+            {
+              "intent": "pi_1",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.303Z",
+              "reason": "amount"
+            },
+            {
+              "intent": "pi_4",
+              "paid_cents": 12000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.305Z",
+              "reason": "amount"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "failed",
+              "paid_cents": 15000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.304Z",
+              "intent": "pi_3"
+            }
+          ]
+        }
+      },
+      {
+        "name": "97.69 · refused: a job paid first time, with nothing wrong before, gets no refund note",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "97.69 · refused: a failed bank debit alone is not money owed back when the job is then paid",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.309Z",
+          "intent": "pi_1"
+        }
+      },
+      {
+        "name": "R4 · money for a WAIVED job is a refund owed too",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "waived",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.312Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.312Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "R4 · refused: the SAME payment's second event is not a second payment",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "R4 · refused: a page still processing on a settled job records nothing yet",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "97.68 · the only refund owed is refunded in full: nothing is owed, so the line goes",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.317Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · two owed, one refunded: only that one is settled, the other is still owed in full",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 25000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            },
+            {
+              "intent": "pi_3",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.318Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a partial refund keeps the payment on the list, with what is left beside it",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 5000,
+              "at": "2026-10-17T11:10:27.318Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · refunded in two steps ($50, then the other $100): nothing owed after the second",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.320Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · review: two partial refunds' events arrive the wrong way round ($100 total, then the older $50): $50 still owed, not $100",
+        "ok": true,
+        "statuses": [
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 10000,
+              "at": "2026-10-17T11:10:27.320Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · review: a late copy of a refunded payment's own event does not put it back as owed",
+        "ok": false,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 45000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.321Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            },
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.321Z"
+            },
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.321Z"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.321Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · an older wrong-amount reason under the list is kept when the refund is recorded",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "earlier": [
+            {
+              "kind": "amount",
+              "paid_cents": 10000,
+              "owed_cents": 15000,
+              "currency": "usd",
+              "at": "x",
+              "intent": "pi_0"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.322Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a failed note carrying the list keeps its own reason when the payment is refunded",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "x",
+          "intent": "pi_1",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 10000,
+              "refunded_cents": 10000,
+              "at": "2026-10-17T11:10:27.322Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a 97.69 wrong-figure payment owed back is refunded in full: nothing owed, its reason kept",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_0",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "x",
+              "reason": "amount"
+            }
+          ],
+          "refunds": {
+            "pi_0": {
+              "paid_cents": 10000,
+              "refunded_cents": 10000,
+              "at": "2026-10-17T11:10:27.323Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a cancelled job's own payment refunded in full: recorded on a job that had no note, nothing left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 0,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.323Z",
+          "refunds": {
+            "pi_1": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.323Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a cancelled job's own payment refunded in part: $100 left",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 0,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.324Z",
+          "refunds": {
+            "pi_1": {
+              "paid_cents": 15000,
+              "refunded_cents": 5000,
+              "at": "2026-10-17T11:10:27.324Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a cancelled job's own payment, found by the payment when the charge carries no booking id",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 0,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.324Z",
+          "refunds": {
+            "pi_1": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.324Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing",
+        "ok": false,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 30000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.325Z",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.325Z"
+            },
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.325Z"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "2026-10-17T11:10:27.324Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing",
+        "ok": true,
+        "statuses": [
+          200,
+          200,
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 10000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.326Z",
+          "payments": [
+            {
+              "intent": "pi_0",
+              "paid_cents": 10000,
+              "currency": "usd",
+              "at": "2026-10-17T11:10:27.325Z",
+              "reason": "amount"
+            }
+          ],
+          "refunds": {
+            "pi_0": {
+              "paid_cents": 10000,
+              "refunded_cents": 10000,
+              "at": "2026-10-17T11:10:27.326Z"
+            }
+          }
+        }
+      },
+      {
+        "name": "97.68 · a recorded refund survives a later wrong-figure note written over the row",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "amount",
+          "paid_cents": 10000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.327Z",
+          "intent": "pi_0",
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 15000,
+              "at": "x"
+            }
+          }
+        }
+      },
+      {
+        "name": "refused: a refund sent from ANOTHER detailer's account records nothing",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "refused: another detailer's refund of a cancelled job's own payment leaves its line",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": null
+      },
+      {
+        "name": "refused: a refund of a payment no job here took, carrying no booking id, changes nothing",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "paid",
+        "problem": {
+          "kind": "extra",
+          "paid_cents": 15000,
+          "owed_cents": 0,
+          "currency": "usd",
+          "at": "x",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ]
+        }
+      },
+      {
+        "name": "refused: a partly refunded payment no longer counts as covering the job when its own debit fails",
+        "ok": true,
+        "statuses": [
+          200
+        ],
+        "payment_status": "pending",
+        "problem": {
+          "kind": "failed",
+          "paid_cents": 15000,
+          "owed_cents": 15000,
+          "currency": "usd",
+          "at": "2026-10-17T11:10:27.328Z",
+          "intent": "pi_1",
+          "payments": [
+            {
+              "intent": "pi_2",
+              "paid_cents": 15000,
+              "currency": "usd",
+              "at": "x"
+            }
+          ],
+          "refunds": {
+            "pi_2": {
+              "paid_cents": 15000,
+              "refunded_cents": 5000,
+              "at": "x"
+            }
+          }
+        }
+      },
+      {
+        "name": "R3 · first page: one create, cards only, nothing to expire",
+        "ok": true,
+        "status": 200,
+        "calls": [
+          "POST /checkout/sessions"
+        ]
+      },
+      {
+        "name": "R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order",
+        "ok": true,
+        "status": 200,
+        "calls": [
+          "GET /checkout/sessions/cs_old",
+          "POST /checkout/sessions/cs_old/expire",
+          "POST /checkout/sessions"
+        ]
+      },
+      {
+        "name": "R3 · same price, page still open: handed back, no second live page",
+        "ok": true,
+        "status": 200,
+        "calls": [
+          "GET /checkout/sessions/cs_old"
+        ]
+      },
+      {
+        "name": "R3 · previous page finished: a fresh page, nothing expired",
+        "ok": true,
+        "status": 200,
+        "calls": [
+          "GET /checkout/sessions/cs_old",
+          "POST /checkout/sessions"
+        ]
+      },
+      {
+        "name": "R3 · previous page unknown to Stripe (404, account reconnected): a fresh page",
+        "ok": true,
+        "status": 200,
+        "calls": [
+          "GET /checkout/sessions/cs_gone",
+          "POST /checkout/sessions"
+        ]
+      },
+      {
+        "name": "R3 · refused: when Stripe will not expire the old page, no new page is made",
+        "ok": true,
+        "status": 409,
+        "calls": [
+          "GET /checkout/sessions/cs_old",
+          "POST /checkout/sessions/cs_old/expire"
+        ]
+      },
+      {
+        "name": "R3 · refused: an already-paid job reaches Stripe not at all",
+        "ok": true,
+        "status": 409,
+        "calls": []
+      }
+    ]
+  },
+  "check_id": "checkout-page-lifecycle-no-dedupe",
+  "started_at": "2026-10-17T11:10:27.174Z",
+  "status": "fail",
+  "expected_targets": 51,
+  "discovered_targets": 51,
+  "attempted_targets": 51,
+  "completed_targets": 51,
+  "skipped_targets": 0,
+  "assertions_executed": 55,
+  "min_assertions": 54,
+  "canary": {
+    "id": "break-no-dedupe",
+    "observed_failure": true
+  }
+}

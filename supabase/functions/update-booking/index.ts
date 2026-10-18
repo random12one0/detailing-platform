@@ -41,11 +41,11 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
-import { validateSlot } from "../_shared/slotValidation.ts";
+import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { recordActions } from "../_shared/actionLog.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
-import { cancellationEmail, rescheduleEmail } from "../_shared/emailTemplates.ts";
+import { cancellationEmail, rescheduleEmail, restoredEmail } from "../_shared/emailTemplates.ts";
 import { refundOwed } from "../_shared/connect.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -117,6 +117,19 @@ Deno.serve(async (req) => {
       if (body[field] !== undefined) updateData[field] = body[field];
     }
 
+    // ROADMAP 97.24 — A DECLINED REQUEST IS NOT UN-CANCELLED HERE. A decline is
+    // stored as `cancelled` plus `declined_at`, so "Un-cancel" used to confirm
+    // it with `declined_at` still set and the customer still holding "we can't
+    // make that one". Taking it after all is `respond-to-booking`'s accept: it
+    // clears `declined_at` and sends the "You're confirmed" email.
+    if (updateData.status !== undefined && updateData.status !== current.status
+      && current.status === "cancelled" && current.declined_at) {
+      return json({
+        error: "You declined this request. To take it after all, press \"Accept it after all\" so the customer is told.",
+        code: "declined_request",
+      }, 409);
+    }
+
     // W9 — MOVING THE SIZE MOVES ITS SNAPSHOT WITH IT. `vehicle_size_label`
     // is the human label frozen at booking time so a detailer who renames or
     // deletes a size cannot rewrite the record of jobs already done; a size
@@ -142,17 +155,28 @@ Deno.serve(async (req) => {
     // returns a clear 409 instead.
     const business = (await businessById(member.businessId))!;
     const tz = business.timezone;
-    if (body.booking_date || body.start_time) {
+    // ROADMAP 97.17 — ONLY A REAL MOVE IS RE-CHECKED. The edit form sends the
+    // date and time back on every save, so re-checking an unmoved job refused a
+    // phone-number fix on any job that later fell inside an away stretch or a
+    // blockout. A job staying where it is already holds its slot.
+    const curDur = Math.round((new Date(current.end_at).getTime() - new Date(current.start_at).getTime()) / 60_000);
+    const askDate = String(body.booking_date || dateStrIn(tz, new Date(current.start_at)));
+    const askTime = String(body.start_time || timeStrIn(tz, new Date(current.start_at)));
+    const askDur = Number(body.duration_minutes) || curDur;
+    const askType = String(body.service_type || current.service_type);
+    const unmoved = askDate === dateStrIn(tz, new Date(current.start_at))
+      && askTime.slice(0, 5) === timeStrIn(tz, new Date(current.start_at))
+      && askDur === curDur && askType === current.service_type;
+    if ((body.booking_date || body.start_time) && !unmoved) {
       const settings = await getSettings(member.businessId);
-      const durationMinutes = Number(body.duration_minutes) ||
-        Math.round((new Date(current.end_at).getTime() - new Date(current.start_at).getTime()) / 60_000);
+      const durationMinutes = askDur;
       const check = await validateSlot({
         business,
         settings,
-        bookingDate: String(body.booking_date || dateStrIn(tz, new Date(current.start_at))),
-        startTime: String(body.start_time || timeStrIn(tz, new Date(current.start_at))),
+        bookingDate: askDate,
+        startTime: askTime,
         durationMinutes,
-        serviceType: String(body.service_type || current.service_type),
+        serviceType: askType,
         excludeBookingId: bookingId,
         // Roadmap 2.8c — same reason as reschedule: this path moves a date,
         // and two of the new rules are about the date and the service type.
@@ -168,22 +192,33 @@ Deno.serve(async (req) => {
     // `confirmed`; without this both wrote, both counted as "just cancelled"
     // and the customer got two cancellation emails. Every other field is a
     // plain value and repeats harmlessly, so it is not fenced.
-    let write = supabase
+    const fenceStatus = updateData.status !== undefined && updateData.status !== current.status;
+    const moving = updateData.start_at !== undefined
+      && new Date(updateData.start_at as string).getTime() !== new Date(current.start_at).getTime();
+    // ROADMAP 97.18 — a write the slot gate above checked goes through
+    // move_booking_checked, which locks the day and re-runs the cap and
+    // buffer rules in the same transaction, with the same two fences.
+    let plain = supabase
       .from("bookings")
       .update(updateData)
       .eq("id", bookingId)
       .eq("business_id", member.businessId);
-    if (updateData.status !== undefined && updateData.status !== current.status) {
-      write = write.eq("status", current.status);
-    }
-    const moving = updateData.start_at !== undefined
-      && new Date(updateData.start_at as string).getTime() !== new Date(current.start_at).getTime();
-    if (moving) write = write.eq("start_at", current.start_at);
-    const { data, error } = await write.select().maybeSingle();
+    if (fenceStatus) plain = plain.eq("status", current.status);
+    const { data, error } = updateData.start_at !== undefined
+      ? await supabase.rpc("move_booking_checked", {
+        p_id: bookingId,
+        p_business: member.businessId,
+        p_patch: updateData,
+        p_from_start: moving ? current.start_at : null,
+        p_from_status: fenceStatus ? current.status : null,
+      }).maybeSingle()
+      : await plain.select().maybeSingle();
     if (error) {
       if (error.code === "23P01") {
         return json({ error: "That time overlaps another booking." }, 409);
       }
+      const dayRule = dayRuleRefusal(error.code);
+      if (dayRule) return json({ error: dayRule }, 409);
       throw error;
     }
     if (!data) {
@@ -235,8 +270,12 @@ Deno.serve(async (req) => {
       // A CANCELLED JOB'S NEW TIME IS NOT NEWS. If one call does both, the
       // cancellation is the only true thing left to say.
       && String(data.status) !== "cancelled";
+    // ROADMAP 97.24 — UN-CANCELLED IS NEWS TOO. The customer's last email said
+    // cancelled; without this their next one was the reminder's "See you soon".
+    const justRestored = String(current.status) === "cancelled"
+      && String(data.status) === "confirmed";
 
-    if ((justCancelled || justMoved) && data.customer_email) {
+    if ((justCancelled || justMoved || justRestored) && data.customer_email) {
       // Read from `data` rather than `current`: name, email, address and
       // vehicle are all editable in the same call, and the email must describe
       // the booking as it now stands.
@@ -285,8 +324,13 @@ Deno.serve(async (req) => {
         // question, and `rescheduleEmail` does not read this field.
         refundOwed: justCancelled ? refundOwed(data).owed : false,
       };
+      // Back on beats a move made in the same save: it states the time the
+      // booking is back on for, and "your booking has moved" would be news
+      // about a booking the customer believes is cancelled.
       const msg = justCancelled
         ? cancellationEmail(brand, emailData, false)
+        : justRestored
+        ? restoredEmail(brand, emailData)
         : rescheduleEmail(
           brand,
           emailData,

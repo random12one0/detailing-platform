@@ -1,9 +1,9 @@
 {
-  "git_sha": "b92bdb210c609ea20d417bb6908150482508918c",
-  "git_sha_started": "b92bdb210c609ea20d417bb6908150482508918c",
+  "git_sha": "baee877f5c71b5cebafd0a8ddf31e448390e47ad",
+  "git_sha_started": "baee877f5c71b5cebafd0a8ddf31e448390e47ad",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T11:18:57.241Z",
+  "finished_at": "2026-10-17T20:23:31.110Z",
   "failures": [],
   "warnings": [
     "The five numbers are asserted on the detail handed to stamp(), not on a row read back from Postgres."
@@ -24,11 +24,16 @@
         "file": "20261009120000_photo_reconcile_cron_timeout.sql",
         "expr": "40 3 * * *",
         "timeout_ms": 60000
+      },
+      {
+        "file": "20261016100000_cron_jobs_send_secret.sql",
+        "expr": "40 3 * * *",
+        "timeout_ms": 60000
       }
     ],
     "cron_url": "https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-reconcile",
     "cron_body": "{}",
-    "cron_headers": "jsonb_build_object('Content-Type', 'application/json')",
+    "cron_headers": "jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', s.decrypted_secret)",
     "stamped": {
       "orphans": 2,
       "missing": 1,
@@ -51,16 +56,16 @@
     ]
   },
   "check_id": "photo-cron-call",
-  "started_at": "2026-10-13T11:18:57.027Z",
+  "started_at": "2026-10-17T20:23:30.251Z",
   "status": "pass",
-  "expected_targets": 2,
-  "discovered_targets": 2,
-  "attempted_targets": 2,
-  "completed_targets": 2,
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
   "skipped_targets": 0,
-  "assertions_executed": 37,
-  "min_assertions": 37,
-  "assertion_floor": "6 in s1 + 5 in s2 + 5 in s3 + (2 + 3 + 5 judged + 5 figures + 1) in s4 + 3 in s5 + 2 in s6 = 37. DECLARED STRUCTURAL, and stated as an equality rather than with slack under it: every check() runs unconditionally, with no early return and no conditional section, and the only multipliers are FIVE and EXPECT, whose length is the criterion's own five drift kinds. So the count is fixed by the question list and cannot fall without a diff somebody has to justify - a tripwire on the code rather than a run-time check (`docs/gotchas.md` 98: a ceiling with room in it is how 196 came to sit over an actual 192).",
+  "assertions_executed": 38,
+  "min_assertions": 38,
+  "assertion_floor": "7 in s1 + 5 in s2 + 5 in s3 + (2 + 3 + 5 judged + 5 figures + 1) in s4 + 3 in s5 + 2 in s6 = 38. DECLARED STRUCTURAL, and stated as an equality rather than with slack under it: every check() runs unconditionally, with no early return and no conditional section, and the only multipliers are FIVE and EXPECT, whose length is the criterion's own five drift kinds. So the count is fixed by the question list and cannot fall without a diff somebody has to justify - a tripwire on the code rather than a run-time check (`docs/gotchas.md` 98: a ceiling with room in it is how 196 came to sit over an actual 192).",
   "canary": {
     "id": "a-heartbeat-that-counts-nothing",
     "observed_failure": true,

@@ -3676,3 +3676,141 @@ Before the re-run, the main checkout's shots were the pre-fix ones (gotchas 132)
 `platform_costs` and `send_invoice_attempts` only as "grants revoked".
 `--break=stranger` printed FOUND 1, `zz_unexplained_lock`, and went to the
 sabotage receipt. Both ticks stand.
+
+## Supervision 2026-10-16 — 97.1 (held), 99.9 and 98.5 re-taken at `57cc2323`
+
+97.1, on its held branch at `dbce96b9`: `node tests/tz-clock-change.test.mjs` 169 of 169;
+`BREAK=one-pass` 31 failures. A separate sweep of that `tz.ts` across 7 zones, every half hour
+of 2026, round-tripped every time except the 10 that do not exist on a clock. Recommended merge.
+
+99.9: `node --test tests/create-booking-phone.test.mjs` 4 of 4. With the handler's
+`phoneComplete` refusal commented out in a scratch copy (`git diff --numstat` 1/1), test 3 went
+red: `200 !== 400`. Tick stands.
+
+98.5: the four repaired photo tests, run together in the main checkout: 22 passed, 0 failed,
+6 SKIPPED — `photo-reconcile-sql` skips without `PGLITE_DIR` here; the entry's 142 of 142 was
+taken with `PGLITE_REQUIRED=1`, which this checkout cannot repeat. `CONTRACT_BREAK=fivexx` went red
+(1 failed). The flag pin to `true` matches `app/src/lib/photo-door.js:128`. Tick stands.
+
+Main's four 'regressions' in the belt's suite: `figures-carry-their-command` passes here (9 of 9)
+and failed in the belt only because its suite had no bash on PATH (belt fixed). The other three are
+real and filed as 100.6 and 100.7.
+
+## Supervision 2026-10-16 (evening) — 97.10 and 97.6 re-taken at `062920b0`
+
+**97.10 (card payment must match what is owed):** `node tests/card-payment-settles.test.mjs` 33 passed / 0
+failed; `BREAK=no-amount` 25 / 8 (caught). `node scripts/payment-problem-shown.mjs` against the dev server,
+demo owner, one job's read rewritten in the browser (no database write): 101 passed / 0 failed over 20 of 20
+views; `--break=old-webhook` 49 / 12 (caught). Screenshots looked at by eye at 1440x900 and 390x844: the red
+line reads "A card payment of $1 came in, but this job is owed $150..." under the Unpaid pill, inside the
+viewport. Diff read: the verdict compares Stripe's amount against `amountDueCents`, the same figure
+`pay-booking` charges, and the job record hides the line once paid or waived. Not live until the one-column
+migration and the webhook are published.
+
+**97.6 (a plan covers car 1 of a split-day booking only):** `node tests/plan-one-car-split.test.mjs` 12 / 0;
+`PLAN_BREAK=quote-every-car` 9 / 3 and `PLAN_BREAK=no-refusal` 10 / 2 (both caught). The variable is
+`PLAN_BREAK`, not `BREAK` — a run with `BREAK=` set prints a clean 12 / 0, which is the sabotage not
+landing, not a pass.
+
+**97.1:** the review's finding (sabotage copy written to the system temp folder) fixed on its branch at
+`ec8d003c`: 169 / 0 clean, `BREAK=one-pass` 138 / 31. Its other finding (importing `scripts/receipt.mjs`
+runs `git rev-parse`) is every receipt-writing test in the repo and is no longer a review finding.
+Receipts touched by these runs on main were restored from HEAD.
+
+## Supervisor 2026-10-16 night — 97.2 merged by hand at `a8ca034a`, as Andrew decided
+
+**97.2** (duplicate booking answer narrowed to `id, start_at, status`, no consent write): branch
+`belt/97.2-20261016192228772` at `5418346c`. Its review's only finding was that criterion 3 had never run.
+Run here with credentials: `node tests/retry-safety.test.mjs` (this branch's functions, run locally, own
+fixture business) 30 / 0 twice and 29 / 1 once, the 1 being `3e` (bulk job, untouched by 97.2; filed
+97.66); main at `11588f40` 30 / 0. On the merged tree: `npm run build --prefix app` exit 0; the six
+credential-free suites 11 / 0; `node tests/duplicate-answer.test.mjs` 16 / 0, `BREAK=select-star` 12 / 4.
+`booking-engine` not run: it measures the deployed server. Not live until `create-booking` is deployed.
+
+## Supervisor 2026-10-17 — 97.66 and 97.9 re-run at `33d386be`
+
+**97.66** (fleet job pressed twice at once answers saved, not 409): `node tests/retry-safety.test.mjs --only=3e`
+(own fixture business, removed after) 5 / 0; `--break=swallow-23505` 4 / 1 on the REFUSED line;
+`--break=no-collision-handling` 4 / 1 on the replay line. The live ten-race half stayed green under both
+sabotages this run, as its own comment says it usually will; the replay half is what catches it. In the
+browser (localhost:5173, demo owner, Money → "Add a fleet job", Save pressed twice in one tick) at 1440×900
+and 392×844: one row saved each time, the sheet closed, no console errors or warnings. The two rows were
+deleted afterwards by name.
+**97.9** (one-use promo shared across a different-day car set): `node tests/promo-one-use-group.test.mjs`
+23 / 0; `PROMO_BREAK=` no-share 7 failed, count-twice 1, no-cap 5, no-window 4, count-rows 3. Credential-free,
+real handler, fake database. Not seen in a browser: the page calls the deployed `create-booking`, which does
+not run this code until Andrew publishes.
+
+**Supervision 2026-10-17, at `753c727d`, credential-free, run in the foreground.** 97.64:
+`node tests/duplicate-answer.test.mjs` 67 / 0, `BREAK=hand-back-id` 6 failed; `node tests/booking-refs.test.mjs`
+10 / 0, `BREAK=list-key` 2 failed. 97.8: `node tests/price-shown-equals-charged.test.mjs` 12 / 0,
+`PRICE_BREAK=no-guard` 3 failed; `node scripts/price-changed-page.mjs` against the local dev server, 6 of 6
+targets, 66 / 0, canary caught (the committed 72 includes six job-copy env-signature lines that only run with
+`--env-from`; the other 66 lines match one for one). Notice screenshots read at 390 and 1440: it names $85 and
+sits above the price bar. 97.11: `node tests/checkout-page-lifecycle.test.mjs` 29 / 0, `BREAK=overwrite-amount`
+2, `silent-extra` 6, `no-expire` 2 failed; `node tests/card-payment-settles.test.mjs` 33 / 0, `BREAK=no-guard`
+3 failed. Unmerged 97.69 on its branch: lifecycle 35 / 0, `BREAK=no-carry` 3 failed. None of it is live until
+Andrew publishes the functions. Receipts these runs rewrote were restored to HEAD.
+
+**Supervision 2026-10-17 (second), at `d6b66964`, run in the foreground.** 97.73 (ticked):
+`node scripts/db-audit.mjs` against `kguqylyzgyzfktkfnhjb`, exit 0; section 7 prints AWAITS APPLY for `bookings`,
+`maintenance_deadlines`, `plan_members` (`20261017020000`). `--break=hide-declaring` exit 1, section 7 FOUND 3 naming
+the same three tables; `--break=forget-pair` exit 1; `--break=blind` exit 1 with a BLIND line. 97.72:
+`node tests/reminder-claim.test.mjs` 59 / 0; `BREAK=no-business` reddens 4a (the other business's customer is
+emailed). 97.69 (merged): `node --test tests/checkout-page-lifecycle.test.mjs` all pass, `BREAK=no-carry` red;
+`node scripts/payment-problem-late.mjs` (dev server, demo owner sign-in, the job read fed through `page.route`, no
+database write) 245 / 0, 40 of 40 views at 1440, 768, 390 and 320, console clean at each. Its screenshots are not
+saved to disk, so the owed-back line was judged by the script's paint and hit-test assertions, not by my eyes.
+Not live: none of these functions or migrations are published. Receipts these runs rewrote were restored to HEAD.
+Still red on main: `privacy-processors` and `legal-promises` name only `api.cloudflare.com` (100.6), and
+`sweep-methods-are-pinned` (100.7). The belt now offers a ready "red on main" item first.
+
+## Supervision 2026-10-17 (second pass) — 97.70, 100.6, 100.9
+
+- **97.70** (a job marked paid after a wrong-figure card payment shows it as a possible refund): `node scripts/payment-problem-late.mjs` at `885b2003` (the receipts' own git_sha), demo owner, job read fed through `page.route` (no database write): 397 passed / 0 failed, 56 of 56 views. `--break=hide-hand-paid`: 349 / 24 failed, every hand-paid view red. Looked at the 1440 and 390 screenshots myself: the red line reads "…If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.", inside the viewport, above the action buttons, matching Andrew's 05:12 ruling. Receipts committed with this entry.
+- **100.6** (photo cache purge classified): `mediaCache.ts` sends Cloudflare only `{ files: [url] }` for one already-public address, as both test rows claim; the two test edits add a row and are fair.
+- **100.9** (fixed by the supervisor, `885b2003`): `sweep-methods-are-pinned` 8 / 0 with the live roadmap at 146 open against a declared 149; `PIN_CANARY=fragment` red on § 3, `PIN_CANARY=scope` red on § 4.
+
+## Supervision 2026-10-17 (third pass) — 97.68, 97.78 (and 97.75 by the same check)
+
+All at `0e8f0783`, receipts re-taken and committed with this entry.
+- **97.68** (refunds made in the detailer's own Stripe are recorded on the job by payment): `node tests/checkout-page-lifecycle.test.mjs` 55 passed / 0 failed, 51 of 51 scenarios; `BREAK=refund-any-account` and `BREAK=refund-early-dropped` each printed "landed" and went 2 red. Diff read: the test edit adds § 4 and raises `EXPECTED`/`min_assertions`, nothing loosened. `payment_problem` is read only by `BookingDetail.jsx` and the webhook, and the refund-only `kind: "extra"` note it can create is filtered out of every line there.
+- **97.78 / 97.75 / 97.68 on screen**: `node scripts/payment-problem-late.mjs` (demo owner, job read fed through `page.route`, no database write) 1021 passed / 0 failed, 136 of 136 views; `--break=whole-payment` 56 red (matches the commit's 56); `--break=no-refund` 124 red. Screenshots read: `hand-paid-part-refunded-390x844` names the $50 left, nothing clipped; `cancelled-refunded-1440x900` drops the red line and says "Refunded $150 in your Stripe" — but the pill still reads green "Paid", filed as **97.80**.
+
+## Supervision 2026-10-17 (fourth pass) — 97.81, 97.82, 97.83
+
+All at `636290f9`, dev server on :5173, every bookings read fed through `page.route` (no database write).
+- **97.82** (a refund comes off Earned on the Money screen and in the export's Amount): `node scripts/money-refund.mjs` 176 passed / 0 failed, 16 of 16 views; `--env-shim --break=status-only` 32 red, both rewrites "landed and RAN", other-payment and paid stayed green. Screenshots read at 390 and 1440 (refunded): Earned $60, Collected $0, Still owed $60, Net $20 — what the entry claims. **Observation for Andrew, not filed as a defect:** the refunded job still counts as a job done, so "Avg job" reads $30 (two jobs, $60 kept); whether a fully refunded job belongs in that average is a judgment call.
+- **97.81** (Today's collected and the export's Status): `node scripts/refund-totals.mjs --env-shim` 128 / 0, 16 of 16; `--break=status-only` 16 red (Today read $150 and the export "Paid" on refunded and part-refunded), matching the commit.
+- **97.83** (Tracking links' earned): `node scripts/link-refund.mjs --env-shim` 160 / 0, 32 of 32 views; `--break=bare-price` 24 red (at `77037852`, which changed only a test file), matching the entry.
+- **None of the four refund fixes (97.80–97.83) is visible on the live product yet**: they read `bookings.payment_problem`, whose migration `20261016160000_booking_payment_problem.sql` is unapplied (already in FOR-ANDREW.md under 97.10).
+
+## Supervision 2026-10-17 (fifth pass) — 97.74, 97.15, 97.16, and held 97.17
+
+All at `ca768bd3`, dev server on :5173.
+- **97.74** (the dashboard's New booking with no email): `BASE=http://localhost:5173 node --import ./scripts/lib/inject-app-env.mjs scripts/new-booking-no-email.mjs` **21 / 0** — owner at 390, 768, 1440 and staff at 390 each got 200 with the session sent, the row saved with no email, `confirmed`, private note kept, no error shown, clean console; the public no-session call still refused 400 "Customer email is required"; all four bookings and customers cleaned up (200/200). `BREAK=no-session` **16 red**, matching the entry. This one needs no publish: the server was already right, only the page's call changed.
+- **97.16** (Accept refuses a quote the page did not show): `node tests/accept-quote-stale.test.mjs` **15 / 0**, 6 of 6 scenarios; `QUOTE_BREAK=stale` 5 red, `=past` 2 red, `=race` 1 red. The two older tests it edited (`request-mode`, `retry-safety`) only add the now-required `quoted_at` to their Accept calls — fair, not goalpost-moving. AWAITS PUBLISH (page before function).
+- **97.15** (support views end after 30 minutes): `node tests/support-sessions-edge.test.mjs` 2 / 0, `BREAK=no-expiry|refresh|no-signout` each exit 1; `PGLITE_DIR=<folder ABOVE node_modules> PGLITE_REQUIRED=1 node tests/support-sessions-sql.test.mjs` 2 / 0, `BREAK=no-expiry|no-auth-check|no-reaper` each exit 1. The `two-logins` edit narrows "no scoped sign-out" to `signOutEverything`'s own body and adds an exact check that the ONLY scoped sign-out is the preview tab's local one — fair. AWAITS PUBLISH (three migrations, then functions).
+  **Trap hit while checking:** pointing `PGLITE_DIR` at the `node_modules` folder itself, or omitting `PGLITE_REQUIRED=1`, makes the SQL test print NOT RUN and every sabotage **exit 0** — a skip that reads as a passing break. Always set `PGLITE_REQUIRED=1`.
+- **97.17** (held): the reviewer's clock finding reproduced (clock moved 8 days: 15 / 1, case 3d), fixed on the branch in `dace9ce1`; 16 / 0 at +0, +8, +20 and +150 days, both sabotages still red. Recommendation in ROADMAP: "merge it".
+
+## Supervision 2026-10-18 — 97.23, 97.81, 97.15's test edit, and Andrew's three merges
+
+Re-run at `ba9ae7bf` on :5173 unless named.
+- **97.23** (New booking promo): `node --import ./scripts/lib/inject-app-env.mjs scripts/new-booking-promo.mjs` **6 of 6 targets** at 390, 768, 1440: "summer10" says Applied. and prices "Promo SUMMER10 -$10" ($115 → $105), "nope9723" refused, console clean but the refusal's own 404. Screenshots looked at, 390 and 1440 (`artifacts/new-booking-promo/good-*.png`).
+- **97.81** (Today's collected, export Status): `node scripts/refund-totals.mjs` **128 / 0, 16 of 16 views**; `--break=status-only` red on the refunded views at every width. Looked at `belt/shots/97.81/png/today-refunded-{390x844,1440x900}.png`: the card reads "Refunded", collected $0. The 1440 wording "Nothing collected yet" is filed as **97.85**.
+- **97.15** (the flagged test edit): a fair strengthening, not moved goalposts — the test now RUNS `requireMember` and the view-as hand-over, and `EXPECTED_USER_AUTH` 21 → 22 names google-business (99.1). 2 / 0; `BREAK=no-expiry|refresh|no-signout` each landed and went red (no-expiry: 4 FAIL lines). 97.16, 97.19 and 97.21's flagged test edits read as fair too (97.21's flips "unsubscribed removes the reminder" because the item says it must not).
+- **Merges, worktree `supervise/merges`:** 97.13 (`9d485694`): `domain-claims-sql` **9 / 0** with `PGLITE_REQUIRED=1` after its migration was renamed to `20261018010000_`; custom-domains, domain-proof, domain-request, legal-promises, privacy-processors **30 / 0**; build ok. The merge broke `tests/support-sessions-edge.test.mjs` (tenant.ts now imports `_shared/permissions.ts`, which the test did not copy) — fixed, 2 / 0, `BREAK=no-gate` still red. 97.17 (`956e0136`): `closed-until-server` **16 / 0**, 12 of 12 scenarios, `CLOSED_BREAK=guard` 3 red. **Correction: that commit's message says "migration-versions-unique 22/0"; the guard was not in that worktree yet and `node --test` dropped it silently (`docs/gotchas.md` 134). Run alone afterwards it is 2 / 0, and with 97.18's migration planted it goes red naming both `20261017200000` files.** 97.20 (`eb81ae1c`): `forget-customer-sql` + `customer-data-inventory` **6 / 0**; `BREAK=no-address-match` 4 FAIL lines, `BREAK=drop-email` exit 1.
+
+## Supervision 2026-10-18 (second pass), at `58414410`
+
+- **97.85** (ticked): `node scripts/refund-totals.mjs` (dev server + .env) **198 passed, 0 failed, 22 of 22 views**; I opened `belt/shots/97.81/png/today-refunded-1440x900.png` ("$150 refunded" under Expected) and `today-refunded-390x844.png` ("$0 / collected", "Refunded" pill). Reproduced. The phone never names the refund: filed as **97.87**.
+- **97.18** (merged, awaits publish): `node scripts/booking-day-lock.mjs` on a throwaway Postgres **PASS 10 of 10, 29 assertions**, checked save +0.564 ms median / +1.463 ms p95 against the 5 ms bar; `--break=no-lock` red (race-cap 3 bookings on a cap-2 day, race-buffer and race-move not refused). Migration is `20261018030645_`, later than 97.19's; `tests/migration-versions-unique.test.mjs` 2 / 0. `tests/closed-until-server.test.mjs` 1 / 0 (the suite red alerted at 03:24 is gone).
+- **97.20a** (merged, awaits publish): `PGLITE_REQUIRED=1 node --test tests/forget-customer-address-points-sql.test.mjs` 1 / 0; `BREAK=raw-key`, `no-bookings`, `after-bookings` each 0 / 1. `customer-data-inventory` 5 / 0.
+- **97.86** (ticked; the flagged test edits): fair — both files read their CRLF source as LF before patching. action-log 8 / 0 and send-invoice-key 6 / 0; `BREAK=needle-absent` turns each 1 red with "the sabotage did not apply".
+- **97.19**'s alerted support-sessions-sql 4.3c red: 2 / 0 now with PGlite required.
+
+## Supervision 2026-10-18 (third pass), at `702fc28b`
+
+- **97.26** (ticked): `npm run build --prefix app` then `node scripts/csp-report-only.mjs` (.env) **PASS 81 assertions, 0 failed, 21 of 21 views**; `--break=no-fonts` **FAIL 42 of 81**, every red naming `fonts.googleapis.com`. Grepped `app/src`, `index.html` and `public` for outside hosts: every one is in the policy or is a navigation link (Google Maps, Waze, Apple Maps, Google Calendar). Report-only, so it blocks nothing yet; 97.90 enforces it.
+- **97.84 / 97.88 / 97.89** (ticked): my own walk, `belt/review-scratch/notes-walk.mjs` (demo owner, dev server), at 1440x900 and 392x844. A save answered "saved" after 600 ms, then Escape with the box focused: the record closed, no line. A save answered 403, then Escape: the record **stayed**, the "not saved" line shown **once**, "Close anyway" **on screen** (looked at `notes-refused-392.png`), a Today tab press at 1440 **did not leave** the record, "Close anyway" closed it. Console: only the two 403s I injected. **Both saves were answered in the browser because the live database cannot answer them**: unfaked, the save returns `404 PGRST202` (`set_customer_notes` not found) — 97.14 is built and not applied. Nothing was written. Filed 97.91.

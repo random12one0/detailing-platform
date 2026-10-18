@@ -3,6 +3,17 @@
 //   PGLITE_DIR=<folder holding @electric-sql/pglite> PGLITE_REQUIRED=1 node --test tests/support-sessions-sql.test.mjs
 //   BREAK=permissive PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage: the rule is ORed, not ANDed
 //   BREAK=no-marker  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage: the marker is never consulted
+//   BREAK=no-expiry  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage (97.15): the deadline is never compared
+//   BREAK=no-auth-check PGLITE_DIR=… node tests/support-sessions-sql.test.mjs # sabotage (97.15): a view ended at Auth still reads
+//   BREAK=no-reaper  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage (97.15): the minute job ends nothing
+//
+// And 20261017190000_support_sessions_end_at_auth.sql (review fixes 3, 4): a support session whose
+// Auth session is gone (Close signed it out) reads nothing either, and
+// `end_expired_support_sessions()` deletes the Auth session of every marker past its deadline.
+// `auth.sessions` is a stand-in table here, one row per live Auth session, as in Supabase.
+//
+// ROADMAP 97.15 adds 20261017180000_support_sessions_expire.sql on top: a marker past its
+// `expires_at` (30 minutes) is refused READS as well, and is still refused every write.
 //
 // Same pattern as tests/action-log-sql.test.mjs: PGlite (Postgres in WebAssembly, in-process, no
 // network, no account), because no DDL touches the live database. BREAK is an env var, not a flag:
@@ -37,7 +48,20 @@ const sabotage = (sql, b) =>
   b === "permissive" ? sql.replaceAll("as restrictive", "as permissive")
   : b === "no-marker" ? sql.replace("where session_id = nullif(auth.jwt() ->> 'session_id', '')::uuid", "where false")
   : sql;
+const EXPIRE = "20261017180000_support_sessions_expire.sql";
+const sabotageExpire = (sql, b) =>
+  b === "permissive" ? sql.replaceAll("as restrictive", "as permissive")
+  : b === "no-expiry" ? sql.replace("and expires_at <= now()", "and false")
+  : sql;
 const SQL = sabotage(readFileSync(path.join(DIR, MIGRATION), "utf8"), BREAK);
+const SQL2 = sabotageExpire(readFileSync(path.join(DIR, EXPIRE), "utf8"), BREAK);
+const ENDS = "20261017190000_support_sessions_end_at_auth.sql";
+const sabotageEnds = (sql, b) =>
+  b === "no-expiry" ? sql.replace("(m.expires_at <= now()", "(false")
+  : b === "no-auth-check" ? sql.replace("or not exists (select 1 from auth.sessions s where s.id = m.session_id)", "or false")
+  : b === "no-reaper" ? sql.replace("and m.expires_at <= now();", "and false;")
+  : sql;
+const SQL3 = sabotageEnds(readFileSync(path.join(DIR, ENDS), "utf8"), BREAK);
 
 let PGlite = null;
 if (process.env.PGLITE_DIR) {
@@ -52,12 +76,15 @@ const USER = "11111111-1111-1111-1111-111111111111";
 const BIZ = "22222222-2222-2222-2222-222222222222";
 const OWN_SID = "33333333-3333-3333-3333-333333333333";     // the owner's ordinary login
 const SUPPORT_SID = "44444444-4444-4444-4444-444444444444"; // the same user, opened by support
+const EXPIRED_SID = "77777777-7777-7777-7777-777777777777"; // opened by support 31 minutes ago (97.15)
+const CLOSED_SID = "88888888-8888-8888-8888-888888888888";  // inside its 30 minutes, but Close signed it out at Auth
 
 // Stand-ins for the tables the real schema has, each with the kind of PERMISSIVE policy the real
 // ones carry — the rule under test has to win against an existing "members may write" policy.
 const FIXTURE = `
 create role anon; create role authenticated; create role service_role;
 create schema auth; create schema storage;
+create table auth.sessions (id uuid primary key, user_id uuid);
 grant usage on schema auth, storage, public to anon, authenticated, service_role;
 create function auth.jwt() returns jsonb language sql stable as $$ select nullif(current_setting('request.jwt.claims', true), '')::jsonb $$;
 create function auth.uid() returns uuid language sql stable as $$ select (auth.jwt() ->> 'sub')::uuid $$;
@@ -93,11 +120,18 @@ insert into public.plans values ('55555555-5555-5555-5555-555555555555', 'week',
 insert into public.plan_members values ('66666666-6666-6666-6666-666666666666', '${BIZ}', '55555555-5555-5555-5555-555555555555', 'active', current_date - 14);
 `;
 
-async function fresh(sql) {
+async function fresh(sql, sql2, sql3 = SQL3) {
   const db = new PGlite();
   await db.exec(FIXTURE);
   await db.exec(sql);
+  await db.exec(sql2);
+  await db.exec(sql3);
+  // Live at Auth: the owner's own login, the live support view, the expired one. NOT the closed one.
+  await db.exec(`insert into auth.sessions values ('${OWN_SID}', '${USER}'), ('${SUPPORT_SID}', '${USER}'), ('${EXPIRED_SID}', '${USER}')`);
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id) values ('${CLOSED_SID}', '${USER}', '${BIZ}')`);
   await db.exec(`insert into public.support_sessions (session_id, user_id, business_id) values ('${SUPPORT_SID}', '${USER}', '${BIZ}')`);
+  // 97.15: back-dated, as the item asks — opened 31 minutes ago, so its 30 minutes ran out 1 minute ago.
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, created_at, expires_at) values ('${EXPIRED_SID}', '${USER}', '${BIZ}', now() - interval '31 minutes', now() - interval '1 minute')`);
   return db;
 }
 const claims = (sid) => JSON.stringify({ sub: USER, role: "authenticated", session_id: sid });
@@ -140,13 +174,19 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
   const started_at = new Date().toISOString();
 
   // 1. Applies cleanly, and twice is harmless (a re-run must not duplicate or drop a rule).
-  const db = await fresh(SQL);
+  const db = await fresh(SQL, SQL2);
   await db.exec(SQL);
+  await db.exec(SQL2);
+  await db.exec(SQL3);
   const rlsTables = (await db.query(`select count(*)::int n from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname in ('public','storage') and c.relkind = 'r' and c.relrowsecurity`)).rows[0].n;
   const rules = (await db.query(`select count(*)::int n from pg_policies where policyname like 'support_read_only_%' and permissive = 'RESTRICTIVE'`)).rows[0].n;
   // Discovery floor: the fixture holds 7 RLS tables (5 public + support_sessions + storage.objects).
   check("discovery: at least 7 RLS tables found", rlsTables >= 7, `found ${rlsTables}`);
   check("every RLS table carries exactly three restrictive write rules", rules === rlsTables * 3, `rules ${rules}, tables ${rlsTables}`);
+  const expRules = (await db.query(`select count(*)::int n from pg_policies where policyname = 'support_expired_select' and permissive = 'RESTRICTIVE' and cmd = 'SELECT'`)).rows[0].n;
+  check("97.15: every RLS table carries exactly one restrictive expired-session read rule", expRules === rlsTables, `rules ${expRules}, tables ${rlsTables}`);
+  const span = (await db.query(`select extract(epoch from expires_at - created_at)::int s from public.support_sessions where session_id = '${SUPPORT_SID}'`)).rows[0]?.s;
+  check("97.15: a new marker's deadline defaults to 30 minutes after it was written", span === 1800, `span ${span}s`);
 
   // 2. The support session reads exactly what the owner reads.
   const ownRead = await as(db, OWN_SID, "select name from public.widgets");
@@ -155,6 +195,7 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
 
   // 3. Every write path: refused for the support session.
   let refused = 0;
+  let expiredRefused = 0;
   for (const [label, stmt] of WRITES) {
     const r = await as(db, SUPPORT_SID, stmt); r.stmt = stmt;
     const why = refusedBy(r);
@@ -170,6 +211,41 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
     const r = await as(db, SUPPORT_SID, stmt);
     check(`marker table refused to a signed-in caller: ${stmt.split(" ").slice(0, 3).join(" ")}`, /permission denied/.test(r.error || ""), JSON.stringify(r));
   }
+
+  // 4b. ROADMAP 97.15 — the back-dated marker: refused every READ, and still every write.
+  for (const [label, stmt] of [["table read", "select name from public.widgets"], ["storage read", "select name from storage.objects"]]) {
+    const r = await as(db, EXPIRED_SID, stmt);
+    const ok = !r.error && r.rows.length === 0;
+    if (ok) expiredRefused++;
+    table.push({ session: "support, expired", path: label, result: ok ? "refused: 0 rows visible" : `ALLOWED: ${JSON.stringify(r)}` });
+    check(`expired support session refused: ${label}`, ok, JSON.stringify(r));
+  }
+  for (const [label, stmt] of WRITES) {
+    const r = await as(db, EXPIRED_SID, stmt); r.stmt = stmt;
+    const why = refusedBy(r);
+    if (why) expiredRefused++;
+    table.push({ session: "support, expired", path: label, result: why || "ALLOWED" });
+    check(`expired support session refused: ${label}`, !!why, JSON.stringify(r));
+  }
+  // 4c. Review fix 3 — a view CLOSED at Auth (session row gone, deadline not reached) reads nothing.
+  for (const [label, stmt] of [["table read", "select name from public.widgets"], ["storage read", "select name from storage.objects"]]) {
+    const r = await as(db, CLOSED_SID, stmt);
+    const ok = !r.error && r.rows.length === 0;
+    if (ok) expiredRefused++;
+    table.push({ session: "support, closed at Auth", path: label, result: ok ? "refused: 0 rows visible" : `ALLOWED: ${JSON.stringify(r)}` });
+    check(`97.15: a support view signed out at Auth is refused: ${label}`, ok, JSON.stringify(r));
+  }
+  const liveAgain = await as(db, SUPPORT_SID, "select name from public.widgets");
+  check("97.15: the LIVE support session still reads (the rule keys on the deadline, not on being a support session)", liveAgain.rows?.length === 1, JSON.stringify(liveAgain));
+
+  // 4d. Review fix 4 — the minute job ends the expired view at Auth, and only it.
+  const denied = await as(db, SUPPORT_SID, "select public.end_expired_support_sessions()");
+  check("97.15: a signed-in caller cannot run the minute job", /permission denied/.test(denied.error || ""), JSON.stringify(denied));
+  const reaped = (await db.query("select public.end_expired_support_sessions() n")).rows[0].n;
+  const left = (await db.query("select array_agg(id::text order by id) ids from auth.sessions")).rows[0].ids;
+  check("97.15: the minute job ends exactly the expired view's Auth session", reaped === 1 && !left.includes(EXPIRED_SID) && left.includes(SUPPORT_SID) && left.includes(OWN_SID), JSON.stringify({ reaped, left }));
+  const ownAfterReap = await as(db, OWN_SID, "select name from public.widgets");
+  check("97.15: the owner's own login still reads after the minute job", ownAfterReap.rows?.length === 1, JSON.stringify(ownAfterReap));
 
   // 5. The SAME USER in their own ordinary session: every write goes through.
   let allowed = 0;
@@ -190,7 +266,7 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
   await db.close();
 
   // CANARY: the rule made permissive must let the support insert through.
-  const canaryDb = await fresh(sabotage(readFileSync(path.join(DIR, MIGRATION), "utf8"), "permissive"));
+  const canaryDb = await fresh(sabotage(readFileSync(path.join(DIR, MIGRATION), "utf8"), "permissive"), sabotageExpire(readFileSync(path.join(DIR, EXPIRE), "utf8"), "permissive"), readFileSync(path.join(DIR, ENDS), "utf8"));
   const leaked = await as(canaryDb, SUPPORT_SID, WRITES[0][1]);
   await canaryDb.close();
   const canaryCaught = !leaked.error && leaked.affected === 1;
@@ -203,18 +279,18 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
     check_id: "support-sessions-sql",
     started_at,
     status: failures.length ? "fail" : "pass",
-    expected_targets: WRITES.length * 2,
-    discovered_targets: WRITES.length * 2,
-    attempted_targets: WRITES.length * 2,
-    completed_targets: refused + allowed,
+    expected_targets: WRITES.length * 3 + 4,
+    discovered_targets: WRITES.length * 3 + 4,
+    attempted_targets: WRITES.length * 3 + 4,
+    completed_targets: refused + allowed + expiredRefused,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 2 + 1 + WRITES.length + 1 + 3 + WRITES.length + 1 + 1 + 1,
+    min_assertions: 2 + 2 + 1 + WRITES.length + 1 + 3 + 2 + WRITES.length + 2 + 1 + 3 + WRITES.length + 1 + 1 + 1,
     failures,
     assertion_floor: "structural: one assertion per fixed write path per session plus fixed setup checks, so the count cannot vary between runs",
     artifacts: [ART],
     canary: { id: "restrictive-made-permissive", observed_failure: canaryCaught },
-    dimensions: { break: BREAK || undefined, migration: MIGRATION, rls_tables_in_fixture: rlsTables, write_paths: WRITES.length, refused_for_support: refused, allowed_for_owner: allowed },
+    dimensions: { break: BREAK || undefined, migration: MIGRATION, expire_migration: EXPIRE, ends_migration: ENDS, refused_for_expired: expiredRefused, rls_tables_in_fixture: rlsTables, write_paths: WRITES.length, refused_for_support: refused, allowed_for_owner: allowed },
   });
   assert.deepEqual(failures, []);
 });
@@ -224,10 +300,16 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
 // refuse_support_writes. This reddens on any later migration that enables RLS without that call.
 test("4.3c · every migration after this one that enables RLS on a table also refuses support writes on it", () => {
   const later = readdirSync(DIR).filter((f) => f.endsWith(".sql") && f > MIGRATION).sort();
+  // 97.15: a later migration that re-runs the CATALOG SWEEP (every RLS table, discovered) covers
+  // every table created before it, exactly as 4.3c's own sweep did. google_business_links and
+  // receipt_upload_attempts had this guard red since 2026-10-10/13; 20261017180000's sweep covers
+  // them. The canaries below sort after every real file, so they are never covered by a sweep.
+  const sweeps = later.filter((f) => /perform public\.refuse_support_writes\(t\)/.test(readFileSync(path.join(DIR, f), "utf8")));
   const missing = [];
   const scan = (name, sql) => {
     for (const m of sql.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?((?:public\.)?"?[a-z_]+"?)\s+enable\s+row\s+level\s+security/gi)) {
       const table = m[1].replace(/"/g, "").replace(/^(?!public\.)/, "public.");
+      if (sweeps.some((s) => s > name)) continue;
       if (!new RegExp(`refuse_support_writes\\(\\s*'${table.replace(".", "\\.")}'`, "i").test(sql)) missing.push(`${name}: ${table}`);
     }
   };

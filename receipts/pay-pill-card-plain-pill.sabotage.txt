@@ -1,0 +1,117 @@
+  ok    refunded @ 390x844 · Today's bookings read was fed
+  ok    refunded @ 390x844 · the sabotage landed once and RAN
+  ok    refunded @ 390x844 · today's job is drawn as the card
+  FAIL  refunded @ 390x844 · the card's payment pill says "Refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded @ 390x844 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded @ 390x844 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded @ 390x844 · inside the screen and painted on top
+  ok    refunded @ 390x844 · console clean
+  ok    refunded @ 768x1024 · Today's bookings read was fed
+  ok    refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    refunded @ 768x1024 · today's job is drawn as the card
+  FAIL  refunded @ 768x1024 · the card's payment pill says "Refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded @ 768x1024 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded @ 768x1024 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded @ 768x1024 · inside the screen and painted on top
+  ok    refunded @ 768x1024 · console clean
+  ok    refunded @ 1440x900 · Today's bookings read was fed
+  ok    refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    refunded @ 1440x900 · today's job is drawn as the card
+  FAIL  refunded @ 1440x900 · the card's payment pill says "Refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded @ 1440x900 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded @ 1440x900 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded @ 1440x900 · inside the screen and painted on top
+  ok    refunded @ 1440x900 · console clean
+  ok    part-refunded @ 390x844 · Today's bookings read was fed
+  ok    part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    part-refunded @ 390x844 · today's job is drawn as the card
+  FAIL  part-refunded @ 390x844 · the card's payment pill says "Part refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  part-refunded @ 390x844 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    part-refunded @ 390x844 · one payment pill, never "Paid" beside "Refunded"
+  ok    part-refunded @ 390x844 · inside the screen and painted on top
+  ok    part-refunded @ 390x844 · console clean
+  ok    part-refunded @ 768x1024 · Today's bookings read was fed
+  ok    part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    part-refunded @ 768x1024 · today's job is drawn as the card
+  FAIL  part-refunded @ 768x1024 · the card's payment pill says "Part refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  part-refunded @ 768x1024 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    part-refunded @ 768x1024 · one payment pill, never "Paid" beside "Refunded"
+  ok    part-refunded @ 768x1024 · inside the screen and painted on top
+  ok    part-refunded @ 768x1024 · console clean
+  ok    part-refunded @ 1440x900 · Today's bookings read was fed
+  ok    part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    part-refunded @ 1440x900 · today's job is drawn as the card
+  FAIL  part-refunded @ 1440x900 · the card's payment pill says "Part refunded"
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  part-refunded @ 1440x900 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Paid","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    part-refunded @ 1440x900 · one payment pill, never "Paid" beside "Refunded"
+  ok    part-refunded @ 1440x900 · inside the screen and painted on top
+  ok    part-refunded @ 1440x900 · console clean
+  ok    refunded-es @ 390x844 · Today's bookings read was fed
+  ok    refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    refunded-es @ 390x844 · today's job is drawn as the card
+  FAIL  refunded-es @ 390x844 · the card's payment pill says "Devuelto"
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded-es @ 390x844 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded-es @ 390x844 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded-es @ 390x844 · inside the screen and painted on top
+  ok    refunded-es @ 390x844 · console clean
+  ok    refunded-es @ 768x1024 · Today's bookings read was fed
+  ok    refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    refunded-es @ 768x1024 · today's job is drawn as the card
+  FAIL  refunded-es @ 768x1024 · the card's payment pill says "Devuelto"
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded-es @ 768x1024 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded-es @ 768x1024 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded-es @ 768x1024 · inside the screen and painted on top
+  ok    refunded-es @ 768x1024 · console clean
+  ok    refunded-es @ 1440x900 · Today's bookings read was fed
+  ok    refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    refunded-es @ 1440x900 · today's job is drawn as the card
+  FAIL  refunded-es @ 1440x900 · the card's payment pill says "Devuelto"
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  FAIL  refunded-es @ 1440x900 · the pill is NOT the green Paid one
+        {"dim":"1","pill":"Pagado","paid":true,"pills":1,"inside":true,"hit":true}
+  ok    refunded-es @ 1440x900 · one payment pill, never "Paid" beside "Refunded"
+  ok    refunded-es @ 1440x900 · inside the screen and painted on top
+  ok    refunded-es @ 1440x900 · console clean
+  ok    paid @ 390x844 · Today's bookings read was fed
+  ok    paid @ 390x844 · the sabotage landed once and RAN
+  ok    paid @ 390x844 · today's job is drawn as the card
+  ok    paid @ 390x844 · the card's payment pill says "Paid"
+  ok    paid @ 390x844 · the pill is the green Paid one
+  ok    paid @ 390x844 · one payment pill, never "Paid" beside "Refunded"
+  ok    paid @ 390x844 · inside the screen and painted on top
+  ok    paid @ 390x844 · console clean
+  ok    paid @ 768x1024 · Today's bookings read was fed
+  ok    paid @ 768x1024 · the sabotage landed once and RAN
+  ok    paid @ 768x1024 · today's job is drawn as the card
+  ok    paid @ 768x1024 · the card's payment pill says "Paid"
+  ok    paid @ 768x1024 · the pill is the green Paid one
+  ok    paid @ 768x1024 · one payment pill, never "Paid" beside "Refunded"
+  ok    paid @ 768x1024 · inside the screen and painted on top
+  ok    paid @ 768x1024 · console clean
+  ok    paid @ 1440x900 · Today's bookings read was fed
+  ok    paid @ 1440x900 · the sabotage landed once and RAN
+  ok    paid @ 1440x900 · today's job is drawn as the card
+  ok    paid @ 1440x900 · the card's payment pill says "Paid"
+  ok    paid @ 1440x900 · the pill is the green Paid one
+  ok    paid @ 1440x900 · one payment pill, never "Paid" beside "Refunded"
+  ok    paid @ 1440x900 · inside the screen and painted on top
+  ok    paid @ 1440x900 · console clean
+
+78 passed, 18 failed, 12 of 12 views.
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.80-20261017135234915\receipts\pay-pill-card-plain-pill.sabotage.json

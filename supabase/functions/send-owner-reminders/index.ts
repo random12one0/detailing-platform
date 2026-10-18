@@ -15,12 +15,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { retryRead, supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { cronRefusal } from "../_shared/cronAuth.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import {
   buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, recipientLang, sendTenantEmail,
 } from "../_shared/email.ts";
 import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, maintenanceDueSubject, ownerNewBookingEmail, ownerReminderSubject, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { requireOwnerReached, sendToEachOwner } from "../_shared/ownerFanout.ts";
 import { businessSiteUrl, receiptUrl, unsubscribeUrl } from "../_shared/config.ts";
 import { maintenanceVerdict, STAGES, stageDue } from "../_shared/maintenance.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -145,41 +147,47 @@ async function sendOwnerReminder(b: BookingRow) {
   const data = await emailDataFor(business, b);
   // The owner reminder reuses the owner notification layout — same info, new
   // subject line.
-  if (settings.email_owner_reminder) {
-    for (const to of ownerRecipients(business, settings)) {
-      // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
-      const lang = await recipientLang(to, business.id);
-      const msg = ownerNewBookingEmail(brand, data, false, undefined, lang);
-      mustSend(
-        await sendTenantEmail({ bookingId: b.id,
-          businessId: business.id,
-          to,
-          // ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". This
-          // was typed here with the raw 2026-10-03 date in it.
-          subject: ownerReminderSubject(brand, data, lang),
-          html: msg.html,
-          text: msg.text,
-        }),
-        "owner reminder",
-      );
-    }
-  }
-  if (settings.push_enabled) await sendOwnerPush(business.id, {
+  // ROADMAP 97.5 — every address is tried and the push always goes after
+  // them; this throws only if neither an email nor the push reached the
+  // owner, so one bad address cannot hold the marker back and re-send to the
+  // rest. See _shared/ownerFanout.ts for why a delivered push counts.
+  const recipients = settings.email_owner_reminder ? ownerRecipients(business, settings) : [];
+  const { sent, failed } = await sendToEachOwner(recipients, async (to) => {
+    // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+    const lang = await recipientLang(to, business.id);
+    const msg = ownerNewBookingEmail(brand, data, false, undefined, lang);
+    return await sendTenantEmail({ bookingId: b.id,
+      businessId: business.id,
+      to,
+      // ROADMAP 99.2e — "Tomorrow at 6 PM: Maria Lopez, 1234 Oak St". This
+      // was typed here with the raw 2026-10-03 date in it.
+      subject: ownerReminderSubject(brand, data, lang),
+      html: msg.html,
+      text: msg.text,
+    });
+  });
+  const pushed = settings.push_enabled ? await sendOwnerPush(business.id, {
     title: "Upcoming job reminder",
     body: `${b.customer_name} · ${formatTime12hr(data.startTime)}`,
     url: `/job/${b.id}`,
     tag: `booking-${b.id}`,
-  }).catch((e) => console.error("push failed", e));
+  }).then((r) => r.sent, (e) => { console.error("push failed", e); return 0; }) : 0;
+  requireOwnerReached({ addresses: recipients.length, sent, pushed }, "owner reminder");
+  return failed;
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
+  // Set once the manual branch is entered: only a member's own re-send may see
+  // an error's text. The sweep's answer never carries one (ROADMAP 97.3).
+  let manual = false;
   try {
     const body = await req.json().catch(() => ({}));
 
     // --- Manual mode: one booking, member-gated -----------------------------
     if (body.booking_id) {
+      manual = true;
       const member = await requireMember(req, body.business_id ?? null);
       if (!member) return json({ error: "Unauthorized" }, 401);
       const { data: b } = await supabase
@@ -208,9 +216,53 @@ Deno.serve(async (req) => {
     }
 
     // --- Scheduled sweep (idempotent; every send is marker-guarded) ---------
+    // ROADMAP 97.3: only pg_cron, carrying the shared secret, may start it.
+    const refused = cronRefusal(req);
+    if (refused) return refused;
     const results: { id: string; kind: string; sent: boolean; error?: string }[] = [];
-    const mark = (id: string, col: string) =>
-      supabase.from("bookings").update({ [col]: new Date().toISOString() }).eq("id", id);
+
+    // ROADMAP 97.4 — CLAIM FIRST, SEND SECOND. Every stage here used to send
+    // and THEN write its marker, so two sweeps that overlapped (a slow run
+    // still going when the next tick fired, or a hand-started one) both read
+    // the same due rows and both sent every reminder. Now the marker is
+    // written FIRST and only where it is still empty: one UPDATE, which
+    // Postgres runs atomically, so of two sweeps exactly one gets the row back
+    // and only that one sends. A failed or skipped send gives the claim back,
+    // so the next sweep retries it exactly as before. The accepted cost: a run
+    // killed between the claim and the send loses that one reminder rather
+    // than sending it twice. `tests/reminder-claim.test.mjs` runs two sweeps
+    // at once against this file.
+    const claim = async (id: string, col: string) => {
+      const stamp = new Date().toISOString();
+      const { data, error } = await supabase.from("bookings")
+        .update({ [col]: stamp }).eq("id", id).is(col, null).select("id");
+      if (error) throw error;
+      return data?.length ? stamp : null;
+    };
+    // Only OUR stamp is cleared, so a manual send that landed meanwhile keeps its own.
+    const release = async (id: string, col: string, stamp: string) => {
+      const { error } = await supabase.from("bookings")
+        .update({ [col]: null }).eq("id", id).eq(col, stamp);
+      if (error) throw new Error(`could not give the claim back, so the next sweep will not retry it: ${error.message}`);
+    };
+    // `send` returning false is a skip (reminders switched off), not a send.
+    const once = async (id: string, col: string, kind: string, send: () => Promise<boolean | void>) => {
+      let stamp: string | null = null;
+      try {
+        stamp = await claim(id, col);
+        if (!stamp) return; // another sweep claimed it first
+        if (await send() === false) {
+          await release(id, col, stamp);
+          results.push({ id, kind, sent: false, error: "reminders are switched off for this business" });
+          return;
+        }
+        results.push({ id, kind, sent: true });
+      } catch (e) {
+        let error = String(e);
+        if (stamp) await release(id, col, stamp).catch((r) => { error += ` / ${r}`; });
+        results.push({ id, kind, sent: false, error });
+      }
+    };
 
     // THIS `Promise.all` IS WHERE THE SWEEP DIED — 2026-09-13. Seven calls
     // leave together, PostgREST answers ~1.1% of them 504 in bursts of three
@@ -238,41 +290,26 @@ Deno.serve(async (req) => {
     }
 
     for (const b of ownerDue.data || []) {
-      try {
-        await sendOwnerReminder(b);
-        await mark(b.id, "owner_reminder_sent_at");
-        results.push({ id: b.id, kind: "owner_reminder", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "owner_reminder", sent: false, error: String(e) });
-      }
+      await once(b.id, "owner_reminder_sent_at", "owner_reminder", async () => {
+        const failed = await sendOwnerReminder(b);
+        // The refused addresses are `failed` rows in the mail log already;
+        // this puts them in the heartbeat summary too.
+        if (failed.length) results.push({ id: b.id, kind: "owner_reminder", sent: false, error: `refused for ${failed.length} of the owner addresses` });
+      });
     }
-    // A SKIP IS NOT A SEND, SO IT DOES NOT GET THE MARKER EITHER. The RPC now
-    // refuses to return a switched-off business at all, so this branch should
-    // be unreachable from the sweep — it is here because a marker written for a
-    // reminder nobody sent is the fault that made this whole item necessary,
-    // and "unreachable" is a claim about today's query.
+    // A SKIP IS NOT A SEND, SO IT DOES NOT KEEP THE MARKER EITHER: `once` gives
+    // the claim back. The RPC now refuses to return a switched-off business at
+    // all, so this should be unreachable from the sweep — it is handled because
+    // a marker written for a reminder nobody sent is the fault that made this
+    // whole item necessary, and "unreachable" is a claim about today's query.
     for (const b of customerDue.data || []) {
-      try {
-        const sent = await sendCustomerReminder(b);
-        if (!sent) { results.push({ id: b.id, kind: "customer_reminder", sent: false, error: "reminders are switched off for this business" }); continue; }
-        await mark(b.id, "customer_reminder_sent_at");
-        results.push({ id: b.id, kind: "customer_reminder", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "customer_reminder", sent: false, error: String(e) });
-      }
+      await once(b.id, "customer_reminder_sent_at", "customer_reminder", () => sendCustomerReminder(b));
     }
     for (const b of secondDue.data || []) {
-      try {
-        const sent = await sendCustomerReminder(b, true);
-        if (!sent) { results.push({ id: b.id, kind: "customer_reminder_2", sent: false, error: "reminders are switched off for this business" }); continue; }
-        await mark(b.id, "customer_reminder_2_sent_at");
-        results.push({ id: b.id, kind: "customer_reminder_2", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "customer_reminder_2", sent: false, error: String(e) });
-      }
+      await once(b.id, "customer_reminder_2_sent_at", "customer_reminder_2", () => sendCustomerReminder(b, true));
     }
     for (const b of nudgeDue.data || []) {
-      try {
+      await once(b.id, "owner_nudge_sent_at", "nudge", async () => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Starting soon",
@@ -280,14 +317,10 @@ Deno.serve(async (req) => {
           url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
-        await mark(b.id, "owner_nudge_sent_at");
-        results.push({ id: b.id, kind: "nudge", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "nudge", sent: false, error: String(e) });
-      }
+      });
     }
     for (const b of wrapupDue.data || []) {
-      try {
+      await once(b.id, "owner_wrapup_nudge_sent_at", "wrapup", async () => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Wrapping up soon",
@@ -295,14 +328,10 @@ Deno.serve(async (req) => {
           url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
-        await mark(b.id, "owner_wrapup_nudge_sent_at");
-        results.push({ id: b.id, kind: "wrapup", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "wrapup", sent: false, error: String(e) });
-      }
+      });
     }
     for (const b of finalizeDue.data || []) {
-      try {
+      await once(b.id, "owner_finalize_nudge_sent_at", "finalize", async () => {
         const business = await biz(b.business_id);
         await sendOwnerPush(business.id, {
           title: "Finalize payment",
@@ -310,11 +339,7 @@ Deno.serve(async (req) => {
           url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
         });
-        await mark(b.id, "owner_finalize_nudge_sent_at");
-        results.push({ id: b.id, kind: "finalize", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "finalize", sent: false, error: String(e) });
-      }
+      });
     }
 
     // A REQUEST NOBODY ANSWERED — the fifth nudge, and the only one that is
@@ -326,33 +351,35 @@ Deno.serve(async (req) => {
     // promise is that the detailer answers; a notification nobody sees is the
     // feature not working.
     for (const b of requestDue.data || []) {
-      try {
+      await once(b.id, "owner_request_nudge_sent_at", "request_nudge", async () => {
         const business = await biz(b.business_id);
         const settings = await getSettings(business.id);
         const tz = business.timezone;
         const when = `${dateStrIn(tz, new Date(b.start_at))} at ${formatTime12hr(timeStrIn(tz, new Date(b.start_at)))}`;
         const waited = Math.round((Date.now() - new Date(b.created_at).getTime()) / 3600_000);
-        await sendOwnerPush(business.id, {
+        const brand = await buildBrand(business, settings);
+        const data = await emailDataFor(business, b);
+        // ROADMAP 97.5 — same rule as the owner reminder: every address is
+        // tried, the push always goes, and this throws only if NEITHER reached
+        // the owner. Before 97.5 a refused address re-sent the push and every
+        // other address's email each sweep; the first 97.5 version then threw
+        // before the push, so a one-address business got NO push at all while
+        // email was down. A delivered push now marks it, so it goes once.
+        const recipients = ownerRecipients(business, settings);
+        const { sent, failed } = await sendToEachOwner(recipients, async (to) => {
+          // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
+          const msg = staleRequestEmail(brand, data, waited, await recipientLang(to, business.id));
+          return await sendTenantEmail({ bookingId: b.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
+        });
+        const pushed = await sendOwnerPush(business.id, {
           title: "Still waiting on you",
           body: `${b.customer_name} asked for ${when} · ${waited}h ago, no answer yet`,
           url: `/job/${b.id}`,
           tag: `booking-${b.id}`,
-        });
-        const brand = await buildBrand(business, settings);
-        const data = await emailDataFor(business, b);
-        for (const to of ownerRecipients(business, settings)) {
-          // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
-          const msg = staleRequestEmail(brand, data, waited, await recipientLang(to, business.id));
-          mustSend(
-            await sendTenantEmail({ bookingId: b.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text }),
-            "stale request nudge",
-          );
-        }
-        await mark(b.id, "owner_request_nudge_sent_at");
-        results.push({ id: b.id, kind: "request_nudge", sent: true });
-      } catch (e) {
-        results.push({ id: b.id, kind: "request_nudge", sent: false, error: String(e) });
-      }
+        }).then((r) => r.sent, (e) => { console.error("push failed", e); return 0; });
+        requireOwnerReached({ addresses: recipients.length, sent, pushed }, "stale request nudge");
+        if (failed.length) results.push({ id: b.id, kind: "request_nudge", sent: false, error: `refused for ${failed.length} of the owner addresses` });
+      });
     }
 
     // --- ROADMAP 2.23: MAINTENANCE DEADLINES, THE ONLY THING HERE THAT
@@ -385,6 +412,10 @@ Deno.serve(async (req) => {
       for (const d of deadlines ?? []) {
         const stage = stageDue(d);
         if (stage === null) continue;
+        // ROADMAP 97.4 — the same claim as the bookings above, on the stage
+        // counter: it moves only from the value THIS sweep read, so of two
+        // overlapping sweeps one moves it and the other gets nothing back.
+        let claimed = false;
         try {
           const business = await biz(d.business_id);
           const settings = await getSettings(business.id);
@@ -423,10 +454,13 @@ Deno.serve(async (req) => {
           // `maintenanceVerdict`, which tests/maintenance-legal runs for real.
           if (!settings.email_customer_reminder) continue;
           if (!settings.email_customer_maintenance_due) continue;
+          // ROADMAP 97.72 — THE DEADLINE'S OWN BUSINESS, NOT THE ID ALONE. This is the service role, so no policy
+          // scopes it: a deadline in A naming B's customer would otherwise email B's customer under A's name.
+          // 20261017020000 makes such a row impossible; this read refuses it on its own until that is applied.
           const { data: customer } = await supabase
             .from("customers")
             .select("name, email, unsubscribed_at, email_failed_at")
-            .eq("id", d.customer_id).maybeSingle();
+            .eq("id", d.customer_id).eq("business_id", d.business_id).maybeSingle();
           const verdict = maintenanceVerdict({ settings, customer, mailingAddress: business.mailing_address });
           if (!verdict.send && verdict.reason !== "no_mailing_address") continue;
           // ROADMAP 8.17 — a deadline belongs to a CUSTOMER rather than to
@@ -434,6 +468,11 @@ Deno.serve(async (req) => {
           // us. English for anybody who has never booked.
           const lang = await langForCustomer(d.customer_id);
           const dueOn = formatDateLong(d.due_on, lang);
+          const won = await supabase.from("maintenance_deadlines")
+            .update({ reminded_stage: stage + 1 }).eq("id", d.id).eq("reminded_stage", d.reminded_stage).select("id");
+          if (won.error) throw won.error;
+          if (!won.data?.length) continue; // another sweep claimed this stage first
+          claimed = true;
           if (!verdict.send) {
             // **NO ADDRESS: SKIPPED, RECORDED, NEVER A PLACEHOLDER.** The same
             // `skipped` row `send-email` writes for an undeliverable address,
@@ -448,11 +487,9 @@ Deno.serve(async (req) => {
               status: "skipped",
               detail: verdict.detail,
             });
-            // An unrecorded skip leaves the stage alone, so the next sweep
+            // An unrecorded skip gives the stage back, so the next sweep
             // tries to record it again rather than losing the reason.
             if (logged.error) throw new Error(`could not record the skip: ${logged.error.message}`);
-            await supabase.from("maintenance_deadlines")
-              .update({ reminded_stage: stage + 1 }).eq("id", d.id);
             results.push({ id: d.id, kind: "maintenance", sent: false, error: verdict.detail });
             continue;
           }
@@ -475,10 +512,11 @@ Deno.serve(async (req) => {
             }),
             "maintenance reminder",
           );
-          // STAMPED AFTER THE SEND AND ONLY ON SUCCESS, so a bounced relay
-          // leaves the stage where it was and the next sweep tries again. The
-          // alternative is a warranty lost because one email failed at four in
-          // the morning.
+          // KEPT ONLY ON SUCCESS: the stage was claimed before the send (ROADMAP
+          // 97.4; it used to be stamped after) and the `catch` gives it back,
+          // so a bounced relay leaves the stage where it was and the next sweep
+          // tries again. The alternative is a warranty lost because one email
+          // failed at four in the morning.
           //
           // **THIS COMMENT USED TO SAY `sendTenantEmail` THROWS ON A HARD
           // FAILURE. IT NEVER HAS.** It returns `false` and this call site
@@ -486,11 +524,15 @@ Deno.serve(async (req) => {
           // customer was never told about a deadline they had paid for. Same
           // fault, same file, same day as the customer reminder above; `mustSend`
           // is what makes the sentence true rather than aspirational.
-          await supabase.from("maintenance_deadlines")
-            .update({ reminded_stage: stage + 1 }).eq("id", d.id);
           results.push({ id: d.id, kind: "maintenance", sent: true });
         } catch (e) {
-          results.push({ id: d.id, kind: "maintenance", sent: false, error: String(e) });
+          let error = String(e);
+          if (claimed) {
+            const back = await supabase.from("maintenance_deadlines")
+              .update({ reminded_stage: d.reminded_stage }).eq("id", d.id).eq("reminded_stage", stage + 1);
+            if (back.error) error += ` / could not give the stage back, so the next sweep will not retry it: ${back.error.message}`;
+          }
+          results.push({ id: d.id, kind: "maintenance", sent: false, error });
         }
       }
     }
@@ -510,48 +552,53 @@ Deno.serve(async (req) => {
         const tz = business.timezone;
         if (hourIn(tz) < settings.daily_digest_hour) continue;
         const today = dateStrIn(tz);
-        const { data: existing } = await supabase
-          .from("owner_daily_digest_state")
-          .select("sent_at")
-          .eq("business_id", business.id)
-          .eq("digest_date", today)
-          .maybeSingle();
-        if (existing?.sent_at) continue;
+        // ROADMAP 97.4 — today's row is CLAIMED before the push rather than
+        // written after it: inserted only if no sweep has inserted it yet, so
+        // of two overlapping sweeps one gets it back and the other moves on.
+        // A failed push deletes our own row so the next sweep tries again.
+        const stamp = new Date().toISOString();
+        const won = await supabase.from("owner_daily_digest_state").upsert(
+          { business_id: business.id, digest_date: today, sent_at: stamp },
+          { onConflict: "business_id,digest_date", ignoreDuplicates: true },
+        ).select("business_id");
+        if (won.error) throw won.error;
+        if (!won.data?.length) continue;
 
-        const dayStart = new Date();
-        const { data: todays } = await supabase
-          .from("bookings")
-          .select("id, customer_name, start_at, end_at, total_price")
-          .eq("business_id", business.id)
-          .neq("status", "cancelled")
-          .is("deleted_at", null)
-          .gte("start_at", new Date(dayStart.getTime() - 24 * 3600_000).toISOString())
-          .lte("start_at", new Date(dayStart.getTime() + 24 * 3600_000).toISOString());
-        const jobsToday = (todays || []).filter((b) => dateStrIn(tz, new Date(b.start_at)) === today);
-        if (jobsToday.length > 0) {
-          jobsToday.sort((a, b) => a.start_at.localeCompare(b.start_at));
-          const first = jobsToday[0];
-          await sendOwnerPush(business.id, {
-            title: `Today: ${jobsToday.length} job${jobsToday.length === 1 ? "" : "s"}`,
-            body: jobsToday
-              .map((b) => `${formatTime12hr(timeStrIn(tz, new Date(b.start_at)))} ${b.customer_name}`)
-              .join(" · "),
-            url: `/job/${first.id}`,
-            tag: `digest-${today}`,
-          });
+        try {
+          const dayStart = new Date();
+          const { data: todays } = await supabase
+            .from("bookings")
+            .select("id, customer_name, start_at, end_at, total_price")
+            .eq("business_id", business.id)
+            .neq("status", "cancelled")
+            .is("deleted_at", null)
+            .gte("start_at", new Date(dayStart.getTime() - 24 * 3600_000).toISOString())
+            .lte("start_at", new Date(dayStart.getTime() + 24 * 3600_000).toISOString());
+          const jobsToday = (todays || []).filter((b) => dateStrIn(tz, new Date(b.start_at)) === today);
+          if (jobsToday.length > 0) {
+            jobsToday.sort((a, b) => a.start_at.localeCompare(b.start_at));
+            const first = jobsToday[0];
+            await sendOwnerPush(business.id, {
+              title: `Today: ${jobsToday.length} job${jobsToday.length === 1 ? "" : "s"}`,
+              body: jobsToday
+                .map((b) => `${formatTime12hr(timeStrIn(tz, new Date(b.start_at)))} ${b.customer_name}`)
+                .join(" · "),
+              url: `/job/${first.id}`,
+              tag: `digest-${today}`,
+            });
+          }
+        } catch (e) {
+          await supabase.from("owner_daily_digest_state").delete()
+            .eq("business_id", business.id).eq("digest_date", today).eq("sent_at", stamp);
+          throw e;
         }
-        await supabase.from("owner_daily_digest_state").upsert(
-          { business_id: business.id, digest_date: today, sent_at: new Date().toISOString() },
-          { onConflict: "business_id,digest_date" },
-        );
       } catch (e) {
         console.error("digest failed for business", business.id, e);
       }
     }
 
-    // Aggregate counts only. This endpoint is unauthenticated by necessity —
-    // the scheduler cannot carry the service-role key without that key being
-    // committed in a migration — and in this system a booking's UUID IS the
+    // Aggregate counts only. The sweep is public at the gateway (pg_cron has no
+    // session; since ROADMAP 97.3 it must carry `x-cron-secret`), and in this system a booking's UUID IS the
     // credential for its receipt, cancel and reschedule pages. Returning ids
     // here would let anyone poll the sweep and harvest them. Per-booking
     // detail, including errors, goes to the function log instead.
@@ -582,6 +629,7 @@ Deno.serve(async (req) => {
     }
     return json({ success: true, count: results.length, summary });
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error(manual ? "manual reminder failed" : "reminder sweep failed", err);
+    return json({ error: manual ? (err as Error).message : "The reminder sweep failed." }, 500);
   }
 });

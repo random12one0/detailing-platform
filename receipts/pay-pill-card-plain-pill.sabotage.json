@@ -1,0 +1,154 @@
+{
+  "git_sha": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
+  "git_sha_started": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T14:45:37.160Z",
+  "failures": [
+    "refunded @ 390x844 · the card's payment pill says \"Refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded @ 390x844 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded @ 768x1024 · the card's payment pill says \"Refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded @ 768x1024 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded @ 1440x900 · the card's payment pill says \"Refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded @ 1440x900 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 390x844 · the card's payment pill says \"Part refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 390x844 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 768x1024 · the card's payment pill says \"Part refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 768x1024 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 1440x900 · the card's payment pill says \"Part refunded\" — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "part-refunded @ 1440x900 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Paid\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 390x844 · the card's payment pill says \"Devuelto\" — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 390x844 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 768x1024 · the card's payment pill says \"Devuelto\" — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 768x1024 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 1440x900 · the card's payment pill says \"Devuelto\" — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}",
+    "refunded-es @ 1440x900 · the pill is NOT the green Paid one — {\"dim\":\"1\",\"pill\":\"Pagado\",\"paid\":true,\"pills\":1,\"inside\":true,\"hit\":true}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.80/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "frozen_now": "2026-10-17T14:44:00.000Z",
+    "widths": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "break": "plain-pill",
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 768,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 768,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 1440,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 390,
+        "pill": "Pagado",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-es-390x844.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 768,
+        "pill": "Pagado",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-es-768x1024.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 1440,
+        "pill": "Pagado",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-refunded-es-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 390,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 768,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 1440,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/break-plain-pill-today-card-paid-1440x900.png"
+      }
+    ]
+  },
+  "check_id": "pay-pill-card-plain-pill",
+  "started_at": "2026-10-17T14:44:57.251Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 96,
+  "min_assertions": 72,
+  "canary": {
+    "id": "break-plain-pill",
+    "observed_failure": true
+  }
+}

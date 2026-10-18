@@ -36,8 +36,17 @@
 // a capped campaign. The cap goes up when the platform has its own Resend
 // account (roadmap 2.18's open thread, and 2.20 prices it).
 //
-// Input: { business_id, customer_ids: string[], subject, message }
-// Output: { sent, no_email, unsubscribed, failed, capped }
+// AND A FIFTH, ROADMAP 97.19: THE DAY, AND THE PRESS. The 50 above is per
+// press, and nothing stopped a second press or a second campaign from spending
+// every other detailer's confirmations. `claim_email_send` now gives each
+// business a daily campaign share and keeps headroom only booking mail may
+// spend (migration 20261017200000). Here, each press carries an id the modal
+// made once, and it is recorded in `campaign_presses` before the first email —
+// the same press arriving twice gets a 409 and sends nothing. When the day's
+// share runs out the loop stops, and the rest come back as `held`.
+//
+// Input: { business_id, customer_ids: string[], subject, message, press_id }
+// Output: { sent, no_email, unsubscribed, failed, capped, held }
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -83,6 +92,10 @@ Deno.serve(async (req) => {
 
     const ids = Array.isArray(body.customer_ids) ? body.customer_ids.map(String) : [];
     if (ids.length === 0) return json({ error: "Nobody was chosen to send to." }, 400);
+    const pressId = String(body.press_id ?? "");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pressId)) {
+      return json({ error: "Reload the page and try again." }, 400);
+    }
 
     const business = await businessById(member.businessId);
     if (!business) return json({ error: "unknown_business" }, 404);
@@ -126,9 +139,21 @@ Deno.serve(async (req) => {
     const site = await siteFor(supabase, business.id);
     const bookUrl = businessSiteUrl(site, business.slug);
 
+    // ROADMAP 97.19 — ONE PRESS, ONE SEND. Recorded after every check that can
+    // refuse the press and before the first email, so a refused press can be
+    // pressed again and a press that started cannot run twice.
+    const { error: pressErr } = await supabase
+      .from("campaign_presses")
+      .insert({ business_id: business.id, press_id: pressId });
+    if (pressErr?.code === "23505") {
+      return json({ error: "This email was already sent. Nothing was sent twice." }, 409);
+    }
+    if (pressErr) throw pressErr;
+
     let sent = 0;
     let failed = 0;
-    for (const c of recipients) {
+    let held = 0;
+    for (const [i, c] of recipients.entries()) {
       // ROADMAP 8.17 — ONLY THE CHROME FOLLOWS THE READER. The subject and
       // the message are the detailer's own words in whatever language they
       // typed them; the greeting, the button and the legal footer are ours.
@@ -142,16 +167,25 @@ Deno.serve(async (req) => {
         unsubscribeUrl: unsubscribeUrl(site, c.id),
         mailingAddress,
       }, await langForCustomer(c.id));
+      let dailyCap = false;
       const ok = await sendTenantEmail({
         businessId: business.id,
         to: String(c.email).trim(),
         subject: mail.subject,
         html: mail.html,
         text: mail.text,
+        campaign: true,
+        onDailyCap: () => { dailyCap = true; },
       });
+      // TODAY'S SHARE IS SPENT: every address after this one would be refused
+      // the same way, so stop and say how many are waiting for tomorrow.
+      if (dailyCap) {
+        held = recipients.length - i;
+        break;
+      }
       if (ok) sent++;
       else failed++;
-      if (recipients.indexOf(c) < recipients.length - 1) {
+      if (i < recipients.length - 1) {
         await new Promise((r) => setTimeout(r, GAP_MS));
       }
     }
@@ -174,6 +208,7 @@ Deno.serve(async (req) => {
       bounced,
       capped: Math.max(0, eligible.length - recipients.length),
       cap: CAMPAIGN_MAX,
+      held,
     });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

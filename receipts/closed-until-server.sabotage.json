@@ -1,0 +1,36 @@
+{
+  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T06:45:18.345Z",
+  "failures": [
+    "3d . saved: the phone changed and the job did not move - got 409 {\"error\":\"We're away until October 27. Please choose October 27 or a later date.\"} phone undefined"
+  ],
+  "warnings": [
+    "The handlers run in-process against a fake Supabase in this file, not the live database; it proves the functions' own decisions."
+  ],
+  "artifacts": [
+    "receipts/closed-until-server.sabotage-unmoved.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.17",
+    "break": "unmoved"
+  },
+  "check_id": "closed-until-server",
+  "started_at": "2026-10-18T06:45:17.953Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 11,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 14,
+  "assertion_floor": "12 scenario checks (3 handlers x before/on/after, a second business on create and reschedule, the unmoved edit) + 2 run checks = 14, + the 2 canary checks on a clean run = 16, every check() unconditional (docs/gotchas.md 98).",
+  "canary": {
+    "id": "pre-fix-away-booking",
+    "observed_failure": true,
+    "what": "CLOSED_BREAK=guard cuts the closed_until guard from _shared/slotValidation.ts as it loads"
+  }
+}

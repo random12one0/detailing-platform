@@ -1,0 +1,22 @@
+card-payment-settles BREAK=no-amount — 2026-10-16T16:02:01.519Z
+ok    R2 · completed session still unpaid (bank transfer pending): want leave, got leave
+ok    R2 · completed session with no payment_status at all: want leave, got leave
+FAIL  R3 · paid $1.00 on a $150 job: want amount, got settle
+FAIL  R3 · paid $200 on a $150 job (overpaid also differs): want amount, got settle
+ok    R3 · right number, wrong currency (EUR): want currency, got currency
+FAIL  R3 · the quote paid after the detailer agreed $120: want amount, got settle
+ok    R4 · paid exactly $150: want settle, got settle
+ok    R4 · paid the agreed $120 (final_amount wins): want settle, got settle
+ok    R4 · $19.99 rounds to 1999 cents, not 1998: want settle, got settle
+ok    intent · succeeded for $150: want settle, got settle
+ok    intent · still processing: want leave, got leave
+FAIL  intent · succeeded for $1.00 on a $150 job: want amount, got settle
+FAIL  R3 · paid $1.00 on a $150 job — expected amount, got settle
+FAIL  R3 · paid $1.00 on a $150 job — the problem names both figures
+FAIL  R3 · paid $200 on a $150 job (overpaid also differs) — expected amount, got settle
+FAIL  R3 · paid $200 on a $150 job (overpaid also differs) — the problem names both figures
+FAIL  R3 · the quote paid after the detailer agreed $120 — expected amount, got settle
+FAIL  R3 · the quote paid after the detailer agreed $120 — the problem names both figures
+FAIL  intent · succeeded for $1.00 on a $150 job — expected amount, got settle
+FAIL  intent · succeeded for $1.00 on a $150 job — the problem names both figures
+25 passed, 8 failed, 33 assertions, 12 of 12 fixtures.

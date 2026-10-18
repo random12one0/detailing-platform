@@ -1,0 +1,134 @@
+{
+  "git_sha": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
+  "git_sha_started": "bc15097eab4c5c3aee72d5ddb5cc4a350cc6b859",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T14:46:24.461Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.80/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "frozen_now": "2026-10-17T14:45:00.000Z",
+    "widths": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "pill": "Refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 768,
+        "pill": "Refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "pill": "Refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "pill": "Part refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 768,
+        "pill": "Part refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 1440,
+        "pill": "Part refunded",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 390,
+        "pill": "Devuelto",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-es-390x844.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 768,
+        "pill": "Devuelto",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-es-768x1024.png"
+      },
+      {
+        "scenario": "refunded-es",
+        "width": 1440,
+        "pill": "Devuelto",
+        "green": false,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-refunded-es-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 390,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 768,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 1440,
+        "pill": "Paid",
+        "green": true,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.80/png/today-card-paid-1440x900.png"
+      }
+    ]
+  },
+  "check_id": "pay-pill-card",
+  "started_at": "2026-10-17T14:45:45.861Z",
+  "status": "pass",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 84,
+  "min_assertions": 72,
+  "canary": {
+    "id": "unrefunded-job-stays-green-paid",
+    "observed_failure": true
+  }
+}

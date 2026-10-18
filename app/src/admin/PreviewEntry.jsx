@@ -16,7 +16,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
-import { leavePreview, setPreviewMode } from "../lib/preview.js";
+import { leavePreview, setPreviewEnds, setPreviewMode } from "../lib/preview.js";
+
+// ROADMAP 97.15: the server hands over NO refresh token, so the session dies with its access
+// token. supabase-js will not hold a session without one, so it holds this; refreshing it fails
+// and signs the tab out, which is the right ending anyway.
+const NO_REFRESH = "none";
+const ENDED = {
+  expired: "Their dashboard closed after 30 minutes. Open it again from the back office if you need more time.",
+  closed: "You have left their dashboard.",
+};
 
 export default function PreviewEntry() {
   const [error, setError] = useState("");
@@ -35,17 +44,24 @@ export default function PreviewEntry() {
     const go = () => {
       if (used.current) return;
       const q = new URLSearchParams(window.location.hash.slice(1));
+      if (q.get("ended")) { used.current = true; leavePreview(); setError(q.get("ended") === "expired" ? "expired" : "closed"); return; }
       const token = q.get("token");
-      const at = q.get("at"), rt = q.get("rt");
-      if (!token && !(at && rt)) return;
+      const at = q.get("at");
+      if (!token && !at) return;
       used.current = true;
+      // The server's deadline; an older server sends none, and the view still ends at 30 minutes.
+      setPreviewEnds(Date.parse(q.get("exp") || "") || Date.now() + 30 * 60_000);
       try { sessionStorage.setItem("dp.preview.who", q.get("who") || ""); } catch { /* private mode */ }
       setPreviewMode("look");   // every preview starts unable to change anything
-      // ROADMAP 4.3c: `at`/`rt` is a session the server already exchanged and
+      // ROADMAP 4.3c: `at` is a session the server already exchanged and
       // marked read-only; `token` is the older server's one-time link token.
-      const enter = at && rt
-        ? supabase.auth.setSession({ access_token: at, refresh_token: rt })
-        : supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" });
+      const enter = at
+        ? supabase.auth.setSession({ access_token: at, refresh_token: NO_REFRESH })
+        // 97.15 review fix 6: the older server's link puts a REAL refresh token in the tab, so it is
+        // swapped for the placeholder at once — this tab cannot renew on either path.
+        : supabase.auth.verifyOtp({ token_hash: token, type: "magiclink" }).then(({ data, error: e }) => e || !data?.session
+          ? { error: e || new Error("The link did not open a session.") }
+          : supabase.auth.setSession({ access_token: data.session.access_token, refresh_token: NO_REFRESH }));
       enter.then(({ error: e }) => {
         if (e) { setError(e.message); return; }
         // replace, not push: the token is spent, so Back must not return here.
@@ -104,15 +120,15 @@ export default function PreviewEntry() {
         <p style={{ margin: 0 }}>
           {error === "nothing"
             ? "This page is opened from the back office, not by typing the address."
-            : error || "Opening their dashboard…"}
+            : ENDED[error] || error || "Opening their dashboard…"}
         </p>
         {error && (
           // A REAL NAVIGATION, NOT A ROUTER PUSH. `isPreviewTab` is read once
           // at module load, so only a fresh document clears it — `nav("/app")`
           // would leave the tab still believing it is a preview.
-          <a href="/app" style={{ display: "inline-block", marginTop: 16, color: "inherit" }}>
-            Back to your dashboard
-          </a>
+          ENDED[error]
+            ? <a href="/admin" style={{ display: "inline-block", marginTop: 16, color: "inherit" }}>Back to the back office</a>
+            : <a href="/app" style={{ display: "inline-block", marginTop: 16, color: "inherit" }}>Back to your dashboard</a>
         )}
       </div>
     </div>

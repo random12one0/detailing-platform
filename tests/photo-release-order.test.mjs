@@ -252,8 +252,11 @@ test("5 · doorMarkers parses the real photo-door.js and throws when it cannot",
 // it. They are the only place this file reads the repo's current state.
 test("6 · the repo's own flags and public list still match what PRE assumes", () => {
   const src = readFileSync(DOOR_SRC, "utf8");
-  assert.match(src, /export const RECEIPTS_VIA_DOOR = false;/,
-    "RECEIPTS_VIA_DOOR is still false — if this fails, the flag was flipped: run "
+  // Flipped ON 2026-10-13 (0.11cc, b92bdb21) on Andrew's instruction. The live reading this line asked for
+  // came first: receipts/photo-release-order.json at e58b0dc7 has app-flag-before-door PASS, flags_on 2
+  // (ROADMAP 98.5).
+  assert.match(src, /export const RECEIPTS_VIA_DOOR = true;/,
+    "RECEIPTS_VIA_DOOR is true — if this fails, the flag was flipped back: run "
     + "`node scripts/photo-release-order.mjs` and read app-flag-before-door before changing this line");
   // Flipped ON 2026-10-10 (0.11bc2) once the door was published and the address bound.
   assert.match(src, /export const MEDIA_VIA_DOOR = true;/, "MEDIA_VIA_DOOR is true");

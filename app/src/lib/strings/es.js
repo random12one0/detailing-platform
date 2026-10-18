@@ -44,7 +44,7 @@
 // believe every key here is discovered.
 
 export const es = {
-  "Your booking is saved, but we couldn't save your text choice. Try again to save it.": "Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto. Inténtalo de nuevo para guardarla.",
+  "Your booking is saved, but we couldn't save your text choice.": "Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto.",
   "Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.": "Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.",
   "Privacy": "Privacidad",
   "Terms": "Términos",
@@ -304,6 +304,8 @@ export const es = {
     "Nadie más puede tomarla mientras revisamos tu solicitud. Te escribimos a {email} en cuanto se acepte.",
   "We’ve emailed your confirmation to {email}.":
     "Te enviamos la confirmación a {email}.",
+  "The link to view, change or cancel it is in your confirmation email.":
+    "El enlace para ver, cambiar o cancelarla está en tu correo de confirmación.",
   "What you asked for": "Lo que pediste",
   "Your appointment": "Tu cita",
   "We’ll come to {address}": "Vamos a {address}",
@@ -335,6 +337,11 @@ export const es = {
   "We couldn't confirm the price. Please go back a step and try again.":
     "No pudimos confirmar el precio. Regresa un paso e inténtalo de nuevo.",
   "We couldn't complete that booking.": "No pudimos completar esa reserva.",
+  // ROADMAP 97.8 — the server's total moved while they were booking.
+  "The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.":
+    "El precio cambió a {total} mientras reservabas. Todavía no hay nada reservado. Revisa el nuevo total y vuelve a confirmar.",
+  "Your first car is booked. The price for car {n} changed to {total}, so it was not booked. Please book it separately.":
+    "Tu primer carro está reservado. El precio del carro {n} cambió a {total}, así que no se reservó. Resérvalo por separado.",
 
   // ── The picker itself ──────────────────────────────────────────────────
   "Language": "Idioma",

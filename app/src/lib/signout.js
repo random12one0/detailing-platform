@@ -25,6 +25,7 @@ import { supabase, supabaseAnonKey, supabaseUrl } from "./supabase.js";
 import { endParkedSessions } from "./accounts.js";
 import { endImpersonation } from "./impersonation.js";
 import { forgetJobs } from "./offlineJobs.js";
+import { leavePreview } from "./preview.js";
 
 /**
  * Sign out of everything this browser holds: the impersonation breadcrumb, the
@@ -40,4 +41,16 @@ export async function signOutEverything() {
   forgetJobs();
   await endParkedSessions(supabaseUrl, supabaseAnonKey);
   return supabase.auth.signOut();
+}
+
+// ROADMAP 97.15 — THE PREVIEW TAB'S DOOR, deliberately not signOutEverything. A preview tab's
+// session is a support view in its own drawer (sessionStorage); the parked accounts, the
+// impersonation note and the offline jobs belong to the back office's tab next door, so ending
+// them from here would sign the owner out of things he never asked to leave. This ends the view
+// at Auth (its token then stops working there, and the database's read rule follows Auth), and
+// scope "local" is THIS session only — the default, "global", would sign the detailer out of
+// every device they are on.
+export async function endPreview() {
+  await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+  leavePreview();
 }

@@ -156,8 +156,10 @@ export default function DetailerPanel({ row, detail, ctx }) {
     try {
       const out = await call({ action: "impersonate", business_id: row.id });
       const who = `who=${encodeURIComponent(row.name)}`;
-      if (out.access_token && out.refresh_token) {
-        tab.location.replace(`/preview#at=${encodeURIComponent(out.access_token)}&rt=${encodeURIComponent(out.refresh_token)}&${who}`);
+      // ROADMAP 97.15: the access token and its deadline only. An older server also sends a
+      // refresh token; it is not passed on, so the view cannot outlive its hour.
+      if (out.access_token) {
+        tab.location.replace(`/preview#at=${encodeURIComponent(out.access_token)}&exp=${encodeURIComponent(out.expires_at || "")}&${who}`);
       } else {
         const token = out.url && new URL(out.url).searchParams.get("token");
         if (!token) throw new Error("The server did not send back a usable link.");

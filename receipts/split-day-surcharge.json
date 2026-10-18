@@ -1,0 +1,34 @@
+{
+  "git_sha": "bc2de230bc32fd2774317f96731521fc69248855",
+  "git_sha_started": "bc2de230bc32fd2774317f96731521fc69248855",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T06:54:20.509Z",
+  "failures": [],
+  "warnings": [
+    "Both handlers run in-process with the database stood in; pricing.ts and tz.ts are real. The deployed functions are not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/split-day-surcharge.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.7",
+    "break": null
+  },
+  "check_id": "split-day-surcharge",
+  "started_at": "2026-10-18T06:54:20.387Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 11,
+  "min_assertions": 11,
+  "assertion_floor": "2 orders x 4 + 2 unpicked/same-day + 1 canary = 11, every check() unconditional; targets are Monday-then-Saturday, Saturday-then-Monday, and car 2 with no day yet.",
+  "canary": {
+    "id": "no-car-date-payload",
+    "observed_failure": true,
+    "what": "Monday + Saturday priced from the payload without car 2's own date quotes $400, the defect's own figure"
+  }
+}

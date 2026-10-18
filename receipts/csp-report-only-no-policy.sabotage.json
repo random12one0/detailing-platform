@@ -1,0 +1,250 @@
+{
+  "git_sha": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "git_sha_started": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T11:41:21.825Z",
+  "failures": [
+    "header/@390: no Content-Security-Policy-Report-Only header",
+    "header/pricing@390: no Content-Security-Policy-Report-Only header",
+    "header/book/demo-detail@390: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@390: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@390: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@390: no Content-Security-Policy-Report-Only header",
+    "header/ex1@390: no Content-Security-Policy-Report-Only header",
+    "header/@768: no Content-Security-Policy-Report-Only header",
+    "header/pricing@768: no Content-Security-Policy-Report-Only header",
+    "header/book/demo-detail@768: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@768: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@768: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@768: no Content-Security-Policy-Report-Only header",
+    "header/ex1@768: no Content-Security-Policy-Report-Only header",
+    "header/@1440: no Content-Security-Policy-Report-Only header",
+    "header/pricing@1440: no Content-Security-Policy-Report-Only header",
+    "header/book/demo-detail@1440: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@1440: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@1440: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@1440: no Content-Security-Policy-Report-Only header",
+    "header/ex1@1440: no Content-Security-Policy-Report-Only header"
+  ],
+  "warnings": [
+    "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
+    "Report-only: a violation is printed, never blocked. Data-driven image hosts (a detailer's stored logo or photo address) are only seen on the rows the demo tenant has."
+  ],
+  "artifacts": [
+    ".manager-shots/97.26/no-policy/home-390.png",
+    ".manager-shots/97.26/no-policy/pricing-390.png",
+    ".manager-shots/97.26/no-policy/book-demo-detail-390.png",
+    ".manager-shots/97.26/no-policy/app-390.png",
+    ".manager-shots/97.26/no-policy/app-staff-390.png",
+    ".manager-shots/97.26/no-policy/app-business-390.png",
+    ".manager-shots/97.26/no-policy/ex1-390.png",
+    ".manager-shots/97.26/no-policy/home-768.png",
+    ".manager-shots/97.26/no-policy/pricing-768.png",
+    ".manager-shots/97.26/no-policy/book-demo-detail-768.png",
+    ".manager-shots/97.26/no-policy/app-768.png",
+    ".manager-shots/97.26/no-policy/app-staff-768.png",
+    ".manager-shots/97.26/no-policy/app-business-768.png",
+    ".manager-shots/97.26/no-policy/ex1-768.png",
+    ".manager-shots/97.26/no-policy/home-1440.png",
+    ".manager-shots/97.26/no-policy/pricing-1440.png",
+    ".manager-shots/97.26/no-policy/book-demo-detail-1440.png",
+    ".manager-shots/97.26/no-policy/app-1440.png",
+    ".manager-shots/97.26/no-policy/app-staff-1440.png",
+    ".manager-shots/97.26/no-policy/app-business-1440.png",
+    ".manager-shots/97.26/no-policy/ex1-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/",
+      "/pricing",
+      "/book/demo-detail",
+      "/app~owner",
+      "/app~staff",
+      "/app/business~owner+domain",
+      "/ex1"
+    ],
+    "tenant_domain": "https://csp-tenant-domain.test",
+    "item": "97.26",
+    "break": "no-policy",
+    "origin": "http://127.0.0.1:55772"
+  },
+  "check_id": "csp-report-only-no-policy",
+  "started_at": "2026-10-18T11:39:16.563Z",
+  "status": "fail",
+  "expected_targets": 21,
+  "discovered_targets": 21,
+  "attempted_targets": 21,
+  "completed_targets": 21,
+  "skipped_targets": 0,
+  "assertions_executed": 81,
+  "min_assertions": 81,
+  "assertion_floor": "2 /book/* header + 1 canary + 21 views x 3 (header, events, console) + 3 sizes x 5 (booking last step, 3 signed in, 1 preview from the detailer's domain) = 81, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "unlisted-image-host-reported",
+    "observed_failure": true
+  },
+  "observed": {
+    "views": {
+      "/@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@390": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@390": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/ex1@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@768": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@768": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/ex1@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@1440": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@1440": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/ex1@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      }
+    },
+    "canary": {
+      "events": 1,
+      "console": 1
+    },
+    "book": {
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
+    }
+  }
+}

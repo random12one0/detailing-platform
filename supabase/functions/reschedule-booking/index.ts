@@ -12,7 +12,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
-import { validateSlot } from "../_shared/slotValidation.ts";
+import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { buildBrand, extraVehiclesFor, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { rescheduleEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
@@ -103,20 +103,25 @@ Deno.serve(async (req) => {
     const oldDateStr = dateStrIn(tz, new Date(booking.start_at));
     const oldStartTime = timeStrIn(tz, new Date(booking.start_at));
 
+    // ROADMAP 97.18 — through move_booking_checked, which locks the new day
+    // and re-runs the cap and buffer rules in the same transaction as the
+    // move, so two moves into one day cannot both pass the check above.
     const { data: moved, error } = await supabase
-      .from("bookings")
-      .update({ start_at: check.startAt!.toISOString(), end_at: check.endAt!.toISOString() })
-      .eq("id", booking.id)
-      .eq("business_id", business.id)
-      // Only from the time the checks above read, so of two concurrent
-      // presses exactly one moves it and sends the notices.
-      .eq("start_at", booking.start_at)
-      .select()
+      .rpc("move_booking_checked", {
+        p_id: booking.id,
+        p_business: business.id,
+        p_patch: { start_at: check.startAt!.toISOString(), end_at: check.endAt!.toISOString() },
+        // Only from the time the checks above read, so of two concurrent
+        // presses exactly one moves it and sends the notices.
+        p_from_start: booking.start_at,
+      })
       .maybeSingle();
     if (error) {
       if (error.code === "23P01") {
         return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
       }
+      const dayRule = dayRuleRefusal(error.code);
+      if (dayRule) return json({ error: dayRule }, 409);
       throw error;
     }
     if (!moved) {

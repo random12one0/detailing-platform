@@ -15,7 +15,7 @@ const SERVER_ONLY = process.argv.includes('--server-only');
 // no Before there is nothing to pair an After with, so say so and skip it.
 const REVIEW = !BEFORE && existsSync(OUT + '/before.html');
 const BREAK = process.argv.find(a => a.startsWith('--break='))?.slice(8) || '';
-if (BREAK && !['default', 'save', 'strict', 'privacy', 'half'].includes(BREAK)) throw Error('Unknown break');
+if (BREAK && !['default', 'save', 'strict', 'privacy', 'half', 'retry-screen'].includes(BREAK)) throw Error('Unknown break');
 const WORDS = 'Text me about my appointment. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.';
 const ES = 'Envíame mensajes de texto sobre mi cita. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajes y datos. Responde STOP para dejar de recibir mensajes o HELP para obtener ayuda.';
 const fontCache = new Map();
@@ -42,6 +42,13 @@ async function routes(page, {failFirst = false} = {}) {
   await page.route('**/*', async route => {
     const req = route.request(), url = new URL(req.url());
     if (url.origin === BASE) {
+      if (BREAK === 'retry-screen' && /\/src\/book\/BookingPage\.jsx/.test(url.pathname)) {
+        // 97.2's pre-fix page: the retry's three-column answer shown as-is.
+        const response = await route.fetch(), src = await response.text();
+        const changed = src.replace('r.duplicate ? retryConfirmation(r.booking, payloads[0], quote) : r.booking', 'r.booking');
+        if (changed === src) throw Error('Retry-screen sabotage did not land');
+        return route.fulfill({ response, body: changed });
+      }
       if (BREAK === 'default' && /\/src\/book\/core\.js/.test(url.pathname)) {
         const response = await route.fetch(), src = await response.text();
         const changed = src.replace('smsConsent: false,', 'smsConsent: true,');
@@ -53,6 +60,16 @@ async function routes(page, {failFirst = false} = {}) {
         const changed = src.replace('Mobile information is not sold or shared with third parties for marketing or promotional purposes.', 'Mobile information may be shared.');
         if (changed === src) throw Error('Privacy sabotage did not land');
         return route.fulfill({ response, body: changed + '\nwindow.__privacyBreak = true;' });
+      }
+      // A belt job copy's server has no app/.env.local, so the app has no
+      // Supabase address and crashes on load (seen 2026-10-16, 97.2). Every
+      // request it would make is answered below from the fixture, so a
+      // placeholder address is all it needs. Never a key: none is read here.
+      if (/\/src\/lib\/(api|supabase)\.js$/.test(url.pathname)) {
+        const response = await route.fetch(), src = await response.text();
+        if (!src.includes('"VITE_SUPABASE_URL":')) return route.fulfill({ response, body: src
+          .replaceAll('import.meta.env.VITE_SUPABASE_URL', '"https://fixture.supabase.invalid"')
+          .replaceAll('import.meta.env.VITE_SUPABASE_ANON_KEY', '"fixture-anon"') });
       }
       return route.continue();
     }
@@ -89,7 +106,8 @@ async function routes(page, {failFirst = false} = {}) {
       }
       if (outcome.status !== 200) throw Error('Local handler: ' + JSON.stringify(outcome));
       const customer = fixture.rows.customers.find(r => r.business_id === 'tenant-a');
-      check('browser handler writes consent only when checked', payload.sms_consent === true ? customer?.sms_consent_source === 'booking_form' : !customer?.sms_consent_at);
+      // 97.2: a duplicate answer (the retry after a failed save) writes none.
+      check('browser handler writes consent only when checked', outcome.data.duplicate ? !customer?.sms_consent_at : payload.sms_consent === true ? customer?.sms_consent_source === 'booking_form' : !customer?.sms_consent_at);
       check('browser handler leaves other tenant alone', !fixture.rows.customers.find(r => r.business_id === 'tenant-b').sms_consent_at);
       check('browser handler takes email path', fixture.sends.length === 1);
       body = outcome.data;
@@ -129,7 +147,7 @@ try {
     const page = await ctx.newPage(), logs = [];
     page.on('console', m => ['error','warning'].includes(m.type()) && logs.push(m.text()));
     page.on('pageerror', e => logs.push(e.message));
-    const failFirst = !BEFORE && choice === 'checked' && [1440,392].includes(width);
+    const failFirst = !BEFORE && choice === 'checked' && [1440,768,390,392].includes(width);
     const network = await routes(page,{failFirst});
     try {
       // One navigation per context, including sabotage (gotcha 113).
@@ -205,14 +223,37 @@ try {
       await page.waitForTimeout(450);
       await page.locator('.bk-bar .bk-btn.primary').click();
       if (failFirst) {
-        const message = lang === 'en' ? "Your booking is saved, but we couldn't save your text choice. Try again to save it." : 'Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto. Inténtalo de nuevo para guardarla.';
+        // 97.2: a retry no longer saves the choice, so the sentence no longer offers one.
+        const message = lang === 'en' ? "Your booking is saved, but we couldn't save your text choice." : 'Tu reserva está guardada, pero no pudimos guardar tu elección de mensajes de texto.';
         await page.locator('.bk-error').filter({hasText:message}).waitFor();
-        check(`${tag} refusal says booking saved and offers retry`,(await page.locator('.bk-error').textContent()) === message);
+        check(`${tag} refusal says booking saved`,(await page.locator('.bk-error').textContent()) === message);
         await page.locator('.bk-error').scrollIntoViewIfNeeded(); await photograph(page,'save-failed-' + tag);
         await page.locator('.bk-bar .bk-btn.primary').click();
       }
       await page.locator('.bk-header .tagline').filter({ hasText: lang === 'en' ? 'Booking confirmed' : 'Reserva confirmada' }).waitFor({ timeout: 5000 });
       check(`${tag} booking completes`, network.calls.length === (failFirst ? 2 : 1));
+      if (failFirst) {
+        // 97.2: the second press is answered as a duplicate (id, start_at,
+        // status only); the screen must still show the real day, times, price
+        // and manage link, filled from what the page sent.
+        const card = await page.locator('.bk-card').last().innerText(), link = await page.locator('a.bk-btn:not(.primary)').first().getAttribute('href');
+        const asked = network.calls[1]?.booking_date || '', day = String(Number(asked.slice(8)));
+        const heading = await page.locator('.bk-card h3').last().innerText();
+        check(`${tag} retry screen shows the appointment`, new RegExp(`\\b${day}\\b`).test(heading) && /10 AM/.test(card) && /11 AM/.test(card) && /\$185/.test(card) && !/Invalid|NaN|undefined/.test(card), `${asked} | ${card}`);
+        // 97.64: the retry carries the first press's booking_ref, which is the id.
+        check(`${tag} retry screen links to manage page`, !!network.calls[0]?.booking_ref && network.calls[1]?.booking_ref === network.calls[0].booking_ref && link === `/booking/${network.calls[0].booking_ref}`, String(link));
+        check(`${tag} retry left consent unsaved`, !network.fixture.rows.customers.find(r => r.business_id === 'tenant-a')?.sms_consent_at);
+        await photograph(page, 'retry-confirmed-' + tag);
+        // 97.2's review pair for Andrew, outside the repo: Before is the
+        // pre-fix page (--break=retry-screen), After the fixed one.
+        if (tag === 'en-390-checked' && (!BREAK || BREAK === 'retry-screen')) {
+          const before = BREAK === 'retry-screen';
+          await freeze(page, { out: `C:/Users/rando/Downloads/claude/belt/shots/97.2/${before ? 'before' : 'after'}.html`, label: before ? 'Before' : 'After',
+            note: before ? 'Pressing Confirm a second time (a lost answer, a bad connection): the card has no date ("Invalid Date"), no times and no price.'
+              : 'The same second press: the card shows the real day, times and price, and the manage link works.',
+            highlight: '.bk-card' });
+        }
+      }
       check(`${tag} one booking and one confirmation`,network.fixture.rows.bookings.length === 1 && network.fixture.sends.length === 1);
       check(`${tag} payload choice`, network.calls[0]?.sms_consent === expect, JSON.stringify({ choice, actual: network.calls[0]?.sms_consent }));
       check(`${tag} no consent remembered`, !JSON.parse(await page.evaluate(() => localStorage.getItem('bk.customer')) || '{}').smsConsent);
@@ -284,8 +325,10 @@ else {
     ['stopped checked', true, {existing:{sms_stopped_at:'2026-09-02T12:00:00Z'}}, true],
     ['member cannot claim booking consent', true, {member:{id:'owner'}}, false],
     ['slot refused', true, {refused:true}, false],
-    ['duplicate retry', true, {duplicate:true,existing:{}}, true],
-    ['insert collision retry', true, {collision:true,existing:{}}, true],
+    // 97.2 reversed these two: a duplicate answer is reachable by anybody with
+    // a name, a phone and a time, so it no longer writes consent.
+    ['duplicate retry', true, {duplicate:true,existing:{}}, false],
+    ['insert collision retry', true, {collision:true,existing:{}}, false],
     ['consent write failure', true, {failedWrite:true}, false],
     ['forged source and timestamp ignored', false, {}, false],
   ];

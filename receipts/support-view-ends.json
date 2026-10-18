@@ -1,0 +1,86 @@
+{
+  "git_sha": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
+  "git_sha_started": "03555d7b4afa735a550b4ad12fa10e8f3130c8ae",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T18:38:27.445Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-390x844.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-768x1024.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/open-1440x900.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.15/png/ended-1440x900.png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "expires_in_s": 25,
+    "results": [
+      {
+        "size": "390x844",
+        "scenario": "close",
+        "token_after": 403,
+        "own_after": 200
+      },
+      {
+        "size": "390x844",
+        "scenario": "real-server",
+        "token_after": 403
+      },
+      {
+        "size": "390x844",
+        "scenario": "expire",
+        "token_after": 403
+      },
+      {
+        "size": "768x1024",
+        "scenario": "close",
+        "token_after": 403,
+        "own_after": 200
+      },
+      {
+        "size": "768x1024",
+        "scenario": "real-server",
+        "token_after": 403
+      },
+      {
+        "size": "768x1024",
+        "scenario": "expire",
+        "token_after": 403
+      },
+      {
+        "size": "1440x900",
+        "scenario": "close",
+        "token_after": 403,
+        "own_after": 200
+      },
+      {
+        "size": "1440x900",
+        "scenario": "real-server",
+        "token_after": 403
+      },
+      {
+        "size": "1440x900",
+        "scenario": "expire",
+        "token_after": 403
+      }
+    ]
+  },
+  "check_id": "support-view-ends",
+  "started_at": "2026-10-17T18:35:28.544Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 50,
+  "min_assertions": 50,
+  "assertion_floor": "structural: one canary, one minute-job mechanism, ten per width for opening and closing, three for the deadline, three for the real server",
+  "canary": {
+    "id": "self-signed-out-session-reads-refused",
+    "observed_failure": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "git_sha": "0ce1cb402248e7482d92dad9a4cb9d6a20b45e06",
+  "git_sha_started": "0ce1cb402248e7482d92dad9a4cb9d6a20b45e06",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T03:57:48.565Z",
+  "failures": [],
+  "warnings": [
+    "STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md)."
+  ],
+  "artifacts": [
+    "artifacts/restore-nightly/report.dump.txt"
+  ],
+  "dimensions": {
+    "project": "unknown (a file given with --dump)",
+    "source": "file backup-2026-10-13.pgc, 23458 bytes",
+    "provenance": {
+      "kind": "file",
+      "name": "backup-2026-10-13.pgc",
+      "sha256": "sha256:118230402d178f825d4fcfc6eea69556827b97ace9f5833a1727a1256b38e917"
+    },
+    "target": "throwaway local Postgres, deleted after the run",
+    "accounts": 6,
+    "files": 9,
+    "rows": {
+      "auth.users": 6,
+      "public.bookings": 126,
+      "public.business_settings": 6,
+      "public.businesses": 6,
+      "public.customers": 42,
+      "storage.objects": 9
+    },
+    "privileges": {
+      "backup_statements": 21,
+      "backup_objects": 10,
+      "copy_statements": 21,
+      "copy_objects": 10,
+      "differences": 0,
+      "owner_statements_left_out": 0,
+      "outside_scope": 0
+    }
+  },
+  "check_id": "restore-nightly",
+  "started_at": "2026-10-18T03:57:41.917Z",
+  "status": "pass",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 28,
+  "min_assertions": 11,
+  "canary": {
+    "id": "altered-booking-text+undone-revoke",
+    "observed_failure": true,
+    "note": "rows caught: named: public.bookings: 126 rows, but their contents differ from the backup | privileges caught: undid `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;`; named: FUNCTION public.count_bookings(): the backup holds `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;` and the restored copy does not"
+  }
+}

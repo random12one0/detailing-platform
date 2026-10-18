@@ -1,0 +1,9 @@
+accept-quote-stale 2026-10-17T20:16:33.240Z break=race
+1 normal: 200 {"success":true,"booking":{"id":"b-ok","status":"confirmed","total_price":200}} | row confirmed 200
+2 stale: 409 {"error":"The price changed to $300 since this page was opened. Check the new price, then accept it if it suits you.","code":"quote_changed"} | wrote 0 | row pending 150
+3 none: 409 {"error":"The price changed to $200 since this page was opened. Check the new price, then accept it if it suits you.","code":"quote_changed"} | wrote 0
+4 past: 409 {"error":"This appointment's time has passed, so its price can no longer be accepted.","code":"appointment_passed"} | wrote 0
+5 race: 200 {"success":true,"duplicate":true,"booking":{"id":"b-race","status":"confirmed"}} | row pending 300
+6 again: 200 {"success":true,"duplicate":true,"booking":{"id":"b-again","status":"confirmed","total_price":200}} | wrote 0
+14 passed, 1 failed
+FAIL 5a . NOT answered as a success - got 200 {"success":true,"duplicate":true,"booking":{"id":"b-race","status":"confirmed"}}

@@ -30,7 +30,7 @@ import {
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, sizeAdjustmentFor,
   vehicleSizeFee, whenContextFor, zoneAddressMismatch,
 } from "../_shared/pricing.ts";
-import { validateSlot } from "../_shared/slotValidation.ts";
+import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
 import { buildBrand, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { money } from "../_shared/emailKit.ts";
@@ -46,9 +46,15 @@ import { saveBookingSmsConsent } from "../_shared/bookingConsent.ts";
  * ROADMAP 6.4 / F-022 — is this request a booking that already exists?
  *
  * Same business, same instant, same phone AND same name, not cancelled. The
- * name is there because the answer is the whole row, id included, and the id
- * is the key to the manage page: phone and time alone are things a stranger
- * can know. A retry sends the identical name, so it costs a real retry nothing.
+ * name is there because the answer carries the id, and the id is the key to
+ * the manage page: phone and time alone are things a stranger can know. A
+ * retry sends the identical name, so it costs a real retry nothing.
+ *
+ * ROADMAP 97.2 — AND THE ANSWER IS THREE COLUMNS, NEVER THE ROW. It used to be
+ * `select("*")`, so anybody holding a name, a phone and a time was handed the
+ * customer's email, home address and notes and the detailer's private
+ * `admin_notes`. The page fills the rest of its confirmation from what it
+ * just sent.
  */
 // ROADMAP 99.8 — the same rule as `phoneComplete` in `app/src/book/core.js`:
 // a US number counts with exactly 10 digits (a leading 1 dropped); a number
@@ -65,7 +71,7 @@ const phoneComplete = (v: unknown) => {
 const sameBooking = (businessId: string, startIso: string, body: Record<string, unknown>) =>
   supabase
     .from("bookings")
-    .select("*")
+    .select("id, start_at, status")
     .eq("business_id", businessId)
     .eq("start_at", startIso)
     .eq("customer_phone", String(body.customer_phone).trim())
@@ -73,6 +79,21 @@ const sameBooking = (businessId: string, startIso: string, body: Record<string, 
     .neq("status", "cancelled")
     .is("deleted_at", null)
     .maybeSingle();
+
+// ROADMAP 97.64 — THE ID GOES BACK ONLY TO THE PRESS THAT MADE IT. The page
+// sends a random `booking_ref` with its first press and the same one on every
+// retry, and the insert uses it as the booking's id. So "is this the original
+// press" is one comparison, with no column to add: a stranger who knows a
+// name, a phone and a time gets `start_at` and `status` and not the id, which
+// is the manage page's only key (`receiptUrl`: "the row's UUID is the
+// credential"). To get it they would have to guess the id itself.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const bookingRef = (body: Record<string, unknown>) =>
+  UUID.test(String(body.booking_ref ?? "")) ? String(body.booking_ref).toLowerCase() : null;
+const duplicateAnswer = (mine: { id: string }, body: Record<string, unknown>) => {
+  const { id, ...rest } = mine;
+  return { booking: id === bookingRef(body) ? mine : rest, duplicate: true };
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -134,6 +155,14 @@ Deno.serve(async (req) => {
     if (!body.customer_name?.trim()) return json({ error: "Customer name is required" }, 400);
     if (!body.customer_phone?.trim()) return json({ error: "Customer phone is required" }, 400);
     if (!phoneComplete(body.customer_phone)) return json({ error: "Customer phone number is incomplete" }, 400);
+    // ROADMAP 97.6 — A PLAN COVERS ONE CAR, SO IT RIDES THE FIRST BOOKING OF A
+    // SET AND NEVER A GROUPED ONE. Each grouped call is priced as its own
+    // one-car booking, so a plan here makes every car "the first car" and the
+    // whole set free. The form never sends it (`bookingRequests`); this stops a
+    // hand-made post doing it, before anything is read or written.
+    if (body.plan_id && body.group_with) {
+      return json({ error: "A plan covers the first car only. Book the other cars without it." }, 400);
+    }
     if (!body.booking_date) return json({ error: "Booking date is required" }, 400);
     if (!body.start_time) return json({ error: "Start time is required" }, 400);
     const serviceType = body.service_type === "dropoff" ? "dropoff" : "mobile";
@@ -192,9 +221,44 @@ Deno.serve(async (req) => {
       }
     }
 
-    const promoCode = body.applied_promo_code || null;
-    const promo = await resolvePromo(supabase, business.id, promoCode);
-    if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
+    // --- The booking this one belongs with (ROADMAP 8.10) — READ ONLY here;
+    // the group id is written just before the insert, further down.
+    //
+    // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
+    // checks a crafted id would staple somebody's booking onto a stranger's
+    // group — and a group is a set of appointments a customer is shown.
+    let sib: {
+      id: string; booking_group_id: string | null; applied_promo_code: string | null;
+      status: string; deleted_at: string | null; created_at: string;
+    } | null = null;
+    let samePerson = false;
+    if (body.group_with) {
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, booking_group_id, customer_email, customer_phone, applied_promo_code, status, deleted_at, created_at")
+        .eq("business_id", business.id)
+        .eq("id", String(body.group_with))
+        .maybeSingle();
+      sib = data;
+      const email = String(body.customer_email ?? "").trim().toLowerCase();
+      const phone = String(body.customer_phone ?? "").trim();
+      // EVERY IDENTIFIER THEY BOTH CARRY HAS TO AGREE, not just one of them.
+      // The first version accepted a match on EITHER, and the probe caught it
+      // immediately: two bookings made from the same household email but
+      // different phone numbers were put in one group. A form filling this in
+      // legitimately sends the identical customer fields both times, so the
+      // stricter reading costs the real case nothing.
+      //
+      // AND AT LEAST ONE COMPARISON MUST ACTUALLY HAVE HAPPENED — two rows
+      // with no address and no number in common would otherwise satisfy
+      // "nothing disagrees", which is the vacuous-check family in live code.
+      const emailOk = !data?.customer_email || !email
+        || String(data.customer_email).toLowerCase() === email;
+      const phoneOk = !data?.customer_phone || !phone
+        || String(data.customer_phone) === phone;
+      const compared = (!!data?.customer_email && !!email) || (!!data?.customer_phone && !!phone);
+      samePerson = !!data && compared && emailOk && phoneOk;
+    }
 
     // ROADMAP 2.14 STEP 3 — THE PLAN, RESOLVED HERE AND PRICED BY THE SAME
     // ENGINE. The client sends an id; the name, the kind and the amount all
@@ -223,6 +287,44 @@ Deno.serve(async (req) => {
     const size = vehicles[0];
     const vehicleSize = size.key;
     const extraVehicles = vehicles.slice(1);
+
+    // Capitals, as stored, so the sibling comparison below matches (97.23).
+    const promoCode = String(body.applied_promo_code ?? "").trim().toUpperCase() || null;
+    // ROADMAP 97.9 — ONE USE OF A CODE COVERS THE WHOLE SET OF CARS. The quote
+    // discounts every car of a different-day booking (`computeQuote`'s split
+    // branch), but each car is saved by its own call, so car 1 spent a
+    // one-use code and car 2 was refused — as "not valid" at the usage limit,
+    // or as "already used" by the once-per-customer check below. A grouped car
+    // whose sibling (same person, checked above) already carries THIS code
+    // shares that use: the limit and the once-per-customer check are not asked
+    // again and the counter is not bumped again.
+    //
+    // ONLY FOR THE SET BEING BOOKED RIGHT NOW. The page posts every car in one
+    // press, so the sibling is seconds old. An old or cancelled booking does not
+    // share: its id is in the customer's own receipt link, and without this a
+    // code used weeks ago could be used again by naming that booking.
+    //
+    // AND NO MORE CARS THAN ONE FORM COULD CARRY — counted as CARS, not rows,
+    // because a hand-made grouped call can carry `extra_vehicles` of its own.
+    // A failed count shares nothing.
+    let sharesGroupUse = false;
+    const fresh = !!sib && !sib.deleted_at && sib.status !== "cancelled"
+      // ponytail: fixed 30-minute window; the form's calls land seconds apart.
+      && Date.now() - new Date(sib.created_at).getTime() < 30 * 60 * 1000;
+    if (promoCode && samePerson && fresh && sib!.applied_promo_code === promoCode) {
+      const { data: rows, error: rowsErr } = sib!.booking_group_id
+        ? await supabase.from("bookings").select("id")
+          .eq("business_id", business.id).eq("booking_group_id", sib!.booking_group_id)
+        : { data: [{ id: sib!.id }], error: null };
+      const ids = (rows ?? []).map((r: { id: string }) => r.id);
+      const { data: more, error: moreErr } = await supabase.from("booking_vehicles").select("id")
+        .eq("business_id", business.id).in("booking_id", ids);
+      const cars = ids.length + (more?.length ?? 0) + vehicles.length;
+      sharesGroupUse = !rowsErr && !moreErr && ids.length > 0
+        && cars <= (Number(settings.max_vehicles_per_booking) || 1);
+    }
+    const promo = await resolvePromo(supabase, business.id, promoCode, { ignoreLimit: sharesGroupUse });
+    if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
     // ROADMAP 2.8c — travel and the time-based surcharges, resolved through the
     // SAME shared helpers the quote endpoint uses. The customer's own
     // travel_zone is a key, never a price: the fee comes off the business's
@@ -257,11 +359,29 @@ Deno.serve(async (req) => {
     // the gate and before any limit is spent, so a retry costs nothing.
     const asked = localDateTimeToInstant(business.timezone, String(body.booking_date), String(body.start_time).slice(0, 5));
     if (!Number.isNaN(asked.getTime())) {
+      // ROADMAP 97.2 — NO CONSENT WRITE HERE. This answer is reachable by
+      // anybody with a name, a phone and a time, so it must not be able to
+      // switch on texts for a customer who never ticked the box.
       const { data: mine } = await sameBooking(business.id, asked.toISOString(), body);
       if (mine) {
-        await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
-        return json({ booking: mine, duplicate: true });
+        return json(duplicateAnswer(mine, body));
       }
+    }
+
+    // ROADMAP 97.8 — NEVER CHARGE A PRICE THE PAGE DID NOT SHOW. The page
+    // sends the total it displayed; when this total differs (a rush fee that
+    // started while they typed, a rule the quote and this call read
+    // differently) the booking is refused before anything is written, and the
+    // page shows the new figure and asks again. AFTER the retry check above,
+    // so a lost answer still gets its booking back. A caller that sends no
+    // figure (the owner's dashboard) is priced exactly as before.
+    if (body.shown_total != null && Math.abs(Number(body.shown_total) - quote.total) > 0.005) {
+      return json({
+        error: "price_changed",
+        message: "The price changed while you were booking. Check the new total and confirm again.",
+        total: quote.total,
+        shown_total: Number(body.shown_total),
+      }, 409);
     }
 
     // --- The authoritative slot gate ---------------------------------------
@@ -286,7 +406,7 @@ Deno.serve(async (req) => {
 
     // Per-person promo limit (authoritative — the widget's early check is
     // advisory only).
-    if (promo?.once_per_customer) {
+    if (promo?.once_per_customer && !sharesGroupUse) {
       const email = String(body.customer_email || "").trim();
       const phone = String(body.customer_phone).trim();
       const [byEmail, byPhone] = await Promise.all([
@@ -404,35 +524,9 @@ Deno.serve(async (req) => {
     // partial failure leaves one real confirmed appointment rather than a
     // half-written group.
     //
-    // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
-    // checks a crafted id would staple somebody's booking onto a stranger's
-    // group — and a group is a set of appointments a customer is shown.
+    // The sibling was looked up and checked above, before the promo.
     let groupId: string | null = null;
-    if (body.group_with) {
-      const { data: sib } = await supabase
-        .from("bookings")
-        .select("id, booking_group_id, customer_email, customer_phone")
-        .eq("business_id", business.id)
-        .eq("id", String(body.group_with))
-        .maybeSingle();
-      const email = String(body.customer_email ?? "").trim().toLowerCase();
-      const phone = String(body.customer_phone ?? "").trim();
-      // EVERY IDENTIFIER THEY BOTH CARRY HAS TO AGREE, not just one of them.
-      // The first version accepted a match on EITHER, and the probe caught it
-      // immediately: two bookings made from the same household email but
-      // different phone numbers were put in one group. A form filling this in
-      // legitimately sends the identical customer fields both times, so the
-      // stricter reading costs the real case nothing.
-      //
-      // AND AT LEAST ONE COMPARISON MUST ACTUALLY HAVE HAPPENED — two rows
-      // with no address and no number in common would otherwise satisfy
-      // "nothing disagrees", which is the vacuous-check family in live code.
-      const emailOk = !sib?.customer_email || !email
-        || String(sib.customer_email).toLowerCase() === email;
-      const phoneOk = !sib?.customer_phone || !phone
-        || String(sib.customer_phone) === phone;
-      const compared = (!!sib?.customer_email && !!email) || (!!sib?.customer_phone && !!phone);
-      const samePerson = !!sib && compared && emailOk && phoneOk;
+    if (sib) {
       if (samePerson) {
         groupId = sib!.booking_group_id ?? crypto.randomUUID();
         if (!sib!.booking_group_id) {
@@ -448,9 +542,13 @@ Deno.serve(async (req) => {
     }
 
     // --- Insert. The exclusion constraint is the final, unbeatable guard. --
+    // ROADMAP 97.18 — through insert_booking_checked, which locks this
+    // business's day and re-runs the cap and buffer rules in the same
+    // transaction as the insert, so two bookings sent at once cannot both
+    // pass the check above. Only the keys sent are written, as before.
     const { data: booking, error: insertErr } = await supabase
-      .from("bookings")
-      .insert({
+      .rpc("insert_booking_checked", { p_row: {
+        ...(bookingRef(body) ? { id: bookingRef(body) } : {}),
         business_id: business.id,
         customer_id: customerId,
         booking_group_id: groupId,
@@ -552,12 +650,15 @@ Deno.serve(async (req) => {
         status: !member && (settings.booking_mode === "request" || planSignup)
           ? "pending"
           : "confirmed",
-      })
-      .select()
-      .single();
+      } });
 
     if (insertErr) {
-      if (insertErr.code === "23P01") {
+      // 23505 too: two presses racing with the same `booking_ref` can meet
+      // on the id before the overlap rule (97.64). And the day rules (97.18):
+      // the second of two identical presses now meets the first on the
+      // buffer, and is still owed its own booking back.
+      const dayRule = dayRuleRefusal(insertErr.code);
+      if (insertErr.code === "23P01" || insertErr.code === "23505" || dayRule) {
         // **THE OVERLAP MAY BE THEIR OWN BOOKING, AND UNTIL 2026-09-06 THIS
         // TOLD THEM A STRANGER HAD TAKEN IT** — testing loop F-022, found by
         // walking C7, the customer on a bad connection.
@@ -584,14 +685,14 @@ Deno.serve(async (req) => {
         // and already scopes the customer upsert by it; email is optional.
         const { data: mine } = await sameBooking(business.id, check.startAt!.toISOString(), body);
         if (mine) {
-          await saveBookingSmsConsent(supabase, business.id, mine.customer_id, body.sms_consent, member);
-          // The SAME shape a fresh booking returns, so the confirmation page
-          // and the emails behave identically — a retry must be
-          // indistinguishable from the first press, including for the
-          // customer who never knew there was one.
-          return json({ booking: mine, duplicate: true });
+          // ROADMAP 97.2 — three columns and no consent write, as above.
+          // A retry must still LOOK like the first press to the customer who
+          // never knew there was one: the page fills the date, times and
+          // price from what it just sent (BookingPage `submit`).
+          return json(duplicateAnswer(mine, body));
         }
-        return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
+        if (insertErr.code === "23P01") return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
+        if (dayRule) return json({ error: dayRule }, 409);
       }
       // **NOT `insertErr.message`.** That is a Postgres string — it names
       // columns, constraints and checks — and this endpoint is public, so it
@@ -666,7 +767,7 @@ Deno.serve(async (req) => {
     }
 
     // Promo usage counter — best-effort, never fails the booking.
-    if (promo) {
+    if (promo && !sharesGroupUse) {
       const { error: usageErr } = await supabase.rpc("increment_promo_usage", {
         p_business_id: business.id,
         p_code: promo.code,
@@ -767,7 +868,9 @@ Deno.serve(async (req) => {
     }
 
     // The booking and its email are already saved before a consent failure
-    // reaches the page. Both duplicate exits retry only the consent write.
+    // reaches the page. A retry does NOT save it: ROADMAP 97.2 took the
+    // consent write out of both duplicate exits, because a stranger can reach
+    // them.
     await saveBookingSmsConsent(supabase, business.id, customerId, body.sms_consent, member);
 
     return json({

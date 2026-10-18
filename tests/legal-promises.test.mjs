@@ -290,19 +290,19 @@ const LEDGER = [
     id: "domain-terms", where: "terms",
     phrase: "The domain is in your name.",
     backing: [
-      ["supabase/functions/verify-domain/index.ts", "platform-host.txt"],
+      ["supabase/functions/_shared/domainProof.ts", "platform-host.txt"],
       ["supabase/migrations/20260906000000_custom_domains.sql", "business_domains"],
     ],
   },
   {
     id: "domain-pricing", where: "pricing",
     phrase: "The domain is in your name and leaves with you.",
-    backing: [["supabase/functions/verify-domain/index.ts", "platform-host.txt"]],
+    backing: [["supabase/functions/_shared/domainProof.ts", "platform-host.txt"]],
   },
   {
     id: "domain-home", where: "home",
     phrase: "It's in your name and it leaves with you.",
-    backing: [["supabase/functions/verify-domain/index.ts", "platform-host.txt"]],
+    backing: [["supabase/functions/_shared/domainProof.ts", "platform-host.txt"]],
   },
 
   // ── THE FIGURES ARE COPIED AT SIGNUP AND NEVER READ AGAIN ───────────────
@@ -332,7 +332,9 @@ const DECLARED_ROWS = 16;
 // in DetailerPanel. § 4 prints it by name, and the NEXT unkept promise reddens
 // the run on arrival instead of fitting into a ceiling.
 const UNBACKED_IDS = ["buildfee-notice-terms"];
-const FETCH_SITES = 9;
+// 9 → 10, ROADMAP 97.13: verify-domain's one marker fetch moved into _shared/domainProof.ts and a second
+// call joined it — the DNS-over-HTTPS TXT lookup to cloudflare-dns.com, classified in privacy-processors.
+const FETCH_SITES = 10;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE PROCESSOR LIST — every host the edge functions name, classified
@@ -347,6 +349,14 @@ const HOSTS = {
   "translation.googleapis.com": { names: "Google's translation service" },
   "api.stripe.com": { names: "Stripe" },
   "connect.stripe.com": { names: "Stripe" },
+  // ROADMAP 100.6 — the public-photo cache purge in `_shared/mediaCache.ts`. It is sent our zone id, our
+  // token and ONE already-public `business-media` address (`<business id>/<folder>/<random id>.<ext>`) for a
+  // file Cloudflare already stores and serves. Nothing about any customer or visitor; named because it is
+  // the same company the page already names for photos.
+  "api.cloudflare.com": { names: "Cloudflare" },
+  // ROADMAP 97.13: verify-domain's DNS-over-HTTPS lookup of a detailer's proof record. It receives the hostname
+  // being checked and nothing about a person; Cloudflare is already named on /privacy.
+  "cloudflare-dns.com": { names: "Cloudflare" },
 
   "www.geoapify.com": { why: "the attribution LINK Geoapify's licence requires us to print; this product makes no request to it" },
   "www.openstreetmap.org": { why: "the same attribution line's second link, printed and never fetched" },

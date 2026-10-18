@@ -24,7 +24,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById, can, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessById, can, getSettings, ownLines, requireMember } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { requestDecisionEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -58,14 +58,16 @@ Deno.serve(async (req) => {
     // and without them `moneyBlock` prints a total with no lines under it. The
     // embed is `accept-quote`'s and `send-invoice`'s, character for character,
     // because three spellings of one join is how they start to disagree.
-    const { data: booking } = await supabase
+    const { data: found } = await supabase
       .from("bookings")
-      .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
+      .select("*, services:booking_services(business_id, name_at_booking), add_ons:booking_add_ons(business_id, add_on:add_ons(name))")
       .eq("id", body.booking_id)
       .eq("business_id", member.businessId)
       .is("deleted_at", null)
       .maybeSingle();
-    if (!booking) return json({ error: "Booking not found" }, 404);
+    if (!found) return json({ error: "Booking not found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the customer.
+    const booking = ownLines(found);
     // ROADMAP 6.4 — THE SAME ANSWER, PRESSED AGAIN AFTER IT LANDED. Before
     // this the retry was told "not waiting to be accepted" about a request it
     // had itself just accepted, which reads as failure to a detailer in a
@@ -74,7 +76,12 @@ Deno.serve(async (req) => {
       (action === "accept" && booking.status === "confirmed")
       || (action === "decline" && booking.status === "cancelled" && !!booking.declined_at);
     if (already) return json({ success: true, duplicate: true, booking });
-    if (booking.status !== "pending") {
+    // ROADMAP 97.24 — A DECLINED REQUEST CAN STILL BE ACCEPTED, HERE AND ONLY
+    // HERE. `update-booking` refuses to un-cancel one, because that left
+    // `declined_at` set and told the customer nothing. Accepting it after all
+    // is the same answer as accepting it the first time, with the same email.
+    const declined = booking.status === "cancelled" && !!booking.declined_at;
+    if (booking.status !== "pending" && !(action === "accept" && declined)) {
       return json({ error: "This booking is not waiting to be accepted." }, 409);
     }
 
@@ -85,7 +92,7 @@ Deno.serve(async (req) => {
       // to the price the customer already has. Leaving a stale `quoted_amount`
       // on a confirmed booking would put a second number on the record with no
       // rule saying which one is charged.
-      update = { status: "confirmed", quoted_amount: null, quoted_note: null, quoted_at: null };
+      update = { status: "confirmed", quoted_amount: null, quoted_note: null, quoted_at: null, declined_at: null };
     } else if (action === "decline") {
       // 'cancelled' is what frees the slot and what every existing filter
       // already understands; `declined_at` is the one fact it cannot carry.
@@ -110,10 +117,12 @@ Deno.serve(async (req) => {
       // Only from the state read above: of two concurrent presses one
       // answers and emails, the other finds nothing to change. For a quote
       // that includes the quote already on it, so two quotes are not sent.
-      .eq("status", "pending")
+      .eq("status", booking.status)
       .filter("quoted_at", booking.quoted_at === null ? "is" : "eq", booking.quoted_at)
       .select()
       .maybeSingle();
+    // A declined request's slot was freed, so somebody else may have it now.
+    if (error?.code === "23P01") return json({ error: "That time overlaps another booking." }, 409);
     if (error) throw error;
     if (!updated) {
       const { data: now } = await supabase.from("bookings").select("*").eq("id", booking.id).maybeSingle();

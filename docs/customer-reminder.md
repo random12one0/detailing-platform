@@ -78,6 +78,12 @@ asked by the Clients count, by `send-campaign`, and by the maintenance reminder
 retried every fifteen minutes until the appointment: **about forty-eight sends
 of a hundred-a-day allowance for one broken booking.**
 
+**CORRECTED 2026-10-17 (ROADMAP 97.21): "OPTED OUT" WAS NEVER ONE OF THEM.** `unsubscribed_at` is the
+marketing opt-out, and the unsubscribe page promises that booking mail still arrives. Filtering on it
+here meant a customer who unsubscribed from a come-back email stopped getting appointment reminders.
+Migration `20261017220000` removes it from both reminder functions; no address and a bounce still
+exclude. Proved on a throwaway database by `tests/reminder-ignores-unsubscribe-sql.test.mjs`.
+
 ---
 
 ## WHAT CHANGED

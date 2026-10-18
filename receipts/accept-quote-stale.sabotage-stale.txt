@@ -1,0 +1,13 @@
+accept-quote-stale 2026-10-17T20:16:32.447Z break=stale
+1 normal: 200 {"success":true,"booking":{"id":"b-ok","status":"confirmed","total_price":200}} | row confirmed 200
+2 stale: 200 {"success":true,"booking":{"id":"b-stale","status":"confirmed","total_price":300}} | wrote 1 | row confirmed 300
+3 none: 200 {"success":true,"booking":{"id":"b-none","status":"confirmed","total_price":200}} | wrote 1
+4 past: 409 {"error":"This appointment's time has passed, so its price can no longer be accepted.","code":"appointment_passed"} | wrote 0
+5 race: 409 {"error":"The price on this booking just changed. Reload the page to see it.","code":"quote_changed"} | row pending 300
+6 again: 200 {"success":true,"duplicate":true,"booking":{"id":"b-again","status":"confirmed","total_price":200}} | wrote 0
+10 passed, 5 failed
+FAIL 2a . refused (409) - got 200 {"success":true,"booking":{"id":"b-stale","status":"confirmed","total_price":300}}
+FAIL 2b . with a plain reason naming the new price
+FAIL 2c . and nothing was written: still pending at $150 - got wrote 1, confirmed 300
+FAIL 3a . refused (409) with a plain reason - got 200 {"success":true,"booking":{"id":"b-none","status":"confirmed","total_price":200}}
+FAIL 3b . and nothing was written - got wrote 1

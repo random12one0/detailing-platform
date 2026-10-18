@@ -153,7 +153,6 @@ const CASES = [
   ["testimonials", { author: "Sam", quote: "Great work", rating: 5 }, { rating: 4 }, "is_active"],
   ["message_templates", { key: "owner_test_tpl", label: "Owner test", body: "See you {{date}}" }, { label: "Owner test 2" }, "delete"],
   ["customers", { name: "Walk-in Wendy", phone: "555-0100" }, { email: "wendy@owner.test" }, "delete"],
-  ["business_domains", { domain: "ownerwrites.example" }, { domain: "ownerwrites2.example" }, "delete"],
 ];
 
 for (const [table, row, patch, retire] of CASES) {
@@ -177,6 +176,22 @@ for (const [table, row, patch, retire] of CASES) {
     check(`${table}: owner can DELETE`, del.status === 200 && (del.data ?? []).length === 1,
       `${del.status} ${JSON.stringify(del.data).slice(0, 160)}`);
   }
+}
+
+// ROADMAP 97.13 — business_domains is ADD-THROUGH-THE-FUNCTION and DELETE-DIRECT: the owner may no longer
+// insert or rename a row (refused in the columns block below), but removing one stays theirs. The row is
+// added the way verify-domain adds it, under the service role, and the owner's own session removes it.
+// `exercised` is filled only when that DELETE actually removed one row, so test 7 cannot count the table
+// on a promise.
+const exercised = new Set();
+{
+  const d = (await svc.post("/rest/v1/business_domains",
+    [{ business_id: biz.id, domain: "owner-writes-remove.test" }])).data?.[0];
+  const del = d ? await as("DELETE", `/rest/v1/business_domains?id=eq.${d.id}`) : { status: 0 };
+  const removed = del.status === 200 && (del.data ?? []).length === 1;
+  check("business_domains: owner can DELETE (97.13 keeps removal direct)", removed,
+    `${del.status} ${JSON.stringify(del.data).slice(0, 160)}`);
+  if (removed) exercised.add("business_domains");
 }
 
 // business_hours is keyed (business_id, weekday) and has no id column: the
@@ -294,6 +309,7 @@ console.log("test 7: no owner-writable table is missing from this suite");
     "business_branding", "business_settings", "businesses", "business_users",
     "business_invites", "bookings", "booking_services", "booking_line_items",
     "business_hours",
+    ...exercised,
     ...CASES.map(([t]) => t),
   ]);
   const expected = [
@@ -366,6 +382,18 @@ console.log("\ncolumns an owner may not write, measured rather than read");
   const domAfter = (await svc.get(`/rest/v1/business_domains?id=eq.${dom.id}&select=verified_at`)).data[0];
   check("business_domains.verified_at cannot be stamped by the detailer",
     domAfter.verified_at === null, `${stamp.status} → ${domAfter.verified_at}`);
+
+  // ROADMAP 97.13 — business_domains LEFT the owner-writes CASES table on purpose: an owner may no
+  // longer INSERT a row (it could carry verified_at) or rename one (it kept the badge). Adding goes
+  // through verify-domain. RED UNTIL migration 20261018010000 is applied to the live database.
+  const ins = await rest("POST", "/rest/v1/business_domains",
+    { key: ANON, jwt: owner.jwt, body: [{ business_id: biz.id, domain: "owner-writes-stamped.test", verified_at: new Date().toISOString() }] });
+  check("business_domains: the owner cannot INSERT a row directly (97.13)", ins.status >= 400, `${ins.status}`);
+  await rest("PATCH", `/rest/v1/business_domains?id=eq.${dom.id}`,
+    { key: ANON, jwt: owner.jwt, body: { domain: "owner-writes-renamed.test" } });
+  const renamed = (await svc.get(`/rest/v1/business_domains?id=eq.${dom.id}&select=domain`)).data[0];
+  check("business_domains: the owner cannot rename a row directly (97.13)",
+    renamed.domain === "owner-writes-probe.test", renamed.domain);
 }
 
 await svc.del(`/rest/v1/businesses?id=eq.${biz.id}`);

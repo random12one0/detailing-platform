@@ -1,0 +1,17 @@
+plan-one-car-split 2026-10-16T15:30:48.279Z break=quote-every-car
+  ok    1a · 3 cars on one day is $400 (one car covered)
+  FAIL  1b · 3 cars on 3 days quotes the same $400 - got 0
+  FAIL  1c · exactly one plan line on the split quote - got [{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}},{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}},{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}}]
+  ok    2a · three calls, one per car
+  ok    2b · the plan rides car 1
+  ok    2c · cars 2 and 3 carry no plan
+  FAIL  2d · the saved total is the same $400 the quote showed - got 400
+  ok    2e · canary: plan-on-every-car payloads are caught ($0, not $400)
+  ok    3a · a plan on a grouped row is refused with 400
+  ok    3b · and nothing was read or written first
+  ok    3c · car 1 with its plan still books
+  ok    3d · a grouped row without a plan still books
+9 passed, 3 failed
+FAIL 1b · 3 cars on 3 days quotes the same $400 - got 0
+FAIL 1c · exactly one plan line on the split quote - got [{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}},{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}},{"label":"Monthly · included","amount":-200,"source":"plan","parts":{"of":"plan","planName":"Monthly","benefit":"included"}}]
+FAIL 2d · the saved total is the same $400 the quote showed - got 400

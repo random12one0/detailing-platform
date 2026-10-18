@@ -42,11 +42,13 @@ const PUBLIC_FUNCTIONS = new Set([
   // email. Same access model as the two above: the booking UUID is the
   // credential, and there is no session on that page.
   "accept-quote",
+  // ROADMAP 97.3 — THE FOUR SCHEDULED JOBS BELOW are public at the gateway only
+  // because pg_cron has no session. Each now refuses any call without the
+  // `x-cron-secret` header (`_shared/cronAuth.ts`), so public here no longer
+  // means anyone can run them.
   "send-owner-reminders", // scheduled sweep; manual mode still checks membership itself
-  // THE WEATHER SWEEP, and public for the same reason the sweep above is: pg_cron
-  // calls it with no session. A caller who hammers it can only make it write the
-  // forecast a scheduled run would have written minutes later — no message, no
-  // slot, no money on the other side of it.
+  // THE WEATHER SWEEP, public for the same reason the sweep above is: pg_cron
+  // calls it with no session (and the cron secret, since 97.3).
   "refresh-weather",
   "photo-reconcile", // ROADMAP 0.11 slice 6: pg_cron calls it nightly with no session, like the weather sweep above
   "send-email",           // internal relay; gates itself on the service-role key
@@ -87,12 +89,8 @@ const PUBLIC_FUNCTIONS = new Set([
   // rather than reading it. It only ever UPDATES a row it already sent, so a
   // signed event for an unknown message id changes nothing.
   "resend-webhook",
-  // ROADMAP 8.12 — the dead man's switch, called by `pg_cron` with no header
-  // for exactly the reason `send-owner-reminders` above is: the only key that
-  // would satisfy a check is the service-role key, and that must never be
-  // written into a committed migration. What a stranger can make it do is
-  // bounded by `claim_job_alerts` — it sends only what a scheduled run minutes
-  // later would have sent, once, and a second call sends nothing.
+  // ROADMAP 8.12 — the dead man's switch, called by `pg_cron` with no session,
+  // like `send-owner-reminders` above. Since 97.3 it needs the cron secret too.
   "watch-jobs",
 ]);
 

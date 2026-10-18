@@ -1,0 +1,46 @@
+{
+  "git_sha": "678bb3070a5b61d81b0622e81efbc660850484ba",
+  "git_sha_started": "678bb3070a5b61d81b0622e81efbc660850484ba",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T22:22:49.184Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/reminder-reset-markers-sql/results.txt"
+  ],
+  "dimensions": {
+    "migration": "20261017230000_reminder_reset_covers_every_marker.sql",
+    "cleared": {
+      "move_start": "own,cus,cu2,nud,wra,fin,req",
+      "move_end": "own,cus,cu2,nud,wra,fin,req",
+      "rename": "own,cus",
+      "reprice": "own,cus",
+      "status": "",
+      "notes": ""
+    },
+    "before_cleared": {
+      "move_start": "own,cus,nud,wra,fin",
+      "move_end": "own,cus,nud,wra,fin",
+      "rename": "own,cus",
+      "reprice": "own,cus",
+      "status": "",
+      "notes": ""
+    }
+  },
+  "check_id": "reminder-reset-markers-sql",
+  "started_at": "2026-10-17T22:22:41.603Z",
+  "status": "pass",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
+  "skipped_targets": 0,
+  "assertions_executed": 8,
+  "min_assertions": 8,
+  "assertion_floor": "structural: one UPDATE per scenario over seven stamped markers, plus the trigger count",
+  "canary": {
+    "id": "pre-97.22-move-keeps-cu2-and-req",
+    "observed_failure": true
+  }
+}

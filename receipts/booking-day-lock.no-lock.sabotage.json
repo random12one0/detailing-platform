@@ -1,0 +1,136 @@
+{
+  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T06:47:50.309Z",
+  "failures": [
+    "race-cap: B was not refused as day-full (exit 0)",
+    "race-cap: 3 bookings on a cap-2 day",
+    "race-cap: B answered in 138ms, so it never waited for A's lock",
+    "race-buffer: B was not refused as too-close (exit 0)",
+    "race-buffer: 2 saved, 20 minutes apart on a 45-minute buffer",
+    "race-move: B's move was not refused as day-full (exit 0)",
+    "race-move: 3 bookings on a cap-2 day after two moves"
+  ],
+  "warnings": [
+    "Throwaway local Postgres built by replaying all 135 files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.",
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
+  ],
+  "artifacts": [
+    "artifacts/booking-day-lock/run.no-lock.json"
+  ],
+  "dimensions": {
+    "break": "no-lock",
+    "item": "97.18",
+    "postgres": "17.8",
+    "migrations_replayed": 135,
+    "r4_ms": 5
+  },
+  "check_id": "booking-day-lock.no-lock",
+  "started_at": "2026-10-18T06:46:57.309Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 29,
+  "min_assertions": 29,
+  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 6 real payload, 4 speed; every check() unconditional.",
+  "canary": {
+    "id": "plain-insert-beats-cap-and-buffer",
+    "observed_failure": true
+  },
+  "observed": {
+    "real-schema": {
+      "id": "real-schema",
+      "migrations_replayed": 135,
+      "migrations_in_folder": 135,
+      "bookings_columns": 63,
+      "bookings_triggers": "bookings_link_plan,bookings_updated_at,reset_reminder_markers_on_edit",
+      "execute": {
+        "anon": "ff",
+        "authenticated": "ff",
+        "service_role": "tt"
+      }
+    },
+    "defect-cap": {
+      "id": "defect-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "bookings_on_cap_2_day": 3
+    },
+    "defect-buffer": {
+      "id": "defect-buffer",
+      "a_exit": 0,
+      "b_exit": 0,
+      "saved": 2
+    },
+    "race-cap": {
+      "id": "race-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 138,
+      "bookings_on_cap_2_day": 3
+    },
+    "race-buffer": {
+      "id": "race-buffer",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 78,
+      "saved": 2
+    },
+    "race-move-cap": {
+      "id": "race-move-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "b_error": "",
+      "b_waited_ms": 104,
+      "bookings_on_cap_2_day": 3
+    },
+    "ordinary-and-exemptions": {
+      "id": "ordinary-and-exemptions",
+      "returned": "confirmed|true|true|null|pending|small|0",
+      "second_exit": 0
+    },
+    "fence-holds": {
+      "id": "fence-holds",
+      "exit": 0,
+      "rows": "0",
+      "unchanged": "t"
+    },
+    "real-payload": {
+      "id": "real-payload",
+      "create_booking_keys": 34,
+      "as_sent": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true
+      },
+      "filled": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true,
+        "stored_empty": null
+      },
+      "move": {
+        "keys": 22,
+        "same_row": true,
+        "stored_empty": null
+      }
+    },
+    "speed": {
+      "id": "speed",
+      "n_each": 300,
+      "plain_median_ms": 0.991,
+      "plain_p95_ms": 1.413,
+      "checked_median_ms": 1.321,
+      "checked_p95_ms": 1.911,
+      "extra_median_ms": 0.33,
+      "extra_p95_ms": 0.498
+    }
+  }
+}

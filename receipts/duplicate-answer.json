@@ -1,0 +1,73 @@
+{
+  "git_sha": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
+  "git_sha_started": "5aa1d0f3f5b2c1603e1de9d9468f373500e52b37",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T00:44:28.006Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/duplicate-answer/clean.json"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/create-booking/index.ts"
+  },
+  "check_id": "duplicate-answer",
+  "started_at": "2026-10-17T00:44:27.882Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 67,
+  "min_assertions": 66,
+  "canary": {
+    "id": "pre-97.2-select-star-consent-write-and-id-to-anybody",
+    "observed_failure": true,
+    "reported": [
+      {
+        "exit": "before the slot gate",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an overlap collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an id collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      }
+    ]
+  }
+}

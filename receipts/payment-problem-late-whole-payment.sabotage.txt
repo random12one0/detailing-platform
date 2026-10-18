@@ -1,0 +1,1216 @@
+  ok    a demo job was found to open
+  ok    failed @ 1440x900 · the job's read was fed
+  ok    failed @ 1440x900 · the sabotage landed once and RAN
+  ok    failed @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed @ 1440x900 · the red line is there
+  ok    failed @ 1440x900 · it says "A bank payment of $150 did not go through, so this"
+  ok    failed @ 1440x900 · inside the screen
+  ok    failed @ 1440x900 · painted on top (hit test lands on it)
+  ok    failed @ 1440x900 · console clean
+  ok    failed @ 768x1024 · the job's read was fed
+  ok    failed @ 768x1024 · the sabotage landed once and RAN
+  ok    failed @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed @ 768x1024 · the red line is there
+  ok    failed @ 768x1024 · it says "A bank payment of $150 did not go through, so this"
+  ok    failed @ 768x1024 · inside the screen
+  ok    failed @ 768x1024 · painted on top (hit test lands on it)
+  ok    failed @ 768x1024 · console clean
+  ok    failed @ 390x844 · the job's read was fed
+  ok    failed @ 390x844 · the sabotage landed once and RAN
+  ok    failed @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed @ 390x844 · the red line is there
+  ok    failed @ 390x844 · it says "A bank payment of $150 did not go through, so this"
+  ok    failed @ 390x844 · inside the screen
+  ok    failed @ 390x844 · painted on top (hit test lands on it)
+  ok    failed @ 390x844 · console clean
+  ok    failed @ 320x700 · the job's read was fed
+  ok    failed @ 320x700 · the sabotage landed once and RAN
+  ok    failed @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed @ 320x700 · the red line is there
+  ok    failed @ 320x700 · it says "A bank payment of $150 did not go through, so this"
+  ok    failed @ 320x700 · inside the screen
+  ok    failed @ 320x700 · painted on top (hit test lands on it)
+  ok    failed @ 320x700 · console clean
+  ok    extra @ 1440x900 · the job's read was fed
+  ok    extra @ 1440x900 · the sabotage landed once and RAN
+  ok    extra @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    extra @ 1440x900 · the red line is there
+  ok    extra @ 1440x900 · it says "Another payment of $150 came in after this job was"
+  ok    extra @ 1440x900 · it says "Refund it from your own Stripe."
+  ok    extra @ 1440x900 · inside the screen
+  ok    extra @ 1440x900 · painted on top (hit test lands on it)
+  ok    extra @ 1440x900 · console clean
+  ok    extra @ 768x1024 · the job's read was fed
+  ok    extra @ 768x1024 · the sabotage landed once and RAN
+  ok    extra @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    extra @ 768x1024 · the red line is there
+  ok    extra @ 768x1024 · it says "Another payment of $150 came in after this job was"
+  ok    extra @ 768x1024 · it says "Refund it from your own Stripe."
+  ok    extra @ 768x1024 · inside the screen
+  ok    extra @ 768x1024 · painted on top (hit test lands on it)
+  ok    extra @ 768x1024 · console clean
+  ok    extra @ 390x844 · the job's read was fed
+  ok    extra @ 390x844 · the sabotage landed once and RAN
+  ok    extra @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    extra @ 390x844 · the red line is there
+  ok    extra @ 390x844 · it says "Another payment of $150 came in after this job was"
+  ok    extra @ 390x844 · it says "Refund it from your own Stripe."
+  ok    extra @ 390x844 · inside the screen
+  ok    extra @ 390x844 · painted on top (hit test lands on it)
+  ok    extra @ 390x844 · console clean
+  ok    extra @ 320x700 · the job's read was fed
+  ok    extra @ 320x700 · the sabotage landed once and RAN
+  ok    extra @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    extra @ 320x700 · the red line is there
+  ok    extra @ 320x700 · it says "Another payment of $150 came in after this job was"
+  ok    extra @ 320x700 · it says "Refund it from your own Stripe."
+  ok    extra @ 320x700 · inside the screen
+  ok    extra @ 320x700 · painted on top (hit test lands on it)
+  ok    extra @ 320x700 · console clean
+  ok    spanish @ 1440x900 · the job's read was fed
+  ok    spanish @ 1440x900 · the sabotage landed once and RAN
+  ok    spanish @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    spanish @ 1440x900 · the red line is there
+  ok    spanish @ 1440x900 · it says "Llegó otro pago de $150 después de que este trabaj"
+  ok    spanish @ 1440x900 · inside the screen
+  ok    spanish @ 1440x900 · painted on top (hit test lands on it)
+  ok    spanish @ 1440x900 · console clean
+  ok    spanish @ 768x1024 · the job's read was fed
+  ok    spanish @ 768x1024 · the sabotage landed once and RAN
+  ok    spanish @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    spanish @ 768x1024 · the red line is there
+  ok    spanish @ 768x1024 · it says "Llegó otro pago de $150 después de que este trabaj"
+  ok    spanish @ 768x1024 · inside the screen
+  ok    spanish @ 768x1024 · painted on top (hit test lands on it)
+  ok    spanish @ 768x1024 · console clean
+  ok    spanish @ 390x844 · the job's read was fed
+  ok    spanish @ 390x844 · the sabotage landed once and RAN
+  ok    spanish @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    spanish @ 390x844 · the red line is there
+  ok    spanish @ 390x844 · it says "Llegó otro pago de $150 después de que este trabaj"
+  ok    spanish @ 390x844 · inside the screen
+  ok    spanish @ 390x844 · painted on top (hit test lands on it)
+  ok    spanish @ 390x844 · console clean
+  ok    spanish @ 320x700 · the job's read was fed
+  ok    spanish @ 320x700 · the sabotage landed once and RAN
+  ok    spanish @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    spanish @ 320x700 · the red line is there
+  ok    spanish @ 320x700 · it says "Llegó otro pago de $150 después de que este trabaj"
+  ok    spanish @ 320x700 · inside the screen
+  ok    spanish @ 320x700 · painted on top (hit test lands on it)
+  ok    spanish @ 320x700 · console clean
+  ok    failed-refund @ 1440x900 · the job's read was fed
+  ok    failed-refund @ 1440x900 · the sabotage landed once and RAN
+  ok    failed-refund @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed-refund @ 1440x900 · the red line is there
+  ok    failed-refund @ 1440x900 · it says "A bank payment of $150 did not go through"
+  ok    failed-refund @ 1440x900 · it says "Another payment of $150 came in after this job was"
+  ok    failed-refund @ 1440x900 · inside the screen
+  ok    failed-refund @ 1440x900 · painted on top (hit test lands on it)
+  ok    failed-refund @ 1440x900 · console clean
+  ok    failed-refund @ 768x1024 · the job's read was fed
+  ok    failed-refund @ 768x1024 · the sabotage landed once and RAN
+  ok    failed-refund @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed-refund @ 768x1024 · the red line is there
+  ok    failed-refund @ 768x1024 · it says "A bank payment of $150 did not go through"
+  ok    failed-refund @ 768x1024 · it says "Another payment of $150 came in after this job was"
+  ok    failed-refund @ 768x1024 · inside the screen
+  ok    failed-refund @ 768x1024 · painted on top (hit test lands on it)
+  ok    failed-refund @ 768x1024 · console clean
+  ok    failed-refund @ 390x844 · the job's read was fed
+  ok    failed-refund @ 390x844 · the sabotage landed once and RAN
+  ok    failed-refund @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed-refund @ 390x844 · the red line is there
+  ok    failed-refund @ 390x844 · it says "A bank payment of $150 did not go through"
+  ok    failed-refund @ 390x844 · it says "Another payment of $150 came in after this job was"
+  ok    failed-refund @ 390x844 · inside the screen
+  ok    failed-refund @ 390x844 · painted on top (hit test lands on it)
+  ok    failed-refund @ 390x844 · console clean
+  ok    failed-refund @ 320x700 · the job's read was fed
+  ok    failed-refund @ 320x700 · the sabotage landed once and RAN
+  ok    failed-refund @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    failed-refund @ 320x700 · the red line is there
+  ok    failed-refund @ 320x700 · it says "A bank payment of $150 did not go through"
+  ok    failed-refund @ 320x700 · it says "Another payment of $150 came in after this job was"
+  ok    failed-refund @ 320x700 · inside the screen
+  ok    failed-refund @ 320x700 · painted on top (hit test lands on it)
+  ok    failed-refund @ 320x700 · console clean
+  ok    two-reasons @ 1440x900 · the job's read was fed
+  ok    two-reasons @ 1440x900 · the sabotage landed once and RAN
+  ok    two-reasons @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    two-reasons @ 1440x900 · the red line is there
+  ok    two-reasons @ 1440x900 · it says "A bank payment of $150 did not go through"
+  ok    two-reasons @ 1440x900 · it says "A card payment of $100 came in, but this job is ow"
+  ok    two-reasons @ 1440x900 · it says "Another payment of $150 came in after this job was"
+  ok    two-reasons @ 1440x900 · inside the screen
+  ok    two-reasons @ 1440x900 · painted on top (hit test lands on it)
+  ok    two-reasons @ 1440x900 · console clean
+  ok    two-reasons @ 768x1024 · the job's read was fed
+  ok    two-reasons @ 768x1024 · the sabotage landed once and RAN
+  ok    two-reasons @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    two-reasons @ 768x1024 · the red line is there
+  ok    two-reasons @ 768x1024 · it says "A bank payment of $150 did not go through"
+  ok    two-reasons @ 768x1024 · it says "A card payment of $100 came in, but this job is ow"
+  ok    two-reasons @ 768x1024 · it says "Another payment of $150 came in after this job was"
+  ok    two-reasons @ 768x1024 · inside the screen
+  ok    two-reasons @ 768x1024 · painted on top (hit test lands on it)
+  ok    two-reasons @ 768x1024 · console clean
+  ok    two-reasons @ 390x844 · the job's read was fed
+  ok    two-reasons @ 390x844 · the sabotage landed once and RAN
+  ok    two-reasons @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    two-reasons @ 390x844 · the red line is there
+  ok    two-reasons @ 390x844 · it says "A bank payment of $150 did not go through"
+  ok    two-reasons @ 390x844 · it says "A card payment of $100 came in, but this job is ow"
+  ok    two-reasons @ 390x844 · it says "Another payment of $150 came in after this job was"
+  ok    two-reasons @ 390x844 · inside the screen
+  ok    two-reasons @ 390x844 · painted on top (hit test lands on it)
+  ok    two-reasons @ 390x844 · console clean
+  ok    two-reasons @ 320x700 · the job's read was fed
+  ok    two-reasons @ 320x700 · the sabotage landed once and RAN
+  ok    two-reasons @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    two-reasons @ 320x700 · the red line is there
+  ok    two-reasons @ 320x700 · it says "A bank payment of $150 did not go through"
+  ok    two-reasons @ 320x700 · it says "A card payment of $100 came in, but this job is ow"
+  ok    two-reasons @ 320x700 · it says "Another payment of $150 came in after this job was"
+  ok    two-reasons @ 320x700 · inside the screen
+  ok    two-reasons @ 320x700 · painted on top (hit test lands on it)
+  ok    two-reasons @ 320x700 · console clean
+  ok    owed-back @ 1440x900 · the job's read was fed
+  ok    owed-back @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back @ 1440x900 · the red line is there
+  ok    owed-back @ 1440x900 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back @ 1440x900 · it says "Refund it from your own Stripe."
+  ok    owed-back @ 1440x900 · it does not say "after this job was settled"
+  ok    owed-back @ 1440x900 · it does not say "If you kept"
+  ok    owed-back @ 1440x900 · inside the screen
+  ok    owed-back @ 1440x900 · painted on top (hit test lands on it)
+  ok    owed-back @ 1440x900 · console clean
+  ok    owed-back @ 768x1024 · the job's read was fed
+  ok    owed-back @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back @ 768x1024 · the red line is there
+  ok    owed-back @ 768x1024 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back @ 768x1024 · it says "Refund it from your own Stripe."
+  ok    owed-back @ 768x1024 · it does not say "after this job was settled"
+  ok    owed-back @ 768x1024 · it does not say "If you kept"
+  ok    owed-back @ 768x1024 · inside the screen
+  ok    owed-back @ 768x1024 · painted on top (hit test lands on it)
+  ok    owed-back @ 768x1024 · console clean
+  ok    owed-back @ 390x844 · the job's read was fed
+  ok    owed-back @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back @ 390x844 · the red line is there
+  ok    owed-back @ 390x844 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back @ 390x844 · it says "Refund it from your own Stripe."
+  ok    owed-back @ 390x844 · it does not say "after this job was settled"
+  ok    owed-back @ 390x844 · it does not say "If you kept"
+  ok    owed-back @ 390x844 · inside the screen
+  ok    owed-back @ 390x844 · painted on top (hit test lands on it)
+  ok    owed-back @ 390x844 · console clean
+  ok    owed-back @ 320x700 · the job's read was fed
+  ok    owed-back @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back @ 320x700 · the red line is there
+  ok    owed-back @ 320x700 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back @ 320x700 · it says "Refund it from your own Stripe."
+  ok    owed-back @ 320x700 · it does not say "after this job was settled"
+  ok    owed-back @ 320x700 · it does not say "If you kept"
+  ok    owed-back @ 320x700 · inside the screen
+  ok    owed-back @ 320x700 · painted on top (hit test lands on it)
+  ok    owed-back @ 320x700 · console clean
+  ok    owed-back-es @ 1440x900 · the job's read was fed
+  ok    owed-back-es @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-es @ 1440x900 · the red line is there
+  ok    owed-back-es @ 1440x900 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    owed-back-es @ 1440x900 · inside the screen
+  ok    owed-back-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    owed-back-es @ 1440x900 · console clean
+  ok    owed-back-es @ 768x1024 · the job's read was fed
+  ok    owed-back-es @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-es @ 768x1024 · the red line is there
+  ok    owed-back-es @ 768x1024 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    owed-back-es @ 768x1024 · inside the screen
+  ok    owed-back-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    owed-back-es @ 768x1024 · console clean
+  ok    owed-back-es @ 390x844 · the job's read was fed
+  ok    owed-back-es @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-es @ 390x844 · the red line is there
+  ok    owed-back-es @ 390x844 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    owed-back-es @ 390x844 · inside the screen
+  ok    owed-back-es @ 390x844 · painted on top (hit test lands on it)
+  ok    owed-back-es @ 390x844 · console clean
+  ok    owed-back-es @ 320x700 · the job's read was fed
+  ok    owed-back-es @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-es @ 320x700 · the red line is there
+  ok    owed-back-es @ 320x700 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    owed-back-es @ 320x700 · inside the screen
+  ok    owed-back-es @ 320x700 · painted on top (hit test lands on it)
+  ok    owed-back-es @ 320x700 · console clean
+  ok    owed-back-currency @ 1440x900 · the job's read was fed
+  ok    owed-back-currency @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back-currency @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-currency @ 1440x900 · the red line is there
+  ok    owed-back-currency @ 1440x900 · it says "A card payment that was not in US dollars came in,"
+  ok    owed-back-currency @ 1440x900 · it does not say "$"
+  ok    owed-back-currency @ 1440x900 · inside the screen
+  ok    owed-back-currency @ 1440x900 · painted on top (hit test lands on it)
+  ok    owed-back-currency @ 1440x900 · console clean
+  ok    owed-back-currency @ 768x1024 · the job's read was fed
+  ok    owed-back-currency @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back-currency @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-currency @ 768x1024 · the red line is there
+  ok    owed-back-currency @ 768x1024 · it says "A card payment that was not in US dollars came in,"
+  ok    owed-back-currency @ 768x1024 · it does not say "$"
+  ok    owed-back-currency @ 768x1024 · inside the screen
+  ok    owed-back-currency @ 768x1024 · painted on top (hit test lands on it)
+  ok    owed-back-currency @ 768x1024 · console clean
+  ok    owed-back-currency @ 390x844 · the job's read was fed
+  ok    owed-back-currency @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back-currency @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-currency @ 390x844 · the red line is there
+  ok    owed-back-currency @ 390x844 · it says "A card payment that was not in US dollars came in,"
+  ok    owed-back-currency @ 390x844 · it does not say "$"
+  ok    owed-back-currency @ 390x844 · inside the screen
+  ok    owed-back-currency @ 390x844 · painted on top (hit test lands on it)
+  ok    owed-back-currency @ 390x844 · console clean
+  ok    owed-back-currency @ 320x700 · the job's read was fed
+  ok    owed-back-currency @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back-currency @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-currency @ 320x700 · the red line is there
+  ok    owed-back-currency @ 320x700 · it says "A card payment that was not in US dollars came in,"
+  ok    owed-back-currency @ 320x700 · it does not say "$"
+  ok    owed-back-currency @ 320x700 · inside the screen
+  ok    owed-back-currency @ 320x700 · painted on top (hit test lands on it)
+  ok    owed-back-currency @ 320x700 · console clean
+  ok    settled @ 1440x900 · the job's read was fed
+  ok    settled @ 1440x900 · the sabotage landed once and RAN
+  ok    settled @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    settled @ 1440x900 · the red line is there
+  ok    settled @ 1440x900 · it says "A card payment of $1 did not match what this job w"
+  ok    settled @ 1440x900 · it says "If you kept this payment"
+  ok    settled @ 1440x900 · inside the screen
+  ok    settled @ 1440x900 · painted on top (hit test lands on it)
+  ok    settled @ 1440x900 · console clean
+  ok    settled @ 768x1024 · the job's read was fed
+  ok    settled @ 768x1024 · the sabotage landed once and RAN
+  ok    settled @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    settled @ 768x1024 · the red line is there
+  ok    settled @ 768x1024 · it says "A card payment of $1 did not match what this job w"
+  ok    settled @ 768x1024 · it says "If you kept this payment"
+  ok    settled @ 768x1024 · inside the screen
+  ok    settled @ 768x1024 · painted on top (hit test lands on it)
+  ok    settled @ 768x1024 · console clean
+  ok    settled @ 390x844 · the job's read was fed
+  ok    settled @ 390x844 · the sabotage landed once and RAN
+  ok    settled @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    settled @ 390x844 · the red line is there
+  ok    settled @ 390x844 · it says "A card payment of $1 did not match what this job w"
+  ok    settled @ 390x844 · it says "If you kept this payment"
+  ok    settled @ 390x844 · inside the screen
+  ok    settled @ 390x844 · painted on top (hit test lands on it)
+  ok    settled @ 390x844 · console clean
+  ok    settled @ 320x700 · the job's read was fed
+  ok    settled @ 320x700 · the sabotage landed once and RAN
+  ok    settled @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    settled @ 320x700 · the red line is there
+  ok    settled @ 320x700 · it says "A card payment of $1 did not match what this job w"
+  ok    settled @ 320x700 · it says "If you kept this payment"
+  ok    settled @ 320x700 · inside the screen
+  ok    settled @ 320x700 · painted on top (hit test lands on it)
+  ok    settled @ 320x700 · console clean
+  ok    hand-paid @ 1440x900 · the job's read was fed
+  ok    hand-paid @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid @ 1440x900 · the red line is there
+  ok    hand-paid @ 1440x900 · it says "A card payment of $100 did not match what this job"
+  ok    hand-paid @ 1440x900 · it says "If they paid you in full another way, refund it fr"
+  ok    hand-paid @ 1440x900 · it says "If you kept this payment as part of what they paid"
+  ok    hand-paid @ 1440x900 · it does not say "We did not mark it paid"
+  ok    hand-paid @ 1440x900 · it does not say "Refund it from your own Stripe."
+  ok    hand-paid @ 1440x900 · inside the screen
+  ok    hand-paid @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid @ 1440x900 · console clean
+  ok    hand-paid @ 768x1024 · the job's read was fed
+  ok    hand-paid @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid @ 768x1024 · the red line is there
+  ok    hand-paid @ 768x1024 · it says "A card payment of $100 did not match what this job"
+  ok    hand-paid @ 768x1024 · it says "If they paid you in full another way, refund it fr"
+  ok    hand-paid @ 768x1024 · it says "If you kept this payment as part of what they paid"
+  ok    hand-paid @ 768x1024 · it does not say "We did not mark it paid"
+  ok    hand-paid @ 768x1024 · it does not say "Refund it from your own Stripe."
+  ok    hand-paid @ 768x1024 · inside the screen
+  ok    hand-paid @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid @ 768x1024 · console clean
+  ok    hand-paid @ 390x844 · the job's read was fed
+  ok    hand-paid @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid @ 390x844 · the red line is there
+  ok    hand-paid @ 390x844 · it says "A card payment of $100 did not match what this job"
+  ok    hand-paid @ 390x844 · it says "If they paid you in full another way, refund it fr"
+  ok    hand-paid @ 390x844 · it says "If you kept this payment as part of what they paid"
+  ok    hand-paid @ 390x844 · it does not say "We did not mark it paid"
+  ok    hand-paid @ 390x844 · it does not say "Refund it from your own Stripe."
+  ok    hand-paid @ 390x844 · inside the screen
+  ok    hand-paid @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid @ 390x844 · console clean
+  ok    hand-paid @ 320x700 · the job's read was fed
+  ok    hand-paid @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid @ 320x700 · the red line is there
+  ok    hand-paid @ 320x700 · it says "A card payment of $100 did not match what this job"
+  ok    hand-paid @ 320x700 · it says "If they paid you in full another way, refund it fr"
+  ok    hand-paid @ 320x700 · it says "If you kept this payment as part of what they paid"
+  ok    hand-paid @ 320x700 · it does not say "We did not mark it paid"
+  ok    hand-paid @ 320x700 · it does not say "Refund it from your own Stripe."
+  ok    hand-paid @ 320x700 · inside the screen
+  ok    hand-paid @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid @ 320x700 · console clean
+  ok    hand-paid-es @ 1440x900 · the job's read was fed
+  ok    hand-paid-es @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-es @ 1440x900 · the red line is there
+  ok    hand-paid-es @ 1440x900 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    hand-paid-es @ 1440x900 · it says "ignora este aviso"
+  ok    hand-paid-es @ 1440x900 · inside the screen
+  ok    hand-paid-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-es @ 1440x900 · console clean
+  ok    hand-paid-es @ 768x1024 · the job's read was fed
+  ok    hand-paid-es @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-es @ 768x1024 · the red line is there
+  ok    hand-paid-es @ 768x1024 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    hand-paid-es @ 768x1024 · it says "ignora este aviso"
+  ok    hand-paid-es @ 768x1024 · inside the screen
+  ok    hand-paid-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-es @ 768x1024 · console clean
+  ok    hand-paid-es @ 390x844 · the job's read was fed
+  ok    hand-paid-es @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-es @ 390x844 · the red line is there
+  ok    hand-paid-es @ 390x844 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    hand-paid-es @ 390x844 · it says "ignora este aviso"
+  ok    hand-paid-es @ 390x844 · inside the screen
+  ok    hand-paid-es @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-es @ 390x844 · console clean
+  ok    hand-paid-es @ 320x700 · the job's read was fed
+  ok    hand-paid-es @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-es @ 320x700 · the red line is there
+  ok    hand-paid-es @ 320x700 · it says "Un pago con tarjeta de $100 no coincidía con lo qu"
+  ok    hand-paid-es @ 320x700 · it says "ignora este aviso"
+  ok    hand-paid-es @ 320x700 · inside the screen
+  ok    hand-paid-es @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-es @ 320x700 · console clean
+  ok    hand-paid-currency @ 1440x900 · the job's read was fed
+  ok    hand-paid-currency @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-currency @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-currency @ 1440x900 · the red line is there
+  ok    hand-paid-currency @ 1440x900 · it says "A card payment that was not in US dollars came in,"
+  ok    hand-paid-currency @ 1440x900 · it says "If you kept this payment"
+  ok    hand-paid-currency @ 1440x900 · it does not say "$"
+  ok    hand-paid-currency @ 1440x900 · inside the screen
+  ok    hand-paid-currency @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-currency @ 1440x900 · console clean
+  ok    hand-paid-currency @ 768x1024 · the job's read was fed
+  ok    hand-paid-currency @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-currency @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-currency @ 768x1024 · the red line is there
+  ok    hand-paid-currency @ 768x1024 · it says "A card payment that was not in US dollars came in,"
+  ok    hand-paid-currency @ 768x1024 · it says "If you kept this payment"
+  ok    hand-paid-currency @ 768x1024 · it does not say "$"
+  ok    hand-paid-currency @ 768x1024 · inside the screen
+  ok    hand-paid-currency @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-currency @ 768x1024 · console clean
+  ok    hand-paid-currency @ 390x844 · the job's read was fed
+  ok    hand-paid-currency @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-currency @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-currency @ 390x844 · the red line is there
+  ok    hand-paid-currency @ 390x844 · it says "A card payment that was not in US dollars came in,"
+  ok    hand-paid-currency @ 390x844 · it says "If you kept this payment"
+  ok    hand-paid-currency @ 390x844 · it does not say "$"
+  ok    hand-paid-currency @ 390x844 · inside the screen
+  ok    hand-paid-currency @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-currency @ 390x844 · console clean
+  ok    hand-paid-currency @ 320x700 · the job's read was fed
+  ok    hand-paid-currency @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-currency @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-currency @ 320x700 · the red line is there
+  ok    hand-paid-currency @ 320x700 · it says "A card payment that was not in US dollars came in,"
+  ok    hand-paid-currency @ 320x700 · it says "If you kept this payment"
+  ok    hand-paid-currency @ 320x700 · it does not say "$"
+  ok    hand-paid-currency @ 320x700 · inside the screen
+  ok    hand-paid-currency @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-currency @ 320x700 · console clean
+  ok    hand-paid-extra @ 1440x900 · the job's read was fed
+  ok    hand-paid-extra @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-extra @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-extra @ 1440x900 · the red line is there
+  ok    hand-paid-extra @ 1440x900 · it says "A card payment of $100 did not match"
+  ok    hand-paid-extra @ 1440x900 · it says "If you kept this payment"
+  ok    hand-paid-extra @ 1440x900 · it says "Another payment of $50 came in after this job was "
+  ok    hand-paid-extra @ 1440x900 · inside the screen
+  ok    hand-paid-extra @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-extra @ 1440x900 · console clean
+  ok    hand-paid-extra @ 768x1024 · the job's read was fed
+  ok    hand-paid-extra @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-extra @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-extra @ 768x1024 · the red line is there
+  ok    hand-paid-extra @ 768x1024 · it says "A card payment of $100 did not match"
+  ok    hand-paid-extra @ 768x1024 · it says "If you kept this payment"
+  ok    hand-paid-extra @ 768x1024 · it says "Another payment of $50 came in after this job was "
+  ok    hand-paid-extra @ 768x1024 · inside the screen
+  ok    hand-paid-extra @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-extra @ 768x1024 · console clean
+  ok    hand-paid-extra @ 390x844 · the job's read was fed
+  ok    hand-paid-extra @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-extra @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-extra @ 390x844 · the red line is there
+  ok    hand-paid-extra @ 390x844 · it says "A card payment of $100 did not match"
+  ok    hand-paid-extra @ 390x844 · it says "If you kept this payment"
+  ok    hand-paid-extra @ 390x844 · it says "Another payment of $50 came in after this job was "
+  ok    hand-paid-extra @ 390x844 · inside the screen
+  ok    hand-paid-extra @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-extra @ 390x844 · console clean
+  ok    hand-paid-extra @ 320x700 · the job's read was fed
+  ok    hand-paid-extra @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-extra @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-extra @ 320x700 · the red line is there
+  ok    hand-paid-extra @ 320x700 · it says "A card payment of $100 did not match"
+  ok    hand-paid-extra @ 320x700 · it says "If you kept this payment"
+  ok    hand-paid-extra @ 320x700 · it says "Another payment of $50 came in after this job was "
+  ok    hand-paid-extra @ 320x700 · inside the screen
+  ok    hand-paid-extra @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-extra @ 320x700 · console clean
+  ok    clean @ 1440x900 · the job's read was fed
+  ok    clean @ 1440x900 · the sabotage landed once and RAN
+  ok    clean @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    clean @ 1440x900 · no red refund or payment-problem line
+  ok    clean @ 1440x900 · console clean
+  ok    clean @ 768x1024 · the job's read was fed
+  ok    clean @ 768x1024 · the sabotage landed once and RAN
+  ok    clean @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    clean @ 768x1024 · no red refund or payment-problem line
+  ok    clean @ 768x1024 · console clean
+  ok    clean @ 390x844 · the job's read was fed
+  ok    clean @ 390x844 · the sabotage landed once and RAN
+  ok    clean @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    clean @ 390x844 · no red refund or payment-problem line
+  ok    clean @ 390x844 · console clean
+  ok    clean @ 320x700 · the job's read was fed
+  ok    clean @ 320x700 · the sabotage landed once and RAN
+  ok    clean @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    clean @ 320x700 · no red refund or payment-problem line
+  ok    clean @ 320x700 · console clean
+  ok    hand-paid-part-refunded @ 1440x900 · the job's read was fed
+  ok    hand-paid-part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded @ 1440x900 · the red line is there
+  FAIL  hand-paid-part-refunded @ 1440x900 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded @ 1440x900 · it says "If they paid you in full another way, refund the r"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 1440x900 · it says "If you kept this payment as part of what they paid"
+  FAIL  hand-paid-part-refunded @ 1440x900 · it does not say "refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 1440x900 · inside the screen
+  ok    hand-paid-part-refunded @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded @ 1440x900 · console clean
+  ok    hand-paid-part-refunded @ 768x1024 · the job's read was fed
+  ok    hand-paid-part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded @ 768x1024 · the red line is there
+  FAIL  hand-paid-part-refunded @ 768x1024 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded @ 768x1024 · it says "If they paid you in full another way, refund the r"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 768x1024 · it says "If you kept this payment as part of what they paid"
+  FAIL  hand-paid-part-refunded @ 768x1024 · it does not say "refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 768x1024 · inside the screen
+  ok    hand-paid-part-refunded @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded @ 768x1024 · console clean
+  ok    hand-paid-part-refunded @ 390x844 · the job's read was fed
+  ok    hand-paid-part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded @ 390x844 · the red line is there
+  FAIL  hand-paid-part-refunded @ 390x844 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded @ 390x844 · it says "If they paid you in full another way, refund the r"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 390x844 · it says "If you kept this payment as part of what they paid"
+  FAIL  hand-paid-part-refunded @ 390x844 · it does not say "refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 390x844 · inside the screen
+  ok    hand-paid-part-refunded @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded @ 390x844 · console clean
+  ok    hand-paid-part-refunded @ 320x700 · the job's read was fed
+  ok    hand-paid-part-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded @ 320x700 · the red line is there
+  FAIL  hand-paid-part-refunded @ 320x700 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded @ 320x700 · it says "If they paid you in full another way, refund the r"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 320x700 · it says "If you kept this payment as part of what they paid"
+  FAIL  hand-paid-part-refunded @ 320x700 · it does not say "refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded @ 320x700 · inside the screen
+  ok    hand-paid-part-refunded @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded @ 320x700 · console clean
+  ok    hand-paid-part-refunded-es @ 1440x900 · the job's read was fed
+  ok    hand-paid-part-refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-es @ 1440x900 · the red line is there
+  FAIL  hand-paid-part-refunded-es @ 1440x900 · it says "y luego el trabajo se marcó como pagado. Ya devolv"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  FAIL  hand-paid-part-refunded-es @ 1440x900 · it says "devuelve el resto desde tu propio Stripe"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  ok    hand-paid-part-refunded-es @ 1440x900 · inside the screen
+  ok    hand-paid-part-refunded-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-es @ 1440x900 · console clean
+  ok    hand-paid-part-refunded-es @ 768x1024 · the job's read was fed
+  ok    hand-paid-part-refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-es @ 768x1024 · the red line is there
+  FAIL  hand-paid-part-refunded-es @ 768x1024 · it says "y luego el trabajo se marcó como pagado. Ya devolv"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  FAIL  hand-paid-part-refunded-es @ 768x1024 · it says "devuelve el resto desde tu propio Stripe"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  ok    hand-paid-part-refunded-es @ 768x1024 · inside the screen
+  ok    hand-paid-part-refunded-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-es @ 768x1024 · console clean
+  ok    hand-paid-part-refunded-es @ 390x844 · the job's read was fed
+  ok    hand-paid-part-refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-es @ 390x844 · the red line is there
+  FAIL  hand-paid-part-refunded-es @ 390x844 · it says "y luego el trabajo se marcó como pagado. Ya devolv"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  FAIL  hand-paid-part-refunded-es @ 390x844 · it says "devuelve el resto desde tu propio Stripe"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  ok    hand-paid-part-refunded-es @ 390x844 · inside the screen
+  ok    hand-paid-part-refunded-es @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-es @ 390x844 · console clean
+  ok    hand-paid-part-refunded-es @ 320x700 · the job's read was fed
+  ok    hand-paid-part-refunded-es @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-es @ 320x700 · the red line is there
+  FAIL  hand-paid-part-refunded-es @ 320x700 · it says "y luego el trabajo se marcó como pagado. Ya devolv"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  FAIL  hand-paid-part-refunded-es @ 320x700 · it says "devuelve el resto desde tu propio Stripe"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como pagado. Si te pagaron completo de otra forma, devuélvelo desde tu propio Stripe. Si te quedaste con este pago como parte de lo que te pagaron, ignora este aviso.
+  ok    hand-paid-part-refunded-es @ 320x700 · inside the screen
+  ok    hand-paid-part-refunded-es @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-es @ 320x700 · console clean
+  ok    hand-paid-part-refunded-currency @ 1440x900 · the job's read was fed
+  ok    hand-paid-part-refunded-currency @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-currency @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-currency @ 1440x900 · the red line is there
+  FAIL  hand-paid-part-refunded-currency @ 1440x900 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded-currency @ 1440x900 · it says "refund the rest from your own Stripe"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded-currency @ 1440x900 · it does not say "$"
+  ok    hand-paid-part-refunded-currency @ 1440x900 · inside the screen
+  ok    hand-paid-part-refunded-currency @ 1440x900 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-currency @ 1440x900 · console clean
+  ok    hand-paid-part-refunded-currency @ 768x1024 · the job's read was fed
+  ok    hand-paid-part-refunded-currency @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-currency @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-currency @ 768x1024 · the red line is there
+  FAIL  hand-paid-part-refunded-currency @ 768x1024 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded-currency @ 768x1024 · it says "refund the rest from your own Stripe"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded-currency @ 768x1024 · it does not say "$"
+  ok    hand-paid-part-refunded-currency @ 768x1024 · inside the screen
+  ok    hand-paid-part-refunded-currency @ 768x1024 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-currency @ 768x1024 · console clean
+  ok    hand-paid-part-refunded-currency @ 390x844 · the job's read was fed
+  ok    hand-paid-part-refunded-currency @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-currency @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-currency @ 390x844 · the red line is there
+  FAIL  hand-paid-part-refunded-currency @ 390x844 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded-currency @ 390x844 · it says "refund the rest from your own Stripe"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded-currency @ 390x844 · it does not say "$"
+  ok    hand-paid-part-refunded-currency @ 390x844 · inside the screen
+  ok    hand-paid-part-refunded-currency @ 390x844 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-currency @ 390x844 · console clean
+  ok    hand-paid-part-refunded-currency @ 320x700 · the job's read was fed
+  ok    hand-paid-part-refunded-currency @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-part-refunded-currency @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-part-refunded-currency @ 320x700 · the red line is there
+  FAIL  hand-paid-part-refunded-currency @ 320x700 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  FAIL  hand-paid-part-refunded-currency @ 320x700 · it says "refund the rest from your own Stripe"
+        A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.
+  ok    hand-paid-part-refunded-currency @ 320x700 · it does not say "$"
+  ok    hand-paid-part-refunded-currency @ 320x700 · inside the screen
+  ok    hand-paid-part-refunded-currency @ 320x700 · painted on top (hit test lands on it)
+  ok    hand-paid-part-refunded-currency @ 320x700 · console clean
+  ok    waived-part-refunded @ 1440x900 · the job's read was fed
+  ok    waived-part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    waived-part-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded @ 1440x900 · the red line is there
+  FAIL  waived-part-refunded @ 1440x900 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 1440x900 · it says "Refund the rest from your own Stripe. If you meant"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 1440x900 · it does not say "Refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded @ 1440x900 · it does not say "marked paid"
+  ok    waived-part-refunded @ 1440x900 · inside the screen
+  ok    waived-part-refunded @ 1440x900 · painted on top (hit test lands on it)
+  ok    waived-part-refunded @ 1440x900 · console clean
+  ok    waived-part-refunded @ 768x1024 · the job's read was fed
+  ok    waived-part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    waived-part-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded @ 768x1024 · the red line is there
+  FAIL  waived-part-refunded @ 768x1024 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 768x1024 · it says "Refund the rest from your own Stripe. If you meant"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 768x1024 · it does not say "Refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded @ 768x1024 · it does not say "marked paid"
+  ok    waived-part-refunded @ 768x1024 · inside the screen
+  ok    waived-part-refunded @ 768x1024 · painted on top (hit test lands on it)
+  ok    waived-part-refunded @ 768x1024 · console clean
+  ok    waived-part-refunded @ 390x844 · the job's read was fed
+  ok    waived-part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    waived-part-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded @ 390x844 · the red line is there
+  FAIL  waived-part-refunded @ 390x844 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 390x844 · it says "Refund the rest from your own Stripe. If you meant"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 390x844 · it does not say "Refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded @ 390x844 · it does not say "marked paid"
+  ok    waived-part-refunded @ 390x844 · inside the screen
+  ok    waived-part-refunded @ 390x844 · painted on top (hit test lands on it)
+  ok    waived-part-refunded @ 390x844 · console clean
+  ok    waived-part-refunded @ 320x700 · the job's read was fed
+  ok    waived-part-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    waived-part-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded @ 320x700 · the red line is there
+  FAIL  waived-part-refunded @ 320x700 · it says "A card payment of $100 did not match what this job"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 320x700 · it says "Refund the rest from your own Stripe. If you meant"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded @ 320x700 · it does not say "Refund it from your own Stripe"
+        A card payment of $100 did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded @ 320x700 · it does not say "marked paid"
+  ok    waived-part-refunded @ 320x700 · inside the screen
+  ok    waived-part-refunded @ 320x700 · painted on top (hit test lands on it)
+  ok    waived-part-refunded @ 320x700 · console clean
+  ok    waived-part-refunded-es @ 1440x900 · the job's read was fed
+  ok    waived-part-refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    waived-part-refunded-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-es @ 1440x900 · the red line is there
+  FAIL  waived-part-refunded-es @ 1440x900 · it says "y luego el trabajo se marcó como perdonado. Ya dev"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  FAIL  waived-part-refunded-es @ 1440x900 · it says "Devuelve el resto desde tu propio Stripe. Si querí"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  ok    waived-part-refunded-es @ 1440x900 · inside the screen
+  ok    waived-part-refunded-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-es @ 1440x900 · console clean
+  ok    waived-part-refunded-es @ 768x1024 · the job's read was fed
+  ok    waived-part-refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    waived-part-refunded-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-es @ 768x1024 · the red line is there
+  FAIL  waived-part-refunded-es @ 768x1024 · it says "y luego el trabajo se marcó como perdonado. Ya dev"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  FAIL  waived-part-refunded-es @ 768x1024 · it says "Devuelve el resto desde tu propio Stripe. Si querí"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  ok    waived-part-refunded-es @ 768x1024 · inside the screen
+  ok    waived-part-refunded-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-es @ 768x1024 · console clean
+  ok    waived-part-refunded-es @ 390x844 · the job's read was fed
+  ok    waived-part-refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    waived-part-refunded-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-es @ 390x844 · the red line is there
+  FAIL  waived-part-refunded-es @ 390x844 · it says "y luego el trabajo se marcó como perdonado. Ya dev"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  FAIL  waived-part-refunded-es @ 390x844 · it says "Devuelve el resto desde tu propio Stripe. Si querí"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  ok    waived-part-refunded-es @ 390x844 · inside the screen
+  ok    waived-part-refunded-es @ 390x844 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-es @ 390x844 · console clean
+  ok    waived-part-refunded-es @ 320x700 · the job's read was fed
+  ok    waived-part-refunded-es @ 320x700 · the sabotage landed once and RAN
+  ok    waived-part-refunded-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-es @ 320x700 · the red line is there
+  FAIL  waived-part-refunded-es @ 320x700 · it says "y luego el trabajo se marcó como perdonado. Ya dev"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  FAIL  waived-part-refunded-es @ 320x700 · it says "Devuelve el resto desde tu propio Stripe. Si querí"
+        Un pago con tarjeta de $100 no coincidía con lo que debía este trabajo, y luego el trabajo se marcó como perdonado. Devuélvelo desde tu propio Stripe. Si querías quedártelo, ignora este aviso.
+  ok    waived-part-refunded-es @ 320x700 · inside the screen
+  ok    waived-part-refunded-es @ 320x700 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-es @ 320x700 · console clean
+  ok    waived-part-refunded-currency @ 1440x900 · the job's read was fed
+  ok    waived-part-refunded-currency @ 1440x900 · the sabotage landed once and RAN
+  ok    waived-part-refunded-currency @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-currency @ 1440x900 · the red line is there
+  FAIL  waived-part-refunded-currency @ 1440x900 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded-currency @ 1440x900 · it says "Refund the rest from your own Stripe."
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded-currency @ 1440x900 · it does not say "$"
+  ok    waived-part-refunded-currency @ 1440x900 · inside the screen
+  ok    waived-part-refunded-currency @ 1440x900 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-currency @ 1440x900 · console clean
+  ok    waived-part-refunded-currency @ 768x1024 · the job's read was fed
+  ok    waived-part-refunded-currency @ 768x1024 · the sabotage landed once and RAN
+  ok    waived-part-refunded-currency @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-currency @ 768x1024 · the red line is there
+  FAIL  waived-part-refunded-currency @ 768x1024 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded-currency @ 768x1024 · it says "Refund the rest from your own Stripe."
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded-currency @ 768x1024 · it does not say "$"
+  ok    waived-part-refunded-currency @ 768x1024 · inside the screen
+  ok    waived-part-refunded-currency @ 768x1024 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-currency @ 768x1024 · console clean
+  ok    waived-part-refunded-currency @ 390x844 · the job's read was fed
+  ok    waived-part-refunded-currency @ 390x844 · the sabotage landed once and RAN
+  ok    waived-part-refunded-currency @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-currency @ 390x844 · the red line is there
+  FAIL  waived-part-refunded-currency @ 390x844 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded-currency @ 390x844 · it says "Refund the rest from your own Stripe."
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded-currency @ 390x844 · it does not say "$"
+  ok    waived-part-refunded-currency @ 390x844 · inside the screen
+  ok    waived-part-refunded-currency @ 390x844 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-currency @ 390x844 · console clean
+  ok    waived-part-refunded-currency @ 320x700 · the job's read was fed
+  ok    waived-part-refunded-currency @ 320x700 · the sabotage landed once and RAN
+  ok    waived-part-refunded-currency @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-part-refunded-currency @ 320x700 · the red line is there
+  FAIL  waived-part-refunded-currency @ 320x700 · it says "A card payment that was not in US dollars came in,"
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  FAIL  waived-part-refunded-currency @ 320x700 · it says "Refund the rest from your own Stripe."
+        A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.
+  ok    waived-part-refunded-currency @ 320x700 · it does not say "$"
+  ok    waived-part-refunded-currency @ 320x700 · inside the screen
+  ok    waived-part-refunded-currency @ 320x700 · painted on top (hit test lands on it)
+  ok    waived-part-refunded-currency @ 320x700 · console clean
+  ok    hand-paid-refunded @ 1440x900 · the job's read was fed
+  ok    hand-paid-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    hand-paid-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-refunded @ 1440x900 · no red refund or payment-problem line
+  ok    hand-paid-refunded @ 1440x900 · console clean
+  ok    hand-paid-refunded @ 768x1024 · the job's read was fed
+  ok    hand-paid-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    hand-paid-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-refunded @ 768x1024 · no red refund or payment-problem line
+  ok    hand-paid-refunded @ 768x1024 · console clean
+  ok    hand-paid-refunded @ 390x844 · the job's read was fed
+  ok    hand-paid-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    hand-paid-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-refunded @ 390x844 · no red refund or payment-problem line
+  ok    hand-paid-refunded @ 390x844 · console clean
+  ok    hand-paid-refunded @ 320x700 · the job's read was fed
+  ok    hand-paid-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    hand-paid-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    hand-paid-refunded @ 320x700 · no red refund or payment-problem line
+  ok    hand-paid-refunded @ 320x700 · console clean
+  ok    waived-refunded @ 1440x900 · the job's read was fed
+  ok    waived-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    waived-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-refunded @ 1440x900 · no red refund or payment-problem line
+  ok    waived-refunded @ 1440x900 · console clean
+  ok    waived-refunded @ 768x1024 · the job's read was fed
+  ok    waived-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    waived-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-refunded @ 768x1024 · no red refund or payment-problem line
+  ok    waived-refunded @ 768x1024 · console clean
+  ok    waived-refunded @ 390x844 · the job's read was fed
+  ok    waived-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    waived-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-refunded @ 390x844 · no red refund or payment-problem line
+  ok    waived-refunded @ 390x844 · console clean
+  ok    waived-refunded @ 320x700 · the job's read was fed
+  ok    waived-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    waived-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    waived-refunded @ 320x700 · no red refund or payment-problem line
+  ok    waived-refunded @ 320x700 · console clean
+  ok    refunded @ 1440x900 · the job's read was fed
+  ok    refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    refunded @ 1440x900 · no red refund or payment-problem line
+  ok    refunded @ 1440x900 · console clean
+  ok    refunded @ 768x1024 · the job's read was fed
+  ok    refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    refunded @ 768x1024 · no red refund or payment-problem line
+  ok    refunded @ 768x1024 · console clean
+  ok    refunded @ 390x844 · the job's read was fed
+  ok    refunded @ 390x844 · the sabotage landed once and RAN
+  ok    refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    refunded @ 390x844 · no red refund or payment-problem line
+  ok    refunded @ 390x844 · console clean
+  ok    refunded @ 320x700 · the job's read was fed
+  ok    refunded @ 320x700 · the sabotage landed once and RAN
+  ok    refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    refunded @ 320x700 · no red refund or payment-problem line
+  ok    refunded @ 320x700 · console clean
+  ok    part-refunded @ 1440x900 · the job's read was fed
+  ok    part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    part-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded @ 1440x900 · the red line is there
+  ok    part-refunded @ 1440x900 · it says "Another payment came in after this job was settled"
+  ok    part-refunded @ 1440x900 · it says "Refund it from your own Stripe."
+  ok    part-refunded @ 1440x900 · inside the screen
+  ok    part-refunded @ 1440x900 · painted on top (hit test lands on it)
+  ok    part-refunded @ 1440x900 · console clean
+  ok    part-refunded @ 768x1024 · the job's read was fed
+  ok    part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    part-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded @ 768x1024 · the red line is there
+  ok    part-refunded @ 768x1024 · it says "Another payment came in after this job was settled"
+  ok    part-refunded @ 768x1024 · it says "Refund it from your own Stripe."
+  ok    part-refunded @ 768x1024 · inside the screen
+  ok    part-refunded @ 768x1024 · painted on top (hit test lands on it)
+  ok    part-refunded @ 768x1024 · console clean
+  ok    part-refunded @ 390x844 · the job's read was fed
+  ok    part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    part-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded @ 390x844 · the red line is there
+  ok    part-refunded @ 390x844 · it says "Another payment came in after this job was settled"
+  ok    part-refunded @ 390x844 · it says "Refund it from your own Stripe."
+  ok    part-refunded @ 390x844 · inside the screen
+  ok    part-refunded @ 390x844 · painted on top (hit test lands on it)
+  ok    part-refunded @ 390x844 · console clean
+  ok    part-refunded @ 320x700 · the job's read was fed
+  ok    part-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    part-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded @ 320x700 · the red line is there
+  ok    part-refunded @ 320x700 · it says "Another payment came in after this job was settled"
+  ok    part-refunded @ 320x700 · it says "Refund it from your own Stripe."
+  ok    part-refunded @ 320x700 · inside the screen
+  ok    part-refunded @ 320x700 · painted on top (hit test lands on it)
+  ok    part-refunded @ 320x700 · console clean
+  ok    part-refunded-es @ 1440x900 · the job's read was fed
+  ok    part-refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    part-refunded-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded-es @ 1440x900 · the red line is there
+  ok    part-refunded-es @ 1440x900 · it says "Llegó otro pago después de que este trabajo ya est"
+  ok    part-refunded-es @ 1440x900 · inside the screen
+  ok    part-refunded-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    part-refunded-es @ 1440x900 · console clean
+  ok    part-refunded-es @ 768x1024 · the job's read was fed
+  ok    part-refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    part-refunded-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded-es @ 768x1024 · the red line is there
+  ok    part-refunded-es @ 768x1024 · it says "Llegó otro pago después de que este trabajo ya est"
+  ok    part-refunded-es @ 768x1024 · inside the screen
+  ok    part-refunded-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    part-refunded-es @ 768x1024 · console clean
+  ok    part-refunded-es @ 390x844 · the job's read was fed
+  ok    part-refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    part-refunded-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded-es @ 390x844 · the red line is there
+  ok    part-refunded-es @ 390x844 · it says "Llegó otro pago después de que este trabajo ya est"
+  ok    part-refunded-es @ 390x844 · inside the screen
+  ok    part-refunded-es @ 390x844 · painted on top (hit test lands on it)
+  ok    part-refunded-es @ 390x844 · console clean
+  ok    part-refunded-es @ 320x700 · the job's read was fed
+  ok    part-refunded-es @ 320x700 · the sabotage landed once and RAN
+  ok    part-refunded-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    part-refunded-es @ 320x700 · the red line is there
+  ok    part-refunded-es @ 320x700 · it says "Llegó otro pago después de que este trabajo ya est"
+  ok    part-refunded-es @ 320x700 · inside the screen
+  ok    part-refunded-es @ 320x700 · painted on top (hit test lands on it)
+  ok    part-refunded-es @ 320x700 · console clean
+  ok    mixed @ 1440x900 · the job's read was fed
+  ok    mixed @ 1440x900 · the sabotage landed once and RAN
+  ok    mixed @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    mixed @ 1440x900 · the red line is there
+  ok    mixed @ 1440x900 · it says "Another payment of $150 came in after this job was"
+  ok    mixed @ 1440x900 · it says "Another payment came in after this job was settled"
+  ok    mixed @ 1440x900 · 2 refund lines, one per payment
+  ok    mixed @ 1440x900 · inside the screen
+  ok    mixed @ 1440x900 · painted on top (hit test lands on it)
+  ok    mixed @ 1440x900 · console clean
+  ok    mixed @ 768x1024 · the job's read was fed
+  ok    mixed @ 768x1024 · the sabotage landed once and RAN
+  ok    mixed @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    mixed @ 768x1024 · the red line is there
+  ok    mixed @ 768x1024 · it says "Another payment of $150 came in after this job was"
+  ok    mixed @ 768x1024 · it says "Another payment came in after this job was settled"
+  ok    mixed @ 768x1024 · 2 refund lines, one per payment
+  ok    mixed @ 768x1024 · inside the screen
+  ok    mixed @ 768x1024 · painted on top (hit test lands on it)
+  ok    mixed @ 768x1024 · console clean
+  ok    mixed @ 390x844 · the job's read was fed
+  ok    mixed @ 390x844 · the sabotage landed once and RAN
+  ok    mixed @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    mixed @ 390x844 · the red line is there
+  ok    mixed @ 390x844 · it says "Another payment of $150 came in after this job was"
+  ok    mixed @ 390x844 · it says "Another payment came in after this job was settled"
+  ok    mixed @ 390x844 · 2 refund lines, one per payment
+  ok    mixed @ 390x844 · inside the screen
+  ok    mixed @ 390x844 · painted on top (hit test lands on it)
+  ok    mixed @ 390x844 · console clean
+  ok    mixed @ 320x700 · the job's read was fed
+  ok    mixed @ 320x700 · the sabotage landed once and RAN
+  ok    mixed @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    mixed @ 320x700 · the red line is there
+  ok    mixed @ 320x700 · it says "Another payment of $150 came in after this job was"
+  ok    mixed @ 320x700 · it says "Another payment came in after this job was settled"
+  ok    mixed @ 320x700 · 2 refund lines, one per payment
+  ok    mixed @ 320x700 · inside the screen
+  ok    mixed @ 320x700 · painted on top (hit test lands on it)
+  ok    mixed @ 320x700 · console clean
+  ok    owed-back-refunded @ 1440x900 · the job's read was fed
+  ok    owed-back-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-refunded @ 1440x900 · no red refund or payment-problem line
+  ok    owed-back-refunded @ 1440x900 · console clean
+  ok    owed-back-refunded @ 768x1024 · the job's read was fed
+  ok    owed-back-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-refunded @ 768x1024 · no red refund or payment-problem line
+  ok    owed-back-refunded @ 768x1024 · console clean
+  ok    owed-back-refunded @ 390x844 · the job's read was fed
+  ok    owed-back-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-refunded @ 390x844 · no red refund or payment-problem line
+  ok    owed-back-refunded @ 390x844 · console clean
+  ok    owed-back-refunded @ 320x700 · the job's read was fed
+  ok    owed-back-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-refunded @ 320x700 · no red refund or payment-problem line
+  ok    owed-back-refunded @ 320x700 · console clean
+  ok    owed-back-part-refunded @ 1440x900 · the job's read was fed
+  ok    owed-back-part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded @ 1440x900 · the red line is there
+  ok    owed-back-part-refunded @ 1440x900 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back-part-refunded @ 1440x900 · it does not say "after this job was settled"
+  ok    owed-back-part-refunded @ 1440x900 · inside the screen
+  ok    owed-back-part-refunded @ 1440x900 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded @ 1440x900 · console clean
+  ok    owed-back-part-refunded @ 768x1024 · the job's read was fed
+  ok    owed-back-part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded @ 768x1024 · the red line is there
+  ok    owed-back-part-refunded @ 768x1024 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back-part-refunded @ 768x1024 · it does not say "after this job was settled"
+  ok    owed-back-part-refunded @ 768x1024 · inside the screen
+  ok    owed-back-part-refunded @ 768x1024 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded @ 768x1024 · console clean
+  ok    owed-back-part-refunded @ 390x844 · the job's read was fed
+  ok    owed-back-part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded @ 390x844 · the red line is there
+  ok    owed-back-part-refunded @ 390x844 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back-part-refunded @ 390x844 · it does not say "after this job was settled"
+  ok    owed-back-part-refunded @ 390x844 · inside the screen
+  ok    owed-back-part-refunded @ 390x844 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded @ 390x844 · console clean
+  ok    owed-back-part-refunded @ 320x700 · the job's read was fed
+  ok    owed-back-part-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded @ 320x700 · the red line is there
+  ok    owed-back-part-refunded @ 320x700 · it says "A card payment of $100 did not match what this job"
+  ok    owed-back-part-refunded @ 320x700 · it does not say "after this job was settled"
+  ok    owed-back-part-refunded @ 320x700 · inside the screen
+  ok    owed-back-part-refunded @ 320x700 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded @ 320x700 · console clean
+  ok    owed-back-part-refunded-es @ 1440x900 · the job's read was fed
+  ok    owed-back-part-refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded-es @ 1440x900 · the red line is there
+  ok    owed-back-part-refunded-es @ 1440x900 · it says "Ya devolviste una parte, y $50 todavía no se ha de"
+  ok    owed-back-part-refunded-es @ 1440x900 · inside the screen
+  ok    owed-back-part-refunded-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded-es @ 1440x900 · console clean
+  ok    owed-back-part-refunded-es @ 768x1024 · the job's read was fed
+  ok    owed-back-part-refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded-es @ 768x1024 · the red line is there
+  ok    owed-back-part-refunded-es @ 768x1024 · it says "Ya devolviste una parte, y $50 todavía no se ha de"
+  ok    owed-back-part-refunded-es @ 768x1024 · inside the screen
+  ok    owed-back-part-refunded-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded-es @ 768x1024 · console clean
+  ok    owed-back-part-refunded-es @ 390x844 · the job's read was fed
+  ok    owed-back-part-refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded-es @ 390x844 · the red line is there
+  ok    owed-back-part-refunded-es @ 390x844 · it says "Ya devolviste una parte, y $50 todavía no se ha de"
+  ok    owed-back-part-refunded-es @ 390x844 · inside the screen
+  ok    owed-back-part-refunded-es @ 390x844 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded-es @ 390x844 · console clean
+  ok    owed-back-part-refunded-es @ 320x700 · the job's read was fed
+  ok    owed-back-part-refunded-es @ 320x700 · the sabotage landed once and RAN
+  ok    owed-back-part-refunded-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    owed-back-part-refunded-es @ 320x700 · the red line is there
+  ok    owed-back-part-refunded-es @ 320x700 · it says "Ya devolviste una parte, y $50 todavía no se ha de"
+  ok    owed-back-part-refunded-es @ 320x700 · inside the screen
+  ok    owed-back-part-refunded-es @ 320x700 · painted on top (hit test lands on it)
+  ok    owed-back-part-refunded-es @ 320x700 · console clean
+  ok    unpaid-wrong-refunded @ 1440x900 · the job's read was fed
+  ok    unpaid-wrong-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    unpaid-wrong-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    unpaid-wrong-refunded @ 1440x900 · no red refund or payment-problem line
+  ok    unpaid-wrong-refunded @ 1440x900 · console clean
+  ok    unpaid-wrong-refunded @ 768x1024 · the job's read was fed
+  ok    unpaid-wrong-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    unpaid-wrong-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    unpaid-wrong-refunded @ 768x1024 · no red refund or payment-problem line
+  ok    unpaid-wrong-refunded @ 768x1024 · console clean
+  ok    unpaid-wrong-refunded @ 390x844 · the job's read was fed
+  ok    unpaid-wrong-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    unpaid-wrong-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    unpaid-wrong-refunded @ 390x844 · no red refund or payment-problem line
+  ok    unpaid-wrong-refunded @ 390x844 · console clean
+  ok    unpaid-wrong-refunded @ 320x700 · the job's read was fed
+  ok    unpaid-wrong-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    unpaid-wrong-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    unpaid-wrong-refunded @ 320x700 · no red refund or payment-problem line
+  ok    unpaid-wrong-refunded @ 320x700 · console clean
+  ok    cancelled @ 1440x900 · the job's read was fed
+  ok    cancelled @ 1440x900 · the sabotage landed once and RAN
+  ok    cancelled @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled @ 1440x900 · the red line is there
+  ok    cancelled @ 1440x900 · it says "This was paid. Refund $150 from your own Stripe."
+  ok    cancelled @ 1440x900 · inside the screen
+  ok    cancelled @ 1440x900 · painted on top (hit test lands on it)
+  ok    cancelled @ 1440x900 · console clean
+  ok    cancelled @ 768x1024 · the job's read was fed
+  ok    cancelled @ 768x1024 · the sabotage landed once and RAN
+  ok    cancelled @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled @ 768x1024 · the red line is there
+  ok    cancelled @ 768x1024 · it says "This was paid. Refund $150 from your own Stripe."
+  ok    cancelled @ 768x1024 · inside the screen
+  ok    cancelled @ 768x1024 · painted on top (hit test lands on it)
+  ok    cancelled @ 768x1024 · console clean
+  ok    cancelled @ 390x844 · the job's read was fed
+  ok    cancelled @ 390x844 · the sabotage landed once and RAN
+  ok    cancelled @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled @ 390x844 · the red line is there
+  ok    cancelled @ 390x844 · it says "This was paid. Refund $150 from your own Stripe."
+  ok    cancelled @ 390x844 · inside the screen
+  ok    cancelled @ 390x844 · painted on top (hit test lands on it)
+  ok    cancelled @ 390x844 · console clean
+  ok    cancelled @ 320x700 · the job's read was fed
+  ok    cancelled @ 320x700 · the sabotage landed once and RAN
+  ok    cancelled @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled @ 320x700 · the red line is there
+  ok    cancelled @ 320x700 · it says "This was paid. Refund $150 from your own Stripe."
+  ok    cancelled @ 320x700 · inside the screen
+  ok    cancelled @ 320x700 · painted on top (hit test lands on it)
+  ok    cancelled @ 320x700 · console clean
+  ok    cancelled-refunded @ 1440x900 · the job's read was fed
+  ok    cancelled-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    cancelled-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-refunded @ 1440x900 · no red refund or payment-problem line
+  ok    cancelled-refunded @ 1440x900 · the record says "Refunded $150 in your Stripe on Friday, October 16"
+  ok    cancelled-refunded @ 1440x900 · console clean
+  ok    cancelled-refunded @ 768x1024 · the job's read was fed
+  ok    cancelled-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    cancelled-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-refunded @ 768x1024 · no red refund or payment-problem line
+  ok    cancelled-refunded @ 768x1024 · the record says "Refunded $150 in your Stripe on Friday, October 16"
+  ok    cancelled-refunded @ 768x1024 · console clean
+  ok    cancelled-refunded @ 390x844 · the job's read was fed
+  ok    cancelled-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    cancelled-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-refunded @ 390x844 · no red refund or payment-problem line
+  ok    cancelled-refunded @ 390x844 · the record says "Refunded $150 in your Stripe on Friday, October 16"
+  ok    cancelled-refunded @ 390x844 · console clean
+  ok    cancelled-refunded @ 320x700 · the job's read was fed
+  ok    cancelled-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    cancelled-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-refunded @ 320x700 · no red refund or payment-problem line
+  ok    cancelled-refunded @ 320x700 · the record says "Refunded $150 in your Stripe on Friday, October 16"
+  ok    cancelled-refunded @ 320x700 · console clean
+  ok    cancelled-part-refunded @ 1440x900 · the job's read was fed
+  ok    cancelled-part-refunded @ 1440x900 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded @ 1440x900 · the red line is there
+  ok    cancelled-part-refunded @ 1440x900 · it says "This was paid. You refunded $50 in your Stripe, an"
+  ok    cancelled-part-refunded @ 1440x900 · it says "Refund the rest from your own Stripe."
+  ok    cancelled-part-refunded @ 1440x900 · inside the screen
+  ok    cancelled-part-refunded @ 1440x900 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded @ 1440x900 · the record says "Refunded $50 in your Stripe on Friday, October 16"
+  ok    cancelled-part-refunded @ 1440x900 · console clean
+  ok    cancelled-part-refunded @ 768x1024 · the job's read was fed
+  ok    cancelled-part-refunded @ 768x1024 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded @ 768x1024 · the red line is there
+  ok    cancelled-part-refunded @ 768x1024 · it says "This was paid. You refunded $50 in your Stripe, an"
+  ok    cancelled-part-refunded @ 768x1024 · it says "Refund the rest from your own Stripe."
+  ok    cancelled-part-refunded @ 768x1024 · inside the screen
+  ok    cancelled-part-refunded @ 768x1024 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded @ 768x1024 · the record says "Refunded $50 in your Stripe on Friday, October 16"
+  ok    cancelled-part-refunded @ 768x1024 · console clean
+  ok    cancelled-part-refunded @ 390x844 · the job's read was fed
+  ok    cancelled-part-refunded @ 390x844 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded @ 390x844 · the red line is there
+  ok    cancelled-part-refunded @ 390x844 · it says "This was paid. You refunded $50 in your Stripe, an"
+  ok    cancelled-part-refunded @ 390x844 · it says "Refund the rest from your own Stripe."
+  ok    cancelled-part-refunded @ 390x844 · inside the screen
+  ok    cancelled-part-refunded @ 390x844 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded @ 390x844 · the record says "Refunded $50 in your Stripe on Friday, October 16"
+  ok    cancelled-part-refunded @ 390x844 · console clean
+  ok    cancelled-part-refunded @ 320x700 · the job's read was fed
+  ok    cancelled-part-refunded @ 320x700 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded @ 320x700 · the red line is there
+  ok    cancelled-part-refunded @ 320x700 · it says "This was paid. You refunded $50 in your Stripe, an"
+  ok    cancelled-part-refunded @ 320x700 · it says "Refund the rest from your own Stripe."
+  ok    cancelled-part-refunded @ 320x700 · inside the screen
+  ok    cancelled-part-refunded @ 320x700 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded @ 320x700 · the record says "Refunded $50 in your Stripe on Friday, October 16"
+  ok    cancelled-part-refunded @ 320x700 · console clean
+  ok    cancelled-part-refunded-es @ 1440x900 · the job's read was fed
+  ok    cancelled-part-refunded-es @ 1440x900 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded-es @ 1440x900 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded-es @ 1440x900 · the red line is there
+  ok    cancelled-part-refunded-es @ 1440x900 · it says "Esto ya se pagó. Devolviste $50 en tu Stripe, y $1"
+  ok    cancelled-part-refunded-es @ 1440x900 · inside the screen
+  ok    cancelled-part-refunded-es @ 1440x900 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded-es @ 1440x900 · the record says "Devolviste $50 en tu Stripe el viernes, 16 de octubre"
+  ok    cancelled-part-refunded-es @ 1440x900 · console clean
+  ok    cancelled-part-refunded-es @ 768x1024 · the job's read was fed
+  ok    cancelled-part-refunded-es @ 768x1024 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded-es @ 768x1024 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded-es @ 768x1024 · the red line is there
+  ok    cancelled-part-refunded-es @ 768x1024 · it says "Esto ya se pagó. Devolviste $50 en tu Stripe, y $1"
+  ok    cancelled-part-refunded-es @ 768x1024 · inside the screen
+  ok    cancelled-part-refunded-es @ 768x1024 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded-es @ 768x1024 · the record says "Devolviste $50 en tu Stripe el viernes, 16 de octubre"
+  ok    cancelled-part-refunded-es @ 768x1024 · console clean
+  ok    cancelled-part-refunded-es @ 390x844 · the job's read was fed
+  ok    cancelled-part-refunded-es @ 390x844 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded-es @ 390x844 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded-es @ 390x844 · the red line is there
+  ok    cancelled-part-refunded-es @ 390x844 · it says "Esto ya se pagó. Devolviste $50 en tu Stripe, y $1"
+  ok    cancelled-part-refunded-es @ 390x844 · inside the screen
+  ok    cancelled-part-refunded-es @ 390x844 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded-es @ 390x844 · the record says "Devolviste $50 en tu Stripe el viernes, 16 de octubre"
+  ok    cancelled-part-refunded-es @ 390x844 · console clean
+  ok    cancelled-part-refunded-es @ 320x700 · the job's read was fed
+  ok    cancelled-part-refunded-es @ 320x700 · the sabotage landed once and RAN
+  ok    cancelled-part-refunded-es @ 320x700 · the page's clock is frozen at 2026-10-17T06:30:00.000Z in Asia/Tokyo
+  ok    cancelled-part-refunded-es @ 320x700 · the red line is there
+  ok    cancelled-part-refunded-es @ 320x700 · it says "Esto ya se pagó. Devolviste $50 en tu Stripe, y $1"
+  ok    cancelled-part-refunded-es @ 320x700 · inside the screen
+  ok    cancelled-part-refunded-es @ 320x700 · painted on top (hit test lands on it)
+  ok    cancelled-part-refunded-es @ 320x700 · the record says "Devolviste $50 en tu Stripe el viernes, 16 de octubre"
+  ok    cancelled-part-refunded-es @ 320x700 · console clean
+
+1101 passed, 56 failed, 136 of 136 views.
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.78-20261017114836496\receipts\payment-problem-late-whole-payment.sabotage.json

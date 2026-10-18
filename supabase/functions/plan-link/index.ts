@@ -68,7 +68,8 @@ async function loadMember(memberId: string) {
       .eq("plan_member_id", member.id)
       .neq("status", "cancelled")
       .is("deleted_at", null),
-    supabase.from("customers").select("name, email").eq("id", member.customer_id).maybeSingle(),
+    // ROADMAP 97.72 — the member's own business, so a membership naming another business's customer shows nobody.
+    supabase.from("customers").select("name, email").eq("id", member.customer_id).eq("business_id", member.business_id).maybeSingle(),
   ]);
   return { member, visits: visits.data ?? [], used: used.data ?? [], customer: customer.data ?? null };
 }

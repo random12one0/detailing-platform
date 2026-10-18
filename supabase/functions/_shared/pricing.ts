@@ -463,7 +463,10 @@ export interface QuoteInput {
   // as `resolveVehicles` returned them. Empty for every booking made before
   // this item and for every business that has not raised its limit, and the
   // arithmetic below is then byte-identical to what it was.
-  extraVehicles?: { key: string; label: string; model?: string | null }[];
+  // ROADMAP 97.7 — on a split booking each car is its own day, so each carries
+  // the rules that matched ITS day (the caller matches them, as for car 1).
+  // Ignored on a same-day booking, where one day prices the whole carload.
+  extraVehicles?: { key: string; label: string; model?: string | null; adjustments?: PriceRule[] }[];
   // The first vehicle's own label, for the split breakdown. Optional, because
   // every other figure in this module needs only the KEY — a caller that has
   // not resolved a label gets the key back and prints something recognisable
@@ -518,6 +521,9 @@ export interface SplitLeg {
   model: string | null;
   total: number;
   durationMinutes: number;
+  // ROADMAP 97.7 — that car's own lines (its day's surcharge, car 1's plan),
+  // so the review step prints a weekend rate under the car it applies to.
+  adjustments: AdjustmentLine[];
 }
 
 export function computeQuote(inp: QuoteInput): Quote {
@@ -535,8 +541,16 @@ export function computeQuote(inp: QuoteInput): Quote {
   // if the customer had booked the two cars separately.
   const legs = (inp.extraVehicles ?? []).filter(Boolean);
   if (inp.splitDays && legs.length) {
-    const one = (v: { key: string; label: string; model?: string | null }) =>
-      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false });
+    // ROADMAP 97.6 — `plan: null`: the plan covers the FIRST car and only the
+    // first call carries it (`bookingRequests` in core.js). Passing it here
+    // priced every car as the first, and three cars on three days came to $0.
+    //
+    // ROADMAP 97.7 — AND EACH CAR'S OWN DAY'S RULES, NEVER CAR 1'S. Car 1 on a
+    // Monday and car 2 on a Saturday was quoted $400 and charged $430, because
+    // `create-booking` matches each car against its own day. No fallback to
+    // `inp.adjustments`: a car whose day is not picked yet has no rule yet.
+    const one = (v: { key: string; label: string; model?: string | null; adjustments?: PriceRule[] }) =>
+      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false, plan: null, adjustments: v.adjustments ?? [] });
     const first = computeQuote({ ...inp, extraVehicles: [], splitDays: false });
     const rest = legs.map(one);
     const all = [first, ...rest];
@@ -562,10 +576,11 @@ export function computeQuote(inp: QuoteInput): Quote {
       totalDurationMinutes: first.totalDurationMinutes,
       legs: [
         { size: inp.vehicleSize, label: inp.vehicleSizeLabel ?? inp.vehicleSize, model: null,
-          total: first.total, durationMinutes: first.totalDurationMinutes },
+          total: first.total, durationMinutes: first.totalDurationMinutes, adjustments: first.adjustmentLines },
         ...legs.map((v, i) => ({
           size: v.key, label: v.label, model: v.model ?? null,
           total: rest[i].total, durationMinutes: rest[i].totalDurationMinutes,
+          adjustments: rest[i].adjustmentLines,
         })),
       ],
     };
@@ -846,8 +861,11 @@ export const planInputFor = (row: any): PlanInput | null =>
   row ? { name: row.name, priceKind: row.price_kind, priceAmount: Number(row.price_amount) || 0 } : null;
 
 // A usable promo code for THIS business (active, not expired, under any usage
-// limit), or null.
-export async function resolvePromo(db: DB, businessId: string, code: string | null | undefined) {
+// limit), or null. `ignoreLimit` is for a car sharing its group's one use of
+// the code (ROADMAP 97.9, create-booking) — active and expiry still apply.
+export async function resolvePromo(db: DB, businessId: string, code: string | null | undefined, { ignoreLimit = false } = {}) {
+  // ROADMAP 97.23 — codes are stored in capitals, so "summer10" is SUMMER10.
+  code = String(code ?? "").trim().toUpperCase();
   if (!code) return null;
   const nowIso = new Date().toISOString();
   const { data, error } = await db
@@ -859,6 +877,6 @@ export async function resolvePromo(db: DB, businessId: string, code: string | nu
     .or(`expires_at.is.null,expires_at.gte.${nowIso}`)
     .maybeSingle();
   if (error || !data) return null;
-  if (!data.usage_limit || data.usage_limit === 0 || data.times_used < data.usage_limit) return data;
+  if (ignoreLimit || !data.usage_limit || data.usage_limit === 0 || data.times_used < data.usage_limit) return data;
   return null;
 }

@@ -217,13 +217,16 @@ if (!SB_URL || !KEY) {
       await patchSettings({ email_customer_reminder: true });
       check("1b and switching it back on returns it", await isDue());
 
-      // ── 1c · THE THREE WAYS A CUSTOMER IS UNREACHABLE ────────────────────
-      // The same three the Clients count, `send-campaign` and the maintenance
-      // reminder already ask. Without them a bad address is retried every
-      // fifteen minutes until the appointment - about forty-eight sends of a
-      // hundred-a-day allowance for one broken booking.
+      // ── 1c · THE TWO WAYS A CUSTOMER IS UNREACHABLE, AND ONE THAT IS NOT ──
+      // No address and a bounced address. Without them a bad address is retried
+      // every fifteen minutes until the appointment - about forty-eight sends of
+      // a hundred-a-day allowance for one broken booking. The MARKETING opt-out
+      // is not one of them: a reminder about a booking the customer made is
+      // transactional (ROADMAP 97.21, migration 20261017220000). Until that
+      // migration is applied to this database, this line is red, and correctly.
       await patchCustomer({ unsubscribed_at: new Date().toISOString() });
-      check("1c an unsubscribed customer removes it", !(await isDue()));
+      check("1c an unsubscribed customer is STILL reminded", await isDue(),
+        "the marketing opt-out is silencing an appointment reminder - is migration 20261017220000 applied?");
       await patchCustomer({ unsubscribed_at: null });
 
       await patchCustomer({ email_failed_at: new Date().toISOString(), email_failed_reason: "fixture" });
@@ -280,9 +283,16 @@ if (!SB_URL || !KEY) {
       if (!past) {
         skip("1g a job that has already started is not reminded", "no free hour in the last 24h to move the fixture into");
       } else {
-        const moved = await patchBooking({ start_at: past.start.toISOString(), end_at: past.end.toISOString() });
-        check("1g the fixture could be moved into the past at all", moved.status < 300,
-          `without the move the check below reads a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
+        // ASKS FOR THE ROW BACK and requires it to hold the new time. A bare
+        // "status below 300" also passes a PATCH that matched no row (204) - the
+        // booking stays in the future and the check below measures nothing.
+        const moved = await rest(`bookings?id=eq.${bookingId}`, {
+          method: "PATCH", headers: { Prefer: "return=representation" },
+          body: JSON.stringify({ start_at: past.start.toISOString(), end_at: past.end.toISOString() }),
+        });
+        const movedTo = Array.isArray(moved.body) && moved.body.length === 1 ? Date.parse(moved.body[0].start_at) : NaN;
+        check("1g the fixture was moved into the past", moved.status === 200 && movedTo === past.start.getTime(),
+          `status ${moved.status}, row now starts ${movedTo} not ${past.start.getTime()} - the check below would read a FUTURE booking: ${JSON.stringify(moved.body).slice(0, 160)}`);
         check("1g a job that has already started is not reminded", !(await isDue()));
       }
     }
@@ -322,7 +332,11 @@ console.log("\n2. every send in the sweep reports a refusal");
   // `sendTenantEmail` is the one call that can silently fail. Every occurrence
   // of it in this file must be wrapped.
   const calls = [...code.matchAll(/await\s+sendTenantEmail\(/g)].length;
-  const wrapped = [...code.matchAll(/mustSend\(\s*\n?\s*await\s+sendTenantEmail\(/g)].length;
+  // ROADMAP 97.5 — an OWNER send returns its boolean to `sendToEachOwner`, and
+  // `requireOwnerReached` throws when neither an email nor the push reached the
+  // owner (tests/owner-fanout.test.mjs runs both).
+  const fannedOut = [...code.matchAll(/sendToEachOwner\([^]{0,600}?return\s+await\s+sendTenantEmail\(/g)].length;
+  const wrapped = [...code.matchAll(/mustSend\(\s*\n?\s*await\s+sendTenantEmail\(/g)].length + fannedOut;
   check("2a there are send call sites to check at all", calls >= 4, `found ${calls}`);
   check("2b every sendTenantEmail in the sweep is inside mustSend", calls === wrapped,
     `${calls} calls, ${wrapped} wrapped - an unwrapped one marks a failed send as delivered`);
@@ -330,18 +344,25 @@ console.log("\n2. every send in the sweep reports a refusal");
   check("2c mustSend throws rather than returning", /function mustSend[\s\S]{0,200}?throw new Error/.test(code),
     "mustSend must throw, because throwing is what reaches the catch that skips the marker");
 
-  // The shape that matters: the send comes before the mark, inside one try.
+  // The shape that matters: a failed send must not keep the marker. Until
+  // ROADMAP 97.4 that meant "the mark comes after the send". 97.4 turned the
+  // order round on purpose (two overlapping sweeps both sent everything), so
+  // the marker is now CLAIMED first by `once()`, which gives it back when the
+  // send throws or returns false. That behavior is RUN, not read, in
+  // tests/reminder-claim.test.mjs § 2; this only holds the wiring.
   for (const [kind, marker] of [
     ["customer_reminder", "customer_reminder_sent_at"],
     ["customer_reminder_2", "customer_reminder_2_sent_at"],
     ["owner_reminder", "owner_reminder_sent_at"],
   ]) {
-    const at = code.indexOf(`mark(b.id, "${marker}")`);
-    const before = at < 0 ? "" : code.slice(Math.max(0, at - 600), at);
-    check(`2d the ${kind} marker is written after its send, not before`,
-      at > 0 && /await send(Customer|Owner)Reminder\(/.test(before),
-      `no send found in the 600 characters before the ${marker} write`);
+    check(`2d the ${kind} marker goes through the claim-then-send helper`,
+      // The owner one is a block since 97.5 (it also reports refused addresses).
+      new RegExp(`once\\(b\\.id, "${marker}", "${kind}", (async )?\\(\\) => (\\{[^}]{0,80}?await )?send(Customer|Owner)Reminder\\(`).test(code),
+      `no once(b.id, "${marker}", ...) wrapping its send`);
   }
+  check("2d the helper gives the claim back on a skipped send and on a failed one",
+    /const once = [\s\S]*?=== false\)[\s\S]*?release\(id, col, stamp\)[\s\S]*?catch \(e\)[\s\S]*?release\(id, col, stamp\)/.test(code),
+    "once() must release the claim in both the skip branch and the catch");
 
   // The maintenance block's comment claimed a throw that had never existed.
   check("2e the maintenance reminder no longer claims sendTenantEmail throws",

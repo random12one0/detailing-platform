@@ -200,6 +200,326 @@ export function amountDueCents(b: PayableBooking | null | undefined): number {
   return Math.round(n * 100);
 }
 
+/**
+ * Why a card payment did not settle a job. Stored on `bookings.payment_problem`.
+ *
+ * ROADMAP 97.11 added two kinds. `failed`: a bank payment that was on its way
+ * did not go through. `extra`: money came in for a job already settled, so a
+ * refund is owed — `payments` records each one, keyed on its payment intent,
+ * and `paid_cents` is their sum. `extra` is shown on a PAID job; the other
+ * three only while the job is unsettled.
+ */
+export interface PaymentProblem {
+  kind: "amount" | "currency" | "failed" | "extra";
+  paid_cents: number;
+  owed_cents: number;
+  currency: string;
+  at: string;
+  /** The payment this note is about, so one payment's two events note it once. */
+  intent?: string;
+  /** `reason`: a wrong-figure payment kept unpaid by 97.10, owed back once the job was paid another way (97.69). */
+  payments?: { intent: string; paid_cents: number; currency: string; at: string; reason?: "amount" | "currency" }[];
+  /** Older reasons still true, newest last — a new note is added, never written over one (`keepReasons`). */
+  earlier?: Omit<PaymentProblem, "payments" | "earlier" | "refunds">[];
+  /** What the detailer has refunded in their own Stripe, by payment intent (97.68, `refundedPayment`). */
+  refunds?: Record<string, { paid_cents: number; refunded_cents: number; at: string }>;
+}
+
+/** What the detailer has refunded of this payment so far, in cents (97.68). */
+export const refundedCents = (problem: PaymentProblem | null | undefined, intent: string | null | undefined): number =>
+  (intent && Number(problem?.refunds?.[intent]?.refunded_cents)) || 0;
+
+/**
+ * ADD A REASON, NEVER REPLACE ONE — ROADMAP 97.11 (supervision 2026-10-17).
+ * Two webhook writes used to put `next` over the row's note wholesale, so a
+ * later, unrelated event erased a wrong-amount note (money still sitting in the
+ * detailer's Stripe) or the list of refunds owed. `next` goes on top; every
+ * older reason except this same payment's own goes into `earlier`; the refunds
+ * owed come over unless `next` brings its own list.
+ */
+export function keepReasons(next: PaymentProblem, existing: PaymentProblem | null | undefined): PaymentProblem {
+  const older = existing ? [...(existing.earlier ?? []), ...(existing.kind === "extra" ? [] : [existing])] : [];
+  const earlier = older
+    .filter((r) => !(next.intent && r.intent === next.intent && r.kind === next.kind))
+    .map(({ payments: _p, earlier: _e, refunds: _r, ...r }) => r);
+  const payments = next.payments ?? existing?.payments;
+  const refunds = next.refunds ?? existing?.refunds;
+  const { payments: _p, earlier: _e, refunds: _r, ...top } = next;
+  return { ...top, ...(payments?.length ? { payments } : {}), ...(earlier.length ? { earlier } : {}), ...(refunds ? { refunds } : {}) };
+}
+
+/**
+ * What a Stripe payment event says arrived. A session reports `payment_status`
+ * and `amount_total`; an intent reports `status` and `amount_received`. Every
+ * event that is not `payment_intent.succeeded` here is a checkout session —
+ * `completed`, and 97.11's `async_payment_succeeded` / `async_payment_failed`.
+ */
+export function cardMoney(type: string, object: Record<string, unknown>) {
+  const isIntent = type === "payment_intent.succeeded";
+  const cents = Number(isIntent ? object.amount_received : object.amount_total);
+  return {
+    received: isIntent ? object.status === "succeeded" : object.payment_status === "paid",
+    cents: Number.isFinite(cents) ? cents : 0,
+    currency: String(object.currency ?? "").toLowerCase(),
+  };
+}
+
+export type CardPaymentVerdict =
+  | { settle: true }
+  | { settle: false; problem: null }
+  | { settle: false; problem: PaymentProblem };
+
+/**
+ * DOES THIS STRIPE PAYMENT SETTLE THIS JOB — ROADMAP 97.10.
+ *
+ * The webhook used to mark a job paid the moment either payment event arrived.
+ * A completed checkout is not money: a session finishes `unpaid` when the
+ * customer chose a bank transfer that has not cleared. And the amount was
+ * never read, so a session created for the wrong figure settled the job
+ * anyway — the detailer's record says paid and the money says otherwise.
+ *
+ * Not yet paid → `problem: null`: leave the job alone and record nothing,
+ * because nothing is wrong yet (97.11 handles the late event). Paid, but not
+ * the figure owed → a problem the detailer is shown on the job. The figure owed
+ * is `amountDueCents`, the same sum `pay-booking` charged, so a correct payment
+ * matches to the cent.
+ */
+export function cardPaymentVerdict(
+  type: string,
+  object: Record<string, unknown>,
+  booking: PayableBooking,
+  now: Date = new Date(),
+): CardPaymentVerdict {
+  const { received, cents: paid, currency } = cardMoney(type, object);
+  if (!received) return { settle: false, problem: null };
+
+  const owed = amountDueCents(booking);
+  if (currency === "usd" && paid === owed && owed > 0) return { settle: true };
+  return {
+    settle: false,
+    problem: {
+      kind: currency === "usd" ? "amount" : "currency",
+      paid_cents: paid,
+      owed_cents: owed,
+      currency,
+      at: now.toISOString(),
+    },
+  };
+}
+
+/**
+ * MONEY FOR A JOB THAT WAS ALREADY SETTLED — ROADMAP 97.11.
+ *
+ * The webhook used to return in silence when a payment arrived for a job
+ * already paid or waived: a second open page paid, or a card paid after the
+ * detailer marked cash. The customer is out the money and nobody is told.
+ * This returns the `extra` problem to record, or null when there is nothing to
+ * record: the money has not arrived, it is the payment that settled the job
+ * (each payment sends two events), or it is already on the list.
+ *
+ * `existing` is the row's current `payment_problem`; an earlier list of extra
+ * payments is kept and added to, never replaced, so a third payment does not
+ * erase the second. (A `failed` problem can carry the list too — see
+ * `failedBankPayment`.)
+ */
+export function extraPayment(
+  type: string,
+  object: Record<string, unknown>,
+  intent: string,
+  booking: PayableBooking & { stripe_payment_intent?: string | null },
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): PaymentProblem | null {
+  const money = cardMoney(type, object);
+  if (!money.received || !intent || intent === booking.stripe_payment_intent) return null;
+  const earlier = Array.isArray(existing?.payments) ? existing.payments : [];
+  if (earlier.some((p) => p.intent === intent)) return null;
+  return keepReasons(extraProblem([...earlier, { intent, paid_cents: money.cents, currency: money.currency, at: now.toISOString() }], now), existing);
+}
+
+const extraProblem = (payments: NonNullable<PaymentProblem["payments"]>, now: Date): PaymentProblem => ({
+  kind: "extra",
+  paid_cents: payments.reduce((sum, p) => sum + p.paid_cents, 0),
+  owed_cents: 0,
+  currency: payments[payments.length - 1]?.currency ?? "usd",
+  at: now.toISOString(),
+  payments,
+});
+
+/**
+ * THE JOB IS PAID, SO A WRONG-FIGURE PAYMENT KEPT ON IT IS NOW OWED BACK —
+ * ROADMAP 97.69. 97.10 leaves a job unpaid and notes a payment of the wrong
+ * figure or currency; when the right payment `intent` then settles the job, that
+ * note was left behind and hidden (it is only shown on an unpaid job), with the
+ * money still in the detailer's Stripe. Every kept `amount`/`currency` note about
+ * ANOTHER payment moves onto the refunds-owed list; other reasons stay in
+ * `earlier`. Returns undefined when there is nothing to move, so the settle
+ * write leaves the column alone.
+ */
+export function settleProblem(
+  intent: string,
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): PaymentProblem | undefined {
+  if (!existing) return undefined;
+  const reasons = [...(existing.earlier ?? []), ...(existing.kind === "extra" ? [] : [existing])];
+  const owedBack = (r: Omit<PaymentProblem, "payments" | "earlier">) =>
+    (r.kind === "amount" || r.kind === "currency") && !!r.intent && r.intent !== intent;
+  const payments = [...(existing.payments ?? [])];
+  for (const r of reasons) {
+    if (owedBack(r) && !payments.some((p) => p.intent === r.intent)) {
+      payments.push({ intent: r.intent!, paid_cents: r.paid_cents, currency: r.currency, at: r.at, reason: r.kind as "amount" | "currency" });
+    }
+  }
+  if (payments.length === (existing.payments?.length ?? 0)) return undefined;
+  const rest = reasons.filter((r) => !owedBack(r)).map(({ payments: _p, earlier: _e, refunds: _r, ...r }) => r);
+  return { ...extraProblem(payments, now), ...(rest.length ? { earlier: rest } : {}), ...(existing.refunds ? { refunds: existing.refunds } : {}) };
+}
+
+/**
+ * A BANK PAYMENT THAT DID NOT GO THROUGH — ROADMAP 97.11. Returns the patch for
+ * the job's row, or null to leave it alone.
+ *
+ *   · it is not the payment that settled the job, and the job is settled
+ *     (cash, a waiver, another payment) → null: nothing was taken from anyone;
+ *   · it IS the payment that marked the job paid (the webhook before 97.10 did
+ *     that while a bank debit was still on its way), and an extra payment
+ *     already on the job is exactly the figure owed → that payment now settles
+ *     the job: it stays paid, and only the OTHER extras stay owed back;
+ *   · otherwise → `failed`, and the job goes back to unpaid if this payment had
+ *     marked it paid.
+ *
+ * Every extra payment and every earlier reason already recorded is carried onto
+ * what replaces it (`keepReasons`). The first version wrote a bare `failed` over
+ * the row and erased a refund the detailer still owed (review, 2026-10-16), and
+ * the next still erased a wrong-amount note (supervision, 2026-10-17).
+ */
+export function failedBankPayment(
+  object: Record<string, unknown>,
+  intent: string,
+  booking: PayableBooking & { stripe_payment_intent?: string | null },
+  existing: PaymentProblem | null | undefined,
+  now: Date = new Date(),
+): Record<string, unknown> | null {
+  const ours = booking.stripe_payment_intent === intent;
+  if (!ours && (booking.payment_status === "paid" || booking.payment_status === "waived")) return null;
+  const extras = Array.isArray(existing?.payments) ? existing.payments : [];
+  const owed = amountDueCents(booking);
+  const cover = ours ? extras.find((p) => p.currency === "usd" && p.paid_cents === owed && owed > 0 && !refundedCents(existing, p.intent)) : undefined;
+  if (cover) {
+    const left = keepReasons(extraProblem(extras.filter((p) => p !== cover), now), existing);
+    return { stripe_payment_intent: cover.intent, payment_problem: left.payments || left.earlier || left.refunds ? left : null };
+  }
+  const money = cardMoney("checkout.session.async_payment_failed", object);
+  const problem: PaymentProblem = {
+    kind: "failed",
+    paid_cents: money.cents,
+    owed_cents: owed,
+    currency: money.currency,
+    at: now.toISOString(),
+    intent,
+  };
+  const kept = keepReasons(problem, existing);
+  return ours
+    ? { payment_status: "pending", paid_online_at: null, stripe_payment_intent: null, payment_problem: kept }
+    : { payment_problem: kept };
+}
+
+/**
+ * A REFUND THE DETAILER MADE IN THEIR OWN STRIPE — ROADMAP 97.68.
+ *
+ * `charge.refunded` carries the charge's amount and its running total refunded,
+ * and both go into the job's `refunds`, keyed by the payment. Every line that
+ * says "refund it" reads what is LEFT from there: an extra payment (97.11), a
+ * wrong-figure payment owed back (97.69, 97.70), and the cancelled job's own
+ * payment (14.4). So a payment refunded in full is owed nothing wherever it is
+ * listed, and nothing has to be taken off a list.
+ *
+ * IT IS KEPT EVEN WHEN THE PAYMENT IS NOT ON THE JOB YET. Stripe does not deliver
+ * events in order, so a refund can arrive before the payment's own event puts it
+ * on the list, or while it is still only a wrong-figure reason. Recorded here,
+ * the payment arrives already refunded (review, 2026-10-17: the first version
+ * dropped such a refund in silence).
+ *
+ * The figure only ever goes UP: two partial refunds' events arriving the wrong
+ * way round must not shrink what was refunded. Returns `undefined` when it would
+ * not change, so the caller writes nothing.
+ */
+export function refundedPayment(
+  existing: PaymentProblem | null | undefined,
+  intent: string,
+  charge: Record<string, unknown>,
+  now: Date = new Date(),
+): PaymentProblem | undefined {
+  const paid = Number(charge.amount) || 0;
+  const was = refundedCents(existing, intent);
+  const refunded = Math.min(Math.max(Number(charge.amount_refunded) || 0, 0), paid);
+  if (!intent || refunded <= was) return undefined;
+  const base: PaymentProblem = existing
+    ?? { kind: "extra", paid_cents: 0, owed_cents: 0, currency: String(charge.currency ?? "usd").toLowerCase(), at: now.toISOString() };
+  return { ...base, refunds: { ...existing?.refunds, [intent]: { paid_cents: paid, refunded_cents: refunded, at: now.toISOString() } } };
+}
+
+/** `stripe()` from `_shared/stripe.ts`, passed in so this module imports nothing and a test can stand in for Stripe. */
+export type StripeCall = (
+  path: string,
+  body?: Record<string, unknown>,
+  opts?: { method?: string; idempotencyKey?: string; stripeAccount?: string },
+) => Promise<Record<string, unknown>>;
+
+/**
+ * ONE OPEN CHECKOUT PAGE PER BOOKING — ROADMAP 97.11.
+ *
+ * `pay-booking` made a new Stripe page whenever the amount changed and left the
+ * old one open, so a $100 page could still be paid after the job became $150,
+ * and two live pages could both be paid. Now, before a page is made:
+ *
+ *   · the previous page is still open at THIS amount → it is handed back, so a
+ *     second tap or a reopened email link never makes a second live page;
+ *   · it is open at a DIFFERENT amount → it is expired first, and only then is
+ *     the new one made;
+ *   · it is finished, expired, or Stripe no longer knows it (a 404: the detailer
+ *     reconnected another Stripe account) → a new page is made.
+ *
+ * The caller's idempotency key gains the previous page's id, so a page made
+ * after one finished is a fresh one rather than Stripe's cached answer to the
+ * old key — the cached answer was the finished page itself.
+ */
+export async function checkoutSession(
+  call: StripeCall,
+  o: {
+    /** `pay:<booking>:<cents>` — the previous page's id is added here. */
+    idempotencyKey: string;
+    amountCents: number;
+    previousId: string | null | undefined;
+    stripeAccount: string;
+    params: Record<string, unknown>;
+  },
+): Promise<{ id: string; url: string; reused: boolean }> {
+  let previous: Record<string, unknown> | null = null;
+  if (o.previousId) {
+    try {
+      previous = await call(`/checkout/sessions/${o.previousId}`, undefined, { stripeAccount: o.stripeAccount });
+    } catch (e) {
+      if ((e as { status?: number })?.status !== 404) throw e;
+    }
+  }
+  if (previous?.status === "open") {
+    if (Number(previous.amount_total) === o.amountCents) {
+      return { id: String(previous.id), url: String(previous.url), reused: true };
+    }
+    await call(`/checkout/sessions/${o.previousId}/expire`, {}, {
+      stripeAccount: o.stripeAccount,
+      idempotencyKey: `expire:${o.previousId}`,
+    });
+  }
+  const s = await call("/checkout/sessions", o.params, {
+    stripeAccount: o.stripeAccount,
+    idempotencyKey: `${o.idempotencyKey}:${o.previousId || "first"}`,
+  });
+  return { id: String(s.id), url: String(s.url), reused: false };
+}
+
 /** Stripe refuses anything under 50 cents, and says so in a way nobody reads. */
 export const STRIPE_MIN_CHARGE_CENTS = 50;
 

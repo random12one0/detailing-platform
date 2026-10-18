@@ -1,0 +1,81 @@
+retry-safety 3e sabotage runs · commit c7ac59a6 · 2026-10-16T23:02:21Z
+
+=== --break=no-collision-handling run 1
+retry-safety · target LOCAL (this checkout, run in Node) · --break=no-collision-handling
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  FAIL  3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+        1 of 10 jobs wrong
+        job 1: 23505 duplicate key value violates unique constraint "bookings_id_business_key" | 23505 duplicate key value violates unique constraint "bookings_id_business_key" | saved | saved · 1 row(s)
+  FAIL  3e · the race's 23505 over a job that IS saved answers as saved
+        23505 duplicate key value violates unique constraint "bookings_id_business_key"
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+3 passed, 2 failed  (target local, --only=3e, --break=no-collision-handling)
+exit 1
+
+=== --break=no-collision-handling run 2
+retry-safety · target LOCAL (this checkout, run in Node) · --break=no-collision-handling
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  FAIL  3e · the race's 23505 over a job that IS saved answers as saved
+        23505 duplicate key value violates unique constraint "bookings_id_business_key"
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+4 passed, 1 failed  (target local, --only=3e, --break=no-collision-handling)
+exit 1
+
+=== --break=no-collision-handling run 3
+retry-safety · target LOCAL (this checkout, run in Node) · --break=no-collision-handling
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  FAIL  3e · the race's 23505 over a job that IS saved answers as saved
+        23505 duplicate key value violates unique constraint "bookings_id_business_key"
+  ok    3e · REFUSED: the same 23505 over a job that was never saved stays an error
+  ok    teardown · the fixture business is gone
+
+4 passed, 1 failed  (target local, --only=3e, --break=no-collision-handling)
+exit 1
+
+=== --break=swallow-23505 run 1
+retry-safety · target LOCAL (this checkout, run in Node) · --break=swallow-23505
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  FAIL  3e · REFUSED: the same 23505 over a job that was never saved stays an error
+        null
+  ok    teardown · the fixture business is gone
+
+4 passed, 1 failed  (target local, --only=3e, --break=swallow-23505)
+exit 1
+
+=== --break=swallow-23505 run 2
+retry-safety · target LOCAL (this checkout, run in Node) · --break=swallow-23505
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  FAIL  3e · REFUSED: the same 23505 over a job that was never saved stays an error
+        null
+  ok    teardown · the fixture business is gone
+
+4 passed, 1 failed  (target local, --only=3e, --break=swallow-23505)
+exit 1
+
+=== --break=swallow-23505 run 3
+retry-safety · target LOCAL (this checkout, run in Node) · --break=swallow-23505
+
+  ok    setup · own fixture business, service, hours and a signed-in owner
+  ok    3e · 10 logged bulk jobs, each pressed three times at once and once more: every press accepted, ONE row each
+  ok    3e · the race's 23505 over a job that IS saved answers as saved
+  FAIL  3e · REFUSED: the same 23505 over a job that was never saved stays an error
+        null
+  ok    teardown · the fixture business is gone
+
+4 passed, 1 failed  (target local, --only=3e, --break=swallow-23505)
+exit 1

@@ -1,0 +1,392 @@
+{
+  "git_sha": "780aaeb761b7fa5f8d0e3993aec31a05bab8f35c",
+  "git_sha_started": "780aaeb761b7fa5f8d0e3993aec31a05bab8f35c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T02:02:34.675Z",
+  "failures": [
+    "failed @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "extra @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "extra @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "extra @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "extra @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "spanish @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "spanish @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "spanish @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "spanish @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed-refund @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed-refund @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed-refund @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "failed-refund @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "two-reasons @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-es @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-es @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-es @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-es @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-currency @ 1440x900 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-currency @ 768x1024 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-currency @ 390x844 · the red line is there — the old webhook marked it paid and recorded nothing",
+    "owed-back-currency @ 320x700 · the red line is there — the old webhook marked it paid and recorded nothing"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "break": "old-webhook",
+    "probed": [
+      {
+        "scenario": "failed",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-1440x900.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-768x1024.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-390x844.png"
+      },
+      {
+        "scenario": "failed",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-320x700.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-extra-1440x900.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-extra-768x1024.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-extra-390x844.png"
+      },
+      {
+        "scenario": "extra",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-extra-320x700.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-spanish-1440x900.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-spanish-768x1024.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-spanish-390x844.png"
+      },
+      {
+        "scenario": "spanish",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-spanish-320x700.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-refund-1440x900.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-refund-768x1024.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-refund-390x844.png"
+      },
+      {
+        "scenario": "failed-refund",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-failed-refund-320x700.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-two-reasons-1440x900.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-two-reasons-768x1024.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-two-reasons-390x844.png"
+      },
+      {
+        "scenario": "two-reasons",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-two-reasons-320x700.png"
+      },
+      {
+        "scenario": "owed-back",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-1440x900.png"
+      },
+      {
+        "scenario": "owed-back",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-768x1024.png"
+      },
+      {
+        "scenario": "owed-back",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-390x844.png"
+      },
+      {
+        "scenario": "owed-back",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-320x700.png"
+      },
+      {
+        "scenario": "owed-back-es",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-es-1440x900.png"
+      },
+      {
+        "scenario": "owed-back-es",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-es-768x1024.png"
+      },
+      {
+        "scenario": "owed-back-es",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-es-390x844.png"
+      },
+      {
+        "scenario": "owed-back-es",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-es-320x700.png"
+      },
+      {
+        "scenario": "owed-back-currency",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-currency-1440x900.png"
+      },
+      {
+        "scenario": "owed-back-currency",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-currency-768x1024.png"
+      },
+      {
+        "scenario": "owed-back-currency",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-currency-390x844.png"
+      },
+      {
+        "scenario": "owed-back-currency",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-owed-back-currency-320x700.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-settled-1440x900.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-settled-768x1024.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-settled-390x844.png"
+      },
+      {
+        "scenario": "settled",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-settled-320x700.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 1440,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-clean-1440x900.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 768,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-clean-768x1024.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 390,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-clean-390x844.png"
+      },
+      {
+        "scenario": "clean",
+        "width": 320,
+        "shown": false,
+        "text": null,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.69/png/sabotage/break-old-webhook-clean-320x700.png"
+      }
+    ]
+  },
+  "check_id": "payment-problem-late-old-webhook",
+  "started_at": "2026-10-17T02:00:33.118Z",
+  "status": "fail",
+  "expected_targets": 40,
+  "discovered_targets": 40,
+  "attempted_targets": 40,
+  "completed_targets": 40,
+  "skipped_targets": 0,
+  "assertions_executed": 121,
+  "min_assertions": 100,
+  "canary": {
+    "id": "break-old-webhook",
+    "observed_failure": true
+  }
+}

@@ -1370,7 +1370,17 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
     service_ids: form.serviceIds,
     add_ons: form.addOns,
     vehicle_size: form.vehicleSize,
-    extra_vehicles: extraVehiclePayload(form),
+    // ROADMAP 97.7 — on a split booking each car carries its OWN day, because
+    // its own `create-booking` call prices it on that day. Without these the
+    // server priced every car on car 1's day: Monday + Saturday quoted $400
+    // and charged $430.
+    extra_vehicles: form.splitDays
+      ? extraVehiclePayload(form)?.map((v, i) => ({
+        ...v,
+        booking_date: form.extraVehicles[i].date || undefined,
+        start_time: form.extraVehicles[i].time || undefined,
+      }))
+      : extraVehiclePayload(form),
     applied_promo_code: promoApplied || undefined,
     service_type: form.serviceType || undefined,
     travel_zone: form.travelZone || undefined,
@@ -1408,9 +1418,9 @@ export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify(
   // it out of this list is a stale price on the bar and a stale length handed
   // to `available-slots` — the customer is offered a slot too short for the
   // job and the server refuses the booking at the last step. Only the SIZES
-  // matter to a quote; a car's own day is what makes the split price differ,
-  // and that is the flag beside them.
-  (form.extraVehicles ?? []).map((v) => v.size),
+  // matter to a quote on one day. On a split booking each car's own day and
+  // time price it too (ROADMAP 97.7), so moving car 2 to a Saturday re-quotes.
+  (form.extraVehicles ?? []).map((v) => (form.splitDays ? [v.size, v.date || "", v.time || ""] : v.size)),
   !!form.splitDays,
 ]);
 
@@ -1492,8 +1502,17 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
 // the set one thing. **A failure part way through is not corruption** — each
 // call is a complete booking of its own — so a caller reports what was booked
 // and what was not, and never pretends to roll anything back.
+//
+// ROADMAP 97.8 — EACH CALL CARRIES THE TOTAL THE PAGE SHOWED FOR IT, from
+// `opts.quote` (the `calculate-booking` answer on screen): the whole figure
+// for one booking, each car's own `per_vehicle` figure on a split one, since
+// each call is priced as that car alone. `create-booking` refuses with
+// `price_changed` when its own total differs, so a customer is never charged
+// a figure they were not shown. No quote, no field: priced as before.
 export function bookingRequests(form, opts = {}) {
-  const base = bookingRequest(form, opts);
+  const shown = (t) => ({ shown_total: t == null ? undefined : Number(t) });
+  const legs = opts.quote?.per_vehicle;
+  const base = { ...bookingRequest(form, opts), ...shown(legs ? legs[0]?.total : opts.quote?.total) };
   const extras = form.extraVehicles ?? [];
   if (!form.splitDays || !extras.length) return [base];
   // On a split booking NO call carries extra vehicles: each is one car on one
@@ -1502,12 +1521,18 @@ export function bookingRequests(form, opts = {}) {
   const first = { ...base, extra_vehicles: null };
   return [
     first,
-    ...extras.map((v) => ({
+    ...extras.map((v, i) => ({
       ...first,
+      ...shown(legs?.[i + 1]?.total),
       vehicle_size: v.size,
       vehicle_model: (v.model ?? "").trim() || null,
       booking_date: v.date,
       start_time: v.time,
+      // ROADMAP 97.6 — THE PLAN RIDES CAR 1 ONLY. A plan covers one car, and
+      // each of these calls is priced as its own one-car booking, so a plan on
+      // every call made every car "the first" and the whole carload free.
+      // `create-booking` refuses a plan beside `group_with` for the same reason.
+      plan_id: null,
     })),
   ];
 }
@@ -1517,6 +1542,43 @@ export function bookingRequests(form, opts = {}) {
 // — so a site can only ask.
 export const groupedWith = (payload, firstBookingId) =>
   ({ ...payload, group_with: firstBookingId || null });
+
+// ROADMAP 97.64 — ONE RANDOM REF PER BOOKING, KEPT ACROSS RETRIES. The server
+// uses it as the booking's id and hands the id back on a repeat answer only to
+// a request carrying it, so a stranger who re-posts somebody's name, phone and
+// time never gets the manage link. EACH BOOKING keeps its own ref while its
+// own request is unchanged, so a retry after a lost answer is recognised and a
+// booking whose request changed (another time) gets a new one. Per booking,
+// not per list: changing car 2's time must not re-key car 1, or car 1's retry
+// loses its id and car 2 is booked without `group_with` (review, 2026-10-16).
+// ponytail: no fallback where crypto.randomUUID is missing (plain-http pages);
+// those send no ref and a retry falls back to "the link is in your email".
+export function bookingRefs(payloads, held = []) {
+  return payloads.map((p, i) => {
+    const key = JSON.stringify(p);
+    return held[i]?.key === key ? held[i] : { key, ref: globalThis.crypto?.randomUUID?.() ?? null };
+  });
+}
+
+// ROADMAP 97.2 — A RETRY'S ANSWER IS ONLY `id`, `start_at` AND `status`.
+// Anybody holding a name, a phone and a time can ask for it, so the server no
+// longer hands back the row. The confirmation screen gets the rest from what
+// this page just sent: the date and time it asked for, the end from the quote's
+// duration, the price it was quoted, and the manage link the id opens.
+export function retryConfirmation(answer, payload, quote) {
+  const [h, m] = String(payload.start_time).split(":").map(Number);
+  const end = h * 60 + m + (Number(quote?.total_duration) || 0);
+  const hhmm = (n) => String(n).padStart(2, "0");
+  return {
+    ...answer,
+    booking_date: payload.booking_date,
+    start_time: payload.start_time,
+    end_time: `${hhmm(Math.floor(end / 60) % 24)}:${hhmm(end % 60)}`,
+    total_price: quote?.total,
+    // 97.64: no id when the request was not the original press.
+    receipt_url: answer.id ? `/booking/${answer.id}` : null,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // What this device remembers. Roadmap 2.14 step 3, in the owner's own words:

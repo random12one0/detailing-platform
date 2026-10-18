@@ -1,0 +1,42 @@
+{
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T00:26:38.657Z",
+  "failures": [
+    "2b · car 2 books (was refused with 409) - got 409 \"That promo code is not valid.\"",
+    "2c · two booking rows saved - got 1",
+    "2d · discount saved equals discount quoted, and is not zero - got 19 vs 38",
+    "2f · both rows are one group - got [null]",
+    "3d · and nothing more was saved in either world - got 1, 1",
+    "4a · both cars book - got 200 \"\" / 409 \"The code ONCE10 is limited to one use per customer, and it looks like you've already used it.\"",
+    "4b · discount saved equals discount quoted, and is not zero - got 19"
+  ],
+  "warnings": [
+    "The handler runs in-process against the fixture's fake Supabase; pricing and resolvePromo are the real pricing.ts, the payloads the real core.js. The fixture does not honour resolvePromo's expiry filter (`or`), so only non-expiring codes are exercised. The deployed create-booking is not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/promo-one-use-group.sabotage-no-share.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.9",
+    "break": "no-share"
+  },
+  "check_id": "promo-one-use-group-no-share",
+  "started_at": "2026-10-17T00:26:38.385Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 23,
+  "min_assertions": 23,
+  "assertion_floor": "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 4 old-or-cancelled + 3 car-count + 1 canary = 23, every check() unconditional; targets are the five limits on the share (usage limit, once per customer, group cap in cars, freshness, status).",
+  "canary": {
+    "id": "share-switched-off",
+    "observed_failure": true,
+    "what": "the handler with the group share removed refuses car 2 with 409, as the defect did"
+  }
+}

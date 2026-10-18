@@ -5557,3 +5557,41 @@ Re-run the producing script in the checkout you are judging before believing eit
 verdict: `node scripts/booking-consent.mjs` (dev server on 5182) wrote three
 different hashes and the checked shot shows a ticked box. Any artifact under an
 ignored or excluded path is evidence only in the tree that wrote it.
+
+## 133. A whole-file crash "fails differently" because the internet answered differently
+
+Supervision 2026-10-16. The belt held ROADMAP 97.2, a security fix its reviewer
+passed, because `tests/booking-page-isolation.test.mjs` "now fails differently".
+That file asks the live Supabase API for keys before any test runs, and the
+belt's suite has no credentials, so it crashes every time. Baseline r1 recorded
+`TypeError: keys.find is not a function` (a JSON error came back); the 97.2 run
+recorded `SyntaxError: Unexpected token '<'` (an HTML page came back). Same
+crash, different reply from a server the branch never touched. Evidence:
+`belt/suite/runs/2026-10-16T14-43-42-632Z-18240-97.2-candidate.log`.
+
+A file that crashed before any test ran measured nothing in either run, so a
+new crash message is not a regression. The belt now records it as `recrashed`
+and does not hold for it; `regression.test.mjs` keeps the per-test case
+("section 1" with a new signature) as the canary, and removing the whole-file
+condition turned that canary red.
+
+Same sitting, same shape: a test-safety REFUSAL ("no check was run") was
+reported as "regressed checks that pass on main" for 97.1 and 97.3, and two of
+Andrew's merge requests stopped under that false reason. A check that did not
+run is not a check that failed. Say which of the two it was.
+
+## 134. `node --test a.mjs missing.mjs` drops the missing file and goes green
+
+Supervision 2026-10-18. Run alone, `node --test tests/does-not-exist.test.mjs`
+exits 1 ("Could not find"). Named beside ANY file that exists, the missing one is
+silently dropped: `node --test tests/does-not-exist.test.mjs tests/composition.test.mjs`
+printed `tests 1, pass 1, fail 0`, exit 0. Node 24 reads the arguments as patterns,
+and a pattern that matches nothing is not an error once something else matched.
+
+It bit the supervisor on itself: a new guard was listed in a ten-file run inside a
+worktree that did not yet have the file, the run said `pass 22 / fail 0`, and that
+figure went into merge commit `956e0136` as though the guard had run. It had not.
+
+A list of test files that a gate, a belt config or a release note names will go on
+reporting green after one of them is renamed or deleted. Check `ℹ tests` against the
+number of files you meant to run, or run a new file on its own once before batching it.

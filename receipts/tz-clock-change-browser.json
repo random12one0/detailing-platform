@@ -1,0 +1,38 @@
+{
+  "git_sha": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
+  "git_sha_started": "5f4ebbfdc5fa94ca017e9168e1539c3cf13bf82c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T04:41:21.765Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/tz-clock-change-browser/sizes.json"
+  ],
+  "dimensions": {
+    "roadmap": "97.1",
+    "base": "http://127.0.0.1:5180",
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844"
+    ]
+  },
+  "check_id": "tz-clock-change-browser",
+  "started_at": "2026-10-16T04:41:19.969Z",
+  "status": "pass",
+  "expected_targets": 432,
+  "discovered_targets": 432,
+  "attempted_targets": 432,
+  "completed_targets": 432,
+  "skipped_targets": 0,
+  "assertions_executed": 436,
+  "min_assertions": 436,
+  "assertion_floor": "structural: 3 sizes x 144 fixed conversions, one console check per size and one canary, so the count cannot vary",
+  "canary": {
+    "id": "browser-tz-one-pass-served",
+    "observed_failure": true,
+    "rewrite_executed": true,
+    "wrong": 22
+  }
+}

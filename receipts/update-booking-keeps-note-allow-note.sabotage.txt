@@ -1,0 +1,65 @@
+update-booking-keeps-note BREAK=allow-note — 2026-10-17T10:38:46.251Z
+ok    the production update-booking handler loaded with every import replaced
+ok    job record · amount · the write succeeded
+ok    job record · amount · the row is now paid
+ok    job record · amount · its note is untouched
+ok    job record · amount · the response carries the note to the screen
+ok    job record · currency · the write succeeded
+ok    job record · currency · the row is now paid
+ok    job record · currency · its note is untouched
+ok    job record · currency · the response carries the note to the screen
+ok    job record · kept under a later extra payment · the write succeeded
+ok    job record · kept under a later extra payment · the row is now paid
+ok    job record · kept under a later extra payment · its note is untouched
+ok    job record · kept under a later extra payment · the response carries the note to the screen
+ok    Money · amount · the write succeeded
+ok    Money · amount · the row is now paid
+ok    Money · amount · its note is untouched
+ok    Money · amount · the response carries the note to the screen
+ok    Money · currency · the write succeeded
+ok    Money · currency · the row is now paid
+ok    Money · currency · its note is untouched
+ok    Money · currency · the response carries the note to the screen
+ok    Money · kept under a later extra payment · the write succeeded
+ok    Money · kept under a later extra payment · the row is now paid
+ok    Money · kept under a later extra payment · its note is untouched
+ok    Money · kept under a later extra payment · the response carries the note to the screen
+ok    finalize · amount · the write succeeded
+ok    finalize · amount · the row is now paid
+ok    finalize · amount · its note is untouched
+ok    finalize · amount · the response carries the note to the screen
+ok    finalize · currency · the write succeeded
+ok    finalize · currency · the row is now paid
+ok    finalize · currency · its note is untouched
+ok    finalize · currency · the response carries the note to the screen
+ok    finalize · kept under a later extra payment · the write succeeded
+ok    finalize · kept under a later extra payment · the row is now paid
+ok    finalize · kept under a later extra payment · its note is untouched
+ok    finalize · kept under a later extra payment · the response carries the note to the screen
+ok    job record waive · amount · the write succeeded
+ok    job record waive · amount · the row is now waived
+ok    job record waive · amount · its note is untouched
+ok    job record waive · amount · the response carries the note to the screen
+ok    job record waive · currency · the write succeeded
+ok    job record waive · currency · the row is now waived
+ok    job record waive · currency · its note is untouched
+ok    job record waive · currency · the response carries the note to the screen
+ok    job record waive · kept under a later extra payment · the write succeeded
+ok    job record waive · kept under a later extra payment · the row is now waived
+ok    job record waive · kept under a later extra payment · its note is untouched
+ok    job record waive · kept under a later extra payment · the response carries the note to the screen
+ok    finalize waive · amount · the write succeeded
+ok    finalize waive · amount · the row is now waived
+ok    finalize waive · amount · its note is untouched
+ok    finalize waive · amount · the response carries the note to the screen
+ok    finalize waive · currency · the write succeeded
+ok    finalize waive · currency · the row is now waived
+ok    finalize waive · currency · its note is untouched
+ok    finalize waive · currency · the response carries the note to the screen
+ok    finalize waive · kept under a later extra payment · the write succeeded
+ok    finalize waive · kept under a later extra payment · the row is now waived
+ok    finalize waive · kept under a later extra payment · its note is untouched
+ok    finalize waive · kept under a later extra payment · the response carries the note to the screen
+ok    the write succeeded and the job is paid
+FAIL  payment_problem in the payload was ignored (not on the allowlist) — null
+62 passed, 1 failed, 16 of 16 scenarios.

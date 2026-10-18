@@ -14,8 +14,10 @@ import SetupForm from "./components/SetupForm.jsx";
 import SiteIntake from "./screens/SiteIntake.jsx";
 import { SCREENS } from "./screens/more/index.js";
 import { supabase } from "./lib/supabase.js";
+import { endPreview } from "./lib/signout.js";
+import { time12 } from "./lib/format.js";
 import { impersonation } from "./lib/impersonation.js";
-import { isPreviewTab, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
+import { isPreviewTab, previewEndsAt, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
 // booking page's. See `lib/appI18n.js` for why they are two keys.
@@ -193,6 +195,13 @@ export default function App() {
       if (TAB_PATHS.includes(key)) window.history.replaceState(null, "", `/app/${key}`);
     } catch { /* an embedded webview may refuse; the tab still changes */ }
   };
+  // ROADMAP 97.88 — LEAVING THE SCREEN IS A CLOSE TOO. A tab press or the gear
+  // unmounts the screen, so a save it sent on the way out was answered to
+  // nothing. A screen with something unsaved puts its own "may I go?" here
+  // (Clients' open record: wait for the Notes save, stay with the line on a
+  // refusal, as its own Close does); the tab bar and the gear ask it first.
+  const leave = useRef(null);
+  const mayLeave = async () => !leave.current || await leave.current();
 
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
@@ -211,6 +220,20 @@ export default function App() {
   // hidden — he asked for that explicitly — the writes simply refuse until
   // he flips the switch, so a stray click cannot finalise somebody's payment.
   const [mode, setMode] = useState(previewMode());
+  // ROADMAP 97.15: A VIEW ENDS ITSELF AT ITS DEADLINE (30 minutes, the server's), signing its
+  // session out so the token stops working, and says so instead of going quietly blank.
+  const endsAt = isPreviewTab ? previewEndsAt() : 0;
+  useEffect(() => {
+    if (!endsAt) return;
+    const id = setTimeout(async () => {
+      await endPreview();
+      window.location.replace("/preview#ended=expired");
+    }, Math.max(0, endsAt - Date.now()));
+    return () => clearTimeout(id);
+  }, [endsAt]);
+  const endsLabel = endsAt
+    ? time12(`${new Date(endsAt).getHours()}:${String(new Date(endsAt).getMinutes()).padStart(2, "0")}`)
+    : "";
 
   // WHAT OPENS BY ITSELF, AND EXACTLY ONCE. Runs when the tenant lands, never
   // again in this session — a detailer who skips the form must not meet it
@@ -385,14 +408,20 @@ export default function App() {
             {mode === "look"
               ? `Looking at ${previewWho() || "their dashboard"}. Nothing here can be changed.`
               : `WORKING in ${previewWho() || "their dashboard"}. Anything you change is theirs.`}
+            {endsLabel && ` Open until ${endsLabel}.`}
           </span>
           <button type="button" onClick={() => {
             const next = mode === "look" ? "work" : "look";
             setPreviewMode(next); setMode(next);
           }}>{mode === "look" ? "Let me make changes" : "Back to looking"}</button>
-          {/* Closing the tab IS the exit — the session lives in this tab and
-              the browser throws it away. Nothing to sign out of. */}
-          <button type="button" onClick={() => window.close()}>Close</button>
+          {/* ROADMAP 97.15: Close ends the session first, so its token stops
+              working, then closes the tab (a tab the back office opened always
+              closes; the replace is for one that somehow will not). */}
+          <button type="button" onClick={async () => {
+            await endPreview();
+            window.close();
+            window.location.replace("/preview#ended=closed");
+          }}>Close</button>
         </div>
       )}
       {!isPreviewTab && imp && (
@@ -424,7 +453,7 @@ export default function App() {
           {/* data-tour — the whole-dashboard tour's last block presses this
               to open the settings and then points at what is inside. */}
           <button data-tour="gear" className={`btn icon ghost${gear ? " on" : ""}`} aria-label={t("Settings")}
-            aria-pressed={gear} onClick={() => { setGearScreen(null); setGear((g) => !g); }}>
+            aria-pressed={gear} onClick={async () => { if (!gear && !(await mayLeave())) return; setGearScreen(null); setGear((g) => !g); }}>
             <Settings strokeWidth={2} />
           </button>
         </div>
@@ -473,7 +502,7 @@ export default function App() {
               />
             )
             : (
-              <Active refreshKey={rev} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
+              <Active refreshKey={rev} holdLeave={leave} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
                 // Only `Business` reads it; the other tabs ignore a prop they
                 // were not given a use for, which is cheaper than a second
                 // render path in this switch for one destination.
@@ -513,7 +542,8 @@ export default function App() {
              has to include the bar that is already on the screen. */
           <button key={x.key} data-tour={x.key}
             className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
-            onClick={() => {
+            onClick={async () => {
+              if (x.key !== tab && !(await mayLeave())) return;
               goTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
               // **A TAB PRESS CLOSES WHATEVER IS OVER THE MAIN AREA.** This
               // read `=== "setup"`, so the website brief stayed on top: the

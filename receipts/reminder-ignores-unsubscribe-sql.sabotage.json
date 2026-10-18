@@ -1,0 +1,39 @@
+{
+  "git_sha": "8a7cdad261d4c6b8ea805f4025cfe2c370918da8",
+  "git_sha_started": "8a7cdad261d4c6b8ea805f4025cfe2c370918da8",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T22:02:01.600Z",
+  "failures": [
+    "1: the first reminder's due set is exactly BN, BU, BX got BN,BX",
+    "1: an unsubscribed customer with a booking tomorrow IS due got BN,BX"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/reminder-ignores-unsubscribe-sql/results.sabotage-keep-unsub.txt"
+  ],
+  "dimensions": {
+    "break": "keep-unsub",
+    "migration": "20261017220000_reminders_ignore_marketing_opt_out.sql",
+    "first_due": "BN,BX",
+    "second_due": "SN,SU",
+    "owner_due": "BB,BF,BN,BU,BX,SF,SN,SU",
+    "before_first_due": "BN,BX",
+    "before_second_due": "SN"
+  },
+  "check_id": "reminder-ignores-unsubscribe-sql",
+  "started_at": "2026-10-17T22:01:54.981Z",
+  "status": "fail",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 14,
+  "assertion_floor": "structural: a fixed list of checks over the two reminder functions",
+  "canary": {
+    "id": "pre-97.21-opt-out-silences-reminders",
+    "observed_failure": true
+  }
+}

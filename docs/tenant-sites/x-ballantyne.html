@@ -1008,8 +1008,12 @@ var STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
       // half-second arrival — which reads exactly as the lag he described.
       // Anything that has entered at all is on its way in.
       var seen = r.top < h * 0.995 && r.bottom > 0;
-      if (seen === !el.classList.contains("rv-hidden")) return;   // no change
-      if (el._t) clearTimeout(el._t);
+      // Compared with what the last pass SAW, not with the class: a card whose
+      // timer is still pending is seen but still rv-hidden, so a class test
+      // called its exit "no change" and the timer showed it off screen (97.92).
+      if (seen === !!el._seen) return;   // no change
+      el._seen = seen;
+      clearTimeout(el._t);
       if (seen) {
         el._t = setTimeout(function () {
           el.classList.remove("rv-hidden"); el.classList.add("rv-in");

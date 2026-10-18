@@ -6,7 +6,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById, getSettings } from "../_shared/tenant.ts";
+import { businessById, getSettings, ownLines } from "../_shared/tenant.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 import { cardStatus, payability } from "../_shared/connect.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
@@ -81,8 +81,8 @@ export const PUBLIC_BOOKING_FIELDS = [...BOOKING_COLUMNS, ...EMBEDDED, ...DERIVE
 
 const BOOKING_SELECT = `
   ${[...BOOKING_COLUMNS, ...SERVER_ONLY_COLUMNS].join(", ")},
-  services:booking_services(service_id, name_at_booking, price_at_booking, duration_at_booking),
-  add_ons:booking_add_ons(add_on_id, add_on:add_ons(id, name, price)),
+  services:booking_services(business_id, service_id, name_at_booking, price_at_booking, duration_at_booking),
+  add_ons:booking_add_ons(business_id, add_on_id, add_on:add_ons(id, name, price)),
   vehicles:booking_vehicles(position, vehicle_size_label, vehicle_model)
 `;
 
@@ -115,13 +115,15 @@ Deno.serve(async (req) => {
     if (!id) id = new URL(req.url).searchParams.get("id");
     if (!id?.trim()) return json({ error: "id is required" }, 400);
 
-    const { data: booking, error } = await supabase
+    const { data: found, error } = await supabase
       .from("bookings")
       .select(BOOKING_SELECT)
       .eq("id", id.trim())
       .is("deleted_at", null)
       .maybeSingle();
-    if (error || !booking) return json({ error: "not_found" }, 404);
+    if (error || !found) return json({ error: "not_found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the receipt.
+    const booking = ownLines(found);
     // deno-lint-ignore no-explicit-any
     const row = booking as any;
 

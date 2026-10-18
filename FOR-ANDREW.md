@@ -48,6 +48,100 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
+
+Both fixes are right. Neither has reached main yet, for the belt's reasons, not yours.
+
+- **97.1, the clock-change Sunday bookings.** Your second "merge it" was held
+  because its new test wrote a scratch file to the computer's temp folder. The
+  supervisor moved that file inside the project on 16 October and re-checked it
+  (169 checks pass; the old broken version fails 31).
+  The next clock change is 1 November.
+- **97.2, the duplicate-booking answer that showed private details.** Held only
+  for an unrelated test that got a web page instead of data from the internet.
+  The belt stopped holding work for that this afternoon; its review said OK.
+
+**Recommendation: say "merge it" on both.**
+
+## DECIDE · Privacy page in English only? (ROADMAP 97.28)
+
+The backup change you asked for (monthly copies deleted after 12 months) is
+built and checked, and the privacy page now says so in one English sentence.
+It is waiting, unmerged, for one answer: the item also asked for that sentence
+in Spanish, but the privacy page has never had Spanish on purpose. It is a legal
+document, and the rule here is that nobody machine-translates it.
+
+**Recommendation: say "English only".** The work then goes in as it is. The
+other choice is paying a qualified translator for the whole privacy page, which
+would be a separate job.
+
+## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
+
+Your nightly database copy leaves out the settings that say who may read and
+change what. Every row comes back, but in a database restored from one, the
+tables and actions we have closed to the public would be open again. The check that restores a copy now
+compares those settings too, and is proved here on a practice copy: it names a
+setting that went missing, one that appeared, and a copy taken the old way.
+Nothing is decided here; this is the one step.
+
+**The step, about two minutes on github.com:** in your private repo
+`random12one0/detailing-platform-backups`, delete the words `--no-privileges`
+everywhere they appear and save (commit) to `main`. There are two: line 54 of
+`.github/workflows/backup.yml` (the nightly copy) and line 52 of
+`scripts/restore.sh` (the restore helper, which drops them again when putting a
+copy back). Leave `--no-owner` exactly where it is.
+
+What happens next: the next night's copy holds the settings. The copies already
+on hand do not, so the restore check run against any of them now fails and says
+exactly that, until a new night has run. Nothing else changes; the copy is a
+little bigger.
+
+## DO · Set up the scheduler's key at your next release (ROADMAP 97.3)
+
+Until now anybody on the internet could start the reminder sweep, the weather
+refresh, the job watcher and the nightly photo check. That is fixed in the code:
+each one now needs a password-like value (the "cron secret") on every call, and
+the scheduler is set up to send it. Proved here, without touching the internet
+or any real key: all four refuse a call without it and run with it, and the
+"send reminder" button in a job still works with no change.
+
+97.3 is already in main (merged 16 October). **At your next back-end release, these steps in this order.** Nothing is
+decided here; these are the setup steps.
+
+1. **Make the value.** In your password manager, generate a random 40-character
+   password (letters and numbers only) and save it as "Detailing platform —
+   cron secret". It lives there and nowhere else. Never paste it into a chat, a
+   document or this repo.
+2. **Put it in Vault.** Supabase dashboard, project `kguqylyzgyzfktkfnhjb` (not
+   your business's project) → Vault (under Integrations; or type "Vault" in the
+   dashboard search) → Add new secret. Name: `cron_secret`. Value: the password
+   from step 1.
+3. **Put the same value on the server programs.** Same project → Edge Functions →
+   Secrets → Add. Name: `CRON_SECRET`. Value: the same password.
+4. **Check step 2 landed.** SQL editor, run
+   `select name from vault.secrets where name = 'cron_secret';` — it must show
+   one row (it prints the name only, never the value).
+5. **Update the four scheduled jobs.** SQL editor: paste and run the whole of
+   `supabase/migrations/20261016100000_cron_jobs_send_secret.sql`. It is safe
+   before step 6: the programs running today ignore the extra value.
+6. **Publish the four programs**, with your next back-end release:
+   `send-owner-reminders`, `refresh-weather`, `watch-jobs`, `photo-reconcile`.
+   **Not before steps 2–5** — published first, every scheduled run is refused
+   and reminders stop going out.
+7. **Check it worked, about 20 minutes later.** SQL editor:
+   `select status_code, count(*) from net._http_response where created > now() - interval '30 minutes' group by 1;`
+   You want only `200`. A `401` means the two values in steps 2 and 3 differ;
+   a `503` means step 3 is missing.
+8. **For two of the test suites, afterwards.** `tests/dead-mans-switch.test.mjs`
+   and `tests/customer-reminder.test.mjs` call the live watcher and sweep, and
+   once step 6 is done they will be refused too. Add `CRON_SECRET=` with the same
+   value to the repo's `.env` yourself, then ask any session to add the header
+   line to those two suites (ROADMAP 97.3 names the exact change). The supervisor
+   kept that out of this item so its own test reads no secret.
+
+If you skip this row, nothing breaks: the jobs stay open to strangers exactly as
+they are today, until the four programs are published.
+
 ## DO · Unfinished receipt cleanup (ROADMAP 14.39)
 
 The fix is built and committed locally: a receipt upload remains recorded even
@@ -75,11 +169,15 @@ The final upload switch is committed locally. Your cron, its timeout and the
 10 GB allowance were already live; they were checked again without changing
 the database. No new account setup or decision is needed for those steps.
 
-Before publishing the app, have the session for **98.5** repair the stale photo
-checks and get the full photo and Spanish run green. The protected tests were
-left unchanged by this job, and their failed output is saved. Then include the
-receipt switch in your ordinary app release; a session verifies the published
-upload and ticks 0.11cc. The control-room copy on port 5180 has a separate
+**Checked again 2026-10-17.** Live: the 10 GB allowance, job photos going to the new store, and the
+2026-10-10 versions of the photo program, the forget-customer program and the nightly clean-up. **Those three
+programs are about a week behind the saved code** — the 14.39 row just above still asks you to apply two
+database changes and republish the photo program and the clean-up. **Not live yet: two switches, this one for
+receipts and the one for logos and gallery pictures.** The website you have published still saves both the old
+way, and both go out with your next ordinary website publish. **Not ready to publish yet:** one Spanish check
+was skipped because it needs the keys, and you ruled on 2026-10-13 that nothing may be skipped. A session with
+the keys must run it clean first; nothing to decide. Then, after your publish, a session checks the live site
+and ticks 0.11cc and 0.11c. The control-room copy on port 5180 has a separate
 browser-origin restriction, so its transport check records that limitation.
 The failed-upload cleanup gap found during proof is now numbered **14.39**;
 all of this job's temporary receipt files and expenses were removed.
@@ -113,6 +211,149 @@ migration-before-function release (99.1). Those remain their existing jobs; this
 After those releases, have a session run `node scripts/deployed-inventory.mjs` and
 `node scripts/receipt.mjs receipts/deployed-inventory.json`, retain the receipt, and tick 98.2 only when both pass.
 The session has not pushed, published, deployed or changed a check to hide the backlog.
+
+## DO, AT YOUR NEXT RELEASE · Two cars on two days show the price they are charged (ROADMAP 97.7)
+
+Booking two cars on different days used to show one price and charge another. With a $30 weekend
+rate, a Monday car plus a Saturday car showed $400 and charged $430. Now each car's price is worked
+out on its own day, and the last step shows "Weekend rate" under the Saturday car. Proved here on
+the real booking page at phone, tablet and laptop sizes. Nothing to decide.
+
+**At your next release,** publish the booking page and the price programs with everything else. Then,
+if you like, a ten-second look on your phone: book two cars, put the second on a Saturday, and on the
+last step check the weekend rate sits under that car. If you don't like how the line looks, say so.
+
+## DO, AT YOUR NEXT RELEASE · Stop another business adding lines to a customer's receipt (ROADMAP 97.12)
+
+Today a detailer who learned another business's booking number could add a service, add-on or charge to that booking,
+and it would print on the other business's receipt and invoice. The fix is built and tested on a throwaway copy of the
+database. Your live database has no such stray lines today (0 of 50 checked), so nothing needs cleaning first.
+
+**Your move:** at your next release, apply the database change `20261017000000_booking_lines_same_business.sql`, and
+publish five programs: `get-booking-receipt`, `send-invoice`, `accept-quote`, `respond-to-booking`, `booking-ics`.
+Either order is safe. Nothing a customer sees changes. Until you apply it, the database health check (`db-audit`) lists
+the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
+session has not pushed, published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Stop two bookings at the same moment beating your daily limit (ROADMAP 97.18)
+
+Today, if two customers book at the very same moment, both can get in even when that breaks your daily booking limit or
+the gap you need between jobs. Two customers moving their bookings onto the same day have the same problem. The fix is
+built and tested on a throwaway copy of the database, rebuilt from every database change this project has ever made. The
+second booking now waits for the first, looks again, and is turned away with the sentence customers already see: "That
+day is fully booked" or "That time is too close to another booking".
+
+**Decided by you, 2026-10-17:** keep the fix, and the lock may add no more than 5 thousandths of a second to a booking.
+Measured: it adds about a quarter of one thousandth (0.25 at the middle of 300 bookings, 0.44 at the slow end).
+
+**Your move, at your next release:** apply the database change `20261018030645_booking_day_rules_lock.sql` FIRST,
+then publish `create-booking`, `reschedule-booking` and `update-booking`. In the other order, every booking fails
+until the database change is in. The session has not pushed, published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Stop team logins deleting bookings or changing customers behind the app's back (ROADMAP 97.14)
+
+Today any team login, whatever you have ticked for it, can skip the app and delete a booking outright, or add,
+change or delete a customer. The fix takes those abilities away from every browser. The one thing the app still
+changed directly, a client's Notes box, now saves through a checked route that refuses anyone outside the business and
+any "view as" look. A "view as" tab left on Looking now says so under the Notes box instead of quietly saving. Built and
+tested on a throwaway copy of the database and in the running app, with the staff and the owner logins.
+
+**Your move:** at your next release, apply `20261017030000_staff_cannot_delete_bookings_or_write_customers.sql` and
+then `20261017130000_set_customer_notes_refuses_support_sessions.sql`, and publish the website in the same sitting. If
+only one half goes live, the Notes box stops saving (old website, new database) or shows "Your notes were not saved"
+(new website, old database). Adding customers and "Delete for good" are unchanged. After the apply, the check that
+lists database functions will name the new notes route until it is added to its allowed list. The session has not
+pushed, published, deployed or changed the database. Separately, letting you pick what each team member may do is
+ROADMAP 99.13, not urgent, as you said.
+
+## DO, AT YOUR NEXT RELEASE · Customers who unsubscribe from promo emails still get appointment reminders (ROADMAP 97.21)
+
+Today a customer who presses "unsubscribe" on a come-back email also stops getting the reminder about their own
+appointment, which is exactly the no-show the reminder is there to prevent. The unsubscribe page promises the opposite.
+The fix is one database change: reminders now ignore the promo opt-out, and still skip an address that bounced. Promo
+emails still skip anyone who unsubscribed. Tested on a throwaway copy of the database, with nothing sent.
+
+**Your move:** at your next release, apply `20261017220000_reminders_ignore_marketing_opt_out.sql`. Nothing needs
+publishing with it, and it can go in any order with the others. The session has not pushed, published, deployed or
+changed the database.
+
+## DO, AT YOUR NEXT RELEASE · "Delete for good" also wipes the customer from your sent emails (ROADMAP 97.20)
+
+Today, deleting a customer for good removes them from your clients and bookings, but the list of emails you sent still
+shows their email address and opens to full copies of what they were sent: their name, address and phone. Your own
+"New booking" alerts also keep their name in the title. After the fix, every email to or about that customer stays in
+the list as "Deleted customer", with no address and no copy, and your other customers' emails are untouched. If you
+ever booked yourself to test, deleting that test customer leaves your own alerts about everybody else alone. Tested
+on a throwaway copy of the database and on the real email list screen at four screen sizes. Nothing was deleted from
+the real database.
+
+**Your move:** at your next release, apply `20261017210000_forget_customer_forgets_their_email.sql`. There is nothing to
+publish with it. Two smaller follow-ups are filed: the address lookup cache (ROADMAP 97.20a, which needs a choice of
+approach) and the wording shown when a deleted customer's email is opened (97.20b). The session has not pushed,
+published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Stop one detailer's promo emails using up everyone's booking emails (ROADMAP 97.19)
+
+Today all detailers share one daily email allowance, and a detailer emailing their old customers could press Send
+twice and use all of it, so other detailers' booking confirmations and reminders stopped going out for the rest of the
+day. The fix gives each business 20 promo emails a day of its own. All promo emails together stop while 40 of the
+day's emails are still left, and only booking emails can use those 40. Pressing Send twice now sends once. When a
+detailer's 20 run out partway, the result screen says how many are waiting for tomorrow, where it used to tell them
+to try again in a few minutes. Tested on a throwaway copy of the database and in the running app at four screen
+sizes, with nothing sent.
+
+**Your move:** at your next release, in this order: (1) apply `20261017200000_campaigns_get_a_daily_share.sql`;
+(2) publish the website; (3) publish `send-email` and `send-campaign`. Doing (3) before (1) stops promo emails
+sending until (1) is done. Booking emails are unaffected in every order. The 20 and the 40 are settings you can change
+later. The session has not pushed, published, deployed or changed the database.
+## DO, AT YOUR NEXT RELEASE · A web address only goes live when its owner proves it (ROADMAP 97.13)
+
+Today anybody on a detailer's team can mark a web address as live without proving anything, including the
+platform's own address or another business's. The fix is built and tested on a throwaway copy of the database and
+in the browser. The "Your web address" screen now asks for one extra line at the domain company: a TXT record
+holding a code the screen shows.
+
+**Your move:** at your next release, publish the `verify-domain` program FIRST, then apply the database change
+`20261018010000_domain_claims_need_proof.sql` and publish the site. The other way round, nobody can add an
+address until the program lands. The live-database test `owner-writes` stays red until the change is applied. The
+session has not pushed, published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
+
+Today a detailer who learned another business's customer number could put that customer on their own job, plan or
+warranty reminder. If they had switched on the warranty email, which is off by default and has no button, that
+customer would get their "coating due" email. Their plan page would also show that customer's name and email. The fix
+is one database change plus two small server changes. All three were built and tested on a throwaway copy. Your live
+database has nothing to clean first: 0 of 50 bookings, 0 of 4 plan members and 0 of 3 warranty reminders name
+another business's customer.
+
+**Your move:** at your next release, apply `20261017020000_customer_same_business.sql`, and publish
+`send-owner-reminders` and `plan-link` with the other programs. Either order is safe. Nothing a customer sees
+changes. Until it is applied, the unapplied-change check (`migration-drift`) names the file. The session has not
+pushed, published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Stop another business attaching photos or warranty dates to a customer's job (ROADMAP 97.71)
+
+Today a detailer who learned another business's booking number could attach a job photo or a warranty reminder to it.
+Nothing showed up on the other business's screens or in its emails. But if that business deleted the booking, the
+stray photo record vanished with it. The fix is one database change, built and tested on a throwaway copy. Your live
+database has nothing to clean first: 0 photos, and 3 warranty reminders, none tied to a booking.
+
+**Your move:** at your next release, apply `20261017010000_photos_deadlines_same_business.sql`. No program needs
+publishing. Nothing a customer sees changes. Until it is applied, the health check (`db-audit`) lists the two tables
+as "awaits apply" and stays green, and the unapplied-change check (`migration-drift`) names the file. The session
+has not pushed, published, deployed or changed the database.
+
+## DO, AT YOUR NEXT RELEASE · Let Stripe tell us about refunds (ROADMAP 97.68)
+
+When a detailer refunds a payment in their own Stripe, the red "refund it" line on the job now goes away: on a
+cancelled job (the job still says Paid, and its money section says "Refunded $150 in your Stripe on …") and on an
+extra payment. After a partial refund the line names only what is left. A refund Stripe reports before the payment
+itself is kept too. It is built and tested, but Stripe only sends that news if the connected-account webhook
+endpoint is subscribed to it. In Stripe, Developers, Webhooks, open the endpoint for connected accounts and add the
+event `charge.refunded`. While there, check that `checkout.session.async_payment_succeeded` and
+`checkout.session.async_payment_failed` are on it too; 97.11 needs them. Then publish `stripe-webhook` after 97.10,
+97.11 and 97.69. If you skip this, nothing breaks; the line just stays until it is subscribed. No database change.
 
 ## DO, AT YOUR NEXT RELEASE · Use the shorter email dates and times (ROADMAP 99.2a)
 
@@ -310,7 +551,7 @@ The list is not written here, because a typed list goes stale within the hour.
 3. **`platform-billing` alone.** It charges detailers for the platform.
 4. **The payment webhook last and alone.** It touches money, so if anything goes
    wrong there is only one thing it can have been. This is your rule and it has not
-   changed.
+   changed. One small database change goes just before it (ROADMAP 97.10).
 
 **Held back on purpose: `platform-admin`.** Published today, it would make your "Let
 me make changes" button promise you can edit while every save is refused (ROADMAP
@@ -357,9 +598,14 @@ stops if the list comes out empty, and never hands it zero names.
 node scripts/deploy-functions.mjs platform-billing
 ```
 
-**Step 4 · the payment webhook, last and alone. Nothing else running:**
+**Step 4 · the payment webhook, last and alone. Nothing else running.** The first
+line adds the one empty column the webhook now writes when a card payment does not
+match what the job owes (ROADMAP 97.10). It goes **before** the webhook: the other
+way round, a wrong-amount payment gets an error and Stripe keeps retrying it (the
+job still stays unpaid, so nothing is lost).
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 
@@ -660,9 +906,11 @@ refused with a sentence.
 ### Step 8 · Publish `stripe-webhook`, last and alone
 
 **Last because it touches money.** The ceilings (14.9, 14.18) and the email
-wording (3.4) on the one program that handles payments.
+wording (3.4) on the one program that handles payments. Since 97.10 it needs one
+column first, so the database line comes before it.
 
 ```bash
+node scripts/apply-migrations.mjs 20261016160000_booking_payment_problem.sql
 node scripts/deploy-functions.mjs stripe-webhook
 ```
 

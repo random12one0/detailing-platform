@@ -1,0 +1,83 @@
+{
+  "git_sha": "eb725091c0f2af407be4ece56408e7f2721f0032",
+  "git_sha_started": "eb725091c0f2af407be4ece56408e7f2721f0032",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T16:23:19.552Z",
+  "failures": [
+    "America/Los_Angeles 2026-03-08 03:00 round-trips — stored 2026-03-08T11:00:00.000Z, reads back 2026-03-08 04:00, want 2026-03-08 03:00",
+    "America/Los_Angeles 2026-03-08 04:00 round-trips — stored 2026-03-08T12:00:00.000Z, reads back 2026-03-08 05:00, want 2026-03-08 04:00",
+    "America/Los_Angeles 2026-03-08 05:00 round-trips — stored 2026-03-08T13:00:00.000Z, reads back 2026-03-08 06:00, want 2026-03-08 05:00",
+    "America/Los_Angeles 2026-03-08 06:00 round-trips — stored 2026-03-08T14:00:00.000Z, reads back 2026-03-08 07:00, want 2026-03-08 06:00",
+    "America/Los_Angeles 2026-03-08 07:00 round-trips — stored 2026-03-08T15:00:00.000Z, reads back 2026-03-08 08:00, want 2026-03-08 07:00",
+    "America/Los_Angeles 2026-03-08 08:00 round-trips — stored 2026-03-08T16:00:00.000Z, reads back 2026-03-08 09:00, want 2026-03-08 08:00",
+    "America/Los_Angeles 2026-03-08 09:00 round-trips — stored 2026-03-08T17:00:00.000Z, reads back 2026-03-08 10:00, want 2026-03-08 09:00",
+    "America/Los_Angeles 2026-11-01 02:00 round-trips — stored 2026-11-01T09:00:00.000Z, reads back 2026-11-01 01:00, want 2026-11-01 02:00",
+    "America/Los_Angeles 2026-11-01 03:00 round-trips — stored 2026-11-01T10:00:00.000Z, reads back 2026-11-01 02:00, want 2026-11-01 03:00",
+    "America/Los_Angeles 2026-11-01 04:00 round-trips — stored 2026-11-01T11:00:00.000Z, reads back 2026-11-01 03:00, want 2026-11-01 04:00",
+    "America/Los_Angeles 2026-11-01 05:00 round-trips — stored 2026-11-01T12:00:00.000Z, reads back 2026-11-01 04:00, want 2026-11-01 05:00",
+    "America/Los_Angeles 2026-11-01 06:00 round-trips — stored 2026-11-01T13:00:00.000Z, reads back 2026-11-01 05:00, want 2026-11-01 06:00",
+    "America/Los_Angeles 2026-11-01 07:00 round-trips — stored 2026-11-01T14:00:00.000Z, reads back 2026-11-01 06:00, want 2026-11-01 07:00",
+    "America/Los_Angeles 2026-11-01 08:00 round-trips — stored 2026-11-01T15:00:00.000Z, reads back 2026-11-01 07:00, want 2026-11-01 08:00",
+    "America/New_York 2026-03-08 03:00 round-trips — stored 2026-03-08T08:00:00.000Z, reads back 2026-03-08 04:00, want 2026-03-08 03:00",
+    "America/New_York 2026-03-08 04:00 round-trips — stored 2026-03-08T09:00:00.000Z, reads back 2026-03-08 05:00, want 2026-03-08 04:00",
+    "America/New_York 2026-03-08 05:00 round-trips — stored 2026-03-08T10:00:00.000Z, reads back 2026-03-08 06:00, want 2026-03-08 05:00",
+    "America/New_York 2026-03-08 06:00 round-trips — stored 2026-03-08T11:00:00.000Z, reads back 2026-03-08 07:00, want 2026-03-08 06:00",
+    "America/New_York 2026-11-01 02:00 round-trips — stored 2026-11-01T06:00:00.000Z, reads back 2026-11-01 01:00, want 2026-11-01 02:00",
+    "America/New_York 2026-11-01 03:00 round-trips — stored 2026-11-01T07:00:00.000Z, reads back 2026-11-01 02:00, want 2026-11-01 03:00",
+    "America/New_York 2026-11-01 04:00 round-trips — stored 2026-11-01T08:00:00.000Z, reads back 2026-11-01 03:00, want 2026-11-01 04:00",
+    "America/New_York 2026-11-01 05:00 round-trips — stored 2026-11-01T09:00:00.000Z, reads back 2026-11-01 04:00, want 2026-11-01 05:00",
+    "America/Los_Angeles 2026-03-08 hours are one hour apart — steps [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+    "America/Los_Angeles 2026-11-01 hours are one hour apart — steps [1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+    "America/New_York 2026-03-08 hours are one hour apart — steps [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+    "America/New_York 2026-11-01 hours are one hour apart — steps [1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+    "2026-03-08 08:00 LA is 15:00Z (was 9:00 AM) — 2026-03-08T16:00:00.000Z",
+    "2026-03-08 09:00 LA is 16:00Z — 2026-03-08T17:00:00.000Z",
+    "2026-03-08 10:00 LA is 17:00Z, not the same instant as 09:00 — 2026-03-08T17:00:00.000Z",
+    "2026-11-01 08:00 LA is 16:00Z (was 7:00 AM) — 2026-11-01T15:00:00.000Z",
+    "localToDate itself agrees with the wrapper"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/tz-clock-change/grid.sabotage.json"
+  ],
+  "dimensions": {
+    "roadmap": "97.1",
+    "zones": [
+      "America/Los_Angeles",
+      "America/New_York"
+    ],
+    "days": [
+      "2026-03-08",
+      "2026-11-01",
+      "2026-07-15"
+    ],
+    "nonexistent_hour": "02:00-02:59 on 2026-03-08 moves forward to 03:xx",
+    "break": "one-pass",
+    "files_searched_for_second_copy": 640
+  },
+  "check_id": "tz-clock-change",
+  "started_at": "2026-10-16T16:23:18.992Z",
+  "status": "fail",
+  "expected_targets": 144,
+  "discovered_targets": 144,
+  "attempted_targets": 144,
+  "completed_targets": 144,
+  "skipped_targets": 0,
+  "assertions_executed": 169,
+  "min_assertions": 169,
+  "assertion_floor": "structural: the grid is 2 zones x 3 days x 24 hours and every other assertion is a fixed list, so the count cannot vary between runs",
+  "canary": {
+    "id": "tz-one-pass-offset-restored",
+    "observed_failure": true,
+    "caught": 22,
+    "examples": [
+      "America/Los_Angeles 2026-03-08 03:00 -> 2026-03-08 04:00",
+      "America/Los_Angeles 2026-03-08 04:00 -> 2026-03-08 05:00",
+      "America/Los_Angeles 2026-03-08 05:00 -> 2026-03-08 06:00",
+      "America/Los_Angeles 2026-03-08 06:00 -> 2026-03-08 07:00",
+      "America/Los_Angeles 2026-03-08 07:00 -> 2026-03-08 08:00",
+      "America/Los_Angeles 2026-03-08 08:00 -> 2026-03-08 09:00"
+    ]
+  }
+}

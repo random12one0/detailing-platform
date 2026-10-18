@@ -78,6 +78,12 @@ export const api = {
   // Booking writes — the one write path. Through the core's transport, like
   // every tenant site.
   createBooking: (businessSlug, payload) => bookingTransport.createBooking(businessSlug, payload),
+  // ROADMAP 97.74 — THE DASHBOARD'S NEW BOOKING CARRIES THE SESSION. Through the
+  // public transport the owner arrived as a stranger, so create-booking refused
+  // a phone booking with no email and dropped the private note. The public page
+  // and tenant sites keep `createBooking` above, with no session.
+  createMemberBooking: (businessSlug, payload) =>
+    callFn("create-booking", { business_slug: businessSlug, ...payload }),
   updateBooking: (businessId, payload) => callFn("update-booking", { business_id: businessId, ...payload }),
   softDeleteBooking: (businessId, bookingId) =>
     callFn("update-booking", { business_id: businessId, booking_id: bookingId, soft_delete: true }),
@@ -125,6 +131,9 @@ export const api = {
   // address and a client cannot perform its own proof.
   verifyDomain: (businessId, domainId) =>
     callFn("verify-domain", { business_id: businessId, domain_id: domainId }),
+  // ROADMAP 97.13 — the only way a row is added: INSERT is revoked from the browser.
+  addDomain: (businessId, domain) =>
+    callFn("verify-domain", { business_id: businessId, action: "add", domain }),
 
   // ROADMAP 4.2 — "what does my customer actually get?", answered without
   // making a real booking and deleting it. The server picks the recipients
@@ -138,8 +147,9 @@ export const api = {
   // (an address, and not having opted out) are promises to the customer rather
   // than to the detailer, and a promise honoured only by the UI is not
   // honoured. The counts come back so the screen can say what happened.
-  sendCampaign: (businessId, customerIds, subject, message) =>
-    callFn("send-campaign", { business_id: businessId, customer_ids: customerIds, subject, message }),
+  // ROADMAP 97.19: `pressId` is made once per compose, so a double press sends once.
+  sendCampaign: (businessId, customerIds, subject, message, pressId) =>
+    callFn("send-campaign", { business_id: businessId, customer_ids: customerIds, subject, message, press_id: pressId }),
 
   // PUSH, THE BROWSER HALF (roadmap 2.11 step 6 stage 6). All three of these
   // functions already existed and nothing in `app/` had ever called one.
@@ -211,7 +221,9 @@ export const api = {
   cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
   // Roadmap 2.12. Saying NO to a quote is cancelBooking above — a customer who
   // won't pay the price is cancelling, and the slot has to go back either way.
-  acceptQuote: (bookingId) => callFn("accept-quote", { booking_id: bookingId }),
+  // ROADMAP 97.16 — the quote the page SHOWED goes with the press, so a quote
+  // the detailer replaced after the page loaded is refused, not accepted.
+  acceptQuote: (bookingId, quotedAt) => callFn("accept-quote", { booking_id: bookingId, quoted_at: quotedAt }),
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
 

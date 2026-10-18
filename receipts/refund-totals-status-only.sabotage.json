@@ -1,0 +1,329 @@
+{
+  "git_sha": "ef4828d7523705fe7064c38c62dac055ea7ab22c",
+  "git_sha_started": "ef4828d7523705fe7064c38c62dac055ea7ab22c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T09:21:24.772Z",
+  "failures": [
+    "refunded @ 390x844 · collected reads \"$0\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 390x844 · the collected cell says [\"collected\",\"$150 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 390x844 · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "refunded @ 320x640 · collected reads \"$0\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 320x640 · the collected cell says [\"collected\",\"$150 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 320x640 · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "refunded @ 768x1024 · collected reads \"$0\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 768x1024 · the collected cell says [\"collected\",\"$150 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "refunded @ 768x1024 · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "refunded @ 1440x900 · collected reads \"$150 refunded\" — {\"phone\":false,\"figs\":[\"1\",\"$150\"],\"quiet\":[\"0 done · 1 to go\",\"$150 collected\"]}",
+    "refunded @ 1440x900 · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "part-refunded @ 390x844 · collected reads \"$100\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 390x844 · the collected cell says [\"collected\",\"$50 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 390x844 · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}",
+    "part-refunded @ 320x640 · collected reads \"$100\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 320x640 · the collected cell says [\"collected\",\"$50 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 320x640 · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}",
+    "part-refunded @ 768x1024 · collected reads \"$100\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 768x1024 · the collected cell says [\"collected\",\"$50 refunded\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"collected\"],\"cut\":false}",
+    "part-refunded @ 768x1024 · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}",
+    "part-refunded @ 1440x900 · collected reads \"$100 collected · $50 refunded\" — {\"phone\":false,\"figs\":[\"1\",\"$150\"],\"quiet\":[\"0 done · 1 to go\",\"$150 collected\"]}",
+    "part-refunded @ 1440x900 · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}",
+    "refunded @ 1440x900 (es) · collected reads \"$150 devuelto\" — {\"phone\":false,\"figs\":[\"1\",\"$150\"],\"quiet\":[\"0 hechos · faltan 1\",\"$150 cobrado\"]}",
+    "refunded @ 1440x900 (es) · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "refunded @ 390x844 (es) · collected reads \"$0\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "refunded @ 390x844 (es) · the collected cell says [\"cobrado\",\"$150 devuelto\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "refunded @ 390x844 (es) · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "refunded @ 320x640 (es) · collected reads \"$0\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "refunded @ 320x640 (es) · the collected cell says [\"cobrado\",\"$150 devuelto\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "refunded @ 320x640 (es) · the export's Status says \"Refunded\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":0,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Aisha Rahman,Paid,0.00,\\r\\n,Net,,,,0.00,0\\r\\n\"}",
+    "part-refunded @ 390x844 (es) · collected reads \"$100\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "part-refunded @ 390x844 (es) · the collected cell says [\"cobrado\",\"$50 devuelto\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "part-refunded @ 390x844 (es) · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}",
+    "part-refunded @ 320x640 (es) · collected reads \"$100\" — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "part-refunded @ 320x640 (es) · the collected cell says [\"cobrado\",\"$50 devuelto\"] — {\"phone\":true,\"figs\":[\"$150\",\"$150\"],\"quiet\":[],\"lines\":[\"cobrado\"],\"cut\":false}",
+    "part-refunded @ 320x640 (es) · the export's Status says \"Part refunded: 50.00 of 150.00 returned, 100.00 kept\" — {\"broken\":true,\"status\":\"Paid\",\"amount\":100,\"csv\":\"Date,Type,Description,Customer,Status,Amount,Miles\\r\\n2026-10-18,Job,Full detail,Dana Ruiz,Paid,100.00,\\r\\n,Net,,,,100.00,0\\r\\n\"}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.87/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "frozen_now": "2026-10-18T09:19:00.000Z",
+    "widths": [
+      "390x844",
+      "320x640",
+      "768x1024",
+      "1440x900"
+    ],
+    "break": "status-only",
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 320,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 768,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "lang": "en",
+        "collected": "$150 collected",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 320,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 768,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 1440,
+        "lang": "en",
+        "collected": "$150 collected",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 390,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 320,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 768,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 1440,
+        "lang": "en",
+        "collected": "$150 collected",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 390,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 320,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 768,
+        "lang": "en",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 1440,
+        "lang": "en",
+        "collected": "$150 collected",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-paid-1440x900.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 390,
+        "lang": "en",
+        "collected": "$0",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-390x844.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 320,
+        "lang": "en",
+        "collected": "$0",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-320x640.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 768,
+        "lang": "en",
+        "collected": "$0",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-768x1024.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 1440,
+        "lang": "en",
+        "collected": "Nothing collected yet",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-1440x900.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "lang": "es",
+        "collected": "$150 cobrado",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-1440x900-es.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 1440,
+        "lang": "es",
+        "collected": "Aún no has cobrado nada",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-1440x900-es.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "lang": "es",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-390x844-es.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 320,
+        "lang": "es",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-refunded-320x640-es.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "lang": "es",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-390x844-es.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 320,
+        "lang": "es",
+        "collected": "$150",
+        "export_status": "Paid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-part-refunded-320x640-es.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 390,
+        "lang": "es",
+        "collected": "$0",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-390x844-es.png"
+      },
+      {
+        "scenario": "unpaid",
+        "width": 320,
+        "lang": "es",
+        "collected": "$0",
+        "export_status": "Unpaid",
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.87/png/break-status-only-today-unpaid-320x640-es.png"
+      }
+    ]
+  },
+  "check_id": "refund-totals-status-only",
+  "started_at": "2026-10-18T09:19:40.171Z",
+  "status": "fail",
+  "expected_targets": 28,
+  "discovered_targets": 28,
+  "attempted_targets": 28,
+  "completed_targets": 28,
+  "skipped_targets": 0,
+  "assertions_executed": 322,
+  "min_assertions": 224,
+  "canary": {
+    "id": "break-status-only",
+    "observed_failure": true
+  }
+}

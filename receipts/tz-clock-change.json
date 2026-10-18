@@ -1,0 +1,50 @@
+{
+  "git_sha": "eb725091c0f2af407be4ece56408e7f2721f0032",
+  "git_sha_started": "eb725091c0f2af407be4ece56408e7f2721f0032",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T16:23:18.818Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/tz-clock-change/grid.json"
+  ],
+  "dimensions": {
+    "roadmap": "97.1",
+    "zones": [
+      "America/Los_Angeles",
+      "America/New_York"
+    ],
+    "days": [
+      "2026-03-08",
+      "2026-11-01",
+      "2026-07-15"
+    ],
+    "nonexistent_hour": "02:00-02:59 on 2026-03-08 moves forward to 03:xx",
+    "files_searched_for_second_copy": 640
+  },
+  "check_id": "tz-clock-change",
+  "started_at": "2026-10-16T16:23:18.263Z",
+  "status": "pass",
+  "expected_targets": 144,
+  "discovered_targets": 144,
+  "attempted_targets": 144,
+  "completed_targets": 144,
+  "skipped_targets": 0,
+  "assertions_executed": 169,
+  "min_assertions": 169,
+  "assertion_floor": "structural: the grid is 2 zones x 3 days x 24 hours and every other assertion is a fixed list, so the count cannot vary between runs",
+  "canary": {
+    "id": "tz-one-pass-offset-restored",
+    "observed_failure": true,
+    "caught": 22,
+    "examples": [
+      "America/Los_Angeles 2026-03-08 03:00 -> 2026-03-08 04:00",
+      "America/Los_Angeles 2026-03-08 04:00 -> 2026-03-08 05:00",
+      "America/Los_Angeles 2026-03-08 05:00 -> 2026-03-08 06:00",
+      "America/Los_Angeles 2026-03-08 06:00 -> 2026-03-08 07:00",
+      "America/Los_Angeles 2026-03-08 07:00 -> 2026-03-08 08:00",
+      "America/Los_Angeles 2026-03-08 08:00 -> 2026-03-08 09:00"
+    ]
+  }
+}

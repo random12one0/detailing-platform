@@ -1,0 +1,361 @@
+{
+  "git_sha": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "git_sha_started": "636290f98e545d1d934c282703dbfd4d1e4fa1fa",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T16:40:35.473Z",
+  "failures": [
+    "refunded @ 390x844 · Earned reads $60 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 390x844 · Collected reads $0 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 390x844 · Net reads $20 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 390x844 · the export's Net row prints 20.00 — ,Net,,,,170.00,0",
+    "refunded @ 320x640 · Earned reads $60 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 320x640 · Collected reads $0 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 320x640 · Net reads $20 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 320x640 · the export's Net row prints 20.00 — ,Net,,,,170.00,0",
+    "refunded @ 768x1024 · Earned reads $60 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 768x1024 · Collected reads $0 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 768x1024 · Net reads $20 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 768x1024 · the export's Net row prints 20.00 — ,Net,,,,170.00,0",
+    "refunded @ 1440x900 · Earned reads $60 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 1440x900 · Collected reads $0 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 1440x900 · Net reads $20 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "refunded @ 1440x900 · the export's Net row prints 20.00 — ,Net,,,,170.00,0",
+    "part-refunded @ 390x844 · Earned reads $160 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 390x844 · Collected reads $100 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 390x844 · Net reads $120 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 390x844 · the export's Net row prints 120.00 — ,Net,,,,170.00,0",
+    "part-refunded @ 320x640 · Earned reads $160 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 320x640 · Collected reads $100 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 320x640 · Net reads $120 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 320x640 · the export's Net row prints 120.00 — ,Net,,,,170.00,0",
+    "part-refunded @ 768x1024 · Earned reads $160 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 768x1024 · Collected reads $100 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 768x1024 · Net reads $120 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 768x1024 · the export's Net row prints 120.00 — ,Net,,,,170.00,0",
+    "part-refunded @ 1440x900 · Earned reads $160 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 1440x900 · Collected reads $100 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 1440x900 · Net reads $120 — {\"cells\":{\"Earned\":\"$210\",\"Expenses\":\"$40\",\"Avg job\":\"$105\",\"Jobs done\":\"2\",\"Collected\":\"$150\",\"Still owed\":\"$60\",\"Quoted up front\":\"$210\",\"Added on site\":\"+$0\"},\"net\":\"$170\"}",
+    "part-refunded @ 1440x900 · the export's Net row prints 120.00 — ,Net,,,,170.00,0"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.82/png"
+  ],
+  "dimensions": {
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-17T16:39:00.000Z",
+    "widths": [
+      "390x844",
+      "320x640",
+      "768x1024",
+      "1440x900"
+    ],
+    "break": "status-only",
+    "env_shim": true,
+    "probed": [
+      {
+        "scenario": "refunded",
+        "width": 390,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-refunded-390x844.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 320,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-refunded-320x640.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 768,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-refunded-768x1024.png"
+      },
+      {
+        "scenario": "refunded",
+        "width": 1440,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-refunded-1440x900.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 390,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-part-refunded-390x844.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 320,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-part-refunded-320x640.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 768,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-part-refunded-768x1024.png"
+      },
+      {
+        "scenario": "part-refunded",
+        "width": 1440,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-part-refunded-1440x900.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 390,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-other-payment-390x844.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 320,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-other-payment-320x640.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 768,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-other-payment-768x1024.png"
+      },
+      {
+        "scenario": "other-payment",
+        "width": 1440,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-other-payment-1440x900.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 390,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-paid-390x844.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 320,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-paid-320x640.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 768,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-paid-768x1024.png"
+      },
+      {
+        "scenario": "paid",
+        "width": 1440,
+        "cells": {
+          "Earned": "$210",
+          "Expenses": "$40",
+          "Avg job": "$105",
+          "Jobs done": "2",
+          "Collected": "$150",
+          "Still owed": "$60",
+          "Quoted up front": "$210",
+          "Added on site": "+$0"
+        },
+        "net": "$170",
+        "export_net": 170,
+        "errors": 0,
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.82/png/break-status-only-money-paid-1440x900.png"
+      }
+    ]
+  },
+  "check_id": "money-refund-status-only",
+  "started_at": "2026-10-17T16:39:39.209Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 192,
+  "min_assertions": 160,
+  "canary": {
+    "id": "break-status-only",
+    "observed_failure": true
+  }
+}

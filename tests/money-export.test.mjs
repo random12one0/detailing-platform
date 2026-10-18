@@ -13,6 +13,7 @@
 import {
   HEADER, accountantCsv, accountantMiles, accountantNet, accountantRows, accountantFilename,
 } from "../app/src/lib/accountant-export.js";
+import { advancedMoney } from "../app/src/lib/moneyAdvanced.js";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -160,6 +161,36 @@ check("14 a business named in punctuation still gets a filename",
 const none = accountantCsv({ jobs: [], expenses: [] }).trimEnd().split("\r\n");
 check("15 an empty period exports a header and a zero Net",
   none.length === 2 && none[1] === ",Net,,,,0.00,0", none.join(" | "));
+
+// ── ROADMAP 97.82 — A REFUNDED JOB, AND THE TIE-OUT STILL HOLDS ─────────
+// A refund in Stripe leaves `payment_status` at "paid". The screen's Net is now built
+// from what each job KEPT, so the file has to be too, or the two part by exactly the
+// refund. Asserted against `advancedMoney` itself — the function the screen prints —
+// rather than an inline formula that could agree with a broken file.
+{
+  const refund = (refunded) => ({ kind: "extra", paid_cents: 0, owed_cents: 0, currency: "usd",
+    refunds: { pi_1: { paid_cents: 15000, refunded_cents: refunded } } });
+  const card = { status: "completed", payment_status: "paid", stripe_payment_intent: "pi_1", total_price: 150 };
+  const refundJobs = [
+    ...jobs.map((b) => ({ ...b, status: "completed" })),
+    { ...card, booking_date: "2026-09-12", customer_name: "Refunded In Full", payment_problem: refund(15000) },
+    { ...card, booking_date: "2026-09-13", customer_name: "Refunded In Part", payment_problem: refund(5000) },
+  ];
+  const m = advancedMoney({ bookings: refundJobs, expenses, period: { start: "2026-09-01", end: "2026-09-30" } });
+  const r = accountantRows({ jobs: refundJobs, expenses });
+  // 95 + 65 + 120 + 0 + 100 - 189 - 41.50 = 149.50
+  check("16 a refunded job: the Amount column still sums to the screen's Net",
+    Math.abs(accountantNet(r) - m.net) < 0.005 && Math.abs(m.net - 149.5) < 0.005,
+    `file ${accountantNet(r)} vs screen ${m.net}, want 149.5`);
+  const full = r.find((x) => x.cells[2] === "Refunded In Full");
+  check("16b · the job refunded in full exports 0.00 and says Refunded",
+    full?.amount === 0 && full?.cells[3] === "Refunded", JSON.stringify(full));
+  check("16c · the part refund exports what was kept, 100.00",
+    r.find((x) => x.cells[2] === "Refunded In Part")?.amount === 100);
+  check("16d · on the screen it is neither collected nor owed: earned = collected + owed",
+    m.collected === 95 + 120 + 100 && m.owed === 65 && m.earned === m.collected + m.owed,
+    `earned ${m.earned}, collected ${m.collected}, owed ${m.owed}`);
+}
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

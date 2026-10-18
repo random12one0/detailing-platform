@@ -1,0 +1,31 @@
+{
+  "git_sha": "573cc382093a4c771f22bd8516f786efb8c274fa",
+  "git_sha_started": "573cc382093a4c771f22bd8516f786efb8c274fa",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T02:13:21.364Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/customer-notes-route"
+  ],
+  "dimensions": {
+    "login": "demo staff",
+    "calls": 6
+  },
+  "check_id": "customer-notes-route",
+  "started_at": "2026-10-18T02:12:12.804Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 25,
+  "min_assertions": 25,
+  "assertion_floor": "structural: two per scenario plus a next-record and a console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-lines-read-as-not-shown",
+    "observed_failure": true
+  }
+}

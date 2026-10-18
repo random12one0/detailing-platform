@@ -1,0 +1,33 @@
+{
+  "git_sha": "385ad437bf4a5f08f0f32ccbee10ea90a33e125b",
+  "git_sha_started": "385ad437bf4a5f08f0f32ccbee10ea90a33e125b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T00:35:34.583Z",
+  "failures": [
+    "moving car 2 keeps car 1's ref (its retry still gets the id, so car 2 is grouped): ac0a1430-797d-458a-a0cf-ef232f3e1bee -> 2c81510d-5ae8-49ad-998a-909bf6e21402",
+    "page payloads: moving car 2 on the form keeps car 1's ref: 50630c47-7978-4dd7-b820-1ae53f08314a -> 1c1fc289-3e46-4eb5-9240-71cc7b5ad192"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/booking-refs/list-key.json"
+  ],
+  "dimensions": {
+    "function": "app/src/book/core.js bookingRefs",
+    "break": "list-key"
+  },
+  "check_id": "booking-refs-list-key",
+  "started_at": "2026-10-17T00:35:34.522Z",
+  "status": "fail",
+  "expected_targets": 1,
+  "discovered_targets": 1,
+  "attempted_targets": 1,
+  "completed_targets": 1,
+  "skipped_targets": 0,
+  "assertions_executed": 10,
+  "min_assertions": 9,
+  "canary": {
+    "id": "list-keyed-bookingRefs-re-keys-car-1",
+    "observed_failure": true
+  }
+}

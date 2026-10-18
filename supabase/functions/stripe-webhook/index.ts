@@ -58,6 +58,7 @@ import { ourStatus } from "../_shared/platformBilling.ts";
 import { recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
 import { billingEmail } from "../_shared/emailTemplates.ts";
+import { cardPaymentVerdict, extraPayment, failedBankPayment, keepReasons, refundedPayment, settleProblem, type PaymentProblem } from "../_shared/connect.ts";
 
 const BILLING_URL = `${PLATFORM_URL}/app?settings=billing`;
 
@@ -606,7 +607,15 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
     return;
   }
 
-  if (type !== "checkout.session.completed" && type !== "payment_intent.succeeded") return;
+  // ROADMAP 97.68 — THE DETAILER REFUNDED A PAYMENT FROM THEIR OWN STRIPE.
+  if (type === "charge.refunded") return await chargeRefunded(object, account);
+
+  // ROADMAP 97.11 — THE TWO LATE EVENTS. A bank debit's checkout completes
+  // `unpaid` and the answer arrives days later as one of these. Success goes
+  // down the ordinary path below (97.10's verdict reads it like any session);
+  // failure is `bankPaymentFailed`.
+  if (type !== "checkout.session.completed" && type !== "payment_intent.succeeded"
+    && type !== "checkout.session.async_payment_succeeded" && type !== "checkout.session.async_payment_failed") return;
 
   const meta = asObj(object.metadata);
   const bookingId = typeof meta.booking_id === "string" ? meta.booking_id : "";
@@ -623,7 +632,7 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
 
   const { data: booking } = await supabase
     .from("bookings")
-    .select("id, business_id, payment_status, stripe_payment_intent")
+    .select("id, business_id, payment_status, stripe_payment_intent, total_price, final_amount")
     .eq("id", bookingId)
     .is("deleted_at", null)
     .maybeSingle();
@@ -653,18 +662,56 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
     return;
   }
 
+  if (type === "checkout.session.async_payment_failed") return await bankPaymentFailed(object, intent, booking);
+
+  // ROADMAP 97.11 — MONEY FOR A JOB ALREADY SETTLED IS RECORDED, NOT DROPPED.
+  // A second open page paid, or a card paid after the detailer marked cash:
+  // the status stays as it is, and the payment goes on the job as a refund
+  // the detailer owes. `extraPayment` ignores this same payment's second event.
+  const settled = booking.payment_status === "paid" || booking.payment_status === "waived";
+  if (settled) await recordExtraPayment(type, object, intent, booking);
+
   // Already settled — by this same payment, by cash the detailer recorded, or
-  // by a waiver. Nothing to do, and OVERWRITING would be wrong: a detailer
-  // who marked a job paid in cash and then got a duplicate card payment has a
-  // refund to make, not a status to flip.
+  // by a waiver. OVERWRITING would be wrong: a detailer who marked a job paid
+  // in cash and then got a duplicate card payment has a refund to make, not a
+  // status to flip. The refund is the line above.
   if (booking.payment_status === "paid" || booking.payment_status === "waived") return;
 
+  // ROADMAP 97.10 — THE MONEY HAS TO HAVE ARRIVED, AND BE THE FIGURE OWED.
+  // A completed checkout can still be unpaid, and nothing read the amount.
+  // Not arrived: the job is left alone. Wrong figure or currency: the job
+  // stays unpaid and the reason goes on the job, where the detailer reads it
+  // (the red line under the status pills). Never into `payment_notes` — that
+  // field is printed on the customer's own invoice.
+  const verdict = cardPaymentVerdict(type, object, booking);
+  if (!verdict.settle) {
+    if (!verdict.problem) return;
+    console.error("card payment does not match what is owed", bookingId, verdict.problem);
+    // ROADMAP 97.11 — added to the note already on the job, never written over
+    // it: a refund owed or an earlier reason stays (`keepReasons`).
+    const { data: row, error: readError } = await supabase
+      .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+    if (readError) throw new Error(`could not read the payment problem: ${readError.message}`);
+    const { error: noted } = await supabase
+      .from("bookings")
+      .update({ payment_problem: keepReasons({ ...verdict.problem, intent }, row?.payment_problem as PaymentProblem | null) })
+      .eq("id", booking.id);
+    if (noted) throw new Error(`could not record the payment problem: ${noted.message}`);
+    return;
+  }
+
+  // ROADMAP 97.69 — a wrong-figure payment kept on the job is now a refund owed.
+  const { data: noteRow, error: noteError } = await supabase
+    .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+  if (noteError) throw new Error(`could not read the payment problem: ${noteError.message}`);
+  const owedBack = settleProblem(intent, noteRow?.payment_problem as PaymentProblem | null);
   const { error } = await supabase
     .from("bookings")
     .update({
       payment_status: "paid",
       paid_online_at: new Date().toISOString(),
       stripe_payment_intent: intent,
+      ...(owedBack ? { payment_problem: owedBack } : {}),
     })
     .eq("id", booking.id);
 
@@ -672,4 +719,96 @@ async function handleConnected(type: string, object: Obj, account: string): Prom
   // here first. That is this handler working, not failing — and throwing
   // would release the event claim and invite Stripe to retry for ever.
   if (error && error.code !== "23505") throw new Error(`could not record the payment: ${error.message}`);
+}
+
+/**
+ * ROADMAP 97.11 — the job's `payment_problem` gains this payment, as a refund
+ * owed. Read here rather than in the handler's own select, so the ordinary
+ * paid path does not depend on the column.
+ */
+async function recordExtraPayment(
+  type: string,
+  object: Obj,
+  intent: string,
+  booking: { id: string; stripe_payment_intent: string | null; total_price: unknown; final_amount: unknown },
+): Promise<void> {
+  const { data: row, error: readError } = await supabase
+    .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+  if (readError) throw new Error(`could not read the payment problem: ${readError.message}`);
+  // ponytail: read-then-write, so two DIFFERENT extra payments landing in the same instant can keep one; an RPC appending in SQL closes it.
+  const problem = extraPayment(type, object, intent, booking, row?.payment_problem as PaymentProblem | null);
+  if (!problem) return;
+  console.error("a payment came in for a job already settled", booking.id, intent);
+  const { error } = await supabase.from("bookings").update({ payment_problem: problem }).eq("id", booking.id);
+  if (error) throw new Error(`could not record the extra payment: ${error.message}`);
+}
+
+/**
+ * ROADMAP 97.11 — A BANK PAYMENT THAT DID NOT GO THROUGH. `failedBankPayment`
+ * decides; it is handed the row's current `payment_problem` so a refund already
+ * owed on the job is carried, never written over.
+ */
+async function bankPaymentFailed(
+  object: Obj,
+  intent: string,
+  booking: { id: string; payment_status: string; stripe_payment_intent: string | null; total_price: unknown; final_amount: unknown },
+): Promise<void> {
+  const { data: row, error: readError } = await supabase
+    .from("bookings").select("payment_problem").eq("id", booking.id).maybeSingle();
+  if (readError) throw new Error(`could not read the payment problem: ${readError.message}`);
+  const patch = failedBankPayment(object, intent, booking, row?.payment_problem as PaymentProblem | null);
+  if (!patch) return;
+  const { error } = await supabase.from("bookings").update(patch).eq("id", booking.id);
+  if (error) throw new Error(`could not record the failed bank payment: ${error.message}`);
+}
+
+/**
+ * ROADMAP 97.68 — a refund the detailer made in their own Stripe is recorded on
+ * the job (`refundedPayment`), and every "refund it" line reads what is left.
+ *
+ * THE JOB IS FOUND THREE WAYS, IN THIS ORDER. The booking id the payment carries
+ * (`pay-booking` puts it on the payment intent, and a charge takes its intent's
+ * metadata): this is what finds a job whose payment event has NOT ARRIVED YET,
+ * so that refund is kept rather than dropped (review, 2026-10-17). Then the job's
+ * own payment (a cancelled job, 14.4), then the refund-owed list. A refund none
+ * of them finds is a payment this platform never took, and is logged.
+ *
+ * The same account check as every payment event: only the detailer whose job
+ * it is can record its refund.
+ */
+async function chargeRefunded(charge: Obj, account: string): Promise<void> {
+  const intent = typeof charge.payment_intent === "string" ? charge.payment_intent : String(asObj(charge.payment_intent).id ?? "");
+  if (!intent) return;
+  const bookingId = asObj(charge.metadata).booking_id;
+  const cols = "id, business_id, payment_problem";
+  const live = () => supabase.from("bookings").select(cols).is("deleted_at", null);
+  const ways = [
+    ...(typeof bookingId === "string" && bookingId ? [() => live().eq("id", bookingId)] : []),
+    () => live().eq("stripe_payment_intent", intent),
+    () => live().contains("payment_problem", { payments: [{ intent }] }),
+  ];
+  let booking: { id: string; business_id: string; payment_problem: unknown } | undefined;
+  for (const way of ways) {
+    const { data, error } = await way();
+    if (error) throw new Error(`could not find the refunded payment: ${error.message}`);
+    if ((booking = data?.[0])) break;
+  }
+  if (!booking) {
+    console.error("a refund for a payment no job here took", intent, account);
+    return;
+  }
+  const { data: conn } = await supabase
+    .from("connected_accounts")
+    .select("stripe_account_id")
+    .eq("business_id", booking.business_id)
+    .maybeSingle();
+  if (!conn?.stripe_account_id || conn.stripe_account_id !== account) {
+    console.error("refund for a booking that is not this account's", booking.id, account);
+    return;
+  }
+  const problem = refundedPayment(booking.payment_problem as PaymentProblem | null, intent, charge);
+  if (problem === undefined) return;
+  // ponytail: read-then-write like recordExtraPayment; an RPC merging in SQL closes the same-instant race.
+  const { error } = await supabase.from("bookings").update({ payment_problem: problem }).eq("id", booking.id);
+  if (error) throw new Error(`could not record the refund: ${error.message}`);
 }

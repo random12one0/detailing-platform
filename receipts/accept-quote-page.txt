@@ -1,0 +1,11 @@
+accept-quote-page 2026-10-17T19:13:15.375Z break=none base=http://127.0.0.1:5180
+390 normal: row confirmed 200 | console 0
+390 stale: row pending 150 | error "The price changed to $300 since this page was opened. Check the new price, then accept it if it suits you." | button "Accept $300" | console error: Failed to load resource: the server responded with a status of 409 (Conflict)
+320 normal: row confirmed 200 | console 0
+320 stale: row pending 150 | error "The price changed to $300 since this page was opened. Check the new price, then accept it if it suits you." | button "Accept $300" | console error: Failed to load resource: the server responded with a status of 409 (Conflict)
+768 normal: row confirmed 200 | console 0
+768 stale: row pending 150 | error "The price changed to $300 since this page was opened. Check the new price, then accept it if it suits you." | button "Accept $300" | console error: Failed to load resource: the server responded with a status of 409 (Conflict)
+1440 normal: row confirmed 200 | console 0
+1440 stale: row pending 150 | error "The price changed to $300 since this page was opened. Check the new price, then accept it if it suits you." | button "Accept $300" | console error: Failed to load resource: the server responded with a status of 409 (Conflict)
+page calls answered by the catch-all {}: none
+45 passed, 0 failed

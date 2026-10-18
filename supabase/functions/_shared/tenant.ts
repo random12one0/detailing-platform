@@ -9,7 +9,7 @@
 
 import { supabase } from "./db.ts";
 import { readFailed, retryRead } from "./retryRead.ts";
-import { isSupportSession } from "./supportSession.ts";
+import { isSupportSession, supportAdmits, supportSessionState } from "./supportSession.ts";
 
 export interface Business {
   id: string;
@@ -266,12 +266,11 @@ export async function businessById(id: string): Promise<Business | null> {
   return (data as Business) ?? null;
 }
 
-// The closed permission vocabulary, mirroring the check constraint in
-// 20260904000000_custom_roles.sql. An unknown string is rejected rather than
-// stored, because a permission nothing recognises grants nothing and looks
-// exactly like one that was never ticked.
-export const PERMISSIONS = ["money", "marketing", "settings", "requests"] as const;
-export type Permission = (typeof PERMISSIONS)[number];
+// PERMISSIONS, Permission, Member and can() live in ./permissions.ts (ROADMAP
+// 97.13: importable without the database client) and are re-exported here.
+import { can, PERMISSIONS, type Member, type Permission } from "./permissions.ts";
+export { can, PERMISSIONS };
+export type { Member, Permission };
 
 export function cleanPermissions(input: unknown): Permission[] {
   if (!Array.isArray(input)) return [];
@@ -280,16 +279,11 @@ export function cleanPermissions(input: unknown): Permission[] {
 }
 
 /** ROADMAP 4.3c. Call only with a token getUser has already verified. */
-export const supportSession = (token: string) =>
-  isSupportSession(token, (sid) => supabase.from("support_sessions").select("session_id").eq("session_id", sid).maybeSingle());
+// `*`, not `expires_at`: naming a column the database does not have yet would fail every read,
+// and a failed read counts as a support session — every detailer's every save refused.
+const markerOf = (sid: string) => supabase.from("support_sessions").select("*").eq("session_id", sid).maybeSingle();
+export const supportSession = (token: string) => isSupportSession(token, markerOf);
 
-export type Member = { userId: string; businessId: string; role: string; permissions: string[] };
-
-// An owner has everything, always — the same fold `has_business_permission()`
-// does in SQL, so a caller can never write a check that forgets owners.
-export function can(member: Member, permission: Permission): boolean {
-  return member.role === "owner" || member.permissions.includes(permission);
-}
 
 // Verifies the request's JWT and returns the caller's membership in the
 // requested business, or null. When businessId is omitted and the user
@@ -311,8 +305,12 @@ export async function requireMember(
   const { data: userData, error } = await supabase.auth.getUser(token);
   const user = userData?.user;
   if (error || !user) return null;
-  if (!opts.allowSupport && await supportSession(token)) {
-    console.warn("requireMember: refused a read-only support session");
+  // ROADMAP 97.15: past its 30 minutes, a support session is refused even by the read-only
+  // functions, and its session is ended so the token stops working at Auth as well.
+  const state = await supportSessionState(token, markerOf);
+  if (!supportAdmits(state, !!opts.allowSupport)) {
+    console.warn(`requireMember: refused a read-only support session (${state})`);
+    if (state === "expired") await supabase.auth.admin.signOut(token, "local").catch(() => {});
     return null;
   }
 
@@ -327,4 +325,25 @@ export async function requireMember(
     role: rows[0].role,
     permissions: rows[0].permissions ?? [],
   };
+}
+
+// ROADMAP 97.12 (S-M2) — A BOOKING'S OWN LINES, AND NOBODY ELSE'S.
+// `booking_services` and `booking_add_ons` used to point at a booking by id
+// alone, so another business could insert a row carrying ITS business_id and
+// THIS booking's id, and a service-role embed would print it on this booking's
+// receipt or email. `20261017000000_booking_lines_same_business.sql` makes the
+// database refuse such a row; this drops any that got in before it ran, or
+// while it has not. Every embed passed through here selects `business_id`, and
+// the column is removed again so no reply's shape changes.
+// `tests/booking-lines-own-business.test.mjs` holds every caller to it.
+// deno-lint-ignore no-explicit-any
+export function ownLines<T extends Record<string, any>>(booking: T): T {
+  // deno-lint-ignore no-explicit-any
+  const keep = (rows: any) => Array.isArray(rows)
+    // deno-lint-ignore no-explicit-any
+    ? rows.filter((r: any) => r?.business_id === booking.business_id).map(({ business_id: _b, ...r }: any) => r)
+    : rows;
+  const out: Record<string, unknown> = { ...booking };
+  for (const k of ["services", "add_ons"]) if (k in booking) out[k] = keep(booking[k]);
+  return out as T;
 }

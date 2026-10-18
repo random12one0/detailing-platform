@@ -1,0 +1,199 @@
+{
+  "git_sha": "1ea479f45679184fc857d1a807f90f20b3ece6f9",
+  "git_sha_started": "1ea479f45679184fc857d1a807f90f20b3ece6f9",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T09:03:03.293Z",
+  "failures": [
+    "390 book-again: a job made with Book again: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":null},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 book-again 390\"]}",
+    "390 job-change: a status change on a job from the History: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":true},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 job-change 390\"]}",
+    "768 book-again: a job made with Book again: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":null},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 book-again 768\"]}",
+    "768 job-change: a status change on a job from the History: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":true},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 job-change 768\"]}",
+    "1440 book-again: a job made with Book again: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":null},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 book-again 1440\"]}",
+    "1440 job-change: a status change on a job from the History: Marcus Webb's record is back holding the text and the line, one save, the History re-read {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"\",\"found\":0,\"shown\":0,\"not_shown_because\":[],\"made\":1,\"reread\":1,\"job_over\":true},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 job-change 1440\"]}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/notes-refused-on-close"
+  ],
+  "dimensions": {
+    "break": "reopen",
+    "only": [
+      "book-again",
+      "job-change"
+    ],
+    "login": "demo staff",
+    "answer_ms": 600,
+    "product_wait_ms": 5000,
+    "frozen_clock": "2026-10-18T09:02:10.603Z",
+    "calls": 6,
+    "rewrite_misses": 0,
+    "cases": [
+      {
+        "width": 390,
+        "case": "book-again",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 book-again 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "job-change",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": true
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-change 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "book-again",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 book-again 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "job-change",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": true
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-change 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "book-again",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 book-again 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "job-change",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "made": 1,
+          "reread": 1,
+          "job_over": true
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-change 1440"
+        ],
+        "sent_typed": true
+      }
+    ]
+  },
+  "check_id": "notes-refused-on-close",
+  "started_at": "2026-10-18T09:02:10.603Z",
+  "status": "fail",
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 0,
+  "skipped_targets": 0,
+  "assertions_executed": 30,
+  "min_assertions": 23,
+  "assertion_floor": "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-faded-offscreen-lines-found-not-shown",
+    "observed_failure": true
+  }
+}

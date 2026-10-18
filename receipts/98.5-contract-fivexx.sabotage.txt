@@ -1,0 +1,36 @@
+# CONTRACT_BREAK=fivexx at 9090be30 — expected: § 3 red, every other case green
+  note  CONTRACT_BREAK=fivexx: running against a copy with "s >= 500 && !spoke" -> "s >= 500"
+✔ 1 · every answer the door gives is accepted by the app's readers (23.72ms)
+✔ 2 · the fields the app sends are exactly the fields the door reads (2.475ms)
+✖ 3 · what the app does with each way the door can say no (2.163ms)
+✔ 4 · SABOTAGE — drift on the server's side is refused on the app's (0.8688ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.5947
+
+✖ failing tests:
+
+test at tests\photo-door-contract.test.mjs:134:1
+✖ 3 · what the app does with each way the door can say no (2.163ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'The photo service had a problem. Try again in a minute.'
+  - 'Could not check your photo storage. Nothing was saved. Try again in a minute.'
+  
+      at TestContext.<anonymous> (file:///C:/Users/rando/Downloads/claude/belt-jobs/belt_98.5-20261013141316/tests/photo-door-contract.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:1404:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'The photo service had a problem. Try again in a minute.',
+    expected: 'Could not check your photo storage. Nothing was saved. Try again in a minute.',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit 1

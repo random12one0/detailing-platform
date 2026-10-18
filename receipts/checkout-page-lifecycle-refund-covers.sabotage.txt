@@ -1,0 +1,54 @@
+checkout-page-lifecycle BREAK=refund-covers — 2026-10-17T11:10:31.601Z
+ok    R2 · bank payment arrives late: async_payment_succeeded marks the job paid
+ok    R2 · late success for the wrong figure still answers to 97.10 (stays unpaid, amount named)
+ok    R2 · a failed bank debit the OLD webhook marked paid goes back to unpaid, with the reason
+ok    R2 · a failed bank debit on an unpaid job stays unpaid and says why
+ok    R2 · refused: a failed bank debit does not touch a job the detailer marked paid in cash
+ok    R2 · refused: a late event from ANOTHER detailer's account changes nothing
+ok    R4 · a card payment after the detailer marked cash: still paid, refund owed recorded
+ok    R4 · a second live page paid: its two events make ONE refund entry, not two
+ok    R4 · a third payment is added to the list, never written over the second
+ok    R4 · review fix: a failed debit on a job a recorded $150 card payment covers — that payment settles it, no refund left
+ok    R4 · review fix: an extra payment that does NOT cover the job is carried onto the failed note, never erased
+ok    R4 · review fix: with two extras, the one that covers settles the job and the other stays owed back
+ok    keep both · refund owed, then the bank debit fails, then a wrong-amount payment: all three survive
+ok    keep both · a wrong-amount payment, then an unrelated bank debit fails: the wrong-amount note survives
+ok    keep both · money for a job settled in cash keeps the older wrong-amount note beside the refund
+ok    refused: one wrong-amount payment's two events note it ONCE, not as two reasons
+ok    97.69 · a $100 card payment on a $150 job, then the right $150 payment: paid, and the $100 is a refund owed
+ok    97.69 · a payment in the wrong currency, then the right one: the first is a refund owed, named as a currency problem
+ok    97.69 · the wrong payment's own late second event, after the job is paid, does not owe it back twice
+ok    97.69 · two wrong payments and a failed bank debit, then paid: both wrong payments owed back, the failed debit kept as a reason
+ok    97.69 · refused: a job paid first time, with nothing wrong before, gets no refund note
+ok    97.69 · refused: a failed bank debit alone is not money owed back when the job is then paid
+ok    R4 · money for a WAIVED job is a refund owed too
+ok    R4 · refused: the SAME payment's second event is not a second payment
+ok    R4 · refused: a page still processing on a settled job records nothing yet
+ok    97.68 · the only refund owed is refunded in full: nothing is owed, so the line goes
+ok    97.68 · two owed, one refunded: only that one is settled, the other is still owed in full
+ok    97.68 · a partial refund keeps the payment on the list, with what is left beside it
+ok    97.68 · refunded in two steps ($50, then the other $100): nothing owed after the second
+ok    97.68 · review: two partial refunds' events arrive the wrong way round ($100 total, then the older $50): $50 still owed, not $100
+ok    97.68 · review: a late copy of a refunded payment's own event does not put it back as owed
+ok    97.68 · an older wrong-amount reason under the list is kept when the refund is recorded
+ok    97.68 · a failed note carrying the list keeps its own reason when the payment is refunded
+ok    97.68 · a 97.69 wrong-figure payment owed back is refunded in full: nothing owed, its reason kept
+ok    97.68 · a cancelled job's own payment refunded in full: recorded on a job that had no note, nothing left
+ok    97.68 · a cancelled job's own payment refunded in part: $100 left
+ok    97.68 · a cancelled job's own payment, found by the payment when the charge carries no booking id
+ok    97.68 · review: a refund that arrives before the extra payment's own event is kept, and the payment then arrives owed nothing
+ok    97.68 · review: a wrong-figure payment refunded while still only a reason, then the right payment settles: owed nothing
+ok    97.68 · a recorded refund survives a later wrong-figure note written over the row
+ok    refused: a refund sent from ANOTHER detailer's account records nothing
+ok    refused: another detailer's refund of a cancelled job's own payment leaves its line
+ok    refused: a refund of a payment no job here took, carrying no booking id, changes nothing
+FAIL  refused: a partly refunded payment no longer counts as covering the job when its own debit fails
+ok    R3 · first page: one create, cards only, nothing to expire
+ok    R3 · price changed $100 → $150: GET old, EXPIRE old, then create, in that order
+ok    R3 · same price, page still open: handed back, no second live page
+ok    R3 · previous page finished: a fresh page, nothing expired
+ok    R3 · previous page unknown to Stripe (404, account reconnected): a fresh page
+ok    R3 · refused: when Stripe will not expire the old page, no new page is made
+ok    R3 · refused: an already-paid job reaches Stripe not at all
+FAIL  refused: a partly refunded payment no longer counts as covering the job when its own debit fails — paid {"kind":"extra","paid_cents":0,"owed_cents":0,"currency":"usd","at":"2026-10-17T11:10:31.552Z","refunds":{"pi_2":{"paid_cents":15000,"refunded_cents":5000,"at":"x"}}} · HTTP 200
+54 passed, 1 failed, 55 assertions, 51 of 51 scenarios.

@@ -50,6 +50,7 @@ import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
 import { addDays, money, time12, todayLocal } from "../lib/format.js";
 import { asOfLabel } from "../lib/offlineJobs.js";
+import { keptOf } from "../lib/payPill.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
@@ -265,9 +266,13 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   ).keys()].map((d) => [d, upcoming.filter((b) => b.booking_date === d)]);
 
   const expected = todays.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-  const collected = todays
-    .filter((b) => b.payment_status === "paid")
-    .reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+  const paidToday = todays.filter((b) => b.payment_status === "paid");
+  const collected = paidToday
+    // A refund made in Stripe leaves the job "paid"; only what was kept is collected (97.81).
+    .reduce((s, b) => s + keptOf(b, Number(b.final_amount ?? b.total_price)), 0);
+  // What was paid and went back. Named instead of "yet" when collected is 0 (97.85), and
+  // beside collected on both widths whenever it is above 0 (97.87).
+  const refunded = paidToday.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0) - collected;
   const done = todays.filter((b) => b.status === "completed").length;
 
   // THE THREE RUNS, each named for the work it holds.
@@ -775,7 +780,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               <div className="quiet" style={{ marginTop: 4 }}>
                 {collected > 0
                   ? t("{amount} collected", { amount: money(collected) })
-                  : t("Nothing collected yet")}
+                    // A part refund is named beside what was kept, as the phone cell does (97.87).
+                    + (refunded > 0 ? ` · ${t("{amount} refunded", { amount: money(refunded) })}` : "")
+                  : refunded > 0
+                    ? t("{amount} refunded", { amount: money(refunded) })
+                    : t("Nothing collected yet")}
               </div>
             </div>
           </div>
@@ -817,7 +826,17 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             </div>
             <div>
               <span className="figure">{money(collected)}</span>
-              <span className="lbl">{t("collected")}</span>
+              {/* The cell keeps meaning "collected"; money that went back is named
+                  under the word, so a refunded day is not a bare "$0" (97.87). It
+                  wraps rather than ellipsis, because .lbl clips and 320 is tight. */}
+              <span className="lbl">
+                {t("collected")}
+                {refunded > 0 && (
+                  <span style={{ display: "block", whiteSpace: "normal" }}>
+                    {t("{amount} refunded", { amount: money(refunded) })}
+                  </span>
+                )}
+              </span>
             </div>
           </div>
         ))}

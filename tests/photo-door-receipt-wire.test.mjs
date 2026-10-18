@@ -59,6 +59,9 @@ const EXP_A = "33333333-3333-4333-8333-333333333333";
 const EXP_B = "44444444-4444-4444-8444-444444444444";
 
 const SRC = "app/src/lib/receipts.js";
+// LF, whatever the checkout wrote: § 10's multi-line sabotage is written with "\n", and a Windows checkout
+// (core.autocrlf) hands back "\r\n", so the edit never landed and § 10 refused to judge (ROADMAP 98.5).
+const readSrc = () => readFileSync(SRC, "utf8").replace(/\r\n/g, "\n");
 const BUCKET = "expense-receipts";
 const appLib = (n) => JSON.stringify(pathToFileURL(path.resolve(`app/src/lib/${n}`)).href);
 
@@ -285,7 +288,7 @@ async function load(flagOn, { src = null } = {}) {
     `export const SIGNED_FOR = ${signedFor()};\n`
     + "export const shrink = (f) => globalThis.__shrink(f);\n"
     + "export const budgetFor = (b) => globalThis.__budget(b);\n");
-  writeFileSync(path.join(d, "receipts.js"), src ?? readFileSync(SRC, "utf8"));
+  writeFileSync(path.join(d, "receipts.js"), src ?? readSrc());
   return import(pathToFileURL(path.join(d, "receipts.js")).href);
 }
 
@@ -599,7 +602,7 @@ test("9 · THERE IS NO SECOND DOOR, and the flag is read in a known number of pl
   assert.equal(w.sbCalls.length, 0, "the door failed and the old store was written to anyway: a second door");
   assert.equal(w.objects.size, 0);
 
-  const src = readFileSync(SRC, "utf8");
+  const src = readSrc();
   assert.equal(src.split("export const RECEIPTS_VIA_DOOR").length - 1, 0,
     "the flag is declared here as well as in photo-door.js");
   assert.equal(src.split("if (RECEIPTS_VIA_DOOR)").length - 1, 3,
@@ -684,7 +687,7 @@ const SABOTAGES = [
 
 test("10 · SABOTAGE — each guard removed is seen (control first)", async () => {
   assert.equal(SABOTAGES.length, 6, "the sabotage list changed size without this number moving");
-  const src = readFileSync(SRC, "utf8");
+  const src = readSrc();
 
   for (const s of SABOTAGES) {
     const flagOn = s.flagOn ?? true;

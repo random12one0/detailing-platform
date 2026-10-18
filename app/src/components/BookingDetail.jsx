@@ -44,6 +44,7 @@ import { useJobWeather } from "../hooks/useJobWeather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 import { jobMailWarning } from "../lib/mailWarning.js";
 import { businessToday } from "../book/core.js";
+import { PAY_LABELS, payPill } from "../lib/payPill.js";
 
 // One vocabulary for the values a person reads, so the same booking does
 // not say "completed" in the sheet and "Completed" on the card, or show the
@@ -54,9 +55,6 @@ const STATUS_LABELS = {
   // ROADMAP 2.12 — "Pending" is what the database calls it and nobody says it
   // out loud. The detailer's own word for this row is that somebody is waiting.
   pending: "Waiting on you",
-};
-const PAY_LABELS = {
-  paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
 };
 // ROADMAP 4.7 — THE SAME FOUR STATES, AS A CONTROL, IN THIS RECORD'S OWN WORDS.
 // Derived from `PAY_LABELS` rather than written out again, so the choice a
@@ -542,14 +540,66 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // because nothing records which part was paid — the same reason
   // `payability` refuses to guess at it.
   const mailWarning = jobMailWarning(lastMail, { bookingDate: booking.booking_date, today: businessToday(business.timezone) });
+  // ROADMAP 97.68 — a refund the detailer made in Stripe is recorded by the
+  // webhook (`payment_problem.refunds`, by payment). Refunded in full, the job's
+  // own payment owes nothing and the red line goes; in part, it names what is left.
+  const refunds = booking.payment_problem?.refunds || {};
+  const refundedOf = (intent) => (intent && Number(refunds[intent]?.refunded_cents)) || 0;
+  const ownRefund = booking.stripe_payment_intent ? refunds[booking.stripe_payment_intent] : null;
+  const ownLeftCents = ownRefund ? (Number(ownRefund.paid_cents) || 0) - refundedOf(booking.stripe_payment_intent) : null;
   const refundOwed = cancelled
-    && (booking.payment_status === "paid" || booking.payment_status === "partial");
+    && (booking.payment_status === "paid" || booking.payment_status === "partial")
+    && !(ownRefund && ownLeftCents <= 0);
   const refundAmount = booking.payment_status === "partial"
     ? null : money(booking.final_amount ?? booking.total_price);
+  // ROADMAP 97.10 — a card payment came in that did not match what the job
+  // owes, so the webhook left it unpaid. Shown while the job is unsettled;
+  // once the detailer marks it paid it becomes a possible refund (97.70, below),
+  // and so does waiving it (97.75).
+  // ROADMAP 97.11: `payments` is money that came in AFTER the job was settled.
+  // It is a refund still to make, so it shows whatever the job's status, and
+  // whichever note carries it (an `extra`, or a `failed` bank payment).
+  // ROADMAP 97.69: a payment carrying a `reason` is a wrong-figure payment that
+  // came in BEFORE the job was paid another way, so it gets its own line each —
+  // "came in after this job was settled" would be untrue of it.
+  const payUnsettled = booking.payment_status !== "paid" && booking.payment_status !== "waived";
+  const refundPayments = Array.isArray(booking.payment_problem?.payments) ? booking.payment_problem.payments : [];
+  // ROADMAP 97.68: a refund the detailer already made in Stripe is not owed
+  // again, so each payment shows only what is LEFT, and goes once that is
+  // nothing. One line per payment: a sentence over the sum of two named a
+  // figure true of neither (review, 2026-10-17).
+  const leftCents = (p) => (Number(p?.paid_cents) || 0) - refundedOf(p?.intent);
+  const stillOwed = refundPayments.filter((p) => leftCents(p) > 0);
+  const owedBack = stillOwed.filter((p) => p?.reason);
+  const extrasOwed = stillOwed.filter((p) => !p?.reason);
+  // Every reason the webhook kept (`earlier`, newest note first), one line each.
+  const kept = booking.payment_problem
+    ? [booking.payment_problem, ...(Array.isArray(booking.payment_problem.earlier) ? [...booking.payment_problem.earlier].reverse() : [])]
+      .filter((r) => r?.kind && r.kind !== "extra")
+      // 97.68: a wrong-figure payment refunded in full needs nothing more doing.
+      .filter((r) => !((r.kind === "amount" || r.kind === "currency") && r.intent && refundedOf(r.intent) >= Number(r.paid_cents)))
+    : [];
+  const payReasons = payUnsettled ? kept : [];
+  // ROADMAP 97.70 — Andrew, 2026-10-17: a wrong-figure card payment still noted
+  // on a job that is now PAID (the detailer marked it paid by hand, which leaves
+  // the note as it was) is flagged as a POSSIBLE refund. Only the detailer knows
+  // whether they kept it as part of what the customer paid, so the line says to
+  // ignore it if they did. One the webhook already moved onto the refunds owed
+  // (97.69) has its own line above and is not repeated.
+  // ROADMAP 97.75 — Andrew, 2026-10-17: a WAIVED job flags it too (the card money
+  // is still in their Stripe), ending "If you meant to keep it, ignore this."
+  const waived = booking.payment_status === "waived";
+  // ROADMAP 97.78: partly refunded in Stripe, the line names what is left, as 97.69's does.
+  const partlyRefunded = (r) => refundedOf(r.intent) > 0;
+  const maybeOwed = booking.payment_status === "waived" || booking.payment_status === "paid" ? kept.filter((r) => (r.kind === "amount" || r.kind === "currency")
+    && !(r.intent && refundPayments.some((p) => p?.intent === r.intent))) : [];
+  const payProblem = booking.payment_problem && (extrasOwed.length > 0 || owedBack.length > 0 || payReasons.length > 0 || maybeOwed.length > 0)
+    ? booking.payment_problem : null;
   // ROADMAP 2.12. A request is answered here as well as on Today, because the
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
   const waiting = booking.status === "pending";
+  const pay = payPill(booking);
   // A QUOTE ONLY MEANS ANYTHING WHILE THE BOOKING IS STILL PENDING, and the
   // guard is here rather than on each write for a reason: a declined request
   // and a customer cancellation both end the wait, and so will whatever path
@@ -571,9 +621,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           {/* These read as raw enum values — lowercase here, title case on
               the card for the same booking. One vocabulary, one casing. */}
           <span className={`pill ${booking.status}`}>{t(STATUS_LABELS[booking.status] ?? booking.status)}</span>
-          <span className={`pill ${booking.payment_status}`}>
-            {t(PAY_LABELS[booking.payment_status] ?? booking.payment_status)}
-          </span>
+          {/* ROADMAP 97.80: refunded in Stripe, the pill says so rather than "Paid". */}
+          <span className={`pill ${pay}`} data-pay-pill>{t(PAY_LABELS[pay] ?? pay)}</span>
           {/* Roadmap 2.14 step 3. The same fact the request card carries, on
               the record you open from it — a plan booking's price is the
               member's, and the one thing that explains it is its name. A
@@ -603,10 +652,77 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               from your own Stripe" is the thing to go and do, and the reason
               it is theirs to do is in the sentence rather than left implied. */}
           {refundOwed && (
-            <div className="error-box" role="status" style={{ color: "var(--bad)" }}>
-              {refundAmount
+            <div className="error-box" role="status" data-refund-cancelled="" style={{ color: "var(--bad)" }}>
+              {ownRefund && ownLeftCents > 0
+                ? t("This was paid. You refunded {refunded} in your Stripe, and {left} is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  refunded: money(refundedOf(booking.stripe_payment_intent) / 100),
+                  left: money(ownLeftCents / 100),
+                })
+                : refundAmount
                 ? t("This was paid. Refund {amount} from your own Stripe. The money went straight into your account, so we cannot send it back for you.", { amount: refundAmount })
                 : t("Part of this was paid. Refund what they paid from your own Stripe. The money went straight into your account, so we cannot send it back for you.")}
+            </div>
+          )}
+          {/* ROADMAP 97.10 — same place and red as the refund line: it names
+              something to go and do, in their own Stripe account. */}
+          {payProblem && (
+            <div className="error-box" role="status" data-payment-problem={payProblem.kind} style={{ color: "var(--bad)" }}>
+              {payReasons.map((r, i) => <div key={i} data-payment-reason={r.kind}>{r.kind === "failed"
+                ? t("A bank payment of {paid} did not go through, so this job is not paid. Check the payment in your Stripe account.", {
+                  paid: money(Number(r.paid_cents) / 100),
+                })
+                : r.kind === "currency"
+                ? t("A card payment came in, but not in US dollars. We did not mark this job paid. Check the payment in your Stripe account.")
+                : t("A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.", {
+                  paid: money(Number(r.paid_cents) / 100),
+                  owed: money(Number(r.owed_cents) / 100),
+                })}</div>)}
+              {owedBack.map((p, i) => <div key={`owed-${i}`} data-refund-owed={p.reason}>{p.reason === "currency"
+                ? (refundedOf(p.intent) > 0
+                  ? t("A card payment that was not in US dollars came in, and this job has since been paid. Part of it is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.")
+                  : t("A card payment that was not in US dollars came in, and this job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you."))
+                : refundedOf(p.intent) > 0
+                ? t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. You refunded part of it, and {left} is not refunded yet. Refund the rest from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  paid: money(Number(p.paid_cents) / 100),
+                  left: money(leftCents(p) / 100),
+                })
+                : t("A card payment of {paid} did not match what this job was owed, and the job has since been paid. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                  paid: money(Number(p.paid_cents) / 100),
+                })}</div>)}
+              {maybeOwed.map((r, i) => <div key={`maybe-${i}`} data-refund-maybe={r.kind}>{partlyRefunded(r)
+                ? (waived
+                  ? (r.kind === "currency"
+                    ? t("A card payment that was not in US dollars came in, and the job has since been waived. Part of it is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.")
+                    : t("A card payment of {paid} did not match what this job was owed, and the job has since been waived. You refunded part of it, and {left} is not refunded yet. Refund the rest from your own Stripe. If you meant to keep it, ignore this.", {
+                      paid: money(Number(r.paid_cents) / 100),
+                      left: money((Number(r.paid_cents) - refundedOf(r.intent)) / 100),
+                    }))
+                  : r.kind === "currency"
+                  ? t("A card payment that was not in US dollars came in, and the job has since been marked paid. Part of it is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.")
+                  : t("A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. You refunded part of it, and {left} is not refunded yet. If they paid you in full another way, refund the rest from your own Stripe. If you kept this payment as part of what they paid, ignore this.", {
+                    paid: money(Number(r.paid_cents) / 100),
+                    left: money((Number(r.paid_cents) - refundedOf(r.intent)) / 100),
+                  }))
+                : waived
+                ? (r.kind === "currency"
+                  ? t("A card payment that was not in US dollars came in, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.")
+                  : t("A card payment of {paid} did not match what this job was owed, and the job has since been waived. Refund it from your own Stripe. If you meant to keep it, ignore this.", {
+                    paid: money(Number(r.paid_cents) / 100),
+                  }))
+                : r.kind === "currency"
+                ? t("A card payment that was not in US dollars came in, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.")
+                : t("A card payment of {paid} did not match what this job was owed, and the job has since been marked paid. If they paid you in full another way, refund it from your own Stripe. If you kept this payment as part of what they paid, ignore this.", {
+                  paid: money(Number(r.paid_cents) / 100),
+                })}</div>)}
+              {extrasOwed.map((p, i) => <div key={`refund-${i}`} data-refund-owed="">
+                {refundedOf(p.intent) > 0
+                  ? t("Another payment came in after this job was settled, and {left} of it is not refunded yet. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                    left: money(leftCents(p) / 100),
+                  })
+                  : t("Another payment of {paid} came in after this job was settled. Refund it from your own Stripe. The money went straight into your account, so we cannot send it back for you.", {
+                    paid: money(Number(p.paid_cents) / 100),
+                  })}
+              </div>)}
             </div>
           )}
           {/* ROADMAP 3.4f S1 — an email about this job did not arrive. Same
@@ -854,6 +970,15 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {booking.paid_online_at && (
                 <p className="quiet">
                   {t("Paid by card on {date}", { date: dateLong(localDate(booking.paid_online_at, business.timezone), getAppLocale()) })}
+                </p>
+              )}
+              {/* ROADMAP 97.68 — the job's own card payment, refunded in the detailer's Stripe. */}
+              {ownRefund && refundedOf(booking.stripe_payment_intent) > 0 && (
+                <p className="quiet" data-own-refund="">
+                  {t("Refunded {amount} in your Stripe on {date}", {
+                    amount: money(refundedOf(booking.stripe_payment_intent) / 100),
+                    date: dateLong(localDate(ownRefund.at, business.timezone), getAppLocale()),
+                  })}
                 </p>
               )}
               {canFinalize && (
@@ -1107,10 +1232,31 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                       is right about it — which leaves "Cancelled" saying the
                       customer backed out when in fact the detailer said no. A
                       column nothing prints is a column nobody can trust. */}
-                  {booking.declined_at && (
-                    <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
+                  {/* ROADMAP 97.24 — A DECLINED REQUEST IS TAKEN BACK BY ACCEPTING
+                      IT, not by "Un-cancel": `update-booking` refuses that now,
+                      and `respond-to-booking` clears `declined_at` and sends the
+                      "You're confirmed" email. A plain cancellation's way back
+                      emails the customer too, so it asks like "Cancel the job". */}
+                  {booking.declined_at ? (
+                    <>
+                      <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
+                      <button className="btn" disabled={busy} onClick={() => respond("accept")}>
+                        <Check size={18} strokeWidth={2} /> {t("Accept it after all")}
+                      </button>
+                    </>
+                  ) : (
+                    <ConfirmTap
+                      className="btn"
+                      disabled={busy}
+                      label={t("Un-cancel")}
+                      question={booking.customer_email
+                        ? t("Put {job} back on? The customer is emailed.", { job })
+                        : t("Put {job} back on?", { job })}
+                      confirmClassName="btn"
+                      confirmLabel={t("Yes, put it back on")}
+                      onConfirm={() => setStatus("confirmed")}
+                    />
                   )}
-                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>{t("Un-cancel")}</button>
                 </>
               ) : (
                 <>

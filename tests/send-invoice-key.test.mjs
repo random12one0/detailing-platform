@@ -158,7 +158,7 @@ test("4 · send-invoice claims after its own checks and before building or sendi
 });
 
 test("5 · canary: the wiring reader sees each piece removed", () => {
-  const src = readFileSync(FN, "utf8");
+  const src = readFileSync(FN, "utf8").replace(/\r\n/g, "\n"); // CRLF on a Windows checkout (ROADMAP 97.86)
   assert.equal(wiring(src.replace("await claim(claimStore, new Date(), member.businessId, booking.id, body.idempotency_key)", "{ kind: 'nokey' }")).afterChecks, false);
   assert.equal(wiring(src.replace(/await settleFailed\(claimStore, new Date\(\), claimedBooking, claimedKey\);\n      return json\(\{ error: "email_failed"/, 'return json({ error: "email_failed"')).releasedOnFailure, false);
   assert.equal(wiring(src.replace("thank_you_sent: thankYouSent, ...(notDeduped", "thank_you_sent: thankYouSent, ...(other")).settledOnSuccess, false);
@@ -170,7 +170,8 @@ test("5 · canary: the wiring reader sees each piece removed", () => {
 const dir = mkdtempSync(path.join(tmpdir(), "send-invoice-key-"));
 let n = 0;
 async function build(from, to) {
-  const src = readFileSync("supabase/functions/_shared/sendInvoiceClaim.ts", "utf8");
+  // A Windows checkout holds the module with CRLF; the needles are written with \n (ROADMAP 97.86).
+  const src = readFileSync("supabase/functions/_shared/sendInvoiceClaim.ts", "utf8").replace(/\r\n/g, "\n");
   assert.equal(src.split(from).length, 2, "the sabotage did not apply: " + from);
   const file = path.join(dir, `claim-${++n}.ts`);
   writeFileSync(file, src.replace(from, () => to));
@@ -187,6 +188,8 @@ const SABOTAGE = [
   ["an unusable store throws", "  } catch {\n    return { kind: \"unavailable\" };\n  }", "  } finally { }", ["unavailableNotThrown", "unavailableOnReadFailure"]],
   ["a failed settle throws", "try { return await store.move(bookingId, key, [\"sending\"], \"failed\", now.toISOString()); }\n  catch { return false; }", "return await store.move(bookingId, key, [\"sending\"], \"failed\", now.toISOString());", ["settleNeverThrows"]],
 ];
+// BREAK=needle-absent aims one needle at text not in the file; § 6 must go red with "the sabotage did not apply".
+if (process.env.BREAK === "needle-absent") SABOTAGE.find((s) => s[0] === "an unusable store throws")[1] += " NOT IN THE FILE";
 
 test("6 · each guard removed alone turns its own probe red", async () => {
   for (const [name, from, to, expect] of SABOTAGE) {

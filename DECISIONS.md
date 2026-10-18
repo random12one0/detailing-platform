@@ -357,6 +357,9 @@ were made more than once.
 - **Supervision 2026-10-13 (tenth)** — CORS and consent reproduced; cache deletion stays open; fair held test edits, whole-suite baseline corrected; Gallery removal and preview translations queued; belt labels dispatches honestly.
 - **Roadmap 14.39 — Receipt attempts outlive the tab** — durable server attempts rather than browser-only cleanup; finish and cleanup lock the same record; a receipt listing can revive an expired tombstone but cannot authorize deleting an unknown key. Real R2 and publication remain separate proofs.
 - **Supervision 2026-10-13 (eleventh)** — R2 closures reproduced; preview proved locally; readable sabotage evidence separated; held nightly restore cannot certify an arbitrary dump.
+- **Supervision 2026-10-16 (second)** — a test-safety refusal is not a regression; a recrash is not a new failure; 97.1's held test fixed on its branch; 97.3 back to a builder under Andrew's yes.
+- **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
+- **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19141,3 +19144,68 @@ was absent from the supervisor's Windows PATH. Do not alter its historical
 figures or debt declarations: require its command runner before scanning.
 Fixed that prerequisite refusal at `eaee66e9`, with the missing-runner red and
 the real-runner green retained. ROADMAP 98.9 and gotchas 131 name the observation.
+
+## Supervision 2026-10-16 (second)
+
+Nothing closed since the morning pass (`8d209a33`); 97.2, 97.3 and 97.4 were held.
+Andrew said "merge it" on 97.1–97.4 at 14:42–14:49. None merged, and for three of
+them the stated reason was false.
+
+97.1 and 97.3: the belt's test-safety filter refused to run the branch's tests,
+then `continueWorkspace` read the refusal as every gate regressing, so the merge
+stopped as "regressed checks that pass on main". A refusal now keeps the branch
+and says it was refused (`belt.mjs`, belt-staging `79e72fa`, self-check FAIL with
+the rule removed). 97.2: held for a credential-less live test whose crash text
+changed (gotchas 133); `harness.mjs` now files that as `recrashed`.
+
+The supervisor edited 97.1's held branch (`f9fa62f1`, `92cbd1a4`): one test listed
+files with `git ls-files`; it now reads them from disk, same 633 files, planted
+copy still caught. Done here rather than queued because the item was blocked on
+Andrew, who had already said yes, and the clock change is 2026-11-01. 97.3 is a
+test rewrite, so its NEEDS ANDREW tag was replaced with a note sending it back to
+a builder under that same yes. 97.4's hold is a real review finding; left alone.
+
+## Supervision 2026-10-17
+
+**db-audit red means a live gap that nothing in this repo fixes yet.** 97.12 added
+a section to `scripts/db-audit.mjs` that exits red until Andrew applies its
+migration, and the belt held it as a gate regression. Both are right about the
+facts and the result is a dead end: the item can never merge, and if it did,
+db-audit would join `deployed-inventory` and `migration-drift` as a standing red
+that guards nothing. An unapplied migration already has its red
+(`migration-drift.mjs`). So a gap whose fix is declared in the repo prints by
+name as AWAITS APPLY and does not fail; a gap with no declaring file still
+fails. The gap stays visible, and db-audit stays able to catch the next one.
+Sent back to a builder on 97.12's branch.
+
+97.69 was held for "no usable review" over a review that said REVIEW OK on its
+third line. Belt-staging `5ffb69e` already reads past a short preamble; not
+installed yet. Its proof reproduced on the branch (35/0, `BREAK=no-carry` 3
+red). Recommendation to Andrew: merge it, before 97.68.
+
+Re-run this pass, credential-free, at `753c727d`: 97.64 duplicate-answer 67/0
+(`hand-back-id` 6 red), booking-refs 10/0 (`list-key` 2 red); 97.8
+price-shown-equals-charged 12/0 (`no-guard` 3 red) and `price-changed-page.mjs`
+66/0 over 6 targets with the canary caught; 97.11 checkout-page-lifecycle 29/0
+(three breaks red), card-payment-settles 33/0 (`no-guard` 3 red).
+
+## Supervision 2026-10-18
+
+**Andrew's "merge it" on a held branch is carried out by the supervisor when the merge is
+mechanical, rather than by a fresh belt job.** The belt turns the answer into a new attempt
+that starts from main whenever the old branch conflicts, and every one of these conflicted only
+on paperwork (FOR-ANDREW rows, receipts, the NEEDS ANDREW lines). 97.13 and 97.17 were merged in
+a separate worktree with their own proofs re-run on the merged tree; 97.20's re-run had already
+merged its held branch and was waiting only on a reviewer that was out of usage. Receipts that
+conflicted kept main's copy, because main's had been re-taken more recently; the item's own
+proof receipts came from the branch untouched.
+
+**An unapplied migration whose version collides with one on main is renamed, not kept.**
+"Migrations are append-only" protects files that may have run. 97.13's
+`20261017030000_domain_claims_need_proof.sql` had never been on main and is not applied (its
+entry says AWAITS PUBLISH), while 97.14 had already landed `20261017030000_staff_cannot_...`.
+Keeping both would leave a release row saying "apply 20261017030000" that names two files, and
+`supabase db push` refuses duplicate versions. Renamed to `20261018010000_`, every reference
+moved in the same commit. The same is owed by 97.18 (`20261017200000`, against 97.19). The guard
+is `tests/migration-versions-unique.test.mjs`, an equality over the one old pair
+(`20260913010000`) that was on main before it existed.

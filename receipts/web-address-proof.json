@@ -1,0 +1,95 @@
+{
+  "git_sha": "539b903da5d88ae56093c45034b3c3d52be175a0",
+  "git_sha_started": "539b903da5d88ae56093c45034b3c3d52be175a0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T07:28:46.142Z",
+  "failures": [],
+  "warnings": [
+    "Every business_domains read and every verify-domain answer is played by page.route; nothing reaches the database. It proves the SCREEN uses the function and shows the token, not that the deployed function or the applied migration exist."
+  ],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-390-added.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-390-live.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-768-added.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-768-live.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-1440-added.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-1440-live.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-320-added.png",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.13/png/web-address-320-live.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900",
+      "320x700"
+    ],
+    "item": "97.13",
+    "break": null,
+    "served_new_screen": true
+  },
+  "check_id": "web-address-proof",
+  "started_at": "2026-10-17T07:28:02.539Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 36,
+  "min_assertions": 36,
+  "assertion_floor": "4 widths x 9 questions, fixed by the question list (docs/gotchas.md 98).",
+  "canary": {
+    "id": "wrong-token+direct-write",
+    "observed_failure": true
+  },
+  "canaries": [
+    {
+      "id": "wrong-token",
+      "observed_failure": true
+    },
+    {
+      "id": "direct-write",
+      "observed_failure": true
+    }
+  ],
+  "observed": [
+    "390: ok   adding goes through verify-domain (action add)",
+    "390: ok   no direct INSERT/UPDATE on business_domains from the browser",
+    "390: ok   the added address appears in the list",
+    "390: ok   the DNS box names the TXT record _detailing-platform.book",
+    "390: ok   the DNS box shows THIS row's token",
+    "390: ok   a refused check says why, and the row is not Live",
+    "390: ok   a passing check says the address is live",
+    "390: ok   the row now carries the Live mark",
+    "390: ok   no console error and no sideways scroll",
+    "768: ok   adding goes through verify-domain (action add)",
+    "768: ok   no direct INSERT/UPDATE on business_domains from the browser",
+    "768: ok   the added address appears in the list",
+    "768: ok   the DNS box names the TXT record _detailing-platform.book",
+    "768: ok   the DNS box shows THIS row's token",
+    "768: ok   a refused check says why, and the row is not Live",
+    "768: ok   a passing check says the address is live",
+    "768: ok   the row now carries the Live mark",
+    "768: ok   no console error and no sideways scroll",
+    "1440: ok   adding goes through verify-domain (action add)",
+    "1440: ok   no direct INSERT/UPDATE on business_domains from the browser",
+    "1440: ok   the added address appears in the list",
+    "1440: ok   the DNS box names the TXT record _detailing-platform.book",
+    "1440: ok   the DNS box shows THIS row's token",
+    "1440: ok   a refused check says why, and the row is not Live",
+    "1440: ok   a passing check says the address is live",
+    "1440: ok   the row now carries the Live mark",
+    "1440: ok   no console error and no sideways scroll",
+    "320: ok   adding goes through verify-domain (action add)",
+    "320: ok   no direct INSERT/UPDATE on business_domains from the browser",
+    "320: ok   the added address appears in the list",
+    "320: ok   the DNS box names the TXT record _detailing-platform.book",
+    "320: ok   the DNS box shows THIS row's token",
+    "320: ok   a refused check says why, and the row is not Live",
+    "320: ok   a passing check says the address is live",
+    "320: ok   the row now carries the Live mark",
+    "320: ok   no console error and no sideways scroll"
+  ]
+}

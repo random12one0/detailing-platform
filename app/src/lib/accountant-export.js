@@ -15,6 +15,8 @@
 // it. An export is the same shape of risk one step later: a file the owner
 // hands to someone who will not check it against the screen.
 
+import { keptOf, payPill, refundedCents } from "./payPill.js";
+
 export const q = (v) => {
   const s = String(v ?? "");
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -59,6 +61,23 @@ export const amount = (n) => (Math.round(Number(n || 0) * 100) / 100).toFixed(2)
 // argument on `accountantCsv`, chosen at the press — and not a `t()` here.
 export const HEADER = ["Date", "Type", "Description", "Customer", "Status", "Amount", "Miles"];
 
+// ROADMAP 97.81 — THE STATUS CELL READS THE JOB'S OWN REFUND, NOT ONLY ITS STATUS.
+// A refund made in Stripe leaves `payment_status` at "paid", so a job refunded in full
+// went to the accountant as "Paid". A part refund says in words what went back and what
+// was kept. Amount is what the job kept (ROADMAP 97.82), so it still adds up to the
+// screen's Net, which a refund now comes off too.
+export function paidWords(b) {
+  const pill = payPill(b);
+  if (pill === "refunded") return "Refunded";
+  const back = amount(refundedCents(b) / 100);
+  if (pill === "part_refunded" && b.payment_status === "paid") {
+    const price = Number(b.final_amount ?? b.total_price ?? 0);
+    return `Part refunded: ${back} of ${amount(price)} returned, ${amount(keptOf(b, price))} kept`;
+  }
+  if (pill === "part_refunded") return `Part paid, ${back} refunded`;
+  return b.payment_status === "paid" ? "Paid" : "Unpaid";
+}
+
 // The rows, before they are text — so the test can assert the arithmetic
 // without parsing CSV back out again.
 export function accountantRows({ jobs = [], expenses = [] }) {
@@ -70,9 +89,11 @@ export function accountantRows({ jobs = [], expenses = [] }) {
         (b.services ?? []).map((s) => s.name_at_booking).filter(Boolean).join(" · ")
           || (b.service_type === "mobile" ? "Mobile" : "Drop-off"),
         b.customer_name ?? "",
-        b.payment_status === "paid" ? "Paid" : "Unpaid",
+        paidWords(b),
       ],
-      amount: Number(b.final_amount ?? b.total_price ?? 0),
+      // What the job KEPT, so a refund comes off here as it comes off the screen's Net
+      // (ROADMAP 97.82); the Status cell beside it says why the figure is lower.
+      amount: keptOf(b, Number(b.final_amount ?? b.total_price ?? 0)),
       // NULL STAYS BLANK RATHER THAN BECOMING 0. A detailer who does not log
       // miles must not hand their accountant a column of noughts that reads
       // as "I drove nowhere"; and zero is a real answer for a drop-off at

@@ -1,0 +1,42 @@
+{
+  "git_sha": "91f4baeb823bb773b08aacf507192799feb2cf7b",
+  "git_sha_started": "91f4baeb823bb773b08aacf507192799feb2cf7b",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T03:26:27.734Z",
+  "failures": [
+    "create full: a stranger's racing booking refuses this one with 409 — status 500",
+    "create full: with the sentence validateSlot shows — {\"error\":\"We could not save that booking. Please try again in a moment.\"}",
+    "create close: a stranger's racing booking refuses this one with 409 — status 500",
+    "create close: with the sentence validateSlot shows — {\"error\":\"We could not save that booking. Please try again in a moment.\"}",
+    "create twin: the customer's own first press is handed back (200, duplicate) — status 500 {\"error\":\"We could not save that booking. Please try again in a moment.\"}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/day-rule-refusal-twin-first.sabotage.txt"
+  ],
+  "dimensions": {
+    "handlers": [
+      "create-booking",
+      "reschedule-booking",
+      "update-booking"
+    ],
+    "item": "97.18",
+    "break": "twin-first"
+  },
+  "check_id": "day-rule-refusal-twin-first",
+  "started_at": "2026-10-18T03:26:27.537Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 24,
+  "assertion_floor": "create 3+3+3+2, reschedule 3+2+2, update 3+2, plain edit 1 = 24; every check() unconditional.",
+  "canary": {
+    "id": "break-twin-first",
+    "observed_failure": true
+  }
+}

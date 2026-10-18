@@ -23,13 +23,19 @@
 // difference lands as a `price_adjustments` line, which every surface that
 // itemises already reads, and `subtotal` moves with it.
 //
-// Input: { booking_id }
+// Input: { booking_id, quoted_at }
+//
+// ROADMAP 97.16 — `quoted_at` IS THE QUOTE THE CUSTOMER WAS LOOKING AT. A
+// detailer may send a new quote while the booking is pending, so without it
+// the page showed $200, the detailer re-quoted $300, and Accept agreed to the
+// $300 nobody had seen. The press is refused unless it names the quote that is
+// on the booking now, and refused once the appointment's time has passed.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
-import { businessById, getSettings } from "../_shared/tenant.ts";
+import { businessById, getSettings, ownLines } from "../_shared/tenant.ts";
 import { buildBrand, extraVehiclesFor, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
@@ -53,18 +59,20 @@ Deno.serve(async (req) => {
       return json({ success: false, error: "too_many_requests" }, 429);
     }
 
-    const { booking_id } = await req.json();
+    const { booking_id, quoted_at: shown } = await req.json();
     if (!booking_id || typeof booking_id !== "string") {
       return json({ error: "booking_id is required" }, 400);
     }
 
-    const { data: booking } = await supabase
+    const { data: found } = await supabase
       .from("bookings")
-      .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
+      .select("*, services:booking_services(business_id, name_at_booking), add_ons:booking_add_ons(business_id, add_on:add_ons(name))")
       .eq("id", booking_id.trim())
       .is("deleted_at", null)
       .maybeSingle();
-    if (!booking) return json({ error: "not_found" }, 404);
+    if (!found) return json({ error: "not_found" }, 404);
+    // ROADMAP 97.12 — only lines of this booking's own business reach the customer.
+    const booking = ownLines(found);
     // ROADMAP 6.4 — the customer pressed Accept again after it landed. The
     // quote is cleared on acceptance, so without this the retry was told
     // "there is no quote waiting" about the quote they had just accepted.
@@ -77,8 +85,18 @@ Deno.serve(async (req) => {
     if (booking.status !== "pending") {
       return json({ error: "This booking is no longer waiting on you." }, 409);
     }
+    if (new Date(booking.start_at).getTime() <= Date.now()) {
+      return json({ error: "This appointment's time has passed, so its price can no longer be accepted.", code: "appointment_passed" }, 409);
+    }
 
     const quoted = Math.round(Number(booking.quoted_amount) * 100) / 100;
+    const changed = () => json({
+      error: `The price changed to ${money(quoted)} since this page was opened. Check the new price, then accept it if it suits you.`,
+      code: "quote_changed",
+    }, 409);
+    // Missing counts as changed: a page that names no quote cannot show which
+    // price it agreed to.
+    if (typeof shown !== "string" || Date.parse(shown) !== Date.parse(booking.quoted_at)) return changed();
     const previous = Math.round(Number(booking.total_price) * 100) / 100;
     const delta = Math.round((quoted - previous) * 100) / 100;
 
@@ -108,7 +126,15 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (error) throw error;
     if (!updated) {
-      return json({ success: true, duplicate: true, booking: { id: booking.id, status: "confirmed" } });
+      // Nothing matched: either another press accepted this same quote, or
+      // the detailer re-quoted between the read and the write. Only the first
+      // is a success.
+      const { data: now } = await supabase.from("bookings").select("status, quoted_at")
+        .eq("id", booking.id).eq("business_id", booking.business_id).maybeSingle();
+      if (now?.status === "confirmed" && now.quoted_at === null) {
+        return json({ success: true, duplicate: true, booking: { id: booking.id, status: "confirmed" } });
+      }
+      return json({ error: "The price on this booking just changed. Reload the page to see it.", code: "quote_changed" }, 409);
     }
 
     // --- Notifications. The customer gets the ordinary confirmation, because

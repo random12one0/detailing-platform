@@ -1,0 +1,42 @@
+{
+  "git_sha": "a891c0c85aa49d892d6801e21378e0bb102d81eb",
+  "git_sha_started": "a891c0c85aa49d892d6801e21378e0bb102d81eb",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:36:56.133Z",
+  "failures": [
+    "390: staff: no delete is offered on the record offered 1",
+    "390: staff: a direct delete-customer call is refused and the customer is still there {\"status\":200,\"still\":0}",
+    "390: owner: the customer was still there for the owner to delete already gone",
+    "768: staff: no delete is offered on the record offered 1",
+    "768: staff: a direct delete-customer call is refused and the customer is still there {\"status\":200,\"still\":0}",
+    "768: owner: the customer was still there for the owner to delete already gone",
+    "1440: staff: no delete is offered on the record offered 1",
+    "1440: staff: a direct delete-customer call is refused and the customer is still there {\"status\":200,\"still\":0}",
+    "1440: owner: the customer was still there for the owner to delete already gone"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/customer-add-delete-walk"
+  ],
+  "dimensions": {
+    "break": "staff-is-owner",
+    "logins": "demo owner + demo staff",
+    "writes": "one booking + one customer per width, customer deleted"
+  },
+  "check_id": "customer-add-delete-walk",
+  "started_at": "2026-10-17T04:35:39.737Z",
+  "status": "fail",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 18,
+  "min_assertions": 18,
+  "assertion_floor": "structural: add, two staff refusals, owner delete and two console checks per width",
+  "canary": {
+    "id": "staff-is-owner",
+    "observed_failure": true
+  }
+}

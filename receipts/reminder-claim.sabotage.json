@@ -1,0 +1,36 @@
+{
+  "git_sha": "9980a4e9bc561c8680769ceeace72feb41ed4f53",
+  "git_sha_started": "9980a4e9bc561c8680769ceeace72feb41ed4f53",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T04:04:23.051Z",
+  "failures": [
+    "4a the other business's customer gets no email and no email_sends row — 1 row(s): sent",
+    "4b the deadline naming them is not claimed (reminded_stage stays 0) — reminded_stage is 3"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/reminder-claim/no-business.sabotage.txt"
+  ],
+  "dimensions": {
+    "function": "send-owner-reminders",
+    "sweeps_at_once": 2,
+    "break": "no-business"
+  },
+  "check_id": "reminder-claim",
+  "started_at": "2026-10-17T04:04:22.870Z",
+  "status": "fail",
+  "expected_targets": 20,
+  "discovered_targets": 20,
+  "attempted_targets": 20,
+  "completed_targets": 20,
+  "skipped_targets": 0,
+  "assertions_executed": 60,
+  "min_assertions": 60,
+  "assertion_floor": "3 in §0 (+1 under BREAK) + 3 in §1 + one per expected send in §1 + 6 in §2 + one per expected send in §2 + 2 in §3 + 5 in §4; the fixture is fixed, so nothing the run finds changes the count",
+  "canary": {
+    "id": "send-owner-reminders-with-its-claims-removed",
+    "observed_failure": true,
+    "reported": 20
+  }
+}

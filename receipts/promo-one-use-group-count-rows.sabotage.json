@@ -1,0 +1,38 @@
+{
+  "git_sha": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "git_sha_started": "33d386be32d8d5ac5bae746494d73548471194e1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T00:26:41.511Z",
+  "failures": [
+    "7a · a grouped call carrying an extra car (3 cars, cap 2) gets 409 - got 200 \"\"",
+    "7b · car 1 already holds 2 cars, so a grouped third car gets 409 - got 200 \"\" / 200 \"\"",
+    "7c · one row saved in each, the code counted once in each - got [[2,1],[2,1]]"
+  ],
+  "warnings": [
+    "The handler runs in-process against the fixture's fake Supabase; pricing and resolvePromo are the real pricing.ts, the payloads the real core.js. The fixture does not honour resolvePromo's expiry filter (`or`), so only non-expiring codes are exercised. The deployed create-booking is not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/promo-one-use-group.sabotage-count-rows.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.9",
+    "break": "count-rows"
+  },
+  "check_id": "promo-one-use-group-count-rows",
+  "started_at": "2026-10-17T00:26:41.119Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 23,
+  "min_assertions": 23,
+  "assertion_floor": "1 quote + 7 limit-1 + 4 refusals + 3 once-per-customer + 4 old-or-cancelled + 3 car-count + 1 canary = 23, every check() unconditional; targets are the five limits on the share (usage limit, once per customer, group cap in cars, freshness, status).",
+  "canary": {
+    "id": "share-switched-off",
+    "observed_failure": true,
+    "what": "the handler with the group share removed refuses car 2 with 409, as the defect did"
+  }
+}

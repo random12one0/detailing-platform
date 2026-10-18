@@ -1,0 +1,93 @@
+{
+  "git_sha": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
+  "git_sha_started": "e8c6a2a95b38de91476e797c60396ff9f1f632f0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-16T22:02:34.938Z",
+  "failures": [
+    "before the slot gate · a stranger with no ref · no consent write was attempted: 1 update(s) to customers",
+    "before the slot gate · a stranger with no ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.864Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "before the slot gate · a stranger with a wrong ref · no consent write was attempted: 1 update(s) to customers",
+    "before the slot gate · a stranger with a wrong ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.868Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "before the slot gate · the original press · no consent write was attempted: 1 update(s) to customers",
+    "before the slot gate · the original press · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.871Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an overlap collision · a stranger with no ref · no consent write was attempted: 1 update(s) to customers",
+    "on an overlap collision · a stranger with no ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.873Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an overlap collision · a stranger with a wrong ref · no consent write was attempted: 1 update(s) to customers",
+    "on an overlap collision · a stranger with a wrong ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.874Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an overlap collision · the original press · no consent write was attempted: 1 update(s) to customers",
+    "on an overlap collision · the original press · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.876Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an id collision · a stranger with no ref · no consent write was attempted: 1 update(s) to customers",
+    "on an id collision · a stranger with no ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.877Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an id collision · a stranger with a wrong ref · no consent write was attempted: 1 update(s) to customers",
+    "on an id collision · a stranger with a wrong ref · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.879Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}",
+    "on an id collision · the original press · no consent write was attempted: 1 update(s) to customers",
+    "on an id collision · the original press · the customer's consent is unchanged: {\"business_id\":\"tenant-a\",\"id\":\"customer-a\",\"phone\":\"(555) 012-3456\",\"sms_consent_at\":\"2026-10-16T22:02:34.881Z\",\"sms_consent_source\":\"booking_form\",\"sms_stopped_at\":null}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/duplicate-answer/consent.json"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/create-booking/index.ts",
+    "break": "consent"
+  },
+  "check_id": "duplicate-answer-consent",
+  "started_at": "2026-10-16T22:02:34.809Z",
+  "status": "fail",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 67,
+  "min_assertions": 66,
+  "canary": {
+    "id": "pre-97.2-select-star-consent-write-and-id-to-anybody",
+    "observed_failure": true,
+    "reported": [
+      {
+        "exit": "before the slot gate",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an overlap collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      },
+      {
+        "exit": "on an id collision",
+        "leaked": [
+          "admin_notes",
+          "customer_email",
+          "customer_address",
+          "customer_phone",
+          "customer_notes",
+          "customer_name",
+          "customer_id"
+        ],
+        "consented": true,
+        "stranger_got_id": true
+      }
+    ]
+  }
+}

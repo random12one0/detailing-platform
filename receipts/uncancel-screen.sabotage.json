@@ -1,0 +1,49 @@
+{
+  "git_sha": "681b0f98eafab4f6fd42c937c2d4d99700addfed",
+  "git_sha_started": "681b0f98eafab4f6fd42c937c2d4d99700addfed",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T23:18:22.984Z",
+  "failures": [
+    "declined en 320x700 · \"Accept it after all\" is offered",
+    "declined en 320x700 · \"Un-cancel\" is not",
+    "declined en 390x844 · \"Accept it after all\" is offered",
+    "declined en 390x844 · \"Un-cancel\" is not",
+    "declined en 768x1024 · \"Accept it after all\" is offered",
+    "declined en 768x1024 · \"Un-cancel\" is not",
+    "declined en 1440x900 · \"Accept it after all\" is offered",
+    "declined en 1440x900 · \"Un-cancel\" is not",
+    "declined es 390x844 · \"Aceptarla después de todo\" is offered",
+    "declined es 390x844 · \"Descancelar\" is not"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/97.24/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "job": "ad5cfac6-9173-450a-a65c-ae32af2eb460",
+    "runs": [
+      "en 320x700",
+      "en 390x844",
+      "en 768x1024",
+      "en 1440x900",
+      "es 390x844"
+    ],
+    "break": "old-screen"
+  },
+  "check_id": "uncancel-screen",
+  "started_at": "2026-10-17T23:17:36.207Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 51,
+  "min_assertions": 40,
+  "canary": {
+    "id": "break-old-screen",
+    "observed_failure": true
+  }
+}

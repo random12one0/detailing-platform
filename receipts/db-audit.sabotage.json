@@ -1,32 +1,32 @@
 {
-  "git_sha": "c38f1859d9abc2df6a95af66f20157b5ae931222",
-  "git_sha_started": "c38f1859d9abc2df6a95af66f20157b5ae931222",
+  "git_sha": "e232e6171d2c2ee23ed317fad2a36cfcbdc225d4",
+  "git_sha_started": "e232e6171d2c2ee23ed317fad2a36cfcbdc225d4",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-15T15:12:50.461Z",
+  "finished_at": "2026-10-17T04:50:25.081Z",
   "failures": [
-    "1 finding(s) to look at — see FOUND above"
+    "the pair-key question is BLIND — booking_id: booking_vehicles, which carries the pair key, did not come back paired"
   ],
   "warnings": [
-    "run with --break=stranger; this receipt is a sabotage, not a result"
+    "run with --break=forget-pair; this receipt is a sabotage, not a result"
   ],
   "artifacts": [
     "scripts/db-audit.mjs"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "checks": 6,
-    "break": "stranger"
+    "checks": 8,
+    "break": "forget-pair"
   },
   "check_id": "db-audit",
-  "started_at": "2026-10-15T15:12:46.787Z",
+  "started_at": "2026-10-17T04:50:18.340Z",
   "status": "fail",
-  "expected_targets": 6,
-  "discovered_targets": 6,
-  "attempted_targets": 6,
-  "completed_targets": 6,
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
   "skipped_targets": 0,
-  "assertions_executed": 7,
+  "assertions_executed": 9,
   "min_assertions": 5,
   "canary": {
     "id": "public must contain tables · an empty answer means the queries are not answering",
