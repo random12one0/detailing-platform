@@ -25235,6 +25235,12 @@ their age is not Andrew's problem.
   which a session cannot read. Nothing else in this item is waiting: the walk
   runs the whole chain the moment the key is there. FOR-ANDREW.md row "Put the
   Stripe TEST secret key into `.env`".
+  **RE-CHECKED 2026-10-18 at `2d859ab7` (belt dispatch): still blocked, nothing
+  built.** `STRIPE_SECRET_KEY` is absent from the main checkout's `.env` (its
+  variable NAMES listed; no value read), and the job's own copy has no `.env` at
+  all, so the walk was not re-run and the 2026-10-10 figures above stand
+  unre-taken. No buildable part remains; re-dispatching before the FOR-ANDREW
+  row is ticked repeats this check.
 
   **RE-WALKED 2026-10-10 at `de72b29` — "back when paid" NOW PASSES LIVE, AND
   THE PUBLISH THE RULING ABOVE HELD HAD ALREADY HAPPENED.**
