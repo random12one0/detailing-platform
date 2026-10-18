@@ -1,0 +1,33 @@
+{
+  "git_sha": "ec8b51834821346ba72a5e6f7da7adbca64df0a5",
+  "git_sha_started": "ec8b51834821346ba72a5e6f7da7adbca64df0a5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T18:24:54.970Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/requests-tick-holds.txt"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/update-booking/index.ts"
+  },
+  "check_id": "requests-tick-holds",
+  "started_at": "2026-10-18T18:24:54.823Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 12,
+  "canary": {
+    "id": "tickless-staff-accepts-through-a-handler-without-the-gate",
+    "observed_failure": true,
+    "sabotage_receipts": [
+      "receipts/requests-tick-holds-no-gate.sabotage.json",
+      "receipts/requests-tick-holds-status-only.sabotage.json"
+    ]
+  }
+}
