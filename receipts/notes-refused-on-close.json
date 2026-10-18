@@ -1,9 +1,9 @@
 {
-  "git_sha": "62498b8b66deab95b8fbcc73c34c3ce8e5e690c8",
-  "git_sha_started": "62498b8b66deab95b8fbcc73c34c3ce8e5e690c8",
+  "git_sha": "05d354f4aa73ee347c5e52a3f42e35b32345676d",
+  "git_sha_started": "05d354f4aa73ee347c5e52a3f42e35b32345676d",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T07:44:36.671Z",
+  "finished_at": "2026-10-18T08:15:21.065Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,8 +13,8 @@
     "login": "demo staff",
     "answer_ms": 600,
     "product_wait_ms": 5000,
-    "frozen_clock": "2026-10-18T07:39:53.436Z",
-    "calls": 45,
+    "frozen_clock": "2026-10-18T08:09:04.016Z",
+    "calls": 57,
     "cases": [
       {
         "width": 390,
@@ -370,6 +370,110 @@
         "notes_sent": [
           "97.84 escape-after",
           "97.84 escape-after 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "span.sub",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "span.sub",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 390"
         ],
         "sent_typed": true
       },
@@ -731,6 +835,110 @@
         "sent_typed": true
       },
       {
+        "width": 768,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
         "width": 1440,
         "case": "control",
         "answer": "refuse",
@@ -1086,19 +1294,123 @@
           "97.84 escape-after 1440"
         ],
         "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "today",
+          "sheet": false,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "today",
+          "sheet": false,
+          "lit_tab": "today",
+          "gear_open": false,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "gear",
+          "sheet": false,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "gear",
+          "sheet": false,
+          "lit_tab": null,
+          "gear_open": true,
+          "typed_anywhere": false
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 1440"
+        ],
+        "sent_typed": true
       }
     ]
   },
   "check_id": "notes-refused-on-close",
-  "started_at": "2026-10-18T07:39:53.436Z",
+  "started_at": "2026-10-18T08:09:04.016Z",
   "status": "pass",
-  "expected_targets": 39,
-  "discovered_targets": 39,
-  "attempted_targets": 39,
-  "completed_targets": 39,
+  "expected_targets": 51,
+  "discovered_targets": 51,
+  "attempted_targets": 51,
+  "completed_targets": 51,
   "skipped_targets": 0,
-  "assertions_executed": 86,
-  "min_assertions": 86,
+  "assertions_executed": 110,
+  "min_assertions": 110,
   "assertion_floor": "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
   "canary": {
     "id": "planted-hidden-faded-offscreen-lines-found-not-shown",
