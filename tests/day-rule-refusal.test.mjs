@@ -2,9 +2,10 @@
 //
 // `scripts/booking-day-lock.mjs` proves the database half on a throwaway Postgres: two racing writes, one
 // refused with BK001 (day full) or BK002 (too close). This proves the HANDLER half, which that script cannot
-// reach: create-booking, reschedule-booking and update-booking, the REAL handler source with every import
-// replaced, answering a refused write with the sentence validateSlot already shows (the real
-// `dayRuleRefusal`, read from slotValidation.ts's own text), and an allowed write still doing what it did.
+// reach: create-booking, reschedule-booking and update-booking answering a refused write with the sentence
+// validateSlot already shows, and an allowed write still doing what it did. reschedule-booking and
+// update-booking are the REAL files, imported as they are (Node strips the types), with each `_shared` import
+// answered by a fake through a resolve hook; the expected sentences come from the real slotValidation.ts.
 //
 //   create-booking   (scripts/lib/bookingConsentFixture.mjs, the harness six other suites use)
 //     ordinary      200, written through insert_booking_checked, confirmation sent
@@ -18,24 +19,22 @@
 //
 // No network, no credentials, no database.
 //
-// SABOTAGE — an env var, never a flag (docs/gotchas.md 104), made to a COPY of the handler source, and it
-// must land (docs/gotchas.md 102):
+// SABOTAGE — an env var, never a flag (docs/gotchas.md 104), made in memory as the handler is loaded, never to
+// the file, and it must land (docs/gotchas.md 102):
 //   BREAK=no-map     the BK001/BK002 → sentence mapping removed from all three handlers
 //   BREAK=twin-first create-booking stops sending a day-rule refusal through the twin-press lookup
 //
 //   node --test tests/day-rule-refusal.test.mjs
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
+import { writeFileSync } from "node:fs";
+import { registerHooks } from "node:module";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { writeReceipt } from "../scripts/receipt.mjs";
-import { bookingFixture, fixtureBooking, DAY_FULL, TOO_CLOSE, dayRuleRefusal } from "../scripts/lib/bookingConsentFixture.mjs";
+import { bookingFixture, fixtureBooking } from "../scripts/lib/bookingConsentFixture.mjs";
 
 const path = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
-const TMP = path(".tmp-97.18/");
-mkdirSync(TMP, { recursive: true });
 const BREAK = process.env.BREAK || "";
 const started_at = new Date().toISOString();
 const MAP = ["const dayRule = dayRuleRefusal(", "const dayRule = null && dayRuleRefusal("];
@@ -53,6 +52,31 @@ const patched = (fn, src) => {
   }
   return src;
 };
+
+// THE REAL FILE IS IMPORTED, NOT ITS TEXT: Node strips the types itself, and a resolve hook answers each
+// `../_shared/<mod>.ts` the handler imports with a module exporting `fakes[mod]`. A name the fake lacks
+// fails the import by name. The file is only rewritten under BREAK, in the load hook, and the patch must land.
+const HANDLER = /\/supabase\/functions\/(reschedule-booking|update-booking)\/index\.ts\?fakes=(\w+)$/;
+const asModule = (src) => ({ url: `data:text/javascript,${encodeURIComponent(src)}`, shortCircuit: true });
+registerHooks({
+  resolve(spec, ctx, next) {
+    if (spec === "./db.ts" && ctx.parentURL?.endsWith("/_shared/slotValidation.ts")) return asModule("export const supabase = null;");
+    const parent = HANDLER.exec(ctx.parentURL ?? "");
+    if (!parent) return next(spec, ctx);
+    if (spec.startsWith("jsr:")) return asModule("");
+    const mod = /^\.\.\/_shared\/(\w+)\.ts$/.exec(spec)?.[1];
+    if (!mod) return next(spec, ctx);
+    const ref = `globalThis[${JSON.stringify(parent[2])}][${JSON.stringify(mod)}]`;
+    return asModule(Object.keys(globalThis[parent[2]][mod] ?? {}).map((n) => `export const ${n} = ${ref}[${JSON.stringify(n)}];`).join("\n"));
+  },
+  load(url, ctx, next) {
+    const hit = HANDLER.exec(url);
+    const r = next(url, ctx);
+    return hit && BREAK ? { ...r, source: patched(hit[1], String(r.source).replace(/\r\n/g, "\n")) } : r;
+  },
+});
+// The real refusal mapping, from the module the three handlers import it from (its database client stood in for).
+const { DAY_FULL, TOO_CLOSE, dayRuleRefusal } = await import("../supabase/functions/_shared/slotValidation.ts");
 
 let assertions = 0, reached = 0;
 const failures = [], lines = [];
@@ -159,20 +183,10 @@ function world(refuse) {
 async function handler(fn, fakes) {
   const key = `__fakes97_18_${++loads}`;
   globalThis[key] = fakes;
-  const unknown = [];
-  let js = stripTypeScriptTypes(patched(fn, readFileSync(path(`supabase/functions/${fn}/index.ts`), "utf8").replace(/\r\n/g, "\n")))
-    .replace(/^import "jsr:[^"]+";\s*$/m, "")
-    .replace(/^import \{([^}]*)\} from "\.\.\/_shared\/(\w+)\.ts";\s*$/gm, (_m, names, mod) => {
-      const list = names.split(",").map((n) => n.trim()).filter(Boolean);
-      for (const n of list) if (!(n.split(/s+ass+/)[0] in (fakes[mod] ?? {}))) unknown.push(`${mod}.${n}`);
-      return `const { ${list.map((n) => n.replace(/s+ass+/, ": ")).join(", ")} } = globalThis[${JSON.stringify(key)}][${JSON.stringify(mod)}];`;
-    });
-  if (/^import /m.test(js)) unknown.push("an import was not replaced");
   let served = null;
   globalThis.Deno = { env: { get: () => undefined }, serve: (h) => { served = h; } };
-  writeFileSync(`${TMP}${fn}-${loads}.mjs`, js);
-  await import(pathToFileURL(`${TMP}${fn}-${loads}.mjs`).href);
-  if (typeof served !== "function" || unknown.length) throw new Error(`${fn} did not load with every import replaced: ${unknown.join(", ")}`);
+  await import(`${pathToFileURL(path(`supabase/functions/${fn}/index.ts`)).href}?fakes=${key}`);
+  if (typeof served !== "function") throw new Error(`${fn} did not call Deno.serve`);
   return served;
 }
 const call = async (fn, refuse, body) => {
