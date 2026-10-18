@@ -1,44 +1,46 @@
 {
-  "git_sha": "243622b3c0ab9b22d03b09c3ee9e3bda9e32b188",
-  "git_sha_started": "243622b3c0ab9b22d03b09c3ee9e3bda9e32b188",
+  "git_sha": "f7e570d5bdd29a92125defaca48e5bfc01a0d030",
+  "git_sha_started": "f7e570d5bdd29a92125defaca48e5bfc01a0d030",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T18:08:16.240Z",
+  "finished_at": "2026-10-18T23:29:50.355Z",
   "failures": [],
   "warnings": [
-    "The bills are TEST bills in September 2025, removed when the run ends. Andrew's real bills were not entered: their amounts are recorded nowhere in this repo and a saved bill cannot be removed from the screen.",
+    "The bills are TEST bills in November 2025, removed when the run ends. Andrew's real bills were not entered: their amounts are recorded nowhere in this repo and a saved bill cannot be removed from the screen.",
     "Revenue is a fixture: the live database held no paid platform invoice in any month on 2026-10-10, so a real-revenue month did not exist to check.",
     "platform_cost_add writes one platform_admin_events row per saved bill; those audit rows are left in place. 0 console lines this run."
   ],
   "artifacts": [
     "scripts/platform-net-live.mjs",
-    "app/src/admin/AdminPage.jsx",
+    "app/src/admin/office/OfficePage.jsx",
+    "app/src/admin/office/places/money/Bills.jsx",
+    "app/src/admin/office/places/money/month.js",
     "supabase/functions/platform-admin/index.ts",
     "supabase/functions/_shared/platformNet.js"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "test_month": "2025-09-01",
-    "empty_month": "2025-10-01",
+    "test_month": "2025-11-01",
+    "empty_month": "2025-12-01",
     "break": null,
     "fixtures": [
       {
         "id": "in_9_14c_fixture_paid",
         "amount_cents": 4000,
         "status": "paid",
-        "paid_at": "2025-09-14T18:30:00Z"
+        "paid_at": "2025-11-14T18:30:00Z"
       },
       {
         "id": "in_9_14c_fixture_open",
         "amount_cents": 53900,
         "status": "open",
-        "paid_at": "2025-09-20T18:30:00Z"
+        "paid_at": "2025-11-20T18:30:00Z"
       },
       {
         "id": "in_9_14c_fixture_oct",
         "amount_cents": 10000,
         "status": "paid",
-        "paid_at": "2025-10-15T18:30:00Z"
+        "paid_at": "2025-12-15T18:30:00Z"
       }
     ],
     "pre": {
@@ -47,33 +49,39 @@
     },
     "screen_1440_test": {
       "got": {
+        "bills": [
+          [
+            "hosting",
+            "$19"
+          ],
+          [
+            "database",
+            "Not entered"
+          ],
+          [
+            "email",
+            "$20"
+          ],
+          [
+            "domain",
+            "$12.99"
+          ]
+        ],
         "rows": [
           [
-            "Paid to us in September 2025",
+            "Paid to us in November",
             "$40"
           ],
           [
             "Costs entered · 3 bills",
             "$51.99"
-          ],
-          [
-            "· Domain",
-            "$12.99"
-          ],
-          [
-            "· Email",
-            "$20"
-          ],
-          [
-            "· Hosting",
-            "$19"
           ]
         ],
         "netWord": "We lost",
         "netFig": "$11.99",
         "unknown": false,
         "err": null,
-        "text": "Did we make money?September 2025Paid to us in September 2025$40Costs entered · 3 bills$51.99· Domain$12.99· Email$20· Hosting$19We lost$11.99more went out than came inAdd a bill for September 2025HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed from here yet."
+        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 3 bills$51.99We lost$11.99HHosting$19Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
       },
       "want": {
         "revenue": 4000,
@@ -93,65 +101,89 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         }
       ],
       "paid_revenue": 4000
     },
     "screen_1440_empty": {
+      "bills": [
+        [
+          "hosting",
+          "Not entered"
+        ],
+        [
+          "database",
+          "Not entered"
+        ],
+        [
+          "email",
+          "Not entered"
+        ],
+        [
+          "domain",
+          "Not entered"
+        ]
+      ],
       "rows": [
         [
-          "Paid to us in October 2025",
+          "Paid to us in December",
           "$100"
         ]
       ],
-      "netWord": null,
-      "netFig": "Costs not entered for October 2025",
+      "netWord": "Profit",
+      "netFig": "Not entered",
       "unknown": true,
       "err": null,
-      "text": "Did we make money?October 2025Paid to us in October 2025$100Costs not entered for October 2025Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2025HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed from here yet."
+      "text": "Platform bills‹December 2025›Paid to us in December$100ProfitNot entered?HostingNot enteredAdd it?Database and storageNot enteredAdd it?EmailNot enteredAdd it?DomainNot enteredAdd it"
     },
     "screen_392_test": {
       "got": {
+        "bills": [
+          [
+            "hosting",
+            "$24.50"
+          ],
+          [
+            "database",
+            "Not entered"
+          ],
+          [
+            "email",
+            "$20"
+          ],
+          [
+            "domain",
+            "$12.99"
+          ]
+        ],
         "rows": [
           [
-            "Paid to us in September 2025",
+            "Paid to us in November",
             "$40"
           ],
           [
             "Costs entered · 4 bills",
             "$57.49"
-          ],
-          [
-            "· Domain",
-            "$12.99"
-          ],
-          [
-            "· Email",
-            "$20"
-          ],
-          [
-            "· Hosting",
-            "$24.50"
           ]
         ],
         "netWord": "We lost",
         "netFig": "$17.49",
         "unknown": false,
         "err": null,
-        "text": "Did we make money?September 2025Paid to us in September 2025$40Costs entered · 4 bills$57.49· Domain$12.99· Email$20· Hosting$24.50We lost$17.49more went out than came inAdd a bill for September 2025HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed from here yet."
+        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 4 bills$57.49We lost$17.49HHosting$24.50Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
       },
       "want": {
         "revenue": 4000,
@@ -171,46 +203,64 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         },
         {
           "category": "hosting",
           "amount_cents": 550,
           "note": "9.14c test bill — Hosting $5.50, removed when the check finishes",
-          "entered_by": "25a3141b-52ef-4a0d-bc1a-fb4c36c9d4ee"
+          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
         }
       ],
       "paid_revenue": 4000
     },
     "screen_392_empty": {
+      "bills": [
+        [
+          "hosting",
+          "Not entered"
+        ],
+        [
+          "database",
+          "Not entered"
+        ],
+        [
+          "email",
+          "Not entered"
+        ],
+        [
+          "domain",
+          "Not entered"
+        ]
+      ],
       "rows": [
         [
-          "Paid to us in October 2025",
+          "Paid to us in December",
           "$100"
         ]
       ],
-      "netWord": null,
-      "netFig": "Costs not entered for October 2025",
+      "netWord": "Profit",
+      "netFig": "Not entered",
       "unknown": true,
       "err": null,
-      "text": "Did we make money?October 2025Paid to us in October 2025$100Costs not entered for October 2025Add this month's bills below to see whether we made money. The figure above is what arrived, not what was kept.Add a bill for October 2025HostingDatabaseEmailDomainOtherAmount, in dollars$Note, if anySave this billTo record that a month cost nothing, save a $0 bill. A saved bill cannot be edited or removed from here yet."
+      "text": "Platform bills‹December 2025›Paid to us in December$100ProfitNot entered?HostingNot enteredAdd it?Database and storageNot enteredAdd it?EmailNot enteredAdd it?DomainNot enteredAdd it"
     },
     "rewrites": 0
   },
   "check_id": "platform-net-live",
-  "started_at": "2026-10-10T18:07:54.282Z",
+  "started_at": "2026-10-18T23:29:16.145Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
