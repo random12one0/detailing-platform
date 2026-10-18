@@ -1,0 +1,45 @@
+{
+  "git_sha": "2fbe140c96bb30b7a490ed05833051db97d91939",
+  "git_sha_started": "2fbe140c96bb30b7a490ed05833051db97d91939",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T14:24:59.231Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/97.92/reveal-race-clean/report.txt",
+    ".manager-shots/97.92/reveal-race-clean/ex3-390.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-768.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-1440.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-prices-html-390.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-prices-html-768.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-prices-html-1440.png",
+    ".manager-shots/97.92/reveal-race-clean/ex3-prices-html-1440-canary.png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/ex3",
+      "/ex3/prices.html"
+    ]
+  },
+  "check_id": "ex3-reveal-race",
+  "started_at": "2026-10-18T14:24:09.925Z",
+  "status": "pass",
+  "expected_targets": 78,
+  "discovered_targets": 78,
+  "attempted_targets": 78,
+  "completed_targets": 78,
+  "skipped_targets": 0,
+  "assertions_executed": 357,
+  "min_assertions": 312,
+  "canary": {
+    "id": "pre-97.92-test-on-prices-1440",
+    "observed_failure": true
+  }
+}
