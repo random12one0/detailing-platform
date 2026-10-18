@@ -1,24 +1,24 @@
 {
-  "git_sha": "c877d5b7a57e3f6ff4c5227308f5c26c799c87b1",
-  "git_sha_started": "c877d5b7a57e3f6ff4c5227308f5c26c799c87b1",
+  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T03:01:26.983Z",
+  "finished_at": "2026-10-18T06:47:37.458Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    "C:/Users/rando/Downloads/claude/belt/shots/97.85/png"
+    "C:/Users/rando/Downloads/claude/belt/shots/97.81/png"
   ],
   "dimensions": {
-    "base": "http://127.0.0.1:5180",
-    "frozen_now": "2026-10-18T03:00:00.000Z",
+    "base": "http://localhost:5173",
+    "frozen_now": "2026-10-18T06:45:00.000Z",
     "widths": [
       "390x844",
       "320x640",
       "768x1024",
       "1440x900"
     ],
-    "env_shim": true,
+    "env_shim": false,
     "probed": [
       {
         "scenario": "refunded",
@@ -27,7 +27,7 @@
         "collected": "$0",
         "export_status": "Refunded",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-refunded-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-refunded-390x844.png"
       },
       {
         "scenario": "refunded",
@@ -36,7 +36,7 @@
         "collected": "$0",
         "export_status": "Refunded",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-refunded-320x640.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-refunded-320x640.png"
       },
       {
         "scenario": "refunded",
@@ -45,7 +45,7 @@
         "collected": "$0",
         "export_status": "Refunded",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-refunded-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-refunded-768x1024.png"
       },
       {
         "scenario": "refunded",
@@ -54,7 +54,7 @@
         "collected": "$150 refunded",
         "export_status": "Refunded",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-refunded-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-refunded-1440x900.png"
       },
       {
         "scenario": "part-refunded",
@@ -63,7 +63,7 @@
         "collected": "$100",
         "export_status": "Part refunded: 50.00 of 150.00 returned, 100.00 kept",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-part-refunded-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-part-refunded-390x844.png"
       },
       {
         "scenario": "part-refunded",
@@ -72,7 +72,7 @@
         "collected": "$100",
         "export_status": "Part refunded: 50.00 of 150.00 returned, 100.00 kept",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-part-refunded-320x640.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-part-refunded-320x640.png"
       },
       {
         "scenario": "part-refunded",
@@ -81,7 +81,7 @@
         "collected": "$100",
         "export_status": "Part refunded: 50.00 of 150.00 returned, 100.00 kept",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-part-refunded-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-part-refunded-768x1024.png"
       },
       {
         "scenario": "part-refunded",
@@ -90,7 +90,7 @@
         "collected": "$100 collected",
         "export_status": "Part refunded: 50.00 of 150.00 returned, 100.00 kept",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-part-refunded-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-part-refunded-1440x900.png"
       },
       {
         "scenario": "other-payment",
@@ -99,7 +99,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-other-payment-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-other-payment-390x844.png"
       },
       {
         "scenario": "other-payment",
@@ -108,7 +108,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-other-payment-320x640.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-other-payment-320x640.png"
       },
       {
         "scenario": "other-payment",
@@ -117,7 +117,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-other-payment-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-other-payment-768x1024.png"
       },
       {
         "scenario": "other-payment",
@@ -126,7 +126,7 @@
         "collected": "$150 collected",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-other-payment-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-other-payment-1440x900.png"
       },
       {
         "scenario": "paid",
@@ -135,7 +135,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-paid-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-paid-390x844.png"
       },
       {
         "scenario": "paid",
@@ -144,7 +144,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-paid-320x640.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-paid-320x640.png"
       },
       {
         "scenario": "paid",
@@ -153,7 +153,7 @@
         "collected": "$150",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-paid-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-paid-768x1024.png"
       },
       {
         "scenario": "paid",
@@ -162,7 +162,7 @@
         "collected": "$150 collected",
         "export_status": "Paid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-paid-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-paid-1440x900.png"
       },
       {
         "scenario": "unpaid",
@@ -171,7 +171,7 @@
         "collected": "$0",
         "export_status": "Unpaid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-unpaid-390x844.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-unpaid-390x844.png"
       },
       {
         "scenario": "unpaid",
@@ -180,7 +180,7 @@
         "collected": "$0",
         "export_status": "Unpaid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-unpaid-320x640.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-unpaid-320x640.png"
       },
       {
         "scenario": "unpaid",
@@ -189,7 +189,7 @@
         "collected": "$0",
         "export_status": "Unpaid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-unpaid-768x1024.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-unpaid-768x1024.png"
       },
       {
         "scenario": "unpaid",
@@ -198,7 +198,7 @@
         "collected": "Nothing collected yet",
         "export_status": "Unpaid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-unpaid-1440x900.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-unpaid-1440x900.png"
       },
       {
         "scenario": "refunded",
@@ -207,7 +207,7 @@
         "collected": "$150 devuelto",
         "export_status": "Refunded",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-refunded-1440x900-es.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-refunded-1440x900-es.png"
       },
       {
         "scenario": "unpaid",
@@ -216,12 +216,12 @@
         "collected": "Aún no has cobrado nada",
         "export_status": "Unpaid",
         "errors": 0,
-        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.85/png/today-unpaid-1440x900-es.png"
+        "shot": "C:/Users/rando/Downloads/claude/belt/shots/97.81/png/today-unpaid-1440x900-es.png"
       }
     ]
   },
   "check_id": "refund-totals",
-  "started_at": "2026-10-18T03:00:10.251Z",
+  "started_at": "2026-10-18T06:45:57.664Z",
   "status": "pass",
   "expected_targets": 22,
   "discovered_targets": 22,

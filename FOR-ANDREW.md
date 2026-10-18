@@ -63,6 +63,18 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
+## DECIDE · Privacy page in English only? (ROADMAP 97.28)
+
+The backup change you asked for (monthly copies deleted after 12 months) is
+built and checked, and the privacy page now says so in one English sentence.
+It is waiting, unmerged, for one answer: the item also asked for that sentence
+in Spanish, but the privacy page has never had Spanish on purpose. It is a legal
+document, and the rule here is that nobody machine-translates it.
+
+**Recommendation: say "English only".** The work then goes in as it is. The
+other choice is paying a qualified translator for the whole privacy page, which
+would be a separate job.
+
 ## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
 
 Your nightly database copy leaves out the settings that say who may read and

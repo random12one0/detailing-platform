@@ -1,9 +1,9 @@
 {
-  "git_sha": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
-  "git_sha_started": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T04:10:02.432Z",
+  "finished_at": "2026-10-18T06:45:28.463Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,7 +14,7 @@
     "address_points_deleted": 2
   },
   "check_id": "forget-customer-address-points-sql",
-  "started_at": "2026-10-18T04:09:57.414Z",
+  "started_at": "2026-10-18T06:45:24.441Z",
   "status": "pass",
   "expected_targets": 5,
   "discovered_targets": 5,

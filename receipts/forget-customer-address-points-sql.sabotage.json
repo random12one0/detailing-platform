@@ -1,9 +1,9 @@
 {
-  "git_sha": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
-  "git_sha_started": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T04:09:33.710Z",
+  "finished_at": "2026-10-18T06:45:45.015Z",
   "failures": [
     "the address typed on her booking is gone from the cache — 400 pine ave apt 3",
     "the result counts the rows deleted — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":0,\"emails_forgotten\":0,\"bookings_anonymised\":2,\"address_points_deleted\":1}",
@@ -11,15 +11,15 @@
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/forget-customer-address-points-sql/results.sabotage-raw-key.txt"
+    "artifacts/forget-customer-address-points-sql/results.sabotage-after-bookings.txt"
   ],
   "dimensions": {
-    "break": "raw-key",
+    "break": "after-bookings",
     "migration": "20261018050000_forget_customer_forgets_their_street.sql",
     "address_points_deleted": 1
   },
   "check_id": "forget-customer-address-points-sql",
-  "started_at": "2026-10-18T04:09:29.525Z",
+  "started_at": "2026-10-18T06:45:41.685Z",
   "status": "fail",
   "expected_targets": 5,
   "discovered_targets": 5,
