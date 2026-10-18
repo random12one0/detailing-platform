@@ -50,14 +50,20 @@ Updated 2026-09-21.
 
 ## YOUR NEXT RELEASE, IN ONE LIST · start here (ROADMAP 97.91)
 
-When you release, open `docs/release-sheet.md` and go top to bottom in one sitting. It merges the thirteen
-"AT YOUR NEXT RELEASE" rows below into 61 numbered steps: one Stripe setting and one program first, then 21 database
-changes oldest first, then 37 more programs, then the website last. Wherever a row said one thing must come before
-another, the step says so and names the step number. The thirteen rows below stay as the detail behind each step.
-One difference from a row: 97.19 lists the website before two of its programs, but the sheet puts the website last,
-because the push refuses the website while any program is not live. The danger 97.19 warns about (programs before
-the database) is still avoided. A session re-runs the sheet after anything changes (`node scripts/release-sheet.mjs`);
-it only reads, and it never applies, publishes or pushes.
+When you release, open `docs/release-sheet.md` and go top to bottom. It merges the thirteen "AT YOUR NEXT RELEASE"
+rows below, and the other rows in this list that carry a release step (the scheduler key, 97.3; the launch order,
+0.6b; the photo and Cloudflare steps, 14.39 and 0.11bd; and seven more), into 69 numbered steps. The first step is
+a check a session must run before you start (0.11cc's skipped Spanish check). Then come the keys and the Stripe
+setting, one program, 22 database changes oldest first, 35 programs (`update-booking` first and alone,
+`platform-billing` alone, the payment webhook last and alone), and the website last. **Two programs are held back on
+purpose and are never a step:** `platform-admin` (until 4.3c is finished) and `google-business` (until Google
+approves). Because of them, your push stops at the website step. When it names only those two, push with
+`SHIP_WITH_DRIFT=1 git push`. Once you start the database changes, finish through the website in the same sitting
+(97.14). Wherever a row said one thing must come before another, the step says so and names the step number. These
+rows stay as the detail behind each step. One difference from a row: 97.19 lists the website before two of its
+programs, but the sheet puts the website last because of the push check, and still avoids the danger 97.19 names. A
+session re-runs the sheet after anything changes (`node scripts/release-sheet.mjs`); it only reads, and never applies,
+publishes or pushes.
 
 ## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
 
