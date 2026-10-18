@@ -2344,6 +2344,8 @@ and how the wait ends.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
   RESOLVED 2026-10-18 (see the attempt note at the top of this entry): the belt held this job's work because tests/spanish.test.mjs had 1 failing, the baseline 0.
   The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/privacy-processors.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/privacy-processors.test.mjs :: 2 — (c) every literal host classifies, and one that does not fails by name.
+  The work is safe on branch `belt/0.11be-20261018142856941`. Answer "merge it" to keep it, or say what to change.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED (AT ITS 2026-10-10 VERSIONS); BOTH APP SWITCHES ARE NOT YET ON THE
