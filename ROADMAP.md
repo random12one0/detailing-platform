@@ -863,6 +863,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
 - [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.28-20261018062226180`. Answer "merge it" to keep it, or say what to change.
   "every backup for 30 days, plus the 1st of each month for ever" (`docs/ops/backups.md:23`, `docs/recovery.md:131`); the privacy page says deletion means deletion (`app/src/landing/legal.js:289`) and does not mention backups.
   NEEDS ANDREW: how long to keep the monthly backups. Recommendation: 12 months, and one sentence on the privacy page saying backups are kept that long and then deleted. Once he picks a period, the build is the workflow retention rule, the two documents and the privacy sentence (with its Spanish key).
   Acceptance criteria:
