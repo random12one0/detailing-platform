@@ -186,6 +186,9 @@ const TABLE = {
   // --- our own ------------------------------------------------------------
   "detailingplatform.com": { kind: "own", processor: null, why: "our own domain — the product's own origin, not a third party" },
   "www.detailingplatform.com": { kind: "own", processor: null, why: "the same domain with the www label, redirected to the bare one" },
+  // ROADMAP 0.11be — `photo-rules.js` MEDIA_PUBLIC_BASE. Never fetched by that code: a prefix to RECOGNISE a stored
+  // business-media address so Gallery Remove can erase it. Cloudflare serves it, and is named via r2.cloudflarestorage.com.
+  "media.detailingplatform.com": { kind: "own", processor: null, why: "our own subdomain for public business photos, used to recognise a stored photo's address" },
 
   // --- licence credit: no request is EVER made ----------------------------
   "www.openstreetmap.org": { kind: "credit", processor: null, why: "a licence credit Geoapify's terms require. NOTHING is ever sent there, and 7.8's audit is explicit that naming it as a processor would be a fault of its own" },
