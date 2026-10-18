@@ -421,11 +421,12 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - A refusal never shows on a different client's record
   - `scripts/notes-refused-on-close.mjs` turns from instrument into gate for these cases, with a sabotage that restores today's close
 
-- [ ] **97.85 — Today at 1440 says "Nothing collected yet" when the day's only paid job was refunded in full; at 390 the same day says "$0 collected" (found by the supervisor, 2026-10-18).**
+- [x] **97.85 — Today at 1440 says "Nothing collected yet" when the day's only paid job was refunded in full; at 390 the same day says "$0 collected" (found by the supervisor, 2026-10-18).**
   Seen in `belt/shots/97.81/png/today-refunded-1440x900.png` against `today-refunded-390x844.png` (`node scripts/refund-totals.mjs`, refunded scenario). "Yet" promises money that is still coming; this money came and went back. `app/src/screens/Today.jsx` picks the words when collected is 0 (`t("Nothing collected yet")`), without asking whether anything was refunded. Small copy fix; Spanish key in the same edit.
   Acceptance criteria:
   - At 1440 and 390, a day whose paid jobs were all refunded does not say "yet"; a day with nothing paid still does
   - `scripts/refund-totals.mjs` asserts the words in the refunded scenario at both widths, with its existing sabotage still red
+  **Done 2026-10-18 (job 97.85).** At 1024 and up the line under Expected now reads "$150 refunded" (Spanish "$150 devuelto") when collected is 0 because paid jobs were refunded; "Nothing collected yet" is kept only for a day with nothing paid. Below 1024 (390, 320, 768) it is the fixed "$0 / collected" cell, which never said "yet" either way and is unchanged; that is asserted too. How checked: `node scripts/refund-totals.mjs --base=http://127.0.0.1:5180 --env-shim` at c877d5b7: 22 of 22 views, 198 assertions, 0 failed (new `unpaid` scenario, plus refunded and unpaid in Spanish at 1440, console clean at all 22). `--break=status-only` still red: 18 failed, 22 of 22, the break landed in every view (`receipts/refund-totals-status-only.sabotage.json`). Run against the unfixed Today, the new assertions went red on "refunded @ 1440" exactly as the bug was reported.
 
 - [x] **97.79 — A refused Notes save's line can sit below the client record's visible edge at 1440 (found by 97.14).**
   In the record's right-hand column at 1440x900, the line under the Notes box ("Your notes were not saved…", or a
