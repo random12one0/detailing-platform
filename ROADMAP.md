@@ -1532,7 +1532,47 @@ and how the wait ends.
   the receipts-side release is 0.11c, which is still open and parked. The
   "functions and cron are published" clause was not checked by supervision.
 
-  Waits on: 0.11a, 0.11b, 0.11c, 0.11d. How the wait ends: those pieces are ticked.
+  ***RE-MEASURED 2026-10-18 (belt job, at `a72e200f`), CREDENTIAL-FREE. Nothing published, deployed, applied or
+  pushed; no product file changed; no key touched. The box stays `[ ]`.***
+  **Every step Andrew's 2026-10-17 note below asks a session for is already done, except the ones that need his
+  publish or the keys.**
+  * **The switches:** `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR` are both `true` in the source
+    (`app/src/lib/photo-door.js:128` and `:155`; receipts since `b92bdb21`, media since `2b527872`). The supervision
+    paragraph above, *"`RECEIPTS_VIA_DOOR` is still `false` … `:126`"*, was true on 2026-10-10 and is stale now.
+  * **The allowance, the door, the forgetting program and the reconcile cron:** live since 2026-10-10, re-read by
+    0.11c on 2026-10-17 (`node scripts/photo-release-order.mjs`, 10 rules, 0 failed). **Not re-read today**: this
+    copy has no `.env`.
+  * **What is not live is the website.** `https://detailingplatform.com/` still serves `assets/index-CT8xjH8F.js`
+    (1,327,680 bytes, one file), the bundle 0.11c measured on 2026-10-17. Four strings counted in it against
+    `npm run build --prefix app` at `a72e200f` (both switches on, one JS file): `expense-receipts` **1 live / 0
+    local**, `action:"start"` **1 / 3**, `createSignedUrls` **2 / 1**, `expense_id` **0 / 3**. So the published site
+    still saves receipts and logos/gallery pictures the old way, and the done-when's *"through the door and nowhere
+    else"* holds in the source only. **R1/R6's "same change" half is therefore not met yet**: the allowance went to
+    10 GB on 2026-10-10 while those two switches are still unpublished (0.11c's R4 says the same); the website
+    publish closes it. (`business-media` reads 3 in both builds today, so it no longer tells them apart; 0.11c
+    recorded 1 for the switched-on build.)
+  * **The 17 photo and Spanish suites** (98.5's command, `PGLITE_REQUIRED=1`): **142 of 142 node tests passed, 0
+    failed**, and Spanish section 7 printed `SKIPPED` for want of keys (`receipts/0.11-photo-tests-2026-10-18.txt`).
+    The same as 0.11cc's run at `55be7e5a`, so nothing has regressed; **it is not the no-skip run.**
+  * **`node scripts/deployed-inventory.mjs`: NOT RUN.** It needs credentials and this copy has none, so it could
+    only print `Missing SUPABASE_URL`, which is evidence of nothing.
+
+  **TWO NOTES DISAGREE, SAID OUT LOUD.** Andrew's 2026-10-17 note on this item tells a session to *"run the photo
+  suites plus deployed-inventory.mjs"*; `FOR-ANDREW.md`'s 0.11cc row (2026-10-18) asks him for a yes to that same
+  run in the main folder. The note reads as the yes already given, so the manager should confirm it rather than ask
+  him again. **What actually stops it is mechanical: the belt hands this family to job copies, which get no keys on
+  purpose.** Sending 0.11 or 0.11cc to another job copy will reproduce this paragraph; the run belongs to a session
+  in the main checkout with `.env` loaded.
+
+  **What ticks this box, in order:** (1) that no-skip 17-file run, plus `deployed-inventory.mjs`, in the main
+  checkout (0.11cc's line); (2) Andrew's ordinary website publish, which carries both switches (`FOR-ANDREW.md`,
+  "RELEASE STEP · Expense receipts use the new photo store"); (3) after it, 0.11d2 (a real upload whose
+  `job_photos.bytes` equals R2's size) and 0.11d3 (a cron-triggered reconcile stamping its five numbers), plus
+  0.11d's held builder fix on `belt/0.11d-20261018164534042`. **No browser evidence this sitting:** no screen changed.
+
+  Waits on: 0.11c (through 0.11cc) and 0.11d (0.11d2, 0.11d3); 0.11a and 0.11b are ticked. How the wait ends: the
+  session that ticks the last of 0.11c and 0.11d confirms the live bundle carries both switches, removes this line
+  and ticks 0.11.
   Split on 2026-10-09 because this entry is 547 lines
   long and no single session was finishing it.
 
