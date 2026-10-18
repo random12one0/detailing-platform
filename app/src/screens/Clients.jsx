@@ -311,6 +311,13 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
     setNotes(c.notes || "");
     savedNotes.current = c.notes || "";
     setNotesError("");
+    return refreshRecord(c);
+  };
+  // ROADMAP 97.89 — the SAME client after a job is made or changed from the
+  // record: its History and its email trail are read again, and the Notes box,
+  // its "not saved" line and a save still waiting are left exactly as they are.
+  // Re-running openCustomer here put the box back to the old text.
+  const refreshRecord = async (c) => {
     setHistory(null);
     setMail(null);
     // ROADMAP 14.3 — READ, NEVER WRITTEN. `email_sends` grants the browser
@@ -997,14 +1004,14 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
             </div>
             {/* ROADMAP 9.7 — same conditional shape App.jsx/Calendar.jsx/
                 Today.jsx already use to open this modal, a fourth instance
-                of it rather than a new mechanism. `onCreated` re-runs the
-                existing `openCustomer` so the record reflects the booking
-                just made instead of going stale. */}
+                of it rather than a new mechanism. `onCreated` re-reads the
+                record (`refreshRecord`) so it reflects the booking just made
+                instead of going stale, without touching the Notes box (97.89). */}
             {booking && (
               <NewBookingModal
                 initialCustomer={booking}
                 onClose={() => setBooking(null)}
-                onCreated={() => { setBooking(null); openCustomer(open); }}
+                onCreated={() => { setBooking(null); refreshRecord(open); }}
               />
             )}
 
@@ -1155,11 +1162,11 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
         <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
           {/* ROADMAP 4.1 / DECISIONS.md "the record stays open on a status
               change" — see Today.jsx for the fuller note; same fix, same
-              reason. `openCustomer` refreshes the client's own history list
+              reason. `refreshRecord` refreshes the client's own history list
               but not this snapshot, so it is re-fetched by id too. */}
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
             onChanged={() => {
-              load(); if (open) openCustomer(open);
+              load(); if (open) refreshRecord(open);
               fetchBooking(selected.id, business.id, business.timezone).then(setSelected);
             }} />
         </RecordHost>
