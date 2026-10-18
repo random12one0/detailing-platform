@@ -460,6 +460,8 @@ export const appEs = {
   "Notes": "Notas",
   "Gate code, dog's name, preferences…": "Código del portón, nombre del perro, preferencias…",
   "Your notes were not saved. Please try again.": "Tus notas no se guardaron. Inténtalo de nuevo.",
+  "Your notes have not saved yet. Check your connection, then try again.": "Tus notas aún no se han guardado. Revisa tu conexión e inténtalo de nuevo.",
+  "Close anyway": "Cerrar de todos modos",
   "Nothing booked yet.": "Nada agendado todavía.",
 
   // ROADMAP 14.3 — the emails we sent this customer, and what became of them.
