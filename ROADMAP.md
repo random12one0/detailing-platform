@@ -2280,6 +2280,24 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  **ATTEMPT 2026-10-18 — THE HOLD IS CLEARED; box still open only for the live proof (Waits on line below).**
+  (1) The Spanish hold: `tests/spanish.test.mjs` 9a counted `MEDIA_PUBLIC_BASE`, a web address in
+  photo-rules.js (a file its coverage pass walks), as untranslated wording, 1 of 1742. Fixed in
+  `scripts/i18n-coverage.mjs` with one exclusion beside the route one (`822b1027`): now **75 passed, 0 failed**
+  (section 7 SKIPPED: no credentials in a job copy). Sabotage: two sentences appended to photo-rules.js, one
+  containing the address -> 9a `2 of 1743`, both named; file restored. (2) Andrew's 2026-10-13 ruling:
+  `tests/gallery-remove-keys.test.mjs` has only ever had one version (`0021a08f`; no main copy exists), and
+  it is unedited: `git diff 0021a08f HEAD` on it is empty, 4/4 pass. `scripts/gallery-remove-browser.mjs` is
+  unedited too. New assertions are in a NEW file, `scripts/gallery-remove-offline.mjs`: same eight presses,
+  with the back end stood in inside the browser, because a belt job copy's server has no Supabase settings
+  by design ("Missing VITE_SUPABASE_URL"). No credential, no Supabase host contacted, nothing written.
+  `BASE=http://127.0.0.1:5180 node scripts/gallery-remove-offline.mjs` at `4a764243` -> **32 of 32 presses,
+  122 of 122 assertions** at 1440x900, 768x1024, 392x844 and 390x844, graded PASS, canary caught, console
+  clean beyond the 2 served refusals per width (`receipts/gallery-remove-offline.json`). Sabotages, each kept
+  under its own name (`.row-only.sabotage.*`, `.foreign.sabotage.*`): `--break=row-only` red at all four
+  widths, 37 failed of 118, swap landed 4/4; `--break=foreign` red at all four, 21 failed of 126, the door
+  was sent the other business's key. Screenshots at 390 and 1440 looked at: the reason above the photos,
+  inside the width, all six kept.
   **BUILT AND PROVED LOCALLY 2026-10-13; box left open only for the live proof below.**
   Waits on: 0.11bd release (Andrew publishes photo-door with the purge). Then the warmed
   public-URL proof runs through this button; whoever runs 0.11bd's live check removes this line
@@ -2321,10 +2339,10 @@ and how the wait ends.
   guessed storage keys; foreign keys are refused. Both image-pair members are
   covered. A sabotage restoring the row-only handler must fail the browser
   check. Final warmed public-URL proof follows Andrew's 0.11bd release.
-  HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/0.11be-20261013093840 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 1af7a26a 0.11be: entry note and clean receipt (16/16 presses, 62/62, PASS at 740882b2); 740882b2 0.11be: browser check for Gallery Remove, with two caught sabotages; 0021a08f 0.11be: Gallery Remove erases its stored photo(s) before the row..
+  RESOLVED 2026-10-18 — HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/0.11be-20261013093840 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 1af7a26a 0.11be: entry note and clean receipt (16/16 presses, 62/62, PASS at 740882b2); 740882b2 0.11be: browser check for Gallery Remove, with two caught sabotages; 0021a08f 0.11be: Gallery Remove erases its stored photo(s) before the row..
   The work is safe on branch `belt/0.11be-20261013093840`. The next attempt resumes from it and follows the ruling below.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/spanish.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/spanish.test.mjs :: tests/spanish.test.mjs.
+  RESOLVED 2026-10-18 (see the attempt note at the top of this entry): the belt held this job's work because tests/spanish.test.mjs had 1 failing, the baseline 0.
   The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
