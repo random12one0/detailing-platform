@@ -10,6 +10,9 @@
 //   node scripts/release-sheet.mjs --break=no-cron     # forget 97.3's scheduler key: names 97.3
 //   node scripts/release-sheet.mjs --break=no-order    # forget 0.6b's first/alone/last: names 0.6b
 //   node scripts/release-sheet.mjs --break=no-escape   # website step without the way past the push check
+//   node scripts/release-sheet.mjs --break=fn-before-page # accept-quote and create-booking before the website: names 97.16 and 97.64
+//   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
+//   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b and 97.15
 //
 // It READS. Credential-free: it never asks the database or the server anything
 // itself. Its inputs are the receipts `migration-drift.mjs` and
@@ -34,14 +37,25 @@
 // "last", "only if", waits on other items, and before/after pairs.
 //
 // HOW IT DECIDES THE ORDER. Part 0: things that must be true before starting.
-// Part 1: setup outside the code (keys, Stripe). Part 2: programs a row needs
-// before the database (97.13). Part 3: every unapplied database change, oldest
-// first. Part 4: programs, `update-booking` first and alone, then one pass,
-// then `platform-billing` alone, then the payment webhook last and alone
-// (0.6b). Held programs are listed once, never as a step. Part 5: the website
-// LAST, because `.githooks/pre-push` refuses the push while any program is not
-// this checkout; with programs held on purpose, `SHIP_WITH_DRIFT=1` is the way
-// out, as 0.6b says.
+// Part 1: setup outside the code (keys, Stripe). Part 2: every unapplied
+// database change, oldest first, with a program a rule needs BEFORE a change
+// (97.13's verify-domain) placed just before the earliest change it must
+// precede, so the changes it needs itself (4.3b's lock) are already in.
+// Part 3: programs, `update-booking` first and alone, then one pass,
+// then `platform-billing` alone. Held programs are listed once, never as a step. Part 4: the website.
+// Part 5: the programs a rule sends AFTER the website (97.16 accept-quote,
+// 97.64 create-booking), then the payment webhook last and alone (0.6b). The
+// push check (.githooks/pre-push) refuses the website while any program is not
+// this checkout, so the website step names exactly what it will report and says
+// `SHIP_WITH_DRIFT=1` is the way past, as 0.6b says.
+//
+// THE SECOND REVIEW (2026-10-18, fourth supervision) found the ORDER wrong in two
+// places, with every count right: `accept-quote` and `create-booking` went out
+// long before the website (97.16, 97.64 say page first), and `verify-domain` went
+// out before the support-session change its lock reads (4.3b named only
+// `update-booking`). Both rules lived in ROADMAP entries, which the first two
+// versions never read. So every open ROADMAP release line is now read too, and the
+// lock is expanded from the server check's own list rather than typed.
 //
 // BLIND SPOT: migration-drift cannot see triggers, constraints or a data-only
 // change. A file a declared row names is put on the sheet anyway, marked as
@@ -53,7 +67,7 @@ import { join } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order"];
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("--break=".length);
 if (BREAK && !BREAKS.includes(BREAK)) {
   console.error(`Unknown --break=${BREAK}. Known: ${BREAKS.join(", ")}.`);
@@ -93,7 +107,15 @@ const M = {
   reminders: "20261017220000_reminders_ignore_marketing_opt_out.sql",
   domains: "20261018010000_domain_claims_need_proof.sql",
   lock: "20261018030645_booking_day_rules_lock.sql",
+  invites: "20261010020000_action_log_invites.sql",
+  expire: "20261017180000_support_sessions_expire.sql",
+  endAtAuth: "20261017190000_support_sessions_end_at_auth.sql",
 };
+// The support-session lock (4.3c): every program carrying either file reads the
+// `support_sessions` table, so each goes after the database change that makes it.
+// Expanded from the server check's own list (`bundleBefore`), never typed by hand:
+// the first version named only `update-booking` and put `verify-domain` ahead of it.
+const LOCK = ["_shared/tenant.ts", "_shared/supportSession.ts"];
 const SCHEDULED = ["send-owner-reminders", "refresh-weather", "watch-jobs", "photo-reconcile"];
 const HOLD_ADMIN = "Held on purpose until 4.3c is finished (4.3e is combining two versions of its button fix). Published now, the \"Let me make changes\" button promises edits that every save refuses.";
 const HOLD_GOOGLE = "Never published; waits for Google's approval (0.15). Until it goes up, the Google Business screen wrongly tells an owner \"Only the owner can connect Google.\"";
@@ -101,7 +123,7 @@ const HOLD_GOOGLE = "Never published; waits for Google's approval (0.15). Until 
 const DECLARED = {
   "0.11cc": {
     website: true,
-    manual: [{ id: "spanish-check", part: 0, must: true, text: "**Must be done first:** a session with the keys runs 0.11cc's one skipped Spanish check, clean. The website step below carries the receipts switch, and you ruled on 2026-10-13 that nothing may go out with a check skipped. If this has not happened, do not start: 97.14's two database changes in Part 3 need the website in the same sitting." }],
+    manual: [{ id: "spanish-check", part: 0, must: true, text: "**Must be done first:** a session with the keys runs 0.11cc's one skipped Spanish check, clean. The website step below carries the receipts switch, and you ruled on 2026-10-13 that nothing may go out with a check skipped. If this has not happened, do not start: 97.14's two database changes in Part 2 need the website in the same sitting." }],
     before: [["spanish-check", M.staff]],
     rule: "The website is not ready to publish until its one skipped Spanish check is run clean, so that check is the first step, ahead of every database change.",
     after: ["A session checks the live site and ticks 0.11cc and 0.11c."],
@@ -116,8 +138,8 @@ const DECLARED = {
   },
   "4.3b": {
     hold: { "platform-admin": HOLD_ADMIN },
-    before: [[M.support, "update-booking"]],
-    rule: "The support-session database change goes before the programs that share its lock. `platform-admin` waits for 4.3e (your list says not to answer the 4.3c questions yet).",
+    bundleBefore: [[M.support, LOCK]],
+    rule: "The support-session database change goes before EVERY program that carries its lock (the shared tenant and support-session files), `verify-domain` included. `platform-admin` waits for 4.3e (your list says not to answer the 4.3c questions yet).",
   },
   "97.3": {
     migrations: [M.cron], functions: SCHEDULED,
@@ -137,7 +159,7 @@ const DECLARED = {
   },
   "0.11bd": {
     onlyIf: { "photo-door": "cf-purge" },
-    manual: [{ id: "cf-purge", part: 1, text: "Cloudflare cache purge (0.11bd): create a Cache Purge token restricted to detailingplatform.com and save it in this platform's Supabase function secrets as `CF_CACHE_PURGE_TOKEN`, and the domain's Zone ID as `CF_MEDIA_ZONE_ID` (docs/media-cache-deletion.md). If you skip this, skip the photo-door program in Part 4 too." }],
+    manual: [{ id: "cf-purge", part: 1, text: "Cloudflare cache purge (0.11bd): create a Cache Purge token restricted to detailingplatform.com and save it in this platform's Supabase function secrets as `CF_CACHE_PURGE_TOKEN`, and the domain's Zone ID as `CF_MEDIA_ZONE_ID` (docs/media-cache-deletion.md). If you skip this, skip the photo-door program in Part 3 too." }],
     before: [["cf-purge", "photo-door"]],
     rule: "Published without those two secrets, the new `photo-door` refuses every media deletion.",
     after: ["A session repeats 0.11bd's real warmed-URL check after `photo-door` is up."],
@@ -180,11 +202,11 @@ const DECLARED = {
     rule: "Both database changes and the website in ONE sitting. Only one half live: the Notes box stops saving (old website, new database) or says \"Your notes were not saved\" (new website, old database).",
   },
   "97.21": { migrations: [M.reminders], rule: "Any order." },
-  "97.20": { migrations: [M.forget], rule: "Nothing to publish with it." },
+  "97.20": { migrations: [M.forget], unaffected: ["delete-customer"], rule: "Nothing to publish with it." },
   "97.19": {
     migrations: [M.campaigns], website: true, functions: ["send-email", "send-campaign"],
     before: [[M.campaigns, "send-email"], [M.campaigns, "send-campaign"]],
-    rule: "Programs before the database stops promo emails until it is in. The row lists the website before the two programs; this sheet puts the website last because the push gate refuses the website while any program is not live. The hazard the row names (programs before the database) is still kept.",
+    rule: "Programs before the database stops promo emails until it is in. The row lists the website before the two programs; this sheet publishes them before the website, so the push check at the website step names fewer programs. The danger the row names (programs before the database) is still kept.",
   },
   "97.13": {
     migrations: [M.domains], functions: ["verify-domain"], website: true,
@@ -206,6 +228,7 @@ const DECLARED = {
   },
   "99.2a": {
     bundles: "_shared/emailKit.ts", migrations: [M.sign],
+    before: [["website", "create-booking"]], conflict: true,
     rule: "Publishing the website alone does not update emails; the programs do. Its database change only matters for the \"Sign emails with the business name\" switch; until it is in, turning that one switch on fails and everything else saves.",
     after: ["Have a session check a real booking confirmation's subject, body and plain-text copy."],
   },
@@ -221,6 +244,71 @@ const DECLARED = {
     manual: [{ id: "iphone-walk", part: 0, text: "Optional, before the release: twenty minutes on your iPhone with the keyboard up (2.15 and 8.2), following your list's \"AT RELEASE\" row." }],
   },
 };
+// ---------------------------------------------------------------------------
+// ROADMAP entries carry ordering rules too, and some have no FOR-ANDREW row at
+// all (97.16, 97.64). Every OPEN item with an "AWAITS PUBLISH" or "Release step,
+// not a decision" line is read: it is declared (above, or here), or excluded in
+// ROADMAP_NO_ORDER with its reason. An excluded line that states an order
+// (STRONG below) is a failure, so a rule cannot be waved through as "no order".
+// ---------------------------------------------------------------------------
+const CONFLICT = "**Two of your notes disagree, and this sheet settles it.** The 99.2f note (in \"Use the shorter email dates and times\", and ROADMAP 99.2) says publish `create-booking` before the website. ROADMAP 97.64 says the website first, then `create-booking`. **This sheet does the website first and `create-booking` straight after it, in the same sitting.** Why: the other way round, a customer whose first press was lost and who presses Book again from the old page gets no link to their booking (97.64). Website first, the only cost is that a text-consent tick made in those few minutes is not saved by the old program, and no texts are sent yet anyway (99.2f).";
+Object.assign(DECLARED, {
+  "97.64": {
+    functions: ["create-booking"], website: true, before: [["website", "create-booking"]], conflict: true,
+    rule: "The website first, then `create-booking` straight after, in the same sitting. In that order nothing breaks, because the old program ignores the page's new retry code.",
+  },
+  "97.16": {
+    functions: ["accept-quote"], website: true, before: [["website", "accept-quote"]],
+    rule: "The page first or both together, never the program alone: the new `accept-quote` refuses any Accept that does not say which quote it showed, and the page online now says none, so alone it refuses every customer's Accept.",
+  },
+  "99.2": {
+    functions: ["create-booking"], bundles: "_shared/emailKit.ts", website: true, before: [["website", "create-booking"]], conflict: true,
+    rule: "Its email wording goes out with every program carrying the shared email kit (with 99.2a). Its line says `create-booking` before the website; 97.64 says the reverse. Settled at the top of this sheet: website first, `create-booking` straight after.",
+  },
+  "97.10": {
+    migrations: [M.payProblem], functions: ["stripe-webhook"], before: [[M.payProblem, "stripe-webhook"]],
+    rule: "Its database change before the payment webhook, or a mismatched payment's write fails and Stripe retries.",
+  },
+  "97.11": {
+    migrations: [M.payProblem], functions: ["stripe-webhook", "pay-booking"],
+    before: [[M.payProblem, "stripe-webhook"], [M.payProblem, "pay-booking"]],
+    rule: "Both programs after 97.10's database change.",
+  },
+  "97.15": {
+    migrations: [M.support, M.expire, M.endAtAuth], hold: { "platform-admin": HOLD_ADMIN },
+    before: [[M.support, M.expire], [M.expire, M.endAtAuth]], bundleBefore: [[M.endAtAuth, LOCK]],
+    rule: "Its three support-session database changes in order, and ONLY THEN every program carrying the lock, or \"view as\" refuses to open.",
+  },
+  "4.1d": {
+    migrations: [M.invites], functions: ["invite-user"], before: [[M.invites, "invite-user"]],
+    rule: "Its database change before `invite-user`, which writes the invite rows the change allows.",
+  },
+});
+const ROADMAP_NO_ORDER = {
+  "97.1": "programs and the website, any order; its date (before 2026-11-01) is a deadline, not an order",
+  "97.2": "`create-booking` and the website; the order between them is 97.64's",
+  "97.4": "one program, no order",
+  "97.5": "one program, no order",
+  "97.6": "the website and two programs, no order",
+  "97.8": "says either can go first",
+  "97.9": "one program, no order",
+  "97.69": "the payment webhook; carried by 97.68's wait",
+  "97.17": "says any order",
+  "97.20a": "one database change, no program",
+  "97.22": "one database change, no program",
+  "97.24": "two programs, no order",
+  "97.25": "the backups repository, not this release",
+  "97.90": "checks to run after the publish",
+  "0.11c": "the website publish 0.11cc's step carries",
+  "0.4": "`platform-admin`, held back on this sheet",
+  "0.4g": "`platform-admin`, held back on this sheet",
+  "0.6c": "runs 0.6b's order, which this sheet keeps",
+  "1.3": "live: the database check sees its one column and does not name the file, so it is already applied",
+  "9.1c": "the website, no order",
+};
+const STRONG = [/\bFIRST\b/, /\b(?:site|page|program|function|migration) first\b|\bbefore (?:publishing|deploying|the (?:app|site|website|page|webhook|program|function)s?)\b|in (?:that|this) order|\bonly then\b|never the function alone|\bafter \d+\.\d+[a-z]*'s\b/i];
+if (BREAK === "lock-one") for (const d of Object.values(DECLARED)) { delete d.bundleBefore; if (d.hold?.["platform-admin"] && d.rule?.includes("support-session")) d.before = [...(d.before || []), [M.support, "update-booking"]]; }
+
 // Rows that match the release wording and carry no step, each with its reason.
 // A new release row that is in neither table turns the check red by name.
 const EXCLUDED = {
@@ -291,7 +379,7 @@ const headingCount = (forAndrew.match(/^## DO, AT YOUR NEXT RELEASE/gm) || []).l
 if (thirteen.length !== headingCount) failures.push(`FOR-ANDREW.md has ${headingCount} "AT YOUR NEXT RELEASE" heading(s) but ${thirteen.length} parsed; a heading has changed shape.`);
 if (thirteen.length === 0) failures.push("ZERO release rows found in FOR-ANDREW.md: the heading parser matched nothing.");
 const rows = everyRow.filter((r) => r.release && !EXCLUDED[r.key] && !EXCLUDED[r.heading.split(/\.| · /)[0].trim()]);
-const rowName = (row) => `FOR-ANDREW.md:${row.line} "${row.key} — ${row.title}"`;
+const rowName = (row) => `${row.file || "FOR-ANDREW.md"}:${row.line} "${row.key} — ${row.title}"`;
 
 // ROADMAP titles and box states.
 const roadmap = rd("ROADMAP.md");
@@ -304,6 +392,28 @@ const entryOf = (id) => {
   return { open: m[1] === " ", title: m[2].replace(/\.$/, "").replace(/\s*\([^()]*\)$/, ""), text: end < 0 ? rest : rest.slice(0, end) };
 };
 const itemTitle = entryOf;
+// Every OPEN ROADMAP item's release line(s): a line that STARTS with the marker,
+// plus its wrapped continuation lines. A line that only quotes the phrase is not one.
+const MARKER = /^\s*(?:- )?(?:\*\*)?(?:AWAITS PUBLISH|Release step, not a decision)/;
+const roadmapRows = [];
+{
+  const L = roadmap.split(/\r?\n/);
+  L.forEach((l, i) => {
+    // A title can wrap onto the next line (0.4g), so the closing ** is optional.
+    const m = /^- \[ \] \*\*([0-9][0-9.]*[a-z]*) — (.*?)(?:\*\*|$)/.exec(l);
+    if (!m) return;
+    let j = i + 1;
+    while (j < L.length && !/^- \[.\] \*\*/.test(L[j]) && !/^#/.test(L[j])) j++;
+    const body = [];
+    for (let k = i + 1; k < j; k++) if (MARKER.test(L[k])) {
+      body.push(L[k]);
+      for (let c = k + 1; c < j && /^ {3,}\S/.test(L[c]) && !/^\s*- /.test(L[c]) && !MARKER.test(L[c]); c++) body.push(L[c]);
+    }
+    if (body.length) roadmapRows.push({ file: "ROADMAP.md", key: m[1], id: m[1], title: m[2].replace(/\.$/, "").replace(/\s*\([^()]*\)$/, ""), line: i + 1, body: body.join("\n") });
+  });
+}
+if (roadmapRows.length < 20) failures.push(`only ${roadmapRows.length} open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-18 floor is 20).`);
+const readRows = [...rows, ...roadmapRows.filter((r) => DECLARED[r.key])];
 const itemOfFile = (file) => {
   const subj = git("log", "--diff-filter=A", "--format=%s", "--", `supabase/migrations/${file}`).split("\n").pop() || "";
   return (/^(\d+\.\d+[a-z]*)\b/.exec(subj) || [])[1] || null;
@@ -328,7 +438,12 @@ const held = new Map();   // program -> { reason, ids:Set }
 const order = { first: new Set(), alone: new Set(), last: new Set() };
 const onlyIf = new Map();
 const rowProblems = [];
-for (const row of rows) {
+// The lock rule, expanded from the server check: each out-of-date program carrying a lock file.
+for (const d of Object.values(DECLARED)) for (const [mig, mods] of d.bundleBefore || []) {
+  d.before = d.before || [];
+  for (const f of invFns) if (mods.some((x) => (causes[f]?.shared_modules || []).includes(x)) && !d.before.some(([a, b]) => a === mig && b === f)) d.before.push([mig, f]);
+}
+for (const row of readRows) {
   const d = DECLARED[row.key];
   if (!d) { rowProblems.push(`${rowName(row)} carries a release instruction and has NO step on the sheet (no declaration in scripts/release-sheet.mjs, and not excluded)`); continue; }
   const fns = d.functions === "all" ? [...invFns] : [...(d.functions || [])];
@@ -345,12 +460,28 @@ for (const row of rows) {
   if (d.functions !== "all") for (const m of row.body.matchAll(/`([a-z][a-z0-9-]+)`/g)) {
     const f = m[1];
     if (fnDirs.has(f) && !fns.includes(f) && !(d.hold || {})[f] && !(d.before || []).flat().includes(f) && !(d.onlyIf || {})[f]
-      && !["first", "alone", "last"].some((k) => (d[k] || []).includes(f)) && !Object.keys(d.waitsOn || {}).includes(f)) {
+      && !["first", "alone", "last"].some((k) => (d[k] || []).includes(f)) && !Object.keys(d.waitsOn || {}).includes(f) && !(d.unaffected || []).includes(f)) {
       rowProblems.push(`${rowName(row)} names program ${f} but its declaration does not`);
     }
   }
+  // A row that names a shared file means every out-of-date program carrying it (4.3b's lock).
+  if (d.functions !== "all") for (const m of new Set([...row.body.matchAll(/`(_shared\/[A-Za-z]+\.ts)`/g)].map((x) => x[1]))) {
+    const named = new Set([...fns, ...(d.before || []).flat(), ...Object.keys(d.hold || {})]);
+    const missing = invFns.filter((f) => (causes[f]?.shared_modules || []).includes(m) && !named.has(f));
+    if (missing.length) rowProblems.push(`${rowName(row)} names ${m}, and its declaration leaves out ${missing.length} out-of-date program(s) carrying it: ${missing.join(", ")}`);
+  }
 }
-for (const key of Object.keys(DECLARED)) if (!rows.some((r) => r.key === key)) failures.push(`scripts/release-sheet.mjs declares ${key}, which has no release row in FOR-ANDREW.md any more; remove it.`);
+// ROADMAP release lines that are not declared must be excluded by name, and an
+// exclusion may not wave through a line that states an order.
+for (const row of roadmapRows) {
+  if (DECLARED[row.key]) continue;
+  const why = ROADMAP_NO_ORDER[row.key];
+  if (!why) { rowProblems.push(`${rowName(row)} has a release line and is neither declared nor excluded in scripts/release-sheet.mjs`); continue; }
+  const said = STRONG.map((re) => (re.exec(row.body) || [])[0]).find(Boolean);
+  if (said) rowProblems.push(`${rowName(row)} states an order ("${said}") and is excluded as "${why}"; declare its rule`);
+}
+for (const k of Object.keys(ROADMAP_NO_ORDER)) if (!roadmapRows.some((r) => r.key === k)) failures.push(`scripts/release-sheet.mjs excludes ROADMAP ${k}, which has no open release line any more; remove it.`);
+for (const key of Object.keys(DECLARED)) if (!readRows.some((r) => r.key === key)) failures.push(`scripts/release-sheet.mjs declares ${key}, which has no release row in FOR-ANDREW.md and no open release line in ROADMAP.md any more; remove it.`);
 // Programs a program-level wait leaves unfinished are held, with the reason.
 for (const d of Object.values(DECLARED)) for (const [f, items] of Object.entries(d.waitsOn || {})) {
   const unfinished = items.filter((i) => waitState(i, f) !== "ticked" && waitState(i, f) !== "awaits this publish");
@@ -369,7 +500,22 @@ const publish = invFns.filter((f) => !held.has(f)).sort();
 const firsts = publish.filter((f) => order.first.has(f) && !preFns.has(f));
 const alones = publish.filter((f) => order.alone.has(f));
 const lasts = publish.filter((f) => order.last.has(f));
-const pass = publish.filter((f) => !preFns.has(f) && !order.first.has(f) && !order.alone.has(f) && !order.last.has(f));
+// Programs a rule puts AFTER the website (97.16, 97.64): published straight after it, same sitting.
+const afterSite = BREAK === "fn-before-page" ? [] : publish.filter((f) => allBefore.some(([a, b]) => a === "website" && b === f) && !preFns.has(f));
+const pass = publish.filter((f) => !preFns.has(f) && !order.first.has(f) && !order.alone.has(f) && !order.last.has(f) && !afterSite.includes(f));
+// A program that must precede a database change goes just before the EARLIEST one it
+// must precede, so every database change it needs (4.3b's lock) is already in.
+const preAt = new Map();
+for (const f of [...preFns].sort()) {
+  const at = BREAK === "lock-order" ? allMigs[0] : allBefore.filter(([a, b]) => a === f && migFiles.has(b)).map(([, b]) => b).sort()[0];
+  (preAt.get(at) || preAt.set(at, []).get(at)).push(f);
+}
+const part3 = allMigs.flatMap((m) => [...(preAt.get(m) || []), m]);
+// An excluded ROADMAP line naming a database change the sheet does not carry must say why it is live.
+for (const row of roadmapRows) {
+  const why = !DECLARED[row.key] && ROADMAP_NO_ORDER[row.key];
+  if (why && !why.startsWith("live:")) for (const m of row.body.matchAll(SQL_RE)) if (!allMigs.includes(m[0])) rowProblems.push(`${rowName(row)} names ${m[0]}, which is not on the sheet, and its exclusion does not say it is live`);
+}
 const tags = (set) => (set && set.size ? ` · for ${[...set].filter((x) => x !== "waits").sort().join(", ")}` : "");
 const migIds = (f) => { const ids = new Set(need.mig.get(f) || []); const g = itemOfFile(f); if (g) ids.add(g); return ids; };
 
@@ -381,23 +527,26 @@ const push = (key, text, subs = []) => { n++; stepNo.set(key, n); out.push(`${n}
 const plan = [
   ...part0().map((s) => s.id),
   ...[...manual.values()].filter((s) => s.part === 1).map((s) => s.id),
-  ...[...preFns].sort(), ...allMigs, ...firsts, ...pass, ...alones, ...lasts, "website",
+  ...part3, ...firsts, ...pass, ...alones, "website", ...afterSite, ...lasts,
 ];
 plan.forEach((k, i) => stepNo.set(k, i + 1));
 const label = (x) => (x === "website" ? "the website" : manual.has(x) ? `step ${stepNo.get(x)}` : `${x} (step ${stepNo.get(x)})`);
 const ref = (node) => (node === "website" ? "the website step" : `step ${stepNo.get(node) ?? "?"}`);
 const rulesInto = (node) => allBefore.filter(([, b]) => b === node).map(([a]) => a).filter((a) => !held.has(a));
 const afterNote = (node) => { const a = [...new Set(rulesInto(node))].sort((x, y) => stepNo.get(x) - stepNo.get(y)); return a.length ? `only after ${a.map(ref).join(", ")}` : ""; };
-const firstMigStep = stepNo.get(allMigs[0]);
+const firstMigStep = stepNo.get(part3[0]);
+const pushNames = [...afterSite, ...lasts, ...heldHere];
+const conflicts = readRows.filter((r) => DECLARED[r.key]?.conflict).map((r) => r.key);
 // A program is written in code type only on its own step, so "appears once" stays countable.
 const plain = (s) => s.replace(/`([a-z][a-z0-9-]+)`/g, (m, f) => (fnDirs.has(f) ? f : m));
 
 out.push("# Release sheet — everything still to go live, in order", "");
 out.push(`Written by \`node scripts/release-sheet.mjs\` from the database check taken at \`${String(drift.git_sha).slice(0, 8)}\` and the server check taken at \`${String(inv.git_sha).slice(0, 8)}\`. Do not edit by hand; re-run it.`, "");
 out.push("## In plain words", "");
-out.push(`This is one list for your next release, built from the release notes in your list. **${allMigs.length} database changes** go into the live database, **${publish.length} programs** go onto the server, and then **the website** goes out. **${heldHere.length} programs are held back on purpose** and are listed at the bottom, never as a step. Where an order matters, the step says so and names the step it must come after.`, "");
-out.push(`**When to start.** ${part0().filter((x) => x.must).map((x) => `Step ${stepNo.get(x.id)}`).join(", ")} must already be done before you begin; if it is not, do not start. Steps 1 to ${firstMigStep - 1} change nothing anybody sees, so you can stop anywhere in them. **Once you start step ${firstMigStep}, go through to the website in the same sitting:** 97.14's two database changes and the website must go out together, or the Notes box stops saving.`, "");
-out.push(`**The website step will be refused at first, and that is expected.** Your push first checks the server, and it stops while any program is out of date, which the held ones always are. When it names only the held programs, push with \`SHIP_WITH_DRIFT=1 git push\`, as your launch notes (0.6b) say.`, "");
+out.push(`This is one list for your next release, built from the release notes in your list and the release lines in the roadmap. **${allMigs.length} database changes** go into the live database, **${publish.length - afterSite.length - lasts.length} programs** go onto the server, then **the website** goes out, then **${afterSite.length + lasts.length} more programs** straight after it. **${heldHere.length} programs are held back on purpose** and are listed at the bottom, never as a step. Where an order matters, the step says so and names the step it must come after.`, "");
+out.push(`**When to start.** ${part0().filter((x) => x.must).map((x) => `Step ${stepNo.get(x.id)}`).join(", ")} must already be done before you begin; if it is not, do not start. Steps 1 to ${firstMigStep - 1} change nothing anybody sees, so you can stop anywhere in them. **Once you start step ${firstMigStep}, go through to the end of the sheet in the same sitting:** 97.14's two database changes and the website must go out together, or the Notes box stops saving${afterSite.length ? `, and ${afterSite.join(" and ")} must follow the website within minutes` : ""}.`, "");
+out.push(`**The website step will be refused at first, and that is expected.** Your push first checks the server, and it stops while any program is out of date. At that moment ${pushNames.length} always are: the ${heldHere.length} held back, and the ${afterSite.length + lasts.length} that go straight after the website. When it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`, as your launch notes (0.6b) say.`, "");
+if (conflicts.length) out.push(plain(CONFLICT), "");
 out.push("Nothing here has been done for you. No session applies, publishes or pushes. Each step ends with the ROADMAP items it is for; your notes for each stay in your list as the detail.", "");
 
 out.push("## Part 0 — before you start", "");
@@ -406,19 +555,22 @@ out.push("");
 out.push("## Part 1 — setup outside the code", "");
 for (const s of [...manual.values()].filter((x) => x.part === 1)) { const a = afterNote(s.id); push(s.id, `${s.text}${a ? ` — ${a}` : ""}${tags(s.ids)}`); }
 out.push("");
-out.push("## Part 2 — programs that go before the database", "");
-for (const f of [...preFns].sort()) push(f, `Publish \`${f}\` FIRST, before the database changes.${tags(need.fn.get(f))}`);
-out.push("");
-out.push("## Part 3 — the database changes, oldest first", "");
-out.push("Apply each file from `supabase/migrations/` in this order.", "");
-for (const f of allMigs) {
+out.push("## Part 2 — the database changes, oldest first", "");
+out.push("Apply each file from `supabase/migrations/` in this order. One program goes in between them, where a rule needs it.", "");
+for (const f of part3) {
+  if (preFns.has(f)) {
+    const must = allBefore.filter(([a, b]) => a === f && migFiles.has(b)).map(([, b]) => ref(b)).sort();
+    const a = afterNote(f);
+    push(f, `Publish \`${f}\` here, between the database changes${a ? ` — ${a}` : ""}; it must go before ${[...new Set(must)].join(", ")}.${tags(need.fn.get(f))}`);
+    continue;
+  }
   const a = afterNote(f);
   const unseen = driftMigs.has(f) ? "" : " (the database check cannot see this kind of change; it is listed because your note says it is not applied)";
   const named = [...migIds(f)].map((id) => { const t = itemTitle(id); return t ? `${id} (${t.title})` : id; });
   push(f, `Apply \`${f}\`${a ? ` — ${a}` : ""}${unseen}${named.length ? ` · for ${named.join("; ")}` : " · no ROADMAP item found for it"}`);
 }
 out.push("");
-out.push("## Part 4 — the programs", "");
+out.push("## Part 3 — the programs", "");
 const fnLine = (f, lead) => {
   const notes = [];
   const a = afterNote(f); if (a) notes.push(a);
@@ -433,30 +585,33 @@ out.push("**Then these, in one pass, in any order among themselves:**", "");
 for (const f of pass) push(f, fnLine(f, "Publish "));
 out.push("");
 if (alones.length) { out.push("**Then, alone:**", ""); for (const f of alones) push(f, fnLine(f, "Publish, alone, ")); out.push(""); }
-if (lasts.length) { out.push("**Last, alone, nothing else running:**", ""); for (const f of lasts) push(f, fnLine(f, "Publish, last and alone, ")); out.push(""); }
-out.push("## Part 5 — the website, last", "");
-push("website", `**Publish the website** (a push to main). It goes last because the push check refuses it while any program is not live.${heldHere.length ? ` It will stop and name ${heldHere.join(", ")}${onlyIf.size ? ` (and ${[...onlyIf.keys()].join(", ")} if you skipped it)` : ""}; when it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`.` : ""}${tags(need.website)}`);
+out.push("## Part 4 — the website", "");
+push("website", `**Publish the website** (a push to main).${pushNames.length ? ` The push check will stop and name ${pushNames.join(", ")}${onlyIf.size ? ` (and ${[...onlyIf.keys()].join(", ")} if you skipped it)` : ""}; when it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`.` : ""} Then wait until Netlify shows this deploy as Published (a few minutes) and go straight on.${tags(need.website)}`);
 out.push("");
+out.push("## Part 5 — straight after the website, same sitting", "");
+if (afterSite.length) { out.push("**These go after the website, never before it:**", ""); for (const f of afterSite) push(f, fnLine(f, "Publish ")); out.push(""); }
+if (lasts.length) { out.push("**Last, alone, nothing else running:**", ""); for (const f of lasts) push(f, fnLine(f, "Publish, last and alone, ")); out.push(""); }
 out.push("## Held back on purpose — do NOT publish these this time", "");
 for (const f of heldHere) out.push(`- \`${f}\` — ${held.get(f).reason}${tags(held.get(f).ids)}`);
 out.push("");
 out.push("## The rules each note set, and where this sheet keeps them", "");
-for (const row of rows) {
+const ruleRows = readRows.filter((r, i) => readRows.findIndex((x) => x.key === r.key) === i);
+for (const row of ruleRows) {
   const d = DECLARED[row.key];
   if (!d) continue;
   const kept = (d.before || []).filter(([a, b]) => !held.has(a) && !held.has(b)).map(([a, b]) => `${label(a)} before ${label(b)}`);
-  out.push(`- **${row.key} — ${row.title}.** ${plain(d.rule || "No order of its own.")}${kept.length ? ` Kept: ${kept.join("; ")}.` : ""}`);
+  out.push(`- **${row.key} — ${row.title}${row.file ? " (roadmap)" : ""}.** ${plain(d.rule || "No order of its own.")}${kept.length ? ` Kept: ${kept.join("; ")}.` : ""}`);
 }
 out.push("");
 out.push("## After the release", "");
-for (const row of rows) for (const a of DECLARED[row.key]?.after || []) out.push(`- ${plain(a)} · for ${row.key}`);
+for (const row of ruleRows) for (const a of DECLARED[row.key]?.after || []) out.push(`- ${plain(a)} · for ${row.key}`);
 out.push("- Have a session re-run the database check and the server check, then this sheet. Anything still listed did not go live.");
 out.push("");
 out.push("## What this sheet reads, and what it does not", "");
-out.push(`It reads every row in your list that carries a release instruction: ${rows.map((r) => r.key).join(", ")}. ${rows.filter((r) => r.group).map((r) => `Of "${r.heading.split(" — ")[0]}" it reads only the first row (${r.key}); the rows under it are the 2026-09-23 publish order your launch notes (0.6b) replaced.`).join(" ")} It does not read: ${Object.entries(EXCLUDED).map(([k, v]) => `"${k}" (${v})`).join("; ")}. The database check cannot see a change made only of triggers, constraints or data, so a file like that is on this sheet only if one of the rows it reads names it.`, "");
+out.push(`It reads every row in your list that carries a release instruction: ${rows.map((r) => r.key).join(", ")}. It also reads the release line of every open roadmap item (${roadmapRows.length}); ${ruleRows.filter((r) => r.file).map((r) => r.key).join(", ")} set an order with no row in your list, and the other ${roadmapRows.filter((r) => !DECLARED[r.key]).length} are excluded by name in the script, each with its reason. ${rows.filter((r) => r.group).map((r) => `Of "${r.heading.split(" — ")[0]}" it reads only the first row (${r.key}); the rows under it are the 2026-09-23 publish order your launch notes (0.6b) replaced.`).join(" ")} It does not read: ${Object.entries(EXCLUDED).map(([k, v]) => `"${k}" (${v})`).join("; ")}. The database check cannot see a change made only of triggers, constraints or data, so a file like that is on this sheet only if one of the rows it reads names it.`, "");
 
 let sheet = out.join("\n");
-if (BREAK === "no-escape") sheet = sheet.split("\n").map((l) => (l.includes("**Publish the website**") ? l.replace(/ It will stop and name.*?git push`\./, "") : l)).join("\n");
+if (BREAK === "no-escape") sheet = sheet.split("\n").map((l) => (l.includes("**Publish the website**") ? l.replace(/ The push check will stop and name.*?git push`\./, "") : l)).join("\n");
 if (BREAK === "drop-line") sheet = sheet.split("\n").filter((l) => !l.includes("`verify-domain`")).join("\n");
 
 // ---------------------------------------------------------------------------
@@ -494,7 +649,7 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
     for (const m of row.body.matchAll(/`([a-z-]+)`(?: first,)? alone/g)) if (fns.includes(m[1]) && !isHeld(m[1]) && !/alone/.test(stepLines[lineOf("`" + m[1] + "`")] || "")) bad.push(`${name} sends ${m[1]} alone, and the sheet does not`);
     if (/payment webhook,? last and alone/i.test(row.body) && fns.includes("stripe-webhook") && !isHeld("stripe-webhook")) {
       const i = lineOf("`stripe-webhook`");
-      if (i !== websiteAt - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name} sends the payment webhook last and alone, and the sheet does not (step ${i + 1})`);
+      if (i !== stepLines.length - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name} sends the payment webhook last and alone, and the sheet does not (step ${i + 1})`);
     }
     const nodes = [...(d.migrations || []), ...(d.functions === "all" ? [] : d.functions || []).filter((f) => fns.includes(f) && !isHeld(f)), ...(d.website ? ["website"] : []), ...(d.manual || []).map((s) => s.id)];
     if (!nodes.length && !Object.keys(d.hold || {}).length && !(d.after || []).length && d.functions !== "all") bad.push(`${name} declares nothing to do`);
@@ -509,18 +664,30 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
       const st = waitState(i, f);
       if (st !== "ticked" && st !== "awaits this publish" && !isHeld(f)) bad.push(`${name}: ${f} waits on ${i}, which is ${st}, and the sheet publishes it anyway (step ${lineOf("`" + f + "`") + 1})`);
     }
-    for (const f of d.first || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (!/alone/.test(stepLines[i] || "") || stepLines.some((l, j) => j < i && /^\d+\. Publish /.test(l) && !l.includes("FIRST, before the database"))) bad.push(`${name}: ${f} is not the first program, alone`); }
-    for (const f of d.last || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (i !== websiteAt - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name}: ${f} is not the last program, alone`); }
+    for (const f of d.first || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (!/alone/.test(stepLines[i] || "") || stepLines.some((l, j) => j < i && /^\d+\. Publish /.test(l) && !l.includes("between the database changes"))) bad.push(`${name}: ${f} is not the first program, alone`); }
+    for (const f of d.last || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (i !== stepLines.length - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name}: ${f} is not the last program, alone`); }
   }
-  if (websiteAt !== stepLines.length - 1) bad.push("the website is not the last step");
+  // After the website: only programs a rule sends after it, then the last-and-alone one.
+  const afterRule = new Set(Object.values(decl).flatMap((d) => (d.before || []).filter(([a]) => a === "website").map(([, b]) => b)));
+  const lastOnes = new Set(Object.values(decl).flatMap((d) => d.last || []));
+  for (const l of stepLines.slice(websiteAt + 1)) {
+    const f = (/`([a-z][a-z0-9-]+)`/.exec(l) || [])[1];
+    if (!afterRule.has(f) && !lastOnes.has(f)) bad.push(`step ${l.split(".")[0]} comes after the website, and no rule sends ${f || "it"} there`);
+    else if (f && !(stepLines[websiteAt] || "").includes(f)) bad.push(`the website step does not warn that the push check will name ${f}, which goes after it`);
+  }
+  // A settled disagreement is said out loud, naming both sides.
+  const conflictKeys = rowList.filter((r) => decl[r.key]?.conflict).map((r) => r.key);
+  if (conflictKeys.length && !(/Two of your notes disagree/.test(text) && /99\.2f/.test(text) && /97\.64/.test(text))) bad.push(`${conflictKeys.join(", ")} disagree about the order, and the sheet does not say so or how it is settled`);
   const heldNames = heldLines.map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
   if (heldNames.length && !(stepLines[websiteAt] || "").includes("SHIP_WITH_DRIFT=1")) bad.push("programs are held back, and the website step does not say how to push past the check that refuses it");
   for (const f of heldNames) if (!(stepLines[websiteAt] || "").includes(f)) bad.push(`the website step does not warn that the push check will name held program ${f}`);
   if (/stop at the end of a part/i.test(text)) bad.push("the plain words still advise stopping at the end of a part, which leaves 97.14 half done");
-  if (firstMig >= 0 && !text.includes(`Once you start step ${firstMig + 1}, go through to the website in the same sitting`)) bad.push("the plain words do not say where the same-sitting stretch starts");
+  const part2At = all.findIndex((l) => l.startsWith("## Part 2"));
+  const firstOfPart2 = stepLines.indexOf(all.slice(part2At).find((l) => /^\d+\. /.test(l)));
+  if (firstMig >= 0 && !text.includes(`Once you start step ${firstOfPart2 + 1}, go through to the end of the sheet in the same sitting`)) bad.push("the plain words do not say where the same-sitting stretch starts");
   return bad;
 }
-const ctx = { migs: [...driftMigs].sort(), fns: invFns, rowList: rows, decl: DECLARED };
+const ctx = { migs: [...driftMigs].sort(), fns: invFns, rowList: readRows, decl: DECLARED };
 const sheetFindings = [...verify(sheet, ctx), ...rowProblems];
 for (const row of thirteen) if (!rows.includes(row)) sheetFindings.push(`${rowName(row)} is an "AT YOUR NEXT RELEASE" row the sheet does not read`);
 failures.push(...sheetFindings);
@@ -537,7 +704,7 @@ const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row"
 // Each sabotage keeps its own sheet and receipt, so neither a clean run nor the other sabotage overwrites it.
 const sheetPath = BREAK ? `receipts/release-sheet.${BREAK}.sabotage.md` : "docs/release-sheet.md";
 writeFileSync(join(REPO, sheetPath), sheet.replace(/\n+$/, "") + "\n");
-const targets = ctx.migs.length + invFns.length + rows.length;
+const targets = ctx.migs.length + invFns.length + rows.length + roadmapRows.length;
 const ok = failures.length === 0 && canaryCaught;
 const { path: receiptPath } = writeReceipt({
   check_id: BREAK ? `release-sheet.${BREAK}` : "release-sheet",
@@ -548,7 +715,7 @@ const { path: receiptPath } = writeReceipt({
   attempted_targets: targets,
   completed_targets: targets,
   skipped_targets: 0,
-  assertions_executed: ctx.migs.length * 2 + invFns.length + rows.length * 4 + 4,
+  assertions_executed: ctx.migs.length * 2 + invFns.length + readRows.length * 4 + roadmapRows.length + 6,
   min_assertions: 60,
   failures,
   artifacts: ["scripts/release-sheet.mjs", sheetPath],
@@ -569,6 +736,10 @@ const { path: receiptPath } = writeReceipt({
     programs_published: publish.length,
     programs_held: heldHere,
     release_rows_read: rows.map((r) => r.key),
+    roadmap_release_lines_read: roadmapRows.length,
+    roadmap_rules_declared: readRows.filter((r) => r.file).map((r) => r.key),
+    roadmap_excluded: roadmapRows.filter((r) => !DECLARED[r.key]).map((r) => r.key),
+    after_the_website: afterSite,
     at_your_next_release_rows: thirteen.map((r) => r.key),
     steps: n,
   },
@@ -579,7 +750,7 @@ const { path: receiptPath } = writeReceipt({
   },
 });
 
-console.log(`${rows.length} release row(s) read (${thirteen.length} "AT YOUR NEXT RELEASE"), ${ctx.migs.length} unapplied database change(s) from the drift check (+${allMigs.length - ctx.migs.length} named only by a row), ${invFns.length} program(s) not live: ${publish.length} published, ${heldHere.length} held (${heldHere.join(", ")}); ${n} step(s).`);
+console.log(`${rows.length} release row(s) read (${thirteen.length} "AT YOUR NEXT RELEASE") and ${roadmapRows.length} ROADMAP release line(s) (${readRows.filter((r) => r.file).length} declared), ${ctx.migs.length} unapplied database change(s) from the drift check (+${allMigs.length - ctx.migs.length} named only by a row), ${invFns.length} program(s) not live: ${publish.length} published, ${heldHere.length} held (${heldHere.join(", ")}); ${n} step(s).`);
 console.log(`canary ${canaryCaught ? "caught" : "NOT CAUGHT"}`);
 for (const f of failures) console.log("FAIL — " + f);
 console.log(`${ok ? "PASS" : "FAIL"} — sheet ${sheetPath}, receipt ${receiptPath}`);
