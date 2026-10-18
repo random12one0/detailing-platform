@@ -146,7 +146,7 @@ function world(refuse) {
     pricing: { servicesForBooking: async () => [] },
     slotValidation: { dayRuleRefusal, validateSlot: async () => ({ ok: true, startAt: new Date(NEW_START), endAt: new Date(NEW_END) }) },
     email: { buildBrand: async () => ({ contactEmail: null }), extraVehiclesFor: async () => [], recipientLang: async () => "en", sendTenantEmail: async (m) => { sends.push(m); } },
-    emailTemplates: { rescheduleEmail: () => ({ subject: "Moved", html: "", text: "" }), cancellationEmail: () => ({ subject: "Cancelled", html: "", text: "" }) },
+    emailTemplates: { rescheduleEmail: () => ({ subject: "Moved", html: "", text: "" }), cancellationEmail: () => ({ subject: "Cancelled", html: "", text: "" }), restoredEmail: () => ({ subject: "Restored", html: "", text: "" }) },
     ownerPush: { sendOwnerPush: async (_b, p) => { pushes.push(p); } },
     actionLog: { recordActions: async () => true },
     connect,
