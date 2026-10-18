@@ -2848,6 +2848,8 @@ and how the wait ends.
   website is published.**
 
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/0.11d-20261018164534042`. Answer "merge it" to keep it, or say what to change.
   **BELT PARKED after 3 attempts, 2026-10-09 21:39:08.** The belt could not
   finish this and moved on rather than looping. The last attempt's full output
   is at `belt/runs/2026-10-09T21-39-02-745Z-0.11d.md`. Needs a person or a different
