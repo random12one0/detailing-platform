@@ -1,12 +1,31 @@
 // This month's platform bills, one line per kind. A bill nobody typed in reads
 // "Not entered" and is never guessed; "Add it" types one in through the server's
 // own checks (`platform_cost_add`, `costEntry`). Its refusal sentence is shown as-is.
+// Above the lines, the chosen month's totals (98.15): what came in, what the bills
+// came to and what was kept. With no bill typed in, the profit is "Not entered" (9.14).
+// Every figure here is to the cent: a bill somebody typed reads back as typed (98.14).
 import { useState } from "react";
 import { centsOf } from "../../../../lib/officeMoney.js";
 import { call } from "../../api.js";
-import { usd } from "../../ui.jsx";
+import { money } from "../../../../lib/format.js";
 import { reread } from "../../useNet.js";
 import { BILL_COLOR, BILL_MONTHS, useMonth } from "./month.js";
+
+const cash = (cents) => money(cents / 100);
+
+function MonthSum({ name, k, count }) {
+  const net = k.kept === null ? "Profit" : k.kept < 0 ? "We lost" : k.kept === 0 ? "We broke even" : "We kept";
+  return (
+    <dl className="bo-monthsum">
+      <div><dt>Paid to us in {name}</dt><dd>{cash(k.in)}</dd></div>
+      {k.kept !== null && <div><dt>Costs entered · {count} {count === 1 ? "bill" : "bills"}</dt><dd>{cash(k.out)}</dd></div>}
+      <div className={k.kept < 0 ? "net neg" : "net"}>
+        <dt>{net}</dt>
+        <dd>{k.kept === null ? <span className="unentered">Not entered</span> : cash(Math.abs(k.kept))}</dd>
+      </div>
+    </dl>
+  );
+}
 
 function AddBill({ month, kind, name, done }) {
   const [dollars, setDollars] = useState("");
@@ -38,7 +57,7 @@ function AddBill({ month, kind, name, done }) {
 
 export default function Bills({ i }) {
   const [at, setAt] = useState(BILL_MONTHS.length - 1);
-  const { month, name, k } = useMonth(BILL_MONTHS[at]);
+  const { month, name, net, k } = useMonth(BILL_MONTHS[at]);
   const [adding, setAdding] = useState(null);
   // An open form belongs to the month it was opened on, so a switch closes it.
   const go = (to) => { setAt(to); setAdding(null); };
@@ -50,14 +69,15 @@ export default function Bills({ i }) {
         <span className="bo-monthname" aria-live="polite">{name} {month.slice(0, 4)}</span>
         <button type="button" className="bo-btn ghost" aria-label="Later month" disabled={at === BILL_MONTHS.length - 1} onClick={() => go(at + 1)}>›</button>
       </div>
-      {!k ? <p className="bo-dim">Reading…</p> : k.failed ? <p className="bo-dim">Could not read the bills for {name}.</p> : (
+      {!k ? <p className="bo-dim">Reading…</p> : k.failed ? <p className="bo-dim">Could not read the bills for {name}.</p> : (<>
+        <MonthSum name={name} k={k} count={net.cost_count ?? 0} />
         <ul className="bo-bills">
           {k.bills.map((b) => (
             <li key={b.kind} className={b.cents === null ? "missing" : ""} data-bill={b.kind}>
               <div className="bo-bill">
                 <span className="lg" style={{ color: BILL_COLOR[b.kind] }}>{b.cents === null ? "?" : b.name[0]}</span>
                 <b>{b.name}</b>
-                <span className="amt">{b.cents === null ? "Not entered" : usd(b.cents)}</span>
+                <span className="amt">{b.cents === null ? "Not entered" : cash(b.cents)}</span>
                 {adding !== b.kind && (
                   <button type="button" className="bo-btn ghost" onClick={() => setAdding(b.kind)}>{b.cents === null ? "Add it" : "Add"}</button>
                 )}
@@ -66,7 +86,7 @@ export default function Bills({ i }) {
             </li>
           ))}
         </ul>
-      )}
+      </>)}
     </section>
   );
 }
