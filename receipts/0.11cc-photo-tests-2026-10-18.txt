@@ -1,0 +1,530 @@
+# 0.11cc credential-free run at 55be7e5a, 2026-10-18, PGLITE_REQUIRED=1, the 17 files of 98.5's command. No .env in this job copy, so Spanish section 7 SKIPS and this is NOT the no-skip run the gate asks for.
+✔ 1 · the two halves of the rule are real: storagePath refuses a missing booking, and KINDS is the table's own list (7.4658ms)
+✔ 2 · SABOTAGE — the checker sees the call that used to be in SiteIntake.jsx (2.6649ms)
+✔ 3 · THE REAL RESULT — every call to addPhoto in app/src gives it a booking and a valid kind (1109.7052ms)
+✔ 5 · SABOTAGE — the checker sees the binding every call site used before slice 4 (1.2061ms)
+✔ 6 · THE REAL RESULT — every uploadBusinessPhoto caller in app/src takes its result correctly (425.8706ms)
+✔ 4 · the website-intake photos go to the business's own folder, and nothing is published from there (2.2611ms)
+1. the entry, as the migrations declare it
+  ok    1a . exactly three migrations schedule photo-reconcile
+  ok    1b . the one that wins is the cron-secret migration
+  ok    1c . the reschedule did not quietly change the cadence
+  ok    1d . it is daily at 03:40 UTC
+  ok    1e . the header argument holds no bracket, so reading to the first ')' is whole
+  ok    1f . it posts Content-Type application/json, the cron secret, and an empty object
+  ok    1g . and the secret is read from Vault by name, never written in the migration
+
+2. the address
+  ok    2a . the cron entries already installed all name one project
+  ok    2b . the reconcile names that same project
+  ok    2c . and it is this platform's database, never the real business
+  ok    2d . the slug is production's own name for this job
+  ok    2e . and it names a function that exists in this checkout
+
+3. the timeout nobody passed
+  ok    3a . the winning entry passes timeout_milliseconds at all
+  ok    3b . it is 60000
+  ok    3c . at least the 30000 the 2026-09-13 repair chose for the sweep
+  ok    3d . and inside the heartbeat's own staleness window, so a slow run still reports in time
+  ok    3e . a daily call is never refused as too soon
+
+4. the function answers that exact call
+  ok    4a . the request carries no Authorization header, the way pg_net sends it
+  ok    4b . and it carries the Content-Type the migration names
+  ok    4c . the handler answers 200, not a refusal
+  ok    4d . it says it RAN, rather than skipped
+  ok    4e . it read the bucket once and stamped the heartbeat once
+  ok    4f.orphans . the stamped row carries a number for it
+  ok    4f.missing . the stamped row carries a number for it
+  ok    4f.mismatched . the stamped row carries a number for it
+  ok    4f.unknown_size_rows . the stamped row carries a number for it
+  ok    4f.misfiled . the stamped row carries a number for it
+  ok    4g.orphans . and it is 2, the drift the fixture really holds
+  ok    4g.missing . and it is 1, the drift the fixture really holds
+  ok    4g.mismatched . and it is 1, the drift the fixture really holds
+  ok    4g.unknown_size_rows . and it is 1, the drift the fixture really holds
+  ok    4g.misfiled . and it is 1, the drift the fixture really holds
+  ok    4h . and the row says it is not clean
+
+5. the rate limit, as production asked for it
+  ok    5a . exactly one limit was consulted
+  ok    5b . it is bucketed under this job's own name
+  ok    5c . and one call a day fits inside it
+
+6. the judge still catches a heartbeat that counts nothing
+  ok    6a . a heartbeat with no drift numbers is judged a failure on all five
+  ok    6b . and the opposite direction: the real one passes all five
+
+38 passed, 0 failed, 38 assertions.
+
+receipt  C:\Users\rando\Downloads\claude\belt-jobs\belt_0.11cc-20261018163955835\receipts\photo-cron-call.json  -  validate: node scripts/receipt.mjs
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_0.11cc-20261018163955835\tests\photo-cron-call.test.mjs (2258.4543ms)
+✔ 1 · every answer the door gives is accepted by the app's readers (291.0878ms)
+✔ 2 · the fields the app sends are exactly the fields the door reads (6.9209ms)
+✔ 3 · what the app does with each way the door can say no (207.6622ms)
+✔ 4 · SABOTAGE — drift on the server's side is refused on the app's (16.8849ms)
+✔ 1 · gallery, branding and intake each complete through the real door, with no bucket call (153.8089ms)
+✔ 2 · the stored url is r2.ts's own publicUrl for the key that was uploaded (26.6928ms)
+✔ 3 · an unconfigured public address refuses in words, and nothing is uploaded (62.5831ms)
+✔ 4 · over the per-file ceiling is refused in the server's words, and a lie about the size is bound by the signature (66.7011ms)
+✔ 5 · an unsupported image type is refused before a door call is spent (185.0645ms)
+✔ 6 · a business the caller is not a member of is refused, and a tampered key is refused before the PUT (159.7692ms)
+✔ 7 · remove takes the caller's own object and 404s another business's, leaving it alone (28.546ms)
+✔ 8 · a member without the settings permission is refused on both actions, in the server's words (38.2594ms)
+✔ 9 · the flag chooses one path; a door that fails does not reopen the bucket (68.4111ms)
+✔ 10 · SABOTAGE — each guard removed is seen (control first) (456.5156ms)
+✔ 11 · the suite's own population (2.4487ms)
+✔ 0 · the store profile and both key rules come from the bucket's own declaration (20.5285ms)
+✔ 1 · the key is the shape the isolation reads, and the app mints the same one (5.5829ms)
+✔ 2 · ISOLATION — remove is by KEY, so the guard is the only thing standing in for a row (176.1977ms)
+✔ 3 · `settings` on BOTH actions — the other two stores' asymmetry would be wrong here (3.1693ms)
+✔ 4 · THE CEILING — refused in words at the claim, and bound by the signature below it (1.4652ms)
+✔ 5 · NOT METERED, stated rather than left as an absence (1.0277ms)
+✔ 6 · TWO ACTIONS. `finish` and `urls` do not exist here, and say so (135.5229ms)
+✔ 7 · no public address is a refusal, and nothing is signed (29.3403ms)
+✔ 8 · the folder, the id and the type are all allowlists (126.5447ms)
+✔ 9 · the rate ceiling is asked before any store work, and the store name is still explicit (4.7046ms)
+    caught  the ownership guard on remove — the ONLY thing standing in for a row here
+    caught  the settings permission on the public store
+    caught  the bucket's 10 MB per-file ceiling
+    caught  signing the declared length, which is the only thing making the claim binding
+    caught  the folder allowlist — a free folder puts a traversal segment in the minted key
+    caught  the file_id shape — a free id puts a traversal segment in the minted key
+    caught  refusing when there is no public address to read the image back from
+    caught  refusing the two actions this store does not have
+✔ 10 · the public base and the signed length are real, not shaped like it (242.1085ms)
+✔ 11 · the app's reader refuses an answer it cannot use (35.1138ms)
+✔ 12 · the app half is switched ON, and there is no second way in (3.9142ms)
+✔ 14 · FLAG OFF — today's path, byte for byte, and the return shape the screens read (170.9284ms)
+✔ 15 · FLAG ON — start, one PUT, the public url, and no bucket call at all (165.511ms)
+✔ 16 · remove goes to the door when the flag is on and to the bucket when it is off (86.8731ms)
+✔ 13 · SABOTAGE — each guard removed is seen (control first) (270.1328ms)
+✔ 1 · FLAG ON — start, one PUT, finish, and the size is R2's not the client's (167.8497ms)
+✔ 2 · FLAG ON — an UNDER-CLAIM is caught at finish, the object goes, the row does not land (96.2932ms)
+✔ 3 · FLAG ON — the 5 MB ceiling is the server's sentence, shown as written, before anything is sent (44.3649ms)
+✔ 4 · FLAG ON — OVER CAP names what is used, the limit, and how to free it (80.8609ms)
+✔ 5 · FLAG ON — REPLACEMENT is remove then add, and DELETION takes the object and the columns (51.5791ms)
+✔ 6 · FLAG ON — ISOLATION: another business's expense, and a key this press did not ask for (184.0049ms)
+✔ 7 · FLAG ON — URLS: one request for a list, chunked, and a key refused is absent not fatal (146.2616ms)
+✔ 8 · FLAG OFF — today's path, unchanged, and ONE request for a list (338.3419ms)
+✔ 9 · THERE IS NO SECOND DOOR, and the flag is read in a known number of places (61.2551ms)
+✔ 10 · SABOTAGE — each guard removed is seen (control first) (350.9647ms)
+    caught  the expense-belongs guard (both halves of it)
+    caught  the ownership guard on urls
+    caught  the 5 MB receipts ceiling
+    caught  the second cap check at finish
+    caught  failing closed on a cap that cannot be read
+    caught  one receipt per expense
+    caught  the settings permission on remove
+    caught  removing the object when the row fails
+✔ 0 · the store profile is what the migration declared (3.1405ms)
+✔ 1 · the key is the shape the bucket policy reads, and the app mints the same one (1.5767ms)
+✔ 2 · ISOLATION — no action reaches another business's receipt (335.9992ms)
+✔ 3 · the key is minted from the MEMBER, so a forged path cannot steer it (3.608ms)
+✔ 4 · THE CAP is 5 MB for a receipt and 10 for a job photo, from one request shape (6.122ms)
+✔ 5 · THE ALLOWANCE — one budget across both stores, checked twice, failing closed (46.4783ms)
+✔ 6 · a size R2 will not state is a refusal, never a zero that counts as free (1.2279ms)
+✔ 7 · ONE RECEIPT PER EXPENSE, and a retry is not a second one (23.4764ms)
+✔ 8 · remove needs `settings`, clears the columns BEFORE the object, and is 404 when absent (15.6397ms)
+✔ 9 · an unsaved row takes its object with it, and no credential reaches a reply or a log (2.1692ms)
+✔ 10 · the store is chosen explicitly, defaults to job, and an unwired receipt store says so (2.7601ms)
+✔ 11 · the rate ceiling is asked before any store or database work (2.8214ms)
+✔ 12 · SABOTAGE — each guard removed is seen (control first) (448.5127ms)
+✔ 1 · SigV4 is Amazon's own published example, to the character (364.5086ms)
+✔ 2 · what the store signs for R2: path-style, auto region, the content type bound in, no secret in the URL (10.2299ms)
+✔ 3 · credentials are named, never echoed (1.1007ms)
+✔ 4 · the store measures with R2, and a failed request never carries its URL (198.759ms)
+✔ 5 · WHO: no session, another business, no business_id, a bad action (65.253ms)
+✔ 6 · the ceiling comes before any work (5.188ms)
+✔ 7 · no R2 credentials: 503 in words, and nothing else happens (3.7117ms)
+✔ 8 · START: the minted key is the app's, the URL is bound to the type, bad input is refused in words (59.1803ms)
+✔ 9 · START: over the cap says what is used, the limit, and what frees room; and an unreadable budget REFUSES (4.7239ms)
+✔ 10 · START: a photo id that is already saved is refused, not overwritten (3.1866ms)
+✔ 11 · FINISH: the row records R2's size, never the client's; finishing twice is one row (6.1942ms)
+✔ 12 · FINISH, TRAP ONE: no object, no size, a zero size, or an oversize object saves nothing (5.1646ms)
+✔ 13 · FINISH, TRAP TWO: a client that under-claimed is refused against what R2 holds, and its object goes (22.7391ms)
+✔ 14 · FINISH: a row that cannot be written takes the object back out; another business's booking is a 404 (14.0872ms)
+✔ 15 · URLS: only keys this business owns are signed; everything else is simply absent (30.6536ms)
+✔ 16 · REMOVE: needs the settings permission, row first then object, a leftover object is not a failure (28.1585ms)
+✔ 17 · a credential value is in no response, no log line and no URL, across every action and failure (246.1256ms)
+✔ 18 · SABOTAGE — each guard removed is seen (control first) (340.8593ms)
+✔ 19 · SABOTAGE — the signer and the store's error handling are seen too (93.4808ms)
+✔ 20 · the function's own wiring: verify_jwt stays on, nothing is printed, the limit exists (6.8644ms)
+✔ 1 · start: the exact key and an https url, or a plain refusal (6.1881ms)
+✔ 2 · finish: a positive whole-number size, our id and our key, or a plain refusal (1.3673ms)
+✔ 3 · urls and remove: a real map, a literal true (0.713ms)
+✔ 4 · what a failed call becomes (4.0144ms)
+✔ 5 · SABOTAGE — each guard, removed, is seen (136.1109ms)
+✔ 6 · the app has ONE way in, and a preview tab on Looking may only read (61.8639ms)
+
+1. the manifest
+  ok    1a · one row per photo
+  ok    1b · the job's customer and service reach the row
+  ok    1c · the file name carries date, customer and kind
+  ok    1d · every row has 10 columns, same as the header
+  ok    1e · CRLF and a trailing newline
+
+2. the gallery half of the promise
+  ok    2a · a single image is one row, a pair is two
+  ok    2b · the pair keeps before and after apart
+  ok    2c · the file extension follows the url, not a guess
+  ok    2d · job photos and gallery are counted together
+
+3. the tenant guard
+  ok    3a · rows that all belong pass through
+  ok    3b · ONE foreign row THROWS — it is not filtered out quietly
+  ok    3c · a foreign row throws even when it is the only row
+  ok    3d · no business id at all is refused, never treated as 'any'
+  ok    3e · a path inside the business is accepted
+  ok    3f · a path in ANOTHER business throws
+  ok    3g · a path with no folder at all throws
+  ok    3h · a traversal-looking path throws
+  ok    3i · the error names the business asked for, never the one found
+
+4. the archive
+  ok    4a · crc32 matches the published check value
+  ok    4b · starts with a local file header
+  ok    4c · ends with an end-of-central-directory record
+  ok    4d · the directory counts every file
+  ok    4e · every name round-trips
+  ok    4f · every stored CRC matches the bytes actually in the archive
+  ok    4g · an empty archive is still a valid zip
+  ok    4h · canary — a one-file archive reports one file, so 4d can fail
+
+5. the file name
+  ok    5a · business and date, ending .zip
+  ok    5b · a business with no name still gets a file
+  ok    5c · a photo with no booking still gets a name
+
+29 passed, 0 failed
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_0.11cc-20261018163955835\tests\photo-export.test.mjs (791.5733ms)
+1. the guard accepts exactly what storagePath() mints
+  ok   1a "image/jpeg" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "image/png" -> d309ca9b.png parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "image/webp" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1a "undefined" -> d309ca9b.jpg parses
+  ok   1b ...and its tenant is read as A
+  ok   1c ...and the owner is the booking, not the photo
+  ok   1d ...and the extension agrees with extForType
+  ok   1e ...and A is allowed it
+  ok   1z the minter was actually called, four ways
+
+2. B is refused A's object, however the key is dressed up
+  ok   2 · B is refused: A's own key, handed to B
+  ok   2 · B is refused: traversal out of B's prefix
+  ok   2 · B is refused: traversal with a dot segment
+  ok   2 · B is refused: double slash then traversal
+  ok   2 · B is refused: percent-encoded separator
+  ok   2 · B is refused: backslash separators
+  ok   2 · B is refused: leading slash
+  ok   2 · B is refused: bucket name glued on the front
+  ok   2 · B is refused: an absolute URL
+  ok   2 · B is refused: a query string smuggling the tenant
+  ok   2 · B is refused: null byte truncation
+  ok   2 · B is refused: uppercase variant of A's id
+  ok   2 · B is refused: A's id with a trailing space
+  ok   2 · B is refused: A's prefix with no object
+  ok   2 · B is refused: A's prefix alone
+  ok   2 · B is refused: a listing wildcard
+  ok   2 · B is refused: the empty string
+  ok   2y and A is refused B's object too — the rule is not one-directional
+  ok   2z the wrong-tenant battery has subjects
+
+3. a missing or wildcard business id opens nothing
+  ok   3 · undefined is refused A's object
+  ok   3 · null is refused A's object
+  ok   3 · empty string is refused A's object
+  ok   3 · a wildcard is refused A's object
+  ok   3 · a prefix of A is refused A's object
+  ok   3 · an array containing A is refused A's object
+  ok   3 · an object is refused A's object
+  ok   3 · A with a trailing slash is refused A's object
+  ok   3 · A uppercased is refused A's object
+  ok   3 · a SQL-ish fragment is refused A's object
+  ok   3y assertBusinessOwnsKey throws on the wrong tenant
+  ok   3z ...and its message names neither the key nor the other tenant
+
+4. the two obvious implementations are fooled by a key the real guard refuses
+  ok   4a split("/")[0] === id says YES to the traversal
+  ok   4b startsWith(id + "/") says YES to the traversal
+  ok   4c the real guard says NO to the same key
+
+5. the prefix for summing one business's objects
+  ok   5a a business prefix carries its separator
+  ok   5b a prefix cannot be minted from a non-id
+  ok   5c A's prefix does not cover B's key
+  ok   5d both private buckets are named, so neither is forgotten at the door
+
+6. the canary — a constant guard must fail one direction or the other
+  ok   6a an always-yes guard would allow B A's object, which § 2 refuses
+  ok   6b an always-no guard would refuse A its own object, which § 1 requires
+
+7. the public bucket's shape, and that the two shapes do not bleed
+  ok   7a the guard accepts exactly what mediaPath() mints
+  ok   7b and refuses it to B
+  ok   7c every folder and every type round-trips
+  ok   7d the app and the server allow the same folders
+  ok   7e every extension the app can mint is one the guard can parse
+  ok   7f the public bucket is named, and is not in the private list
+  ok   7g a job-photo key is not a business image
+  ok   7h a business image is not a job-photo key
+  ok   7i the default shape is still the private one, so no existing caller moved
+  ok   7j every wrong-tenant key ·2 lists is refused as a business image too
+  ok   7m the control: the real guard refuses a folder outside the list
+  ok   7m a loosened folder group accepts a folder outside the list
+  ok   7m a loosened folder group reopens a one-level escape
+  ok   7m the deeper traversal is closed by the segment count, not by the folder list
+  ok   7k A is refused: a folder outside the list
+  ok   7k A is refused: an uppercase folder
+  ok   7k A is refused: an extension the bucket refuses
+  ok   7k A is refused: no extension
+  ok   7k A is refused: a traversal in the folder slot
+  ok   7k A is refused: a fourth segment
+  ok   7k A is refused: a bare prefix
+  ok   7k A is refused: its own key under an unknown shape name
+
+   4 minted keys · 17 wrong-tenant keys · 10 bad callers · 2 naive guards fooled · 15 media keys round-tripped · 8 media keys refused
+
+83 passed, 0 failed
+✔ C:\Users\rando\Downloads\claude\belt-jobs\belt_0.11cc-20261018163955835\tests\photo-key-isolation.test.mjs (1596.9524ms)
+✔ 1 · the cron migration seeds the heartbeat as NOT YET REPORTED, with a 25-hour window, and schedules the call (4593.5633ms)
+✔ 2 · applying it again changes nothing that was there, and a real report is not overwritten by the seed (2787.7986ms)
+✔ 3 · the first real run keeps the window and replaces the seed, so the function stops reading the row as 'never run' (2610.7948ms)
+✔ 4 · the allowance migration moves the default 1 to 10, and twice is the same as once (2319.7424ms)
+✔ 5 · and it never overwrites a number a person chose (2051.9545ms)
+✔ 6 · without `on conflict do nothing` a second apply fails; without the `where` a chosen number is overwritten (3780.7492ms)
+✔ 1a · a listing page is read: keys, whole-number sizes, and the continuation (6.4882ms)
+✔ 1b · an unreadable size, a cut-short page and a non-listing all THROW rather than read as zero or as the end (1.8025ms)
+✔ 1c · keys with XML entities come back as the real key (0.541ms)
+✔ 1d · listAll follows every page, and a bucket past the page ceiling throws instead of returning part of it (23.4676ms)
+✔ 2a · makeR2.list asks for a v2 listing and signs it exactly as an independent SigV4 does, with and without a token (156.5733ms)
+✔ 2b · a failed listing call says nothing about the URL, and a non-200 says only the status (10.7676ms)
+✔ 3a · agreement is clean, with the allowance numbers beside it (19.6457ms)
+✔ 3b · an object with no row, a row with no object, and a size that does not match are each their own number (1.7822ms)
+✔ 3c · a row with no recorded size is UNKNOWN, never zero (0.8088ms)
+✔ 3d · a row filed under one business whose key sits under another's prefix is a fault of its own (1.0528ms)
+✔ 3e · a key this product does not mint is counted as unattributed, under no budget (1.5643ms)
+✔ 3f · over the share is read from the larger of what R2 holds and what the rows say; an unreadable allowance is null, not false (95.1678ms)
+✔ 3g · the totals cover every business, and only the worst are named (1.4111ms)
+✔ 3h · it does not change what it was given (2.9255ms)
+✔ 4a · a normal run lists, reads the rows, stamps the report once and returns it (24.6759ms)
+✔ 4b · over the rate limit it answers 429 and touches nothing (6.9536ms)
+✔ 4c · R2 not configured is a 503 in words, logs only the NAME, and stamps NOTHING (1.7605ms)
+✔ 4d · a run less than six hours after the last real one is refused before R2 is touched (4.4258ms)
+✔ 4e · a failed listing is a 502, says nothing about the URL, and stamps NOTHING (2.211ms)
+✔ 4f · a failed read of the rows is a 500 and stamps NOTHING (11.0612ms)
+✔ 4g · an unreadable allowance still stamps the drift, with the allowance null (2.7194ms)
+✔ 4h · a result that could not be recorded is a 500, not a 200 (1.3664ms)
+✔ 4i · it can reach nothing on R2 but `list`: the world throws on any other property (3.1083ms)
+✔ 5a · the edge function connects the handler to the real things and writes nothing itself (4.5598ms)
+✔ 7 · every property holds on the real module, and each guard removed alone turns its own probe red (222.7419ms)
+✔ 1 · judge returns exactly the ten declared rules, in order (4.8441ms)
+✔ 2 · the pre-release and correct post-release worlds both pass (2.781ms)
+✔ 3 · every violation reddens its own rule and no other (1.4746ms)
+✔ 4 · an unobserved world is unjudgeable, never a pass (0.6832ms)
+✔ 5 · doorMarkers parses the real photo-door.js and throws when it cannot (3.4081ms)
+✔ 6 · the repo's own flags and public list still match what PRE assumes (1.8282ms)
+✔ 7 · the migrations named in the failure sentences exist and say what the rules claim (1.9581ms)
+✔ 8 · forgetMarkers parses the real delete-customer and throws when it cannot (3.3282ms)
+✔ 1 · a photo that is only in R2 is removed, and the count is of files confirmed gone (6.6135ms)
+✔ 2 · a photo that is only in Supabase Storage still goes (the deployed integration test's case) (0.8916ms)
+✔ 3 · a customer with some of each, a png, and an older-shaped path: all gone (1.1329ms)
+✔ 4 · nothing to remove needs neither store (0.6897ms)
+✔ 5 · SILENCE IS NOT SUCCESS: a file that is still there after a quiet delete is a refusal, in either store (0.7819ms)
+✔ 6 · every way a store can fail stops the whole thing (2.7361ms)
+✔ 7 · another business's key is refused before anything is touched (1.131ms)
+✔ 8 · the real store: a signed DELETE then a signed HEAD, and a failed request carries no URL (79.1897ms)
+✔ 9 · delete-customer: the source calls it in the right place, owner-only, nothing personal logged (2.1688ms)
+✔ 10 · SABOTAGE — each guard removed is seen (control first) (44.9445ms)
+✔ 11 · the real delete-customer loads and refuses what it should before reading anything (283.8393ms)
+
+1. the resize, which is this feature's economics
+  ok    1a · a big landscape photo comes down to the cap
+  ok    1b · a big portrait photo comes down on its LONG edge
+  ok    1c · the shape is kept
+  ok    1d · and kept on an extreme one too
+  ok    1e · a small photo is left exactly alone
+  ok    1f · one exactly at the cap is left alone
+  ok    1g · a zero-sized image does not produce NaN
+  ok    1h · no dimension is ever rounded to zero
+  ok    1i · quality is a real JPEG quality
+
+2. the budget, which must never reassure by accident
+  ok    2a · an empty allowance is ok
+  ok    2b · half is still ok
+  ok    2c · the warning starts exactly at the threshold
+  ok    2d · just under the threshold is not a warning
+  ok    2e · full is full at exactly the cap
+  ok    2f · and over the cap is still full
+  ok    2g · no cap is UNKNOWN, not ok
+  ok    2g-ii · a NULL budget is unknown and does not throw
+  ok    2g-iii · and its words are silent rather than a crash
+  ok    2g-iv · and it does not block an upload
+  ok    2h · a zero cap is UNKNOWN too
+  ok    2i · and unknown never draws a reassuring sentence
+  ok    2j · a quiet allowance says nothing at all
+  ok    2k · a nearly-full one names the number
+  ok    2l · a full one says what to DO, not just what is wrong
+  ok    2m · there is room below the cap
+  ok    2n · there is no room past it
+  ok    2o · an unknown cap does NOT block
+
+3. before, after — and damage
+  ok    3a · three kinds in the order a job happens
+  ok    3b · every kind has a word for the screen
+  ok    3c · the table allows "before"
+  ok    3c · the table allows "after"
+  ok    3c · the table allows "damage"
+  ok    3d · and allows nothing the screen cannot offer
+
+4. the promises
+  ok    4a · the job-photos bucket is created PRIVATE
+  ok    4b · and photos are shown through signed URLs
+  ok    4c · which expire
+  ok    4d · any member of the business may add a photo
+  ok    4e · but removing one needs the settings permission
+  ok    4f · and the row follows the same asymmetry
+  ok    4g · the file is put before the door is asked to finish
+  ok    4h · and a put that fails never reaches finish
+  ok    4h2 · photos.js has no second door: nothing reads or writes the job-photos bucket directly
+  ok    4h3 · and neither does the gallery export
+  ok    4i · publishing to the gallery COPIES into the public bucket
+  ok    4i2 · and the copy it just made is removed if the row does not land
+  ok    4j · nothing is uploaded without being shrunk first
+  ok    4k · the size sent is the SHRUNK size, labelled a claim, and no bare `bytes:` is sent
+
+5. the allowance is a share of the whole store
+  ok    5a · the divisor is a hundred, and it is his number
+  ok    5b · a detailer's cap is DERIVED from the total, never stored beside it
+  ok    5c · the total is a COLUMN, not a key inside prices
+  ok    5d · and nothing reads it out of the prices jsonb any more
+  ok    5e · the default total is the storage that actually exists today
+  ok    5f · the back office can see what has been COMMITTED, not just used
+  ok    5g · and the store-wide view is not reachable from a browser
+
+6. the storage path
+  ok    6a . THE FIRST FOLDER IS THE BUSINESS ID - what the bucket policy checks
+  ok    6b . and it is not the owner id, which is the reordering that would pass every cross-tenant test
+  ok    6c . three segments, business / owner / file
+  ok    6d . the owner is the middle segment
+  ok    6e . a JPEG is stored .jpg
+  ok    6f . a PNG is the one type that survives as itself
+  ok    6g . anything else becomes .jpg, because shrink() re-encodes to JPEG
+  ok    6h . a missing business id throws rather than building an empty first folder
+  ok    6i . a missing owner or file id throws too
+  ok    6j . a segment containing a slash throws - it would invent a fourth segment
+  ok    6k . called with nothing at all it throws, rather than 'undefined/undefined'
+  ok    6l . the receipts bucket really does test foldername[1] against the business ids
+  ok    6m . and that bucket is private
+
+67 passed, 0 failed
+✔ tests\job-photos.test.mjs (461.7864ms)
+1. the catalogue and the call sites agree
+  ok    1a · the check has subjects — call sites were found
+  ok    1b · every translated call site has a Spanish entry
+  ok    1c · and no Spanish entry is left describing English that is gone
+  ok    1d · the four keys no extractor can follow are translated
+2. the failures a person who cannot read it would never see
+  ok    2a-0 - the check has subjects, the booking catalogue was read
+  ok    2a · nothing was copied across untranslated
+  ok    2b · every placeholder survives translation, and none is invented
+  ok    2c · no entry is empty
+  ok    2d · the register does not drift into usted
+3. the plumbing
+  ok    3a · an untranslated key falls back to the English
+  ok    3b · Intl is given es-US, so dollars and the 12-hour clock survive
+  ok    3c · the picker is on the booking page itself
+  ok    3c-ii · and it offers every installed language
+  ok    3c-iii · each language's own name is the accessible label, untranslated
+  ok    3c-iv · and the chip itself is short enough not to wrap the masthead
+  ok    3d · every localStorage access is wrapped
+  ok    3e · the default reads navigator.languages, not navigator.language alone
+  ok    3f · changing language notifies rather than reloads
+4. what is still hard-coded on the booking surface
+  ok    4a · no hard-coded English prose is left in the booking surface
+  ok    4b · the check has subjects — both plan pages were read
+  ok    4b-ii · and each of them offers the choice it can now honour
+  ok    4c · the check has subjects — the generators are called here
+  ok    4c-ii · and every one of them is given the language
+  ok    4d · the check has subjects — dateLong is called on the member page
+  ok    4d-ii · and every call passes the language
+  ok    4e · the plan generators never read the active locale
+  ok    4e-ii · the check has subjects — the generators were found
+  ok    4e-iii · and every one defaults to English, so the dashboard is unaffected
+5. the formatters the booking surface calls
+  ok    5a · the check has subjects — duration() is called here
+  ok    5b · every duration() on the booking surface is given the language
+  ok    5c · English stays the default, so the dashboard is unaffected
+  ok    5c-ii · and the formatter never reads the active locale itself
+6. the emails, where a mistake cannot be taken back
+  ok    6a · the check has subjects — the email kit and catalogue were read
+  ok    6b · the check has subjects — the templates look words up
+  ok    6b-iii · the check has subjects — the senders were read for lookups
+  ok    6b-ii · and the catalogue has entries to compare against
+  ok    6c · every looked-up sentence has a Spanish entry
+  ok    6c-i · the check has subjects — the two dynamic labels are catalogued
+  ok    6c-ii · and no Spanish entry describes English that is gone
+  ok    6d · the check has subjects — the catalogue's pairs were read
+  ok    6d-ii · no placeholder is dropped or invented in translation
+  ok    6e · the register never drifts into usted
+  ok    6f · the check has subjects — every named template was found
+  ok    6f-ii · every customer template binds the language
+  ok    6f-iii · and hands it to the shell, which owns the footer
+  ok    6g · the check has subjects — every owner template was found
+  ok    6g-ii · every detailer / staff / platform template takes a language and hands it to the shell
+  ok    6g-iii · and none of them reads the CUSTOMER's language
+  ok    6h · the check has subjects — the senders were discovered
+  ok    6h-ii · and every one of them carries the language
+  ok    6i · the column exists, defaults to English and cannot hold a typo
+  ok    6j · create-booking narrows the language rather than trusting it
+  ok    6k · the booking core sends it, and still imports nothing
+7. what the language column actually refuses
+  SKIPPED — needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+  ok    9f · no duplicate keys in appEs.js (2275 keys)
+  ok    9f · no duplicate keys in es.js (292 keys)
+  ok    9a · dashboard strings with no Spanish entry (0 of 1741)
+  ok    9b · the check has subjects — the dashboard catalogue was read
+  ok    9c · no placeholder is dropped or invented on a dashboard string
+  ok    9d · the dashboard register does not drift into usted
+  ok    9e · no dashboard entry is empty
+
+10. the two scopes, and whose words get translated
+  ok    10a · a ?lang= link sets the customer's language
+  ok    10b · and NEVER the detailer's dashboard
+  ok    10c · a link's language lasts the visit, not the device
+  ok    10d · but pressing the picker does persist
+  ok    10e · the check has subjects — the default tiers were read from core.js
+  ok    10f · every default tier word has Spanish (3 tiers, 6 words)
+  ok    10f-canary · a tier word with no Spanish is caught
+  ok    10g · a detailer's own tier wording never reaches the translator
+11. text that only exists after an action
+  ok    11a · the check has subjects — native dialogs were found
+  ok    11b · every dialog a detailer can reach puts its words through t()
+  ok    11c · skipped on purpose — 2 word lists in admin/, which stays English
+  ok    12a · the check has subjects — all 19 listed constants were read and hold words
+  ok    12b · every word held in a constant has Spanish (146 words in 19 constants)
+  ok    12b-canary · a list word with no Spanish is caught
+  ok    12c · every constant that looks like a word list is checked or excluded with a reason (27 found)
+
+75 passed, 0 failed
+✔ tests\spanish.test.mjs (1265.6446ms)
+ℹ tests 142
+ℹ suites 0
+ℹ pass 142
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19425.6689

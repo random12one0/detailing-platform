@@ -194,7 +194,13 @@ receipts and the one for logos and gallery pictures.** The website you have publ
 way, and both go out with your next ordinary website publish. **Not ready to publish yet:** one Spanish check
 was skipped because it needs the keys, and you ruled on 2026-10-13 that nothing may be skipped. A session with
 the keys must run it clean first; nothing to decide. Then, after your publish, a session checks the live site
-and ticks 0.11cc and 0.11c. The control-room copy on port 5180 has a separate
+and ticks 0.11cc and 0.11c.
+**Your one yes, 2026-10-18.** The belt keeps sending this item to job copies, and job copies are given no
+keys, so it can never clear there (re-checked today: all 17 photo and Spanish checks pass, the same one
+still skipped). **Recommendation: let one session run that check in the main project folder, where the
+keys already live.** It only touches the practice database's demo booking. Until you say yes, this item
+sits marked as waiting on you rather than being handed out again.
+The control-room copy on port 5180 has a separate
 browser-origin restriction, so its transport check records that limitation.
 The failed-upload cleanup gap found during proof is now numbered **14.39**;
 all of this job's temporary receipt files and expenses were removed.
@@ -409,7 +415,9 @@ a deadline you set, which can be any length of time. Nothing to decide.
 **Added 2026-10-11, same release (99.2f):** the booking page now has the exact filed text-consent sentence under Phone,
 unticked, with Privacy and Terms links. The Privacy page now includes the mobile-information paragraph. Both booking
 choices and saving consent are proved locally with no real messages or database writes. **Publish `create-booking`
-before publishing the app**, so the new checkbox actually saves the choice. The same publish also turns on the short-phone refusal (ROADMAP 99.8: a 7-digit number is refused with a 400), proved locally. Its existing consent columns need no new
+before publishing the app**, so the new checkbox actually saves the choice. *(Supervisor 2026-10-18: this order
+CONFLICTS with ROADMAP 97.64, which says site first, then `create-booking`. Until the release sheet, ROADMAP 97.91,
+settles it, do both in one sitting, minutes apart, so neither gap is long.)* The same publish also turns on the short-phone refusal (ROADMAP 99.8: a 7-digit number is refused with a 400), proved locally. Its existing consent columns need no new
 database change. A session then checks checked and unchecked bookings against the released function and ticks 99.2f.
 Automatic texting stays off; the relay, templates and routing are the remaining parts of 99.2. Do not submit or pay the
 texting registration just from these local copies: the checkbox and privacy paragraph must first be live. No new decision.

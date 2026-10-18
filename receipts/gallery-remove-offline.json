@@ -1,0 +1,50 @@
+{
+  "git_sha": "38db91e1b1f254fbeff1447245c723ad66fc987c",
+  "git_sha_started": "38db91e1b1f254fbeff1447245c723ad66fc987c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T16:32:40.092Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/gallery-remove-offline-clean-1440-refused.png",
+    ".manager-shots/gallery-remove-offline-clean-1440-end.png",
+    ".manager-shots/gallery-remove-offline-clean-768-refused.png",
+    ".manager-shots/gallery-remove-offline-clean-768-end.png",
+    ".manager-shots/gallery-remove-offline-clean-392-refused.png",
+    ".manager-shots/gallery-remove-offline-clean-392-end.png",
+    ".manager-shots/gallery-remove-offline-clean-390-refused.png",
+    ".manager-shots/gallery-remove-offline-clean-390-end.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "widths": [
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "390x844"
+    ],
+    "sabotage": null,
+    "back_end": "stood in inside the browser at https://stand-in.supabase.invalid: no credential read, no Supabase host contacted, nothing written",
+    "unjudgeable": [
+      "That the deployed door really erases the R2 object and that a warmed public URL stops answering: that is 0.11bd's live proof, after Andrew's release."
+    ]
+  },
+  "check_id": "gallery-remove-offline",
+  "started_at": "2026-10-18T16:32:18.554Z",
+  "status": "pass",
+  "expected_targets": 32,
+  "discovered_targets": 32,
+  "attempted_targets": 32,
+  "completed_targets": 32,
+  "skipped_targets": 0,
+  "assertions_executed": 122,
+  "min_assertions": 122,
+  "assertion_floor": "per width: 1 six-tiles + 8 presses x 3 (calls, row state, message-or-none) + 2 refusals x 1 painted + 3 closing (no foreign/external storage call, nothing unexpected, gallery ends empty) = 30; x 4 widths + 2 console = 122, +1 per width with --break (the swap landed).",
+  "canary": {
+    "id": "the-row-only-handler",
+    "observed_failure": true,
+    "what": "Gallery.jsx remove() before 0.11be deleted the row and sent no storage call",
+    "rule": "the per-press verdict (exact call sequence) rejects a press that sent only the row delete"
+  }
+}

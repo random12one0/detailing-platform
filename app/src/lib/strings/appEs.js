@@ -1280,6 +1280,7 @@ export const appEs = {
   "Delete this photo? A before-photo is what settles an argument about a scratch.":
     "¿Eliminar esta foto? Una foto de antes es lo que resuelve un pleito por un rayón.",
   "Remove this photo from the gallery?": "¿Quitar esta foto de la galería?",
+  "That photo was not removed. {reason}": "Esa foto no se quitó. {reason}",
   "Photo uploaded. Press Save to keep it.":
     "Foto subida. Presiona Guardar para conservarla.",
   "Photo storage is full. Remove some photos to add more.":

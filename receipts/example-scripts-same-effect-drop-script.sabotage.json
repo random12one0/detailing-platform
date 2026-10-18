@@ -1,0 +1,365 @@
+{
+  "git_sha": "5ee0a4ce3a58eb67879b3946d5dca357e5bb71e0",
+  "git_sha_started": "5ee0a4ce3a58eb67879b3946d5dca357e5bb71e0",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T13:54:47.596Z",
+  "failures": [
+    "/ex1@390 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1@390 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@390 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@390 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@390 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@390 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex2@390 same-on-load: line 15: before «DIV class=dg-rv» after «DIV »",
+    "/ex2@390 same-after-scroll: line 5: before «HEADER class=hdr.small» after «HEADER class=hdr»",
+    "/ex3@390 same-on-load: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@390 same-after-scroll: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@390 same-after-press: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@390 same-on-load: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@390 same-after-scroll: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@390 same-after-press: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex4@390 same-on-load: line 13: before «A aria-current=false aria-label=Services» after «A aria-label=Services»",
+    "/ex4@390 same-after-scroll: line 2: before «NAV class=nav.on» after «NAV class=nav»",
+    "/ex5@390 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex5@390 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/map.html@390 same-after-press: line 7: before «BUTTON aria-pressed=true class=btn.ghost» after «BUTTON aria-pressed=false class=btn.ghost»",
+    "/ex1@768 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1@768 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@768 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@768 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@768 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@768 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex2@768 same-on-load: line 15: before «DIV class=dg-rv» after «DIV »",
+    "/ex2@768 same-after-scroll: line 5: before «HEADER class=hdr.small» after «HEADER class=hdr»",
+    "/ex3@768 same-on-load: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@768 same-after-scroll: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@768 same-after-press: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@768 same-on-load: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@768 same-after-scroll: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@768 same-after-press: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex4@768 same-on-load: line 13: before «A aria-current=false aria-label=Services» after «A aria-label=Services»",
+    "/ex4@768 same-after-scroll: line 2: before «NAV class=nav.on» after «NAV class=nav»",
+    "/ex5@768 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex5@768 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/map.html@768 same-after-press: line 7: before «BUTTON aria-pressed=true class=btn.ghost» after «BUTTON aria-pressed=false class=btn.ghost»",
+    "/ex1@1440 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1@1440 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@1440 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/work.html@1440 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@1440 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex1/prices.html@1440 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex2@1440 same-on-load: line 15: before «DIV class=dg-rv» after «DIV »",
+    "/ex2@1440 same-after-scroll: line 5: before «HEADER class=hdr.small» after «HEADER class=hdr»",
+    "/ex3@1440 same-on-load: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@1440 same-after-scroll: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3@1440 same-after-press: line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@1440 same-on-load: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@1440 same-after-scroll: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex3/prices.html@1440 same-after-press: line 367: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»",
+    "/ex4@1440 same-on-load: line 13: before «A aria-current=false aria-label=Services» after «A aria-label=Services»",
+    "/ex4@1440 same-after-scroll: line 2: before «NAV class=nav.on» after «NAV class=nav»",
+    "/ex5@1440 same-on-load: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/ex5@1440 same-after-scroll: line 0: before «ROOT class=js lang=en» after «ROOT lang=en»",
+    "/map.html@1440 same-after-press: line 7: before «BUTTON aria-pressed=true class=btn.ghost» after «BUTTON aria-pressed=false class=btn.ghost»"
+  ],
+  "warnings": [
+    "Chromium only, app/dist served by this script, not Netlify. `style` attributes are not compared (animation frames). ex1's cursor glow only moves on pointer movement, which this does not make; its effect is a style property, outside the fingerprint either way."
+  ],
+  "artifacts": [
+    ".manager-shots/97.90/same-effect-drop-script/report.txt",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-work-html-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-prices-html-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex2-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-prices-html-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex4-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex5-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/map-html-390.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-work-html-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-prices-html-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex2-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-prices-html-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex4-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex5-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/map-html-768.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-work-html-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex1-prices-html-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex2-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex3-prices-html-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex4-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/ex5-1440.png",
+    ".manager-shots/97.90/same-effect-drop-script/map-html-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/ex1",
+      "/ex1/work.html",
+      "/ex1/prices.html",
+      "/ex2",
+      "/ex3",
+      "/ex3/prices.html",
+      "/ex4",
+      "/ex5",
+      "/map.html"
+    ],
+    "break": "drop-script",
+    "item": "97.90",
+    "served_as": "Content-Security-Policy (enforcing) in AFTER, none in BEFORE"
+  },
+  "check_id": "example-scripts-same-effect-drop-script",
+  "started_at": "2026-10-18T13:53:05.782Z",
+  "status": "fail",
+  "expected_targets": 27,
+  "discovered_targets": 27,
+  "attempted_targets": 27,
+  "completed_targets": 27,
+  "skipped_targets": 0,
+  "assertions_executed": 117,
+  "min_assertions": 117,
+  "assertion_floor": "27 views x 4 (before ran clean, after ran clean under the enforced policy, same on load, same after scroll) + 3 sizes x 3 pages with controls (same after press) = 117, an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "ex3-paint-switcher-missing-is-seen",
+    "observed_failure": true
+  },
+  "observed": {
+    "views": {
+      "/ex1@390": {
+        "lines": 315,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@390": {
+        "lines": 144,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@390": {
+        "lines": 245,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@390": {
+        "lines": 526,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@390": {
+        "lines": 362,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@390": {
+        "lines": 371,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@390": {
+        "lines": 542,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@390": {
+        "lines": 571,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@390": {
+        "lines": 550,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1@768": {
+        "lines": 315,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@768": {
+        "lines": 144,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@768": {
+        "lines": 245,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@768": {
+        "lines": 526,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@768": {
+        "lines": 362,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@768": {
+        "lines": 371,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@768": {
+        "lines": 542,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@768": {
+        "lines": 571,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@768": {
+        "lines": 550,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1@1440": {
+        "lines": 315,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@1440": {
+        "lines": 144,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@1440": {
+        "lines": 245,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@1440": {
+        "lines": 526,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@1440": {
+        "lines": 362,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@1440": {
+        "lines": 371,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@1440": {
+        "lines": 542,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@1440": {
+        "lines": 571,
+        "pressed": false,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@1440": {
+        "lines": 550,
+        "pressed": true,
+        "same": false,
+        "errors": 0,
+        "violations": 0
+      }
+    },
+    "inventory": {
+      "/ex1": [
+        "/ex1/index.1.js"
+      ],
+      "/ex1/work.html": [
+        "/ex1/work.1.js"
+      ],
+      "/ex1/prices.html": [
+        "/ex1/prices.1.js"
+      ],
+      "/ex2": [
+        "/ex2/index.1.js"
+      ],
+      "/ex3": [
+        "/ex3/index.1.js",
+        "/ex3/index.2.js"
+      ],
+      "/ex3/prices.html": [
+        "/ex3/prices.1.js",
+        "/ex3/prices.2.js"
+      ],
+      "/ex4": [
+        "/ex4/index.1.js",
+        "/ex4/index.2.js"
+      ],
+      "/ex5": [
+        "/ex5/index.1.js"
+      ],
+      "/map.html": [
+        "/map.js"
+      ]
+    },
+    "canary": {
+      "dropped": "/ex3/index.2.js",
+      "caught": true,
+      "diff": "line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»"
+    }
+  }
+}
