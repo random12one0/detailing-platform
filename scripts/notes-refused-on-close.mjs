@@ -41,6 +41,7 @@
 //              browser, held with the text and the "Looking only" line; Close again → still held; "Close anyway" → gone
 //   hang       the save is NEVER answered (review finding 2): type, Close → after the product's 5s wait the record is
 //              held with the text and the "not saved yet" line on screen; "Close anyway" → gone
+//   "Close anyway" must be ON SCREEN (the same test as the line) before it is pressed, in every case that uses it
 // EVERY save is checked for WHAT it sent, in its own line per case: each request's p_notes must be exactly the typed
 // text. Whether the text is then STORED is the function's half, proven against the real migration by
 // scripts/customer-notes-route.mjs (MEMBER: "the function stored the text"); nothing is stored here.
@@ -125,8 +126,8 @@ const anywhere = (page, text) => page.evaluate((s) => [...document.querySelector
   .filter((e) => e.children.length === 0 && e.textContent.includes(s)).length, text);
 // ON SCREEN as the page sits — customer-notes-route.mjs's test, applied to every .error-box holding the sentence.
 // Returns how many are shown and, for each that is not, why.
-const onScreen = (page, text) => page.evaluate((s) => {
-  const why = [...document.querySelectorAll(".error-box")].filter((n) => n.textContent.includes(s)).map((n) => {
+const onScreen = (page, text, sel = ".error-box") => page.evaluate(([s, sel]) => {
+  const why = [...document.querySelectorAll(sel)].filter((n) => n.textContent.includes(s)).map((n) => {
     const r = n.getBoundingClientRect();
     const box = (b) => `${Math.round(b.top)}-${Math.round(b.bottom)}`;
     const inside = (b) => r.top >= b.top - 0.5 && r.bottom <= b.bottom + 0.5 && r.left >= b.left - 0.5 && r.right <= b.right + 0.5;
@@ -150,7 +151,7 @@ const onScreen = (page, text) => page.evaluate((s) => {
     return "";
   });
   return { shown: why.filter((w) => w === "").length, why: why.filter(Boolean) };
-}, text);
+}, [text, sel]);
 
 const browser = await chromium.launch();
 mkdirSync(SHOTS, { recursive: true });
@@ -310,7 +311,9 @@ for (const [w, h] of WIDTHS) {
     }
     if ((c.twice || c.anyway) && (second ?? first).recordOpen) {   // the way out: the person's own choice
       const btn = p.locator("button", { hasText: ANYWAY });
-      anyway = { offered: await btn.count() };
+      // Offered = on screen as the page sits, by the same test as the line; Playwright's click would scroll to it.
+      const vis = await onScreen(p, ANYWAY, "button");
+      anyway = { offered: vis.shown, offered_not_shown_because: vis.why };
       if (anyway.offered) { await btn.first().click(); await settle(p, 600); }
       Object.assign(anyway, await state(p, line));
       await p.screenshot({ path: `${SHOTS}/${c.id}-anyway-${w}x${h}${tag}.png` });

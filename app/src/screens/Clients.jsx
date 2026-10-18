@@ -991,9 +991,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
-            {notesError && <div ref={notesErrorRef} className="error-box" role="alert">{notesError}</div>}
-            {notesError && notes !== savedNotes.current && (
-              <button type="button" className="btn sm" onClick={dropNotes}>{t("Close anyway")}</button>
+            {/* The line and its way out are one thought, revealed together: at a
+                desk the button sat under the fold beneath a scrolled-in line. */}
+            {notesError && (
+              <div ref={notesErrorRef} className="tight">
+                <div className="error-box" role="alert">{notesError}</div>
+                {notes !== savedNotes.current && (
+                  <button type="button" className="btn sm" onClick={dropNotes}>{t("Close anyway")}</button>
+                )}
+              </div>
             )}
 
             <div className="tight">
