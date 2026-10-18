@@ -7,7 +7,15 @@
 // at 390x844, 768x1024 and 1440x900 visits:
 //
 //   /, /pricing, /book/demo-detail walked to its LAST step (never submitted,
-//   so it writes no booking), /app signed in as the demo owner, and /ex1.
+//   so it writes no booking), /app signed in as the demo owner, /app signed in
+//   as the demo STAFF member (a second account), /app/business as the owner
+//   WITH A CUSTOM DOMAIN, and /ex1.
+//
+// THE CUSTOM DOMAIN IS FAKED IN THE BROWSER, never written: the
+// business_domains read is answered with TENANT below, and that host is served
+// from app/dist. A detailer with their own domain gets the "What customers
+// see" preview framed FROM THAT DOMAIN (components/PagePreview.jsx), so
+// frame-src must admit a host nobody can list in advance.
 //
 // A violation is caught two ways, and the canary proves both can see one:
 //   - the `securitypolicyviolation` event, in every frame, via a binding;
@@ -23,29 +31,33 @@
 //                      every view for a missing header.
 //   --break=no-fonts   drop fonts.googleapis.com from style-src. Must go red
 //                      with violations on every page that loads the fonts.
+//   --break=no-tenant-frames  drop https: from frame-src — the policy as first
+//                      shipped. Must go red on /app/business only.
 // CANARY, every run: /__csp-canary loads an image from a host the policy does
 // not list; both detectors must report it.
 //
-// Needs: `npm run build --prefix app` first, and DEMO_OWNER_PW in the
-// environment (`.env`). Reads only; signs in as the demo owner, writes nothing.
+// Needs: `npm run build --prefix app` first, and DEMO_OWNER_PW and DEMO_STAFF_PW
+// in the environment (`.env`). Reads only; signs in, writes nothing.
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { createRequire } from "node:module";
 import { REPO, writeReceipt } from "./receipt.mjs";
-import { demoOwner } from "./lib/demoOwner.mjs";
+import { demoOwner, demoStaff } from "./lib/demoOwner.mjs";
 import { settle, stepNow } from "./lib/bookingWalk.mjs";
 
 const { chromium } = createRequire(join(REPO, "app", "package.json"))("playwright");
 const DIST = join(REPO, "app", "dist");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8);
-if (BREAK && !["no-policy", "no-fonts"].includes(BREAK)) throw new Error(`unknown --break=${BREAK}`);
+if (BREAK && !["no-policy", "no-fonts", "no-tenant-frames"].includes(BREAK)) throw new Error(`unknown --break=${BREAK}`);
 if (!existsSync(join(DIST, "index.html")) || !existsSync(join(DIST, "ex1", "index.html"))) {
   throw new Error("app/dist is missing or has no /ex1 — run `npm run build --prefix app` first");
 }
 const SHOTS = `.manager-shots/97.26/${BREAK || "clean"}`;
 const SIZES = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
-const PAGES = ["/", "/pricing", "/book/demo-detail", "/app", "/ex1"];
+const PAGES = [{ path: "/" }, { path: "/pricing" }, { path: "/book/demo-detail" }, { path: "/app", as: "owner" },
+  { path: "/app", as: "staff" }, { path: "/app/business", as: "owner", domain: true }, { path: "/ex1" }];
+const TENANT = "https://csp-tenant-domain.test";
 const NAME = "Content-Security-Policy-Report-Only";
 const CANARY_PATH = "/__csp-canary";
 
@@ -86,6 +98,10 @@ if (BREAK === "no-policy") delete all.values[NAME];
 if (BREAK === "no-fonts") {
   if (!POLICY.includes(" https://fonts.googleapis.com")) throw new Error("--break=no-fonts found nothing to remove");
   all.values[NAME] = POLICY.replace(" https://fonts.googleapis.com", "");
+}
+if (BREAK === "no-tenant-frames") {
+  if (!/frame-src [^;]* https:(;| )/.test(POLICY)) throw new Error("--break=no-tenant-frames found nothing to remove");
+  all.values[NAME] = POLICY.replace(/(frame-src [^;]*) https:(?=;| )/, "$1");
 }
 const SERVED = all?.values[NAME] || "";
 
@@ -131,7 +147,23 @@ async function watch(ctx) {
   });
   return sink;
 }
-const ours = (v) => { try { return new URL(v.doc).origin === A; } catch { return false; } };
+const ours = (v) => { try { return [A, TENANT].includes(new URL(v.doc).origin); } catch { return false; } };
+
+// The detailer's own domain: the lookup answers with it, and the host is served
+// from the same build with the same headers. Its /book/* frame-ancestors names
+// detailingplatform.com, which this local dashboard is not, so the parent here
+// is added to it; scripts/preview-frame-headers.mjs proves the real rule.
+async function fakeDomain(ctx) {
+  await ctx.route(/\/rest\/v1\/business_domains\?/, (r) => r.fulfill({
+    status: 200, contentType: "application/json", body: JSON.stringify([{ domain: new URL(TENANT).host }]) }));
+  await ctx.route(TENANT + "/**", async (r) => {
+    const u = new URL(r.request().url());
+    const res = await r.fetch({ url: A + u.pathname + u.search });
+    const headers = { ...res.headers() };
+    if (headers["content-security-policy"]) headers["content-security-policy"] += " " + A;
+    await r.fulfill({ response: res, headers });
+  });
+}
 
 // Walk the public booking page to its last step without pressing Book.
 async function walkToLast(page) {
@@ -208,29 +240,30 @@ try {
     await ctx.close();
   }
 
-  // Sign in once.
-  let state;
-  {
+  // Sign in once per account: the owner, and the staff member as the second account.
+  const state = {};
+  for (const [as, who] of [["owner", demoOwner()], ["staff", demoStaff()]]) {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     await page.goto(A + "/app", { waitUntil: "domcontentloaded" });
     await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
     if (await page.locator("input[type=email]").count()) {
-      await page.fill("input[type=email]", "demo@detailplatform.com");
-      await page.fill("input[type=password]", demoOwner().password);
+      await page.fill("input[type=email]", who.email);
+      await page.fill("input[type=password]", who.password);
       await page.click("form button.btn.primary");
       await page.waitForSelector(".tabbar", { timeout: 30000 });
     }
-    state = await ctx.storageState();
+    state[as] = await ctx.storageState();
     await ctx.close();
   }
 
   mkdirSync(join(REPO, SHOTS), { recursive: true });
   for (const s of SIZES) {
-    for (const p of PAGES) {
-      const tag = `${p}@${s.w}`;
-      const ctx = await browser.newContext({ viewport: { width: s.w, height: s.h }, storageState: p === "/app" ? state : undefined });
+    for (const { path: p, as, domain } of PAGES) {
+      const tag = `${p}${as ? "~" + as : ""}@${s.w}`;
+      const ctx = await browser.newContext({ viewport: { width: s.w, height: s.h }, storageState: as ? state[as] : undefined });
       const sink = await watch(ctx);
+      if (domain) await fakeDomain(ctx);
       const page = await ctx.newPage();
       const res = await page.goto(A + p, { waitUntil: "load" });
       const header = res?.headers()[NAME.toLowerCase()] || "";
@@ -241,9 +274,19 @@ try {
         ok(view.walk.reached !== null && view.walk.reached === view.walk.total, `book-last-step${tag}`,
           `walk stopped at step ${view.walk.reached} of ${view.walk.total}${view.walk.stuck ? ` (${view.walk.stuck})` : ""}`);
       }
-      if (p === "/app") ok(await page.locator(".tabbar").waitFor({ timeout: 30000 }).then(() => true, () => false), `signed-in${tag}`, "the dashboard never drew its tab bar");
+      if (as) ok(await page.locator(".tabbar").waitFor({ timeout: 30000 }).then(() => true, () => false), `signed-in${tag}`, "the dashboard never drew its tab bar");
+      if (domain) {
+        // The preview must be framed FROM the detailer's domain AND have drawn:
+        // a frame that never loaded raises no violation either.
+        const drawn = await page.waitForFunction((t) => document.querySelector(".pagepv iframe")?.src.startsWith(t),
+          TENANT, { timeout: 30000 }).then(() => true, () => false);
+        view.preview = await page.locator(".pagepv iframe").first().getAttribute("src").catch(() => null);
+        const inner = page.frames().find((f) => f.url().startsWith(TENANT));
+        view.previewDrew = !!inner && await inner.waitForSelector(".bk-step-head", { state: "attached", timeout: 20000 }).then(() => true, () => false);
+        ok(drawn && view.previewDrew, `preview-from-domain${tag}`, `the preview frame src was ${view.preview} and it ${view.previewDrew ? "drew" : "never drew the booking page"}`);
+      }
       await page.waitForTimeout(1500);
-      const rel = `${SHOTS}/${(p.replace(/\W+/g, "-").replace(/^-|-$/g, "") || "home")}-${s.w}.png`;
+      const rel = `${SHOTS}/${((p + (as === "staff" ? "-staff" : "")).replace(/\W+/g, "-").replace(/^-|-$/g, "") || "home")}-${s.w}.png`;
       await page.screenshot({ path: join(REPO, rel) });
       artifacts.push(rel);
       const events = sink.events.filter(ours);
@@ -260,7 +303,8 @@ try {
 }
 
 const VIEWS = SIZES.length * PAGES.length;
-const EXPECTED_ASSERTIONS = 2 + 1 + VIEWS * 3 + SIZES.length * 2;
+const SIGNED_IN = PAGES.filter((p) => p.as).length, DOMAIN = PAGES.filter((p) => p.domain).length;
+const EXPECTED_ASSERTIONS = 2 + 1 + VIEWS * 3 + SIZES.length * (1 + SIGNED_IN + DOMAIN);
 ok(assertions === EXPECTED_ASSERTIONS, "assertion-count", `ran ${assertions} assertions, declared ${EXPECTED_ASSERTIONS}`);
 assertions--; // the count check itself is not one of the declared assertions
 const status = failures.length ? "fail" : "pass";
@@ -277,7 +321,7 @@ const { path } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: EXPECTED_ASSERTIONS,
-  assertion_floor: `2 /book/* header + 1 canary + ${VIEWS} views x 3 (header, events, console) + 3 sizes x 2 (booking last step, signed in) = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
+  assertion_floor: `2 /book/* header + 1 canary + ${VIEWS} views x 3 (header, events, console) + 3 sizes x ${1 + SIGNED_IN + DOMAIN} (booking last step, ${SIGNED_IN} signed in, ${DOMAIN} preview from the detailer's domain) = ${EXPECTED_ASSERTIONS}, asserted as an EQUALITY (docs/gotchas.md 98).`,
   failures,
   warnings: [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
@@ -285,7 +329,7 @@ const { path } = writeReceipt({
     ...warnings,
   ],
   artifacts,
-  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), pages: PAGES, item: "97.26", break: BREAK, origin: A },
+  dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), pages: PAGES.map((p) => p.path + (p.as ? "~" + p.as : "") + (p.domain ? "+domain" : "")), tenant_domain: TENANT, item: "97.26", break: BREAK, origin: A },
   canary: { id: "unlisted-image-host-reported", observed_failure: (observed.canary?.events ?? 0) > 0 && (observed.canary?.console ?? 0) > 0 },
   observed,
 });

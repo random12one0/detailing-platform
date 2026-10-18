@@ -74,11 +74,17 @@
 # carry inline scripts and onsubmit handlers. Netlify merges matching rules,
 # so a narrower path can only tighten, never loosen. The app itself needs no
 # inline script. ROADMAP 97.90 removes it.
+#
+# `https:` IN frame-src IS THE DETAILER'S OWN DOMAIN. With a verified domain,
+# Business frames the "What customers see" preview from THAT host
+# (components/PagePreview.jsx, origin from context/BusinessContext.jsx), and no
+# list written here can name it. It widens what a page may EMBED, not what
+# script may run.
 # `node scripts/csp-report-only.mjs` holds all of this.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
 
 # Hashed build assets are immutable.
 [[headers]]
