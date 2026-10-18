@@ -1,0 +1,31 @@
+{
+  "git_sha": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "git_sha_started": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T04:10:02.432Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/forget-customer-address-points-sql/results.txt"
+  ],
+  "dimensions": {
+    "migration": "20261018050000_forget_customer_forgets_their_street.sql",
+    "address_points_deleted": 2
+  },
+  "check_id": "forget-customer-address-points-sql",
+  "started_at": "2026-10-18T04:09:57.414Z",
+  "status": "pass",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 14,
+  "assertion_floor": "structural: a fixed list of checks over five fixed address_points rows",
+  "canary": {
+    "id": "pre-97.20a-forget-customer",
+    "observed_failure": true
+  }
+}
