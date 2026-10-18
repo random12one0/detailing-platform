@@ -94,6 +94,9 @@ const HISTORY_CAP = 50;
 // it answers is "did the last one arrive", and a detailer scrolling two years
 // of reminders to find it is the failure mode.
 const MAIL_CAP = 12;
+// ROADMAP 97.84 — how long a close waits on a Notes save that has not answered
+// before it stays put and says so. Several network round trips, not a stall.
+const NOTES_WAIT_MS = 5000;
 
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
@@ -175,6 +178,22 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // Twice, because the panel is sticky: the first scroll can move the page,
   // the panel then sticks, and its own edge rises over the line again.
   const notesErrorRef = useRef(null);
+  // ROADMAP 97.84 — A NOTE IS ANSWERED ON THE RECORD IT WAS TYPED IN. The box
+  // saves on blur, and closing the record (or opening another client) used to
+  // race that save: Close lost the refusal, Escape never sent it, and a slow
+  // refusal printed under the NEXT client's box. Now a close or a switch waits
+  // for the save (`settleNotes`, RecordHost's `beforeClose`) and stays put on a
+  // refusal, the pattern `forget()` uses; and an answer for a client who is no
+  // longer open is never printed. EVERY refused close stays — a second Close
+  // re-sends and stays again (review, 2026-10-17: the first fix let it go and
+  // took the note with it). The way out of a refusal that keeps happening
+  // (offline, a view-as tab on Looking) is "Close anyway" under the line, which
+  // is the person choosing to drop the text, never a close doing it for them.
+  // A save that never answers is waited on for NOTES_WAIT_MS, then says so.
+  const openId = useRef(null);       // the client whose record is on screen
+  openId.current = open?.id ?? null;
+  const savedNotes = useRef("");     // what the server holds for that client
+  const saving = useRef(null);       // the save in flight, if any
   useEffect(() => {
     if (!notesError) return;
     const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
@@ -285,8 +304,12 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   }, [people, totals, today, owner]);
 
   const openCustomer = async (c) => {
+    // A save still waiting belongs to the record that was open; this one must not
+    // wait on it (Close anyway on a save that never answered, review 2026-10-18).
+    saving.current = null;
     setOpen(c);
     setNotes(c.notes || "");
+    savedNotes.current = c.notes || "";
     setNotesError("");
     setHistory(null);
     setMail(null);
@@ -325,17 +348,53 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // through `set_customer_notes`, which checks membership and writes nothing
   // else. A refusal is shown: the old direct update failed silently. A view-as
   // tab on Looking throws before anything is sent, and says so here too.
-  const saveNotes = async () => {
+  // The refusal's wording, or "" when it saved. A view-as tab's guard THROWS
+  // before anything is sent, synchronously, so this is caught here and the
+  // bookkeeping below runs in a `.then`, after `p` exists.
+  const sendNotes = async (id, sent) => {
     try {
       const { error } = await supabase.rpc("set_customer_notes", {
-        p_business_id: business.id, p_customer_id: open.id, p_notes: notes,
+        p_business_id: business.id, p_customer_id: id, p_notes: sent,
       });
-      setNotesError(error ? t("Your notes were not saved. Please try again.") : "");
-      if (!error) load();
+      return error ? t("Your notes were not saved. Please try again.") : "";
     } catch (e) {
-      setNotesError(e.message);
+      return e.message || t("Your notes were not saved. Please try again.");
     }
   };
+  const saveNotes = () => {
+    const id = open.id, sent = notes;
+    const p = sendNotes(id, sent).then((refusal) => {
+      if (saving.current === p) saving.current = null;
+      if (openId.current !== id) return !refusal;
+      setNotesError(refusal);
+      if (!refusal) {
+        savedNotes.current = sent;
+        setOpen((o) => (o?.id === id ? { ...o, notes: sent } : o));
+        load();
+      }
+      return !refusal;
+    });
+    saving.current = p;
+    return p;
+  };
+  // May the record close (or another client open)? Waits for a save in flight,
+  // or sends one (Escape closes with the box still focused, so no blur sent
+  // it). Refused, or no answer within NOTES_WAIT_MS: stay, with the line.
+  const settleNotes = async () => {
+    const id = open.id;
+    const late = new Promise((r) => setTimeout(() => r(null), NOTES_WAIT_MS));
+    const answer = (p) => Promise.race([p, late]);
+    let ok = await answer(saving.current ?? (notes === savedNotes.current || saveNotes()));
+    // The save in flight may have left BEFORE the latest typing (type, tap away,
+    // tap back, type more, Escape: no blur). Once it lands, send what is in the
+    // box now, or the close goes on an answer about older text (review, 2026-10-18).
+    if (ok === true && notes !== savedNotes.current) ok = await answer(saveNotes());
+    // A late answer still lands through saveNotes' `.then` and replaces this line.
+    if (ok === null && openId.current === id) setNotesError(t("Your notes have not saved yet. Check your connection, then try again."));
+    return ok === true;
+  };
+  // "Close anyway" — the person drops the unsaved text; the record goes at once.
+  const dropNotes = () => { saving.current = null; setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
   // SERVER decides everything else, including whether this person may do it.
@@ -721,7 +780,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // elements answering one selector is a silently wrong target —
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
-            onClick={() => openCustomer(c)}
+            onClick={async () => { if (!open || await settleNotes()) openCustomer(c); }}
             aria-label={`${c.is_test ? `${t("Test")}, ` : ""}${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : n(visits, "{count} visit", "{count} visits")}, ${phone(c.phone)}`}>
             {/* ROADMAP 1.3 — THE MARK GOES BEFORE THE NAME, NOT AFTER IT, AND
                 THAT IS THE WHOLE REASON IT IS UNMISTAKABLE. `.c-who` is
@@ -776,7 +835,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           the only screen with no panel on it and a right-hand card would end
           that, so the rows sit directly on the ground at both widths. */}
       {open && !selected && (
-        <RecordHost bare onClose={() => setOpen(null)} title={open.name} subtitle={phone(open.phone)}>
+        <RecordHost bare onClose={() => setOpen(null)} beforeClose={settleNotes} title={open.name} subtitle={phone(open.phone)}>
           <div className="group">
             {/* IT LEADS WITH THE NUMBERS — F8, 2 of 2: both documented
                 products lead a client with a figure. Today's bare-figure
@@ -940,7 +999,16 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
             <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder={t("Gate code, dog's name, preferences…")} /></label>
-            {notesError && <div ref={notesErrorRef} className="error-box" role="alert">{notesError}</div>}
+            {/* The line and its way out are one thought, revealed together: at a
+                desk the button sat under the fold beneath a scrolled-in line. */}
+            {notesError && (
+              <div ref={notesErrorRef} className="tight">
+                <div className="error-box" role="alert">{notesError}</div>
+                {notes !== savedNotes.current && (
+                  <button type="button" className="btn sm" onClick={dropNotes}>{t("Close anyway")}</button>
+                )}
+              </div>
+            )}
 
             <div className="tight">
               <span className="label">{t("History")}</span>

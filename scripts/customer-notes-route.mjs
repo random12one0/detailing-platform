@@ -231,7 +231,9 @@ for (const [w, h] of WIDTHS) {
     if (ok) completed++;
   }
   // A refusal belongs to the record it happened on: open a DIFFERENT client and the line must be gone.
-  await page.locator("button.x[aria-label='Close']").first().click();
+  // Since ROADMAP 97.84 a refused record stays open on every Close (it re-sends and is refused again), so the way
+  // out is the person's own "Close anyway" — the X here would leave this record open and the step would measure it.
+  await page.locator("button", { hasText: "Close anyway" }).first().click();
   const notesBox = page.locator("label.field:has-text('Notes') textarea").first();
   await notesBox.waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
   await page.locator(".rows.cols.clients .row-item").nth(1).click();

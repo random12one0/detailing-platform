@@ -39,7 +39,7 @@ const COMMIT = 5;     // vh of movement that commits to a direction
 
 export default function Sheet({
   open = true, onClose, title, subtitle, children, footer,
-  peek = PEEK, dismissible = true,
+  peek = PEEK, dismissible = true, beforeClose,
 }) {
   useAppLocale();
   const [height, setHeight] = useState(peek);
@@ -52,13 +52,16 @@ export default function Sheet({
   // never re-running because of it.
   const live = useRef(null);
 
-  const close = useCallback(() => {
+  // `beforeClose` answering false keeps the sheet open (ROADMAP 97.84, see
+  // RecordHost); a drag that asked to dismiss settles back at the peek.
+  const close = useCallback(async () => {
     if (!dismissible) return;
+    if (beforeClose && !(await beforeClose())) { setHeight((h) => Math.max(h, peek)); return; }
     // Animate out instead of disappearing — the sheet goes back where it
     // came from, which is what makes it feel put away rather than cancelled.
     setLeaving(true);
     setTimeout(() => onClose?.(), 180);
-  }, [onClose, dismissible]);
+  }, [onClose, dismissible, beforeClose, peek]);
 
   // Escape closes, and the page behind is frozen while it is open.
   //
