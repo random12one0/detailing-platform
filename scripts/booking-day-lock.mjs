@@ -3,6 +3,7 @@
 //   node scripts/booking-day-lock.mjs                    # clean run
 //   node scripts/booking-day-lock.mjs --break=no-lock    # the lock line removed: the races must go red
 //   node scripts/booking-day-lock.mjs --break=no-recheck # the two refusals removed: the races must go red
+//   node scripts/booking-day-lock.mjs --break=drop-key   # the checked writes drop one key: the real-payload case must go red
 //   node scripts/booking-day-lock.mjs --break=slow       # the lock made 6 ms slow: the R4 speed bar must go red
 //
 // WHERE IT RUNS: a brand-new Postgres 17 cluster in a temporary folder, from the same tools
@@ -43,6 +44,8 @@ const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice(8
 const BREAKS = {
   "no-lock": [/^\s*perform pg_advisory_xact_lock\(.*\);\n/m, ""],
   "no-recheck": [/^\s*raise exception 'booking_(day_full|too_close)' using errcode = 'BK00[12]';\n/gm, "null;\n"],
+  // both checked writes silently drop one key the callers send: only the real-payload case may go red
+  "drop-key": [/from jsonb_object_keys\((p_row|p_patch)\) k/g, "from jsonb_object_keys($1 - 'customer_notes') k"],
   // a lock 6 ms slow: only the R4 speed bar may go red
   "slow": [/^([ \t]*)perform pg_advisory_xact_lock\(/m, "$1perform pg_sleep(0.006);\n$1perform pg_advisory_xact_lock("],
 };
@@ -293,7 +296,68 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
   check(r.status === 0 && r.stdout.trim() === "0" && still === "t", `fence: a stale move wrote or errored (exit ${r.status}, ${r.stdout.trim()} rows, unchanged ${still})`);
   done("fence-holds", { exit: r.status, rows: r.stdout.trim(), unchanged: still });
 }
-// 8 · speed: a single ordinary booking, before and after.
+// 8 · THE REAL PAYLOAD (reviewer, 2026-10-18): the cases above send six keys. create-booking sends every key
+// its insert names, so it is captured here from the REAL handler, run in memory through the shared harness,
+// and written twice on the real table: through insert_booking_checked, and through the plain insert PostgREST
+// runs for `.insert`. The two stored rows must be the same, as sent AND with every empty key filled.
+// update-booking's patch (every EDITABLE_FIELDS name, the size label it adds, and the move) the same way
+// through move_booking_checked against the plain update. campaign_id and plan_id stay empty: they point at
+// rows this case does not create.
+{
+  const { bookingFixture, fixtureBooking } = await import("./lib/bookingConsentFixture.mjs");
+  const f = bookingFixture({ collision: false });
+  let sent = null;
+  const rpc = f.db.rpc;
+  f.db.rpc = (name, args) => { if (name === "insert_booking_checked") sent = args.p_row; return rpc(name, args); };
+  const booked = await f.book(fixtureBooking);
+  const keys = Object.keys(sent || {});
+  check(booked.status === 200 && keys.length >= 30, `real-payload: create-booking did not hand insert_booking_checked its row (status ${booked.status}, ${keys.length} keys)`);
+  const pair = [business(null, 0), business(null, 0)];
+  const cust = pair.map((b) => sql(`insert into public.customers (business_id, name, phone) values ('${b}', 'Maria Lopez', '5550123456') returning id`).trim());
+  const DROP = ["id", "business_id", "customer_id", "created_at", "updated_at"];
+  const stored = (id) => sql(`select (to_jsonb(b) - '${DROP.join("' - '")}')::text from public.bookings b where id = '${id}'`).trim();
+  const FILL = { booking_group_id: "8f0c2a4e-1d3b-4c5a-9e7f-0a1b2c3d4e5f", customer_address: "1 Fixture Way", address_source: "picked",
+    travel_zone_address_mismatch: true, travel_zone: "North", price_adjustments: [{ label: "Weekend", amount: 10 }], vehicle_model: "Civic",
+    vehicle_year: "2019", vehicle_condition: "moderate", has_water: true, has_power: false, customer_notes: "Gate code 12",
+    admin_notes: "Regular", applied_promo_code: "SPRING" };
+  const sides = (payload, hh) => pair.map((b, i) => JSON.stringify({ ...payload, business_id: b, customer_id: cust[i],
+    start_at: `2030-04-02T${hh}:00:00Z`, end_at: `2030-04-02T${hh + 1}:00:00Z` }).replace(/'/g, "''"));
+  const variants = { as_sent: [sent || {}, 17], filled: [{ ...(sent || {}), ...FILL, id: undefined }, 19] };
+  const seen = {};
+  for (const [name, [payload, hh]] of Object.entries(variants)) {
+    const [p, c] = sides(payload, hh);
+    const plainId = trySql(svc(plainInsert(p))).stdout.trim();
+    const checked = trySql(svc(`select id from public.insert_booking_checked('${c}');`));
+    const same = !!plainId && checked.status === 0 && stored(plainId) === stored(checked.stdout.trim());
+    check(same, `real-payload ${name}: the checked insert stored a different row from the plain insert (${checked.status === 0 ? "rows differ" : checked.stderr.trim()})`);
+    seen[name] = { keys: Object.keys(JSON.parse(c)).length, checked_exit: checked.status, same_row: same };
+    if (name === "filled") {
+      const empty = trySql(`select string_agg(k, ',') from jsonb_each(to_jsonb((select b from public.bookings b where id = '${checked.stdout.trim()}'))) e(k, v)
+        where k = any(array['${Object.keys(JSON.parse(c)).filter((k) => !["campaign_id", "plan_id"].includes(k)).join("','")}']) and v = 'null'::jsonb`).stdout.trim();
+      check(checked.status === 0 && empty === "", `real-payload filled: keys sent with a value were stored empty: ${empty || checked.stderr.trim()}`);
+      seen.filled.stored_empty = empty || null;
+    }
+  }
+  // update-booking: the twin rows the filled insert just wrote are moved by the same patch, one each way.
+  const twins = pair.map((b) => sql(`select id from public.bookings where business_id = '${b}' and customer_notes = 'Gate code 12'`).trim());
+  const PATCH = { status: "completed", admin_notes: "Moved by the owner", customer_name: "Maria L.", customer_phone: "5550123499",
+    customer_email: "maria@example.invalid", customer_address: "2 Fixture Way", service_type: "mobile", vehicle_size: "large",
+    vehicle_size_label: "Large", vehicle_model: "Accord", vehicle_condition: "heavy", customer_notes: "Gate code 34", has_water_electric: true,
+    has_water: false, has_power: true, final_amount: 210.5, payment_status: "paid", payment_notes: "Cash", finalized_at: "2030-04-03T20:00:00Z",
+    miles: 12, start_at: "2030-04-03T17:00:00Z", end_at: "2030-04-03T19:00:00Z" };
+  const patch = JSON.stringify(PATCH).replace(/'/g, "''");
+  const cols = Object.keys(PATCH).join(", ");
+  const plainMove = trySql(svc(`update public.bookings set (${cols}) = (select ${cols} from jsonb_populate_record(null::public.bookings, '${patch}'))
+    where id = '${twins[0]}' and status = 'confirmed' returning id;`));
+  const checkedMove = trySql(svc(`select id from public.move_booking_checked('${twins[1]}', '${pair[1]}', '${patch}', '2030-04-02T19:00:00Z', 'confirmed');`));
+  const moveSame = plainMove.status === 0 && checkedMove.stdout.trim() === twins[1] && stored(twins[0]) === stored(twins[1]);
+  check(moveSame, `real-payload move: the checked move stored a different row from the plain update (${checkedMove.status === 0 ? `moved ${checkedMove.stdout.trim() || "nothing"}` : checkedMove.stderr.trim()})`);
+  const moveEmpty = sql(`select string_agg(k, ',') from jsonb_each(to_jsonb((select b from public.bookings b where id = '${twins[1]}'))) e(k, v)
+    where k = any(array['${Object.keys(PATCH).join("','")}']) and v = 'null'::jsonb`).trim();
+  check(moveEmpty === "", `real-payload move: patched keys were stored empty: ${moveEmpty}`);
+  done("real-payload", { create_booking_keys: keys.length, ...seen, move: { keys: Object.keys(PATCH).length, same_row: moveSame, stored_empty: moveEmpty || null } });
+}
+// 9 · speed: a single ordinary booking, before and after.
 {
   const biz = business(6, 45, "UTC");
   const N = 300;
@@ -329,7 +393,7 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
   done("speed", s);
 }
 
-const EXPECTED = 9;
+const EXPECTED = 10;
 const LOG = `artifacts/booking-day-lock/run${BREAK ? "." + BREAK : ""}.json`;
 mkdirSync(join(REPO, "artifacts/booking-day-lock"), { recursive: true });
 writeFileSync(join(REPO, LOG), JSON.stringify({ postgres: version, break: BREAK || null, cases, failures }, null, 1));
@@ -346,8 +410,8 @@ const { path } = writeReceipt({
   completed_targets: cases.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 23,
-  assertion_floor: "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 4 speed; every check() unconditional.",
+  min_assertions: 29,
+  assertion_floor: "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 6 real payload, 4 speed; every check() unconditional.",
   failures,
   warnings: [
     `Throwaway local Postgres built by replaying all ${FILES.length} files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.`,
