@@ -1,0 +1,38 @@
+{
+  "git_sha": "bc2de230bc32fd2774317f96731521fc69248855",
+  "git_sha_started": "bc2de230bc32fd2774317f96731521fc69248855",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T06:54:19.782Z",
+  "failures": [
+    "1b · the quote equals what is saved - got quote 400, saved 430",
+    "1c · each car's quoted figure equals its own saved booking - got quoted [200,200], saved [200,230]",
+    "1d · the weekend line sits on the Saturday car only - got [false,false]"
+  ],
+  "warnings": [
+    "Both handlers run in-process with the database stood in; pricing.ts and tz.ts are real. The deployed functions are not this checkout until Andrew publishes."
+  ],
+  "artifacts": [
+    "receipts/split-day-surcharge.sabotage-no-car-date.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.7",
+    "break": "no-car-date"
+  },
+  "check_id": "split-day-surcharge-no-car-date",
+  "started_at": "2026-10-18T06:54:19.667Z",
+  "status": "fail",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 11,
+  "min_assertions": 11,
+  "assertion_floor": "2 orders x 4 + 2 unpicked/same-day + 1 canary = 11, every check() unconditional; targets are Monday-then-Saturday, Saturday-then-Monday, and car 2 with no day yet.",
+  "canary": {
+    "id": "no-car-date-payload",
+    "observed_failure": true,
+    "what": "Monday + Saturday priced from the payload without car 2's own date quotes $400, the defect's own figure"
+  }
+}
