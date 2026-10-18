@@ -213,6 +213,10 @@ async function fakeSubscribe(ctx) {
   });
 }
 async function openCardForm(page) {
+  // The consent box only appears once a plan is picked; the booking-only plan is the plainest.
+  const rung = page.locator('[data-billing-rung="booking"]');
+  if (!(await rung.waitFor({ state: "visible", timeout: 30000 }).then(() => true, () => false))) return { frames: 0, loaded: false, stuck: "no booking-only plan on Billing" };
+  await rung.click();
   const tick = page.locator("[data-billing-consent]");
   if (!(await tick.waitFor({ state: "attached", timeout: 30000 }).then(() => true, () => false))) return { frames: 0, loaded: false, stuck: "no consent box on Billing" };
   await tick.check();
