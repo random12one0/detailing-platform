@@ -1,0 +1,35 @@
+{
+  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-17T20:07:12.476Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/day-rule-refusal.txt"
+  ],
+  "dimensions": {
+    "handlers": [
+      "create-booking",
+      "reschedule-booking",
+      "update-booking"
+    ],
+    "item": "97.18"
+  },
+  "check_id": "day-rule-refusal",
+  "started_at": "2026-10-17T20:07:12.293Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 24,
+  "min_assertions": 24,
+  "assertion_floor": "create 3+3+3+2, reschedule 3+2+2, update 3+2, plain edit 1 = 24; every check() unconditional.",
+  "canary": {
+    "id": "mapping-removed-loses-the-sentence",
+    "observed_failure": true
+  }
+}

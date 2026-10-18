@@ -41,7 +41,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
-import { validateSlot } from "../_shared/slotValidation.ts";
+import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { recordActions } from "../_shared/actionLog.ts";
 import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
@@ -192,22 +192,33 @@ Deno.serve(async (req) => {
     // `confirmed`; without this both wrote, both counted as "just cancelled"
     // and the customer got two cancellation emails. Every other field is a
     // plain value and repeats harmlessly, so it is not fenced.
-    let write = supabase
+    const fenceStatus = updateData.status !== undefined && updateData.status !== current.status;
+    const moving = updateData.start_at !== undefined
+      && new Date(updateData.start_at as string).getTime() !== new Date(current.start_at).getTime();
+    // ROADMAP 97.18 — a write the slot gate above checked goes through
+    // move_booking_checked, which locks the day and re-runs the cap and
+    // buffer rules in the same transaction, with the same two fences.
+    let plain = supabase
       .from("bookings")
       .update(updateData)
       .eq("id", bookingId)
       .eq("business_id", member.businessId);
-    if (updateData.status !== undefined && updateData.status !== current.status) {
-      write = write.eq("status", current.status);
-    }
-    const moving = updateData.start_at !== undefined
-      && new Date(updateData.start_at as string).getTime() !== new Date(current.start_at).getTime();
-    if (moving) write = write.eq("start_at", current.start_at);
-    const { data, error } = await write.select().maybeSingle();
+    if (fenceStatus) plain = plain.eq("status", current.status);
+    const { data, error } = updateData.start_at !== undefined
+      ? await supabase.rpc("move_booking_checked", {
+        p_id: bookingId,
+        p_business: member.businessId,
+        p_patch: updateData,
+        p_from_start: moving ? current.start_at : null,
+        p_from_status: fenceStatus ? current.status : null,
+      }).maybeSingle()
+      : await plain.select().maybeSingle();
     if (error) {
       if (error.code === "23P01") {
         return json({ error: "That time overlaps another booking." }, 409);
       }
+      const dayRule = dayRuleRefusal(error.code);
+      if (dayRule) return json({ error: dayRule }, 409);
       throw error;
     }
     if (!data) {

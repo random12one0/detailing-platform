@@ -30,7 +30,7 @@ import {
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, sizeAdjustmentFor,
   vehicleSizeFee, whenContextFor, zoneAddressMismatch,
 } from "../_shared/pricing.ts";
-import { validateSlot } from "../_shared/slotValidation.ts";
+import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
 import { buildBrand, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { money } from "../_shared/emailKit.ts";
@@ -542,9 +542,12 @@ Deno.serve(async (req) => {
     }
 
     // --- Insert. The exclusion constraint is the final, unbeatable guard. --
+    // ROADMAP 97.18 — through insert_booking_checked, which locks this
+    // business's day and re-runs the cap and buffer rules in the same
+    // transaction as the insert, so two bookings sent at once cannot both
+    // pass the check above. Only the keys sent are written, as before.
     const { data: booking, error: insertErr } = await supabase
-      .from("bookings")
-      .insert({
+      .rpc("insert_booking_checked", { p_row: {
         ...(bookingRef(body) ? { id: bookingRef(body) } : {}),
         business_id: business.id,
         customer_id: customerId,
@@ -647,14 +650,15 @@ Deno.serve(async (req) => {
         status: !member && (settings.booking_mode === "request" || planSignup)
           ? "pending"
           : "confirmed",
-      })
-      .select()
-      .single();
+      } });
 
     if (insertErr) {
       // 23505 too: two presses racing with the same `booking_ref` can meet
-      // on the id before the overlap rule (97.64).
-      if (insertErr.code === "23P01" || insertErr.code === "23505") {
+      // on the id before the overlap rule (97.64). And the day rules (97.18):
+      // the second of two identical presses now meets the first on the
+      // buffer, and is still owed its own booking back.
+      const dayRule = dayRuleRefusal(insertErr.code);
+      if (insertErr.code === "23P01" || insertErr.code === "23505" || dayRule) {
         // **THE OVERLAP MAY BE THEIR OWN BOOKING, AND UNTIL 2026-09-06 THIS
         // TOLD THEM A STRANGER HAD TAKEN IT** — testing loop F-022, found by
         // walking C7, the customer on a bad connection.
@@ -688,6 +692,7 @@ Deno.serve(async (req) => {
           return json(duplicateAnswer(mine, body));
         }
         if (insertErr.code === "23P01") return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
+        if (dayRule) return json({ error: dayRule }, 409);
       }
       // **NOT `insertErr.message`.** That is a Postgres string — it names
       // columns, constraints and checks — and this endpoint is public, so it
