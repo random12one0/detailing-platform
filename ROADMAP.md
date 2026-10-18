@@ -9311,6 +9311,26 @@ the wrong service, and never book a job we cannot reach.
   pass for an iPhone keyboard. Do not dispatch this item again until Andrew has run
   section 5 of `docs/testing/phones-we-do-not-own.md` and reported what happened.
 
+  **DISPATCHED AGAIN 2026-10-18 DESPITE THE LINE ABOVE; NOTHING IN `app/src` TOUCHED, BOX STAYS OPEN.**
+  Re-checked at `f9962aae` so the blocker is measured, not inherited.
+  `tests/keyboard-boxes-declared.test.mjs` passes 6 of 6, and `BREAK=new-box` reddens it naming
+  two planted `StepExtras.jsx` boxes. `scripts/bk-bar-clearance.mjs` has rotted on one row:
+  its `businesses.name @ back office` ceiling read `app/src/admin/AdminPage.jsx`, which 99.3b-i
+  deleted (`002639c3`), so it printed FAIL (ENOENT) every run. It now points at the form's new home,
+  `app/src/admin/office/SignUp.jsx:67` (same `value={form.name}`, `maxLength={60}`). Clean: 7 of 7
+  ceilings ok. `--break="ceiling:businesses.name @ back office"`: that row alone FAILs.
+  **The browser walk could not run in the belt's worktree**: it has no `app/.env`, so the page on
+  :5180 logs `Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY`, and all 15 walks timed out
+  waiting for `.bk-card.selectable`. A key was not supplied, because handling keys is not this job's.
+  One earlier run hit :5173 by mistake (the main checkout, also at `f9962aae`, with `app/src` and
+  `scripts` clean): all eight questions `ok` and both canaries caught. It then crashed in phase two on
+  the missing `artifacts/tenant-strings/email-long` renders (rebuilt since with
+  `render-emails.mjs --long`), so **no receipt was written and `receipts/bk-bar-clearance.json` is
+  still the one stamped `0f03aaad`**. The other eight checks that still read the deleted file are
+  99.3b-ii's list, not this item's.
+  **NEEDS ANDREW: the iPhone keyboard walk, section 5 of `docs/testing/phones-we-do-not-own.md`,
+  before release. Nothing else is left to build here.**
+
 - [x] **2.15a — Three tenant strings have no length limit anywhere, and they land on screens nobody has stretched.**
   Spawned from 2.15 on 2026-09-25, by the work that fixed it. **2.15's fault was
   a detailer's own words making the footer taller than the number reserved for

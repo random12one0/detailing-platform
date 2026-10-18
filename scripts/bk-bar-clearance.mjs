@@ -192,7 +192,9 @@ const CEILINGS = [
   // because three rows reading `businesses.name` would be three rows nobody
   // could tell apart in a failure line.
   { id: "businesses.name @ signup", file: "app/src/screens/CreateBusiness.jsx", near: "value={name}", nth: 1 },
-  { id: "businesses.name @ back office", file: "app/src/admin/AdminPage.jsx", near: "value={form.name}", nth: 1 },
+  // AdminPage.jsx was deleted by 99.3b-i (002639c3); its create form is now
+  // office/SignUp.jsx (9.12a 6a), same `value={form.name}` and same cap.
+  { id: "businesses.name @ back office", file: "app/src/admin/office/SignUp.jsx", near: "value={form.name}", nth: 1 },
 ];
 const readCeiling = (c) => {
   let src;
