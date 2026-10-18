@@ -23,11 +23,14 @@ pw.chromium.launch = async (...a) => {
   browser.newContext = async (...o) => {
     const ctx = await newContext(...o);
     await ctx.route(/\/src\/.*\.(js|jsx)(\?.*)?$/, async (route) => {
-      const res = await route.fetch();
+      // A context closed with a module still in flight rejects here; unhandled, that
+      // killed the whole run mid-teardown (98.11: suspend-delete-waive, shots-99-4).
+      const res = await route.fetch().catch(() => null);
+      if (!res) return route.abort().catch(() => {});
       const body = (await res.text())
         .replaceAll("import.meta.env.VITE_SUPABASE_URL", JSON.stringify(url))
         .replaceAll("import.meta.env.VITE_SUPABASE_ANON_KEY", JSON.stringify(key));
-      await route.fulfill({ response: res, body });
+      await route.fulfill({ response: res, body }).catch(() => {});
     });
     return ctx;
   };

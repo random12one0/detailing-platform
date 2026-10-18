@@ -1,0 +1,12 @@
+label-guard: 116 declared label(s) across scripts/, 116 still present in the product, 0 built at run time and not verifiable here.
+This reads SOURCE ONLY. A stale label is a permanent hole in the QUESTION a check asks;
+it is NOT the same as a screen that failed to load, which is a hole in one run.
+
+STALE LABELS — 1 declared label(s) no longer appear anywhere in the product.
+A renamed control does not fail loudly: the matcher falls back to the bare English,
+matches nothing, and the screen goes unmeasured while every other line reads normally.
+Re-point each of these at its current wording. Do NOT delete the line — a label that
+leaves a check is a screen nobody looks at again.
+    NO LONGER IN THE PRODUCT  A control that has never existed in this product   <- (canary)
+
+receipt        C:\Users\rando\Downloads\claude\belt-jobs\belt_98.11-20261018230352073\receipts\label-guard.json   —  validate: node scripts/receipt.mjs

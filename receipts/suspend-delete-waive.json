@@ -1,9 +1,9 @@
 {
-  "git_sha": "f90cd60a8a98b9c60bed6372e2cc40df0dcf94f7",
-  "git_sha_started": "f90cd60a8a98b9c60bed6372e2cc40df0dcf94f7",
+  "git_sha": "6e95466f5bfd9d513b5373f634c1064ef3acd0fa",
+  "git_sha_started": "6e95466f5bfd9d513b5373f634c1064ef3acd0fa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T11:51:46.221Z",
+  "finished_at": "2026-10-18T23:12:16.926Z",
   "failures": [],
   "warnings": [
     "Remove has no on-screen undo, by the manager's ruling (1) of 2026-10-07; this checks the fold says support can restore it, not that a restore works.",
@@ -15,7 +15,7 @@
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
-    "slug": "sdw-41c-mv2c1yzd",
+    "slug": "sdw-41c-mvefvif9",
     "break": null,
     "widths": [
       "1440x900",
@@ -29,7 +29,7 @@
     }
   },
   "check_id": "suspend-delete-waive",
-  "started_at": "2026-10-10T11:50:42.265Z",
+  "started_at": "2026-10-18T23:10:53.445Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,

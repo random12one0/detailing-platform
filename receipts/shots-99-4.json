@@ -1,9 +1,9 @@
 {
-  "git_sha": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
-  "git_sha_started": "74a7dcc50642488cbf99641f2a870eb7d039e7e2",
+  "git_sha": "4d3e0b0639d71660b0b4c2b008e0d088a59159fe",
+  "git_sha_started": "4d3e0b0639d71660b0b4c2b008e0d088a59159fe",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-11T22:50:07.908Z",
+  "finished_at": "2026-10-18T23:17:31.129Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +13,7 @@
     "widths": "392, 1440"
   },
   "check_id": "shots-99-4",
-  "started_at": "2026-10-11T22:48:54.201Z",
+  "started_at": "2026-10-18T23:15:59.878Z",
   "status": "pass",
   "expected_targets": 24,
   "discovered_targets": 24,

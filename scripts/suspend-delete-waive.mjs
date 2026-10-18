@@ -215,14 +215,15 @@ try {
     await ap.waitForSelector("input[type=email]", { timeout: 25000 });
     await ap.fill("input[type=email]", admin.email);
     await ap.fill("input[type=password]", admin.password);
-    await ap.click("form button.pa-btn");
-    await ap.waitForSelector(".pa-tab", { timeout: 25000 });
-    await ap.getByRole("tab", { name: "Detailers" }).click();
-    await ap.fill("input[placeholder='Search a name, a link or an email']", SLUG);
-    await ap.locator(".pa-biz", { hasText: NAME }).first().click({ timeout: 20000 });
-    const drawer = ap.locator(".pa-open");
+    // 99.10: the new office (app/src/admin/office/). Its Detailers place has no
+    // list filter, so the row is found by the throwaway business's own name.
+    await ap.click("form button[type=submit]");
+    await ap.waitForSelector(".bo-rail", { timeout: 25000 });
+    await ap.locator(".bo-nav", { hasText: "Detailers" }).click();
+    await ap.locator(".bo-row", { hasText: NAME }).first().click({ timeout: 20000 });
+    const drawer = ap.locator(".bo-panel");
     await drawer.getByRole("button", { name: "Suspend", exact: true }).click({ timeout: 20000 });
-    const sq = (await drawer.locator("[role=alert]").first().textContent({ timeout: 5000 }).catch(() => "")) || "";
+    const sq = (await drawer.locator(".bo-sure p").first().textContent({ timeout: 5000 }).catch(() => "")) || "";
     check(`${w} suspend · the first press asks, naming the business`, sq.includes(NAME), JSON.stringify(sq));
     check(`${w} suspend · nothing written by the first press`, (await one(`businesses?id=eq.${biz.id}&select=status`)).status === "active");
     await drawer.getByRole("button", { name: "Not yet", exact: true }).click();
@@ -235,12 +236,13 @@ try {
     const sP = auditProblems(await adminRow("suspend", t0), { actor: admin.id, field: "status", from: "active", after: "paused" });
     check(`${w} suspend · platform_admin_events: the admin, active -> paused, stamped now`, sP.length === 0, sP.join("; "));
     // ATTACHED, NOT VISIBLE (docs/gotchas.md 107): the history card sits below the drawer's fold on a phone.
-    const shown = await drawer.getByText("Suspended them", { exact: true }).first().waitFor({ state: "attached", timeout: 15000 }).then(() => true, () => false);
-    const hist = shown ? "" : await drawer.locator(".pa-card").last().textContent().catch(() => "<<no card>>");
-    check(`${w} suspend · the drawer's own history shows "Suspended them"`, shown, `history card read: ${JSON.stringify((hist || "").slice(0, 200))}`);
+    // A history row is "<span>today</span>You suspended them", so an exact text match never fits (98.11).
+    const shown = await drawer.locator(".bo-log li", { hasText: "You suspended them" }).first().waitFor({ state: "attached", timeout: 15000 }).then(() => true, () => false);
+    const hist = shown ? "" : await drawer.locator(".bo-log").last().textContent().catch(() => "<<no card>>");
+    check(`${w} suspend · the drawer's own history shows "You suspended them"`, shown, `history card read: ${JSON.stringify((hist || "").slice(0, 200))}`);
     const t1 = new Date().toISOString();
-    await drawer.getByRole("button", { name: "Restore", exact: true }).click({ timeout: 15000 });
-    check(`${w} suspend · reversed from the same drawer (Restore)`, !!(await until(async () => (await one(`businesses?id=eq.${biz.id}&select=status`)).status === "active")));
+    await drawer.getByRole("button", { name: "Reopen account", exact: true }).click({ timeout: 15000 });
+    check(`${w} suspend · reversed from the same drawer (Reopen account)`, !!(await until(async () => (await one(`businesses?id=eq.${biz.id}&select=status`)).status === "active")));
     const rP = auditProblems(await adminRow("restore", t1), { actor: admin.id, field: "status", from: "paused", after: "active" });
     check(`${w} suspend · the restore leaves its own row, paused -> active`, rP.length === 0, rP.join("; "));
     if (sP.length === 0 && rP.length === 0) completed++;

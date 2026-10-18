@@ -15,7 +15,7 @@ const { chromium } = createRequire(import.meta.url)(join(REPO, "app/node_modules
 const { demoOwner } = await import(`file:///${REPO.replace(/\\/g, "/")}/scripts/lib/demoOwner.mjs`);
 const OUT = join(REPO, ".manager-shots/99.4");
 mkdirSync(OUT, { recursive: true });
-const BASE = "http://localhost:5173";
+const BASE = process.env.BASE_URL || "http://localhost:5173";
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*", "content-type": "application/json" };
 const future = (d) => new Date(Date.now() + d * 864e5).toISOString();
 const ymd = (d) => future(d).slice(0, 10);
@@ -82,7 +82,9 @@ const SCENES = {
     await editRows(page, "business_users", (rows, url) => rows.some((r) => r.role === "owner") && /business_id=eq/.test(url) && !/user_id=eq/.test(url) ? [...rows, { ...rows[0], ...me, business_id: rows[0].business_id }] : rows);
     await editRows(page, "business_invites", (rows) => [{ id: "00000000-0000-4000-8000-0000000000bb", business_id: rows[0]?.business_id ?? "x", email: "jordan.lee@example.com", role: "staff", label: "Helper", permissions: [], expires_at: future(5), created_at: future(-1), accepted_at: null, revoked_at: null }]);
     await page.goto(`${BASE}/app?settings=team`);
-    const card = page.locator(".card", { hasText: "sam.ortiz@example.com" });
+    // The card is found by the staff member THIS SCRIPT injected (`me` above), not by product
+    // wording: no rename can move a fixture's own email (ROADMAP 98.11).
+    const card = page.locator(".card", { hasText: me.email });
     await card.waitFor({ timeout: 20000 });
     await card.getByRole("button", { name: "Change" }).click();
     await look(page, w, "team-remove", page.getByRole("button", { name: "Remove from the team" }));
