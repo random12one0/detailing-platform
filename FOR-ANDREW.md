@@ -177,7 +177,13 @@ receipts and the one for logos and gallery pictures.** The website you have publ
 way, and both go out with your next ordinary website publish. **Not ready to publish yet:** one Spanish check
 was skipped because it needs the keys, and you ruled on 2026-10-13 that nothing may be skipped. A session with
 the keys must run it clean first; nothing to decide. Then, after your publish, a session checks the live site
-and ticks 0.11cc and 0.11c. The control-room copy on port 5180 has a separate
+and ticks 0.11cc and 0.11c.
+**Your one yes, 2026-10-18.** The belt keeps sending this item to job copies, and job copies are given no
+keys, so it can never clear there (re-checked today: all 17 photo and Spanish checks pass, the same one
+still skipped). **Recommendation: let one session run that check in the main project folder, where the
+keys already live.** It only touches the practice database's demo booking. Until you say yes, this item
+sits marked as waiting on you rather than being handed out again.
+The control-room copy on port 5180 has a separate
 browser-origin restriction, so its transport check records that limitation.
 The failed-upload cleanup gap found during proof is now numbered **14.39**;
 all of this job's temporary receipt files and expenses were removed.

@@ -2774,6 +2774,14 @@ and how the wait ends.
   so. The steps are `FOR-ANDREW.md` 9c, 9d and 9e, in that order, with step 9a2 before 9c.
 
 - [ ] **0.11cc — Install cron and apply coordinated allowance release**
+  NEEDS ANDREW: the one step left before your publish is a single test run that needs the database's full-access
+  key, and belt job copies are deliberately given no keys (this copy has no `.env`; checked 2026-10-18). Clear it
+  by saying yes to one session running 98.5's 17-file command in the MAIN checkout with `.env` loaded, so
+  `tests/spanish.test.mjs` section 7 executes (it writes one demo booking's language on kguqylyzgyzfktkfnhjb only).
+  Re-dispatching this item to a job copy cannot clear it. **Attempt 2026-10-18 at `55be7e5a`, credential-free:**
+  the same 17 files, PGlite required, **142 of 142 node tests passed, 0 failed**, section 7 printed SKIPPED again
+  (`receipts/0.11cc-photo-tests-2026-10-18.txt`). Nothing has regressed since 0.11c's 2026-10-17 run; the
+  no-skip Waits-on line below still stands. Box not ticked; no product change, nothing published.
   **Progress 2026-10-13 — the outside setup is already done; the box stays open.** The earlier
   cron/migration blocker below was superseded by Andrew's 2026-10-10 completion note. Re-read live,
   read-only: the photo schedule is active at 03:40 UTC, uses the same HTTP transport as refresh-weather,
