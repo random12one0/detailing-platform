@@ -40,7 +40,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
-import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessById, can, getSettings, requireMember } from "../_shared/tenant.ts";
 import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { recordActions } from "../_shared/actionLog.ts";
@@ -97,6 +97,17 @@ Deno.serve(async (req) => {
       .eq("business_id", member.businessId)
       .maybeSingle();
     if (!current) return json({ error: "Booking not found" }, 404);
+
+    // ROADMAP 99.13 — A REQUEST IS ANSWERED BEHIND THE "ANSWER REQUESTS" TICK
+    // ON EVERY PATH, NOT ONLY ON `respond-to-booking`. Changing a pending
+    // booking's status here IS accepting or declining it, and removing it is
+    // declining it without telling anybody, so an owner who unticked the box
+    // was still being overruled by this endpoint.
+    const answering = current.status === "pending"
+      && (body.soft_delete === true || (body.status !== undefined && body.status !== current.status));
+    if (answering && !can(member, "requests")) {
+      return json({ error: "You do not have permission to answer booking requests." }, 403);
+    }
 
     if (body.soft_delete === true) {
       const { data: deleted, error } = await supabase
