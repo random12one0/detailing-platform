@@ -199,7 +199,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
     const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
     reveal();
     requestAnimationFrame(reveal);
-  }, [notesError]);
+  }, [notesError, selected]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -395,7 +395,15 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
   };
   // ROADMAP 97.88 — a tab press or the gear unmounts this screen with no close,
   // so App asks the open record first, exactly as RecordHost's beforeClose does.
-  if (holdLeave) holdLeave.current = open ? settleNotes : null;
+  // A job opened from the History covers the record (`open && !selected`), so a
+  // refusal closes the job and puts the record and its line back on screen —
+  // otherwise the tab would just not move, with the reason hidden (review, 2026-10-18).
+  const holdNotes = async () => {
+    const ok = await settleNotes();
+    if (!ok) setSelected(null);
+    return ok;
+  };
+  if (holdLeave) holdLeave.current = open ? holdNotes : null;
   useEffect(() => () => { if (holdLeave) holdLeave.current = null; }, [holdLeave]);
   // "Close anyway" — the person drops the unsaved text; the record goes at once.
   const dropNotes = () => { saving.current = null; setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
