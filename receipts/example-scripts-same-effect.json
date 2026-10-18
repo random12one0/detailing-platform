@@ -1,0 +1,307 @@
+{
+  "git_sha": "f65932aef971d8db5b392e3c2db20a447807f3d6",
+  "git_sha_started": "f65932aef971d8db5b392e3c2db20a447807f3d6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T14:03:39.152Z",
+  "failures": [],
+  "warnings": [
+    "Chromium only, app/dist served by this script, not Netlify. `style` attributes are not compared (animation frames). ex1's cursor glow only moves on pointer movement, which this does not make; its effect is a style property, outside the fingerprint either way."
+  ],
+  "artifacts": [
+    ".manager-shots/97.90/same-effect-clean/report.txt",
+    ".manager-shots/97.90/same-effect-clean/ex1-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-work-html-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-prices-html-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex2-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-prices-html-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex4-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex5-390.png",
+    ".manager-shots/97.90/same-effect-clean/map-html-390.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-work-html-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-prices-html-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex2-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-prices-html-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex4-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex5-768.png",
+    ".manager-shots/97.90/same-effect-clean/map-html-768.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-work-html-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex1-prices-html-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex2-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex3-prices-html-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex4-1440.png",
+    ".manager-shots/97.90/same-effect-clean/ex5-1440.png",
+    ".manager-shots/97.90/same-effect-clean/map-html-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/ex1",
+      "/ex1/work.html",
+      "/ex1/prices.html",
+      "/ex2",
+      "/ex3",
+      "/ex3/prices.html",
+      "/ex4",
+      "/ex5",
+      "/map.html"
+    ],
+    "break": "",
+    "item": "97.90",
+    "served_as": "Content-Security-Policy (enforcing) in AFTER, none in BEFORE"
+  },
+  "check_id": "example-scripts-same-effect",
+  "started_at": "2026-10-18T14:01:57.782Z",
+  "status": "pass",
+  "expected_targets": 27,
+  "discovered_targets": 27,
+  "attempted_targets": 27,
+  "completed_targets": 27,
+  "skipped_targets": 0,
+  "assertions_executed": 117,
+  "min_assertions": 117,
+  "assertion_floor": "27 views x 4 (before ran clean, after ran clean under the enforced policy, same on load, same after scroll) + 3 sizes x 3 pages with controls (same after press) = 117, an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "ex3-paint-switcher-missing-is-seen",
+    "observed_failure": true
+  },
+  "observed": {
+    "views": {
+      "/ex1@390": {
+        "lines": 315,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@390": {
+        "lines": 144,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@390": {
+        "lines": 245,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@390": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@390": {
+        "lines": 362,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@390": {
+        "lines": 371,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@390": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@390": {
+        "lines": 655,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@390": {
+        "lines": 550,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1@768": {
+        "lines": 315,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@768": {
+        "lines": 144,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@768": {
+        "lines": 245,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@768": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@768": {
+        "lines": 362,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@768": {
+        "lines": 371,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@768": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@768": {
+        "lines": 655,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@768": {
+        "lines": 550,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1@1440": {
+        "lines": 315,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/work.html@1440": {
+        "lines": 144,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex1/prices.html@1440": {
+        "lines": 245,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex2@1440": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3@1440": {
+        "lines": 362,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex3/prices.html@1440": {
+        "lines": 371,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex4@1440": {
+        "lines": 542,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/ex5@1440": {
+        "lines": 655,
+        "pressed": false,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      },
+      "/map.html@1440": {
+        "lines": 550,
+        "pressed": true,
+        "same": true,
+        "errors": 0,
+        "violations": 0
+      }
+    },
+    "inventory": {
+      "/ex1": [
+        "/ex1/index.1.js"
+      ],
+      "/ex1/work.html": [
+        "/ex1/work.1.js"
+      ],
+      "/ex1/prices.html": [
+        "/ex1/prices.1.js"
+      ],
+      "/ex2": [
+        "/ex2/index.1.js"
+      ],
+      "/ex3": [
+        "/ex3/index.1.js",
+        "/ex3/index.2.js"
+      ],
+      "/ex3/prices.html": [
+        "/ex3/prices.1.js",
+        "/ex3/prices.2.js"
+      ],
+      "/ex4": [
+        "/ex4/index.1.js",
+        "/ex4/index.2.js"
+      ],
+      "/ex5": [
+        "/ex5/index.1.js"
+      ],
+      "/map.html": [
+        "/map.js"
+      ]
+    },
+    "canary": {
+      "dropped": "/ex3/index.2.js",
+      "caught": true,
+      "diff": "line 358: before «BUTTON aria-label=Night aria-pressed=false data-paint=a» after «BUTTON aria-label=Night data-paint=a»"
+    }
+  }
+}
