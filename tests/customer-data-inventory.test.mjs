@@ -2,6 +2,7 @@
 //
 //   node --test tests/customer-data-inventory.test.mjs
 //   BREAK=drop-email node tests/customer-data-inventory.test.mjs   # sabotage: forget_customer as it was before 97.20
+//   BREAK=drop-street node tests/customer-data-inventory.test.mjs  # sabotage: forget_customer as it was before 97.20a
 //
 // Credential-free: it reads `supabase/migrations/` and nothing else. BREAK is an env var, not a flag
 // (docs/gotchas.md 104).
@@ -18,6 +19,9 @@
 //   cascade:  `<table>.<column> references public.<parent>(id) on delete cascade` — checked here, and
 //             the parent must itself be `forget` or `cascade`
 //   not:      not a customer's data; the reason is written down and a person judged it
+//   byHand:   a column the NAME rule cannot see (address_points.key is a street address called `key`);
+//             it is held out of the name-rule equality and checked to exist instead, and its `how` is
+//             judged exactly like any other entry
 //
 // BLIND SPOT, stated rather than discovered: it judges column NAMES. A customer's data in a column
 // named `payload` or `meta` is invisible to it, as is data outside the database (storage buckets,
@@ -100,20 +104,25 @@ export const DECLARED = {
   platform_promo_codes: { how: "not", cols: ["note"], why: PLATFORM },
   platform_settings: { how: "not", cols: ["owner_email"], why: PLATFORM },
   site_probes: { how: "not", cols: ["body", "secret_name"], why: PLATFORM },
+  // address_points.key IS a street address, but its column is called `key`, so the name rule cannot see it.
+  address_points: { how: "forget", byHand: true, cols: ["key"], why: "97.20a: the geocode rows for their record's and their bookings' addresses are deleted" },
 };
-// address_points.key IS a street address, but its column is called `key`, so the name rule cannot see it.
-// It is declared here by hand so the gap is written down; ROADMAP 97.20a is the decision it needs.
-export const KNOWN_BY_HAND = { address_points: "key — a geocoded street address with no name or business; ROADMAP 97.20a" };
 
+const STREET = "20261018050000_forget_customer_forgets_their_street.sql";
 const files = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort().map((f) => [f, readFileSync(`${DIR}/${f}`, "utf8")]);
 if (BREAK === "drop-email") {
   // docs/gotchas.md 102: the sabotage must LAND — drop 97.20's migration so the 8.11 body is the latest.
   const i = files.findIndex(([f]) => f === "20261017210000_forget_customer_forgets_their_email.sql");
   if (i < 0) throw new Error("BREAK=drop-email did not land: 97.20's migration is not in the list");
   files.splice(i, 1);
-} else if (BREAK) throw new Error(`unknown BREAK=${BREAK}; known: drop-email`);
+  files.splice(files.findIndex(([f]) => f === STREET), 1);
+} else if (BREAK === "drop-street") {
+  const i = files.findIndex(([f]) => f === STREET);
+  if (i < 0) throw new Error("BREAK=drop-street did not land: 97.20a's migration is not in the list");
+  files.splice(i, 1);
+} else if (BREAK) throw new Error(`unknown BREAK=${BREAK}; known: drop-email, drop-street`);
 
-const declaredSet = (d) => new Set(Object.entries(d).flatMap(([t, e]) => e.cols.map((c) => `${t}.${c}`)));
+const declaredSet = (d) => new Set(Object.entries(d).filter(([, e]) => !e.byHand).flatMap(([t, e]) => e.cols.map((c) => `${t}.${c}`)));
 const diff = (found, declared) => ({
   undeclared: [...found].filter((x) => !declared.has(x)).sort(),
   gone: [...declared].filter((x) => !found.has(x)).sort(),
@@ -125,7 +134,7 @@ test("discovery floor: the parser still reads the schema it is judging", () => {
   assert.ok(cols.size >= 63, `parsed ${cols.size} tables, expected at least 63 — the parser stopped matching`);
   assert.ok(found.size >= 60, `found ${found.size} customer-like columns, expected at least 60`);
   assert.ok(forget, "no `create or replace function public.forget_customer` found in any migration");
-  for (const t of Object.keys(KNOWN_BY_HAND)) assert.ok(cols.has(t), `${t} is declared by hand but no longer exists`);
+  for (const [t, e] of Object.entries(DECLARED).filter(([, e]) => e.byHand)) for (const c of e.cols) assert.ok(cols.get(t)?.has(c), `${t}.${c} is declared by hand but no longer exists`);
 });
 
 test("every customer-identifying column is declared, and nothing declared has vanished", () => {
@@ -153,6 +162,8 @@ test("every table declared as cascading really cascades from a covered parent", 
 test("CANARY: a new table with a customer column, and a forget_customer that forgets email_sends, both go red", () => {
   const extra = [...files, ["29991231000000_canary.sql", "create table public.sms_sends (\n  id uuid primary key,\n  to_phone text not null\n);"]];
   assert.deepEqual(diff(inventory(extra).found, declaredSet(DECLARED)).undeclared, ["sms_sends.to_phone"], "the canary table was not caught");
-  const old = files.filter(([f]) => f !== "20261017210000_forget_customer_forgets_their_email.sql");
+  const old = files.filter(([f]) => f !== "20261017210000_forget_customer_forgets_their_email.sql" && f !== STREET);
   assert.equal(forgets(inventory(old).forget, "email_sends"), false, "the pre-97.20 forget_customer reads as covering email_sends");
+  const noStreet = files.filter(([f]) => f !== STREET);
+  assert.equal(forgets(inventory(noStreet).forget, "address_points"), false, "the pre-97.20a forget_customer reads as covering address_points");
 });
