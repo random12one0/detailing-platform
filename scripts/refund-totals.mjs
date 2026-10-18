@@ -18,6 +18,12 @@
 // never says "yet" either way, and that is asserted too. Two more views read the same
 // sentence in Spanish at 1440: "$150 devuelto", and "Aún no has cobrado nada" only unpaid.
 //
+// THE PHONE NAMES THE REFUND TOO (97.87). Below 1024 the collected cell keeps its "$0" and its
+// word, and a day with money sent back adds "$150 refunded" (part: "$50 refunded") under the word;
+// a day with nothing refunded reads the bare word "collected", unpaid included. Asserted in English
+// and Spanish at 390 and 320, and that no word of the cell is cut. The desk names a PART refund
+// beside what was kept the same way ("$100 collected · $50 refunded").
+//
 // The export half is asserted in Node on the exact row Today drew (see EXPORT_SRC).
 //
 // SABOTAGE: --break=status-only rewrites the served Today and a scratch copy of the export back to reading
@@ -50,7 +56,7 @@ const REWRITES = BREAK ? {
   "Today.jsx": ["keptOf(b, Number(b.final_amount ?? b.total_price))", "Number(b.final_amount ?? b.total_price)"],
   "accountant-export.js": ["paidWords(b),", '(b.payment_status === "paid" ? "Paid" : "Unpaid"),'],
 } : null;
-const BELT = "C:/Users/rando/Downloads/claude/belt/shots/97.81";
+const BELT = "C:/Users/rando/Downloads/claude/belt/shots/97.87";
 const SHOTS = arg("shots") || `${BELT}/png`;
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
@@ -94,10 +100,16 @@ const ALL = [
   { id: "unpaid", patch: { ...job(null), payment_status: "unpaid", paid_online_at: null, stripe_payment_intent: null }, collected: 0, status: "Unpaid", amount: 150, desk: "Nothing collected yet" },
 ];
 // The desk sentence under Expected. A refunded day names what went back, never "yet".
-const deskWords = (sc) => sc.desk ?? (sc.collected > 0 ? `${money(sc.collected)} collected` : `${money(150 - sc.collected)} refunded`);
+const backOf = (sc) => sc.id === "unpaid" ? 0 : 150 - sc.collected;
+const deskWords = (sc) => sc.desk ?? (sc.collected > 0
+  ? `${money(sc.collected)} collected${backOf(sc) > 0 ? ` · ${money(backOf(sc))} refunded` : ""}` : `${money(backOf(sc))} refunded`);
+// The phone's collected cell: its word, then the refund line under it when money went back (97.87).
+const phoneWords = (sc, lang) => [lang === "es" ? "cobrado" : "collected",
+  ...(backOf(sc) > 0 ? [`${money(backOf(sc))} ${lang === "es" ? "devuelto" : "refunded"}`] : [])];
 const SCENARIOS = FREEZE ? ALL.slice(0, 1) : ALL;
 const VIEWS = SCENARIOS.flatMap((sc) => WIDTHS.map((wh) => [sc, wh, "en"]));
 if (!FREEZE) for (const id of ["refunded", "unpaid"]) VIEWS.push([ALL.find((sc) => sc.id === id), [1440, 900], "es"]);
+if (!FREEZE) for (const id of ["refunded", "part-refunded", "unpaid"]) for (const wh of [[390, 844], [320, 640]]) VIEWS.push([ALL.find((sc) => sc.id === id), wh, "es"]);
 const ES_DESK = { refunded: `${money(150)} devuelto`, unpaid: "Aún no has cobrado nada" };
 const EXPECTED = VIEWS.length;
 
@@ -193,7 +205,18 @@ for (const [sc, [w, h], lang] of VIEWS) {
       const phone = f.classList.contains("ledger");
       const figs = [...f.querySelectorAll(".figure")].map((e) => e.textContent.trim());
       const quiet = [...f.querySelectorAll(".quiet")].map((e) => e.textContent.trim());
-      return { phone, figs, quiet };
+      if (!phone) return { phone, figs, quiet };
+      // The collected cell's word and every line under it. textContent, never innerText:
+      // innerText returns what CSS rendered (docs/gotchas.md 115).
+      const cell = f.querySelectorAll(":scope > div")[1];
+      const lbl = cell?.querySelector(".lbl");
+      if (!lbl) return { phone, figs, quiet, lines: null, cut: null };
+      const lines = [[...lbl.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").trim(),
+        ...[...lbl.children].map((e) => e.textContent.trim())];
+      // Cut at rest: an ellipsis (content wider than its box) or a line past the cell's edge.
+      const right = cell.getBoundingClientRect().right;
+      const cut = [lbl, ...lbl.children].some((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > right + 0.5);
+      return { phone, figs, quiet, lines, cut };
     });
     check(`${tag} · Today's money figures are drawn`, !!today, "no [data-tour=figures]");
     let shown = null;
@@ -203,8 +226,13 @@ for (const [sc, [w, h], lang] of VIEWS) {
       const want = today.phone ? money(sc.collected) : lang === "es" ? ES_DESK[sc.id] : deskWords(sc);
       check(`${tag} · expected is the job's whole price, $150`, today.phone ? today.figs[0] === money(150) : today.figs.includes(money(150)), JSON.stringify(today));
       check(`${tag} · collected reads "${want}"`, shown === want, JSON.stringify(today));
+      if (today.phone) {
+        const lines = phoneWords(sc, lang);
+        check(`${tag} · the collected cell says ${JSON.stringify(lines)}`, JSON.stringify(today.lines) === JSON.stringify(lines), JSON.stringify(today));
+        check(`${tag} · no word of the collected cell is cut`, today.cut === false, JSON.stringify(today));
+      }
       const words = [...today.figs, ...today.quiet].join(" | ");
-      if (lang === "es") check(`${tag} · only a day with nothing paid says "Aún"`, /Aún/.test(words) === (sc.id === "unpaid"), words);
+      if (lang === "es") check(`${tag} · only a day with nothing paid says "Aún"`, /Aún/.test(words) === (sc.id === "unpaid" && !today.phone), words);
       else if (sc.id === "unpaid" && !today.phone) check(`${tag} · a day with nothing paid still says "yet"`, /\byet\b/.test(words), words);
       else check(`${tag} · the money figures do not say "yet"`, !/\byet\b/i.test(words), words);
     }
@@ -229,8 +257,8 @@ for (const [sc, [w, h], lang] of VIEWS) {
       await freeze(page, {
         out: `${BELT}/${FREEZE}.html`, label: FREEZE === "before" ? "Before" : "After",
         note: FREEZE === "before"
-          ? "Today's only job was paid by card and then refunded in full, yet the day still says $150 collected."
-          : "The same refunded job now adds nothing: collected reads $0, while expected still shows the $150 job.",
+          ? "On a phone, today's only job was refunded in full and the money cells say just $0 collected. Nothing here says the $150 went back."
+          : "The same refunded day on a phone: under $0 collected the cell now says $150 refunded, as the desk view does.",
         highlight: ".ledger.two > div:nth-child(2)",
       });
       console.log(`froze ${BELT}/${FREEZE}.html`);
