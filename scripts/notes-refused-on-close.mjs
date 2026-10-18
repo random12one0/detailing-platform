@@ -16,7 +16,10 @@
 //                    # after it left (review, 2026-10-18) — ONLY escape-after may go red
 //   BREAK=reset …    # sabotage: "Close anyway" and opening a client no longer forget the save still waiting, so
 //                    # the next client's Close waits on the dropped one (review, 2026-10-18) — ONLY hang-next may go red
-//                    # All six write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
+//   BREAK=tab …      # sabotage: the open record no longer holds the tab bar (ROADMAP 97.88: Clients never hands
+//                    # settleNotes to App's holdLeave), so a tap on another tab unmounts the screen mid-save — ONLY
+//                    # tab and gear may go red (at 1440; at 390 and 768 the sheet covers both)
+//                    # All seven write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
 //                    # each run's own shots carry its name, so a clean run never overwrites them.
 //
 // The Notes box saves on blur, and pressing Close is itself a blur: the save used to leave as the record left, so
@@ -50,6 +53,16 @@
 //   hang-next  as hang, then Close anyway, then tap the next client WITHOUT a reload and press Close with nothing
 //              typed → that record closes at once (checked 1200ms later, well inside the 5s wait), no further
 //              save, no line anywhere — the dropped save is never waited on by another client (review, 2026-10-18)
+//   tab        (ROADMAP 97.88) type, then a real tap where the Today tab is drawn: leaving the SCREEN is a close too.
+//              → one save, the tab bar still on Clients, the record held with the text and the line, as `close`
+//   tab-ok     the same, the server accepts → one save, Today is the screen, no record, no line anywhere
+//   gear       the same with the header's gear (it also replaces the screen) → held, the gear not opened
+//   gear-ok    accepted → the gear's screen is up, no record, no line
+//              WHERE THE RECORD IS A SHEET (390, 768) the sheet and its dimmed backdrop cover the tab bar and the
+//              header, so the tap cannot reach either (measured before the fix, 2026-10-18: at 390 it landed inside the
+//              record, at 768 on the backdrop, which is a Close). There the line asserts exactly that — the tap reached
+//              no tab and no gear, and the screen is still Clients; 97.84's cases cover how that record closes.
+//              All four record where the tap landed, which tab is lit, the gear, and whether the typed text is anywhere.
 //   "Close anyway" must be ON SCREEN (the same test as the line) before it is pressed, in every case that uses it
 // EVERY save is checked for WHAT it sent, in its own line per case: each request's p_notes must be exactly the typed
 // text. Whether the text is then STORED is the function's half, proven against the real migration by
@@ -78,7 +91,7 @@ const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
 const BASE = process.env.BASE || "http://localhost:5173";
 const BREAK = process.env.BREAK || "";
-if (BREAK && !["close", "accept", "reject", "text", "stale", "reset"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
+if (BREAK && !["close", "accept", "reject", "text", "stale", "reset", "tab"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
 const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
 const CASES = [
   { id: "control", leave: "blur", answer: "refuse" },
@@ -94,6 +107,10 @@ const CASES = [
   { id: "hang", leave: "close", answer: "hang", anyway: true },
   { id: "hang-next", leave: "close", answer: "hang", anyway: true, next: true },
   { id: "escape-after", leave: "escape", answer: "accept", after: true },
+  { id: "tab", leave: "tab", to: "today", answer: "refuse" },
+  { id: "tab-ok", leave: "tab", to: "today", answer: "accept" },
+  { id: "gear", leave: "tab", to: "gear", answer: "refuse" },
+  { id: "gear-ok", leave: "tab", to: "gear", answer: "accept" },
 ];
 const ANSWER_MS = 600;
 const PRODUCT_WAIT_MS = 5000;   // Clients.jsx NOTES_WAIT_MS
@@ -104,7 +121,7 @@ const ANYWAY = "Close anyway";
 const SHOTS = process.env.SHOTS || "artifacts/notes-refused-on-close";
 const started_at = new Date().toISOString();
 const FROZEN = new Date(started_at);
-const SIGNED = ["close", "reject", "text", "stale", "reset"].includes(BREAK);
+const SIGNED = ["close", "reject", "text", "stale", "reset", "tab"].includes(BREAK);
 const SLOW_MS = 1500;   // escape-after: how long the FIRST save is held back
 const NEXT_MS = 1200;   // hang-next: how long after Close the next record must already be gone (exit is 180ms)
 
@@ -130,6 +147,8 @@ const REWRITES = {
     ["const openCustomer = async (c) => {\n    saving.current = null;\n", "const openCustomer = async (c) => {\n"],
     ["const dropNotes = () => {\n    saving.current = null;\n", "const dropNotes = () => {\n"],
   ],
+  // the record no longer holds the tab bar (ROADMAP 97.88)
+  tab: [["if (holdLeave) holdLeave.current = open ? settleNotes : null;", ""]],
 };
 
 const failures = [];
@@ -312,6 +331,7 @@ for (const [w, h] of WIDTHS) {
     answer = BREAK === "accept" && c.answer === "refuse" ? "accept" : c.answer;
     const name = await title(p);   // the client this case opened
     const typed = `97.84 ${c.id} ${w}`;
+    let tapped = null, sheet = false;
     const line = c.look ? LOOKING : c.answer === "hang" ? NOT_YET : NOT_SAVED;
     const early = c.after ? typed.slice(0, -` ${w}`.length) : typed;   // escape-after: the text the first save carries
     await box.click();
@@ -326,6 +346,12 @@ for (const [w, h] of WIDTHS) {
     if (c.leave === "blur") await p.locator("label.field:has-text('Notes') > span").first().click();
     else if (c.leave === "escape") await p.keyboard.press("Escape");
     else if (c.leave === "close") await closeX(p);
+    else if (c.leave === "tab") {   // a real tap where the tab (or the gear) is drawn; whatever is on top there takes it
+      sheet = (await p.locator(".sheet").count()) > 0;
+      const r = await p.locator(c.to === "gear" ? "header button[data-tour=gear]" : `.tabbar button[data-tour=${c.to}]`).boundingBox();
+      tapped = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? (e.closest("button[data-tour]")?.dataset.tour ?? e.tagName.toLowerCase() + "." + String(e.className)) : "nothing"; }, [r.x + r.width / 2, r.y + r.height / 2]);
+      await p.mouse.click(r.x + r.width / 2, r.y + r.height / 2);
+    }
     else {
       if (c.leave === "close+row") { await closeX(p); await p.waitForTimeout(250); }
       // A real tap at the next client: at a desk its row, beside the record. Where the record is a sheet the list
@@ -335,6 +361,13 @@ for (const [w, h] of WIDTHS) {
     }
     await settle(p, c.answer === "hang" ? PRODUCT_WAIT_MS + 1500 : c.after ? SLOW_MS + ANSWER_MS + 1500 : undefined);
     const first = await state(p, line);
+    if (c.leave === "tab") Object.assign(first, {
+      tapped,
+      sheet,
+      lit_tab: await p.locator(".tabbar button.active").first().getAttribute("data-tour", { timeout: 2000 }).catch(() => null),
+      gear_open: (await p.locator("header button[data-tour=gear]").first().getAttribute("aria-pressed", { timeout: 2000 }).catch(() => null)) === "true",
+      typed_anywhere: await p.evaluate((s) => [...document.querySelectorAll("textarea, input")].some((e) => e.value.includes(s)) || document.body.innerText.includes(s), typed),
+    });
     await p.screenshot({ path: `${SHOTS}/${c.id}-${w}x${h}${tag}.png` });
     // Held: open on the client typed for, the text, the line on screen and in the page exactly once.
     const held = (s) => !!name && s.recordOpen && s.shown_as === name && s.text === typed && s.found === 1 && s.shown === 1;
@@ -385,6 +418,13 @@ for (const [w, h] of WIDTHS) {
         && !after.recordOpen && after.found === 0 && after.sent === 1, detail);
     else if (c.anyway) ok = check(`${w} ${c.id}: a save with no answer held ${name}'s record with the text and the "not saved yet" line; Close anyway put it away`,
       held(first) && first.sent === 1 && goneClean(anyway), detail);
+    else if (c.leave === "tab" && first.sheet) ok = check(`${w} ${c.id}: the record is a sheet over the ${c.to === "gear" ? "header" : "tab bar"}: the tap reached no tab and no gear, one save, the screen is still Clients`,
+      first.sent === 1 && first.tapped !== c.to && first.lit_tab === "clients" && !first.gear_open, detail);
+    else if (c.leave === "tab" && c.answer === "refuse") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; refused, the screen stayed on Clients with ${name}'s record holding the text and the line`,
+      held(first) && first.sent === 1 && first.tapped === c.to && first.lit_tab === "clients" && !first.gear_open, detail);
+    else if (c.leave === "tab") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; accepted, ${c.to} is the screen, no record, no line anywhere`,
+      first.sent === 1 && first.tapped === c.to && !first.recordOpen && first.found === 0
+        && (c.to === "gear" ? first.gear_open : first.lit_tab === c.to && !first.gear_open), detail);
     else if (c.after) ok = check(`${w} ${c.id}: the typing after the first save left was sent before the record closed: two saves, closed, no line`,
       first.sent === 2 && !first.recordOpen && first.found === 0, detail);
     // What each case must show is c.answer's; BREAK=accept changes only what the server says.
