@@ -48,6 +48,17 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## YOUR NEXT RELEASE, IN ONE LIST · start here (ROADMAP 97.91)
+
+When you release, open `docs/release-sheet.md` and go top to bottom in one sitting. It merges the thirteen
+"AT YOUR NEXT RELEASE" rows below into 61 numbered steps: one Stripe setting and one program first, then 21 database
+changes oldest first, then 37 more programs, then the website last. Wherever a row said one thing must come before
+another, the step says so and names the step number. The thirteen rows below stay as the detail behind each step.
+One difference from a row: 97.19 lists the website before two of its programs, but the sheet puts the website last,
+because the push refuses the website while any program is not live. The danger 97.19 warns about (programs before
+the database) is still avoided. A session re-runs the sheet after anything changes (`node scripts/release-sheet.mjs`);
+it only reads, and it never applies, publishes or pushes.
+
 ## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
 
 Both fixes are right. Neither has reached main yet, for the belt's reasons, not yours.

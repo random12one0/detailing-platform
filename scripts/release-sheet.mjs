@@ -244,7 +244,7 @@ const push = (key, text) => { steps.push({ key, text }); stepNo.set(key, steps.l
 const ref = (node) => (node === "website" ? "the website step" : `step ${stepNo.get(node) ?? "?"}`);
 
 out.push("# Release sheet — everything still to go live, in order", "");
-out.push(`Written by \`node scripts/release-sheet.mjs\` at \`${head.slice(0, 8)}\` from the database check taken at \`${String(drift.git_sha).slice(0, 8)}\` and the server check taken at \`${String(inv.git_sha).slice(0, 8)}\`. Do not edit by hand; re-run it.`, "");
+out.push(`Written by \`node scripts/release-sheet.mjs\` from the database check taken at \`${String(drift.git_sha).slice(0, 8)}\` and the server check taken at \`${String(inv.git_sha).slice(0, 8)}\`. Do not edit by hand; re-run it.`, "");
 out.push("## In plain words", "");
 out.push(`This is one list for your next release, replacing thirteen separate notes. Do it top to bottom, in one sitting. **${allMigs.length} database changes** go into the live database, **${allFns.length} programs** go onto the server, and then **the website** goes out. Where an order matters, the step says so and names the step it must come after. If you stop halfway, stop at the end of a part, never in the middle of one.`, "");
 out.push("Nothing here has been done for you. No session applies, publishes or pushes.", "");

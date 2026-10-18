@@ -1,6 +1,6 @@
 # Release sheet — everything still to go live, in order
 
-Written by `node scripts/release-sheet.mjs` at `51b93c8b` from the database check taken at `49e2cfb0` and the server check taken at `49e2cfb0`. Do not edit by hand; re-run it.
+Written by `node scripts/release-sheet.mjs` from the database check taken at `49e2cfb0` and the server check taken at `49e2cfb0`. Do not edit by hand; re-run it.
 
 ## In plain words
 
