@@ -265,6 +265,12 @@ for (const [sc, [w, h], lang] of VIEWS) {
     }
     const file = `${SHOTS}/${BREAK ? `break-${BREAK}-` : FREEZE ? `${FREEZE}-` : ""}today-${sc.id}-${w}x${h}${lang === "es" ? "-es" : ""}.png`;
     await page.screenshot({ path: file, fullPage: false });
+    // The cells themselves, centred clear of the tab bar: at 320x640 they rest below the fold (97.87).
+    const cells = page.locator("[data-tour=figures]");
+    if (await cells.count()) {
+      await cells.evaluate((e) => e.scrollIntoView({ block: "center" }));
+      await cells.screenshot({ path: file.replace(/\.png$/, "-cells.png") });
+    }
     probed.push({ scenario: sc.id, width: w, lang, collected: shown, export_status: exp?.status ?? null, errors: errors.length, shot: file });
     completed++;
     await ctx.close();
