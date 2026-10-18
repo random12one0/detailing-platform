@@ -166,6 +166,7 @@ function world(refuse) {
       businessById: async (id) => ({ id, name: "Ridgeline Auto Detail", timezone: "America/Los_Angeles", contact_phone: null }),
       getSettings: async () => ({ cancellation_window_hours: 24 }),
       requireMember: async () => ({ businessId: "biz_1", userId: "user_1", role: "owner" }),
+      can: () => true, // update-booking reads it since 99.13; the caller above is the owner
     },
     pricing: { servicesForBooking: async () => [] },
     slotValidation: { dayRuleRefusal, validateSlot: async () => ({ ok: true, startAt: new Date(NEW_START), endAt: new Date(NEW_END) }) },
