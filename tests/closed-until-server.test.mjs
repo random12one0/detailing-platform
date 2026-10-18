@@ -128,6 +128,25 @@ globalThis.fetch = async (input, init) => {
       : send(401, { message: "invalid token" });
   }
   if (u.pathname.startsWith("/functions/v1/")) return send(200, { ok: true });
+  // ROADMAP 97.18: the three handlers write through these two, as the migration defines them minus the
+  // day lock (proved on a real Postgres by scripts/booking-day-lock.mjs): the insert returns its row; the
+  // move applies its patch only under the read-at fences and returns the rows it moved.
+  if (u.pathname === "/rest/v1/rpc/insert_booking_checked") {
+    const row = { id: `row-${nextId++}`, ...JSON.parse(text || "{}").p_row };
+    db.bookings.push(row);
+    writes.push({ table: "bookings", kind: "insert", rows: 1 });
+    return send(200, row);
+  }
+  if (u.pathname === "/rest/v1/rpc/move_booking_checked") {
+    const a = JSON.parse(text || "{}");
+    const hit = db.bookings.filter((r) => r.id === a.p_id && r.business_id === a.p_business
+      && (a.p_from_start == null || new Date(r.start_at).getTime() === new Date(a.p_from_start).getTime())
+      && (a.p_from_status == null || r.status === a.p_from_status));
+    for (const r of hit) Object.assign(r, a.p_patch);
+    writes.push({ table: "bookings", kind: "update", rows: hit.length, patch: a.p_patch });
+    const one = String(req.headers.get("accept") || "").includes("vnd.pgrst.object");
+    return one ? (hit.length ? send(200, hit[0]) : send(406, { code: "PGRST116", message: "0 rows" })) : send(200, hit);
+  }
   if (u.pathname.startsWith("/rest/v1/rpc/")) return send(200, u.pathname.endsWith("/rate_take") ? true : null);
   const tbl = (u.pathname.match(/^\/rest\/v1\/([a-z_]+)$/) || [])[1];
   if (!tbl) return send(404, { message: "no fake for " + u.pathname });
