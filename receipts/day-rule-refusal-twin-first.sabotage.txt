@@ -1,4 +1,4 @@
-day-rule-refusal BREAK=twin-first — 2026-10-17T20:06:45.789Z
+day-rule-refusal BREAK=twin-first — 2026-10-18T03:18:55.636Z
 ok    create ordinary: 200
 ok    create ordinary: written through insert_booking_checked
 ok    create ordinary: one booking saved, one confirmation sent

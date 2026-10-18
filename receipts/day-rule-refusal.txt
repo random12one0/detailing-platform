@@ -1,4 +1,4 @@
-day-rule-refusal — 2026-10-17T20:07:12.409Z
+day-rule-refusal — 2026-10-18T03:18:56.093Z
 ok    create ordinary: 200
 ok    create ordinary: written through insert_booking_checked
 ok    create ordinary: one booking saved, one confirmation sent
