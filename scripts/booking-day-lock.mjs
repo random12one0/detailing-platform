@@ -8,9 +8,15 @@
 // `scripts/restore-nightly.mjs` uses (RESTORE_TOOLS, or %LOCALAPPDATA%\detailing-platform\tools). Deleted on
 // exit. Credential-free; nothing touches the live database.
 //
-// FIXTURE, said plainly: `businesses` and `business_settings` reduced to the columns the rule reads;
-// `bookings` reduced to the columns the rule and the writes read, PLUS the real `bookings_no_overlap` text
-// from 20260907000400_multiple_vehicles.sql. The migration under test is applied from its own file.
+// FIXTURE, said plainly: EVERY file in supabase/migrations/ is replayed in order, so `bookings`,
+// `businesses` and `business_settings` are the real tables with their real columns, constraints, indexes,
+// triggers and grants, and the migration under test is applied in its place in that order (sabotaged
+// there under --break). Stood in for, because they are Supabase's and not this repo's: the `auth`,
+// `storage`, `vault`, `cron` and `net` schemas (just the tables and functions the migrations name), the
+// roles, and Supabase's default grants on `public`. The two `create extension pg_cron / pg_net` lines are
+// skipped (no such extension here; their schemas are the stand-ins). Every race and timed write runs as
+// `service_role`, the role the edge functions hold. (Supervisor 2026-10-17: the first version proved this
+// on cut-down copies of three tables.)
 //
 // THE RACES ARE TWO REAL DATABASE SESSIONS. Session A writes through the function and then holds its
 // transaction open (pg_sleep) — the moment in production between A's check and A's commit. Session B is
@@ -20,13 +26,13 @@
 // SPEED: 300 plain inserts (the statement PostgREST runs for `.from("bookings").insert(...)`) against 300
 // calls of insert_booking_checked, alternating, one autocommit statement each, timed by psql's \timing
 // (round trip, plan, execute, commit). The day each lands on already holds two bookings, so the re-check
-// has rows to read. The difference is RECORDED (`extra_median_ms`, `r4_met_as_written`), not passed: the
-// one speed bar here is a regression guard against the first draft's whole-history read, not ROADMAP R4.
+// has rows to read, and the table's real triggers run on both. ROADMAP R4, as Andrew set it 2026-10-17:
+// the checked save may be no more than 5 ms slower (R4_MS), held at the median and at the 95th percentile.
 // WHAT IT DOES NOT PROVE: the edge functions calling these over PostgREST (tests/day-rule-refusal.test.mjs
 // runs the handlers in memory), or the live database (applying the migration is Andrew's).
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import { join } from "node:path";
@@ -45,20 +51,20 @@ for (const n of ["initdb", "pg_ctl", "psql"]) {
   if (!existsSync(PG(n))) { console.error(`NOT RUN — ${n}.exe is not at ${PG(n)} (docs/recovery.md says how to unzip the Postgres 17 tools there)`); process.exit(2); }
 }
 
-const MIGRATION = readFileSync(join(REPO, "supabase/migrations/20261018030645_booking_day_rules_lock.sql"), "utf8").replace(/\r\n/g, "\n");
+const DIR = join(REPO, "supabase/migrations");
+const UNDER_TEST = "20261018030645_booking_day_rules_lock.sql";
+const FILES = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort();
+if (!FILES.includes(UNDER_TEST)) { console.error(`${UNDER_TEST} is not in supabase/migrations/`); process.exit(2); }
+const MIGRATION = readFileSync(join(DIR, UNDER_TEST), "utf8").replace(/\r\n/g, "\n");
 let SQL = MIGRATION;
 if (BREAK) {
   SQL = MIGRATION.replace(...BREAKS[BREAK]);
   // docs/gotchas.md 102: prove the sabotage landed before believing either colour.
   if (SQL === MIGRATION) { console.error(`--break=${BREAK} did not change the migration text; nothing was sabotaged`); process.exit(2); }
 }
-const OVERLAP = /alter table public\.bookings add constraint bookings_no_overlap[\s\S]*?;/.exec(
-  readFileSync(join(REPO, "supabase/migrations/20260907000400_multiple_vehicles.sql"), "utf8").replace(/\r\n/g, "\n"))?.[0];
-if (!OVERLAP) { console.error("could not find bookings_no_overlap in 20260907000400_multiple_vehicles.sql"); process.exit(2); }
-// The live table's own (business_id, start_at) index, so the speed case reads the day the way production does.
-const START_IDX = /create index bookings_business_start_idx on public\.bookings[^;]*;/.exec(
-  readFileSync(join(REPO, "supabase/migrations/20260827000200_tenant_data.sql"), "utf8"))?.[0];
-if (!START_IDX) { console.error("could not find bookings_business_start_idx in 20260827000200_tenant_data.sql"); process.exit(2); }
+// ROADMAP 97.18 R4, as Andrew set it 2026-10-17 23:11: the lock adds no more than 5 ms per booking.
+const R4_MS = 5;
+const NO_EXT = /^[ \t]*create extension if not exists (pg_cron|pg_net);[ \t]*$/gm;
 
 // ---- the throwaway cluster (teardown on exit: a `finally` does not run on SIGTERM, docs/gotchas.md 90)
 const TMP = mkdtempSync(join(os.tmpdir(), "booking-day-lock-"));
@@ -88,26 +94,66 @@ const session = (q) => new Promise((res) => {
 });
 const version = sql("show server_version").trim();
 
+// Supabase's own part of the database, stood in for: only what the migrations name.
 sql(`
-  create extension btree_gist;
-  create role anon; create role authenticated; create role service_role;
-  create table public.businesses (id uuid primary key, timezone text not null);
-  create table public.business_settings (business_id uuid primary key references public.businesses(id),
-    buffer_minutes integer not null default 60, max_bookings_per_day integer);
-  create table public.bookings (
-    id uuid primary key default gen_random_uuid(),
-    business_id uuid not null references public.businesses(id),
-    customer_name text,
-    start_at timestamptz not null,
-    end_at timestamptz not null,
-    status text not null default 'confirmed' check (status in ('pending','confirmed','cancelled','completed','no_show')),
-    bulk_vehicle_count integer,
-    deleted_at timestamptz,
-    created_at timestamptz not null default now());
-  ${OVERLAP}
-  ${START_IDX}
+  create role anon nologin noinherit; create role authenticated nologin noinherit;
+  create role service_role nologin noinherit bypassrls; create role supabase_admin nologin;
+  grant usage on schema public to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+  create schema auth;
+  create table auth.users (id uuid primary key default gen_random_uuid(), email text, phone text,
+    raw_user_meta_data jsonb default '{}', raw_app_meta_data jsonb default '{}', created_at timestamptz default now(),
+    updated_at timestamptz default now(), last_sign_in_at timestamptz, email_confirmed_at timestamptz,
+    banned_until timestamptz, deleted_at timestamptz, is_anonymous boolean default false);
+  create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid references auth.users(id) on delete cascade,
+    created_at timestamptz default now(), updated_at timestamptz, not_after timestamptz);
+  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+  create function auth.role() returns text language sql stable as $$ select nullif(current_setting('request.jwt.claim.role', true), '') $$;
+  create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
+  grant usage on schema auth to anon, authenticated, service_role;
+  create schema storage;
+  create table storage.buckets (id text primary key, name text not null, owner uuid, public boolean default false,
+    file_size_limit bigint, allowed_mime_types text[], created_at timestamptz default now(), updated_at timestamptz default now());
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets(id),
+    name text, owner uuid, owner_id text, metadata jsonb, created_at timestamptz default now(), updated_at timestamptz default now(),
+    last_accessed_at timestamptz default now(), version text);
+  alter table storage.objects enable row level security;
+  create function storage.foldername(name text) returns text[] language sql immutable as $$
+    select (string_to_array(name, '/'))[1:greatest(array_length(string_to_array(name, '/'), 1) - 1, 0)] $$;
+  grant usage on schema storage to anon, authenticated, service_role;
+  create schema cron;
+  create table cron.job (jobid bigserial primary key, schedule text, command text, jobname text unique, active boolean default true);
+  create table cron.job_run_details (runid bigserial primary key, jobid bigint, status text, return_message text,
+    start_time timestamptz, end_time timestamptz);
+  create function cron.schedule(job_name text, schedule text, command text) returns bigint language sql as $$
+    insert into cron.job (jobname, schedule, command) values (job_name, schedule, command)
+    on conflict (jobname) do update set schedule = excluded.schedule, command = excluded.command returning jobid $$;
+  create function cron.unschedule(job_name text) returns boolean language sql as $$ delete from cron.job where jobname = job_name returning true $$;
+  create schema net;
+  create table net._http_response (id bigint, status_code integer, content text, content_type text, headers jsonb,
+    timed_out boolean, error_msg text, created timestamptz default now());
+  create function net.http_post(url text, body jsonb default '{}', params jsonb default '{}', headers jsonb default '{}',
+    timeout_milliseconds integer default 5000) returns bigint language sql as $$ select 0::bigint $$;
+  create function net.http_get(url text, params jsonb default '{}', headers jsonb default '{}',
+    timeout_milliseconds integer default 5000) returns bigint language sql as $$ select 0::bigint $$;
+  create schema vault;
+  create table vault.secrets (id uuid primary key default gen_random_uuid(), name text unique, secret text, description text,
+    created_at timestamptz default now());
+  create view vault.decrypted_secrets as select id, name, secret as decrypted_secret, description, created_at from vault.secrets;
+  create function vault.create_secret(new_secret text, new_name text default null, new_description text default '')
+    returns uuid language sql as $$ insert into vault.secrets (name, secret, description) values (new_name, new_secret, new_description) returning id $$;
 `);
-sql(SQL);
+// Every migration, in order; the one under test from SQL (sabotaged under --break).
+let replayed = 0;
+for (const f of FILES) {
+  const text = f === UNDER_TEST ? SQL : readFileSync(join(DIR, f), "utf8").replace(/\r\n/g, "\n").replace(NO_EXT, "-- (replay) $&");
+  const r = trySql(text);
+  if (r.status !== 0) { console.error(`NOT RUN — replaying ${f} failed: ${(r.stderr || "").slice(0, 800)}`); process.exit(2); }
+  replayed++;
+}
+const svc = (q) => `set role service_role;\n${q}`;
 
 // One business per case, so no case can read another's rows. Los Angeles, a 45-minute buffer, a cap of 2.
 const TZ = "America/Los_Angeles";
@@ -116,11 +162,14 @@ const at = (hm) => `${DAY}T${hm}:00-07:00`;
 let n = 0;
 const business = (cap = 2, buf = 45, tz = TZ) => {
   const id = `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
-  sql(`insert into public.businesses values ('${id}', '${tz}');
-       insert into public.business_settings values ('${id}', ${buf}, ${cap === null ? "null" : cap});`);
+  sql(`insert into public.businesses (id, slug, name, timezone) values ('${id}', 'race-${n}', 'Race ${n}', '${tz}');
+       insert into public.business_settings (business_id, buffer_minutes, max_bookings_per_day) values ('${id}', ${buf}, ${cap === null ? "null" : cap})
+       on conflict (business_id) do update set buffer_minutes = excluded.buffer_minutes, max_bookings_per_day = excluded.max_bookings_per_day;`);
   return id;
 };
-const row = (biz, s, e, extra = {}) => JSON.stringify({ business_id: biz, customer_name: "Race test", start_at: at(s), end_at: at(e), ...extra });
+// The columns create-booking always sends that the real table requires.
+const REQUIRED = { customer_phone: "5555550100", service_type: "mobile" };
+const row = (biz, s, e, extra = {}) => JSON.stringify({ business_id: biz, customer_name: "Race test", ...REQUIRED, start_at: at(s), end_at: at(e), ...extra });
 const plainInsert = (r) => {
   const keys = Object.keys(JSON.parse(r)).join(", ");
   return `insert into public.bookings (${keys}) select ${keys} from jsonb_populate_record(null::public.bookings, '${r}') returning id;`;
@@ -129,13 +178,13 @@ const live = (biz) => Number(sql(`select count(*) from public.bookings where bus
 
 // A holds its transaction open after the write; B starts only once A is inside that sleep.
 async function race(aSql, bSql) {
-  const A = session(`begin;\n${aSql}\nselect pg_sleep(2);\ncommit;\n`);
+  const A = session(svc(`begin;\n${aSql}\nselect pg_sleep(2);\ncommit;\n`));
   const t0 = Date.now();
   while (Number(sql("select count(*) from pg_stat_activity where query like 'select pg_sleep(2)%' and state = 'active'").trim()) === 0) {
     if (Date.now() - t0 > 15000) throw new Error("session A never reached its sleep");
     await new Promise((r) => setTimeout(r, 50));
   }
-  const B = await session(bSql);
+  const B = await session(svc(bSql));
   return { A: await A, B };
 }
 
@@ -146,6 +195,20 @@ const cases = [];
 const done = (id, observed) => { cases.push({ id, ...observed }); console.log(`  ${id}: ${JSON.stringify(observed)}`); };
 
 console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --break=${BREAK}` : ""}`);
+
+// 0 · THE REAL SCHEMA: every migration replayed, and only the edge functions' role may call the writes.
+{
+  const may = (role, fn) => sql(`select has_function_privilege('${role}', 'public.${fn}', 'execute')`).trim();
+  const fns = ["insert_booking_checked(jsonb)", "move_booking_checked(uuid, uuid, jsonb, timestamptz, text)"];
+  const grants = Object.fromEntries(["anon", "authenticated", "service_role"].map((r) => [r, fns.map((f) => may(r, f)).join("")]));
+  const triggers = sql(`select string_agg(tgname, ',' order by tgname) from pg_trigger where tgrelid = 'public.bookings'::regclass and not tgisinternal`).trim();
+  const columns = Number(sql(`select count(*) from information_schema.columns where table_schema = 'public' and table_name = 'bookings'`).trim());
+  check(replayed === FILES.length, `real-schema: replayed ${replayed} of ${FILES.length} migrations`);
+  check(grants.anon === "ff", `real-schema: anon may call the checked writes (${grants.anon})`);
+  check(grants.authenticated === "ff", `real-schema: authenticated may call the checked writes (${grants.authenticated})`);
+  check(grants.service_role === "tt", `real-schema: service_role may not call the checked writes (${grants.service_role})`);
+  done("real-schema", { migrations_replayed: replayed, migrations_in_folder: FILES.length, bookings_columns: columns, bookings_triggers: triggers, execute: grants });
+}
 
 // 1 · THE DEFECT, reproduced: the plain insert create-booking used saves a third job on a cap-2 day.
 {
@@ -192,7 +255,7 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
 {
   const biz = business();
   sql(plainInsert(row(biz, "09:00", "10:00")));
-  const other = (d) => JSON.stringify({ business_id: biz, customer_name: "Mover", start_at: `2030-03-${d}T09:00:00-07:00`, end_at: `2030-03-${d}T10:00:00-07:00` });
+  const other = (d) => JSON.stringify({ business_id: biz, customer_name: "Mover", ...REQUIRED, start_at: `2030-03-${d}T09:00:00-07:00`, end_at: `2030-03-${d}T10:00:00-07:00` });
   const m1 = sql(plainInsert(other("14"))).trim();
   const m2 = sql(plainInsert(other("15"))).trim();
   const patch = (s, e) => JSON.stringify({ start_at: at(s), end_at: at(e) });
@@ -207,13 +270,14 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
 // 6 · an ordinary booking through the function: saved, and every column it did not send takes its default.
 {
   const biz = business();
-  const got = sql(`select status || '|' || (id is not null) || '|' || (created_at is not null) || '|' || coalesce(bulk_vehicle_count::text, 'null')
-    from public.insert_booking_checked('${row(biz, "12:00", "13:00")}');`).trim();
-  check(got === "confirmed|true|true|null", `defaults: an ordinary booking came back as ${got}`);
+  const got = sql(svc(`select status || '|' || (id is not null) || '|' || (created_at is not null) || '|' || coalesce(bulk_vehicle_count::text, 'null')
+      || '|' || payment_status || '|' || vehicle_size || '|' || total_price
+    from public.insert_booking_checked('${row(biz, "12:00", "13:00")}');`)).trim();
+  check(got === "confirmed|true|true|null|pending|small|0", `defaults: an ordinary booking came back as ${got}`);
   // a cancelled job, a soft-deleted one and a bulk job do not count, as in validateSlot
   sql(plainInsert(row(biz, "15:00", "16:00", { status: "cancelled" })) + plainInsert(row(biz, "16:00", "17:00", { deleted_at: "2030-01-01T00:00:00Z" }))
     + plainInsert(row(biz, "17:00", "18:00", { bulk_vehicle_count: 10 })));
-  const second = trySql(`select id from public.insert_booking_checked('${row(biz, "19:00", "20:00")}');`);
+  const second = trySql(svc(`select id from public.insert_booking_checked('${row(biz, "19:00", "20:00")}');`));
   check(second.status === 0, `exemptions: a second booking on a day holding one live job was refused: ${second.stderr}`);
   done("ordinary-and-exemptions", { returned: got, second_exit: second.status });
 }
@@ -221,7 +285,7 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
 {
   const biz = business();
   const id = sql(plainInsert(row(biz, "09:00", "10:00"))).trim();
-  const r = trySql(`select count(*) from public.move_booking_checked('${id}', '${biz}', '${JSON.stringify({ start_at: at("12:00"), end_at: at("13:00") })}', '2030-03-12T08:00:00-07:00');`);
+  const r = trySql(svc(`select count(*) from public.move_booking_checked('${id}', '${biz}', '${JSON.stringify({ start_at: at("12:00"), end_at: at("13:00") })}', '2030-03-12T08:00:00-07:00');`));
   const still = sql(`select start_at = '${at("09:00")}'::timestamptz from public.bookings where id = '${id}'`).trim();
   check(r.status === 0 && r.stdout.trim() === "0" && still === "t", `fence: a stale move wrote or errored (exit ${r.status}, ${r.stdout.trim()} rows, unchanged ${still})`);
   done("fence-holds", { exit: r.status, rows: r.stdout.trim(), unchanged: still });
@@ -230,16 +294,16 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
 {
   const biz = business(6, 45, "UTC");
   const N = 300;
-  sql(`insert into public.bookings (business_id, customer_name, start_at, end_at)
-       select '${biz}'::uuid, 'Seed', (d + interval '8 hours') at time zone 'UTC', (d + interval '9 hours') at time zone 'UTC'
+  sql(`insert into public.bookings (business_id, customer_name, customer_phone, service_type, start_at, end_at)
+       select '${biz}'::uuid, 'Seed', '5555550100', 'mobile', (d + interval '8 hours') at time zone 'UTC', (d + interval '9 hours') at time zone 'UTC'
          from generate_series(timestamp '2031-01-01', timestamp '2031-01-01' + interval '${2 * N - 1} days', interval '1 day') d
        union all
-       select '${biz}'::uuid, 'Seed', (d + interval '10 hours') at time zone 'UTC', (d + interval '11 hours') at time zone 'UTC'
+       select '${biz}'::uuid, 'Seed', '5555550100', 'mobile', (d + interval '10 hours') at time zone 'UTC', (d + interval '11 hours') at time zone 'UTC'
          from generate_series(timestamp '2031-01-01', timestamp '2031-01-01' + interval '${2 * N - 1} days', interval '1 day') d;
        analyze public.bookings;`);
   const day = (i) => new Date(Date.UTC(2031, 0, 1 + i)).toISOString().slice(0, 10);
-  const r = (i) => JSON.stringify({ business_id: biz, customer_name: "Timed", start_at: `${day(i)}T13:00:00Z`, end_at: `${day(i)}T14:00:00Z` });
-  let script = "\\timing on\n";
+  const r = (i) => JSON.stringify({ business_id: biz, customer_name: "Timed", ...REQUIRED, start_at: `${day(i)}T13:00:00Z`, end_at: `${day(i)}T14:00:00Z` });
+  let script = svc("\\timing on\n");
   for (let i = 0; i < N; i++) {
     script += plainInsert(r(2 * i)) + "\n";
     script += `select id from public.insert_booking_checked('${r(2 * i + 1)}');\n`;
@@ -250,18 +314,19 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
   const locked = times.filter((_, i) => i % 2 === 1).sort((a, b) => a - b);
   const q = (a, p) => a[Math.min(a.length - 1, Math.floor(a.length * p))];
   const s = { n_each: plain.length, plain_median_ms: q(plain, 0.5), plain_p95_ms: q(plain, 0.95), checked_median_ms: q(locked, 0.5), checked_p95_ms: q(locked, 0.95) };
-  s.extra_median_ms = Math.round((s.checked_median_ms - s.plain_median_ms) * 1000) / 1000;
-  // R4 ("a single ordinary booking takes no longer than before") is RECORDED here, never passed: the checked
-  // save is slower by `extra_median_ms`, and `r4_met_as_written` says so in the receipt.
-  s.r4_met_as_written = s.checked_median_ms <= s.plain_median_ms;
+  const ms = (x) => Math.round(x * 1000) / 1000;
+  s.extra_median_ms = ms(s.checked_median_ms - s.plain_median_ms);
+  s.extra_p95_ms = ms(s.checked_p95_ms - s.plain_p95_ms);
   check(times.length === 2 * N, `speed: ${times.length} timings of ${2 * N}`);
   check(live(biz) === 6 * N, `speed: ${live(biz)} bookings after the timed run, expected ${6 * N} (a timed insert was refused)`);
-  // A REGRESSION GUARD, NOT R4: the first draft read the whole history (+0.52 ms median) and fails this bar.
-  check(s.checked_median_ms <= s.plain_p95_ms, `speed regression guard: a checked booking's median ${s.checked_median_ms}ms is past the plain insert's p95 ${s.plain_p95_ms}ms`);
+  // R4 as Andrew set it 2026-10-17 23:11: the lock adds no more than 5 ms per booking. Held at the median AND
+  // at the 95th percentile, so the slow end of the run is held to it too.
+  check(s.extra_median_ms <= R4_MS, `speed (R4): the checked save's median is ${s.extra_median_ms} ms longer than the plain insert's, over the ${R4_MS} ms rule`);
+  check(s.extra_p95_ms <= R4_MS, `speed (R4): the checked save's 95th percentile is ${s.extra_p95_ms} ms longer than the plain insert's, over the ${R4_MS} ms rule`);
   done("speed", s);
 }
 
-const EXPECTED = 8;
+const EXPECTED = 9;
 const LOG = `artifacts/booking-day-lock/run${BREAK ? "." + BREAK : ""}.json`;
 mkdirSync(join(REPO, "artifacts/booking-day-lock"), { recursive: true });
 writeFileSync(join(REPO, LOG), JSON.stringify({ postgres: version, break: BREAK || null, cases, failures }, null, 1));
@@ -278,18 +343,16 @@ const { path } = writeReceipt({
   completed_targets: cases.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 18,
-  assertion_floor: "1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 3 speed; every check() unconditional.",
+  min_assertions: 23,
+  assertion_floor: "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 4 speed; every check() unconditional.",
   failures,
   warnings: [
-    "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
+    `Throwaway local Postgres built by replaying all ${FILES.length} files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.`,
     "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's.",
-    ...cases.filter((c) => c.id === "speed" && !c.r4_met_as_written).map((c) =>
-      `ROADMAP 97.18 R4 ("a single ordinary booking takes no longer than before") is NOT met as written: the checked save's median is ${c.extra_median_ms} ms longer than the plain insert's (${c.checked_median_ms} vs ${c.plain_median_ms} ms). The speed check that passes is a regression guard, not R4.`),
   ],
   artifacts: [LOG],
   canary: { id: "plain-insert-beats-cap-and-buffer", observed_failure: defect },
-  dimensions: { break: BREAK || undefined, item: "97.18", postgres: version },
+  dimensions: { break: BREAK || undefined, item: "97.18", postgres: version, migrations_replayed: replayed, r4_ms: R4_MS },
   observed: Object.fromEntries(cases.map((c) => [c.id, c])),
 });
 console.log(`receipt: ${path}\n${status.toUpperCase()} — ${cases.length} of ${EXPECTED} cases, ${assertions} assertions, ${failures.length} failed`);
