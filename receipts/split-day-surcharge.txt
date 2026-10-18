@@ -1,0 +1,13 @@
+split-day-surcharge 2026-10-18T06:54:20.463Z break=none
+  ok    1a · the save is $430 (200 + 230)
+  ok    1b · the quote equals what is saved
+  ok    1c · each car's quoted figure equals its own saved booking
+  ok    1d · the weekend line sits on the Saturday car only
+  ok    2a · the save is $430 (230 + 200)
+  ok    2b · the quote equals what is saved
+  ok    2c · each car's quoted figure equals its own saved booking
+  ok    2d · the weekend line sits on the Saturday car only
+  ok    4 · canary: the payload without the car's own date quotes the old $400
+  ok    3a · car 1's Saturday rate is not lent to car 2 ($230 + $200)
+  ok    3b · two cars on ONE Saturday still carry one weekend line
+11 passed, 0 failed

@@ -1,0 +1,20 @@
+split-day-surcharge 2026-10-18T06:54:20.089Z break=car-1-rules
+  ok    1a · the save is $430 (200 + 230)
+  FAIL  1b · the quote equals what is saved - got quote 400, saved 430
+  FAIL  1c · each car's quoted figure equals its own saved booking - got quoted [200,200], saved [200,230]
+  FAIL  1d · the weekend line sits on the Saturday car only - got [false,false]
+  ok    2a · the save is $430 (230 + 200)
+  FAIL  2b · the quote equals what is saved - got quote 460, saved 430
+  FAIL  2c · each car's quoted figure equals its own saved booking - got quoted [230,230], saved [230,200]
+  FAIL  2d · the weekend line sits on the Saturday car only - got [true,true]
+  ok    4 · canary: the payload without the car's own date quotes the old $400
+  FAIL  3a · car 1's Saturday rate is not lent to car 2 ($230 + $200) - got 460 [true,true]
+  ok    3b · two cars on ONE Saturday still carry one weekend line
+4 passed, 7 failed
+FAIL 1b · the quote equals what is saved - got quote 400, saved 430
+FAIL 1c · each car's quoted figure equals its own saved booking - got quoted [200,200], saved [200,230]
+FAIL 1d · the weekend line sits on the Saturday car only - got [false,false]
+FAIL 2b · the quote equals what is saved - got quote 460, saved 430
+FAIL 2c · each car's quoted figure equals its own saved booking - got quoted [230,230], saved [230,200]
+FAIL 2d · the weekend line sits on the Saturday car only - got [true,true]
+FAIL 3a · car 1's Saturday rate is not lent to car 2 ($230 + $200) - got 460 [true,true]

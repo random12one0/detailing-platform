@@ -1370,7 +1370,17 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
     service_ids: form.serviceIds,
     add_ons: form.addOns,
     vehicle_size: form.vehicleSize,
-    extra_vehicles: extraVehiclePayload(form),
+    // ROADMAP 97.7 — on a split booking each car carries its OWN day, because
+    // its own `create-booking` call prices it on that day. Without these the
+    // server priced every car on car 1's day: Monday + Saturday quoted $400
+    // and charged $430.
+    extra_vehicles: form.splitDays
+      ? extraVehiclePayload(form)?.map((v, i) => ({
+        ...v,
+        booking_date: form.extraVehicles[i].date || undefined,
+        start_time: form.extraVehicles[i].time || undefined,
+      }))
+      : extraVehiclePayload(form),
     applied_promo_code: promoApplied || undefined,
     service_type: form.serviceType || undefined,
     travel_zone: form.travelZone || undefined,
@@ -1408,9 +1418,9 @@ export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify(
   // it out of this list is a stale price on the bar and a stale length handed
   // to `available-slots` — the customer is offered a slot too short for the
   // job and the server refuses the booking at the last step. Only the SIZES
-  // matter to a quote; a car's own day is what makes the split price differ,
-  // and that is the flag beside them.
-  (form.extraVehicles ?? []).map((v) => v.size),
+  // matter to a quote on one day. On a split booking each car's own day and
+  // time price it too (ROADMAP 97.7), so moving car 2 to a Saturday re-quotes.
+  (form.extraVehicles ?? []).map((v) => (form.splitDays ? [v.size, v.date || "", v.time || ""] : v.size)),
   !!form.splitDays,
 ]);
 

@@ -463,7 +463,10 @@ export interface QuoteInput {
   // as `resolveVehicles` returned them. Empty for every booking made before
   // this item and for every business that has not raised its limit, and the
   // arithmetic below is then byte-identical to what it was.
-  extraVehicles?: { key: string; label: string; model?: string | null }[];
+  // ROADMAP 97.7 — on a split booking each car is its own day, so each carries
+  // the rules that matched ITS day (the caller matches them, as for car 1).
+  // Ignored on a same-day booking, where one day prices the whole carload.
+  extraVehicles?: { key: string; label: string; model?: string | null; adjustments?: PriceRule[] }[];
   // The first vehicle's own label, for the split breakdown. Optional, because
   // every other figure in this module needs only the KEY — a caller that has
   // not resolved a label gets the key back and prints something recognisable
@@ -518,6 +521,9 @@ export interface SplitLeg {
   model: string | null;
   total: number;
   durationMinutes: number;
+  // ROADMAP 97.7 — that car's own lines (its day's surcharge, car 1's plan),
+  // so the review step prints a weekend rate under the car it applies to.
+  adjustments: AdjustmentLine[];
 }
 
 export function computeQuote(inp: QuoteInput): Quote {
@@ -538,8 +544,13 @@ export function computeQuote(inp: QuoteInput): Quote {
     // ROADMAP 97.6 — `plan: null`: the plan covers the FIRST car and only the
     // first call carries it (`bookingRequests` in core.js). Passing it here
     // priced every car as the first, and three cars on three days came to $0.
-    const one = (v: { key: string; label: string; model?: string | null }) =>
-      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false, plan: null });
+    //
+    // ROADMAP 97.7 — AND EACH CAR'S OWN DAY'S RULES, NEVER CAR 1'S. Car 1 on a
+    // Monday and car 2 on a Saturday was quoted $400 and charged $430, because
+    // `create-booking` matches each car against its own day. No fallback to
+    // `inp.adjustments`: a car whose day is not picked yet has no rule yet.
+    const one = (v: { key: string; label: string; model?: string | null; adjustments?: PriceRule[] }) =>
+      computeQuote({ ...inp, vehicleSize: v.key, extraVehicles: [], splitDays: false, plan: null, adjustments: v.adjustments ?? [] });
     const first = computeQuote({ ...inp, extraVehicles: [], splitDays: false });
     const rest = legs.map(one);
     const all = [first, ...rest];
@@ -565,10 +576,11 @@ export function computeQuote(inp: QuoteInput): Quote {
       totalDurationMinutes: first.totalDurationMinutes,
       legs: [
         { size: inp.vehicleSize, label: inp.vehicleSizeLabel ?? inp.vehicleSize, model: null,
-          total: first.total, durationMinutes: first.totalDurationMinutes },
+          total: first.total, durationMinutes: first.totalDurationMinutes, adjustments: first.adjustmentLines },
         ...legs.map((v, i) => ({
           size: v.key, label: v.label, model: v.model ?? null,
           total: rest[i].total, durationMinutes: rest[i].totalDurationMinutes,
+          adjustments: rest[i].adjustmentLines,
         })),
       ],
     };
