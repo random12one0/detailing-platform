@@ -31293,6 +31293,20 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 
 
 
+- [ ] **98.12 — The release sheet is red on main: 98.3's publish line is not registered.**
+  Found by the supervisor 2026-10-18 at `70168125`. `node scripts/release-sheet.mjs` (credential-free) prints
+  `FAIL — ROADMAP.md:31263 "98.3 …" has a release line and is neither declared nor excluded`. 98.3 wrote
+  `AWAITS PUBLISH` two hours after 97.91 built the sheet, and no gate runs the sheet, so nothing went red where
+  anybody looks. The same run's other FAIL, `STALE: receipts/deployed-inventory.json was taken at 49e2cfb0`, is
+  99.13's `update-booking` change and needs credentials: not this item. The belt brief now tells every session to
+  register a release line the moment it writes one (`belt.config.json` taskTemplate, rule 5).
+  Acceptance criteria:
+  - 98.3 is in `DECLARED` (if its publish step is not already a step on the sheet) or `EXCLUDED` with the reason
+    (if the migrations it names are already on the sheet through `migration-drift.json`), and the run no longer
+    names 98.3. Say which, and name the sheet step that covers it.
+  - The undeclared-row FAIL is proved live: add a throwaway `AWAITS PUBLISH` line under some open item in a
+    scratch copy, see the run name it, remove it.
+
 - [ ] **4.3e — Finish the held preview-unlock branch without English fallback.**
   **RETARGETED 2026-10-13 by 4.3c's third run: there are TWO held builds of this switch, and they conflict in 13
   files under one migration timestamp.** Use `belt/4.3c-20261013101138` (`b7d1015e`) as the base, not
