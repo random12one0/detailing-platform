@@ -212,6 +212,17 @@ After those releases, have a session run `node scripts/deployed-inventory.mjs` a
 `node scripts/receipt.mjs receipts/deployed-inventory.json`, retain the receipt, and tick 98.2 only when both pass.
 The session has not pushed, published, deployed or changed a check to hide the backlog.
 
+## DO, AT YOUR NEXT RELEASE · Two cars on two days show the price they are charged (ROADMAP 97.7)
+
+Booking two cars on different days used to show one price and charge another. With a $30 weekend
+rate, a Monday car plus a Saturday car showed $400 and charged $430. Now each car's price is worked
+out on its own day, and the last step shows "Weekend rate" under the Saturday car. Proved here on
+the real booking page at phone, tablet and laptop sizes. Nothing to decide.
+
+**At your next release,** publish the booking page and the price programs with everything else. Then,
+if you like, a ten-second look on your phone: book two cars, put the second on a Saturday, and on the
+last step check the weekend rate sits under that car. If you don't like how the line looks, say so.
+
 ## DO, AT YOUR NEXT RELEASE · Stop another business adding lines to a customer's receipt (ROADMAP 97.12)
 
 Today a detailer who learned another business's booking number could add a service, add-on or charge to that booking,
