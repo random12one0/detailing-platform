@@ -1,19 +1,21 @@
 {
-  "git_sha": "7a4b3e1d11d33300640df540fdadd58096e1d630",
-  "git_sha_started": "7a4b3e1d11d33300640df540fdadd58096e1d630",
+  "git_sha": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
+  "git_sha_started": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T12:10:24.934Z",
+  "finished_at": "2026-10-18T12:23:34.809Z",
   "failures": [
     "program verify-domain appears 0 time(s) on the sheet, not once",
-    "FOR-ANDREW.md:320 \"97.13 — A web address only goes live when its owner proves it\": its step \"verify-domain\" is not on the sheet tagged 97.13",
-    "FOR-ANDREW.md:320 \"97.13 — A web address only goes live when its owner proves it\": its rule \"verify-domain before 20261018010000_domain_claims_need_proof.sql\" does not hold on the sheet (verify-domain missing)",
-    "FOR-ANDREW.md:320 \"97.13 — A web address only goes live when its owner proves it\": its rule \"verify-domain before website\" does not hold on the sheet (verify-domain missing)"
+    "FOR-ANDREW.md:326 \"97.13 — A web address only goes live when its owner proves it\": its step \"verify-domain\" is not on the sheet tagged 97.13",
+    "FOR-ANDREW.md:326 \"97.13 — A web address only goes live when its owner proves it\": its rule \"verify-domain before 20261018010000_domain_claims_need_proof.sql\" does not hold on the sheet (verify-domain missing)",
+    "FOR-ANDREW.md:326 \"97.13 — A web address only goes live when its owner proves it\": its rule \"verify-domain before website\" does not hold on the sheet (verify-domain missing)",
+    "the plain words do not say where the same-sitting stretch starts"
   ],
   "warnings": [
     "run with --break=drop-line; this receipt is a sabotage, not a result",
     "Reads only the migration-drift and deployed-inventory RECEIPTS; it is as current as they are, and refuses (STALE) when supabase/ changed since either was taken.",
-    "migration-drift cannot see triggers, constraints or data-only migrations; such a file reaches this sheet only when a FOR-ANDREW row names it."
+    "migration-drift cannot see triggers, constraints or data-only migrations; such a file reaches this sheet only when a row it reads names it.",
+    "NOT READ: 97.91; Publish and apply — the one ordered list; Waiting on you — nothing breaks while these wait."
   ],
   "artifacts": [
     "scripts/release-sheet.mjs",
@@ -21,7 +23,7 @@
   ],
   "dimensions": {
     "break": "drop-line",
-    "head": "7a4b3e1d11d33300640df540fdadd58096e1d630",
+    "head": "1f90a0f8d7f21f8c4a7246ae4b63ff4ce9a1ad17",
     "drift_receipt_sha": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
     "inventory_receipt_sha": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
     "migrations_from_drift": [
@@ -47,9 +49,41 @@
       "20261018030645_booking_day_rules_lock.sql",
       "20261018050000_forget_customer_forgets_their_street.sql"
     ],
-    "migrations_from_rows_only": [],
-    "programs": 38,
-    "release_rows": [
+    "migrations_from_rows_only": [
+      "20261016100000_cron_jobs_send_secret.sql"
+    ],
+    "programs_named": 38,
+    "programs_published": 36,
+    "programs_held": [
+      "google-business",
+      "platform-admin"
+    ],
+    "release_rows_read": [
+      "97.3",
+      "14.39",
+      "0.11cc",
+      "0.11bd",
+      "98.2",
+      "97.7",
+      "97.12",
+      "97.18",
+      "97.14",
+      "97.21",
+      "97.20",
+      "97.19",
+      "97.13",
+      "97.72",
+      "97.71",
+      "97.68",
+      "99.2a",
+      "2.15",
+      "4.3b",
+      "9.1b",
+      "99.1",
+      "0.6b",
+      "3.1d"
+    ],
+    "at_your_next_release_rows": [
       "98.2",
       "97.7",
       "97.12",
@@ -64,18 +98,18 @@
       "97.68",
       "99.2a"
     ],
-    "steps": 61
+    "steps": 69
   },
   "check_id": "release-sheet.drop-line",
-  "started_at": "2026-10-18T12:10:23.791Z",
+  "started_at": "2026-10-18T12:23:33.481Z",
   "status": "fail",
-  "expected_targets": 72,
-  "discovered_targets": 70,
-  "attempted_targets": 72,
-  "completed_targets": 72,
+  "expected_targets": 82,
+  "discovered_targets": 77,
+  "attempted_targets": 82,
+  "completed_targets": 82,
   "skipped_targets": 0,
-  "assertions_executed": 119,
-  "min_assertions": 40,
+  "assertions_executed": 176,
+  "min_assertions": 60,
   "canary": {
     "id": "a release row and a migration file the sheet never heard of must both be reported",
     "observed_failure": true,
