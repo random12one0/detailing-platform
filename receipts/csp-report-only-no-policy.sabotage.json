@@ -1,24 +1,30 @@
 {
-  "git_sha": "d000181072b4136eb16d79b470bd364a640cadd4",
-  "git_sha_started": "d000181072b4136eb16d79b470bd364a640cadd4",
+  "git_sha": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "git_sha_started": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T09:47:14.417Z",
+  "finished_at": "2026-10-18T11:41:21.825Z",
   "failures": [
     "header/@390: no Content-Security-Policy-Report-Only header",
     "header/pricing@390: no Content-Security-Policy-Report-Only header",
     "header/book/demo-detail@390: no Content-Security-Policy-Report-Only header",
-    "header/app@390: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@390: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@390: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@390: no Content-Security-Policy-Report-Only header",
     "header/ex1@390: no Content-Security-Policy-Report-Only header",
     "header/@768: no Content-Security-Policy-Report-Only header",
     "header/pricing@768: no Content-Security-Policy-Report-Only header",
     "header/book/demo-detail@768: no Content-Security-Policy-Report-Only header",
-    "header/app@768: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@768: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@768: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@768: no Content-Security-Policy-Report-Only header",
     "header/ex1@768: no Content-Security-Policy-Report-Only header",
     "header/@1440: no Content-Security-Policy-Report-Only header",
     "header/pricing@1440: no Content-Security-Policy-Report-Only header",
     "header/book/demo-detail@1440: no Content-Security-Policy-Report-Only header",
-    "header/app@1440: no Content-Security-Policy-Report-Only header",
+    "header/app~owner@1440: no Content-Security-Policy-Report-Only header",
+    "header/app~staff@1440: no Content-Security-Policy-Report-Only header",
+    "header/app/business~owner@1440: no Content-Security-Policy-Report-Only header",
     "header/ex1@1440: no Content-Security-Policy-Report-Only header"
   ],
   "warnings": [
@@ -30,16 +36,22 @@
     ".manager-shots/97.26/no-policy/pricing-390.png",
     ".manager-shots/97.26/no-policy/book-demo-detail-390.png",
     ".manager-shots/97.26/no-policy/app-390.png",
+    ".manager-shots/97.26/no-policy/app-staff-390.png",
+    ".manager-shots/97.26/no-policy/app-business-390.png",
     ".manager-shots/97.26/no-policy/ex1-390.png",
     ".manager-shots/97.26/no-policy/home-768.png",
     ".manager-shots/97.26/no-policy/pricing-768.png",
     ".manager-shots/97.26/no-policy/book-demo-detail-768.png",
     ".manager-shots/97.26/no-policy/app-768.png",
+    ".manager-shots/97.26/no-policy/app-staff-768.png",
+    ".manager-shots/97.26/no-policy/app-business-768.png",
     ".manager-shots/97.26/no-policy/ex1-768.png",
     ".manager-shots/97.26/no-policy/home-1440.png",
     ".manager-shots/97.26/no-policy/pricing-1440.png",
     ".manager-shots/97.26/no-policy/book-demo-detail-1440.png",
     ".manager-shots/97.26/no-policy/app-1440.png",
+    ".manager-shots/97.26/no-policy/app-staff-1440.png",
+    ".manager-shots/97.26/no-policy/app-business-1440.png",
     ".manager-shots/97.26/no-policy/ex1-1440.png"
   ],
   "dimensions": {
@@ -52,24 +64,27 @@
       "/",
       "/pricing",
       "/book/demo-detail",
-      "/app",
+      "/app~owner",
+      "/app~staff",
+      "/app/business~owner+domain",
       "/ex1"
     ],
+    "tenant_domain": "https://csp-tenant-domain.test",
     "item": "97.26",
     "break": "no-policy",
-    "origin": "http://127.0.0.1:63363"
+    "origin": "http://127.0.0.1:55772"
   },
   "check_id": "csp-report-only-no-policy",
-  "started_at": "2026-10-18T09:45:25.189Z",
+  "started_at": "2026-10-18T11:39:16.563Z",
   "status": "fail",
-  "expected_targets": 15,
-  "discovered_targets": 15,
-  "attempted_targets": 15,
-  "completed_targets": 15,
+  "expected_targets": 21,
+  "discovered_targets": 21,
+  "attempted_targets": 21,
+  "completed_targets": 21,
   "skipped_targets": 0,
-  "assertions_executed": 54,
-  "min_assertions": 54,
-  "assertion_floor": "2 /book/* header + 1 canary + 15 views x 3 (header, events, console) + 3 sizes x 2 (booking last step, signed in) = 54, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "assertions_executed": 81,
+  "min_assertions": 81,
+  "assertion_floor": "2 /book/* header + 1 canary + 21 views x 3 (header, events, console) + 3 sizes x 5 (booking last step, 3 signed in, 1 preview from the detailer's domain) = 81, asserted as an EQUALITY (docs/gotchas.md 98).",
   "canary": {
     "id": "unlisted-image-host-reported",
     "observed_failure": true
@@ -98,7 +113,21 @@
         "console": 0,
         "noise": 0
       },
-      "/app@390": {
+      "/app~owner@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@390": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@390": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
         "header": false,
         "events": 0,
         "console": 0,
@@ -132,7 +161,21 @@
         "console": 0,
         "noise": 0
       },
-      "/app@768": {
+      "/app~owner@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@768": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@768": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
         "header": false,
         "events": 0,
         "console": 0,
@@ -166,7 +209,21 @@
         "console": 0,
         "noise": 0
       },
-      "/app@1440": {
+      "/app~owner@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@1440": {
+        "header": false,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@1440": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
         "header": false,
         "events": 0,
         "console": 0,
