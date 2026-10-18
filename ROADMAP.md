@@ -410,6 +410,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
 
 - [ ] **97.84 — Closing a client record loses the Notes just typed, silently: on Close a refused save shows nowhere, on Escape no save is even sent, and a slow refusal lands on the NEXT client's record (measured by 97.79, 2026-10-17).**
   NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.84-20261018013703180`. Answer "merge it" to keep it, or say what to change.
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
   The work is safe on branch `belt/97.84-20261017164707448`. Answer "merge it" to keep it, or say what to change.
   Supervisor 2026-10-17: the review's four findings are real and are not Andrew's to answer, so this is NOT a "merge it". (1) the gate's "line shown" counts hidden text, the very defect 97.79 measured; (2) a save that never answers leaves the record impossible to close, with nothing on screen; (3) a second Close throws the typed note away, contradicting R1 (a) "stays open with the line if it was refused"; (4) the exactly-the-typed-text assertion has never been sabotaged on its own. Recommendation: "carry on" — the next attempt resumes from the branch and fixes those four; the core close-waits-for-save change is sound.
   ANDREW 2026-10-17 23:09: "Carry on: fix the four review problems first." Resume from `belt/97.84-20261017164707448` (72 commits behind main; its only conflict is this ROADMAP entry), fix the four findings above, then it merges on a clean review.
