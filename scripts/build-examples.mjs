@@ -287,7 +287,9 @@ async function main() {
         // the paint switcher, on the one site that has paints to switch
         const inj = injectedFor(slug);
         if (inj) html = html.replace("</body>", inj + "</body>");
-        await writeFile(path.join(dir, dest), html, "utf8");
+        const { html: page, files } = externalize(html, `/${slug}/${dest.replace(/\.html$/, "")}`);
+        for (const [src, code] of files) await writeFile(path.join(OUT, src), code, "utf8");
+        await writeFile(path.join(dir, dest), page, "utf8");
       }
       multi.push([slug, title, note, Object.values(extras)]);
       console.log(`  ${slug}: ${1 + Object.keys(extras).length} pages`);
@@ -589,6 +591,21 @@ ${multi.map(card).join("")}
 // `slug === "ex3"` is the shape that let the block drift out of the
 // fingerprint in the first place.
 export const injectedFor = (slug) => (slug === "ex3" ? PAINTS : null);
+
+// NO INLINE SCRIPT REACHES A SERVED PAGE — ROADMAP 97.90. The site's policy
+// (`app/netlify.toml`) has no 'unsafe-inline' in script-src, so a `<script>`
+// block left in the page is refused. Each one becomes `<base>.<n>.js` beside
+// the page, in the same place, so it still runs in the same order. Only a bare
+// `<script>` is moved; `scripts/csp-report-only.mjs` scans every built page and
+// names any inline script this misses.
+export function externalize(html, base) {
+  const files = [];
+  const out = html.replace(/<script>([\s\S]*?)<\/script>/g, (_, code) => {
+    files.push([`${base}.${files.length + 1}.js`, code]);
+    return `<script src="${files.at(-1)[0]}"></script>`;
+  });
+  return { html: out, files };
+}
 
 // THE GUARD. True for `node scripts/build-examples.mjs`, for
 // `node ../scripts/build-examples.mjs` (how `app/package.json` calls it in the
