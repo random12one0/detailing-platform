@@ -1,9 +1,9 @@
 {
-  "git_sha": "4a764243d7da308f75978c233d33ce63732b28c0",
-  "git_sha_started": "4a764243d7da308f75978c233d33ce63732b28c0",
+  "git_sha": "38db91e1b1f254fbeff1447245c723ad66fc987c",
+  "git_sha_started": "38db91e1b1f254fbeff1447245c723ad66fc987c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T14:42:29.521Z",
+  "finished_at": "2026-10-18T16:32:40.092Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -31,7 +31,7 @@
     ]
   },
   "check_id": "gallery-remove-offline",
-  "started_at": "2026-10-18T14:42:09.921Z",
+  "started_at": "2026-10-18T16:32:18.554Z",
   "status": "pass",
   "expected_targets": 32,
   "discovered_targets": 32,

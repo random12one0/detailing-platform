@@ -2280,6 +2280,17 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
+  **ATTEMPT 2026-10-18 (second) — THE PRIVACY HOLD IS CLEARED.** `tests/privacy-processors.test.mjs` § 2 asked for
+  `media.detailingplatform.com` (`MEDIA_PUBLIC_BASE`, photo-rules.js) to be classified; one TABLE row added, kind
+  `own` (our subdomain, never fetched by that code; Cloudflare already named), the step 100.6 took for
+  api.cloudflare.com (`38db91e1`). Now **8 passed, 0 failed** (was 7/1); `PRIVACY_BREAK=new-host` still red naming
+  api.sentry.io; legal-promises 7/0. Full suite `node --test tests/*.test.mjs` in this credential-less copy: `fail 35`
+  across 31 files; run one by one, 29 of them fail by the same count on main (2d69e898), admin-contrast-teardown
+  fails LESS here (3 vs 5), release-gate (7 min, credentials) was not compared. 0 new failures found. Re-proved at
+  `38db91e1`: `BASE=http://127.0.0.1:5180 node scripts/gallery-remove-offline.mjs` -> **32 of 32 presses, 122 of 122**,
+  graded PASS, canary caught; `--break=row-only` re-run first -> 37 failed of 118, red at all four widths
+  (`receipts/gallery-remove-offline.row-only.sabotage.json`). Screenshots at 390 and 1440 looked at: the reason sits
+  above the six kept photos, inside the width. Waits on line below is unchanged.
   **ATTEMPT 2026-10-18 — THE HOLD IS CLEARED; box still open only for the live proof (Waits on line below).**
   (1) The Spanish hold: `tests/spanish.test.mjs` 9a counted `MEDIA_PUBLIC_BASE`, a web address in
   photo-rules.js (a file its coverage pass walks), as untranslated wording, 1 of 1742. Fixed in
@@ -2344,7 +2355,7 @@ and how the wait ends.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
   RESOLVED 2026-10-18 (see the attempt note at the top of this entry): the belt held this job's work because tests/spanish.test.mjs had 1 failing, the baseline 0.
   The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/privacy-processors.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/privacy-processors.test.mjs :: 2 — (c) every literal host classifies, and one that does not fails by name.
+  RESOLVED 2026-10-18 (attempt note at the top of this entry): the belt held this job's work instead of merging it — the full test suite found tests/privacy-processors.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/privacy-processors.test.mjs :: 2 — (c) every literal host classifies, and one that does not fails by name.
   The work is safe on branch `belt/0.11be-20261018142856941`. Answer "merge it" to keep it, or say what to change.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**

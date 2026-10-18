@@ -1,9 +1,9 @@
 {
-  "git_sha": "822b10278ce5940d7190b6b968adda95df2af0e4",
-  "git_sha_started": "822b10278ce5940d7190b6b968adda95df2af0e4",
+  "git_sha": "38db91e1b1f254fbeff1447245c723ad66fc987c",
+  "git_sha_started": "38db91e1b1f254fbeff1447245c723ad66fc987c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T14:41:15.930Z",
+  "finished_at": "2026-10-18T16:32:01.499Z",
   "failures": [
     {
       "assertion": "1440 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png",
@@ -181,7 +181,7 @@
     ]
   },
   "check_id": "gallery-remove-offline",
-  "started_at": "2026-10-18T14:36:56.914Z",
+  "started_at": "2026-10-18T16:27:38.169Z",
   "status": "fail",
   "expected_targets": 32,
   "discovered_targets": 32,
