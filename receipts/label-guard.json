@@ -1,18 +1,10 @@
 {
-  "git_sha": "f9962aae926f01f13b28af79ea927b874bd01c92",
-  "git_sha_started": "f9962aae926f01f13b28af79ea927b874bd01c92",
+  "git_sha": "cdbdfc96fc686c4fc1caf9cafde2df4bde7af39e",
+  "git_sha_started": "cdbdfc96fc686c4fc1caf9cafde2df4bde7af39e",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T18:57:45.402Z",
-  "failures": [
-    "declared label no longer in the product: \"Build started\" (build-start-live.mjs)",
-    "declared label no longer in the product: \"Tell them work has started\" (build-start-live.mjs)",
-    "declared label no longer in the product: \"Yes, email them today's date\" (build-start-live.mjs)",
-    "declared label no longer in the product: \"Did we make money?\" (platform-costs-live.mjs, platform-net-live.mjs)",
-    "declared label no longer in the product: \"Save this bill\" (platform-net-live.mjs)",
-    "declared label no longer in the product: \"sam.ortiz@example.com\" (shots-99-4.mjs)",
-    "declared label no longer in the product: \"Suspended them\" (suspend-delete-waive.mjs)"
-  ],
+  "finished_at": "2026-10-18T23:18:26.691Z",
+  "failures": [],
   "warnings": [],
   "artifacts": [
     "scripts/label-guard.mjs"
@@ -31,14 +23,14 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-18T18:57:45.245Z",
-  "status": "fail",
-  "expected_targets": 122,
-  "discovered_targets": 122,
-  "attempted_targets": 122,
-  "completed_targets": 122,
+  "started_at": "2026-10-18T23:18:26.416Z",
+  "status": "pass",
+  "expected_targets": 116,
+  "discovered_targets": 116,
+  "attempted_targets": 116,
+  "completed_targets": 116,
   "skipped_targets": 0,
-  "assertions_executed": 122,
+  "assertions_executed": 116,
   "min_assertions": 30,
   "canary": {
     "id": "a declared label that no product could contain",
