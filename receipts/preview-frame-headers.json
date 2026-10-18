@@ -1,9 +1,9 @@
 {
-  "git_sha": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
-  "git_sha_started": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "git_sha": "82cce19a9d7dcb045de8f4764a1ee05a6e6b6d86",
+  "git_sha_started": "82cce19a9d7dcb045de8f4764a1ee05a6e6b6d86",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T11:48:44.131Z",
+  "finished_at": "2026-10-18T12:51:22.954Z",
   "failures": [],
   "warnings": [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
@@ -26,7 +26,7 @@
     }
   },
   "check_id": "preview-frame-headers",
-  "started_at": "2026-10-18T11:47:53.120Z",
+  "started_at": "2026-10-18T12:50:32.338Z",
   "status": "pass",
   "expected_targets": 7,
   "discovered_targets": 7,
@@ -46,20 +46,20 @@
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
       },
       "/admin": {
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
       },
       "/book/demo-detail": {
         "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com",
-        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
       }
     },
     "sizes": {

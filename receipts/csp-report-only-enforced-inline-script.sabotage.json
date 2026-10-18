@@ -1,0 +1,747 @@
+{
+  "git_sha": "82cce19a9d7dcb045de8f4764a1ee05a6e6b6d86",
+  "git_sha_started": "82cce19a9d7dcb045de8f4764a1ee05a6e6b6d86",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T12:50:22.746Z",
+  "failures": [
+    "ex-scripts-ran/ex1@390: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1@390: 1 violation(s): script-src-elem inline",
+    "console/ex1@390: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-NYt6i5POuzqF2xng/WCkI8YEa1k84PRy5kOMiT7CxJM='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/work.html@390: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/work.html@390: 1 violation(s): script-src-elem inline",
+    "console/ex1/work.html@390: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-wIsrrQz88NC6rB4wZPk9qELspXovu83SJDH2MB8Rml8='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/prices.html@390: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/prices.html@390: 1 violation(s): script-src-elem inline",
+    "console/ex1/prices.html@390: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-7AkqPQM6Y3wQ8cC1VWCwu6cYkYMD9iJD5HTSntpuG+0='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex2@390: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex2@390: 1 violation(s): script-src-elem inline",
+    "console/ex2@390: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-rKHj2s5BQMpcGUbIhaatLR7XQt4H97bASLxkPnkPHFk='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3@390: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3@390: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3@390: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-IM8gNmlPU6hSEVseV5zxARV42Ag19Cy3U7TCMgqcyFI='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3/prices.html@390: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3/prices.html@390: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3/prices.html@390: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-eHURwL/Ad6LfGBvvqsg6QYOEOAj0qmQzzfxyGnNtLSk='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex4@390: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex4@390: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex4@390: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-v9JV32tHlgl9JuGTpXO5nivPVs+fVhV6dWsewyiihBY='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-HHMmkZRAr1EPG0N7CVzikX0W/uSEYOVczdUBeoJO7yE='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex5@390: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex5@390: 1 violation(s): script-src-elem inline",
+    "console/ex5@390: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-ftPTDOQxIuRK1XZJ5oRbmpGUosbEHaNeU3fC1O97WjU='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1@768: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1@768: 1 violation(s): script-src-elem inline",
+    "console/ex1@768: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-NYt6i5POuzqF2xng/WCkI8YEa1k84PRy5kOMiT7CxJM='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/work.html@768: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/work.html@768: 1 violation(s): script-src-elem inline",
+    "console/ex1/work.html@768: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-wIsrrQz88NC6rB4wZPk9qELspXovu83SJDH2MB8Rml8='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/prices.html@768: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/prices.html@768: 1 violation(s): script-src-elem inline",
+    "console/ex1/prices.html@768: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-7AkqPQM6Y3wQ8cC1VWCwu6cYkYMD9iJD5HTSntpuG+0='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex2@768: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex2@768: 1 violation(s): script-src-elem inline",
+    "console/ex2@768: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-rKHj2s5BQMpcGUbIhaatLR7XQt4H97bASLxkPnkPHFk='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3@768: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3@768: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3@768: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-IM8gNmlPU6hSEVseV5zxARV42Ag19Cy3U7TCMgqcyFI='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3/prices.html@768: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3/prices.html@768: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3/prices.html@768: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-eHURwL/Ad6LfGBvvqsg6QYOEOAj0qmQzzfxyGnNtLSk='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex4@768: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex4@768: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex4@768: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-v9JV32tHlgl9JuGTpXO5nivPVs+fVhV6dWsewyiihBY='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-HHMmkZRAr1EPG0N7CVzikX0W/uSEYOVczdUBeoJO7yE='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex5@768: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex5@768: 1 violation(s): script-src-elem inline",
+    "console/ex5@768: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-ftPTDOQxIuRK1XZJ5oRbmpGUosbEHaNeU3fC1O97WjU='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1@1440: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1@1440: 1 violation(s): script-src-elem inline",
+    "console/ex1@1440: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-NYt6i5POuzqF2xng/WCkI8YEa1k84PRy5kOMiT7CxJM='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/work.html@1440: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/work.html@1440: 1 violation(s): script-src-elem inline",
+    "console/ex1/work.html@1440: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-wIsrrQz88NC6rB4wZPk9qELspXovu83SJDH2MB8Rml8='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex1/prices.html@1440: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex1/prices.html@1440: 1 violation(s): script-src-elem inline",
+    "console/ex1/prices.html@1440: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-7AkqPQM6Y3wQ8cC1VWCwu6cYkYMD9iJD5HTSntpuG+0='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex2@1440: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex2@1440: 1 violation(s): script-src-elem inline",
+    "console/ex2@1440: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-rKHj2s5BQMpcGUbIhaatLR7XQt4H97bASLxkPnkPHFk='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3@1440: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3@1440: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3@1440: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-IM8gNmlPU6hSEVseV5zxARV42Ag19Cy3U7TCMgqcyFI='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex3/prices.html@1440: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex3/prices.html@1440: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex3/prices.html@1440: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-eHURwL/Ad6LfGBvvqsg6QYOEOAj0qmQzzfxyGnNtLSk='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-U8aJFtZeKhL6ZsNrd3qXwDbuws8JTZarXNe18zanAVw='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex4@1440: 2 script(s); INLINE, INLINE not run from a file; page errors: none",
+    "events/ex4@1440: 2 violation(s): script-src-elem inline | script-src-elem inline",
+    "console/ex4@1440: 2 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-v9JV32tHlgl9JuGTpXO5nivPVs+fVhV6dWsewyiihBY='), or a nonce ('nonce-...') is required to enable inlin | Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-HHMmkZRAr1EPG0N7CVzikX0W/uSEYOVczdUBeoJO7yE='), or a nonce ('nonce-...') is required to enable inlin",
+    "ex-scripts-ran/ex5@1440: 1 script(s); INLINE not run from a file; page errors: none",
+    "events/ex5@1440: 1 violation(s): script-src-elem inline",
+    "console/ex5@1440: 1 CSP console line(s): Executing inline script violates the following Content Security Policy directive 'script-src 'self' https://js.stripe.com https://*.js.stripe.com'. Either the 'unsafe-inline' keyword, a hash ('sha256-ftPTDOQxIuRK1XZJ5oRbmpGUosbEHaNeU3fC1O97WjU='), or a nonce ('nonce-...') is required to enable inlin"
+  ],
+  "warnings": [
+    "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
+    "Served as Content-Security-Policy (--as-enforced: a rehearsal; app/netlify.toml declares Content-Security-Policy-Report-Only). Data-driven image hosts (a detailer's stored logo or photo address) are only seen on the rows the demo tenant has.",
+    "UNJUDGEABLE: Stripe's CARD FIELDS. Billing is given a made-up client secret (a real one means creating a payment in Stripe), Stripe refuses it, and the card fields never draw. What IS judged: Stripe.js loads from js.stripe.com and Stripe's own frame attaches, under this policy, with no violation. Same origins as the card fields, not the card fields.",
+    "/app?settings=billing~owner@390 other console noise (not CSP, not judged here): You may test your Stripe.js integration over HTTP. However, live Stripe.js integrations must use HTTPS. | Origin trial controlled feature not enabled: 'tools'. | [Stripe.js] Your Elements integration is using an older API. We recommend migrating to the Checkout Sessions API to reduce code, maintenance, and tokens (for AI agents). Additionally, you can easily t",
+    "/app?settings=billing~owner@768 other console noise (not CSP, not judged here): You may test your Stripe.js integration over HTTP. However, live Stripe.js integrations must use HTTPS. | Origin trial controlled feature not enabled: 'tools'. | [Stripe.js] Your Elements integration is using an older API. We recommend migrating to the Checkout Sessions API to reduce code, maintenance, and tokens (for AI agents). Additionally, you can easily t",
+    "/app?settings=billing~owner@1440 other console noise (not CSP, not judged here): You may test your Stripe.js integration over HTTP. However, live Stripe.js integrations must use HTTPS. | Origin trial controlled feature not enabled: 'tools'. | [Stripe.js] Your Elements integration is using an older API. We recommend migrating to the Checkout Sessions API to reduce code, maintenance, and tokens (for AI agents). Additionally, you can easily t"
+  ],
+  "artifacts": [
+    ".manager-shots/97.26/inline-script-enforced/home-390.png",
+    ".manager-shots/97.26/inline-script-enforced/pricing-390.png",
+    ".manager-shots/97.26/inline-script-enforced/book-demo-detail-390.png",
+    ".manager-shots/97.26/inline-script-enforced/app-390.png",
+    ".manager-shots/97.26/inline-script-enforced/app-staff-390.png",
+    ".manager-shots/97.26/inline-script-enforced/app-business-390.png",
+    ".manager-shots/97.26/inline-script-enforced/app-settings-billing-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-work-html-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-prices-html-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex2-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-prices-html-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex4-390.png",
+    ".manager-shots/97.26/inline-script-enforced/ex5-390.png",
+    ".manager-shots/97.26/inline-script-enforced/examples-390.png",
+    ".manager-shots/97.26/inline-script-enforced/map-html-390.png",
+    ".manager-shots/97.26/inline-script-enforced/home-768.png",
+    ".manager-shots/97.26/inline-script-enforced/pricing-768.png",
+    ".manager-shots/97.26/inline-script-enforced/book-demo-detail-768.png",
+    ".manager-shots/97.26/inline-script-enforced/app-768.png",
+    ".manager-shots/97.26/inline-script-enforced/app-staff-768.png",
+    ".manager-shots/97.26/inline-script-enforced/app-business-768.png",
+    ".manager-shots/97.26/inline-script-enforced/app-settings-billing-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-work-html-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-prices-html-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex2-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-prices-html-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex4-768.png",
+    ".manager-shots/97.26/inline-script-enforced/ex5-768.png",
+    ".manager-shots/97.26/inline-script-enforced/examples-768.png",
+    ".manager-shots/97.26/inline-script-enforced/map-html-768.png",
+    ".manager-shots/97.26/inline-script-enforced/home-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/pricing-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/book-demo-detail-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/app-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/app-staff-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/app-business-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/app-settings-billing-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-work-html-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex1-prices-html-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex2-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex3-prices-html-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex4-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/ex5-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/examples-1440.png",
+    ".manager-shots/97.26/inline-script-enforced/map-html-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/",
+      "/pricing",
+      "/book/demo-detail",
+      "/app~owner",
+      "/app~staff",
+      "/app/business~owner+domain",
+      "/app?settings=billing~owner",
+      "/ex1",
+      "/ex1/work.html",
+      "/ex1/prices.html",
+      "/ex2",
+      "/ex3",
+      "/ex3/prices.html",
+      "/ex4",
+      "/ex5",
+      "/examples",
+      "/map.html"
+    ],
+    "tenant_domain": "https://csp-tenant-domain.test",
+    "item": "97.26, 97.90",
+    "header": "Content-Security-Policy",
+    "declared": "Content-Security-Policy-Report-Only",
+    "break": "inline-script",
+    "origin": "http://127.0.0.1:60047"
+  },
+  "check_id": "csp-report-only-enforced-inline-script",
+  "started_at": "2026-10-18T12:47:03.277Z",
+  "status": "fail",
+  "expected_targets": 51,
+  "discovered_targets": 51,
+  "attempted_targets": 51,
+  "completed_targets": 51,
+  "skipped_targets": 0,
+  "assertions_executed": 229,
+  "min_assertions": 229,
+  "assertion_floor": "2 /book/* header + 2 policy text + 2 built-page scan + 1 canary + 51 views x 3 (header, events, console) + 3 sizes x 23 (booking last step, 4 signed in, 1 preview from the detailer's domain, 1 Stripe card form, 8 example pages x 2: scripts ran, forms stay) = 229, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "unlisted-image-host-reported",
+    "observed_failure": true
+  },
+  "observed": {
+    "views": {
+      "/@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@390": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@390": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app?settings=billing~owner@390": {
+        "stripe": {
+          "loaded": true,
+          "frames": 3,
+          "cardFrames": 0
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 8
+      },
+      "/ex1@390": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/work.html@390": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/prices.html@390": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex2@390": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex3@390": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex3/prices.html@390": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex4@390": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex5@390": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/examples@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/map.html@390": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@768": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@768": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app?settings=billing~owner@768": {
+        "stripe": {
+          "loaded": true,
+          "frames": 3,
+          "cardFrames": 0
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 8
+      },
+      "/ex1@768": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/work.html@768": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/prices.html@768": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex2@768": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex3@768": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex3/prices.html@768": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex4@768": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex5@768": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/examples@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/map.html@768": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/pricing@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/book/demo-detail@1440": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~owner@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app~staff@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app/business~owner@1440": {
+        "preview": "https://csp-tenant-domain.test/book/demo-detail?pv=1",
+        "previewDrew": true,
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/app?settings=billing~owner@1440": {
+        "stripe": {
+          "loaded": true,
+          "frames": 3,
+          "cardFrames": 0
+        },
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 8
+      },
+      "/ex1@1440": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/work.html@1440": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1/prices.html@1440": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex2@1440": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex3@1440": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex3/prices.html@1440": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex4@1440": {
+        "scripts": {
+          "files": 2,
+          "bad": [
+            null,
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 2,
+        "console": 2,
+        "noise": 0
+      },
+      "/ex5@1440": {
+        "scripts": {
+          "files": 1,
+          "bad": [
+            null
+          ],
+          "errors": []
+        },
+        "forms": 0,
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/examples@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      },
+      "/map.html@1440": {
+        "header": true,
+        "events": 0,
+        "console": 0,
+        "noise": 0
+      }
+    },
+    "canary": {
+      "events": 1,
+      "console": 1
+    },
+    "book": {
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com, default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    },
+    "dist": {
+      "html_files": 11,
+      "inline": []
+    }
+  }
+}
