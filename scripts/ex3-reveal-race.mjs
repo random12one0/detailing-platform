@@ -49,6 +49,19 @@ const FIXED = /if \(seen === !!el\._seen\) return;([^\n]*)\r?\n(\s*)el\._seen = 
 const oldCode = (js) => js.replace(FIXED, (_, tail, ind) =>
   `if (seen === !el.classList.contains("rv-hidden")) return;${tail}\n${ind}if (el._t) clearTimeout(el._t);\n${ind}window.__rvOld = (window.__rvOld || 0) + 1;`);
 
+// STALE COPY GUARD (supervisor, 2026-10-18). `app/public/ex3` is a gitignored copy that only
+// `build-examples.mjs --dev` refreshes; an old one printed 78 false "SHOWN OFF SCREEN" defects over
+// a correct fix. A clean run must be judging the fixed script, so refuse by name when it is not.
+if (!BREAK) for (const p of PAGES) {
+  const html = await (await fetch(BASE + p.path)).text();
+  const srcs = [...html.matchAll(/<script src="(\/ex3\/[^"]+\.js)"/g)].map((m) => m[1]);
+  const bodies = await Promise.all(srcs.map(async (s) => (await fetch(BASE + s)).text()));
+  if (!bodies.some((b) => FIXED.test(b))) {
+    console.error(`REFUSED, NOT JUDGED — ${p.path} serves no script with the 97.92 fix (stale dev copy?). Run: node scripts/build-examples.mjs --dev`);
+    process.exit(2);
+  }
+}
+
 const started_at = new Date().toISOString();
 const browser = await chromium.launch();
 const log = [];

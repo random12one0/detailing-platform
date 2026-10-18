@@ -5595,3 +5595,20 @@ figure went into merge commit `956e0136` as though the guard had run. It had not
 A list of test files that a gate, a belt config or a release note names will go on
 reporting green after one of them is renamed or deleted. Check `ℹ tests` against the
 number of files you meant to run, or run a new file on its own once before batching it.
+
+## 135. A gitignored dev copy of the example sites judges code that is no longer the code
+
+Supervision 2026-10-18 (fourth pass). `scripts/ex3-reveal-race.mjs`, run against the
+dev server at `69405ba5`, printed **78 of 78 cards "SHOWN OFF SCREEN"** — the exact
+defect 97.92 had just fixed, in the same words its pre-fix sabotage prints. Nothing
+was wrong with the fix: `npm run dev` serves `/ex3` from `app/public/ex3`, a
+GITIGNORED copy that only `node scripts/build-examples.mjs --dev` refreshes, and it
+was older than 97.92. After rebuilding it the same command printed `PASS — 78 of 78`.
+
+The run reads as a regression, not as an environment fault: no error, a clean
+console, the right number of cards, real-looking findings. It is the stale-dev-server
+entry again, one directory over, and `git status` cannot see it because the copy is
+ignored. The check now refuses by name ("REFUSED, NOT JUDGED") when the served script
+lacks the fix's signature; proved by editing the served copy (refused) and restoring
+it (PASS). **Any check aimed at `/ex1`–`/ex5` in dev: run `build-examples.mjs --dev`
+first, or make the check read what it is judging.**
