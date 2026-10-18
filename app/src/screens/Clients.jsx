@@ -304,6 +304,9 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   }, [people, totals, today, owner]);
 
   const openCustomer = async (c) => {
+    // A save still waiting belongs to the record that was open; this one must not
+    // wait on it (Close anyway on a save that never answered, review 2026-10-18).
+    saving.current = null;
     setOpen(c);
     setNotes(c.notes || "");
     savedNotes.current = c.notes || "";
@@ -391,7 +394,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     return ok === true;
   };
   // "Close anyway" — the person drops the unsaved text; the record goes at once.
-  const dropNotes = () => { setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
+  const dropNotes = () => { saving.current = null; setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
 
   // ROADMAP 8.11. The screen closes the record and reloads the list; the
   // SERVER decides everything else, including whether this person may do it.
