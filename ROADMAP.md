@@ -2291,6 +2291,10 @@ and how the wait ends.
   graded PASS, canary caught; `--break=row-only` re-run first -> 37 failed of 118, red at all four widths
   (`receipts/gallery-remove-offline.row-only.sabotage.json`). Screenshots at 390 and 1440 looked at: the reason sits
   above the six kept photos, inside the width. Waits on line below is unchanged.
+  The privacy-processors edit is a DECLARATION in a lint-style source guard (it reads files as text and lists hosts), not the
+  fix's proof: `node --test tests/privacy-processors.test.mjs` passed with your 7 product change(s) put back to main (8/0, measured
+  on a main checkout with this test file copied in). The fix is proved by code that runs: `tests/gallery-remove-keys.test.mjs`
+  imports and calls `storedMediaAt` (4/4), and `scripts/gallery-remove-offline.mjs` presses the real button (122/122 above).
   **ATTEMPT 2026-10-18 — THE HOLD IS CLEARED; box still open only for the live proof (Waits on line below).**
   (1) The Spanish hold: `tests/spanish.test.mjs` 9a counted `MEDIA_PUBLIC_BASE`, a web address in
   photo-rules.js (a file its coverage pass walks), as untranslated wording, 1 of 1742. Fixed in
