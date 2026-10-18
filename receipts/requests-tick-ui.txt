@@ -1,0 +1,50 @@
+requests-tick-ui — 2026-10-18T18:29:22.163Z — http://127.0.0.1:5180
+ok    owner 390x844 · Today card · Accept, Quote and Decline offered
+ok    owner 390x844 · job record · Accept, Send a quote and Decline offered
+ok    owner 390x844 · job record · removing is offered
+ok    owner 390x844 · no sideways scroll
+ok    owner 390x844 · console clean
+ok    staff 390x844 · Today card · no answer buttons
+ok    staff 390x844 · Today card · says who answers it
+ok    staff 390x844 · job record · no answer buttons
+ok    staff 390x844 · job record · says who answers it
+ok    staff 390x844 · job record · removing a request is not offered
+ok    staff 390x844 · no sideways scroll
+ok    staff 390x844 · console clean
+ok    owner 768x1024 · Today card · Accept, Quote and Decline offered
+ok    owner 768x1024 · job record · Accept, Send a quote and Decline offered
+ok    owner 768x1024 · job record · removing is offered
+ok    owner 768x1024 · no sideways scroll
+ok    owner 768x1024 · console clean
+ok    staff 768x1024 · Today card · no answer buttons
+ok    staff 768x1024 · Today card · says who answers it
+ok    staff 768x1024 · job record · no answer buttons
+ok    staff 768x1024 · job record · says who answers it
+ok    staff 768x1024 · job record · removing a request is not offered
+ok    staff 768x1024 · no sideways scroll
+ok    staff 768x1024 · console clean
+ok    owner 1440x900 · Today card · Accept, Quote and Decline offered
+ok    owner 1440x900 · job record · Accept, Send a quote and Decline offered
+ok    owner 1440x900 · job record · removing is offered
+ok    owner 1440x900 · no sideways scroll
+ok    owner 1440x900 · console clean
+ok    staff 1440x900 · Today card · no answer buttons
+ok    staff 1440x900 · Today card · says who answers it
+ok    staff 1440x900 · job record · no answer buttons
+ok    staff 1440x900 · job record · says who answers it
+ok    staff 1440x900 · job record · removing a request is not offered
+ok    staff 1440x900 · no sideways scroll
+ok    staff 1440x900 · console clean
+ok    owner 320x700 · Today card · Accept, Quote and Decline offered
+ok    owner 320x700 · job record · Accept, Send a quote and Decline offered
+ok    owner 320x700 · job record · removing is offered
+ok    owner 320x700 · no sideways scroll
+ok    owner 320x700 · console clean
+ok    staff 320x700 · Today card · no answer buttons
+ok    staff 320x700 · Today card · says who answers it
+ok    staff 320x700 · job record · no answer buttons
+ok    staff 320x700 · job record · says who answers it
+ok    staff 320x700 · job record · removing a request is not offered
+ok    staff 320x700 · no sideways scroll
+ok    staff 320x700 · console clean
+48 passed, 0 failed, 16 of 16 surfaces reached.
