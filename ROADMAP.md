@@ -2280,13 +2280,65 @@ and how the wait ends.
   regression fail; an origin-only 404 is not proof about the public URL.
 
 - [ ] **0.11be — Gallery Remove must erase its stored photo before removing the row.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/privacy-processors.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/privacy-processors.test.mjs :: 2 — (c) every literal host classifies, and one that does not fails by name.
-  The work is safe on branch `belt/0.11be-20261018142856941`. Answer "merge it" to keep it, or say what to change.
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/spanish.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/spanish.test.mjs :: tests/spanish.test.mjs.
-  The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
-  HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/0.11be-20261013093840 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 1af7a26a 0.11be: entry note and clean receipt (16/16 presses, 62/62, PASS at 740882b2); 740882b2 0.11be: browser check for Gallery Remove, with two caught sabotages; 0021a08f 0.11be: Gallery Remove erases its stored photo(s) before the row..
-  The work is safe on branch `belt/0.11be-20261013093840`. The next attempt resumes from it and follows the ruling below.
-  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
+  **ATTEMPT 2026-10-18 (second) — THE PRIVACY HOLD IS CLEARED.** `tests/privacy-processors.test.mjs` § 2 asked for
+  `media.detailingplatform.com` (`MEDIA_PUBLIC_BASE`, photo-rules.js) to be classified; one TABLE row added, kind
+  `own` (our subdomain, never fetched by that code; Cloudflare already named), the step 100.6 took for
+  api.cloudflare.com (`38db91e1`). Now **8 passed, 0 failed** (was 7/1); `PRIVACY_BREAK=new-host` still red naming
+  api.sentry.io; legal-promises 7/0. Full suite `node --test tests/*.test.mjs` in this credential-less copy: `fail 35`
+  across 31 files; run one by one, 29 of them fail by the same count on main (2d69e898), admin-contrast-teardown
+  fails LESS here (3 vs 5), release-gate (7 min, credentials) was not compared. 0 new failures found. Re-proved at
+  `38db91e1`: `BASE=http://127.0.0.1:5180 node scripts/gallery-remove-offline.mjs` -> **32 of 32 presses, 122 of 122**,
+  graded PASS, canary caught; `--break=row-only` re-run first -> 37 failed of 118, red at all four widths
+  (`receipts/gallery-remove-offline.row-only.sabotage.json`). Screenshots at 390 and 1440 looked at: the reason sits
+  above the six kept photos, inside the width. Waits on line below is unchanged.
+  The privacy-processors edit is a DECLARATION in a lint-style source guard (it reads files as text and lists hosts), not the
+  fix's proof: `node --test tests/privacy-processors.test.mjs` passed with your 7 product change(s) put back to main (8/0, measured
+  on a main checkout with this test file copied in). The fix is proved by code that runs: `tests/gallery-remove-keys.test.mjs`
+  imports and calls `storedMediaAt` (4/4), and `scripts/gallery-remove-offline.mjs` presses the real button (122/122 above).
+  **ATTEMPT 2026-10-18 — THE HOLD IS CLEARED; box still open only for the live proof (Waits on line below).**
+  (1) The Spanish hold: `tests/spanish.test.mjs` 9a counted `MEDIA_PUBLIC_BASE`, a web address in
+  photo-rules.js (a file its coverage pass walks), as untranslated wording, 1 of 1742. Fixed in
+  `scripts/i18n-coverage.mjs` with one exclusion beside the route one (`822b1027`): now **75 passed, 0 failed**
+  (section 7 SKIPPED: no credentials in a job copy). Sabotage: two sentences appended to photo-rules.js, one
+  containing the address -> 9a `2 of 1743`, both named; file restored. (2) Andrew's 2026-10-13 ruling:
+  `tests/gallery-remove-keys.test.mjs` has only ever had one version (`0021a08f`; no main copy exists), and
+  it is unedited: `git diff 0021a08f HEAD` on it is empty, 4/4 pass. `scripts/gallery-remove-browser.mjs` is
+  unedited too. New assertions are in a NEW file, `scripts/gallery-remove-offline.mjs`: same eight presses,
+  with the back end stood in inside the browser, because a belt job copy's server has no Supabase settings
+  by design ("Missing VITE_SUPABASE_URL"). No credential, no Supabase host contacted, nothing written.
+  `BASE=http://127.0.0.1:5180 node scripts/gallery-remove-offline.mjs` at `4a764243` -> **32 of 32 presses,
+  122 of 122 assertions** at 1440x900, 768x1024, 392x844 and 390x844, graded PASS, canary caught, console
+  clean beyond the 2 served refusals per width (`receipts/gallery-remove-offline.json`). Sabotages, each kept
+  under its own name (`.row-only.sabotage.*`, `.foreign.sabotage.*`): `--break=row-only` red at all four
+  widths, 37 failed of 118, swap landed 4/4; `--break=foreign` red at all four, 21 failed of 126, the door
+  was sent the other business's key. Screenshots at 390 and 1440 looked at: the reason above the photos,
+  inside the width, all six kept.
+  **BUILT AND PROVED LOCALLY 2026-10-13; box left open only for the live proof below.**
+  Waits on: 0.11bd release (Andrew publishes photo-door with the purge). Then the warmed
+  public-URL proof runs through this button; whoever runs 0.11bd's live check removes this line
+  and ticks 0.11be. Nothing here is a decision for Andrew.
+  Product commit `0021a08f`: `storedMediaAt` (photo-rules.js) turns a stored address into a
+  key only for this business's own R2 object (`https://media.detailingplatform.com/<door-shaped
+  key>`) or older Supabase object (`getPublicUrl("")` prefix); external and foreign addresses
+  never become keys (canonical-form, no query). `removeBusinessPhotoAt` (upload.js) routes by
+  ADDRESS, not flag; `removeBusinessPhoto` is byte-for-byte unchanged so the photo-door-media*
+  sabotage targets stay armed. Gallery.jsx removes every address a row holds (both pair
+  members), then the row, checking its error; any refusal keeps the row and shows
+  "That photo was not removed. <reason>" (Spanish key added). A foreign row is deleted without
+  touching the file (it may be its owner's photo); the door also 404s a foreign key.
+  Proof, at `740882b2`: `node --env-file=.env scripts/gallery-remove-browser.mjs` (BASE=:5180) ->
+  **16 of 16 presses, 62 of 62 assertions**, graded PASS by `node scripts/receipt.mjs`, canary
+  `the-row-only-handler` caught; console clean at 1440 and 392 beyond the 2 refusals it serves
+  per width. Six stood-in rows (R2, old Supabase, pair, external key-shaped, foreign, row delete
+  refused): each press judged on its exact call sequence, file before row. `--break=row-only`
+  (the pre-fix handler, in the module the browser ran) -> red at both widths, sending only
+  `row ... ok`; `--break=foreign` -> red, door called with the foreign key (64 assertions, 11
+  failed; that run is `receipts/gallery-remove-browser.sabotage.json`). Unit:
+  `node --test tests/gallery-remove-keys.test.mjs` 4/4; photo-door-media-wire, photo-door-media,
+  job-photos, photo-door suites 39/39 with the new test. `spanish.test.mjs` NOT run: it writes
+  demo bookings with credentials. Seen: screenshots at 392 and 1440 show the reason and all six
+  tiles kept. Ceiling: if R2_MEDIA_BASE is ever rebound, `MEDIA_PUBLIC_BASE` must follow or R2
+  photos fall back to row-only removes (ponytail note beside it).
   Found by supervision at bf08d943 while reviewing 0.11bd. Gallery.jsx remove()
   only deletes gallery_images; it never calls removeBusinessPhoto. The cache
   adapter cannot help a button that never reaches photo-door. This is separate
@@ -2302,6 +2354,13 @@ and how the wait ends.
   guessed storage keys; foreign keys are refused. Both image-pair members are
   covered. A sabotage restoring the row-only handler must fail the browser
   check. Final warmed public-URL proof follows Andrew's 0.11bd release.
+  RESOLVED 2026-10-18 — HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/0.11be-20261013093840 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: 1af7a26a 0.11be: entry note and clean receipt (16/16 presses, 62/62, PASS at 740882b2); 740882b2 0.11be: browser check for Gallery Remove, with two caught sabotages; 0021a08f 0.11be: Gallery Remove erases its stored photo(s) before the row..
+  The work is safe on branch `belt/0.11be-20261013093840`. The next attempt resumes from it and follows the ruling below.
+  ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): send it back with the ORIGINAL checks restored. Resume from branch `belt/0.11be-20261013093840`, put `tests/gallery-remove-keys.test.mjs` back to its main version, and prove the fix against the unedited checks; add new assertions only in a new file.
+  RESOLVED 2026-10-18 (see the attempt note at the top of this entry): the belt held this job's work because tests/spanish.test.mjs had 1 failing, the baseline 0.
+  The work is safe on branch `belt/0.11be-20261016040602577`. Answer "merge it" to keep it, or say what to change.
+  RESOLVED 2026-10-18 (attempt note at the top of this entry): the belt held this job's work instead of merging it — the full test suite found tests/privacy-processors.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/privacy-processors.test.mjs :: 2 — (c) every literal host classifies, and one that does not fails by name.
+  The work is safe on branch `belt/0.11be-20261018142856941`. Answer "merge it" to keep it, or say what to change.
 
 - [ ] **0.11c — Ship the R2 switch and 10 GB allowance as one coordinated release**
   ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED (AT ITS 2026-10-10 VERSIONS); BOTH APP SWITCHES ARE NOT YET ON THE

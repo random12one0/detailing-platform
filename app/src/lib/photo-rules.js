@@ -249,6 +249,43 @@ export const MEDIA_EXT_FOR_TYPE = {
 export const mediaExtForType = (type) => MEDIA_EXT_FOR_TYPE[String(type ?? "")] ?? null;
 
 /**
+ * ROADMAP 0.11be — WHERE A STORED `business-media` ADDRESS POINTS, so the
+ * gallery's Remove can erase the file before the row. One of:
+ *   `{ kind: "r2", key }`        this business's object behind the photo door
+ *   `{ kind: "supabase", key }`  this business's object from before the switch
+ *   `{ kind: "foreign" }`        one of our stores, ANOTHER business's folder
+ *   `{ kind: "external" }`       anything else — never guessed into a key
+ * The address must already be in canonical form (`new URL(url).href === url`),
+ * with no query, so a `..` or an encoded slash cannot steer which key comes out.
+ * `oldBase` is Supabase Storage's public prefix for `business-media`
+ * (`getPublicUrl("")`), ending in a slash.
+ */
+// ponytail: R2_MEDIA_BASE is server config the browser never sees; if Andrew
+// rebinds the media address, change this too or R2 photos become row-only removes.
+export const MEDIA_PUBLIC_BASE = "https://media.detailingplatform.com";
+const UUID_RE = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const FOLDER_RE = MEDIA_FOLDERS.join("|");
+// The door mints exactly `mediaPath`'s shape. The old Supabase path took the
+// extension off the file's name, so it is looser there and only there.
+const DOOR_KEY = new RegExp(`^(${UUID_RE})/(?:${FOLDER_RE})/${UUID_RE}\\.(?:${Object.values(MEDIA_EXT_FOR_TYPE).join("|")})$`);
+const OLD_KEY = new RegExp(`^(${UUID_RE})/(?:${FOLDER_RE})/${UUID_RE}\\.[a-z0-9]{1,8}$`);
+
+export function storedMediaAt(url, { businessId, oldBase } = {}) {
+  let u;
+  try { u = new URL(url); } catch { return { kind: "external" }; }
+  if (u.href !== url || u.search || u.hash || u.username) return { kind: "external" };
+  for (const [kind, base, shape] of [["r2", `${MEDIA_PUBLIC_BASE}/`, DOOR_KEY], ["supabase", oldBase, OLD_KEY]]) {
+    if (!base || !url.startsWith(base)) continue;
+    const key = url.slice(base.length);
+    const m = shape.exec(key);
+    if (!m) return { kind: "external" };
+    if (m[1] !== businessId) return { kind: "foreign" };
+    return { kind, key };
+  }
+  return { kind: "external" };
+}
+
+/**
  * `businessId/folder/id.ext` — the key the door mints for a business image.
  * Throws rather than producing a path with an empty or unknown segment, for
  * the reason `storagePath` does: the first folder is the check, and a folder

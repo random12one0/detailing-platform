@@ -1,0 +1,128 @@
+Gallery Remove, stand-in back end, at http://127.0.0.1:5180  (--break=row-only: MUST be red)
+
+  at 1440x900
+    ok    1440 · the six rows are on screen
+    ok    1440 · the sabotage landed in the module the browser ran
+    FAIL  1440 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png — got row 00000000-0000-4000-8000-000000000001 ok
+    FAIL  1440 · r2 — refused by the door: the row stays
+    FAIL  1440 · r2 — refused by the door: the screen says why — no message
+    FAIL  1440 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width
+    FAIL  1440 · r2 — retried: its tile was there to press
+    FAIL  1440 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok — got row 00000000-0000-4000-8000-000000000002 ok
+    ok    1440 · old — older Supabase object: the row is gone
+    ok    1440 · old — older Supabase object: no error left on screen
+    FAIL  1440 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok — got row 00000000-0000-4000-8000-000000000003 ok
+    ok    1440 · pair — both members of a before/after pair: the row is gone
+    ok    1440 · pair — both members of a before/after pair: no error left on screen
+    ok    1440 · ext — external address shaped like a key: sent exactly row 00000000-0000-4000-8000-000000000004 ok
+    ok    1440 · ext — external address shaped like a key: the row is gone
+    ok    1440 · ext — external address shaped like a key: no error left on screen
+    ok    1440 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok
+    ok    1440 · foreign — another business's object: the row is gone
+    ok    1440 · foreign — another business's object: no error left on screen
+    FAIL  1440 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused — got row 00000000-0000-4000-8000-000000000006 refused
+    ok    1440 · rowfail — row delete refused: the row stays
+    ok    1440 · rowfail — row delete refused: the screen says why
+    ok    1440 · rowfail — row delete refused: and the reason is on screen, uncovered, inside the width
+    FAIL  1440 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok — got row 00000000-0000-4000-8000-000000000006 ok
+    ok    1440 · rowfail — row delete retried: the row is gone
+    ok    1440 · rowfail — row delete retried: no error left on screen
+    ok    1440 · no storage call ever named another business or an external address
+    ok    1440 · nothing unexpected reached the stand-in
+    ok    1440 · the gallery ends empty
+  at 768x1024
+    ok    768 · the six rows are on screen
+    ok    768 · the sabotage landed in the module the browser ran
+    FAIL  768 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png — got row 00000000-0000-4000-8000-000000000001 ok
+    FAIL  768 · r2 — refused by the door: the row stays
+    FAIL  768 · r2 — refused by the door: the screen says why — no message
+    FAIL  768 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width
+    FAIL  768 · r2 — retried: its tile was there to press
+    FAIL  768 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok — got row 00000000-0000-4000-8000-000000000002 ok
+    ok    768 · old — older Supabase object: the row is gone
+    ok    768 · old — older Supabase object: no error left on screen
+    FAIL  768 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok — got row 00000000-0000-4000-8000-000000000003 ok
+    ok    768 · pair — both members of a before/after pair: the row is gone
+    ok    768 · pair — both members of a before/after pair: no error left on screen
+    ok    768 · ext — external address shaped like a key: sent exactly row 00000000-0000-4000-8000-000000000004 ok
+    ok    768 · ext — external address shaped like a key: the row is gone
+    ok    768 · ext — external address shaped like a key: no error left on screen
+    ok    768 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok
+    ok    768 · foreign — another business's object: the row is gone
+    ok    768 · foreign — another business's object: no error left on screen
+    FAIL  768 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused — got row 00000000-0000-4000-8000-000000000006 refused
+    ok    768 · rowfail — row delete refused: the row stays
+    ok    768 · rowfail — row delete refused: the screen says why
+    ok    768 · rowfail — row delete refused: and the reason is on screen, uncovered, inside the width
+    FAIL  768 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok — got row 00000000-0000-4000-8000-000000000006 ok
+    ok    768 · rowfail — row delete retried: the row is gone
+    ok    768 · rowfail — row delete retried: no error left on screen
+    ok    768 · no storage call ever named another business or an external address
+    ok    768 · nothing unexpected reached the stand-in
+    ok    768 · the gallery ends empty
+  at 392x844
+    ok    392 · the six rows are on screen
+    ok    392 · the sabotage landed in the module the browser ran
+    FAIL  392 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png — got row 00000000-0000-4000-8000-000000000001 ok
+    FAIL  392 · r2 — refused by the door: the row stays
+    FAIL  392 · r2 — refused by the door: the screen says why — no message
+    FAIL  392 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width
+    FAIL  392 · r2 — retried: its tile was there to press
+    FAIL  392 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok — got row 00000000-0000-4000-8000-000000000002 ok
+    ok    392 · old — older Supabase object: the row is gone
+    ok    392 · old — older Supabase object: no error left on screen
+    FAIL  392 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok — got row 00000000-0000-4000-8000-000000000003 ok
+    ok    392 · pair — both members of a before/after pair: the row is gone
+    ok    392 · pair — both members of a before/after pair: no error left on screen
+    ok    392 · ext — external address shaped like a key: sent exactly row 00000000-0000-4000-8000-000000000004 ok
+    ok    392 · ext — external address shaped like a key: the row is gone
+    ok    392 · ext — external address shaped like a key: no error left on screen
+    ok    392 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok
+    ok    392 · foreign — another business's object: the row is gone
+    ok    392 · foreign — another business's object: no error left on screen
+    FAIL  392 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused — got row 00000000-0000-4000-8000-000000000006 refused
+    ok    392 · rowfail — row delete refused: the row stays
+    ok    392 · rowfail — row delete refused: the screen says why
+    ok    392 · rowfail — row delete refused: and the reason is on screen, uncovered, inside the width
+    FAIL  392 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok — got row 00000000-0000-4000-8000-000000000006 ok
+    ok    392 · rowfail — row delete retried: the row is gone
+    ok    392 · rowfail — row delete retried: no error left on screen
+    ok    392 · no storage call ever named another business or an external address
+    ok    392 · nothing unexpected reached the stand-in
+    ok    392 · the gallery ends empty
+  at 390x844
+    ok    390 · the six rows are on screen
+    ok    390 · the sabotage landed in the module the browser ran
+    FAIL  390 · r2 — refused by the door: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000011.png — got row 00000000-0000-4000-8000-000000000001 ok
+    FAIL  390 · r2 — refused by the door: the row stays
+    FAIL  390 · r2 — refused by the door: the screen says why — no message
+    FAIL  390 · r2 — refused by the door: and the reason is on screen, uncovered, inside the width
+    FAIL  390 · r2 — retried: its tile was there to press
+    FAIL  390 · old — older Supabase object: sent exactly storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000012.jpg → row 00000000-0000-4000-8000-000000000002 ok — got row 00000000-0000-4000-8000-000000000002 ok
+    ok    390 · old — older Supabase object: the row is gone
+    ok    390 · old — older Supabase object: no error left on screen
+    FAIL  390 · pair — both members of a before/after pair: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000013.webp → storage 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000014.jpeg → row 00000000-0000-4000-8000-000000000003 ok — got row 00000000-0000-4000-8000-000000000003 ok
+    ok    390 · pair — both members of a before/after pair: the row is gone
+    ok    390 · pair — both members of a before/after pair: no error left on screen
+    ok    390 · ext — external address shaped like a key: sent exactly row 00000000-0000-4000-8000-000000000004 ok
+    ok    390 · ext — external address shaped like a key: the row is gone
+    ok    390 · ext — external address shaped like a key: no error left on screen
+    ok    390 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok
+    ok    390 · foreign — another business's object: the row is gone
+    ok    390 · foreign — another business's object: no error left on screen
+    FAIL  390 · rowfail — row delete refused: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 refused — got row 00000000-0000-4000-8000-000000000006 refused
+    ok    390 · rowfail — row delete refused: the row stays
+    ok    390 · rowfail — row delete refused: the screen says why
+    ok    390 · rowfail — row delete refused: and the reason is on screen, uncovered, inside the width
+    FAIL  390 · rowfail — row delete retried: sent exactly door 00000000-0000-4000-8000-0000000000b1/gallery/00000000-0000-4000-8000-000000000017.png → row 00000000-0000-4000-8000-000000000006 ok — got row 00000000-0000-4000-8000-000000000006 ok
+    ok    390 · rowfail — row delete retried: the row is gone
+    ok    390 · rowfail — row delete retried: no error left on screen
+    ok    390 · no storage call ever named another business or an external address
+    ok    390 · nothing unexpected reached the stand-in
+    ok    390 · the gallery ends empty
+    ok    the console is clean at every width (beyond the two refusals served per width)
+    FAIL  exactly the two served refusals logged per width — 1440 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 768 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 392 · https://stand-in.supabase.invalid/rest/v1/gallery_images | 390 · https://stand-in.supabase.invalid/rest/v1/gallery_images
+
+81 passed, 37 failed, 118 assertions, 28/32 presses.
+  note  --break=row-only was set: a GREEN run here is the failure.
+receipt  C:\Users\rando\Downloads\claude\belt-jobs\belt_0.11be-20261018142856941\receipts\gallery-remove-offline.sabotage.json  —  validate: node scripts/receipt.mjs

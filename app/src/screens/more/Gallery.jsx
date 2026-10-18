@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Camera, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { uploadBusinessPhoto } from "../../lib/upload.js";
+import { removeBusinessPhotoAt, uploadBusinessPhoto } from "../../lib/upload.js";
 import { signedUrls } from "../../lib/photos.js";
 import {
   assertOwned, assertPathOwned, buildZip, photoRows, photosCsv, photosFilename,
@@ -66,7 +66,20 @@ export default function Gallery() {
 
   const remove = async (img) => {
     if (!confirm(t("Remove this photo from the gallery?"))) return;
-    await supabase.from("gallery_images").delete().eq("id", img.id).eq("business_id", business.id);
+    setMsg(null);
+    // ROADMAP 0.11be — THE STORED FILE GOES FIRST, THEN THE ROW. Every address
+    // the row holds (a before/after pair holds two). If any removal is refused
+    // the row stays, because the row is the only place that address is written
+    // down and a retry needs it.
+    try {
+      for (const url of new Set([img.image_url, img.before_url, img.after_url].filter(Boolean))) {
+        await removeBusinessPhotoAt(business.id, url);
+      }
+      const { error } = await supabase.from("gallery_images").delete().eq("id", img.id).eq("business_id", business.id);
+      if (error) throw new Error(error.message);
+    } catch (err) {
+      setMsg({ ok: false, text: t("That photo was not removed. {reason}", { reason: String(err.message || err) }) });
+    }
     load();
   };
 

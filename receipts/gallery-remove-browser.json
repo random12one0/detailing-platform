@@ -1,0 +1,45 @@
+{
+  "git_sha": "740882b2989ed122e4aae63bfac1fd81b9274879",
+  "git_sha_started": "740882b2989ed122e4aae63bfac1fd81b9274879",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T09:52:20.726Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/gallery-remove-clean-1440-refused.png",
+    ".manager-shots/gallery-remove-clean-1440-end.png",
+    ".manager-shots/gallery-remove-clean-392-refused.png",
+    ".manager-shots/gallery-remove-clean-392-end.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "widths": [
+      "1440",
+      "392"
+    ],
+    "sabotage": null,
+    "intercepted": "gallery_images GET (six made-up rows) and DELETE, the photo-door function, Supabase Storage's remove and public reads, and image reads on the media and example hosts. Nothing in app/src is edited.",
+    "wrote_nothing": "no R2 object, no Supabase Storage object, no gallery_images row",
+    "unjudgeable": [
+      "That the deployed door really erases the R2 object and that a warmed public URL stops answering: that is 0.11bd's live proof, after Andrew's release. This run proves the button calls the right removal with the right key, in the right order, and keeps the row on any refusal."
+    ]
+  },
+  "check_id": "gallery-remove-browser",
+  "started_at": "2026-10-13T09:52:01.009Z",
+  "status": "pass",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 62,
+  "min_assertions": 62,
+  "assertion_floor": "per width: 1 six-tiles + 8 presses x 3 (calls, row state, message-or-none) + 2 refusals x 1 painted + 3 closing (no foreign/external storage call, nothing else written, gallery ends empty) = 30; x 2 widths + 2 console = 62, +1 per width with --break (the swap landed). A screen that renders no tiles books failures, not skips.",
+  "canary": {
+    "id": "the-row-only-handler",
+    "observed_failure": true,
+    "what": "Gallery.jsx remove() before 0.11be deleted the row and sent no storage call",
+    "rule": "the per-press verdict (exact call sequence) rejects a press that sent only the row delete"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "git_sha": "0021a08f114edb3ef53b878f718a221dc82ca43e",
+  "git_sha_started": "0021a08f114edb3ef53b878f718a221dc82ca43e",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-13T09:51:31.362Z",
+  "failures": [
+    {
+      "assertion": "1440 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok",
+      "detail": "got door 00000000-0000-4000-8000-00000000beef/gallery/00000000-0000-4000-8000-000000000016.png"
+    },
+    {
+      "assertion": "1440 · foreign — another business's object: the row is gone",
+      "detail": ""
+    },
+    {
+      "assertion": "1440 · foreign — another business's object: no error left on screen",
+      "detail": "That photo was not removed. Image not found"
+    },
+    {
+      "assertion": "1440 · no storage call ever named another business or an external address",
+      "detail": "door 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000011.png | door 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000011.png | storage 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000012.jpg | door 62456821-65d7"
+    },
+    {
+      "assertion": "1440 · the gallery ends empty",
+      "detail": ""
+    },
+    {
+      "assertion": "392 · foreign — another business's object: sent exactly row 00000000-0000-4000-8000-000000000005 ok",
+      "detail": "got door 00000000-0000-4000-8000-00000000beef/gallery/00000000-0000-4000-8000-000000000016.png"
+    },
+    {
+      "assertion": "392 · foreign — another business's object: the row is gone",
+      "detail": ""
+    },
+    {
+      "assertion": "392 · foreign — another business's object: no error left on screen",
+      "detail": "That photo was not removed. Image not found"
+    },
+    {
+      "assertion": "392 · no storage call ever named another business or an external address",
+      "detail": "door 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000011.png | door 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000011.png | storage 62456821-65d7-40ae-8251-e162bf3f04b6/gallery/00000000-0000-4000-8000-000000000012.jpg | door 62456821-65d7"
+    },
+    {
+      "assertion": "392 · the gallery ends empty",
+      "detail": ""
+    },
+    {
+      "assertion": "exactly the two served refusals logged per width",
+      "detail": "1440 · https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-door | 1440 · https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-door | 1440 · https://kguqylyzgyzfktkfnhjb.supabase.co/rest/v1/gallery_images | 392 · https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/photo-door | 392 · "
+    }
+  ],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/gallery-remove-foreign-1440-refused.png",
+    ".manager-shots/gallery-remove-foreign-1440-end.png",
+    ".manager-shots/gallery-remove-foreign-392-refused.png",
+    ".manager-shots/gallery-remove-foreign-392-end.png"
+  ],
+  "dimensions": {
+    "roadmap": "0.11be",
+    "widths": [
+      "1440",
+      "392"
+    ],
+    "sabotage": "foreign",
+    "break": "foreign",
+    "intercepted": "gallery_images GET (six made-up rows) and DELETE, the photo-door function, Supabase Storage's remove and public reads, and image reads on the media and example hosts. Nothing in app/src is edited.",
+    "wrote_nothing": "no R2 object, no Supabase Storage object, no gallery_images row",
+    "unjudgeable": [
+      "That the deployed door really erases the R2 object and that a warmed public URL stops answering: that is 0.11bd's live proof, after Andrew's release. This run proves the button calls the right removal with the right key, in the right order, and keeps the row on any refusal."
+    ]
+  },
+  "check_id": "gallery-remove-browser",
+  "started_at": "2026-10-13T09:51:15.076Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 64,
+  "min_assertions": 62,
+  "assertion_floor": "per width: 1 six-tiles + 8 presses x 3 (calls, row state, message-or-none) + 2 refusals x 1 painted + 3 closing (no foreign/external storage call, nothing else written, gallery ends empty) = 30; x 2 widths + 2 console = 62, +1 per width with --break (the swap landed). A screen that renders no tiles books failures, not skips.",
+  "canary": {
+    "id": "the-row-only-handler",
+    "observed_failure": true,
+    "what": "Gallery.jsx remove() before 0.11be deleted the row and sent no storage call",
+    "rule": "the per-press verdict (exact call sequence) rejects a press that sent only the row delete"
+  }
+}
