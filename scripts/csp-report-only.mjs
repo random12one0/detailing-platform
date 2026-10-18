@@ -222,11 +222,15 @@ async function openCardForm(page) {
   await tick.check();
   const go = page.locator("label.confirm-box ~ button.btn.primary").first();
   await go.click();
-  await page.waitForFunction(() => document.querySelectorAll('[data-billing-card] iframe[src^="https://js.stripe.com"]').length > 0,
+  // Stripe's own frames anywhere on the page (its hidden controller frame
+  // comes first); the CARD FIELDS need a real payment, which a made-up client
+  // secret never is, so `cardFrames` is recorded and not judged.
+  await page.waitForFunction(() => document.querySelectorAll('iframe[src^="https://js.stripe.com"]').length > 0,
     null, { timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(2500);
   return page.evaluate(() => ({ loaded: typeof window.Stripe === "function",
-    frames: document.querySelectorAll('[data-billing-card] iframe[src^="https://js.stripe.com"]').length }));
+    frames: document.querySelectorAll('iframe[src^="https://js.stripe.com"]').length,
+    cardFrames: document.querySelectorAll('[data-billing-card] iframe').length }));
 }
 
 // Walk the public booking page to its last step without pressing Book.
@@ -383,8 +387,8 @@ try {
       }
       if (stripe) {
         view.stripe = await openCardForm(page);
-        ok(view.stripe.frames > 0 && view.stripe.loaded, `stripe-card-form${tag}`,
-          `Stripe.js ${view.stripe.loaded ? "loaded" : "did NOT load"}, ${view.stripe.frames} Stripe frame(s) in the card box${view.stripe.stuck ? ` (${view.stripe.stuck})` : ""}`);
+        ok(view.stripe.frames > 0 && view.stripe.loaded, `stripe-js-and-frame${tag}`,
+          `Stripe.js ${view.stripe.loaded ? "loaded" : "did NOT load"}, ${view.stripe.frames} js.stripe.com frame(s) on the page${view.stripe.stuck ? ` (${view.stripe.stuck})` : ""}`);
       }
       await page.waitForTimeout(1500);
       if (ex) {
@@ -444,7 +448,7 @@ const { path } = writeReceipt({
   warnings: [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
     `Served as ${NAME}${AS_ENFORCED ? " (--as-enforced: a rehearsal; app/netlify.toml declares " + DECLARED + ")" : ""}. Data-driven image hosts (a detailer's stored logo or photo address) are only seen on the rows the demo tenant has.`,
-    "Stripe's card form is drawn from a made-up client secret, so Stripe shows its own error inside the frame; the frames and Stripe.js are real, a card was never typed.",
+    "UNJUDGEABLE: Stripe's CARD FIELDS. Billing is given a made-up client secret (a real one means creating a payment in Stripe), Stripe refuses it, and the card fields never draw. What IS judged: Stripe.js loads from js.stripe.com and Stripe's own frame attaches, under this policy, with no violation. Same origins as the card fields, not the card fields.",
     ...warnings,
   ],
   artifacts,
