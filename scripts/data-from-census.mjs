@@ -171,6 +171,7 @@ const { path } = writeReceipt({
     ...warnings,
   ],
   dimensions: {
+    break: BREAK || null, // routes a sabotage run to .sabotage.json (ROADMAP 98.3)
     pages: published,
     distinct_values: Object.fromEntries(distinct),
     profile_defined_in: defining,
