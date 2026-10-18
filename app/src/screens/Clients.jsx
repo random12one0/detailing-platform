@@ -104,7 +104,7 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
 // `intent` is App's one-word answer to "what was this screen opened for" —
 // "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
 // read once, on arrival: turning the chip off has to stick.
-export default function Clients({ intent = null, onSetup = null, refreshKey = 0 }) {
+export default function Clients({ intent = null, onSetup = null, refreshKey = 0, holdLeave = null }) {
   // ROADMAP 8.17 STAGE 2B — `lib/plans.js`'s generators are SHARED with the
   // customer's plan page and default to English on purpose, because
   // `dp.lang` is a per-device choice a CUSTOMER makes. The dashboard has to
@@ -199,7 +199,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     const reveal = () => notesErrorRef.current?.scrollIntoView({ block: "nearest" });
     reveal();
     requestAnimationFrame(reveal);
-  }, [notesError]);
+  }, [notesError, selected]);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -393,6 +393,18 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     if (ok === null && openId.current === id) setNotesError(t("Your notes have not saved yet. Check your connection, then try again."));
     return ok === true;
   };
+  // ROADMAP 97.88 — a tab press or the gear unmounts this screen with no close,
+  // so App asks the open record first, exactly as RecordHost's beforeClose does.
+  // A job opened from the History covers the record (`open && !selected`), so a
+  // refusal closes the job and puts the record and its line back on screen —
+  // otherwise the tab would just not move, with the reason hidden (review, 2026-10-18).
+  const holdNotes = async () => {
+    const ok = await settleNotes();
+    if (!ok) setSelected(null);
+    return ok;
+  };
+  if (holdLeave) holdLeave.current = open ? holdNotes : null;
+  useEffect(() => () => { if (holdLeave) holdLeave.current = null; }, [holdLeave]);
   // "Close anyway" — the person drops the unsaved text; the record goes at once.
   const dropNotes = () => { saving.current = null; setNotes(savedNotes.current); setNotesError(""); setOpen(null); };
 

@@ -1,0 +1,225 @@
+  ok    390: the page clock is frozen at the run's start
+  ok    canary: three planted lines (hidden, faded, above the viewport) are all found and none reads as shown
+  ok    390 control: the sabotaged module is the one running
+  390 control: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 control 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 control: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    390 control: every save sent exactly the typed text
+  ok    390 close: the sabotaged module is the one running
+  390 close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    390 close: every save sent exactly the typed text
+  ok    390 escape: the sabotaged module is the one running
+  390 escape: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 escape 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    390 escape: every save sent exactly the typed text
+  ok    390 next: the sabotaged module is the one running
+  390 next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 next 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    390 next: every save sent exactly the typed text
+  ok    390 switch: the sabotaged module is the one running
+  390 switch: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 switch 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    390 switch: every save sent exactly the typed text
+  ok    390 close-ok: the sabotaged module is the one running
+  390 close-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 close-ok: one save, the record closed, no line anywhere
+  ok    390 close-ok: every save sent exactly the typed text
+  ok    390 escape-ok: the sabotaged module is the one running
+  390 escape-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 escape-ok: one save, the record closed, no line anywhere
+  ok    390 escape-ok: every save sent exactly the typed text
+  ok    390 close-twice: the sabotaged module is the one running
+  390 close-twice: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 390","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    390 close-twice: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    390 close-twice: every save sent exactly the typed text
+  ok    390 seen-close: the sabotaged module is the one running
+  390 seen-close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 390","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    390 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    390 seen-close: every save sent exactly the typed text
+  ok    390 view-as: the sabotaged module is the one running
+  390 view-as: {"first":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 390","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":0,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    390 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away
+  ok    390 hang: the sabotaged module is the one running
+  390 hang: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    390 hang: a save with no answer held Marcus Webb's record with the text and the "not saved yet" line; Close anyway put it away
+  ok    390 hang: every save sent exactly the typed text
+  ok    390 hang-next: the sabotaged module is the one running
+  390 hang-next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang-next 390","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":{"client":"Dana Ruiz","sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]}}
+  ok    390 hang-next: after Close anyway on a save with no answer, the next client's record closed at once (1200ms) with no further save and no line anywhere
+  ok    390 hang-next: every save sent exactly the typed text
+  ok    390 escape-after: the sabotaged module is the one running
+  390 escape-after: {"first":{"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line
+  ok    390 escape-after: the saves sent the early text, then exactly the full typed text
+  ok    390 tab: the sabotaged module is the one running
+  390 tab: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"span.sub","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":null,"covered_by":"Marcus Webb"},"back":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 tab 390","found":1,"shown":1,"not_shown_because":[]},"second":null,"anyway":null,"after":null}
+  ok    390 tab: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line once what covered it was closed
+  ok    390 tab: every save sent exactly the typed text
+  ok    390 tab-ok: the sabotaged module is the one running
+  390 tab-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"span.sub","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":null,"covered_by":"Marcus Webb"},"back":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 tab-ok 390","found":0,"shown":0,"not_shown_because":[]},"second":null,"anyway":null,"after":null}
+  ok    390 tab-ok: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and no line anywhere once what covered it was closed
+  ok    390 tab-ok: every save sent exactly the typed text
+  ok    390 gear: the sabotaged module is the one running
+  390 gear: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 gear 390","found":1,"shown":1,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":true,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 gear: the record is a sheet over the header: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line
+  ok    390 gear: every save sent exactly the typed text
+  ok    390 gear-ok: the sabotaged module is the one running
+  390 gear-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":null,"covered_by":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    390 gear-ok: the record is a sheet over the header: the tap reached no tab and no gear, one save, the screen is still Clients, and no line anywhere
+  ok    390 gear-ok: every save sent exactly the typed text
+  ok    390 job-tab: the sabotaged module is the one running
+  390 job-tab: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"p.quiet","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":true,"covered_by":"Marcus Webb"},"back":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 job-tab 390","found":1,"shown":1,"not_shown_because":[]},"second":null,"anyway":null,"after":null}
+  ok    390 job-tab: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line once what covered it was closed
+  ok    390 job-tab: every save sent exactly the typed text
+  ok    390: no page errors
+  ok    390: no console errors or warnings
+  ok    768: the page clock is frozen at the run's start
+  ok    768 control: the sabotaged module is the one running
+  768 control: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 control 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 control: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    768 control: every save sent exactly the typed text
+  ok    768 close: the sabotaged module is the one running
+  768 close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    768 close: every save sent exactly the typed text
+  ok    768 escape: the sabotaged module is the one running
+  768 escape: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 escape 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    768 escape: every save sent exactly the typed text
+  ok    768 next: the sabotaged module is the one running
+  768 next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 next 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    768 next: every save sent exactly the typed text
+  ok    768 switch: the sabotaged module is the one running
+  768 switch: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 switch 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    768 switch: every save sent exactly the typed text
+  ok    768 close-ok: the sabotaged module is the one running
+  768 close-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 close-ok: one save, the record closed, no line anywhere
+  ok    768 close-ok: every save sent exactly the typed text
+  ok    768 escape-ok: the sabotaged module is the one running
+  768 escape-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 escape-ok: one save, the record closed, no line anywhere
+  ok    768 escape-ok: every save sent exactly the typed text
+  ok    768 close-twice: the sabotaged module is the one running
+  768 close-twice: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 768","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    768 close-twice: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    768 close-twice: every save sent exactly the typed text
+  ok    768 seen-close: the sabotaged module is the one running
+  768 seen-close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 768","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    768 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    768 seen-close: every save sent exactly the typed text
+  ok    768 view-as: the sabotaged module is the one running
+  768 view-as: {"first":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 768","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":0,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    768 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away
+  ok    768 hang: the sabotaged module is the one running
+  768 hang: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    768 hang: a save with no answer held Marcus Webb's record with the text and the "not saved yet" line; Close anyway put it away
+  ok    768 hang: every save sent exactly the typed text
+  ok    768 hang-next: the sabotaged module is the one running
+  768 hang-next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang-next 768","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":{"client":"Dana Ruiz","sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]}}
+  ok    768 hang-next: after Close anyway on a save with no answer, the next client's record closed at once (1200ms) with no further save and no line anywhere
+  ok    768 hang-next: every save sent exactly the typed text
+  ok    768 escape-after: the sabotaged module is the one running
+  768 escape-after: {"first":{"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line
+  ok    768 escape-after: the saves sent the early text, then exactly the full typed text
+  ok    768 tab: the sabotaged module is the one running
+  768 tab: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 tab 768","found":1,"shown":1,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":true,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 tab: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line
+  ok    768 tab: every save sent exactly the typed text
+  ok    768 tab-ok: the sabotaged module is the one running
+  768 tab-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":null,"covered_by":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 tab-ok: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and no line anywhere
+  ok    768 tab-ok: every save sent exactly the typed text
+  ok    768 gear: the sabotaged module is the one running
+  768 gear: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 gear 768","found":1,"shown":1,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":true,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 gear: the record is a sheet over the header: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line
+  ok    768 gear: every save sent exactly the typed text
+  ok    768 gear-ok: the sabotaged module is the one running
+  768 gear-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":null,"covered_by":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    768 gear-ok: the record is a sheet over the header: the tap reached no tab and no gear, one save, the screen is still Clients, and no line anywhere
+  ok    768 gear-ok: every save sent exactly the typed text
+  ok    768 job-tab: the sabotaged module is the one running
+  768 job-tab: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"div.sheet-backdrop","sheet":true,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":true,"covered_by":"Marcus Webb"},"back":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 job-tab 768","found":1,"shown":1,"not_shown_because":[]},"second":null,"anyway":null,"after":null}
+  ok    768 job-tab: the record is a sheet over the tab bar: the tap reached no tab and no gear, one save, the screen is still Clients, and Marcus Webb's record holds the text and the line once what covered it was closed
+  ok    768 job-tab: every save sent exactly the typed text
+  ok    768: no page errors
+  ok    768: no console errors or warnings
+  ok    1440: the page clock is frozen at the run's start
+  ok    1440 control: the sabotaged module is the one running
+  1440 control: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 control 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 control: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    1440 control: every save sent exactly the typed text
+  ok    1440 close: the sabotaged module is the one running
+  1440 close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    1440 close: every save sent exactly the typed text
+  ok    1440 escape: the sabotaged module is the one running
+  1440 escape: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 escape 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    1440 escape: every save sent exactly the typed text
+  ok    1440 next: the sabotaged module is the one running
+  1440 next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 next 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    1440 next: every save sent exactly the typed text
+  ok    1440 switch: the sabotaged module is the one running
+  1440 switch: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 switch 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client
+  ok    1440 switch: every save sent exactly the typed text
+  ok    1440 close-ok: the sabotaged module is the one running
+  1440 close-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 close-ok: one save, the record closed, no line anywhere
+  ok    1440 close-ok: every save sent exactly the typed text
+  ok    1440 escape-ok: the sabotaged module is the one running
+  1440 escape-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 escape-ok: one save, the record closed, no line anywhere
+  ok    1440 escape-ok: every save sent exactly the typed text
+  ok    1440 close-twice: the sabotaged module is the one running
+  1440 close-twice: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 close-twice 1440","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    1440 close-twice: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    1440 close-twice: every save sent exactly the typed text
+  ok    1440 seen-close: the sabotaged module is the one running
+  1440 seen-close: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":2,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 seen-close 1440","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    1440 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save
+  ok    1440 seen-close: every save sent exactly the typed text
+  ok    1440 view-as: the sabotaged module is the one running
+  1440 view-as: {"first":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":{"sent":0,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 view-as 1440","found":1,"shown":1,"not_shown_because":[]},"anyway":{"offered":1,"offered_not_shown_because":[],"sent":0,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    1440 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away
+  ok    1440 hang: the sabotaged module is the one running
+  1440 hang: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":null}
+  ok    1440 hang: a save with no answer held Marcus Webb's record with the text and the "not saved yet" line; Close anyway put it away
+  ok    1440 hang: every save sent exactly the typed text
+  ok    1440 hang-next: the sabotaged module is the one running
+  1440 hang-next: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 hang-next 1440","found":1,"shown":1,"not_shown_because":[]},"back":null,"second":null,"anyway":{"offered":1,"offered_not_shown_because":[],"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"after":{"client":"Dana Ruiz","sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]}}
+  ok    1440 hang-next: after Close anyway on a save with no answer, the next client's record closed at once (1200ms) with no further save and no line anywhere
+  ok    1440 hang-next: every save sent exactly the typed text
+  ok    1440 escape-after: the sabotaged module is the one running
+  1440 escape-after: {"first":{"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[]},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line
+  ok    1440 escape-after: the saves sent the early text, then exactly the full typed text
+  ok    1440 tab: the sabotaged module is the one running
+  1440 tab: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 tab 1440","found":1,"shown":1,"not_shown_because":[],"tapped":"today","sheet":false,"lit_tab":"clients","gear_open":false,"typed_anywhere":true,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 tab: a tap on today waited for the save; refused, the screen stayed on Clients with Marcus Webb's record holding the text and the line
+  ok    1440 tab: every save sent exactly the typed text
+  ok    1440 tab-ok: the sabotaged module is the one running
+  1440 tab-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"today","sheet":false,"lit_tab":"today","gear_open":false,"typed_anywhere":false,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 tab-ok: a tap on today waited for the save; accepted, today is the screen, no record, no line anywhere
+  ok    1440 tab-ok: every save sent exactly the typed text
+  ok    1440 gear: the sabotaged module is the one running
+  1440 gear: {"first":{"sent":1,"recordOpen":true,"shown_as":"Marcus Webb","text":"97.84 gear 1440","found":1,"shown":1,"not_shown_because":[],"tapped":"gear","sheet":false,"lit_tab":"clients","gear_open":false,"typed_anywhere":true,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 gear: a tap on gear waited for the save; refused, the screen stayed on Clients with Marcus Webb's record holding the text and the line
+  ok    1440 gear: every save sent exactly the typed text
+  ok    1440 gear-ok: the sabotaged module is the one running
+  1440 gear-ok: {"first":{"sent":1,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"gear","sheet":false,"lit_tab":null,"gear_open":true,"typed_anywhere":false,"job_over":null},"back":null,"second":null,"anyway":null,"after":null}
+  ok    1440 gear-ok: a tap on gear waited for the save; accepted, gear is the screen, no record, no line anywhere
+  ok    1440 gear-ok: every save sent exactly the typed text
+  ok    1440 job-tab: the sabotaged module is the one running
+  1440 job-tab: {"first":{"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"today","sheet":false,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":true},"back":null,"second":null,"anyway":null,"after":null}
+  FAIL  1440 job-tab: with a past job over the record, a tap on Today sent the note again; refused, the job closed and Marcus Webb's record is back with the text and the line, Clients still lit {"first":{"sent":2,"recordOpen":false,"shown_as":null,"text":null,"found":0,"shown":0,"not_shown_because":[],"tapped":"today","sheet":false,"lit_tab":"clients","gear_open":false,"typed_anywhere":false,"job_over":true},"back":null,"second":null,"anyway":null,"after":null,"notes_sent":["97.84 job-tab 1440","97.84 job-tab 1440"]}
+  ok    1440 job-tab: every save sent exactly the typed text
+  ok    1440: no page errors
+  ok    1440: no console errors or warnings
+  ok    every module the page asked for was served (after retries)
+  ok    sabotage: every rewrite matched the served module
