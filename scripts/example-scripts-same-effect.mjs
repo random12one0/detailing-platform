@@ -134,8 +134,11 @@ async function visit(browser, mode, path, s) {
   const load = await page.evaluate(fingerprint);
   await scrollThrough(page);
   const scroll = await page.evaluate(fingerprint);
-  const pressed = await press(page, path);
-  const after = pressed ? await page.evaluate(fingerprint) : null;
+  // A control that cannot be pressed (its script never ran) is a reading, not a crash.
+  page.setDefaultTimeout(3000);
+  let pressed, refused = null;
+  try { pressed = await press(page, path); } catch (e) { pressed = true; refused = "PRESS FAILED " + String(e.message).split("\n")[0]; }
+  const after = pressed ? [...(await page.evaluate(fingerprint)), ...(refused ? [refused] : [])] : null;
   await ctx.close();
   return { load, scroll, press: after, errors, violations };
 }
