@@ -79,7 +79,8 @@ function headersFor(rules, path) {
 }
 
 const rules = parseHeaderRules(readFileSync(join(REPO, "app", "netlify.toml"), "utf8"));
-const all = rules.find((r) => r.for === "/*");
+const all = rules.find((r) => r.for === "/*" && NAME in r.values);
+if (!all) throw new Error(`app/netlify.toml has no /* rule setting ${NAME}`);
 const POLICY = all?.values[NAME] || "";
 if (BREAK === "no-policy") delete all.values[NAME];
 if (BREAK === "no-fonts") {
@@ -265,7 +266,8 @@ assertions--; // the count check itself is not one of the declared assertions
 const status = failures.length ? "fail" : "pass";
 const reached = Object.keys(observed.views).length;
 const { path } = writeReceipt({
-  check_id: "csp-report-only",
+  // One file per break, so the second sabotage never overwrites the first.
+  check_id: `csp-report-only${BREAK ? "-" + BREAK : ""}`,
   started_at: new Date(Date.now() - process.uptime() * 1000).toISOString(),
   status,
   expected_targets: VIEWS,
