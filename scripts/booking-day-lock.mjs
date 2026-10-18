@@ -339,7 +339,7 @@ console.log(`throwaway Postgres ${version} on 127.0.0.1:${port}${BREAK ? `, --br
     }
   }
   // update-booking: the twin rows the filled insert just wrote are moved by the same patch, one each way.
-  const twins = pair.map((b) => sql(`select id from public.bookings where business_id = '${b}' and customer_notes = 'Gate code 12'`).trim());
+  const twins = pair.map((b) => sql(`select id from public.bookings where business_id = '${b}' and start_at = '2030-04-02T19:00:00Z'`).trim());
   const PATCH = { status: "completed", admin_notes: "Moved by the owner", customer_name: "Maria L.", customer_phone: "5550123499",
     customer_email: "maria@example.invalid", customer_address: "2 Fixture Way", service_type: "mobile", vehicle_size: "large",
     vehicle_size_label: "Large", vehicle_model: "Accord", vehicle_condition: "heavy", customer_notes: "Gate code 34", has_water_electric: true,
