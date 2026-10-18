@@ -423,9 +423,10 @@ export function validate(r, opts = {}) {
 
 // A receipt is a sabotage if it names its break in `dimensions` (three spellings) OR carries
 // the standard warning "this receipt is a sabotage, not a result". The warning clause was
-// added 2026-10-18 (ROADMAP 98.3): migration-drift.mjs and 15 other `--break=` scripts write
-// only the warning, so their sabotage runs still overwrote the real receipt, and the next
-// clean run then destroyed the sabotage evidence. Held by tests/receipt-sabotage-route.test.mjs.
+// added 2026-10-18 (ROADMAP 98.3): migration-drift.mjs writes only the warning, so its
+// `--break=` runs overwrote the real receipt and the next clean run destroyed the sabotage
+// evidence. Any other script marked only by the warning is covered by the same line.
+// Held by tests/receipt-sabotage-route.test.mjs.
 export function isSabotage(full) {
   const d = full.dimensions || {};
   if (d.break || d.sabotage || d.broken_on_purpose) return true;

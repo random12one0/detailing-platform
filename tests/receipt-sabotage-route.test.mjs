@@ -8,8 +8,9 @@
 // Found when `node scripts/migration-drift.mjs --break=unappliedcol` wrote into
 // receipts/migration-drift.json rather than .sabotage.json. That script records its
 // break only as the standard warning line, not in `dimensions`, so the writer routed it
-// as a real result and the following clean run overwrote the sabotage evidence. 57
-// scripts write that warning; before this, the writer ignored it.
+// as a real result and the following clean run overwrote the sabotage evidence. Many
+// scripts write that warning (`grep -l "this receipt is a sabotage" scripts/*.mjs`);
+// before this, the writer ignored it.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isSabotage } from "../scripts/receipt.mjs";

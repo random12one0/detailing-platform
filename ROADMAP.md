@@ -31261,6 +31261,32 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - The receipt deployed-inventory.json says fail check passes.
 - [ ] **98.3 — Repair the receipt migration-drift.json says fail check (broken by 14.24)**
+  **Diagnosis 2026-10-18 — not a broken check; box stays open.** 14.24 did not turn this red. Its commit
+  `4b877265` changed only the receipt's revision and run times (`git show 4b877265 -- receipts/migration-drift.json`):
+  `fail` before and after, the same 5 failure groups. The receipt's last `pass` is `0087d1dd` (2026-10-10, the day
+  the database was caught up); it went red at `97b1fc0c` the same day and is red in all 16 of its commits
+  since (`git log --format=%h 0087d1dd..db8c6c0c -- receipts/migration-drift.json | wc -l`), as new migration files were written and not applied; `4b877265` is not even an ancestor of main (`git merge-base --is-ancestor`). Applying them is Andrew's release; weakening
+  the check is not a repair. No check logic, migration or 14.24 work is changed.
+  **Re-proved at `db8c6c0c`:** `node scripts/migration-drift.mjs` (read-only, `kguqylyzgyzfktkfnhjb`) attempts and
+  completes **405 of 405** targets, **2185** assertions, canaries **10 of 10** caught; **357** are present live and the
+  rest are 7 failure groups, every one "the migration never ran": 5 tables, 5 columns, 14 functions absent, 7
+  functions stale, 1 policy, 57 grant groups, 10 indexes. Exit 1; `node scripts/receipt.mjs receipts/migration-drift.json`
+  grades it FAIL (expected 405, discovered 357). Those failures name **21** migration files, and **21 of 21** are
+  already steps on `docs/release-sheet.md` (ROADMAP 97.91), so nothing new is asked of Andrew.
+  **A real defect found and fixed on the way (`db8c6c0c`):** `--break=unappliedcol` overwrote
+  `receipts/migration-drift.json` instead of `.sabotage.json`, because this script marks a sabotage only with the
+  standard warning *"this receipt is a sabotage, not a result"* and the shared writer routed only on
+  `dimensions.break`. The clean run after it then destroyed the sabotage evidence (gotchas 117's case one level on).
+  `scripts/receipt.mjs` now routes on that warning too (`isSabotage`), held by
+  `node --test tests/receipt-sabotage-route.test.mjs`: 3 passed / 0 failed, and **2 / 1** red with the warning clause
+  disabled (break confirmed landed with `git diff`). Re-run after the fix, the sabotage landed in
+  `receipts/migration-drift.sabotage.json` (6 columns absent, the pretend `businesses.id` named; text log
+  `receipts/migration-drift.sabotage.txt`) and left the ordinary receipt untouched. Two siblings the first grep
+  flagged, `data-from-census.mjs` and `pointer-age.mjs`, write no receipt at all on a break, so they never had the
+  defect; an edit to them was reverted (`b9cc18a8`). No screen changed, so no browser proof applies.
+  AWAITS PUBLISH (built and proved; no decision asked of Andrew): the database changes on `docs/release-sheet.md`.
+  Who removes this line: the session verifying that release runs `node scripts/migration-drift.mjs`, then
+  `node scripts/receipt.mjs receipts/migration-drift.json`, commits the receipt and ticks 98.3 only if both pass.
   REPAIR CHECK receipt migration-drift.json says fail. Job 14.24 turned the quality check "receipt migration-drift.json says fail" red; it passed before that job. Find why and make it pass again without undoing 14.24's work.
   Acceptance criteria:
   - The receipt migration-drift.json says fail check passes.
