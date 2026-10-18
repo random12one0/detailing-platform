@@ -86,7 +86,8 @@ function fingerprint() {
   out.push("ROOT " + [...root.attributes].filter((a) => a.name !== "style").map((a) => `${a.name}=${a.value}`).sort().join(" "));
   for (const el of document.body.querySelectorAll("*")) {
     if (el.tagName === "SCRIPT") continue;
-    const attrs = [...el.attributes].filter((a) => a.name === "class" || a.name === "hidden" || a.name.startsWith("data-") || a.name.startsWith("aria-"))
+    // class="" (a class added, then removed) means the same as no class at all.
+    const attrs = [...el.attributes].filter((a) => (a.name === "class" && a.value.trim()) || a.name === "hidden" || a.name.startsWith("data-") || a.name.startsWith("aria-"))
       .map((a) => `${a.name}=${a.name === "class" ? a.value.split(/\s+/).filter(Boolean).sort().join(".") : a.value}`).sort();
     if ("value" in el && typeof el.value === "string" && el.tagName !== "BUTTON") attrs.push(`value=${el.value}`);
     out.push(el.tagName + " " + attrs.join(" "));
