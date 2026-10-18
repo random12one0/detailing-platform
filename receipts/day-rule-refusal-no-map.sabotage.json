@@ -1,9 +1,9 @@
 {
-  "git_sha": "ffabc9af67ca6fe29e91ebf5e251b6d237c5138e",
-  "git_sha_started": "ffabc9af67ca6fe29e91ebf5e251b6d237c5138e",
+  "git_sha": "91f4baeb823bb773b08aacf507192799feb2cf7b",
+  "git_sha_started": "91f4baeb823bb773b08aacf507192799feb2cf7b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T03:18:55.300Z",
+  "finished_at": "2026-10-18T03:26:27.266Z",
   "failures": [
     "create full: a stranger's racing booking refuses this one with 409 — status 500",
     "create full: with the sentence validateSlot shows — {\"error\":\"We could not save that booking. Please try again in a moment.\"}",
@@ -28,7 +28,7 @@
     "break": "no-map"
   },
   "check_id": "day-rule-refusal-no-map",
-  "started_at": "2026-10-18T03:18:55.135Z",
+  "started_at": "2026-10-18T03:26:27.062Z",
   "status": "fail",
   "expected_targets": 10,
   "discovered_targets": 10,
