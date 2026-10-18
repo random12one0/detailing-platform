@@ -94,11 +94,13 @@ jobs:
           DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           set -euo pipefail
-          # --no-owner / --no-privileges: the roles on a restore target are not
-          # the roles here, and a dump that only restores onto an identical
-          # project is a dump that fails on the day it is needed.
+          # --no-owner: the owning roles on a restore target are not the roles
+          # here. GRANTS AND REVOKES ARE KEPT (ROADMAP 97.25): the product's
+          # security depends on revokes, and leaving them out restored every
+          # table open to anon and authenticated. Every Supabase project has
+          # those roles, so the grants restore onto a fresh one.
           pg_dump "$DB_URL" \
-            --no-owner --no-privileges \
+            --no-owner \
             --format=plain \
             --file=backup.sql
           ls -l backup.sql
