@@ -165,7 +165,8 @@ test("2b · the invite migration widens the subject check and nothing else", () 
 const dir = mkdtempSync(path.join(tmpdir(), "action-log-"));
 let n = 0;
 async function build(from, to) {
-  const src = readFileSync(HELPER, "utf8");
+  // A Windows checkout holds the helper with CRLF; the needles are written with \n (ROADMAP 97.86).
+  const src = readFileSync(HELPER, "utf8").replace(/\r\n/g, "\n");
   assert.equal(src.split(from).length, 2, "the sabotage did not apply: " + from);
   const file = path.join(dir, `actionLog-${++n}.ts`);
   writeFileSync(file, src.replace(from, () => to));
@@ -184,6 +185,8 @@ const SABOTAGE = [
   ["a failed invite insert reads as success", "store(db, [inviteRow(member, inviteId, role, superseded)]);", "store(db, [inviteRow(member, inviteId, role, superseded)]).then(() => true);", ["inviteReportsFailure"]],
   ["a waiver is not named", '"payment.waive"', '"payment.set"', ["waive"]],
 ];
+// BREAK=needle-absent aims one needle at text not in the file; § 5 must go red with "the sabotage did not apply".
+if (process.env.BREAK === "needle-absent") SABOTAGE.find((s) => s[0] === "a thrown insert escapes")[1] += " NOT IN THE FILE";
 
 test("5 · each guard, removed alone, turns its own probe red", async () => {
   for (const [name, from, to, expect] of SABOTAGE) {
