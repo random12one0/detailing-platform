@@ -1,13 +1,13 @@
 {
-  "git_sha": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
-  "git_sha_started": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
+  "git_sha": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
+  "git_sha_started": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T03:14:51.280Z",
+  "finished_at": "2026-10-18T03:40:52.194Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
-    "race-cap: B answered in 88ms, so it never waited for A's lock",
+    "race-cap: B answered in 72ms, so it never waited for A's lock",
     "race-buffer: B was not refused as too-close (exit 0)",
     "race-buffer: 2 saved, 20 minutes apart on a 45-minute buffer",
     "race-move: B's move was not refused as day-full (exit 0)",
@@ -28,16 +28,16 @@
     "r4_ms": 5
   },
   "check_id": "booking-day-lock.no-lock",
-  "started_at": "2026-10-18T03:14:14.941Z",
+  "started_at": "2026-10-18T03:40:18.855Z",
   "status": "fail",
-  "expected_targets": 9,
-  "discovered_targets": 9,
-  "attempted_targets": 9,
-  "completed_targets": 9,
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
   "skipped_targets": 0,
-  "assertions_executed": 23,
-  "min_assertions": 23,
-  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 4 speed; every check() unconditional.",
+  "assertions_executed": 29,
+  "min_assertions": 29,
+  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 6 real payload, 4 speed; every check() unconditional.",
   "canary": {
     "id": "plain-insert-beats-cap-and-buffer",
     "observed_failure": true
@@ -72,7 +72,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 88,
+      "b_waited_ms": 72,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -80,7 +80,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 82,
+      "b_waited_ms": 77,
       "saved": 2
     },
     "race-move-cap": {
@@ -88,7 +88,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 86,
+      "b_waited_ms": 73,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
@@ -102,15 +102,35 @@
       "rows": "0",
       "unchanged": "t"
     },
+    "real-payload": {
+      "id": "real-payload",
+      "create_booking_keys": 34,
+      "as_sent": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true
+      },
+      "filled": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true,
+        "stored_empty": null
+      },
+      "move": {
+        "keys": 22,
+        "same_row": true,
+        "stored_empty": null
+      }
+    },
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.699,
-      "plain_p95_ms": 1.267,
-      "checked_median_ms": 0.982,
-      "checked_p95_ms": 1.791,
-      "extra_median_ms": 0.283,
-      "extra_p95_ms": 0.524
+      "plain_median_ms": 0.523,
+      "plain_p95_ms": 0.797,
+      "checked_median_ms": 0.696,
+      "checked_p95_ms": 1.004,
+      "extra_median_ms": 0.173,
+      "extra_p95_ms": 0.207
     }
   }
 }

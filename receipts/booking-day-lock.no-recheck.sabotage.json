@@ -1,9 +1,9 @@
 {
-  "git_sha": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
-  "git_sha_started": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
+  "git_sha": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
+  "git_sha_started": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T03:15:30.482Z",
+  "finished_at": "2026-10-18T03:41:29.108Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
@@ -27,16 +27,16 @@
     "r4_ms": 5
   },
   "check_id": "booking-day-lock.no-recheck",
-  "started_at": "2026-10-18T03:14:51.787Z",
+  "started_at": "2026-10-18T03:40:52.661Z",
   "status": "fail",
-  "expected_targets": 9,
-  "discovered_targets": 9,
-  "attempted_targets": 9,
-  "completed_targets": 9,
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
   "skipped_targets": 0,
-  "assertions_executed": 23,
-  "min_assertions": 23,
-  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 4 speed; every check() unconditional.",
+  "assertions_executed": 29,
+  "min_assertions": 29,
+  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 6 real payload, 4 speed; every check() unconditional.",
   "canary": {
     "id": "plain-insert-beats-cap-and-buffer",
     "observed_failure": true
@@ -71,7 +71,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1894,
+      "b_waited_ms": 2016,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -79,7 +79,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2013,
+      "b_waited_ms": 2024,
       "saved": 2
     },
     "race-move-cap": {
@@ -87,7 +87,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1869,
+      "b_waited_ms": 1896,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
@@ -101,15 +101,35 @@
       "rows": "0",
       "unchanged": "t"
     },
+    "real-payload": {
+      "id": "real-payload",
+      "create_booking_keys": 34,
+      "as_sent": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true
+      },
+      "filled": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true,
+        "stored_empty": null
+      },
+      "move": {
+        "keys": 22,
+        "same_row": true,
+        "stored_empty": null
+      }
+    },
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.611,
-      "plain_p95_ms": 1.195,
-      "checked_median_ms": 0.837,
-      "checked_p95_ms": 1.546,
-      "extra_median_ms": 0.226,
-      "extra_p95_ms": 0.351
+      "plain_median_ms": 0.635,
+      "plain_p95_ms": 1.33,
+      "checked_median_ms": 0.883,
+      "checked_p95_ms": 1.718,
+      "extra_median_ms": 0.248,
+      "extra_p95_ms": 0.388
     }
   }
 }
