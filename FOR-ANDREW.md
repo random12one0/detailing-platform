@@ -48,6 +48,26 @@ written or rewritten this morning.
 
 Updated 2026-09-21.
 
+## YOUR NEXT RELEASE, IN ONE LIST · start here (ROADMAP 97.91)
+
+When you release, open `docs/release-sheet.md` and go top to bottom. It merges the thirteen "AT YOUR NEXT RELEASE"
+rows below, the other rows in this list that carry a release step (the scheduler key, 97.3; the launch order, 0.6b;
+the photo and Cloudflare steps, 14.39 and 0.11bd; and seven more), and the release lines of the open roadmap items
+(some of which, like 97.16 and 97.64, set an order and have no row here) into 70 numbered steps. The first step is a
+check a session must run before you start (0.11cc's skipped Spanish check). Then come the keys and the Stripe
+setting, 23 database changes oldest first (with `verify-domain` slotted in just before its own change, after the
+support-session changes it relies on), 32 programs (`update-booking` first and alone, `platform-billing` alone), the
+website, and then, straight after it in the same sitting, `accept-quote` and `create-booking` (they must follow the
+website, never go before it: 97.16, 97.64) and the payment webhook last and alone. **Two programs are held back on
+purpose and are never a step:** `platform-admin` (until 4.3c is finished) and `google-business` (until Google
+approves). Your push stops at the website step and names those two plus the three that come after the website. When
+it names only those five, push with `SHIP_WITH_DRIFT=1 git push`. Once you start the database changes, finish to the
+end of the sheet in the same sitting (97.14, 97.64). **One disagreement between two notes is settled on the sheet:**
+the 99.2f note below says `create-booking` before the website, 97.64 says the reverse; the sheet does the website
+first and `create-booking` straight after. Wherever a note said one thing must come before another, the step says so
+and names the step number. These rows stay as the detail behind each step. A session re-runs the sheet after anything
+changes (`node scripts/release-sheet.mjs`); it only reads, and never applies, publishes or pushes.
+
 ## DO · Say "merge it" once more on two fixes (ROADMAP 97.1 and 97.2)
 
 Both fixes are right. Neither has reached main yet, for the belt's reasons, not yours.
@@ -397,10 +417,11 @@ a deadline you set, which can be any length of time. Nothing to decide.
 
 **Added 2026-10-11, same release (99.2f):** the booking page now has the exact filed text-consent sentence under Phone,
 unticked, with Privacy and Terms links. The Privacy page now includes the mobile-information paragraph. Both booking
-choices and saving consent are proved locally with no real messages or database writes. **Publish `create-booking`
-before publishing the app**, so the new checkbox actually saves the choice. *(Supervisor 2026-10-18: this order
-CONFLICTS with ROADMAP 97.64, which says site first, then `create-booking`. Until the release sheet, ROADMAP 97.91,
-settles it, do both in one sitting, minutes apart, so neither gap is long.)* The same publish also turns on the short-phone refusal (ROADMAP 99.8: a 7-digit number is refused with a 400), proved locally. Its existing consent columns need no new
+choices and saving consent are proved locally with no real messages or database writes. ~~Publish `create-booking`
+before publishing the app~~ **Settled by the release sheet (ROADMAP 97.91, 2026-10-18): the website first, then
+`create-booking` straight after, in the same sitting.** *(97.91, 2026-10-18: the original order conflicted with ROADMAP
+97.64, which says site first; the other way round a customer's retry from the old page gets no booking link. Website
+first, a consent tick made in those few minutes is not saved, and no texts are sent yet.)* The same publish also turns on the short-phone refusal (ROADMAP 99.8: a 7-digit number is refused with a 400), proved locally. Its existing consent columns need no new
 database change. A session then checks checked and unchecked bookings against the released function and ticks 99.2f.
 Automatic texting stays off; the relay, templates and routing are the remaining parts of 99.2. Do not submit or pay the
 texting registration just from these local copies: the checkbox and privacy paragraph must first be live. No new decision.
