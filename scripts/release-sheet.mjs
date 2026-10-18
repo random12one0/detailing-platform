@@ -352,13 +352,14 @@ const canaryCaught = canaryFindings.some((f) => f.includes('"0.0 — canary row"
 // ---------------------------------------------------------------------------
 // WRITE
 // ---------------------------------------------------------------------------
-const sheetPath = BREAK ? "receipts/release-sheet.sabotage.md" : "docs/release-sheet.md";
+// Each sabotage keeps its own sheet and receipt, so neither a clean run nor the other sabotage overwrites it.
+const sheetPath = BREAK ? `receipts/release-sheet.${BREAK}.sabotage.md` : "docs/release-sheet.md";
 writeFileSync(join(REPO, sheetPath), sheet.replace(/\n+$/, "") + "\n");
 const targets = ctx.migs.length + invFns.length + rows.length;
 const missedTargets = new Set(sheetFindings.map((f) => f.split(" ")[2] || f)).size;
 const ok = failures.length === 0 && canaryCaught;
 const { path: receiptPath } = writeReceipt({
-  check_id: "release-sheet",
+  check_id: BREAK ? `release-sheet.${BREAK}` : "release-sheet",
   started_at,
   status: ok ? "pass" : "fail",
   expected_targets: targets,
