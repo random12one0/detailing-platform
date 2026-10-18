@@ -232,6 +232,7 @@ export const appEs = {
   "Save weather warnings": "Guardar avisos del clima",
   "Expected": "Esperado",
   "{amount} collected": "{amount} cobrado",
+  "{amount} refunded": "{amount} devuelto",
   "Nothing collected yet": "Aún no has cobrado nada",
   // The phone's two money cells. Lower case on purpose — they sit under a
   // figure as `.lbl`, not as a section eyebrow, and Spanish does not

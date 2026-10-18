@@ -10,6 +10,12 @@
 //   part-refunded   $50 of $150 refunded            → collected $100, export says 50 back, 100 kept
 //   other-payment   a DIFFERENT payment refunded    → collected $150, export "Paid" (refused case)
 //   paid            nothing refunded                → collected $150, export "Paid" (the canary)
+//   unpaid          not paid at all                 → collected $0,   export "Unpaid" (97.85)
+//
+// THE WORDS (97.85): at 1024 and up, collected 0 is a sentence. A refunded day says
+// "$150 refunded"; only a day with nothing paid says "Nothing collected yet", because
+// "yet" promises money still coming. Below 1024 it is the "$0 / collected" cell, which
+// never says "yet" either way, and that is asserted too.
 //
 // The export half is asserted in Node on the exact row Today drew (see EXPORT_SRC).
 //
@@ -84,7 +90,10 @@ const ALL = [
   { id: "part-refunded", patch: job(5000), collected: 100, status: "Part refunded: 50.00 of 150.00 returned, 100.00 kept" },
   { id: "other-payment", patch: job(15000, "pi_2"), collected: 150, status: "Paid" },
   { id: "paid", patch: job(null), collected: 150, status: "Paid" },
+  { id: "unpaid", patch: { ...job(null), payment_status: "unpaid", paid_online_at: null, stripe_payment_intent: null }, collected: 0, status: "Unpaid", amount: 150, desk: "Nothing collected yet" },
 ];
+// The desk sentence under Expected. A refunded day names what went back, never "yet".
+const deskWords = (sc) => sc.desk ?? (sc.collected > 0 ? `${money(sc.collected)} collected` : `${money(150 - sc.collected)} refunded`);
 const SCENARIOS = FREEZE ? ALL.slice(0, 1) : ALL;
 const EXPECTED = SCENARIOS.length * WIDTHS.length;
 
@@ -186,10 +195,13 @@ for (const sc of SCENARIOS) {
     let shown = null;
     if (today) {
       // Phone: two fixed cells, expected then collected. Desk: "$X collected" under Expected.
-      shown = today.phone ? today.figs[1] : today.quiet.find((q) => /collected/i.test(q));
-      const want = today.phone ? money(sc.collected) : (sc.collected > 0 ? `${money(sc.collected)} collected` : "Nothing collected yet");
+      shown = today.phone ? today.figs[1] : today.quiet[1] ?? null;
+      const want = today.phone ? money(sc.collected) : deskWords(sc);
       check(`${tag} · expected is the job's whole price, $150`, today.phone ? today.figs[0] === money(150) : today.figs.includes(money(150)), JSON.stringify(today));
       check(`${tag} · collected reads "${want}"`, shown === want, JSON.stringify(today));
+      const words = [...today.figs, ...today.quiet].join(" | ");
+      if (sc.id === "unpaid" && !today.phone) check(`${tag} · a day with nothing paid still says "yet"`, /\byet\b/.test(words), words);
+      else check(`${tag} · the money figures do not say "yet"`, !/\byet\b/i.test(words), words);
     }
     // The export, fed the row Today drew (see EXPORT_SRC above).
     const exp = fed ? (() => {
@@ -200,7 +212,7 @@ for (const sc of SCENARIOS) {
     check(`${tag} · the export's Status says "${sc.status}"`, exp?.status === sc.status, JSON.stringify(exp));
     // RE-POINTED BY 97.82, NOT RELAXED: Amount is now what the job KEPT, which is how the
     // Money screen's Net counts it, so it ties out there (scripts/money-refund.mjs).
-    check(`${tag} · the export's Amount is what the job kept (${sc.collected}.00)`, exp?.amount === sc.collected, JSON.stringify(exp));
+    check(`${tag} · the export's Amount is what the job kept (${sc.amount ?? sc.collected}.00)`, exp?.amount === (sc.amount ?? sc.collected), JSON.stringify(exp));
     if (REWRITES) {
       const ran = await page.evaluate(() => window.__beltToday === true);
       check(`${tag} · the sabotage landed once in Today and RAN`, ran && hits["Today.jsx"] === 1, `ran ${ran}, ${JSON.stringify(hits)}`);
@@ -239,7 +251,7 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: EXPECTED * 7,
+  min_assertions: EXPECTED * 8,
   failures,
   dimensions: { base: BASE, frozen_now: NOW, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), env_shim: process.argv.includes("--env-shim"), probed },
   artifacts: [SHOTS],

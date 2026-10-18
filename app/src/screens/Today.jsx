@@ -266,10 +266,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   ).keys()].map((d) => [d, upcoming.filter((b) => b.booking_date === d)]);
 
   const expected = todays.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-  const collected = todays
-    .filter((b) => b.payment_status === "paid")
+  const paidToday = todays.filter((b) => b.payment_status === "paid");
+  const collected = paidToday
     // A refund made in Stripe leaves the job "paid"; only what was kept is collected (97.81).
     .reduce((s, b) => s + keptOf(b, Number(b.final_amount ?? b.total_price)), 0);
+  // What was paid and went back. Only read when collected is 0, where "yet" would be untrue (97.85).
+  const refunded = paidToday.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0) - collected;
   const done = todays.filter((b) => b.status === "completed").length;
 
   // THE THREE RUNS, each named for the work it holds.
@@ -777,7 +779,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
               <div className="quiet" style={{ marginTop: 4 }}>
                 {collected > 0
                   ? t("{amount} collected", { amount: money(collected) })
-                  : t("Nothing collected yet")}
+                  : refunded > 0
+                    ? t("{amount} refunded", { amount: money(refunded) })
+                    : t("Nothing collected yet")}
               </div>
             </div>
           </div>
