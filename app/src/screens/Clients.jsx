@@ -379,8 +379,13 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // it). Refused, or no answer within NOTES_WAIT_MS: stay, with the line.
   const settleNotes = async () => {
     const id = open.id;
-    const pending = saving.current ?? (notes === savedNotes.current || saveNotes());
-    const ok = await Promise.race([pending, new Promise((r) => setTimeout(() => r(null), NOTES_WAIT_MS))]);
+    const late = new Promise((r) => setTimeout(() => r(null), NOTES_WAIT_MS));
+    const answer = (p) => Promise.race([p, late]);
+    let ok = await answer(saving.current ?? (notes === savedNotes.current || saveNotes()));
+    // The save in flight may have left BEFORE the latest typing (type, tap away,
+    // tap back, type more, Escape: no blur). Once it lands, send what is in the
+    // box now, or the close goes on an answer about older text (review, 2026-10-18).
+    if (ok === true && notes !== savedNotes.current) ok = await answer(saveNotes());
     // A late answer still lands through saveNotes' `.then` and replaces this line.
     if (ok === null && openId.current === id) setNotesError(t("Your notes have not saved yet. Check your connection, then try again."));
     return ok === true;

@@ -12,6 +12,8 @@
 //   BREAK=text …     # sabotage: every save sends what the server already holds instead of what was typed — ONLY the
 //                    # "sent exactly the typed text" lines may go red (review finding 4: that assertion had never been
 //                    # broken on its own)
+//   BREAK=stale …    # sabotage: a close waits only on the save already in flight, never sending the typing that came
+//                    # after it left (review, 2026-10-18) — ONLY escape-after may go red
 //                    # All four write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
 //                    # each run's own shots carry its name, so a clean run never overwrites them.
 //
@@ -41,6 +43,8 @@
 //              browser, held with the text and the "Looking only" line; Close again → still held; "Close anyway" → gone
 //   hang       the save is NEVER answered (review finding 2): type, Close → after the product's 5s wait the record is
 //              held with the text and the "not saved yet" line on screen; "Close anyway" → gone
+//   escape-after  type, tap away (that save leaves and is held back SLOW_MS), tap back in, type more, press Escape →
+//              TWO saves, the second carrying the full text, and only then the record closes (review, 2026-10-18)
 //   "Close anyway" must be ON SCREEN (the same test as the line) before it is pressed, in every case that uses it
 // EVERY save is checked for WHAT it sent, in its own line per case: each request's p_notes must be exactly the typed
 // text. Whether the text is then STORED is the function's half, proven against the real migration by
@@ -69,7 +73,7 @@ const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
 const BASE = process.env.BASE || "http://localhost:5173";
 const BREAK = process.env.BREAK || "";
-if (BREAK && !["close", "accept", "reject", "text"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
+if (BREAK && !["close", "accept", "reject", "text", "stale"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
 const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
 const CASES = [
   { id: "control", leave: "blur", answer: "refuse" },
@@ -83,6 +87,7 @@ const CASES = [
   { id: "seen-close", leave: "blur", answer: "refuse", twice: true },
   { id: "view-as", leave: "close", answer: "accept", look: true, twice: true },
   { id: "hang", leave: "close", answer: "hang", anyway: true },
+  { id: "escape-after", leave: "escape", answer: "accept", after: true },
 ];
 const ANSWER_MS = 600;
 const PRODUCT_WAIT_MS = 5000;   // Clients.jsx NOTES_WAIT_MS
@@ -93,7 +98,8 @@ const ANYWAY = "Close anyway";
 const SHOTS = process.env.SHOTS || "artifacts/notes-refused-on-close";
 const started_at = new Date().toISOString();
 const FROZEN = new Date(started_at);
-const SIGNED = ["close", "reject", "text"].includes(BREAK);
+const SIGNED = ["close", "reject", "text", "stale"].includes(BREAK);
+const SLOW_MS = 1500;   // escape-after: how long the FIRST save is held back
 
 // Each piece must match the served module exactly once.
 const REWRITES = {
@@ -110,6 +116,8 @@ const REWRITES = {
   ],
   // a save that sends the server's copy instead of the box's
   text: [["const id = open.id, sent = notes;", "const id = open.id, sent = savedNotes.current;"]],
+  // a close that waits on the save in flight and never sends the typing after it
+  stale: [["if (ok === true && notes !== savedNotes.current) ok = await answer(saveNotes());", ""]],
 };
 
 const failures = [];
@@ -188,13 +196,13 @@ for (const [w, h] of WIDTHS) {
     }
     await route.fulfill({ response: res, body });
   });
-  let sent = 0, answer = "refuse", notesIn = [];
+  let sent = 0, answer = "refuse", notesIn = [], slowFirst = false;
   await ctx.route(/\/rest\/v1\/rpc\/set_customer_notes/, async (route) => {
     sent++; calls++;
     notesIn.push(route.request().postDataJSON()?.p_notes);
     const a = answer;
     if (a === "hang") return;   // never answered; the next navigation abandons it
-    await new Promise((r) => setTimeout(r, ANSWER_MS));
+    await new Promise((r) => setTimeout(r, slowFirst && sent === 1 ? SLOW_MS : ANSWER_MS));
     await route.fulfill(a === "accept" ? { status: 204, body: "" }
       : { status: 403, json: { code: "42501", message: "not a member of this business" } }).catch(() => {});
   });
@@ -280,13 +288,21 @@ for (const [w, h] of WIDTHS) {
     const box = boxOf(p);
     const next = await openRecord(p);
     if (SIGNED) check(`${w} ${c.id}: the sabotaged module is the one running`, await p.evaluate(() => window.__break9784 === true));
-    sent = 0; notesIn = [];
+    sent = 0; notesIn = []; slowFirst = !!c.after;
     answer = BREAK === "accept" && c.answer === "refuse" ? "accept" : c.answer;
     const name = await title(p);   // the client this case opened
     const typed = `97.84 ${c.id} ${w}`;
     const line = c.look ? LOOKING : c.answer === "hang" ? NOT_YET : NOT_SAVED;
+    const early = c.after ? typed.slice(0, -` ${w}`.length) : typed;   // escape-after: the text the first save carries
     await box.click();
-    await box.fill(typed);
+    await box.fill(early);
+    if (c.after) {   // tap away (the save of the early text leaves, held back), tap back, type the rest
+      await p.locator("label.field:has-text('Notes') > span").first().click();
+      await p.waitForTimeout(200);
+      await box.click();
+      await box.press("End");
+      await box.pressSequentially(typed.slice(early.length));
+    }
     if (c.leave === "blur") await p.locator("label.field:has-text('Notes') > span").first().click();
     else if (c.leave === "escape") await p.keyboard.press("Escape");
     else if (c.leave === "close") await closeX(p);
@@ -297,7 +313,7 @@ for (const [w, h] of WIDTHS) {
       if (await p.locator(".sheet").count()) await p.mouse.click(w / 2, 60);
       else await p.mouse.click(next.x + next.width / 2, next.y + next.height / 2);
     }
-    await settle(p, c.answer === "hang" ? PRODUCT_WAIT_MS + 1500 : undefined);
+    await settle(p, c.answer === "hang" ? PRODUCT_WAIT_MS + 1500 : c.after ? SLOW_MS + ANSWER_MS + 1500 : undefined);
     const first = await state(p, line);
     await p.screenshot({ path: `${SHOTS}/${c.id}-${w}x${h}${tag}.png` });
     // Held: open on the client typed for, the text, the line on screen and in the page exactly once.
@@ -318,7 +334,7 @@ for (const [w, h] of WIDTHS) {
       Object.assign(anyway, await state(p, line));
       await p.screenshot({ path: `${SHOTS}/${c.id}-anyway-${w}x${h}${tag}.png` });
     }
-    const sentTyped = notesIn.every((n) => n === typed);
+    const sentTyped = c.after ? JSON.stringify(notesIn) === JSON.stringify([early, typed]) : notesIn.every((n) => n === typed);
     results.push({ width: w, case: c.id, answer, first, second, anyway, notes_sent: notesIn, sent_typed: sentTyped });
     console.log(`  ${w} ${c.id}: ${JSON.stringify({ first, second, anyway })}`);
     const detail = JSON.stringify({ first, second, anyway, notes_sent: notesIn });
@@ -330,13 +346,15 @@ for (const [w, h] of WIDTHS) {
       held(first) && first.sent === 1 && !!second && held(second) && second.sent === 2 && goneClean(anyway) && anyway.sent === 2, detail);
     else if (c.anyway) ok = check(`${w} ${c.id}: a save with no answer held ${name}'s record with the text and the "not saved yet" line; Close anyway put it away`,
       held(first) && first.sent === 1 && goneClean(anyway), detail);
+    else if (c.after) ok = check(`${w} ${c.id}: the typing after the first save left was sent before the record closed: two saves, closed, no line`,
+      first.sent === 2 && !first.recordOpen && first.found === 0, detail);
     // What each case must show is c.answer's; BREAK=accept changes only what the server says.
     else if (c.answer === "refuse") ok = check(`${w} ${c.id}: one save, ${name}'s record still open with the text and the line on screen, on no other client`,
       held(first) && first.sent === 1, detail);
     else ok = check(`${w} ${c.id}: one save, the record closed, no line anywhere`,
       first.sent === 1 && !first.recordOpen && first.found === 0, detail);
     // The text half on its own line, so BREAK=text can redden it and nothing else.
-    if (!c.look) ok = check(`${w} ${c.id}: every save sent exactly the typed text`, notesIn.length > 0 && sentTyped, JSON.stringify(notesIn)) && ok;
+    if (!c.look) ok = check(`${w} ${c.id}: ${c.after ? "the saves sent the early text, then exactly the full typed text" : "every save sent exactly the typed text"}`, notesIn.length > 0 && sentTyped, JSON.stringify(notesIn)) && ok;
     if (ok) completed++;
   }
   check(`${w}: no page errors`, errors.length === 0, JSON.stringify(errors));
