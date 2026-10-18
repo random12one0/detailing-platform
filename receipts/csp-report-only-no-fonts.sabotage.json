@@ -1,0 +1,209 @@
+{
+  "git_sha": "d000181072b4136eb16d79b470bd364a640cadd4",
+  "git_sha_started": "d000181072b4136eb16d79b470bd364a640cadd4",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T09:49:05.731Z",
+  "failures": [
+    "events/@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/pricing@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/pricing@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/book/demo-detail@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/book/demo-detail@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/app@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/app@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/ex1@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap",
+    "console/ex1@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inlin",
+    "events/@768: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/@768: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/pricing@768: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/pricing@768: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/book/demo-detail@768: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/book/demo-detail@768: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/app@768: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/app@768: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/ex1@768: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap",
+    "console/ex1@768: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inlin",
+    "events/@1440: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/@1440: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/pricing@1440: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/pricing@1440: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/book/demo-detail@1440: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/book/demo-detail@1440: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/app@1440: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
+    "console/app@1440: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
+    "events/ex1@1440: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap",
+    "console/ex1@1440: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,700;12..96,75..100,800&family=Instrument+Sans:wght@400;500;600&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inlin"
+  ],
+  "warnings": [
+    "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
+    "Report-only: a violation is printed, never blocked. Data-driven image hosts (a detailer's stored logo or photo address) are only seen on the rows the demo tenant has."
+  ],
+  "artifacts": [
+    ".manager-shots/97.26/no-fonts/home-390.png",
+    ".manager-shots/97.26/no-fonts/pricing-390.png",
+    ".manager-shots/97.26/no-fonts/book-demo-detail-390.png",
+    ".manager-shots/97.26/no-fonts/app-390.png",
+    ".manager-shots/97.26/no-fonts/ex1-390.png",
+    ".manager-shots/97.26/no-fonts/home-768.png",
+    ".manager-shots/97.26/no-fonts/pricing-768.png",
+    ".manager-shots/97.26/no-fonts/book-demo-detail-768.png",
+    ".manager-shots/97.26/no-fonts/app-768.png",
+    ".manager-shots/97.26/no-fonts/ex1-768.png",
+    ".manager-shots/97.26/no-fonts/home-1440.png",
+    ".manager-shots/97.26/no-fonts/pricing-1440.png",
+    ".manager-shots/97.26/no-fonts/book-demo-detail-1440.png",
+    ".manager-shots/97.26/no-fonts/app-1440.png",
+    ".manager-shots/97.26/no-fonts/ex1-1440.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "pages": [
+      "/",
+      "/pricing",
+      "/book/demo-detail",
+      "/app",
+      "/ex1"
+    ],
+    "item": "97.26",
+    "break": "no-fonts",
+    "origin": "http://127.0.0.1:51956"
+  },
+  "check_id": "csp-report-only-no-fonts",
+  "started_at": "2026-10-18T09:47:15.322Z",
+  "status": "fail",
+  "expected_targets": 15,
+  "discovered_targets": 15,
+  "attempted_targets": 15,
+  "completed_targets": 15,
+  "skipped_targets": 0,
+  "assertions_executed": 54,
+  "min_assertions": 54,
+  "assertion_floor": "2 /book/* header + 1 canary + 15 views x 3 (header, events, console) + 3 sizes x 2 (booking last step, signed in) = 54, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "unlisted-image-host-reported",
+    "observed_failure": true
+  },
+  "observed": {
+    "views": {
+      "/@390": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/pricing@390": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/book/demo-detail@390": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/app@390": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1@390": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/@768": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/pricing@768": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/book/demo-detail@768": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/app@768": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1@768": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/@1440": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/pricing@1440": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/book/demo-detail@1440": {
+        "walk": {
+          "reached": 7,
+          "total": 7
+        },
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/app@1440": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      },
+      "/ex1@1440": {
+        "header": true,
+        "events": 1,
+        "console": 1,
+        "noise": 0
+      }
+    },
+    "canary": {
+      "events": 1,
+      "console": 1
+    },
+    "book": {
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com",
+      "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    }
+  }
+}

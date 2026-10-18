@@ -1,22 +1,22 @@
 {
-  "git_sha": "aa4a69fbd60811450e611e2b76a8542007718fc5",
-  "git_sha_started": "aa4a69fbd60811450e611e2b76a8542007718fc5",
+  "git_sha": "d000181072b4136eb16d79b470bd364a640cadd4",
+  "git_sha_started": "d000181072b4136eb16d79b470bd364a640cadd4",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-13T12:42:02.262Z",
+  "finished_at": "2026-10-18T09:53:26.623Z",
   "failures": [
-    "self-frames/app: /app rendered inside a frame on its own origin",
-    "self-frames/admin: /admin rendered inside a frame on its own origin",
-    "stranger-frames/app: /app rendered inside a frame on another origin (http://localhost:5192)",
-    "stranger-frames/admin: /admin rendered inside a frame on another origin (http://localhost:5192)"
+    "preview-renders@1440x900: the preview frame (http://localhost:5191/book/demo-detail?pv=1) did not render the booking page",
+    "console@1440x900: console not silent: error: Refused to display 'http://localhost:5191/' in a frame because it set 'X-Frame-Options' to 'deny'.",
+    "preview-renders@392x844: the preview frame (http://localhost:5191/book/demo-detail?pv=1) did not render the booking page",
+    "console@392x844: console not silent: error: Refused to display 'http://localhost:5191/' in a frame because it set 'X-Frame-Options' to 'deny'."
   ],
   "warnings": [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
     "Assumes Netlify matches [[headers]] `for` against the REQUESTED path, not the /index.html the SPA rewrite serves. Unproved until the live rerun after publish (ROADMAP 9.1b)."
   ],
   "artifacts": [
-    ".manager-shots/9.1c/preview-break-blanket-allow-1440.png",
-    ".manager-shots/9.1c/preview-break-blanket-allow-392.png"
+    ".manager-shots/9.1c/preview-break-no-fix-1440.png",
+    ".manager-shots/9.1c/preview-break-no-fix-392.png"
   ],
   "dimensions": {
     "sizes": [
@@ -24,14 +24,14 @@
       "392x844"
     ],
     "item": "9.1c",
-    "break": "blanket-allow",
+    "break": "no-fix",
     "origins": {
       "app": "http://localhost:5191",
       "stranger": "http://localhost:5192"
     }
   },
   "check_id": "preview-frame-headers",
-  "started_at": "2026-10-13T12:41:36.881Z",
+  "started_at": "2026-10-18T09:51:55.476Z",
   "status": "fail",
   "expected_targets": 7,
   "discovered_targets": 7,
@@ -48,36 +48,45 @@
   "observed": {
     "effective": {
       "/app": {
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-      },
-      "/admin": {
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
-      },
-      "/book/demo-detail": {
+        "X-Frame-Options": "DENY",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+      },
+      "/admin": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+      },
+      "/book/demo-detail": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
       }
     },
     "sizes": {
       "1440x900": {
         "src": "http://localhost:5191/book/demo-detail?pv=1",
-        "shown": true,
-        "console": []
+        "shown": false,
+        "console": [
+          "error: Refused to display 'http://localhost:5191/' in a frame because it set 'X-Frame-Options' to 'deny'."
+        ]
       },
       "392x844": {
         "src": "http://localhost:5191/book/demo-detail?pv=1",
-        "shown": true,
-        "console": []
+        "shown": false,
+        "console": [
+          "error: Refused to display 'http://localhost:5191/' in a frame because it set 'X-Frame-Options' to 'deny'."
+        ]
       }
     },
     "refusals": {
-      "self /app": "RENDERED",
-      "self /admin": "RENDERED",
-      "stranger /app": "RENDERED",
-      "stranger /admin": "RENDERED",
+      "self /app": "refused",
+      "self /admin": "refused",
+      "stranger /app": "refused",
+      "stranger /admin": "refused",
       "stranger /book/demo-detail": "refused"
     }
   }

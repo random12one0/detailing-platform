@@ -1,0 +1,134 @@
+{
+ "views": {
+  "/@390": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/pricing@390": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/book/demo-detail@390": {
+   "walk": {
+    "reached": 7,
+    "total": 7
+   },
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/app@390": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/ex1@390": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/@768": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/pricing@768": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/book/demo-detail@768": {
+   "walk": {
+    "reached": 7,
+    "total": 7
+   },
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/app@768": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/ex1@768": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/@1440": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/pricing@1440": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/book/demo-detail@1440": {
+   "walk": {
+    "reached": 7,
+    "total": 7
+   },
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/app@1440": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  },
+  "/ex1@1440": {
+   "header": false,
+   "events": 0,
+   "console": 0,
+   "noise": 0
+  }
+ },
+ "canary": {
+  "events": 1,
+  "console": 1
+ },
+ "book": {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Content-Security-Policy": "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
+ }
+}
+FAIL header/@390: no Content-Security-Policy-Report-Only header
+FAIL header/pricing@390: no Content-Security-Policy-Report-Only header
+FAIL header/book/demo-detail@390: no Content-Security-Policy-Report-Only header
+FAIL header/app@390: no Content-Security-Policy-Report-Only header
+FAIL header/ex1@390: no Content-Security-Policy-Report-Only header
+FAIL header/@768: no Content-Security-Policy-Report-Only header
+FAIL header/pricing@768: no Content-Security-Policy-Report-Only header
+FAIL header/book/demo-detail@768: no Content-Security-Policy-Report-Only header
+FAIL header/app@768: no Content-Security-Policy-Report-Only header
+FAIL header/ex1@768: no Content-Security-Policy-Report-Only header
+FAIL header/@1440: no Content-Security-Policy-Report-Only header
+FAIL header/pricing@1440: no Content-Security-Policy-Report-Only header
+FAIL header/book/demo-detail@1440: no Content-Security-Policy-Report-Only header
+FAIL header/app@1440: no Content-Security-Policy-Report-Only header
+FAIL header/ex1@1440: no Content-Security-Policy-Report-Only header
+receipt: C:\Users\rando\Downloads\claude\belt-jobs\belt_97.26-20261018093121674\receipts\csp-report-only-no-policy.sabotage.json
+
+FAIL — 54 assertions, 15 failed, 15 of 15 views
