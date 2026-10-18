@@ -10,6 +10,13 @@
 //   part-refunded   $50 of $150 refunded            → collected $100, export says 50 back, 100 kept
 //   other-payment   a DIFFERENT payment refunded    → collected $150, export "Paid" (refused case)
 //   paid            nothing refunded                → collected $150, export "Paid" (the canary)
+//   unpaid          not paid at all                 → collected $0,   export "Unpaid" (97.85)
+//
+// THE WORDS (97.85): at 1024 and up, collected 0 is a sentence. A refunded day says
+// "$150 refunded"; only a day with nothing paid says "Nothing collected yet", because
+// "yet" promises money still coming. Below 1024 it is the "$0 / collected" cell, which
+// never says "yet" either way, and that is asserted too. Two more views read the same
+// sentence in Spanish at 1440: "$150 devuelto", and "Aún no has cobrado nada" only unpaid.
 //
 // The export half is asserted in Node on the exact row Today drew (see EXPORT_SRC).
 //
@@ -84,9 +91,15 @@ const ALL = [
   { id: "part-refunded", patch: job(5000), collected: 100, status: "Part refunded: 50.00 of 150.00 returned, 100.00 kept" },
   { id: "other-payment", patch: job(15000, "pi_2"), collected: 150, status: "Paid" },
   { id: "paid", patch: job(null), collected: 150, status: "Paid" },
+  { id: "unpaid", patch: { ...job(null), payment_status: "unpaid", paid_online_at: null, stripe_payment_intent: null }, collected: 0, status: "Unpaid", amount: 150, desk: "Nothing collected yet" },
 ];
+// The desk sentence under Expected. A refunded day names what went back, never "yet".
+const deskWords = (sc) => sc.desk ?? (sc.collected > 0 ? `${money(sc.collected)} collected` : `${money(150 - sc.collected)} refunded`);
 const SCENARIOS = FREEZE ? ALL.slice(0, 1) : ALL;
-const EXPECTED = SCENARIOS.length * WIDTHS.length;
+const VIEWS = SCENARIOS.flatMap((sc) => WIDTHS.map((wh) => [sc, wh, "en"]));
+if (!FREEZE) for (const id of ["refunded", "unpaid"]) VIEWS.push([ALL.find((sc) => sc.id === id), [1440, 900], "es"]);
+const ES_DESK = { refunded: `${money(150)} devuelto`, unpaid: "Aún no has cobrado nada" };
+const EXPECTED = VIEWS.length;
 
 let assertions = 0;
 const failures = [];
@@ -133,12 +146,12 @@ await login.close();
 
 let discovered = 0, attempted = 0, completed = 0;
 const probed = [];
-for (const sc of SCENARIOS) {
-  for (const [w, h] of WIDTHS) {
+for (const [sc, [w, h], lang] of VIEWS) {
+  {
     discovered++;
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state, timezoneId: "America/Los_Angeles" });
     await ctx.clock.setFixedTime(new Date(NOW));
-    await ctx.addInitScript(() => { localStorage.setItem("dp.lang.app", "en"); });
+    await ctx.addInitScript((l) => { localStorage.setItem("dp.lang.app", l); }, lang);
     const page = await ctx.newPage();
     const errors = [];
     page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
@@ -172,7 +185,7 @@ for (const sc of SCENARIOS) {
     await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("[data-tour=figures]", { state: "attached", timeout: 30000 }).catch(() => {});
     await page.waitForTimeout(1500);
-    const tag = `${sc.id} @ ${w}x${h}`;
+    const tag = `${sc.id} @ ${w}x${h}${lang === "es" ? " (es)" : ""}`;
     check(`${tag} · Today's bookings read was fed`, !!fed, "page.route never matched a bookings range read carrying a row");
     const today = await page.evaluate(() => {
       const f = document.querySelector("[data-tour=figures]");
@@ -186,10 +199,14 @@ for (const sc of SCENARIOS) {
     let shown = null;
     if (today) {
       // Phone: two fixed cells, expected then collected. Desk: "$X collected" under Expected.
-      shown = today.phone ? today.figs[1] : today.quiet.find((q) => /collected/i.test(q));
-      const want = today.phone ? money(sc.collected) : (sc.collected > 0 ? `${money(sc.collected)} collected` : "Nothing collected yet");
+      shown = today.phone ? today.figs[1] : today.quiet[1] ?? null;
+      const want = today.phone ? money(sc.collected) : lang === "es" ? ES_DESK[sc.id] : deskWords(sc);
       check(`${tag} · expected is the job's whole price, $150`, today.phone ? today.figs[0] === money(150) : today.figs.includes(money(150)), JSON.stringify(today));
       check(`${tag} · collected reads "${want}"`, shown === want, JSON.stringify(today));
+      const words = [...today.figs, ...today.quiet].join(" | ");
+      if (lang === "es") check(`${tag} · only a day with nothing paid says "Aún"`, /Aún/.test(words) === (sc.id === "unpaid"), words);
+      else if (sc.id === "unpaid" && !today.phone) check(`${tag} · a day with nothing paid still says "yet"`, /\byet\b/.test(words), words);
+      else check(`${tag} · the money figures do not say "yet"`, !/\byet\b/i.test(words), words);
     }
     // The export, fed the row Today drew (see EXPORT_SRC above).
     const exp = fed ? (() => {
@@ -200,7 +217,7 @@ for (const sc of SCENARIOS) {
     check(`${tag} · the export's Status says "${sc.status}"`, exp?.status === sc.status, JSON.stringify(exp));
     // RE-POINTED BY 97.82, NOT RELAXED: Amount is now what the job KEPT, which is how the
     // Money screen's Net counts it, so it ties out there (scripts/money-refund.mjs).
-    check(`${tag} · the export's Amount is what the job kept (${sc.collected}.00)`, exp?.amount === sc.collected, JSON.stringify(exp));
+    check(`${tag} · the export's Amount is what the job kept (${sc.amount ?? sc.collected}.00)`, exp?.amount === (sc.amount ?? sc.collected), JSON.stringify(exp));
     if (REWRITES) {
       const ran = await page.evaluate(() => window.__beltToday === true);
       check(`${tag} · the sabotage landed once in Today and RAN`, ran && hits["Today.jsx"] === 1, `ran ${ran}, ${JSON.stringify(hits)}`);
@@ -218,9 +235,9 @@ for (const sc of SCENARIOS) {
       });
       console.log(`froze ${BELT}/${FREEZE}.html`);
     }
-    const file = `${SHOTS}/${BREAK ? `break-${BREAK}-` : FREEZE ? `${FREEZE}-` : ""}today-${sc.id}-${w}x${h}.png`;
+    const file = `${SHOTS}/${BREAK ? `break-${BREAK}-` : FREEZE ? `${FREEZE}-` : ""}today-${sc.id}-${w}x${h}${lang === "es" ? "-es" : ""}.png`;
     await page.screenshot({ path: file, fullPage: false });
-    probed.push({ scenario: sc.id, width: w, collected: shown, export_status: exp?.status ?? null, errors: errors.length, shot: file });
+    probed.push({ scenario: sc.id, width: w, lang, collected: shown, export_status: exp?.status ?? null, errors: errors.length, shot: file });
     completed++;
     await ctx.close();
   }
@@ -239,7 +256,7 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: EXPECTED * 7,
+  min_assertions: EXPECTED * 8,
   failures,
   dimensions: { base: BASE, frozen_now: NOW, widths: WIDTHS.map(([w, h]) => `${w}x${h}`), ...(BREAK ? { break: BREAK } : {}), env_shim: process.argv.includes("--env-shim"), probed },
   artifacts: [SHOTS],
