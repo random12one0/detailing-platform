@@ -1,4 +1,4 @@
-throwaway Postgres 17.8 on 127.0.0.1:58578, folder C:\Users\rando\AppData\Local\Temp\restore-nightly-wOPCCT
+throwaway Postgres 17.8 on 127.0.0.1:52796, folder C:\Users\rando\AppData\Local\Temp\restore-nightly-wE92j3
 restoring: fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)
   ok   auth.users                                 6 rows
   FAIL public.bookings                            0 rows, the backup holds 126
@@ -10,6 +10,7 @@ restoring: fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with 
   ok   storage.objects                            9 rows
   note: STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md).
   FAILURE: restore mismatch — public.bookings: 0 rows, the backup holds 126
-canary: MISSED — could not plant: psql.exe -X -q -At … exited 3: ERROR:  no text value in public.bookings to alter
-FAIL: 7 of 8 tables came back identical (the backup's index lists 8). Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_98.8-20261013140155\receipts\restore-nightly.sabotage.json
+canary: MISSED — rows MISSED: could not plant: psql.exe -X -q -At … exited 3: ERROR:  no text value in public.bookings to alter | privileges caught: undid `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;`; named: FUNCTION public.count_bookings(): the backup holds `REVOKE ALL ON FUNCTION public.count_bookings() FROM PUBLIC;` and the restored copy does not
+privileges: 21 grant/revoke statement(s) on 10 object(s) in the backup, 21 on 10 in the restored copy, 0 difference(s)
+FAIL: 7 of 8 tables came back identical (the backup's index lists 8). Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.25-20261018034916320\receipts\restore-nightly.sabotage.json
 restore date NOT recorded: drilled project fixture, not kguqylyzgyzfktkfnhjb; source is fixture, not a nightly fetched from random12one0/detailing-platform-backups; it is a sabotage run; the canary was not caught, so a match proves nothing; failure: restore mismatch — public.bookings: 0 rows, the backup holds 126

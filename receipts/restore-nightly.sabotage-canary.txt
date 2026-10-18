@@ -1,4 +1,4 @@
-throwaway Postgres 17.8 on 127.0.0.1:60042, folder C:\Users\rando\AppData\Local\Temp\restore-nightly-Y3KFko
+throwaway Postgres 17.8 on 127.0.0.1:51609, folder C:\Users\rando\AppData\Local\Temp\restore-nightly-6rDsV1
 restoring: fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)
   ok   auth.users                                 6 rows
   ok   public.bookings                            126 rows
@@ -9,6 +9,7 @@ restoring: fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with 
   ok   storage.buckets                            2 rows
   ok   storage.objects                            9 rows
   note: STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md).
-canary: MISSED — skipped on purpose (--break=canary)
-FAIL: 8 of 8 tables came back identical (the backup's index lists 8). Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_98.8-20261013140155\receipts\restore-nightly.sabotage.json
+canary: MISSED — rows MISSED: skipped on purpose (--break=canary) | privileges MISSED: skipped on purpose (--break=canary)
+privileges: 21 grant/revoke statement(s) on 10 object(s) in the backup, 21 on 10 in the restored copy, 0 difference(s)
+FAIL: 8 of 8 tables came back identical (the backup's index lists 8). Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_97.25-20261018034916320\receipts\restore-nightly.sabotage.json
 restore date NOT recorded: drilled project fixture, not kguqylyzgyzfktkfnhjb; source is fixture, not a nightly fetched from random12one0/detailing-platform-backups; it is a sabotage run; the canary was not caught, so a match proves nothing
