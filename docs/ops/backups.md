@@ -17,7 +17,7 @@ encrypts it so that GitHub itself cannot read it, and attaches it to a release.
 |---|---|
 | Schedule | `cron: '10 9 * * *'` — 09:10 UTC, 02:10 Pacific. Off the hour on purpose; GitHub silently delays runs booked at `:00` |
 | Actually fires at | **09:23–09:24 UTC**, three nights running — a real ~13-minute queue delay, not a fault |
-| Dump | `pg_dump --no-owner --no-privileges --format=custom`, run inside the `postgres:17` Docker image because the runner's client is older than the server |
+| Dump | `pg_dump --no-owner --format=custom`, run inside the `postgres:17` Docker image because the runner's client is older than the server. **Grants and revokes are kept** (ROADMAP 97.25): the product's security depends on revokes, and a copy without them restores every table open to `anon` and `authenticated`. Until Andrew installs the change (`FOR-ANDREW.md`, ROADMAP 97.25), the private repo's workflow and its `scripts/restore.sh` still pass the flag that drops them, so the copies on hand hold no grants |
 | Encryption | `age -R backup-key.pub` — a public key committed in the clear. **CI holds no private key and cannot decrypt its own output** |
 | Lands in | a **release asset**, never a commit. Git cannot forget a committed file, and these dumps are real customers' names, phones and home addresses |
 | Retention | every backup for 30 days, plus the 1st of each month for ever |

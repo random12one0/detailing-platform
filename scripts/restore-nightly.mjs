@@ -10,6 +10,12 @@
 // Sabotage: --break=lose-table (bookings' rows are left out of the restore —
 // the original defect, a copy that does not all come back; must go red) and
 // --break=canary (the planted change is skipped; the receipt must refuse).
+// ROADMAP 97.25 added two: --break=undo-revoke (one revoke the backup holds is
+// undone on the restored scratch copy before the comparison; must go red naming
+// it), --break=reopen-table (a public table the backup keeps from anon is
+// granted to anon on the restored copy; must go red naming the extra grant)
+// and --break=no-privileges (--fixture only: the practice copy is dumped
+// with the flag the nightly used to carry, so it holds no grants; must go red).
 //
 // WHY THIS EXISTS. `restore-drill.mjs` proves a logical round trip by creating
 // a schema INSIDE the live database, and it never opens the nightly copies in
@@ -43,8 +49,24 @@
 // into plain Postgres. Errors restoring anything OUTSIDE those three schemas
 // are listed by name as warnings; errors inside them are failures.
 //
+// AND THE PRIVILEGES (ROADMAP 97.25). The product's security rests on revokes,
+// and the nightly used to be taken with --no-privileges, so a restore came back
+// with every revoke missing while every row compared clean. Now every GRANT and
+// REVOKE the backup holds for objects in public, auth and storage is read out of
+// it (`pg_restore --schema-only`), the restored copy's are read back the same way
+// (`pg_dump --schema-only` of it — the same tool writing the same statements),
+// and the two are compared statement by statement, per object. Statements about
+// an object's OWNER, or about `postgres`, are left out on both sides and counted:
+// --no-owner makes `postgres` the owner of everything restored, so those are the
+// owner's own rights and are not carried by design. A backup holding no grant
+// for anything in `public` is a failure by name — that is what one taken with
+// --no-privileges looks like. Every role a grant names is created first, so a
+// grant cannot fail for a role this throwaway cluster lacks.
+//
 // THE CANARY. After a clean comparison, one text value in one restored
-// booking is altered and bookings is compared again. It must be named.
+// booking is altered and bookings is compared again. It must be named. And one
+// REVOKE the backup holds on a public object is undone on the restored copy and
+// the privileges compared again; that must be named too. Both, or the run fails.
 //
 // THE DATE. A real nightly that proves out writes the `restore-drill` row of
 // `job_heartbeats` through `restore-date.mjs` (needs `.env` loaded); the back
@@ -87,6 +109,7 @@ const CANARY_TABLE = "public.bookings";
 const refuse = (msg) => { console.error(`REFUSED — ${msg}\nNothing was restored and no date was recorded.`); process.exit(2); };
 if ([FIXTURE, !!RELEASE, !!DUMP].filter(Boolean).length !== 1) refuse("say exactly one of --fixture, --release=<tag|latest>, --dump=<file>");
 if (SAVE_DUMP && !FIXTURE) refuse("--save-dump only saves the invented --fixture dump");
+if (BREAK === "no-privileges" && !FIXTURE) refuse("--break=no-privileges only changes how the --fixture copy is dumped");
 for (const n of ["initdb", "pg_ctl", "pg_dump", "pg_restore", "psql"]) {
   if (!existsSync(PG(n))) refuse(`${n}.exe is not at ${PG(n)}. docs/recovery.md says how to unzip the Postgres 17 tools there.`);
 }
@@ -124,8 +147,8 @@ started = true;
 if (st.status !== 0) throw new Error(`pg_ctl start exited ${st.status}; see ${join(TMP, "server.log")}`);
 console.log(`throwaway Postgres ${sql("postgres", "show server_version").trim()} on 127.0.0.1:${port}, folder ${TMP}`);
 
-// Supabase's roles, so security rules naming them restore. --no-owner and
-// --no-privileges mean nothing else about a role is in the backup.
+// Supabase's roles, so security rules naming them restore. Roles that only a
+// grant names are added from the backup itself, below, before restoring.
 const ROLES = ["anon", "authenticated", "service_role", "authenticator", "supabase_admin", "supabase_auth_admin",
   "supabase_storage_admin", "supabase_functions_admin", "supabase_realtime_admin", "supabase_replication_admin",
   "supabase_read_only_user", "dashboard_user", "pgbouncer"];
@@ -139,8 +162,9 @@ if (FIXTURE) {
   sql("postgres", "create database source;");
   sql("source", readFileSync(new URL("./restore-nightly.fixture.sql", import.meta.url), "utf8"));
   dumpFile = join(TMP, "fixture.pgc");
-  // The nightly's own flags (docs/ops/backups.md): custom format, no owners, no grants.
-  run(PG("pg_dump"), [...CONN, "-d", "source", "--no-owner", "--no-privileges", "--format=custom", "-f", dumpFile]);
+  // The nightly's own flags (docs/ops/backups.md): custom format, no owners, grants kept.
+  // --break=no-privileges dumps it the way the nightly did before ROADMAP 97.25.
+  run(PG("pg_dump"), [...CONN, "-d", "source", "--no-owner", ...(BREAK === "no-privileges" ? ["--no-privileges"] : []), "--format=custom", "-f", dumpFile]);
   if (SAVE_DUMP) writeFileSync(SAVE_DUMP, readFileSync(dumpFile));
   source = "fixture (scripts/restore-nightly.fixture.sql, dumped by pg_dump with the nightly's flags)";
   project = "fixture";
@@ -192,8 +216,48 @@ const expected = new Map(); // table -> { cols, rows[] }
 }
 const inScope = [...expected.keys()].filter((t) => SCHEMAS.includes(t.split(".")[0])).sort();
 
+// ---- what the backup itself says each object's privileges are (ROADMAP 97.25) --
+// Reads the `Type: ACL` blocks of a plain script. Key: "TABLE public.bookings".
+const unquote = (r) => r.replace(/^"(.*)"$/, "$1").replace(/""/g, '"');
+function aclStatements(text) {
+  const map = new Map(), grantees = new Set();
+  let key = null, owner = null, inScope = false, excluded = 0, outOfScope = 0;
+  for (const line of text.split(/\r?\n/)) {
+    const h = line.match(/^-- Name: (.+?); Type: (.+?); Schema: (.+?); Owner: (.*)$/);
+    if (h) {
+      key = null;
+      if (h[2] !== "ACL") continue;
+      const [, name, , schema] = h;
+      owner = h[4].trim();
+      key = schema === "-" ? name : name.replace(/^(\S+) /, `$1 ${schema}.`);
+      inScope = SCHEMAS.includes(schema) || (schema === "-" && SCHEMAS.some((s) => name === `SCHEMA ${s}`));
+      continue;
+    }
+    // Only the statements themselves: pg_dump 17 also writes `\restrict <random>`
+    // lines (measured: read as a grant, they differed on every run) and, where a
+    // grantor is not the owner, SET/RESET SESSION AUTHORIZATION around a grant.
+    if (!key || !/^(GRANT|REVOKE) /.test(line)) continue;
+    const g = line.match(/ (?:TO|FROM) (.+?)(?: WITH GRANT OPTION)?;$/);
+    const who = g ? unquote(g[1]) : null;
+    if (who && who !== "PUBLIC") grantees.add(who);
+    if (!inScope) { outOfScope++; continue; }
+    // The owner's own rights: --no-owner makes `postgres` the owner of everything restored.
+    if (who === owner || who === "postgres") { excluded++; continue; }
+    if (!map.has(key)) map.set(key, new Set());
+    map.get(key).add(line.trim());
+  }
+  const statements = [...map.values()].reduce((n, s) => n + s.size, 0);
+  return { map, grantees, excluded, outOfScope, statements };
+}
+const backupAcl = aclStatements(run(PG("pg_restore"), ["--schema-only", "-f", "-", dumpFile]).stdout);
+const missingRoles = [...backupAcl.grantees].filter((r) => !ROLES.includes(r) && r !== "postgres");
+if (missingRoles.length) {
+  sql("postgres", missingRoles.map((r) => `do $$ begin create role ${JSON.stringify(r)} nologin; exception when duplicate_object then null; end $$;`).join("\n"));
+}
+
 // ---- restore ----------------------------------------------------------------
-let restoreArgs = ["--no-owner", "--no-privileges", ...CONN, "-d", "restored"];
+// Grants are restored (no --no-privileges): ROADMAP 97.25, they are what is checked.
+let restoreArgs = ["--no-owner", ...CONN, "-d", "restored"];
 if (BREAK === "lose-table") {
   const listFile = join(TMP, "list.txt");
   writeFileSync(listFile, toc.split(/\r?\n/).map((l) => (/ TABLE DATA public bookings /.test(l) ? ";" + l : l)).join("\n"));
@@ -231,6 +295,49 @@ const missingData = tocTables.filter((t) => !expected.has(t));
 if (missingData.length) failures.push(`${missingData.length} table(s) in the backup's index have no rows section: ${missingData.join(", ")}`);
 const others = [...expected.keys()].filter((t) => !SCHEMAS.includes(t.split(".")[0]));
 if (others.length) warnings.push(`${others.length} table(s) outside public/auth/storage (Supabase add-ons) not compared: ${others.join(", ")}`);
+
+// ---- compare the privileges (ROADMAP 97.25) --------------------------------------
+const copyAclNow = () => aclStatements(run(PG("pg_dump"), [...CONN, "-d", "restored", "--schema-only", "--no-owner"]).stdout);
+function comparePrivileges(copy) {
+  const diffs = [];
+  for (const k of [...new Set([...backupAcl.map.keys(), ...copy.map.keys()])].sort()) {
+    const b = backupAcl.map.get(k) ?? new Set(), c = copy.map.get(k) ?? new Set();
+    for (const s of b) if (!c.has(s)) diffs.push(`privileges mismatch — ${k}: the backup holds \`${s}\` and the restored copy does not`);
+    for (const s of c) if (!b.has(s)) diffs.push(`privileges mismatch — ${k}: the restored copy has \`${s}\`, which the backup does not hold`);
+  }
+  return diffs;
+}
+// "One revoke removed": the first REVOKE the backup holds on a public object, undone.
+function undoOneRevoke() {
+  for (const [key, set] of backupAcl.map) for (const s of set) {
+    const m = s.match(/^REVOKE (.+) ON (\S+ public\..+) FROM (.+);$/);
+    if (m) { const grant = `GRANT ${m[1]} ON ${m[2]} TO ${m[3]};`; sql("restored", grant); return { key, revoke: s, grant }; }
+  }
+  return null;
+}
+let undone = null;
+if (BREAK === "undo-revoke") {
+  undone = undoOneRevoke();
+  if (!undone) failures.push("--break=undo-revoke found no REVOKE on a public object in the backup to undo");
+}
+// A locked table (20260921000000) shows in a dump as no grant to anon at all, so
+// undoing that revoke ADDS a statement. The first public table granted to
+// service_role and not to anon is reopened to anon.
+if (BREAK === "reopen-table") {
+  const locked = [...backupAcl.map].find(([k, set]) => /^TABLE public\./.test(k)
+    && [...set].some((s) => / TO service_role;$/.test(s)) && ![...set].some((s) => / TO anon;$/.test(s)));
+  if (locked) sql("restored", `GRANT ALL ON ${locked[0]} TO anon;`);
+  else failures.push("--break=reopen-table found no public table locked away from anon in the backup");
+}
+const copyAcl = copyAclNow();
+const publicAclObjects = [...backupAcl.map.keys()].filter((k) => / public\.|^SCHEMA public$/.test(k));
+assertions++;
+if (!publicAclObjects.length) failures.push("the backup holds no GRANT or REVOKE for anything in public — it was taken with --no-privileges, so a restore from it leaves every revoke out (ROADMAP 97.25)");
+const privDiffs = comparePrivileges(copyAcl);
+assertions += new Set([...backupAcl.map.keys(), ...copyAcl.map.keys()]).size;
+failures.push(...privDiffs);
+if (backupAcl.outOfScope) warnings.push(`${backupAcl.outOfScope} grant/revoke statement(s) on objects outside public/auth/storage (Supabase add-ons) not compared`);
+if (backupAcl.excluded) warnings.push(`${backupAcl.excluded} grant/revoke statement(s) about an object's owner or postgres left out of the comparison on purpose: --no-owner makes postgres the owner of everything restored`);
 warnings.push("STORAGE FILE BYTES ARE NOT IN A DATABASE BACKUP. storage.objects rows (the file records) are compared; the photos themselves are not in these copies (docs/ops/backups.md).");
 
 // ---- the canary ---------------------------------------------------------------
@@ -254,6 +361,22 @@ if (BREAK !== "canary" && expected.has(CANARY_TABLE)) {
   assertions++;
 } else canary.note = BREAK === "canary" ? "skipped on purpose (--break=canary)" : `${CANARY_TABLE} not in the backup`;
 
+// The privileges canary (ROADMAP 97.25): undo one revoke, it must be named.
+let privCanary = { observed_failure: false, note: "skipped on purpose (--break=canary)" };
+if (BREAK !== "canary") {
+  try {
+    const u = undone ?? undoOneRevoke();
+    if (!u) privCanary.note = "no REVOKE on a public object in the backup to undo";
+    else {
+      const named = comparePrivileges(copyAclNow()).filter((d) => d.startsWith(`privileges mismatch — ${u.key}:`));
+      privCanary = { observed_failure: named.length > 0, note: named.length ? `undid \`${u.revoke}\`; named: ${named[0].replace(/^privileges mismatch — /, "")}` : `undid \`${u.revoke}\` and the privileges compared clean — the comparison is blind` };
+    }
+  } catch (e) { privCanary.note = `could not plant: ${String(e.message).split("\n").find((l) => /ERROR/.test(l)) || e.message}`; }
+  assertions++;
+}
+canary = { id: "altered-booking-text+undone-revoke", observed_failure: canary.observed_failure && privCanary.observed_failure,
+  note: `rows ${canary.observed_failure ? "caught" : "MISSED"}: ${canary.note} | privileges ${privCanary.observed_failure ? "caught" : "MISSED"}: ${privCanary.note}` };
+
 const counts = Object.fromEntries(results.filter((r) => r.ok && MUST_HAVE.includes(r.table)).map((r) => [r.table, r.rows]));
 const status = failures.length === 0 && canary.observed_failure ? "pass" : "fail";
 // The thing a person can look at: per table, rows and a hash, never a value
@@ -264,6 +387,7 @@ const REPORT = `artifacts/restore-nightly/report.${MODE}${BREAK ? ".sabotage-" +
 mkdirSync(join(REPO, "artifacts", "restore-nightly"), { recursive: true });
 writeFileSync(join(REPO, REPORT), [`restore-nightly ${started_at} — ${source}`, `status ${status}`,
   ...results.map((r) => `${r.ok ? "ok  " : "FAIL"} ${r.table} ${r.ok ? `${r.rows} rows sha256 ${digest(expected.get(r.table).rows)}` : r.why}`),
+  `privileges: ${backupAcl.statements} grant/revoke statement(s) on ${backupAcl.map.size} object(s) in the backup, ${copyAcl.statements} on ${copyAcl.map.size} in the restored copy, ${privDiffs.length} difference(s)`,
   ...failures.map((f) => `FAILURE ${f}`), `canary ${canary.observed_failure ? "caught" : "MISSED"}: ${canary.note}`].join("\n") + "\n");
 const { path: receiptPath, receipt } = writeReceipt({
   check_id: "restore-nightly",
@@ -275,12 +399,14 @@ const { path: receiptPath, receipt } = writeReceipt({
   completed_targets: results.length,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: MUST_HAVE.length + 3,
+  min_assertions: MUST_HAVE.length + 5,
   failures,
   warnings: [...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []), ...warnings],
   dimensions: {
     project, source, provenance, target: "throwaway local Postgres, deleted after the run", break: BREAK || undefined,
     accounts: counts["auth.users"] ?? null, files: counts["storage.objects"] ?? null, rows: counts,
+    privileges: { backup_statements: backupAcl.statements, backup_objects: backupAcl.map.size, copy_statements: copyAcl.statements,
+      copy_objects: copyAcl.map.size, differences: privDiffs.length, owner_statements_left_out: backupAcl.excluded, outside_scope: backupAcl.outOfScope },
   },
   artifacts: [REPORT],
   canary,
@@ -290,6 +416,7 @@ for (const r of results) console.log(`  ${r.ok ? "ok  " : "FAIL"} ${r.table.padE
 for (const w of warnings) console.log(`  note: ${w}`);
 for (const f of failures) console.log(`  FAILURE: ${f}`);
 console.log(`canary: ${canary.observed_failure ? "caught" : "MISSED"} — ${canary.note}`);
+console.log(`privileges: ${backupAcl.statements} grant/revoke statement(s) on ${backupAcl.map.size} object(s) in the backup, ${copyAcl.statements} on ${copyAcl.map.size} in the restored copy, ${privDiffs.length} difference(s)`);
 console.log(`${status.toUpperCase()}: ${results.filter((r) => r.ok).length} of ${inScope.length} tables came back identical (the backup's index lists ${tocTables.length}). Receipt ${receiptPath}`);
 
 // ---- the date the back office shows ------------------------------------------

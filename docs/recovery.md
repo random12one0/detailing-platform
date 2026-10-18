@@ -122,7 +122,7 @@ stay private. A GitHub Action, `.github/workflows/backup.yml`:
 | | Measured 2026-09-21, from the workflow file and the run list |
 |---|---|
 | Schedule | `10 9 * * *` — 02:10 America/Los_Angeles. Deliberately off the hour; GitHub's scheduler delays `:00` jobs. |
-| What it dumps | `pg_dump --no-owner --no-privileges --format=custom`, run inside the `postgres:17` image because the runner's client is older than Supabase's server |
+| What it dumps | `pg_dump --no-owner --format=custom`, run inside the `postgres:17` image because the runner's client is older than Supabase's server. **Grants and revokes are kept** (ROADMAP 97.25), and `scripts/restore-nightly.mjs` compares them as well as the rows. Until Andrew installs the change (`FOR-ANDREW.md`), the private repo's workflow and its `scripts/restore.sh` still pass the flag that drops them, so the copies on hand hold no grants and that check names it |
 | Which database | the connection string in the repo secret `SUPABASE_DB_URL` (project `kguqylyzgyzfktkfnhjb`) |
 | Empty-backup guard | **refuses to publish a dump under 51,200 bytes** and fails the run |
 | Encryption | `age -R backup-key.pub` — public key committed, **private key deliberately absent from CI** |

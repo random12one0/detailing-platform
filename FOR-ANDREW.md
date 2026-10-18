@@ -63,6 +63,27 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
+## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
+
+Your nightly database copy leaves out the settings that say who may read and
+change what. Every row comes back, but in a database restored from one, the
+tables and actions we have closed to the public would be open again. The check that restores a copy now
+compares those settings too, and is proved here on a practice copy: it names a
+setting that went missing, one that appeared, and a copy taken the old way.
+Nothing is decided here; this is the one step.
+
+**The step, about two minutes on github.com:** in your private repo
+`random12one0/detailing-platform-backups`, delete the words `--no-privileges`
+everywhere they appear and save (commit) to `main`. There are two: line 54 of
+`.github/workflows/backup.yml` (the nightly copy) and line 52 of
+`scripts/restore.sh` (the restore helper, which drops them again when putting a
+copy back). Leave `--no-owner` exactly where it is.
+
+What happens next: the next night's copy holds the settings. The copies already
+on hand do not, so the restore check run against any of them now fails and says
+exactly that, until a new night has run. Nothing else changes; the copy is a
+little bigger.
+
 ## DO · Set up the scheduler's key at your next release (ROADMAP 97.3)
 
 Until now anybody on the internet could start the reminder sweep, the weather
