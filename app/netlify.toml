@@ -56,6 +56,30 @@
   [headers.values]
     Content-Security-Policy = "frame-ancestors 'self' https://detailingplatform.com https://www.detailingplatform.com"
 
+# WHERE A PAGE MAY LOAD FROM — ROADMAP 97.26. REPORT-ONLY, ON PURPOSE.
+#
+# Every origin is listed in ROADMAP 97.26 with the file that calls it. It is
+# REPORT-ONLY because two kinds of origin cannot be settled from the code: the
+# photo host (media.detailingplatform.com, and R2's per-account upload host)
+# lives in Cloudflare, and a logo or photo address stored in the database can
+# be anything. A violation prints "[Report Only]" in the console and blocks
+# nothing. Turning it into an enforced policy is its own item.
+#
+# A DIFFERENT HEADER NAME FROM THE `/book/*` RULE BELOW, so the two never merge
+# and `frame-ancestors` there still decides who may frame the booking page.
+# Do not add frame-ancestors here, and do not rename this to the enforcing
+# header without reading that rule's note first.
+#
+# 'unsafe-inline' IN script-src IS FOR THE EXAMPLE SITES (/ex1../ex5), which
+# carry inline scripts and onsubmit handlers. Netlify merges matching rules,
+# so a narrower path can only tighten, never loosen. The app itself needs no
+# inline script. ROADMAP 97.90 removes it.
+# `node scripts/csp-report-only.mjs` holds all of this.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://images.unsplash.com https://*.stripe.com; connect-src 'self' https://kguqylyzgyzfktkfnhjb.supabase.co https://media.detailingplatform.com https://*.r2.cloudflarestorage.com https://api.stripe.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+
 # Hashed build assets are immutable.
 [[headers]]
   for = "/assets/*"
