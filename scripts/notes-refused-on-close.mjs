@@ -18,7 +18,9 @@
 //                    # the next client's Close waits on the dropped one (review, 2026-10-18) — ONLY hang-next may go red
 //   BREAK=tab …      # sabotage: the open record no longer holds the tab bar (ROADMAP 97.88: Clients never hands
 //                    # settleNotes to App's holdLeave), so a tap on another tab unmounts the screen mid-save — ONLY
-//                    # tab and gear may go red (at 1440; at 390 and 768 the sheet covers both)
+//                    # tab, gear and job-tab may go red (at 1440; at 390 and 768 the sheet covers both)
+//   BREAK=job …      # sabotage: a refused hold no longer closes a History job covering the record, so the tab just
+//                    # does not move with the line hidden under the job (review, 2026-10-18) — ONLY 1440 job-tab may go red
 //                    # All seven write the same .sabotage.json and the same `<case>-<w>x<h>.break-<name>.png` shots;
 //                    # each run's own shots carry its name, so a clean run never overwrites them.
 //
@@ -63,6 +65,15 @@
 //              record, at 768 on the backdrop, which is a Close). There the line asserts exactly that — the tap reached
 //              no tab and no gear, and the screen is still Clients; 97.84's cases cover how that record closes.
 //              All four record where the tap landed, which tab is lit, the gear, and whether the typed text is anywhere.
+//              AND AT THOSE WIDTHS THE TAP IS NOT HARMLESS: at 390 it lands on a History row and opens an old job over
+//              the record, so the note and the line are found nowhere (review, 2026-10-18 — the first version passed on
+//              "no tab reached" alone). So whatever covers the record is then closed with its own Close, and the line
+//              asserts the record comes back holding the text and the line (refused) or with no line (accepted).
+//   job-tab    type, open a past job from the record's History (the blur's save is refused while the job covers the
+//              record), then tap where Today is drawn → at a desk: a second save, the job closed, the record back with
+//              the text and the line, Clients still lit. Where the job is a sheet the tap is NOT pressed (it would land
+//              on the job's own buttons, which write): the line asserts the tab bar is covered, then the job's Close
+//              puts the record back with the text and the line.
 //   "Close anyway" must be ON SCREEN (the same test as the line) before it is pressed, in every case that uses it
 // EVERY save is checked for WHAT it sent, in its own line per case: each request's p_notes must be exactly the typed
 // text. Whether the text is then STORED is the function's half, proven against the real migration by
@@ -91,7 +102,7 @@ const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
 const BASE = process.env.BASE || "http://localhost:5173";
 const BREAK = process.env.BREAK || "";
-if (BREAK && !["close", "accept", "reject", "text", "stale", "reset", "tab"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
+if (BREAK && !["close", "accept", "reject", "text", "stale", "reset", "tab", "job"].includes(BREAK)) { console.error(`unknown BREAK=${BREAK}`); process.exit(2); }
 const WIDTHS = [[390, 844], [768, 1024], [1440, 900]];
 const CASES = [
   { id: "control", leave: "blur", answer: "refuse" },
@@ -111,6 +122,7 @@ const CASES = [
   { id: "tab-ok", leave: "tab", to: "today", answer: "accept" },
   { id: "gear", leave: "tab", to: "gear", answer: "refuse" },
   { id: "gear-ok", leave: "tab", to: "gear", answer: "accept" },
+  { id: "job-tab", leave: "tab", to: "today", answer: "refuse", job: true },
 ];
 const ANSWER_MS = 600;
 const PRODUCT_WAIT_MS = 5000;   // Clients.jsx NOTES_WAIT_MS
@@ -121,7 +133,7 @@ const ANYWAY = "Close anyway";
 const SHOTS = process.env.SHOTS || "artifacts/notes-refused-on-close";
 const started_at = new Date().toISOString();
 const FROZEN = new Date(started_at);
-const SIGNED = ["close", "reject", "text", "stale", "reset", "tab"].includes(BREAK);
+const SIGNED = ["close", "reject", "text", "stale", "reset", "tab", "job"].includes(BREAK);
 const SLOW_MS = 1500;   // escape-after: how long the FIRST save is held back
 const NEXT_MS = 1200;   // hang-next: how long after Close the next record must already be gone (exit is 180ms)
 
@@ -148,7 +160,9 @@ const REWRITES = {
     ["const dropNotes = () => {\n    saving.current = null;\n", "const dropNotes = () => {\n"],
   ],
   // the record no longer holds the tab bar (ROADMAP 97.88)
-  tab: [["if (holdLeave) holdLeave.current = open ? settleNotes : null;", ""]],
+  tab: [["if (holdLeave) holdLeave.current = open ? holdNotes : null;", ""]],
+  // a refused hold leaves the History job over the record (review, 2026-10-18)
+  job: [["if (!ok) setSelected(null);", ""]],
 };
 
 const failures = [];
@@ -331,7 +345,7 @@ for (const [w, h] of WIDTHS) {
     answer = BREAK === "accept" && c.answer === "refuse" ? "accept" : c.answer;
     const name = await title(p);   // the client this case opened
     const typed = `97.84 ${c.id} ${w}`;
-    let tapped = null, sheet = false;
+    let tapped = null, sheet = false, jobOver = null, back = null;
     const line = c.look ? LOOKING : c.answer === "hang" ? NOT_YET : NOT_SAVED;
     const early = c.after ? typed.slice(0, -` ${w}`.length) : typed;   // escape-after: the text the first save carries
     await box.click();
@@ -343,6 +357,11 @@ for (const [w, h] of WIDTHS) {
       await box.press("End");
       await box.pressSequentially(typed.slice(early.length));
     }
+    if (c.job) {   // open a past job from the record's History: the click is the blur that sends the save
+      await p.locator(".record .rows:not(.clients) .row-item, .sheet .rows:not(.clients) .row-item").first().click({ timeout: 15000 });
+      await settle(p, ANSWER_MS + 800);
+      jobOver = (await box.count()) === 0;
+    }
     if (c.leave === "blur") await p.locator("label.field:has-text('Notes') > span").first().click();
     else if (c.leave === "escape") await p.keyboard.press("Escape");
     else if (c.leave === "close") await closeX(p);
@@ -350,7 +369,7 @@ for (const [w, h] of WIDTHS) {
       sheet = (await p.locator(".sheet").count()) > 0;
       const r = await p.locator(c.to === "gear" ? "header button[data-tour=gear]" : `.tabbar button[data-tour=${c.to}]`).boundingBox();
       tapped = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? (e.closest("button[data-tour]")?.dataset.tour ?? e.tagName.toLowerCase() + "." + String(e.className)) : "nothing"; }, [r.x + r.width / 2, r.y + r.height / 2]);
-      await p.mouse.click(r.x + r.width / 2, r.y + r.height / 2);
+      if (!(c.job && sheet)) await p.mouse.click(r.x + r.width / 2, r.y + r.height / 2);
     }
     else {
       if (c.leave === "close+row") { await closeX(p); await p.waitForTimeout(250); }
@@ -367,8 +386,16 @@ for (const [w, h] of WIDTHS) {
       lit_tab: await p.locator(".tabbar button.active").first().getAttribute("data-tour", { timeout: 2000 }).catch(() => null),
       gear_open: (await p.locator("header button[data-tour=gear]").first().getAttribute("aria-pressed", { timeout: 2000 }).catch(() => null)) === "true",
       typed_anywhere: await p.evaluate((s) => [...document.querySelectorAll("textarea, input")].some((e) => e.value.includes(s)) || document.body.innerText.includes(s), typed),
+      job_over: jobOver,
     });
     await p.screenshot({ path: `${SHOTS}/${c.id}-${w}x${h}${tag}.png` });
+    if (c.leave === "tab" && sheet && !first.recordOpen) {   // something covers the record: close it with its own Close
+      first.covered_by = await title(p);
+      await closeX(p);
+      await settle(p, 1000);
+      back = await state(p, line);
+      await p.screenshot({ path: `${SHOTS}/${c.id}-back-${w}x${h}${tag}.png` });
+    }
     // Held: open on the client typed for, the text, the line on screen and in the page exactly once.
     const held = (s) => !!name && s.recordOpen && s.shown_as === name && s.text === typed && s.found === 1 && s.shown === 1;
     let second = null, anyway = null;
@@ -404,9 +431,9 @@ for (const [w, h] of WIDTHS) {
       }
     }
     const sentTyped = c.after ? JSON.stringify(notesIn) === JSON.stringify([early, typed]) : notesIn.every((n) => n === typed);
-    results.push({ width: w, case: c.id, answer, first, second, anyway, after, notes_sent: notesIn, sent_typed: sentTyped });
-    console.log(`  ${w} ${c.id}: ${JSON.stringify({ first, second, anyway, after })}`);
-    const detail = JSON.stringify({ first, second, anyway, after, notes_sent: notesIn });
+    results.push({ width: w, case: c.id, answer, first, back, second, anyway, after, notes_sent: notesIn, sent_typed: sentTyped });
+    console.log(`  ${w} ${c.id}: ${JSON.stringify({ first, back, second, anyway, after })}`);
+    const detail = JSON.stringify({ first, back, second, anyway, after, notes_sent: notesIn });
     const goneClean = (s) => !!s && s.offered > 0 && !s.recordOpen && s.found === 0;
     let ok;
     if (c.look) ok = check(`${w} ${c.id}: no save left the tab; ${name}'s record held the text and the Looking-only line through two Closes; Close anyway put it away`,
@@ -418,8 +445,11 @@ for (const [w, h] of WIDTHS) {
         && !after.recordOpen && after.found === 0 && after.sent === 1, detail);
     else if (c.anyway) ok = check(`${w} ${c.id}: a save with no answer held ${name}'s record with the text and the "not saved yet" line; Close anyway put it away`,
       held(first) && first.sent === 1 && goneClean(anyway), detail);
-    else if (c.leave === "tab" && first.sheet) ok = check(`${w} ${c.id}: the record is a sheet over the ${c.to === "gear" ? "header" : "tab bar"}: the tap reached no tab and no gear, one save, the screen is still Clients`,
-      first.sent === 1 && first.tapped !== c.to && first.lit_tab === "clients" && !first.gear_open, detail);
+    else if (c.leave === "tab" && first.sheet) ok = check(`${w} ${c.id}: the record is a sheet over the ${c.to === "gear" ? "header" : "tab bar"}: the tap reached no tab and no gear, one save, the screen is still Clients, and ${c.answer === "refuse" ? `${name}'s record holds the text and the line` : "no line anywhere"}${back ? " once what covered it was closed" : ""}`,
+      first.sent === 1 && first.tapped !== c.to && first.lit_tab === "clients" && !first.gear_open && (!c.job || first.job_over)
+        && (c.answer === "refuse" ? held(back ?? first) && (back ?? first).sent === 1 : first.found === 0 && (!back || back.found === 0)), detail);
+    else if (c.job) ok = check(`${w} ${c.id}: with a past job over the record, a tap on Today sent the note again; refused, the job closed and ${name}'s record is back with the text and the line, Clients still lit`,
+      first.job_over && held(first) && first.sent === 2 && first.tapped === "today" && first.lit_tab === "clients" && !first.gear_open, detail);
     else if (c.leave === "tab" && c.answer === "refuse") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; refused, the screen stayed on Clients with ${name}'s record holding the text and the line`,
       held(first) && first.sent === 1 && first.tapped === c.to && first.lit_tab === "clients" && !first.gear_open, detail);
     else if (c.leave === "tab") ok = check(`${w} ${c.id}: a tap on ${c.to} waited for the save; accepted, ${c.to} is the screen, no record, no line anywhere`,
