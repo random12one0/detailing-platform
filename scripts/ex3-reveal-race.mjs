@@ -74,7 +74,6 @@ async function walk(path, size, old) {
   await page.clock.install();
   await page.goto(BASE + path, { waitUntil: "load" });
   await page.clock.runFor(1000);
-  const signed = await page.evaluate(() => window.__rvOld || 0);
   const n = await page.evaluate(() => {
     window.__rvT = [...document.querySelectorAll("[data-rv]")].filter((el) => +el.dataset.rv > 0);
     return window.__rvT.length;
@@ -119,6 +118,8 @@ async function walk(path, size, old) {
   }
   const shot = `${SHOTS}/${path.replace(/\W+/g, "-").replace(/^-|-$/g, "")}-${size.w}${old ? "-canary" : ""}.png`;
   await page.screenshot({ path: join(REPO, shot) });
+  // Read at the END: /ex3 has nothing past the early return at load, only once cards move.
+  const signed = await page.evaluate(() => window.__rvOld || 0);
   await ctx.close();
   return { n, results, errors, rewrites, signed, shot };
 }
