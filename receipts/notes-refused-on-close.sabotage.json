@@ -1,9 +1,9 @@
 {
-  "git_sha": "711265f3bd5de0b78672c715e7cbde92808dea0d",
-  "git_sha_started": "711265f3bd5de0b78672c715e7cbde92808dea0d",
+  "git_sha": "573cc382093a4c771f22bd8516f786efb8c274fa",
+  "git_sha_started": "573cc382093a4c771f22bd8516f786efb8c274fa",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T02:02:16.414Z",
+  "finished_at": "2026-10-18T02:07:49.092Z",
   "failures": [
     "390 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close 390\"]}",
     "390 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
@@ -31,7 +31,7 @@
     "1440 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "1440 escape: every save sent exactly the typed text []",
     "1440 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Elena Marsh\",\"text\":\"\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 next 1440\"]}",
-    "1440 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Aisha Rahman\",\"text\":\"\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 switch 1440\"]}",
+    "1440 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Elena Marsh\",\"text\":\"\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 switch 1440\"]}",
     "1440 escape-ok: one save, the record closed, no line anywhere {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "1440 escape-ok: every save sent exactly the typed text []",
     "1440 close-twice: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close-twice 1440\"]}",
@@ -48,7 +48,7 @@
     "login": "demo staff",
     "answer_ms": 600,
     "product_wait_ms": 5000,
-    "frozen_clock": "2026-10-18T01:59:04.887Z",
+    "frozen_clock": "2026-10-18T02:04:26.781Z",
     "calls": 27,
     "rewrite_misses": 0,
     "cases": [
@@ -583,7 +583,7 @@
         "first": {
           "sent": 1,
           "recordOpen": true,
-          "shown_as": "Aisha Rahman",
+          "shown_as": "Elena Marsh",
           "text": "",
           "found": 1,
           "shown": 1,
@@ -724,7 +724,7 @@
     ]
   },
   "check_id": "notes-refused-on-close",
-  "started_at": "2026-10-18T01:59:04.887Z",
+  "started_at": "2026-10-18T02:04:26.781Z",
   "status": "fail",
   "expected_targets": 33,
   "discovered_targets": 33,
