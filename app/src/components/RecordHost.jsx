@@ -34,7 +34,12 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 // product with NO PANEL ON IT, and a right-hand card at a desk would end that.
 // The record still gets this component — the seam between a sheet and a column
 // is exactly what it exists to hide — it just draws no box (screen designs §9).
-export default function RecordHost({ open = true, onClose, title, subtitle, children, footer, bare = false }) {
+// `beforeClose` (ROADMAP 97.84) — an optional async question asked BEFORE the
+// exit starts, on every close the person asks for (the X, Escape, and below
+// --wrap the backdrop and the drag too, through Sheet). Answer false and the
+// record stays. Clients uses it so a Notes save in flight is answered on the
+// record it belongs to; a record with nothing to finish passes nothing.
+export default function RecordHost({ open = true, onClose, title, subtitle, children, footer, bare = false, beforeClose }) {
   useAppLocale();
   const wide = useWide();
   // A CLOSE THE PERSON ASKED FOR — the X, or Escape. A record that closes
@@ -43,7 +48,8 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   // it away" gesture, and holding the screen for 180ms after a save would put
   // the animation in front of the result.
   // Below --wrap the Sheet runs its own exit, so this one stands down.
-  const [leaving, close] = useLeaving(onClose, wide);
+  const [leaving, exit] = useLeaving(onClose, wide);
+  const close = async () => { if (!beforeClose || (await beforeClose())) exit(); };
 
   // ESCAPE CLOSES IT AT BOTH WIDTHS. A sheet has always taken Escape, so
   // below --wrap the record did and above it the same record did not — the
@@ -68,7 +74,7 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
       /* Sheet runs its OWN leaving state and its own 180ms, so it takes the
          raw onClose. Wrapping it in this one would be two exits for one
          gesture — 360ms and a record that leaves twice. */
-      <Sheet open onClose={onClose} title={title} subtitle={subtitle} footer={footer}>
+      <Sheet open onClose={onClose} beforeClose={beforeClose} title={title} subtitle={subtitle} footer={footer}>
         {children}
       </Sheet>
     );
