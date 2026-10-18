@@ -1,0 +1,475 @@
+135 migration file(s) on disk; 68 function(s) the repo believes are live; 242 in the database
+
+set_updated_at                             matches 20260827000000_foundation.sql
+validate_timezone                          matches 20260827000000_foundation.sql
+rls_auto_enable                            matches 20260827000000_foundation.sql
+current_business_ids                       matches 20260827000100_tenant_core.sql
+is_business_owner                          matches 20260827000100_tenant_core.sql
+business_local_to_utc                      matches 20260827000300_helpers.sql
+utc_to_business_local                      matches 20260827000300_helpers.sql
+is_slot_available                          matches 20260827000300_helpers.sql
+get_public_business_profile                matches 20260907002100_profile_publishes_closed.sql
+increment_promo_usage                      matches 20260827002000_engine_support.sql
+get_bookings_due_for_reminder              DRIFTED — the database's body is not 20261017220000_reminders_ignore_marketing_opt_out.sql's
+get_bookings_due_for_nudge                 matches 20260902003000_request_mode_and_quotes.sql
+get_bookings_due_for_wrapup_nudge          matches 20260902003000_request_mode_and_quotes.sql
+get_bookings_due_for_finalize_nudge        matches 20260902003000_request_mode_and_quotes.sql
+get_user_id_by_email                       matches 20260827003000_staff_roles.sql
+protect_last_owner                         matches 20260827003100_last_owner_cascade_fix.sql
+founding_offer                             matches 20260906004000_demo_businesses.sql
+claim_founding_spot                        matches 20260907000200_founding_claim_is_idempotent.sql
+reset_reminder_markers_on_edit             DRIFTED — the database's body is not 20261017230000_reminder_reset_covers_every_marker.sql's
+get_requests_due_for_nudge                 matches 20260903000000_stale_request_nudge.sql
+get_bookings_due_for_second_reminder       DRIFTED — the database's body is not 20261017220000_reminders_ignore_marketing_opt_out.sql's
+has_business_permission                    matches 20260904000000_custom_roles.sql
+business_ids_with_permission               matches 20260904001000_catalog_behind_settings.sql
+link_booking_to_plan                       matches 20260904004000_plans_customer_half.sql
+accrue_plan_visits                         DRIFTED — the database's body is not 20261010030000_support_sessions_read_only.sql's
+get_public_business_profile_by_host        matches 20260906000000_custom_domains.sql
+business_canonical_host                    matches 20260906000000_custom_domains.sql
+is_platform_admin                          matches 20260906001000_platform_admin.sql
+platform_prices                            matches 20260906003000_platform_prices.sql
+export_business                            matches 20260906005000_export_business.sql
+note_heartbeat                             matches 20260906006000_job_heartbeats.sql
+rate_take                                  matches 20260906007000_rate_limits.sql
+job_photo_budget                           matches 20260921020000_a_receipt_is_not_a_job_photo.sql
+photo_tenant_share                         matches 20260906011000_photo_share.sql
+photo_total_bytes                          matches 20260906011100_photo_total_column.sql
+photo_store_state                          matches 20260906011000_photo_share.sql
+release_founding_spot                      matches 20260907000200_founding_claim_is_idempotent.sql
+note_email_send                            matches 20260907000300_email_safety_net.sql
+forget_customer                            DRIFTED — the database's body is not 20261018050000_forget_customer_forgets_their_street.sql's
+business_is_closed                         matches 20260907002000_closed_until.sql
+claim_job_alerts                           matches 20260907004000_dead_mans_switch.sql
+redeem_promo_code                          matches 20260907005000_platform_promo_codes.sql
+release_promo_code                         matches 20260907005000_platform_promo_codes.sql
+translation_put                            matches 20260913002000_translations.sql
+get_business_translations                  matches 20260913002000_translations.sql
+translation_spend                          matches 20260913002000_translations.sql
+translations_never_a_name                  matches 20260913002000_translations.sql
+restore_job_alerts                         matches 20260913010000_watchdog_never_loses_a_claim.sql
+probe_live_site                            matches 20260923050000_probe_headers_hold_no_credential.sql
+watch_tenant_bookability                   matches 20260923080000_tenant_watch_availability_arm.sql
+recipient_lang                             matches 20261006030000_dashboard_language_reaches_the_server.sql
+set_my_lang                                DRIFTED — the database's body is not 20261010030000_support_sessions_read_only.sql's
+action_log_is_append_only                  matches 20261006050000_action_log.sql
+is_support_session                         ABSENT — declared by 20261010030000_support_sessions_read_only.sql, not in the database
+refuse_support_writes                      ABSENT — declared by 20261017180000_support_sessions_expire.sql, not in the database
+start_receipt_attempt                      ABSENT — declared by 20261013130000_receipt_upload_attempts.sql, not in the database
+finish_receipt_attempt                     ABSENT — declared by 20261013130000_receipt_upload_attempts.sql, not in the database
+ack_receipt_attempt                        ABSENT — declared by 20261013130000_receipt_upload_attempts.sql, not in the database
+claim_receipt_attempts                     ABSENT — declared by 20261013131000_receipt_attempts_late_put.sql, not in the database
+set_customer_notes                         ABSENT — declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql, not in the database
+support_session_expired                    ABSENT — declared by 20261017190000_support_sessions_end_at_auth.sql, not in the database
+end_expired_support_sessions               ABSENT — declared by 20261017190000_support_sessions_end_at_auth.sql, not in the database
+claim_email_send                           DRIFTED — the database's body is not 20261017200000_campaigns_get_a_daily_share.sql's
+email_sends_stay_forgotten                 ABSENT — declared by 20261017210000_forget_customer_forgets_their_email.sql, not in the database
+business_domains_clear_verified_on_rename  ABSENT — declared by 20261018010000_domain_claims_need_proof.sql, not in the database
+booking_day_rules_check                    ABSENT — declared by 20261018030645_booking_day_rules_lock.sql, not in the database
+insert_booking_checked                     ABSENT — declared by 20261018030645_booking_day_rules_lock.sql, not in the database
+move_booking_checked                       ABSENT — declared by 20261018030645_booking_day_rules_lock.sql, not in the database
+
+canary  set_updated_at against a body it does not have -> caught: reported as not matching, so DRIFTED is a verdict this comparison can reach
+
+canary  migration_drift_canary_never_defined -> caught: reported absent, so ABSENT is a verdict this comparison can reach
+--break=unappliedcol: pretending businesses.id never arrived (one column, once)
+businesses                                 1 COLUMN(S) ABSENT — id
+business_users                             matches 20260827000100_tenant_core.sql (9 column(s))
+business_settings                          1 COLUMN(S) ABSENT — email_sign_as_business
+business_branding                          matches 20260827000100_tenant_core.sql (13 column(s))
+business_domains                           matches 20260827000100_tenant_core.sql (6 column(s))
+services                                   matches 20260827000200_tenant_data.sql (19 column(s))
+add_ons                                    matches 20260827000200_tenant_data.sql (12 column(s))
+promo_codes                                matches 20260827000200_tenant_data.sql (12 column(s))
+campaigns                                  matches 20260827000200_tenant_data.sql (8 column(s))
+campaign_visits                            matches 20260827000200_tenant_data.sql (8 column(s))
+testimonials                               matches 20260827000200_tenant_data.sql (9 column(s))
+gallery_images                             matches 20260827000200_tenant_data.sql (10 column(s))
+business_hours                             matches 20260827000200_tenant_data.sql (4 column(s))
+booking_hours_overrides                    matches 20260827000200_tenant_data.sql (7 column(s))
+blockout_dates                             matches 20260827000200_tenant_data.sql (11 column(s))
+dropoff_only_periods                       matches 20260827000200_tenant_data.sql (9 column(s))
+customers                                  matches 20260827000200_tenant_data.sql (17 column(s))
+bookings                                   1 COLUMN(S) ABSENT — payment_problem
+booking_services                           matches 20260827000200_tenant_data.sql (8 column(s))
+booking_add_ons                            matches 20260827000200_tenant_data.sql (7 column(s))
+booking_line_items                         matches 20260827000200_tenant_data.sql (8 column(s))
+expenses                                   matches 20260827000200_tenant_data.sql (14 column(s))
+owner_push_subscriptions                   matches 20260827000200_tenant_data.sql (8 column(s))
+owner_daily_digest_state                   matches 20260827000200_tenant_data.sql (3 column(s))
+business_invites                           matches 20260827003000_staff_roles.sql (12 column(s))
+message_templates                          matches 20260827004000_notifications_and_templates.sql (8 column(s))
+platform_settings                          2 COLUMN(S) ABSENT — email_booking_headroom, email_campaign_share
+service_groups                             matches 20260831001000_catalog_groups_and_tenant_shapes.sql (9 column(s))
+plans                                      matches 20260904002000_plans.sql (15 column(s))
+plan_members                               matches 20260904002000_plans.sql (13 column(s))
+plan_visits                                matches 20260904002000_plans.sql (8 column(s))
+platform_subscriptions                     matches 20260905000000_platform_billing.sql (33 column(s))
+platform_invoices                          matches 20260905000000_platform_billing.sql (12 column(s))
+stripe_events                              matches 20260905000000_platform_billing.sql (3 column(s))
+platform_admins                            matches 20260906001000_platform_admin.sql (4 column(s))
+platform_admin_events                      matches 20260906001000_platform_admin.sql (8 column(s))
+job_heartbeats                             matches 20260906006000_job_heartbeats.sql (5 column(s))
+rate_hits                                  matches 20260906007000_rate_limits.sql (4 column(s))
+maintenance_deadlines                      matches 20260906008000_maintenance_deadlines.sql (15 column(s))
+job_photos                                 matches 20260906010000_job_photos.sql (12 column(s))
+platform_email_days                        matches 20260907000300_email_safety_net.sql (6 column(s))
+booking_vehicles                           matches 20260907000400_multiple_vehicles.sql (9 column(s))
+platform_promo_codes                       matches 20260907005000_platform_promo_codes.sql (12 column(s))
+connected_accounts                         matches 20260908001000_connected_accounts.sql (8 column(s))
+site_intake                                matches 20260910002000_site_intake.sql (6 column(s))
+session_pings                              matches 20260912001000_session_ping.sql (3 column(s))
+translations                               matches 20260913002000_translations.sql (8 column(s))
+translation_usage                          matches 20260913002000_translations.sql (6 column(s))
+address_points                             matches 20260913010000_weather_cache.sql (5 column(s))
+weather_grids                              matches 20260913010000_weather_cache.sql (6 column(s))
+user_tours                                 matches 20260913060000_a_guide_dismissed_once_is_dismissed_everywhere.sql (2 column(s))
+email_sends                                1 COLUMN(S) ABSENT — body_html
+site_probes                                matches 20260923040000_outside_checks.sql (15 column(s))
+site_probe_events                          matches 20260923040000_outside_checks.sql (5 column(s))
+tenant_watch                               matches 20260923060000_watch_tenant_bookability.sql (7 column(s))
+platform_costs                             matches 20261006020000_hand_entered_platform_costs.sql (8 column(s))
+action_log                                 matches 20261006050000_action_log.sql (10 column(s))
+send_invoice_attempts                      matches 20261006062000_send_invoice_attempts.sql (7 column(s))
+support_sessions                           TABLE ABSENT — declared by 20261010030000_support_sessions_read_only.sql, not in the database
+google_business_links                      TABLE ABSENT — declared by 20261010040000_google_business_links.sql, not in the database
+receipt_upload_attempts                    TABLE ABSENT — declared by 20261013130000_receipt_upload_attempts.sql, not in the database
+email_campaign_days                        TABLE ABSENT — declared by 20261017200000_campaigns_get_a_daily_share.sql, not in the database
+campaign_presses                           TABLE ABSENT — declared by 20261017200000_campaigns_get_a_daily_share.sql, not in the database
+
+canary  a column no migration could have added -> caught: reported absent, so a MISSING COLUMN is a verdict this comparison can reach
+public.businesses.businesses_member_select                   matches 20260827000100_tenant_core.sql
+public.business_users.business_users_member_select           matches 20260827000100_tenant_core.sql
+public.business_branding.business_branding_member_select     matches 20260827000100_tenant_core.sql
+public.business_domains.business_domains_member_select       matches 20260827000100_tenant_core.sql
+public.customers.customers_tenant_all                        matches 20260827000200_tenant_data.sql
+public.bookings.bookings_tenant_all                          matches 20260827000200_tenant_data.sql
+public.booking_services.booking_services_tenant_all          matches 20260827000200_tenant_data.sql
+public.booking_add_ons.booking_add_ons_tenant_all            matches 20260827000200_tenant_data.sql
+public.booking_line_items.booking_line_items_tenant_all      matches 20260827000200_tenant_data.sql
+public.owner_push_subscriptions.owner_push_subscriptions_tenant_all matches 20260827000200_tenant_data.sql
+public.owner_daily_digest_state.owner_daily_digest_state_tenant_all matches 20260827000200_tenant_data.sql
+storage.objects.business media public read                   matches 20260827001000_phase2_cleanup_and_storage.sql
+public.business_invites.business_invites_owner_select        matches 20260827003000_staff_roles.sql
+public.business_invites.business_invites_owner_insert        matches 20260827003000_staff_roles.sql
+public.business_invites.business_invites_owner_update        matches 20260827003000_staff_roles.sql
+public.business_users.business_users_owner_update            matches 20260827003000_staff_roles.sql
+public.business_users.business_users_owner_delete            matches 20260827003000_staff_roles.sql
+public.message_templates.message_templates_member_select     matches 20260827004000_notifications_and_templates.sql
+public.expenses.expenses_permission_all                      matches 20260904000000_custom_roles.sql
+public.promo_codes.promo_codes_permission_all                matches 20260904000000_custom_roles.sql
+public.campaigns.campaigns_permission_all                    matches 20260904000000_custom_roles.sql
+public.campaign_visits.campaign_visits_permission_all        matches 20260904000000_custom_roles.sql
+public.business_settings.business_settings_permission_select matches 20260904000000_custom_roles.sql
+public.business_settings.business_settings_permission_update matches 20260904000000_custom_roles.sql
+public.business_settings.business_settings_permission_insert matches 20260904000000_custom_roles.sql
+public.business_branding.business_branding_permission_update matches 20260904000000_custom_roles.sql
+public.business_branding.business_branding_permission_insert matches 20260904000000_custom_roles.sql
+public.businesses.businesses_permission_update               matches 20260904000000_custom_roles.sql
+public.message_templates.message_templates_permission_write  matches 20260904000000_custom_roles.sql
+public.business_domains.business_domains_permission_insert   matches 20260904000000_custom_roles.sql
+public.business_domains.business_domains_permission_update   matches 20260904000000_custom_roles.sql
+public.business_domains.business_domains_permission_delete   matches 20260904000000_custom_roles.sql
+public.services.services_member_select                       matches 20260904001000_catalog_behind_settings.sql
+public.service_groups.service_groups_member_select           matches 20260904001000_catalog_behind_settings.sql
+public.add_ons.add_ons_member_select                         matches 20260904001000_catalog_behind_settings.sql
+public.testimonials.testimonials_member_select               matches 20260904001000_catalog_behind_settings.sql
+public.gallery_images.gallery_images_member_select           matches 20260904001000_catalog_behind_settings.sql
+public.business_hours.business_hours_member_select           matches 20260904001000_catalog_behind_settings.sql
+public.booking_hours_overrides.booking_hours_overrides_member_select matches 20260904001000_catalog_behind_settings.sql
+public.blockout_dates.blockout_dates_member_select           matches 20260904001000_catalog_behind_settings.sql
+public.dropoff_only_periods.dropoff_only_periods_member_select matches 20260904001000_catalog_behind_settings.sql
+public.services.services_settings_write                      matches 20260904001000_catalog_behind_settings.sql
+public.service_groups.service_groups_settings_write          matches 20260904001000_catalog_behind_settings.sql
+public.add_ons.add_ons_settings_write                        matches 20260904001000_catalog_behind_settings.sql
+public.testimonials.testimonials_settings_write              matches 20260904001000_catalog_behind_settings.sql
+public.gallery_images.gallery_images_settings_write          matches 20260904001000_catalog_behind_settings.sql
+public.business_hours.business_hours_settings_write          matches 20260904001000_catalog_behind_settings.sql
+public.booking_hours_overrides.booking_hours_overrides_settings_write matches 20260904001000_catalog_behind_settings.sql
+public.blockout_dates.blockout_dates_settings_write          matches 20260904001000_catalog_behind_settings.sql
+public.dropoff_only_periods.dropoff_only_periods_settings_write matches 20260904001000_catalog_behind_settings.sql
+storage.objects.business media settings insert               matches 20260904001000_catalog_behind_settings.sql
+storage.objects.business media settings update               matches 20260904001000_catalog_behind_settings.sql
+storage.objects.business media settings delete               matches 20260904001000_catalog_behind_settings.sql
+public.plans.plans_member_select                             matches 20260904002000_plans.sql
+public.plans.plans_settings_write                            matches 20260904002000_plans.sql
+public.plan_members.plan_members_member_select               matches 20260904002000_plans.sql
+public.plan_members.plan_members_money_write                 matches 20260904002000_plans.sql
+public.plan_visits.plan_visits_member_select                 matches 20260904002000_plans.sql
+public.plan_visits.plan_visits_money_write                   matches 20260904002000_plans.sql
+public.platform_subscriptions.platform_subscriptions_owner_select matches 20260905000000_platform_billing.sql
+public.platform_invoices.platform_invoices_owner_select      matches 20260905000000_platform_billing.sql
+public.maintenance_deadlines.maintenance_deadlines_member_select matches 20260906008000_maintenance_deadlines.sql
+public.maintenance_deadlines.maintenance_deadlines_member_insert matches 20260906008000_maintenance_deadlines.sql
+public.maintenance_deadlines.maintenance_deadlines_member_update matches 20260906008000_maintenance_deadlines.sql
+public.maintenance_deadlines.maintenance_deadlines_member_delete matches 20260906008000_maintenance_deadlines.sql
+storage.objects.job photos member read                       matches 20260906010000_job_photos.sql
+storage.objects.job photos member insert                     matches 20260906010000_job_photos.sql
+storage.objects.job photos settings delete                   matches 20260906010000_job_photos.sql
+public.job_photos.job photos select                          matches 20260906010000_job_photos.sql
+public.job_photos.job photos insert                          matches 20260906010000_job_photos.sql
+public.job_photos.job photos update                          matches 20260906010000_job_photos.sql
+public.job_photos.job photos delete                          matches 20260906010000_job_photos.sql
+public.booking_vehicles.booking_vehicles_tenant_all          matches 20260907000400_multiple_vehicles.sql
+public.connected_accounts.connected_accounts_select          matches 20260908001000_connected_accounts.sql
+public.site_intake.site_intake_member_select                 matches 20260910002000_site_intake.sql
+public.site_intake.site_intake_owner_insert                  matches 20260910002000_site_intake.sql
+public.site_intake.site_intake_owner_update                  matches 20260910002000_site_intake.sql
+public.translations.translations_permission_select           matches 20260913002000_translations.sql
+public.translations.translations_permission_update           matches 20260913002000_translations.sql
+public.user_tours.user_tours_self_select                     matches 20260913060000_a_guide_dismissed_once_is_dismissed_everywhere.sql
+public.user_tours.user_tours_self_insert                     matches 20260913060000_a_guide_dismissed_once_is_dismissed_everywhere.sql
+public.email_sends.email_sends_tenant_select                 matches 20260916010000_every_email_leaves_a_row.sql
+storage.objects.expense receipts member read                 matches 20260921020000_a_receipt_is_not_a_job_photo.sql
+storage.objects.expense receipts member insert               matches 20260921020000_a_receipt_is_not_a_job_photo.sql
+storage.objects.expense receipts settings delete             matches 20260921020000_a_receipt_is_not_a_job_photo.sql
+public.receipt_upload_attempts.receipt_attempts_server       POLICY ABSENT — declared by 20261013131000_receipt_attempts_late_put.sql, not in the database
+
+canary  a policy no migration could have created -> caught: reported absent, so a MISSING POLICY is a verdict this comparison can reach
+public.is_slot_available(uuid, timestamptz, timestamptz)     grants match 20260827000300_helpers.sql (4 claim(s))
+public.business_local_to_utc(uuid, timestamp)                grants match 20260827000300_helpers.sql (4 claim(s))
+public.utc_to_business_local(uuid, timestamptz)              grants match 20260827000300_helpers.sql (4 claim(s))
+public.get_public_business_profile(text)                     grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.increment_promo_usage(uuid, text)                     grants match 20260827002000_engine_support.sql (4 claim(s))
+public.get_bookings_due_for_reminder(text)                   grants match 20261017220000_reminders_ignore_marketing_opt_out.sql (4 claim(s))
+public.get_bookings_due_for_nudge()                          grants match 20260827002000_engine_support.sql (4 claim(s))
+public.get_bookings_due_for_wrapup_nudge()                   grants match 20260827002000_engine_support.sql (4 claim(s))
+public.get_bookings_due_for_finalize_nudge()                 grants match 20260827002000_engine_support.sql (4 claim(s))
+public.get_user_id_by_email(text)                            grants match 20260827003000_staff_roles.sql (4 claim(s))
+public.founding_offer()                                      grants match 20260906004000_demo_businesses.sql (3 claim(s))
+public.claim_founding_spot(uuid)                             grants match 20260907000200_founding_claim_is_idempotent.sql (4 claim(s))
+public.get_requests_due_for_nudge()                          grants match 20260903000000_stale_request_nudge.sql (4 claim(s))
+public.has_business_permission(uuid, text)                   grants match 20260904000000_custom_roles.sql (4 claim(s))
+public.business_ids_with_permission(text)                    grants match 20260904001000_catalog_behind_settings.sql (4 claim(s))
+public.accrue_plan_visits()                                  grants match 20260904002000_plans.sql (4 claim(s))
+public.get_public_business_profile_by_host(text)             grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.business_canonical_host(uuid)                         grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.is_platform_admin()                                   grants match 20260906001000_platform_admin.sql (4 claim(s))
+public.platform_prices()                                     grants match 20260906003000_platform_prices.sql (3 claim(s))
+public.export_business(uuid)                                 grants match 20260906005000_export_business.sql (4 claim(s))
+public.note_heartbeat(text, jsonb)                           grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.rate_take(text, text, integer, integer)               grants match 20260906007000_rate_limits.sql (4 claim(s))
+public.job_photo_budget(uuid)                                grants match 20260921020000_a_receipt_is_not_a_job_photo.sql, 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.photo_total_bytes()                                   grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.photo_tenant_share()                                  grants match 20260906011000_photo_share.sql (1 claim(s))
+public.photo_store_state()                                   grants match 20260906011000_photo_share.sql (3 claim(s))
+public.release_founding_spot(uuid)                           grants match 20260907000200_founding_claim_is_idempotent.sql (4 claim(s))
+public.note_email_send(boolean)                              grants match 20260907000300_email_safety_net.sql (4 claim(s))
+public.forget_customer(uuid, uuid)                           grants match 20261018050000_forget_customer_forgets_their_street.sql (4 claim(s))
+public.businesses                                            grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.name                                       grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.contact_email                              grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.contact_phone                              grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.dropoff_address                            grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.mailing_address                            grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.service_area                               grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.timezone                                   grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.established_year                           grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.closed_until                               grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.businesses.closed_note                                grants match 20260907003000_column_revokes_actually_apply.sql (1 claim(s))
+public.business_domains                                      GRANT ABSENT — authenticated should not hold insert; declared by 20261018010000_domain_claims_need_proof.sql
+public.business_domains                                      GRANT ABSENT — anon should not hold insert; declared by 20261018010000_domain_claims_need_proof.sql
+public.businesses.site_url                                   grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.site_updated_at                            grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.status                                     grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.plan_tier                                  grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.is_demo                                    grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.admin_notes_platform                       grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.businesses.last_campaign_at                           grants match 20260907003000_column_revokes_actually_apply.sql (2 claim(s))
+public.claim_job_alerts()                                    grants match 20260907004000_dead_mans_switch.sql (4 claim(s))
+public.redeem_promo_code(text)                               grants match 20260907005000_platform_promo_codes.sql (4 claim(s))
+public.release_promo_code(text)                              grants match 20260907005000_platform_promo_codes.sql (4 claim(s))
+public.platform_subscriptions                                grants match 20260907005000_platform_promo_codes.sql (4 claim(s))
+public.connected_accounts                                    grants match 20260908001000_connected_accounts.sql (14 claim(s))
+public.connected_accounts.business_id                        grants match 20260908001000_connected_accounts.sql (1 claim(s))
+public.connected_accounts.stripe_account_id                  grants match 20260908001000_connected_accounts.sql (1 claim(s))
+public.connected_accounts.charges_enabled                    grants match 20260908001000_connected_accounts.sql (1 claim(s))
+public.connected_accounts.card_payments_enabled              grants match 20260908001000_connected_accounts.sql (1 claim(s))
+public.connected_accounts.connected_at                       grants match 20260908001000_connected_accounts.sql (1 claim(s))
+public.session_pings                                         grants match 20260912001000_session_ping.sql (14 claim(s))
+public.translations                                          grants match 20260913002000_translations.sql (14 claim(s))
+public.translations.human_text                               grants match 20260913002000_translations.sql (1 claim(s))
+public.translation_put(uuid, text, text, text, text, text)   grants match 20260913003000_translation_revokes_actually_apply.sql (4 claim(s))
+public.get_business_translations(text, text)                 grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.translation_usage                                     grants match 20260913002000_translations.sql (14 claim(s))
+public.translation_spend(text, bigint)                       grants match 20260913003000_translation_revokes_actually_apply.sql (4 claim(s))
+public.translations_never_a_name()                           grants match 20260913003000_translation_revokes_actually_apply.sql (3 claim(s))
+public.get_bookings_due_for_second_reminder()                grants match 20261017220000_reminders_ignore_marketing_opt_out.sql (4 claim(s))
+public.link_booking_to_plan()                                grants match 20260913005000_definer_execute_swept.sql (3 claim(s))
+public.is_business_owner(uuid)                               grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.current_business_ids()                                grants match 20260913005000_definer_execute_swept.sql (4 claim(s))
+public.restore_job_alerts(text[], text[])                    grants match 20260913010000_watchdog_never_loses_a_claim.sql (4 claim(s))
+public.user_tours                                            grants match 20260913060000_a_guide_dismissed_once_is_dismissed_everywhere.sql (7 claim(s))
+public.email_sends                                           grants match 20260916010000_every_email_leaves_a_row.sql (7 claim(s))
+public.platform_admins                                       grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.platform_admin_events                                 grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.platform_settings                                     grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.platform_promo_codes                                  grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.platform_email_days                                   grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.job_heartbeats                                        grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.rate_hits                                             grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.stripe_events                                         grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.address_points                                        grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.weather_grids                                         grants match 20260921000000_revoke_locked_table_grants.sql (14 claim(s))
+public.probe_live_site()                                     grants match 20260923050000_probe_headers_hold_no_credential.sql (3 claim(s))
+public.site_probes                                           grants match 20260923040000_outside_checks.sql (14 claim(s))
+public.site_probe_events                                     grants match 20260923040000_outside_checks.sql (14 claim(s))
+public.tenant_watch                                          grants match 20260923060000_watch_tenant_bookability.sql (14 claim(s))
+public.watch_tenant_bookability()                            grants match 20260923080000_tenant_watch_availability_arm.sql (3 claim(s))
+public.platform_costs                                        grants match 20261006020000_hand_entered_platform_costs.sql (14 claim(s))
+public.recipient_lang(text, uuid)                            grants match 20261006030000_dashboard_language_reaches_the_server.sql (3 claim(s))
+public.set_my_lang(text)                                     grants match 20261006030000_dashboard_language_reaches_the_server.sql (3 claim(s))
+public.bookings                                              GRANT ABSENT — authenticated should not hold delete; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql
+public.bookings                                              GRANT ABSENT — anon should not hold delete; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql
+public.action_log                                            grants match 20261006050000_action_log.sql (14 claim(s))
+public.send_invoice_attempts                                 grants match 20261006062000_send_invoice_attempts.sql (14 claim(s))
+public.businesses.site_build_started_at                      grants match 20261008010000_site_build_start.sql (2 claim(s))
+public.support_sessions                                      GRANT ABSENT — public should not hold any table privilege; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.support_sessions                                      GRANT ABSENT — anon should not hold any table privilege; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.support_sessions                                      GRANT ABSENT — authenticated should not hold any table privilege; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.is_support_session()                                  GRANT ABSENT — public should not hold execute; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.is_support_session()                                  GRANT ABSENT — anon should not hold execute; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.is_support_session()                                  GRANT ABSENT — authenticated should hold execute; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.is_support_session()                                  GRANT ABSENT — service_role should hold execute; declared by 20261010030000_support_sessions_read_only.sql (object not in database)
+public.refuse_support_writes(regclass)                       GRANT ABSENT — public should not hold execute; declared by 20261017180000_support_sessions_expire.sql (object not in database)
+public.refuse_support_writes(regclass)                       GRANT ABSENT — anon should not hold execute; declared by 20261017180000_support_sessions_expire.sql (object not in database)
+public.refuse_support_writes(regclass)                       GRANT ABSENT — authenticated should not hold execute; declared by 20261017180000_support_sessions_expire.sql (object not in database)
+public.google_business_links                                 GRANT ABSENT — authenticated should not hold any table privilege; declared by 20261010040000_google_business_links.sql (object not in database)
+public.google_business_links                                 GRANT ABSENT — anon should not hold any table privilege; declared by 20261010040000_google_business_links.sql (object not in database)
+public.receipt_upload_attempts                               GRANT ABSENT — public should not hold any table privilege; declared by 20261013130000_receipt_upload_attempts.sql (object not in database)
+public.receipt_upload_attempts                               GRANT ABSENT — anon should not hold any table privilege; declared by 20261013130000_receipt_upload_attempts.sql (object not in database)
+public.receipt_upload_attempts                               GRANT ABSENT — authenticated should not hold any table privilege; declared by 20261013130000_receipt_upload_attempts.sql (object not in database)
+public.receipt_upload_attempts                               GRANT ABSENT — service_role should hold any table privilege; declared by 20261013130000_receipt_upload_attempts.sql (object not in database)
+public.claim_receipt_attempts(text[])                        GRANT ABSENT — public should not hold execute; declared by 20261013131000_receipt_attempts_late_put.sql (object not in database)
+public.claim_receipt_attempts(text[])                        GRANT ABSENT — anon should not hold execute; declared by 20261013131000_receipt_attempts_late_put.sql (object not in database)
+public.claim_receipt_attempts(text[])                        GRANT ABSENT — authenticated should not hold execute; declared by 20261013131000_receipt_attempts_late_put.sql (object not in database)
+public.claim_receipt_attempts(text[])                        GRANT ABSENT — service_role should hold execute; declared by 20261013131000_receipt_attempts_late_put.sql (object not in database)
+public.customers                                             GRANT ABSENT — authenticated should not hold insert/update/delete; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql
+public.customers                                             GRANT ABSENT — anon should not hold insert/update/delete; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql
+public.set_customer_notes(uuid, uuid, text)                  GRANT ABSENT — public should not hold execute; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql (object not in database)
+public.set_customer_notes(uuid, uuid, text)                  GRANT ABSENT — anon should not hold execute; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql (object not in database)
+public.set_customer_notes(uuid, uuid, text)                  GRANT ABSENT — authenticated should hold execute; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql (object not in database)
+public.set_customer_notes(uuid, uuid, text)                  GRANT ABSENT — service_role should hold execute; declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql (object not in database)
+public.support_session_expired()                             GRANT ABSENT — public should not hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.support_session_expired()                             GRANT ABSENT — anon should not hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.support_session_expired()                             GRANT ABSENT — authenticated should hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.support_session_expired()                             GRANT ABSENT — service_role should hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.end_expired_support_sessions()                        GRANT ABSENT — public should not hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.end_expired_support_sessions()                        GRANT ABSENT — anon should not hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.end_expired_support_sessions()                        GRANT ABSENT — authenticated should not hold execute; declared by 20261017190000_support_sessions_end_at_auth.sql (object not in database)
+public.email_campaign_days                                   GRANT ABSENT — anon should not hold any table privilege; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.email_campaign_days                                   GRANT ABSENT — authenticated should not hold any table privilege; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.campaign_presses                                      GRANT ABSENT — anon should not hold any table privilege; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.campaign_presses                                      GRANT ABSENT — authenticated should not hold any table privilege; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.claim_email_send(boolean, uuid, boolean)              GRANT ABSENT — public should not hold execute; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.claim_email_send(boolean, uuid, boolean)              GRANT ABSENT — anon should not hold execute; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.claim_email_send(boolean, uuid, boolean)              GRANT ABSENT — authenticated should not hold execute; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.claim_email_send(boolean, uuid, boolean)              GRANT ABSENT — service_role should hold execute; declared by 20261017200000_campaigns_get_a_daily_share.sql (object not in database)
+public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) GRANT ABSENT — public should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) GRANT ABSENT — anon should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) GRANT ABSENT — authenticated should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) GRANT ABSENT — service_role should hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.insert_booking_checked(jsonb)                         GRANT ABSENT — public should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.insert_booking_checked(jsonb)                         GRANT ABSENT — anon should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.insert_booking_checked(jsonb)                         GRANT ABSENT — authenticated should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.insert_booking_checked(jsonb)                         GRANT ABSENT — service_role should hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) GRANT ABSENT — public should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) GRANT ABSENT — anon should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) GRANT ABSENT — authenticated should not hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) GRANT ABSENT — service_role should hold execute; declared by 20261018030645_booking_day_rules_lock.sql (object not in database)
+
+canary  a table-grant claim the database contradicts -> caught: judged wrong, so a GRANT MISMATCH is a verdict this comparison can reach
+canary  a table-revoke claim the database contradicts -> caught: judged wrong, so a GRANT MISMATCH is a verdict this comparison can reach
+canary  a column-revoke claim the database contradicts -> caught: judged wrong, so a GRANT MISMATCH is a verdict this comparison can reach
+canary  a function-revoke claim the database contradicts -> caught: judged wrong, so a GRANT MISMATCH is a verdict this comparison can reach
+business_users_user_id_idx                                   index matches 20260827000100_tenant_core.sql
+business_domains_business_id_idx                             index matches 20260827000100_tenant_core.sql
+services_business_id_idx                                     index matches 20260827000200_tenant_data.sql
+add_ons_business_id_idx                                      index matches 20260827000200_tenant_data.sql
+campaign_visits_business_created_idx                         index matches 20260827000200_tenant_data.sql
+campaign_visits_campaign_idx                                 index matches 20260827000200_tenant_data.sql
+testimonials_business_id_idx                                 index matches 20260827000200_tenant_data.sql
+gallery_images_business_id_idx                               index matches 20260827000200_tenant_data.sql
+blockout_dates_business_range_idx                            index matches 20260827000200_tenant_data.sql
+dropoff_only_periods_business_idx                            index matches 20260827000200_tenant_data.sql
+customers_business_phone_idx                                 index matches 20260827000200_tenant_data.sql
+bookings_business_start_idx                                  index matches 20260827000200_tenant_data.sql
+bookings_business_status_idx                                 index matches 20260827000200_tenant_data.sql
+bookings_customer_idx                                        index matches 20260827000200_tenant_data.sql
+booking_services_booking_idx                                 index matches 20260827000200_tenant_data.sql
+booking_services_business_idx                                index matches 20260827000200_tenant_data.sql
+booking_add_ons_booking_idx                                  index matches 20260827000200_tenant_data.sql
+booking_add_ons_business_idx                                 index matches 20260827000200_tenant_data.sql
+booking_line_items_booking_idx                               index matches 20260827000200_tenant_data.sql
+booking_line_items_business_idx                              index matches 20260827000200_tenant_data.sql
+expenses_business_date_idx                                   index matches 20260827000200_tenant_data.sql
+owner_push_subscriptions_business_idx                        index matches 20260827000200_tenant_data.sql
+business_invites_business_idx                                index matches 20260827003000_staff_roles.sql
+message_templates_business_idx                               index matches 20260827004000_notifications_and_templates.sql
+service_groups_business_id_idx                               index matches 20260831001000_catalog_groups_and_tenant_shapes.sql
+plans_business_idx                                           index matches 20260904002000_plans.sql
+plan_members_business_idx                                    index matches 20260904002000_plans.sql
+plan_members_plan_idx                                        index matches 20260904002000_plans.sql
+plan_members_customer_idx                                    index matches 20260904002000_plans.sql
+plan_members_one_live                                        index matches 20260904002000_plans.sql
+plan_visits_member_idx                                       index matches 20260904002000_plans.sql
+plan_visits_business_idx                                     index matches 20260904002000_plans.sql
+plan_visits_one_grant_per_due                                index matches 20260904002000_plans.sql
+bookings_plan_member_idx                                     index matches 20260904002000_plans.sql
+bookings_plan_idx                                            index matches 20260904004000_plans_customer_half.sql
+platform_invoices_business_idx                               index matches 20260905000000_platform_billing.sql
+platform_admin_events_created_idx                            index matches 20260906001000_platform_admin.sql
+platform_admin_events_business_idx                           index matches 20260906001000_platform_admin.sql
+maintenance_deadlines_business_idx                           index matches 20260906008000_maintenance_deadlines.sql
+maintenance_deadlines_due_idx                                index matches 20260906008000_maintenance_deadlines.sql
+job_photos_booking_idx                                       index matches 20260906010000_job_photos.sql
+job_photos_business_idx                                      index matches 20260906010000_job_photos.sql
+booking_vehicles_booking_idx                                 index matches 20260907000400_multiple_vehicles.sql
+bookings_group_idx                                           index matches 20260907000400_multiple_vehicles.sql
+booking_services_service_idx                                 index matches 20260907008000_foreign_key_indexes.sql
+booking_add_ons_add_on_idx                                   index matches 20260907008000_foreign_key_indexes.sql
+services_group_idx                                           index matches 20260907008000_foreign_key_indexes.sql
+job_photos_gallery_idx                                       index matches 20260907008000_foreign_key_indexes.sql
+bookings_campaign_idx                                        index matches 20260907008000_foreign_key_indexes.sql
+maintenance_deadlines_customer_idx                           index matches 20260907008000_foreign_key_indexes.sql
+maintenance_deadlines_booking_idx                            index matches 20260907008000_foreign_key_indexes.sql
+maintenance_deadlines_last_done_idx                          index matches 20260907008000_foreign_key_indexes.sql
+booking_vehicles_business_idx                                index matches 20260907008000_foreign_key_indexes.sql
+bookings_stripe_payment_intent_key                           index matches 20260908001000_connected_accounts.sql
+bookings_stripe_session_id_idx                               index matches 20260908001000_connected_accounts.sql
+session_pings_at_idx                                         index matches 20260913004000_session_ping_per_session.sql
+bookings_weather_due_idx                                     index matches 20260913010000_weather_cache.sql
+email_sends_customer_idx                                     index matches 20260916010000_every_email_leaves_a_row.sql
+email_sends_business_idx                                     index matches 20260916010000_every_email_leaves_a_row.sql
+expenses_receipt_path_idx                                    index matches 20260921020000_a_receipt_is_not_a_job_photo.sql
+customers_sms_reachable_idx                                  index matches 20260922010000_consent_is_not_a_default.sql
+site_probe_events_at                                         index matches 20260923040000_outside_checks.sql
+email_sends_booking_idx                                      index matches 20261006010000_an_email_row_knows_its_booking.sql
+platform_costs_period_idx                                    index matches 20261006020000_hand_entered_platform_costs.sql
+action_log_subject_idx                                       index matches 20261006050000_action_log.sql
+action_log_business_idx                                      index matches 20261006050000_action_log.sql
+receipt_attempts_due                                         INDEX ABSENT — not in the database; declared by 20261013130000_receipt_upload_attempts.sql
+booking_services_booking_business_idx                        INDEX ABSENT — not in the database; declared by 20261017000000_booking_lines_same_business.sql
+booking_add_ons_booking_business_idx                         INDEX ABSENT — not in the database; declared by 20261017000000_booking_lines_same_business.sql
+booking_line_items_booking_business_idx                      INDEX ABSENT — not in the database; declared by 20261017000000_booking_lines_same_business.sql
+job_photos_booking_business_idx                              INDEX ABSENT — not in the database; declared by 20261017010000_photos_deadlines_same_business.sql
+maintenance_deadlines_booking_business_idx                   INDEX ABSENT — not in the database; declared by 20261017010000_photos_deadlines_same_business.sql
+maintenance_deadlines_last_done_business_idx                 INDEX ABSENT — not in the database; declared by 20261017010000_photos_deadlines_same_business.sql
+bookings_customer_business_idx                               INDEX ABSENT — not in the database; declared by 20261017020000_customer_same_business.sql
+plan_members_customer_business_idx                           INDEX ABSENT — not in the database; declared by 20261017020000_customer_same_business.sql
+maintenance_deadlines_customer_business_idx                  INDEX ABSENT — not in the database; declared by 20261017020000_customer_same_business.sql
+
+canary  an index no migration could have created -> caught: reported, so an INDEX MISMATCH is a verdict this comparison can reach
+canary  an index declared with the wrong uniqueness -> caught: reported, so an INDEX MISMATCH is a verdict this comparison can reach
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FAIL — 14 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261017180000_support_sessions_expire.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql), set_customer_notes (declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql), support_session_expired (declared by 20261017190000_support_sessions_end_at_auth.sql), end_expired_support_sessions (declared by 20261017190000_support_sessions_end_at_auth.sql), email_sends_stay_forgotten (declared by 20261017210000_forget_customer_forgets_their_email.sql), business_domains_clear_verified_on_rename (declared by 20261018010000_domain_claims_need_proof.sql), booking_day_rules_check (declared by 20261018030645_booking_day_rules_lock.sql), insert_booking_checked (declared by 20261018030645_booking_day_rules_lock.sql), move_booking_checked (declared by 20261018030645_booking_day_rules_lock.sql)
+FAIL — 7 function(s) in the database do NOT match the repo's newest definition: get_bookings_due_for_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), reset_reminder_markers_on_edit (the repo's newest definition is 20261017230000_reminder_reset_covers_every_marker.sql), get_bookings_due_for_second_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), forget_customer (the repo's newest definition is 20261018050000_forget_customer_forgets_their_street.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), claim_email_send (the repo's newest definition is 20261017200000_campaigns_get_a_daily_share.sql)
+FAIL — 5 table(s) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: support_sessions (declared by 20261010030000_support_sessions_read_only.sql), google_business_links (declared by 20261010040000_google_business_links.sql), receipt_upload_attempts (declared by 20261013130000_receipt_upload_attempts.sql), email_campaign_days (declared by 20261017200000_campaigns_get_a_daily_share.sql), campaign_presses (declared by 20261017200000_campaigns_get_a_daily_share.sql)
+FAIL — 6 column(s) the migrations declare are NOT IN THE DATABASE — the migration adding each one has never run: businesses.id (declared by 20260827000100_tenant_core.sql), business_settings.email_sign_as_business (declared by 20261011010000_email_sign_as_business.sql), bookings.payment_problem (declared by 20261016160000_booking_payment_problem.sql), platform_settings.email_booking_headroom (declared by 20261017200000_campaigns_get_a_daily_share.sql), platform_settings.email_campaign_share (declared by 20261017200000_campaigns_get_a_daily_share.sql), email_sends.body_html (declared by 20261010010000_email_sends_keeps_the_body.sql)
+FAIL — 1 polic(y/ies) the migrations declare are NOT IN THE DATABASE — the migration creating each one has never run: public.receipt_upload_attempts.receipt_attempts_server (declared by 20261013131000_receipt_attempts_late_put.sql)
+FAIL — 57 grant/revoke claim group(s) the migrations declare DO NOT HOLD in the database (the migration declaring each has not run, or the privilege was changed by hand): public.business_domains — authenticated should NOT HOLD insert (declared by 20261018010000_domain_claims_need_proof.sql); public.business_domains — anon should NOT HOLD insert (declared by 20261018010000_domain_claims_need_proof.sql); public.bookings — authenticated should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.bookings — anon should NOT HOLD delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.support_sessions — public should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — anon should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.support_sessions — authenticated should NOT HOLD any table privilege (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — public should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — anon should NOT HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — authenticated should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.is_support_session() — service_role should HOLD execute (declared by 20261010030000_support_sessions_read_only.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — public should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — anon should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.refuse_support_writes(regclass) — authenticated should NOT HOLD execute (declared by 20261017180000_support_sessions_expire.sql) — the object itself is not in the database; public.google_business_links — authenticated should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.google_business_links — anon should NOT HOLD any table privilege (declared by 20261010040000_google_business_links.sql) — the object itself is not in the database; public.receipt_upload_attempts — public should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — anon should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — authenticated should NOT HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.receipt_upload_attempts — service_role should HOLD any table privilege (declared by 20261013130000_receipt_upload_attempts.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — public should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — anon should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — authenticated should NOT HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.claim_receipt_attempts(text[]) — service_role should HOLD execute (declared by 20261013131000_receipt_attempts_late_put.sql) — the object itself is not in the database; public.customers — authenticated should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.customers — anon should NOT HOLD insert/update/delete (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql); public.set_customer_notes(uuid, uuid, text) — public should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — anon should NOT HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — authenticated should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.set_customer_notes(uuid, uuid, text) — service_role should HOLD execute (declared by 20261017030000_staff_cannot_delete_bookings_or_write_customers.sql) — the object itself is not in the database; public.support_session_expired() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — authenticated should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.support_session_expired() — service_role should HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — public should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — anon should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.end_expired_support_sessions() — authenticated should NOT HOLD execute (declared by 20261017190000_support_sessions_end_at_auth.sql) — the object itself is not in the database; public.email_campaign_days — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.email_campaign_days — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.campaign_presses — anon should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.campaign_presses — authenticated should NOT HOLD any table privilege (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — public should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — anon should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — authenticated should NOT HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.claim_email_send(boolean, uuid, boolean) — service_role should HOLD execute (declared by 20261017200000_campaigns_get_a_daily_share.sql) — the object itself is not in the database; public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) — public should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) — anon should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) — authenticated should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.booking_day_rules_check(uuid, timestamptz, timestamptz, uuid) — service_role should HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.insert_booking_checked(jsonb) — public should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.insert_booking_checked(jsonb) — anon should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.insert_booking_checked(jsonb) — authenticated should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.insert_booking_checked(jsonb) — service_role should HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) — public should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) — anon should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) — authenticated should NOT HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database; public.move_booking_checked(uuid, uuid, jsonb, timestamptz, text) — service_role should HOLD execute (declared by 20261018030645_booking_day_rules_lock.sql) — the object itself is not in the database
+FAIL — 10 index(es) the migrations declare are WRONG OR NOT IN THE DATABASE: receipt_attempts_due on receipt_upload_attempts — not in the database (declared by 20261013130000_receipt_upload_attempts.sql); booking_services_booking_business_idx on booking_services — not in the database (declared by 20261017000000_booking_lines_same_business.sql); booking_add_ons_booking_business_idx on booking_add_ons — not in the database (declared by 20261017000000_booking_lines_same_business.sql); booking_line_items_booking_business_idx on booking_line_items — not in the database (declared by 20261017000000_booking_lines_same_business.sql); job_photos_booking_business_idx on job_photos — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); maintenance_deadlines_booking_business_idx on maintenance_deadlines — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); maintenance_deadlines_last_done_business_idx on maintenance_deadlines — not in the database (declared by 20261017010000_photos_deadlines_same_business.sql); bookings_customer_business_idx on bookings — not in the database (declared by 20261017020000_customer_same_business.sql); plan_members_customer_business_idx on plan_members — not in the database (declared by 20261017020000_customer_same_business.sql); maintenance_deadlines_customer_business_idx on maintenance_deadlines — not in the database (declared by 20261017020000_customer_same_business.sql)
+
+Applying a migration is a schema change and it is Andrew's to authorise.
+This check reports and never applies. Receipt C:\Users\rando\Downloads\claude\belt-jobs\belt_98.3-20261018212600511\receipts\migration-drift.sabotage.json

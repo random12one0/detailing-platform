@@ -421,6 +421,18 @@ export function validate(r, opts = {}) {
   };
 }
 
+// A receipt is a sabotage if it names its break in `dimensions` (three spellings) OR carries
+// the standard warning "this receipt is a sabotage, not a result". The warning clause was
+// added 2026-10-18 (ROADMAP 98.3): migration-drift.mjs writes only the warning, so its
+// `--break=` runs overwrote the real receipt and the next clean run destroyed the sabotage
+// evidence. Any other script marked only by the warning is covered by the same line.
+// Held by tests/receipt-sabotage-route.test.mjs.
+export function isSabotage(full) {
+  const d = full.dimensions || {};
+  if (d.break || d.sabotage || d.broken_on_purpose) return true;
+  return (full.warnings || []).some((w) => /this receipt is a sabotage, not a result/.test(String(w)));
+}
+
 /** Write a receipt, stamping the fields no check should have to remember. */
 export function writeReceipt(r) {
   mkdirSync(RECEIPTS, { recursive: true });
@@ -464,8 +476,8 @@ export function writeReceipt(r) {
   // validator below skips these the way it already skips `holds.json`.
   // `broken_on_purpose` is the third spelling, used by photo-release-order and cors-rule; until
   // 2026-10-13 their sabotage runs still clobbered the real receipt (found on ROADMAP 0.11cb).
-  const sabotage = String(full.dimensions?.break || full.dimensions?.sabotage || full.dimensions?.broken_on_purpose || "");
-  const path = join(RECEIPTS, name + (sabotage ? ".sabotage" : "") + ".json");
+  // And a fourth signal, 2026-10-18 (ROADMAP 98.3): the standard warning line. See isSabotage.
+  const path = join(RECEIPTS, name + (isSabotage(full) ? ".sabotage" : "") + ".json");
   writeFileSync(path, JSON.stringify(full, null, 2) + "\n");
   return { path, receipt: full };
 }

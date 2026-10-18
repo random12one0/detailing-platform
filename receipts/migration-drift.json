@@ -1,9 +1,9 @@
 {
-  "git_sha": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
-  "git_sha_started": "49e2cfb0ff377bde979e92afd99f07fc4fb2f7ef",
+  "git_sha": "db8c6c0ca20f5abaf218bbb411a182e897694e65",
+  "git_sha_started": "db8c6c0ca20f5abaf218bbb411a182e897694e65",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T12:03:38.691Z",
+  "finished_at": "2026-10-18T21:33:01.428Z",
   "failures": [
     "14 function(s) the migrations declare are NOT IN THE DATABASE — the migration defining each one has never run: is_support_session (declared by 20261010030000_support_sessions_read_only.sql), refuse_support_writes (declared by 20261017180000_support_sessions_expire.sql), start_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), finish_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), ack_receipt_attempt (declared by 20261013130000_receipt_upload_attempts.sql), claim_receipt_attempts (declared by 20261013131000_receipt_attempts_late_put.sql), set_customer_notes (declared by 20261017130000_set_customer_notes_refuses_support_sessions.sql), support_session_expired (declared by 20261017190000_support_sessions_end_at_auth.sql), end_expired_support_sessions (declared by 20261017190000_support_sessions_end_at_auth.sql), email_sends_stay_forgotten (declared by 20261017210000_forget_customer_forgets_their_email.sql), business_domains_clear_verified_on_rename (declared by 20261018010000_domain_claims_need_proof.sql), booking_day_rules_check (declared by 20261018030645_booking_day_rules_lock.sql), insert_booking_checked (declared by 20261018030645_booking_day_rules_lock.sql), move_booking_checked (declared by 20261018030645_booking_day_rules_lock.sql)",
     "7 function(s) in the database do NOT match the repo's newest definition: get_bookings_due_for_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), reset_reminder_markers_on_edit (the repo's newest definition is 20261017230000_reminder_reset_covers_every_marker.sql), get_bookings_due_for_second_reminder (the repo's newest definition is 20261017220000_reminders_ignore_marketing_opt_out.sql), accrue_plan_visits (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), forget_customer (the repo's newest definition is 20261018050000_forget_customer_forgets_their_street.sql), set_my_lang (the repo's newest definition is 20261010030000_support_sessions_read_only.sql), claim_email_send (the repo's newest definition is 20261017200000_campaigns_get_a_daily_share.sql)",
@@ -157,7 +157,7 @@
     ]
   },
   "check_id": "migration-drift",
-  "started_at": "2026-10-18T12:02:58.646Z",
+  "started_at": "2026-10-18T21:32:20.874Z",
   "status": "fail",
   "expected_targets": 405,
   "discovered_targets": 357,
