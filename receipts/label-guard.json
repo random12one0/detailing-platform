@@ -1,9 +1,9 @@
 {
-  "git_sha": "68810cd49c1e49a233d96afaccd11be44d479944",
-  "git_sha_started": "68810cd49c1e49a233d96afaccd11be44d479944",
+  "git_sha": "f9962aae926f01f13b28af79ea927b874bd01c92",
+  "git_sha_started": "f9962aae926f01f13b28af79ea927b874bd01c92",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T08:16:39.616Z",
+  "finished_at": "2026-10-18T18:57:45.402Z",
   "failures": [
     "declared label no longer in the product: \"Build started\" (build-start-live.mjs)",
     "declared label no longer in the product: \"Tell them work has started\" (build-start-live.mjs)",
@@ -31,14 +31,14 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-18T08:16:39.448Z",
+  "started_at": "2026-10-18T18:57:45.245Z",
   "status": "fail",
-  "expected_targets": 119,
-  "discovered_targets": 119,
-  "attempted_targets": 119,
-  "completed_targets": 119,
+  "expected_targets": 122,
+  "discovered_targets": 122,
+  "attempted_targets": 122,
+  "completed_targets": 122,
   "skipped_targets": 0,
-  "assertions_executed": 119,
+  "assertions_executed": 122,
   "min_assertions": 30,
   "canary": {
     "id": "a declared label that no product could contain",
