@@ -1,14 +1,14 @@
 {
-  "git_sha": "573cc382093a4c771f22bd8516f786efb8c274fa",
-  "git_sha_started": "573cc382093a4c771f22bd8516f786efb8c274fa",
+  "git_sha": "46a7baeb88e166ade3d4627b655c8c47c1889ab7",
+  "git_sha_started": "46a7baeb88e166ade3d4627b655c8c47c1889ab7",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T02:07:49.092Z",
+  "finished_at": "2026-10-18T02:37:11.770Z",
   "failures": [
     "390 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close 390\"]}",
     "390 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "390 escape: every save sent exactly the typed text []",
-    "390 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Dana Ruiz\",\"text\":\"Gate code 4471. Friendly dog in the yard.\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 next 390\"]}",
+    "390 next: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Tom Okafor\",\"text\":\"\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 next 390\"]}",
     "390 switch: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 switch 390\"]}",
     "390 escape-ok: one save, the record closed, no line anywhere {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "390 escape-ok: every save sent exactly the typed text []",
@@ -16,6 +16,8 @@
     "390 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"97.84 seen-close 390\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":{\"sent\":2,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"anyway\":null,\"notes_sent\":[\"97.84 seen-close 390\",\"97.84 seen-close 390\"]}",
     "390 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "390 hang: a save with no answer held Marcus Webb's record with the text and the \"not saved yet\" line; Close anyway put it away {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 hang 390\"]}",
+    "390 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 escape-after\"]}",
+    "390 escape-after: the saves sent the early text, then exactly the full typed text [\"97.84 escape-after\"]",
     "768 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close 768\"]}",
     "768 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "768 escape: every save sent exactly the typed text []",
@@ -27,6 +29,8 @@
     "768 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"97.84 seen-close 768\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":{\"sent\":2,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"anyway\":null,\"notes_sent\":[\"97.84 seen-close 768\",\"97.84 seen-close 768\"]}",
     "768 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "768 hang: a save with no answer held Marcus Webb's record with the text and the \"not saved yet\" line; Close anyway put it away {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 hang 768\"]}",
+    "768 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 escape-after\"]}",
+    "768 escape-after: the saves sent the early text, then exactly the full typed text [\"97.84 escape-after\"]",
     "1440 close: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close 1440\"]}",
     "1440 escape: one save, Marcus Webb's record still open with the text and the line on screen, on no other client {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
     "1440 escape: every save sent exactly the typed text []",
@@ -37,7 +41,9 @@
     "1440 close-twice: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 close-twice 1440\"]}",
     "1440 seen-close: held on the refusal; a second Close sent again and STILL held the text and the line; Close anyway put it away with no further save {\"first\":{\"sent\":1,\"recordOpen\":true,\"shown_as\":\"Marcus Webb\",\"text\":\"97.84 seen-close 1440\",\"found\":1,\"shown\":1,\"not_shown_because\":[]},\"second\":{\"sent\":2,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"anyway\":null,\"notes_sent\":[\"97.84 seen-close 1440\",\"97.84 seen-close 1440\"]}",
     "1440 view-as: no save left the tab; Marcus Webb's record held the text and the Looking-only line through two Closes; Close anyway put it away {\"first\":{\"sent\":0,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[]}",
-    "1440 hang: a save with no answer held Marcus Webb's record with the text and the \"not saved yet\" line; Close anyway put it away {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 hang 1440\"]}"
+    "1440 hang: a save with no answer held Marcus Webb's record with the text and the \"not saved yet\" line; Close anyway put it away {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 hang 1440\"]}",
+    "1440 escape-after: the typing after the first save left was sent before the record closed: two saves, closed, no line {\"first\":{\"sent\":1,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[]},\"second\":null,\"anyway\":null,\"notes_sent\":[\"97.84 escape-after\"]}",
+    "1440 escape-after: the saves sent the early text, then exactly the full typed text [\"97.84 escape-after\"]"
   ],
   "warnings": [],
   "artifacts": [
@@ -48,8 +54,8 @@
     "login": "demo staff",
     "answer_ms": 600,
     "product_wait_ms": 5000,
-    "frozen_clock": "2026-10-18T02:04:26.781Z",
-    "calls": 27,
+    "frozen_clock": "2026-10-18T02:32:29.527Z",
+    "calls": 30,
     "rewrite_misses": 0,
     "cases": [
       {
@@ -117,8 +123,8 @@
         "first": {
           "sent": 1,
           "recordOpen": true,
-          "shown_as": "Dana Ruiz",
-          "text": "Gate code 4471. Friendly dog in the yard.",
+          "shown_as": "Tom Okafor",
+          "text": "",
           "found": 1,
           "shown": 1,
           "not_shown_because": []
@@ -274,6 +280,26 @@
           "97.84 hang 390"
         ],
         "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "notes_sent": [
+          "97.84 escape-after"
+        ],
+        "sent_typed": false
       },
       {
         "width": 768,
@@ -499,6 +525,26 @@
         "sent_typed": true
       },
       {
+        "width": 768,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "notes_sent": [
+          "97.84 escape-after"
+        ],
+        "sent_typed": false
+      },
+      {
         "width": 1440,
         "case": "control",
         "answer": "refuse",
@@ -720,19 +766,39 @@
           "97.84 hang 1440"
         ],
         "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "notes_sent": [
+          "97.84 escape-after"
+        ],
+        "sent_typed": false
       }
     ]
   },
   "check_id": "notes-refused-on-close",
-  "started_at": "2026-10-18T02:04:26.781Z",
+  "started_at": "2026-10-18T02:32:29.527Z",
   "status": "fail",
-  "expected_targets": 33,
-  "discovered_targets": 33,
-  "attempted_targets": 33,
+  "expected_targets": 36,
+  "discovered_targets": 36,
+  "attempted_targets": 36,
   "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 107,
-  "min_assertions": 73,
+  "assertions_executed": 117,
+  "min_assertions": 80,
   "assertion_floor": "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
   "canary": {
     "id": "planted-hidden-faded-offscreen-lines-found-not-shown",
