@@ -1,9 +1,9 @@
 {
-  "git_sha": "af95283be67be87ccee822db3df67555dcd58e76",
-  "git_sha_started": "af95283be67be87ccee822db3df67555dcd58e76",
+  "git_sha": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
+  "git_sha_started": "bf45ba6e999cecd34807a19bcc76e692c31a591a",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T20:06:44.486Z",
+  "finished_at": "2026-10-18T03:15:30.482Z",
   "failures": [
     "race-cap: B was not refused as day-full (exit 0)",
     "race-cap: 3 bookings on a cap-2 day",
@@ -13,9 +13,8 @@
     "race-move: 3 bookings on a cap-2 day after two moves"
   ],
   "warnings": [
-    "Throwaway local Postgres with reduced businesses/business_settings/bookings tables; the migration and bookings_no_overlap are applied from their real files.",
-    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's.",
-    "ROADMAP 97.18 R4 (\"a single ordinary booking takes no longer than before\") is NOT met as written: the checked save's median is 0.106 ms longer than the plain insert's (0.376 vs 0.27 ms). The speed check that passes is a regression guard, not R4."
+    "Throwaway local Postgres built by replaying all 134 files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.",
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
   ],
   "artifacts": [
     "artifacts/booking-day-lock/run.no-recheck.json"
@@ -23,24 +22,38 @@
   "dimensions": {
     "break": "no-recheck",
     "item": "97.18",
-    "postgres": "17.8"
+    "postgres": "17.8",
+    "migrations_replayed": 134,
+    "r4_ms": 5
   },
   "check_id": "booking-day-lock.no-recheck",
-  "started_at": "2026-10-17T20:06:28.187Z",
+  "started_at": "2026-10-18T03:14:51.787Z",
   "status": "fail",
-  "expected_targets": 8,
-  "discovered_targets": 8,
-  "attempted_targets": 8,
-  "completed_targets": 8,
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 18,
-  "min_assertions": 18,
-  "assertion_floor": "1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 3 speed; every check() unconditional.",
+  "assertions_executed": 23,
+  "min_assertions": 23,
+  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 4 speed; every check() unconditional.",
   "canary": {
     "id": "plain-insert-beats-cap-and-buffer",
     "observed_failure": true
   },
   "observed": {
+    "real-schema": {
+      "id": "real-schema",
+      "migrations_replayed": 134,
+      "migrations_in_folder": 134,
+      "bookings_columns": 63,
+      "bookings_triggers": "bookings_link_plan,bookings_updated_at,reset_reminder_markers_on_edit",
+      "execute": {
+        "anon": "ff",
+        "authenticated": "ff",
+        "service_role": "tt"
+      }
+    },
     "defect-cap": {
       "id": "defect-cap",
       "a_exit": 0,
@@ -58,7 +71,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 1856,
+      "b_waited_ms": 1894,
       "bookings_on_cap_2_day": 3
     },
     "race-buffer": {
@@ -66,7 +79,7 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2003,
+      "b_waited_ms": 2013,
       "saved": 2
     },
     "race-move-cap": {
@@ -74,12 +87,12 @@
       "a_exit": 0,
       "b_exit": 0,
       "b_error": "",
-      "b_waited_ms": 2022,
+      "b_waited_ms": 1869,
       "bookings_on_cap_2_day": 3
     },
     "ordinary-and-exemptions": {
       "id": "ordinary-and-exemptions",
-      "returned": "confirmed|true|true|null",
+      "returned": "confirmed|true|true|null|pending|small|0",
       "second_exit": 0
     },
     "fence-holds": {
@@ -91,12 +104,12 @@
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 0.27,
-      "plain_p95_ms": 0.506,
-      "checked_median_ms": 0.376,
-      "checked_p95_ms": 0.648,
-      "extra_median_ms": 0.106,
-      "r4_met_as_written": false
+      "plain_median_ms": 0.611,
+      "plain_p95_ms": 1.195,
+      "checked_median_ms": 0.837,
+      "checked_p95_ms": 1.546,
+      "extra_median_ms": 0.226,
+      "extra_p95_ms": 0.351
     }
   }
 }
