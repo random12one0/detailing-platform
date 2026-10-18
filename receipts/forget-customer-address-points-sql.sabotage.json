@@ -1,0 +1,36 @@
+{
+  "git_sha": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "git_sha_started": "e2b4cb8b8daf58f0c8004f361005b03c8d35df04",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T04:09:33.710Z",
+  "failures": [
+    "the address typed on her booking is gone from the cache — 400 pine ave apt 3",
+    "the result counts the rows deleted — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":0,\"emails_forgotten\":0,\"bookings_anonymised\":2,\"address_points_deleted\":1}",
+    "a customer of another business is not_found and the cache is untouched"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/forget-customer-address-points-sql/results.sabotage-raw-key.txt"
+  ],
+  "dimensions": {
+    "break": "raw-key",
+    "migration": "20261018050000_forget_customer_forgets_their_street.sql",
+    "address_points_deleted": 1
+  },
+  "check_id": "forget-customer-address-points-sql",
+  "started_at": "2026-10-18T04:09:29.525Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 14,
+  "assertion_floor": "structural: a fixed list of checks over five fixed address_points rows",
+  "canary": {
+    "id": "pre-97.20a-forget-customer",
+    "observed_failure": true
+  }
+}
