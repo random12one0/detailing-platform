@@ -234,7 +234,6 @@ const { path } = writeReceipt({
     ...(count("unknown") ? [`${count("unknown")} pointer(s) could not be dated or resolved; they are in no other bucket`] : []),
   ],
   dimensions: {
-    break: BREAK || null, // routes a sabotage run to .sabotage.json (ROADMAP 98.3)
     rev: full,
     self: selfN, cross: crossN,
     buckets: Object.fromEntries(["still-good", "changed-below-only", "suspect", "unknown"].map((b) => [b, count(b)])),
