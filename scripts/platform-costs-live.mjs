@@ -208,30 +208,39 @@ try {
     const noise = [];
     watchConsole(page, where, noise);
     await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("input[type=email], .pa-top", { timeout: 40000 });
+    await page.waitForSelector("input[type=email], .bo-top", { timeout: 40000 });
     if (await page.locator("input[type=email]").count()) {
       await page.fill("input[type=email]", acct.email);
       await page.fill("input[type=password]", acct.password);
-      await page.click("form button.pa-btn");
-      await page.waitForSelector(".pa-top", { timeout: 40000 });
+      await page.click("form button.bo-btn[type=submit]");
+      await page.waitForSelector(".bo-top", { timeout: 40000 });
       signedIn = await ctx.storageState();
     }
-    await page.waitForSelector(".pa-body", { timeout: 40000 });
-    await page.locator(".pa-tab").filter({ hasText: "Money" }).first().click();
-    const sec = page.locator(".pa-sec").filter({ has: page.locator("h2", { hasText: "Did we make money?" }) });
-    // state: "attached" — docs/gotchas.md 107.
-    await sec.locator(".pa-net, .pa-err").first().waitFor({ state: "attached", timeout: 40000 });
+    // The office draws a place only once the platform state has loaded (OfficePage.jsx).
+    await page.waitForSelector(".bo-place-in", { timeout: 40000 });
+    await page.locator(".bo-nav").filter({ hasText: "Money" }).first().click();
+    // The month's figure lives in Money's "You kept" section (places/money/Kept.jsx).
+    const sec = page.locator("section.bo-kept[aria-label='You kept']");
+    // state: "attached" — docs/gotchas.md 107. Settled once "Reading…" has gone.
+    await sec.locator("[data-testid=kept]").filter({ hasNotText: "Reading…" }).waitFor({ state: "attached", timeout: 40000 });
     await settle(page, 1200);
-    const seen = await sec.evaluate((el) => ({
-      text: el.textContent.replace(/\s+/g, " ").trim().slice(0, 400),
-      err: el.querySelector(".pa-err")?.textContent ?? null,
-      unknown: !!el.querySelector(".pa-net.pa-unknown"),
-      net: el.querySelector(".pa-net strong")?.textContent ?? null,
-    }));
+    const seen = await sec.evaluate((el) => {
+      const f = el.querySelector("[data-testid=kept]");
+      const dim = f?.querySelector(".bo-dim")?.textContent ?? null;
+      return {
+        text: el.textContent.replace(/\s+/g, " ").trim().slice(0, 400),
+        label: el.querySelector(".bo-label")?.textContent ?? null,
+        // A failed platform_net read is stored as { error } and drawn "Could not read" (useNet.js).
+        err: dim && /^Could not read/.test(dim) ? dim : null,
+        unknown: !!f?.querySelector(".bo-unentered"),
+        net: f && !dim ? f.textContent : null,
+        out: el.querySelector(".bo-split-l span:last-child")?.textContent ?? null,
+      };
+    });
     dims[`screen_${where}`] = seen;
-    check(`3 · ${where}: "Did we make money?" read the month — no error, no "not been set up"`, !seen.err && !/not been set up|Unknown action/i.test(seen.text) && !!seen.net, seen.err ?? seen.text.slice(0, 160));
+    check(`3 · ${where}: "You kept" read the month — no error, no "not been set up"`, !seen.err && !/not been set up|Unknown action|Could not read/i.test(seen.text) && !!seen.net && /^You kept · [A-Z][a-z]+ so far$/.test(seen.label ?? ""), seen.err ?? seen.text.slice(0, 160));
     // With no bills in the table the month must read as NOT ENTERED, never as a profit (9.14's rule).
-    if (svc.rows === 0) check(`3 · ${where}: an empty table reads "Costs not entered", not a profit`, seen.unknown && /^Costs not entered for /.test(seen.net ?? ""), seen.net);
+    if (svc.rows === 0) check(`3 · ${where}: an empty table reads "Not entered" and "Money out not entered", not a profit`, seen.unknown && seen.net === "Not entered" && seen.out === "Money out not entered", `${seen.net} / ${seen.out}`);
     // From the top: a full-page shot taken scrolled paints the sticky header mid-page.
     await page.evaluate(() => window.scrollTo(0, 0));
     await settle(page, 400);
@@ -290,7 +299,7 @@ writeReceipt({
   min_assertions: 37,
   failures,
   dimensions: dims,
-  artifacts: ["scripts/platform-costs-live.mjs", MIGRATION],
+  artifacts: ["scripts/platform-costs-live.mjs", MIGRATION, "app/src/admin/office/OfficePage.jsx", "app/src/admin/office/places/money/Kept.jsx"],
   warnings: [
     "There is no applied-migrations ledger in this project (supabase_migrations.schema_migrations does not exist), so 'recorded as applied' is the live shape matching the file, including its last statement, plus commit 0087d1dd. Nothing here can show WHEN it ran.",
     "force row level security is read as a flag, not exercised: every role that could exercise it is either refused earlier by the missing grant (anon, authenticated) or bypasses RLS (service_role, the owner).",
