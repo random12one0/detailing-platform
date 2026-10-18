@@ -68,6 +68,18 @@ export async function validateSlot(opts: {
     return { ok: false, status: 400, error: "Invalid duration." };
   }
 
+  // ROADMAP 97.17 — AWAY MODE, ENFORCED. `available-slots` closes every day
+  // before `closed_until`; until this line nothing on the way in did, so a
+  // stale tab or a hand-made post booked a detailer who was away. Same rule as
+  // the calendar: two business-local date strings, and the day they are back
+  // is bookable.
+  const closedUntil = business.closed_until ? String(business.closed_until).slice(0, 10) : null;
+  if (closedUntil && bookingDate < closedUntil) {
+    const back = new Date(`${closedUntil}T12:00:00Z`)
+      .toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
+    return { ok: false, status: 409, error: `We're away until ${back}. Please choose ${back} or a later date.` };
+  }
+
   if (serviceType === "mobile" && !settings.mobile_enabled) {
     return { ok: false, status: 409, error: "Mobile service is not available. Please choose drop-off." };
   }

@@ -155,17 +155,28 @@ Deno.serve(async (req) => {
     // returns a clear 409 instead.
     const business = (await businessById(member.businessId))!;
     const tz = business.timezone;
-    if (body.booking_date || body.start_time) {
+    // ROADMAP 97.17 — ONLY A REAL MOVE IS RE-CHECKED. The edit form sends the
+    // date and time back on every save, so re-checking an unmoved job refused a
+    // phone-number fix on any job that later fell inside an away stretch or a
+    // blockout. A job staying where it is already holds its slot.
+    const curDur = Math.round((new Date(current.end_at).getTime() - new Date(current.start_at).getTime()) / 60_000);
+    const askDate = String(body.booking_date || dateStrIn(tz, new Date(current.start_at)));
+    const askTime = String(body.start_time || timeStrIn(tz, new Date(current.start_at)));
+    const askDur = Number(body.duration_minutes) || curDur;
+    const askType = String(body.service_type || current.service_type);
+    const unmoved = askDate === dateStrIn(tz, new Date(current.start_at))
+      && askTime.slice(0, 5) === timeStrIn(tz, new Date(current.start_at))
+      && askDur === curDur && askType === current.service_type;
+    if ((body.booking_date || body.start_time) && !unmoved) {
       const settings = await getSettings(member.businessId);
-      const durationMinutes = Number(body.duration_minutes) ||
-        Math.round((new Date(current.end_at).getTime() - new Date(current.start_at).getTime()) / 60_000);
+      const durationMinutes = askDur;
       const check = await validateSlot({
         business,
         settings,
-        bookingDate: String(body.booking_date || dateStrIn(tz, new Date(current.start_at))),
-        startTime: String(body.start_time || timeStrIn(tz, new Date(current.start_at))),
+        bookingDate: askDate,
+        startTime: askTime,
         durationMinutes,
-        serviceType: String(body.service_type || current.service_type),
+        serviceType: askType,
         excludeBookingId: bookingId,
         // Roadmap 2.8c — same reason as reschedule: this path moves a date,
         // and two of the new rules are about the date and the service type.
