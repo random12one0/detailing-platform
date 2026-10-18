@@ -232,6 +232,17 @@ sizes, with nothing sent.
 (2) publish the website; (3) publish `send-email` and `send-campaign`. Doing (3) before (1) stops promo emails
 sending until (1) is done. Booking emails are unaffected in every order. The 20 and the 40 are settings you can change
 later. The session has not pushed, published, deployed or changed the database.
+## DO, AT YOUR NEXT RELEASE · A web address only goes live when its owner proves it (ROADMAP 97.13)
+
+Today anybody on a detailer's team can mark a web address as live without proving anything, including the
+platform's own address or another business's. The fix is built and tested on a throwaway copy of the database and
+in the browser. The "Your web address" screen now asks for one extra line at the domain company: a TXT record
+holding a code the screen shows.
+
+**Your move:** at your next release, publish the `verify-domain` program FIRST, then apply the database change
+`20261018010000_domain_claims_need_proof.sql` and publish the site. The other way round, nobody can add an
+address until the program lands. The live-database test `owner-writes` stays red until the change is applied. The
+session has not pushed, published, deployed or changed the database.
 
 ## DO, AT YOUR NEXT RELEASE · Stop another business putting YOUR customer on ITS jobs, plans or warranty dates (ROADMAP 97.72)
 

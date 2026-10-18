@@ -11,7 +11,7 @@
 //   BREAK=no-signout  node tests/support-sessions-edge.test.mjs  # 97.15: requireMember leaves an expired session alive
 //
 // THE FIRST TEST RUNS THE CODE. `_shared/supportSession.ts`, `_shared/tenant.ts` and
-// `_shared/retryRead.ts` are copied byte for byte into a temp folder (Node 24 strips the types) beside
+// `_shared/retryRead.ts` (and `_shared/permissions.ts`, which tenant.ts imports since 97.13) are copied byte for byte into a temp folder (Node 24 strips the types) beside
 // a stand-in `db.ts` — the one Deno-only file, whose `supabase` client is a recording fake — and the
 // real `requireMember` and the real view-as hand-over (`openSupportView`, which platform-admin calls)
 // are called and their answers checked. BREAK edits the PRODUCTION file in that temp copy (mutation),
@@ -56,7 +56,7 @@ const MUTATIONS = {
   "no-signout": ["tenant.ts", `if (state === "expired") await supabase.auth.admin.signOut(token, "local").catch(() => {});`, ""],
 };
 const tmp = mkdtempSync(path.join(tmpdir(), "support-edge-"));
-for (const f of ["supportSession.ts", "tenant.ts", "retryRead.ts"]) copyFileSync(`${FN}/_shared/${f}`, path.join(tmp, f));
+for (const f of ["supportSession.ts", "tenant.ts", "retryRead.ts", "permissions.ts"]) copyFileSync(`${FN}/_shared/${f}`, path.join(tmp, f));
 let mutationLanded = null;
 if (MUTATIONS[BREAK]) {
   const [file, from, to] = MUTATIONS[BREAK];

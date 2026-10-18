@@ -266,12 +266,11 @@ export async function businessById(id: string): Promise<Business | null> {
   return (data as Business) ?? null;
 }
 
-// The closed permission vocabulary, mirroring the check constraint in
-// 20260904000000_custom_roles.sql. An unknown string is rejected rather than
-// stored, because a permission nothing recognises grants nothing and looks
-// exactly like one that was never ticked.
-export const PERMISSIONS = ["money", "marketing", "settings", "requests"] as const;
-export type Permission = (typeof PERMISSIONS)[number];
+// PERMISSIONS, Permission, Member and can() live in ./permissions.ts (ROADMAP
+// 97.13: importable without the database client) and are re-exported here.
+import { can, PERMISSIONS, type Member, type Permission } from "./permissions.ts";
+export { can, PERMISSIONS };
+export type { Member, Permission };
 
 export function cleanPermissions(input: unknown): Permission[] {
   if (!Array.isArray(input)) return [];
@@ -285,13 +284,6 @@ export function cleanPermissions(input: unknown): Permission[] {
 const markerOf = (sid: string) => supabase.from("support_sessions").select("*").eq("session_id", sid).maybeSingle();
 export const supportSession = (token: string) => isSupportSession(token, markerOf);
 
-export type Member = { userId: string; businessId: string; role: string; permissions: string[] };
-
-// An owner has everything, always — the same fold `has_business_permission()`
-// does in SQL, so a caller can never write a check that forgets owners.
-export function can(member: Member, permission: Permission): boolean {
-  return member.role === "owner" || member.permissions.includes(permission);
-}
 
 // Verifies the request's JWT and returns the caller's membership in the
 // requested business, or null. When businessId is omitted and the user
