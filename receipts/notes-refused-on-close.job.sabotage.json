@@ -1,0 +1,1610 @@
+{
+  "git_sha": "d8489d9f8b4f1122268f90a8b76855b9fde66409",
+  "git_sha_started": "d8489d9f8b4f1122268f90a8b76855b9fde66409",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T08:32:04.719Z",
+  "failures": [
+    "1440 job-tab: with a past job over the record, a tap on Today sent the note again; refused, the job closed and Marcus Webb's record is back with the text and the line, Clients still lit {\"first\":{\"sent\":2,\"recordOpen\":false,\"shown_as\":null,\"text\":null,\"found\":0,\"shown\":0,\"not_shown_because\":[],\"tapped\":\"today\",\"sheet\":false,\"lit_tab\":\"clients\",\"gear_open\":false,\"typed_anywhere\":false,\"job_over\":true},\"back\":null,\"second\":null,\"anyway\":null,\"after\":null,\"notes_sent\":[\"97.84 job-tab 1440\",\"97.84 job-tab 1440\"]}"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "artifacts/notes-refused-on-close"
+  ],
+  "dimensions": {
+    "break": "job",
+    "login": "demo staff",
+    "answer_ms": 600,
+    "product_wait_ms": 5000,
+    "frozen_clock": "2026-10-18T08:25:38.683Z",
+    "calls": 61,
+    "rewrite_misses": 0,
+    "cases": [
+      {
+        "width": 390,
+        "case": "control",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 control 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 control 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "escape",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 escape 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "next",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 next 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 next 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "switch",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 switch 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 switch 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "close-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close-ok 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "escape-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-ok 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "close-twice",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 close-twice 390",
+          "97.84 close-twice 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "seen-close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 seen-close 390",
+          "97.84 seen-close 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "view-as",
+        "answer": "accept",
+        "first": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 0,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "hang",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 hang 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "hang-next",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang-next 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": {
+          "client": "Dana Ruiz",
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "notes_sent": [
+          "97.84 hang-next 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-after",
+          "97.84 escape-after 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "span.sub",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null,
+          "covered_by": "Marcus Webb"
+        },
+        "back": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "span.sub",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null,
+          "covered_by": "Marcus Webb"
+        },
+        "back": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab-ok 390",
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null,
+          "covered_by": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 390,
+        "case": "job-tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "p.quiet",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": true,
+          "covered_by": "Marcus Webb"
+        },
+        "back": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 job-tab 390",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-tab 390"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "control",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 control 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 control 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "escape",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 escape 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "next",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 next 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 next 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "switch",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 switch 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 switch 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "close-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "escape-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "close-twice",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 close-twice 768",
+          "97.84 close-twice 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "seen-close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 seen-close 768",
+          "97.84 seen-close 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "view-as",
+        "answer": "accept",
+        "first": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 0,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "hang",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 hang 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "hang-next",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang-next 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": {
+          "client": "Dana Ruiz",
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "notes_sent": [
+          "97.84 hang-next 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-after",
+          "97.84 escape-after 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null,
+          "covered_by": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null,
+          "covered_by": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 768,
+        "case": "job-tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "div.sheet-backdrop",
+          "sheet": true,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": true,
+          "covered_by": "Marcus Webb"
+        },
+        "back": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 job-tab 768",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-tab 768"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "control",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 control 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 control 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "escape",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 escape 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "next",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 next 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 next 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "switch",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 switch 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 switch 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "close-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 close-ok 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "escape-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-ok 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "close-twice",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 close-twice 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 close-twice 1440",
+          "97.84 close-twice 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "seen-close",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 2,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 seen-close 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 seen-close 1440",
+          "97.84 seen-close 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "view-as",
+        "answer": "accept",
+        "first": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": {
+          "sent": 0,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 view-as 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 0,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "hang",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": null,
+        "notes_sent": [
+          "97.84 hang 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "hang-next",
+        "answer": "hang",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 hang-next 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": {
+          "offered": 1,
+          "offered_not_shown_because": [],
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "after": {
+          "client": "Dana Ruiz",
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "notes_sent": [
+          "97.84 hang-next 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "escape-after",
+        "answer": "accept",
+        "first": {
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": []
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 escape-after",
+          "97.84 escape-after 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 tab 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "today",
+          "sheet": false,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "tab-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "today",
+          "sheet": false,
+          "lit_tab": "today",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 tab-ok 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "gear",
+        "answer": "refuse",
+        "first": {
+          "sent": 1,
+          "recordOpen": true,
+          "shown_as": "Marcus Webb",
+          "text": "97.84 gear 1440",
+          "found": 1,
+          "shown": 1,
+          "not_shown_because": [],
+          "tapped": "gear",
+          "sheet": false,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": true,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "gear-ok",
+        "answer": "accept",
+        "first": {
+          "sent": 1,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "gear",
+          "sheet": false,
+          "lit_tab": null,
+          "gear_open": true,
+          "typed_anywhere": false,
+          "job_over": null
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 gear-ok 1440"
+        ],
+        "sent_typed": true
+      },
+      {
+        "width": 1440,
+        "case": "job-tab",
+        "answer": "refuse",
+        "first": {
+          "sent": 2,
+          "recordOpen": false,
+          "shown_as": null,
+          "text": null,
+          "found": 0,
+          "shown": 0,
+          "not_shown_because": [],
+          "tapped": "today",
+          "sheet": false,
+          "lit_tab": "clients",
+          "gear_open": false,
+          "typed_anywhere": false,
+          "job_over": true
+        },
+        "back": null,
+        "second": null,
+        "anyway": null,
+        "after": null,
+        "notes_sent": [
+          "97.84 job-tab 1440",
+          "97.84 job-tab 1440"
+        ],
+        "sent_typed": true
+      }
+    ]
+  },
+  "check_id": "notes-refused-on-close",
+  "started_at": "2026-10-18T08:25:38.683Z",
+  "status": "fail",
+  "expected_targets": 54,
+  "discovered_targets": 54,
+  "attempted_targets": 54,
+  "completed_targets": 53,
+  "skipped_targets": 0,
+  "assertions_executed": 171,
+  "min_assertions": 116,
+  "assertion_floor": "structural: one behaviour assertion per case plus one sent-text assertion per case that sends, a frozen-clock, page-error and console check per width, and the canary once",
+  "canary": {
+    "id": "planted-hidden-faded-offscreen-lines-found-not-shown",
+    "observed_failure": true
+  }
+}
