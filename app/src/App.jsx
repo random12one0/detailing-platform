@@ -195,6 +195,13 @@ export default function App() {
       if (TAB_PATHS.includes(key)) window.history.replaceState(null, "", `/app/${key}`);
     } catch { /* an embedded webview may refuse; the tab still changes */ }
   };
+  // ROADMAP 97.88 — LEAVING THE SCREEN IS A CLOSE TOO. A tab press or the gear
+  // unmounts the screen, so a save it sent on the way out was answered to
+  // nothing. A screen with something unsaved puts its own "may I go?" here
+  // (Clients' open record: wait for the Notes save, stay with the line on a
+  // refusal, as its own Close does); the tab bar and the gear ask it first.
+  const leave = useRef(null);
+  const mayLeave = async () => !leave.current || await leave.current();
 
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
@@ -446,7 +453,7 @@ export default function App() {
           {/* data-tour — the whole-dashboard tour's last block presses this
               to open the settings and then points at what is inside. */}
           <button data-tour="gear" className={`btn icon ghost${gear ? " on" : ""}`} aria-label={t("Settings")}
-            aria-pressed={gear} onClick={() => { setGearScreen(null); setGear((g) => !g); }}>
+            aria-pressed={gear} onClick={async () => { if (!gear && !(await mayLeave())) return; setGearScreen(null); setGear((g) => !g); }}>
             <Settings strokeWidth={2} />
           </button>
         </div>
@@ -495,7 +502,7 @@ export default function App() {
               />
             )
             : (
-              <Active refreshKey={rev} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
+              <Active refreshKey={rev} holdLeave={leave} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
                 // Only `Business` reads it; the other tabs ignore a prop they
                 // were not given a use for, which is cheaper than a second
                 // render path in this switch for one destination.
@@ -535,7 +542,8 @@ export default function App() {
              has to include the bar that is already on the screen. */
           <button key={x.key} data-tour={x.key}
             className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
-            onClick={() => {
+            onClick={async () => {
+              if (x.key !== tab && !(await mayLeave())) return;
               goTab(x.key); setGear(false); setIntent(null); setBizScreen(null);
               // **A TAB PRESS CLOSES WHATEVER IS OVER THE MAIN AREA.** This
               // read `=== "setup"`, so the website brief stayed on top: the
