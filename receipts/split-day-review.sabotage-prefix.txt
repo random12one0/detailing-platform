@@ -1,0 +1,99 @@
+split-day-review 2026-10-18T07:07:40.318Z base=http://127.0.0.1:5180 break=prefix
+  ok    390x844 en weekday-weekend · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    390x844 en weekday-weekend · the calendar offers a time for each of two cars
+  ok    390x844 en weekday-weekend · reached the review step
+  ok    390x844 en weekday-weekend · every quote was answered by this checkout's handler
+  FAIL  390x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+  ok    390x844 en weekday-weekend · the review step lists two cars
+  ok    390x844 en weekday-weekend · the car on a weekend shows its weekend line and the weekday car shows none
+  FAIL  390x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+  FAIL  390x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+  FAIL  390x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    390x844 en weekday-weekend · console clean
+  ok    768x1024 en weekday-weekend · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    768x1024 en weekday-weekend · the calendar offers a time for each of two cars
+  ok    768x1024 en weekday-weekend · reached the review step
+  ok    768x1024 en weekday-weekend · every quote was answered by this checkout's handler
+  FAIL  768x1024 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+  ok    768x1024 en weekday-weekend · the review step lists two cars
+  ok    768x1024 en weekday-weekend · the car on a weekend shows its weekend line and the weekday car shows none
+  FAIL  768x1024 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+  FAIL  768x1024 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+  FAIL  768x1024 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    768x1024 en weekday-weekend · console clean
+  ok    1440x900 en weekday-weekend · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    1440x900 en weekday-weekend · the calendar offers a time for each of two cars
+  ok    1440x900 en weekday-weekend · reached the review step
+  ok    1440x900 en weekday-weekend · every quote was answered by this checkout's handler
+  FAIL  1440x900 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+  ok    1440x900 en weekday-weekend · the review step lists two cars
+  ok    1440x900 en weekday-weekend · the car on a weekend shows its weekend line and the weekday car shows none
+  FAIL  1440x900 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+  FAIL  1440x900 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+  FAIL  1440x900 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    1440x900 en weekday-weekend · console clean
+  ok    320x844 en weekday-weekend · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    320x844 en weekday-weekend · the calendar offers a time for each of two cars
+  ok    320x844 en weekday-weekend · reached the review step
+  ok    320x844 en weekday-weekend · every quote was answered by this checkout's handler
+  FAIL  320x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+  ok    320x844 en weekday-weekend · the review step lists two cars
+  ok    320x844 en weekday-weekend · the car on a weekend shows its weekend line and the weekday car shows none
+  FAIL  320x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+  FAIL  320x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+  FAIL  320x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    320x844 en weekday-weekend · console clean
+  ok    390x844 es weekday-weekend · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    390x844 es weekday-weekend · the calendar offers a time for each of two cars
+  ok    390x844 es weekday-weekend · reached the review step
+  ok    390x844 es weekday-weekend · every quote was answered by this checkout's handler
+  FAIL  390x844 es weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+  ok    390x844 es weekday-weekend · the review step lists two cars
+  ok    390x844 es weekday-weekend · the car on a weekend shows its weekend line and the weekday car shows none
+  FAIL  390x844 es weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+  FAIL  390x844 es weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+  FAIL  390x844 es weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    390x844 es weekday-weekend · console clean
+  ok    390x844 en weekend-weekday · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    390x844 en weekend-weekday · the calendar offers a time for each of two cars
+  ok    390x844 en weekend-weekday · reached the review step
+  ok    390x844 en weekend-weekday · every quote was answered by this checkout's handler
+  ok    390x844 en weekend-weekday · car 1 is a weekend and car 2 a weekday (2026-10-24, )
+  ok    390x844 en weekend-weekday · the review step lists two cars
+  FAIL  390x844 en weekend-weekday · the car on a weekend shows its weekend line and the weekday car shows none - got [[],[]]
+  FAIL  390x844 en weekend-weekday · each car's figure is what that car's own booking is priced at - got page ["$95","$95"], own-day [95,null]
+  FAIL  390x844 en weekend-weekday · the bar is the sum of the two cars - got bar 19000, own-day [95,null]
+  FAIL  390x844 en weekend-weekday · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+  ok    390x844 en weekend-weekday · console clean
+  ok    390x844 en same-day · the page ran with the injected env and every intended page edit (signatures read back)
+  ok    390x844 en same-day · reached the review step
+  ok    390x844 en same-day · every quote was answered by this checkout's handler
+  ok    390x844 en same-day · control: one day prints no per-car list
+  ok    390x844 en same-day · control: two cars on one Saturday print exactly one weekend line
+  ok    390x844 en same-day · console clean
+canary: caught - car 1 is a weekday and car 2 a weekend (2026-10-30, ); each car's figure is what that car's own booking is priced at; the bar is the sum of the two cars; the per-car line is on screen, inside the width and clear of the price bar
+7 of 7 targets, 48 passed, 24 failed
+FAIL 390x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+FAIL 390x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+FAIL 390x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+FAIL 390x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+FAIL 768x1024 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+FAIL 768x1024 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+FAIL 768x1024 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+FAIL 768x1024 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+FAIL 1440x900 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+FAIL 1440x900 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+FAIL 1440x900 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+FAIL 1440x900 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+FAIL 320x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+FAIL 320x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+FAIL 320x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+FAIL 320x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+FAIL 390x844 es weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got ["2026-10-30",null]
+FAIL 390x844 es weekday-weekend · each car's figure is what that car's own booking is priced at - got page ["$65","$65"], own-day [65,null]
+FAIL 390x844 es weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]
+FAIL 390x844 es weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page
+FAIL 390x844 en weekend-weekday · the car on a weekend shows its weekend line and the weekday car shows none - got [[],[]]
+FAIL 390x844 en weekend-weekday · each car's figure is what that car's own booking is priced at - got page ["$95","$95"], own-day [95,null]
+FAIL 390x844 en weekend-weekday · the bar is the sum of the two cars - got bar 19000, own-day [95,null]
+FAIL 390x844 en weekend-weekday · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page

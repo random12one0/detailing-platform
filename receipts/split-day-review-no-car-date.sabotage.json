@@ -1,0 +1,67 @@
+{
+  "git_sha": "7f7dcb5c1c1302093a325ccf9506b10ddb54fdb4",
+  "git_sha_started": "7f7dcb5c1c1302093a325ccf9506b10ddb54fdb4",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T07:10:33.811Z",
+  "failures": [
+    "390x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got [\"2026-10-30\",null]",
+    "390x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page [\"$65\",\"$65\"], own-day [65,null]",
+    "390x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]",
+    "390x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page",
+    "768x1024 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got [\"2026-10-30\",null]",
+    "768x1024 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page [\"$65\",\"$65\"], own-day [65,null]",
+    "768x1024 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]",
+    "768x1024 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page",
+    "1440x900 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got [\"2026-10-30\",null]",
+    "1440x900 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page [\"$65\",\"$65\"], own-day [65,null]",
+    "1440x900 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]",
+    "1440x900 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page",
+    "320x844 en weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got [\"2026-10-30\",null]",
+    "320x844 en weekday-weekend · each car's figure is what that car's own booking is priced at - got page [\"$65\",\"$65\"], own-day [65,null]",
+    "320x844 en weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]",
+    "320x844 en weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page",
+    "390x844 es weekday-weekend · car 1 is a weekday and car 2 a weekend (2026-10-30, ) - got [\"2026-10-30\",null]",
+    "390x844 es weekday-weekend · each car's figure is what that car's own booking is priced at - got page [\"$65\",\"$65\"], own-day [65,null]",
+    "390x844 es weekday-weekend · the bar is the sum of the two cars - got bar 13000, own-day [65,null]",
+    "390x844 es weekday-weekend · the per-car line is on screen, inside the width and clear of the price bar - got no per-car line on the page",
+    "390x844 en weekend-weekday · each car's figure is what that car's own booking is priced at - got page [\"$95\",\"$65\"], own-day [95,null]",
+    "390x844 en weekend-weekday · the bar is the sum of the two cars - got bar 16000, own-day [95,null]"
+  ],
+  "warnings": [
+    "calculate-booking is this checkout's handler source run in this process; its reads come from the page's public profile plus seed-demo.mjs's price rules. Nothing reaches the database, and the deployed function is not this checkout until Andrew publishes.",
+    "The two-car setting is fed in the browser; demo-detail stays a one-car business."
+  ],
+  "artifacts": [
+    "receipts/split-day-review.sabotage-no-car-date.txt",
+    "artifacts/split-day-review-sabotage-no-car-date/"
+  ],
+  "dimensions": {
+    "roadmap": "97.7",
+    "break": "no-car-date",
+    "base": "http://127.0.0.1:5180",
+    "env_from": "http://localhost:5173"
+  },
+  "check_id": "split-day-review-no-car-date",
+  "started_at": "2026-10-18T07:07:48.276Z",
+  "status": "fail",
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
+  "skipped_targets": 0,
+  "assertions_executed": 72,
+  "min_assertions": 66,
+  "assertion_floor": "10 per split target (signatures, two leg chips, review step, handler answered, the days, two cars listed, weekend line on the right car, per-car figures, bar, line on screen, console = 11 with console) and 6 for the same-day control.",
+  "canary": {
+    "id": "server-on-car-1-rules",
+    "observed_failure": true,
+    "caught": [
+      "car 1 is a weekday and car 2 a weekend (2026-10-30, )",
+      "each car's figure is what that car's own booking is priced at",
+      "the bar is the sum of the two cars",
+      "the per-car line is on screen, inside the width and clear of the price bar"
+    ],
+    "what": "an extra 390 walk whose quote comes from the handler with pricing.ts's per-car rules removed (the pre-fix server); the walk must call car 2's figure wrong"
+  }
+}
