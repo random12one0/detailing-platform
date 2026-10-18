@@ -389,8 +389,7 @@ for (const [w, h] of WIDTHS) {
       job_over: jobOver,
     });
     await p.screenshot({ path: `${SHOTS}/${c.id}-${w}x${h}${tag}.png` });
-    if (c.leave === "tab" && sheet && !first.recordOpen) {   // something covers the record: close it with its own Close
-      first.covered_by = await title(p);
+    if (c.leave === "tab" && sheet && !first.recordOpen && (first.covered_by = await title(p))) {   // something covers the record: close it with its own Close
       await closeX(p);
       await settle(p, 1000);
       back = await state(p, line);
