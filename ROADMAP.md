@@ -899,6 +899,15 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - `script-src` on `/*` has no `'unsafe-inline'`, and `/ex1`…`/ex5` still work (their forms do not submit, their scripts run)
   - The header is the enforcing `Content-Security-Policy`, and `node scripts/csp-report-only.mjs` (renamed or extended to read it) shows no violation at 390, 768 and 1440, including a page that loads Stripe's card form
   - `node scripts/preview-frame-headers.mjs` still passes
+- [ ] **97.91 — One release sheet: every database change and function still to go live, in the order they must go (filed by supervision 2026-10-18).**
+  Supervision 2026-10-18 counted **39 of 148 open items held only by a release** (`parseItems` + `blockedBy` in `belt/lib.mjs`, at main `702fc28b`), and `FOR-ANDREW.md` carries **13 separate "AT YOUR NEXT RELEASE" rows** (`grep -c "^## DO, AT YOUR NEXT RELEASE" FOR-ANDREW.md`, same revision), each with its own ordering rule (97.18: migration before `create-booking`; 97.14: two migrations and the website in one sitting, or the Notes box stops saving). Nobody has merged them into one sequence, so a release means Andrew reconciling thirteen notes by hand. The cost, measured the same day: in the dev app against the live database every client Notes save is refused (`PGRST202`, `set_customer_notes` not found) because 97.14 is built and not applied, so every browser proof of 97.84, 97.88 and 97.89 answers that save in the browser.
+  Build `scripts/release-sheet.mjs` (reads only; uses the findings of `migration-drift.mjs` and `deployed-inventory.mjs`) writing `docs/release-sheet.md`: every migration the live database lacks, in version order, each with the ROADMAP item(s) that need it; then every edge function not running this checkout; then the website; with each FOR-ANDREW row's ordering rule placed as a step, not a footnote. Plain words at the top, for Andrew.
+  Acceptance criteria:
+  - Every migration `migration-drift.mjs` names as unapplied appears on the sheet exactly once, in version order; every function `deployed-inventory.mjs` names appears exactly once
+  - Every "AT YOUR NEXT RELEASE" row in `FOR-ANDREW.md` is covered by a step on the sheet, and the check reddens naming the row when one is not (sabotage: drop one step; it must go red naming that row)
+  - `FOR-ANDREW.md` gets ONE row near the top pointing at the sheet; the thirteen rows stay as the detail
+  - It writes nothing to any database and deploys nothing
+
 - [ ] **97.27 — Turn on Supabase Auth's "secure password change" setting (S-L7).**
   `app/src/screens/more/Password.jsx:84-89` checks the current password only in the browser, then calls `updateUser`, so a stolen session token can change the password without it. The server-side fix is a setting in the Supabase dashboard, which only Andrew can reach.
   NEEDS ANDREW: in the Supabase dashboard for `kguqylyzgyzfktkfnhjb`, Authentication settings, switch on "Secure password change" (asks for a recent sign-in before a password change). About one minute. Recommendation: yes.

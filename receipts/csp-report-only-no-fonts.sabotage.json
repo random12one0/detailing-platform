@@ -1,9 +1,9 @@
 {
-  "git_sha": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
-  "git_sha_started": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "git_sha": "702fc28b1f127f1512bf8899955dc059a1cee644",
+  "git_sha_started": "702fc28b1f127f1512bf8899955dc059a1cee644",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T11:43:31.414Z",
+  "finished_at": "2026-10-18T11:57:54.679Z",
   "failures": [
     "events/@390: 1 violation(s): style-src-elem https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap",
     "console/@390: 1 CSP console line(s): Loading the stylesheet 'https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap' violates the following Content Security Policy directive: \"style-src 'self' 'unsafe-inline'\". Note that 'style-src-elem' was not explicitly set, so 'st",
@@ -93,10 +93,10 @@
     "tenant_domain": "https://csp-tenant-domain.test",
     "item": "97.26",
     "break": "no-fonts",
-    "origin": "http://127.0.0.1:57438"
+    "origin": "http://127.0.0.1:55054"
   },
   "check_id": "csp-report-only-no-fonts",
-  "started_at": "2026-10-18T11:41:26.270Z",
+  "started_at": "2026-10-18T11:55:47.225Z",
   "status": "fail",
   "expected_targets": 21,
   "discovered_targets": 21,

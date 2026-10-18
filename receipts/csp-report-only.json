@@ -1,9 +1,9 @@
 {
-  "git_sha": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
-  "git_sha_started": "9635a15c9d0090fff67d9bb7036d57e2ef08afba",
+  "git_sha": "702fc28b1f127f1512bf8899955dc059a1cee644",
+  "git_sha_started": "702fc28b1f127f1512bf8899955dc059a1cee644",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T11:45:43.709Z",
+  "finished_at": "2026-10-18T11:55:47.128Z",
   "failures": [],
   "warnings": [
     "Chromium only, against app/dist served with app/netlify.toml's headers by this script — not Netlify itself.",
@@ -50,10 +50,10 @@
     "tenant_domain": "https://csp-tenant-domain.test",
     "item": "97.26",
     "break": "",
-    "origin": "http://127.0.0.1:54524"
+    "origin": "http://127.0.0.1:57364"
   },
   "check_id": "csp-report-only",
-  "started_at": "2026-10-18T11:43:31.543Z",
+  "started_at": "2026-10-18T11:53:36.891Z",
   "status": "pass",
   "expected_targets": 21,
   "discovered_targets": 21,
