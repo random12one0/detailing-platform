@@ -82,3 +82,20 @@ insert into storage.objects (bucket_id, name, owner, metadata)
   select case when i % 2 = 0 then 'job-photos' else 'logos' end, 'biz/' || i || '.jpg', null,
          jsonb_build_object('size', 1000 * i, 'mimetype', 'image/jpeg')
   from generate_series(1, 9) i;
+
+-- ROADMAP 97.25 — grants and revokes shaped like the ones the product's security
+-- rests on, so the privileges comparison has real targets. Supabase grants every
+-- new public table to all three API roles; the migrations then take some back.
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables in schema public to anon, authenticated, service_role;
+grant select on storage.objects to authenticated;
+-- 20260921000000_revoke_locked_table_grants: a table the browser may not touch.
+revoke all on public.business_settings from anon, authenticated;
+-- 20260907003000_column_revokes_actually_apply: update only on named columns.
+revoke update on public.bookings from authenticated;
+grant update (notes, tags) on public.bookings to authenticated;
+-- 20260913005000_definer_execute_swept: a security-definer function nobody but the server runs.
+create function public.count_bookings() returns bigint language sql security definer
+  as $$ select count(*) from public.bookings $$;
+revoke execute on function public.count_bookings() from public, anon, authenticated;
+grant execute on function public.count_bookings() to service_role;
