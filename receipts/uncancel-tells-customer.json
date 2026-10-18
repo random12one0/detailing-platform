@@ -1,9 +1,9 @@
 {
-  "git_sha": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
-  "git_sha_started": "dfeb8b339b38d18c18c9fdd920a1aa3eb9285837",
+  "git_sha": "57fe64dbc9b21893db1a010c45130e20aa60f76b",
+  "git_sha_started": "57fe64dbc9b21893db1a010c45130e20aa60f76b",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T23:18:33.902Z",
+  "finished_at": "2026-10-18T18:34:06.521Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -16,7 +16,7 @@
     ]
   },
   "check_id": "uncancel-tells-customer",
-  "started_at": "2026-10-17T23:18:33.730Z",
+  "started_at": "2026-10-18T18:34:06.332Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,

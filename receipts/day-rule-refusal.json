@@ -1,9 +1,9 @@
 {
-  "git_sha": "91f4baeb823bb773b08aacf507192799feb2cf7b",
-  "git_sha_started": "91f4baeb823bb773b08aacf507192799feb2cf7b",
+  "git_sha": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
+  "git_sha_started": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T03:26:28.164Z",
+  "finished_at": "2026-10-18T18:34:25.475Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -18,7 +18,7 @@
     "item": "97.18"
   },
   "check_id": "day-rule-refusal",
-  "started_at": "2026-10-18T03:26:27.986Z",
+  "started_at": "2026-10-18T18:34:25.330Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,

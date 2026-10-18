@@ -1,9 +1,9 @@
 {
-  "git_sha": "ec8b51834821346ba72a5e6f7da7adbca64df0a5",
-  "git_sha_started": "ec8b51834821346ba72a5e6f7da7adbca64df0a5",
+  "git_sha": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
+  "git_sha_started": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T18:24:54.970Z",
+  "finished_at": "2026-10-18T18:34:25.761Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -13,7 +13,7 @@
     "handler": "supabase/functions/update-booking/index.ts"
   },
   "check_id": "requests-tick-holds",
-  "started_at": "2026-10-18T18:24:54.823Z",
+  "started_at": "2026-10-18T18:34:25.629Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,

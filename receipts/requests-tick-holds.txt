@@ -1,4 +1,4 @@
-requests-tick-holds — 2026-10-18T18:24:54.911Z
+requests-tick-holds — 2026-10-18T18:34:25.714Z
 ok    the production handler loaded with every import replaced
 ok    accept (pending → confirmed) · refused 403 with the respond-to-booking wording
 ok    accept (pending → confirmed) · the request is still pending
