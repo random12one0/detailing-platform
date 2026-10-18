@@ -31333,6 +31333,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   No publishing or live structural change belongs to this item.
 
 - [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/98.4-20261018214920444`. Answer "merge it" to keep it, or say what to change.
   Split from 99.3b-ii part 2 by supervision, not a second owner for the same
   repair. Section 16 is completed at 000a24e4; this slice owns the remainder.
   Supervision ran node tests/platform-admin.test.mjs at bf08d943: 134 passed,
