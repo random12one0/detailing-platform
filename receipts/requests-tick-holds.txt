@@ -1,0 +1,16 @@
+requests-tick-holds — 2026-10-18T18:34:25.714Z
+ok    the production handler loaded with every import replaced
+ok    accept (pending → confirmed) · refused 403 with the respond-to-booking wording
+ok    accept (pending → confirmed) · the request is still pending
+ok    decline (pending → cancelled) · refused 403 with the respond-to-booking wording
+ok    decline (pending → cancelled) · the request is still pending
+ok    remove (soft delete of a request) · refused 403
+ok    remove · the request is still in the records
+ok    a note on a pending request · saved
+ok    a pending request saved with its own status sent back · saved
+ok    a confirmed job marked completed · saved
+ok    a confirmed job removed from records · allowed (not a request)
+ok    ticked staff · pending → confirmed saved
+ok    ticked staff · request removed
+ok    owner (no ticks, owns everything) · pending → cancelled saved
+14 passed, 0 failed, 10 of 10 scenarios.

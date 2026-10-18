@@ -1,0 +1,37 @@
+{
+  "git_sha": "ca93d29172662686517770d0335da278ea3c4787",
+  "git_sha_started": "ca93d29172662686517770d0335da278ea3c4787",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T18:24:38.214Z",
+  "failures": [
+    "accept (pending → confirmed) · refused 403 with the respond-to-booking wording — 200 {\"success\":true,\"booking\":{\"id\":\"bk_1\",\"business_id\":\"biz_1\",\"status\":\"confirmed\",\"declined_at\":null,\"deleted_at\":null,\"admin_notes\":null,\"quoted_amount\":null,\"",
+    "accept (pending → confirmed) · the request is still pending — confirmed",
+    "decline (pending → cancelled) · refused 403 with the respond-to-booking wording — 200 {\"success\":true,\"booking\":{\"id\":\"bk_1\",\"business_id\":\"biz_1\",\"status\":\"cancelled\",\"declined_at\":null,\"deleted_at\":null,\"admin_notes\":null,\"quoted_amount\":null,\"",
+    "decline (pending → cancelled) · the request is still pending — cancelled",
+    "remove (soft delete of a request) · refused 403 — 200 {\"success\":true,\"booking\":{\"id\":\"bk_1\",\"business_id\":\"biz_1\",\"status\":\"pending\",\"declined_at\":null,\"deleted_at\":\"2026-10-18T18:24:38.164Z\",\"admin_notes\":null,\"q",
+    "remove · the request is still in the records — 2026-10-18T18:24:38.164Z"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/requests-tick-holds-no-gate.sabotage.txt"
+  ],
+  "dimensions": {
+    "handler": "supabase/functions/update-booking/index.ts",
+    "break": "no-gate"
+  },
+  "check_id": "requests-tick-holds-no-gate",
+  "started_at": "2026-10-18T18:24:38.086Z",
+  "status": "fail",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 14,
+  "min_assertions": 12,
+  "canary": {
+    "id": "break-no-gate",
+    "observed_failure": true
+  }
+}

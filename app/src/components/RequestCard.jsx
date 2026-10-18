@@ -32,7 +32,7 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 import ConfirmTap, { jobPhrase } from "./ConfirmTap.jsx";
 
 export default function RequestCard({
-  booking, lit = false, busy = false, leaving = false,
+  booking, lit = false, busy = false, leaving = false, mayAnswer = true,
   onAccept, onDecline, onQuote, onClick,
 }) {
   useAppLocale();
@@ -99,6 +99,12 @@ export default function RequestCard({
 
       <hr className="rule" />
 
+      {/* ROADMAP 99.13 — ONLY SOMEBODY THE SERVER WILL LET ANSWER IS OFFERED THE
+          ANSWERS. "Answer requests" is a tick the owner sets per person, and
+          `respond-to-booking` refuses a member without it, so three buttons
+          that each end in a refusal are replaced by the one fact they need. */}
+      {!mayAnswer ? <p className="quiet" style={{ margin: 0 }}>{t("Someone who can answer requests will reply to this one.")}</p> : <>
+
       {/* Filled, ringed, ringless. Accept is the answer nearly every request
           gets; the quote is the useful extra; declining is the way out.
           ONLY THE LIT CARD'S ACCEPT IS FILLED — seen in the first screenshot
@@ -140,6 +146,7 @@ export default function RequestCard({
           onConfirm={() => onDecline(booking)}
         />
       </div>
+      </>}
     </div>
   );
 }

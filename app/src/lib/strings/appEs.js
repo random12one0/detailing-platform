@@ -2130,6 +2130,7 @@ export const appEs = {
   "Yes, cancel it": "Sí, cancélala",
   "You add the address above. Done.": "Tú agregas la dirección de arriba. Listo.",
   "You declined this request.": "Rechazaste esta solicitud.",
+  "Someone who can answer requests will reply to this one.": "Alguien que puede responder solicitudes contestará esta.",
   "You keep everything until {date}, and this month is not refunded.":
     "Conservas todo hasta el {date}, y este mes no se reembolsa.",
   "You pay": "Pagas",

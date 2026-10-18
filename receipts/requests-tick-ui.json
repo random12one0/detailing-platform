@@ -1,0 +1,42 @@
+{
+  "git_sha": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
+  "git_sha_started": "b23193dc44a03901a22d322e5774e3d1dce2cc24",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T18:35:09.055Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/requests-tick-ui.txt"
+  ],
+  "dimensions": {
+    "widths": [
+      "390x844",
+      "768x1024",
+      "1440x900",
+      "320x700"
+    ],
+    "modes": [
+      "owner",
+      "staff"
+    ],
+    "base": "http://127.0.0.1:5180"
+  },
+  "check_id": "requests-tick-ui",
+  "started_at": "2026-10-18T18:34:37.125Z",
+  "status": "pass",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 40,
+  "canary": {
+    "id": "owner-sees-the-answer-buttons-the-staff-check-looks-for",
+    "observed_failure": true,
+    "sabotage_receipts": [
+      "receipts/requests-tick-ui-pre-fix.sabotage.json"
+    ]
+  }
+}

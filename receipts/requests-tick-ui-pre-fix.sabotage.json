@@ -1,0 +1,61 @@
+{
+  "git_sha": "55c907b5eaa7063fce5aa6353feb5c8c681ce817",
+  "git_sha_started": "55c907b5eaa7063fce5aa6353feb5c8c681ce817",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T18:27:58.762Z",
+  "failures": [
+    "staff 390x844 · Today card · no answer buttons — 3 answer buttons",
+    "staff 390x844 · Today card · says who answers it — 0 copies of the sentence",
+    "staff 390x844 · job record · no answer buttons — 3 answer buttons",
+    "staff 390x844 · job record · says who answers it — 0 copies of the sentence",
+    "staff 390x844 · job record · removing a request is not offered — 1",
+    "staff 768x1024 · Today card · no answer buttons — 3 answer buttons",
+    "staff 768x1024 · Today card · says who answers it — 0 copies of the sentence",
+    "staff 768x1024 · job record · no answer buttons — 3 answer buttons",
+    "staff 768x1024 · job record · says who answers it — 0 copies of the sentence",
+    "staff 768x1024 · job record · removing a request is not offered — 1",
+    "staff 1440x900 · Today card · no answer buttons — 3 answer buttons",
+    "staff 1440x900 · Today card · says who answers it — 0 copies of the sentence",
+    "staff 1440x900 · job record · no answer buttons — 3 answer buttons",
+    "staff 1440x900 · job record · says who answers it — 0 copies of the sentence",
+    "staff 1440x900 · job record · removing a request is not offered — 1",
+    "staff 320x700 · Today card · no answer buttons — 3 answer buttons",
+    "staff 320x700 · Today card · says who answers it — 0 copies of the sentence",
+    "staff 320x700 · job record · no answer buttons — 3 answer buttons",
+    "staff 320x700 · job record · says who answers it — 0 copies of the sentence",
+    "staff 320x700 · job record · removing a request is not offered — 1"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/requests-tick-ui-pre-fix.sabotage.txt"
+  ],
+  "dimensions": {
+    "widths": [
+      "390x844",
+      "768x1024",
+      "1440x900",
+      "320x700"
+    ],
+    "modes": [
+      "owner",
+      "staff"
+    ],
+    "base": "http://127.0.0.1:5180",
+    "break": "pre-fix"
+  },
+  "check_id": "requests-tick-ui-pre-fix",
+  "started_at": "2026-10-18T18:27:25.256Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 40,
+  "canary": {
+    "id": "break-pre-fix",
+    "observed_failure": true
+  }
+}

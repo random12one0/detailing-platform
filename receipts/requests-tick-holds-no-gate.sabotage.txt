@@ -1,0 +1,16 @@
+requests-tick-holds BREAK=no-gate — 2026-10-18T18:24:38.167Z
+ok    the production handler loaded with every import replaced
+FAIL  accept (pending → confirmed) · refused 403 with the respond-to-booking wording — 200 {"success":true,"booking":{"id":"bk_1","business_id":"biz_1","status":"confirmed","declined_at":null,"deleted_at":null,"admin_notes":null,"quoted_amount":null,"
+FAIL  accept (pending → confirmed) · the request is still pending — confirmed
+FAIL  decline (pending → cancelled) · refused 403 with the respond-to-booking wording — 200 {"success":true,"booking":{"id":"bk_1","business_id":"biz_1","status":"cancelled","declined_at":null,"deleted_at":null,"admin_notes":null,"quoted_amount":null,"
+FAIL  decline (pending → cancelled) · the request is still pending — cancelled
+FAIL  remove (soft delete of a request) · refused 403 — 200 {"success":true,"booking":{"id":"bk_1","business_id":"biz_1","status":"pending","declined_at":null,"deleted_at":"2026-10-18T18:24:38.164Z","admin_notes":null,"q
+FAIL  remove · the request is still in the records — 2026-10-18T18:24:38.164Z
+ok    a note on a pending request · saved
+ok    a pending request saved with its own status sent back · saved
+ok    a confirmed job marked completed · saved
+ok    a confirmed job removed from records · allowed (not a request)
+ok    ticked staff · pending → confirmed saved
+ok    ticked staff · request removed
+ok    owner (no ticks, owns everything) · pending → cancelled saved
+8 passed, 6 failed, 10 of 10 scenarios.

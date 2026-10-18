@@ -97,7 +97,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // `siteOrigin` is the detailer's OWN host where they have one — a text that
   // links a customer back to detailingplatform.com when the detailer has a
   // domain is the seam roadmap 3.3 exists to remove.
-  const { business, siteOrigin } = useBusiness();
+  const { business, siteOrigin, can } = useBusiness();
   const [templates, setTemplates] = useState([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
   const [pickingText, setPickingText] = useState(false);
@@ -599,6 +599,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
   const waiting = booking.status === "pending";
+  // ROADMAP 99.13 — the owner's per-person tick; the server refuses an answer without it.
+  const mayAnswer = can("requests");
   const pay = payPill(booking);
   // A QUOTE ONLY MEANS ANYTHING WHILE THE BOOKING IS STILL PENDING, and the
   // guard is here rather than on each write for a reason: a declined request
@@ -1184,7 +1186,9 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 completed, and Finalize payment only once it is. */}
             <h3 className="section-title">{waiting ? t("Your answer") : t("What happened")}</h3>
             <div className="stack" style={{ gap: 8 }}>
-              {waiting ? (
+              {waiting && !mayAnswer ? (
+                <p className="quiet" style={{ margin: 0 }}>{t("Someone who can answer requests will reply to this one.")}</p>
+              ) : waiting ? (
                 /* Three weights, and the same order as the card on Today so
                    the two cannot teach different habits. Marking a job the
                    customer has not been accepted onto as COMPLETE is not one
@@ -1240,9 +1244,9 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   {booking.declined_at ? (
                     <>
                       <p className="quiet" style={{ margin: 0 }}>{t("You declined this request.")}</p>
-                      <button className="btn" disabled={busy} onClick={() => respond("accept")}>
+                      {mayAnswer && <button className="btn" disabled={busy} onClick={() => respond("accept")}>
                         <Check size={18} strokeWidth={2} /> {t("Accept it after all")}
-                      </button>
+                      </button>}
                     </>
                   ) : (
                     <ConfirmTap
@@ -1346,7 +1350,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 others with no stated difference. Cancelling is what a
                 detailer nearly always means, so deleting hides behind it
                 and says what it does that cancelling doesn't. */}
-            <details className="disclose">
+            {/* 99.13: removing a request is declining it without a word, so it rides the same tick. */}
+            {!(waiting && !mayAnswer) && <details className="disclose">
               {/* **PHRASED AS THE SUBJECT, NOT AS A COMMAND — 2026-09-12.** It
                   read "Remove this from my records too", which looks like a
                   button that DOES the thing rather than a fold that reveals
@@ -1369,7 +1374,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 confirmLabel={t("Yes, remove it")}
                 onConfirm={softDelete}
               />
-            </details>
+            </details>}
           </>
         ) : (
           <>

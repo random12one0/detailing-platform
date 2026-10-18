@@ -543,7 +543,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           written against. When there is work on the rail the day owns the
           fill; on an empty day, or once every job is settled, `lit` is null
           and the request is the one thing left that needs answering. */}
-      <RequestCard booking={requests[0]} lit={lit === null}
+      <RequestCard booking={requests[0]} lit={lit === null} mayAnswer={can("requests")}
         busy={busyId === requests[0]?.id} leaving={leavingId === requests[0]?.id}
         onAccept={acceptRequest} onDecline={declineRequest}
         onQuote={setQuoting} onClick={() => setSelected(requests[0])} />
