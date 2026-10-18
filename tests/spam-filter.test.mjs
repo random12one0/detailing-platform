@@ -102,7 +102,8 @@ console.log("\n2. before anything is written");
   // THE INSERT, NOT THE FIRST MENTION OF THE TABLE. This read `.from("bookings")`
   // until ROADMAP 6.4 put a READ of bookings above the limits (`sameBooking`,
   // a retry finding the booking it already made) and the needle landed on it.
-  const insertAt = flow.search(/\.from\("bookings"\)\s*\.insert\(/);
+  // ROADMAP 97.18 moved the insert into `insert_booking_checked`; the needle follows it.
+  const insertAt = flow.search(/\.from\("bookings"\)\s*\.insert\(|\.rpc\("insert_booking_checked"/);
   check("and before the insert",
     at("withinLimits(") > -1 && insertAt > -1 && at("withinLimits(") < insertAt,
     `${at("withinLimits(")} vs ${insertAt}`);

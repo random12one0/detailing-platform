@@ -1,0 +1,127 @@
+{
+  "git_sha": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
+  "git_sha_started": "0e246000878840e8e4cbbb541aad7c7dd1d91c51",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-18T03:42:50.356Z",
+  "failures": [],
+  "warnings": [
+    "Throwaway local Postgres built by replaying all 134 files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.",
+    "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
+  ],
+  "artifacts": [
+    "artifacts/booking-day-lock/run.json"
+  ],
+  "dimensions": {
+    "item": "97.18",
+    "postgres": "17.8",
+    "migrations_replayed": 134,
+    "r4_ms": 5
+  },
+  "check_id": "booking-day-lock",
+  "started_at": "2026-10-18T03:42:12.011Z",
+  "status": "pass",
+  "expected_targets": 10,
+  "discovered_targets": 10,
+  "attempted_targets": 10,
+  "completed_targets": 10,
+  "skipped_targets": 0,
+  "assertions_executed": 29,
+  "min_assertions": 29,
+  "assertion_floor": "4 real schema, 1+1 defect, 4 cap race, 3 buffer race, 3 move race, 2 ordinary, 1 fence, 6 real payload, 4 speed; every check() unconditional.",
+  "canary": {
+    "id": "plain-insert-beats-cap-and-buffer",
+    "observed_failure": true
+  },
+  "observed": {
+    "real-schema": {
+      "id": "real-schema",
+      "migrations_replayed": 134,
+      "migrations_in_folder": 134,
+      "bookings_columns": 63,
+      "bookings_triggers": "bookings_link_plan,bookings_updated_at,reset_reminder_markers_on_edit",
+      "execute": {
+        "anon": "ff",
+        "authenticated": "ff",
+        "service_role": "tt"
+      }
+    },
+    "defect-cap": {
+      "id": "defect-cap",
+      "a_exit": 0,
+      "b_exit": 0,
+      "bookings_on_cap_2_day": 3
+    },
+    "defect-buffer": {
+      "id": "defect-buffer",
+      "a_exit": 0,
+      "b_exit": 0,
+      "saved": 2
+    },
+    "race-cap": {
+      "id": "race-cap",
+      "a_exit": 0,
+      "b_exit": 3,
+      "b_error": "ERROR:  booking_day_full",
+      "b_waited_ms": 1895,
+      "bookings_on_cap_2_day": 2
+    },
+    "race-buffer": {
+      "id": "race-buffer",
+      "a_exit": 0,
+      "b_exit": 3,
+      "b_error": "ERROR:  booking_too_close",
+      "b_waited_ms": 2010,
+      "saved": 1
+    },
+    "race-move-cap": {
+      "id": "race-move-cap",
+      "a_exit": 0,
+      "b_exit": 3,
+      "b_error": "ERROR:  booking_day_full",
+      "b_waited_ms": 2043,
+      "bookings_on_cap_2_day": 2
+    },
+    "ordinary-and-exemptions": {
+      "id": "ordinary-and-exemptions",
+      "returned": "confirmed|true|true|null|pending|small|0",
+      "second_exit": 0
+    },
+    "fence-holds": {
+      "id": "fence-holds",
+      "exit": 0,
+      "rows": "0",
+      "unchanged": "t"
+    },
+    "real-payload": {
+      "id": "real-payload",
+      "create_booking_keys": 34,
+      "as_sent": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true
+      },
+      "filled": {
+        "keys": 34,
+        "checked_exit": 0,
+        "same_row": true,
+        "stored_empty": null
+      },
+      "move": {
+        "keys": 22,
+        "same_row": true,
+        "stored_empty": null
+      }
+    },
+    "speed": {
+      "id": "speed",
+      "n_each": 300,
+      "plain_median_ms": 0.601,
+      "plain_p95_ms": 0.931,
+      "checked_median_ms": 0.827,
+      "checked_p95_ms": 1.214,
+      "extra_median_ms": 0.226,
+      "extra_p95_ms": 0.283
+    }
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "git_sha": "577095e35e1dfff7d0a87789916f9975c0ca9038",
-  "git_sha_started": "577095e35e1dfff7d0a87789916f9975c0ca9038",
+  "git_sha": "859b0d43a5996a9ad30f164718f074b0f4ac73c9",
+  "git_sha_started": "859b0d43a5996a9ad30f164718f074b0f4ac73c9",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T20:18:50.737Z",
+  "finished_at": "2026-10-18T03:32:24.735Z",
   "failures": [],
   "warnings": [
     "The handlers run in-process against a fake Supabase in this file, not the live database; it proves the functions' own decisions."
@@ -16,7 +16,7 @@
     "break": null
   },
   "check_id": "closed-until-server",
-  "started_at": "2026-10-17T20:18:49.632Z",
+  "started_at": "2026-10-18T03:32:23.459Z",
   "status": "pass",
   "expected_targets": 12,
   "discovered_targets": 12,

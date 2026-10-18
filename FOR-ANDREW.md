@@ -191,6 +191,21 @@ Either order is safe. Nothing a customer sees changes. Until you apply it, the d
 the three tables as "awaits apply" and stays green; the unapplied-change check (`migration-drift`) names the file. The
 session has not pushed, published, deployed or changed the database.
 
+## DO, AT YOUR NEXT RELEASE · Stop two bookings at the same moment beating your daily limit (ROADMAP 97.18)
+
+Today, if two customers book at the very same moment, both can get in even when that breaks your daily booking limit or
+the gap you need between jobs. Two customers moving their bookings onto the same day have the same problem. The fix is
+built and tested on a throwaway copy of the database, rebuilt from every database change this project has ever made. The
+second booking now waits for the first, looks again, and is turned away with the sentence customers already see: "That
+day is fully booked" or "That time is too close to another booking".
+
+**Decided by you, 2026-10-17:** keep the fix, and the lock may add no more than 5 thousandths of a second to a booking.
+Measured: it adds about a quarter of one thousandth (0.25 at the middle of 300 bookings, 0.44 at the slow end).
+
+**Your move, at your next release:** apply the database change `20261018030645_booking_day_rules_lock.sql` FIRST,
+then publish `create-booking`, `reschedule-booking` and `update-booking`. In the other order, every booking fails
+until the database change is in. The session has not pushed, published, deployed or changed the database.
+
 ## DO, AT YOUR NEXT RELEASE · Stop team logins deleting bookings or changing customers behind the app's back (ROADMAP 97.14)
 
 Today any team login, whatever you have ticked for it, can skip the app and delete a booking outright, or add,

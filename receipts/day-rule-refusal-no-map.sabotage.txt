@@ -1,0 +1,26 @@
+day-rule-refusal BREAK=no-map — 2026-10-18T03:26:27.189Z
+ok    create ordinary: 200
+ok    create ordinary: written through insert_booking_checked
+ok    create ordinary: one booking saved, one confirmation sent
+FAIL  create full: a stranger's racing booking refuses this one with 409 — status 500
+FAIL  create full: with the sentence validateSlot shows — {"error":"We could not save that booking. Please try again in a moment."}
+ok    create full: no confirmation sent
+FAIL  create close: a stranger's racing booking refuses this one with 409 — status 500
+FAIL  create close: with the sentence validateSlot shows — {"error":"We could not save that booking. Please try again in a moment."}
+ok    create close: no confirmation sent
+FAIL  create twin: the customer's own first press is handed back (200, duplicate) — status 500 {"error":"We could not save that booking. Please try again in a moment."}
+ok    create twin: no second confirmation
+ok    reschedule-booking ok: 200
+ok    reschedule-booking ok: written through move_booking_checked, fenced at the start it read
+ok    reschedule-booking ok: the row moved and the customer was told
+FAIL  reschedule-booking full: 409 with the sentence validateSlot shows — status 500 {"error":"refused"}
+ok    reschedule-booking full: the row is unmoved and nothing was sent
+FAIL  reschedule-booking close: 409 with the sentence validateSlot shows — status 500 {"error":"refused"}
+ok    reschedule-booking close: the row is unmoved and nothing was sent
+ok    update-booking ok: 200
+ok    update-booking ok: written through move_booking_checked, fenced at the start it read
+ok    update-booking ok: the row moved and the customer was told
+FAIL  update-booking close: 409 with the sentence validateSlot shows — status 400 {"success":false,"error":"refused"}
+ok    update-booking close: the row is unmoved and nothing was sent
+ok    update-booking plain edit: 200 and saved without the lock
+16 passed, 8 failed, 10 of 10 scenarios.
