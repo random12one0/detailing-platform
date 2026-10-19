@@ -1,0 +1,72 @@
+{
+  "git_sha": "c5a0a1688db9796e6b478a0cac539cf1a86312dc",
+  "git_sha_started": "c5a0a1688db9796e6b478a0cac539cf1a86312dc",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-19T02:53:07.975Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE: a real push service, a real phone's lock screen and a TRUSTED tap. The push is delivered by DevTools; the tap is a dispatched NotificationEvent with waitUntil and WindowClient.focus shimmed. matchAll and navigate run unpatched. The real tap is Andrew's (ROADMAP 14.34).",
+    "The dev server had no VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY; the run filled those two in memory from .env (same project, ref checked). No other VITE_ value was supplied.",
+    "Dev server only. It reads the url template from source, not from the deployed bundle; the deployed bundles were read on 2026-10-10 (ROADMAP 14.34)."
+  ],
+  "artifacts": [
+    ".manager-shots/14.34/job-after-tap-1440x900.png",
+    ".manager-shots/14.34/job-after-tap-768x1024.png",
+    ".manager-shots/14.34/job-after-tap-390x844.png",
+    ".manager-shots/14.34/job-after-tap-320x720.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x720"
+    ],
+    "call_site": "supabase/functions/cancel-booking/index.ts",
+    "template": "/job/${booking.id}",
+    "item": "14.34",
+    "break": null,
+    "env_filled_in_memory": true
+  },
+  "check_id": "push-tap",
+  "started_at": "2026-10-19T02:52:35.887Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 22,
+  "min_assertions": 22,
+  "assertion_floor": "4 sizes x 5 + 2 canaries = 22, asserted as an EQUALITY (docs/gotchas.md 98).",
+  "canary": {
+    "id": "404-is-not-a-record",
+    "observed_failure": true,
+    "detail": "two judge canaries every run, plus a real /admin/job/ tap per size that must land on the 404"
+  },
+  "observed": [
+    "PASS 1440x900/notification-shown — \"Booking cancelled\" on the worker's notification list",
+    "PASS 1440x900/notification-carries-the-call-site-link — data.url /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9 (call site supabase/functions/cancel-booking/index.ts → /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9)",
+    "PASS 1440x900/tap-opens-the-job-record — landed /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; title \"Marcus Webb\"; back-to-dashboard true; 404 false",
+    "PASS 1440x900/dead-link-tap-lands-on-404 — landed /admin/job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; 404 true; judged a record false",
+    "PASS 1440x900/console-clean — 0 error/warning line(s)",
+    "PASS 768x1024/notification-shown — \"Booking cancelled\" on the worker's notification list",
+    "PASS 768x1024/notification-carries-the-call-site-link — data.url /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9 (call site supabase/functions/cancel-booking/index.ts → /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9)",
+    "PASS 768x1024/tap-opens-the-job-record — landed /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; title \"Marcus Webb\"; back-to-dashboard true; 404 false",
+    "PASS 768x1024/dead-link-tap-lands-on-404 — landed /admin/job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; 404 true; judged a record false",
+    "PASS 768x1024/console-clean — 0 error/warning line(s)",
+    "PASS 390x844/notification-shown — \"Booking cancelled\" on the worker's notification list",
+    "PASS 390x844/notification-carries-the-call-site-link — data.url /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9 (call site supabase/functions/cancel-booking/index.ts → /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9)",
+    "PASS 390x844/tap-opens-the-job-record — landed /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; title \"Marcus Webb\"; back-to-dashboard true; 404 false",
+    "PASS 390x844/dead-link-tap-lands-on-404 — landed /admin/job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; 404 true; judged a record false",
+    "PASS 390x844/console-clean — 0 error/warning line(s)",
+    "PASS 320x720/notification-shown — \"Booking cancelled\" on the worker's notification list",
+    "PASS 320x720/notification-carries-the-call-site-link — data.url /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9 (call site supabase/functions/cancel-booking/index.ts → /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9)",
+    "PASS 320x720/tap-opens-the-job-record — landed /job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; title \"Marcus Webb\"; back-to-dashboard true; 404 false",
+    "PASS 320x720/dead-link-tap-lands-on-404 — landed /admin/job/846f62cb-f2e4-446b-b3a7-c0985b90d0c9; 404 true; judged a record false",
+    "PASS 320x720/console-clean — 0 error/warning line(s)",
+    "PASS canary/404-is-not-a-record — the 404 page must not read as the job record",
+    "PASS canary/wrong-path-is-not-a-record — a record drawn at another address must not pass"
+  ]
+}

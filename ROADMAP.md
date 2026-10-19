@@ -30039,6 +30039,28 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   service, and firing a real one means making a booking change on the live demo tenant — the tap itself is the proof, and it is
   on Andrew's phone. Box left `[ ]`.
 
+  ***RE-MEASURED AND PRESSED 2026-10-18 at `c5a0a168` (belt job). EVERYTHING SHORT OF THE PHONE IS NOW PROVED, AND IT IS HELD BY A COMMITTED
+  CHECK. Still not ticked: the real tap is the phone.***
+  **The grep clause is now met literally.** `grep -rn '/admin/job' supabase/ app/src app/public` returns **nothing**; the comment in
+  `AdminPage.jsx` that kept it at one line on 2026-10-07 and 2026-10-10 is gone. Every one of the 12 still emits `/job/<id>`.
+  **A push delivered and tapped, in a browser: `scripts/push-tap.mjs`.** At 1440x900, 768x1024, 390x844 and 320x720 it signs in as the
+  demo owner, waits for the app's own `sw.js` to control the page, and hands that worker a GENUINE push event through Chrome's
+  DevTools protocol (`ServiceWorker.deliverPushMessage`). The payload's `url` is the template READ OUT OF `cancel-booking/index.ts` with
+  a real booking id in it. Then the worker's own `notificationclick` handler is fired. **Receipt `receipts/push-tap.json`: 4 of 4
+  sizes, 22 assertions, 0 failed**, graded valid by `receipt.mjs`: the notification was SHOWN, it carried `/job/<id>`, the tap
+  landed on the record (Marcus Webb · Monday, October 26 · Waiting on you · The job · The money, with the Dashboard way out), and
+  the console was clean at every size. The same run taps an `/admin/job/<id>` notification at each size and requires the 404, so the
+  judge is shown to tell a dead route from a live one every run. Two judge canaries also run.
+  **Broken on purpose:** `--break=dead-route` puts 14.34's original `/admin/job/` back into the call site's template the run reads.
+  It went **4 of 22 failed**, `tap-opens-the-job-record` at all four sizes, each naming `landed /admin/job/…; 404 true`. That is in
+  its own `receipts/push-tap.sabotage.json`, and its screenshots are `sabotage-*.png`, so the clean run cannot overwrite them.
+  **What it cannot prove, and says so in the receipt as UNJUDGEABLE:** a real push service, a phone's lock screen, and a TRUSTED tap.
+  A dispatched tap lacks user activation, so `waitUntil` and `WindowClient.focus` are shimmed and nothing else is; `matchAll` and
+  `navigate`, which decide where the detailer lands, run unpatched. **Two findings on the way, both in the script's comments:**
+  Playwright's default headless shell answers `denied` to notifications whatever is granted, so the check uses full Chromium
+  (`channel: "chromium"`). And this belt copy's dev server started with no `app/.env.local`, so the check fills the two public
+  Supabase values in memory from `.env` (ref checked) only when the served module lacks them. Nothing was written to the database
+  (one booking id read), nothing was deployed, and no shared budget was spent (address and weather calls routed to abort).
   NEEDS ANDREW: tap the next job notification on your subscribed phone and say whether it opened that job's page (time, money, buttons) or a "page does not exist" screen — the fixed links have been live since 2026-10-10 and that one tap is the only thing left before this can be ticked.
 
 ### 14.33 — PARKED 2026-10-06: pinning the last document's figures, stopped at the halfway point rather than dropped
