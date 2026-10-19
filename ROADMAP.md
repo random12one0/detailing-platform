@@ -3129,6 +3129,8 @@ and how the wait ends.
   waits on 0.11c's ordered release; 0.11d2 and 0.11d3 remain the required live
   proof after it.
 
+  **ANDREW, 2026-10-19:** Do step 9 of your own to-do list (FOR-ANDREW.md), which switches the new photo storage on, then delete the four 'parked' lines on item 0.11d so the belt can run the final live checks.
+
 - [ ] **0.12 — Split transactional email onto ZeptoMail, keep Resend for
   campaigns. NEW ROW, 2026-09-22 — this decision had no roadmap item and lived
   only in `FOR-ANDREW.md`, which is exactly how a commitment evaporates.**
