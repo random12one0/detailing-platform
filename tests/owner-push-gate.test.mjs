@@ -154,38 +154,36 @@ function bookingRow(status) {
     owner_reminder_sent_at: null, customer_reminder_sent_at: null };
 }
 
-async function manual({ status, settings }) {
+function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusinessId = BIZ.id }) {
   world.tables.businesses = [{ ...BIZ }];
   world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
   world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
-  world.tables.bookings = [bookingRow(status)];
+  world.tables.bookings = [{ ...bookingRow(status), business_id: bookingBusinessId }];
   world.tables.booking_vehicles = [];
   world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }];
   world.pushes = [];
   world.emails = [];
-  // No `target`: the owner-reminder path of the manual branch.
-  const res = await handler(new Request("http://test/manual", {
+  return bodyBusinessId;
+}
+
+function postManual(body) {
+  return handler(new Request("http://test/manual", {
     method: "POST",
     headers: { Authorization: "Bearer member-token", "Content-Type": "application/json" },
-    body: JSON.stringify({ business_id: BIZ.id, booking_id: "bk-1" }),
+    body: JSON.stringify(body),
   }));
+}
+
+async function manual(cfg) {
+  const bodyBusinessId = setupWorld(cfg);
+  // No `target`: the owner-reminder path of the manual branch.
+  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1" });
   return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
-async function manualTarget({ status, settings }, target) {
-  world.tables.businesses = [{ ...BIZ }];
-  world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
-  world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
-  world.tables.bookings = [bookingRow(status)];
-  world.tables.booking_vehicles = [];
-  world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }];
-  world.pushes = [];
-  world.emails = [];
-  const res = await handler(new Request("http://test/manual", {
-    method: "POST",
-    headers: { Authorization: "Bearer member-token", "Content-Type": "application/json" },
-    body: JSON.stringify({ business_id: BIZ.id, booking_id: "bk-1", target }),
-  }));
+async function manualTarget(cfg, target) {
+  const bodyBusinessId = setupWorld(cfg);
+  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1", target });
   return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
@@ -252,4 +250,19 @@ test("manual owner reminder: push off silences the push, the email still goes", 
   assert.equal(world.emails.length, 1);
   assert.equal(world.pushes.length, 0);
   assert.ok(r.row.owner_reminder_sent_at);
+});
+
+test("manual reminder: another business's booking is not found", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, bookingBusinessId: "biz-2" });
+  assert.equal(r.res.status, 404);
+  assert.equal(world.emails.length, 0);
+  assert.equal(world.pushes.length, 0);
+  assert.equal(r.row.owner_reminder_sent_at, null);
+});
+
+test("manual reminder: a body naming another business is refused", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, bodyBusinessId: "biz-2" });
+  assert.equal(r.res.status, 401);
+  assert.equal(world.emails.length, 0);
+  assert.equal(world.pushes.length, 0);
 });
