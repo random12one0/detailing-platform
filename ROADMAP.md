@@ -30619,6 +30619,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 ## Andrew asked for these
 
 - [ ] **99.1 — Let a detailer connect their Google Business profile**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
+  The work is safe on branch `belt/99.1-20261019051511572`. Answer "merge it" to keep it, or say what to change.
   A detailer links their Google Business account once, and from then on what they change in the back office keeps their Google listing in step - hours, services, photos, contact details - without them typing it twice. Andrew named this on 2026-10-09 as something that was always the plan and had never been written down anywhere.
   Acceptance criteria:
   - A detailer can connect their Google Business account from their own settings, and disconnect it again
