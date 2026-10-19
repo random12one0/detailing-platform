@@ -31362,8 +31362,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   No publishing or live structural change belongs to this item.
 
 - [ ] **98.4 — Retarget the remaining platform-admin check to the current office.**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
-  The work is safe on branch `belt/98.4-20261018214920444`. Answer "merge it" to keep it, or say what to change.
+  **Held for a builder, not for Andrew (supervisor 2026-10-19).** The review ran the suite itself (170 passed, 15 failed, 7 skipped, matching the receipt) and kept the 33 re-pointed checks, the timestamp fix and the replay script as sound. Continue branch `belt/98.4-20261018214920444` and fix three loosened checks, each with a sabotage that goes red: (1) the "no refunds or card handling" check was narrowed to a few spellings, so `stripe.charges.refund(`, `case "refund":` or a `/refunds` template now pass — restore the broad `refund|dispute|card_number` match and strip string literals before matching (the way `stripSql` does) instead; (2) 13o now only checks `.bo-me b` itself, so uppercase on `.bo-me` or `.bo-rail` passes — check the COMPUTED style of the name, or leave it red as 13o-ii was; (3) 12o is named "the six-month chart" but points at the twelve-month platform chart — rename it to what it measures. The ten checks that describe pieces the old office had (tile strip, platform takings, per-detailer six-month chart, width, animation rules) wait on `FOR-ANDREW.md` "Should the back office's safety checks follow the new design" — do not re-point or delete them until he answers. 13o-ii and 11i are real screen defects: file each as its own item if the branch's ROADMAP has not reached main. 13f is 98.13.
   Split from 99.3b-ii part 2 by supervision, not a second owner for the same
   repair. Section 16 is completed at 000a24e4; this slice owns the remainder.
   Supervision ran node tests/platform-admin.test.mjs at bf08d943: 134 passed,
@@ -31403,6 +31402,13 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - At 390x844 and 320px the Access choice shows both options on one row at a normal height, and Email keeps a usable width
   - 1440x900 and 768x1024 are unchanged or better, checked by screenshot
 
+- [ ] **98.16 — Platform bills prints a profit for a month with a bill still missing, and says nothing about it beside the figure.**
+  Found 2026-10-19 by supervision re-running `scripts/platform-net-live.mjs` (49/0) and reading its own screenshot `belt/shots/9.14c/test-month-phone.png`: November 2025 with Hosting, Email and Domain typed and "Database and storage" Not entered reads "We lost $17.49" in large type. The missing bill is only visible four rows further down. `Kept.jsx` already puts a "1 bill not entered" chip beside its figure (`k.missing`); `Bills.jsx` `MonthSum` does not. A profit that leaves out a bill reads as better than it is.
+  Acceptance criteria:
+  - With at least one bill typed and at least one not, the profit line in Platform bills says how many bills are not entered, next to the figure, at 390 and 1440
+  - With every bill typed the note is absent; with none typed the line still reads "Not entered" (9.14)
+  - `scripts/platform-net-live.mjs` asserts the note in the partly-entered month and a sabotage that hides it goes red
+
 - [x] **98.11 — `label-guard` is red: seven labels that other checks press are no longer in the product, so those checks measure nothing.**
   **Done 2026-10-18 (attempt 3). `node scripts/label-guard.mjs` exits 0: 116 declared, 116 present, "No stale labels", canary caught; with `LABEL_GUARD_BREAK=1` it exits 1 naming the canary (`receipts/label-guard-98-11.sabotage.txt`).** Runs on this job's server (`127.0.0.1:5180`) through `node --import ./scripts/lib/inject-app-env.mjs`, project `kguqylyzgyzfktkfnhjb`. Attempt 2's work was dropped by the belt because it committed `platform-net-live.json` as a true `fail`; this attempt keeps its proven re-points and drops the two checks whose screens are gone instead.
   - RE-POINTED, RUN, REACHED: "Did we make money?" -> "You kept" (`platform-costs-live.mjs`): 40 passed, 0 failed, 4 of 4 targets, canary caught, receipt at `6e95466f`; read "You kept" with "Not entered" / "Money out not entered" at 1440 and 392. "Suspended them" -> a history row containing "You suspended them", and Restore -> "Reopen account" (`suspend-delete-waive.mjs`): 71 passed, 0 failed, 9 of 9 action-widths, receipt at `6e95466f`, found at 1440, 768 and 392. "sam.ortiz@example.com" was not product wording but the staff member the script injects, so the card is found by that fixture's own email (`shots-99-4.mjs`): 24 of 24 buttons, console 0, canary caught, receipt at `4d3e0b06`. Sabotages of the same locators were taken by attempt 2 and caught (suspend: `16331918`, red at 392; team card: red at both widths, `acbd6f4e`), not re-run here.
@@ -31423,8 +31429,7 @@ hit (cheapest first), then cleanup. Items marked `NEEDS ANDREW` are his
 decisions, not build jobs.
 
 - [ ] **97.29 — The Money screen silently under-counts past 1,000 rows (C-M8).**
-  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
-  The work is safe on branch `belt/97.29-20261019022220807`. Answer "merge it" to keep it, or say what to change.
+  **Held for a builder, not for Andrew (supervisor 2026-10-19).** The review read every changed read and found the paging code and its offline test sound; the two proofs the item asks for are missing, and both are builder work. Continue branch `belt/97.29-20261019022220807`: (1) R2 — seed a scratch business with more than 1,000 bookings in `kguqylyzgyzfktkfnhjb` (say what you write first, remove it in `finally`, not under `timeout` — gotcha 90), and compare the Money totals on screen with a direct SQL sum; keep the receipt; (2) R3 — load `/app/money` at 390 and 1440 and read the console. The last builder timed out at sign-in; 98.11 and 98.15 signed in from a job copy with `node --import ./scripts/lib/inject-app-env.mjs`. Also say in the entry what happens if the server's row cap is ever lowered below 1,000 (the review's note).
   `hooks/useBookings.js:107-116` reads 10 years oldest first, so the newest rows are the ones PostgREST's 1,000-row cap cuts; `Money.jsx:278-279` reads every invoice line and `Money.jsx:295-296` every page visit, with no limit. A detailer doing 3 jobs a day crosses 1,000 bookings in about a year. The export already pages. Read in pages, or total the figures in a database function.
   Acceptance criteria:
   - With more than 1,000 bookings in a scratch business, the Money totals equal a direct database sum (test or script, receipt kept)

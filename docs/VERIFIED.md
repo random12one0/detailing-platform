@@ -3827,3 +3827,9 @@ Re-run at `ba9ae7bf` on :5173 unless named.
 - **98.3** (merged, box open): `isSabotage` routes a receipt to `.sabotage.json` on the standard warning; every emitter of that warning under `scripts/` is conditional on `BREAK` (grep), so no clean run is diverted. `node --test tests/receipt-sabotage-route.test.mjs` **pass 3 / fail 0**.
 - **97.91** (ticked): `node scripts/release-sheet.mjs` canary caught, but the clean run is **FAIL on main** — 98.3 undeclared (filed as ROADMAP 98.12) and `deployed-inventory.json` STALE after 99.13. `--break=fn-before-page` names 97.16, 97.64, 99.2, 99.2a; `--break=lock-order` 6 FAIL. The sheet's logic holds; its population drifted.
 - Receipts my runs rewrote were restored with `git checkout` after `git status --porcelain` showed only them.
+
+## Supervision 2026-10-19 — 98.15/98.14 and 14.34 re-run on main
+
+- **98.15 + 98.14** — `node scripts/platform-net-live.mjs` against the dev server at main `9033943a`, project `kguqylyzgyzfktkfnhjb`: **49 assertions, 0 failed, 4 of 4 targets, canary caught**, cleanup confirmed. Screenshots read: November 2025 at 392 shows Paid to us $40, Costs entered · 4 bills $57.49, We lost $17.49, Domain $12.99 to the cent; December 2025 at 1440 shows Profit · Not entered. Found while looking: a partly-entered month prints a profit with no note beside it — ROADMAP 98.16.
+- **14.34** — `node scripts/push-tap.mjs` at `9033943a`: **22 assertions, 0 failed** at 1440/768/390/320; `--break=dead-route`: **4 failed** (the tap lands on the 404 at each size), in its own sabotage receipt.
+- **98.11** — `node scripts/label-guard.mjs` at `9033943a`: "No stale labels".

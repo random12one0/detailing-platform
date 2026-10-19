@@ -95,6 +95,21 @@ document, and the rule here is that nobody machine-translates it.
 other choice is paying a qualified translator for the whole privacy page, which
 would be a separate job.
 
+## DECIDE · Should the back office's safety checks follow the new design you approved? (ROADMAP 98.4)
+
+Your back office has an automatic checklist that warns if the screen breaks.
+Most of it now checks the new back office you approved on October 10. Ten
+checks still describe the old one: a row of headline numbers, the money that
+went through your detailers' jobs this month, a six-month chart for each
+detailer, the page width, and some animation rules. The new screen does not
+have these, so those ten checks fail and will keep failing.
+
+**Recommendation: say "follow the new design".** The next job then points the
+ten checks at what the new screen actually shows. The other choice is building
+those old pieces back into the new back office, which would be separate work.
+(Written by the 98.4 job on its unmerged branch; supervision 2026-10-19 brought
+it here so it reaches you while the rest of that work is finished.)
+
 ## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
 
 Your nightly database copy leaves out the settings that say who may read and

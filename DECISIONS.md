@@ -360,6 +360,7 @@ were made more than once.
 - **Supervision 2026-10-16 (second)** — a test-safety refusal is not a regression; a recrash is not a new failure; 97.1's held test fixed on its branch; 97.3 back to a builder under Andrew's yes.
 - **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
 - **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
+- **Supervision 2026-10-19** — a finish review that still finds problems is builder work, not a "merge it?" question: the belt now writes the reviewer's findings into a "Held for a builder" line (eight hand rewrites before it); 98.4 and 97.29 rewritten.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19209,3 +19210,16 @@ Keeping both would leave a release row saying "apply 20261017030000" that names 
 moved in the same commit. The same is owed by 97.18 (`20261017200000`, against 97.19). The guard
 is `tests/migration-versions-unique.test.mjs`, an equality over the one old pair
 (`20260913010000`) that was on main before it existed.
+
+## Supervision 2026-10-19
+
+**A finish review that still finds problems is builder work, not a question for Andrew.** The belt
+used to answer it with "NEEDS ANDREW … Answer 'merge it'", which asks a non-programmer to judge
+code a reviewer has just said is unfinished. Supervisors rewrote that line by hand into the
+reviewer's findings at least eight times (97.7, 97.8, 97.11, 97.64, 97.84, 97.91, 0.11d, then 98.4
+and 97.29 on 2026-10-19), and every rewrite was what the next builder needed. `holdItem()` in the
+belt now does it itself when the review status is `problems`: one "Held for a builder, not for
+Andrew" line naming the branch, then each finding on its own line. Any other hold (suite, proofs,
+tamper, conflict) still asks him, because those can be real questions. When a finding IS a
+question for him (98.4's ten old-office checks), the supervisor puts it in `FOR-ANDREW.md` and the
+builder line says to leave those checks alone until he answers.

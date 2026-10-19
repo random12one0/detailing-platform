@@ -1,9 +1,9 @@
 {
-  "git_sha": "f7e570d5bdd29a92125defaca48e5bfc01a0d030",
-  "git_sha_started": "f7e570d5bdd29a92125defaca48e5bfc01a0d030",
+  "git_sha": "9033943a068895812dfa186cb15a38b32676ebe0",
+  "git_sha_started": "9033943a068895812dfa186cb15a38b32676ebe0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T23:29:50.355Z",
+  "finished_at": "2026-10-19T02:59:34.436Z",
   "failures": [],
   "warnings": [
     "The bills are TEST bills in November 2025, removed when the run ends. Andrew's real bills were not entered: their amounts are recorded nowhere in this repo and a saved bill cannot be removed from the screen.",
@@ -101,19 +101,19 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         }
       ],
       "paid_revenue": 4000
@@ -203,25 +203,25 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         },
         {
           "category": "hosting",
           "amount_cents": 550,
           "note": "9.14c test bill — Hosting $5.50, removed when the check finishes",
-          "entered_by": "f135fb46-1ad5-4817-9ab3-0c0083ee9958"
+          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
         }
       ],
       "paid_revenue": 4000
@@ -260,7 +260,7 @@
     "rewrites": 0
   },
   "check_id": "platform-net-live",
-  "started_at": "2026-10-18T23:29:16.145Z",
+  "started_at": "2026-10-19T02:58:54.945Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

@@ -1,13 +1,12 @@
 {
-  "git_sha": "c5a0a1688db9796e6b478a0cac539cf1a86312dc",
-  "git_sha_started": "c5a0a1688db9796e6b478a0cac539cf1a86312dc",
+  "git_sha": "9033943a068895812dfa186cb15a38b32676ebe0",
+  "git_sha_started": "9033943a068895812dfa186cb15a38b32676ebe0",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-19T02:53:07.975Z",
+  "finished_at": "2026-10-19T03:00:24.802Z",
   "failures": [],
   "warnings": [
     "UNJUDGEABLE: a real push service, a real phone's lock screen and a TRUSTED tap. The push is delivered by DevTools; the tap is a dispatched NotificationEvent with waitUntil and WindowClient.focus shimmed. matchAll and navigate run unpatched. The real tap is Andrew's (ROADMAP 14.34).",
-    "The dev server had no VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY; the run filled those two in memory from .env (same project, ref checked). No other VITE_ value was supplied.",
     "Dev server only. It reads the url template from source, not from the deployed bundle; the deployed bundles were read on 2026-10-10 (ROADMAP 14.34)."
   ],
   "artifacts": [
@@ -27,10 +26,10 @@
     "template": "/job/${booking.id}",
     "item": "14.34",
     "break": null,
-    "env_filled_in_memory": true
+    "env_filled_in_memory": false
   },
   "check_id": "push-tap",
-  "started_at": "2026-10-19T02:52:35.887Z",
+  "started_at": "2026-10-19T03:00:00.731Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
