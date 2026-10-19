@@ -31435,6 +31435,8 @@ hit (cheapest first), then cleanup. Items marked `NEEDS ANDREW` are his
 decisions, not build jobs.
 
 - [ ] **97.29 — The Money screen silently under-counts past 1,000 rows (C-M8).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
+  The work is safe on branch `belt/97.29-20261019075258823`. Answer "merge it" to keep it, or say what to change.
   **Held for a builder, not for Andrew (supervisor 2026-10-19).** The review read every changed read and found the paging code and its offline test sound; the two proofs the item asks for are missing, and both are builder work. Continue branch `belt/97.29-20261019022220807`: (1) R2 — seed a scratch business with more than 1,000 bookings in `kguqylyzgyzfktkfnhjb` (say what you write first, remove it in `finally`, not under `timeout` — gotcha 90), and compare the Money totals on screen with a direct SQL sum; keep the receipt; (2) R3 — load `/app/money` at 390 and 1440 and read the console. The last builder timed out at sign-in; 98.11 and 98.15 signed in from a job copy with `node --import ./scripts/lib/inject-app-env.mjs`. Also say in the entry what happens if the server's row cap is ever lowered below 1,000 (the review's note).
   `hooks/useBookings.js:107-116` reads 10 years oldest first, so the newest rows are the ones PostgREST's 1,000-row cap cuts; `Money.jsx:278-279` reads every invoice line and `Money.jsx:295-296` every page visit, with no limit. A detailer doing 3 jobs a day crosses 1,000 bookings in about a year. The export already pages. Read in pages, or total the figures in a database function.
   Acceptance criteria:
