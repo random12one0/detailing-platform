@@ -2516,6 +2516,14 @@ still knows them.
   written down about what "done" would even look like** — because nobody can
   write that until you answer these.
 
+  **Your two notes, answered (2026-10-18).** *"Did the planning rules get out
+  to you?"* Yes: the cancellation fee and the optional rescheduling fee
+  you decided on 2026-10-12 are written into the rules every job reads. Planning
+  never talked about a deposit, so this question is still open. *"What's
+  taking so long?"* Nothing is being built yet. It is waiting on two things:
+  your yes or no below, and the card-payment testing (which needs your Stripe
+  test key). A yes today means it can start as soon as that testing passes.
+
   **You said the earlier version was not understandable. Do not answer four
   design questions first. Answer yes or no to deposits.** Recommendation:
   **yes, but optional for each detailer, and only after every payment scenario

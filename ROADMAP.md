@@ -25448,6 +25448,13 @@ their age is not Andrew's problem.
   half-built. The product takes no money anywhere (`templates.js:24` says so on
   purpose). The `FOR-ANDREW.md` row now carries a $200 worked example and
   the three possible answers. **2026-10-12 — Andrew asked whether the deposit/cancellation-fee discussion already reached the repo. It has, in part: `BUSINESS-RULES.md` (decided 2026-10-12, not built yet) records a detailer-set cancellation fee plus an optional rescheduling fee, off by default and shown before booking; the fee details (notice window, flat or percentage, waiver) sit in its "Still to decide" #4. What stays open here is only the deposit-at-booking question above — a customer paying part of the price when they book.**
+  **2026-10-18 — answering his 2026-10-13 note "What's taking so long".** Two
+  things, neither of them work in progress: his yes/no above is still
+  unanswered, and 12.1 is still open (it needs his Stripe test key). Re-checked
+  this run: `docs/planning/email-copy-and-rules-draft-2026-10-12.md` and
+  `BUSINESS-RULES.md` contain the word "deposit" zero times, so planning did
+  not settle it either. The answer and the reason were added to his
+  `FOR-ANDREW.md` row so he sees them where he reads.
   Waits on: 12.1 (every payment scenario tested, which itself waits on his
   Stripe test key). Even after a "yes", the build does not start until 12.1
   is ticked. Whoever ticks 12.1 removes this line.
