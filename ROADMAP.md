@@ -2893,10 +2893,6 @@ and how the wait ends.
 
 - [ ] **0.11d — Verify real R2 uploads, authoritative sizes and scheduled reconciliation**
   **Held for a builder, not for Andrew (supervisor 2026-10-18, fourth pass).** Continue `belt/0.11d-20261018164534042`; two faults in `scripts/photo-reconcile-live.mjs`'s `judge()`, both code: (1) any 401 on both calls is graded PASS as "97.3's guard is published", but the gateway also answers 401 (`UNAUTHORIZED_NO_AUTH_HEADER`) when `photo-reconcile` is republished with its login check on — then every nightly run is refused and the checker still says PASS. Tell the scheduler-key refusal (`{"error":"Unauthorized"}`) from the gateway's by the BODY, and add an eighth self-test feeding the gateway's answer that must FAIL. (2) every 503 is reported as "CRON_SECRET is not set", but the handler also answers 503 when R2 storage is not configured; word the failure from the body. R2, R3, R4's first half and R5 still need a real upload and a scheduled run after the release — the entry already names them; leave the box open.
-  **BELT PARKED after 3 attempts, 2026-10-09 21:39:08.** The belt could not
-  finish this and moved on rather than looping. The last attempt's full output
-  is at `belt/runs/2026-10-09T21-39-02-745Z-0.11d.md`. Needs a person or a different
-  approach — unpark by deleting these four lines.
   Exercise the released system against R2 and confirm the safeguards that local tests cannot prove: accepted signatures, authoritative object sizes, tenant refusal, allowance refusal and the nightly reconcile. This is verification only and does not introduce another storage path.
   Part 4 of 4 of item 0.11, split out so it can be
   finished and ticked on its own. The parent keeps the full write-up.
