@@ -31409,6 +31409,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   - 1440x900 and 768x1024 are unchanged or better, checked by screenshot
 
 - [ ] **98.16 — Platform bills prints a profit for a month with a bill still missing, and says nothing about it beside the figure.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
+  The work is safe on branch `belt/98.16-20261019065921359`. Answer "merge it" to keep it, or say what to change.
   Found 2026-10-19 by supervision re-running `scripts/platform-net-live.mjs` (49/0) and reading its own screenshot `belt/shots/9.14c/test-month-phone.png`: November 2025 with Hosting, Email and Domain typed and "Database and storage" Not entered reads "We lost $17.49" in large type. The missing bill is only visible four rows further down. `Kept.jsx` already puts a "1 bill not entered" chip beside its figure (`k.missing`); `Bills.jsx` `MonthSum` does not. A profit that leaves out a bill reads as better than it is.
   Acceptance criteria:
   - With at least one bill typed and at least one not, the profit line in Platform bills says how many bills are not entered, next to the figure, at 390 and 1440
