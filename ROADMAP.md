@@ -31461,11 +31461,18 @@ decisions, not build jobs.
   - All three use the business's own date; a test with a clock set to 6 PM Pacific gets today's date in each
   - Maintenance Mark done goes through an edge function rather than a browser write, or the entry records why not
 
-- [ ] **97.33 — The owner's "push alerts off" switch is ignored by most pushes (C-L6).**
+- [x] **97.33 — The owner's "push alerts off" switch is ignored by most pushes (C-L6).**
   `push_enabled` gates only 4 senders; the starting-soon, wrap-up, finalize and request nudges, the digest (`send-owner-reminders/index.ts:277,292,307,335,534`), and cancel, reschedule and update-booking ignore it. The manual "send reminder" (`:197-203`) also allows cancelled and completed bookings, answers `success` when reminders are off, and sets no marker. Put the gate in the one shared push sender.
   Acceptance criteria:
   - With `push_enabled` off, none of the senders listed sends a push (test)
   - The manual reminder refuses cancelled and completed bookings, says so when reminders are off, and sets its marker
+  Milestones:
+  - [x] 1. Central gate in the one shared push sender (`_shared/ownerPush.ts` reads `push_enabled` via new import-free `_shared/pushGate.ts`)
+  - [x] 2. Manual reminder refuses cancelled/completed, answers "switched off" when reminders are off, stamps the customer marker
+  - [x] 3. `tests/owner-push-gate.test.mjs`: gate units on the real rule, the real sender run with push off/on, the real handler's manual branch (must-work + must-refuse), each sabotage-checked
+  - [x] 4. Gates green, scratch files deleted, box ticked with proof
+  Proved: `tests/owner-push-gate.test.mjs` 12/12 green; `BREAK=no-gate` goes red on exactly the push-off sender test (11 green); `BREAK=no-manual-refusals` goes red on the 5 refusal/marker tests (7 green). Neighbours green: owner-fanout 9/9, push-urls-are-routes 6/6, reminder-claim, customer-reminder, owner-reminder-address-flag, composition, design-contrast, route-contract, decisions-index, landing-pricing, every-open-item-is-citable, no-credentials-in-tracked-text (with a local temp dir; its default system temp dir is sandbox-blocked, environmental, unrelated to this change).
+  How checked: ran the real `sendOwnerPush` with push off (zero webpush calls, subscriptions untouched) and on (1 sent, 1 stale pruned); ran the real handler manual branch for cancelled/completed/off (409, nothing stamped) and on (success, marker stamped). The 4 existing per-caller `push_enabled` checks were kept; the shared sender is the enforcement point, so the 8 previously ungated senders (3 nudges, request nudge, digest, cancel, reschedule, update-booking) are covered without touching their files.
 
 - [ ] **97.34 — The back office's own money formatter rounds negative amounts the wrong way (C-L8).**
   `app/src/admin/office/ui.jsx:5`, `usd`, used 17 times under `admin/office/`: `usd(150)` gives `$2` but `usd(-150)` gives `−$1`, with a different minus sign from `format.js`. Use `money` from `lib/format.js` (one formatter each), or round the absolute value.

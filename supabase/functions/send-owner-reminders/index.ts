@@ -205,10 +205,31 @@ Deno.serve(async (req) => {
       if (b.status === "pending") {
         return json({ error: "Accept this request before reminding them about it." }, 409);
       }
+      // ROADMAP 97.33 - a booking that is over has nobody left to remind. The
+      // sweep RPCs never return these rows; the hand send must not either.
+      if (b.status === "cancelled") {
+        return json({ error: "This booking was cancelled, so there is nothing to remind anyone about." }, 409);
+      }
+      if (b.status === "completed") {
+        return json({ error: "This booking is already completed, so there is nothing to remind anyone about." }, 409);
+      }
       if (body.target === "customer") {
         if (!b.customer_email) return json({ error: "This booking has no customer email on file." }, 400);
-        await sendCustomerReminder(b);
+        // ROADMAP 97.33 - `sendCustomerReminder` answers false when reminders are
+        // switched off for this business: say so instead of `success`. And a
+        // hand send that went out stamps the same marker the sweep would have,
+        // so it is not sent again.
+        if ((await sendCustomerReminder(b)) === false) {
+          return json({ error: "Reminders are switched off for this business." }, 409);
+        }
+        await supabase.from("bookings").update({ customer_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
         return json({ success: true, count: 1 });
+      }
+      // ROADMAP 97.33 - answering `success` when reminders are switched off (no
+      // owner email and no push) is the manual twin of the sweep's skip.
+      const ownerSettings = await getSettings(member.businessId);
+      if (!ownerSettings.email_owner_reminder && !ownerSettings.push_enabled) {
+        return json({ error: "Reminders are switched off for this business." }, 409);
       }
       await sendOwnerReminder(b);
       await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
