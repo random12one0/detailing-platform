@@ -61,3 +61,4 @@ From the same Planning conversation; each needs Andrew:
 
 ## Rules from your words (sorted automatically)
 - "Fix it but also the owners should be able to like set specific permissions for staff not urgent tho cuz the website isn’t public yet" — Fix an unnamed issue, and separately let owners set specific permissions for staff (not urgent; the website is not public yet) (back office; 2026-10-16; from Inbox) <!-- rule r-9 -->
+- "there's a big chance that the primarily this page will be primarily reviewed on phone so do whatever is best for the phone viewing whatever is easiest and nicest" — Optimize this page for phone viewing, choosing the easiest and nicest approach. (design; 2026-10-19; from Inbox) <!-- rule r-26 -->
