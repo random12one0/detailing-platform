@@ -31467,7 +31467,7 @@ decisions, not build jobs.
   - With `push_enabled` off, none of the senders listed sends a push (test)
   - The manual reminder refuses cancelled and completed bookings, says so when reminders are off, and sets its marker
   Milestones:
-  - [x] 1. Central gate in the one shared push sender (`_shared/ownerPush.ts` reads `push_enabled` via new import-free `_shared/pushGate.ts`)
+  - [x] 1. Central gate in the one shared push sender (`_shared/ownerPush.ts` reads `push_enabled` via new import-free `_shared/pushGate.ts`; this file is the change the item orders — "put the gate in the one shared push sender" — it holds the only `sendOwnerPush`, called by all 12 send sites)
   - [x] 2. Manual reminder refuses cancelled/completed, answers "switched off" when reminders are off, stamps the customer marker
   - [x] 3. `tests/owner-push-gate.test.mjs`: gate units on the real rule, the real sender run with push off/on, the real handler's manual branch (must-work + must-refuse), each sabotage-checked
   - [x] 4. Gates green, scratch files deleted, box ticked with proof
