@@ -7,323 +7,249 @@
 // manual "send reminder" refuses bookings that are over, says so when
 // reminders are switched off, and stamps its marker.
 //
-// WHAT THIS RUNS. The real code, never a copy (a run aimed at a copy is the
-// fault docs/gotchas.md 95 records):
-//   §1  the REAL `pushAllowed` rule — `_shared/pushGate.ts` imports nothing,
-//       so Node loads it directly, the way `tests/owner-fanout.test.mjs`
-//       loads `ownerFanout.ts`.
-//   §2  the REAL `sendOwnerPush` — type-stripped, its `npm:`/`db`/`tenant`
-//       imports swapped for stand-ins, the REAL rule text inlined where its
-//       import was (that import line's removal is asserted, so the run cannot
-//       silently test a stubbed rule). VAPID keys are made up.
-//   §3  the REAL `send-owner-reminders` handler's manual branch —
-//       type-stripped with its `_shared` imports swapped for stand-ins,
-//       except `ownerFanout` and `tz`, which import nothing and are used as
-//       they are (as in `tests/reminder-claim.test.mjs`). The database is an
-//       in-memory bookings table; nothing leaves this machine.
+// WHAT THIS RUNS. The real modules, imported and called — never the source
+// text (reading a file and pattern-matching it is not a test):
+//   §1  the REAL `pushAllowed` rule, imported and called directly.
+//   §2  the REAL `sendOwnerPush`, imported and called with push off, on, and
+//       unset. Every owner push in the product goes through this one
+//       function, so these runs cover all senders at the choke point.
+//   §3  the REAL `send-owner-reminders` handler's manual branch, called with
+//       real `Request`s. Settings, brand, templates, fanout and the sender
+//       are all the real modules; only the three boundaries Node cannot
+//       cross are stood in (see `owner-push-gate.hooks.mjs`): the push
+//       network, the database, and the email relay (the real
+//       `sendTenantEmail`, with `fetch` answering healthy).
 //
-// Sabotage, env vars rather than flags (docs/gotchas.md 104):
-//   BREAK=no-gate             the pre-97.33 sender: the gate never triggers.
-//                             §2's push-off test must go red.
-//   BREAK=no-manual-refusals  the pre-97.33 manual branch: over bookings are
-//                             allowed, off means success, the customer send
-//                             stamps nothing. §3's refusal/marker tests go red.
+// Sabotage, by temporarily editing the product (never a flag in this file):
+// with the sender's gate neutered, §2's push-off test goes red; with the
+// manual refusals removed, §3's refusal/marker tests go red. Each break is
+// restored immediately after, and the entry records the counts.
 //
 //   node --test tests/owner-push-gate.test.mjs
-//   BREAK=no-gate node --test tests/owner-push-gate.test.mjs
-//   BREAK=no-manual-refusals node --test tests/owner-push-gate.test.mjs
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
-import { pushAllowed as realAllowed } from "../supabase/functions/_shared/pushGate.ts";
-import * as realFanout from "../supabase/functions/_shared/ownerFanout.ts";
-import * as realTz from "../supabase/functions/_shared/tz.ts";
+import { register } from "node:module";
+import { pushAllowed } from "../supabase/functions/_shared/pushGate.ts";
+import { world } from "./owner-push-gate.stubs.mjs";
 
-const BREAK = process.env.BREAK ?? "";
-if (BREAK && BREAK !== "no-gate" && BREAK !== "no-manual-refusals") {
-  console.error(`unknown BREAK=${BREAK}; the two are no-gate and no-manual-refusals`);
-  process.exit(2);
+register("./owner-push-gate.hooks.mjs", import.meta.url);
+
+let handler = null;
+globalThis.Deno = {
+  serve: (h) => { handler = h; },
+  env: { get: (k) => (k.startsWith("OWNER_VAPID_") ? `test-${k}` : undefined) },
+};
+// The relay, healthy: the real sendTenantEmail runs and its sends land here.
+globalThis.fetch = async (_url, opts) => {
+  world.emails.push(JSON.parse(String(opts?.body ?? "{}")));
+  return { ok: true, status: 200, text: async () => "", json: async () => ({}) };
+};
+
+// module.register installs its hooks asynchronously: an import that starts in
+// the same tick can miss them entirely. So the first real imports retry until
+// they provably go through the hooks — a hooks failure is loud, never a
+// silent run against unhooked modules.
+async function importReal(path) {
+  let last = null;
+  for (let i = 0; i < 100; i++) {
+    try {
+      return await import(path);
+    } catch (e) {
+      last = e;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+  }
+  throw new Error(`loader hooks never engaged for ${path}: ${last}`);
 }
+
+const { sendOwnerPush } = await importReal("../supabase/functions/_shared/ownerPush.ts");
+await importReal("../supabase/functions/send-owner-reminders/index.ts");
 
 // ---------------------------------------------------------------------------
 // §1 — the rule itself.
 // ---------------------------------------------------------------------------
 
 test("pushAllowed: only an explicit off silences pushes", () => {
-  assert.equal(realAllowed({ push_enabled: false }), false);
-  assert.equal(realAllowed({ push_enabled: true }), true);
+  assert.equal(pushAllowed({ push_enabled: false }), false);
+  assert.equal(pushAllowed({ push_enabled: true }), true);
   // A missing row or value means on: the column defaults true and
   // `getSettings`' fallback says true, so "never set" must not silence.
-  assert.equal(realAllowed({}), true);
-  assert.equal(realAllowed(null), true);
-  assert.equal(realAllowed(undefined), true);
+  assert.equal(pushAllowed({}), true);
+  assert.equal(pushAllowed(null), true);
+  assert.equal(pushAllowed(undefined), true);
 });
 
 // ---------------------------------------------------------------------------
-// §2 — the shared sender obeys the rule. Every owner push in the product
-// (nudges, digest, cancel, reschedule, update-booking and the 4 senders that
-// already checked) goes through this one function, so these runs cover them
-// all at the choke point the item names.
+// §2 — the shared sender obeys the rule.
 // ---------------------------------------------------------------------------
 
-const PUSH_SRC = readFileSync("supabase/functions/_shared/ownerPush.ts", "utf8");
-const GATE_LINE = "if (!pushAllowed(await getSettings(businessId))) {";
+const FULL_SETTINGS = {
+  business_id: "biz-1", buffer_minutes: 60, min_advance_minutes: 120, max_advance_days: null,
+  slot_interval_minutes: 30, max_bookings_per_day: null, mobile_enabled: null, dropoff_enabled: null,
+  travel_radius_miles: null, travel_fee: null, ask_water_electric: true, water_requirement: "ask",
+  power_requirement: "ask", ask_vehicle_condition: true,
+  vehicle_sizes: [{ key: "small", label: "Small", examples: "sedan" }],
+  price_rules: [], travel_zones: [], customer_reminder_lead_minutes: 120, evening_before_enabled: true,
+  evening_before_latest_start: "12:00:00", evening_before_send_time: "19:00:00",
+  owner_nudge_lead_minutes: 30, wrapup_nudge_lead_minutes: 20, finalize_nudge_delay_minutes: 120,
+  daily_digest_hour: 7, booking_mode: "reserve", cancellation_window_hours: 24, price_rounding_nearest: 5,
+  site_discount_active: false, site_discount_percent: 0, site_discount_label: null,
+  pay_cash: false, pay_venmo: null, pay_cashapp: null, pay_zelle: null, pay_paypal: null, pay_other: null,
+  pay_custom: [], google_review_url: null, yelp_review_url: null, notification_emails: [],
+  email_customer_confirmation: true, email_customer_reminder: true, email_customer_followup: true,
+  email_sign_as_business: false, email_customer_maintenance_due: false, email_owner_new_booking: true,
+  email_owner_reminder: true, customer_reminder_2_enabled: true, push_enabled: true,
+};
 
-function prepareSender() {
-  let src = PUSH_SRC;
-  if (BREAK === "no-gate") {
-    if (src.split(GATE_LINE).length - 1 !== 1) throw new Error("sabotage did not land: gate line count != 1");
-    src = src.replace(GATE_LINE, "if (false) {");
-  }
-  let js = stripTypeScriptTypes(src);
-  // The real rule, inlined where its import was — the run tests the rule the
-  // sender ships with, not a stub of it.
-  const gateSrc = stripTypeScriptTypes(readFileSync("supabase/functions/_shared/pushGate.ts", "utf8"));
-  if (!gateSrc.includes("export function pushAllowed")) throw new Error("real rule not found in pushGate.ts");
-  const once = (from, to) => {
-    if (js.split(from).length - 1 !== 1) throw new Error(`rewrite did not land exactly once: ${from}`);
-    js = js.replace(from, to);
-  };
-  once('import webpush from "npm:web-push@3";', "const webpush = globalThis.__stubs.webpush;");
-  once('import { supabase } from "./db.ts";', "const { supabase } = globalThis.__stubs.db;");
-  once('import { getSettings } from "./tenant.ts";', "const { getSettings } = globalThis.__stubs.tenant;");
-  once('import { pushAllowed } from "./pushGate.ts";', "");
-  if (/^import\s/m.test(js)) throw new Error("leftover import in sender source");
-  return gateSrc.replace("export function pushAllowed", "function pushAllowed") + "\n" + js;
-}
+const LIVE_SUB = { business_id: "biz-1", endpoint: "https://push.example/a", p256dh: "p1", auth: "a1" };
+const STALE_SUB = { business_id: "biz-1", endpoint: "https://push.example/stale", p256dh: "p2", auth: "a2" };
 
-let senderLoads = 0;
-async function loadSender(stubs) {
-  globalThis.__stubs = stubs;
-  globalThis.Deno = { env: { get: (k) => (k.startsWith("OWNER_VAPID_") ? `test-${k}` : undefined) } };
-  const js = `${prepareSender()}\n// sender load ${++senderLoads} ${BREAK}\n`;
-  return await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
-}
-
-// One live device and one dead one, so the on-run also proves the loop and
-// the stale cleanup survived the gate.
-function senderWorld(settings) {
-  const pushes = [];
-  const deleted = [];
-  const subs = [
-    { endpoint: "https://push.example/a", p256dh: "p1", auth: "a1" },
-    { endpoint: "https://push.example/stale", p256dh: "p2", auth: "a2" },
-  ];
-  const webpush = {
-    setVapidDetails() {},
-    async sendNotification(sub) {
-      if (sub.endpoint.endsWith("/stale")) {
-        const e = new Error("gone");
-        e.statusCode = 410;
-        throw e;
-      }
-      pushes.push(sub.endpoint);
-    },
-  };
-  const db = {
-    supabase: {
-      from: (table) => {
-        if (table !== "owner_push_subscriptions") throw new Error(`unexpected table ${table}`);
-        return {
-          select: () => ({ eq: async () => ({ data: subs.map((s) => ({ ...s })), error: null }) }),
-          delete: () => ({ eq: () => ({ in: async (_col, eps) => { deleted.push(...eps); return { error: null }; } }) }),
-        };
-      },
-    },
-  };
-  return { stubs: { webpush, db, tenant: { getSettings: async () => settings } }, pushes, deleted };
+function senderWorld(settingsRow) {
+  world.tables.business_settings = settingsRow ? [{ ...FULL_SETTINGS, ...settingsRow }] : [];
+  world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }, { ...STALE_SUB }];
+  world.pushes = [];
 }
 
 test("push off: the shared sender delivers nothing and touches nothing", async () => {
-  const w = senderWorld({ push_enabled: false });
-  const mod = await loadSender(w.stubs);
-  const res = await mod.sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
+  senderWorld({ push_enabled: false });
+  const res = await sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
   assert.deepEqual(res, { sent: 0, removed_stale: 0 });
-  assert.equal(w.pushes.length, 0);
-  assert.equal(w.deleted.length, 0);
+  assert.equal(world.pushes.length, 0);
+  assert.equal(world.tables.owner_push_subscriptions.length, 2);
 });
 
 test("push on: live subs get it, stale subs are pruned", async () => {
-  const w = senderWorld({ push_enabled: true });
-  const mod = await loadSender(w.stubs);
-  const res = await mod.sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
+  senderWorld({ push_enabled: true });
+  const res = await sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
   assert.equal(res.sent, 1);
   assert.equal(res.removed_stale, 1);
-  assert.deepEqual(w.pushes, ["https://push.example/a"]);
-  assert.deepEqual(w.deleted, ["https://push.example/stale"]);
+  assert.deepEqual(world.pushes, ["https://push.example/a"]);
+  assert.deepEqual(world.tables.owner_push_subscriptions.map((s) => s.endpoint), ["https://push.example/a"]);
 });
 
-test("no setting value: pushes stay on, the schema default", async () => {
-  const w = senderWorld({});
-  const mod = await loadSender(w.stubs);
-  const res = await mod.sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
+test("no settings row: pushes stay on, the schema default", async () => {
+  senderWorld(null);
+  const res = await sendOwnerPush("biz-1", { title: "Starting soon", body: "Pat" });
   assert.equal(res.sent, 1);
-  assert.equal(w.pushes.length, 1);
+  assert.equal(world.pushes.length, 1);
 });
 
 // ---------------------------------------------------------------------------
 // §3 — the manual "send reminder" branch of the real handler.
 // ---------------------------------------------------------------------------
 
-const REM_SRC = readFileSync("supabase/functions/send-owner-reminders/index.ts", "utf8");
-// The pre-97.33 shape of the manual branch: over bookings allowed, off means
-// success, the customer send stamps nothing. Each must land exactly once.
-const MANUAL_CUTS = BREAK === "no-manual-refusals" ? [
-  [`b.status === "cancelled"`, `false`],
-  [`b.status === "completed"`, `false`],
-  [`!ownerSettings.email_owner_reminder && !ownerSettings.push_enabled`, `false`],
-  [`if ((await sendCustomerReminder(b)) === false) {`, `if (false) {`],
-  [`await supabase.from("bookings").update({ customer_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);`, `void 0;`],
-] : [];
-
-function prepareHandler() {
-  let src = REM_SRC;
-  for (const [from, to] of MANUAL_CUTS) {
-    if (src.split(from).length - 1 !== 1) throw new Error(`sabotage did not land exactly once: ${from}`);
-    src = src.replace(from, to);
-  }
-  let js = stripTypeScriptTypes(src);
-  js = js.replace(/^import\s+"jsr:[^"]+";\s*$/m, "");
-  js = js.replace(/^import\s*\{([\s\S]*?)\}\s*from\s*"\.\.\/_shared\/(\w+)\.ts";/gm, (_, names, mod) => {
-    return `const {${names}} = globalThis.__stubs.${mod};`;
-  });
-  if (/^import\s/m.test(js)) throw new Error("leftover import in handler source");
-  return js;
-}
-
-const BIZ = { id: "biz-1", slug: "demo", name: "Demo", status: "active", timezone: "America/Los_Angeles", mailing_address: "1 Main St", contact_email: "owner@example.test" };
-const ALL_ON = { email_customer_reminder: true, customer_reminder_2_enabled: true, email_owner_reminder: true, push_enabled: true, email_customer_maintenance_due: false, daily_digest_hour: 0 };
+const BIZ = { id: "biz-1", slug: "demo", name: "Demo", status: "active", timezone: "America/Los_Angeles",
+  contact_email: "owner@example.test", contact_phone: null, dropoff_address: null, service_area: null,
+  mailing_address: "1 Main St", closed_until: null };
 
 function bookingRow(status) {
   const now = new Date().toISOString();
-  return { id: "bk-1", business_id: BIZ.id, status, customer_name: "Pat", customer_email: "pat@example.test",
-    customer_phone: null, customer_address: null, address_source: null, travel_zone_address_mismatch: null,
-    lang: "en", start_at: now, end_at: now, created_at: now, service_type: "mobile", travel_fee: 0,
-    travel_zone: null, price_adjustments: [], vehicle_size_label: null, vehicle_size: null, vehicle_model: null,
-    customer_notes: null, applied_promo_code: null, promo_discount: 0, subtotal: 100, total_price: 100,
+  return { id: "bk-1", business_id: BIZ.id, status, customer_id: null, customer_name: "Pat",
+    customer_email: "pat@example.test", customer_phone: null, customer_address: null, address_source: null,
+    travel_zone_address_mismatch: null, lang: "en", start_at: now, end_at: now, created_at: now,
+    service_type: "mobile", travel_fee: 0, travel_zone: null, price_adjustments: [],
+    vehicle_size_label: null, vehicle_size: null, vehicle_model: null, customer_notes: null,
+    applied_promo_code: null, promo_discount: 0, subtotal: 100, total_price: 100,
     owner_reminder_sent_at: null, customer_reminder_sent_at: null };
 }
 
-function handlerWorld({ status, settings }) {
-  const row = bookingRow(status);
-  const emails = [];
-  const pushes = [];
-  const supabase = {
-    from: (table) => {
-      if (table !== "bookings") throw new Error(`unexpected table ${table}`);
-      return {
-        select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { ...row } }) }) }) }),
-        update: (patch) => ({ eq: async () => { Object.assign(row, patch); return { data: [row], error: null }; } }),
-      };
-    },
-  };
-  const stubs = {
-    db: { supabase },
-    http: { json: (body, status = 200) => ({ status, body }), preflight: () => ({ status: 200, body: {} }) },
-    cronAuth: { cronRefusal: () => null },
-    tenant: {
-      businessById: async () => ({ ...BIZ }),
-      getSettings: async () => ({ ...settings }),
-      requireMember: async () => ({ businessId: BIZ.id }),
-    },
-    email: {
-      buildBrand: async () => ({}),
-      extraVehiclesFor: async () => [],
-      langForCustomer: async () => "en",
-      ownerRecipients: () => ["owner@example.test"],
-      recipientLang: async () => "en",
-      sendTenantEmail: async (args) => { emails.push(args); return true; },
-    },
-    emailTemplates: new Proxy({}, {
-      get: (_t, p) => (..._a) => (String(p).startsWith("format") || String(p).endsWith("Subject") ? "x" : { subject: "s", html: "h", text: "t" }),
-    }),
-    ownerPush: { sendOwnerPush: async () => { pushes.push("push"); return { sent: 1, removed_stale: 0 }; } },
-    ownerFanout: realFanout,
-    config: { businessSiteUrl: () => "https://example.test", receiptUrl: () => "https://example.test/r", unsubscribeUrl: () => "https://example.test/u" },
-    maintenance: {},
-    tenantSite: { siteFor: async () => ({}) },
-    tz: realTz,
-  };
-  return { stubs, emails, pushes, row };
+async function manual({ status, settings }) {
+  world.tables.businesses = [{ ...BIZ }];
+  world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
+  world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
+  world.tables.bookings = [bookingRow(status)];
+  world.tables.booking_vehicles = [];
+  world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }];
+  world.pushes = [];
+  world.emails = [];
+  // No `target`: the owner-reminder path of the manual branch.
+  const res = await handler(new Request("http://test/manual", {
+    method: "POST",
+    headers: { Authorization: "Bearer member-token", "Content-Type": "application/json" },
+    body: JSON.stringify({ business_id: BIZ.id, booking_id: "bk-1" }),
+  }));
+  return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
-let handlerLoads = 0;
-async function manual(cfg, target) {
-  const w = handlerWorld(cfg);
-  globalThis.__stubs = w.stubs;
-  globalThis.Deno = { serve: (h) => { globalThis.__handler = h; }, env: { get: () => undefined } };
-  const js = `${prepareHandler()}\n// handler load ${++handlerLoads} ${BREAK}\n`;
-  await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
-  const res = await globalThis.__handler({ method: "POST", json: async () => ({ business_id: BIZ.id, booking_id: "bk-1", target }) });
-  return { ...w, res };
+async function manualTarget({ status, settings }, target) {
+  world.tables.businesses = [{ ...BIZ }];
+  world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
+  world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
+  world.tables.bookings = [bookingRow(status)];
+  world.tables.booking_vehicles = [];
+  world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }];
+  world.pushes = [];
+  world.emails = [];
+  const res = await handler(new Request("http://test/manual", {
+    method: "POST",
+    headers: { Authorization: "Bearer member-token", "Content-Type": "application/json" },
+    body: JSON.stringify({ business_id: BIZ.id, booking_id: "bk-1", target }),
+  }));
+  return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
 test("manual owner reminder: a cancelled booking is refused, nothing sent, nothing stamped", async () => {
-  const r = await manual({ status: "cancelled", settings: ALL_ON }, "owner");
+  const r = await manual({ status: "cancelled", settings: {} });
   assert.equal(r.res.status, 409);
-  assert.match(r.res.body.error, /nothing to remind/);
-  assert.equal(r.pushes.length, 0);
-  assert.equal(r.emails.length, 0);
+  assert.match(r.body.error, /nothing to remind/);
+  assert.equal(world.pushes.length, 0);
+  assert.equal(world.emails.length, 0);
   assert.equal(r.row.owner_reminder_sent_at, null);
 });
 
 test("manual customer reminder: a completed booking is refused, nothing stamped", async () => {
-  const r = await manual({ status: "completed", settings: ALL_ON }, "customer");
+  const r = await manualTarget({ status: "completed", settings: {} }, "customer");
   assert.equal(r.res.status, 409);
-  assert.match(r.res.body.error, /nothing to remind/);
-  assert.equal(r.emails.length, 0);
+  assert.match(r.body.error, /nothing to remind/);
+  assert.equal(world.emails.length, 0);
   assert.equal(r.row.customer_reminder_sent_at, null);
 });
 
 test("manual owner reminder: switched off means a refusal, not success", async () => {
-  const settings = { ...ALL_ON, email_owner_reminder: false, push_enabled: false };
-  const r = await manual({ status: "confirmed", settings }, "owner");
+  const r = await manual({ status: "confirmed", settings: { email_owner_reminder: false, push_enabled: false } });
   assert.equal(r.res.status, 409);
-  assert.match(r.res.body.error, /switched off/);
-  assert.equal(r.pushes.length, 0);
+  assert.match(r.body.error, /switched off/);
+  assert.equal(world.pushes.length, 0);
   assert.equal(r.row.owner_reminder_sent_at, null);
 });
 
 test("manual owner reminder: on means email plus push plus the marker", async () => {
-  const r = await manual({ status: "confirmed", settings: ALL_ON }, "owner");
+  const r = await manual({ status: "confirmed", settings: {} });
   assert.equal(r.res.status, 200);
-  assert.equal(r.res.body.success, true);
-  assert.equal(r.emails.length, 1);
-  assert.equal(r.pushes.length, 1);
+  assert.equal(r.body.success, true);
+  assert.equal(world.emails.length, 1);
+  assert.equal(world.pushes.length, 1);
   assert.ok(r.row.owner_reminder_sent_at);
 });
 
 test("manual customer reminder: switched off means a refusal, not success", async () => {
-  const settings = { ...ALL_ON, email_customer_reminder: false };
-  const r = await manual({ status: "confirmed", settings }, "customer");
+  const r = await manualTarget({ status: "confirmed", settings: { email_customer_reminder: false } }, "customer");
   assert.equal(r.res.status, 409);
-  assert.match(r.res.body.error, /switched off/);
-  assert.equal(r.emails.length, 0);
+  assert.match(r.body.error, /switched off/);
+  assert.equal(world.emails.length, 0);
   assert.equal(r.row.customer_reminder_sent_at, null);
 });
 
 test("manual customer reminder: on means the email and the marker", async () => {
-  const r = await manual({ status: "confirmed", settings: ALL_ON }, "customer");
+  const r = await manualTarget({ status: "confirmed", settings: {} }, "customer");
   assert.equal(r.res.status, 200);
-  assert.equal(r.res.body.success, true);
-  assert.equal(r.emails.length, 1);
+  assert.equal(r.body.success, true);
+  assert.equal(world.emails.length, 1);
   assert.ok(r.row.customer_reminder_sent_at);
 });
 
 test("manual reminder: a pending request still needs accepting first", async () => {
-  const r = await manual({ status: "pending", settings: ALL_ON }, "customer");
+  const r = await manualTarget({ status: "pending", settings: {} }, "customer");
   assert.equal(r.res.status, 409);
-  assert.match(r.res.body.error, /Accept this request/);
+  assert.match(r.body.error, /Accept this request/);
 });
 
 test("manual owner reminder: push off silences the push, the email still goes", async () => {
-  const settings = { ...ALL_ON, push_enabled: false };
-  const r = await manual({ status: "confirmed", settings }, "owner");
+  const r = await manual({ status: "confirmed", settings: { push_enabled: false } });
   assert.equal(r.res.status, 200);
-  assert.equal(r.res.body.success, true);
-  assert.equal(r.emails.length, 1);
-  assert.equal(r.pushes.length, 0);
+  assert.equal(r.body.success, true);
+  assert.equal(world.emails.length, 1);
+  assert.equal(world.pushes.length, 0);
   assert.ok(r.row.owner_reminder_sent_at);
 });

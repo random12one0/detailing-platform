@@ -1,9 +1,9 @@
 {
-  "git_sha": "1d58d8cdd97d8132f681afd3eb1cea7035948856",
-  "git_sha_started": "1d58d8cdd97d8132f681afd3eb1cea7035948856",
+  "git_sha": "10fa1c27438cba595bd492c10ebfd1e566d83220",
+  "git_sha_started": "10fa1c27438cba595bd492c10ebfd1e566d83220",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-19T09:41:19.132Z",
+  "finished_at": "2026-10-19T09:50:24.436Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,7 +14,7 @@
     "sweeps_at_once": 2
   },
   "check_id": "reminder-claim",
-  "started_at": "2026-10-19T09:41:18.943Z",
+  "started_at": "2026-10-19T09:50:24.252Z",
   "status": "pass",
   "expected_targets": 20,
   "discovered_targets": 20,
