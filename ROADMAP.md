@@ -31394,6 +31394,8 @@ hit (cheapest first), then cleanup. Items marked `NEEDS ANDREW` are his
 decisions, not build jobs.
 
 - [ ] **97.29 — The Money screen silently under-counts past 1,000 rows (C-M8).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the finish review still found problems.
+  The work is safe on branch `belt/97.29-20261019022220807`. Answer "merge it" to keep it, or say what to change.
   `hooks/useBookings.js:107-116` reads 10 years oldest first, so the newest rows are the ones PostgREST's 1,000-row cap cuts; `Money.jsx:278-279` reads every invoice line and `Money.jsx:295-296` every page visit, with no limit. A detailer doing 3 jobs a day crosses 1,000 bookings in about a year. The export already pages. Read in pages, or total the figures in a database function.
   Acceptance criteria:
   - With more than 1,000 bookings in a scratch business, the Money totals equal a direct database sum (test or script, receipt kept)
