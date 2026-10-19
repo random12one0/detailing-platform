@@ -31401,6 +31401,8 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - A bill line shows its amount to the cent ($12.99), at 390 and 1440
 - [ ] **98.13 — On a phone, the Team screen's "Access" choice is squeezed into half the width and its two options stack inside a pill.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
+  The work is safe on branch `belt/98.13-20261019063321896`. Answer "merge it" to keep it, or say what to change.
   Found 2026-10-18 by 98.11's second attempt in `.manager-shots/99.4/team-remove-392.png` (shots-99-4, 392x844). `app/src/screens/more/Team.jsx` puts Email and Access side by side in `.grid2`, which stays two columns at 392, so the `Segmented` control gets about 170px and "Custom role" and "Owner" wrap onto two lines. Phones first: nothing oddly sized.
   Acceptance criteria:
   - At 390x844 and 320px the Access choice shows both options on one row at a normal height, and Email keeps a usable width
