@@ -1,9 +1,9 @@
 {
-  "git_sha": "f6924e939386c70b3d76cca8a87695a7257f34a7",
-  "git_sha_started": "f6924e939386c70b3d76cca8a87695a7257f34a7",
+  "git_sha": "624d29d16a0df4f94a268532d3d6343a62f9d146",
+  "git_sha_started": "624d29d16a0df4f94a268532d3d6343a62f9d146",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-21T22:27:29.861Z",
+  "finished_at": "2026-10-21T23:10:13.890Z",
   "failures": [],
   "warnings": [
     "The rule is run from the COPY in this repo. The private repo's job keeps the 1st of each month for ever until Andrew installs the copy (FOR-ANDREW.md).",
@@ -18,7 +18,7 @@
     "today": "2027-10-17"
   },
   "check_id": "backup-retention",
-  "started_at": "2026-10-21T22:27:26.292Z",
+  "started_at": "2026-10-21T23:10:10.287Z",
   "status": "pass",
   "expected_targets": 22,
   "discovered_targets": 22,
