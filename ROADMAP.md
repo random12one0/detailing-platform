@@ -999,6 +999,15 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   AMENDMENT PROPOSED: R8 — replace the English-and-Spanish criterion with an English-only privacy disclosure of the chosen three-month period — reconcile the locked criterion with the settled legal-page language rule.
   (The entry's older AMENDMENT PROPOSED lines naming R4/R5 describe the same change under the previous numbering and are superseded by the two lines above.)
   NEEDS ANDREW: approve the R7/R8 amendments (drop the carried Spanish-key clause in R7, restate R8 as English-only) — the carried Spanish lines conflict with your settled English-only legal-page rule, and only you can amend a locked requirement. Until then the box stays unticked. (Supersedes the older R4/R5-numbered NEEDS ANDREW line above: same ask, current contract IDs.)
+  Strict self-review 2026-10-21 night (this turn's changes only), one line each:
+  (1) In-flight save/toggle — does not apply: no control, no pending state, nothing pressable added.
+  (2) Success-then-stale-refresh — does not apply: static content plus a CI shell; a failed delete exits nonzero (tested 1m).
+  (3) Zero-row update claiming success — covered, not a defect: an empty successful listing exiting 0 with zero deletes is correct, with LIST ok on the ledger proving the listing ran (runner 1k).
+  (4) Leave-screen guard — does not apply: no form, no editable state.
+  (5) Spanish entry for the new sentence — proposed, not approved, not built: legal pages must not be machine-translated (R7/R8 amendments await Andrew).
+  (6) Destructive-step order — recoverable by design: per-tag atomic deletes, idempotent nightly job, swallowed failure impossible (1m asserts nonzero naming the tag).
+  (7) Tenant scoping — does not apply: no customer-data path touched; `gh` is a fixture stub, assertions read the ledger only.
+  (8) Real-handler proof — met: the belt-run test calls the pure rule with must-work/must-refuse values; the runner executes the actual shell bytes with ledger assertions; the flows assert the rendered sentence and the presence flow fails on main's wording. No button exists to press on a static legal page.
 
 ---
 
