@@ -83,9 +83,11 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
-## Settled · English-only backup sentence approved (ROADMAP 97.28)
+## DECIDE · Keep the privacy page English-only about backups (ROADMAP 97.28)
 
-**Approved 2026-10-21 (belt stand-in for Andrew):** "drop the two leftover Spanish lines and keep the privacy page English-only stating the decided three-month backup retention." The privacy page's English sentence stands exactly as built; there is no Spanish sentence and none to add. Nothing further to decide here.
+The privacy page now tells customers, in plain English, that anything deleted stays in the encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months, then deleted. Two old roadmap lines (97.28 R4/R5) still ask for that same sentence in Spanish, but your legal pages are English-only by your standing rule, so no Spanish sentence was built.
+
+**Recommendation: say "keep it English-only".** That closes R4/R5 under the amendments proposed in ROADMAP 97.28. If you want the Spanish sentence too, say so and a job adds it.
 
 ## DO · Make the backups delete the monthly copies after 3 months (ROADMAP 97.28)
 
