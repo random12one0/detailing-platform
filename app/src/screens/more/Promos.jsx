@@ -73,7 +73,7 @@ import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 // ROADMAP 101.8 - Save sale stays disabled while a running sale has no real
 // percentage, so a 0% "sale" can never be published.
-import { saleSaveBlocked, saleSaveDisabled } from "../../lib/sale.js";
+import { saleSaveBlocked, saleSaveDisabled, withBusy } from "../../lib/sale.js";
 
 // The sale's own ladder, reused rather than re-chosen. A discount a detailer
 // offers is the same set of round numbers whether it is site-wide or behind a
@@ -136,16 +136,19 @@ export default function Promos() {
     // ROADMAP 101.8 - the disabled button is the refusal; this guard is the
     // belt-and-braces so a 0% running sale is never written.
     if (busy || saleSaveBlocked(sale)) return;
-    setBusy(true);
-    setMsg(null);
-    const { error } = await supabase.from("business_settings").update({
-      site_discount_active: sale.active,
-      site_discount_percent: Number(sale.percent) || 0,
-      site_discount_label: sale.label.trim() || null,
-    }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
-    if (!error) reload();
-    setBusy(false);
+    // ROADMAP 101.8 F1 - the whole write runs inside `withBusy`, so a throw
+    // (the read-only preview guard throws during `update`) still clears the
+    // flag and a later retry is permitted.
+    await withBusy(setBusy, async () => {
+      setMsg(null);
+      const { error } = await supabase.from("business_settings").update({
+        site_discount_active: sale.active,
+        site_discount_percent: Number(sale.percent) || 0,
+        site_discount_label: sale.label.trim() || null,
+      }).eq("business_id", business.id);
+      setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
+      if (!error) reload();
+    });
   };
 
   // WHAT A CUSTOMER GETS, IN WORDS. One key per shape rather than English

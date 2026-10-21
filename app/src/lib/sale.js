@@ -14,3 +14,16 @@ export const saleSaveBlocked = (sale) =>
 // twice. The screen calls exactly this function for `disabled`.
 export const saleSaveDisabled = (sale, busy) =>
   Boolean(busy) || saleSaveBlocked(sale);
+
+// ROADMAP 101.8 F1 - the save's `busy` flag must clear even when the write
+// throws (the read-only preview guard throws during `update`), or Save sale
+// stays disabled for that screen, including after editing is unlocked. The
+// screen runs its whole write inside this helper; `finally` is the fix.
+export const withBusy = async (setBusy, fn) => {
+  setBusy(true);
+  try {
+    return await fn();
+  } finally {
+    setBusy(false);
+  }
+};
