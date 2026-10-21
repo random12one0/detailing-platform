@@ -12,10 +12,13 @@
 // Side-effect free: importing this module writes nothing and runs nothing.
 // `tests/backup-retention.test.mjs` and `scripts/backup-retention.mjs` share
 // it, so both execute the same workflow bytes through the same fixture.
-import { spawnSync, execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const REPO_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
 const norm = (t) => t.replace(/\r\n/g, "\n");
 
@@ -75,9 +78,17 @@ export function checkGnuDate(bash) {
 export function runPrune({ bash, step, today, tags, listOk = true, failDeleteTag = null }) {
   // PRUNE_TMPDIR overrides os.tmpdir() where the default temp root is not
   // writable (a locked-down shell); the belt's own run leaves it unset. The
-  // scratch parent is created, each run gets its own directory under it.
-  const base = process.env.PRUNE_TMPDIR || tmpdir();
-  mkdirSync(base, { recursive: true });
+  // scratch parent is created; each run gets its own directory under it. When
+  // the system temp denies us, fall back to a git-ignored folder in the repo
+  // rather than judging nothing (the fallback is still a real directory the
+  // real shell runs in; nothing about the step changes).
+  let base = process.env.PRUNE_TMPDIR || tmpdir();
+  try {
+    mkdirSync(base, { recursive: true });
+  } catch {
+    base = join(REPO_ROOT, ".tmp-97.28", "prune-tmp");
+    mkdirSync(base, { recursive: true });
+  }
   const dir = mkdtempSync(join(base, "prune-97-28-"));
   const slash = (p) => p.replace(/\\/g, "/");
   const ledger = join(dir, "ledger.txt");
