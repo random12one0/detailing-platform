@@ -25,6 +25,7 @@
 // one the emails send from. Re-exported here so the pages that already read
 // it from this file keep working.
 export { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_LINE } from "../lib/support.js";
+import { es } from "../lib/strings/es.js";
 
 // WHO "WE" IS, IN ONE STRING. Both pages print it and nothing else hard-codes
 // it, so correcting the legal structure is a one-line change.
@@ -153,6 +154,12 @@ export const TERMS = {
      "Closing your account is the same one button in your own settings as canceling, and it is never behind an email to us. That stops the billing and leaves your data where it is. If you also want it deleted, email us and we will delete it."],
   ],
 };
+
+// ROADMAP 97.28 R7/R8: the backup disclosure below is keyed by its English
+// sentence (see its Spanish entry in `lib/strings/es.js`). Rendered through
+// a variable no extractor can follow; listed by hand in DYNAMIC,
+// `tests/spanish.test.mjs`.
+const EN_DISCLOSURE = "**Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire:** each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.";
 
 export const PRIVACY = {
   label: "Privacy",
@@ -290,7 +297,7 @@ export const PRIVACY = {
     ["Marketing email",
      "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps, a page and then a button, so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
-     "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. **Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire:** each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too."],
+     "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. " + EN_DISCLOSURE + " " + (es[EN_DISCLOSURE] ?? EN_DISCLOSURE)],
     // ── ROADMAP 7.7(2), 2026-09-21. A CLAUSE WAS REMOVED AND NOTHING WAS
     // PUT IN ITS PLACE ────────────────────────────────────────────────────
     // It used to end *"…and they can do BOTH from their own dashboard."*

@@ -153,7 +153,7 @@ test("every place that states the period states the same one (source-text guard)
   const row = (doc) => (doc.split("\n").find((l) => l.startsWith("| Retention |")) || "");
   const backups = norm("docs/ops/backups.md");
   const recovery = norm("docs/recovery.md");
-  return import(pathToFileURL("app/src/landing/legal.js").href).then(({ PRIVACY }) => {
+  return import(pathToFileURL("app/src/landing/legal.js").href).then(async ({ PRIVACY }) => {
     const howLong = (PRIVACY.sections.find(([what]) => what === "How long") || [])[1] || "";
     const found = {
       "workflow copy": [
@@ -178,5 +178,12 @@ test("every place that states the period states the same one (source-text guard)
       assert.equal(m, 3, `${where} months`);
     }
     assert.match(howLong, /Then it is deleted too\./, "eventual deletion");
+    // ROADMAP 97.28 R7/R8 — the privacy sentence carries its Spanish key,
+    // and the page renders the catalogued Spanish disclosure beside the English one.
+    const EN_DISCLOSURE = "**Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire:** each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.";
+    const { es } = await import(pathToFileURL("app/src/lib/strings/es.js").href);
+    assert.ok(es[EN_DISCLOSURE], "the privacy sentence has its spanish key in the catalogue");
+    assert.ok(howLong.includes(EN_DISCLOSURE), "the english disclosure is on the page");
+    assert.ok(howLong.includes(es[EN_DISCLOSURE]), "the privacy page states the period in spanish too");
   });
 });

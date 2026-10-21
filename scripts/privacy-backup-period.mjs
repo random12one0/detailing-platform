@@ -5,19 +5,19 @@
 //
 // Eight targets: /privacy at 1440x900, 768x1024, 390x844 and 320x700, each in
 // the normal path and ?lite=1. At each: the "How long" row holds the 30-day and
-// 3-month sentence, its text is painted (opacity 1, read where the reader is
+// 3-month sentence in English and in Spanish, its text is painted (opacity 1, read where the reader is
 // standing — docs/gotchas.md 103), nothing scrolls sideways, and the console is
 // silent. A PNG per target goes to --shots (default .tmp-97.28/png).
 //
 // EXECUTION PROOF, not log prose. --break=old-words serves legal.js WITHOUT
-// the new sentence to every target — the original defect — and every target
+// both new sentences to every target — the original defect — and every target
 // must go red on its missing disclosure. The rewrite carries an execution
 // signature (`window.__backupBreak = "old-words"`) INSIDE the served module,
 // and the check reads that signature back out of the running page: a launch
 // failure, a blank page, or a rewrite the browser never executed cannot pass
 // for a caught sabotage, because the signature would be absent (gotchas 113).
 // The surrounding paragraph must still render, proving exactly one disclosure
-// was removed rather than the whole row. A separate 390x844 context is the
+// were removed rather than the whole row. A separate 390x844 context is the
 // every-run canary. Unknown --break values exit 2 and prove nothing.
 //
 // A checkout with no app/.env.local renders every route blank (the settings
@@ -40,6 +40,8 @@ const started_at = new Date().toISOString();
 const KEEP_30 = "each night's backup is kept for 30 days";
 const KEEP_3MO = "the one taken on the 1st of each month for 3 months";
 const THEN_DELETED = "Then it is deleted too.";
+const ES_3MO = "la del día 1 de cada mes, 3 meses";
+const ES_GONE = "Después también se elimina.";
 const SURROUNDING = "When an account is closed and asks to be deleted, it is deleted.";
 const SIG = "old-words";
 const VIEWS = [[1440, 900], [768, 1024], [390, 844], [320, 700]].flatMap(([w, h]) => [[w, h, ""], [w, h, "?lite=1"]]);
@@ -63,15 +65,27 @@ async function prepare(page, oldWords) {
   if (oldWords) await page.route(/\/src\/landing\/legal\.js/, async (route) => {
     const res = await route.fetch();
     const text = await res.text();
-    // Remove exactly the backup disclosure, then sign the served module so
+    // Remove exactly the two backup-disclosure sentences, then sign the served module so
     // the page must prove it executed THIS rewrite (not a cached original).
     const body = text
-      .replace(/ \*\*Anything deleted, a whole account or one[^"]*Then it is deleted too\./, "")
+      .replace(/"\*\*Anything deleted, a whole account or one[^"]*Then it is deleted too\./, "\"")
       + `\n;window.__backupBreak=${JSON.stringify(SIG)};\n`;
     if (body === text) throw new Error("old-words rewrite did not land — refusing to judge (docs/gotchas.md 102)");
     if (body.includes(KEEP_3MO)) throw new Error("old-words rewrite left the disclosure in place — refusing to judge");
+    if (body.includes(ES_GONE)) throw new Error("old-words rewrite leaked spanish into legal.js — refusing to judge");
     if (!body.includes(SURROUNDING)) throw new Error("old-words rewrite took the surrounding paragraph too — refusing to judge");
     await route.fulfill({ response: res, body });
+  });
+  // The Spanish sentence lives in the catalogue module, not legal.js: blank
+  // exactly its value, so the sabotage models the pre-97.28 page (neither
+  // sentence) while the surrounding catalogue stays valid JavaScript.
+  if (oldWords) await page.route(/\/src\/lib\/strings\/es\.js/, async (route) => {
+    const res = await route.fetch();
+    const esText = await res.text();
+    const esBody = esText.replace(/"\*\*Todo lo eliminado[^"]*Después también se elimina\./, "\"");
+    if (esBody === esText) throw new Error("old-words rewrite did not land on es.js");
+    if (esBody.includes(ES_GONE)) throw new Error("old-words rewrite left the spanish disclosure in place");
+    await route.fulfill({ response: res, body: esBody });
   });
 }
 
@@ -111,8 +125,10 @@ try {
       const r = await measure(browser, view, BREAK === "old-words");
       completed++;
       const hasDisclosure = r.text.includes(KEEP_30) && r.text.includes(KEEP_3MO) && r.text.includes(THEN_DELETED);
+      const hasEspanol = r.text.includes(ES_3MO) && r.text.includes(ES_GONE);
       const surroundingIntact = r.text.includes(SURROUNDING) && r.text.includes("How long");
       check(`${at} · How long states the 30-day and 3-month backup period`, hasDisclosure, (r.text || "").slice(-240));
+      check(`${at} · How long states the period in spanish too`, hasEspanol, (r.text || "").slice(-240));
       check(`${at} · the row is painted where the reader stands`, r.opacity === "1", `opacity ${r.opacity}`);
       if (!BREAK) {
         check(`${at} · no unfinished rewrite executed here`, r.sig === null, `signature ${r.sig}`);
@@ -132,7 +148,7 @@ try {
   // disclosure is already failing every target above.
   canaryCaught = false;
   const c = await measure(browser, [390, 844, ""], true, `privacy-canary-390x844${BREAK ? "-oldwords" : ""}`);
-  canaryCaught = !c.text.includes(KEEP_3MO) && c.text.includes(SURROUNDING) && c.sig === SIG;
+  canaryCaught = !c.text.includes(KEEP_3MO) && !c.text.includes(ES_GONE) && c.text.includes(SURROUNDING) && c.sig === SIG;
   say(`${canaryCaught ? "ok  " : "FAIL"} canary · the pre-97.28 words are called missing, with an executed signature`);
 } finally { await browser.close(); }
 
@@ -149,8 +165,8 @@ writeReceipt({
   status: failures.length || completed < VIEWS.length || !canaryCaught ? "fail" : "pass",
   expected_targets: VIEWS.length, discovered_targets: VIEWS.length, attempted_targets: VIEWS.length, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: VIEWS.length * 6,
-  assertion_floor: "6 checks at each of 8 targets (4 widths x normal and ?lite=1): disclosure presence, paint, injection state (absent clean / executed sabotage), exactly-one removal, geometry, console; every check() unconditional.",
+  min_assertions: VIEWS.length * 7,
+  assertion_floor: "7 checks at each of 8 targets (4 widths x normal and ?lite=1): english disclosure presence, spanish disclosure presence, paint, injection state (absent clean / executed sabotage), exactly-one removal, geometry, console; every check() unconditional.",
   canary: { id: "old-words", observed_failure: canaryCaught, what: "legal.js served without the backup sentence, but with an executed in-page signature, is reported missing at 390x844 while the surrounding paragraph still renders" },
   failures,
   artifacts: [txt, ...seen],
