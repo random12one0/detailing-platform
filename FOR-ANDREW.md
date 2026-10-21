@@ -83,23 +83,21 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
-## ANSWERED · Backup retention and privacy language (ROADMAP 97.28)
+## DECIDE · Approve the English-only backup sentence (ROADMAP 97.28)
 
-**Answered October 19, recorded October 21:** "3 months." The twelve-month work
-below is superseded and must be revised before integration. The privacy page stays
-English-only under the standing legal-page rule. No further language decision is
-needed. Publishing the revised private backup workflow remains your later action;
-the recommendation is to wait for its revised retention checks to pass.
+You decided monthly backups are kept 3 months, then deleted. That part is built and checked, and the privacy page says so in one English sentence under "How long".
 
-The backup change you asked for (monthly copies deleted after 12 months) is
-built and checked, and the privacy page now says so in one English sentence.
-It is waiting, unmerged, for one answer: the item also asked for that sentence
-in Spanish, but the privacy page has never had Spanish on purpose. It is a legal
-document, and the rule here is that nobody machine-translates it.
+The item as written also asks for that sentence in Spanish (its R4/R5 lines). The privacy page has never had Spanish on purpose: it is a legal document, and the rule here is that nobody machine-translates it.
 
-**Recommendation: say "English only".** The work then goes in as it is. The
-other choice is paying a qualified translator for the whole privacy page, which
-would be a separate job.
+**Recommendation: say "approved".** Nothing is translated either way; the English sentence stays exactly as it is, and the two carried lines are amended to match. The other choice is paying a qualified translator for the whole privacy page, which would be its own job.
+
+## DO · Make the backups delete the monthly copies after 3 months (ROADMAP 97.28)
+
+The nightly backup job itself lives in your private backups repo, which only you can change. The revised copy is checked and waiting in this repo at `docs/ops/backup.live-copy.yml`.
+
+**The step, about two minutes on github.com:** in `random12one0/detailing-platform-backups`, open `.github/workflows/backup.yml`, find the step called "Prune old backups", and replace that whole step with the same step from the copy. Save (commit) to `main`. If you would rather paste the whole file, the copy also carries the 97.25 security half of the dump step; it does NOT carry 97.25's second edit, in `scripts/restore.sh`, so do that one as well (ROADMAP 97.25, its own row below).
+
+No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01. Until you paste it, the 1st-of-month copies are kept for ever.
 
 ## ANSWERED · Back-office checks follow the approved design (ROADMAP 98.4)
 

@@ -47,7 +47,11 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 // that same method found a THIRD commitment `/pricing` makes in public and
 // this document never mentioned, and the § "Sales tax" clause below is it.
 // One clause added, nothing else in either document touched.
-export const EFFECTIVE = "October 11, 2026";
+// **21 OCTOBER 2026** — ROADMAP 97.28: the privacy page's "How long" now says
+// how long the backups keep deleted data (Andrew chose 3 months, 2026-10-19, for the
+// monthly copy). One sentence added; `tests/backup-retention.test.mjs` holds
+// it to the same period the backup job states.
+export const EFFECTIVE = "October 21, 2026";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
@@ -286,7 +290,7 @@ export const PRIVACY = {
     ["Marketing email",
      "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps, a page and then a button, so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
-     "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."],
+     "For as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. **Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire:** each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too."],
     // ── ROADMAP 7.7(2), 2026-09-21. A CLAUSE WAS REMOVED AND NOTHING WAS
     // PUT IN ITS PLACE ────────────────────────────────────────────────────
     // It used to end *"…and they can do BOTH from their own dashboard."*
