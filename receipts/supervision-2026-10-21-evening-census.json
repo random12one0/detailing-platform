@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-21T21:40:44.723Z",
+  "git_sha": "5ddb5b9a0640d68e0be90062dddaa16b870c20c4",
+  "lastSupervisedAt": "2026-10-21T14:16:35.083Z",
+  "tally": {
+    "open": 148,
+    "done": 220
+  },
+  "count_command": "L.tally(readFileSync(\"ROADMAP.md\",\"utf8\")); cross-check anchored /^- \\[ \\]/gm and /^- \\[x\\]/gm",
+  "stateCorrection": {
+    "item": "97.28",
+    "before": {
+      "held": "the strong helper gave no usable answer",
+      "rescueUsed": 1
+    },
+    "after": {
+      "held": null,
+      "rescueUsed": 0
+    },
+    "kept": "repairUsed, monetary accounting, call history, other lineages, risky-stop rules"
+  }
+}

@@ -3902,3 +3902,83 @@ Required local checks: the six read-before-run credential-free suites
 no-credentials-in-tracked-text, every-open-item-is-citable) exited 0 with no
 failures or skips; full output is the supervision gates receipt. The decisions
 index and gotchas heading count were checked after writing the notes.
+
+## Supervision 2026-10-21 evening
+
+Main product source: 5ddb5b9a (sale merge 46a941db). Held backup source:
+62c8c7b19541a943e448f32b3e2cb9ef6dfaa0ce. This is local browser and shell
+proof, not a claim about production deployment, RLS or installed backups.
+
+**101.8 retained.** `node scripts/supervision-2026-10-21-sale.mjs`:
+60 discovered of 60 declared checks, none failed. Widths in execution order:
+390x844, 1440x900, 768x1024, 392x844, 320x844, 1920x1080. The actual Promos
+component refuses running at zero, accepts ten into the fixture row, disables
+Save during a held PATCH, refuses another press, then enables Save again.
+Each width has its own clean console and no sideways scroll. The same command
+with `--break=guard` serves the actual pre-fix Promos component from c3678a82:
+60 of 60 checks reached, 18 ordinary assertions failed (zero refusal, busy
+disable, duplicate request at each width). It exits 1. Clean and sabotage
+results and screenshots have separate directories and durable JSON copies in
+`receipts/supervision-2026-10-21-evening-sale{,-sabotage}.json`.
+
+Opened the zero and saved phone/desktop images, plus tablet and 392 images.
+Against DESIGN.md and its linked system: continuous dark textured ground,
+Archivo headings, monospaced figures, the tenant's cyan accent, existing
+settings groups and small control ladder remain coherent. Save is visibly
+dimmed at zero and readable/enabled at ten; rows wrap on the phone and occupy
+the right column on desktop. No new design direction was introduced.
+The earlier same-turn request-count probe briefly passed on the old code;
+the final walk waits for the HTTP boundary, and its old-code run catches the
+duplicate. The existing delayed-test impossibility claim in the item is false.
+Control Room `audit-data/runs/run-5/recheck-R2-10/verdict.json` also records
+that the finding is fixed by 101.8.
+
+**97.28 remains open on independently reproduced checker defects.**
+`node scripts/supervision-2026-10-21-held.mjs`: 22 discovered of 22 declared
+observations, none failed. It runs the exact held workflow's prune step in
+real bash with `gh` replaced by an in-process shell function. The May 31
+population keeps March 1, deletes February 1 and leaves v1.0; failed listing
+exits nonzero and deletes nothing. The forever, twelve-month and print-only
+mutations break the same deletion expectation; exit-zero breaks the same
+failed-listing expectation. No real release or database was touched.
+
+The held privacy disclosure and shared terms date render at 1440x900,
+768x1024, 392x844 and 390x844, with clean consoles. Opened desktop/tablet/phone
+images: the three-month paragraph is readable in the ruled list, and the
+terms date is visible below its heading. An initial fixed 1.3-second paint
+read was too early; the final walk waits for the actual reveal end state.
+Then the exact held browser checker is run with only import paths and its
+receipt output redirected into scratch: after 8 targets and 40 passing
+checks, it exits 1 with `ReferenceError: canaryCaught is not defined`.
+With only that variable's scope corrected in a second scratch module,
+`--break=old-words` exits 0 and writes status pass / failures empty over the
+removed disclosure. This is a reproduced false green, not accepted coverage.
+The durable evidence is `receipts/supervision-2026-10-21-evening-held.json`;
+raw outputs are `.manager-shots/supervision-2026-10-21-held/exact-held/run.txt`
+and `.manager-shots/supervision-2026-10-21-held/scope-only-sabotage/run.txt`,
+with the false-pass `receipt.json` beside that second log. No held product
+code was changed or accepted.
+
+**Belt correction.** Installed belt.mjs/harness.mjs and staging commits
+d95b95d/bf0a273 match by SHA-256. `node belt.mjs --self-check` passes 603 assertions and 3 existing
+canaries in both folders. Restoring unknown-review owner routing made its
+new ordinary assertion fail (exit 1); changing missing-helper transient back
+to false separately failed its own assertion (exit 1). Disabling correction of
+the persisted stale hold also failed its own assertions (exit 1). All three edits were
+restored before the final green. Durable raw outputs:
+`receipts/supervision-2026-10-21-evening-belt-{green,sabotage,no-answer-sabotage,persisted-sabotage}.txt`.
+The state correction and census are recorded separately in the evening
+census receipt. No review, owner decision, budget or risky stop was waived.
+
+Local gates: the four required source suites plus the sale and citable suites
+pass 15 tests, no failures or skips; raw output is the evening gates receipt.
+Credential scanner and decisions index are run after staging these notes so
+the scanner sees the newly tracked files. No live inventory or migration
+measurement was attempted, and neither is called clean.
+
+The figures suite first refused because bash was absent from PATH. With
+`C:\Program Files\Git\bin` temporarily prepended to PATH in this PowerShell
+command, `node --test tests/figures-carry-their-command.test.mjs` passes 9 tests;
+its named UNJUDGEABLE figures remain reported, not certified. Both outputs
+are retained as the evening figures receipts. Text logs were normalized to
+UTF-8 before the final credential scan so NUL detection does not skip them.

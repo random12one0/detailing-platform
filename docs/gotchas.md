@@ -5630,3 +5630,21 @@ The complete result is `receipts/supervision-2026-10-21.json`.
 A refusal fixture must satisfy every other selection predicate. Execute the
 production handler, then break its specific protection and require that same
 fixture to fail. A copy of a query cannot prove the caller's protection exists.
+
+## 137. A sabotage that expects the defect can certify the defect as PASS
+
+Supervision 2026-10-21 evening, held 97.28 source `62c8c7b1`.
+`scripts/privacy-backup-period.mjs --break=old-words` deliberately removes the
+backup disclosure, then changes the assertion to EXPECT its absence. Once its
+separate out-of-scope `canaryCaught` crash is corrected in scratch, the command
+exits 0 and writes a PASS receipt with no failures over the missing disclosure.
+The execution signature proves the broken module ran; it does not prove the
+ordinary presence detector rejected it.
+
+Reproduce without touching the held branch or live services:
+`node scripts/supervision-2026-10-21-held.mjs`. The exact script first crashes;
+the scope-only scratch variant then exposes the false green. Logs and receipts
+are separate under `.manager-shots/supervision-2026-10-21-held/`. Preserve the
+ordinary assertion under sabotage: confirm the edit executed, then require the
+same disclosure-presence assertion to fail. A self-check of the injection is
+separate from the product verdict.

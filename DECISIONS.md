@@ -362,6 +362,7 @@ were made more than once.
 - **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
 - **Supervision 2026-10-19** — a finish review that still finds problems is builder work, not a "merge it?" question: the belt now writes the reviewer's findings into a "Held for a builder" line (eight hand rewrites before it); 98.4 and 97.29 rewritten.
 - **Supervision 2026-10-21** — recovery-exhausted holds must retain reviewer findings; no accepted work since the last pass; inbox decisions retained without another owner question.
+- **Supervision 2026-10-21 evening** — one landed sale fix retained; a disconnected helper is capacity, not a merge decision; backup proof remains open on two reproduced checker faults.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19255,3 +19256,31 @@ was already dirty in both index and worktree; CLAUDE.md's shared-file rule preve
 editing or committing through that other work. It remains open there already.
 That existing dirty work and its unsupported claims are listed in the supervision
 report; this pass does not convert it into an accepted merge.
+
+## Supervision 2026-10-21 evening
+
+Since the previous pass's timestamp (recorded in the evening census receipt),
+only 101.8 reached main as completed product work. Held-branch ticks are not
+deliveries. Its sale refusal, successful save, delayed-write protection and
+old-code sabotage reproduce in the real browser; retain its tick.
+
+97.28's last helper call returned no usable answer. The belt persisted that as
+an exhausted rescue and asked Andrew to merge anyway. A failed diagnosis is
+capacity, not an owner judgment. The installed belt and staging now return only
+the unused rescue slot, retain call accounting, back off, and keep unknown
+finish reviews out of owner questions. No review is accepted or skipped. The
+exact historical failed-helper state for 97.28 was corrected once; other
+lineages, repair counts, budgets and risky-stop rules are unchanged. Staging
+commits d95b95d and bf0a273 hold the code edits. The compatibility correction
+also catches the old cached hold if the running supervisor saves its in-memory
+state on exit. All three altered conditions were broken on purpose against
+the self-check; the clean installed and staging checks pass.
+
+The prepared backup shell works on the tested local population. Its browser
+proof still crashes on an out-of-scope canary; a scratch correction exposes a
+second fault, where missing disclosure incorrectly receives a passing receipt.
+Those are builder repairs under the existing open 97.28, not new decisions on
+the already settled period or legal-page language. 3.4g's held evidence still
+has no delivery rows; it was inspected, not accepted or sent. Existing English
+approval decisions remain binding. Proofs, commands and limits: docs/VERIFIED.md
+and docs/supervision-2026-10-21-evening.md.
