@@ -3833,3 +3833,72 @@ Re-run at `ba9ae7bf` on :5173 unless named.
 - **98.15 + 98.14** — `node scripts/platform-net-live.mjs` against the dev server at main `9033943a`, project `kguqylyzgyzfktkfnhjb`: **49 assertions, 0 failed, 4 of 4 targets, canary caught**, cleanup confirmed. Screenshots read: November 2025 at 392 shows Paid to us $40, Costs entered · 4 bills $57.49, We lost $17.49, Domain $12.99 to the cent; December 2025 at 1440 shows Profit · Not entered. Found while looking: a partly-entered month prints a profit with no note beside it — ROADMAP 98.16.
 - **14.34** — `node scripts/push-tap.mjs` at `9033943a`: **22 assertions, 0 failed** at 1440/768/390/320; `--break=dead-route`: **4 failed** (the tap lands on the 404 at each size), in its own sabotage receipt.
 - **98.11** — `node scripts/label-guard.mjs` at `9033943a`: "No stale labels".
+
+## Supervision 2026-10-21 — held work, not accepted main progress
+
+Base: main `1d58d8cd`. `receipts/supervision-2026-10-21-census.json` records the
+exact time floor from state.json and the recount command: no main commits since
+2026-10-19T14:07:43.048Z, 149 open / 219 done. Main was already in a merge of
+98.16 (`MERGE_HEAD=7dac78f7`) with ROADMAP dirty in both index and worktree.
+These local screenshots do not certify an accepted merge or a live release.
+
+Reproduction: `node scripts/supervision-2026-10-21.mjs` from the main checkout,
+with localhost:5173 free. It serves main's existing working tree and then each
+held branch's exact source through Vite, uses installed main dependencies and a
+disposable in-memory backend, blocks external API hosts, and executes the real
+import handler with its DB/membership boundaries stubbed. No env-file read, live
+session, live write, schema change, paid service or release. Expected result is
+exit 1 naming the known fixture-deletion defect, not a passing supervision gate.
+The committed result and source hashes are `receipts/supervision-2026-10-21.json`.
+
+- **98.16, existing staged warning:** at 1440x900, 768x1024, 392x844 and 390x844,
+  partial months name the missing bills beside the amount; negative amounts are
+  refused, zero is accepted, complete months have no warning, and an empty month
+  says Not entered. Browser consoles clean. Viewed the desktop, tablet and phone
+  screenshots against DESIGN.md/The Thread: continuous dark ground, existing
+  typography and monospace money, amber notice next to the number, no clipped
+  warning. Working-tree hashes are in the receipt because HEAD does not contain
+  this product change. Earlier independent run of the pre-existing untracked
+  `scripts/supervision-2026-10-19.mjs` passed 66/66 (also exercises 99.13);
+  `--break=hide-note --lite` failed the actual notice-visibility assertions at
+  both 1440 and 392, 2/18 red. Its files remain under
+  `.manager-shots/supervision-2026-10-19[-hide-note-lite]/`. This is local UI proof,
+  not the outstanding live platform-net-live receipt; 98.16 remains open.
+- **98.13, held source e3531cf3:** Team Access stays one row at 44px at
+  1440/768/392/390/320. Owner selects, returning to the first radio works, an
+  empty invite is disabled; consoles clean. The original two-column CSS
+  sabotage at 392 produces two rows / 88px and is caught. Viewed desktop and
+  phone screenshots: Email has the full phone row and the options are readable;
+  at desktop the original pair remains. This pass did not certify the separate
+  New booking Vehicle size control or live delivery of an invite. No main tick
+  or merge was added.
+- **97.40, held product affcfade:** file picker -> preview -> save -> undo worked
+  at 1440/768/392, including duplicate and missing-phone refusal; consoles clean.
+  Executed handler refused a stubbed nonmember, and ordinary undo removed only
+  the imported batch. But a same-batch imported is_test=true row was deleted:
+  `{ok:true,removed:1}`. Removed its branch tick at c39652f2; main was already open.
+  The pure parser also splits quoted multiline Notes and loses their second
+  line. `docs/gotchas.md` 136 explains why its existing DB test misses the fixture
+  defect. Viewed preview screenshots: controls and named refusal rows fit both
+  widths, but singular copy reads "1 duplicates" and "Save 1 customers"; include
+  that wording repair with matching Spanish keys when finishing this item.
+
+Screenshots from the reproducible script are in
+`.manager-shots/supervision-2026-10-21/`; all assertions and the parser result
+are in its JSON. This local fake backend has no RLS, so none of this proves live
+tenant authorization, deployment state, migrations or PostgREST row limits.
+
+**Belt repair:** the exhausted-recovery hold now passes final reviewer findings
+instead of manufacturing a "merge it" question. `node belt.mjs --self-check`
+first failed its two new assertions against the original call, then passed
+593 assertions / 3 canaries in both belt and belt-staging. Outputs:
+`belt/supervision-2026-10-21-{red,green}.txt` and
+`belt-staging/supervision-2026-10-21-green.txt`; preserved copies accompany this
+receipt. Staging commit 3c4e0fa, with explicit file paths. No routing, budget,
+cadence, gate order, risky-stop rule or model setting changed.
+
+Required local checks: the six read-before-run credential-free suites
+(composition, design-contrast, landing-pricing, route-contract,
+no-credentials-in-tracked-text, every-open-item-is-citable) exited 0 with no
+failures or skips; full output is the supervision gates receipt. The decisions
+index and gotchas heading count were checked after writing the notes.

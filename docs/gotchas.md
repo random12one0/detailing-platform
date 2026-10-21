@@ -5612,3 +5612,21 @@ ignored. The check now refuses by name ("REFUSED, NOT JUDGED") when the served s
 lacks the fix's signature; proved by editing the served copy (refused) and restoring
 it (PASS). **Any check aimed at `/ex1`–`/ex5` in dev: run `build-examples.mjs --dev`
 first, or make the check read what it is judging.**
+
+## 136. An undo test protects a fixture that never matched the delete
+
+Supervision 2026-10-21, held import branch affcfade. The database test in
+`tests/customer-import.test.mjs` says "flag, don't delete" and leaves its Fixture
+row intact. But that row has neither imported=true nor the selected batch id.
+It cannot match the DELETE even with no test-fixture protection. Worse, the test
+executes a hand-written DELETE rather than import-customers itself.
+
+`node scripts/supervision-2026-10-21.mjs` in main executes the actual held handler
+with a disposable in-memory DB boundary. Give it an is_test=true row that also
+has imported=true and the selected business/batch: undo returns
+`{"ok":true,"removed":1}` and removes it. No live rows were touched.
+The complete result is `receipts/supervision-2026-10-21.json`.
+
+A refusal fixture must satisfy every other selection predicate. Execute the
+production handler, then break its specific protection and require that same
+fixture to fail. A copy of a query cannot prove the caller's protection exists.

@@ -361,6 +361,7 @@ were made more than once.
 - **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
 - **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
 - **Supervision 2026-10-19** — a finish review that still finds problems is builder work, not a "merge it?" question: the belt now writes the reviewer's findings into a "Held for a builder" line (eight hand rewrites before it); 98.4 and 97.29 rewritten.
+- **Supervision 2026-10-21** — recovery-exhausted holds must retain reviewer findings; no accepted work since the last pass; inbox decisions retained without another owner question.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19223,3 +19224,34 @@ Andrew" line naming the branch, then each finding on its own line. Any other hol
 tamper, conflict) still asks him, because those can be real questions. When a finding IS a
 question for him (98.4's ten old-office checks), the supervisor puts it in `FOR-ANDREW.md` and the
 builder line says to leave those checks alone until he answers.
+
+## Supervision 2026-10-21
+
+The October 19 ruling above reached the ordinary held-review path but missed the
+recovery-exhausted path. The 0.11 run ended with reviewer problems, then called
+holdItem without the findings and wrote NEEDS ANDREW / "merge it" again. The minimum
+repair passes the final review findings (or its summary if the list is empty) to
+that call. It does not approve a review, merge a branch, or change risky-stop rules.
+The same edit is in belt and belt-staging; staging commit 3c4e0fa. The new
+`node belt.mjs --self-check` assertions failed against the old call before the fix
+and passed afterward in both folders. Raw outputs are named in docs/VERIFIED.md.
+
+Andrew's October 19 inbox decisions are binding: 97.28 uses THREE months of monthly
+backup retention, superseding twelve; 99.10 repairs all six problems before merging;
+98.4 updates design expectations while keeping permission/audit protections; 98.13
+prioritizes the phone layout; 98.16 may integrate the prepared warning; 0.11/0.11d
+may run the existing full live verification without requesting this permission
+again; 3.4 reconciles Planning's English approvals without sending every email
+again. Spanish customer communications still need competent review, never Andrew's
+approval of a language he does not speak. The live-run authorization does not waive
+the no-secrets, no-spending, no-publishing or no-live-structure constraints.
+
+No newly landed work was available to certify: git log since the belt's previous
+supervision was empty at main 1d58d8cd. Branch-local ticks and tally deltas are not
+accepted main progress. Reviewed the held Team layout, the bills warning already
+staged by an earlier session, and customer import. Reopened 97.40 on its own branch
+because its real handler deletes a same-batch flagged fixture. Main's ROADMAP.md
+was already dirty in both index and worktree; CLAUDE.md's shared-file rule prevents
+editing or committing through that other work. It remains open there already.
+That existing dirty work and its unsupported claims are listed in the supervision
+report; this pass does not convert it into an accepted merge.

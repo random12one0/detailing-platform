@@ -1,0 +1,364 @@
+{
+  "at": "2026-10-21T07:23:59.707Z",
+  "main": "1d58d8cdd97d8132f681afd3eb1cea7035948856",
+  "branches": {
+    "team": "e3531cf3",
+    "import": "affcfade"
+  },
+  "handler_sha256": "af5c9ae750e338dddc33ee8b73d2a32501035b90188264746458a220dc495dec",
+  "local_only": true,
+  "bills_working_tree": {
+    "app/src/admin/office/places/money/Bills.jsx": "be6c24bb93b78d6be211e30272227febd55c6bfb22fb9c7fd82ac8af591dac9e",
+    "app/src/admin/office/office.css": "63bc7667a7e4e6b39bb77715a6d55e1e9eafdc4db2fc35a2863cb5191b8a1688",
+    "app/src/lib/officeMoney.js": "d3daac29743ceecad02e7a4e960f3d8f649660e5efc022cf1a28af6e4deb3464"
+  },
+  "expected_checks": 63,
+  "results": [
+    {
+      "name": "98.16 1440: partial warning beside amount",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: negative bill refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: zero bill accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: complete month no warning",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: empty month has no profit figure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 1440: no sideways overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: partial warning beside amount",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: negative bill refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: zero bill accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: complete month no warning",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: empty month has no profit figure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 768: no sideways overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: partial warning beside amount",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: negative bill refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: zero bill accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: complete month no warning",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: empty month has no profit figure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 392: no sideways overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: partial warning beside amount",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: negative bill refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: zero bill accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: complete month no warning",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: empty month has no profit figure",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.16 390: no sideways overflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 1440: Access one row at normal height",
+      "ok": true,
+      "detail": "{\"height\":44,\"rows\":1}"
+    },
+    {
+      "name": "98.13 1440: Owner selects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 1440: empty invite refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 1440: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 768: Access one row at normal height",
+      "ok": true,
+      "detail": "{\"height\":44,\"rows\":1}"
+    },
+    {
+      "name": "98.13 768: Owner selects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 768: empty invite refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 768: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 392: Access one row at normal height",
+      "ok": true,
+      "detail": "{\"height\":44,\"rows\":1}"
+    },
+    {
+      "name": "98.13 392: Owner selects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 392: empty invite refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13: original layout sabotage detected",
+      "ok": true,
+      "detail": "{\"height\":88,\"rows\":2}"
+    },
+    {
+      "name": "98.13 392: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 390: Access one row at normal height",
+      "ok": true,
+      "detail": "{\"height\":44,\"rows\":1}"
+    },
+    {
+      "name": "98.13 390: Owner selects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 390: empty invite refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 390: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 320: Access one row at normal height",
+      "ok": true,
+      "detail": "{\"height\":44,\"rows\":1}"
+    },
+    {
+      "name": "98.13 320: Owner selects",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 320: empty invite refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "98.13 320: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 1440: duplicate and missing phone refused in preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 1440: actual handler created one customer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 1440: ordinary undo removes its batch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 1440: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 768: duplicate and missing phone refused in preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 768: actual handler created one customer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 768: ordinary undo removes its batch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 768: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 392: duplicate and missing phone refused in preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 392: actual handler created one customer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 392: ordinary undo removes its batch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40 392: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40: nonmember refused by handler",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "97.40: undo preserves flagged fixture",
+      "ok": false,
+      "detail": "{\"ok\":true,\"removed\":1}"
+    }
+  ],
+  "observations": [
+    {
+      "finding": "97.40 handler deletes an is_test=true imported row in the selected batch; the committed SQL test does not execute this handler or mark its Fixture as imported in that batch."
+    },
+    {
+      "finding": "Multiline Notes from a normal quoted CSV field are split into another customer row.",
+      "parsed": {
+        "header": [
+          "Name",
+          "Phone",
+          "Notes"
+        ],
+        "rows": [
+          {
+            "index": 2,
+            "cells": [
+              "Alice",
+              "5550111",
+              "first line"
+            ]
+          },
+          {
+            "index": 3,
+            "cells": [
+              "second line"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
