@@ -83,13 +83,9 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
-## DECIDE · Approve the English-only backup sentence (ROADMAP 97.28)
+## Settled · English-only backup sentence approved (ROADMAP 97.28)
 
-You decided monthly backups are kept 3 months, then deleted. That part is built and checked, and the privacy page says so in one English sentence under "How long".
-
-The item as written also asks for that sentence in Spanish (its R4/R5 lines). The privacy page has never had Spanish on purpose: it is a legal document, and the rule here is that nobody machine-translates it.
-
-**Recommendation: say "approved".** Nothing is translated either way; the English sentence stays exactly as it is, and the two carried lines are amended to match. The other choice is paying a qualified translator for the whole privacy page, which would be its own job.
+**Approved 2026-10-21 (belt stand-in for Andrew):** "drop the two leftover Spanish lines and keep the privacy page English-only stating the decided three-month backup retention." The privacy page's English sentence stands exactly as built; there is no Spanish sentence and none to add. Nothing further to decide here.
 
 ## DO · Make the backups delete the monthly copies after 3 months (ROADMAP 97.28)
 

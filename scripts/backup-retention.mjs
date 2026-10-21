@@ -30,7 +30,7 @@
 // NOT CHECKED, BY NAME: Spanish. The privacy page has no Spanish version -
 // `landing/legal.js` is English-only by ruling (`lib/appI18n.js`: the legal
 // pages "MUST NOT BE MACHINE-TRANSLATED BY ANYBODY") - so there is no Spanish
-// sentence to hold. ROADMAP 97.28 carries that as a question for Andrew.
+// sentence to hold. The Spanish half is settled: English-only, approved 2026-10-21.
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
