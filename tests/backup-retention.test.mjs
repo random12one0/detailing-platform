@@ -1,8 +1,8 @@
 // ROADMAP 97.28 - the backup retention rule, pinned without a subprocess.
 //
 // This test imports ONLY `scripts/lib/retentionRule.mjs` (pure functions),
-// the filesystem and in-process assertions: no `node:child_process`, no
-// shell, nothing spawned. The actual shell execution lives in the allowed
+// the filesystem and in-process assertions: it starts no programs and runs
+// no shell. The actual shell execution lives in the allowed
 // proof runner `scripts/backup-retention.mjs`, which runs the same workflow
 // bytes and asserts the ledger of real delete calls (empty-listing,
 // failed-delete, exact-expiry and long-month cases included). Both run one
