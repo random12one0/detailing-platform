@@ -940,6 +940,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
 - [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong helper gave no usable answer.
+  The work is safe on branch `belt/97.28-20261021173140885`. Answer "merge it" to keep it, or say what to change.
   **Held for a builder, not for Andrew (belt 2026-10-21).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021082840983`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **tests/backup-retention.test.mjs and scripts/backup-retention.mjs:** Earlier finding 1 remains open. The belt-run tests still exercise a separate rule using extracted numbers; replacing the workflow’s deletion with a print or changing its failure exit to success would leave them passing. The new mutations and builder-written logs do not supply independent execution proof of those actual workflow paths, so R1’s proof requirement remains unmet.
   - 2. **receipts/privacy-backup-period.json and receipts/privacy-backup-period-old-words.sabotage.json:** Earlier finding 3 remains open. Only the recorded revision and times changed; there is still no independent execution evidence that removing the disclosure makes the revised browser check fail. The belt’s clean page checks establish the normal pages, not that deliberate failure required by R1.
