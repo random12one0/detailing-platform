@@ -202,7 +202,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-SIX specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-SEVEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a

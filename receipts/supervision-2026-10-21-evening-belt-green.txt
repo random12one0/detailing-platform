@@ -1,0 +1,605 @@
+  ok   a clean main lets jobs start
+  ok   a main with an unfinished merge holds every job
+  ok   memoised parseItems hands out copies and keys on the exact text and options
+  ok   internet up with nothing recorded does nothing
+  ok   the first failed probe writes offline.json {since} and logs it
+  ok   a second failed probe keeps the original start and does not log again
+  ok   when it returns: INTERNET BACK after N min is logged, offline.json removed, the outage remembered
+  ok   a second watcher seeing it up does not announce the return twice
+  ok   no phone message before the 3-minute mark
+  ok   after 3 minutes: one 'no internet' message that is retried until it gets through
+  ok   when it comes back after a long outage: an 'Internet is back' message
+  ok   a short drop stays quiet
+  ok   the red banner says since when and that nothing can run
+  ok   a failure caused by the internet is not counted as one of the item's tries
+  ok   a network verdict is not a fault and reads plainly
+  ok   network drops never teach the belt that a cheaper model 'keeps failing'
+  ok   resting quiet hours: STOP is honoured within one 30-second slice
+  ok   resting quiet hours: STOP publishes the rest and clears it on return
+  ok   resting quiet hours: WAKE is honoured within one 30-second slice
+  ok   resting quiet hours: WAKE publishes the rest and clears it on return
+  ok   resting quiet hours: PAUSE is honoured within one 30-second slice
+  ok   resting quiet hours: PAUSE publishes the rest and clears it on return
+  ok   resting quiet hours: ended is honoured within one 30-second slice
+  ok   resting quiet hours: ended publishes the rest and clears it on return
+  ok   resting quiet hours: elapsed is honoured within one 30-second slice
+  ok   resting quiet hours: elapsed publishes the rest and clears it on return
+  ok   resting daily budget: STOP is honoured within one 30-second slice
+  ok   resting daily budget: STOP publishes the rest and clears it on return
+  ok   resting daily budget: WAKE is honoured within one 30-second slice
+  ok   resting daily budget: WAKE publishes the rest and clears it on return
+  ok   resting daily budget: PAUSE is honoured within one 30-second slice
+  ok   resting daily budget: PAUSE publishes the rest and clears it on return
+  ok   resting daily budget: ended is honoured within one 30-second slice
+  ok   resting daily budget: ended publishes the rest and clears it on return
+  ok   resting daily budget: elapsed is honoured within one 30-second slice
+  ok   resting daily budget: elapsed publishes the rest and clears it on return
+  ok   resting out of usage: STOP is honoured within one 30-second slice
+  ok   resting out of usage: STOP publishes the rest and clears it on return
+  ok   resting out of usage: WAKE is honoured within one 30-second slice
+  ok   resting out of usage: WAKE publishes the rest and clears it on return
+  ok   resting out of usage: PAUSE is honoured within one 30-second slice
+  ok   resting out of usage: PAUSE publishes the rest and clears it on return
+  ok   resting out of usage: ended is honoured within one 30-second slice
+  ok   resting out of usage: ended publishes the rest and clears it on return
+  ok   resting out of usage: elapsed is honoured within one 30-second slice
+  ok   resting out of usage: elapsed publishes the rest and clears it on return
+  ok   resting nothing workable: STOP is honoured within one 30-second slice
+  ok   resting nothing workable: STOP publishes the rest and clears it on return
+  ok   resting nothing workable: WAKE is honoured within one 30-second slice
+  ok   resting nothing workable: WAKE publishes the rest and clears it on return
+  ok   resting nothing workable: PAUSE is honoured within one 30-second slice
+  ok   resting nothing workable: PAUSE publishes the rest and clears it on return
+  ok   resting nothing workable: ended is honoured within one 30-second slice
+  ok   resting nothing workable: ended publishes the rest and clears it on return
+  ok   resting nothing workable: elapsed is honoured within one 30-second slice
+  ok   resting nothing workable: elapsed publishes the rest and clears it on return
+  ok   resting between jobs: STOP is honoured within one 30-second slice
+  ok   resting between jobs: STOP publishes the rest and clears it on return
+  ok   resting between jobs: WAKE is honoured within one 30-second slice
+  ok   resting between jobs: WAKE publishes the rest and clears it on return
+  ok   resting between jobs: PAUSE is honoured within one 30-second slice
+  ok   resting between jobs: PAUSE publishes the rest and clears it on return
+  ok   resting between jobs: ended is honoured within one 30-second slice
+  ok   resting between jobs: ended publishes the rest and clears it on return
+  ok   resting between jobs: elapsed is honoured within one 30-second slice
+  ok   resting between jobs: elapsed publishes the rest and clears it on return
+  ok   resting waiting for a safe workspace: STOP is honoured within one 30-second slice
+  ok   resting waiting for a safe workspace: STOP publishes the rest and clears it on return
+  ok   resting waiting for a safe workspace: WAKE is honoured within one 30-second slice
+  ok   resting waiting for a safe workspace: WAKE publishes the rest and clears it on return
+  ok   resting waiting for a safe workspace: PAUSE is honoured within one 30-second slice
+  ok   resting waiting for a safe workspace: PAUSE publishes the rest and clears it on return
+  ok   resting waiting for a safe workspace: ended is honoured within one 30-second slice
+  ok   resting waiting for a safe workspace: ended publishes the rest and clears it on return
+  ok   resting waiting for a safe workspace: elapsed is honoured within one 30-second slice
+  ok   resting waiting for a safe workspace: elapsed publishes the rest and clears it on return
+  ok   resting paused: STOP is honoured within one 30-second slice
+  ok   resting paused: STOP publishes the rest and clears it on return
+  ok   resting paused: WAKE is honoured within one 30-second slice
+  ok   resting paused: WAKE publishes the rest and clears it on return
+  ok   resting paused: ended is honoured within one 30-second slice
+  ok   resting paused: ended publishes the rest and clears it on return
+  ok   resting paused: elapsed is honoured within one 30-second slice
+  ok   resting paused: elapsed publishes the rest and clears it on return
+  ok   WAKE saves its quiet-hours override before deleting the request and logs it
+  ok   a saved WAKE override survives a restart without needing the file again
+  ok   WAKE bypasses only the current quiet-hours window, not tomorrow's
+  ok   quiet-hours expiry handles both sides of an overnight window
+  ok   resting and Kill explain the end time and useful controls plainly
+  ok   Kill while resting stops the belt instead of killing the sleep process
+  ok   Start wakes the alive resting belt and clears holds without spawning another belt
+  ok   Stop while resting promises a prompt exit
+  ok   Start explains a daily budget that still prevents work
+  ok   Start explains that waking cannot invent usage
+  ok   a stopped belt does not expose a stale resting file
+  ok   Start from stopped also carries the request past quiet hours
+  ok   Start while actually working never starts another belt
+  ok   Control Room inline scripts parse after the resting-controls change
+  ok   chat records the first resumed answer with its message id, without reasoning or later summaries
+  ok   chat extracts first answer text from Codex and Muse transcripts too
+  ok   chat replies are capped at 800 characters
+  ok   no message id or no actual answer means no invented chat reply
+  ok   Andrew advice is a successful handoff in the same session, never a cancellation or failed leg
+  ok   an unavailable resume session holds work without blaming Andrew's message as a supervisor failure
+  ok   Andrew kills and babysitter stops do not count toward the failure supervisor trigger
+  ok   two genuine failures plus a hand stop cannot trigger a three-failure audit
+  ok   three genuine failures still trigger while interruptions are ignored
+  ok   a success breaks the failure streak and a supervisor pass clears old failures
+  ok   a code update at a job or supervisor boundary schedules a restart immediately
+  ok   unchanged code continues without a restart
+  ok   one-shot jobs exit normally without spawning another belt
+  ok   stale code exits even without keep-running and honestly reports that no restart is scheduled
+  ok   both supervisor and every job outcome check fresh code before another dispatch or sleep
+  ok   supervisor guard restores an attributed edit and leaves outside code changes alone
+  ok   supervisor config restore changes only attributed keys, preserving concurrent owner settings
+  ok   deployment or recorded outside changes prevent snapshot restoration
+  ok   a missing current file counts as a change and an attributed deletion can be restored
+  ok   unattributed or unchanged files are never restored
+  ok   restore records the exact observed hash so a later outside update cannot be overwritten
+  ok   guard attribution reads actual editing tools rather than supervisor prose
+  ok   shell attribution identifies the literal write target rather than a filename being read
+  ok   an absolute edit path in another project cannot authorize restoring a belt file with the same name
+  ok   a kept failed attempt with commits becomes the next attempt's base
+  ok   merged or unavailable branches cannot be continued
+  ok   all requested kept verdicts qualify for continuation
+  ok   continuation merges current main first and identifies preserved commits in the brief
+  ok   regressing previous work is excluded with the check and commit names explained
+  ok   checks already failing on main do not discard saved work
+  ok   a merge conflict is aborted in the new copy and explained before falling back to main
+  ok   an unrun check that passes on main cannot approve previous work
+  ok   a test-safety refusal keeps the previous work and says it was refused, not regressed
+  ok   leanNotes switches between short relevant notes and the full owner notes
+  ok   the repeat detector steers ordinary turn ends even without watchdog step caps
+  ok   Muse briefs include only the newest configured babysitter lesson lines
+  ok   a resumed Claude session's running total is counted once (97.63: $1.42 + $1.86 was $1.86); a resumed ledger with no reading before is uncertain (leftover 6)
+  ok   one job ledger adds time, costs, steps, failures and tokens across different legs
+  ok   history retains every leg transcript in order
+  ok   every resume shares one absolute deadline instead of receiving a new full cap
+  ok   interrupts must match the item, start time and addressed leg
+  ok   babysitter advice clears cancellation and resumes the same session
+  ok   babysitter stops identify their source instead of blaming Andrew
+  ok   usable final REVIEW OK permits a done verdict
+  ok   REVIEW FIX after repair holds work unmerged
+  ok   empty, crashed and malformed final reviews fail closed
+  ok   isolation failure refuses dispatch, alerts, and never switches to a main-copy worker
+  ok   the dispatch caller returns before running gates or a worker when isolation fails
+  ok   with the sandbox on, a not-ready Windows sandbox holds Muse and says to run the setup again
+  ok   a ready sandbox with no passed test still holds Muse
+  ok   a ready sandbox whose test passed on this Muse version lets Muse run
+  ok   a test passed on another Muse version (an update) holds Muse
+  ok   after Muse updates itself, a cached probe of the old version does not let the untested new one run
+  ok   and a canary passed on the new version lets it run at once
+  ok   with the sandbox switch and hold off, Muse runs on the basic protections
+  ok   with the sandbox hold off, a secret file in the job's copy still holds Muse
+  ok   with the sandbox hold off, an inherited key still holds Muse
+  ok   with the sandbox hold off, personal rules still hold Muse
+  ok   Muse is held when protection is unverified, with a saved record and an actionable reason
+  ok   the hold raises one alert
+  ok   the same hold is not alerted twice
+  ok   an old basic-protection key cannot bypass required protection
+  ok   a secret file in the job's copy holds Muse
+  ok   personal rules inside Muse's home hold it
+  ok   cached failed protection still refuses dispatch
+  ok   strong builders preserve the same product and evidence boundary
+  ok   a protection record that cannot be saved holds dispatch
+  ok   everything written into Muse's brief is cleaned, and the clean-up is logged without the value
+  ok   the brief writer, the environment, the dispatch gate and the copy step are wired to the fence
+  ok   dirty cleanup keeps the folder and branch without merging, removal or deletion
+  ok   job-end saving commits tracked and new work on the job branch
+  ok   saving excludes only untracked job scratch, retaining intended new files
+  ok   failed save raises an alert and refuses to claim the work is safe in a commit
+  ok   a held review retains even an empty branch and clean cleanup never forces removal
+  ok   a failed rescue commit keeps the folder even if a later status looks clean
+  ok   only a proven clean, empty branch is deleted using git's safe deletion
+  ok   staged changes remain dirty even when the working file matches HEAD
+  ok   committed work on a detached or different branch keeps its folder rather than becoming unreachable
+  ok   finds 5 open items (got 5)
+  ok   finds 1 done item
+  ok   tallies open and done
+  ok   reads a lettered id
+  ok   reads multi-suffix child ids whole, never as their numeric prefix
+  ok   a NEEDS ANDREW marker on a multi-suffix child blocks that child, not an invented parent id
+  ok   done-detection matches on id, not line
+  ok   a slice's family is its root number
+  ok   slice depth counts the cuts
+  ok   a whole item may be cut once; a piece is never cut again
+  ok   nothing in a shelved family is cut
+  ok   a family with two pieces at a wall is stuck; one wall is not (got 0.11:2)
+  ok   a parent waiting on its own pieces is not counted as a wall
+  ok   a shelved family's workable pieces leave the shortlist too, and say why
+  ok   other families are untouched by a shelf
+  ok   the shelf is applied BEFORE the shortlist is cut (got 2.1a)
+  ok   a code file saved after the belt started is named, and one saved before it is not
+  ok   several 'needs you' cards from one family become one card; a lone card stays as it was
+  ok   a diagnosis is read from JSON, and nonsense is refused
+  ok   an item waiting on Andrew is skipped, with a reason
+  ok   2.3 has criteria and no deps, so it is ready
+  ok   9.9 is not ready and says why: no acceptance criteria
+  ok   2.9's dependency on the still-open 2.3 is detected
+  ok   an item depending on open work is not ready
+  ok   the money risk tier is applied
+  ok   a ready item whose heading says 'red on main' is offered before earlier ready items
+  ok   loose numbers are NOT mistaken for item references
+  ok   the deterministic pick is the first ready item
+  ok   a well-formed planner answer is honoured
+  ok   a planner answer with no PICK line is refused
+  ok   a planner picking an off-list item is refused
+  ok   a money item routes to opus
+  ok   a copy item routes to sonnet/medium
+  ok   a retry escalates regardless of rules
+  ok   an item with no criteria is treated as a thinking job
+  ok   a rule word buried past routeChars does not decide the model
+  ok   and with routeChars unset the whole entry is still read, as it always was
+  ok   a rule word at the top of the entry still decides the model
+  ok   a learned lesson overrides the configured rule
+  ok   two failures on one pattern become a lesson
+  ok   a pattern that is succeeding is NOT upgraded
+  ok   exit 0 with nothing changed is a no-op, not a pass
+  ok   committed and ticked is done
+  ok   committed but not ticked is progress
+  ok   a timeout is its own verdict
+  ok   a gate regression outranks a tick
+  ok   no-op is bad, progress is good
+  ok   a check already red at baseline is not blamed on the item
+  ok   a gate ABSENT from the baseline was never measured, so its red is not a regression
+  ok   a baseline missing a configured gate does not cover it, and false counts as covered
+  ok   trend separates closed from discovered and calls convergence
+  ok   a list growing as fast as it closes is called diverging
+  ok   nothing closed and nothing discovered is reported as stalled, never as a balance
+  ok   split pieces inside the window are not discovery; a split before the window is not counted
+  ok   a model placeholder is filled in
+  ok   a flag whose value emptied out is dropped, not left dangling
+  ok   quiet hours across midnight
+  ok   midday is not quiet hours
+  ok   start === end disables quiet hours
+  ok   a spent item budget stops the belt
+  ok   an unspent budget does not
+  ok   a pid that answers is alive, so the second belt is refused
+  ok   ESRCH means gone, so a stale pid file does not wedge the belt forever
+  ok   EPERM means ALIVE and owned by somebody else — the permissive answer here is what lets a second belt start
+  ok   an unreadable pid file is not treated as a live process
+  ok   a finished batch reads exactly as the real one writes it
+  ok   and uses 'a command' rather than '1 command'
+  ok   an before a vowel — it said 'hit a error' the first time out
+  ok   a turn with no tool calls still says something true
+  ok   each finding opens its own thought, with what it did next underneath
+  ok   THE PROSE IS KEPT, IN FULL — folding it away is the fault he has raised four times
+  ok   and the mechanics under it are the one condensed line from his screenshots
+  ok   a fold opens that thought's handful of steps, never the whole job's list again
+  ok   a thought that changed a file and failed says both
+  ok   what happens before it speaks has no prose and no fold — its own short lines show as they are
+  ok   a job with nothing in it yet draws nothing rather than throwing
+  ok   with no bar at all, every finding is a paragraph — that is the chatty page he was shown
+  ok   with a bar, four findings one action apart collapse to one paragraph — plus the last one, which is always kept
+  ok   THE LAST WORD IS NEVER DROPPED — it is what the job is telling him, not narration
+  ok   but findings with real work between them each keep their own paragraph
+  ok   and the work stays attached to the thought it belongs to (one condensed row, nine counted)
+  ok   the shipped bar is 20 actions, measured at 71% fewer paragraphs over eight real jobs
+  ok   a line that ends in a colon is announcing the next action, not reporting a finding
+  ok   the exact line he pointed at is gone
+  ok   and so is 'let me ...', which the condensed line already says in past tense
+  ok   'Found it.' on its own is not a paragraph
+  ok   but a one-sentence FINDING survives — the first cut of this rule threw this exact line away
+  ok   two sentences still lose to a trailing colon, because the colon is the tell
+  ok   two real sentences are a paragraph
+  ok   a dropped label does not lose its actions — they stay in the condensed line above
+  ok   the live line is the ACTIVITY in words — it was printing the raw shell command, which is the thing he kept asking me to remove
+  ok   with nothing said yet it names the kinds of action and folds the rest into a +N, as the real one does
+  ok   CANARY — no source file holds a control character
+  ok   CANARY — and the check still catches one when it is there, without crying wolf
+  ok   CANARY — the page grows a paragraph at a time, each with one condensed line under it, and only one live line overwrites itself
+  ok   CANARY — and the check still catches the step-by-step wall that was shipped twice
+  ok   CANARY — and it catches me folding the paragraphs away again, which is how this went wrong twice
+  ok   CANARY — and it catches the live line going back to being a shelf under the chat
+  ok   CANARY — every tab is a direct, balanced child of the page. One missing </div> nested "This morning" inside "History" and it rendered completely blank, with no error anywhere
+  ok   CANARY — the shape check still catches a tab nested inside another tab
+  ok   CANARY — and still catches an unclosed tag
+  ok   an item waiting on him is not offered to the belt
+  ok   once he has ANSWERED it, the belt can work it — this is the fault that made ten of his answers do nothing
+  ok   and it stops being listed as held up, so the two pages cannot disagree about it
+  ok   answering a DIFFERENT item unblocks nothing
+  ok   a session has worked it and the entry STILL says NEEDS ANDREW, so the entry is believed over this morning's answer
+  ok   and it says WHY in words, not just the bare phrase — a silent re-block would read as an item he never answered
+  ok   canary/the-answer-that-never-spends: the old forever-override must NOT still be reachable
+  ok   the opposite direction: once the entry no longer says it needs him, attempts do not re-block it — this rule reads the ENTRY, never the attempt count alone
+  ok   the queue he reads and the shortlist the belt uses agree, because they are the same call
+  ok   twelve spinner frames, the real six and the same six reversed
+  ok   its own timings: 120ms a frame, detail after 16s, a finished item lingers 30s
+  ok   the thinking wording changes at its real thresholds — 10, 20, 30 and 45 seconds
+  ok   durations read the way the real one writes them
+  ok   token counts are abbreviated the same way
+  ok   the whole line assembles exactly as the real one does
+  ok   and stays quiet early on — no clock until there is something to say
+  ok   a slow tool is its own reason to show the clock, which the first attempt at this got wrong
+  ok   a finished item stays on screen for thirty seconds and then goes — this is the "stuff deletes after a while" he was describing
+  ok   a trimmed first line keeps its whole path — this is the bug that printed "cripts/..."
+  ok   and an untrimmed one reads the same
+  ok   a rename reports the name that is on disk now, not the one that is gone
+  ok   every line is read, blank lines are not, and nothing is invented from an empty listing
+  ok   CANARY — STOP is asked at several points in a lap, not just at the top (found 28 places)
+  ok   CANARY — and specifically AFTER the supervision pass, which is the 38 minutes he pressed Stop during
+  ok   a Stop pressed while the picker is choosing stops the belt instead of starting the job it was meant to prevent
+  ok   the long audit is held to a word limit — its last four replies were 671, 609, 533 and 441 words
+  ok   a money item still gets the whole proof: both widths, the canary, the receipt
+  ok   an item with no risk tagged is not made to run the full browser ritual
+  ok   but the rule that earned itself the hard way survives on BOTH paths
+  ok   and a light item that turns out to touch money is told to switch to the full proof
+  ok   every tier that exists counts as risky — only 'normal' is light
+  ok   Claude resumes with -r <session id> in front of the flags it already carries
+  ok   Codex resumes with `exec resume <id>`, which is a subcommand, not a flag
+  ok   no session id means no resume, rather than a command with a hole in it
+  ok   a codex command with no `exec` cannot be resumed, and says so instead of guessing
+  ok   Muse resumes with --session-id on the same exec command
+  ok   keep-going nudges end only on a real STOP: line, not on the word stop in a plan
+  ok   each model gets its own brief: listed paragraphs dropped, its rules added; no style leaves the brief untouched
+  ok   Muse is not told the Claude-measured 50-minute budget that made it quit early
+  ok   the watchdog counts repeated reads, and a test re-run with a different filter is still the same test
+  ok   between legs it says: make the first edit, stop re-reading, use the check helper
+  ok   a repeated script is named by its file, so the check-helper hint is a command that works
+  ok   different commands sharing a long working-directory prefix are not repeated actions
+  ok   a repeated non-test command is not sent to the check helper
+  ok   the next-speaker answer is read as one word, and an unreadable one falls back to the word list
+  ok   three identical failures in a row get OpenHands' 'repeating the exact same call will not work' nudge
+  ok   flipping A-B-A-B gets Gemini CLI's 'potential loop detected' nudge
+  ok   the check-in report is parsed into status, what it saw and advice
+  ok   a dropped connection is told apart from the work failing
+  ok   the same question never comes back once answered (other entry edits do not count); only a changed blocker asks again; older answers and reviews are kept
+  ok   a self-stop and a serious ALERTS.md line (last 24 h only) go to his phone; a Stop he pressed does not (leftover 1)
+  ok   an answer with no block hash is used up by a later run of its item, even a held one (4.3c, 2026-10-13); an earlier run does not spend it
+  ok   a shelf with no NEEDS ANDREW pieces still makes a card, and an answer from before the shelving does not hide it
+  ok   a shelf takes off only the pieces that hit the wall; a buildable piece of the same job keeps going
+  ok   a parked job asks him what to do instead of disappearing
+  ok   a job gets its own notes and only general remarks newer than its last run; another item's 'publish now' never reaches it
+  ok   a leg that is building gets a plain carry-on, not a scolding
+  ok   the foreman tells a question from a stop, and a risky question is never treated as an ordinary one
+  ok   lean notes keep this item's lines, its pieces' and general ones; other items' go, and 9 is not 99.3
+  ok   the watchdog's legs cap Muse at the leg size, exactly once
+  ok   Opus can only switch the new parts with real values inside their ranges
+  ok   the nudge says the job is unfinished and how to stop on purpose
+  ok   an unknown CLI is not handed flags invented for it
+  ok   the resumed turn leads with his words and tells it to carry on, not to begin again
+  ok   the failover respects the no-Claude route
+  ok   only shared holds park every bigger job
+  ok   a dependency change the item does not ask for is named and passed to the reviewer (trial r4, 101.5)
+  ok   a Stop pressed while a job's difficulty is judged stops it before it starts
+  ok   the main loop checks the internet before every job and waits, resting, while it is down
+  ok   a Pause pressed during the audit or calibration holds before the next job starts (leftover 2)
+  ok   a failed job with the internet down is recorded as 'network'
+  ok   CANARY — the belt reads the interrupt and uses the session id, rather than restarting the item
+  ok   the Codex models are listed strongest first
+  ok   all fourteen Claude models he can reach are offered, not just the four aliases
+  ok   the three usable aliases are there, marked as aliases — they move under you as new versions land
+  ok   and so are the pinned older versions, which is what he asked for
+  ok   every Fable, alias and pinned alike, is left out of the picker
+  ok   but they stay IN the catalog marked blocked — deleting them would lose the fact that it was a decision
+  ok   names that were tried and refused are recorded on both sides, so no survey starts from nothing
+  ok   a blocked model is still IN the catalog, marked — deleting it would lose the fact that it was ruled out
+  ok   and the names his account refuses are recorded, so nobody re-tests them
+  ok   a model above the ceiling is brought down to it
+  ok   and one already below is left exactly alone
+  ok   the ceiling works on the Codex list too, by its own ranking
+  ok   an unknown model or no ceiling changes nothing — guessing is worse than not capping
+  ok   effort caps the same way, and does not raise anything
+  ok   AND IT HOLDS ON THE RETRY PATH, which is the one that escalates by itself — the cap is applied to the answer, not to each branch, so a branch added later cannot route around it
+  ok   Codex states its total on stderr with thousands separators, which have to come out before Number sees it
+  ok   and anything else reads as no figure, rather than as zero spend
+  ok   today counts only today
+  ok   the week starts on MONDAY, so Tuesday the 6th is in it and September is not
+  ok   and all time keeps everything
+  ok   the role doing the spending is named, because that is the only actionable half — 86% of his real week was one role and nothing said so
+  ok   the two CLIs are counted apart; one's spend never lands in the other's column
+  ok   no history reads as nothing spent rather than throwing
+  ok   a row with an unreadable date is dropped, not counted into the wrong week
+  ok   a changed value is reported by name, so the log says what he changed
+  ok   an unchanged file reports nothing — otherwise every lap logs a change
+  ok   a nested object equal by VALUE is not a change — comparing by reference would log every lap forever
+  ok   but a nested value that really changed is caught
+  ok   a key removed is as much a change as a key added
+  ok   editing a comment key is not a settings change
+  ok   a settings change reaches the RUNNING belt — it read the file once at startup, so every setting on that page was a promise it could not keep
+  ok   a setting deleted from the file is deleted from the belt, not kept at its old value
+  ok   reload self-check uses only its in-memory config and reports, leaving production files untouched
+  ok   a red check asks for a real re-run and names itself, so the button can actually run it
+  ok   and Check again spawns the check — a button that only re-reads the note lies the moment it has recovered
+  ok   the phone menu sits ABOVE the sheet that dims it (drawer 50 > scrim 45) — below it, every tap closes the menu instead of pressing what is in it
+  ok   and a full-screened panel sits above both, so nothing shows through it
+  ok   the check sits BEFORE the first route, so nothing can be reached around it
+  ok   a looker cannot POST — everything that changes something is a POST, so that one line is the whole rule and covers a control written next month
+  ok   outside is detected by the headers Cloudflare stamps, not by anything the caller chooses
+  ok   no header means the computer itself and full control; the header means outside and look-only
+  ok   a fresh install lets NOTHING in from outside — opening it up is a thing he does on purpose, never a default he inherits
+  ok   if keys are ever switched back on they are still compared in constant time, not with ===
+  ok   and a key in the address is still taken back out of it and stored HttpOnly
+  ok   an answer that has had a job run on it is not still 'saved'
+  ok   a job that ran AFTER he answered reads as being built, and says how much was written
+  ok   a job that ran BEFORE he answered does not count — it cannot have acted on an answer that did not exist
+  ok   ticked off in his roadmap is DONE, and it outranks everything else
+  ok   work happened and then stopped reads as STOPPED, not as being built — a failure dressed as progress is the whole thing to avoid
+  ok   and a finished item that still carries an old parked note is DONE, not stopped
+  ok   nothing run yet but first in the queue is 'next in line', which is not the same as untouched
+  ok   and with nothing at all it says not started
+  ok   an answer older than every job still on file says SO, instead of claiming nothing was built for it
+  ok   something that is not an item number is simply recorded, with no progress claimed
+  ok   the one-line summary counts every stage, so folding the finished ones away never hides a number
+  ok   every option offers a control that exists
+  ok   exactly one option is marked suggested (parked=true)
+  ok   exactly one option is marked suggested (parked=false)
+  ok   the Now page drops a parked item he has skipped OR dismissed — it was showing both regardless
+  ok   dismissing is reversible, so a row can never be lost by pressing the X
+  ok   an answered item's way back is visible — .askbody is display:none until .open, and nothing has added .open since the pop-out replaced it
+  ok   and a not-yours row carries the class that rule needs, or its four buttons stay invisible
+  ok   every CSS variable the page asks for is defined
+  ok   two attempts that wrote code and stopped reads as TOO BIG, not as broken — the fix is to cut it up
+  ok   it adds up the lines that were kept, so 'three failures' does not read as 'nothing was achieved'
+  ok   a six-second agent-failed is a CRASH and says so — it is not evidence the item is hard
+  ok   a 'progress' attempt says the work was kept, because the old page implied three tries meant three losses
+  ok   and the suggested option is the one that changes the outcome, not 'try the same thing again'
+  ok   an item that was already cut into pieces says so and names them
+  ok   and suggests leaving it, because the pieces replaced it — unparking it would re-create the big job
+  ok   it does not offer to cut up something already cut up
+  ok   three crashes recommends simply trying again — the same count, the opposite advice
+  ok   breaking a passing check outranks everything else and asks him to say what to avoid
+  ok   no record is an empty answer, not a crash
+  ok   a SHORT item is never offered the splitter — cutting up 20 lines produces four pointless jobs
+  ok   when nothing is wrong it says nothing — a panel that always shows is one he stops reading
+  ok   one CLI out of limit is DEGRADED, because the work moved itself to the other one
+  ok   BOTH out is STOPPED — severity is about whether work is happening, not how annoying it is
+  ok   a limit whose window has passed is not reported as a live problem
+  ok   a belt that is not running is the loudest thing on the page
+  ok   but not when HE asked it to stop — doing what he said is not a fault
+  ok   three bad jobs in a row is worth saying out loud
+  ok   but not when one of them worked — that is ordinary, not a fault
+  ok   the item cadence counts attempts, never claims held or failed jobs were delivered
+  ok   the configured number of failed jobs nobody has looked at calls the supervisor
+  ok   but the SAME failures, already supervised, do not call it straight back in
+  ok   hours passing with no item run since the last pass do not call the supervisor
+  ok   but hours with one item run since do
+  ok   forty open items and nothing startable is a STOP, not a quiet night
+  ok   with both CLIs healthy a role uses the agent he configured and nothing moves
+  ok   Claude out of limit moves the Claude roles onto Codex
+  ok   and leaves the roles that were already on Codex alone
+  ok   with BOTH out it stays put and lets the job fail honestly rather than pretending
+  ok   a swap whose window has passed clears itself, so it goes back to his models with nobody watching
+  ok   and one that has not passed is kept
+  ok   when the CLI reports when it resets, that is the time used rather than a guess
+  ok   a refusal is told apart from an ordinary failure by what it says, since the exit code is the same
+  ok   no reading at all is NOT read as plenty left
+  ok   a window at 100% counts as spent
+  ok   the sentence that STARTS on the checkbox line is kept — skipping that whole line began the text mid-sentence
+  ok   hard wrapping in the file is the FILE's formatting, not his meaning, so paragraphs are reflowed
+  ok   but a real break — a list item — survives
+  ok   and the markdown bold is not shown to him as asterisks
+  ok   an entry with nothing but a title says nothing, rather than echoing the title back
+  ok   a 900-line entry is cut at a length a person will read, and says where the rest is
+  ok   what he writes lands inside the item, stamped, where the next worker reads it
+  ok   and the list still parses afterwards — a note must never break the file
+  ok   NOTHING OF HIS IS OVERWRITTEN — the note is appended, never substituted
+  ok   an unknown item or an empty note changes nothing rather than corrupting the file
+  ok   readTierJudgement: light/low becomes haiku/low
+  ok   readTierJudgement: no TIER line means no judgement
+  ok   chooseModel: a judged tier beats a keyword rule
+  ok   chooseModel: without a judgement the rules still apply
+  ok   experiment: a setting off the menu, out of range, or contradictory is discarded
+  ok   experiment: a valid setup keeps its menu settings; step caps and memory thresholds are off the menu (chunk 3)
+  ok   experiment: a setup becomes the right Muse Code flags, with no step cap or memory override
+  ok   experiment: an old setup carrying a step cap is refused, not half-applied
+  ok   bothOut: one still usable means not out
+  ok   bothOut: both hourly-out waits for the first one back
+  ok   bothOut: both weekly-out more than a day away stops
+  ok   bothOut: an expired limit counts as usable
+  ok   addRepairs: one open repair per broken check
+  ok   repairItems: a parked repair is seen as parked
+  ok   his own items get the free 99 group, and the next free number in it
+  ok   an item he adds is a REAL item the picker can choose — the first version used id 'A1', which idOf() does not recognise, so it existed in the file and nowhere else
+  ok   and it is ready, because it was given acceptance criteria
+  ok   the same id is never added twice
+  ok   an unnumbered checkbox under a '### 14.15 —' heading is 14.15, as the repo's citable test reads it — and only the FIRST bullet under it, so a second cannot collide
+  ok   an item past the planner's five is still in the pool 'do this next' searches, so his ask is not refused as unworkable
+  ok   an entry longer than the cap is too big to finish in one session; a short one is not
+  ok   pieces are lettered off the parent
+  ok   and a letter already in use is skipped — 0.4g exists in the real file
+  ok   the pieces are real items in the list, in order, right after their parent
+  ok   the parent is blocked behind its own pieces, using the phrase that already blocks items
+  ok   and the picker really does treat it as blocked — no new blocking logic was needed
+  ok   a piece carries its own acceptance criteria, so it can be finished and ticked on its own
+  ok   NOTHING IS DELETED — the parent keeps every word of its write-up
+  ok   an item already split is never split a second time
+  ok   CANARY — an oversized parent with numbered child slices is never split into a duplicate series
+  ok   an unknown parent or an empty answer changes nothing rather than corrupting the file
+  ok   the worker AND the long audit both stream their steps — the audit ran 25 to 40 minutes writing nothing, which is why the screen looked dead
+  ok   a Codex role streams as well, with --json; it showed nothing for its whole life because nobody checked
+  ok   an unknown role does not stream rather than throwing
+  ok   the CLI is identified from its own command, not from the role's name
+  ok   a full path with an extension still reads as codex
+  ok   CANARY — an all-blocked source yields NO candidates, not the first item
+  ok   CANARY — every item out of attempts yields NO candidates
+  ok   CANARY — with no baseline at all a red check still counts
+  ok   the transcript gives the model that REALLY ran, not the one config asked for
+  ok   the transcript gives the Claude Code version
+  ok   the transcript proves no API key was used — the plan paid, not credits
+  ok   connected tool servers are counted, not guessed
+  ok   the live thinking counter is read
+  ok   edits, commands and tool failures are counted separately
+  ok   REAL plan usage comes out of the stream — the page used to show a dollar estimate instead
+  ok   the final answer is the result event, not the last thing muttered
+  ok   context is the prompt the model is carrying — fresh plus cached — and NOT output, which grows forever and is not in the window
+  ok   tokens MOVED and context CARRIED are different numbers and are reported separately. Reading context off the result event's cumulative usage gave 30,148,196 for one real job
+  ok   the most a job ever carried is tracked, which is the only context figure worth warning on
+  ok   a job still running reports a LIVE context reading from its newest turn, instead of the 0 it showed until the job ended
+  ok   a running job and a finished one are told apart, so a half-written record cannot read as a result
+  ok   Claude Code's own plain-English note on what it is doing survives into the steps
+  ok   the live label is the newest real action, in plain words, through the SAME translator as everything else — it used to print the raw shell command, which is unreadable AND one unbreakable string wide enough to push its whole column out from under the panel beside it
+  ok   and it is capped, so no single step can ever stretch the layout again
+  ok   a full Windows path is shown as the file name, because the path is noise
+  ok   every tool has words a person uses
+  ok   the real effort levels are read out of the CLI's own warning
+  ok   a CLI that stops printing the list returns nothing, rather than a stale guess
+  ok   fable is read from the help text — it is real, and the old picker did not offer it
+  ok   a full model name in the help example is not mistaken for an alias
+  ok   the real context window is read from the CLI, not the 700k that was in config
+  ok   a one-million window reads correctly
+  ok   a job you killed reads as cancelled, not as the agent failing or timing out
+  ok   without a kill, a failure is still a failure
+  ok   cancelled is neither a win nor a fault — so three kills cannot park an item
+  ok   a no-op is still counted as a fault
+  ok   a parked item is found with its id and how many attempts it took
+  ok   unparking removes the belt's block and leaves both checkboxes intact
+  ok   unparking removes only the four-line note, never the indented body under it
+  ok   an item at the cap without a park note was unparked by hand; a parked one and one under the cap were not
+  ok   a run that ticks a numbered piece is counted; one that ticks nothing is not
+  ok   unparking an item that is not parked refuses, rather than editing the wrong lines
+  ok   a clean list has nothing parked
+  ok   the morning page counts only the window asked for, not all of history
+  ok   the headline leads with what actually finished
+  ok   what went wrong is named, in words, with the item
+  ok   a job you killed is reported as yours, not as a failure
+  ok   parked items and notes addressed to you reach the morning page
+  ok   a quiet night says so plainly instead of showing an empty screen
+  ok   dashboard.mjs holds no hardcoded model or effort menu
+  ok   ui.html holds no hardcoded model or effort menu
+  ok   CANARY — the hardcoded-list check still catches the exact bug that shipped
+  ok   CANARY — dashboard.mjs defines the runs folder it reads transcripts from (it did not, and the Watch tab was blank for its whole life)
+  ok   CANARY — the dead chat tab and its second fake effort control are gone, not left to rot
+  ok   a verdict is given in words, with a tone the page can colour by
+  ok   a job you stopped is not coloured as a failure, and a finished one is not coloured as a warning
+  ok   an unknown verdict is shown as it is rather than hidden or renamed
+  ok   the four agents have names a person would use
+  ok   the reason an item is held up is given in plain words
+  ok   the folder hop and the plumbing are stripped off a command, leaving the part that means something
+  ok   a Windows command is described too — it was showing as 150 characters of unreadable flags
+  ok   a long absolute path inside a command collapses to the file name — the path is noise, the name is the information
+  ok   a SHORT RELATIVE path is left exactly alone. The first version of that rule turned it into "tests…/customer-export.test.mjs", which is worse than doing nothing
+  ok   a three-deep project path is still readable in full, because that is where he would look
+  ok   a very long one-liner is cut to the part that says what it does
+  ok   a command gets a plain description as well as its text
+  ok   a tool call is labelled with what it DID, not the tool's name
+  ok   steps carry a tone, so an error and a status note cannot look identical
+  ok   a duration is said, not printed as a decimal
+  ok   a big number is said in a way that can be read at a glance
+  ok   runs of the same low-value step collapse into one line — a real job thinks between almost every action and 40 identical rows push the work off the screen
+  ok   two DIFFERENT commands are never merged, however alike their labels
+  ok   a long answer is cut to its first point, so the page is not a wall
+  ok   a log line becomes a sentence with a readable time
+  ok   log lines that mean nothing to him are dropped rather than shown as noise
+  ok   CANARY — an untranslated log line is still SHOWN. Hiding what the translator does not recognise would be this repo's oldest fault: a clean-looking screen that tested nothing
+  ok   CANARY — the page writes panels through its change-guard, never straight to innerHTML. Rewriting a panel that has not changed restarted every animation and made the whole screen twitch every two seconds
+  ok   CANARY — the rule that stops one long file path widening a column is still in the stylesheet. Without it a single unbreakable string pushed the left column out and the right column drew straight over the top of it
+  ok   CANARY — relative times are filled in after the paint, not baked into it. A clock inside cached markup rebuilds the whole panel every time a minute passes
+  ok   CANARY — nothing divides context by a limit the tool never published. A real job was measured holding 276k against the 200k the CLI names for unknown models, so a percentage there would be a confident wrong number
+  ok   the queue is numbered in the order the belt would really take them
+  ok   a queued item shows its own words, not just its number — "working on 2.15" told him nothing
+  ok   an item the belt cannot start is held up with a plain reason
+  ok   an item you skipped leaves the queue
+  ok   and shows up as held up BY YOU, so a forgotten skip cannot hide an item for ever
+  ok   an item's title is its first line, without the checkbox or the markdown
+  ok   an item blocked on HIM becomes something he can answer, instead of a line saying he is needed
+  ok   an item blocked on another item is NOT put in front of him — only his own decisions are
+  ok   a finished job that changed something he can see asks him to look
+  ok   a job that only touched plumbing does not waste his attention
+  ok   screens, the public site, the booking flow and wording count as visible; plumbing does not
+  ok   once answered it leaves his list but keeps what he said, so "did I already decide this?" has an answer
+  ok   the question is lifted out of the entry where the entry states one
+  ok   and nothing is invented when the entry does not state one — a made-up question is worse than none
+  ok   a settings screen becomes a link that opens THAT screen — the app reads ?settings= already, found by reading App.jsx rather than guessing
+  ok   a change to the booking flow links to the booking page a customer actually sees
+  ok   a change to the legal text offers both pages, because it is in both
+  ok   a main tab has no address of its own, so it says which tap to make instead of pretending
+  ok   plumbing produces no link, because there is nothing for him to look at
+  ok   the same place is not offered twice
+  ok   a link to a dead address is called out rather than left to fail silently
+  ok   the app's screen registry was read (25 screens found)
+  ok   every settings screen links to its own key (all 25)
+  ok   recovery hold call site was found
+  ok   exhausted recovery keeps the final reviewer findings for the builder
+  ok   an empty findings list retains the review summary instead of asking to merge
+  ok   transient recovery capacity still makes no owner hold
+  ok   missing helper and review hold call sites found
+  ok   no helper answer waits without consuming a rescue or persisting an owner hold
+  ok   unknown finish review waits and never asks Andrew to merge
+  ok   actual review faults still go back to the builder
+  ok   old persisted no-answer holds recover without refunding repairs or call accounting
+  ok   persisted no-answer correction is idempotent
+  ok   a real helper hold is never cleared by the capacity correction
+
+self-check passed — 603 assertions, 3 canaries

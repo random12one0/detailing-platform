@@ -1,0 +1,16 @@
+NOT MEASURED: bash is unavailable. Run in Git Bash or put C:/Program Files/Git/bin on PATH. No revision or figure was judged.
+✖ tests\figures-carry-their-command.test.mjs (64.5639ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 70.1553
+
+✖ failing tests:
+
+test at tests\figures-carry-their-command.test.mjs:1:1
+✖ tests\figures-carry-their-command.test.mjs (64.5639ms)
+  'test failed'
