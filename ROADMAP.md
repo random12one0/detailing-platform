@@ -939,7 +939,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The setting reads on in the dashboard, and the item records who switched it on and when
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
-- [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+- [x] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
   **Held for a builder, not for Andrew (belt 2026-10-21).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021082840983`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **tests/backup-retention.test.mjs and scripts/backup-retention.mjs:** Earlier finding 1 remains open. The belt-run tests still exercise a separate rule using extracted numbers; replacing the workflow’s deletion with a print or changing its failure exit to success would leave them passing. The new mutations and builder-written logs do not supply independent execution proof of those actual workflow paths, so R1’s proof requirement remains unmet.
   - 2. **receipts/privacy-backup-period.json and receipts/privacy-backup-period-old-words.sabotage.json:** Earlier finding 3 remains open. Only the recorded revision and times changed; there is still no independent execution evidence that removing the disclosure makes the revised browser check fail. The belt’s clean page checks establish the normal pages, not that deliberate failure required by R1.
@@ -968,6 +968,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   MILESTONE M6 DONE except the M5 evidence above: `receipt.mjs` grades backup-retention valid (20/20 targets, canary caught); EFFECTIVE is October 21, 2026 with the consent pin; no push, publish, deploy or private-repository write.
   AMENDMENT PROPOSED: R4 — remove the Spanish-key requirement while retaining the workflow retention rule, both backup documents and English privacy disclosure implementing Andrew's chosen three-month period — the carried Spanish clause conflicts with the settled English-only legal-page rule.
   AMENDMENT PROPOSED: R5 — replace "The privacy page states the period in English and Spanish" with "The English-only privacy page states the chosen three-month period" — reconcile the carried criterion with R2/R3 and the standing legal-page ruling.
+  Scope (belt check 2026-10-21): CLAUDE.md is kept, not reverted — its backup line orients every session and would otherwise keep stating the superseded rule; one line, same three-month wording as the three required places.
+  Pin (belt check 2026-10-21): scripts/booking-consent.mjs is another item's check that pins the shared EFFECTIVE date this item moves (words moved, so the date moves); its one-line pin moves October 11 → October 21, 2026 in the same edit, and its suite is not otherwise touched.
   Strict self-review 2026-10-21 (paid-review findings, one line each):
   (1) In-flight save/toggle — does not apply: no control, no pending state, nothing pressable added anywhere.
   (2) Success-then-stale-refresh — does not apply: static content plus a CI shell; the shell applies nothing to any screen, and a failed delete exits nonzero (tested) rather than reporting success.
