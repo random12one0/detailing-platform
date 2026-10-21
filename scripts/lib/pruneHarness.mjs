@@ -10,44 +10,21 @@
 // "pruning ..." echoes - printing an intention is not deleting.
 //
 // Side-effect free: importing this module writes nothing and runs nothing.
-// `tests/backup-retention.test.mjs` and `scripts/backup-retention.mjs` share
-// it, so both execute the same workflow bytes through the same fixture.
+// `scripts/backup-retention.mjs` (the allowed proof runner) executes the
+// real shell through this fixture. The pure rule, step parsing and
+// mutations live in `./retentionRule.mjs`, which the belt-run test uses,
+// so no test imports a subprocess-bearing module; this module re-exports
+// them for compatibility.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+export { pruneStep, DELETE_LINE, MUTATIONS, mutate, workflowNumbers } from "./retentionRule.mjs";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
 const norm = (t) => t.replace(/\r\n/g, "\n");
-
-// The step's shell, exactly as GitHub would run it: the `run: |` block under
-// "Prune old backups", dedented. Missing or duplicated step: throw, so the
-// caller judges nothing on the wrong bytes (docs/gotchas.md 102 - a sabotage
-// that silently fails to apply must never read as a pass).
-export function pruneStep(text) {
-  const src = norm(text);
-  const lines = src.split("\n");
-  const at = lines.reduce((acc, l, i) => (/^\s+- name: Prune old backups\s*$/.test(l) ? [...acc, i] : acc), []);
-  if (at.length === 0) throw new Error("no 'Prune old backups' step found - refusing to judge");
-  if (at.length > 1) throw new Error(`${at.length} 'Prune old backups' steps found - refusing to judge`);
-  const run = lines.findIndex((l, i) => i > at[0] && /^\s+run: \|\s*$/.test(l));
-  if (run < 0 || !lines[run + 1]?.trim()) throw new Error("Prune step has no run block - refusing to judge");
-  const indent = lines[run + 1].match(/^ */)[0].length;
-  const body = [];
-  for (const l of lines.slice(run + 1)) {
-    if (l.trim() && l.match(/^ */)[0].length < indent) break;
-    body.push(l.slice(indent));
-  }
-  const shell = body.join("\n");
-  if (!/gh release delete/.test(shell)) throw new Error("Prune step never calls gh release delete - refusing to judge");
-  return shell;
-}
-
-// Exactly the deletion the step must perform, so a print-instead-of-delete
-// mutation cannot satisfy an "it deleted" assertion.
-export const DELETE_LINE = 'gh release delete "$TAG" --yes --cleanup-tag';
 
 // Where bash lives. Throws (never falls back to a non-shell) when none works.
 export function findBash() {
@@ -146,39 +123,3 @@ export function runPrune({ bash, step, today, tags, listOk = true, failDeleteTag
   };
 }
 
-// The four sabotage mutations M3 requires, each applied to the ACTUAL step
-// bytes in memory. landed() throws when the edit did not change the bytes,
-// so a check can never go green on an unapplied sabotage (gotchas 102).
-export const MUTATIONS = {
-  // THE ORIGINAL DEFECT: the 1st of each month skipped unconditionally.
-  forever: (s) => s.replace(
-    /case "\$DAY" in \*-01\) if \[\[ "\$DAY" > "\$MONTHLY_CUTOFF" \]\]; then continue; fi ;; esac/,
-    'case "$DAY" in *-01) continue ;; esac'),
-  // THE TWELVE-MONTH MUTATION: the monthly exemption stretched to a year.
-  twelve: (s) => s.replace("MONTH_START -2 months -1 day", "MONTH_START -11 months -1 day"),
-  // DELETION REPLACED BY A PRINT: the step announces pruning but never deletes.
-  noprint: (s) => s.replace(DELETE_LINE, 'echo "would prune $TAG"'),
-  // A LISTING FAILURE THAT EXITS SUCCESSFULLY: the job reports success
-  // having deleted nothing.
-  exitzero: (s) => s.replace("exit 1", "exit 0"),
-};
-
-export function mutate(label, step) {
-  const fn = MUTATIONS[label];
-  if (!fn) throw new Error(`unknown mutation ${label}`);
-  const next = fn(step);
-  if (next === step) throw new Error(`mutation ${label} did not land - refusing to judge`);
-  return next;
-}
-
-// The workflow's own numbers, read out of the step: nightly cutoff in days,
-// and the monthly cutoff phrased as "first of this month, back N months, back
-// a day" - the last day of the month N+1 back. Throws when either is absent,
-// so deleting the guard or rewriting the period breaks extraction loudly.
-export function workflowNumbers(step) {
-  const days = Number(step.match(/CUTOFF=\$\(date -u -d "\$TODAY -(\d+) days"/)?.[1]);
-  const back = Number(step.match(/MONTH_START -(\d+) months -1 day/)?.[1]);
-  if (!Number.isInteger(days) || days <= 0) throw new Error("workflow states no nightly cutoff in days - refusing to judge");
-  if (!Number.isInteger(back) || back < 0) throw new Error("workflow states no monthly cutoff - refusing to judge");
-  return { days, months: back + 1 };
-}

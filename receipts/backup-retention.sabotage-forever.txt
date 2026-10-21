@@ -1,4 +1,4 @@
-backup-retention 2026-10-21T12:21:27.647Z break=forever
+backup-retention 2026-10-21T22:11:31.588Z break=forever
 0. the shell this needs
 ok   0a - real bash with GNU date is here (refuse rather than judge without it)
 1. the prune rule, run for real
@@ -23,6 +23,8 @@ ok   1h - day before (2027-09-30) still retains backup-2027-07-01
 ok   1i - long-month run 2027-05-31 keeps backup-2027-03-01 (expires June 1)
 FAIL 1j - long-month run 2027-05-31 deletes backup-2027-02-01  (backup-2027-02-15)
 ok   1p - a failed release listing exits nonzero and deletes nothing
+ok   1k - an empty successful listing exits 0 with a recorded LIST ok and zero deletes
+ok   1m - a failed release deletion exits nonzero naming the tag, attempt on the record
 FAIL 1o - the shared oracle deletes exactly what the shell deleted on all run dates  (the oracle is the module the belt-run test calls)
 ok   1f - canary: the for-ever rule keeps 2027-07-01, 2026-10-01 and 2026-09-01, and this run tells them apart
 2. every place that states the period states the same one
@@ -32,7 +34,7 @@ ok   2a - docs/recovery.md states 30 days and 3 months
 ok   2a - privacy page, How long states 30 days and 3 months
 ok   2b - the privacy page says the backup copy is then deleted
 
-22 passed, 7 failed  (RETENTION_BREAK=forever: a sabotage, this run MUST be red)
+24 passed, 7 failed  (RETENTION_BREAK=forever: a sabotage, this run MUST be red)
 NOT CHECKED: Spanish - the privacy page has no Spanish version (legal.js is English-only by ruling).
 FAIL 1d - backup-2027-07-01 is deleted
 FAIL 1d - backup-2026-10-01 is deleted

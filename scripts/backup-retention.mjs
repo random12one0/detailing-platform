@@ -9,8 +9,7 @@
 //   1. `docs/ops/backup.live-copy.yml` - the copy of the private repo's job.
 //      Its "Prune old backups" shell is RUN here, through real bash and GNU
 //      date, against declared release-tag populations on fixed days.
-//      `scripts/lib/pruneHarness.mjs` (shared with
-//      `tests/backup-retention.test.mjs`, which the belt re-runs) stubs `gh`
+//      `scripts/lib/pruneHarness.mjs` stubs `gh`
 //      at the command boundary with a shell function, so no real `gh` can
 //      ever be reached and nothing on GitHub is touched. Deletion is proved
 //      by the LEDGER of real delete calls with their exact flags, never by
@@ -35,10 +34,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
-import { pruneTags, RETENTION_DAYS, RETENTION_MONTHS } from "./lib/retentionRule.mjs";
-import {
-  pruneStep, runPrune, findBash, checkGnuDate, mutate, workflowNumbers,
-} from "./lib/pruneHarness.mjs";
+import { pruneTags, RETENTION_DAYS, RETENTION_MONTHS, pruneStep, mutate, workflowNumbers } from "./lib/retentionRule.mjs";
+import { runPrune, findBash, checkGnuDate } from "./lib/pruneHarness.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.RETENTION_BREAK || "";
@@ -127,6 +124,15 @@ if (bashOk) {
   const blind = runPrune({ bash, step, today: TODAY, tags: Object.keys(TAGS), listOk: false });
   const blindDel = deletedTags(blind);
   check("1p - a failed release listing exits nonzero and deletes nothing", blind.status !== 0 && blindDel.length === 0, `status ${blind.status}: ${blindDel.join(", ")}`);
+  const empty = runPrune({ bash, step, today: TODAY, tags: [] });
+  check("1k - an empty successful listing exits 0 with a recorded LIST ok and zero deletes",
+    empty.status === 0 && empty.deletes.length === 0 && empty.lists.join(",") === "LIST ok",
+    `status ${empty.status}: ${empty.ledger.join(", ")}`);
+  const failDel = runPrune({ bash, step, today: TODAY, tags: Object.keys(TAGS), failDeleteTag: "backup-2027-09-17" });
+  check("1m - a failed release deletion exits nonzero naming the tag, attempt on the record",
+    failDel.status !== 0 && failDel.deletes.some((l) => l.startsWith("DELETE backup-2027-09-17 ")) &&
+    (failDel.stdout + failDel.stderr).includes("backup-2027-09-17"),
+    `status ${failDel.status}: ${(failDel.stdout + failDel.stderr).trim().slice(-200)}`);
   const oracleSame = (t, got, list = Object.keys(TAGS)) => JSON.stringify([...got].sort()) === JSON.stringify(pruneTags({ today: t, tags: list }).deleted.sort());
   check("1o - the shared oracle deletes exactly what the shell deleted on all run dates",
     oracleSame(TODAY, deleted) && oracleSame("2027-10-01", atDel) && oracleSame("2027-09-30", beforeDel) && oracleSame("2027-05-31", mayDel, MAY_TAGS),
@@ -184,10 +190,10 @@ writeReceipt({
   check_id: BREAK ? `backup-retention-${BREAK}` : "backup-retention",
   started_at,
   status: failed ? "fail" : "pass",
-  expected_targets: 20, discovered_targets: 20, attempted_targets: 20, completed_targets: 20, skipped_targets: 0,
+  expected_targets: 22, discovered_targets: 22, attempted_targets: 22, completed_targets: 22, skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: 29,
-  assertion_floor: "1 shell + 3 run + 12 tags + 1 count + 2 expiry + 2 overflow + 1 fail-list + 1 oracle + 1 canary + 4 places + 1 deleted sentence = 29, every check() unconditional; targets are the 12 declared tags, the 2 exact-expiry runs, the 2 overflow tags and the 4 places the period is stated.",
+  min_assertions: 31,
+  assertion_floor: "1 shell + 3 run + 12 tags + 1 count + 2 expiry + 2 overflow + 1 fail-list + 1 empty-list + 1 failed-delete + 1 oracle + 1 canary + 4 places + 1 deleted sentence = 31, every check() unconditional; targets are the 12 declared tags, the 2 exact-expiry runs, the 2 overflow tags, the empty listing, the failed delete and the 4 places the period is stated.",
   canary: { id: "for-ever-rule", observed_failure: canaryCaught, what: "the pre-97.28 prune shell, run on the same tags, keeps the 1st-of-month copies older than 3 months (including 2027-07-01, which a twelve-month rule would also keep)" },
   failures,
   artifacts: [txt],

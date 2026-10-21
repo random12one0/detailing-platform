@@ -1,9 +1,9 @@
 {
-  "git_sha": "e38bb15e8e150718c2b658394377f32df2a26112",
-  "git_sha_started": "e38bb15e8e150718c2b658394377f32df2a26112",
+  "git_sha": "b243bddcd7160f29cf3da9bb7ce3d6308b1ab6fe",
+  "git_sha_started": "b243bddcd7160f29cf3da9bb7ce3d6308b1ab6fe",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-21T17:36:31.891Z",
+  "finished_at": "2026-10-21T22:11:42.713Z",
   "failures": [
     "1c - it announced each deletion it made - ne backup-2027-09-17\npruning backup-2027-08-15\nwould prune backup-2027-08-15\npruning backup-2027-07-01\nwould prune backup-2027-07-01\npruning backup-2026-10-01\nwould prune backup-2026-10-01\npruning backup-2026-09-01\nwould prune backup-2026-09-01\npruning backup-2026-09-08\nwould prune backup-2026-09-08",
     "1d - backup-2027-09-17 is deleted",
@@ -15,6 +15,7 @@
     "1e - exactly 6 deleted, every one a real delete call with --yes --cleanup-tag",
     "1g - first-of-month run 2027-10-01 deletes backup-2027-07-01 at exact expiry",
     "1j - long-month run 2027-05-31 deletes backup-2027-02-01",
+    "1m - a failed release deletion exits nonzero naming the tag, attempt on the record - status 0: 01\nwould prune backup-2027-07-01\npruning backup-2026-10-01\nwould prune backup-2026-10-01\npruning backup-2026-09-01\nwould prune backup-2026-09-01\npruning backup-2026-09-08\nwould prune backup-2026-09-08",
     "1o - the shared oracle deletes exactly what the shell deleted on all run dates - the oracle is the module the belt-run test calls"
   ],
   "warnings": [
@@ -30,16 +31,16 @@
     "today": "2027-10-17"
   },
   "check_id": "backup-retention-noprint",
-  "started_at": "2026-10-21T17:36:27.045Z",
+  "started_at": "2026-10-21T22:11:39.587Z",
   "status": "fail",
-  "expected_targets": 20,
-  "discovered_targets": 20,
-  "attempted_targets": 20,
-  "completed_targets": 20,
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
   "skipped_targets": 0,
-  "assertions_executed": 29,
-  "min_assertions": 29,
-  "assertion_floor": "1 shell + 3 run + 12 tags + 1 count + 2 expiry + 2 overflow + 1 fail-list + 1 oracle + 1 canary + 4 places + 1 deleted sentence = 29, every check() unconditional; targets are the 12 declared tags, the 2 exact-expiry runs, the 2 overflow tags and the 4 places the period is stated.",
+  "assertions_executed": 31,
+  "min_assertions": 31,
+  "assertion_floor": "1 shell + 3 run + 12 tags + 1 count + 2 expiry + 2 overflow + 1 fail-list + 1 empty-list + 1 failed-delete + 1 oracle + 1 canary + 4 places + 1 deleted sentence = 31, every check() unconditional; targets are the 12 declared tags, the 2 exact-expiry runs, the 2 overflow tags, the empty listing, the failed delete and the 4 places the period is stated.",
   "canary": {
     "id": "for-ever-rule",
     "observed_failure": true,

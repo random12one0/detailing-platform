@@ -87,7 +87,7 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 The privacy page now tells customers, in plain English, that anything deleted stays in the encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months, then deleted. Two old roadmap lines (97.28 R4/R5) still ask for that same sentence in Spanish, but your legal pages are English-only by your standing rule, so no Spanish sentence was built.
 
-**Recommendation: say "keep it English-only".** That closes R4/R5 under the amendments proposed in ROADMAP 97.28. If you want the Spanish sentence too, say so and a job adds it.
+**Recommendation: say "keep it English-only".** That closes R7/R8 under the amendments proposed in ROADMAP 97.28 (R4/R5 in the entry's older numbering). If you want the Spanish sentence too, say so and a job adds it.
 
 ## DO · Make the backups delete the monthly copies after 3 months (ROADMAP 97.28)
 

@@ -75,7 +75,7 @@ async function prepare(page, oldWords) {
   });
 }
 
-async function measure(browser, [w, h, q], oldWords) {
+async function measure(browser, [w, h, q], oldWords, shotTag = "") {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const page = await ctx.newPage(), logs = [];
   page.on("console", (m) => ["error", "warning"].includes(m.type()) && logs.push(m.text()));
@@ -95,12 +95,14 @@ async function measure(browser, [w, h, q], oldWords) {
                sideways: document.documentElement.scrollWidth > innerWidth };
     });
     const sig = await page.evaluate(() => window.__backupBreak || null).catch(() => null);
-    await page.screenshot({ path: `${SHOTS}/privacy-${w}x${h}${q ? "-lite" : ""}${oldWords ? "-oldwords" : ""}.png` });
+    const shotName = shotTag || `privacy-${w}x${h}${q ? "-lite" : ""}${oldWords ? "-oldwords" : ""}`;
+    await page.screenshot({ path: `${SHOTS}/${shotName}.png` });
     return { ...r, sig, logs };
   } finally { await ctx.close(); }
 }
 
 const CHROME_PATH = process.env.CHROME_PATH || "";
+let canaryCaught = false;
 const browser = await chromium.launch(CHROME_PATH ? { executablePath: CHROME_PATH } : {});
 try {
   for (const view of VIEWS) {
@@ -110,25 +112,26 @@ try {
       completed++;
       const hasDisclosure = r.text.includes(KEEP_30) && r.text.includes(KEEP_3MO) && r.text.includes(THEN_DELETED);
       const surroundingIntact = r.text.includes(SURROUNDING) && r.text.includes("How long");
+      check(`${at} · How long states the 30-day and 3-month backup period`, hasDisclosure, (r.text || "").slice(-240));
+      check(`${at} · the row is painted where the reader stands`, r.opacity === "1", `opacity ${r.opacity}`);
       if (!BREAK) {
-        check(`${at} · How long states the 30-day and 3-month backup period`, hasDisclosure, (r.text || "").slice(-240));
-        check(`${at} · the row is painted where the reader stands`, r.opacity === "1", `opacity ${r.opacity}`);
         check(`${at} · no unfinished rewrite executed here`, r.sig === null, `signature ${r.sig}`);
       } else {
-        check(`${at} · MISSING disclosure fails the run`, !hasDisclosure, "the disclosure rendered when it should be gone");
         check(`${at} · the rewrite that removed it provably executed`, r.sig === SIG, `signature ${r.sig}`);
-        check(`${at} · exactly one disclosure removed: the surrounding paragraph still renders`, surroundingIntact, (r.text || "").slice(-240));
       }
+      check(`${at} · exactly one disclosure removed: the surrounding paragraph still renders`, surroundingIntact, (r.text || "").slice(-240));
       check(`${at} · inside the screen, no sideways scroll`, r.left >= 0 && r.right <= w && !r.sideways, `${r.left}..${r.right} of ${w}`);
       check(`${at} · console silent`, r.logs.length === 0, r.logs.join(" | "));
     } catch (e) { failures.push(`${at}: ${e.message.split("\n")[0]}`); say(`FAIL ${at}: ${e.message.split("\n")[0]}`); }
   }
   // CANARY, every run: the pre-97.28 words, missing the disclosure but signed,
-  // at the phone width. Clean runs must call the disclosure PRESENT (canary
-  // absent and disclosure found); under --break it must be called MISSING with
-  // the executed signature.
-  let canaryCaught = false;
-  const c = await measure(browser, [390, 844, ""], true);
+  // at the phone width, on its own screenshot path. It exercises the same
+  // presence detector as the targets: a clean pass requires the detector to
+  // report the disclosure present on every target AND to report it missing
+  // here, with the executed signature. Under --break the same missing
+  // disclosure is already failing every target above.
+  canaryCaught = false;
+  const c = await measure(browser, [390, 844, ""], true, `privacy-canary-390x844${BREAK ? "-oldwords" : ""}`);
   canaryCaught = !c.text.includes(KEEP_3MO) && c.text.includes(SURROUNDING) && c.sig === SIG;
   say(`${canaryCaught ? "ok  " : "FAIL"} canary · the pre-97.28 words are called missing, with an executed signature`);
 } finally { await browser.close(); }
@@ -138,7 +141,7 @@ say(`\n${completed} of ${VIEWS.length} targets, ${passed} of ${assertions} passe
 const txt = BREAK ? `receipts/privacy-backup-period.sabotage-${BREAK}.txt` : "receipts/privacy-backup-period.txt";
 writeFileSync(txt, [`privacy-backup-period ${new Date().toISOString()} base=${BASE} break=${BREAK || "none"}`, ...transcript].join("\n") + "\n");
 const shots = VIEWS.map(([w, h, q]) => `${SHOTS}/privacy-${w}x${h}${q ? "-lite" : ""}${BREAK ? "-oldwords" : ""}.png`);
-shots.push(`${SHOTS}/privacy-390x844${BREAK ? "-oldwords" : ""}.png`);
+shots.push(`${SHOTS}/privacy-canary-390x844${BREAK ? "-oldwords" : ""}.png`);
 const seen = [...new Set(shots)];
 writeReceipt({
   check_id: BREAK ? `privacy-backup-period-${BREAK}` : "privacy-backup-period",
@@ -146,8 +149,8 @@ writeReceipt({
   status: failures.length || completed < VIEWS.length || !canaryCaught ? "fail" : "pass",
   expected_targets: VIEWS.length, discovered_targets: VIEWS.length, attempted_targets: VIEWS.length, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: VIEWS.length * 5,
-  assertion_floor: "5 checks at each of 8 targets (4 widths x normal and ?lite=1): disclosure state, paint (clean) or executed signature plus exactly-one removal (sabotage), geometry, console; every check() unconditional.",
+  min_assertions: VIEWS.length * 6,
+  assertion_floor: "6 checks at each of 8 targets (4 widths x normal and ?lite=1): disclosure presence, paint, injection state (absent clean / executed sabotage), exactly-one removal, geometry, console; every check() unconditional.",
   canary: { id: "old-words", observed_failure: canaryCaught, what: "legal.js served without the backup sentence, but with an executed in-page signature, is reported missing at 390x844 while the surrounding paragraph still renders" },
   failures,
   artifacts: [txt, ...seen],
