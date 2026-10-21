@@ -8,3 +8,9 @@
 
 export const saleSaveBlocked = (sale) =>
   Boolean(sale?.active) && !(Number(sale?.percent) > 0);
+
+// Self-review 1 (101.8) - Billing's own `busy` shape: while a save is in
+// flight the button is disabled, so a second press is refused, not sent
+// twice. The screen calls exactly this function for `disabled`.
+export const saleSaveDisabled = (sale, busy) =>
+  Boolean(busy) || saleSaveBlocked(sale);

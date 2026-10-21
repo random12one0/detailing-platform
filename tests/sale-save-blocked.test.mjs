@@ -9,7 +9,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { saleSaveBlocked } from "../app/src/lib/sale.js";
+import { saleSaveBlocked, saleSaveDisabled } from "../app/src/lib/sale.js";
 
 test("101.8 refusal: a running sale at 0% cannot be saved", () => {
   assert.equal(saleSaveBlocked({ active: true, percent: "0" }), true);
@@ -25,4 +25,14 @@ test("101.8 must-work: a running sale with a real percentage can be saved", () =
 test("101.8 must-work: a switched-off sale can always be saved", () => {
   assert.equal(saleSaveBlocked({ active: false, percent: "0" }), false);
   assert.equal(saleSaveBlocked({ active: false, percent: 0 }), false);
+});
+
+test("101.8 self-review 1: while a save is in flight the button stays off", () => {
+  // Second press refused even for a good sale, and the 0% refusal holds too.
+  assert.equal(saleSaveDisabled({ active: true, percent: "10" }, true), true);
+  assert.equal(saleSaveDisabled({ active: true, percent: "0" }, true), true);
+  // Nothing pending: exactly the blocked rule.
+  assert.equal(saleSaveDisabled({ active: true, percent: "10" }, false), false);
+  assert.equal(saleSaveDisabled({ active: true, percent: "0" }, false), true);
+  assert.equal(saleSaveDisabled({ active: false, percent: "0" }, false), false);
 });

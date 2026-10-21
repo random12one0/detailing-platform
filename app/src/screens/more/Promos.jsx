@@ -73,7 +73,7 @@ import { t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 // ROADMAP 101.8 - Save sale stays disabled while a running sale has no real
 // percentage, so a 0% "sale" can never be published.
-import { saleSaveBlocked } from "../../lib/sale.js";
+import { saleSaveBlocked, saleSaveDisabled } from "../../lib/sale.js";
 
 // The sale's own ladder, reused rather than re-chosen. A discount a detailer
 // offers is the same set of round numbers whether it is site-wide or behind a
@@ -96,6 +96,9 @@ export default function Promos() {
     label: settings?.site_discount_label ?? "",
   });
   const [msg, setMsg] = useState(null);
+  // Self-review 1 (101.8) - Billing's own `busy` shape, so a second press
+  // while the save is in flight is refused, not sent twice.
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from("promo_codes").select("*").eq("business_id", business.id).order("created_at", { ascending: false });
@@ -132,7 +135,8 @@ export default function Promos() {
   const saveSale = async () => {
     // ROADMAP 101.8 - the disabled button is the refusal; this guard is the
     // belt-and-braces so a 0% running sale is never written.
-    if (saleSaveBlocked(sale)) return;
+    if (busy || saleSaveBlocked(sale)) return;
+    setBusy(true);
     setMsg(null);
     const { error } = await supabase.from("business_settings").update({
       site_discount_active: sale.active,
@@ -141,6 +145,7 @@ export default function Promos() {
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
     if (!error) reload();
+    setBusy(false);
   };
 
   // WHAT A CUSTOMER GETS, IN WORDS. One key per shape rather than English
@@ -204,7 +209,7 @@ export default function Promos() {
           </>
         )}
       </Group>
-      <button className="btn" onClick={saveSale} disabled={saleSaveBlocked(sale)} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
+      <button className="btn" onClick={saveSale} disabled={saleSaveDisabled(sale, busy)} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
 
       <Group title={t("Promo codes")}
         blurb={t("A word the customer types when booking. The sale above comes off first.")}>
