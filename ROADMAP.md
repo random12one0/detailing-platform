@@ -31875,3 +31875,5 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Following the reproduction in the evidence (On a business with no sale set, open Promo codes, switch Sale is running on, press Save sale.) now gives the right result
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-10 passes after this box is ticked
+  Work 2026-10-21 (101.8): rule extracted to `app/src/lib/sale.js` as `saleSaveBlocked` (true only when sale is on AND percent is not above 0); Promos.jsx disables Save sale with it and saveSale returns early on it. No new wording added, so no Spanish key needed. Only writer of these columns is saveSale; booking/email readers consume stored values, no sibling fix needed.
+  Proof: `tests/sale-save-blocked.test.mjs` (3 tests: 0%/''/0 blocked when on; 10 allowed; off always allowed) failed before the fix (module missing on old code) and passes after; `tests/spanish.test.mjs` and `tests/composition.test.mjs` pass. Browser proof: `belt-checks/request.json` flows (refusal at 0%, must-work at 10%) play after this turn at 390 and 1440; box ticks once that page check is clean.
