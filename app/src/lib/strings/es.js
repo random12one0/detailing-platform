@@ -545,5 +545,4 @@ export const es = {
   "plan rate": "precio del plan",
   "included": "incluido",
   "{ord} vehicle": "{ord} vehículo",
-  "**Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire:** each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.": "**Todo lo eliminado, una cuenta entera o un solo cliente, permanece en nuestras copias de seguridad nocturnas cifradas hasta que esas copias caduquen:** la copia de cada noche se conserva 30 días, y la del día 1 de cada mes, 3 meses. Después también se elimina.",
 };
