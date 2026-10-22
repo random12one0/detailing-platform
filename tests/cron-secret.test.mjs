@@ -128,6 +128,16 @@ globalThis.fetch = async (input, init) => {
     // write answers with the rows it matched, as PostgREST does. Answering []
     // reads as "another sweep claimed it first" and the booking is skipped.
     if (req.method !== "GET" && req.method !== "HEAD") {
+      // A PATCH carries its new values in the body and PostgREST applies them
+      // before answering: the manual marker write is verified against the
+      // returned row, so the fake must hand back the stamped row, not the
+      // pre-write one. (The sweep's claim only counts rows, which is why this
+      // never mattered before 97.33.)
+      if (req.method === "PATCH") {
+        let patch = {};
+        try { patch = JSON.parse(text || "{}"); } catch (ignored) { patch = {}; }
+        for (const r of rows) Object.assign(r, patch);
+      }
       const back = /return=representation/.test(req.headers.get("prefer") || "") ? rows : [];
       return send(200, back, { "Content-Range": `*/${back.length}` });
     }
