@@ -25,6 +25,12 @@
 // manual refusals removed, §3's refusal/marker tests go red. Each break is
 // restored immediately after, and the entry records the counts.
 //
+// A frozen clock, two working identities, exact markers, and injected marker
+// failures: `world.failMarkerWrite` ("error" or "zero") makes the booking
+// marker write fail or stamp no row, and the manual branch must answer 500
+// instead of success. With the marker check neutered (bare update restored),
+// those failure tests go red.
+//
 //   node --test tests/owner-push-gate.test.mjs
 
 import { test } from "node:test";
@@ -65,6 +71,21 @@ async function importReal(path) {
 
 const { sendOwnerPush } = await importReal("../supabase/functions/_shared/ownerPush.ts");
 await importReal("../supabase/functions/send-owner-reminders/index.ts");
+
+// ROADMAP 97.33 repair - a frozen clock: every marker stamped below must equal
+// FROZEN_NOW exactly, never merely "nonempty".
+const FROZEN_NOW = "2026-10-20T19:00:00.000Z";
+const RealDate = Date;
+const FROZEN_MS = RealDate.parse(FROZEN_NOW);
+class FrozenDate extends RealDate {
+  constructor(...args) {
+    super(...(args.length ? args : [FROZEN_MS]));
+  }
+  static now() {
+    return FROZEN_MS;
+  }
+}
+globalThis.Date = FrozenDate;
 
 // ---------------------------------------------------------------------------
 // §1 — the rule itself.
@@ -154,7 +175,7 @@ function bookingRow(status) {
     owner_reminder_sent_at: null, customer_reminder_sent_at: null };
 }
 
-function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusinessId = BIZ.id }) {
+function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusinessId = BIZ.id, failMarkerWrite = null }) {
   world.tables.businesses = [{ ...BIZ }];
   world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
   world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
@@ -163,27 +184,28 @@ function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusiness
   world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }];
   world.pushes = [];
   world.emails = [];
+  world.failMarkerWrite = failMarkerWrite;
   return bodyBusinessId;
 }
 
-function postManual(body) {
+function postManual(body, token = "member-token") {
   return handler(new Request("http://test/manual", {
     method: "POST",
-    headers: { Authorization: "Bearer member-token", "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
   }));
 }
 
-async function manual(cfg) {
+async function manual(cfg, token = "member-token") {
   const bodyBusinessId = setupWorld(cfg);
   // No `target`: the owner-reminder path of the manual branch.
-  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1" });
+  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1" }, token);
   return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
-async function manualTarget(cfg, target) {
+async function manualTarget(cfg, target, token = "member-token") {
   const bodyBusinessId = setupWorld(cfg);
-  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1", target });
+  const res = await postManual({ business_id: bodyBusinessId, booking_id: "bk-1", target }, token);
   return { res, body: await res.json(), row: world.tables.bookings[0] };
 }
 
@@ -218,7 +240,7 @@ test("manual owner reminder: on means email plus push plus the marker", async ()
   assert.equal(r.body.success, true);
   assert.equal(world.emails.length, 1);
   assert.equal(world.pushes.length, 1);
-  assert.ok(r.row.owner_reminder_sent_at);
+  assert.equal(r.row.owner_reminder_sent_at, FROZEN_NOW);
 });
 
 test("manual customer reminder: switched off means a refusal, not success", async () => {
@@ -234,7 +256,7 @@ test("manual customer reminder: on means the email and the marker", async () => 
   assert.equal(r.res.status, 200);
   assert.equal(r.body.success, true);
   assert.equal(world.emails.length, 1);
-  assert.ok(r.row.customer_reminder_sent_at);
+  assert.equal(r.row.customer_reminder_sent_at, FROZEN_NOW);
 });
 
 test("manual reminder: a pending request still needs accepting first", async () => {
@@ -249,7 +271,7 @@ test("manual owner reminder: push off silences the push, the email still goes", 
   assert.equal(r.body.success, true);
   assert.equal(world.emails.length, 1);
   assert.equal(world.pushes.length, 0);
-  assert.ok(r.row.owner_reminder_sent_at);
+  assert.equal(r.row.owner_reminder_sent_at, FROZEN_NOW);
 });
 
 test("manual reminder: another business's booking is not found", async () => {
@@ -265,4 +287,95 @@ test("manual reminder: a body naming another business is refused", async () => {
   assert.equal(r.res.status, 401);
   assert.equal(world.emails.length, 0);
   assert.equal(world.pushes.length, 0);
+});
+
+// ---------------------------------------------------------------------------
+// ROADMAP 97.33 repair - two working identities with opposite push switches,
+// and marker writes that fail.
+// ---------------------------------------------------------------------------
+
+const BIZ2 = { ...BIZ, id: "biz-2", slug: "demo-2", name: "Demo 2" };
+const LIVE_SUB_2 = { business_id: "biz-2", endpoint: "https://push.example/b", p256dh: "p1", auth: "a1" };
+
+function setupTwoBusinessWorld() {
+  world.tables.businesses = [{ ...BIZ }, { ...BIZ2 }];
+  world.tables.business_settings = [
+    { ...FULL_SETTINGS, business_id: BIZ.id, push_enabled: true },
+    { ...FULL_SETTINGS, business_id: BIZ2.id, push_enabled: false },
+  ];
+  world.tables.business_users = [
+    { user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] },
+    { user_id: "user-2", business_id: BIZ2.id, role: "owner", permissions: [] },
+  ];
+  world.tables.bookings = [
+    { ...bookingRow("confirmed"), id: "bk-1", business_id: BIZ.id },
+    { ...bookingRow("confirmed"), id: "bk-2", business_id: BIZ2.id },
+  ];
+  world.tables.booking_vehicles = [];
+  world.tables.owner_push_subscriptions = [{ ...LIVE_SUB }, { ...LIVE_SUB_2 }];
+  world.pushes = [];
+  world.emails = [];
+  world.failMarkerWrite = null;
+}
+
+test("two businesses at once: the push switch is per-business, markers exact", async () => {
+  setupTwoBusinessWorld();
+  // Both businesses' settings rows are present together, and each member acts
+  // under their own identity: gating by "whichever row happens to be around"
+  // cannot pass this.
+  const res1 = await postManual({ business_id: BIZ.id, booking_id: "bk-1" }, "member-token");
+  const body1 = await res1.json();
+  assert.equal(res1.status, 200);
+  assert.equal(body1.success, true);
+  const res2 = await postManual({ business_id: BIZ2.id, booking_id: "bk-2" }, "member-token-2");
+  const body2 = await res2.json();
+  assert.equal(res2.status, 200);
+  assert.equal(body2.success, true);
+  // The push-on business pushed to its own endpoint only; the push-off
+  // business still sent its email but no push.
+  assert.deepEqual(world.pushes, ["https://push.example/a"]);
+  assert.equal(world.emails.length, 2);
+  const row1 = world.tables.bookings.find((r) => r.id === "bk-1");
+  const row2 = world.tables.bookings.find((r) => r.id === "bk-2");
+  assert.equal(row1.owner_reminder_sent_at, FROZEN_NOW);
+  assert.equal(row2.owner_reminder_sent_at, FROZEN_NOW);
+});
+
+test("manual customer reminder: a refused marker write is not success", async () => {
+  const r = await manualTarget({ status: "confirmed", settings: {}, failMarkerWrite: "error" }, "customer");
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+  // The reminder went out but nothing records it, so the marker stays empty.
+  assert.equal(world.emails.length, 1);
+  assert.equal(r.row.customer_reminder_sent_at, null);
+});
+
+test("manual customer reminder: a marker write that stamps no row is not success", async () => {
+  const r = await manualTarget({ status: "confirmed", settings: {}, failMarkerWrite: "zero" }, "customer");
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+  assert.equal(world.emails.length, 1);
+  assert.equal(r.row.customer_reminder_sent_at, null);
+});
+
+test("manual owner reminder: a refused marker write is not success", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, failMarkerWrite: "error" });
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+  assert.equal(world.emails.length, 1);
+  assert.equal(world.pushes.length, 1);
+  assert.equal(r.row.owner_reminder_sent_at, null);
+});
+
+test("manual owner reminder: a marker write that stamps no row is not success", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, failMarkerWrite: "zero" });
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+  assert.equal(world.emails.length, 1);
+  assert.equal(world.pushes.length, 1);
+  assert.equal(r.row.owner_reminder_sent_at, null);
 });

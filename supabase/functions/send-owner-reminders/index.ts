@@ -176,6 +176,22 @@ async function sendOwnerReminder(b: BookingRow) {
   return failed;
 }
 
+// ROADMAP 97.33 repair - the hand send used to stamp its marker with a bare
+// UPDATE whose result nobody read: a refused write (or one that touched no
+// row) still answered success, and the reminder stayed eligible to send
+// again. The chained select proves the stamp actually landed on this
+// booking's row; anything else throws, and the manual branch's catch turns
+// that into the caller's 500 instead of a success that is not one.
+async function markManual(id: string, col: string) {
+  const stamp = new Date().toISOString();
+  const marked = await supabase.from("bookings").update({ [col]: stamp }).eq("id", id).select("id, " + col);
+  if (marked.error) throw new Error("the reminder was sent but its marker could not be saved: " + marked.error.message);
+  const saved = (marked.data as Record<string, unknown>[] | null)?.[0];
+  if (!saved || saved[col] !== stamp) {
+    throw new Error("the reminder was sent but its marker could not be saved: the booking row was not stamped.");
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -222,7 +238,7 @@ Deno.serve(async (req) => {
         if ((await sendCustomerReminder(b)) === false) {
           return json({ error: "Reminders are switched off for this business." }, 409);
         }
-        await supabase.from("bookings").update({ customer_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+        await markManual(b.id, "customer_reminder_sent_at");
         return json({ success: true, count: 1 });
       }
       // ROADMAP 97.33 - answering `success` when reminders are switched off (no
@@ -232,7 +248,7 @@ Deno.serve(async (req) => {
         return json({ error: "Reminders are switched off for this business." }, 409);
       }
       await sendOwnerReminder(b);
-      await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+      await markManual(b.id, "owner_reminder_sent_at");
       return json({ success: true, count: 1 });
     }
 

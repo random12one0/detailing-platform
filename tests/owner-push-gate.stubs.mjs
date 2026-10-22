@@ -24,6 +24,9 @@ export const world = {
   },
   pushes: [],
   emails: [],
+  // ROADMAP 97.33 repair: marker-write failure injection. Null normally;
+  // "error" refuses the booking marker write, "zero" stamps no row.
+  failMarkerWrite: null,
 };
 
 function runQuery(table, filters, mode, patch) {
@@ -69,6 +72,16 @@ function from(table) {
     },
     then(res, rej) {
       try {
+        // A refused write, or one that touches no row, must keep the manual
+        // reminder from answering success: the reminder went out but nothing
+        // records it, so it stays eligible to send again.
+        if (mode === "update" && table === "bookings" && world.failMarkerWrite &&
+          Object.keys(patch ?? {}).some((k) => k.endsWith("_sent_at"))) {
+          const injected = world.failMarkerWrite === "error"
+            ? { data: null, error: { message: "injected marker write failure" } }
+            : { data: [], error: null };
+          return Promise.resolve(injected).then(res, rej);
+        }
         return Promise.resolve({ data: runQuery(table, filters, mode, patch), error: null }).then(res, rej);
       } catch (e) {
         return Promise.reject(e).catch(rej);
@@ -90,7 +103,9 @@ export const supabase = {
     getUser: async (token) => (
       token === "member-token"
         ? { data: { user: { id: "user-1" } }, error: null }
-        : { data: { user: null }, error: { message: "invalid token" } }
+        : token === "member-token-2"
+          ? { data: { user: { id: "user-2" } }, error: null }
+          : { data: { user: null }, error: { message: "invalid token" } }
     ),
     admin: { signOut: async () => ({}) },
   },
