@@ -1,9 +1,9 @@
 {
-  "git_sha": "fc6ea34f3627c4db46e899ccc8184b7a6f6a2c76",
-  "git_sha_started": "fc6ea34f3627c4db46e899ccc8184b7a6f6a2c76",
+  "git_sha": "ec50375b010ae05c8cd4a51919c29c5633ab5259",
+  "git_sha_started": "ec50375b010ae05c8cd4a51919c29c5633ab5259",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-22T05:51:05.440Z",
+  "finished_at": "2026-10-22T06:19:53.574Z",
   "failures": [
     "1c - it announced each deletion it made - ne backup-2027-09-17\npruning backup-2027-08-15\nwould prune backup-2027-08-15\npruning backup-2027-07-01\nwould prune backup-2027-07-01\npruning backup-2026-10-01\nwould prune backup-2026-10-01\npruning backup-2026-09-01\nwould prune backup-2026-09-01\npruning backup-2026-09-08\nwould prune backup-2026-09-08",
     "1d - backup-2027-09-17 is deleted",
@@ -31,7 +31,7 @@
     "today": "2027-10-17"
   },
   "check_id": "backup-retention-noprint",
-  "started_at": "2026-10-22T05:51:01.595Z",
+  "started_at": "2026-10-22T06:19:50.538Z",
   "status": "fail",
   "expected_targets": 22,
   "discovered_targets": 22,
