@@ -4,6 +4,8 @@
 
 import webpush from "npm:web-push@3";
 import { supabase } from "./db.ts";
+import { getSettings } from "./tenant.ts";
+import { pushAllowed } from "./pushGate.ts";
 
 type PushPayload = {
   title: string;
@@ -16,6 +18,13 @@ export async function sendOwnerPush(
   businessId: string,
   payload: PushPayload,
 ): Promise<{ sent: number; removed_stale: number }> {
+  // ROADMAP 97.33 - the owner's "push alerts off" switch, enforced here so it
+  // covers every sender at once (nudges, digest, cancel, reschedule and
+  // update-booking never checked it). A new sender cannot repeat that fault
+  // by forgetting a check at its own call site.
+  if (!pushAllowed(await getSettings(businessId))) {
+    return { sent: 0, removed_stale: 0 };
+  }
   const publicKey = Deno.env.get("OWNER_VAPID_PUBLIC_KEY");
   const privateKey = Deno.env.get("OWNER_VAPID_PRIVATE_KEY");
   const subject = Deno.env.get("OWNER_VAPID_SUBJECT");

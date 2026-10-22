@@ -176,6 +176,29 @@ async function sendOwnerReminder(b: BookingRow) {
   return failed;
 }
 
+// ROADMAP 97.33 repair - the hand send used to stamp its marker with a bare
+// UPDATE whose result nobody read: a refused write (or one that touched no
+// row) still answered success, and the reminder stayed eligible to send
+// again. The chained select proves the stamp actually landed on this
+// booking's row; anything else throws, and the manual branch's catch turns
+// that into the caller's 500 instead of a success that is not one.
+async function markManual(id: string, col: string) {
+  const stamp = new Date().toISOString();
+  const marked = await supabase.from("bookings").update({ [col]: stamp }).eq("id", id).select("id, " + col);
+  if (marked.error) throw new Error("the reminder was sent but its marker could not be saved: " + marked.error.message);
+  const saved = (marked.data as Record<string, unknown>[] | null)?.[0];
+  // The database answers timestamp-with-time-zone in its own text, such as
+  // `2026-10-20T19:00:00+00:00` for the `2026-10-20T19:00:00.000Z` instant
+  // this stamp was made from: compare parsed times, not strings. A missing,
+  // non-string, unparsable or different stamp is refused outright.
+  const got = saved?.[col];
+  const want = Date.parse(stamp);
+  const have = typeof got === "string" ? Date.parse(got) : NaN;
+  if (!saved || Number.isNaN(want) || Number.isNaN(have) || have !== want) {
+    throw new Error("the reminder was sent but its marker could not be saved: the booking row was not stamped.");
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -205,13 +228,34 @@ Deno.serve(async (req) => {
       if (b.status === "pending") {
         return json({ error: "Accept this request before reminding them about it." }, 409);
       }
+      // ROADMAP 97.33 - a booking that is over has nobody left to remind. The
+      // sweep RPCs never return these rows; the hand send must not either.
+      if (b.status === "cancelled") {
+        return json({ error: "This booking was cancelled, so there is nothing to remind anyone about." }, 409);
+      }
+      if (b.status === "completed") {
+        return json({ error: "This booking is already completed, so there is nothing to remind anyone about." }, 409);
+      }
       if (body.target === "customer") {
         if (!b.customer_email) return json({ error: "This booking has no customer email on file." }, 400);
-        await sendCustomerReminder(b);
+        // ROADMAP 97.33 - `sendCustomerReminder` answers false when reminders are
+        // switched off for this business: say so instead of `success`. And a
+        // hand send that went out stamps the same marker the sweep would have,
+        // so it is not sent again.
+        if ((await sendCustomerReminder(b)) === false) {
+          return json({ error: "Reminders are switched off for this business." }, 409);
+        }
+        await markManual(b.id, "customer_reminder_sent_at");
         return json({ success: true, count: 1 });
       }
+      // ROADMAP 97.33 - answering `success` when reminders are switched off (no
+      // owner email and no push) is the manual twin of the sweep's skip.
+      const ownerSettings = await getSettings(member.businessId);
+      if (!ownerSettings.email_owner_reminder && !ownerSettings.push_enabled) {
+        return json({ error: "Reminders are switched off for this business." }, 409);
+      }
       await sendOwnerReminder(b);
-      await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+      await markManual(b.id, "owner_reminder_sent_at");
       return json({ success: true, count: 1 });
     }
 
