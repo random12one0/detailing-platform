@@ -91,11 +91,9 @@ The nightly backup job itself lives in your private backups repo, which only you
 
 No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01. Until you paste it, the 1st-of-month copies are kept for ever.
 
-## DECIDE · Close out the backup-deletion paperwork: drop the old Spanish-line requirement (ROADMAP 97.28)
+## ANSWERED · Backup-deletion paperwork: Spanish-line requirement retired (ROADMAP 97.28)
 
-The backup work itself is built and checked. One line of paperwork is still open: the old contract for this item asks for a Spanish sentence on the privacy page, but the standing rule is that legal pages stay in English only.
-
-**Recommendation: approve retiring the two carried Spanish lines (ROADMAP 97.28 R7/R8), keeping the English three-month sentence as built.** One line from you closes the item; until then its box stays unticked.
+**Answered October 22:** drop the Spanish half — the privacy page stays English-only under the standing legal-page rule, and the requirement is the three-month sentence on the English privacy page as built. Locked R7/R8 are waived by this decision, and the same waiver retires the Spanish half of the R9 English-and-Spanish check (its English half is the built sentence). The two AMENDMENT PROPOSED lines and the NEEDS ANDREW amendment ask in ROADMAP 97.28 are answered by this decision, not merely proposed. The paste DO row below stands: the private-repo install is still yours.
 
 
 ## ANSWERED · Back-office checks follow the approved design (ROADMAP 98.4)

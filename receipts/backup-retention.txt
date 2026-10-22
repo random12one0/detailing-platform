@@ -1,4 +1,4 @@
-backup-retention 2026-10-22T00:04:14.935Z break=none
+backup-retention 2026-10-22T05:52:20.769Z break=none
 0. the shell this needs
 ok   0a - real bash with GNU date is here (refuse rather than judge without it)
 1. the prune rule, run for real
