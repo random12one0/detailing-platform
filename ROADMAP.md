@@ -940,6 +940,7 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
 - [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+  ANDREW DECIDED 2026-10-22 (he accepts the session's recommendation): drop the Spanish half. The privacy page stays English-only (standing legal-page rule). Locked R7 (the old twelve-month question and its Spanish key, already answered "3 months") and R8 ("English and Spanish") are WAIVED by this decision. The requirement is the three-month sentence on the English privacy page.
   **Held for a builder, not for Andrew (belt 2026-10-22).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021230418276`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **ROADMAP.md and FOR-ANDREW.md:** The earlier finding remains partly open. R2 is restored, but R7/R8’s locked Spanish requirements are neither fulfilled nor retired by owner approval; documenting a proposed amendment does not satisfy them.
   **Held for a builder, not for Andrew (belt 2026-10-21).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021215556931`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
