@@ -27,6 +27,19 @@ export const world = {
   // ROADMAP 97.33 repair: marker-write failure injection. Null normally;
   // "error" refuses the booking marker write, "zero" stamps no row.
   failMarkerWrite: null,
+  // Marker text shaping. Null normally (the written string comes back as-is);
+  // "db" returns the stamp as the database would (2026-10-20T19:00:00+00:00
+  // for a 2026-10-20T19:00:00.000Z instant), "invalid" an unparsable string,
+  // "different" another instant, "null" no stamp at all.
+  markerFormat: null,
+};
+
+// The database text for a timestamptz instant: same moment as toISOString,
+// written the way PostgREST returns it (offset, no millis).
+const toDbTimestamptz = (v) => {
+  const d = new Date(v);
+  const p2 = (n) => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}T${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}:${p2(d.getUTCSeconds())}+00:00`;
 };
 
 function runQuery(table, filters, mode, patch) {
@@ -42,6 +55,17 @@ function runQuery(table, filters, mode, patch) {
     }));
   if (mode === "update") {
     for (const r of hit) Object.assign(r, patch);
+    if (table === "bookings" && world.markerFormat) {
+      for (const r of hit) {
+        for (const k of Object.keys(patch ?? {})) {
+          if (!k.endsWith("_sent_at")) continue;
+          if (world.markerFormat === "db") r[k] = toDbTimestamptz(patch[k]);
+          else if (world.markerFormat === "invalid") r[k] = "not-a-timestamp";
+          else if (world.markerFormat === "different") r[k] = toDbTimestamptz(new Date(patch[k]).getTime() + 3600_000);
+          else if (world.markerFormat === "null") r[k] = null;
+        }
+      }
+    }
     return hit;
   }
   if (mode === "delete") {

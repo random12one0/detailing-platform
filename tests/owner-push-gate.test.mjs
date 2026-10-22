@@ -175,7 +175,7 @@ function bookingRow(status) {
     owner_reminder_sent_at: null, customer_reminder_sent_at: null };
 }
 
-function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusinessId = BIZ.id, failMarkerWrite = null }) {
+function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusinessId = BIZ.id, failMarkerWrite = null, markerFormat = null }) {
   world.tables.businesses = [{ ...BIZ }];
   world.tables.business_settings = [{ ...FULL_SETTINGS, ...settings }];
   world.tables.business_users = [{ user_id: "user-1", business_id: BIZ.id, role: "owner", permissions: [] }];
@@ -185,6 +185,7 @@ function setupWorld({ status, settings, bodyBusinessId = BIZ.id, bookingBusiness
   world.pushes = [];
   world.emails = [];
   world.failMarkerWrite = failMarkerWrite;
+  world.markerFormat = markerFormat;
   return bodyBusinessId;
 }
 
@@ -378,4 +379,42 @@ test("manual owner reminder: a marker write that stamps no row is not success", 
   assert.equal(world.emails.length, 1);
   assert.equal(world.pushes.length, 1);
   assert.equal(r.row.owner_reminder_sent_at, null);
+});
+
+test("manual customer reminder: a database-formatted stamp is the same instant, still success", async () => {
+  const r = await manualTarget({ status: "confirmed", settings: {}, markerFormat: "db" }, "customer");
+  assert.equal(r.res.status, 200);
+  assert.equal(r.body.success, true);
+  assert.equal(r.row.customer_reminder_sent_at, "2026-10-20T19:00:00+00:00");
+  assert.equal(Date.parse(r.row.customer_reminder_sent_at), FROZEN_MS);
+});
+
+test("manual owner reminder: a database-formatted stamp is the same instant, still success", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, markerFormat: "db" });
+  assert.equal(r.res.status, 200);
+  assert.equal(r.body.success, true);
+  assert.equal(r.row.owner_reminder_sent_at, "2026-10-20T19:00:00+00:00");
+  assert.equal(Date.parse(r.row.owner_reminder_sent_at), FROZEN_MS);
+});
+
+test("manual customer reminder: an unparsable stamp is not success", async () => {
+  const r = await manualTarget({ status: "confirmed", settings: {}, markerFormat: "invalid" }, "customer");
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+});
+
+test("manual owner reminder: a stamp for a different instant is not success", async () => {
+  const r = await manual({ status: "confirmed", settings: {}, markerFormat: "different" });
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+});
+
+test("manual customer reminder: a missing stamp is not success", async () => {
+  const r = await manualTarget({ status: "confirmed", settings: {}, markerFormat: "null" }, "customer");
+  assert.equal(r.res.status, 500);
+  assert.match(r.body.error, /marker could not be saved/);
+  assert.ok(!r.body.success);
+  assert.equal(r.row.customer_reminder_sent_at, null);
 });

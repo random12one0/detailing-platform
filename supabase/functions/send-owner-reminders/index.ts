@@ -187,7 +187,14 @@ async function markManual(id: string, col: string) {
   const marked = await supabase.from("bookings").update({ [col]: stamp }).eq("id", id).select("id, " + col);
   if (marked.error) throw new Error("the reminder was sent but its marker could not be saved: " + marked.error.message);
   const saved = (marked.data as Record<string, unknown>[] | null)?.[0];
-  if (!saved || saved[col] !== stamp) {
+  // The database answers timestamp-with-time-zone in its own text, such as
+  // `2026-10-20T19:00:00+00:00` for the `2026-10-20T19:00:00.000Z` instant
+  // this stamp was made from: compare parsed times, not strings. A missing,
+  // non-string, unparsable or different stamp is refused outright.
+  const got = saved?.[col];
+  const want = Date.parse(stamp);
+  const have = typeof got === "string" ? Date.parse(got) : NaN;
+  if (!saved || Number.isNaN(want) || Number.isNaN(have) || have !== want) {
     throw new Error("the reminder was sent but its marker could not be saved: the booking row was not stamped.");
   }
 }
