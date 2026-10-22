@@ -93,7 +93,13 @@ No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than Octo
 
 ## ANSWERED · Backup-deletion paperwork: Spanish-line requirement retired (ROADMAP 97.28)
 
-**Answered October 22:** drop the Spanish half — the privacy page stays English-only under the standing legal-page rule, and the requirement is the three-month sentence on the English privacy page as built. Locked R7/R8 are waived by this decision, and the same waiver retires the Spanish half of the R9 English-and-Spanish check (its English half is the built sentence). The two AMENDMENT PROPOSED lines and the NEEDS ANDREW amendment ask in ROADMAP 97.28 are answered by this decision, not merely proposed. The paste DO row below stands: the private-repo install is still yours.
+**Answered October 22 (R7/R8 only):** drop the Spanish half — the privacy page stays English-only under the standing legal-page rule, and the requirement is the three-month sentence on the English privacy page as built. Locked R7/R8 are waived by this decision. The locked R9 English-and-Spanish check is NOT covered by that waiver and is reconciled by its own amendment proposal (next row). The paste DO row below stands: the private-repo install is still yours.
+
+## DECIDE · R9 amendment: English-only privacy disclosure (ROADMAP 97.28)
+
+The locked contract still carries R9 (the privacy page states the period in English and Spanish), which the R7/R8 waiver does not cover — and the Spanish sentence cannot simply be built, because legal pages stay in English only under the standing rule and your October 22 direction.
+
+**Recommendation: approve retiring R9's Spanish clause, keeping the English three-month sentence as built (ROADMAP 97.28 AMENDMENT PROPOSED: R9).** One line from you closes the item's last paperwork; until then its box stays unticked.
 
 
 ## ANSWERED · Back-office checks follow the approved design (ROADMAP 98.4)
