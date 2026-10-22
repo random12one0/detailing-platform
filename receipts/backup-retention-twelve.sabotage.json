@@ -1,0 +1,43 @@
+{
+  "git_sha": "5dde0f8b18cde923b7394deb409785c564603698",
+  "git_sha_started": "5dde0f8b18cde923b7394deb409785c564603698",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-22T07:20:24.706Z",
+  "failures": [
+    "1d - backup-2027-07-01 is deleted",
+    "1e - exactly 6 deleted, every one a real delete call with --yes --cleanup-tag - backup-2027-09-17, backup-2027-08-15, backup-2026-10-01, backup-2026-09-01, backup-2026-09-08",
+    "1g - first-of-month run 2027-10-01 deletes backup-2027-07-01 at exact expiry - backup-2027-08-15, backup-2026-10-01, backup-2026-09-01, backup-2026-09-08",
+    "1j - long-month run 2027-05-31 deletes backup-2027-02-01 - backup-2027-02-15",
+    "1o - the shared oracle deletes exactly what the shell deleted on all run dates - the oracle is the module the belt-run test calls",
+    "2a - docs/ops/backup.live-copy.yml states 30 days and 3 months - days 30, months 11"
+  ],
+  "warnings": [
+    "The rule is run from the COPY in this repo. The private repo's job keeps the 1st of each month for ever until Andrew installs the copy (FOR-ANDREW.md).",
+    "UNJUDGEABLE: Spanish. The privacy page is English-only by ruling, so there is no Spanish sentence to check."
+  ],
+  "artifacts": [
+    "receipts/backup-retention.sabotage-twelve.txt"
+  ],
+  "dimensions": {
+    "roadmap": "97.28",
+    "break": "twelve",
+    "today": "2027-10-17"
+  },
+  "check_id": "backup-retention-twelve",
+  "started_at": "2026-10-22T07:20:21.658Z",
+  "status": "fail",
+  "expected_targets": 22,
+  "discovered_targets": 22,
+  "attempted_targets": 22,
+  "completed_targets": 22,
+  "skipped_targets": 0,
+  "assertions_executed": 31,
+  "min_assertions": 31,
+  "assertion_floor": "1 shell + 3 run + 12 tags + 1 count + 2 expiry + 2 overflow + 1 fail-list + 1 empty-list + 1 failed-delete + 1 oracle + 1 canary + 4 places + 1 deleted sentence = 31, every check() unconditional; targets are the 12 declared tags, the 2 exact-expiry runs, the 2 overflow tags, the empty listing, the failed delete and the 4 places the period is stated.",
+  "canary": {
+    "id": "for-ever-rule",
+    "observed_failure": true,
+    "what": "the pre-97.28 prune shell, run on the same tags, keeps the 1st-of-month copies older than 3 months (including 2027-07-01, which a twelve-month rule would also keep)"
+  }
+}

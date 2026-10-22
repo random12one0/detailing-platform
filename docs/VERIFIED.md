@@ -3833,3 +3833,230 @@ Re-run at `ba9ae7bf` on :5173 unless named.
 - **98.15 + 98.14** — `node scripts/platform-net-live.mjs` against the dev server at main `9033943a`, project `kguqylyzgyzfktkfnhjb`: **49 assertions, 0 failed, 4 of 4 targets, canary caught**, cleanup confirmed. Screenshots read: November 2025 at 392 shows Paid to us $40, Costs entered · 4 bills $57.49, We lost $17.49, Domain $12.99 to the cent; December 2025 at 1440 shows Profit · Not entered. Found while looking: a partly-entered month prints a profit with no note beside it — ROADMAP 98.16.
 - **14.34** — `node scripts/push-tap.mjs` at `9033943a`: **22 assertions, 0 failed** at 1440/768/390/320; `--break=dead-route`: **4 failed** (the tap lands on the 404 at each size), in its own sabotage receipt.
 - **98.11** — `node scripts/label-guard.mjs` at `9033943a`: "No stale labels".
+
+## Supervision 2026-10-21 — held work, not accepted main progress
+
+Base: main `1d58d8cd`. `receipts/supervision-2026-10-21-census.json` records the
+exact time floor from state.json and the recount command: no main commits since
+2026-10-19T14:07:43.048Z, 149 open / 219 done. Main was already in a merge of
+98.16 (`MERGE_HEAD=7dac78f7`) with ROADMAP dirty in both index and worktree.
+These local screenshots do not certify an accepted merge or a live release.
+
+Reproduction: `node scripts/supervision-2026-10-21.mjs` from the main checkout,
+with localhost:5173 free. It serves main's existing working tree and then each
+held branch's exact source through Vite, uses installed main dependencies and a
+disposable in-memory backend, blocks external API hosts, and executes the real
+import handler with its DB/membership boundaries stubbed. No env-file read, live
+session, live write, schema change, paid service or release. Expected result is
+exit 1 naming the known fixture-deletion defect, not a passing supervision gate.
+The committed result and source hashes are `receipts/supervision-2026-10-21.json`.
+
+- **98.16, existing staged warning:** at 1440x900, 768x1024, 392x844 and 390x844,
+  partial months name the missing bills beside the amount; negative amounts are
+  refused, zero is accepted, complete months have no warning, and an empty month
+  says Not entered. Browser consoles clean. Viewed the desktop, tablet and phone
+  screenshots against DESIGN.md/The Thread: continuous dark ground, existing
+  typography and monospace money, amber notice next to the number, no clipped
+  warning. Working-tree hashes are in the receipt because HEAD does not contain
+  this product change. Earlier independent run of the pre-existing untracked
+  `scripts/supervision-2026-10-19.mjs` passed 66/66 (also exercises 99.13);
+  `--break=hide-note --lite` failed the actual notice-visibility assertions at
+  both 1440 and 392, 2/18 red. Its files remain under
+  `.manager-shots/supervision-2026-10-19[-hide-note-lite]/`. This is local UI proof,
+  not the outstanding live platform-net-live receipt; 98.16 remains open.
+- **98.13, held source e3531cf3:** Team Access stays one row at 44px at
+  1440/768/392/390/320. Owner selects, returning to the first radio works, an
+  empty invite is disabled; consoles clean. The original two-column CSS
+  sabotage at 392 produces two rows / 88px and is caught. Viewed desktop and
+  phone screenshots: Email has the full phone row and the options are readable;
+  at desktop the original pair remains. This pass did not certify the separate
+  New booking Vehicle size control or live delivery of an invite. No main tick
+  or merge was added.
+- **97.40, held product affcfade:** file picker -> preview -> save -> undo worked
+  at 1440/768/392, including duplicate and missing-phone refusal; consoles clean.
+  Executed handler refused a stubbed nonmember, and ordinary undo removed only
+  the imported batch. But a same-batch imported is_test=true row was deleted:
+  `{ok:true,removed:1}`. Removed its branch tick at c39652f2; main was already open.
+  The pure parser also splits quoted multiline Notes and loses their second
+  line. `docs/gotchas.md` 136 explains why its existing DB test misses the fixture
+  defect. Viewed preview screenshots: controls and named refusal rows fit both
+  widths, but singular copy reads "1 duplicates" and "Save 1 customers"; include
+  that wording repair with matching Spanish keys when finishing this item.
+
+Screenshots from the reproducible script are in
+`.manager-shots/supervision-2026-10-21/`; all assertions and the parser result
+are in its JSON. This local fake backend has no RLS, so none of this proves live
+tenant authorization, deployment state, migrations or PostgREST row limits.
+
+**Belt repair:** the exhausted-recovery hold now passes final reviewer findings
+instead of manufacturing a "merge it" question. `node belt.mjs --self-check`
+first failed its two new assertions against the original call, then passed
+593 assertions / 3 canaries in both belt and belt-staging. Outputs:
+`belt/supervision-2026-10-21-{red,green}.txt` and
+`belt-staging/supervision-2026-10-21-green.txt`; preserved copies accompany this
+receipt. Staging commit 3c4e0fa, with explicit file paths. No routing, budget,
+cadence, gate order, risky-stop rule or model setting changed.
+
+Required local checks: the six read-before-run credential-free suites
+(composition, design-contrast, landing-pricing, route-contract,
+no-credentials-in-tracked-text, every-open-item-is-citable) exited 0 with no
+failures or skips; full output is the supervision gates receipt. The decisions
+index and gotchas heading count were checked after writing the notes.
+
+## Supervision 2026-10-21 evening
+
+Main product source: 5ddb5b9a (sale merge 46a941db). Held backup source:
+62c8c7b19541a943e448f32b3e2cb9ef6dfaa0ce. This is local browser and shell
+proof, not a claim about production deployment, RLS or installed backups.
+
+**101.8 retained.** `node scripts/supervision-2026-10-21-sale.mjs`:
+60 discovered of 60 declared checks, none failed. Widths in execution order:
+390x844, 1440x900, 768x1024, 392x844, 320x844, 1920x1080. The actual Promos
+component refuses running at zero, accepts ten into the fixture row, disables
+Save during a held PATCH, refuses another press, then enables Save again.
+Each width has its own clean console and no sideways scroll. The same command
+with `--break=guard` serves the actual pre-fix Promos component from c3678a82:
+60 of 60 checks reached, 18 ordinary assertions failed (zero refusal, busy
+disable, duplicate request at each width). It exits 1. Clean and sabotage
+results and screenshots have separate directories and durable JSON copies in
+`receipts/supervision-2026-10-21-evening-sale{,-sabotage}.json`.
+
+Opened the zero and saved phone/desktop images, plus tablet and 392 images.
+Against DESIGN.md and its linked system: continuous dark textured ground,
+Archivo headings, monospaced figures, the tenant's cyan accent, existing
+settings groups and small control ladder remain coherent. Save is visibly
+dimmed at zero and readable/enabled at ten; rows wrap on the phone and occupy
+the right column on desktop. No new design direction was introduced.
+The earlier same-turn request-count probe briefly passed on the old code;
+the final walk waits for the HTTP boundary, and its old-code run catches the
+duplicate. The existing delayed-test impossibility claim in the item is false.
+Control Room `audit-data/runs/run-5/recheck-R2-10/verdict.json` also records
+that the finding is fixed by 101.8.
+
+**97.28 remains open on independently reproduced checker defects.**
+`node scripts/supervision-2026-10-21-held.mjs`: 22 discovered of 22 declared
+observations, none failed. It runs the exact held workflow's prune step in
+real bash with `gh` replaced by an in-process shell function. The May 31
+population keeps March 1, deletes February 1 and leaves v1.0; failed listing
+exits nonzero and deletes nothing. The forever, twelve-month and print-only
+mutations break the same deletion expectation; exit-zero breaks the same
+failed-listing expectation. No real release or database was touched.
+
+The held privacy disclosure and shared terms date render at 1440x900,
+768x1024, 392x844 and 390x844, with clean consoles. Opened desktop/tablet/phone
+images: the three-month paragraph is readable in the ruled list, and the
+terms date is visible below its heading. An initial fixed 1.3-second paint
+read was too early; the final walk waits for the actual reveal end state.
+Then the exact held browser checker is run with only import paths and its
+receipt output redirected into scratch: after 8 targets and 40 passing
+checks, it exits 1 with `ReferenceError: canaryCaught is not defined`.
+With only that variable's scope corrected in a second scratch module,
+`--break=old-words` exits 0 and writes status pass / failures empty over the
+removed disclosure. This is a reproduced false green, not accepted coverage.
+The durable evidence is `receipts/supervision-2026-10-21-evening-held.json`;
+raw outputs are `.manager-shots/supervision-2026-10-21-held/exact-held/run.txt`
+and `.manager-shots/supervision-2026-10-21-held/scope-only-sabotage/run.txt`,
+with the false-pass `receipt.json` beside that second log. No held product
+code was changed or accepted.
+
+**Belt correction.** Installed belt.mjs/harness.mjs and staging commits
+d95b95d/bf0a273 match by SHA-256. `node belt.mjs --self-check` passes 603 assertions and 3 existing
+canaries in both folders. Restoring unknown-review owner routing made its
+new ordinary assertion fail (exit 1); changing missing-helper transient back
+to false separately failed its own assertion (exit 1). Disabling correction of
+the persisted stale hold also failed its own assertions (exit 1). All three edits were
+restored before the final green. Durable raw outputs:
+`receipts/supervision-2026-10-21-evening-belt-{green,sabotage,no-answer-sabotage,persisted-sabotage}.txt`.
+The state correction and census are recorded separately in the evening
+census receipt. No review, owner decision, budget or risky stop was waived.
+
+Local gates: the four required source suites plus the sale and citable suites
+pass 15 tests, no failures or skips; raw output is the evening gates receipt.
+Credential scanner and decisions index are run after staging these notes so
+the scanner sees the newly tracked files. No live inventory or migration
+measurement was attempted, and neither is called clean.
+
+The figures suite first refused because bash was absent from PATH. With
+`C:\Program Files\Git\bin` temporarily prepended to PATH in this PowerShell
+command, `node --test tests/figures-carry-their-command.test.mjs` passes 9 tests;
+its named UNJUDGEABLE figures remain reported, not certified. Both outputs
+are retained as the evening figures receipts. Text logs were normalized to
+UTF-8 before the final credential scan so NUL detection does not skip them.
+
+## Builder 2026-10-21 night, ROADMAP 97.28: checker-defect repairs (M1-M6)
+
+M1: HEAD is the merge b243bddc of the supervisor's 101.8 verify onto the
+held 97.28 branch; `git diff 62c8c7b1..HEAD --stat` holds only supervision
+evidence (held runner, evening receipts/notes), no item-file changes. The
+four-way three-month agreement was already in place (workflow prune step:
+30-day CUTOFF, MONTH_START -2 months -1 day; both Retention rows; PRIVACY
+"How long"). Both evening defects reproduced in the working tree:
+`canaryCaught` declared inside `try` and read after it, and the old-words
+branch asserting the missing disclosure. Privacy receipts and
+`belt-checks/request.json` were absent.
+
+M2: pure helpers (`pruneStep`, `DELETE_LINE`, `MUTATIONS`, `mutate`,
+`workflowNumbers`) moved from `scripts/lib/pruneHarness.mjs` into
+`scripts/lib/retentionRule.mjs`; the harness keeps subprocess-only code
+plus compatibility re-exports (verified identical bindings). The belt-run
+test now imports only the pure module, the filesystem and in-process
+assertions: 12/12 clean; forever/twelve/noprint/exitzero each go red on
+their named guard (guard regex, period numbers, delete line, nonzero
+failed-listing exit). The runner keeps the real shell and gains the
+carried 1k (empty listing: exit 0, LIST ok, zero deletes) and 1m (failed
+delete: nonzero, tag named, attempt on record) execution cases: clean
+31/31, `receipts/backup-retention.json` graded valid (22/22 targets,
+canary caught). Sabotages red with ordinary failures: forever 24/7,
+twelve 25/6 (incl. the agreement guard, months 11), noprint 19/12 (incl.
+the new 1m), exitzero 30/1 (1p), drift 30/1 (recovery row). Unknown break
+exits 2 in both. Separate clean and sabotage JSON/text receipts; sabotage
+runs precede the final clean run.
+
+M3: `scripts/privacy-backup-period.mjs` repaired: `canaryCaught` declared
+before `try`; disclosure-presence and paint assertions run in BOTH modes,
+so `--break=old-words` fails the presence assertion at all eight targets
+(exit 1, failing receipt) while executed-signature and surrounding-
+paragraph checks prove exactly one disclosure was removed; the internal
+canary uses its own `privacy-canary-390x844` shot path. A 15-assertion
+static simulation of the exact detector expressions passes (clean present,
+sabotage removed, blank page refused as sabotage evidence, broken-
+detector canary refusal); in-page execution is the belt's run, not this
+sandbox's (no browser binary exists here; port 5180 answers but there is
+no page driver to check it with).
+
+M4: retention evidence above is executed here at final code. Browser
+evidence (clean + `--break=old-words`, separate `--shots` dirs, 8/8
+targets with executed signatures and intact surrounding paragraphs) is
+pending the belt's run of the repaired script.
+
+M5: `belt-checks/request.json` created (absent before): pages /privacy +
+/terms unsigned; flow 1 asserts the new 3-month sentence (passes here,
+absent from main's legal.js, so it fails on main); flow 2 guards the old
+"for ever" / "12 months" promises (no rendered occurrence in app/src).
+Shared EFFECTIVE October 21, 2026 untouched; booking-consent still pins
+it on /terms. FOR-ANDREW.md DECIDE row now references R7/R8 (the current
+contract IDs for the Spanish conflict).
+
+M6: composition, design-contrast, route-contract, landing-pricing,
+every-open-item-is-citable pass; decisions-index covers all sections;
+label-guard reports no stale labels; the credential scanner passes (its
+mkdtemp needs a writable TEMP in this sandbox: EPERM under the default
+user Temp, green with TEMP redirected; environmental, not a finding).
+R7/R8 stay open on the unapproved amendments; no push, publish, deploy,
+or private-workflow install. All scratch `.tmp*` files removed.
+
+
+## Supervision 2026-10-22 — merged retention and sale recheck
+
+Product revision: 5dde0f8b. No app source changed during these runs. Read the actual diffs and the test/proof files before executing them.
+
+- Retention: `node scripts/backup-retention.mjs` runs the copied workflow's actual prune shell under real bash/GNU date against a stub gh command; 31/31 assertions, expected/discovered 22/22 targets. It checks the exact three-month expiry, the day before, a long month, an empty successful listing, failed listing and failed deletion. Re-ran all five RETENTION_BREAK values (forever, twelve, noprint, exitzero, drift); each exits 1 with ordinary named failures. Separate receipts and text logs are under receipts/backup-retention*. The print-only mutation fails the delete-call ledger, not merely the printed announcement. No real GitHub command or database operation is executed.
+- Independent legal walk: `node scripts/supervision-2026-10-22.mjs` starts a credential-free Vite server at localhost:5173; /privacy and /terms at 390x844, 1440x900, 768x1024 and 392x844, normal and ?lite=1, pass 96/96 checks. It clicks each opposite legal-page link, checks the new shared effective date, reads the console, and photographs the rendered disclosure. `--break=old-words` serves the actual pre-fix legal.js with an executed signature: 16 content failures among the same 96 checks; surrounding text and navigation still work. Receipts: supervision-2026-10-22-legal{,-sabotage}.json.
+- The item's own repaired checker was actually run: `node scripts/supervision-2026-10-22.mjs --proof-only` runs privacy-backup-period.mjs clean and with --break=old-words against its local server. Clean reaches 8/8 targets and passes 48/48 assertions; sabotage reaches 8/8 and fails disclosure presence at every target, exit 1. Both catch the internal old-words canary. Separate logs and screenshots live in .manager-shots/supervision-2026-10-22-legal-checker/{clean,old-words}; the graded receipts are receipts/privacy-backup-period{,-old-words.sabotage}.json. This resolves the earlier 'pending browser execution' notes above.
+- Sale: `node scripts/supervision-2026-10-21-sale.mjs` rechecks the actual current component with a local in-memory backend at 390/1440/768/392/320/1920. All 60/60 checks pass: zero refused, ten saved into the fixture row, one request while delayed, duplicate refused, Save enabled after response. `--break=guard` serves the actual pre-fix component and fails 18 of the same 60 checks, exit 1. Receipts copied to supervision-2026-10-22-sale{,-sabotage}.json by the record script. No live save or authorization claim is made.
+
+Opened privacy and terms screenshots at desktop, tablet and phone sizes, including 392, plus sale zero/saved screenshots. Against DESIGN.md and The Thread: continuous dark patterned ground retained; Archivo headings and restrained text hierarchy retained; disclosure wraps within the phone, desktop keeps the ruled two-column layout; sale Save is visibly disabled at zero and enabled after saving ten; no sideways clipping seen. Normal and lite legal shots agree on the text. Console was silent at every measured target. Screenshots are under .manager-shots/supervision-2026-10-22-legal{,-sabotage}/ and the sale script's dated folders; this pass also copies selected clean sale shots under .manager-shots/supervision-2026-10-22-sale/.
+
+Census/config receipt: `node scripts/supervision-2026-10-22-record.mjs`; --break=brief removes the new placement paragraph only in memory and exits 1 on the ordinary assertion. Installed/staging added paragraphs match; the complete preexisting briefs differ and are not represented as identical. Mandatory credential-free gates and the two item suites are recorded in receipts/supervision-2026-10-22-gates.txt. Deployed inventory and migration drift were not run: this pass handles no credentials and makes no live deployment claim.
+
+Final checks: the eight named test files in `receipts/supervision-2026-10-22-gates.txt` ran 28 Node tests with no failures or skips. `node scripts/decisions-index.mjs` passed after adding the decision and its index entry together. `node --test tests/figures-carry-their-command.test.mjs` passed nine tests; its separate named UNJUDGEABLE figures remain visible in `receipts/supervision-2026-10-22-figures.txt`. Every artifact named by the clean and sabotage privacy receipts exists in this checkout.

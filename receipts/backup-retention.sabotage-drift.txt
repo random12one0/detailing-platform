@@ -1,0 +1,40 @@
+backup-retention 2026-10-22T07:20:35.256Z break=drift
+0. the shell this needs
+ok   0a - real bash with GNU date is here (refuse rather than judge without it)
+1. the prune rule, run for real
+ok   1a - the step ran and exited 0
+ok   1b - it only ever called gh release list / delete
+ok   1c - it announced each deletion it made
+ok   1d - backup-2027-10-17 is kept
+ok   1d - backup-2027-10-01 is kept
+ok   1d - backup-2027-09-18 is kept
+ok   1d - backup-2027-09-17 is deleted
+ok   1d - backup-2027-08-15 is deleted
+ok   1d - backup-2027-09-01 is kept
+ok   1d - backup-2027-08-01 is kept
+ok   1d - backup-2027-07-01 is deleted
+ok   1d - backup-2026-10-01 is deleted
+ok   1d - backup-2026-09-01 is deleted
+ok   1d - backup-2026-09-08 is deleted
+ok   1d - v1.0 is kept
+ok   1e - exactly 6 deleted, every one a real delete call with --yes --cleanup-tag
+ok   1g - first-of-month run 2027-10-01 deletes backup-2027-07-01 at exact expiry
+ok   1h - day before (2027-09-30) still retains backup-2027-07-01
+ok   1i - long-month run 2027-05-31 keeps backup-2027-03-01 (expires June 1)
+ok   1j - long-month run 2027-05-31 deletes backup-2027-02-01
+ok   1p - a failed release listing exits nonzero and deletes nothing
+ok   1k - an empty successful listing exits 0 with a recorded LIST ok and zero deletes
+ok   1m - a failed release deletion exits nonzero naming the tag, attempt on the record
+ok   1o - the shared oracle deletes exactly what the shell deleted on all run dates
+ok   1f - canary: the for-ever rule keeps 2027-07-01, 2026-10-01 and 2026-09-01, and this run tells them apart
+2. every place that states the period states the same one
+sabotage drift landed
+ok   2a - docs/ops/backup.live-copy.yml states 30 days and 3 months
+ok   2a - docs/ops/backups.md states 30 days and 3 months
+FAIL 2a - docs/recovery.md states 30 days and 3 months  (days 30, months 24)
+ok   2a - privacy page, How long states 30 days and 3 months
+ok   2b - the privacy page says the backup copy is then deleted
+
+30 passed, 1 failed  (RETENTION_BREAK=drift: a sabotage, this run MUST be red)
+NOT CHECKED: Spanish - the privacy page has no Spanish version (legal.js is English-only by ruling).
+FAIL 2a - docs/recovery.md states 30 days and 3 months - days 30, months 24

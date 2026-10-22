@@ -1,0 +1,128 @@
+{
+  "at": "2026-10-21T21:41:06.357Z",
+  "ref": "62c8c7b19541a943e448f32b3e2cb9ef6dfaa0ce",
+  "local_only": true,
+  "expected": 22,
+  "results": [
+    {
+      "name": "real GNU date available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "actual shell keeps March, deletes February, leaves unrelated release",
+      "ok": true,
+      "detail": "[\"LIST ok\",\"DELETE backup-2027-02-01 --yes --cleanup-tag\"]"
+    },
+    {
+      "name": "actual shell refuses failed listing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "forever: same deletion expectation detects mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "twelve: same deletion expectation detects mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "noprint: same deletion expectation detects mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exitzero: same refusal expectation detects mutation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "privacy 1440: three-month disclosure painted",
+      "ok": true,
+      "detail": "{\"text\":\"How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.\",\"opacity\":\"1\"}"
+    },
+    {
+      "name": "terms 1440: shared date October 21",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legal 1440: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "privacy 768: three-month disclosure painted",
+      "ok": true,
+      "detail": "{\"text\":\"How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.\",\"opacity\":\"1\"}"
+    },
+    {
+      "name": "terms 768: shared date October 21",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legal 768: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "privacy 392: three-month disclosure painted",
+      "ok": true,
+      "detail": "{\"text\":\"How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.\",\"opacity\":\"1\"}"
+    },
+    {
+      "name": "terms 392: shared date October 21",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legal 392: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "privacy 390: three-month disclosure painted",
+      "ok": true,
+      "detail": "{\"text\":\"How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted. Anything deleted, a whole account or one customer, stays in our encrypted nightly backups until those backups expire: each night's backup is kept for 30 days, and the one taken on the 1st of each month for 3 months. Then it is deleted too.\",\"opacity\":\"1\"}"
+    },
+    {
+      "name": "terms 390: shared date October 21",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legal 390: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "held browser check crashes on its out-of-scope canary",
+      "ok": true,
+      "detail": "exit 1"
+    },
+    {
+      "name": "scratch scope-only diagnostic landed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "after fixing only scope, missing disclosure wrongly returns pass",
+      "ok": true,
+      "detail": "exit 0, status pass"
+    }
+  ],
+  "limitations": [
+    "held source only; private workflow not installed; no delivery sent"
+  ],
+  "script": "scripts/supervision-2026-10-21-held.mjs",
+  "script_sha256": "9be9b27d8a9170568b48fab9d65fca94c5138e3e67cb6951a6799b066ba69ad6",
+  "artifacts_directory": ".manager-shots/supervision-2026-10-21-held",
+  "defect_logs": {
+    "exact": "ok   1440x900 · How long states the 30-day and 3-month backup period\nok   1440x900 · the row is painted where the reader stands\nok   1440x900 · no unfinished rewrite executed here\nok   1440x900 · inside the screen, no sideways scroll\nok   1440x900 · console silent\nok   1440x900?lite=1 · How long states the 30-day and 3-month backup period\nok   1440x900?lite=1 · the row is painted where the reader stands\nok   1440x900?lite=1 · no unfinished rewrite executed here\nok   1440x900?lite=1 · inside the screen, no sideways scroll\nok   1440x900?lite=1 · console silent\nok   768x1024 · How long states the 30-day and 3-month backup period\nok   768x1024 · the row is painted where the reader stands\nok   768x1024 · no unfinished rewrite executed here\nok   768x1024 · inside the screen, no sideways scroll\nok   768x1024 · console silent\nok   768x1024?lite=1 · How long states the 30-day and 3-month backup period\nok   768x1024?lite=1 · the row is painted where the reader stands\nok   768x1024?lite=1 · no unfinished rewrite executed here\nok   768x1024?lite=1 · inside the screen, no sideways scroll\nok   768x1024?lite=1 · console silent\nok   390x844 · How long states the 30-day and 3-month backup period\nok   390x844 · the row is painted where the reader stands\nok   390x844 · no unfinished rewrite executed here\nok   390x844 · inside the screen, no sideways scroll\nok   390x844 · console silent\nok   390x844?lite=1 · How long states the 30-day and 3-month backup period\nok   390x844?lite=1 · the row is painted where the reader stands\nok   390x844?lite=1 · no unfinished rewrite executed here\nok   390x844?lite=1 · inside the screen, no sideways scroll\nok   390x844?lite=1 · console silent\nok   320x700 · How long states the 30-day and 3-month backup period\nok   320x700 · the row is painted where the reader stands\nok   320x700 · no unfinished rewrite executed here\nok   320x700 · inside the screen, no sideways scroll\nok   320x700 · console silent\nok   320x700?lite=1 · How long states the 30-day and 3-month backup period\nok   320x700?lite=1 · the row is painted where the reader stands\nok   320x700?lite=1 · no unfinished rewrite executed here\nok   320x700?lite=1 · inside the screen, no sideways scroll\nok   320x700?lite=1 · console silent\nok   canary · the pre-97.28 words are called missing, with an executed signature\n\n8 of 8 targets, 40 of 40 passed\nfile:///C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/supervision-2026-10-21-held/exact-held/probe.mjs:146\r\n  status: failures.length || completed < VIEWS.length || !canaryCaught ? \"fail\" : \"pass\",\r\n                                                          ^\r\n\r\nReferenceError: canaryCaught is not defined\r\n    at file:///C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/supervision-2026-10-21-held/exact-held/probe.mjs:146:59\r\n\r\nNode.js v24.20.0\r\n",
+    "scope_only_sabotage": "ok   1440x900 · MISSING disclosure fails the run\nok   1440x900 · the rewrite that removed it provably executed\nok   1440x900 · exactly one disclosure removed: the surrounding paragraph still renders\nok   1440x900 · inside the screen, no sideways scroll\nok   1440x900 · console silent\nok   1440x900?lite=1 · MISSING disclosure fails the run\nok   1440x900?lite=1 · the rewrite that removed it provably executed\nok   1440x900?lite=1 · exactly one disclosure removed: the surrounding paragraph still renders\nok   1440x900?lite=1 · inside the screen, no sideways scroll\nok   1440x900?lite=1 · console silent\nok   768x1024 · MISSING disclosure fails the run\nok   768x1024 · the rewrite that removed it provably executed\nok   768x1024 · exactly one disclosure removed: the surrounding paragraph still renders\nok   768x1024 · inside the screen, no sideways scroll\nok   768x1024 · console silent\nok   768x1024?lite=1 · MISSING disclosure fails the run\nok   768x1024?lite=1 · the rewrite that removed it provably executed\nok   768x1024?lite=1 · exactly one disclosure removed: the surrounding paragraph still renders\nok   768x1024?lite=1 · inside the screen, no sideways scroll\nok   768x1024?lite=1 · console silent\nok   390x844 · MISSING disclosure fails the run\nok   390x844 · the rewrite that removed it provably executed\nok   390x844 · exactly one disclosure removed: the surrounding paragraph still renders\nok   390x844 · inside the screen, no sideways scroll\nok   390x844 · console silent\nok   390x844?lite=1 · MISSING disclosure fails the run\nok   390x844?lite=1 · the rewrite that removed it provably executed\nok   390x844?lite=1 · exactly one disclosure removed: the surrounding paragraph still renders\nok   390x844?lite=1 · inside the screen, no sideways scroll\nok   390x844?lite=1 · console silent\nok   320x700 · MISSING disclosure fails the run\nok   320x700 · the rewrite that removed it provably executed\nok   320x700 · exactly one disclosure removed: the surrounding paragraph still renders\nok   320x700 · inside the screen, no sideways scroll\nok   320x700 · console silent\nok   320x700?lite=1 · MISSING disclosure fails the run\nok   320x700?lite=1 · the rewrite that removed it provably executed\nok   320x700?lite=1 · exactly one disclosure removed: the surrounding paragraph still renders\nok   320x700?lite=1 · inside the screen, no sideways scroll\nok   320x700?lite=1 · console silent\nok   canary · the pre-97.28 words are called missing, with an executed signature\n\n8 of 8 targets, 40 of 40 passed  (--break=old-words: MUST be red)\n"
+  }
+}

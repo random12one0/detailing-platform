@@ -20,7 +20,7 @@ encrypts it so that GitHub itself cannot read it, and attaches it to a release.
 | Dump | `pg_dump --no-owner --format=custom`, run inside the `postgres:17` Docker image because the runner's client is older than the server. **Grants and revokes are kept** (ROADMAP 97.25): the product's security depends on revokes, and a copy without them restores every table open to `anon` and `authenticated`. Until Andrew installs the change (`FOR-ANDREW.md`, ROADMAP 97.25), the private repo's workflow and its `scripts/restore.sh` still pass the flag that drops them, so the copies on hand hold no grants |
 | Encryption | `age -R backup-key.pub` — a public key committed in the clear. **CI holds no private key and cannot decrypt its own output** |
 | Lands in | a **release asset**, never a commit. Git cannot forget a committed file, and these dumps are real customers' names, phones and home addresses |
-| Retention | every backup for 30 days, plus the 1st of each month for ever |
+| Retention | every backup for 30 days, plus the 1st of each month for 3 months, then deleted (ROADMAP 97.28, Andrew 2026-10-19: three months; the privacy page states the same period). Until Andrew installs the change from `docs/ops/backup.live-copy.yml` (`FOR-ANDREW.md`), the private repo's prune step still keeps the 1st of each month for ever; nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01 — nothing outlives the promise before then |
 
 **Measured 2026-09-10** — three green runs, and the file grows as the database
 does, which is what a live dump should look like:

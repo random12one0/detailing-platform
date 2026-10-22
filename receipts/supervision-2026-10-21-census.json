@@ -1,0 +1,12 @@
+{
+  "command": "belt lib.tally(readFileSync(ROADMAP.md)) and git log --since=state.lastSupervisedAt --format=%h %s",
+  "main": "1d58d8cd",
+  "since": "2026-10-19T14:07:43.048Z",
+  "tally": {
+    "open": 149,
+    "done": 219
+  },
+  "commits_since": "",
+  "merge_head": "7dac78f75854b7807218b370fed7408658862d34",
+  "dirty_on_arrival": "ROADMAP.md in index and worktree; Bills, office CSS, officeMoney, platform-net-live and bills-note test staged; extra untracked supervision scripts and month-walk test; four dirty requests receipts."
+}

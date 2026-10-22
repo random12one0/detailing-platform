@@ -1,0 +1,320 @@
+{
+  "at": "2026-10-21T21:35:36.660Z",
+  "git_sha": "5ddb5b9a0640d68e0be90062dddaa16b870c20c4",
+  "local_only": true,
+  "break": "pre-fix Promos.jsx",
+  "expected": 60,
+  "discovered": 60,
+  "results": [
+    {
+      "name": "390: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "390: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "390: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "390: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1440: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1440: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1440: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1440: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "768: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "768: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "768: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "768: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "392: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "392: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "392: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "392: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "320: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "320: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "320: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "320: console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: running at zero refused",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1920: refusal sends no update",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: ten percent enables Save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: delayed write disables Save",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1920: another press sends no duplicate",
+      "ok": false,
+      "detail": ""
+    },
+    {
+      "name": "1920: saved row is active at ten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: Save recovers after response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: switched off can save",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: no sideways scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1920: console clean",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "in-memory backend; no live RLS, deployment or persisted production row proved"
+  ],
+  "script": "scripts/supervision-2026-10-21-sale.mjs",
+  "script_sha256": "1ba5bb6673ee13daf8b104bece88ef1c41f40d72b26e7a16f3d04373600b783b",
+  "artifacts_directory": ".manager-shots/supervision-2026-10-21-sale-sabotage",
+  "source_sha256": {
+    "app/src/lib/sale.js": "b2e0f36b39213fb89e47231eb29c5886f4d8826c07008be3e6394037134a10e8",
+    "app/src/screens/more/Promos.jsx": "308fb435c3adfc235115fbc422a364ba5512661181a48b8c8c206c2f78087c34"
+  }
+}

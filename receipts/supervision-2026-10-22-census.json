@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-22T07:24:11.428Z",
+  "git_sha": "5dde0f8b18cde923b7394deb409785c564603698",
+  "command": "node scripts/supervision-2026-10-22-record.mjs",
+  "tally": {
+    "open": 147,
+    "done": 221
+  },
+  "independent": {
+    "open": 147,
+    "done": 221
+  },
+  "last_supervision": "2026-10-21T21:48:49.588Z",
+  "added_paragraph_identical": true,
+  "full_brief_identical": false,
+  "missing_rule_canary_caught": true,
+  "staging_commit": "e91a17ffa807fc515eb18982e11dd3e7cdcc0eae",
+  "scope": "taskTemplate paragraph only; no picking, model, gate, cadence or risky-stop logic changed"
+}

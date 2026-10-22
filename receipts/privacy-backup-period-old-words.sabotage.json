@@ -1,0 +1,53 @@
+{
+  "git_sha": "5dde0f8b18cde923b7394deb409785c564603698",
+  "git_sha_started": "5dde0f8b18cde923b7394deb409785c564603698",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-22T07:22:44.825Z",
+  "failures": [
+    "1440x900 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "1440x900?lite=1 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "768x1024 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "768x1024?lite=1 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "390x844 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "390x844?lite=1 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "320x700 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted.",
+    "320x700?lite=1 · How long states the 30-day and 3-month backup period — How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+  ],
+  "warnings": [
+    "The Supabase settings are fake placeholders rewritten in the browser; the privacy page calls no API."
+  ],
+  "artifacts": [
+    "receipts/privacy-backup-period.sabotage-old-words.txt",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-1440x900-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-1440x900-lite-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-768x1024-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-768x1024-lite-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-390x844-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-390x844-lite-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-320x700-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-320x700-lite-oldwords.png",
+    ".manager-shots/supervision-2026-10-22-legal-checker/old-words/privacy-canary-390x844-oldwords.png"
+  ],
+  "dimensions": {
+    "roadmap": "97.28",
+    "break": "old-words",
+    "base": "http://localhost:5173"
+  },
+  "check_id": "privacy-backup-period-old-words",
+  "started_at": "2026-10-22T07:22:25.138Z",
+  "status": "fail",
+  "expected_targets": 8,
+  "discovered_targets": 8,
+  "attempted_targets": 8,
+  "completed_targets": 8,
+  "skipped_targets": 0,
+  "assertions_executed": 48,
+  "min_assertions": 48,
+  "assertion_floor": "6 checks at each of 8 targets (4 widths x normal and ?lite=1): disclosure presence, paint, injection state (absent clean / executed sabotage), exactly-one removal, geometry, console; every check() unconditional.",
+  "canary": {
+    "id": "old-words",
+    "observed_failure": true,
+    "what": "legal.js served without the backup sentence, but with an executed in-page signature, is reported missing at 390x844 while the surrounding paragraph still renders"
+  }
+}

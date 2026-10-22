@@ -361,6 +361,9 @@ were made more than once.
 - **Supervision 2026-10-17** — db-audit red means a gap with no fix in the repo; a declared-but-unapplied fix is AWAITS APPLY (migration-drift owns that red); 97.69 held on a misread REVIEW OK, recommend merge.
 - **Supervision 2026-10-18** — Andrew's "merge it" on a held branch is done by the supervisor when only paperwork conflicts; an unapplied migration whose version collides with one on main is renamed (97.13 → 20261018010000; 97.18 owes the same).
 - **Supervision 2026-10-19** — a finish review that still finds problems is builder work, not a "merge it?" question: the belt now writes the reviewer's findings into a "Held for a builder" line (eight hand rewrites before it); 98.4 and 97.29 rewritten.
+- **Supervision 2026-10-21** — recovery-exhausted holds must retain reviewer findings; no accepted work since the last pass; inbox decisions retained without another owner question.
+- **Supervision 2026-10-21 evening** — one landed sale fix retained; a disconnected helper is capacity, not a merge decision; backup proof remains open on two reproduced checker faults.
+- **Supervision 2026-10-22 — executable proof placement and retained closures** — verified merged retention and the earlier sale fix; clarify the test execution boundary after 98.4 was refused, preserving its safety assertions.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19223,3 +19226,69 @@ Andrew" line naming the branch, then each finding on its own line. Any other hol
 tamper, conflict) still asks him, because those can be real questions. When a finding IS a
 question for him (98.4's ten old-office checks), the supervisor puts it in `FOR-ANDREW.md` and the
 builder line says to leave those checks alone until he answers.
+
+## Supervision 2026-10-21
+
+The October 19 ruling above reached the ordinary held-review path but missed the
+recovery-exhausted path. The 0.11 run ended with reviewer problems, then called
+holdItem without the findings and wrote NEEDS ANDREW / "merge it" again. The minimum
+repair passes the final review findings (or its summary if the list is empty) to
+that call. It does not approve a review, merge a branch, or change risky-stop rules.
+The same edit is in belt and belt-staging; staging commit 3c4e0fa. The new
+`node belt.mjs --self-check` assertions failed against the old call before the fix
+and passed afterward in both folders. Raw outputs are named in docs/VERIFIED.md.
+
+Andrew's October 19 inbox decisions are binding: 97.28 uses THREE months of monthly
+backup retention, superseding twelve; 99.10 repairs all six problems before merging;
+98.4 updates design expectations while keeping permission/audit protections; 98.13
+prioritizes the phone layout; 98.16 may integrate the prepared warning; 0.11/0.11d
+may run the existing full live verification without requesting this permission
+again; 3.4 reconciles Planning's English approvals without sending every email
+again. Spanish customer communications still need competent review, never Andrew's
+approval of a language he does not speak. The live-run authorization does not waive
+the no-secrets, no-spending, no-publishing or no-live-structure constraints.
+
+No newly landed work was available to certify: git log since the belt's previous
+supervision was empty at main 1d58d8cd. Branch-local ticks and tally deltas are not
+accepted main progress. Reviewed the held Team layout, the bills warning already
+staged by an earlier session, and customer import. Reopened 97.40 on its own branch
+because its real handler deletes a same-batch flagged fixture. Main's ROADMAP.md
+was already dirty in both index and worktree; CLAUDE.md's shared-file rule prevents
+editing or committing through that other work. It remains open there already.
+That existing dirty work and its unsupported claims are listed in the supervision
+report; this pass does not convert it into an accepted merge.
+
+## Supervision 2026-10-21 evening
+
+Since the previous pass's timestamp (recorded in the evening census receipt),
+only 101.8 reached main as completed product work. Held-branch ticks are not
+deliveries. Its sale refusal, successful save, delayed-write protection and
+old-code sabotage reproduce in the real browser; retain its tick.
+
+97.28's last helper call returned no usable answer. The belt persisted that as
+an exhausted rescue and asked Andrew to merge anyway. A failed diagnosis is
+capacity, not an owner judgment. The installed belt and staging now return only
+the unused rescue slot, retain call accounting, back off, and keep unknown
+finish reviews out of owner questions. No review is accepted or skipped. The
+exact historical failed-helper state for 97.28 was corrected once; other
+lineages, repair counts, budgets and risky-stop rules are unchanged. Staging
+commits d95b95d and bf0a273 hold the code edits. The compatibility correction
+also catches the old cached hold if the running supervisor saves its in-memory
+state on exit. All three altered conditions were broken on purpose against
+the self-check; the clean installed and staging checks pass.
+
+The prepared backup shell works on the tested local population. Its browser
+proof still crashes on an out-of-scope canary; a scratch correction exposes a
+second fault, where missing disclosure incorrectly receives a passing receipt.
+Those are builder repairs under the existing open 97.28, not new decisions on
+the already settled period or legal-page language. 3.4g's held evidence still
+has no delivery rows; it was inspected, not accepted or sent. Existing English
+approval decisions remain binding. Proofs, commands and limits: docs/VERIFIED.md
+and docs/supervision-2026-10-21-evening.md.
+
+
+## Supervision 2026-10-22 — executable proof placement and retained closures
+
+97.28 stays ticked after running the copied prune shell, the repaired browser checker, and an independent legal-page walk. 101.8 stays ticked after a current-main browser recheck. Private-workflow installation remains an Andrew DO action; a local implementation receipt does not prove installation. Details and reproducible commands are in docs/VERIFIED.md and docs/supervision-2026-10-22.md.
+
+98.4 stays open: its held test launches Chromium, which the belt refuses to execute, and the sign-out check leaves subscription cleanup unguarded. The taskTemplate now explicitly places browser/shell execution under scripts/ and requires retaining permission, audit and cleanup assertions when retargeting an authorized check. The same paragraph was added to the installed and staging configs; staging commit e91a17f contains only that paragraph, leaving the existing demo-backend edits uncommitted. The brief check catches deletion of the paragraph. No reasoning, model, gate, blocked phrase, cadence or risky-stop change is justified by this finding. Reconsider the brief if a later job still places program execution in tests despite receiving this instruction; do not weaken the refusal.

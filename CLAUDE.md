@@ -54,7 +54,7 @@ session that tells him the database is unbacked-up is wrong; check here first.
   stay private. A GitHub Action runs nightly at **02:10 Pacific** in GitHub's
   cloud (no computer of his needs to be on), `pg_dump` of the whole database,
   `age`-encrypted, saved as a release named `backup-YYYY-MM-DD`, kept 30 days plus
-  the 1st of each month.
+  the 1st of each month for 3 months (ROADMAP 97.28, Andrew 2026-10-19; the privacy page promises it, and the private repo keeps the 1st for ever until Andrew installs `docs/ops/backup.live-copy.yml`).
 - **Is it working right now?** One read-only command answers it:
   `gh run list -R random12one0/detailing-platform-backups --limit 5` (and
   `gh release list -R random12one0/detailing-platform-backups --limit 5`).
@@ -202,7 +202,7 @@ budgets a session will consume, not only the directories it will write**, and
 it expires the moment either session is given something new. `docs/gotchas.md`
 78 and 79 are the two measurements it came from; ROADMAP 14.16 is the item.
 
-**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-FIVE specific ways a measurement lies to you** — a
+**`docs/gotchas.md` is ONE HUNDRED AND THIRTY-SEVEN specific ways a measurement lies to you** — a
 closed `<details>` still measuring its children, `innerText` swallowing
 `<option>` values, a backgrounded tab freezing animations, a stale dev server
 serving old CSS, a grep-based check coupled to a spelling rather than a
