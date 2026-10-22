@@ -940,6 +940,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
 - [ ] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
+  **Held for a builder, not for Andrew (belt 2026-10-22).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021230418276`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
+  - 1. **ROADMAP.md and FOR-ANDREW.md:** The earlier finding remains partly open. R2 is restored, but R7/R8’s locked Spanish requirements are neither fulfilled nor retired by owner approval; documenting a proposed amendment does not satisfy them.
   **Held for a builder, not for Andrew (belt 2026-10-21).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261021215556931`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **ROADMAP.md:** R7/R8 remain unresolved. Restoring the unticked box and proposing amendments corrects the completion claim, but does not satisfy or formally retire the locked Spanish requirements. Andrew’s approval of those amendments is still required; his English-only decision does not need reopening.
   SUPERVISION 2026-10-21 evening: continue `belt/97.28-20261021173140885` (`62c8c7b1`). The last helper connection failed; that is not an owner decision. Its falsely consumed rescue slot and durable hold were corrected, retaining call accounting and the repair count. Three months and English-only legal pages are already decided.
