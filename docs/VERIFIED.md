@@ -3982,3 +3982,65 @@ command, `node --test tests/figures-carry-their-command.test.mjs` passes 9 tests
 its named UNJUDGEABLE figures remain reported, not certified. Both outputs
 are retained as the evening figures receipts. Text logs were normalized to
 UTF-8 before the final credential scan so NUL detection does not skip them.
+
+## Builder 2026-10-21 night, ROADMAP 97.28: checker-defect repairs (M1-M6)
+
+M1: HEAD is the merge b243bddc of the supervisor's 101.8 verify onto the
+held 97.28 branch; `git diff 62c8c7b1..HEAD --stat` holds only supervision
+evidence (held runner, evening receipts/notes), no item-file changes. The
+four-way three-month agreement was already in place (workflow prune step:
+30-day CUTOFF, MONTH_START -2 months -1 day; both Retention rows; PRIVACY
+"How long"). Both evening defects reproduced in the working tree:
+`canaryCaught` declared inside `try` and read after it, and the old-words
+branch asserting the missing disclosure. Privacy receipts and
+`belt-checks/request.json` were absent.
+
+M2: pure helpers (`pruneStep`, `DELETE_LINE`, `MUTATIONS`, `mutate`,
+`workflowNumbers`) moved from `scripts/lib/pruneHarness.mjs` into
+`scripts/lib/retentionRule.mjs`; the harness keeps subprocess-only code
+plus compatibility re-exports (verified identical bindings). The belt-run
+test now imports only the pure module, the filesystem and in-process
+assertions: 12/12 clean; forever/twelve/noprint/exitzero each go red on
+their named guard (guard regex, period numbers, delete line, nonzero
+failed-listing exit). The runner keeps the real shell and gains the
+carried 1k (empty listing: exit 0, LIST ok, zero deletes) and 1m (failed
+delete: nonzero, tag named, attempt on record) execution cases: clean
+31/31, `receipts/backup-retention.json` graded valid (22/22 targets,
+canary caught). Sabotages red with ordinary failures: forever 24/7,
+twelve 25/6 (incl. the agreement guard, months 11), noprint 19/12 (incl.
+the new 1m), exitzero 30/1 (1p), drift 30/1 (recovery row). Unknown break
+exits 2 in both. Separate clean and sabotage JSON/text receipts; sabotage
+runs precede the final clean run.
+
+M3: `scripts/privacy-backup-period.mjs` repaired: `canaryCaught` declared
+before `try`; disclosure-presence and paint assertions run in BOTH modes,
+so `--break=old-words` fails the presence assertion at all eight targets
+(exit 1, failing receipt) while executed-signature and surrounding-
+paragraph checks prove exactly one disclosure was removed; the internal
+canary uses its own `privacy-canary-390x844` shot path. A 15-assertion
+static simulation of the exact detector expressions passes (clean present,
+sabotage removed, blank page refused as sabotage evidence, broken-
+detector canary refusal); in-page execution is the belt's run, not this
+sandbox's (no browser binary exists here; port 5180 answers but there is
+no page driver to check it with).
+
+M4: retention evidence above is executed here at final code. Browser
+evidence (clean + `--break=old-words`, separate `--shots` dirs, 8/8
+targets with executed signatures and intact surrounding paragraphs) is
+pending the belt's run of the repaired script.
+
+M5: `belt-checks/request.json` created (absent before): pages /privacy +
+/terms unsigned; flow 1 asserts the new 3-month sentence (passes here,
+absent from main's legal.js, so it fails on main); flow 2 guards the old
+"for ever" / "12 months" promises (no rendered occurrence in app/src).
+Shared EFFECTIVE October 21, 2026 untouched; booking-consent still pins
+it on /terms. FOR-ANDREW.md DECIDE row now references R7/R8 (the current
+contract IDs for the Spanish conflict).
+
+M6: composition, design-contrast, route-contract, landing-pricing,
+every-open-item-is-citable pass; decisions-index covers all sections;
+label-guard reports no stale labels; the credential scanner passes (its
+mkdtemp needs a writable TEMP in this sandbox: EPERM under the default
+user Temp, green with TEMP redirected; environmental, not a finding).
+R7/R8 stay open on the unapproved amendments; no push, publish, deploy,
+or private-workflow install. All scratch `.tmp*` files removed.

@@ -54,7 +54,7 @@ session that tells him the database is unbacked-up is wrong; check here first.
   stay private. A GitHub Action runs nightly at **02:10 Pacific** in GitHub's
   cloud (no computer of his needs to be on), `pg_dump` of the whole database,
   `age`-encrypted, saved as a release named `backup-YYYY-MM-DD`, kept 30 days plus
-  the 1st of each month.
+  the 1st of each month for 3 months (ROADMAP 97.28, Andrew 2026-10-19; the privacy page promises it, and the private repo keeps the 1st for ever until Andrew installs `docs/ops/backup.live-copy.yml`).
 - **Is it working right now?** One read-only command answers it:
   `gh run list -R random12one0/detailing-platform-backups --limit 5` (and
   `gh release list -R random12one0/detailing-platform-backups --limit 5`).

@@ -83,23 +83,24 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 **Recommendation: say "merge it" on both.**
 
-## ANSWERED · Backup retention and privacy language (ROADMAP 97.28)
+## DO · Make the backups delete the monthly copies after 3 months (ROADMAP 97.28)
 
-**Answered October 19, recorded October 21:** "3 months." The twelve-month work
-below is superseded and must be revised before integration. The privacy page stays
-English-only under the standing legal-page rule. No further language decision is
-needed. Publishing the revised private backup workflow remains your later action;
-the recommendation is to wait for its revised retention checks to pass.
+The nightly backup job itself lives in your private backups repo, which only you can change. The revised copy is checked and waiting in this repo at `docs/ops/backup.live-copy.yml`.
 
-The backup change you asked for (monthly copies deleted after 12 months) is
-built and checked, and the privacy page now says so in one English sentence.
-It is waiting, unmerged, for one answer: the item also asked for that sentence
-in Spanish, but the privacy page has never had Spanish on purpose. It is a legal
-document, and the rule here is that nobody machine-translates it.
+**The step, about two minutes on github.com:** in `random12one0/detailing-platform-backups`, open `.github/workflows/backup.yml`, find the step called "Prune old backups", and replace that whole step with the same step from the copy. Save (commit) to `main`. If you would rather paste the whole file, the copy also carries the 97.25 security half of the dump step; it does NOT carry 97.25's second edit, in `scripts/restore.sh`, so do that one as well (ROADMAP 97.25, its own row below).
 
-**Recommendation: say "English only".** The work then goes in as it is. The
-other choice is paying a qualified translator for the whole privacy page, which
-would be a separate job.
+No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01. Until you paste it, the 1st-of-month copies are kept for ever.
+
+## ANSWERED · Backup-deletion paperwork: Spanish-line requirement retired (ROADMAP 97.28)
+
+**Answered October 22 (R7/R8 only):** drop the Spanish half — the privacy page stays English-only under the standing legal-page rule, and the requirement is the three-month sentence on the English privacy page as built. Locked R7/R8 are waived by this decision. The locked R9 English-and-Spanish check is NOT covered by that waiver and is reconciled by its own amendment proposal (next row). The paste DO row below stands: the private-repo install is still yours.
+
+## ANSWERED · R9 Spanish line retired by the locked waiver (ROADMAP 97.28)
+
+**Answered October 22 by the locked contract (v10):** R9’s Spanish clause is waived, the same as R7/R8 — the privacy page stays English-only under the standing legal-page rule and your October 22 direction, and the requirement is the three-month sentence on the English privacy page as built. Nothing for you to approve here; the paste DO row above still stands.
+
+**Recommendation: none — this one is closed.**
+
 
 ## ANSWERED · Back-office checks follow the approved design (ROADMAP 98.4)
 

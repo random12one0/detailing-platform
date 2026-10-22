@@ -294,7 +294,7 @@ try {
       const date = page.locator('.legalnote').filter({hasText:'Effective'}); await date.scrollIntoViewIfNeeded(); await page.waitForTimeout(1200);
       if (BEFORE) { await freeze(page,{out:OUT + '/before-terms.html',label:'Before',note:'The shared policy date predates the new texting paragraph.',highlightText:'Effective'}); continue; }
       discovered++; attempted++;
-      check(`terms-${width}${q} date`,(await date.textContent()).includes('October 11, 2026'));
+      check(`terms-${width}${q} date`,(await date.textContent()).includes('October 21, 2026'));
       check(`terms-${width}${q} clauses still present`,await page.locator('.legalrow').count() >= 11);
       check(`terms-${width}${q} no sideways scroll`,await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       check(`terms-${width}${q} console silent`,logs.length === 0,logs.join(' | '));

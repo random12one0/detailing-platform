@@ -1,0 +1,162 @@
+# ###########################################################################
+# ##  A COPY. THE FILE THAT RUNS IS IN ANDREW'S PRIVATE BACKUPS REPO.       ##
+# ###########################################################################
+#
+# This is `.github/workflows/backup.yml` from the PRIVATE repo
+# `random12one0/detailing-platform-backups`, copied 2026-10-17 from its commit
+# 3bd545851df7, with the changes the platform has decided and the private repo
+# has not received yet. Nothing in this repo runs it; Andrew pastes it there
+# (FOR-ANDREW.md). Read `docs/ops/backups.md` first. Not to be confused with
+# `docs/ops/backup.workflow.yml`, the design that was never built.
+#
+# Two differences from the running file, and nothing else:
+#   1. ROADMAP 97.28 — the "Prune old backups" step deletes the 1st-of-month
+#      copy once it is 3 months old (it kept it for ever; Andrew 2026-10-19).
+#   2. ROADMAP 97.25 — pg_dump keeps grants and revokes (the running file
+#      passes the flag that drops them).
+# `scripts/backup-retention.mjs` runs step 1's shell for real and `tests/backup-retention.test.mjs` holds
+# this file, both backup documents and the privacy page to the same period.
+
+name: Nightly encrypted backup
+
+on:
+  schedule:
+    # 09:10 UTC = 02:10 America/Los_Angeles (PDT). Off the hour on purpose:
+    # GitHub's scheduler is busiest at :00 and silently delays those runs.
+    - cron: '10 9 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # needed to create releases
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install age
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq age
+
+      - name: Dump the database
+        env:
+          DB_URL_RAW: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          # TRIMMED, because a secret pasted with a trailing newline is not a
+          # broken secret - it is a WRONG DATABASE NAME. The newline lands on
+          # the last path segment and Postgres answers
+          #     FATAL:  database "postgres
+          #     " does not exist
+          # which reads as the wrong database, or as a bad connection string,
+          # rather than as one stray byte. Measured on the first real run.
+          DB_URL="$(printf %s "${DB_URL_RAW:-}" | tr -d "[:space:]")"
+          if [ -z "$DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is not set."
+            exit 1
+          fi
+          # The trimmed value is NOT the secret GitHub knows about, so its own
+          # masking does not cover it. Mask it before anything can print it.
+          echo "::add-mask::$DB_URL"
+          export DB_URL
+          # pg_dump must be >= the server version. Supabase runs Postgres 17,
+          # and the runner ships an older client, so we use the official image.
+          # The URL is passed as an env var, not an argument, so it never
+          # appears in the host's process list.
+          docker run --rm -e DB_URL postgres:17 \
+            sh -c 'pg_dump --no-owner --format=custom "$DB_URL"' \
+            > dump.pgc
+          ls -l dump.pgc
+
+      - name: Refuse to store a suspiciously small dump
+        run: |
+          set -euo pipefail
+          SIZE=$(stat -c%s dump.pgc)
+          echo "dump size: ${SIZE} bytes"
+          # A dump this small means the connection succeeded but returned
+          # almost nothing - an empty backup that looks like a success is
+          # the failure mode worth catching here.
+          if [ "$SIZE" -lt 51200 ]; then
+            echo "::error::Dump is only ${SIZE} bytes. Refusing to publish it."
+            exit 1
+          fi
+
+      - name: Encrypt
+        run: |
+          set -euo pipefail
+          age -R backup-key.pub -o "dump-$(date -u +%F).pgc.age" dump.pgc
+          rm -f dump.pgc
+          ls -l dump-*.pgc.age
+
+      - name: Verify the encrypted file is well formed
+        run: |
+          set -euo pipefail
+          # We cannot decrypt here - the private key deliberately does not
+          # exist in CI. We can still confirm age wrote a real header.
+          head -c 22 dump-*.pgc.age | grep -q 'age-encryption.org' \
+            || { echo "::error::Encrypted file has no age header."; exit 1; }
+
+      - name: Publish as a release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="backup-$(date -u +%F)"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" dump-*.pgc.age \
+            --title "$TAG" \
+            --notes "Encrypted pg_dump (custom format). Decrypt with the age private key, then pg_restore."
+
+      - name: Prune old backups
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Keep every backup from the last 30 days, and keep the one taken on
+          # the 1st of each month for 3 months, then delete it too (ROADMAP
+          # 97.28, Andrew 2026-10-19: three months. The privacy page promises a deleted
+          # customer is gone from the backups after that, so this number is a
+          # promise, not a storage setting. Release assets are deletable; files
+          # committed to git are not, which is why backups live in releases.
+          # TODAY is the run's date; it is settable only so the rule can be
+          # tested on a fixed day.
+          TODAY="${TODAY:-$(date -u +%F)}"
+          CUTOFF=$(date -u -d "$TODAY -30 days" +%F)
+          # Monthly expiry without overflow: the 1st-of-month copy survives
+          # its month plus two more, so the cutoff is the last day of the
+          # month three months back. Subtracting months from the run's own day
+          # overflows on long months (`May 31 -3 months` is March 3, deleting
+          # the March 1 copy two months early), while a month's 1st minus whole
+          # months never overflows: step back from this month's 1st instead.
+          MONTH_START=$(date -u -d "$TODAY" +%Y-%m-01)
+          MONTHLY_CUTOFF=$(date -u -d "$MONTH_START -2 months -1 day" +%F)
+          # A failed listing must stop the job, not read as empty: without this
+          # guard the run would delete nothing, report success, and leave
+          # expired customer data behind. An empty successful listing is still
+          # fine, so only the gh failure (not grep finding no backup tags) is fatal.
+          if ! gh release list --limit 400 --json tagName --jq '.[].tagName' > all-tags.txt; then
+            echo "::error::Could not list backup releases; refusing to prune blind."
+            exit 1
+          fi
+          grep '^backup-' all-tags.txt > tags.txt || true
+          while read -r TAG; do
+            DAY="${TAG#backup-}"
+            if [[ "$DAY" > "$CUTOFF" ]]; then continue; fi
+            case "$DAY" in *-01) if [[ "$DAY" > "$MONTHLY_CUTOFF" ]]; then continue; fi ;; esac
+            echo "pruning $TAG"
+            gh release delete "$TAG" --yes --cleanup-tag
+          done < tags.txt
+          rm -f tags.txt all-tags.txt
+
+      - name: Tell the outage watcher we finished
+        if: success()
+        env:
+          PING: ${{ secrets.HEALTHCHECK_URL }}
+        run: |
+          if [ -n "${PING:-}" ]; then curl -fsS -m 10 --retry 3 "$PING" > /dev/null; fi

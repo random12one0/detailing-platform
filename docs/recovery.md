@@ -128,7 +128,7 @@ stay private. A GitHub Action, `.github/workflows/backup.yml`:
 | Encryption | `age -R backup-key.pub` — public key committed, **private key deliberately absent from CI** |
 | Integrity check | confirms the `age-encryption.org` header is present; it cannot decrypt, and says so in a comment |
 | Where it lands | a GitHub **release asset**, tag `backup-YYYY-MM-DD` |
-| Retention | everything from the last 30 days, plus the 1st of each month kept forever |
+| Retention | everything from the last 30 days, plus the 1st of each month kept for 3 months, then deleted (ROADMAP 97.28, Andrew 2026-10-19; `docs/ops/backup.live-copy.yml` is the rule, and the privacy page states the same period). Until Andrew installs that change (`FOR-ANDREW.md`), the private repo still keeps the 1st of each month for ever |
 | Outage watcher | pings healthchecks.io **only on success** (`if: success()`) |
 
 **Two details in that workflow are better than they look and should not be
