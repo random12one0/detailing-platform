@@ -363,6 +363,7 @@ were made more than once.
 - **Supervision 2026-10-19** — a finish review that still finds problems is builder work, not a "merge it?" question: the belt now writes the reviewer's findings into a "Held for a builder" line (eight hand rewrites before it); 98.4 and 97.29 rewritten.
 - **Supervision 2026-10-21** — recovery-exhausted holds must retain reviewer findings; no accepted work since the last pass; inbox decisions retained without another owner question.
 - **Supervision 2026-10-21 evening** — one landed sale fix retained; a disconnected helper is capacity, not a merge decision; backup proof remains open on two reproduced checker faults.
+- **Supervision 2026-10-22 — executable proof placement and retained closures** — verified merged retention and the earlier sale fix; clarify the test execution boundary after 98.4 was refused, preserving its safety assertions.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19284,3 +19285,10 @@ the already settled period or legal-page language. 3.4g's held evidence still
 has no delivery rows; it was inspected, not accepted or sent. Existing English
 approval decisions remain binding. Proofs, commands and limits: docs/VERIFIED.md
 and docs/supervision-2026-10-21-evening.md.
+
+
+## Supervision 2026-10-22 — executable proof placement and retained closures
+
+97.28 stays ticked after running the copied prune shell, the repaired browser checker, and an independent legal-page walk. 101.8 stays ticked after a current-main browser recheck. Private-workflow installation remains an Andrew DO action; a local implementation receipt does not prove installation. Details and reproducible commands are in docs/VERIFIED.md and docs/supervision-2026-10-22.md.
+
+98.4 stays open: its held test launches Chromium, which the belt refuses to execute, and the sign-out check leaves subscription cleanup unguarded. The taskTemplate now explicitly places browser/shell execution under scripts/ and requires retaining permission, audit and cleanup assertions when retargeting an authorized check. The same paragraph was added to the installed and staging configs; staging commit e91a17f contains only that paragraph, leaving the existing demo-backend edits uncommitted. The brief check catches deletion of the paragraph. No reasoning, model, gate, blocked phrase, cadence or risky-stop change is justified by this finding. Reconsider the brief if a later job still places program execution in tests despite receiving this instruction; do not weaken the refusal.

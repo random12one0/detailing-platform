@@ -1,9 +1,9 @@
 {
-  "git_sha": "fc6ea34f3627c4db46e899ccc8184b7a6f6a2c76",
-  "git_sha_started": "fc6ea34f3627c4db46e899ccc8184b7a6f6a2c76",
+  "git_sha": "5dde0f8b18cde923b7394deb409785c564603698",
+  "git_sha_started": "5dde0f8b18cde923b7394deb409785c564603698",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-22T05:50:57.367Z",
+  "finished_at": "2026-10-22T07:20:24.706Z",
   "failures": [
     "1d - backup-2027-07-01 is deleted",
     "1e - exactly 6 deleted, every one a real delete call with --yes --cleanup-tag - backup-2027-09-17, backup-2027-08-15, backup-2026-10-01, backup-2026-09-01, backup-2026-09-08",
@@ -25,7 +25,7 @@
     "today": "2027-10-17"
   },
   "check_id": "backup-retention-twelve",
-  "started_at": "2026-10-22T05:50:53.087Z",
+  "started_at": "2026-10-22T07:20:21.658Z",
   "status": "fail",
   "expected_targets": 22,
   "discovered_targets": 22,

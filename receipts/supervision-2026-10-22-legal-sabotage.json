@@ -1,0 +1,493 @@
+{
+  "at": "2026-10-22T07:21:25.883Z",
+  "git_sha": "5dde0f8b18cde923b7394deb409785c564603698",
+  "local_only": true,
+  "break": "pre-fix legal.js",
+  "expected": 96,
+  "discovered": 96,
+  "results": [
+    {
+      "name": "/privacy 390: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy 390: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 390: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 390: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 390: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 390: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 390: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms 390: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 390: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 390: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 390: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 390: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 390: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy?lite=1 390: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 390: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 390: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 390: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 390: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 390: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms?lite=1 390: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 390: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 390: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 390: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 390: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 1440: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy 1440: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 1440: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 1440: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 1440: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 1440: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 1440: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms 1440: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 1440: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 1440: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 1440: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 1440: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 1440: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy?lite=1 1440: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 1440: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 1440: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 1440: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 1440: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 1440: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms?lite=1 1440: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 1440: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 1440: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 1440: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 1440: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 768: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy 768: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 768: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 768: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 768: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 768: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 768: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms 768: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 768: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 768: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 768: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 768: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 768: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy?lite=1 768: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 768: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 768: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 768: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 768: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 768: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms?lite=1 768: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 768: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 768: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 768: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 768: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 392: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy 392: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 392: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 392: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 392: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy 392: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 392: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms 392: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 392: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 392: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 392: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms 392: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 392: intended content",
+      "ok": false,
+      "detail": "How longFor as long as the account is open. Suspension for non-payment deletes nothing. When an account is closed and asks to be deleted, it is deleted."
+    },
+    {
+      "name": "/privacy?lite=1 392: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 392: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 392: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 392: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/privacy?lite=1 392: link works and console clean",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 392: intended content",
+      "ok": false,
+      "detail": "Andrew Dietrich, doing business as Detailing Platform · Effective October 11, 2026"
+    },
+    {
+      "name": "/terms?lite=1 392: surrounding text survives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 392: correct source executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 392: painted and inside screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 392: opposite legal page linked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "/terms?lite=1 392: link works and console clean",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "No private backup installation or live database was checked."
+  ]
+}

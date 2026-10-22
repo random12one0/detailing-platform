@@ -87,6 +87,8 @@ Both fixes are right. Neither has reached main yet, for the belt's reasons, not 
 
 The nightly backup job itself lives in your private backups repo, which only you can change. The revised copy is checked and waiting in this repo at `docs/ops/backup.live-copy.yml`.
 
+Supervision October 22 re-ran the copied pruning step, including failed listing and failed deletion cases. It is ready to install; this does not confirm installation in your private repo. Recommendation: make the replacement below at the next release, keeping the separate restore-script change with it. No further language decision is needed.
+
 **The step, about two minutes on github.com:** in `random12one0/detailing-platform-backups`, open `.github/workflows/backup.yml`, find the step called "Prune old backups", and replace that whole step with the same step from the copy. Save (commit) to `main`. If you would rather paste the whole file, the copy also carries the 97.25 security half of the dump step; it does NOT carry 97.25's second edit, in `scripts/restore.sh`, so do that one as well (ROADMAP 97.25, its own row below).
 
 No hurry: nightly runs began 2026-09-08, so no 1st-of-month copy older than October 2026 can exist, and the new rule first deletes one on 2027-01-01. Until you paste it, the 1st-of-month copies are kept for ever.
