@@ -111,12 +111,25 @@ if (!URL_ || !SERVICE || !ANON) {
   console.error("NOTHING ran and NO receipt was written. This is not a pass.");
   process.exit(2);
 }
-// ROADMAP 101.6: this used to allow ONLY the platform project, which refused the
-// audit's test copy. The project it must never touch is the real business's
-// (the ref seed-demo.mjs refuses "under any flag"); mail is opt-in or --to=.
+// AN ALLOW-LIST, NOT A DENY-LIST (101.6 follow-up). This script takes a payment
+// and sends mail, so it runs ONLY against a database named here and refuses every
+// other project: the real business's ref is not confirmed, and CLAUDE.md says any
+// project that is not the platform's own is "stop and ask", whatever its ref.
+// Matched on the URL's host, so a ref buried in a path or a lookalike host fails.
+const ALLOWED_HOSTS = [
+  "kguqylyzgyzfktkfnhjb.supabase.co",   // this platform's own development project
+  "txskfjumploppqajbmxx.supabase.co",   // the belt audit's TEST COPY (STAGING_URL in .env.staging, ROADMAP 101.6)
+  "127.0.0.1", "localhost",             // a local Supabase or stub on this machine
+];
+const DB_HOST = (() => { try { return new URL(URL_).hostname; } catch { return ""; } })();
 if (URL_.includes("adtlnvihwrcqcasqcjwd")) {
   console.error(`\nREFUSED — ${URL_} is the real business's project. This script takes a payment and sends mail.`);
   console.error("NOTHING ran and NO receipt was written.");
+  process.exit(2);
+}
+if (!ALLOWED_HOSTS.includes(DB_HOST)) {
+  console.error(`\nREFUSED — ${URL_} is not one this script may use (the platform's development project, the audit's test copy, or a local one). This script takes a payment and sends mail.`);
+  console.error("NOTHING ran and NO receipt was written. Stop and ask Andrew before adding a project.");
   process.exit(2);
 }
 // Checked before § 1 pays for anything, so an unreachable copy is a SKIP that
