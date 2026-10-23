@@ -335,8 +335,12 @@ console.log("\ntest 7: the AB 2863 disclosures are on the page");
   // "Most popular" on a product with no customers is a pre-selection in
   // disguise AND a claim we cannot substantiate.
   // The WHOLE page, not the terms list: a badge would sit on the ladder.
+  // ROADMAP 97.35: "Most take this" slipped past the four phrases above for
+  // weeks — same claim, other words. So the wording net is wider, and the
+  // badge's own class is pinned too, because the next rewording will be new.
   check("7b-iii · no recommendation badge",
-    !/most popular|recommended|best value|our pick/i.test(pcopy));
+    !/most popular|most take|most (people|detailers|owners) (pick|choose|take)|popular choice|recommended|best value|our pick/i.test(pcopy)
+      && !/className="bestflag"/.test(pcopy));
   // The disclosures may not be fine print. `.fine` is this stylesheet's 13px
   // --fog-2 ramp; the terms are 16px on --bone-2 on purpose.
   check("7c · the terms are not set in the fine-print ramp",

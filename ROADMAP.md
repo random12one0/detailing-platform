@@ -31638,7 +31638,8 @@ decisions, not build jobs.
   - Negative and positive amounts of the same size print the same digits (test)
   - The office screens show the same figures as before for positive amounts, checked at 390 and 1440
 
-- [ ] **97.35 — Remove the "Most take this" badge from the pricing page (P-8).**
+- [x] **97.35 — Remove the "Most take this" badge from the pricing page (P-8).**
+  Removed the "Most take this" badge (no customers, so it was invented social proof) and its CSS; no Spanish key existed because the pricing page is English-only. landing-pricing 7b-iii now also catches "most take"-style wording and the bestflag class (red on the old page). Checked on the rendered page at 390/1440 with ?lang=en and ?lang=es: badge gone, 3 plan rows lay out inside their rows, no overflow, console clean; shots in .manager-shots/97.35/.
   `app/src/landing/PricingPage.jsx:478`. PRODUCT.md says never a "most popular" badge and never invented social proof; there are no customers, and the page promises "Nothing on this page is chosen for you."
   Acceptance criteria:
   - The badge is gone in English and Spanish (if it has a Spanish key, the key goes too)

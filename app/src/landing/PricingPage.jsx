@@ -467,15 +467,7 @@ export default function PricingPage() {
                 out of the same `p` every other figure comes from, so a price
                 change moves it and `landing-pricing` 6a cannot be cheated. */}
             <li className="rung best" data-rv="">
-              {/* **INSIDE `.rungwhat`, NOT BESIDE IT.** `.rung` is a
-                  three-column grid — what it is, the figure, the button — so
-                  a fourth child took a column of its own, shunted the figure
-                  sideways and dropped the button onto a second line. The row
-                  was visibly broken and nothing failed: a grid does what you
-                  ask, and what I asked for was four columns. Caught by
-                  looking at the screenshot. */}
               <div className="rungwhat">
-                <span className="bestflag">Most take this</span>
                 <span className="rt">Pay for the year</span>
                 <span className="rw">
                   {/* ROADMAP 7.16 — **THE ONE WITH NO DOLLAR SIGN, AND THAT IS

@@ -2104,11 +2104,6 @@ html:has(.ld) { scroll-padding-top: 101px; }
   content: ""; position: absolute; left: calc(var(--sp-3, 12px) * -1); top: 0; bottom: 0;
   width: 2px; background: var(--ac);
 }
-.ld .bestflag {
-  display: inline-block; margin-bottom: 8px;
-  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--ac);
-}
 
 /* ── the ground changes for plan two ─────────────────────────────────────── */
 /* It borrows `.band` wholesale — same two tokens, already measured. What this
