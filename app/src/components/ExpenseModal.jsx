@@ -118,7 +118,8 @@ export default function ExpenseModal({ onClose, onSaved }) {
   const finalCategory = named || category;
 
   const save = async () => {
-    if (!Number(amount) || !category) return;
+    // An expense is money that went out: -50 would RAISE profit (ROADMAP 101.2).
+    if (!(Number(amount) > 0) || !category) return;
     setBusy(true);
     setError("");
     const { data: row, error: err } = await supabase.from("expenses").insert({
@@ -201,6 +202,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
           <input
             ref={amountRef}
             type="number"
+            min="0"
             inputMode="decimal"
             placeholder="0.00"
             value={amount}
@@ -281,7 +283,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
           </button>
         ) : (
         <button className="btn primary" style={{ marginTop: 12 }}
-          disabled={busy || !Number(amount) || !category} onClick={save}>
+          disabled={busy || !(Number(amount) > 0) || !category} onClick={save}>
           {busy ? t("Saving") : t("Save expense")}
         </button>
         )}

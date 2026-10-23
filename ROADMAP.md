@@ -31959,7 +31959,8 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-04 passes after this box is ticked
 
-- [ ] **101.2 — The expense form accepts a negative amount, which would raise profit instead of lowering it (audit R2-05).**
+- [x] **101.2 — The expense form accepts a negative amount, which would raise profit instead of lowering it (audit R2-05).**
+  Done 2026-10-23 (Claude lane): Save expense now needs an amount above zero (ExpenseModal save() and button, min="0"); new migration 20261023090000_expense_amount_positive.sql adds check (amount > 0), NOT YET APPLIED to live (Andrew's). Proof: repro at 390/1440 on demo backend, -50 Save enabled before, disabled after (0 disabled, 49.99 enabled), console clean, shots in .manager-shots/101.2/; tests/expense-amount-positive.test.mjs (PGLITE_DIR, PGLITE_REQUIRED=1) fails on the old code ("-50 was stored"), passes 2/2 after.
   `app/src/components/ExpenseModal.jsx:201-209`, `app/src/components/ExpenseModal.jsx:121`, `app/src/components/ExpenseModal.jsx:284-285`, `supabase/migrations/20260827000200_tenant_data.sql:342`. The amount box is a number input with no minimum, and Save is enabled for any non-zero number, so -50 passes. The column is 'numeric not null' with no check that it is above zero. Pressing the minus key on a phone number pad (or a pasted -189) records a negative expense: 'Earned less expenses' goes up and the accountant file shows a positive line.
   Supposed to: An expense is money that went out, so the amount should be more than zero.
   Fix: Add min="0" and require Number(amount) > 0 in the Save check, and add a check (amount > 0) on the table.
