@@ -60,7 +60,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { fullWords, mb, roomFor } from "../app/src/lib/photo-rules.js";
 
 const started_at = new Date().toISOString();
@@ -253,7 +253,7 @@ const table = [
   `NOW   ${fullWords(BUDGET)}`,
   ...CANARIES.flatMap((c) => [`WAS   ${c.text}`, `      judged: ${JSON.stringify(judge(c.text, BUDGET))}`]),
 ].join("\n") + "\n";
-const tablePath = path.join(REPO, "receipts", "overcap-refusal.txt");
+const tablePath = path.join(REPO, receiptFile("overcap-refusal.txt"));
 writeFileSync(tablePath, table);
 
 const { path: receiptPath } = writeReceipt({
@@ -290,7 +290,7 @@ const { path: receiptPath } = writeReceipt({
     rule: CANARIES[0].miss.join(" + "),
   },
   failures,
-  artifacts: ["receipts/overcap-refusal.txt"],
+  artifacts: [receiptFile("overcap-refusal.txt")],
   dimensions: {
     roadmap: "0.11d1",
     criterion: "an over-cap upload is refused with used space, limit and deletion guidance in the message",

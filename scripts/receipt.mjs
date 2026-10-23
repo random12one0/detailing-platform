@@ -29,8 +29,24 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-export const RECEIPTS = join(REPO, "receipts");
-export const HOLDS = join(RECEIPTS, "holds.json");
+// WHERE RECEIPTS LAND — ROADMAP 97.60. A plain `node --test` run used to rewrite
+// ~42 tracked files under `receipts/`, so every test run dirtied the tree and
+// `git add -A` swept stale proofs into unrelated commits. Under the test runner
+// (`node --test` sets NODE_TEST_CONTEXT in each file's process and its children)
+// receipts now go to the ignored `out/receipts/`. TRACKED_RECEIPTS=1 writes the
+// tracked `receipts/` as before (a session or the belt committing a receipt with
+// its proof); TRACKED_RECEIPTS=0 forces `out/receipts/` anywhere. A script run
+// directly (`node scripts/x.mjs`, `node tests/x.test.mjs --break=...`) is unchanged.
+const underTestRunner = !!process.env.NODE_TEST_CONTEXT || process.execArgv.includes("--test");
+export const TRACKED = process.env.TRACKED_RECEIPTS ? process.env.TRACKED_RECEIPTS === "1" : !underTestRunner;
+export const RECEIPTS = join(REPO, TRACKED ? "receipts" : "out/receipts");
+// Holds are a person's recorded decision, always read from the tracked folder.
+export const HOLDS = join(REPO, "receipts", "holds.json");
+/** Repo-relative path for a side file (log, table) beside this run's receipts; creates the folder. */
+export function receiptFile(name) {
+  mkdirSync(RECEIPTS, { recursive: true });
+  return (TRACKED ? "receipts/" : "out/receipts/") + name;
+}
 
 /**
  * A HOLD IS A RECORDED DECISION THAT SOME FINDINGS CANNOT BE ACTED ON YET.

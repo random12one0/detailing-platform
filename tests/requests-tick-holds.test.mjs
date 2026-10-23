@@ -32,7 +32,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const path = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
 const TMP = path(".tmp-99.13/");
@@ -218,7 +218,7 @@ if (canaryHandler) {
 }
 const failed = failures.length;
 console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`);
-const logName = `receipts/requests-tick-holds${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`requests-tick-holds${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [`requests-tick-holds${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`, ...lines,
   `${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`].join("\n") + "\n");
 const { path: receipt } = writeReceipt({
@@ -240,7 +240,7 @@ const { path: receipt } = writeReceipt({
   canary: BREAK
     ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
     : { id: "tickless-staff-accepts-through-a-handler-without-the-gate", observed_failure: canaryCaught,
-      sabotage_receipts: Object.keys(SABOTAGE).map((b) => `receipts/requests-tick-holds-${b}.sabotage.json`) },
+      sabotage_receipts: Object.keys(SABOTAGE).map((b) => receiptFile(`requests-tick-holds-${b}.sabotage.json`)) },
 });
 console.log(`receipt: ${receipt}`);
 process.exitCode = failed || reached !== SCENARIOS || (!BREAK && !canaryCaught) ? 1 : 0;

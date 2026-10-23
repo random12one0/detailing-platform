@@ -330,3 +330,23 @@ test("12 · garbage in is rejected without throwing", () => {
     assert.ok(out.problems.length > 0);
   }
 });
+
+test("14 · ROADMAP 97.60: a test run writes the ignored out/receipts, TRACKED_RECEIPTS=1 the tracked folder", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const url = new URL("../scripts/receipt.mjs", import.meta.url).href;
+  const where = (env) => execFileSync(process.execPath, ["--input-type=module", "-e",
+    `const m = await import(${JSON.stringify(url)}); console.log(m.RECEIPTS + "|" + m.receiptFile("x.txt"))`],
+    { env, encoding: "utf8" }).trim().split("|").map((s) => s.split("\\").join("/"));
+  const { NODE_TEST_CONTEXT, TRACKED_RECEIPTS, ...plain } = process.env;
+  assert.ok(NODE_TEST_CONTEXT, "this file must run under node --test for the first case to mean anything");
+  const [testDir, testFile] = where({ ...plain, NODE_TEST_CONTEXT });
+  assert.match(testDir, /\/out\/receipts$/, "under the test runner receipts must go to the ignored out/receipts");
+  assert.equal(testFile, "out/receipts/x.txt");
+  const [trackedDir, trackedFile] = where({ ...plain, NODE_TEST_CONTEXT, TRACKED_RECEIPTS: "1" });
+  assert.match(trackedDir, /\/receipts$/);
+  assert.doesNotMatch(trackedDir, /\/out\//, "TRACKED_RECEIPTS=1 must write the tracked receipts/");
+  assert.equal(trackedFile, "receipts/x.txt");
+  const [directDir] = where(plain);
+  assert.doesNotMatch(directDir, /\/out\//, "a script run directly keeps writing the tracked receipts/");
+  assert.match(where({ ...plain, TRACKED_RECEIPTS: "0" })[0], /\/out\/receipts$/, "TRACKED_RECEIPTS=0 forces out/receipts");
+});

@@ -17,7 +17,7 @@
 // Canary, every run: the same mismatched post against the handler with the
 // guard removed must SAVE — proving the fixture can see the defect at all.
 import { writeFileSync } from "node:fs";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { bookingFixture, fixtureBooking } from "../scripts/lib/bookingConsentFixture.mjs";
 import { computeQuote, matchPriceRules, whenContextFor } from "../supabase/functions/_shared/pricing.ts";
 import { localDateTimeToInstant, weekdayOf } from "../supabase/functions/_shared/tz.ts";
@@ -119,7 +119,7 @@ check("3c · no quote, no field: posted exactly as before", JSON.parse(JSON.stri
 
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (PRICE_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
-const txt = BREAK ? `receipts/price-shown-equals-charged.sabotage-${BREAK}.txt` : "receipts/price-shown-equals-charged.txt";
+const txt = BREAK ? receiptFile(`price-shown-equals-charged.sabotage-${BREAK}.txt`) : receiptFile("price-shown-equals-charged.txt");
 writeFileSync(txt, [`price-shown-equals-charged ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((x) => "FAIL " + x)].join("\n") + "\n");
 writeReceipt({

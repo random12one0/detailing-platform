@@ -26,7 +26,7 @@
 // exactly as the defect did.
 import { readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { bookingFixture } from "../scripts/lib/bookingConsentFixture.mjs";
 
 const started_at = new Date().toISOString();
@@ -195,7 +195,7 @@ check("8 · canary: without the share, car 2 is refused (the original defect)", 
 
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (PROMO_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
-const txt = BREAK ? `receipts/promo-one-use-group.sabotage-${BREAK}.txt` : "receipts/promo-one-use-group.txt";
+const txt = BREAK ? receiptFile(`promo-one-use-group.sabotage-${BREAK}.txt`) : receiptFile("promo-one-use-group.txt");
 writeFileSync(txt, [`promo-one-use-group ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((x) => "FAIL " + x)].join("\n") + "\n");
 writeReceipt({

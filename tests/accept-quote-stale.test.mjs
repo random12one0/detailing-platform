@@ -25,7 +25,7 @@
 import { registerHooks } from "node:module";
 import net from "node:net";
 import { writeFileSync } from "node:fs";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.QUOTE_BREAK || "";
@@ -212,7 +212,7 @@ const failed = failures.length;
 console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${SCENARIOS} scenarios complete.`);
 if (BREAK) console.log(`  note  QUOTE_BREAK=${BREAK} was set: this run is a sabotage and MUST be red.`);
 
-const txt = BREAK ? `receipts/accept-quote-stale.sabotage-${BREAK}.txt` : "receipts/accept-quote-stale.txt";
+const txt = BREAK ? receiptFile(`accept-quote-stale.sabotage-${BREAK}.txt`) : receiptFile("accept-quote-stale.txt");
 writeFileSync(txt, [`accept-quote-stale ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((f) => "FAIL " + f)].join("\n") + "\n");
 writeReceipt({

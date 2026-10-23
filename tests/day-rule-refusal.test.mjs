@@ -31,7 +31,7 @@ import { registerHooks } from "node:module";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { bookingFixture, fixtureBooking } from "../scripts/lib/bookingConsentFixture.mjs";
 
 const path = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
@@ -233,7 +233,7 @@ if (!BREAK) {
 
 const SCENARIOS = 10;
 const failed = failures.length;
-const logName = `receipts/day-rule-refusal${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`day-rule-refusal${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [`day-rule-refusal${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`, ...lines,
   `${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`].join("\n") + "\n");
 const { path: receipt } = writeReceipt({

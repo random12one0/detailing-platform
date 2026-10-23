@@ -34,7 +34,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { isDeepStrictEqual } from "node:util";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const path = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
 const TMP = path(".tmp-97.70/");
@@ -173,7 +173,7 @@ check("payment_problem in the payload was ignored (not on the allowlist)", isDee
 
 const failed = failures.length;
 console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`);
-const logName = `receipts/update-booking-keeps-note${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`update-booking-keeps-note${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [`update-booking-keeps-note${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`, ...lines,
   `${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`].join("\n") + "\n");
 const { path: receipt } = writeReceipt({

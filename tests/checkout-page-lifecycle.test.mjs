@@ -43,7 +43,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire, stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const root = new URL("../", import.meta.url);
 const path = (p) => fileURLToPath(new URL(p, root));
@@ -529,7 +529,7 @@ console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${c
 const canary = BREAK
   ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
   : { id: "tampered-fixture-refused", observed_failure: tamperRefused };
-const logName = `receipts/checkout-page-lifecycle${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`checkout-page-lifecycle${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [
   `checkout-page-lifecycle${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`,
   ...probed.map((p) => `${p.ok ? "ok  " : "FAIL"}  ${p.name}`),

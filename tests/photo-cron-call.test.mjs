@@ -88,7 +88,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import * as rec from "../supabase/functions/_shared/photoReconcile.ts";
 
 const started_at = new Date().toISOString();
@@ -359,7 +359,7 @@ const table = [
 ].join("\n") + "\n";
 // A sabotage keeps its own log: a clean re-run must not overwrite the evidence
 // the `.sabotage.json` receipt points at (found on ROADMAP 97.3).
-const TXT = BREAK ? "receipts/photo-cron-call.sabotage.txt" : "receipts/photo-cron-call.txt";
+const TXT = BREAK ? receiptFile("photo-cron-call.sabotage.txt") : receiptFile("photo-cron-call.txt");
 writeFileSync(path.join(REPO, TXT), table);
 
 const { path: receiptPath } = writeReceipt({

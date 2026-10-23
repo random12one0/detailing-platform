@@ -30,7 +30,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const path = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
 const TMP = path(".tmp-97.24/");
@@ -238,7 +238,7 @@ canary  a handler without the refusal re-confirmed a declined request (${c.statu
 }
 const failed = failures.length;
 console.log(`\n${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`);
-const logName = `receipts/uncancel-tells-customer${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`uncancel-tells-customer${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [`uncancel-tells-customer${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`, ...lines,
   `${assertions - failed} passed, ${failed} failed, ${reached} of ${SCENARIOS} scenarios.`].join("\n") + "\n");
 const { path: receipt } = writeReceipt({
@@ -263,7 +263,7 @@ const { path: receipt } = writeReceipt({
   canary: BREAK
     ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
     : { id: "declined-request-reconfirmed-by-a-handler-without-the-refusal", observed_failure: canaryCaught,
-      sabotage_receipts: Object.keys(SABOTAGE).map((b) => `receipts/uncancel-tells-customer-${b}.sabotage.json`) },
+      sabotage_receipts: Object.keys(SABOTAGE).map((b) => receiptFile(`uncancel-tells-customer-${b}.sabotage.json`)) },
 });
 console.log(`receipt: ${receipt}`);
 process.exitCode = failed || reached !== SCENARIOS || (!BREAK && !canaryCaught) ? 1 : 0;

@@ -25,7 +25,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { REPO, writeReceipt } from "../scripts/receipt.mjs";
+import { RECEIPTS, REPO, writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.BREAK || "";
@@ -122,7 +122,7 @@ if (BREAK) {
 } else {
   const r = run(HOOK, MAIN);
   targets++;
-  const rec = JSON.parse(readFileSync(join(REPO, "receipts", "deployed-inventory.json"), "utf8"));
+  const rec = JSON.parse(readFileSync(join(RECEIPTS, "deployed-inventory.json"), "utf8"));
   const differing = [...rec.dimensions.differing, ...rec.dimensions.not_deployed];
   live = { ran: true, hook_exit: r.code, receipt_status: rec.status, differing: differing.length, matching: rec.dimensions.matching.length };
   check("the real receipt was written by THIS run", rec.started_at >= started_at, "receipt started " + rec.started_at);
@@ -151,7 +151,7 @@ if (BREAK) {
     live.known_clean = { fn: clean, exit: c.code };
     check(`known-clean (${clean}): the inventory exits 0 and says PASS`, c.code === 0 && /PASS - all 1 function/.test(c.out), "exit " + c.code);
   }
-  const narrowed = JSON.parse(readFileSync(join(REPO, "receipts", "deployed-inventory.json"), "utf8"));
+  const narrowed = JSON.parse(readFileSync(join(RECEIPTS, "deployed-inventory.json"), "utf8"));
   check("the narrowed runs did not overwrite the full receipt the publish block reads",
     narrowed.started_at === rec.started_at, "full receipt replaced by a narrowed one");
 }

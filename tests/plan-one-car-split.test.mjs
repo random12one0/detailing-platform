@@ -27,7 +27,7 @@
 // and the comparison must call them wrong.
 import { readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { bookingFixture, fixtureBooking } from "../scripts/lib/bookingConsentFixture.mjs";
 
 const started_at = new Date().toISOString();
@@ -118,7 +118,7 @@ check("3d · a grouped row without a plan still books", plain.status === 200 && 
 
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (PLAN_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
-const txt = BREAK ? `receipts/plan-one-car-split.sabotage-${BREAK}.txt` : "receipts/plan-one-car-split.txt";
+const txt = BREAK ? receiptFile(`plan-one-car-split.sabotage-${BREAK}.txt`) : receiptFile("plan-one-car-split.txt");
 writeFileSync(txt, [`plan-one-car-split ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((x) => "FAIL " + x)].join("\n") + "\n");
 writeReceipt({

@@ -107,6 +107,8 @@ set -a; . ./.env; set +a
 
 ## Verification
 
+**Where a test run's receipts land — `TRACKED_RECEIPTS` (ROADMAP 97.60).** Under `node --test`, `writeReceipt` and `receiptFile()` in `scripts/receipt.mjs` write to the ignored `out/receipts/`, so a plain test run leaves `git status` clean; grade those with `node scripts/receipt.mjs out/receipts`. **To produce a receipt you will commit with its proof, set `TRACKED_RECEIPTS=1`** (`$env:TRACKED_RECEIPTS = "1"` in PowerShell) and the same run writes the tracked `receipts/` exactly as before, graded by `node scripts/receipt.mjs`. A script or test run directly (`node scripts/x.mjs`, `node tests/x.test.mjs --break=...`) still writes `receipts/`; `TRACKED_RECEIPTS=0` sends any run to `out/receipts/`. A test writing a side file beside its receipt takes the path from `receiptFile("name.txt")`, never a literal `receipts/`.
+
 | After changing | Run |
 |---|---|
 | **Anything, before you finish** | The four credential-free suites: `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs`. **They are test SUITES, not scripts** — run as `node scripts/<name>.mjs` they print `MODULE_NOT_FOUND` and read as a broken repo |

@@ -24,7 +24,7 @@ import { registerHooks } from "node:module";
 import net from "node:net";
 import { randomBytes } from "node:crypto";
 import { writeFileSync } from "node:fs";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.CRON_BREAK || "";
@@ -236,7 +236,7 @@ const failed = failures.length;
 console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions.`);
 if (BREAK) console.log(`  note  CRON_BREAK=${BREAK} was set: this run is a sabotage and MUST be red.`);
 
-const txt = BREAK ? "receipts/cron-secret.sabotage.txt" : "receipts/cron-secret.txt";
+const txt = BREAK ? receiptFile("cron-secret.sabotage.txt") : receiptFile("cron-secret.txt");
 writeFileSync(txt, [`cron-secret ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((f) => "FAIL " + f)].join("\n") + "\n");
 writeReceipt({

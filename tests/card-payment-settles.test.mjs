@@ -28,7 +28,7 @@
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const root = new URL("../", import.meta.url);
 const path = (p) => fileURLToPath(new URL(p, root));
@@ -200,7 +200,7 @@ const canary = BREAK
   ? { id: `break-${BREAK}`, observed_failure: failed > 0 }
   : { id: "tampered-fixture-refused", observed_failure: tamperRefused };
 // A text log a person can read, one per run, so a sabotage never overwrites the clean one.
-const logName = `receipts/card-payment-settles${BREAK ? `-${BREAK}.sabotage` : ""}.txt`;
+const logName = receiptFile(`card-payment-settles${BREAK ? `-${BREAK}.sabotage` : ""}.txt`);
 writeFileSync(path(logName), [
   `card-payment-settles${BREAK ? ` BREAK=${BREAK}` : ""} — ${new Date().toISOString()}`,
   ...probed.map((p) => `${p.got === p.want ? "ok  " : "FAIL"}  ${p.name}: want ${p.want}, got ${p.got}`),

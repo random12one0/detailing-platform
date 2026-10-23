@@ -28,7 +28,7 @@
 //   DATE_BREAK=car-1-rules node tests/split-day-surcharge.test.mjs   # must go red
 import { readFileSync, writeFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 import { bookingFixture, fixtureBooking } from "../scripts/lib/bookingConsentFixture.mjs";
 
 const started_at = new Date().toISOString();
@@ -155,7 +155,7 @@ check("3b · two cars on ONE Saturday still carry one weekend line", (sameDay.ad
 const canaryCaught = canary.old === 400;
 const failed = assertions - passed;
 console.log(`\n${passed} passed, ${failed} failed${BREAK ? `  (DATE_BREAK=${BREAK}: a sabotage, this run MUST be red)` : ""}`);
-const txt = BREAK ? `receipts/split-day-surcharge.sabotage-${BREAK}.txt` : "receipts/split-day-surcharge.txt";
+const txt = BREAK ? receiptFile(`split-day-surcharge.sabotage-${BREAK}.txt`) : receiptFile("split-day-surcharge.txt");
 writeFileSync(txt, [`split-day-surcharge ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((x) => "FAIL " + x)].join("\n") + "\n");
 writeReceipt({

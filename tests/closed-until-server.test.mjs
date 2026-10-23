@@ -33,7 +33,7 @@ import net from "node:net";
 import { writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { writeReceipt } from "../scripts/receipt.mjs";
+import { receiptFile, writeReceipt } from "../scripts/receipt.mjs";
 
 const started_at = new Date().toISOString();
 const BREAK = process.env.CLOSED_BREAK || "";
@@ -320,7 +320,7 @@ const failed = failures.length;
 console.log(`\n${passed} passed, ${failed} failed, ${assertions} assertions, ${completed} of ${SCENARIOS} scenarios complete.`);
 if (BREAK) console.log(`  note  CLOSED_BREAK=${BREAK} was set: this run is a sabotage and MUST be red.`);
 
-const txt = BREAK ? `receipts/closed-until-server.sabotage-${BREAK}.txt` : "receipts/closed-until-server.txt";
+const txt = BREAK ? receiptFile(`closed-until-server.sabotage-${BREAK}.txt`) : receiptFile("closed-until-server.txt");
 writeFileSync(txt, [`closed-until-server ${new Date().toISOString()} break=${BREAK || "none"}`, ...transcript,
   `${passed} passed, ${failed} failed`, ...failures.map((f) => "FAIL " + f)].join("\n") + "\n");
 writeReceipt({
