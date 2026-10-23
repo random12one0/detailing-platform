@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { localDate, localTime } from "../lib/format.js";
 import { isNetworkFailure, readJobs, saveJobs } from "../lib/offlineJobs.js";
+import { readAll } from "../lib/readAll.js";
 
 export const BOOKING_SELECT =
   "*, services:booking_services(name_at_booking, price_at_booking), booking_add_ons(add_on:add_ons(id, name, price)), "
@@ -104,16 +105,21 @@ export function useBookings(fromDate, toDate, { includeCancelled = true, remembe
     // Pad the UTC window a day either side, then filter by local date.
     const fromUtc = new Date(`${fromDate}T00:00:00Z`);
     const toUtc = new Date(`${toDate}T00:00:00Z`);
-    let q = supabase
-      .from("bookings")
-      .select(BOOKING_SELECT)
-      .eq("business_id", business.id)
-      .is("deleted_at", null)
-      .gte("start_at", new Date(fromUtc.getTime() - 36 * 3600_000).toISOString())
-      .lte("start_at", new Date(toUtc.getTime() + 60 * 3600_000).toISOString())
-      .order("start_at", { ascending: true });
-    if (!includeCancelled) q = q.neq("status", "cancelled");
-    const { data, error: e } = await q;
+    // ROADMAP 97.29 — IN PAGES. Money asks for ten years here, and one request
+    // stops at 1,000 rows; oldest first, so the newest jobs were the ones cut.
+    const { data, error: e } = await readAll(() => {
+      let q = supabase
+        .from("bookings")
+        .select(BOOKING_SELECT)
+        .eq("business_id", business.id)
+        .is("deleted_at", null)
+        .gte("start_at", new Date(fromUtc.getTime() - 36 * 3600_000).toISOString())
+        .lte("start_at", new Date(toUtc.getTime() + 60 * 3600_000).toISOString())
+        .order("start_at", { ascending: true })
+        .order("id", { ascending: true });
+      if (!includeCancelled) q = q.neq("status", "cancelled");
+      return q;
+    });
     // A FAILED READ USED TO LOOK EXACTLY LIKE AN EMPTY MONTH. `error` was
     // destructured away and `data ?? []` turned a dropped connection into
     // "no bookings" — on Today, on the calendar and on Money. The design's

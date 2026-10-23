@@ -50,6 +50,7 @@ import {
   MapPin, MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
+import { readAll } from "../lib/readAll.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useWide } from "../hooks/useWide.js";
 import SettingsHost from "../components/SettingsHost.jsx";
@@ -213,8 +214,9 @@ export default function Business({ onSetup, initial = null }) {
       // same rows below, so the two figures cannot come from different reads.
       supabase.from("campaigns").select("id, is_active")
         .eq("business_id", business.id),
-      supabase.from("campaign_visits").select("campaign_id, visitor_id")
-        .eq("business_id", business.id),
+      // Paged (97.29): one request stops at 1,000 rows, silently.
+      readAll(() => supabase.from("campaign_visits").select("campaign_id, visitor_id")
+        .eq("business_id", business.id).order("id", { ascending: true })),
       // ROADMAP 2.23. THE COUNT THAT MATTERS IS WHAT IS ABOUT TO BE LOST, not
       // how many deadlines exist: a detailer with nine warranties on the books
       // and none due this quarter needs to see "nothing due", and "9

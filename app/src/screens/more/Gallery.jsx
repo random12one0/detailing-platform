@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Camera, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { readAll } from "../../lib/readAll.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { removeBusinessPhotoAt, uploadBusinessPhoto } from "../../lib/upload.js";
 import { signedUrls } from "../../lib/photos.js";
@@ -115,15 +116,11 @@ export default function Gallery() {
   const exportPhotos = async () => {
     setExporting("Reading…");
     setMsg(null);
-    const readAll = async (build) => {
-      const out = [];
-      const SIZE = 1000;
-      for (let from = 0; ; from += SIZE) {
-        const r = await build().range(from, from + SIZE - 1);
-        if (r.error) throw new Error(r.error.message);
-        out.push(...(r.data ?? []));
-        if ((r.data?.length ?? 0) < SIZE) return out;
-      }
+    // The shared pager (97.29), throwing instead of answering an error.
+    const every = async (build) => {
+      const r = await readAll(build);
+      if (r.error) throw new Error(r.error.message);
+      return r.data;
     };
     // A URL has a length limit, so `in(...)` is chunked rather than hopeful.
     const readIn = async (table, cols, ids) => {
@@ -138,10 +135,11 @@ export default function Gallery() {
     };
     try {
       const [photos, gallery] = await Promise.all([
-        readAll(() => supabase.from("job_photos").select("*")
-          .eq("business_id", business.id).order("created_at", { ascending: true })),
-        readAll(() => supabase.from("gallery_images").select("*")
-          .eq("business_id", business.id).order("sort_order")),
+        every(() => supabase.from("job_photos").select("*")
+          .eq("business_id", business.id).order("created_at", { ascending: true })
+          .order("id", { ascending: true })),
+        every(() => supabase.from("gallery_images").select("*")
+          .eq("business_id", business.id).order("sort_order").order("id", { ascending: true })),
       ]);
       assertOwned(photos, business.id, "job photo");
       assertOwned(gallery, business.id, "gallery image");

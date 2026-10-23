@@ -97,6 +97,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { readAll } from "../../lib/readAll.js";
 import { dateLong, localDate, money } from "../../lib/format.js";
 // ROADMAP 4.2 — ONE ARITHMETIC, TWO SCREENS. Money's Booking sources block
 // and this list are the same figures at two scopes, and until 2026-09-13 this
@@ -153,14 +154,17 @@ export default function Campaigns() {
       // has a handful of campaigns. A view or an RPC would be the right answer
       // at a thousand, and this screen would be the wrong place to find that
       // out — the row count is what tells us, not a guess now.
-      supabase.from("campaign_visits").select("campaign_id, visitor_id, created_at").eq("business_id", business.id),
+      // Paged (97.29): one request stops at 1,000 rows, silently.
+      readAll(() => supabase.from("campaign_visits").select("campaign_id, visitor_id, created_at")
+        .eq("business_id", business.id).order("id", { ascending: true })),
       // EVERY COLUMN, AS MONEY READS IT (97.83): `whereFrom` values a job by what it KEPT, which
       // needs payment_status, stripe_payment_intent and payment_problem. Naming them 400s the
       // whole read on a database where the payment_problem migration has not run yet (measured
       // 2026-10-17); `*` reads the refund once it exists and the bare price until then.
-      supabase.from("bookings").select("*")
+      readAll(() => supabase.from("bookings").select("*")
         .eq("business_id", business.id)
-        .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null),
+        .not("campaign_id", "is", null).neq("status", "cancelled").is("deleted_at", null)
+        .order("id", { ascending: true })),
     ]);
     setError(c.error ? (c.error.message || "Could not load your campaign links.") : "");
     if (c.data) setRows(c.data);

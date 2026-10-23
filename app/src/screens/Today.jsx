@@ -39,6 +39,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { ChevronRight, ListChecks, MailWarning, Printer, TriangleAlert, WifiOff } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
+import { readAll } from "../lib/readAll.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
 // ROADMAP 2.19. The nudge counts with the SAME arithmetic the Clients screen
@@ -359,14 +360,18 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
     // The same two reads the Clients screen makes, minus the columns only that
     // screen prints. `end_at <= now` is the second half of "completed": a job
     // marked done early, or seeded into next week, is not a past visit.
+    // Paged (97.29): both pass 1,000 rows on a busy business.
+    const nowIso = new Date().toISOString();
     Promise.all([
-      supabase.from("customers").select("phone").eq("business_id", business.id),
-      supabase.from("bookings")
+      readAll(() => supabase.from("customers").select("phone").eq("business_id", business.id)
+        .order("id", { ascending: true })),
+      readAll(() => supabase.from("bookings")
         .select("customer_phone, end_at")
         .eq("business_id", business.id)
         .is("deleted_at", null)
         .eq("status", "completed")
-        .lte("end_at", new Date().toISOString()),
+        .lte("end_at", nowIso)
+        .order("id", { ascending: true })),
     ]).then(([cs, ts]) => {
       // A FAILED READ IS ZERO, NOT A GUESS. This row is an invitation, so the
       // safe failure is silence — the four other places in this repo where a

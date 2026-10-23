@@ -44,6 +44,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPlus, ChevronRight, ListChecks, Mail, MessageSquare, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
+import { readAll } from "../lib/readAll.js";
 import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
@@ -214,13 +215,16 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
     // second half of "completed": a job can be marked done from the day panel
     // before its slot has run out, and a seeded or mistyped one can sit in
     // next week entirely.
-    const totalsQ = supabase
+    // Paged (97.29): every finished job, which passes 1,000 rows.
+    const nowIso = new Date().toISOString();
+    const totalsQ = readAll(() => supabase
       .from("bookings")
       .select("customer_phone, end_at, final_amount, total_price")
       .eq("business_id", business.id)
       .is("deleted_at", null)
       .eq("status", "completed")
-      .lte("end_at", new Date().toISOString());
+      .lte("end_at", nowIso)
+      .order("id", { ascending: true }));
     // Every live membership for the business, in one read — there are at most
     // one per customer (`plan_members_one_live`), so this is smaller than the
     // customer list it is joined to.
@@ -498,24 +502,23 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0,
   const [exporting, setExporting] = useState("");
   const exportCustomers = async () => {
     setExporting("going");
-    const readAll = async (build) => {
-      const out = [];
-      const SIZE = 1000;
-      for (let from = 0; ; from += SIZE) {
-        const r = await build().range(from, from + SIZE - 1);
-        if (r.error) throw new Error(r.error.message);
-        out.push(...(r.data ?? []));
-        if ((r.data?.length ?? 0) < SIZE) return out;
-      }
+    const nowIso = new Date().toISOString();
+    // The shared pager (97.29), throwing instead of answering an error.
+    const every = async (build) => {
+      const r = await readAll(build);
+      if (r.error) throw new Error(r.error.message);
+      return r.data;
     };
     try {
       const [all, done] = await Promise.all([
-        readAll(() => supabase.from("customers").select("*")
-          .eq("business_id", business.id).order("name", { ascending: true })),
-        readAll(() => supabase.from("bookings")
+        every(() => supabase.from("customers").select("*")
+          .eq("business_id", business.id).order("name", { ascending: true })
+          .order("id", { ascending: true })),
+        every(() => supabase.from("bookings")
           .select("customer_phone, end_at, final_amount, total_price")
           .eq("business_id", business.id).is("deleted_at", null)
-          .eq("status", "completed").lte("end_at", new Date().toISOString())),
+          .eq("status", "completed").lte("end_at", nowIso)
+          .order("id", { ascending: true })),
       ]);
       // ROADMAP 1.3 — THE FILE HOLDS WHAT THE SCREEN HOLDS, and it is
       // filtered HERE rather than in the query on purpose: `.eq("is_test",

@@ -28,6 +28,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Repeat, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { readAll } from "../../lib/readAll.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { dateLong, money, phone, todayLocal } from "../../lib/format.js";
 import {
@@ -116,13 +117,17 @@ export default function Plans() {
     const [p, m, c, v, b] = await Promise.all([
       supabase.from("plans").select("*").eq("business_id", business.id).order("sort_order").order("name"),
       supabase.from("plan_members").select("*").eq("business_id", business.id).order("created_at", { ascending: false }),
-      supabase.from("customers").select("id,name,phone").eq("business_id", business.id).order("name"),
-      supabase.from("plan_visits").select("member_id,kind,delta,due_on,note").eq("business_id", business.id),
+      // Paged (97.29): these three grow without end; one request stops at 1,000.
+      readAll(() => supabase.from("customers").select("id,name,phone").eq("business_id", business.id)
+        .order("name").order("id", { ascending: true })),
+      readAll(() => supabase.from("plan_visits").select("member_id,kind,delta,due_on,note")
+        .eq("business_id", business.id).order("id", { ascending: true })),
       // Only the linked ones. The used half of the ledger is a count of these
       // (lib/plans.js), so the read is the whole business's and the filtering
       // is done once, in the file the test can reach.
-      supabase.from("bookings").select("id,plan_member_id,status,deleted_at,start_at")
-        .eq("business_id", business.id).not("plan_member_id", "is", null),
+      readAll(() => supabase.from("bookings").select("id,plan_member_id,status,deleted_at,start_at")
+        .eq("business_id", business.id).not("plan_member_id", "is", null)
+        .order("id", { ascending: true })),
     ]);
     // A FAILED READ MUST NOT LOOK LIKE A BUSINESS WITH NO PLANS — the fourth
     // site of this defect in the dashboard (useBookings, Money, Clients).

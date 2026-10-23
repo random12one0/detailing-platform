@@ -44,6 +44,7 @@ import { BarChart3, ChevronLeft, ChevronRight, Download, Link2 as LinkIcon, Plus
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { fetchBooking, useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
+import { readAll } from "../lib/readAll.js";
 import { useWide } from "../hooks/useWide.js";
 import { localDate, money, todayLocal } from "../lib/format.js";
 import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt, previousSoFar } from "../lib/periods.js";
@@ -267,33 +268,37 @@ export default function Money({ onGo }) {
   const [receiptErr, setReceiptErr] = useState("");
 
   const loadExtras = useCallback(async () => {
+    // ROADMAP 97.29 — the reads that can pass 1,000 rows are paged
+    // (`readAll`), each ordered down to `id`. One request stops at 1,000 rows
+    // without saying so, and line items and link opens are read for all time.
     const [e, li, up, cp, cv] = await Promise.all([
       // TO THE END OF THE PERIOD, NOT TO TODAY. `to` is clamped to today so
       // that the chart does not read a month that has not happened; an
       // EXPENSE can legitimately be dated forward inside the current one (a
       // supply order, an insurance payment), and clamping this read too made
       // it invisible on the screen that exists to list it.
-      supabase.from("expenses").select("*").eq("business_id", business.id)
-        .gte("date", from).lte("date", period.end).order("date", { ascending: false }),
-      supabase.from("booking_line_items").select("booking_id, category, amount, quantity")
-        .eq("business_id", business.id),
+      readAll(() => supabase.from("expenses").select("*").eq("business_id", business.id)
+        .gte("date", from).lte("date", period.end).order("date", { ascending: false })
+        .order("id", { ascending: true })),
+      readAll(() => supabase.from("booking_line_items").select("booking_id, category, amount, quantity")
+        .eq("business_id", business.id).order("id", { ascending: true })),
       // WHO OWES ME IS NOT A PERIOD QUESTION, and it used to be read as one:
       // the unpaid list was filtered out of the same window the chart uses,
       // so switching from Month to Week changed who owed you money and last
       // month's unpaid job disappeared from the one screen that exists to
       // chase it. It is its own read now, with no dates on it.
-      supabase.from("bookings").select(BOOKING_SELECT)
+      readAll(() => supabase.from("bookings").select(BOOKING_SELECT)
         .eq("business_id", business.id).is("deleted_at", null)
         .eq("status", "completed").in("payment_status", ["pending", "partial"])
-        .order("start_at", { ascending: false }),
+        .order("start_at", { ascending: false }).order("id", { ascending: true })),
       // THE LINKS AND EVERY OPEN OF ONE. Not date-filtered on the server: the
       // period control on this screen moves, and re-reading the whole table on
       // every step of the stepper is more round trips than a detailer's few
       // hundred rows are worth. `whereFrom` does the period filtering.
       supabase.from("campaigns").select("id, name, slug, is_active")
         .eq("business_id", business.id),
-      supabase.from("campaign_visits").select("campaign_id, visitor_id, referrer, created_at")
-        .eq("business_id", business.id),
+      readAll(() => supabase.from("campaign_visits").select("campaign_id, visitor_id, referrer, created_at")
+        .eq("business_id", business.id).order("id", { ascending: true })),
     ]);
     // A FAILED READ MUST NOT LOOK LIKE AN EMPTY MONTH. `data ?? []` on all
     // three of these turned a dropped connection into "no expenses, nothing

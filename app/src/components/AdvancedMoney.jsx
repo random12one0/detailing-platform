@@ -44,6 +44,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
+import { readAll } from "../lib/readAll.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 // **`localDate`, NOT `withLocal`.** The derived local date comes from the one
 // place that derives it — but withLocal also derives the START and END times,
@@ -200,10 +201,13 @@ export default function AdvancedMoney({
     // WIDE, because a local date and a UTC timestamp disagree by up to a day
     // and over-fetching one day is free where missing one is a customer
     // wrongly called new; `advancedMoney` then cuts exactly, on the local date.
-    supabase.from("bookings")
+    // Paged (97.29): every finished job before the period, which passes
+    // 1,000 rows within a year or two; one request would call the rest "new".
+    readAll(() => supabase.from("bookings")
       .select("customer_phone, customer_id, customer_name, start_at, status")
       .eq("business_id", business.id).is("deleted_at", null)
       .eq("status", "completed").lt("start_at", `${period.start}T23:59:59`)
+      .order("id", { ascending: true }))
       .then(({ data, error }) => {
         if (!on) return;
         // A FAILED READ IS NOT AN EMPTY HISTORY. Empty would print "everybody
