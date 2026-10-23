@@ -31648,7 +31648,8 @@ decisions, not build jobs.
   - The badge is gone in English and Spanish (if it has a Spanish key, the key goes too)
   - `tests/landing-pricing.test.mjs` gains an assertion that fails when the badge (or any "most popular" wording) comes back, and that sabotage is caught
 
-- [ ] **97.36 — The home page says "No setup wizard and no migration"; the first screen after signup is a 12-step setup wizard (P-2).**
+- [x] **97.36 — The home page says "No setup wizard and no migration"; the first screen after signup is a 12-step setup wizard (P-2).**
+  Home page term 01 now reads "A guided setup you can finish later, and no migration" instead of "No setup wizard"; rendered check FAIL before / OK after at 390 and 1440, shots in .manager-shots/97.36/; landing page has no Spanish copy.
   `app/src/landing/LandingPage.jsx:1040`; the wizard is `app/src/lib/setup.js:85-98`, opened at `app/src/App.jsx:299-310`. Reword the line so it is true (keep the plain voice; no "seamless"), with its Spanish key if it has one.
   Acceptance criteria:
   - The line no longer claims there is no setup wizard, read on the rendered page at 390 and 1440
