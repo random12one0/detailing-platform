@@ -15,7 +15,7 @@ export default function Kept({ i }) {
         <div className="bo-big" data-testid="kept">
           {!k ? <span className="bo-dim">Reading…</span>
             : k.failed ? <span className="bo-dim">Could not read</span>
-            : known ? <span className={k.kept < 0 ? "neg" : ""}>{k.kept < 0 ? "−" : ""}$<Count to={Math.abs(Math.round(k.kept / 100))} /></span>
+            : known ? <span className={k.kept < 0 ? "neg" : ""}>{k.kept <= -50 ? "−" : ""}$<Count to={Math.round(Math.abs(k.kept) / 100)} /></span>
             : <span className="bo-unentered">Not entered</span>}
         </div>
       </div>

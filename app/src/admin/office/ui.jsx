@@ -2,7 +2,7 @@
 // rebuilt without touching them. Colors come from the tokens in office.css.
 import { useEffect, useState } from "react";
 
-export const usd = (cents) => `${cents < 0 ? "−" : ""}$${Math.abs(Math.round(cents / 100)).toLocaleString("en-US")}`;
+export const usd = (cents) => ((d) => `${cents < 0 && d ? "−" : ""}$${d.toLocaleString("en-US")}`)(Math.round(Math.abs(cents) / 100));
 
 const lite = () => typeof document !== "undefined" && document.documentElement.classList.contains("lite");
 
