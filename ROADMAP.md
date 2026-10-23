@@ -31757,7 +31757,8 @@ decisions, not build jobs.
   - Both error boxes carry `role="alert"` and appear in the accessibility tree when shown
   - "Try again" has at least 44px of hit area (`node scripts/sweep-tap-targets.mjs` passes for the booking page)
 
-- [ ] **97.49 — No automated accessibility check on the booking flow (P-10).**
+- [x] **97.49 — No automated accessibility check on the booking flow (P-10).**
+  Done 2026-10-23 (Claude lane): scripts/sweep-booking-steps.mjs now runs axe-core 4.10.2 (new pinned app devDependency; nothing installed did it) on every reading after W16 is measured, waits out fade-ins first, prints serious/critical findings by rule and fails on them; canary each run (an unnamed box must be named `label`); --break=unlabel turns it red naming button-name and select-name (28 findings). Walked at 1440x900 and 390x844: one real critical, aria-valid-attr-value on the address Find button (aria-controls pointed at a list not on the page), fixed in AddressField.jsx; now 0 serious/critical over 38 readings. W16 lines identical to main apart from the slots reading, which varies run to run on both versions. Evidence .manager-shots/97.49/.
   No axe pass exists in `tests/` or the booking sweep. Add an axe-core pass to `scripts/sweep-booking-steps.mjs` (this item explicitly authorizes editing that script), reporting serious and critical issues per step, with a canary.
   Acceptance criteria:
   - The sweep reports axe results per step at each size and fails on a serious or critical issue

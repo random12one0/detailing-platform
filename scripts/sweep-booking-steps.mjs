@@ -46,6 +46,15 @@ import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 import { TAP_PROBE, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
 import { writeReceipt } from "./receipt.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
+// ROADMAP 97.49 — AN AXE PASS RIDES THIS WALK, for the same reason the tap
+// floor does: these steps are only reachable by this walk. axe-core is an app
+// devDependency (pinned); its `source` is injected into each page after the
+// W16 measurement, so no number above the accessibility block can move.
+const AXE_SOURCE = createRequire(import.meta.url)("./../app/node_modules/axe-core").source;
+// 97.49's sabotage: strip every accessible name the product gives (aria-label,
+// aria-labelledby, <label for>) just before axe runs, and expect the run to go
+// red NAMING the rule (button-name, label, ...). After MEASURE, so W16 is untouched.
+const UNLABEL = process.argv.includes("--break=unlabel");
 
 // Started BEFORE the browser opens, so anything saved from here on is a
 // mid-run edit. `source-guard.mjs` explains why that matters.
@@ -334,6 +343,51 @@ const tapCheck = async (page, where) => {
   for (const f of r.findings) tapFindings.push({ where, ...f });
 };
 
+// --- ACCESSIBILITY (axe), ONE READING PER STEP — ROADMAP 97.49 ---------------
+// Serious and critical only, which is the item's line. Collected and printed
+// together at the end like the tap floor, and they fail the run the same way.
+// `axeReadings` counts readings axe actually ran on, so "no violations" over
+// zero readings reads as NOT MEASURED, never as clean.
+const axeFindings = [];
+let axeReadings = 0, axeRulesRun = 0;
+const AXE_RUN = async () => {
+  const r = await window.axe.run(document, { resultTypes: ["violations"] });
+  return {
+    rules: r.violations.length + r.passes.length + r.incomplete.length + r.inapplicable.length,
+    bad: r.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => ({
+      id: v.id, impact: v.impact, help: v.help,
+      nodes: v.nodes.slice(0, 3).map((n) => n.target.join(" ")), count: v.nodes.length,
+      why: v.nodes[0]?.any?.[0]?.message || v.nodes[0]?.all?.[0]?.message || "",
+    })),
+  };
+};
+const ensureAxe = async (pg) => {
+  if (!(await pg.evaluate(() => !!window.axe))) await pg.evaluate(AXE_SOURCE);
+};
+const axeCheck = async (pg, where) => {
+  if (UNLABEL) await pg.evaluate(() => {
+    for (const el of document.querySelectorAll("[aria-label],[aria-labelledby]")) {
+      el.removeAttribute("aria-label"); el.removeAttribute("aria-labelledby");
+    }
+    for (const l of document.querySelectorAll("label[for]")) l.removeAttribute("for");
+  });
+  // WAIT OUT THE FADES FIRST. axe reads painted colour, opacity included, so a
+  // line caught mid fade-in fails color-contrast on a colour that is fine:
+  // measured on this walk, the surcharge note ("Short notice · +$20") read
+  // 2.42:1 at opacity 0.68 900ms after the day was tapped, and clean 2.5s
+  // later. Finite animations only (a spinner never finishes), capped at 3s.
+  await pg.evaluate(() => Promise.race([
+    Promise.all(document.getAnimations()
+      .filter((a) => a.effect?.getComputedTiming?.().iterations !== Infinity)
+      .map((a) => a.finished.catch(() => {}))),
+    new Promise((ok) => setTimeout(ok, 3000)),
+  ]));
+  await ensureAxe(pg);
+  const r = await pg.evaluate(AXE_RUN);
+  axeReadings++; axeRulesRun += r.rules;
+  for (const f of r.bad) axeFindings.push({ where, ...f });
+};
+
 for (const size of SIZES) {
   console.log(`\n══ ${size.width}x${size.height} ═══════════════════════════════════`);
   const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1 });
@@ -504,6 +558,8 @@ for (const size of SIZES) {
             + "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ")
           : ""),
     );
+    // After MEASURE and the line above, so W16's readings are taken first.
+    await axeCheck(page, `${size.width}x${size.height} ${label}`);
   };
 
   // Driven by the step's own heading, not by a hardcoded list: roadmap 2.7
@@ -902,6 +958,7 @@ for (const size of SIZES) {
 // could not have made.
 let canaryCaught = false;
 let canaryOver = null;
+let axeCanaryCaught = false;
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 200 }, deviceScaleFactor: 1 });
   const p = await ctx.newPage();
@@ -918,6 +975,24 @@ let canaryOver = null;
         : "NOT CAUGHT — a step was called fitting in a 200px window, so every `fits` above is void"));
   } catch (e) {
     console.log(`\ncanary  COULD NOT RUN — ${e.message.slice(0, 90)}`);
+  }
+  // 97.49's canary: the same page plus one text box with no name. If axe does
+  // not report it as `label` (critical) by its id, the axe pass is not running
+  // or not reporting, and every "no violations" below is void.
+  try {
+    await p.evaluate(() => {
+      const i = document.createElement("input");
+      i.id = "axe-canary"; i.type = "text";
+      document.body.appendChild(i);
+    });
+    await ensureAxe(p);
+    const r = await p.evaluate(AXE_RUN);
+    axeCanaryCaught = r.bad.some((v) => v.id === "label" && v.nodes.some((n) => n.includes("#axe-canary")));
+    console.log(`canary  an unnamed text box -> ${axeCanaryCaught
+      ? "caught by axe as `label`, so the accessibility block below means something"
+      : "NOT CAUGHT — axe did not name it, so every accessibility verdict below is void"}`);
+  } catch (e) {
+    console.log(`canary  axe COULD NOT RUN — ${e.message.slice(0, 90)}`);
   } finally {
     await ctx.close();
   }
@@ -983,6 +1058,25 @@ else {
   failing++;
 }
 
+// --- ACCESSIBILITY (axe) — ROADMAP 97.49 -------------------------------------
+console.log(`\naxe ${createRequire(import.meta.url)("./../app/node_modules/axe-core").version}`
+  + ` — ${axeReadings} step readings, ${axeRulesRun} rule checks run; serious and critical fail the run`
+  + (UNLABEL ? "  [--break=unlabel: every accessible name was stripped before axe ran]" : ""));
+if (!axeReadings) { console.log("NOT MEASURED — axe ran on no reading"); failing++; }
+else if (!axeFindings.length) console.log("no serious or critical violations");
+else {
+  const seen = new Map();
+  for (const f of axeFindings) {
+    const k = `[${f.id}] ${f.impact} — ${f.help} (${f.count} node${f.count === 1 ? "" : "s"}: ${f.nodes.join(" | ")})${f.why ? `\n      ${f.why}` : ""}`;
+    if (!seen.has(k)) seen.set(k, []);
+    seen.get(k).push(f.where);
+  }
+  console.log(`${axeFindings.length} findings, ${seen.size} distinct`);
+  for (const [k, wheres] of seen) console.log(`  ${k}\n      ${wheres.join("  ")}`);
+  failing++;
+}
+if (!axeCanaryCaught) failing++;
+
 // --- THE RECEIPT, so this is GRADED rather than read ------------------------
 // **THIS GATE WROTE NO RECEIPT AND CARRIED NO CANARY UNTIL 2026-09-21 -
 // docs/silences.md section A.** Its census row was corrected once already
@@ -1006,6 +1100,10 @@ if (stepsDeclared !== null && stepsDeclared !== EXPECTED_BOOKING_STEPS) {
     + `and EXPECTED_BOOKING_STEPS declares ${EXPECTED_BOOKING_STEPS}. A step added or removed `
     + `changes what W16 promises - move the number deliberately and say which step changed.`);
 }
+if (axeReadings === 0) receiptFailures.push("ZERO READINGS CHECKED BY AXE.");
+if (axeFindings.length) receiptFailures.push(`${axeFindings.length} serious/critical axe finding(s): `
+  + [...new Set(axeFindings.map((f) => f.id))].join(", "));
+if (!axeCanaryCaught) receiptFailures.push("the axe canary (an unnamed text box) was not reported as `label`");
 if (failing) receiptFailures.push(`${failing} failing reading(s) — see above`);
 
 const { path: sbReceiptPath } = writeReceipt({
@@ -1017,12 +1115,13 @@ const { path: sbReceiptPath } = writeReceipt({
   attempted_targets: numberedReadings,
   completed_targets: numberedReadings,
   skipped_targets: 0,
-  assertions_executed: tapSubjects + tapScreens + 1,
+  assertions_executed: tapSubjects + tapScreens + 1 + axeReadings + 1,
   min_assertions: 200,
   failures: receiptFailures,
   artifacts: ["scripts/sweep-booking-steps.mjs"],
   warnings: [
     ...(CANARY_BLIND ? ["run with --break=blind; this receipt is a sabotage, not a result"] : []),
+    ...(UNLABEL ? ["run with --break=unlabel; this receipt is a sabotage, not a result"] : []),
     `${w16Failing} reading(s) fail W16; ${OTHER_FAULTS.length} fault(s) are not W16`,
   ],
   dimensions: {
@@ -1032,6 +1131,12 @@ const { path: sbReceiptPath } = writeReceipt({
     controls_measured: tapSubjects,
     w16_bound_services: W16_SERVICES,
     canary_over_px: canaryOver,
+    axe_readings: axeReadings,
+    axe_rule_checks: axeRulesRun,
+    axe_serious_critical: axeFindings.length,
+    axe_rules_violated: [...new Set(axeFindings.map((f) => f.id))],
+    axe_canary_caught: axeCanaryCaught,
+    ...(UNLABEL ? { break: "unlabel" } : {}),
   },
   canary: {
     id: "a booking step measured in a 200px-tall window must be reported OVER",

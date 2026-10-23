@@ -1,0 +1,58 @@
+{
+  "git_sha": "a49eb11ea776f63e08b405d5c9a135f302717a83",
+  "git_sha_started": "a49eb11ea776f63e08b405d5c9a135f302717a83",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-23T09:05:19.857Z",
+  "failures": [
+    "28 serious/critical axe finding(s): button-name, select-name",
+    "5 failing reading(s) — see above"
+  ],
+  "warnings": [
+    "run with --break=unlabel; this receipt is a sabotage, not a result",
+    "1 reading(s) fail W16; 2 fault(s) are not W16"
+  ],
+  "artifacts": [
+    "scripts/sweep-booking-steps.mjs"
+  ],
+  "dimensions": {
+    "widths": [
+      "1440x900",
+      "390x844"
+    ],
+    "step_readings": 38,
+    "numbered_step_readings": 16,
+    "controls_measured": 484,
+    "w16_bound_services": 5,
+    "canary_over_px": 788,
+    "axe_readings": 38,
+    "axe_rule_checks": 3449,
+    "axe_serious_critical": 28,
+    "axe_rules_violated": [
+      "button-name",
+      "select-name"
+    ],
+    "axe_canary_caught": true,
+    "break": "unlabel"
+  },
+  "check_id": "sweep-booking-steps-1440x900-390x844",
+  "started_at": "2026-10-23T09:03:13.280Z",
+  "status": "fail",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 562,
+  "min_assertions": 200,
+  "canary": {
+    "id": "a booking step measured in a 200px-tall window must be reported OVER",
+    "observed_failure": true,
+    "caught_by": [
+      "over"
+    ],
+    "findings": [
+      "[over] step 1 at 1440x200 measured 788px over, so MEASURE can still report a step that does not fit and every \"fits\" above is a verdict this run could make"
+    ]
+  }
+}

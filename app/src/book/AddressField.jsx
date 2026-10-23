@@ -111,7 +111,7 @@ export default function AddressField({ slug, value, onChange, placeholder, label
         {/* FIRES ONLY ON A PRESS. Never on a keystroke, never on blur, never
             on a timer: one press is one credit, and live type-ahead spends six
             to eight per address. */}
-        <button type="button" className="bk-find" onClick={find} disabled={!ready} aria-controls={listId}>
+        <button type="button" className="bk-find" onClick={find} disabled={!ready} aria-controls={shown ? listId : undefined}>
           {busy ? t("Looking…") : t("Find")}
         </button>
       </div>
