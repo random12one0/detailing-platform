@@ -39,6 +39,18 @@ export function tenantDescription(profile) {
   return `Book detailing with ${b.name}${area ? ` in ${area}` : ""}.`;
 }
 
+// ROADMAP 97.93 - the share picture, chosen exactly as app/src/lib/share.js's
+// shareMetaFor does (first gallery photo, then logo, then the tenant card),
+// because texts and Facebook never run that browser code. Only absolute
+// https URLs count. A copy rather than an import: this folder must stay one
+// file, and tests/booking-meta.test.mjs holds the two choosers equal.
+export const TENANT_FALLBACK_IMAGE = "https://detailingplatform.com/og-tenant.png";
+const httpsUrl = (s) => (typeof s === "string" && /^https:\/\//.test(s.trim()) ? s.trim() : null);
+export function shareImage(profile) {
+  const photo = (Array.isArray(profile?.gallery) ? profile.gallery : []).map((g) => httpsUrl(g?.image_url)).find(Boolean);
+  return photo || httpsUrl(profile?.branding?.logo_url) || TENANT_FALLBACK_IMAGE;
+}
+
 // ROADMAP 97.43 - schema.org LocalBusiness for search engines, which do not
 // run the JS either. Built only from public profile fields: name, phone,
 // service area and active services' prices. Never service notes or anything
@@ -102,6 +114,12 @@ export function rewriteHead(html, { profile, pageUrl } = {}) {
   set("name", "twitter:title", n);
   set("name", "twitter:description", d);
   if (pageUrl) set("property", "og:url", esc(pageUrl));
+  const img = esc(shareImage(profile));
+  set("property", "og:image", img);
+  set("name", "twitter:image", img);
+  set("property", "og:image:alt", n);
+  // index.html's 1200x630 belongs to the platform card, not to this picture.
+  out = out.replace(/[ \t]*<meta\s+property="og:image:(?:width|height)"\s+content="[^"]*"\s*\/?>\r?\n?/g, "");
   const ld = jsonLdScript(localBusinessJsonLd(profile, pageUrl));
   if (ld && !out.includes('type="application/ld+json"')) out = out.replace("</head>", () => `${ld}\n  </head>`);
   return out;

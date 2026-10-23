@@ -120,6 +120,57 @@ test("non-book paths pass through the handler untouched", async () => {
   }
 });
 
+// ROADMAP 97.93 - the picture a shared booking link shows comes from the
+// business at the edge, in share.js's order: photo, then logo, then og-tenant.
+const PHOTO = "https://media.example.com/gallery/first.jpg";
+const LOGO = "https://media.example.com/logo.png";
+async function imageFor(extra) {
+  const html = await runHandler("https://detailingplatform.com/book/demo-detail",
+    async () => ({ ...DEMO_PROFILE, ...extra }));
+  const og = tagContent(html, "property", "og:image");
+  assert.equal((html.match(/property="og:image"/g) ?? []).length, 1, "exactly one og:image");
+  assert.equal(tagContent(html, "name", "twitter:image"), og);
+  assert.equal(tagContent(html, "property", "og:image:alt"), "Coastline Auto Detailing");
+  assert.doesNotMatch(html, /og:image:(width|height)/, "platform card's size left on a tenant picture");
+  assert.match(og, /^https:\/\//, "absolute URL");
+  return og;
+}
+
+test("booking page head carries the business's photo when it has one", async () => {
+  assert.equal(await imageFor({
+    gallery: [{ kind: "before_after", image_url: null }, { image_url: " " }, { image_url: PHOTO }],
+    branding: { ...DEMO_PROFILE.branding, logo_url: LOGO },
+  }), PHOTO);
+});
+
+test("booking page head carries the business's logo when it has no photo", async () => {
+  assert.equal(await imageFor({ gallery: [], branding: { ...DEMO_PROFILE.branding, logo_url: LOGO } }), LOGO);
+});
+
+test("booking page head carries og-tenant.png when the business has neither", async () => {
+  for (const extra of [{}, { gallery: null, branding: null },
+    { gallery: [{ image_url: "/relative.jpg" }], branding: { logo_url: "http://insecure.example/l.png" } }])
+    assert.equal(await imageFor(extra), "https://detailingplatform.com/og-tenant.png", JSON.stringify(extra));
+});
+
+test("the edge and the browser pick the same picture (share.js shareMetaFor)", async () => {
+  const { shareMetaFor } = await import("../app/src/lib/share.js");
+  const { shareImage } = await import("../app/netlify/edge-functions/booking-meta.mjs");
+  const biz = { business: { name: "Riverside" } };
+  for (const p of [
+    { ...biz, gallery: [{ image_url: "" }, { image_url: PHOTO }], branding: { logo_url: LOGO } },
+    { ...biz, gallery: [], branding: { logo_url: LOGO } },
+    { ...biz, gallery: [{ image_url: ` ${PHOTO} ` }] },
+    biz, { ...biz, gallery: null, branding: null }, { ...biz, branding: { logo_url: "/rel.png" } },
+  ]) assert.equal(shareImage(p), shareMetaFor(p).image, JSON.stringify(p));
+});
+
+test("unknown slug and failed lookup serve the page byte-for-byte unchanged", async () => {
+  assert.equal(await runHandler("https://detailingplatform.com/book/no-such-shop"), upstreamHtml);
+  assert.equal(await runHandler("https://detailingplatform.com/book/demo-detail",
+    async () => { throw new Error("network down"); }), upstreamHtml);
+});
+
 test("extractSlug reads only /book/<slug>", () => {
   assert.equal(extractSlug("/book/demo-detail"), "demo-detail");
   assert.equal(extractSlug("/book/demo-detail/"), "demo-detail");
