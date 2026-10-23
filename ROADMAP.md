@@ -31683,7 +31683,8 @@ decisions, not build jobs.
   - Imported rows are flagged as imported, and test fixtures are not deleted (flag, don't delete)
   - Checked at 390 and 1440
 
-- [ ] **97.41 — `robots.txt` and `sitemap.xml` serve the app's HTML (P-4).**
+- [x] **97.41 — `robots.txt` and `sitemap.xml` serve the app's HTML (P-4).**
+  /robots.txt and /sitemap.xml are now real files: a production build served locally answers them as text/plain and text/xml (HTML before), the sitemap lists only /, /pricing, /terms and /privacy, and robots.txt blocks /app, /admin and every link-with-a-key route; tenant booking pages are left to crawlers rather than listed (no build-time source for published slugs); `node --test tests/seo-files.test.mjs` holds it.
   Both answer 200 `text/html` on the live site, because `app/netlify.toml` sends `/*` to `index.html` and nothing exists in `app/public`. Add a real `robots.txt` and a `sitemap.xml` listing the public marketing pages and published tenant booking pages (generated at build time if tenant pages are included).
   Acceptance criteria:
   - A production build served locally answers `/robots.txt` as `text/plain` and `/sitemap.xml` as XML, both well-formed

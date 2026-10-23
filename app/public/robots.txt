@@ -1,0 +1,19 @@
+# Static file: shadows the unforced /* SPA rewrite (netlify.toml, _redirects).
+# Tenant booking pages (/book/<slug>) are public; signed-in and link-with-a-key
+# routes are not indexed.
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /admin
+Disallow: /preview
+Disallow: /invite/
+Disallow: /job/
+Disallow: /settings/
+Disallow: /website
+Disallow: /reset
+Disallow: /booking/
+Disallow: /plan/
+Disallow: /unsubscribe/
+Disallow: /map.html
+
+Sitemap: https://detailingplatform.com/sitemap.xml
