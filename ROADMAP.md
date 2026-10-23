@@ -31741,7 +31741,8 @@ decisions, not build jobs.
   - After each step change, `document.activeElement` is that step's heading (browser check across all steps)
   - `node scripts/keyboard-walk.mjs` passes
 
-- [ ] **97.48 — Booking errors are not announced, and the price "Try again" button is 34px (P-10).**
+- [x] **97.48 — Booking errors are not announced, and the price "Try again" button is 34px (P-10).**
+  Claude lane: both booking error boxes now role="alert"; price "Try again" 44px (was 34). Test tests/booking-errors-announced.test.mjs fails on the old code; live check with calculate-booking forced to 500 shows the alert in the accessibility tree and a 44px button at 390/1440 (fails unfixed). Shots .manager-shots/97.48/.
   The submit and price-lookup error boxes (`BookingPage.jsx:950,958`) have no `role` or `aria-live`; the "Try again" button (`BookingPage.jsx:952`) is under the 44px rule.
   Acceptance criteria:
   - Both error boxes carry `role="alert"` and appear in the accessibility tree when shown

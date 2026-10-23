@@ -984,15 +984,15 @@ function BookingFlow({ notFound = null }) {
         {/* A failed price calculation is visible and recoverable — never a
             silent state that explodes at submit. */}
         {quoteError && (
-          <div className="bk-error">
+          <div className="bk-error" role="alert">
             {quoteError}{" "}
-            <button className="bk-btn inline" style={{ minHeight: 34, padding: "0 16px", marginTop: 8 }}
+            <button className="bk-btn inline" style={{ minHeight: 44, padding: "0 16px", marginTop: 8 }}
               onClick={fetchQuote}>
               {t("Try again")}
             </button>
           </div>
         )}
-        {submitError && <div className="bk-error" ref={submitErrorRef}>{submitError}</div>}
+        {submitError && <div className="bk-error" role="alert" ref={submitErrorRef}>{submitError}</div>}
         {priceChanged != null && (
           <div className="bk-note bk-price-changed" role="status" ref={priceChangedRef}>
             {t("The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.",
