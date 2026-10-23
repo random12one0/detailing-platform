@@ -1,36 +1,38 @@
 {
-  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
-  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha": "81532bddb7df10a48b14f593699f40f300fe19d5",
+  "git_sha_started": "81532bddb7df10a48b14f593699f40f300fe19d5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T06:45:45.015Z",
+  "finished_at": "2026-10-23T08:56:43.028Z",
   "failures": [
-    "the address typed on her booking is gone from the cache — 400 pine ave apt 3",
-    "the result counts the rows deleted — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":0,\"emails_forgotten\":0,\"bookings_anonymised\":2,\"address_points_deleted\":1}",
+    "a street of hers that another customer in the same business has on his record stays — 8 birch way",
+    "a street of hers that a guest booking (no customer) in another business uses stays — 5 cedar ln",
+    "the shop's address stays even though she typed it on a booking — 1 shop rd",
+    "the result counts the rows deleted — {\"ok\":true,\"name\":\"Dana Doe\",\"photos_deleted\":0,\"emails_forgotten\":0,\"bookings_anonymised\":5,\"address_points_deleted\":5}",
     "a customer of another business is not_found and the cache is untouched"
   ],
   "warnings": [],
   "artifacts": [
-    "artifacts/forget-customer-address-points-sql/results.sabotage-after-bookings.txt"
+    "artifacts/forget-customer-address-points-sql/results.sabotage-no-share.txt"
   ],
   "dimensions": {
-    "break": "after-bookings",
-    "migration": "20261018050000_forget_customer_forgets_their_street.sql",
-    "address_points_deleted": 1
+    "break": "no-share",
+    "migration": "20261023110000_forget_customer_keeps_shared_streets.sql",
+    "address_points_deleted": 5
   },
   "check_id": "forget-customer-address-points-sql",
-  "started_at": "2026-10-18T06:45:41.685Z",
+  "started_at": "2026-10-23T08:56:37.626Z",
   "status": "fail",
-  "expected_targets": 5,
-  "discovered_targets": 5,
-  "attempted_targets": 5,
-  "completed_targets": 5,
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
   "skipped_targets": 0,
-  "assertions_executed": 14,
-  "min_assertions": 14,
-  "assertion_floor": "structural: a fixed list of checks over five fixed address_points rows",
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "structural: a fixed list of checks over seven fixed address_points rows",
   "canary": {
-    "id": "pre-97.20a-forget-customer",
+    "id": "pre-97.20a-forget-customer + 20261018050000-deletes-shared",
     "observed_failure": true
   }
 }

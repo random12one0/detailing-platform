@@ -1,31 +1,31 @@
 {
-  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
-  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha": "81532bddb7df10a48b14f593699f40f300fe19d5",
+  "git_sha_started": "81532bddb7df10a48b14f593699f40f300fe19d5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T06:45:28.463Z",
+  "finished_at": "2026-10-23T08:56:37.208Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/forget-customer-address-points-sql/results.txt"
   ],
   "dimensions": {
-    "migration": "20261018050000_forget_customer_forgets_their_street.sql",
+    "migration": "20261023110000_forget_customer_keeps_shared_streets.sql",
     "address_points_deleted": 2
   },
   "check_id": "forget-customer-address-points-sql",
-  "started_at": "2026-10-18T06:45:24.441Z",
+  "started_at": "2026-10-23T08:56:30.321Z",
   "status": "pass",
-  "expected_targets": 5,
-  "discovered_targets": 5,
-  "attempted_targets": 5,
-  "completed_targets": 5,
+  "expected_targets": 7,
+  "discovered_targets": 7,
+  "attempted_targets": 7,
+  "completed_targets": 7,
   "skipped_targets": 0,
-  "assertions_executed": 14,
-  "min_assertions": 14,
-  "assertion_floor": "structural: a fixed list of checks over five fixed address_points rows",
+  "assertions_executed": 21,
+  "min_assertions": 21,
+  "assertion_floor": "structural: a fixed list of checks over seven fixed address_points rows",
   "canary": {
-    "id": "pre-97.20a-forget-customer",
+    "id": "pre-97.20a-forget-customer + 20261018050000-deletes-shared",
     "observed_failure": true
   }
 }

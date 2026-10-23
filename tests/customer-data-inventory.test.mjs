@@ -105,21 +105,21 @@ export const DECLARED = {
   platform_settings: { how: "not", cols: ["owner_email"], why: PLATFORM },
   site_probes: { how: "not", cols: ["body", "secret_name"], why: PLATFORM },
   // address_points.key IS a street address, but its column is called `key`, so the name rule cannot see it.
-  address_points: { how: "forget", byHand: true, cols: ["key"], why: "97.20a: the geocode rows for their record's and their bookings' addresses are deleted" },
+  address_points: { how: "forget", byHand: true, cols: ["key"], why: "97.20a: the geocode rows for their record's and their bookings' addresses are deleted, unless another customer, booking or shop still uses that street" },
 };
 
-const STREET = "20261018050000_forget_customer_forgets_their_street.sql";
+// 97.20a: the first street migration and its shared-streets follow-up both define the covering body.
+const STREET = ["20261018050000_forget_customer_forgets_their_street.sql", "20261023110000_forget_customer_keeps_shared_streets.sql"];
+const dropStreet = (list) => { for (const s of STREET) { const i = list.findIndex(([f]) => f === s); if (i < 0) throw new Error(`BREAK did not land: ${s} is not in the list`); list.splice(i, 1); } };
 const files = readdirSync(DIR).filter((f) => f.endsWith(".sql")).sort().map((f) => [f, readFileSync(`${DIR}/${f}`, "utf8")]);
 if (BREAK === "drop-email") {
   // docs/gotchas.md 102: the sabotage must LAND — drop 97.20's migration so the 8.11 body is the latest.
   const i = files.findIndex(([f]) => f === "20261017210000_forget_customer_forgets_their_email.sql");
   if (i < 0) throw new Error("BREAK=drop-email did not land: 97.20's migration is not in the list");
   files.splice(i, 1);
-  files.splice(files.findIndex(([f]) => f === STREET), 1);
+  dropStreet(files);
 } else if (BREAK === "drop-street") {
-  const i = files.findIndex(([f]) => f === STREET);
-  if (i < 0) throw new Error("BREAK=drop-street did not land: 97.20a's migration is not in the list");
-  files.splice(i, 1);
+  dropStreet(files);
 } else if (BREAK) throw new Error(`unknown BREAK=${BREAK}; known: drop-email, drop-street`);
 
 const declaredSet = (d) => new Set(Object.entries(d).filter(([, e]) => !e.byHand).flatMap(([t, e]) => e.cols.map((c) => `${t}.${c}`)));
@@ -162,8 +162,8 @@ test("every table declared as cascading really cascades from a covered parent", 
 test("CANARY: a new table with a customer column, and a forget_customer that forgets email_sends, both go red", () => {
   const extra = [...files, ["29991231000000_canary.sql", "create table public.sms_sends (\n  id uuid primary key,\n  to_phone text not null\n);"]];
   assert.deepEqual(diff(inventory(extra).found, declaredSet(DECLARED)).undeclared, ["sms_sends.to_phone"], "the canary table was not caught");
-  const old = files.filter(([f]) => f !== "20261017210000_forget_customer_forgets_their_email.sql" && f !== STREET);
+  const old = files.filter(([f]) => f !== "20261017210000_forget_customer_forgets_their_email.sql" && !STREET.includes(f));
   assert.equal(forgets(inventory(old).forget, "email_sends"), false, "the pre-97.20 forget_customer reads as covering email_sends");
-  const noStreet = files.filter(([f]) => f !== STREET);
+  const noStreet = files.filter(([f]) => !STREET.includes(f));
   assert.equal(forgets(inventory(noStreet).forget, "address_points"), false, "the pre-97.20a forget_customer reads as covering address_points");
 });
