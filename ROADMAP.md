@@ -14572,6 +14572,8 @@ requested.
   - The detail panel still distinguishes loading, empty, and populated history.
 
 - [ ] **4.3c — Implement server-recognized read-only support sessions**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the belt's own files or the main repo's git refs changed while the builder ran (main on GitHub moved during the job (to 094c9b3e)).
+  The work is safe on branch `belt/4.3c-20261023174426862`. Answer "merge it" to keep it, or say what to change.
   NEEDS ANDREW: the belt held this job's work instead of merging it — after one repair and strong-model help: the strong-model rescue was used and the job still fails.
   The work is safe on branch `belt/4.3c-20261023103505693`. Answer "merge it" to keep it, or say what to change.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): combine both builds into one version that keeps the strictest rule from each: the 4.3 run's branch `belt/4.3-20261013084536` (unlock, which also refuses a business being created from an unlocked preview) and `belt/4.3c-20261013101138` (unlock plus two-hour expiry, Spanish wording; it already contains `belt/4.3c-20261013095529`). One migration, one set of receipts; nothing published.
