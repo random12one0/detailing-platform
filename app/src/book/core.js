@@ -1696,3 +1696,57 @@ export function rememberCustomer(slug, form, planId, storage) {
     }));
   } catch { /* a device that will not remember is not an error */ }
 }
+
+// ---------------------------------------------------------------------------
+// ROADMAP 97.45 — the step in the address, and the unfinished booking on the
+// device. The step lived only in React state, so the phone's Back button left
+// the booking and a refresh lost every answer. Each step now has its own
+// history entry (`?step=N`, 1-based; the first step is the clean address) and
+// the answers sit in `sessionStorage`: this tab only, gone when it closes,
+// never sent anywhere, cleared the moment a booking lands.
+// ---------------------------------------------------------------------------
+
+// The address's `?step=` (1-based) as a 0-based index into a flow of `count`
+// steps. Missing or unreadable is the first step; past the end is the last.
+export function stepFromSearch(search, count) {
+  const n = Number.parseInt(search?.get?.("step") ?? "", 10);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(Math.max(count, 1) - 1, n - 1));
+}
+
+// A step the address asks for is only shown if every step before it is
+// answered — a shared `?step=6` link, or browser Forward after going back and
+// emptying a box, lands on the first step still missing something rather than
+// past it. Only the form's own answers gate here: the price is fetched again
+// after a refresh, and a quote still on its way must not bounce anybody back.
+export function reachableStep(steps, wanted, { form, settings }) {
+  for (let i = 0; i < wanted; i++) {
+    if (blockers(steps[i], { form, settings, quote: true, quoting: false }).length) return i;
+  }
+  return wanted;
+}
+
+// One draft per booking page per tab, keyed by the page's own path (so two
+// businesses never share one, and a custom-domain page, whose slug arrives
+// late, still finds its own). Holds only what the booking itself needs: the
+// form and an applied promo code (the server re-checks both on submit).
+export const draftKey = (page) => `bk.draft:${page}`;
+
+// Wrapped, like `rememberCustomer`: sessionStorage throws outright in some
+// embedded and privacy contexts, and that must never stop the page drawing.
+export function saveDraft(page, draft, storage) {
+  try {
+    (storage ?? globalThis.sessionStorage).setItem(draftKey(page), JSON.stringify(draft));
+  } catch { /* a tab that will not keep a draft is not an error */ }
+}
+
+export function loadDraft(page, storage) {
+  try {
+    const d = JSON.parse((storage ?? globalThis.sessionStorage).getItem(draftKey(page)) || "null");
+    return d && d.form && Array.isArray(d.form.serviceIds) ? d : null;
+  } catch { return null; }
+}
+
+export function clearDraft(page, storage) {
+  try { (storage ?? globalThis.sessionStorage).removeItem(draftKey(page)); } catch { /* gone is gone */ }
+}

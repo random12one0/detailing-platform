@@ -42,7 +42,7 @@ import { useLocale } from "../hooks/useLocale.js";
 import LanguagePicker from "./LanguagePicker.jsx";
 import PlanRows from "./PlanRows.jsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { api } from "../lib/api.js";
 import { tenantHost } from "../lib/host.js";
@@ -57,7 +57,7 @@ import {
   bookingRefs, groupedWith, initialForm, retryConfirmation,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
-  visitorIdFor,
+  visitorIdFor, stepFromSearch, reachableStep, saveDraft, loadDraft, clearDraft,
 } from "./core.js";
 import StepServices from "./steps/StepServices.jsx";
 import StepExtras from "./steps/StepExtras.jsx";
@@ -161,11 +161,22 @@ function BookingFlow({ notFound = null }) {
   // Captured once, on mount, because `planId` itself changes when they pick.
   const fromLink = useRef(Boolean(params.get("plan"))).current;
 
-  const [step, setStep] = useState(0);
+  // ROADMAP 97.45 — this tab's unfinished booking, read once and keyed by the
+  // page's path. When there is one it wins over the remembered customer: it
+  // IS this booking.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const draftPage = location.pathname;
+  const [draft] = useState(() => loadDraft(draftPage));
   // The shape AND the three tenant defaults are the core's. Pre-filled from
   // this device's last booking, so a returning customer never retypes their
   // own name; empty for everybody else, exactly as before.
-  const [form, setForm] = useState(() => initialForm(settings, known));
+  const [form, setForm] = useState(() => ({ ...initialForm(settings, known), ...draft?.form }));
+  // ROADMAP 97.45 — THE STEP LIVES IN THE ADDRESS (`?step=N`, 1-based), so
+  // the phone's Back and Forward move between steps and a refresh lands on
+  // the same one. Never past a step that still has an unanswered question.
+  const wantedStep = stepFromSearch(params, STEPS.length);
+  const step = reachableStep(STEPS, wantedStep, { form, settings });
   const [quote, setQuote] = useState(null);
 
   /* ── ROADMAP 2.15, THE HALF THAT SURVIVED THE FIX ────────────────────────
@@ -246,7 +257,7 @@ function BookingFlow({ notFound = null }) {
   }, []);
   const [quoteError, setQuoteError] = useState("");
   const [quoting, setQuoting] = useState(false);
-  const [promoState, setPromoState] = useState({ checking: false, error: "", applied: null });
+  const [promoState, setPromoState] = useState({ checking: false, error: "", applied: draft?.promo ?? null });
   const [submitting, setSubmitting] = useState(false);
   // ROADMAP 97.64 — this press's booking refs, kept so a retry sends the same.
   const refs = useRef(null);
@@ -284,6 +295,8 @@ function BookingFlow({ notFound = null }) {
   useEffect(() => {
     if (status !== "ready" || defaultsApplied.current) return;
     defaultsApplied.current = true;
+    // 97.45: a restored draft already carries the customer's own choices.
+    if (draft) return;
     const d = initialForm(settings, null);
     setForm((f) => ({ ...f, serviceType: d.serviceType, travelZone: d.travelZone, vehicleSize: d.vehicleSize }));
   }, [status, settings]);
@@ -502,23 +515,51 @@ function BookingFlow({ notFound = null }) {
     document.querySelector(".bk-refusal")?.scrollIntoView({ block: "center" });
   };
 
+  // 97.45: Continue PUSHES a history entry (marked, so we know the entry
+  // under it is the previous step), so the phone's Back means "previous
+  // step". The page's own Back walks history the same way when it can, so
+  // the two Backs never disagree; otherwise (a refresh-opened tab, a
+  // corrected address) it replaces the entry in place.
   const go = (delta) => {
     setTried(false);
-    setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
-    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    focusHeading.current = true;
+    const to = Math.max(0, Math.min(STEPS.length - 1, step + delta));
+    if (delta < 0 && location.state?.bkStepFrom === to) { navigate(-1); return; }
+    const next = new URLSearchParams(params);
+    if (to > 0) next.set("step", String(to + 1)); else next.delete("step");
+    setParams(next, delta > 0 ? { state: { bkStepFrom: step } } : { replace: true });
   };
   // 97.47: a step change moves focus to the new step's heading, so a screen
-  // reader hears where it landed. Flagged by go() rather than keyed on `step`
-  // alone, so the first load never steals focus. preventScroll: the smooth
-  // scroll above does the moving; focus must not add a jump of its own.
-  const focusHeading = useRef(false);
+  // reader hears where it landed — after Continue/Back AND after the
+  // browser's own Back/Forward (97.45). Keyed on the step having CHANGED
+  // since the page was ready, so the first load and a refresh never steal
+  // focus. preventScroll: the smooth scroll does the moving.
+  const shownStep = useRef(null);
   const headingRef = useRef(null);
   useEffect(() => {
-    if (!focusHeading.current) return;
-    focusHeading.current = false;
-    headingRef.current?.focus({ preventScroll: true });
-  }, [step]);
+    if (status !== "ready" || confirmed) return;
+    if (shownStep.current !== null && shownStep.current !== step) {
+      setTried(false);
+      topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      headingRef.current?.focus({ preventScroll: true });
+    }
+    shownStep.current = step;
+  }, [status, step, confirmed]);
+
+  // 97.45: an address asking for a step that is not reachable yet (a shared
+  // link, or Forward after emptying a box) is corrected in place, not pushed.
+  useEffect(() => {
+    if (status !== "ready" || wantedStep === step) return;
+    const next = new URLSearchParams(params);
+    if (step > 0) next.set("step", String(step + 1)); else next.delete("step");
+    setParams(next, { replace: true });
+  }, [status, wantedStep, step, params, setParams]);
+
+  // 97.45: the draft follows every change, so a refresh keeps every answer.
+  // Not once the booking has landed — submit clears it.
+  useEffect(() => {
+    if (status !== "ready" || confirmed) return;
+    saveDraft(draftPage, { form, promo: promoState.applied });
+  }, [status, confirmed, draftPage, form, promoState.applied]);
 
   const submit = async () => {
     // Belt and braces: never submit without a server quote.
@@ -582,6 +623,8 @@ function BookingFlow({ notFound = null }) {
       // `quote.plan_id` rather than `planId` on purpose — it is the id the
       // SERVER resolved, so a retired plan is not carried forward.
       rememberCustomer(slug, form, quote?.plan_id);
+      // 97.45: the booking landed, so this tab's draft is done with.
+      clearDraft(draftPage);
       setConfirmed(r.duplicate ? retryConfirmation(r.booking, payloads[0], quote) : r.booking);
     } catch (e) {
       // ROADMAP 97.8 — THE PRICE MOVED (a rush fee whose cut-off passed while
@@ -938,7 +981,8 @@ function BookingFlow({ notFound = null }) {
                 if (id) next.set("plan", id); else next.delete("plan");
                 // `replace` so the back button still means "the previous
                 // STEP" rather than "undo the plan I just pressed".
-                setParams(next, { replace: true });
+                // 97.45: and keeps the step's history marker.
+                setParams(next, { replace: true, state: location.state });
               }} />
           </div>
         )}

@@ -31737,7 +31737,8 @@ decisions, not build jobs.
   - The platform pages and `/book/demo-detail` each carry an `og:image` that loads (200, an image type, at least 1200x630)
   - A tenant with no photo gets the fallback, not a broken link
 
-- [ ] **97.45 — The phone's Back button leaves the booking, and a refresh loses everything (P-7).**
+- [x] **97.45 — The phone's Back button leaves the booking, and a refresh loses everything (P-7).**
+  Done 2026-10-23 (Claude lane): each booking step is now in the address (?step=N, a Continue press adds a history entry and the page Back walks history), so the phone Back button goes to the previous step with every choice kept and Forward returns; the answers sit in this tab's sessionStorage (form + applied promo, keyed by page path) so a refresh returns to the same step, cleared when the booking lands; an address can never skip a step with an unanswered question; 97.47 focus now also moves on browser Back/Forward. scripts/booking-back-refresh.mjs passes 36/36 at 390/1440 and fails 28/28 on unfixed code (Back left the page to about:blank, refresh lost the step and name); create-booking was answered inside the browser, nothing written to the database; booking-step-focus.mjs 14/14; tests/booking-draft.test.mjs 5/5. sweep-booking-steps.mjs: axe clean, tap floor clean, but its date step with slots runs past the screen at 392 (114-158px) and 1440 (6px) on unfixed main too, so that red is not this item's. Shots .manager-shots/97.45/.
   The step lives only in React state (`app/src/book/BookingPage.jsx:170`) and step changes never touch history (`BookingPage.jsx:494-498`); nothing in progress is saved (`core.js:1584,1624` save only after a successful booking). Put each step in history (`?step=` with `pushState`) and keep the draft in `sessionStorage`.
   Acceptance criteria:
   - At step 5, Back returns to step 4 with every choice kept, and Forward returns to step 5
