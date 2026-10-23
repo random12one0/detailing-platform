@@ -32099,9 +32099,9 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
 
 ## Audit tab improvements (102.x)
 
-- [ ] **102.1 — The Audit tab chooses which AI and effort runs each audit job (Claude, ChatGPT or Muse), stops at usage lines Andrew sets and resumes by itself, with Muse money limits; all settings on the Audit page.**
+- [x] **102.1 — The Audit tab chooses which AI and effort runs each audit job (Claude, ChatGPT or Muse), stops at usage lines Andrew sets and resumes by itself, with Muse money limits; all settings on the Audit page.**
   Andrew asked 2026-10-22. Plan (not built): `C:\Users\rando\Downloads\claude\belt-staging\audit-tab\CHOOSER-PLAN.md`.
   Today every audit job uses a fixed model (Opus or Sonnet), only through Claude, and ignores usage limits.
   The plan: a rule-based chooser with an optional AI tie-break, an editable knowledge file (his plans and dates, every model, effort levels, lessons measured, the belt's Muse findings), usage stop lines per provider (default 90% of 5-hour, 80% of week) with automatic resume, "finish a run past the line if it is at least 80% done", Muse dollar limits (per job, run, day, month), a second checker on a different provider, and ChatGPT and Muse launchers carrying the belt's proven Muse setup and fence. The belt's own picker and the main Settings page are not changed.
   This is Control Room (belt) work, built in `belt-staging` by a supervised session, not by a product job in this repo.
-  NEEDS ANDREW: say "build the chooser" when you want it built; until then it is a plan only (his instruction 2026-10-22: "don't build yet, just plan").
+  DONE 2026-10-23 (Andrew: "build the audit chooser now"): built in belt-staging (7f13809, bd83b8b, f7d579d) and installed in the live Control Room. Audit tab → AI & limits shows who has room and every audit setting; Start offers Quick / Medium / Deep. Proved on real runs: Claude, ChatGPT and Muse each found problems that a different company confirmed; a Quick sweep of all 8 areas × 6 kinds (62 squares, $19.53 of plan usage, Muse $0.22) waited when ChatGPT hit its limit and carried on by itself when it reset. 28 audit tests pass; ui-check clean at 390/768/1440. Notes: `belt-staging/audit-tab/CHOOSER-PLAN.md` §10.
