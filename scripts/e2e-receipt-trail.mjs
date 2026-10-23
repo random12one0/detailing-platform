@@ -3,6 +3,8 @@
 //   node scripts/e2e-receipt-trail.mjs                 # the whole run
 //   node scripts/e2e-receipt-trail.mjs --headed        # watch it
 //   node scripts/e2e-receipt-trail.mjs --break=<id>    # sabotage one target
+//   BASE=http://localhost:5181 node scripts/e2e-receipt-trail.mjs --to=e2e@fixture.test
+//                                                      # another copy of the app, mail free
 //   node scripts/receipt.mjs receipts/e2e-receipt-trail.json
 //
 // ---------------------------------------------------------------------------
@@ -74,12 +76,16 @@ const ANON = process.env.SUPABASE_ANON_KEY;
 
 const SLUG = "demo-detail";
 const OWNER = demoOwner();
-const DASH = "http://localhost:5173";
+// The copy of the app to drive, read from BASE as e2e-booking.mjs does, so the
+// audit can point it at its test copy (ROADMAP 101.6). Unset: the dev server.
+const DASH = process.env.BASE || "http://localhost:5173";
 // Resend's own always-accepts simulator. The receipt in this run is a REAL
 // send to a REAL provider — an `@example.com` address is refused by
 // `send-email` before Resend is ever called, which would leave a `skipped` row
 // and prove nothing about a message that actually went out.
-const SINK = realMail("delivered@resend.dev",
+// `--to=` overrides it, as in e2e-booking.mjs: `--to=e2e@fixture.test` runs
+// free, and § 5 then says out loud that the provider leg went unproven.
+const SINK = process.argv.find((a) => a.startsWith("--to="))?.slice(5) ?? realMail("delivered@resend.dev",
   "§ 4 sends a real receipt so §§ 5 and 6 have a real row to find");
 // The subject `invoiceEmail` writes. Asserted as a FACT ABOUT THE PRODUCT and
 // not read back out of it: if the template stops calling this document a
@@ -105,9 +111,19 @@ if (!URL_ || !SERVICE || !ANON) {
   console.error("NOTHING ran and NO receipt was written. This is not a pass.");
   process.exit(2);
 }
-if (!URL_.includes("kguqylyzgyzfktkfnhjb")) {
-  console.error(`\nREFUSED — ${URL_} is not the development project. This script takes a payment and sends mail.`);
+// ROADMAP 101.6: this used to allow ONLY the platform project, which refused the
+// audit's test copy. The project it must never touch is the real business's
+// (the ref seed-demo.mjs refuses "under any flag"); mail is opt-in or --to=.
+if (URL_.includes("adtlnvihwrcqcasqcjwd")) {
+  console.error(`\nREFUSED — ${URL_} is the real business's project. This script takes a payment and sends mail.`);
   console.error("NOTHING ran and NO receipt was written.");
+  process.exit(2);
+}
+// Checked before § 1 pays for anything, so an unreachable copy is a SKIP that
+// says so, not a payment spent and a pile of screen failures.
+if (!(await fetch(DASH).then((r) => r.ok).catch(() => false))) {
+  console.error(`\nSKIPPED — nothing is serving ${DASH}. Start it with \`npm run dev --prefix app\`.`);
+  console.error("NOTHING ran and NO receipt was written. This is not a pass.");
   process.exit(2);
 }
 
@@ -355,8 +371,17 @@ try {
   // THE PROVIDER ID IS THE HALF OF "DID IT ARRIVE" THAT IS OURS: it means
   // Resend accepted the message and gave it a name. The other half is Resend
   // calling us back, and nothing here can make that happen — see the header.
-  check("the provider took it and named it", Boolean(receiptRow?.provider_id),
-    `status ${receiptRow?.status}, detail on the row`);
+  // A reserved-domain `--to=` (101.6) is skipped by `send-email` before Resend,
+  // so there is no provider id to ask for: ask that the row says `skipped`
+  // instead, and print that the provider leg went unproven.
+  if (/(^|\.)(test|invalid|localhost|example)$|^example\.(com|net|org)$/.test(SINK.split("@").pop().toLowerCase())) {
+    console.log(`  SKIPPED  the provider leg: ${SINK} is a reserved domain, so Resend was never asked`);
+    check("the row says the reserved address was skipped, not sent", receiptRow?.status === "skipped",
+      `status ${receiptRow?.status}`);
+  } else {
+    check("the provider took it and named it", Boolean(receiptRow?.provider_id),
+      `status ${receiptRow?.status}, detail on the row`);
+  }
   check("and it is filed against the customer, so the client record draws it",
     Boolean(receiptRow?.customer_id));
 

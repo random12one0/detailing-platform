@@ -4,6 +4,7 @@
 //   node scripts/e2e-browser-features.mjs             # the whole run
 //   node scripts/e2e-browser-features.mjs --headed    # watch it happen
 //   node scripts/e2e-browser-features.mjs --break=<id>
+//   BASE=http://localhost:5181 node scripts/e2e-browser-features.mjs   # another copy of the app
 //   node scripts/receipt.mjs receipts/e2e-browser-features.json
 //
 // ---------------------------------------------------------------------------
@@ -100,7 +101,9 @@ const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ANON = process.env.SUPABASE_ANON_KEY;
 
-const APP = "http://localhost:5173";
+// The copy of the app to drive, read from BASE as e2e-booking.mjs does, so the
+// audit can point it at its test copy (ROADMAP 101.6). Unset: the dev server.
+const APP = process.env.BASE || "http://localhost:5173";
 // THE DEMO BUSINESS IS FOUND BY ITS SLUG, NOT BY A UUID WRITTEN DOWN HERE.
 // This file carried `def6fa3f-…` until 2026-09-18, when FOUND.md caught it:
 // `seed-demo.mjs` rebuilds the demo tenant and a rebuilt row gets a NEW id, so
@@ -149,8 +152,11 @@ if (!URL_ || !SERVICE || !ANON) {
   console.error("NOTHING ran and NO receipt was written. This is not a pass.");
   process.exit(2);
 }
-if (!URL_.includes("kguqylyzgyzfktkfnhjb")) {
-  console.error(`\nREFUSED — ${URL_} is not the development project. This script takes a payment.`);
+// ROADMAP 101.6: this used to allow ONLY the platform project, which refused the
+// audit's test copy. The project it must never touch is the real business's
+// (the ref seed-demo.mjs refuses "under any flag"); the card is Stripe's test card.
+if (URL_.includes("adtlnvihwrcqcasqcjwd")) {
+  console.error(`\nREFUSED — ${URL_} is the real business's project. This script takes a payment.`);
   console.error("NOTHING ran and NO receipt was written.");
   process.exit(2);
 }
