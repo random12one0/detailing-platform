@@ -58,7 +58,7 @@
 // error branch, so a duplicate code — the single most likely failure on this
 // form — printed the error and wiped what had just been typed.
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { money } from "../../lib/format.js";
@@ -88,31 +88,42 @@ const USE_PRESETS = [[10, "10"], [25, "25"], [50, "50"], [100, "100"]];
 export default function Promos() {
   useAppLocale();
   const { business, settings, reload } = useBusiness();
-  const [codes, setCodes] = useState([]);
+  // ROADMAP 101.3 - `null` while loading, so a failed load and an empty list
+  // are no longer the same screen.
+  const [codes, setCodes] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [form, setForm] = useState({ code: "", type: "percentage", value: "", usage_limit: "", once_per_customer: false });
   const [sale, setSale] = useState({
     active: settings?.site_discount_active ?? false,
     percent: String(settings?.site_discount_percent ?? 0),
     label: settings?.site_discount_label ?? "",
   });
-  const [msg, setMsg] = useState(null);
+  // ROADMAP 101.3 - one message per button, drawn directly under the button
+  // that was pressed. A single shared message drew under the whole list, out
+  // of view at 390, so Add code and Save sale looked like they did nothing.
+  const [saleMsg, setSaleMsg] = useState(null);
+  const [codeMsg, setCodeMsg] = useState(null);
+  // { id, text } - a failed Activate/Deactivate, shown under that code's row.
+  const [rowErr, setRowErr] = useState(null);
   // Self-review 1 (101.8) - Billing's own `busy` shape, so a second press
   // while the save is in flight is refused, not sent twice.
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("promo_codes").select("*").eq("business_id", business.id).order("created_at", { ascending: false });
-    setCodes(data ?? []);
+    const { data, error } = await supabase.from("promo_codes").select("*").eq("business_id", business.id).order("created_at", { ascending: false });
+    setLoadFailed(Boolean(error));
+    setCodes(error ? [] : data ?? []);
   }, [business.id]);
 
   useEffect(() => { load(); }, [load]);
 
   const addCode = async () => {
     if (!form.code.trim() || !Number(form.value)) return;
-    setMsg(null);
+    setCodeMsg(null);
+    const code = form.code.trim().toUpperCase();
     const { error } = await supabase.from("promo_codes").insert({
       business_id: business.id,
-      code: form.code.trim().toUpperCase(),
+      code,
       type: form.type,
       value: Number(form.value),
       usage_limit: form.usage_limit === "" ? null : Number(form.usage_limit),
@@ -121,14 +132,23 @@ export default function Promos() {
     // **THE RESET USED TO RUN WHETHER OR NOT THE INSERT WORKED**, so the one
     // failure this form actually produces — a code that already exists — threw
     // away what had just been typed along with the error about it.
-    if (error) { setMsg({ ok: false, text: error.message }); return; }
-    setMsg({ ok: true, text: t("Code added.") });
+    // 23505 is the unique (business, code) constraint: say it in words, not
+    // the database's own "duplicate key value violates…".
+    if (error) {
+      setCodeMsg({ ok: false, text: error.code === "23505" ? t("You already have a code called {code}.", { code }) : error.message });
+      return;
+    }
+    setCodeMsg({ ok: true, text: t("Code added.") });
     setForm({ ...form, code: "", value: "" });
     load();
   };
 
   const toggleCode = async (c) => {
-    await supabase.from("promo_codes").update({ is_active: !c.is_active }).eq("id", c.id).eq("business_id", business.id);
+    setRowErr(null);
+    // ROADMAP 101.3 - the error used to be ignored, so a failed Deactivate
+    // looked like a button that did nothing.
+    const { error } = await supabase.from("promo_codes").update({ is_active: !c.is_active }).eq("id", c.id).eq("business_id", business.id);
+    if (error) setRowErr({ id: c.id, text: c.is_active ? t("Could not deactivate {code}. Try again.", { code: c.code }) : t("Could not activate {code}. Try again.", { code: c.code }) });
     load();
   };
 
@@ -140,13 +160,13 @@ export default function Promos() {
     // (the read-only preview guard throws during `update`) still clears the
     // flag and a later retry is permitted.
     await withBusy(setBusy, async () => {
-      setMsg(null);
+      setSaleMsg(null);
       const { error } = await supabase.from("business_settings").update({
         site_discount_active: sale.active,
         site_discount_percent: Number(sale.percent) || 0,
         site_discount_label: sale.label.trim() || null,
       }).eq("business_id", business.id);
-      setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
+      setSaleMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
       if (!error) reload();
     });
   };
@@ -185,7 +205,7 @@ export default function Promos() {
     form.once_per_customer ? t("once per customer") : null,
   ].filter(Boolean).join(" · ");
 
-  const live = codes.filter((c) => c.is_active).length;
+  const live = (codes ?? []).filter((c) => c.is_active).length;
 
   return (
     <>
@@ -213,6 +233,7 @@ export default function Promos() {
         )}
       </Group>
       <button className="btn" onClick={saveSale} disabled={saleSaveDisabled(sale, busy)} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
+      {saleMsg && <div className={saleMsg.ok ? "ok-box" : "error-box"} style={{ marginTop: "calc(-1 * var(--sp-4))", marginBottom: "var(--sp-5)" }}>{saleMsg.text}</div>}
 
       <Group title={t("Promo codes")}
         blurb={t("A word the customer types when booking. The sale above comes off first.")}>
@@ -285,17 +306,21 @@ export default function Promos() {
       <button className="btn" onClick={addCode}
         disabled={!form.code.trim() || !Number(form.value)}
         style={{ marginBottom: "var(--sp-5)" }}>{t("Add code")}</button>
+      {codeMsg && <div className={codeMsg.ok ? "ok-box" : "error-box"} style={{ marginTop: "calc(-1 * var(--sp-4))", marginBottom: "var(--sp-5)" }}>{codeMsg.text}</div>}
 
       {/* THE LIST IS A DIFFERENT SHAPE FROM THE TWO GROUPS ABOVE IT (law 1),
           and it is the shape Catalog and Business info already use. The count
           is in the heading because "how many of these are live" is the one
           question this list answers that no single row can. */}
-      {codes.length > 0 && (
+      {loadFailed && <div className="error-box">{t("Could not load your promo codes.")}</div>}
+      {codes?.length === 0 && !loadFailed && <p className="muted">{t("No codes yet.")}</p>}
+      {codes?.length > 0 && (
         <div className="tight">
           <span className="label">{t("Your codes · {n} live", { n: live })}</span>
           <div className="credlist">
             {codes.map((c) => (
-              <div className={`menu-row${c.is_active ? "" : " off"}`} key={c.id}>
+              <Fragment key={c.id}>
+              <div className={`menu-row${c.is_active ? "" : " off"}`}>
                 <span className="menu-name">
                   {/* A promo code is USER DATA with no spaces in it — the case
                       `.member-id` was written for. `.n` ellipses rather than
@@ -314,12 +339,12 @@ export default function Promos() {
                   {c.is_active ? t("Deactivate") : t("Activate")}
                 </button>
               </div>
+              {rowErr?.id === c.id && <div className="error-box">{rowErr.text}</div>}
+              </Fragment>
             ))}
           </div>
         </div>
       )}
-
-      {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
     </>
   );
 }
