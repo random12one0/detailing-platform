@@ -364,6 +364,7 @@ were made more than once.
 - **Supervision 2026-10-21** — recovery-exhausted holds must retain reviewer findings; no accepted work since the last pass; inbox decisions retained without another owner question.
 - **Supervision 2026-10-21 evening** — one landed sale fix retained; a disconnected helper is capacity, not a merge decision; backup proof remains open on two reproduced checker faults.
 - **Supervision 2026-10-22 — executable proof placement and retained closures** — verified merged retention and the earlier sale fix; clarify the test execution boundary after 98.4 was refused, preserving its safety assertions.
+- **Roadmap 97.61 — founding prices stay inline; the lookup-key module is deleted** — Andrew 2026-10-23: delete, as recommended. Supersedes the 2026-09-14 lookup-key plan, which was never wired in. Existing subscribers keep their price because Stripe does; the founding figures are pinned by `tests/landing-pricing.test.mjs` test 12.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19292,3 +19293,15 @@ and docs/supervision-2026-10-21-evening.md.
 97.28 stays ticked after running the copied prune shell, the repaired browser checker, and an independent legal-page walk. 101.8 stays ticked after a current-main browser recheck. Private-workflow installation remains an Andrew DO action; a local implementation receipt does not prove installation. Details and reproducible commands are in docs/VERIFIED.md and docs/supervision-2026-10-22.md.
 
 98.4 stays open: its held test launches Chromium, which the belt refuses to execute, and the sign-out check leaves subscription cleanup unguarded. The taskTemplate now explicitly places browser/shell execution under scripts/ and requires retaining permission, audit and cleanup assertions when retargeting an authorized check. The same paragraph was added to the installed and staging configs; staging commit e91a17f contains only that paragraph, leaving the existing demo-backend edits uncommitted. The brief check catches deletion of the paragraph. No reasoning, model, gate, blocked phrase, cadence or risky-stop change is justified by this finding. Reconsider the brief if a later job still places program execution in tests despite receiving this instruction; do not weaken the refusal.
+
+## Roadmap 97.61 — founding prices stay inline; the lookup-key module is deleted
+
+**Andrew 2026-10-23: delete, as recommended** ("do whatever you recommend", in chat). `supabase/functions/_shared/stripePrices.ts` and its only runtime user `scripts/check-stripe-prices.mjs` are gone, along with § 22 of `tests/platform-billing.test.mjs` that pinned its key map.
+
+That module carried a 2026-09-14 plan to price subscriptions from Stripe lookup keys so a founding price could not be re-priced by editing a constant. It was never wired in: no edge function imported it, and `platform-billing` has always sent inline `price_data` from `PRICES` in `_shared/platformBilling.ts`. This ruling supersedes that plan.
+
+**Why the "locked for the life of the account" promise still holds.** `platform-billing` creates a subscription once with inline `price_data`; Stripe stores that as the subscription's own price and charges it at every renewal. The only later calls on a subscription set `cancel_at_period_end`, which does not touch its price. So editing `PRICES` (or the owner's `platform_settings.prices` override) moves only NEW checkouts, never someone already paying.
+
+**What stops a careless edit to the founding offer.** `tests/landing-pricing.test.mjs` test 12 pins the figures themselves — $499 setup, $40 a month, $400 a year, $50 month to month — in both `pricing.js` (what /pricing prints) and `PRICES` (what billing charges), and goes red if the deleted module or any reference to it returns under `supabase/functions` or `scripts`. Test 6 still pins the ladder's rules; test 12 is the deliberate exception that pins numbers. Each of the four checks was broken on purpose and went red (founding monthly 45 in `PRICES`, setup 599 in `pricing.js`, the file restored, an import added to `platform-billing/index.ts`).
+
+No edge function's deployed code changes: the deleted file was in no function's bundle.

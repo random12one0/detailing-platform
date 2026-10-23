@@ -836,5 +836,35 @@ console.log("\n9. no price is shown before it is known (roadmap 8.7, F-009)");
   check("7.3 (d) the payment choice is inside the plan-one card", from > 0 && /className="ladder"/.test(web));
 }
 
+// ROADMAP 97.61 — THE FOUNDING FIGURES, PINNED AS FIGURES. Test 6 pins the
+// ladder's RULES on purpose, and the platform-billing suite ties
+// `PRICES` to `PRICING`; neither notices both files being moved together.
+// Andrew ruled 2026-10-23 to keep inline `price_data` and delete the unused
+// Stripe lookup-key module, so what keeps the founding offer's numbers fixed is
+// this test: changing one has to be a deliberate edit here too. (People
+// already paying are safe either way — Stripe keeps charging a subscription
+// the amount it was created with; these figures move only NEW checkouts.)
+console.log("\ntest 12: the founding figures are pinned, and inline prices are the only source");
+{
+  const { readFileSync, readdirSync, existsSync } = await import("node:fs");
+  const { PRICES } = await import("../supabase/functions/_shared/platformBilling.ts");
+  const FOUNDING = { setup: 499, monthly: 40, annual: 400, monthToMonth: 50 };
+  const same = (o) => !!o && Object.keys(o).length === 4 && Object.keys(FOUNDING).every((k) => o[k] === FOUNDING[k]);
+  check("12a · pricing.js founding = $499 / $40 / $400 / $50", same(PRICING.founding), JSON.stringify(PRICING.founding));
+  check("12b · platformBilling.ts PRICES.founding = $499 / $40 / $400 / $50", same(PRICES.founding), JSON.stringify(PRICES.founding));
+  check("12c · the unused lookup-key module stays deleted",
+    !existsSync("supabase/functions/_shared/stripePrices.ts") && !existsSync("scripts/check-stripe-prices.mjs"));
+  const files = [];
+  const walk = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) {
+    const p = `${d}/${e.name}`;
+    if (e.isDirectory()) { if (e.name !== "node_modules") walk(p); }
+    else if (/\.(ts|js|mjs)$/.test(e.name)) files.push(p);
+  } };
+  walk("supabase/functions"); walk("scripts");
+  const users = files.filter((f) => /stripePrices|LOOKUP_KEYS|priceKeysFor/.test(readFileSync(f, "utf8")));
+  check("12d · nothing in supabase/functions or scripts brings it back",
+    files.length > 100 && users.length === 0, `${files.length} files scanned; users: ${users.join(", ")}`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
