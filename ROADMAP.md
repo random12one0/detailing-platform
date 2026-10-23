@@ -31752,7 +31752,7 @@ decisions, not build jobs.
   - At step 5, Back returns to step 4 with every choice kept, and Forward returns to step 5
   - A refresh at step 5 returns to step 5 with the draft intact; a completed booking clears the draft
   - `node scripts/sweep-booking-steps.mjs` passes at all its sizes
-  Not met at landing (2026-10-23, 3c2286fc): the sweep still fails the calendar step's fit once times show, at 392 and 1440, on unchanged main too; carried by 97.94.
+  Not met at landing (2026-10-23, 3c2286fc); met by 97.94 (3a6ea59b): `node scripts/sweep-booking-steps.mjs` now exits 0, the calendar step fits with times showing at all four sizes.
 
 - [x] **97.46 — Calendar days read to a screen reader as just "17, button" (P-10).**
   Each calendar day on the booking page now tells a screen reader its full date in the page's language ("Friday, October 23" / "viernes, 23 de octubre") and closed days say they are unavailable; checked live at 390 and 1440 wide in English and Spanish (all OK, red with the labels stripped), screenshots in .manager-shots/97.46/.
