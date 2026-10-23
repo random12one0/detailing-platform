@@ -14184,6 +14184,10 @@ requested.
   Split on 2026-10-10 because this entry is 669 lines
   long and no single session was finishing it.
 
+  **ANDREW, 2026-10-23:** Step 11 done in the 2026-10-23 release: 20261010020000_action_log_invites.sql applied and invite-user published. On the history question: no, not yet.
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
 - [x] **4.1a — Correct the two Decline confirmation button weights**
   Make the Today request-card and pending job-record Decline confirmations use a ringed, non-primary confirmation action. This covers only the visual livery regression; it leaves audit history and the remaining action sweep to later pieces.
   Part 1 of 4 of item 4.1, split out so it can be
