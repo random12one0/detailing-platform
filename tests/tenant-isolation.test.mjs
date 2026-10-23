@@ -19,7 +19,10 @@
 //  8. An anonymous visitor cannot enumerate B's services, prices, or hours.
 //  9. Two simultaneous bookings for the same slot: exactly one succeeds.
 // 10. A booking ending exactly when another begins is rejected.
-// 11. Changing A's buffer from 60 to 0 does not affect B's availability.
+// 11. Changing A's buffer from 60 to 0 does not touch B's buffer setting.
+//     (Until ROADMAP 100.5 this also probed a database availability function that
+//     disagreed with the booking engine; it was dropped. Availability itself is
+//     validateSlot / available-slots, tested by tests/booking-engine.test.mjs.)
 // 12. Two businesses in different timezones each calculate correctly,
 //     including across a daylight-saving boundary.
 
@@ -352,11 +355,6 @@ for (const table of ["services", "business_hours", "business_branding", "promo_c
     key: ANON, jwt: ANON, body: { p_slug: "phase1-nope" },
   });
   check("unknown slug returns null", unknown.data === null);
-  const probe = await rest("POST", "/rest/v1/rpc/is_slot_available", {
-    key: ANON, jwt: ANON,
-    body: { p_business_id: B.id, p_start: "2026-09-20T14:30:00Z", p_end: "2026-09-20T15:00:00Z" },
-  });
-  check("anon cannot probe calendars via is_slot_available", probe.status === 401 || probe.status === 403 || probe.status === 404, `${probe.status}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -402,34 +400,10 @@ console.log("test 10: back-to-back booking (end == start) is rejected");
 
 console.log("test 11: A's buffer change never touches B");
 {
-  // Both businesses get a booking at the same absolute time.
-  await svc.post("/rest/v1/bookings", [
-    { business_id: A.id, customer_name: "BufA", customer_phone: "555-0104",
-      start_at: "2026-09-13T17:00:00Z", end_at: "2026-09-13T19:00:00Z", service_type: "mobile" },
-    { business_id: B.id, customer_name: "BufB", customer_phone: "555-0105",
-      start_at: "2026-09-13T17:00:00Z", end_at: "2026-09-13T19:00:00Z", service_type: "mobile" },
-  ]);
-  const slot = { p_start: "2026-09-13T19:30:00Z", p_end: "2026-09-13T20:30:00Z" };
-
-  const before = await rest("POST", "/rest/v1/rpc/is_slot_available", {
-    key: ANON, jwt: userA.jwt, body: { p_business_id: A.id, ...slot },
-  });
-  check("A: slot inside 60-min buffer is unavailable", before.data === false, JSON.stringify(before.data));
-
   const patch = await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, {
     key: ANON, jwt: userA.jwt, body: { buffer_minutes: 0 },
   });
   check("A's owner can update A's settings", patch.status === 200 && patch.data?.length === 1, `${patch.status}`);
-
-  const after = await rest("POST", "/rest/v1/rpc/is_slot_available", {
-    key: ANON, jwt: userA.jwt, body: { p_business_id: A.id, ...slot },
-  });
-  check("A: same slot now available with buffer 0", after.data === true, JSON.stringify(after.data));
-
-  const bStill = await rest("POST", "/rest/v1/rpc/is_slot_available", {
-    body: { p_business_id: B.id, ...slot },
-  });
-  check("B: same slot still blocked by B's 60-min buffer", bStill.data === false, JSON.stringify(bStill.data));
 
   const bSettings = await svc.get(`/rest/v1/business_settings?business_id=eq.${B.id}&select=buffer_minutes`);
   check("B's buffer setting untouched", bSettings.data?.[0]?.buffer_minutes === 60);
