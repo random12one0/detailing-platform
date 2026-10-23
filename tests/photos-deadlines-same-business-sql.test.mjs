@@ -188,8 +188,8 @@ t("5 · each pair key is load-bearing: removing one lets that column, and only t
 // TODAY THE OLD SINGLE-COLUMN KEYS MASK THIS: they fire first and clear the booking column, so the pair key's own
 // delete rule never acts (measured: plain `set null` and `cascade` both leave the deadline intact while they
 // exist). The pair key's rule is what decides the day somebody drops those keys as redundant, so the case drops them.
-const dropOld = "alter table public.maintenance_deadlines drop constraint maintenance_deadlines_booking_id_fkey;"
-  + " alter table public.maintenance_deadlines drop constraint maintenance_deadlines_last_done_booking_id_fkey;";
+const dropOld = "alter table public.maintenance_deadlines drop constraint if exists maintenance_deadlines_booking_id_fkey;"
+  + " alter table public.maintenance_deadlines drop constraint if exists maintenance_deadlines_last_done_booking_id_fkey;";
 const ruleAs = (rule) => {
   const RULE = /on delete set null \((booking_id|last_done_booking_id)\);/g;
   assert.equal((SQL.match(RULE) ?? []).length, 2, "the migration no longer has two column-list rules to sabotage");
