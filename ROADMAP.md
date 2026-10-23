@@ -924,6 +924,13 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - `tests/booking-meta.test.mjs` shows a booking page's head carrying the business's photo, its logo when it has no photo, and `og-tenant.png` when it has neither
   - A failed lookup still serves the page unchanged
+- [ ] **97.94 — Once times are showing, the booking calendar step runs past the screen (found by 97.45 + 97.49).**
+  `node scripts/sweep-booking-steps.mjs` reports the calendar step overflowing the viewport after a day is picked and its
+  time slots render, at 392 and 1440 wide; it fails the same way on main before 97.45 and 97.49. Lay the step out so the
+  calendar, the slots and the fixed bar fit (or the slots scroll inside their own bounded box, the 3.1a pattern), phone first.
+  Acceptance criteria:
+  - `node scripts/sweep-booking-steps.mjs` passes its fit check on the calendar step with slots showing, at all its sizes
+  - Every slot can still be reached and pressed above the fixed bar (hit test, not bounding rect)
 - [x] **97.92 — Example site ex3: a card scrolled past quickly can stay shown while off screen (found by 97.90).**
   In `docs/tenant-sites/` ex3's motion script (served as `/ex3/index.1.js` and `/ex3/prices.1.js`), `pass()` schedules a card's reveal with `setTimeout` when it enters the screen. If the card leaves again before the timer fires, the "no change" early return skips the `clearTimeout`, so the timer still adds `rv-in` to a card that is off screen. Andrew's rule for these sites is that an animation plays every time it comes back into view; that card will not replay. Measured by `scripts/example-scripts-same-effect.mjs` on `/ex3/prices.html` at 1440 when it walked the page 300px every 40ms: `ARTICLE class=lit.pack.pick` was `rv-in` on one side and `rv-hidden` on the other, and the sides swapped between two runs. Fix: clear the pending timer when a card is no longer seen, even if its class has not changed yet.
   Acceptance criteria:
@@ -31744,6 +31751,7 @@ decisions, not build jobs.
   - At step 5, Back returns to step 4 with every choice kept, and Forward returns to step 5
   - A refresh at step 5 returns to step 5 with the draft intact; a completed booking clears the draft
   - `node scripts/sweep-booking-steps.mjs` passes at all its sizes
+  Not met at landing (2026-10-23, 3c2286fc): the sweep still fails the calendar step's fit once times show, at 392 and 1440, on unchanged main too; carried by 97.94.
 
 - [x] **97.46 — Calendar days read to a screen reader as just "17, button" (P-10).**
   Each calendar day on the booking page now tells a screen reader its full date in the page's language ("Friday, October 23" / "viernes, 23 de octubre") and closed days say they are unavailable; checked live at 390 and 1440 wide in English and Spanish (all OK, red with the labels stripped), screenshots in .manager-shots/97.46/.
