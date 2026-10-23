@@ -3344,6 +3344,16 @@ export const appEs = {
   "Remove this receipt? The photo is deleted and the space goes back on your allowance.":
     "¿Quitar este recibo? La foto se borra y el espacio vuelve a tu límite.",
   "The receipt was not removed.": "El recibo no se quitó.",
+  // ROADMAP 101.1: a saved expense opens again to be corrected or deleted.
+  "Edit expense": "Editar gasto",
+  "The expense was not saved.": "El gasto no se guardó.",
+  "Deleting this expense": "Eliminar este gasto",
+  "Deleting takes it out of your totals and the accountant export, and deletes its receipt photo if it has one. It cannot be undone.":
+    "Eliminarlo lo quita de tus totales y de tu exportación contable, y borra la foto de su recibo si tiene una. No se puede deshacer.",
+  "Delete expense": "Eliminar gasto",
+  "Delete {what} from your expenses?": "¿Eliminar {what} de tus gastos?",
+  "Yes, delete it": "Sí, eliminarlo",
+  "The expense was not deleted.": "El gasto no se eliminó.",
   "That receipt is still sending. Give it a minute and check again.":
     "Ese recibo todavía se está enviando. Dale un minuto y vuelve a revisar.",
 };

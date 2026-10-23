@@ -244,6 +244,7 @@ export default function Money({ onGo }) {
   const [visits, setVisits] = useState([]);
   const [extrasError, setExtrasError] = useState("");
   const [adding, setAdding] = useState(false);
+  const [fixing, setFixing] = useState(null);   // ROADMAP 101.1: the saved expense open for correcting
   // ROADMAP 8.10 — the dealership job, logged after the fact with no
   // automatic pricing. It lives on Money rather than on Today because what
   // the detailer is recording is what they were PAID; the job itself is
@@ -1004,8 +1005,15 @@ export default function Money({ onGo }) {
             {shownExpenses.map((e, i) => (
               <div key={e.id}>
                 {i > 0 && <hr className="rule tight" />}
-                <div className="row top between">
-                  <div>
+                {/* ROADMAP 101.1: THE ROW OPENS THE SAME SHEET, FILLED, so a
+                    $1,890 typed for $189 can be put right. The tap is on the
+                    row; the keyboard control is the text block, because the
+                    receipt thumbnail inside the row is a button of its own and
+                    one button may not hold another. */}
+                <div className="row top between" style={{ cursor: "pointer" }}
+                  onClick={() => setFixing(e)}>
+                  <div role="button" tabIndex={0}
+                    onKeyDown={(k) => { if (k.key === "Enter" || k.key === " ") { k.preventDefault(); setFixing(e); } }}>
                     <div className="body">{e.description}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
                       {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {categoryWord(e.category, getAppLocale())}
@@ -1020,7 +1028,7 @@ export default function Money({ onGo }) {
                       thumbnail the size of a button would out-weigh the figure
                       beside it, which is what a person actually reads here. */}
                   {e.receipt_path && receiptUrls[e.receipt_path] && (
-                    <button className="receipt-thumb" onClick={() => { setReceiptErr(""); setViewing(e); }}
+                    <button className="receipt-thumb" onClick={(c) => { c.stopPropagation(); setReceiptErr(""); setViewing(e); }}
                       aria-label={t("Open the receipt")}>
                       <img src={receiptUrls[e.receipt_path]} alt="" />
                     </button>
@@ -1065,12 +1073,14 @@ export default function Money({ onGo }) {
         <ExpenseModal onClose={() => setAdding(false)}
           onSaved={() => { setAdding(false); loadExtras(); }} />
       )}
+      {fixing && (
+        <ExpenseModal expense={fixing} onClose={() => setFixing(null)}
+          onSaved={() => { setFixing(null); loadExtras(); }} />
+      )}
       {/* ── ROADMAP 9.20 — THE RECEIPT, AND THE ONE PLACE REMOVE BELONGS ───
           **The handover put Remove in `ExpenseModal.jsx` and that sheet cannot
-          hold it:** it is add-only — `Money.jsx` renders it with no expense
-          prop and there is no way to reopen a saved one — so a Remove there
-          would have needed an edit mode this item does not ask for. Said out
-          loud rather than quietly re-scoped.
+          hold it:** it was add-only then. ROADMAP 101.1 has since given it an
+          edit mode (tap a row), and the receipt still lives here.
           **Here is the better home anyway:** the detailer is looking at the
           photograph they are about to delete. A Remove on the list row would
           be a destructive tap beside a money figure, aimed at something they

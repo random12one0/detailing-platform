@@ -23,7 +23,9 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
 import Sheet from "./Sheet.jsx";
-import { addReceipt } from "../lib/receipts.js";
+import { addReceipt, removeReceipt } from "../lib/receipts.js";
+import { money } from "../lib/format.js";
+import ConfirmTap from "./ConfirmTap.jsx";
 import { fullWords } from "../lib/photo-rules.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -76,15 +78,25 @@ export const CATEGORY_WORDS = {
 // so an audit of that file will not see them.** `FOUND.md` records it.
 export const categoryWord = (c, lang) => CATEGORY_WORDS[c]?.[lang === "es" ? "es" : "en"] ?? c;
 
-export default function ExpenseModal({ onClose, onSaved }) {
+// ROADMAP 101.1: `expense` given = the same sheet opened on a saved row, filled
+// with what was saved, with Save changes and a confirmed Delete. Without it the
+// sheet adds, exactly as before.
+export default function ExpenseModal({ expense = null, onClose, onSaved }) {
   useAppLocale();
   const { business } = useBusiness();
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState(null);
-  const [customName, setCustomName] = useState("");
-  const [showMore, setShowMore] = useState(false);
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(todayLocal(business.timezone));
+  // A saved category that is not one of the five is the detailer's own name,
+  // which this sheet keeps under "Other" (see the head of this file).
+  const ownName = expense && !CATEGORIES.includes(expense.category);
+  const [amount, setAmount] = useState(expense ? String(expense.amount) : "");
+  const [category, setCategory] = useState(expense ? (ownName ? "other" : expense.category) : null);
+  const [customName, setCustomName] = useState(ownName ? expense.category : "");
+  // Editing opens the note and date, so every saved value is on screen.
+  const [showMore, setShowMore] = useState(!!expense);
+  // A note left empty was saved AS the category; showing it back as a typed note
+  // would freeze the old category name into the row if the category changes.
+  const [description, setDescription] = useState(
+    expense && expense.description !== expense.category ? expense.description : "");
+  const [date, setDate] = useState(expense?.date ?? todayLocal(business.timezone));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   // Survey finding 6. The file is HELD until the expense exists, because the
@@ -109,7 +121,8 @@ export default function ExpenseModal({ onClose, onSaved }) {
   }, [savedNoReceipt]);
   const amountRef = useRef(null);
 
-  useEffect(() => { amountRef.current?.focus(); }, []);
+  // Only when adding: on a phone the keypad would cover the saved values.
+  useEffect(() => { if (!expense) amountRef.current?.focus(); }, [expense]);
 
   // What actually gets stored. A typed name IS the category — that is what
   // puts it in the ledger row, the "where it went" bars and the export
@@ -122,16 +135,23 @@ export default function ExpenseModal({ onClose, onSaved }) {
     if (!(Number(amount) > 0) || !category) return;
     setBusy(true);
     setError("");
-    const { data: row, error: err } = await supabase.from("expenses").insert({
-      business_id: business.id,
+    const values = {
       date,
       category: finalCategory,
       description: description.trim() || finalCategory,
       amount: Number(amount),
-      payment_method: "unspecified",
-    }).select().single();
+    };
+    // `.single()` on the update answers an error when no row changed (a policy
+    // that refused it says nothing otherwise), so a refused edit is never shown
+    // as saved.
+    const { data: row, error: err } = expense
+      ? await supabase.from("expenses").update(values)
+        .eq("id", expense.id).eq("business_id", business.id).select().single()
+      : await supabase.from("expenses").insert({
+        ...values, business_id: business.id, payment_method: "unspecified",
+      }).select().single();
     if (err) {
-      setError(err.message);
+      setError(expense && err.code === "PGRST116" ? t("The expense was not saved.") : err.message);
       setBusy(false);
       return;
     }
@@ -194,8 +214,30 @@ export default function ExpenseModal({ onClose, onSaved }) {
     onSaved?.();
   };
 
+  // ROADMAP 101.1: deleting. THE RECEIPT FIRST, AND ONLY THEN THE ROW, for the
+  // reason `removeReceipt` gives (9.20): the other order leaves the photo in the
+  // bucket with nothing pointing at it, still counted against the allowance.
+  // If the receipt will not go, the expense stays and the sentence says why.
+  const remove = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await removeReceipt({ expense, businessId: business.id });
+      const { data, error: err } = await supabase.from("expenses").delete()
+        .eq("id", expense.id).eq("business_id", business.id).select("id");
+      if (err) throw err;
+      // A delete the policy refuses answers no rows and no error.
+      if (!data?.length) throw new Error(t("The expense was not deleted."));
+    } catch (e) {
+      setError(e?.message || t("The expense was not deleted."));
+      setBusy(false);
+      return;
+    }
+    onSaved?.();
+  };
+
   return (
-    <Sheet onClose={onClose} title={t("Add expense")} peek={62}>
+    <Sheet onClose={onClose} title={expense ? t("Edit expense") : t("Add expense")} peek={62}>
 
         <label className="field">
           <span>{t("Amount")}</span>
@@ -263,7 +305,10 @@ export default function ExpenseModal({ onClose, onSaved }) {
                 receipt — pressing it again would insert a SECOND expense,
                 which is why the button below is Close. Offering a file dialog
                 that leads nowhere is worse than saying the thing plainly. */}
-            {savedNoReceipt ? (
+            {/* A saved expense that already has its receipt shows it on the
+                Money list, where it is opened and removed (9.20); a second
+                picker here would be refused by the receipt door. */}
+            {expense?.receipt_path ? null : savedNoReceipt ? (
               <p className="quiet" style={{ marginTop: 4 }}>{t("Receipt not attached.")}</p>
             ) : (
               <label className="btn" style={{ cursor: "pointer", marginTop: 4 }}>
@@ -284,10 +329,32 @@ export default function ExpenseModal({ onClose, onSaved }) {
         ) : (
         <button className="btn primary" style={{ marginTop: 12 }}
           disabled={busy || !(Number(amount) > 0) || !category} onClick={save}>
-          {busy ? t("Saving") : t("Save expense")}
+          {busy ? t("Saving") : expense ? t("Save changes") : t("Save expense")}
         </button>
         )}
         </div>
+
+        {/* THE JOB PAGE'S DESTRUCTIVE PATTERN (docs/screen-rules.md): behind a
+            fold, a sentence saying what it does, `.btn.danger`, and a question
+            naming WHICH expense before anything is deleted. */}
+        {expense && !savedNoReceipt && (
+          <details className="disclose" style={{ marginTop: 16 }}>
+            <summary>{t("Deleting this expense")}</summary>
+            <p className="quiet" style={{ margin: "0 0 10px" }}>
+              {t("Deleting takes it out of your totals and the accountant export, and deletes its receipt photo if it has one. It cannot be undone.")}
+            </p>
+            <ConfirmTap
+              className="btn danger"
+              confirmClassName="btn danger"
+              disabled={busy}
+              label={t("Delete expense")}
+              question={t("Delete {what} from your expenses?",
+                { what: `${expense.description} (${money(expense.amount)})` })}
+              confirmLabel={t("Yes, delete it")}
+              onConfirm={remove}
+            />
+          </details>
+        )}
     </Sheet>
   );
 }
