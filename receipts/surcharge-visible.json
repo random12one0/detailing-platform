@@ -1,9 +1,9 @@
 {
-  "git_sha": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
-  "git_sha_started": "6f7a020b8b8658c232b60b5f05dc6f92af71b16f",
+  "git_sha": "0673ea8bb214b1ba541824821608ab166f3d2503",
+  "git_sha_started": "0673ea8bb214b1ba541824821608ab166f3d2503",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T16:09:12.914Z",
+  "finished_at": "2026-10-23T11:15:54.120Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -126,15 +126,15 @@
       "320x844 weekend, first slot: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
       "320x844 weekend, last slot: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
       "320x844 weekday control: no day $65 → day $65 → time $65 · «nothing named»",
-      "1440x900 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "1440x900 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "1440x900 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»",
-      "392x844 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "392x844 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "392x844 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»",
-      "320x844 same-day, first slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "320x844 same-day, last slot: no day $65 → today $115 → time $115 · early «Weekend rate · +$30 / Short notice · +$20»",
-      "320x844 next-day refusal: the 13: no day $65 → day $65 → time $65 · early «nothing» · late «nothing»"
+      "1440x900 same-day, first slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "1440x900 same-day, last slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "1440x900 next-day refusal: the 24: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
+      "392x844 same-day, first slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "392x844 same-day, last slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "392x844 next-day refusal: the 24: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»",
+      "320x844 same-day, first slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "320x844 same-day, last slot: no day $65 → today $85 → time $85 · early «Short notice · +$20»",
+      "320x844 next-day refusal: the 24: no day $65 → day $95 → time $95 · early «Weekend rate · +$30» · late «Weekend rate · +$30»"
     ],
     "delta_floor": 2,
     "canary_runs": 5,
@@ -147,7 +147,7 @@
     "stand_in": null
   },
   "check_id": "surcharge-visible",
-  "started_at": "2026-10-10T15:57:31.065Z",
+  "started_at": "2026-10-23T11:04:37.571Z",
   "status": "pass",
   "expected_targets": 39,
   "discovered_targets": 39,
@@ -161,69 +161,79 @@
     "id": "below-the-chips-and-stripped-from-the-answer",
     "observed_failure": true,
     "problems": [
-      "order run 1: early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-      "order run 1: early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor",
-      "order run 2: early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-      "order run 2: early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor",
-      "order run 3: early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-      "order run 3: early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor",
-      "order run 4: early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-      "order run 4: early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor",
-      "order run 5: early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-      "order run 5: early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor",
-      "stripped run 1: early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+      "order run 1: early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+      "order run 1: early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 1: visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+      "order run 1: painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 2: early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+      "order run 2: early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 2: visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+      "order run 2: painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 3: early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+      "order run 3: early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 3: visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+      "order run 3: painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 4: early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+      "order run 4: early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 4: visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+      "order run 4: painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 5: early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+      "order run 5: early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "order run 5: visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+      "order run 5: painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+      "stripped run 1: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
       "stripped run 1: early-visible",
       "stripped run 1: early-painted",
       "stripped run 1: named no surcharge line was rendered after the time was chosen either",
       "stripped run 1: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 1: visible",
       "stripped run 1: painted",
-      "stripped run 2: early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+      "stripped run 2: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
       "stripped run 2: early-visible",
       "stripped run 2: early-painted",
       "stripped run 2: named no surcharge line was rendered after the time was chosen either",
       "stripped run 2: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 2: visible",
       "stripped run 2: painted",
-      "stripped run 3: early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+      "stripped run 3: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
       "stripped run 3: early-visible",
       "stripped run 3: early-painted",
       "stripped run 3: named no surcharge line was rendered after the time was chosen either",
       "stripped run 3: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 3: visible",
       "stripped run 3: painted",
-      "stripped run 4: early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+      "stripped run 4: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
       "stripped run 4: early-visible",
       "stripped run 4: early-painted",
       "stripped run 4: named no surcharge line was rendered after the time was chosen either",
       "stripped run 4: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 4: visible",
       "stripped run 4: painted",
-      "stripped run 5: early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+      "stripped run 5: early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
       "stripped run 5: early-visible",
       "stripped run 5: early-painted",
       "stripped run 5: named no surcharge line was rendered after the time was chosen either",
       "stripped run 5: adds-up the bar went $65 → $95, a rise of 30.00, while the page named 0.00",
       "stripped run 5: visible",
       "stripped run 5: painted",
-      "late-rush run 1: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-      "late-rush run 1: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 1: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+      "late-rush run 1: early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
       "late-rush run 1: early-visible",
       "late-rush run 1: early-painted",
-      "late-rush run 2: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-      "late-rush run 2: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 2: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+      "late-rush run 2: early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
       "late-rush run 2: early-visible",
       "late-rush run 2: early-painted",
-      "late-rush run 3: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-      "late-rush run 3: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 3: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+      "late-rush run 3: early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
       "late-rush run 3: early-visible",
       "late-rush run 3: early-painted",
-      "late-rush run 4: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-      "late-rush run 4: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 4: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+      "late-rush run 4: early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
       "late-rush run 4: early-visible",
       "late-rush run 4: early-painted",
-      "late-rush run 5: rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-      "late-rush run 5: early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+      "late-rush run 5: rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+      "late-rush run 5: early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
       "late-rush run 5: early-visible",
       "late-rush run 5: early-painted"
     ],
@@ -233,8 +243,10 @@
         "run": 1,
         "caught": true,
         "problems": [
-          "early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-          "early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor"
+          "early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+          "early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+          "visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor"
         ]
       },
       {
@@ -242,8 +254,10 @@
         "run": 2,
         "caught": true,
         "problems": [
-          "early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-          "early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor"
+          "early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+          "early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+          "visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor"
         ]
       },
       {
@@ -251,8 +265,10 @@
         "run": 3,
         "caught": true,
         "problems": [
-          "early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-          "early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor"
+          "early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+          "early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+          "visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor"
         ]
       },
       {
@@ -260,8 +276,10 @@
         "run": 4,
         "caught": true,
         "problems": [
-          "early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-          "early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor"
+          "early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+          "early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+          "visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor"
         ]
       },
       {
@@ -269,8 +287,10 @@
         "run": 5,
         "caught": true,
         "problems": [
-          "early-visible «Weekend rate · +$30» at y=772..791 against a bar at 771 in a 844px window; elementFromPoint says bk-bar",
-          "early-painted «Weekend rate · +$30» covers 5472px and blanking its text changes them by 0.00 levels, under the 2 floor"
+          "early-visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 in a 844px window; elementFromPoint says nothing",
+          "early-painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor",
+          "visible «Weekend rate · +$30» at y=1028..1047 against a bar at 771 (scrolled 0); elementFromPoint says nothing",
+          "painted «Weekend rate · +$30» covers 288px and blanking its text changes them by 0.00 levels, under the 2 floor"
         ]
       },
       {
@@ -278,7 +298,7 @@
         "run": 1,
         "caught": true,
         "problems": [
-          "early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+          "early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
           "early-visible",
           "early-painted",
           "named no surcharge line was rendered after the time was chosen either",
@@ -292,7 +312,7 @@
         "run": 2,
         "caught": true,
         "problems": [
-          "early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+          "early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
           "early-visible",
           "early-painted",
           "named no surcharge line was rendered after the time was chosen either",
@@ -306,7 +326,7 @@
         "run": 3,
         "caught": true,
         "problems": [
-          "early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+          "early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
           "early-visible",
           "early-painted",
           "named no surcharge line was rendered after the time was chosen either",
@@ -320,7 +340,7 @@
         "run": 4,
         "caught": true,
         "problems": [
-          "early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+          "early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
           "early-visible",
           "early-painted",
           "named no surcharge line was rendered after the time was chosen either",
@@ -334,7 +354,7 @@
         "run": 5,
         "caught": true,
         "problems": [
-          "early-named a day is chosen and 5 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
+          "early-named a day is chosen and 19 times are listed, and nothing on the page names a surcharge — the customer is being shown a price that is already wrong",
           "early-visible",
           "early-painted",
           "named no surcharge line was rendered after the time was chosen either",
@@ -348,8 +368,8 @@
         "run": 1,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+          "early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
           "early-visible",
           "early-painted"
         ]
@@ -359,8 +379,8 @@
         "run": 2,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+          "early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
           "early-visible",
           "early-painted"
         ]
@@ -370,8 +390,8 @@
         "run": 3,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+          "early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
           "early-visible",
           "early-painted"
         ]
@@ -381,8 +401,8 @@
         "run": 4,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+          "early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
           "early-visible",
           "early-painted"
         ]
@@ -392,8 +412,8 @@
         "run": 5,
         "caught": true,
         "problems": [
-          "rush-early today is tapped and 12 times are listed, every one inside the rush window, and the page names «Weekend rate · +$30»",
-          "early-priced the bar reads $95 with today chosen and $115 once a time is tapped",
+          "rush-early today is tapped and 19 times are listed, every one inside the rush window, and the page names «nothing»",
+          "early-priced the bar reads $65 with today chosen and $85 once a time is tapped",
           "early-visible",
           "early-painted"
         ]

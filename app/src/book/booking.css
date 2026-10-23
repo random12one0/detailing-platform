@@ -910,6 +910,23 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
 .bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none; font-weight: 500; }
 .bk-chip:disabled { opacity: .35; cursor: default; }
 .bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 7px; }
+/* ROADMAP 97.94 — STEP 5's TIMES SCROLL IN THEIR OWN BOX, sized to whatever
+   the screen has left once everything else on the page (the bar included,
+   measured in StepWhen.jsx as `--bk-slots-other`) is placed. The slot count
+   is the detailer's, so no fixed height could promise the step fits; a
+   bound can. Where they already fit the bound is never reached and nothing
+   moves. The floor is one and a half rows: on a screen too short for even
+   that, the page scrolls as it always did. A cut row is the cue that the
+   box holds more. The 5px padding, given back by the margin, is room for
+   the 2px + 3px focus ring an overflow box would otherwise clip.
+   `.bk-slots` itself is untouched — the manage page shares it. */
+.bk-times { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
+.bk-slots-box {
+  max-height: max(84px, calc(100vh - var(--bk-slots-other, 0px)));
+  max-height: max(84px, calc(100svh - var(--bk-slots-other, 0px)));
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 5px; margin: -5px;
+}
 
 /* WHAT THE CHOSEN DAY AND TIME JUST DID — the detailer's own surcharge names
    and, on a request-mode business, what pressing the last button will mean.

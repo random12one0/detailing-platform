@@ -19,7 +19,7 @@
 
 import { intlLocale, t } from "../../lib/i18n.js";
 import { useLocale } from "../../hooks/useLocale.js";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../lib/api.js";
 import { money, phone, time12 } from "../../lib/format.js";
@@ -166,6 +166,60 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
   // Named for what it is: this day cannot take the service type they picked.
   const wrongMode = dayRefusesMode(day, form.serviceType);
 
+  // ROADMAP 97.94 — THE TIMES SCROLL IN THEIR OWN BOX (the 3.1a pattern), so
+  // the step fits the screen whatever the detailer's slot count is. Measured
+  // on main at 392x844: the month (344px) plus 18 slots (299px) put the step
+  // 114px past the bottom, the slots and the "pick a time" line under the bar.
+  // CSS cannot know how far down the box starts or what sits below it, so
+  // that one number — everything on the page that is NOT the box, the pinned
+  // bar included — is measured here and the stylesheet subtracts it from the
+  // screen. Layout offsets, not rects, so the steps' entrance transform cannot
+  // skew it; re-measured every render (notes, the refusal line) and whenever
+  // the screen, the column or the bar resizes.
+  const slotsRef = useRef(null);
+  const measureSlots = useCallback(() => {
+    const box = slotsRef.current;
+    const wrap = box?.closest(".bk-wrap");
+    if (!wrap) return;
+    const docTop = (e) => {
+      let y = 0;
+      for (let n = e; n; n = n.offsetParent) y += n.offsetTop + (n === e ? 0 : n.clientTop);
+      return y;
+    };
+    const top = docTop(box);
+    // The step sits in a `display: contents` wrapper, which has no box of its
+    // own; the last thing actually laid out is inside it (the refusal line).
+    let last = wrap.lastElementChild;
+    while (last?.lastElementChild && getComputedStyle(last).display === "contents") last = last.lastElementChild;
+    const below = Math.max(0, docTop(last) + last.offsetHeight - (top + box.offsetHeight));
+    const bar = wrap.parentElement.querySelector(":scope > .bk-bar");
+    const other = top + below + parseFloat(getComputedStyle(wrap).paddingBottom) + (bar?.offsetHeight ?? 0);
+    // +1: offsetTop is whole pixels and layout is not.
+    box.style.setProperty("--bk-slots-other", `${Math.ceil(other) + 1}px`);
+  }, []);
+  useLayoutEffect(measureSlots);
+  const hasSlots = daySlots.length > 0;
+  useEffect(() => {
+    const box = slotsRef.current;
+    if (!box) return undefined;
+    let live = true;
+    document.fonts?.ready.then(() => live && measureSlots());
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureSlots);
+    const wrap = box.closest(".bk-wrap");
+    ro?.observe(document.documentElement);
+    if (wrap) ro?.observe(wrap);
+    const bar = wrap?.parentElement.querySelector(":scope > .bk-bar");
+    if (bar) ro?.observe(bar);
+    // A time already chosen (a restored draft, a step back) is scrolled into
+    // the box's view, never the page's.
+    const chosen = box.querySelector(".bk-chip.selected");
+    if (chosen) {
+      const off = chosen.offsetTop - box.offsetTop;
+      if (off + chosen.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = off - box.clientHeight / 2;
+    }
+    return () => { live = false; ro?.disconnect(); };
+  }, [measureSlots, hasSlots, legDate, which]);
+
   return (
     <>
       {split && (
@@ -269,8 +323,14 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
       )}
 
       {legDate && (
-        <>
-          <div className="bk-step-label" style={{ marginTop: 18 }}>
+        // ROADMAP 97.94 — THE DAY'S TIMES ARE ONE BLOCK: its label, its notes
+        // and its chips are one thought, so they sit at the 12px step and
+        // take the 26px section gap once (the W18 shape, as .bk-cal-block).
+        // Measured at 390x844 on a short-notice day in request mode with a time
+        // picked: loose, the time box sat at a 124px floor and the page still
+        // ran 34px past the bottom; grouped, the box is 124px and it fits.
+        <div className="bk-times">
+          <div className="bk-step-label">
             {t("Times on {date}", {
               date: new Date(`${legDate}T12:00:00`)
                 .toLocaleDateString(loc, { weekday: "long", month: "long", day: "numeric" }),
@@ -361,7 +421,7 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
           )}
           </div>
           )}
-          <div className="bk-slots">
+          <div className="bk-slots bk-slots-box" ref={slotsRef}>
             {daySlots.map((slot) => (
               <button
                 key={slot}
@@ -373,7 +433,7 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
             ))}
           </div>
           {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
-        </>
+        </div>
       )}
       {/* **THE THIRD SILENT STEP, AND NOBODY HAD REPORTED IT — 2026-09-12.**
           The review named steps 4 and 6; this one has the same defect for the

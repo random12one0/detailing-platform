@@ -400,7 +400,10 @@ const DELTA_FLOOR = 2;
 /** Paint over the lines without touching the DOM — the `--break=paint` sabotage. */
 const BLANK_CSS = ".bk-when-note p { color: transparent !important; }";
 /** The layout that shipped 2026-09-13 to 2026-09-21: the note below the chips. */
-const CANARY_CSS = ".bk-when-note { order: 99 !important; }";
+// ROADMAP 97.94 bounded the times in their own box, sized to leave room for
+// whatever follows them, so moving the note alone now keeps it on screen and
+// the canary missed 0/5. Unbounding the box as well is the whole old layout.
+const CANARY_CSS = ".bk-when-note { order: 99 !important; } .bk-slots-box { max-height: none !important; overflow: visible !important; }";
 
 const FROZEN = { animations: "disabled" };
 

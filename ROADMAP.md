@@ -924,7 +924,8 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   Acceptance criteria:
   - `tests/booking-meta.test.mjs` shows a booking page's head carrying the business's photo, its logo when it has no photo, and `og-tenant.png` when it has neither
   - A failed lookup still serves the page unchanged
-- [ ] **97.94 — Once times are showing, the booking calendar step runs past the screen (found by 97.45 + 97.49).**
+- [x] **97.94 — Once times are showing, the booking calendar step runs past the screen (found by 97.45 + 97.49).**
+  **Done 2026-10-23 (Claude lane):** step 5's times now scroll in their own box, sized in StepWhen.jsx to the height the screen has left after everything else (bar included), and the day's label, notes and chips are one block. `node scripts/sweep-booking-steps.mjs` on unchanged main: 1 step did not fit (Pick a time + slots, over 114px at 392x844); after: 0, exit 0 at all four sizes (75px spare at 392x844, 78 at 1440x900), --lite too. Hit test (elementFromPoint at each chip's centre, scrolled within the box) on the worst day (short notice, request mode, 18 slots): 18 of 18 pressable above the bar and page over 0 at 390x844, 392x844, 768x1024 and 1440x900; 320x568 still scrolls the page with the box at its 84px floor. surcharge-visible.mjs PASS 256 assertions; its order canary now also unbounds the box (missed 0/5 without that, caught 5/5 with it). keyboard-walk.mjs not run (hard-coded :5173). Shots in .manager-shots/97.94/.
   `node scripts/sweep-booking-steps.mjs` reports the calendar step overflowing the viewport after a day is picked and its
   time slots render, at 392 and 1440 wide; it fails the same way on main before 97.45 and 97.49. Lay the step out so the
   calendar, the slots and the fixed bar fit (or the slots scroll inside their own bounded box, the 3.1a pattern), phone first.
