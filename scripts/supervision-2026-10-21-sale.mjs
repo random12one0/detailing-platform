@@ -60,7 +60,8 @@ try {
     try {
       await page.goto('http://localhost:5173/app?settings=promos');
       const save=page.getByRole('button',{name:'Save sale',exact:true});
-      await save.waitFor();
+      // ROADMAP 101.7: with nothing unsaved the button reads Saved, so wait on the switch.
+      await page.getByText('Sale is running',{exact:true}).waitFor();
       await page.getByText('Sale is running',{exact:true}).click();
       await save.scrollIntoViewIfNeeded();await page.waitForTimeout(800);
       check(`${w}: running at zero refused`,await save.isDisabled());
@@ -78,7 +79,9 @@ try {
       release();
       await page.getByText('Sale settings saved.',{exact:true}).waitFor();
       check(`${w}: saved row is active at ten`,demo.db.tables.business_settings.some(r=>r.site_discount_active===true&&r.site_discount_percent===10));
-      check(`${w}: Save recovers after response`,await save.isEnabled());
+      // ROADMAP 101.7: a saved sale has nothing unsaved, so the button reads Saved and
+      // rests disabled; switching off below proves busy cleared (Save sale enabled again).
+      check(`${w}: Save recovers after response`,await page.getByRole("button",{name:"Saved",exact:true}).isDisabled());
       await page.screenshot({path:`${out}/saved-${w}.png`});
       await page.getByText('Sale is running',{exact:true}).click();
       check(`${w}: switched off can save`,await save.isEnabled());

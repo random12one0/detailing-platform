@@ -3358,4 +3358,11 @@ export const appEs = {
   "The expense was not deleted.": "El gasto no se eliminó.",
   "That receipt is still sending. Give it a minute and check again.":
     "Ese recibo todavía se está enviando. Dale un minuto y vuelve a revisar.",
+  // ROADMAP 101.7: leaving a settings screen with unsaved changes asks in place,
+  // and Remove / Disconnect on How you get paid ask once.
+  "You have changes you have not saved.": "Tienes cambios sin guardar.",
+  "Save and go back": "Guardar y volver",
+  "Leave without saving": "Salir sin guardar",
+  "Yes, disconnect": "Sí, desconectar",
+  "Remove {name}? Customers stop seeing it once you save.": "¿Quitar {name}? Tus clientes dejan de verlo cuando guardes.",
 };

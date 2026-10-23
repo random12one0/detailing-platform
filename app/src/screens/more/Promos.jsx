@@ -74,6 +74,15 @@ import { useAppLocale } from "../../hooks/useAppLocale.js";
 // ROADMAP 101.8 - Save sale stays disabled while a running sale has no real
 // percentage, so a 0% "sale" can never be published.
 import { saleSaveBlocked, saleSaveDisabled, withBusy } from "../../lib/sale.js";
+import { useLeaveGuard } from "../../hooks/useLeaveGuard.js";
+
+// What Save sale writes. One function, so the save and the unsaved-changes
+// test (ROADMAP 101.7) can never disagree about it.
+const saleRow = (sale) => ({
+  site_discount_active: sale.active,
+  site_discount_percent: Number(sale.percent) || 0,
+  site_discount_label: sale.label.trim() || null,
+});
 
 // The sale's own ladder, reused rather than re-chosen. A discount a detailer
 // offers is the same set of round numbers whether it is site-wide or behind a
@@ -152,24 +161,31 @@ export default function Promos() {
     load();
   };
 
+  // ROADMAP 101.7 - unsaved is what Save sale would write, compared with what
+  // was last written (or loaded), the same test How you get paid uses.
+  const saleSnap = JSON.stringify(saleRow(sale));
+  const [saleSaved, setSaleSaved] = useState(saleSnap);
+  const saleDirty = saleSnap !== saleSaved;
+
   const saveSale = async () => {
     // ROADMAP 101.8 - the disabled button is the refusal; this guard is the
     // belt-and-braces so a 0% running sale is never written.
-    if (busy || saleSaveBlocked(sale)) return;
+    if (busy || saleSaveBlocked(sale)) return false;
     // ROADMAP 101.8 F1 - the whole write runs inside `withBusy`, so a throw
     // (the read-only preview guard throws during `update`) still clears the
     // flag and a later retry is permitted.
-    await withBusy(setBusy, async () => {
+    return withBusy(setBusy, async () => {
       setSaleMsg(null);
-      const { error } = await supabase.from("business_settings").update({
-        site_discount_active: sale.active,
-        site_discount_percent: Number(sale.percent) || 0,
-        site_discount_label: sale.label.trim() || null,
-      }).eq("business_id", business.id);
+      const row = saleRow(sale);
+      const { error } = await supabase.from("business_settings").update(row).eq("business_id", business.id);
       setSaleMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Sale settings saved.") });
-      if (!error) reload();
+      if (!error) { setSaleSaved(JSON.stringify(row)); reload(); }
+      return !error;
     });
   };
+  // The back arrow asks while the sale is unsaved (SettingsHost). The code
+  // composer below is not guarded: Add code is its own one-press action.
+  useLeaveGuard({ dirty: saleDirty, save: saveSale, blocked: saleSaveBlocked(sale) });
 
   // WHAT A CUSTOMER GETS, IN WORDS. One key per shape rather than English
   // glued around a number — Spanish puts the preposition somewhere else, which
@@ -232,7 +248,9 @@ export default function Promos() {
           </>
         )}
       </Group>
-      <button className="btn" onClick={saveSale} disabled={saleSaveDisabled(sale, busy)} style={{ marginBottom: "var(--sp-5)" }}>{t("Save sale")}</button>
+      {/* ROADMAP 101.7 - the main (filled) button, right under the sale, and
+          like the Hours screen's it reads "Saved" when there is nothing to save. */}
+      <button className="btn primary" onClick={saveSale} disabled={saleSaveDisabled(sale, busy) || !saleDirty} style={{ marginBottom: "var(--sp-5)" }}>{saleDirty ? t("Save sale") : t("Saved")}</button>
       {saleMsg && <div className={saleMsg.ok ? "ok-box" : "error-box"} style={{ marginTop: "calc(-1 * var(--sp-4))", marginBottom: "var(--sp-5)" }}>{saleMsg.text}</div>}
 
       <Group title={t("Promo codes")}

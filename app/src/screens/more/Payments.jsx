@@ -56,6 +56,8 @@ import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Switch } from "../../components/controls.jsx";
 import Sheet from "../../components/Sheet.jsx";
+import ConfirmTap from "../../components/ConfirmTap.jsx";
+import { useLeaveGuard } from "../../hooks/useLeaveGuard.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -83,6 +85,41 @@ const HANDLES = [
     help: "Zelle lives in your bank's app, so this is the phone number or email it is on.",
     placeholder: "The phone number or email your Zelle is on" },
 ];
+
+// WHAT SAVE WRITES, from the screen's state. One function, so the save and the
+// unsaved-changes test (ROADMAP 101.7) can never disagree about it.
+// Trimmed to null rather than stored as "": an empty string is a value the
+// email layer would have to know to ignore, and the column is nullable
+// precisely so it does not have to.
+const nn = (v) => (String(v).trim() === "" ? null : String(v).trim().slice(0, 120));
+const toRow = (pay, custom) => ({
+  pay_cash: pay.pay_cash,
+  pay_venmo: nn(pay.pay_venmo),
+  pay_cashapp: nn(pay.pay_cashapp),
+  pay_paypal: nn(pay.pay_paypal),
+  pay_zelle: nn(pay.pay_zelle),
+  // **THE OLD SINGLE LINE IS CLEARED THE MOMENT THE LIST TAKES OVER.**
+  // Leaving it would print the same method twice on a customer's email —
+  // once from the column and once from the array — which is the
+  // two-places problem arriving where a customer can see it.
+  pay_other: custom.length ? null : nn(pay.pay_other),
+  // A ROW NEEDS BOTH HALVES. One without the other is a half-filled form
+  // on somebody's confirmation email, and `payments.ts` drops it on the
+  // way out anyway; dropping it here means the screen and the email agree
+  // about what was saved.
+  // `off` IS ONLY WRITTEN WHEN IT IS TRUE. A row that is on carries two
+  // fields rather than three, so every method saved before the switch
+  // existed still reads as on — absent means on, in the screen and in
+  // `payments.ts`, which is one rule rather than a default in two places.
+  pay_custom: custom
+    .map((r) => ({
+      label: String(r.label).trim().slice(0, 40),
+      handle: String(r.handle).trim().slice(0, 120),
+      ...(r.off === true ? { off: true } : {}),
+    }))
+    .filter((r) => r.label && r.handle)
+    .slice(0, 8),
+});
 
 export default function Payments() {
   useAppLocale();
@@ -226,56 +263,38 @@ export default function Payments() {
     setCardBusy("");
   };
 
-  const disconnect = async () => {
-    // ONE PRESS BEHIND ONE CONFIRM, naming what stops. Disconnecting also
-    // switches card off, so a customer holding a receipt loses a button they
-    // may already have been looking at.
-    if (!confirm(t("Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button."))) return;
-    await cardAction("disconnect", {}, t("Could not disconnect. Try again."));
-  };
+  // ROADMAP 101.7 — Disconnect asks once, in place, through ConfirmTap below
+  // (it used to be the browser's `confirm()` box). Disconnecting also switches
+  // card off, so a customer holding a receipt loses a button they may already
+  // have been looking at; the question says so.
+  const disconnect = () => cardAction("disconnect", {}, t("Could not disconnect. Try again."));
+
+  // ROADMAP 101.7 — UNSAVED IS WHAT SAVE WOULD WRITE, COMPARED WITH WHAT WAS
+  // LAST WRITTEN (or loaded). Comparing the row rather than the form means a
+  // switch flipped on and off again, or Venmo switched on with nothing typed,
+  // is not "unsaved" — pressing Save would change nothing. The old `pay_other`
+  // line moving into the list on open is not either: the baseline is taken
+  // from the same `toRow`, so it only lands with the next real save.
+  const snap = JSON.stringify(toRow(pay, custom));
+  const [saved, setSaved] = useState(snap);
+  const dirty = snap !== saved;
 
   const save = async () => {
+    if (busy) return false;
     setBusy(true);
     setMsg(null);
-    // Trimmed to null rather than stored as "": an empty string is a value the
-    // email layer would have to know to ignore, and the column is nullable
-    // precisely so it does not have to.
-    const nn = (v) => (String(v).trim() === "" ? null : String(v).trim().slice(0, 120));
-    const { error } = await supabase.from("business_settings").update({
-      pay_cash: pay.pay_cash,
-      pay_venmo: nn(pay.pay_venmo),
-      pay_cashapp: nn(pay.pay_cashapp),
-      pay_paypal: nn(pay.pay_paypal),
-      pay_zelle: nn(pay.pay_zelle),
-      // **THE OLD SINGLE LINE IS CLEARED THE MOMENT THE LIST TAKES OVER.**
-      // Leaving it would print the same method twice on a customer's email —
-      // once from the column and once from the array — which is the
-      // two-places problem arriving where a customer can see it.
-      pay_other: custom.length ? null : nn(pay.pay_other),
-      // A ROW NEEDS BOTH HALVES. One without the other is a half-filled form
-      // on somebody's confirmation email, and `payments.ts` drops it on the
-      // way out anyway; dropping it here means the screen and the email agree
-      // about what was saved.
-      // `off` IS ONLY WRITTEN WHEN IT IS TRUE. A row that is on carries two
-      // fields rather than three, so every method saved before the switch
-      // existed still reads as on — absent means on, in the screen and in
-      // `payments.ts`, which is one rule rather than a default in two places.
-      pay_custom: custom
-        .map((r) => ({
-          label: String(r.label).trim().slice(0, 40),
-          handle: String(r.handle).trim().slice(0, 120),
-          ...(r.off === true ? { off: true } : {}),
-        }))
-        .filter((r) => r.label && r.handle)
-        .slice(0, 8),
-    }).eq("business_id", business.id);
+    const row = toRow(pay, custom);
+    const { error } = await supabase.from("business_settings").update(row).eq("business_id", business.id);
     // ROADMAP 101.5 — the database's own error is English and technical; the
     // detailer gets one sentence in their language, the detail goes to the log.
     if (error) console.error(error);
     setMsg(error ? { ok: false, text: t("Could not save that. Try again.") } : { ok: true, text: t("Saved.") });
-    if (!error) reload();
+    if (!error) { setSaved(JSON.stringify(row)); reload(); }
     setBusy(false);
+    return !error;
   };
+  // The back arrow asks while something is unsaved (SettingsHost).
+  useLeaveGuard({ dirty, save });
 
   // The block draws for the OWNER only. `card` is null while the answer is
   // out and `{unavailable: true}` when the endpoint said no - which is what a
@@ -363,9 +382,13 @@ export default function Payments() {
               />
 
               <div className="btnrow">
-                <button className="btn" disabled={cardBusy === "disconnect"} onClick={disconnect}>
-                  {cardBusy === "disconnect" ? t("Disconnecting") : t("Disconnect Stripe")}
-                </button>
+                <ConfirmTap
+                  disabled={cardBusy === "disconnect"}
+                  label={cardBusy === "disconnect" ? t("Disconnecting") : t("Disconnect Stripe")}
+                  question={t("Disconnect Stripe? Your customers will not be able to pay by card, and any receipt they are holding loses its Pay button.")}
+                  confirmLabel={t("Yes, disconnect")}
+                  onConfirm={disconnect}
+                />
               </div>
             </>
           )}
@@ -496,10 +519,6 @@ export default function Payments() {
                   `bare` because the row already has its own label above — the
                   full `Switch` would print the name a second time. */}
               <div className="row" style={{ gap: 10, alignItems: "center" }}>
-                <button className="btn sm inline ghost"
-                  onClick={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}>
-                  {t("Remove")}
-                </button>
                 {/* **A NAMELESS SWITCH — 2026-09-12.** `bare` puts the label on
                     `aria-label`, and a custom method the detailer has not named
                     yet has an empty one, so a screen reader read "switch, on"
@@ -519,6 +538,18 @@ export default function Payments() {
                   onChange={(e) => { setCustom(custom.map((r, k) => (k === n ? { ...r, handle: e.target.value } : r))); setMsg(null); }} />
               </label>
             )}
+            {/* ROADMAP 101.7 — Remove asks once, in place: it throws away what
+                was typed, which a mis-tap should not. It sits under the row
+                rather than beside the switch, because the question needs the
+                full width — beside the switch it crushed the method's name at
+                390. On its own, so it has an outline (screen-rules.md). */}
+            <ConfirmTap className="btn sm inline"
+              style={{ marginBottom: "var(--sp-4)" }}
+              label={t("Remove")}
+              question={t("Remove {name}? Customers stop seeing it once you save.", { name: row.label })}
+              confirmLabel={t("Yes, remove it")}
+              onConfirm={() => { setCustom(custom.filter((_, k) => k !== n)); setMsg(null); }}
+            />
           </div>
         );
       })}
@@ -573,7 +604,11 @@ export default function Payments() {
       )}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      <button className="btn primary" disabled={busy} onClick={save}>{busy ? t("Saving") : t("Save")}</button>
+      {/* ROADMAP 101.7 — THE HOURS SCREEN'S SAVE: it says whether anything is
+          unsaved, and there is nothing to press when nothing is. */}
+      <button className="btn primary" disabled={busy || !dirty} onClick={save}>
+        {busy ? t("Saving") : dirty ? t("Save changes") : t("Saved")}
+      </button>
     </div>
     </>
   );

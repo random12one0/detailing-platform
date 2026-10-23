@@ -682,8 +682,10 @@ console.log("\n§ 10 — the two screens, which are the half no behavioural chec
 
   // DISCONNECTING IS ONE PRESS BEHIND ONE CONFIRM, and the confirm names what
   // stops — the same posture the billing screen's cancel button ships with.
-  check("disconnect asks first, and says what stops",
-    /confirm\(t\("Disconnect Stripe\?[^"]*Pay button/.test(payments), "no confirm, or it does not say");
+  // ROADMAP 101.7: asked in place through ConfirmTap, never the browser's box.
+  check("disconnect asks first, in place, and says what stops",
+    /<ConfirmTap[^>]*question=\{t\("Disconnect Stripe\?[^"]*Pay button/.test(payments) && !/\bconfirm\(t\(/.test(payments),
+    "no in-place question, or it does not say, or the browser confirm() is back");
 
   // THE CONSENT CODE IS SINGLE USE, so a refresh must not retry it.
   check("the returning consent code is wiped out of the address bar",

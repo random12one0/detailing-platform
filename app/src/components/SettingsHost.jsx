@@ -29,10 +29,11 @@
 // rows under a booking-link block, the gear is one group under an account
 // block. What they share is this container and the decision inside it.
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import { useWide } from "../hooks/useWide.js";
 import { useLeaving } from "../hooks/useLeaving.js";
+import { LeaveGuard } from "../hooks/useLeaveGuard.js";
 import { SCREENS } from "../screens/more/index.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
@@ -55,6 +56,51 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
   // button on the surface where the sheet already felt right.
   const [leaving, close] = useLeaving(onClose, wide);
 
+  // ROADMAP 101.7 — the open screen's unsaved-changes guard (hooks/useLeaveGuard.js)
+  // and the in-place question. `asking` holds `{ blocked }` while it is on screen.
+  const guard = useRef(null);
+  const [asking, setAsking] = useState(null);
+  const [leaveBusy, setLeaveBusy] = useState(false);
+  useEffect(() => { setAsking(null); setLeaveBusy(false); }, [open]);
+  const leave = useCallback(() => {
+    if (guard.current?.dirty) setAsking({ blocked: !!guard.current.blocked });
+    else close();
+  }, [close]);
+  const saveAndLeave = async () => {
+    setLeaveBusy(true);
+    let ok = false;
+    try { ok = await guard.current?.save(); } catch (e) { console.error(e); }
+    setLeaveBusy(false);
+    // A failed save stays on the screen, where the screen's own message says why.
+    if (ok) close(); else setAsking(null);
+  };
+  // THE QUESTION TAKES FOCUS, as ConfirmTap's does, and is scrolled into view:
+  // on a long screen the back arrow has scrolled away with the page.
+  const said = useRef(null);
+  useEffect(() => {
+    if (!asking) return;
+    said.current?.scrollIntoView({ block: "nearest" });
+    said.current?.focus();
+  }, [asking]);
+  // ConfirmTap's own asking shape: the sentence, then answers that wrap rather
+  // than squeeze.
+  const question = asking && (
+    <div className="stack" style={{ gap: 8, marginBottom: "var(--sp-4)" }}>
+      <p className="quiet" style={{ margin: 0, outline: "none" }} role="alert" tabIndex={-1} ref={said}>
+        {t("You have changes you have not saved.")}
+      </p>
+      <div className="row wrap" style={{ gap: 8 }}>
+        <button className="btn primary" style={{ whiteSpace: "nowrap" }}
+          disabled={asking.blocked || leaveBusy} onClick={saveAndLeave}>
+          {leaveBusy ? t("Saving") : t("Save and go back")}
+        </button>
+        <button className="btn ghost" style={{ whiteSpace: "nowrap" }} disabled={leaveBusy} onClick={close}>
+          {t("Leave without saving")}
+        </button>
+      </div>
+    </div>
+  );
+
   // ESCAPE CLOSES IT AT BOTH WIDTHS, the same rule and the same reason as
   // RecordHost: below --wrap a sheet always took Escape, so the seam between
   // the two containers showed through the keyboard. Guarded on an open sheet,
@@ -63,11 +109,11 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
-      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) close();
+      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) leave();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  }, [open, leave]);
 
   // A PAGE STARTS AT ITS TOP. Opening the ninth row of an index and landing
   // two thirds of the way down a form is the thing a sheet got right for
@@ -104,12 +150,13 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
     return (
       <div className="group settings-page">
         <div className="settings-head">
-          <button ref={back} className="btn icon ghost" aria-label={t("Back")} onClick={close}>
+          <button ref={back} className="btn icon ghost" aria-label={t("Back")} onClick={leave}>
             <ChevronLeft strokeWidth={2} />
           </button>
           <h1 className="display">{t(title)}</h1>
         </div>
-        <Active />
+        {question}
+        <LeaveGuard.Provider value={guard}><Active /></LeaveGuard.Provider>
       </div>
     );
   }
@@ -140,9 +187,10 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
         <aside key={open} className={`col-2 settings-col${leaving ? " leaving" : ""}`} aria-label={t(title)}>
           <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
             <h2>{t(title)}</h2>
-            <button className="x" aria-label={t("Close")} onClick={close}><X size={18} strokeWidth={2} /></button>
+            <button className="x" aria-label={t("Close")} onClick={leave}><X size={18} strokeWidth={2} /></button>
           </div>
-          <div className="settings-body"><Active /></div>
+          {question}
+          <div className="settings-body"><LeaveGuard.Provider value={guard}><Active /></LeaveGuard.Provider></div>
         </aside>
       ) : wide ? (
         /* ONLY AT A DESK. Below --wrap there is no second column — .split is
