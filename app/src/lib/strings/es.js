@@ -513,8 +513,8 @@ export const es = {
     "Esa dirección no va a funcionar. Revísala.",
   "That address is missing an @. We cannot send your confirmation to it.":
     "Esa dirección no tiene @. No podemos enviarte tu confirmación ahí.",
-  "Rounded down to the nearest dollar.": "Redondeado hacia abajo al dólar más cercano.",
-  "Rounded up to the nearest dollar.": "Redondeado hacia arriba al dólar más cercano.",
+  "Rounded up": "Redondeo al alza",
+  "Rounded down": "Redondeo a la baja",
   "Discount": "Descuento",
   // The engine rounds the charge to whatever the detailer set in Booking
   // rules, so the subtotal and the amount charged can differ by a few dollars.

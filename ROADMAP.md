@@ -31607,7 +31607,8 @@ decisions, not build jobs.
   - A reschedule racing a cancel never moves the cancelled booking (test)
   - Customer cancel and reschedule notices go to every address `ownerRecipients()` returns (test)
 
-- [ ] **97.31 — Final rounding can make a promo discount negative (C-L3).**
+- [x] **97.31 — Final rounding can make a promo discount negative (C-L3).**
+  DONE 2026-10-23 (Claude lane): the final rounding is now its own figure (`rounding` in pricing.ts) and never folded into a promo, site or plan discount; the review step and the manage-booking page draw it as its own "Rounded up/down" line (Spanish keys added, the two dead "nearest dollar" sentences removed), and emails already draw it via reconcile(). The manage page also stopped subtracting the promo from the pre-promo stored subtotal, which had sent every promo booking to the names-only receipt. Proof: tests/pricing-lines-sum.test.mjs, 16/16 on the fix; on the unfixed engine the 97.31 case fails with promo -1 !== 1. Screens: .manager-shots/97.31/review-390.png and review-1440.png (Promo SAVE1 -$1, Rounded up +$1, total $65; no console errors). scripts/discount-label.mjs could not finish at 1440 on unmodified main either (booking walk timed out; it also targets :5173, not this checkout). Edge functions now differing from deployed (shared pricing.ts): calculate-booking, create-booking, preview-emails, reschedule-booking, send-invoice, update-booking, validate-promo-code; publishing is Andrew's.
   `pricing.ts:714-716`. Proved: a $104 job with a $1-off code, rounded to the nearest $5, gives `promo_discount = -1` and a $105 total, with no "rounded up" line shown (`StepReview.jsx:80`, `emailTemplates.ts:607` hide a promo that is not above $0). Never fold rounding into the promo discount.
   Acceptance criteria:
   - The $104 / $1-off / nearest-$5 case gives a promo discount of $1 and shows any rounding as its own line (credential-free pricing test)

@@ -21,13 +21,14 @@ import { computeQuote } from "../supabase/functions/_shared/pricing.ts";
 
 // Sums exactly what a customer sees on the review step: basePrice, sizeAdd,
 // addOnsTotal, travelFee and every adjustment line (surcharges positive,
-// the plan discount negative), minus siteDiscount, minus promoDiscount.
+// the plan discount negative), minus siteDiscount, minus promoDiscount, plus
+// the final rounding, which since ROADMAP 97.31 is its own line.
 // Mirrors `app/src/book/steps/StepReview.jsx`'s own reading of the quote —
 // this is not a second definition of the lines, it is the same one, so a
 // change to what StepReview renders has to be reflected here too.
 function sumOfLines(q) {
   return q.basePrice + q.sizeAdd + q.addOnsTotal + q.travelFee
-    + q.adjustmentsTotal - q.siteDiscount - q.promoDiscount;
+    + q.adjustmentsTotal - q.siteDiscount - q.promoDiscount + q.rounding;
 }
 
 const service = (price, sizeAdj) => ({
@@ -128,113 +129,70 @@ test("member rate on $275 at nearest-$5 — the item's own example, real numbers
   // mathematically exact 27.50), subtotal 247, then roundToNearest(247, 5)
   // = 245 — lines said 275 - 28 = 247 while the charge was 245. A $2 gap,
   // and the customer paid LESS than the lines added up to: an undercharge,
-  // not an overcharge, on this example. AFTER: the same $2 folds into the
-  // discount line itself, so it reads as a $30 member discount rather than
-  // $28 — the discount the customer was actually given, not the one before
-  // rounding took an unexplained $2 more off.
+  // not an overcharge, on this example. 2.2 folded the $2 into the member
+  // line ($30); since 97.31 the member line stays $28 and the rounding is its
+  // own -$2 line.
   assert.equal(q.basePrice, 275);
-  assert.equal(q.adjustmentsTotal, -30);
+  assert.equal(q.adjustmentsTotal, -28);
+  assert.equal(q.rounding, -2);
   const lines = sumOfLines(q);
   assert.equal(lines, q.total, `lines ${lines} vs total ${q.total}`);
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// DOES `StepReview.jsx`'S OWN CLIENT-SIDE FOLD BECOME A NO-OP AGAINST A
-// FIXED SERVER, OR DOES IT FOLD A SECOND TIME? Computed, not reasoned about
-// — this reproduces `StepReview.jsx:47-81` verbatim (the exact `cents`,
-// `gross`, `shownDiscounts`, `gap` and fold logic, field for field) and runs
-// it against `computeQuote`'s FIXED output, mapped through the same field
-// names `calculate-booking/index.ts` hands the client
-// (`subtotal_before_discounts` = `subtotalBase`, `site_discount` =
-// `siteDiscount`, `promo_discount` = `promoDiscount`). If the client's own
-// `gap` is 0 wherever the server already folded, the client fold is inert.
-// If it is not, the client enlarges an already-correct discount a second
-// time and the lines stop summing to the total again, from the other
-// direction.
+// `StepReview.jsx` DERIVES THE ROUNDING LINE ITSELF, from the fields
+// `calculate-booking/index.ts` hands it (`subtotal_before_discounts` =
+// `subtotalBase`, `site_discount`, `promo_discount`, `total`). This mirrors
+// its `gap` arithmetic and asserts it equals the engine's own `rounding`, so
+// the line the customer reads is the figure the engine charged.
 // ─────────────────────────────────────────────────────────────────────────
-function clientQuote(q) {
-  return {
-    subtotal_before_discounts: q.subtotalBase,
-    subtotal: q.subtotalAfterSite,
-    site_discount: q.siteDiscount,
-    site_discount_percent: 10, // fixed for the test; irrelevant to the arithmetic
-    promo_discount: q.promoDiscount,
-    promo_code: "TEST",
-    total: q.total,
-  };
-}
-
-// StepReview.jsx:47-81, verbatim, as a function of (quote, settings-less —
-// settings.site_discount_label is never set in these scenarios, matching
-// the demo's own default).
-function clientFold(quote) {
+function clientGap(q) {
   const cents = (v) => Math.round(Number(v || 0) * 100);
-  const gross = cents(quote?.subtotal_before_discounts ?? quote?.subtotal);
-  const shownDiscounts = [];
-  if (quote?.site_discount > 0) {
-    shownDiscounts.push({ key: "site", amount: quote.site_discount });
-  }
-  if (quote?.promo_discount > 0) {
-    shownDiscounts.push({ key: "promo", amount: quote.promo_discount });
-  }
-  const gap = gross && quote
-    ? gross - cents(quote.total) - shownDiscounts.reduce((s, d) => s + cents(d.amount), 0)
-    : 0;
-  if (shownDiscounts.length && gap !== 0) {
-    const last = shownDiscounts[shownDiscounts.length - 1];
-    last.amount = (cents(last.amount) + gap) / 100;
-  }
-  const roundedOnly = !shownDiscounts.length && gap !== 0 ? gap : 0;
-  return { gap, shownDiscounts, roundedOnly };
+  const shown = [q.siteDiscount, q.promoDiscount].filter((d) => d > 0);
+  return cents(q.subtotalBase) - cents(q.total) - shown.reduce((s, d) => s + cents(d), 0);
 }
 
-// One scenario per fold-priority branch in the server fix, so every path
-// StepReview.jsx could take is actually exercised, not just asserted about.
 const clientScenarios = {
-  "promo only, nearest-$5 — server folds into promo": {
+  "promo only, nearest-$5": {
     ...BASE, services: [service(275)], promo: { type: "percentage", value: 10 }, roundingNearest: 5,
   },
-  "site only, nearest-$5 — server folds into site": {
+  "site only, nearest-$5": {
     ...BASE, services: [service(275)], siteDiscountPercent: 10, roundingNearest: 5,
   },
-  "site AND promo, nearest-$5 — server folds into promo (nearest the total)": {
+  "site AND promo, nearest-$5": {
     ...BASE, services: [service(275)], siteDiscountPercent: 5,
     promo: { type: "percentage", value: 10 }, roundingNearest: 5,
   },
-  "member rate only, nearest-$5 — server folds into the plan line, invisible to shownDiscounts": {
+  "member rate only, nearest-$5": {
     ...BASE, services: [service(275)], roundingNearest: 5,
     plan: { name: "Member", priceKind: "percent_off", priceAmount: 10 },
   },
-  "no discount at all, nearest-$5 — nothing to fold into, either side": {
+  "no discount at all, nearest-$5": {
     ...BASE, services: [service(247)], roundingNearest: 5,
+  },
+  "97.31 — $104, $1-off code, nearest-$5": {
+    ...BASE, services: [service(104)], promo: { type: "amount", value: 1 }, roundingNearest: 5,
   },
 };
 
 for (const [name, input] of Object.entries(clientScenarios)) {
-  test(`client fold against fixed server — ${name}`, () => {
+  test(`review step's rounding line equals the engine's — ${name}`, () => {
     const q = computeQuote(input);
-    const { gap, roundedOnly } = clientFold(clientQuote(q));
-    if (q.siteDiscount > 0 || q.promoDiscount > 0) {
-      // A site or promo discount exists, so the server already folded any
-      // rounding gap into one of them — the client must compute zero, or it
-      // is about to fold a second time onto an already-correct number.
-      assert.equal(gap, 0, `client still sees a $${gap / 100} gap on a quote the server already reconciled`);
-    } else if (q.total !== sumOfLines(q)) {
-      // True "nothing to fold into" — the "no discount at all" scenario
-      // above reaches exactly this branch ($247 in services, nearest-$5
-      // rounds to $245, no discount anywhere to absorb the $2). The
-      // client's existing sentence fallback has to see the same real,
-      // unfolded gap the server left, or a customer reads a total that
-      // matches nothing on screen with no explanation at all.
-      assert.notEqual(roundedOnly, 0, "server left a real gap and the client sentence fallback did not see it");
-    } else {
-      // No discount, and the server's total already equals the sum (either
-      // roundingNearest was 0, or the amount happened to land exactly) —
-      // nothing for either side to fold. No scenario above reaches this
-      // branch; kept so a future scenario that does is asserted correctly
-      // rather than silently passing under one of the other two branches.
-      assert.equal(gap, 0);
-      assert.equal(roundedOnly, 0);
-    }
+    assert.equal(clientGap(q) + Math.round(q.rounding * 100), 0);
+    assert.ok(q.promoDiscount >= 0 && q.siteDiscount >= 0, "a discount went negative");
   });
 }
+
+// ROADMAP 97.31 — ROUNDING IS NEVER FOLDED INTO A DISCOUNT. A $104 job, a
+// $1-off code, nearest-$5: folding the +$1 rounding into the promo made it
+// -$1, and every screen hides a promo that is not above $0, so the customer
+// saw $104 of lines and a $105 total with nothing explaining it.
+test("97.31 — $104 job, $1-off code, nearest-$5: promo stays $1, rounding is its own figure", () => {
+  const q = computeQuote({
+    ...BASE, services: [service(104)], promo: { type: "amount", value: 1 }, roundingNearest: 5,
+  });
+  assert.equal(q.promoDiscount, 1);
+  assert.equal(q.total, 105);
+  assert.equal(q.rounding, 2);
+  assert.equal(sumOfLines(q), q.total);
+});
