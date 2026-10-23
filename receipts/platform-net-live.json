@@ -1,9 +1,9 @@
 {
-  "git_sha": "9033943a068895812dfa186cb15a38b32676ebe0",
-  "git_sha_started": "9033943a068895812dfa186cb15a38b32676ebe0",
+  "git_sha": "fbe5604e570e155fefa4843d935acd135db51779",
+  "git_sha_started": "fbe5604e570e155fefa4843d935acd135db51779",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-19T02:59:34.436Z",
+  "finished_at": "2026-10-23T07:58:46.188Z",
   "failures": [],
   "warnings": [
     "The bills are TEST bills in November 2025, removed when the run ends. Andrew's real bills were not entered: their amounts are recorded nowhere in this repo and a saved bill cannot be removed from the screen.",
@@ -16,7 +16,15 @@
     "app/src/admin/office/places/money/Bills.jsx",
     "app/src/admin/office/places/money/month.js",
     "supabase/functions/platform-admin/index.ts",
-    "supabase/functions/_shared/platformNet.js"
+    "supabase/functions/_shared/platformNet.js",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/test-month-laptop.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/empty-month-laptop.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/test-month-phone.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/empty-month-phone.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/partial-month-390.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/complete-month-390.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/empty-month-390.png",
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/98.16/complete-month-laptop.png"
   ],
   "dimensions": {
     "project": "kguqylyzgyzfktkfnhjb",
@@ -79,9 +87,12 @@
         ],
         "netWord": "We lost",
         "netFig": "$11.99",
+        "netDd": "$11.991 bill not entered",
+        "note": "1 bill not entered",
+        "noteVisible": true,
         "unknown": false,
         "err": null,
-        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 3 bills$51.99We lost$11.99HHosting$19Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
+        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 3 bills$51.99We lost$11.991 bill not enteredHHosting$19Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
       },
       "want": {
         "revenue": 4000,
@@ -101,19 +112,19 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         }
       ],
       "paid_revenue": 4000
@@ -144,7 +155,10 @@
         ]
       ],
       "netWord": "Profit",
-      "netFig": "Not entered",
+      "netFig": null,
+      "netDd": "Not entered",
+      "note": null,
+      "noteVisible": false,
       "unknown": true,
       "err": null,
       "text": "Platform bills‹December 2025›Paid to us in December$100ProfitNot entered?HostingNot enteredAdd it?Database and storageNot enteredAdd it?EmailNot enteredAdd it?DomainNot enteredAdd it"
@@ -181,9 +195,12 @@
         ],
         "netWord": "We lost",
         "netFig": "$17.49",
+        "netDd": "$17.491 bill not entered",
+        "note": "1 bill not entered",
+        "noteVisible": true,
         "unknown": false,
         "err": null,
-        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 4 bills$57.49We lost$17.49HHosting$24.50Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
+        "text": "Platform bills‹November 2025›Paid to us in November$40Costs entered · 4 bills$57.49We lost$17.491 bill not enteredHHosting$24.50Add?Database and storageNot enteredAdd itEEmail$20AddDDomain$12.99Add"
       },
       "want": {
         "revenue": 4000,
@@ -203,25 +220,25 @@
           "category": "hosting",
           "amount_cents": 1900,
           "note": "9.14c test bill — Hosting $19, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         },
         {
           "category": "email",
           "amount_cents": 2000,
           "note": "9.14c test bill — Email $20, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         },
         {
           "category": "domain",
           "amount_cents": 1299,
           "note": "9.14c test bill — Domain $12.99, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         },
         {
           "category": "hosting",
           "amount_cents": 550,
           "note": "9.14c test bill — Hosting $5.50, removed when the check finishes",
-          "entered_by": "0fea12c1-8624-4cde-b7f8-bb9c1fb0425e"
+          "entered_by": "ca15a879-8b3b-456c-a769-7325744b1fb7"
         }
       ],
       "paid_revenue": 4000
@@ -252,24 +269,39 @@
         ]
       ],
       "netWord": "Profit",
-      "netFig": "Not entered",
+      "netFig": null,
+      "netDd": "Not entered",
+      "note": null,
+      "noteVisible": false,
       "unknown": true,
       "err": null,
       "text": "Platform bills‹December 2025›Paid to us in December$100ProfitNot entered?HostingNot enteredAdd it?Database and storageNot enteredAdd it?EmailNot enteredAdd it?DomainNot enteredAdd it"
     },
+    "wantFull": {
+      "revenue": 4000,
+      "cost": 6549,
+      "net": -2549,
+      "count": 5,
+      "byCat": {
+        "hosting": 2450,
+        "email": 2000,
+        "domain": 1299,
+        "database": 800
+      }
+    },
     "rewrites": 0
   },
   "check_id": "platform-net-live",
-  "started_at": "2026-10-19T02:58:54.945Z",
+  "started_at": "2026-10-23T07:57:50.540Z",
   "status": "pass",
-  "expected_targets": 4,
-  "discovered_targets": 4,
-  "attempted_targets": 4,
-  "completed_targets": 4,
+  "expected_targets": 6,
+  "discovered_targets": 6,
+  "attempted_targets": 6,
+  "completed_targets": 6,
   "skipped_targets": 0,
-  "assertions_executed": 49,
-  "min_assertions": 49,
-  "assertion_floor": "4 setup + 1440 (3 bills at 3 asserts each, plus 16) + 392 (1 bill at 3 asserts, plus 16) + 1 cleanup = 49, fixed by the code; a throw adds its own failing line rather than dropping any.",
+  "assertions_executed": 74,
+  "min_assertions": 74,
+  "assertion_floor": "4 setup + 1440 (3 bills at 4 asserts each, plus 18) + 392 (1 bill at 4 asserts, plus 18) + 390 partial-and-complete (11) + 1440 revisit (6) + 1 cleanup = 74, fixed by the code; a throw adds its own failing line rather than dropping any.",
   "canary": {
     "id": "the same screen reading, compared against the expected net plus one cent, must MISMATCH",
     "observed_failure": true

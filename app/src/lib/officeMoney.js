@@ -37,6 +37,17 @@ export function keptOf(net) {
   };
 }
 
+// What the Platform bills profit row prints beside its figure (98.16): with a
+// known profit and bills still missing, how many are not entered. A complete
+// month gets no note; an empty month (kept null, 9.14) keeps "Not entered" and
+// never this note; a failed read gets nothing at all.
+export function monthsumNote(k) {
+  if (!k || k.failed || k.kept === null) return null;
+  const n = (k.missing ?? []).length;
+  if (n === 0) return null;
+  return `${n} ${n === 1 ? "bill" : "bills"} not entered`;
+}
+
 // The step-down chart: Came in, then one step down per bill typed in, then You
 // kept. With no bill typed in there is no "kept" step at all, only a marker that
 // says the bills are not entered.

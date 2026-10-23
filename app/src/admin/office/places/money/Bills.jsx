@@ -3,9 +3,11 @@
 // own checks (`platform_cost_add`, `costEntry`). Its refusal sentence is shown as-is.
 // Above the lines, the chosen month's totals (98.15): what came in, what the bills
 // came to and what was kept. With no bill typed in, the profit is "Not entered" (9.14).
+// With some but not all bills typed in, the profit figure carries how many are not
+// entered beside it (98.16); a complete month shows no note.
 // Every figure here is to the cent: a bill somebody typed reads back as typed (98.14).
 import { useState } from "react";
-import { centsOf } from "../../../../lib/officeMoney.js";
+import { centsOf, monthsumNote } from "../../../../lib/officeMoney.js";
 import { call } from "../../api.js";
 import { money } from "../../../../lib/format.js";
 import { reread } from "../../useNet.js";
@@ -15,13 +17,14 @@ const cash = (cents) => money(cents / 100);
 
 function MonthSum({ name, k, count }) {
   const net = k.kept === null ? "Profit" : k.kept < 0 ? "We lost" : k.kept === 0 ? "We broke even" : "We kept";
+  const note = monthsumNote(k);
   return (
     <dl className="bo-monthsum">
       <div><dt>Paid to us in {name}</dt><dd>{cash(k.in)}</dd></div>
       {k.kept !== null && <div><dt>Costs entered · {count} {count === 1 ? "bill" : "bills"}</dt><dd>{cash(k.out)}</dd></div>}
       <div className={k.kept < 0 ? "net neg" : "net"}>
         <dt>{net}</dt>
-        <dd>{k.kept === null ? <span className="unentered">Not entered</span> : cash(Math.abs(k.kept))}</dd>
+        <dd>{k.kept === null ? <span className="unentered">Not entered</span> : (<><span data-testid="monthsum-net">{cash(Math.abs(k.kept))}</span>{note && <span className="bo-chip" style={{ "--k": "var(--bo-warn)", color: "var(--bo-warn)" }} data-testid="monthsum-missing">{note}</span>}</>)}</dd>
       </div>
     </dl>
   );
