@@ -31758,6 +31758,7 @@ decisions, not build jobs.
   - Existing results in the sweep are unchanged
 
 - [ ] **97.50 — The price "working out" state looks like an error (P-11).**
+  Half done 2026-10-23 (Claude lane): the red box was the step's own line (Refusal.jsx), not the bar - pressing Continue before or during the price wait turned "Working out your price..." into the error box with role=alert. It now stays grey (role=status, 6.97:1 measured at 390 and 1440); real refusals still go red. Test tests/price-wait-not-error.test.mjs (fails on old code). Shots .manager-shots/97.50/. Still open: showing the device price at once - the page deliberately computes no price today (BookingPage.jsx quote comment) and pricing.ts is 882 lines of server TypeScript, so that half needs its own plan.
   After a service is tapped, the fixed bar shows "Working out your price…" in a red-outlined box for 2–3 seconds. Use a neutral waiting style, and show the price worked out on the device (rules already in `core.js`) right away while the server confirms it; the shown price must still equal the charged price.
   Acceptance criteria:
   - The waiting state uses no error color, checked at 390 and 1440 with `node scripts/contrast-insitu.mjs` passing

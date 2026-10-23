@@ -101,6 +101,11 @@ export function reasonFor(blocks, form) {
 export default function Refusal({ blocks = [], tried = false, form, style }) {
   useLocale();
   if (!blocks.length) return null;
+  // ROADMAP 97.50 — "WORKING OUT YOUR PRICE" IS A WAIT, NOT A REFUSAL. A
+  // press during it (or one carried over from before a service was tapped)
+  // turned the sentence into the red error box for the 2-3 seconds the
+  // server took. It stays grey and is announced politely; nothing is wrong.
+  const waiting = blocks.includes("pricing") && !blocks.includes("no-service");
   return (
     <p
       // **RE-KEYED ON THE PRESS SO IT IS ANNOUNCED.** The sentence is often
@@ -109,8 +114,8 @@ export default function Refusal({ blocks = [], tried = false, form, style }) {
       // about, moved rather than fixed. A fresh node carrying `role="alert"`
       // is announced when it appears.
       key={tried ? "answered" : "calm"}
-      className={`bk-refusal ${tried ? "bk-error" : "bk-muted"}`}
-      role={tried ? "alert" : undefined}
+      className={`bk-refusal ${tried && !waiting ? "bk-error" : "bk-muted"}`}
+      role={tried ? (waiting ? "status" : "alert") : undefined}
       style={style ?? { marginTop: 10 }}
     >
       {reasonFor(blocks, form)}
