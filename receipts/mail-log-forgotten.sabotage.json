@@ -1,31 +1,37 @@
 {
-  "git_sha": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
-  "git_sha_started": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
+  "git_sha": "85b9b324d75067e8b97b26f632548a60434b225c",
+  "git_sha_started": "85b9b324d75067e8b97b26f632548a60434b225c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T23:32:23.239Z",
+  "finished_at": "2026-10-23T08:35:03.796Z",
   "failures": [
     "390x844: no row but Eli's shared-address one names Dana — Dana Doe, see you Saturdaydana.work@example.comMon, Oct 19 · Delivered | Spring specialdana@example.comWed, Oct 14 · Del",
-    "390x844: her campaign email opens to \"not saved\"",
+    "390x844: her campaign email opens with no copy",
+    "390x844: her opened email says the customer was deleted",
     "390x844: her opened email names nothing of hers — dana@example",
+    "390x844 es: her opened email says the customer was deleted",
     "320x740: no row but Eli's shared-address one names Dana — Dana Doe, see you Saturdaydana.work@example.comMon, Oct 19 · Delivered | Spring specialdana@example.comWed, Oct 14 · Del",
-    "320x740: her campaign email opens to \"not saved\"",
+    "320x740: her campaign email opens with no copy",
+    "320x740: her opened email says the customer was deleted",
     "320x740: her opened email names nothing of hers — dana@example",
     "768x1024: no row but Eli's shared-address one names Dana — Dana Doe, see you Saturdaydana.work@example.comMon, Oct 19 · Delivered | Spring specialdana@example.comWed, Oct 14 · Del",
-    "768x1024: her campaign email opens to \"not saved\"",
+    "768x1024: her campaign email opens with no copy",
+    "768x1024: her opened email says the customer was deleted",
     "768x1024: her opened email names nothing of hers — dana@example",
     "1440x900: no row but Eli's shared-address one names Dana — Dana Doe, see you Saturdaydana.work@example.comMon, Oct 19 · Delivered | Spring specialdana@example.comWed, Oct 14 · Del",
-    "1440x900: her campaign email opens to \"not saved\"",
-    "1440x900: her opened email names nothing of hers — dana@example"
+    "1440x900: her campaign email opens with no copy",
+    "1440x900: her opened email says the customer was deleted",
+    "1440x900: her opened email names nothing of hers — dana@example",
+    "1440x900 es: her opened email says the customer was deleted"
   ],
   "warnings": [],
   "artifacts": [
     "artifacts/forget-customer-sql/business-a-mail-before-fix.json",
-    "artifacts/mail-log-forgotten/sabotage-pre-fix"
+    "C:/Users/rando/AppData/Local/Temp/claude/C--Users-rando-Downloads-claude/9392d833-6d8c-494e-aa67-7543209ddfe8/scratchpad/brk/sabotage-pre-fix"
   ],
   "dimensions": {
     "break": "pre-fix",
-    "base": "http://localhost:5173",
+    "base": "http://localhost:5243",
     "rows": 8,
     "sizes": [
       "390x844",
@@ -35,16 +41,16 @@
     ]
   },
   "check_id": "mail-log-forgotten",
-  "started_at": "2026-10-17T23:32:02.307Z",
+  "started_at": "2026-10-23T08:34:25.076Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 32,
-  "min_assertions": 32,
-  "assertion_floor": "structural: eight checks at each of four widths",
+  "assertions_executed": 44,
+  "min_assertions": 44,
+  "assertion_floor": "structural: ten checks at each of four widths, plus two Spanish checks at 390 and 1440",
   "canary": {
     "id": "pre-97.20-rows",
     "observed_failure": true

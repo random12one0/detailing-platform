@@ -318,6 +318,8 @@ export const appEs = {
   "Could not read this email: {detail}": "No se pudo leer este correo: {detail}",
   "This email's content was not saved. Only emails sent after previews were added keep a copy.":
     "El contenido de este correo no se guardó. Solo los correos enviados después de añadir las vistas previas conservan una copia.",
+  "This email was about a customer you deleted, so its content was removed.":
+    "Este correo era sobre un cliente que eliminaste, así que se borró su contenido.",
   "Could not read your sent email: {detail}":
     "No se pudo leer tu correo enviado: {detail}",
   // The same ranges again, INSIDE a sentence — *"No hay citas en los últimos

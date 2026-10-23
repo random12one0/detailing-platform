@@ -83,7 +83,10 @@ function MailPreview({ row, timezone, onClose }) {
       subtitle={`${row.to_email} · ${dateLong(localDate(row.sent_at, timezone), appIntlLocale().startsWith("es") ? "es" : "en")} · ${t(state.word)}`}>
       {error ? <div className="error-box" role="alert">{error}</div>
         : body === undefined ? <p className="quiet" aria-busy="true">{t("Loading…")}</p>
-        : body === null ? <p className="quiet" data-mail-nobody="">{t("This email's content was not saved. Only emails sent after previews were added keep a copy.")}</p>
+        : body === null ? <p className="quiet" data-mail-nobody="">{row.subject === "Deleted customer"
+          // 97.20b: "Delete for good" writes exactly this subject and removes the copy (20261017210000).
+          ? t("This email was about a customer you deleted, so its content was removed.")
+          : t("This email's content was not saved. Only emails sent after previews were added keep a copy.")}</p>
         : <iframe title={row.subject} sandbox="" srcDoc={body} data-mail-body=""
             style={{ width: "100%", height: "60vh", border: 0, background: "#fff", borderRadius: "var(--r-sm, 6px)" }} />}
     </Sheet>

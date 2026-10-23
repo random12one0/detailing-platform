@@ -12,7 +12,10 @@
 //
 // Per width it asks: the list shows all 7 of A's rows; no text on the page or in either opened preview
 // names Dana (name, address, phone, street); Eli's confirmation still shows his address and opens to his
-// email as sent; the owner's alert about Eli still names him; a forgotten row opens to "not saved".
+// email as sent; the owner's alert about Eli still names him; a forgotten row opens to the 97.20b sentence
+// ("…a customer you deleted…"), while an email that simply has no saved copy (Eli's alert, its body read
+// answered NULL as for mail sent before previews existed) keeps the old "not saved" sentence. At 390 and
+// 1440 both openings are repeated in Spanish.
 // `--break=pre-fix` feeds the rows as the 8.11 function left them and must go red naming Dana.
 
 import { createRequire } from "node:module";
@@ -32,6 +35,15 @@ const PRE = load("artifacts/forget-customer-sql/business-a-mail-before-fix.json"
 let feed = ROWS;
 let canaryCaught = false;
 const SIZES = [[390, 844], [320, 740], [768, 1024], [1440, 900]];
+const ES_WIDTHS = [390, 1440];
+// 97.20b: the two reasons a preview can have no copy, as the screen must word them.
+const SAID = {
+  en: { gone: "This email was about a customer you deleted, so its content was removed.",
+        unsaved: "This email's content was not saved. Only emails sent after previews were added keep a copy." },
+  es: { gone: "Este correo era sobre un cliente que eliminaste, así que se borró su contenido.",
+        unsaved: "El contenido de este correo no se guardó. Solo los correos enviados después de añadir las vistas previas conservan una copia." },
+};
+let noCopy = null; // a row id whose body read is answered NULL: an email sent before previews were added
 const DANA = /dana doe|dana@example|12 elm|555-0101/i;
 // Row 7 is ELI's mail, linked to Eli, at the household address he shares with Dana: it is his and stays
 // (the SQL test pins it byte for byte). So the list is judged row by row, and only row 7 may show it.
@@ -65,7 +77,7 @@ try {
       const one = /^eq\.(.+)$/.exec(u.searchParams.get("id") || "")?.[1];
       if (one) {
         const r = feed.find((x) => x.id === one);
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(r ? { body_html: r.body_html } : null) });
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(r ? { body_html: one === noCopy ? null : r.body_html } : null) });
       }
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(feed.map(({ id, subject, to_email, status, detail, sent_at }) => ({ id, subject, to_email, status, detail, sent_at }))) });
     });
@@ -97,29 +109,62 @@ try {
     check(`${tag}: the owner's alert about Eli still names him`, text.includes("New booking: Eli Park"));
     await page.screenshot({ path: `${OUT}/list-${tag}.png`, fullPage: false });
 
-    // A forgotten row (the newest of hers) opens to "not saved", and nothing in it names her.
+    const openRow = async (row) => {
+      await page.locator("[data-mail-log] .row-item").nth(ROWS.indexOf(row)).click();
+      await page.waitForSelector("[data-mail-nobody], [data-mail-body]", { state: "attached", timeout: 15000 });
+      return page.evaluate(() => {
+        const nobody = document.querySelector("[data-mail-nobody]");
+        const frame = document.querySelector("[data-mail-body]");
+        return { nobody: !!nobody, said: nobody?.textContent || "", body: frame?.getAttribute("srcdoc") || "",
+          all: (document.querySelector(".sheet")?.textContent || "") + (frame?.getAttribute("srcdoc") || "") };
+      });
+    };
+    const closeRow = async () => {
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(500);
+      if (await page.locator("[data-mail-nobody], [data-mail-body]").count()) await page.goBack().catch(() => {});
+    };
     const forgotten = ROWS.find((r) => r.id.endsWith("4"));
-    await items.nth(ROWS.indexOf(forgotten)).click();
-    await page.waitForSelector("[data-mail-nobody], [data-mail-body]", { state: "attached", timeout: 15000 });
-    const sheet = await page.evaluate(() => {
-      const nobody = !!document.querySelector("[data-mail-nobody]");
-      const frame = document.querySelector("[data-mail-body]");
-      return { nobody, all: (document.querySelector(".sheet")?.textContent || "") + (frame?.getAttribute("srcdoc") || "") };
-    });
-    check(`${tag}: her campaign email opens to "not saved"`, sheet.nobody);
+    const alert = ROWS.find((r) => r.id.endsWith("6"));
+    // An email with no saved copy for the OTHER reason: Eli's alert, its body answered NULL.
+    const openUnsaved = async () => { noCopy = alert.id; try { return await openRow(alert); } finally { noCopy = null; } };
+
+    // A forgotten row (the newest of hers) says she was deleted, and nothing in it names her.
+    const sheet = await openRow(forgotten);
+    check(`${tag}: her campaign email opens with no copy`, sheet.nobody);
+    check(`${tag}: her opened email says the customer was deleted`, sheet.said === SAID.en.gone, sheet.said.slice(0, 100));
     check(`${tag}: her opened email names nothing of hers`, !DANA.test(sheet.all), (sheet.all.match(DANA) || [""])[0]);
     await page.screenshot({ path: `${OUT}/forgotten-open-${tag}.png` });
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(500);
-    if (await page.locator("[data-mail-nobody]").count()) await page.goBack().catch(() => {});
+    await closeRow();
+
+    // An email that was simply never kept still gives the old reason.
+    const unsaved = await openUnsaved();
+    check(`${tag}: an email with no saved copy still says "not saved"`, unsaved.said === SAID.en.unsaved, unsaved.said.slice(0, 100));
+    await page.screenshot({ path: `${OUT}/unsaved-open-${tag}.png` });
+    await closeRow();
 
     // Eli's confirmation opens to his email exactly as sent.
     const eli = ROWS.find((r) => r.id.endsWith("5"));
-    await page.locator("[data-mail-log] .row-item").nth(ROWS.indexOf(eli)).click();
-    await page.waitForSelector("[data-mail-body], [data-mail-nobody]", { state: "attached", timeout: 15000 });
-    const body = await page.locator("[data-mail-body]").getAttribute("srcdoc").catch(() => null);
-    check(`${tag}: Eli's confirmation opens to his email as sent`, (body || "").includes("Eli Park"), String(body).slice(0, 50));
+    const eliSheet = await openRow(eli);
+    check(`${tag}: Eli's confirmation opens to his email as sent`, eliSheet.body.includes("Eli Park"), eliSheet.body.slice(0, 50));
     await page.screenshot({ path: `${OUT}/eli-open-${tag}.png` });
+    await closeRow();
+
+    // The same two openings in Spanish (the dashboard's own language switch, `dp.lang.app`).
+    if (ES_WIDTHS.includes(w)) {
+      await page.evaluate(() => localStorage.setItem("dp.lang.app", "es"));
+      await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
+      await openLog();
+      const es = await openRow(forgotten);
+      check(`${tag} es: her opened email says the customer was deleted`, es.said === SAID.es.gone, es.said.slice(0, 100));
+      await page.screenshot({ path: `${OUT}/forgotten-open-es-${tag}.png` });
+      await closeRow();
+      const esUnsaved = await openUnsaved();
+      check(`${tag} es: an email with no saved copy still says "not saved"`, esUnsaved.said === SAID.es.unsaved, esUnsaved.said.slice(0, 100));
+      await page.screenshot({ path: `${OUT}/unsaved-open-es-${tag}.png` });
+      await closeRow();
+      await page.evaluate(() => localStorage.setItem("dp.lang.app", "en"));
+    }
 
     // docs/gotchas.md 120: the gear's one designed whoami 404 is not a defect.
     const real = noise.filter((m) => !/platform-admin/.test(m) && !/status of 404/.test(m));
@@ -139,7 +184,7 @@ try {
   await browser.close();
 }
 
-const EXPECTED = SIZES.length * 8;
+const EXPECTED = SIZES.length * 10 + ES_WIDTHS.length * 2;
 writeReceipt({
   check_id: "mail-log-forgotten",
   started_at,
@@ -152,7 +197,7 @@ writeReceipt({
   assertions_executed: assertions,
   min_assertions: EXPECTED,
   failures,
-  assertion_floor: "structural: eight checks at each of four widths",
+  assertion_floor: "structural: ten checks at each of four widths, plus two Spanish checks at 390 and 1440",
   artifacts: [SRC, OUT],
   canary: { id: "pre-97.20-rows", observed_failure: canaryCaught },
   dimensions: { break: BREAK || undefined, base: BASE, rows: ROWS.length, sizes: SIZES.map(([w, h]) => `${w}x${h}`) },

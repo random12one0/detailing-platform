@@ -1,17 +1,17 @@
 {
-  "git_sha": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
-  "git_sha_started": "336aa96aeaa34df7f479f0f1b6c44d4764056393",
+  "git_sha": "85b9b324d75067e8b97b26f632548a60434b225c",
+  "git_sha_started": "85b9b324d75067e8b97b26f632548a60434b225c",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-17T23:32:41.797Z",
+  "finished_at": "2026-10-23T08:34:11.597Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
     "artifacts/forget-customer-sql/business-a-mail-after.json",
-    "artifacts/mail-log-forgotten"
+    "C:/Users/rando/Downloads/claude/detailing-platform/.manager-shots/97.20b"
   ],
   "dimensions": {
-    "base": "http://localhost:5173",
+    "base": "http://localhost:5243",
     "rows": 8,
     "sizes": [
       "390x844",
@@ -21,16 +21,16 @@
     ]
   },
   "check_id": "mail-log-forgotten",
-  "started_at": "2026-10-17T23:32:23.908Z",
+  "started_at": "2026-10-23T08:33:34.931Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 32,
-  "min_assertions": 32,
-  "assertion_floor": "structural: eight checks at each of four widths",
+  "assertions_executed": 44,
+  "min_assertions": 44,
+  "assertion_floor": "structural: ten checks at each of four widths, plus two Spanish checks at 390 and 1440",
   "canary": {
     "id": "pre-97.20-rows",
     "observed_failure": true
