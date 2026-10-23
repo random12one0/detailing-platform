@@ -1511,6 +1511,7 @@ export const appEs = {
   "Check your booked jobs": "Revisa tus trabajos agendados",
   "Checking your link…": "Revisando tu enlace…",
   "Checking your subscription…": "Revisando tu suscripción…",
+  "We could not load your subscription.": "No pudimos cargar tu suscripción.",
   "Choose a customer…": "Escoge un cliente…",
   "Choose a password": "Escoge una contraseña",
   "Choose a plan…": "Escoge un plan…",
