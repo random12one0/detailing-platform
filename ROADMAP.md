@@ -31527,6 +31527,10 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Acceptance criteria:
   - A bill line shows its amount to the cent ($12.99), at 390 and 1440
 - [ ] **98.13 — On a phone, the Team screen's "Access" choice is squeezed into half the width and its two options stack inside a pill.**
+  **Held for a builder, not for Andrew (belt 2026-10-23).** The finish review still found problems; they are work, not a question. Continue branch `belt/98.13-20261023035058861`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
+  - 1. **tests/team-access-rule.test.mjs; app/src/theme.css:** No executed proof rejects an actual two-column or wrapped-option regression with the classes intact. Failing on main because a selector is missing proves a different condition.
+  - 2. **ROADMAP.md; scripts/team-access-pixels.mjs:** Required Team captures at 320px and 392×844, plus the wider-screen screenshot comparison, remain missing. Decision tests and stored pictures do not resolve these requirements; the completion tick is premature.
+  - 3. **app/src/components/NewBookingModal.jsx; ROADMAP.md:** Opened-modal visual verification at 768×1024 remains missing. Team screenshots at that size and modal flows at other sizes do not cover it.
   **Held for a builder, not for Andrew (belt 2026-10-23).** The finish review still found problems; they are work, not a question. Continue branch `belt/98.13-20261023005529645`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. **ROADMAP.md; scripts/team-access-pixels.mjs:** Required Team captures at 320px and 392×844 remain missing, as does evidence of the wider-screen screenshot comparison. Calculated stylesheet behavior and clean page checks do not establish those visual requirements.
   - 2. **tests/team-access-rule.test.mjs:** The wrapped-option rejection still relies on a synthetic picture. No new evidence demonstrates rejection of wrapping on the real rendered screen; the flows failing on main because a selector is absent do not prove this.
