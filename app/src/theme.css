@@ -4364,6 +4364,45 @@ button.warn-box:hover { border-color: var(--fog-2); }
   background: var(--fog-2); border-radius: var(--r-pill);
   border: 2px solid transparent; background-clip: content-box;
 }
+/* ROADMAP 3.1e — THE BOX'S TWO EDGES, which 3.1a bounded and nobody specified.
+   (1) A HARD CUT READ AS A BROKEN ROW: mid-scroll a row was sliced 33px against
+   the top with nothing to say "there is more". Both edges now fade over
+   `--mail-fade`, and the same length is padded inside the box, so at rest the
+   fade lies over empty padding and no row is dimmed until it is actually
+   scrolled under an edge. The second mask layer keeps the rightmost strip (the
+   3.1b padding the thumb runs in) unmasked, so the fade never eats the thumb.
+   (2) AT PHONE WIDTH THE BOX RAN UNDER THE TAB BAR — at 392x844 it ended at
+   808px with the scrim starting at 708. The height now also stops at the
+   ground: viewport, less `--tabclear` (the scrim is exactly that tall), less
+   where the box starts (`--mail-top`, measured in `MailLog.jsx`). `--tabclear`
+   ITSELF IS NOT TOUCHED — `.app-main` and the scrim read it (CLAUDE.md, shared
+   variables). `svh` so the bound holds with the browser's toolbars showing; a
+   browser without `svh` drops this declaration and keeps 3.1a's line above.
+   The `8rem` floor keeps two rows on a screen too short to fit any clearance
+   (a sideways phone) instead of collapsing the list to nothing.
+   Measured by `scripts/mail-log-edges.mjs`. */
+[data-mail-log] .mail-scroll {
+  --mail-fade: var(--sp-4);
+  padding-block: var(--mail-fade);
+  max-height: max(8rem, min(60vh, 520px, calc(100svh - var(--tabclear) - var(--mail-top, 0px))));
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, #000 var(--mail-fade), #000 calc(100% - var(--mail-fade)), transparent),
+    linear-gradient(#000, #000);
+  mask-image:
+    linear-gradient(to bottom, transparent, #000 var(--mail-fade), #000 calc(100% - var(--mail-fade)), transparent),
+    linear-gradient(#000, #000);
+  -webkit-mask-size: 100% 100%, var(--sp-3) 100%;
+  mask-size: 100% 100%, var(--sp-3) 100%;
+  -webkit-mask-position: 0 0, 100% 0;
+  mask-position: 0 0, 100% 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+/* The same query that hides the scrim: from 1024 the bar is a side rail, no
+   ground covers the bottom strip, and the box keeps 3.1a's bound. */
+@media (min-width: 1024px) {
+  [data-mail-log] .mail-scroll { max-height: min(60vh, 520px); }
+}
 /* A ROW WHOSE TEXT IS LONGER THAN A NAME. Two lists have one — the FAQ, whose
    text is a whole QUESTION beside three controls (roadmap 3.2b), and the web
    address, whose text is a HOSTNAME beside two (roadmap 3.3). Everything else

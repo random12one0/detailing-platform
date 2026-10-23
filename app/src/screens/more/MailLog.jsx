@@ -32,7 +32,7 @@
 // but `select` and has no insert, update or delete policy at all, so there is
 // nothing here for a control to change.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { Segmented } from "../../components/controls.jsx";
@@ -104,6 +104,38 @@ export default function MailLog() {
   // Everything read can arrive under Problems and paint rows that are not
   // problems — the same guard the back-office list carries.
   const latest = useRef(0);
+  // ROADMAP 3.1e — WHERE THE BOX STARTS, so its height can stop at the tab
+  // bar's ground. CSS can subtract `--tabclear` but cannot know how far down
+  // the page the box begins (the intro wraps differently per width and per
+  // language), so that one number is measured here and handed to the stylesheet
+  // as `--mail-top`. `offsetTop`, not `getBoundingClientRect`, so a page
+  // scrolled or an entrance transform mid-flight cannot skew it. Re-measured
+  // when the viewport changes (the root is `height: 100%`, so it resizes with
+  // the screen and nothing else), when the intro above the box rewraps, and
+  // once the web fonts have landed.
+  const scrollBox = useRef(null);
+  useLayoutEffect(() => {
+    const el = scrollBox.current;
+    if (!el) return undefined;
+    let live = true;
+    const measure = () => {
+      if (!live) return;
+      let y = 0;
+      // `offsetTop` counts from the parent's PADDING edge, so each parent's
+      // own top border (`clientTop`) is added back.
+      // `offsetTop` is also a whole number while layout is not (301 for a box
+      // at 301.95 at 392), so 1px is added rather than leave a rounded-off
+      // fraction of the box standing on the ground.
+      for (let e = el; e; e = e.offsetParent) y += e.offsetTop + (e === el ? 0 : e.clientTop);
+      el.style.setProperty("--mail-top", `${y + 1}px`);
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    ro?.observe(document.documentElement);
+    ro?.observe(el.parentElement);
+    return () => { live = false; ro?.disconnect(); };
+  }, []);
 
   const load = useCallback(async (w) => {
     const mine = ++latest.current;
@@ -153,7 +185,7 @@ export default function MailLog() {
             `.rows` inside `EmailTrail`: see theme.css's note beside
             `.mail-scroll` for why putting it on the flex column itself
             stacked every row's text on the row above it. */}
-        <div className="mail-scroll">
+        <div className="mail-scroll" ref={scrollBox}>
           <EmailTrail rows={rows} timezone={business.timezone} cap={CAP} error={error} to groups onOpen={setOpened}
             empty={which === "bad"
               ? "Nothing has bounced, been refused or failed to send."

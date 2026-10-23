@@ -1,0 +1,143 @@
+{
+  "git_sha": "c66e1540ac1f29a025ec96632e5c9f358851cf61",
+  "git_sha_started": "c66e1540ac1f29a025ec96632e5c9f358851cf61",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-23T09:04:32.408Z",
+  "failures": [],
+  "warnings": [
+    "The fade is judged on pixels: a 1px strip along the edge with a subject line straddling it, against the same strip with the rows hidden.",
+    "The ground is judged with the PAGE scrolled to the top; the scrim is pointer-events: none, so this compares rectangles (docs/gotchas.md 100).",
+    "Sabotage is applied to the live page with addStyleTag and must change the computed style before the run is judged (gotchas 102); `unclearanced` is a no-op at 1440 by design."
+  ],
+  "artifacts": [
+    ".manager-shots/3.1e/rest-1440.png",
+    ".manager-shots/3.1e/edge-top-1440.png",
+    ".manager-shots/3.1e/edge-bottom-1440.png",
+    ".manager-shots/3.1e/rest-392.png",
+    ".manager-shots/3.1e/edge-top-392.png",
+    ".manager-shots/3.1e/edge-bottom-392.png",
+    ".manager-shots/3.1e/rest-320.png",
+    ".manager-shots/3.1e/edge-top-320.png",
+    ".manager-shots/3.1e/edge-bottom-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "392x844",
+      "320x700"
+    ],
+    "business": "demo-detail",
+    "item": "3.1e",
+    "break": null
+  },
+  "check_id": "mail-log-edges",
+  "started_at": "2026-10-23T09:04:19.441Z",
+  "status": "pass",
+  "expected_targets": 3,
+  "discovered_targets": 3,
+  "attempted_targets": 3,
+  "completed_targets": 3,
+  "skipped_targets": 0,
+  "assertions_executed": 17,
+  "min_assertions": 17,
+  "assertion_floor": "3 widths x 5 (ground, top fade, bottom fade, rest untouched, console) + 2 canaries = 17, an EQUALITY (docs/gotchas.md 98).",
+  "canaries": [
+    {
+      "name": "the-box-under-the-scrim",
+      "flagged": true
+    },
+    {
+      "name": "the-cut-subject-line",
+      "flagged": true
+    }
+  ],
+  "sabotage": [],
+  "observed": [
+    {
+      "id": "1440/ground/clear",
+      "ok": true,
+      "detail": "box bottom 791.00px vs no scrim at this width (display: none); the viewport / .settings-body bottom 818.00px"
+    },
+    {
+      "id": "1440/edge/top-fades",
+      "ok": true,
+      "detail": "a subject line straddling the top edge: ink in the edge's 1px strip 6 (max 30)"
+    },
+    {
+      "id": "1440/edge/bottom-fades",
+      "ok": true,
+      "detail": "a subject line straddling the bottom edge: ink in the edge's 1px strip 6 (max 30)"
+    },
+    {
+      "id": "1440/rest/untouched",
+      "ok": true,
+      "detail": "start: mask on vs off differs by 0; end: mask on vs off differs by 1 (max 2)"
+    },
+    {
+      "id": "1440/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "392/ground/clear",
+      "ok": true,
+      "detail": "box bottom 706.50px vs .tabscrim's top 708.00px"
+    },
+    {
+      "id": "392/edge/top-fades",
+      "ok": true,
+      "detail": "a subject line straddling the top edge: ink in the edge's 1px strip 6 (max 30)"
+    },
+    {
+      "id": "392/edge/bottom-fades",
+      "ok": true,
+      "detail": "a subject line straddling the bottom edge: ink in the edge's 1px strip 18 (max 30)"
+    },
+    {
+      "id": "392/rest/untouched",
+      "ok": true,
+      "detail": "start: mask on vs off differs by 0; end: mask on vs off differs by 1 (max 2)"
+    },
+    {
+      "id": "392/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "320/ground/clear",
+      "ok": true,
+      "detail": "box bottom 563.00px vs .tabscrim's top 564.00px"
+    },
+    {
+      "id": "320/edge/top-fades",
+      "ok": true,
+      "detail": "a subject line straddling the top edge: ink in the edge's 1px strip 6 (max 30)"
+    },
+    {
+      "id": "320/edge/bottom-fades",
+      "ok": true,
+      "detail": "a subject line straddling the bottom edge: ink in the edge's 1px strip 6 (max 30)"
+    },
+    {
+      "id": "320/rest/untouched",
+      "ok": true,
+      "detail": "start: mask on vs off differs by 0; end: mask on vs off differs by 1 (max 2)"
+    },
+    {
+      "id": "320/page/console",
+      "ok": true,
+      "detail": "0 errors, 0 warnings"
+    },
+    {
+      "id": "canary/the-box-under-the-scrim",
+      "ok": true,
+      "detail": "3.1e's own reading (808 vs 708 at 392) must NOT read as clear"
+    },
+    {
+      "id": "canary/the-cut-subject-line",
+      "ok": true,
+      "detail": "a strip with 140 of ink must NOT read as faded"
+    }
+  ]
+}

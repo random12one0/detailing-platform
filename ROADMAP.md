@@ -11749,7 +11749,8 @@ requested.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): apply migration 20261010010000, then publish `send-email`; only then can a real stored email be opened and the box ticked. FOR-ANDREW.md carries the runbook.
   **NOT measured:** `?lite=1`; the sheet's look beyond `.manager-shots/3.1d/*.png`; Spanish rendering of the subtitle date.
 
-- [ ] **3.1e — the mail log's new scroll box has no edge treatment, and at
+- [x] **3.1e — the mail log's new scroll box has no edge treatment, and at
+  DONE 2026-10-23 (Claude lane) - both edges fade over 18px with matching padding (at rest the mask changes 0-1 of 255 per channel); below 1024 max-height also subtracts --tabclear and the box measured top (--mail-top, MailLog.jsx), --tabclear untouched. `node scripts/mail-log-edges.mjs` 17/0: box bottom 706.50 vs .tabscrim top 708.00 at 392x844, 563.00 vs 564.00 at 320x700, 791 vs 818 at 1440 (no scrim); ink on a straddled edge 6-18 of 255 (hard cut 214-219). --break=unclearanced reds 392 (806.89 vs 708) and 320 (740 vs 564); --break=hardedge reds all 6 edge checks. mail-log-scroll 20/0 (2 UNJUDGEABLE), gaps 24/0, groups 17/0, preview 20/0, scrim-clearance and tabbar-clearance green, console clean. Shots .manager-shots/3.1e/. Floor 8rem engages only on screens too short to clear (e.g. 320x568).
   phone width its bottom is underneath the tab bar.** 3.1a bounded the list
   correctly; what nobody specified is what its two edges should look like.
   **Measured 2026-10-09 by the supervisor, at `653bf3b`, mid-scroll (50%), with
