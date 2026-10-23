@@ -32002,7 +32002,8 @@ Added by the Control Room's Audit tab from run 2, after a second check by a diff
   - Checked at 390 first, then 1440, console clean
   - The Control Room's audit re-check of R2-07 passes after this box is ticked
 
-- [ ] **101.5 — Several money screens print some sentences in English on a Spanish dashboard (audit R2-08).**
+- [x] **101.5 — Several money screens print some sentences in English on a Spanish dashboard (audit R2-08).**
+  Claude lane: every sentence on Your subscription, its Cancel box, How you get paid and Money now goes through t() as one whole sentence (styled figures as {placeholders}, no glued fragments); 12 Spanish keys added incl. 4 ternary arms that had none, raw DB error replaced. Test tests/money-screens-spanish.test.mjs fails 3/4 on the old code, 4/4 after. Spanish shots at 390/1440 in .manager-shots/101.5/fixed, console clean.
   `app/src/screens/more/Billing.jsx:411-413`, `app/src/screens/more/Billing.jsx:428-430`, `app/src/screens/more/Billing.jsx:582`, `app/src/screens/more/Billing.jsx:883`, `app/src/screens/more/Billing.jsx:896-898`, `app/src/screens/more/Payments.jsx:272`, `app/src/screens/Money.jsx:992`. These strings are bare JSX or template text: Billing's 'Everything you have already set up stays exactly as it is…', 'Every one of these also includes the one-time', 'Code {promo.code}', 'You committed to {n} months', 'After that your booking page stops taking new bookings…', Payments' 'Saved.' and the raw error.message, Money's expense heading and 'more in' line use period.label without t(), and Billing builds sentences from fragments (', and '). A Spanish-speaking detailer sees mixed languages on the screen that explains what they are charged and what happens when they cancel.
   Supposed to: Every sentence on the dashboard goes through t() so a Spanish dashboard reads in Spanish.
   Fix: Wrap each of those strings in t() with one key per sentence (no glued fragments) and add the Spanish text.

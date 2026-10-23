@@ -269,7 +269,10 @@ export default function Payments() {
         .filter((r) => r.label && r.handle)
         .slice(0, 8),
     }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
+    // ROADMAP 101.5 — the database's own error is English and technical; the
+    // detailer gets one sentence in their language, the detail goes to the log.
+    if (error) console.error(error);
+    setMsg(error ? { ok: false, text: t("Could not save that. Try again.") } : { ok: true, text: t("Saved.") });
     if (!error) reload();
     setBusy(false);
   };

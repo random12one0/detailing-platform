@@ -1206,12 +1206,6 @@ export const appEs = {
 
   // Promo codes and the site sale.
   "Code added.": "Código agregado.",
-  // ROADMAP 101.3 - plain-words results on Promo codes.
-  "You already have a code called {code}.": "Ya tienes un código llamado {code}.",
-  "Could not deactivate {code}. Try again.": "No se pudo desactivar {code}. Inténtalo otra vez.",
-  "Could not activate {code}. Try again.": "No se pudo activar {code}. Inténtalo otra vez.",
-  "Could not load your promo codes.": "No se pudieron cargar tus códigos de descuento.",
-  "No codes yet.": "Todavía no hay códigos.",
   "Sale settings saved.": "Ajustes del descuento guardados.",
   "Comes off every booking automatically. No code for the customer to enter.":
     "Se descuenta de cada cita automáticamente. El cliente no escribe ningún código.",
@@ -2137,6 +2131,26 @@ export const appEs = {
   "You add the address above. Done.": "Tú agregas la dirección de arriba. Listo.",
   "You declined this request.": "Rechazaste esta solicitud.",
   "Someone who can answer requests will reply to this one.": "Alguien que puede responder solicitudes contestará esta.",
+  // ROADMAP 101.5 — Your subscription and its Cancel box, one key per whole
+  // sentence. The figures are `{placeholders}` because they are styled spans
+  // (`tSentence` in `more/Billing.jsx`), so the Spanish word order is ours.
+  "Everything you have already set up stays exactly as it is. This is what keeps your booking page online.":
+    "Todo lo que ya configuraste se queda exactamente como está. Esto es lo que mantiene tu página de citas en línea.",
+  "Every one of these also includes the one-time {fee} build.":
+    "Cada uno de estos también incluye un pago único de {fee} por la construcción.",
+  "Code {code}": "Código {code}",
+  "{today} off today": "{today} de descuento hoy",
+  "{today} off today, and {after} every month after": "{today} de descuento hoy, y {after} cada mes después",
+  "{today} off today, and {after} every year after": "{today} de descuento hoy, y {after} cada año después",
+  "You committed to {months} months": "Te comprometiste a {months} meses",
+  // Chosen by a ternary inside `t()`, so `i18n-coverage.mjs` could not see
+  // they had no Spanish; `tests/money-screens-spanish.test.mjs` reads both arms.
+  "every month": "cada mes",
+  "every year": "cada año",
+  "Booking system": "Sistema de citas",
+  "Website and booking system": "Sitio web y sistema de citas",
+  "After that your booking page stops taking new bookings. Nothing is deleted — your jobs, your customers and your settings stay, and customers who have already booked keep their own page.":
+    "Después de eso, tu página de citas deja de aceptar citas nuevas. No se borra nada: tus trabajos, tus clientes y tu configuración se quedan, y los clientes que ya agendaron conservan su propia página.",
   "You keep everything until {date}, and this month is not refunded.":
     "Conservas todo hasta el {date}, y este mes no se reembolsa.",
   "You pay": "Pagas",
@@ -2162,7 +2176,6 @@ export const appEs = {
   // a place name, a truck, a service. `e.g.` becomes `ej.`.
   "blank = one-off": "en blanco = una sola vez",
   "book.": "reserva.",
-  "build.": "construcción.",
   "button and a way to stop getting these are added for you.":
     "y una forma de dejar de recibirlos se agregan solos.",
   "e.g. 2021 Tacoma": "ej. Tacoma 2021",
@@ -2190,7 +2203,6 @@ export const appEs = {
     "en tu configuración. Hasta entonces, a quien lo abra se le dice que sigues configurando.",
   "logo": "logo",
   "name@example.com": "nombre@ejemplo.com",
-  "off today": "de descuento hoy",
   "once": "una vez",
   "or": "o",
   "owed": "pendientes",

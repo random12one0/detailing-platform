@@ -47,7 +47,7 @@
 //     offer, whatever a future session thinks of. The exit fee is printed
 //     BEFORE the press, not discovered after it.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { CreditCard, ExternalLink, TriangleAlert } from "lucide-react";
 import { api } from "../../lib/api.js";
 import { appearanceFromTokens, loadStripeJs } from "../../lib/stripejs.js";
@@ -70,6 +70,16 @@ const usd = (cents) =>
     minimumFractionDigits: cents % 100 ? 2 : 0,
     maximumFractionDigits: 2,
   })}`;
+
+// ROADMAP 101.5 — A WHOLE SENTENCE WITH STYLED FIGURES IN IT. `t()` returns a
+// string, so a sentence whose amounts are their own `<span>` used to be glued
+// from English fragments ("off today", ", and ", "build.") that Spanish cannot
+// reorder. This translates the WHOLE sentence and drops each element into its
+// `{placeholder}`, so the translator owns the word order.
+const tSentence = (english, parts) =>
+  t(english).split(/(\{\w+\})/).map((bit, i) => (
+    <Fragment key={i}>{/^\{\w+\}$/.test(bit) ? parts[bit.slice(1, -1)] : bit}</Fragment>
+  ));
 
 // Stripe's card brands come back lowercase. "American Express" is two words,
 // so this is a word-wise pass rather than a single capital.
@@ -160,7 +170,6 @@ export default function Billing() {
   const stripeRef = useRef(null);         // { stripe, elements }
 
   const load = useCallback(async () => {
-    setError("");
     try {
       setData(await api.billingSummary(business.id));
     } catch (e) {
@@ -309,27 +318,7 @@ export default function Billing() {
     setPaying(false);
   }
 
-  // ROADMAP 101.4 — A FAILED FIRST READ SAYS SO IN PLAIN WORDS AND OFFERS A WAY
-  // OUT. It printed only the server's text ("Failed to fetch") with no button,
-  // so the only retry was leaving and coming back. The server's text stays as
-  // small detail for whoever they ring. `load` clears the error first, so the
-  // retry shows "Checking…" again rather than a box that never moves.
-  if (error && !data) {
-    return (
-      <div className="card">
-        <div className="error-box" role="alert">
-          <TriangleAlert aria-hidden="true" />
-          <div>
-            <div>{t("We could not load your subscription.")}</div>
-            <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{error}</div>
-          </div>
-        </div>
-        <div className="btnrow" style={{ marginTop: "var(--sp-3)" }}>
-          <button className="btn" type="button" onClick={load}>{t("Try again")}</button>
-        </div>
-      </div>
-    );
-  }
+  if (error && !data) return <div className="card"><div className="error-box">{error}</div></div>;
   // ONE LINE RATHER THAN NOTHING, AND RATHER THAN A CONCLUSION. This screen's
   // whole content comes from an edge function, and a cold one took five
   // seconds to answer the first time it was opened after a deploy — five
@@ -429,8 +418,7 @@ export default function Billing() {
               already here. A detailer looking at this screen has a dashboard
               full of their own work and no way to know whether paying is what
               keeps it. */}
-          Everything you have already set up stays exactly as it is. This is
-          what keeps your booking page online.
+          {t("Everything you have already set up stays exactly as it is. This is what keeps your booking page online.")}
         </p>
 
         <div className="section-title">{t("Ways to pay")}</div>
@@ -446,9 +434,12 @@ export default function Billing() {
                 BELOW — roadmap 8.3. It has no build fee, so a sentence
                 claiming all of them do would be wrong about the cheapest
                 thing on the screen. "These" names the three it sits above. */}
-            Every one of these also includes the one-time{" "}
-            {listBuildFee > buildFee && <s className="was">{usd(listBuildFee)}</s>}
-            <span className="num">{usd(buildFee)}</span> {t("build.")}
+            {tSentence("Every one of these also includes the one-time {fee} build.", {
+              fee: <>
+                {listBuildFee > buildFee && <s className="was">{usd(listBuildFee)}</s>}
+                <span className="num">{usd(buildFee)}</span>
+              </>,
+            })}
           </p>
         )}
         <div className="rows">
@@ -600,16 +591,16 @@ export default function Billing() {
                   ? (
                     <div className="facts">
                       <div>
-                        <span className="quiet">Code {promo.code}</span>
+                        <span className="quiet">{t("Code {code}", { code: promo.code })}</span>
                         <span className="v">
-                          <span className="strong num">{usd(promo.was_cents - promo.amount_cents)}</span>
-                          {" "}{t("off today")}
-                          {promo.off_recurring_cents > 0 && (
-                            <>
-                              {t(", and ")}
-                              <span className="strong num">{usd(promo.off_recurring_cents)}</span>
-                              {" "}{t(q.bill_interval === "year" ? "every year after" : "every month after")}
-                            </>
+                          {tSentence(
+                            !(promo.off_recurring_cents > 0) ? "{today} off today"
+                              : q.bill_interval === "year" ? "{today} off today, and {after} every year after"
+                              : "{today} off today, and {after} every month after",
+                            {
+                              today: <span className="strong num">{usd(promo.was_cents - promo.amount_cents)}</span>,
+                              after: <span className="strong num">{usd(promo.off_recurring_cents)}</span>,
+                            },
                           )}
                         </span>
                       </div>
@@ -901,7 +892,7 @@ export default function Billing() {
               {data.exit_fee_cents > 0 && (
                 <div>
                   <span className="quiet">{t("Why")}</span>
-                  <span className="v">You committed to {sub.term_months} months</span>
+                  <span className="v">{t("You committed to {months} months", { months: sub.term_months })}</span>
                 </div>
               )}
             </div>
@@ -914,9 +905,7 @@ export default function Billing() {
                   confirm was silent about it: what happens to their work. The
                   pricing page already promises it and both billing emails say
                   it; this is the moment the fear is live. */}
-              {" "}After that your booking page stops taking new bookings.
-              Nothing is deleted — your jobs, your customers and your settings
-              stay, and customers who have already booked keep their own page.
+              {" "}{t("After that your booking page stops taking new bookings. Nothing is deleted — your jobs, your customers and your settings stay, and customers who have already booked keep their own page.")}
             </p>
             <button
               className="btn danger"

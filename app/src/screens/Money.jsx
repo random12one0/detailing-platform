@@ -599,7 +599,7 @@ export default function Money({ onGo }) {
           <p className="body" style={{ marginTop: 10 }}>
             {kind === "all"
               ? t("Nothing recorded yet.")
-              : t("Nothing recorded in {period}.", { period: period.label })}
+              : t("Nothing recorded in {period}.", { period: t(period.label) })}
           </p>
         ) : (<>
           {/* A LOSS MUST NOT LOOK LIKE A WIN. The bar hangs below the rule
@@ -989,7 +989,7 @@ export default function Money({ onGo }) {
     <>
       <div className="tight" data-tour="expenses">
         <div className="row between">
-          <span className="label">{t("Expenses")} · {period.label}</span>
+          <span className="label">{t("Expenses")} · {t(period.label)}</span>
           <button className="btn sm inline filled" onClick={() => setAdding(true)}>
             <Plus strokeWidth={2} /> {t("Add")}
           </button>
@@ -1033,7 +1033,7 @@ export default function Money({ onGo }) {
             {allExpenses
               ? t("Show fewer")
               : t("+{count} more in {period}", {
-                count: periodExpenses.length - EXPENSE_CAP, period: period.label })}
+                count: periodExpenses.length - EXPENSE_CAP, period: t(period.label) })}
           </button>
         )}
       </div>
