@@ -614,10 +614,8 @@ console.log("\ntest 11: the page describes itself");
   // An og:url that is not absolute is one a crawler cannot resolve.
   check("11c · og:url is absolute", /^https:\/\/[a-z.]+\//.test(meta("og:url")), meta("og:url"));
 
-  // NO og:image ON PURPOSE — a white-label platform has no logo by design, and
   // `summary_large_image` promises a picture and draws an empty box when there
-  // is none. The two must stay consistent: adding one without the other is the
-  // failure this pins.
+  // is none, so the card type and og:image (ROADMAP 97.44) must agree.
   const hasImage = /property="og:image"/.test(html);
   check("11d · the card type matches whether there is an image",
     hasImage ? meta("twitter:card") === "summary_large_image" : meta("twitter:card") === "summary",

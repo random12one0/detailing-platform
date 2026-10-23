@@ -31704,7 +31704,8 @@ decisions, not build jobs.
   - The booking page and each example site (`/ex1`…`/ex5`) carry one valid `LocalBusiness` block, checked with a JSON parse and the schema's required fields
   - No private data (owner notes, staff names) appears in it
 
-- [ ] **97.44 — No share image for the platform or for tenants (P-4).**
+- [x] **97.44 — No share image for the platform or for tenants (P-4).**
+  Platform pages now share a 1200x630 card (detailingplatform.com/og-default.png) and a booking page swaps in the business's first photo, else its logo, else a generic "Book your detail" card (og-tenant.png); checked live on /, /pricing and /book/demo-detail at 390 and 1440 (image 200, PNG, 1200x630, console clean; demo tenant has no photo so it showed the fallback), tests/share-image.test.mjs red before and green after; screenshots and both cards in .manager-shots/97.44/. Link previews in texts and Facebook still show the platform card on a booking link, because those crawlers do not run the page; a per-business card needs server prerendering. Live only after the next deploy.
   **Held for a builder, not for Andrew (belt 2026-10-19).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.44-20261019123310972`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. These belt checks pass on main and fail at your code: build scripts changed (scripts/build-og-images.mjs) — the belt does not run them; a person looks first.
   There is no `og:image`. Add a default share image for the platform and one per tenant (the business's own photo or logo when it has one, otherwise a generated card with its name).

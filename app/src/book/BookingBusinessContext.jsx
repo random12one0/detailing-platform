@@ -12,6 +12,7 @@ import { bookingTransport } from "../lib/api.js";
 import { normalizeProfile } from "./core.js";
 import { brandVarsFor } from "../lib/theme.js";
 import { useLocale } from "../hooks/useLocale.js";
+import { PLATFORM_CARD, setShareMeta, shareMetaFor } from "../lib/share.js";
 
 const Ctx = createContext(null);
 export const useBookingBusiness = () => useContext(Ctx);
@@ -65,7 +66,10 @@ export function BookingBusinessProvider({ slug, host, children }) {
   // public pages set their own.
   useEffect(() => {
     const name = profile?.business?.name;
+    // ROADMAP 97.44 — the business's share card; the platform one back on leave.
+    setShareMeta(shareMetaFor(profile));
     if (name) document.title = name;
+    return () => setShareMeta(PLATFORM_CARD);
   }, [profile]);
 
   // ---------------------------------------------------------------------------

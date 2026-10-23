@@ -86,18 +86,21 @@
          refused "streamline" and its family on the page itself since 2.2 and
          now refuses them here.
 
-         AND THERE IS NO og:image, WHICH IS DELIBERATE RATHER THAN FORGOTTEN.
-         This is a white-label platform with no logo by design, and a card
-         image invented tonight is a brand decision made by a session. Without
-         one, `summary` is the correct card type: `summary_large_image`
-         promises a picture and renders an empty box when there is none. -->
+         ROADMAP 97.44 — the share image, absolute because crawlers do not
+         resolve relative ones. A booking page swaps it for the business's own
+         (app/src/lib/share.js) for unfurlers that run JavaScript. -->
     <meta name="description" content="A custom website for one detailing business, and the dashboard that runs it. Your prices, your hours and your customers live in the same place, and changing one on your phone changes the site." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Detailing Platform" />
     <meta property="og:url" content="https://detailingplatform.com/" />
     <meta property="og:title" content="A website for your detailing business, and the dashboard that runs it" />
     <meta property="og:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://detailingplatform.com/og-default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Detailing Platform: a website for your detailing business, and the dashboard that runs it" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://detailingplatform.com/og-default.png" />
     <meta name="twitter:title" content="A website for your detailing business, and the dashboard that runs it" />
     <meta name="twitter:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
   </head>
