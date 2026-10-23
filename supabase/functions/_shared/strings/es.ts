@@ -438,9 +438,9 @@ export const es: Record<string, string> = {
   // ── 15b · The platform telling a detailer their build has started (0.4) ─
   "Your website": "Tu sitio web",
   "We have started building your website": "Empezamos a construir tu sitio web",
-  "Work on {business}'s website began today, {date}. There is nothing for you to do — we will email you again when there is something to look at.":
+  "Work on {business}'s website began today, {date}. There is nothing for you to do. We will email you again when there is something to look at.":
     "El trabajo en el sitio web de {business} empezó hoy, {date}. No tienes que hacer nada: te escribiremos otra vez cuando haya algo que ver.",
-  "Nothing for you to do — we will email you again when there is something to look at.":
+  "Nothing for you to do. We will email you again when there is something to look at.":
     "No tienes que hacer nada: te escribiremos otra vez cuando haya algo que ver.",
   "From today the {amount} fee to build your site is no longer refundable. That is the only thing that changes.":
     "A partir de hoy, la tarifa de {amount} para construir tu sitio ya no es reembolsable. Eso es lo único que cambia.",

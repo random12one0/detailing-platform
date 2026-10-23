@@ -45,7 +45,7 @@ const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").spl
 const BREAK = arg("break"), FREEZE = arg("freeze");
 const LITE = process.argv.includes("--lite");
 const BASE = process.env.BASE || "http://localhost:5173";
-const ADMIN_EMAIL = "office-folds-test@detailplatform.com";
+const ADMIN_EMAIL = "office-folds-test@detailplatform.com";  // mail-sink: a login made by makeAdmin; autoconfirm is on and no custom SMTP, so no mail
 const SIZES = [{ w: 390, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
 const ART = `artifacts/office-folds${BREAK ? "/" + BREAK : ""}`;
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12d";

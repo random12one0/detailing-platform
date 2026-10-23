@@ -41,11 +41,15 @@ const evidenced = allowlisters.filter((f) => /from "\.\/lib\/skipEvidence\.mjs"/
 
 // Declared with equality. Each name is a script whose skip count is an expression.
 const COMPUTED = [
-  "american-english.mjs", "billing-walk.mjs", "contrast-insitu.mjs", "edge-tenant-replay.mjs",
-  "keyboard-walk.mjs", "label-guard.mjs", "link-counts-agree.mjs", "rate-limit-coverage.mjs",
-  "screenreader-structure.mjs", "sweep-tap-targets.mjs", "sweep-widths.mjs", "tenant-matrix.mjs",
-  "text-spacing-walk.mjs", "zoom-walk.mjs",
+  "american-english.mjs", "billing-walk.mjs", "campaign-double-press.mjs", "contrast-insitu.mjs",
+  "edge-tenant-replay.mjs", "keyboard-walk.mjs", "label-guard.mjs", "link-counts-agree.mjs",
+  "rate-limit-coverage.mjs", "screenreader-structure.mjs", "sweep-tap-targets.mjs", "sweep-widths.mjs",
+  "tenant-matrix.mjs", "text-spacing-walk.mjs", "user-tours-race.mjs", "visual-regression.mjs",
+  "zoom-walk.mjs",
 ];
+// ROADMAP 97.59 classified the last three added: each counts unreached sizes or targets as skips
+// (`SIZES.length - reached`, `targets - reached`, `targets x widths - completed`) and writes no
+// allowlist, so a positive count fails its receipt (the no-allowlist test below proves that).
 const ALLOWLISTERS = ["billing-walk.mjs", "sweep-widths.mjs"];
 // The known gaps. Was ["billing-walk.mjs"] until it itemised its skips (manager's grant, 2026-10-06);
 // now empty, and a new allowlist user that does not supply evidence turns this red.

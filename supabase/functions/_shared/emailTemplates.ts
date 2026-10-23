@@ -1758,7 +1758,7 @@ export function buildStartedEmail(brand: TenantBrand, b: BuildStartedData, lang?
   const blocks = [
     labBlock(tt("Your website")),
     headlineBlock(tt("We have started building your website")),
-    proseBlock(tt("Work on {business}'s website began today, {date}. There is nothing for you to do — we will email you again when there is something to look at.",
+    proseBlock(tt("Work on {business}'s website began today, {date}. There is nothing for you to do. We will email you again when there is something to look at.",
       { business: esc(b.businessName), date: esc(dateLong) })),
     // THE WHOLE REASON THIS EMAIL IS SENT, in the terms' own words with the
     // date and the figure filled in — and only where there is a figure.
@@ -1786,7 +1786,7 @@ export function buildStartedEmail(brand: TenantBrand, b: BuildStartedData, lang?
     tt("We've started building your site"),
     shell(brand, blocks, fee
       ? tt("The build fee is no longer refundable from today. Nothing else changes.")
-      : tt("Nothing for you to do — we will email you again when there is something to look at."), { lang }),
+      : tt("Nothing for you to do. We will email you again when there is something to look at."), { lang }),
   );
 }
 

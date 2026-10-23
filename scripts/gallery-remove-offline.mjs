@@ -52,6 +52,7 @@ if (BREAK && !KNOWN_BREAKS.includes(BREAK)) {
 // forgot to answer fails loudly instead of reaching a real project.
 const SB = "https://stand-in.supabase.invalid";
 const BIZ = "00000000-0000-4000-8000-0000000000b1";
+// mail-sink: the signed-in user of a stand-in session at SB above; no request reaches a real project, so nothing can send
 const USER = { id: "00000000-0000-4000-8000-000000000001", email: "demo@detailplatform.com", aud: "authenticated",
   role: "authenticated", app_metadata: {}, user_metadata: {} };
 const SESSION = { access_token: "stand-in", token_type: "bearer", expires_in: 36000,

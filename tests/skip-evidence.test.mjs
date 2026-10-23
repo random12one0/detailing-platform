@@ -56,15 +56,15 @@ test("sweep-widths issues every skip through addSkip, each with an evidence fiel
   assert.equal(bareSkipPushes(src), 0, "a bare SKIPPED.push is a skip nobody can refuse");
   assert.deepEqual(skipSitesWithoutEvidence(src), []);
   // A discovery FLOOR, not a declared count: more issuers is fine, a parser that stopped
-  // matching would read as all-clear. Today: declareSkip and the tour/guide write-off.
-  assert.ok((src.match(/addSkip\(SKIPPED, \{/g) ?? []).length >= 2, "the reader found fewer skip sites than exist");
+  // matching would read as all-clear. Today: declareSkip alone. The tour/guide write-off was the
+  // second site until c45fd22e (9.15a) stopped the sweep walking the tour, which removed it.
+  assert.ok((src.match(/addSkip\(SKIPPED, \{/g) ?? []).length >= 1, "the reader found fewer skip sites than exist");
 });
 
 test("canary: the reader catches a bare push and a site with no evidence", () => {
   const real = readFileSync("scripts/sweep-widths.mjs", "utf8");
   assert.equal(bareSkipPushes(real + "\nSKIPPED.push({ label: 'x' });"), 1);
   assert.equal(skipSitesWithoutEvidence(real.replace(/evidence: probeEvidence\(n\)/, "")).length, 1);
-  assert.equal(skipSitesWithoutEvidence(real.replace(/evidence: pressEvidence\(k\.endMs, TOUR_WAIT_MS\),/, "")).length, 1);
 });
 
 // ── billing-walk, the second allowlist user (manager's grant, 2026-10-06) ──

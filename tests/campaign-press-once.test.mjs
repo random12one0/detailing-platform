@@ -54,12 +54,12 @@ const B2 = "22222222-2222-4222-8222-222222222222";
 const SHARE = 3;
 const customers = (biz, n) => Array.from({ length: n }, (_, i) => ({
   id: `${biz.slice(0, 8)}-0000-4000-8000-${String(i).padStart(12, "0")}`, business_id: biz,
-  name: `Client ${i}`, email: `client${i}@fixture.mail`, unsubscribed_at: null, email_failed_at: null, lang: "en",
+  name: `Client ${i}`, email: `client${i}@fixture.mail`, unsubscribed_at: null, email_failed_at: null, lang: "en", // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
 }));
 const TABLES = {
   businesses: [
-    { id: B1, slug: "b1", name: "Fixture One", status: "active", mailing_address: "1 Main St", contact_email: "one@fixture.mail", timezone: "America/Los_Angeles" },
-    { id: B2, slug: "b2", name: "Fixture Two", status: "active", mailing_address: "2 Main St", contact_email: "two@fixture.mail", timezone: "America/Los_Angeles" },
+    { id: B1, slug: "b1", name: "Fixture One", status: "active", mailing_address: "1 Main St", contact_email: "one@fixture.mail", timezone: "America/Los_Angeles" }, // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
+    { id: B2, slug: "b2", name: "Fixture Two", status: "active", mailing_address: "2 Main St", contact_email: "two@fixture.mail", timezone: "America/Los_Angeles" }, // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
   ],
   business_users: [
     { user_id: "u1", business_id: B1, role: "owner", permissions: [] },
@@ -199,7 +199,7 @@ test("97.19 · a press with no press id is refused before anything is sent", asy
 test("97.19 · booking mail through the same relay is claimed as booking mail", async () => {
   const { sendTenantEmail } = await import("../supabase/functions/_shared/email.ts");
   const claimsBefore = claims.length;
-  const ok = await sendTenantEmail({ businessId: B1, to: "client0@fixture.mail", subject: "You're booked", html: "<p>Booked</p>", text: "Booked" });
+  const ok = await sendTenantEmail({ businessId: B1, to: "client0@fixture.mail", subject: "You're booked", html: "<p>Booked</p>", text: "Booked" }); // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
   assert.equal(ok, true, "B1's confirmation goes out with B1's campaign share spent");
   const a = claims[claimsBefore];
   assert.equal(a.p_campaign, false, JSON.stringify(a));

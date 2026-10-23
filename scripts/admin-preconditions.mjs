@@ -39,7 +39,7 @@ const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");
-const ADMIN_EMAIL = "admin-preconditions-test@detailplatform.com";
+const ADMIN_EMAIL = "admin-preconditions-test@detailplatform.com";  // mail-sink: a login made by makeAdmin; autoconfirm is on and no custom SMTP, so no mail
 const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }];
 const ART = "artifacts/admin-preconditions";
 const URL_ = process.env.SUPABASE_URL;

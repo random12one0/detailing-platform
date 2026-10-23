@@ -37,7 +37,7 @@ const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
 const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");
-const ADMIN_EMAIL = "office-system-test@detailplatform.com";
+const ADMIN_EMAIL = "office-system-test@detailplatform.com";  // mail-sink: a login made by makeAdmin; autoconfirm is on and no custom SMTP, so no mail
 const SIZES = [{ w: 1440, h: 900 }, { w: 768, h: 1024 }, { w: 390, h: 844 }, { w: 320, h: 720 }];
 const ART = "artifacts/office-system";
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12a";

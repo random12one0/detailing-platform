@@ -46,11 +46,11 @@ net.Socket.prototype.connect = function () { sockets++; throw new Error("campaig
 const FAKE = "https://fake-supabase.invalid";
 const B1 = "11111111-1111-4111-8111-111111111111";
 const cust = (n, email, extra = {}) => ({ id: `11111111-0000-4000-8000-00000000000${n}`, business_id: B1, name: `Client ${n}`, email, unsubscribed_at: null, email_failed_at: null, lang: "en", ...extra });
-const NORMAL = cust(1, "normal@fixture.mail");
-const UNSUB = cust(2, "unsub@fixture.mail", { unsubscribed_at: "2026-10-01T00:00:00Z" });
-const BOUNCED = cust(3, "bounced@fixture.mail", { email_failed_at: "2026-10-01T00:00:00Z" });
+const NORMAL = cust(1, "normal@fixture.mail"); // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
+const UNSUB = cust(2, "unsub@fixture.mail", { unsubscribed_at: "2026-10-01T00:00:00Z" }); // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
+const BOUNCED = cust(3, "bounced@fixture.mail", { email_failed_at: "2026-10-01T00:00:00Z" }); // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
 const TABLES = {
-  businesses: [{ id: B1, slug: "b1", name: "Fixture One", status: "active", mailing_address: "1 Main St", contact_email: "one@fixture.mail", timezone: "America/Los_Angeles" }],
+  businesses: [{ id: B1, slug: "b1", name: "Fixture One", status: "active", mailing_address: "1 Main St", contact_email: "one@fixture.mail", timezone: "America/Los_Angeles" }], // mail-sink: never sent - no socket opens and the provider is a fake; a reserved domain would skip the claim this test measures
   business_users: [{ user_id: "u1", business_id: B1, role: "owner", permissions: [] }],
   customers: [NORMAL, UNSUB, BOUNCED],
 };

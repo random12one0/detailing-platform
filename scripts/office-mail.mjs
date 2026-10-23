@@ -17,7 +17,7 @@ const states = ['delivered','sent','bounced','complained','failed','refused','sk
 const bad = ['bounced','complained','failed','refused','skipped'];
 const ROWS = states.map((status,i) => ({id:`mail-${i}`,status,
   subject: i === 0 ? 'Your full detail is booked — an unusually long subject that must stay readable on a phone' : `Mail subject ${i}`,
-  to_email: i === 0 ? 'averylongrecipientaddress@harborshinedetailing.example.com' : `person${i}@example.com`,
+  to_email: i === 0 ? 'averylongrecipientaddress@harborshinedetailing.mail.example' : `person${i}@example.com`,
   business_name: 'Harbor Shine Mobile Detailing and Ceramic Protection',
   sent_at: new Date(Date.now()-i*86400000).toISOString(),
   detail: bad.includes(status) ? 'The receiving server refused this address.' : null, booking_id:null}));

@@ -84,15 +84,15 @@ insert into public.businesses values ('${BIZ}', 'America/Los_Angeles');
 insert into public.business_settings (business_id) values ('${BIZ}');
 insert into public.customers values ('${CU}', now(), null), ('${CF}', null, now()), ('${CN}', null, null), ('${CB}', now(), now());
 insert into public.bookings (id, business_id, customer_id, start_at, customer_email, customer_reminder_sent_at) values
-  ('${B.BU}', '${BIZ}', '${CU}', ${TOMORROW}, 'u@fixture.mail', null),
-  ('${B.BF}', '${BIZ}', '${CF}', ${TOMORROW}, 'f@fixture.mail', null),
-  ('${B.BN}', '${BIZ}', '${CN}', ${TOMORROW}, 'n@fixture.mail', null),
-  ('${B.BX}', '${BIZ}', null,    ${TOMORROW}, 'x@fixture.mail', null),
-  ('${B.BL}', '${BIZ}', '${CN}', ${LATER},    'n@fixture.mail', null),
-  ('${B.BB}', '${BIZ}', '${CB}', ${TOMORROW}, 'b@fixture.mail', null),
-  ('${B.SU}', '${BIZ}', '${CU}', ${TOMORROW}, 'u@fixture.mail', now()),
-  ('${B.SF}', '${BIZ}', '${CF}', ${TOMORROW}, 'f@fixture.mail', now()),
-  ('${B.SN}', '${BIZ}', '${CN}', ${TOMORROW}, 'n@fixture.mail', now());
+  ('${B.BU}', '${BIZ}', '${CU}', ${TOMORROW}, 'u@fixture.test', null),
+  ('${B.BF}', '${BIZ}', '${CF}', ${TOMORROW}, 'f@fixture.test', null),
+  ('${B.BN}', '${BIZ}', '${CN}', ${TOMORROW}, 'n@fixture.test', null),
+  ('${B.BX}', '${BIZ}', null,    ${TOMORROW}, 'x@fixture.test', null),
+  ('${B.BL}', '${BIZ}', '${CN}', ${LATER},    'n@fixture.test', null),
+  ('${B.BB}', '${BIZ}', '${CB}', ${TOMORROW}, 'b@fixture.test', null),
+  ('${B.SU}', '${BIZ}', '${CU}', ${TOMORROW}, 'u@fixture.test', now()),
+  ('${B.SF}', '${BIZ}', '${CF}', ${TOMORROW}, 'f@fixture.test', now()),
+  ('${B.SN}', '${BIZ}', '${CN}', ${TOMORROW}, 'n@fixture.test', now());
 `;
 
 async function fresh(withFix) {

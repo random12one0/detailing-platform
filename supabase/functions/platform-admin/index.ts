@@ -1026,7 +1026,7 @@ Deno.serve(async (req) => {
       }
       if (startRow?.site_build_started_at) {
         return json({
-          error: "Work on this site is already recorded as started, and that date is what ends their refund right — it is not changed from here.",
+          error: "Work on this site is already recorded as started, and that date is what ends their refund right. It is not changed from here.",
           site_build_started_at: startRow.site_build_started_at,
         }, 409);
       }
@@ -1080,7 +1080,7 @@ Deno.serve(async (req) => {
       // this sentence and fix it.
       if (stamp.error) {
         return json({
-          error: `They were emailed, but the date did not save: ${stamp.error}. The notice has gone out — tell somebody before pressing this again.`,
+          error: `They were emailed, but the date did not save: ${stamp.error}. The notice has gone out. Tell somebody before pressing this again.`,
         }, 500);
       }
       if (!stamp.won) {

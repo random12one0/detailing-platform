@@ -46,8 +46,8 @@ test("the browser's alert list is the server's alert list", () => {
   const js = stripTypeScriptTypes(m[0].replace("export ", ""));
   const server = new Function(`${js}; return ownerRecipients;`)();
   const cases = [
-    ["a@x.com", []], ["a@x.com", null], ["a@x.com", ["b@x.com"]], ["a@x.com", [" b@x.com ", "b@x.com", ""]],
-    [null, []], ["", ["  "]], ["a@x.com", ["c@x.com", "b@x.com"]],
+    ["a@x.test", []], ["a@x.test", null], ["a@x.test", ["b@x.test"]], ["a@x.test", [" b@x.test ", "b@x.test", ""]],
+    [null, []], ["", ["  "]], ["a@x.test", ["c@x.test", "b@x.test"]],
   ];
   for (const [contact, list] of cases) {
     assert.deepEqual(alertAddresses(contact, list),
