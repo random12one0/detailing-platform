@@ -988,6 +988,10 @@ of this file (97.29–97.63). Items marked `NEEDS ANDREW` are his, not build job
   - The setting reads on in the dashboard, and the item records who switched it on and when
   - The Password screen still changes a password for a freshly signed-in user, checked in the running app
 
+  **ANDREW, 2026-10-23:** Already on. Checked 2026-10-23 through the Management API: security_update_password_require_reauthentication is true on kguqylyzgyzfktkfnhjb. LIVE RUN NEEDED: the browser check that a freshly signed-in user can still change a password.
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
 - [x] **97.28 — Backups keep deleted customers for ever, against the privacy page's deletion promise (S-M8).**
   SUPERVISION 2026-10-22: tick retained at merged product revision `5dde0f8b`. The actual prune shell passed 31/31 assertions; forever/twelve/noprint/exitzero/drift sabotages each failed ordinary assertions. The repaired committed privacy checker now reaches 8/8 targets, clean 48/48, and `--break=old-words` fails the disclosure-presence assertion at every target. Independent `/privacy` and `/terms` browser walk at 390/1440/768/392, normal and lite: 96/96 checks; pre-fix `legal.js` fails 16 content checks with source execution proved. Screenshots opened and consoles read. See `docs/VERIFIED.md` and `docs/supervision-2026-10-22.md`. This is proof of the local implementation; the existing private-workflow installation DO row remains Andrew's. Earlier held/proposed-waiver notes below are history; the final v10 requirement is the English three-month disclosure.
   **Held for a builder, not for Andrew (belt 2026-10-22).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.28-20261022054800384`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
