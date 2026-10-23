@@ -1574,7 +1574,9 @@ export function retryConfirmation(answer, payload, quote) {
     booking_date: payload.booking_date,
     start_time: payload.start_time,
     end_time: `${hhmm(Math.floor(end / 60) % 24)}:${hhmm(end % 60)}`,
-    total_price: quote?.total,
+    // ROADMAP 100.2 — what THIS call was charged, as the fresh answer says:
+    // on a split booking that is car 1's own figure, not the carload's.
+    total_price: payload.shown_total ?? quote?.total,
     // 97.64: no id when the request was not the original press.
     receipt_url: answer.id ? `/booking/${answer.id}` : null,
   };
