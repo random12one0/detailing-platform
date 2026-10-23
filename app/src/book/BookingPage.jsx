@@ -510,7 +510,19 @@ function BookingFlow({ notFound = null }) {
     setTried(false);
     setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    focusHeading.current = true;
   };
+  // 97.47: a step change moves focus to the new step's heading, so a screen
+  // reader hears where it landed. Flagged by go() rather than keyed on `step`
+  // alone, so the first load never steals focus. preventScroll: the smooth
+  // scroll above does the moving; focus must not add a jump of its own.
+  const focusHeading = useRef(false);
+  const headingRef = useRef(null);
+  useEffect(() => {
+    if (!focusHeading.current) return;
+    focusHeading.current = false;
+    headingRef.current?.focus({ preventScroll: true });
+  }, [step]);
 
   const submit = async () => {
     // Belt and braces: never submit without a server quote.
@@ -820,7 +832,7 @@ function BookingFlow({ notFound = null }) {
               step budgets are MEASURED, so a new line there is real height on
               the tightest screen in the product. The heading is one line
               either way, and it is the top of the step. */}
-          <h2>{headingFor(stepName, bothModes, settings, form.serviceType, step === 0 ? recognition : null)}</h2>
+          <h2 ref={headingRef} tabIndex={-1}>{headingFor(stepName, bothModes, settings, form.serviceType, step === 0 ? recognition : null)}</h2>
         </div>
 
         {/* Keyed on the step so React hands back a fresh element and the

@@ -357,6 +357,8 @@ html:has(.bk > .bk-bar) { scroll-padding-bottom: calc(var(--bk-bar-h) + 12px + v
 }
 .bk-step-head { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
 .bk-step-head h2 { margin-top: 2px; }
+/* 97.47: focus lands here on each step change; it is a reading position, not a control. */
+.bk-step-head h2:focus { outline: none; }
 /* A HEADING IS NOT A SECTION PEER OF WHAT IT HEADS. .bk-wrap's gap is the
    26px SECTION gap and it was falling between the step's heading and the
    step's content, which is the same mistake W18 named one level down: the
