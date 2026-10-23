@@ -11616,6 +11616,10 @@ requested.
   required`**. Screenshots of the detailer half as it stands, taken this run:
   `.manager-shots/3.1/detailer-*.png`.
 
+  **ANDREW, 2026-10-23:** Done in the 2026-10-23 release: 20261010010000_email_sends_keeps_the_body.sql applied (migration-drift PASS) and send-email published (deployed-inventory no longer names it).
+  
+    The outside part of this is finished. It is no longer waiting on anybody.
+
 - [x] **3.1a — the mail log's intrusive native-looking scroll bar.** Replace
   it with overflow treatment that belongs to this design. Andrew named this
   one first, 2026-10-09; it is the one he can see without scrolling.
