@@ -1269,6 +1269,7 @@ export const appEs = {
     "¿Invitar a {email} como dueño? Un dueño puede hacer todo lo que tú haces, para siempre.",
   "Accepted. They've been emailed.": "Aceptada. Ya se les mandó correo.",
   "Declined. They've been emailed.": "Rechazada. Ya se les mandó correo.",
+  "This booking was just changed on another device.": "Esta cita se acaba de cambiar en otro dispositivo.",
   "Reminder sent to customer.": "Recordatorio enviado al cliente.",
   "Invoice + thank-you sent.": "Factura y agradecimiento enviados.",
   // ROADMAP 4.1 — the status-change notice, on screen for the first time.
@@ -1644,6 +1645,7 @@ export const appEs = {
     "Este trabajo no tiene correo, así que no se puede mandar el recibo. Agrega uno con Editar arriba.",
   "Receipt sent again.": "Recibo mandado otra vez.",
   "Receipt + thank-you sent.": "Recibo y agradecimiento mandados.",
+  "Receipt sent. The thank-you email did not go out.": "Recibo mandado. El correo de agradecimiento no se mandó.",
   "Paid by card on {date}": "Pagado con tarjeta el {date}",
   // ROADMAP 97.10 — a card payment that did not match what the job owes.
   "A card payment of {paid} came in, but this job is owed {owed}. We did not mark it paid. Check the payment in your Stripe account.":

@@ -134,23 +134,36 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // it meant "Reminder sent to customer." and "Invoice + thank-you sent."
   // were written into a record that was already gone. Nobody had ever seen
   // either message. It matters more now — Reminder is one tap in the bar.
+  //
+  // ROADMAP 9.21 — `act` RETURNS WHAT `fn` RETURNED, AND `doneMsg` MAY BE A
+  // FUNCTION OF THAT ANSWER. It used to throw the answer away, so every notice
+  // was picked before the press: "Receipt + thank-you sent." printed even when
+  // the server said `thank_you_sent: false`. ONE CONVENTION, SEVEN CALLERS
+  // (grep `act(` in this file): a fixed string is a promise that no successful
+  // answer can contradict it, and each fixed site says why below; a site whose
+  // answer CAN contradict it passes `(answer) => sentence`. On a throw `act`
+  // returns undefined. `idempotent: false` is still not shown — ROADMAP 6.4's
+  // 2026-10-08 decision (clause 4: it is a success; Andrew is the reader).
   const act = async (fn, doneMsg, changed = true) => {
     setBusy(true);
     setError("");
     setNotice("");
+    let answer;
     try {
-      await fn();
-      // ROADMAP 5.3 — TRANSLATED HERE, WHERE ALL FOUR CALLERS ROUTE THROUGH.
+      answer = await fn();
+      // ROADMAP 5.3 — TRANSLATED HERE, WHERE ALL SEVEN CALLERS ROUTE THROUGH.
       // Every one of them passes a bare English sentence and `appEs.js` has
       // carried Spanish for them since 14.x — so a Spanish dashboard has been
       // answering "Reminder sent to customer." in English the whole time, with
-      // a key sitting right there unused. One line, four call sites.
-      if (doneMsg) setNotice(t(doneMsg));
+      // a key sitting right there unused.
+      const msg = typeof doneMsg === "function" ? doneMsg(answer) : doneMsg;
+      if (msg) setNotice(t(msg));
       if (changed) onChanged?.();
     } catch (e) {
       setError(e.message);
     }
     setBusy(false);
+    return answer;
   };
 
   // A CONFIRMATION IN A PINNED BAR HAS TO LEAVE ON ITS OWN. It used to scroll
@@ -176,6 +189,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     no_show: "Marked as not shown.",
     cancelled: "Marked as canceled.",
   };
+  // FIXED NOTICE, CANNOT BE CONTRADICTED (9.21): `update-booking` answers
+  // success only when the row now has this status — its `duplicate` answer
+  // requires `now.status === status`; anything else is a 409 and lands in the
+  // error box. Same for `saveEdit` ("Saved."; a move is fenced the same way)
+  // and `correctPayment` (a plain write, so success means it was written).
+  // `softDelete` shows no notice at all.
   const setStatus = (status) =>
     act(() => api.updateBooking(business.id, { booking_id: booking.id, status }),
       t(STATUS_NOTICE[status] ?? `Marked ${status}.`));
@@ -610,10 +629,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // the record of what was last offered, which is worth keeping.
   const quotedAmount = booking.quoted_at && booking.status === "pending"
     ? Number(booking.quoted_amount) : null;
+  // ANSWER-DRIVEN (9.21): a press that loses the race in `respond-to-booking`
+  // gets `success, duplicate: true` with the booking AS IT NOW STANDS — which
+  // may be another device's decline, or the customer's cancel. Claiming
+  // "Accepted. They've been emailed." over that would be the same lie as the
+  // receipt's, so the notice is chosen from the booking the server sent back.
   const respond = (action) =>
-    act(() => api.respondToBooking(business.id, booking.id, action),
-      // NOT WRAPPED IN `t()` ANY MORE — `act` does it for every caller now.
-      action === "accept" ? "Accepted. They've been emailed." : "Declined. They've been emailed.");
+    act(() => api.respondToBooking(business.id, booking.id, action), (answer) => {
+      const now = answer?.booking;
+      const landed = !answer?.duplicate || (action === "accept"
+        ? now?.status === "confirmed"
+        : now?.status === "cancelled" && !!now?.declined_at);
+      // NOT WRAPPED IN `t()` — `act` does it for every caller.
+      if (!landed) return "This booking was just changed on another device.";
+      return action === "accept" ? "Accepted. They've been emailed." : "Declined. They've been emailed.";
+    });
 
   return (
     <>
@@ -806,6 +836,9 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             {booking.customer_email && !waiting && (
               <button className="btn sm" disabled={busy}
                 onClick={() => act(() => api.sendReminder(business.id, booking.id, "customer"),
+                  // FIXED NOTICE, CANNOT BE CONTRADICTED (9.21): the
+                  // one-booking path of `send-owner-reminders` answers
+                  // `{ success, count: 1 }` or an error — never a partial send.
                   "Reminder sent to customer.", false)}>
                 <Bell size={18} strokeWidth={2} /> {t("Reminder")}
               </button>
@@ -1115,7 +1148,15 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                     <>
                       <button className="btn" disabled={busy}
                         onClick={() => act(sendReceipt,
-                          sentReceipt ? "Receipt sent again." : "Receipt + thank-you sent.", false)
+                          // ANSWER-DRIVEN (9.21): `send-invoice` sends the
+                          // thank-you best-effort (or not at all, when follow-ups
+                          // are off) and says which in `thank_you_sent` — on a
+                          // fresh send AND on a `duplicate`. Only a `true` earns
+                          // the word. "again" names no thank-you, so it stands.
+                          (answer) => sentReceipt ? "Receipt sent again."
+                            : answer?.thank_you_sent ? "Receipt + thank-you sent."
+                              : "Receipt sent. The thank-you email did not go out.",
+                          false)
                           .then(loadMail)}>
                         <Receipt size={18} strokeWidth={2} />{" "}
                         {sentReceipt ? t("Email it again") : t("Email the receipt")}

@@ -24871,6 +24871,7 @@ the dashboard or back office at phone width at all.
   standing in as Andrew's eyes.*
 
 - [ ] **9.21 — The job record says "Receipt + thank-you sent." when the
+  **BUILT 2026-10-23 (Claude lane), KEPT OPEN for one live press:** `act` now returns its function's answer and takes `doneMsg` as a sentence or `(answer) => sentence`; the receipt notice says "Receipt + thank-you sent." only when `thank_you_sent` is true (else "Receipt sent. The thank-you email did not go out."), and Accept/Decline say "This booking was just changed on another device." when a `duplicate` answer carries a booking in another state; the other five sites keep fixed notices, each with its reason in a comment (`idempotent: false` still unshown, per 6.4's 2026-10-08 decision). Proof: `belt-staging/claude-lane/notices-9-21.mjs` presses all seven sites against faked server answers, 38/38 OK at 390 and 1440 (en + es), console clean; unfixed code FAILED 9 at 1440. Shots in `.manager-shots/9.21/`. Spanish keys added; `tests/spanish.test.mjs` 83/0 with credentials. **REMAINS:** (a)'s press on a real `duplicate` needs `send-invoice` published with the `send_invoice_attempts` table applied (Andrew's, 6.4). Also seen, not changed: `send-invoice`'s owner push still says "(invoice + thank-you sent)" unconditionally (`send-invoice/index.ts:274`).
   thank-you was not sent.** Found by DP Cowork at `96d7eb6`, answering a cold
   read of ROADMAP 6.4. **Filed, not built.**
 
