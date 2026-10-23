@@ -31712,7 +31712,8 @@ decisions, not build jobs.
   - A refresh at step 5 returns to step 5 with the draft intact; a completed booking clears the draft
   - `node scripts/sweep-booking-steps.mjs` passes at all its sizes
 
-- [ ] **97.46 — Calendar days read to a screen reader as just "17, button" (P-10).**
+- [x] **97.46 — Calendar days read to a screen reader as just "17, button" (P-10).**
+  Each calendar day on the booking page now tells a screen reader its full date in the page's language ("Friday, October 23" / "viernes, 23 de octubre") and closed days say they are unavailable; checked live at 390 and 1440 wide in English and Spanish (all OK, red with the labels stripped), screenshots in .manager-shots/97.46/.
   Days are `<div role="button" tabindex="0" class="cell">17</div>`; closed days (`class="cell closed"`) are not marked unavailable. Give each day a full-date `aria-label` (e.g. "Saturday, October 17", localized) and `aria-disabled="true"` on closed days.
   Acceptance criteria:
   - Every day cell carries a full-date label in the page's language, and closed days carry `aria-disabled="true"` (browser check that counts them against the days shown)

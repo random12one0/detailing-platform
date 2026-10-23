@@ -28,6 +28,7 @@ import {
   monthRange, shiftMonth, slotsForType,
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
+import { dayAriaDisabled, dayAriaLabel } from "../../lib/dayAria.js";
 import Refusal from "../Refusal.jsx";
 
 // **THE WEEKDAY LETTERS, THE MONTH NAMES AND THE DATES ARE `Intl`'s JOB, NOT
@@ -237,6 +238,8 @@ export default function StepWhen({ form, setForm, durationMinutes, durations, su
                 key={date}
                 role={open ? "button" : undefined}
                 tabIndex={open ? 0 : undefined}
+                aria-label={dayAriaLabel(date, loc)}
+                aria-disabled={dayAriaDisabled(open)}
                 className={`cell ${open ? "" : "closed"} ${date === today ? "today" : ""} ${legDate === date ? "selected" : ""}`}
                 onClick={() => open && setLegWhen(date, "")}
                 onKeyDown={(e) => {
