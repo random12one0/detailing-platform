@@ -21,7 +21,7 @@ front of you.
 > | pointer | what this map says about it | the fact |
 > |---|---|---|
 > | `START-HERE.md` | *"READ IT FIRST"*, *"at Andrew's instruction"* | **Deleted 2026-09-16** in `5924e96`, "Reset the rulebook: drop the lane/role system, cut CLAUDE.md by 93%". Five days dead before anybody noticed. |
-> | `HANDOFF-2026-09-19.md` | *"LIVE — start here"*, in the tier legend | **Never existed in git.** `git log --all --` on that path returns nothing. Not stale — never true. |
+> | `HANDOFF-2026-09-19.md` | *"LIVE — start here"*, in the tier legend | **Never existed in git.** `git log --all --` on that path returns nothing. Not stale — never true. **Corrected 2026-10-23 (ROADMAP 97.62): wrong — it was committed in `d0956b65` (2026-09-20), as `git log --all --format=%h -- HANDOFF-2026-09-19.md` shows, and it sat in the repo root, stale, until 97.62 moved it to `docs/archive/HANDOFF-2026-09-19.md`.** It is still not a "start here". |
 >
 > **Both of them are this map's own "read this first" instruction**, which is
 > the worst place in the repo for a dead link: a session following it finds
@@ -50,7 +50,7 @@ front of you.
 
 | Tier | Meaning |
 |---|---|
-| ~~`HANDOFF-2026-09-19.md`~~ | **THIS FILE NEVER EXISTED — see the banner above.** It is also in the wrong table: the other two rows are tiers, this one is a document, so a legend explaining what LIVE/REFERENCE/HISTORICAL mean opens with a row that is neither. The current handoffs are `docs/HANDOFF-2026-09-20.md` (measurement leg) and `docs/HANDOFF-2026-09-20-clients.md` (client screens). **Not the same file as `docs/HANDOFF.md`**, which is the architecture page. |
+| ~~`HANDOFF-2026-09-19.md`~~ | **NOT A TIER, AND NOT CURRENT — see the banner above** (which first said this file never existed; it did, and is now `docs/archive/HANDOFF-2026-09-19.md`). It is also in the wrong table: the other two rows are tiers, this one is a document, so a legend explaining what LIVE/REFERENCE/HISTORICAL mean opens with a row that is neither. The current handoffs are `docs/HANDOFF-2026-09-20.md` (measurement leg) and `docs/HANDOFF-2026-09-20-clients.md` (client screens). **Not the same file as `docs/HANDOFF.md`**, which is the architecture page. |
 | **LIVE** | Current. Trust it, and correct it in place when you find it wrong. |
 | **REFERENCE** | A finished piece of research or a spec. Still true, rarely changes, read the section you need. |
 | **HISTORICAL** | An account of something that already happened. **Do not act on it.** Kept because the reasoning is why the code is the shape it is. |

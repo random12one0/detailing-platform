@@ -670,7 +670,7 @@ Open a long file only when the work touches its subject.
 | File | What it is |
 |---|---|
 | `docs/MANAGER-CLOSE-2026-09-21.md` | **Read this first, once, before picking anything up.** Andrew's rulings from the 20th in binding form; the four things that changed OUTSIDE the repo that night, which `git log` cannot show you; the backups correction; the publishing order; and what each session left on the floor |
-| `docs/README.md` | The map — **and it covers 63 of the 113 documents in `docs/`, measured 2026-09-21, so an absence from it means nothing.** Two of its pointers named files that were not there: `START-HERE.md`, deleted 2026-09-16, and `HANDOFF-2026-09-19.md`, which never existed in git. Both are marked in place; the four files this table names that were missing from it now have rows |
+| `docs/README.md` | The map — **and it covers 63 of the 113 documents in `docs/`, measured 2026-09-21, so an absence from it means nothing.** Two of its pointers named files that were not there: `START-HERE.md`, deleted 2026-09-16, and `HANDOFF-2026-09-19.md`, stale (it was in git after all, from `d0956b65`; moved to `docs/archive/` by ROADMAP 97.62). Both are marked in place; the four files this table names that were missing from it now have rows |
 | `PROJECT-STATE.md` | Full state briefing; §1–7 only, the rest is a journal |
 | `docs/BATCHES.md` | **The running order — start here.** The open items cut into session-sized batches, each marked lane A (`app/src`) or B (not), with the model it deserves |
 | `ROADMAP.md` | **The live fix queue.** What each item is and why. Ordered by risk, not by size |

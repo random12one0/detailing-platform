@@ -6,7 +6,6 @@
 
 # Dependencies
 node_modules/
-/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -27,7 +26,6 @@ next-env.d.ts
 
 # Production builds
 /build
-dist/
 dist
 
 # Environment files (comprehensive coverage)
@@ -76,26 +74,9 @@ agenthub/agents/youtube/db
 # Build caches
 .cache/
 
-# Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/4.pack
-frontend/node_modules/.cache/default-development/4.pack
-frontend/node_modules/.cache/default-development/6.pack
-frontend/node_modules/.cache/default-development/8.pack
-frontend/node_modules/.cache/default-development/9.pack
-frontend/node_modules/.cache/default-development/2.pack
-frontend/node_modules/.cache/default-development/5.pack
-frontend/node_modules/.cache/default-development/10.pack
-frontend/node_modules/.cache/default-development/11.pack
-frontend/node_modules/.cache/default-development/12.pack
-frontend/node_modules/.cache/default-development/13.pack
-frontend/node_modules/.cache/default-development/14.pack
-frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/1.pack
--e 
 # Environment files
 *.env
 *.env.*
-frontend/node_modules/.cache/default-development/3.pack
 
 # Claude Code local machine settings (permission allowlist, not shared)
 .claude/settings.local.json
@@ -149,19 +130,11 @@ screenshots/
 # leaves them here. Regenerated on every seed and specific to whichever
 # database was seeded, which is exactly why it is not committed.
 scripts/demo-refs.json
-shots-admin/
-shots-admin-lite/
-shots-d1/
-shots-d2/
 
 # One-off screenshot and probe scripts written into the repo root so they can
 # resolve app/node_modules/playwright. They are session scratch and two of them
 # reached a commit before this line existed (roadmap 8.10).
 *.tmp.mjs
-shots-taste/
-shots-full/
-shots-full-p/
-shots-mocks/
 
 # generated example sites — docs/tenant-sites/ is the only copy in git
 app/public/ex*
