@@ -31787,7 +31787,8 @@ decisions, not build jobs.
   - PNG icons at 192 and 512 and a 180px `apple-touch-icon` exist, are listed in the manifest and head, and each URL loads in a production build
   - The icons match the current mark
 
-- [ ] **97.58 — PRODUCT.md "Known open threads" lists two threads closed in August (P-15).**
+- [x] **97.58 — PRODUCT.md "Known open threads" lists two threads closed in August (P-15).**
+  DONE 2026-10-23 (Claude session, from Muse branch belt/97.58-20261019145018051, verified): PRODUCT.md "Known open threads" strikes through both closed lines and says each closed 2026-08-29 in roadmap 0.2 / 0.3, recorded in PROJECT-STATE.md §5 (lines 267 and 269 there say FIXED / DONE 2026-08-29). The two remaining threads (five deferred dashboard items; vCard on a real Android) are still open in PROJECT-STATE.md, so nothing in the list contradicts it.
   It still says "email produces nothing in Resend" and "pg_cron never wired", though the same file says both were closed.
   Acceptance criteria:
   - Both lines are marked closed with the date they closed and where that is recorded, not silently removed
