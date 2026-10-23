@@ -31691,7 +31691,8 @@ decisions, not build jobs.
   - A production build served locally answers `/robots.txt` as `text/plain` and `/sitemap.xml` as XML, both well-formed
   - The sitemap lists only public pages (no `/app`, no manage links)
 
-- [ ] **97.42 — Every tenant booking link previews as an ad for the platform (P-4).**
+- [x] **97.42 — Every tenant booking link previews as an ad for the platform (P-4).**
+  DONE 2026-10-23 (Claude lane, from Muse branch belt/97.42-20261019122412372, reviewed): Netlify edge function `app/netlify/edge-functions/booking-meta.mjs` (path `/book/*`) rewrites <title>, description, og:title/description/site_name/url and twitter tags from `get_public_business_profile`; unknown slug, malformed path or failed lookup passes the platform page through. Muse's separate helper module dropped (Netlify deploys every file in that folder as a function) and two bugs fixed: a `$` in a business name corrupted the head, and a malformed `%` slug threw. `tests/booking-meta.test.mjs` 11 pass, fails without the function. Needs VITE_SUPABASE_URL/ANON_KEY readable by functions in Netlify env, else it silently passes through; not deployed until main is pushed.
   The raw HTML of `/book/demo-detail` carries `<title>Detailing Platform</title>` and the platform's description; `og:title` stays the platform's even after load (`app/index.html:75-102`, no prerendering). Set the title, description and Open Graph tags per tenant before the page loads, with a Netlify edge function that rewrites `<head>` from the business row.
   Acceptance criteria:
   - Fetching `/book/demo-detail` with no JavaScript (netlify dev or the edge function's own test) returns the business's name in `<title>` and `og:title`, and its own description
