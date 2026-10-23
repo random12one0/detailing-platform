@@ -483,6 +483,14 @@ a { color: var(--accent-text); text-decoration: none; }
 .row.wrap { flex-wrap: wrap; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
 .grid2.wide { gap: var(--sp-3); }
+/* A pair whose choice is too wide for half a phone stacks (ROADMAP 98.13): at 392
+   a .grid2 cell is ~172px, so Team's Access ("Custom role" / "Owner") wrapped to
+   two rows inside its pill. The whole pair stacks, so Email keeps the full width
+   too. Opt-in per pair: a Yes/No pair or two short text fields still fit side by
+   side up to 600px, and 320 stacks every pair anyway. */
+@media (max-width: 600px) {
+  .grid2.stack-phone { grid-template-columns: 1fr; gap: var(--sp-4); }
+}
 
 /* ------------------------------------------------------------ SURFACES */
 .card {

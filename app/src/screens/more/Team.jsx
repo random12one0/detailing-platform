@@ -258,7 +258,7 @@ export default function Team() {
       </div>
 
       <div className="section-title">{t("Invite someone")}</div>
-      <div className="grid2">
+      <div className="grid2 stack-phone">
         <label className="field"><span>{t("Email")}</span>
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
         <label className="field"><span>{t("Access")}</span>
