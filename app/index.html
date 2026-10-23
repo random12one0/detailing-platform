@@ -32,11 +32,12 @@
          container and a simulator launched from a home-screen icon is the one
          thing a headless Chromium cannot be.
 
-         `apple-touch-icon` is NOT declared and that is deliberate: iOS wants a
-         PNG there, this platform has no logo by design, and inventing one in a
-         session is a brand decision nobody asked for. The manifest's SVG is
-         the mark this page already ships as its favicon. -->
+         The PNG icons below (ROADMAP 97.57) are the favicon mark rasterized,
+         because iOS ignores SVG for the home-screen icon. -->
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <!-- Declared so the browser stops requesting /favicon.ico and 404ing on
          every page load. Inline SVG rather than a file: this is a
          white-label platform, so there is no logo to ship — the tenant's own
@@ -86,21 +87,18 @@
          refused "streamline" and its family on the page itself since 2.2 and
          now refuses them here.
 
-         ROADMAP 97.44 — the share image, absolute because crawlers do not
-         resolve relative ones. A booking page swaps it for the business's own
-         (app/src/lib/share.js) for unfurlers that run JavaScript. -->
+         AND THERE IS NO og:image, WHICH IS DELIBERATE RATHER THAN FORGOTTEN.
+         This is a white-label platform with no logo by design, and a card
+         image invented tonight is a brand decision made by a session. Without
+         one, `summary` is the correct card type: `summary_large_image`
+         promises a picture and renders an empty box when there is none. -->
     <meta name="description" content="A custom website for one detailing business, and the dashboard that runs it. Your prices, your hours and your customers live in the same place, and changing one on your phone changes the site." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Detailing Platform" />
     <meta property="og:url" content="https://detailingplatform.com/" />
     <meta property="og:title" content="A website for your detailing business, and the dashboard that runs it" />
     <meta property="og:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
-    <meta property="og:image" content="https://detailingplatform.com/og-default.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Detailing Platform: a website for your detailing business, and the dashboard that runs it" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://detailingplatform.com/og-default.png" />
+    <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="A website for your detailing business, and the dashboard that runs it" />
     <meta name="twitter:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
   </head>

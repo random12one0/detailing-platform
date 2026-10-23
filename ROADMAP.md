@@ -31798,7 +31798,8 @@ decisions, not build jobs.
   Acceptance criteria:
   - His answer is written here; if yes, this entry is cut into numbered slices before any build starts
 
-- [ ] **97.57 — The app icon is SVG only, with no PNG or apple-touch-icon (P-15).**
+- [x] **97.57 — The app icon is SVG only, with no PNG or apple-touch-icon (P-15).**
+  DONE 2026-10-23 (Claude session, from Muse branch belt/97.57-20261019143524644, verified): icon-192.png, icon-512.png and a 180px apple-touch-icon.png (the favicon mark rasterized) are in app/public, listed in manifest.webmanifest and app/index.html; a production build serves all three as 200 image/png. tests/app-icons.test.mjs fails 3/3 on the old tree, passes after. Dropped Muse's 366-line SVG rasterizer script.
   `app/public/manifest.webmanifest`, `app/index.html:35-38`. An iPhone home-screen icon may show blank.
   Acceptance criteria:
   - PNG icons at 192 and 512 and a 180px `apple-touch-icon` exist, are listed in the manifest and head, and each URL loads in a production build
