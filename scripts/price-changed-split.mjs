@@ -194,29 +194,40 @@ for (const tg of [...TARGETS, CANARY]) {
       posts.length === 2 && posts.every((p) => Math.round(Number(p.shown_total) * 100) === Math.round(legTotal * 100)),
       posts.map((p) => p.shown_total).join(", "));
     check(label, "car 2 was NOT saved at a price the page never showed", savedUnshown.length === 0, savedUnshown.join("; "));
-    const err = page.locator(".bk-error").last();
-    const errText = await err.innerText().catch(() => "");
+    // ROADMAP 97.67 — car 1 is booked, so the page is its confirmation: the
+    // review step (both cars, the two-car bar, the send button) is gone, car
+    // 1's manage link is there, and a note names car 2's new price and how to
+    // book it. Before 97.67 the review step stayed and re-sent car 1.
+    const note = page.locator(".bk-not-booked");
+    const errText = await note.innerText().catch(() => "");
     const newMoney = `$${(legTotal + RUSH).toFixed(2)}`.replace(/\.00$/, "");
-    check(label, `the page says car 1 is booked and names car 2's new price (${newMoney})`,
+    const manage = page.locator('a.bk-btn[href*="/booking/"]');
+    check(label, "car 1's confirmation is shown, with its manage link",
+      (await manage.count()) === 1, String(await manage.count()));
+    check(label, "nothing offers to send car 1 again (no review step, no price bar)",
+      (await page.locator(".bk-bar").count()) === 0, String(await page.locator(".bk-bar").count()));
+    check(label, `the note names car 2's new price (${newMoney})`,
       errText.includes(newMoney) && /\b2\b/.test(errText), JSON.stringify(errText));
-    check(label, `the sentence is in ${tg.lang === "es" ? "Spanish" : "English"}`,
-      (tg.lang === "es" ? /Tu primer carro está reservado/ : /Your first car is booked/).test(errText), JSON.stringify(errText));
+    check(label, `the note is in ${tg.lang === "es" ? "Spanish" : "English"}`,
+      (tg.lang === "es" ? /El precio del carro 2 cambió[\s\S]*Reservar el carro 2/ : /The price for car 2 changed[\s\S]*Book car 2/).test(errText), JSON.stringify(errText));
+    check(label, "the note's button opens a fresh booking page",
+      (await note.locator("a.bk-btn").getAttribute("href").catch(() => null)) === "/book/demo-detail",
+      String(await note.locator("a.bk-btn").getAttribute("href").catch(() => null)));
     if (errText) {
-      const box = await err.boundingBox();
-      const bar = await page.locator(".bk-bar").boundingBox().catch(() => null);
-      check(label, "the sentence is on screen and clear of the price bar",
-        !!box && !!bar && box.y >= 0 && box.y + box.height <= bar.y + 0.5 && box.x >= 0 && box.x + box.width <= tg.w,
-        JSON.stringify({ box, barY: bar?.y }));
+      const box = await note.boundingBox();
+      check(label, "the note is on screen",
+        !!box && box.y >= 0 && box.y + box.height <= tg.h && box.x >= 0 && box.x + box.width <= tg.w,
+        JSON.stringify({ box }));
     }
     await page.screenshot({ path: `${ART}${tg.w}x${tg.h}-${tg.lang}${inCanary ? "-canary" : ""}-split.png`, animations: "disabled" });
     if (FREEZE && !inCanary && tg.w === 390 && tg.lang === "en") {
       mkdirSync(`${SHOTS}/png`, { recursive: true });
       await page.screenshot({ path: `${SHOTS}/png/390x844-split-${FREEZE}.png`, animations: "disabled" });
       const { freeze } = await import(pathToFileURL("C:/Users/rando/Downloads/claude/belt/freeze.mjs").href);
-      await freeze(page, { out: `${SHOTS}/${FREEZE}-split.html`, label: FREEZE === "before" ? "Before" : "After", highlight: ".bk-error",
+      await freeze(page, { out: `${SHOTS}/${FREEZE}-split.html`, label: FREEZE === "before" ? "Before" : "After", highlight: ".bk-not-booked",
         note: FREEZE === "before"
           ? "Two cars on different days; car 2's price went up $20. The sentence saying car 1 is booked and car 2 is not stays below the price bar on a phone, where nobody sees it."
-          : "Same moment: the page scrolls to the sentence, so a phone shows that car 1 is booked and car 2 was not, with car 2's new price." });
+          : "Same moment (since 97.67): car 1's confirmation, with a note that car 2 was not booked, its new price, and a button to book it." });
     }
     check(label, "console clean: nothing but one designed 409 line per refusal",
       consoleBad.length === 0 && refusalLines.length === refusals,
@@ -233,7 +244,7 @@ await browser.close();
 const failed = assertions - passed;
 const canaryObserved = canaryCaught.includes("car 2 was NOT saved at a price the page never showed");
 const red = failed || completed < TARGETS.length || !canaryObserved;
-const perTarget = 11 + (env ? 1 : 0);
+const perTarget = 14 + (env ? 1 : 0);
 console.log(`canary (guard off at 390): ${canaryCaught.length ? "caught - " + canaryCaught.join("; ") : "NOT CAUGHT"}`);
 console.log(`\n${completed} of ${TARGETS.length} targets walked, ${passed} passed, ${failed} failed${BREAK ? `  (--break=${BREAK}: MUST be red)` : ""}`);
 const txt = BREAK ? `receipts/price-changed-split.sabotage-${BREAK}.txt` : "receipts/price-changed-split.txt";
@@ -247,7 +258,7 @@ writeReceipt({
   completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: TARGETS.length * perTarget,
-  assertion_floor: "11 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, sentence names price, language, on screen, console) plus 1 env signature with --env-from.",
+  assertion_floor: "14 per target (profile fed, two leg chips, last step, two legs quoted, bar, per-car figures, car 2 not saved unshown, car 1 confirmation link, no resend, note names price, language, fresh-booking button, on screen, console) plus 1 env signature with --env-from.",
   // The canary is the real handler with its guard removed: car 2 saved at $20 over its shown figure must land in savedUnshown.
   canary: { id: "unguarded-car-2-saved-unshown", observed_failure: canaryObserved, caught: canaryCaught, what: "an extra 390 walk against the real create-booking handler with its guard removed saves car 2 at shown + $20; the walk must name it" },
   failures,

@@ -69,12 +69,6 @@ import StepReview from "./steps/StepReview.jsx";
 import BookingConfirmed from "./BookingConfirmed.jsx";
 import "./booking.css";
 
-// ROADMAP 8.10 — how the message names a car whose slot went. Words, not
-// digits: this sentence is the only place a customer meets the split booking
-// going wrong, and "the 3th car" is how a form loses somebody's trust.
-const NTH = [null, "second car", "third car", "fourth car", "fifth car",
-  "sixth car", "seventh car", "eighth car", "ninth car", "tenth car"];
-
 // Roadmap 2.7, W19 (the step sequence), and roadmap 2.14 step 3 (what the
 // device remembers) both moved into ./core.js in roadmap 3.2, with their
 // reasoning. A tenant site's own form needs the same order and the same
@@ -257,6 +251,8 @@ function BookingFlow({ notFound = null }) {
   // ROADMAP 97.64 — this press's booking refs, kept so a retry sends the same.
   const refs = useRef(null);
   const [submitError, setSubmitError] = useState("");
+  // ROADMAP 97.67 — a later car of a split booking that was refused.
+  const [notBooked, setNotBooked] = useState(null);
   // ROADMAP 97.8 — the server's new total after a `price_changed` refusal.
   const [priceChanged, setPriceChanged] = useState(null);
   const priceChangedRef = useRef(null);
@@ -569,18 +565,16 @@ function BookingFlow({ notFound = null }) {
           if (i === 0) r = one;
         } catch (e) {
           if (i === 0) throw e;
-          if (e.body?.error === "price_changed") {
-            setSubmitError(t("Your first car is booked. The price for car {n} changed to {total}, so it was not booked. Please book it separately.",
-              { n: i + 1, total: money(e.body.total) }));
-            setSubmitting(false);
-            return;
-          }
-          setSubmitError(
-            `Your first car is booked. The time for the ${NTH[i] ?? `car ${i + 1}`} `
-            + `was taken while you were filling this in. Please book it separately. (${e.message})`,
-          );
-          setSubmitting(false);
-          return;
+          // ROADMAP 97.67 — car 1 IS booked, so this is its confirmation,
+          // not the review step: that left both cars and "Request this time"
+          // on screen, and pressing it only re-sent car 1 and was refused
+          // car 2 again. The screen names the car that missed and how to
+          // book it on its own.
+          const why = e.body?.error === "price_changed"
+            ? t("The price for car {n} changed to {total}, so it was not booked.", { n: i + 1, total: money(e.body.total) })
+            : t("Car {n} was not booked: {reason}", { n: i + 1, reason: e.message || t("We couldn't complete that booking.") });
+          setNotBooked({ n: i + 1, why, more: i < payloads.length - 1 });
+          break;
         }
       }
       // Remembered only once the booking actually landed: a device that
@@ -635,7 +629,7 @@ function BookingFlow({ notFound = null }) {
     );
   }
   if (confirmed) {
-    return <BookingConfirmed booking={confirmed} form={form} />;
+    return <BookingConfirmed booking={confirmed} form={form} notBooked={notBooked} />;
   }
   // **STILL SETTING UP — roadmap 8.4, and it is an EXPLANATION rather than a
   // gate.** The gate already exists and needs no code: with neither mode

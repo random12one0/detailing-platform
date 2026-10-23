@@ -340,8 +340,14 @@ export const es = {
   // ROADMAP 97.8 — the server's total moved while they were booking.
   "The price changed to {total} while you were booking. Nothing is booked yet. Check the new total, then confirm again.":
     "El precio cambió a {total} mientras reservabas. Todavía no hay nada reservado. Revisa el nuevo total y vuelve a confirmar.",
-  "Your first car is booked. The price for car {n} changed to {total}, so it was not booked. Please book it separately.":
-    "Tu primer carro está reservado. El precio del carro {n} cambió a {total}, así que no se reservó. Resérvalo por separado.",
+  // ROADMAP 97.67 — on the confirmation screen, when a later car was refused.
+  "The price for car {n} changed to {total}, so it was not booked.":
+    "El precio del carro {n} cambió a {total}, así que no se reservó.",
+  "Car {n} was not booked: {reason}": "El carro {n} no se reservó: {reason}",
+  "The cars after it were not booked either.": "Los carros siguientes tampoco se reservaron.",
+  "Book it as a new booking. The page will show its price now.":
+    "Resérvalo como una reserva nueva. La página mostrará su precio actual.",
+  "Book car {n}": "Reservar el carro {n}",
 
   // ── The picker itself ──────────────────────────────────────────────────
   "Language": "Idioma",

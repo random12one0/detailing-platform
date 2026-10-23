@@ -8,7 +8,7 @@ import { icsUrl } from "../lib/api.js";
 import { money, phone, time12 } from "../lib/format.js";
 import { useBookingBusiness } from "./BookingBusinessContext.jsx";
 
-export default function BookingConfirmed({ booking, form }) {
+export default function BookingConfirmed({ booking, form, notBooked }) {
   useLocale();
   const { business, branding, brandVars } = useBookingBusiness();
   // ROADMAP 2.12 — THE SCREEN MAKES THE SAME PROMISE THE EMAIL JUST MADE, and
@@ -61,6 +61,20 @@ export default function BookingConfirmed({ booking, form }) {
               : t("We’ve emailed your confirmation to {email}.", { email: form.customerEmail })}
           </p>
         </div>
+
+        {/* ROADMAP 97.67 — a split booking whose later car was refused: the
+            card below is the car that IS booked; this says which one is not
+            and how to book it. A fresh page re-quotes it at today's price. */}
+        {notBooked && (
+          <div className="bk-note bk-price-changed bk-not-booked" role="alert" style={{ marginBottom: 14 }}>
+            <p>{notBooked.why}{notBooked.more && <> {t("The cars after it were not booked either.")}</>}</p>
+            <p style={{ marginTop: 6 }}>{t("Book it as a new booking. The page will show its price now.")}</p>
+            <a className="bk-btn" style={{ marginTop: 10, width: "100%" }}
+              href={window.location.pathname + window.location.search}>
+              {t("Book car {n}", { n: notBooked.n })}
+            </a>
+          </div>
+        )}
 
         <div className="bk-card">
           <div className="bk-step-label">{isRequest ? t("What you asked for") : t("Your appointment")}</div>
