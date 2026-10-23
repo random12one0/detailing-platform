@@ -13,7 +13,7 @@ import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { servicesForBooking } from "../_shared/pricing.ts";
 import { dayRuleRefusal, validateSlot } from "../_shared/slotValidation.ts";
-import { buildBrand, extraVehiclesFor, recipientLang, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, ownerRecipients, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { rescheduleEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -114,6 +114,9 @@ Deno.serve(async (req) => {
         // Only from the time the checks above read, so of two concurrent
         // presses exactly one moves it and sends the notices.
         p_from_start: booking.start_at,
+        // ROADMAP 97.30 — and only from the STATUS they read: a cancel that
+        // lands between that read and this write must not be moved.
+        p_from_status: booking.status,
       })
       .maybeSingle();
     if (error) {
@@ -125,9 +128,9 @@ Deno.serve(async (req) => {
       throw error;
     }
     if (!moved) {
-      const { data: now } = await supabase.from("bookings").select("id, start_at, end_at")
+      const { data: now } = await supabase.from("bookings").select("id, status, start_at, end_at")
         .eq("id", booking.id).maybeSingle();
-      if (now && new Date(now.start_at).getTime() === check.startAt!.getTime()) {
+      if (now && now.status === booking.status && new Date(now.start_at).getTime() === check.startAt!.getTime()) {
         return json({ success: true, duplicate: true, booking: {
           id: now.id,
           booking_date: dateStrIn(tz, new Date(now.start_at)),
@@ -176,12 +179,11 @@ Deno.serve(async (req) => {
       const msg = rescheduleEmail(brand, emailData, oldDateStr, oldStartTime, false);
       await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
-    if (brand.contactEmail) {
+    // ROADMAP 97.30 — every owner address, like every other owner alert.
+    for (const to of ownerRecipients(business, settings)) {
       // ROADMAP 3.4 FAULT 4 — in each recipient's own dashboard language.
-      const msg = rescheduleEmail(
-        brand, emailData, oldDateStr, oldStartTime, true, await recipientLang(brand.contactEmail, business.id),
-      );
-      await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html, text: msg.text });
+      const msg = rescheduleEmail(brand, emailData, oldDateStr, oldStartTime, true, await recipientLang(to, business.id));
+      await sendTenantEmail({ bookingId: booking.id, businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
     }
     try {
       await sendOwnerPush(business.id, {

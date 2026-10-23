@@ -31603,7 +31603,8 @@ decisions, not build jobs.
   - With more than 1,000 bookings in a scratch business, the Money totals equal a direct database sum (test or script, receipt kept)
   - The screen loads at 390 and 1440 with no console errors
 
-- [ ] **97.30 — A reschedule can land on a just-cancelled booking, and customer notices skip the detailer's notification list (C-L1, C-L2).**
+- [x] **97.30 — A reschedule can land on a just-cancelled booking, and customer notices skip the detailer's notification list (C-L1, C-L2).**
+  DONE 2026-10-23 (Claude lane): reschedule-booking now passes p_from_status to move_booking_checked (the fence the function already had), so a cancel landing between its read and its move leaves the booking cancelled and unmoved (409, no notices); a retried move only answers "already done" when the status is unchanged. Customer cancel and reschedule owner notices now loop ownerRecipients() like every other owner alert. Proof: tests/reschedule-cancel-race-97-30.test.mjs runs the real handlers against the real move_booking_checked in PGlite (PGLITE_DIR=<folder> PGLITE_REQUIRED=1): 3/3 on this fix; on the unfixed code 2 fail (the cancelled booking moved to the new time; owner notices reached 1 of 2 addresses). No migration. cancel-booking and reschedule-booking now differ from what is deployed; publishing them is Andrew's.
   `reschedule-booking/index.ts:106-115` guards the update on `start_at` only; add `.eq("status", booking.status)`. `cancel-booking/index.ts:144-152` and `reschedule-booking/index.ts:174-180` send only to `brand.contactEmail`, while every other owner alert uses `ownerRecipients()`.
   Acceptance criteria:
   - A reschedule racing a cancel never moves the cancelled booking (test)
