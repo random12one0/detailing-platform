@@ -204,11 +204,8 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
       ...adjustments.map((a) => cents(a.amount)),
     ].reduce((a, b) => a + b, 0)
     : null;
-  // Everything already drawn as a line that SUBTRACTS before `subtotal`. The
-  // promo is not one: the stored `subtotal` is the engine's `subtotalAfterSite`,
-  // taken BEFORE the promo (ROADMAP 97.31 found every promo booking reading as
-  // a negative site sale here and falling back to names with no prices).
-  const shown = cents(booking.monthly_plan_discount);
+  // Everything already drawn as a line that SUBTRACTS.
+  const shown = cents(booking.monthly_plan_discount) + cents(booking.promo_discount);
   const sub = cents(booking.subtotal);
 
   // **WHY THE PARTS COULD NEVER MATCH — measured 2026-09-11, and the answer
@@ -243,10 +240,18 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   const siteDiscount = residualFor(gross);
   // Rounding is the last step the engine takes, and it is the difference
   // between the subtotal it settled on and what it actually charges.
-  // Positive = it took money off. ROADMAP 97.31: its own line, never folded
-  // into a discount, same as the checkout (`StepReview.jsx`).
-  const rounding = sub - cents(booking.promo_discount) - cents(booking.total_price);
-  const shownDiscount = siteDiscount === null ? 0 : siteDiscount;
+  const rounding = sub - cents(booking.total_price);
+  // WHAT THE DISCOUNT LINE ACTUALLY SAYS. The site sale plus the rounding, so
+  // the lines a customer can add reach the total they were charged and no row
+  // on this page is shaped like a fee that is not one. Same treatment as the
+  // checkout (`StepReview.jsx`), for the same reason.
+  const shownDiscount = siteDiscount === null ? 0 : siteDiscount + rounding;
+  // Nothing to fold it into: a business that rounds and ran no sale. A
+  // sentence under the total, not a price row.
+  const roundedOnly = itemisedRounding();
+  function itemisedRounding() {
+    return siteDiscount !== null && siteDiscount + rounding === 0 && rounding !== 0 ? rounding : 0;
+  }
   // A NEGATIVE RESIDUAL IS STILL UNEXPLAINED AND STILL DEGRADES. Money missing
   // from the parts means a figure this page cannot see, and inventing a line
   // to cover it is the one thing a receipt must never do.
@@ -274,6 +279,10 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
         // reschedule picker and moving an hour later is impossible while
         // moving to another day works, which reads as nothing being wrong.
         exclude_booking_id: booking.id,
+        // 100.4 - the same service_ids the booking page sends (StepWhen), so
+        // available-slots applies the services' own weekday rule and the
+        // picker never offers a day reschedule-booking refuses.
+        service_ids: (booking.services ?? []).map((s) => s.service_id).filter(Boolean),
       });
       setDays(r.days ?? {});
       setMode("reschedule");
@@ -540,18 +549,30 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                 <span className="bk-price">-{money(booking.promo_discount)}</span>
               </div>
             )}
-            {itemised && rounding !== 0 && (
-              <div className="line dim">
-                <span>{rounding < 0 ? t("Rounded up") : t("Rounded down")}</span>
-                <span className="bk-price">{rounding < 0 ? "+" : "-"}{money(Math.abs(rounding) / 100)}</span>
-              </div>
-            )}
-            <div className="line total">
+            {/* NO "ROUNDED" LINE EITHER — 2026-09-11, matching the checkout.
+                An outside review objected to `Rounding` as a price row on the
+                booking page, and the objection is just as true here: a
+                fee-shaped row for something that is not a fee reads as the
+                business adjusting the number after the fact. The rounding is
+                folded into the discount above so the lines still reach the
+                total exactly, and where there is no discount to fold it into
+                it is a sentence under the total instead. */}
+                        <div className="line total">
               <strong>{isFinal ? t("Final total") : t("Estimated total")}</strong>
               <strong className="bk-price" style={{ fontSize: "1.3rem" }}>
                 {money(booking.final_amount ?? booking.total_price)}
               </strong>
             </div>
+            {/* The one case the fold cannot cover: a business that rounds and
+                ran no sale, so there is no discount line to absorb it. A
+                sentence, not a price row. */}
+            {roundedOnly !== 0 && (
+              <p className="bk-muted" style={{ marginTop: 6 }}>
+                {roundedOnly > 0
+                  ? t("Rounded down to the nearest dollar.")
+                  : t("Rounded up to the nearest dollar.")}
+              </p>
+            )}
           </div>
 
           {/* WHAT THEY TYPED IN, SO THEY CAN CHECK IT. A customer who spots
