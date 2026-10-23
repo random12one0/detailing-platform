@@ -84,6 +84,7 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { jsonLdScript, localBusinessJsonLd } from "../app/netlify/edge-functions/booking-meta.mjs";
 
 // `new URL("../")` from `scripts/` IS the repo root — taking `dirname` of it
 // again climbs one level too far and every copy then misses by a directory,
@@ -218,6 +219,36 @@ const MULTI = [
 // without guarding would have handed every future importer a silent build of
 // another session's tree. The guard is the pattern `capture-examples.mjs`
 // already uses for the same reason, and it prints when it skips.
+// ROADMAP 97.43 - each site's LocalBusiness JSON-LD, written into the home
+// page's <head> at build time by the SAME builder the booking page's edge
+// function uses, from rows shaped like get_public_business_profile's answer.
+// Injected here, not typed into docs/tenant-sites/, because an invisible head
+// block must not stale the /examples screenshots (example-shots-check hashes
+// the source). Every name, phone, area and price below is one the site
+// prints; tests/booking-meta.test.mjs fails if one stops matching. Every site
+// prices by vehicle size, so each listed price is the sedan price: a minimum.
+// Quoted services (no number on the page) are left out.
+const svc = (name, price) => ({ name, price, price_is_from: true });
+export const EXAMPLE_PROFILES = {
+  ex1: { business: { name: "Prime Mobile Detailing", phone: "+12065550142", service_area: "North Seattle & Eastside" },
+    services: [svc("Express Wash", 89), svc("Full Detail", 219), svc("Ceramic Package", 890)] },
+  ex2: { business: { name: "Delgado Mobile Detailing", phone: "+14805550142", service_area: "Phoenix · Scottsdale · Tempe" },
+    services: [svc("Gloss Enhancement", 340), svc("Paint Correction", 620), svc("Ceramic, 3 year", 1150)] },
+  ex3: { business: { name: "Ballantyne Mobile Detailing", phone: "+17045550142", service_area: "Charlotte" },
+    services: [svc("Interior Refreshment", 200), svc("Interior Enhancement", 250), svc("Interior Restoration", 300),
+      svc("Wash & Wax", 120), svc("Exterior Enhancement", 400), svc("Refreshment Package", 275),
+      svc("Enhancement Package", 350), svc("Signature Detail", 500), svc("One-step correction", 500),
+      svc("Two-step correction", 750), svc("Level 1", 800), svc("Level 2", 1000), svc("Level 3", 1200)] },
+  ex4: { business: { name: "Kinzie Mobile Detailing", phone: "+13125550148", service_area: "Chicago" },
+    services: [svc("Full Enhancement Detail", 995), svc("Full Maintenance Detail", 620),
+      svc("Restoration Detail", 10000), svc("Window tinting", 320)] },
+  ex5: { business: { name: "Sunglade Auto Detail", phone: "+18135550173", service_area: "Tampa Bay" },
+    services: [svc("Exterior premium wash", 55), svc("Express super clean", 110), svc("Express seats", 200),
+      svc("Deluxe wax", 195), svc("Paint correction", 395), svc("Super detail", 390),
+      svc("Ceramic coating", 750), svc("Headlight restoration", 95)] },
+};
+export const exampleJsonLd = (slug) => jsonLdScript(localBusinessJsonLd(EXAMPLE_PROFILES[slug]));
+
 export const PAINTS = `
 <style>
   .paintpick{position:fixed;right:14px;bottom:14px;z-index:2147483646;
@@ -287,6 +318,7 @@ async function main() {
         // the paint switcher, on the one site that has paints to switch
         const inj = injectedFor(slug);
         if (inj) html = html.replace("</body>", inj + "</body>");
+        if (dest === "index.html") html = html.replace("</head>", () => exampleJsonLd(slug) + "\n</head>");
         const { html: page, files } = externalize(html, `/${slug}/${dest.replace(/\.html$/, "")}`);
         for (const [src, code] of files) await writeFile(path.join(OUT, src), code, "utf8");
         await writeFile(path.join(dir, dest), page, "utf8");

@@ -39,6 +39,48 @@ export function tenantDescription(profile) {
   return `Book detailing with ${b.name}${area ? ` in ${area}` : ""}.`;
 }
 
+// ROADMAP 97.43 - schema.org LocalBusiness for search engines, which do not
+// run the JS either. Built only from public profile fields: name, phone,
+// service area and active services' prices. Never service notes or anything
+// staff-side. A price that varies (the owner ticked "from", or a vehicle size
+// changes it) is written as a minimum, never as a flat price.
+export function localBusinessJsonLd(profile, pageUrl) {
+  const b = profile?.business ?? {};
+  const name = String(b.name ?? "").trim();
+  if (!name) return null;
+  const ld = { "@context": "https://schema.org", "@type": "LocalBusiness", name };
+  if (pageUrl) ld.url = pageUrl;
+  const phone = String(b.phone ?? "").trim();
+  if (phone) ld.telephone = phone;
+  const area = String(b.service_area ?? "").trim();
+  if (area) ld.areaServed = area;
+  const offers = (Array.isArray(profile?.services) ? profile.services : []).flatMap((s) => {
+    const svc = String(s?.name ?? "").trim();
+    const price = Number(s?.price);
+    if (!svc || s?.price == null || !Number.isFinite(price) || price < 0) return [];
+    const adj = Object.values(s.vehicle_size_adjustments ?? {}).map((a) => Number(a?.price) || 0);
+    const min = price + Math.min(0, ...adj);
+    const offer = { "@type": "Offer", itemOffered: { "@type": "Service", name: svc }, priceCurrency: "USD" };
+    if (s.price_is_from || adj.some((a) => a !== 0)) {
+      offer.priceSpecification = { "@type": "PriceSpecification", minPrice: Math.max(0, min), priceCurrency: "USD" };
+    } else offer.price = price;
+    return [offer];
+  });
+  if (offers.length) ld.makesOffer = offers;
+  return ld;
+}
+
+// The <script> block itself. JSON.stringify leaves < > & raw, so a business
+// named `</script><script>...` would close the block and run; escaping them
+// as \u003c etc. keeps the JSON identical once parsed.
+export function jsonLdScript(ld) {
+  if (!ld) return "";
+  const json = JSON.stringify(ld)
+    .replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
 // Title = the business name, exactly what BookingBusinessContext.jsx sets as
 // document.title after load. Replacers are functions so a `$` in a name is
 // never read as a replacement pattern.
@@ -60,6 +102,8 @@ export function rewriteHead(html, { profile, pageUrl } = {}) {
   set("name", "twitter:title", n);
   set("name", "twitter:description", d);
   if (pageUrl) set("property", "og:url", esc(pageUrl));
+  const ld = jsonLdScript(localBusinessJsonLd(profile, pageUrl));
+  if (ld && !out.includes('type="application/ld+json"')) out = out.replace("</head>", () => `${ld}\n  </head>`);
   return out;
 }
 

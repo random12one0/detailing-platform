@@ -31707,7 +31707,8 @@ decisions, not build jobs.
   - Fetching `/book/demo-detail` with no JavaScript (netlify dev or the edge function's own test) returns the business's name in `<title>` and `og:title`, and its own description
   - An unknown slug falls back to the platform tags, and the page still loads normally
 
-- [ ] **97.43 — No `LocalBusiness` structured data on booking pages or tenant sites (P-4).**
+- [x] **97.43 — No `LocalBusiness` structured data on booking pages or tenant sites (P-4).**
+  Claude lane 2026-10-23: /book/<slug> now gets one LocalBusiness JSON-LD block (name, phone, service area, active services' prices; a "from" or size-varying price written as minPrice; no notes or address) from the 97.42 edge function, escaped so a name holding </script> cannot break out; /ex1-/ex5 home pages get one each at build time from the same builder (scripts/build-examples.mjs EXAMPLE_PROFILES, every value one the site prints). tests/booking-meta.test.mjs: 4 new tests, 3 red on unfixed code and the hostile-name one red with the < escape removed, 15/15 green after; the real demo-detail profile from the dev DB through the real handler gave 1 block that parses. A tenant's own custom domain is not covered (the edge function runs on /book/* only). Live after the next deploy.
   There is no JSON-LD anywhere. Add `LocalBusiness` JSON-LD (name, area served, phone, prices) to the booking page head and to every tenant site template.
   Acceptance criteria:
   - The booking page and each example site (`/ex1`…`/ex5`) carry one valid `LocalBusiness` block, checked with a JSON parse and the schema's required fields
