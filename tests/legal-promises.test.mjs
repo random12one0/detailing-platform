@@ -7,6 +7,9 @@
 //   LEGAL_BREAK=debt     node --test tests/legal-promises.test.mjs   # sabotage 4
 //   LEGAL_BREAK=call     node --test tests/legal-promises.test.mjs   # sabotage 5
 //   LEGAL_BREAK=notice   node --test tests/legal-promises.test.mjs   # sabotage 6
+//   LEGAL_BREAK=injected node --test tests/legal-promises.test.mjs   # sabotage 7  (§ 6, ROADMAP 100.8)
+//   LEGAL_BREAK=alias    node --test tests/legal-promises.test.mjs   # sabotage 8  (§ 6)
+//   LEGAL_BREAK=dynamic  node --test tests/legal-promises.test.mjs   # sabotage 9  (§ 6)
 //
 // AN ENV VAR AND NOT A FLAG, and that is not a style choice: `node --test <file>
 // --break=x` does NOT pass the flag to the file — node consumes every extra
@@ -59,9 +62,14 @@
 //   5. Every external host the edge functions name is classified, and every one
 //      classified as a processor is named on `/privacy` by the string declared
 //      beside it.
-//   6. There are exactly `FETCH_SITES` outbound `fetch(` call sites under
-//      `supabase/functions/`. See the blind spot below — this is the only thing
-//      standing between § 5 and a processor it structurally cannot see.
+//   6. There are exactly `FETCH_SITES` outbound call sites under
+//      `supabase/functions/` — calls of `fetch` OR OF ANY NAME HOLDING IT (an
+//      injected `fetchImpl`, `const f = fetchImpl ?? globalThis.fetch`), found by
+//      `outboundCalls` on the code with comments and strings removed — and exactly
+//      `FETCH_REFS` places name `fetch` at all. Until ROADMAP 100.8 this counted
+//      the TEXT `fetch(`, and three live calls never spell it. See the blind spot
+//      below — this is the only thing standing between § 5 and a processor it
+//      structurally cannot see.
 //
 // ---------------------------------------------------------------------------
 // WHAT IT CANNOT SEE, SAID HERE RATHER THAN DISCOVERED LATER
@@ -74,6 +82,13 @@
 //     `NON_LITERAL` below, which pins them; a THIRD one would not be. **§ 6 is
 //     the net under that hole**: a new outbound call site reddens the run, and
 //     whoever added it has to say what host it reaches.
+//   * **§ 6 follows a fetch alias inside one file, not across files.** Handing
+//     `fetch` itself to another file names it, so FETCH_REFS moves; handing over
+//     an EXISTING alias (`r2.ts`'s `fetchImpl` passed on to a helper elsewhere),
+//     or returning one from a function, is not followed. Nor is an HTTP client
+//     imported from npm. A computed global lookup, eval, `new Function` and the
+//     other network primitives are refused outright (§ 6 `hidden`), because no
+//     count can follow them.
 //   * **It reads strings, not meaning.** A promise reworded into something
 //     weaker but still containing the pinned phrase passes. It is a tripwire on
 //     the pair, not a reader.
@@ -102,12 +117,18 @@
 //     entire open debt until 2026-10-09. **Every assertion in this file has been watched to go red**,
 //     which is the only reason a green run here means anything.
 //     **Each was run and each reddened; the counts are in ROADMAP 0.4.**
+//   * § 6's sabotages go INTO the source text `outboundCalls` reads (ROADMAP
+//     100.8): `call` appends a plain `fetch(`, `injected` a `fetchImpl(` in
+//     `r2.ts`, `alias` a two-step alias of `weather.ts`'s `f`, `dynamic` a
+//     `globalThis["fet" + "ch"](…)`. Test 6b is the every-run canary aimed at
+//     `outboundCalls` itself, one synthetic file per evasion shape.
 //     `docs/gotchas.md` 102 — a sabotage is only evidence once you have seen it
 //     change the output, so each one prints what it did.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { stripTypeScriptTypes } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
@@ -334,7 +355,14 @@ const DECLARED_ROWS = 16;
 const UNBACKED_IDS = ["buildfee-notice-terms"];
 // 9 → 10, ROADMAP 97.13: verify-domain's one marker fetch moved into _shared/domainProof.ts and a second
 // call joined it — the DNS-over-HTTPS TXT lookup to cloudflare-dns.com, classified in privacy-processors.
-const FETCH_SITES = 10;
+// 10 → 13, ROADMAP 100.8: the count stopped being the TEXT `fetch(` and became every call of fetch or of a
+// name holding it. The three it adds were live and invisible: `_shared/mediaCache.ts` `fetchImpl(` (api.cloudflare.com),
+// `_shared/r2.ts` `fetchImpl(url, …)` (R2, host built at run time) and `_shared/weather.ts` `f(url, …)`
+// (api.weather.gov, through `const f = fetchImpl ?? globalThis.fetch`). Each host was already classified.
+const FETCH_SITES = 13;
+// Every place the code names `fetch` at all — calls, defaults, hand-offs. A new route to the network has to
+// start from one, so a shape the alias-following below does not know still moves this number.
+const FETCH_REFS = 18;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE PROCESSOR LIST — every host the edge functions name, classified
@@ -410,6 +438,208 @@ export function backingMissing(row, fileText) {
     }
   }
   return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 6's COUNTER — the outbound calls, found by what they CALL, not how they're spelt
+// ═══════════════════════════════════════════════════════════════════════════
+// ROADMAP 100.8. The old count was the text `fetch(`, so `fetchImpl(` (an injected fetch) and
+// `f(` (an aliased one) were invisible to it — and three live call sites already were.
+
+/** Comments, string/template text and regex literals blanked to spaces (newlines kept), so
+ *  what is left is code. `${…}` inside a template stays code. Types are stripped first by
+ *  node's own TypeScript stripper, which keeps every offset. */
+export function codeOnly(ts) {
+  const src = stripTypeScriptTypes(ts);
+  const out = src.split(""), n = src.length;
+  const blank = (a, b) => { for (let k = a; k < b; k++) if (out[k] !== "\n" && out[k] !== "\r") out[k] = " "; };
+  let i = 0, prev = "", word = "", depth = 0;
+  const tpl = [];
+  const template = () => {
+    const s = i;
+    while (i < n && src[i] !== "`") {
+      if (src[i] === "\\") i += 2;
+      else if (src[i] === "$" && src[i + 1] === "{") { blank(s, i); tpl.push(depth++); i += 2; prev = "{"; word = ""; return; }
+      else i++;
+    }
+    blank(s, i); i++; prev = "`"; word = "";
+  };
+  while (i < n) {
+    const c = src[i], d = src[i + 1];
+    if (c === "/" && d === "/") { const e = src.indexOf("\n", i); const end = e < 0 ? n : e; blank(i, end); i = end; continue; }
+    if (c === "/" && d === "*") { const e = src.indexOf("*/", i + 2); const end = e < 0 ? n : e + 2; blank(i, end); i = end; continue; }
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      while (j < n && src[j] !== c && src[j] !== "\n") j += src[j] === "\\" ? 2 : 1;
+      blank(i + 1, j); i = j + 1; prev = '"'; word = ""; continue;
+    }
+    if (c === "`") { i++; template(); continue; }
+    if (c === "/" && (prev === "" || /[(,=:[!&|?{};+\-*%<>~^]/.test(prev)
+        || /^(return|typeof|case|do|else|in|of|void|yield|await|delete|throw|new|instanceof)$/.test(word))) {
+      let j = i + 1, cls = false;
+      while (j < n && src[j] !== "\n" && (cls || src[j] !== "/")) {
+        if (src[j] === "\\") j++; else if (src[j] === "[") cls = true; else if (src[j] === "]") cls = false;
+        j++;
+      }
+      blank(i + 1, j); i = j + 1; prev = ")"; word = ""; continue;
+    }
+    if (/[\w$]/.test(c)) { word = /[\w$]/.test(src[i - 1] ?? "") ? word + c : c; prev = c; i++; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === "{") depth++;
+    if (c === "}") {
+      if (tpl.length && tpl[tpl.length - 1] === depth - 1) { tpl.pop(); depth--; i++; template(); continue; }
+      depth--;
+    }
+    prev = c; word = ""; i++;
+  }
+  return out.join("");
+}
+
+const IDENT = /[\w$]/;
+const KEYWORDS = new Set(["if", "for", "while", "switch", "catch", "return", "await", "typeof", "function", "new", "void", "in", "of", "do", "else", "case", "throw", "yield", "delete"]);
+const identsIn = (s) => (s.match(/[A-Za-z_$][\w$]*/g) ?? []).filter((w) => !KEYWORDS.has(w));
+const esc = (s) => s.replace(/\$/g, "\\$");
+const CALLED = /^\s*(?:\?\.\s*)?(?:\.\s*(?:call|apply)\s*)?\(/; // what follows a name that is being CALLED
+const OPEN = { ")": "(", "]": "[", "}": "{" };
+
+/** Split a paren group's inside at its top-level commas. */
+function topLevel(s) {
+  const parts = []; let d = 0, start = 0;
+  for (let k = 0; k < s.length; k++) {
+    if ("([{".includes(s[k])) d++; else if (")]}".includes(s[k])) d--;
+    else if (s[k] === "," && d === 0) { parts.push(s.slice(start, k)); start = k + 1; }
+  }
+  parts.push(s.slice(start));
+  return parts;
+}
+/** Index just past the bracket matching the opener at `at`. */
+function closeOf(code, at) {
+  let d = 0;
+  for (let k = at; k < code.length; k++) {
+    if ("([{".includes(code[k])) d++;
+    else if (")]}".includes(code[k]) && --d === 0) return k + 1;
+  }
+  return code.length;
+}
+
+/** Every function this file defines, by name, with each parameter's bound names. */
+function definitions(code) {
+  const defs = [];
+  const shapes = [
+    /\bfunction\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(/g,                       // function name(
+    /([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?(?:function\b[^(]*)?\(/g,     // name = (…) => / name = function(
+    /(?:^|[\s{,;])([A-Za-z_$][\w$]*)\s*\((?=[^()]*(?:\([^()]*\)[^()]*)*\)\s*\{)/gm, // method name(…) {
+  ];
+  for (const re of shapes) {
+    for (const m of code.matchAll(re)) {
+      if (KEYWORDS.has(m[1])) continue;
+      const open = m.index + m[0].length - 1;
+      const close = closeOf(code, open);
+      const after = code.slice(close, close + 40);
+      if (re === shapes[1] && !/^\s*=>/.test(after) && !/function/.test(m[0])) continue; // a call, not a definition
+      defs.push({ name: m[1], from: open, to: close, params: topLevel(code.slice(open + 1, close - 1)).map((p) => identsIn(p.split("=")[0])) });
+    }
+  }
+  return defs;
+}
+
+/** Where a value-use of a fetch-alias at `p` flows: the names it binds, or the call it is an argument of. */
+function flowOf(code, p) {
+  let k = p - 1, commas = 0;
+  while (k >= 0) {
+    const c = code[k];
+    if (OPEN[c]) { // skip a balanced group backwards
+      let d = 0;
+      for (; k >= 0; k--) { if (OPEN[code[k]]) d++; else if ("([{".includes(code[k]) && --d === 0) break; }
+      k--; continue;
+    }
+    if (c === ";") return null;
+    if (c === "{") return null;
+    if (c === ",") { commas++; k--; continue; }
+    if (c === "[") { commas = 0; k--; continue; }                       // array literal: keep walking outward
+    if (c === "(") {
+      let b = k - 1; while (b >= 0 && /\s/.test(code[b])) b--;
+      let e = b; while (b >= 0 && IDENT.test(code[b])) b--;
+      const callee = code.slice(b + 1, e + 1);
+      if (callee && !KEYWORDS.has(callee) && !/^\d/.test(callee)) return { call: callee, arg: commas };
+      commas = 0; k--; continue;                                         // a grouping paren
+    }
+    if (c === ":" && code[k - 1] !== ":") {                               // object property  key: value
+      let b = k - 1; while (b >= 0 && /\s/.test(code[b])) b--;
+      let e = b; while (b >= 0 && IDENT.test(code[b])) b--;
+      return e > b ? { binds: [code.slice(b + 1, e + 1)] } : null;
+    }
+    if (c === ">" && code[k - 1] === "=") return null;                   // arrow body: a return
+    if (c === "=" && !"=!<>".includes(code[k - 1]) && code[k + 1] !== "=") { // an assignment, incl. ??= ||= &&=
+      let b = k - 1; while (b >= 0 && /[\s?|&]/.test(code[b])) b--;
+      if (OPEN[code[b]]) { // a destructuring pattern: every name in it
+        let d = 0, e = b;
+        for (; b >= 0; b--) { if (OPEN[code[b]]) d++; else if ("([{".includes(code[b]) && --d === 0) break; }
+        return { binds: identsIn(code.slice(b, e + 1)) };
+      }
+      let e = b; while (b >= 0 && IDENT.test(code[b])) b--;
+      return e > b ? { binds: [code.slice(b + 1, e + 1)] } : null;
+    }
+    if (IDENT.test(c)) { // a keyword ends the walk where it starts a statement
+      let b = k; while (b >= 0 && IDENT.test(code[b])) b--;
+      if (/^(return|throw|yield|export|default)$/.test(code.slice(b + 1, k + 1))) return null;
+      k = b; continue;
+    }
+    k--;
+  }
+  return null;
+}
+
+const lineOf = (code, at) => code.slice(0, at).split("\n").length;
+
+/**
+ * The outbound call sites in `files` ([{ path, text }]): every call of `fetch` or of a name that
+ * holds it — a parameter defaulted to it, a variable or property assigned from it, a parameter of a
+ * function in the SAME file it is passed into — to a fixpoint. Across files it is not followed: the
+ * hand-off site names `fetch` (and moves FETCH_REFS) or hands over an existing alias (not seen).
+ * Also returns every reference to the `fetch` name itself, and the shapes that would hide a call
+ * from all of this (a computed global lookup, eval, another network primitive), which must be none.
+ */
+export function outboundCalls(files) {
+  const parsed = files.map((f) => ({ path: f.path, raw: f.text, code: codeOnly(f.text) }));
+  for (const f of parsed) f.defs = definitions(f.code);
+  const alias = new Map(parsed.map((f) => [f.path, new Set(["fetch"])]));
+
+  // Ends: every round adds a name, and a file has finitely many.
+  for (let changed = true; changed;) {
+    changed = false;
+    const add = (path, names) => { for (const nm of names) if (nm && !KEYWORDS.has(nm) && !alias.get(path).has(nm)) { alias.get(path).add(nm); changed = true; } };
+    for (const f of parsed) {
+      for (const a of [...alias.get(f.path)]) {
+        for (const m of f.code.matchAll(new RegExp(`(?<![\\w$])${esc(a)}(?![\\w$])`, "g"))) {
+          const rest = f.code.slice(m.index + a.length);
+          if (CALLED.test(rest) || /^\s*=(?![=>])/.test(rest)) continue; // called, or being assigned to
+          const flow = flowOf(f.code, m.index);
+          // Inside a definition's own parameter list only a default (`fetchImpl = fetch`) binds; the list
+          // itself is not a call, though it reads like one.
+          if (!flow || (flow.call && f.defs.some((d) => m.index > d.from && m.index < d.to))) continue;
+          if (flow.binds) add(f.path, flow.binds);
+          else for (const d of f.defs.filter((x) => x.name === flow.call)) add(f.path, d.params[flow.arg] ?? []);
+        }
+      }
+    }
+  }
+
+  const sites = [], refs = [], hidden = [];
+  for (const f of parsed) {
+    const lines = f.raw.split("\n");
+    const at = (i) => `${f.path}:${lineOf(f.code, i)}: ${lines[lineOf(f.code, i) - 1].trim()}`;
+    const names = [...alias.get(f.path)].map(esc).join("|");
+    for (const m of f.code.matchAll(new RegExp(`(?<![\\w$])(?<!function\\s+)(?:${names})(?=\\s*(?:\\?\\.\\s*)?(?:\\.\\s*(?:call|apply)\\s*)?\\()`, "g"))) {
+      const close = closeOf(f.code, f.code.indexOf("(", m.index));
+      if (/^\s*\{/.test(f.code.slice(close))) continue; // a definition  name(…) {  not a call
+      sites.push(at(m.index));
+    }
+    for (const m of f.code.matchAll(new RegExp(`Reflect\\s*\\.\\s*apply\\s*\\(\\s*(?:${names})(?![\\w$])`, "g"))) sites.push(at(m.index));
+    for (const m of f.code.matchAll(/(?<![\w$])fetch(?![\w$])/g)) refs.push(at(m.index));
+    for (const m of f.code.matchAll(/(?<![\w$])(?:globalThis|self|window)\s*(?:\?\.)?\s*\[|(?<![\w$.])eval\s*\(|(?<![\w$.])Function\s*\(|(?<![\w$])(?:WebSocket|EventSource|XMLHttpRequest|sendBeacon)(?![\w$])|(?<![\w$])Deno\s*\.\s*(?:connect|connectTls|startTls|createHttpClient)(?![\w$])/g)) hidden.push(at(m.index));
+  }
+  return { sites, refs, hidden, alias };
 }
 
 // The reader every real row goes through, with sabotage 2 wired into it so the
@@ -519,16 +749,71 @@ test("0.4 · 5 — every external host the edge functions name is classified, an
   assert.deepEqual(adrift, [], "a host the scan cannot see has moved; re-read where it is built and re-pin it");
 });
 
+// The sabotages for § 6 go INTO the source text the counter reads, so what reddens is the counter
+// finding them — not a line pushed onto its output (`docs/gotchas.md` 95).
+const SIX_BREAKS = {
+  call: ["supabase/functions/watch-jobs/index.ts", "\nawait fetch(SOMEWHERE_NEW);\n"],
+  injected: ["supabase/functions/_shared/r2.ts", "\nexport const again = () => fetchImpl(SOMEWHERE_NEW);\n"],
+  alias: ["supabase/functions/_shared/weather.ts", "\nconst g = f;\ng(SOMEWHERE_NEW);\n"],
+  dynamic: ["supabase/functions/_shared/r2.ts", '\nglobalThis["fet" + "ch"](SOMEWHERE_NEW);\n'],
+};
+
 test("0.4 · 6 — the number of outbound calls has not changed", () => {
-  const out = execFileSync("git", ["grep", "-n", "fetch(", "--", "supabase/functions"], { cwd: REPO, encoding: "utf8" });
-  const sites = out.split(/\r?\n/).filter((l) => l && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l));
-  if (BREAK === "call") {
-    sites.push("supabase/functions/new-thing/index.ts:1:  await fetch(SOMEWHERE_NEW);");
-    console.log(`  SABOTAGE call: one synthetic outbound call site added (${sites.length} now, ${FETCH_SITES} declared)`);
+  const paths = execFileSync("git", ["ls-files", "--", "supabase/functions"], { cwd: REPO, encoding: "utf8" })
+    .split(/\r?\n/).filter((p) => /\.(ts|js|mjs)$/.test(p));
+  const files = paths.map((p) => ({ path: p, text: readFileSync(new URL(`../${p}`, import.meta.url), "utf8") }));
+  if (SIX_BREAKS[BREAK]) {
+    const [p, add] = SIX_BREAKS[BREAK];
+    const f = files.find((x) => x.path === p);
+    assert.ok(f, `sabotage ${BREAK}: ${p} is gone, so the sabotage did not apply — re-aim it`);
+    f.text += add;
+    console.log(`  SABOTAGE ${BREAK}: appended ${JSON.stringify(add.trim())} to ${p}`);
   }
+  const { sites, refs, hidden } = outboundCalls(files);
+
+  assert.deepEqual(hidden, [],
+    "**A call this count cannot follow** — a computed lookup on the global object (`globalThis[\"fet\" + \"ch\"]`), eval, `new Function`, or a network primitive other than fetch. Write the call plainly so it can be counted, or extend `outboundCalls` to see it.");
+
+  // NOT derived from the parse above (`docs/gotchas.md` 116): the old text scan, run independently. Every
+  // plain `fetch(` it finds outside a comment must be one of the counted sites, or the parser is losing calls.
+  const plain = execFileSync("git", ["grep", "-n", "fetch(", "--", "supabase/functions"], { cwd: REPO, encoding: "utf8" })
+    .split(/\r?\n/).filter((l) => l && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l)).map((l) => l.split(":").slice(0, 2).join(":"));
+  const counted = new Set(sites.map((s) => s.split(":").slice(0, 2).join(":")));
+  assert.deepEqual(plain.filter((l) => !counted.has(l)), [], "a plain `fetch(` the parser did not count — `codeOnly` or `outboundCalls` is broken");
+  assert.ok(plain.length >= 10, `the independent text scan found ${plain.length} \`fetch(\` lines — too few is a broken scan, not a clean tree`);
+
+  const unseen = sites.filter((s) => !plain.includes(s.split(":").slice(0, 2).join(":")));
+  console.log(`  ${sites.length} outbound call sites; ${unseen.length} of them never spell \`fetch(\`:`);
+  for (const s of unseen) console.log(`    ${s}`);
+
+  const NET = "**THIS IS THE NET UNDER § 5's BLIND SPOT.** A host built from a variable — which is how `api.deepl.com` stayed off /privacy — is invisible to a string scan, so the one thing that can be counted instead is the calls themselves. A new one here means somebody added an outbound request: say what host it reaches and classify it in HOSTS or NON_LITERAL, then move this number in the same edit.";
   assert.equal(sites.length, FETCH_SITES,
-    `${sites.length} outbound \`fetch(\` call sites under supabase/functions; ${FETCH_SITES} declared.\n${sites.join("\n")}\n\n`
-    + "**THIS IS THE NET UNDER § 5's BLIND SPOT.** A host built from a variable — which is how `api.deepl.com` stayed off /privacy — is invisible to a string scan, so the one thing that can be counted instead is the calls themselves. A new one here means somebody added an outbound request: say what host it reaches and classify it in HOSTS or NON_LITERAL, then move this number in the same edit.");
+    `${sites.length} outbound call sites under supabase/functions (fetch, or a name holding it); ${FETCH_SITES} declared.\n${sites.join("\n")}\n\n${NET}`);
+  assert.equal(refs.length, FETCH_REFS,
+    `${refs.length} places name \`fetch\` under supabase/functions; ${FETCH_REFS} declared.\n${refs.join("\n")}\n\n`
+    + "A new one is a new route to the network even when no new call site shows above — a hand-off to another file, a wrapper. " + NET);
+});
+
+test("0.4 · 6b — canary: every way of calling fetch without spelling `fetch(` is still counted", () => {
+  // Aimed at `outboundCalls` itself, the function § 6 uses, every run — `docs/gotchas.md` 95.
+  const shapes = {
+    injected: [`export function mk(c, fetchImpl: typeof fetch = fetch) { return () => fetchImpl(c.url); }`, 1],
+    aliased: [`const f = globalThis.fetch;\nconst g = f;\nexport const x = () => g("https://a");`, 1],
+    nullish: [`export async function w(fetchImpl?: F) { const f = fetchImpl ?? (globalThis.fetch as F); return f("u"); }`, 1],
+    destructured: [`const [h] = [fetch];\nh("https://a");`, 1],
+    property: [`const o = { go: fetch };\no.go("https://a");`, 1],
+    passed: [`function send(u: string, doer: typeof fetch) { return doer(u); }\nsend("https://a", fetch);`, 1],
+    callApply: [`fetch.call(null, "a");\nReflect.apply(fetch, null, ["a"]);`, 2],
+    bound: [`const b = fetch.bind(globalThis);\nb("https://a");`, 1],
+    quiet: ['// fetch("a")\nconst s = "fetch(x)";\nconst t = `fetch(${1})`;\nconst r = /fetch\\(/;\nconsole.log(s, t, r, "Failed to fetch x");', 0],
+  };
+  for (const [name, [text, want]] of Object.entries(shapes)) {
+    const { sites } = outboundCalls([{ path: `${name}.ts`, text }]);
+    assert.equal(sites.length, want, `shape "${name}": ${sites.length} sites counted, ${want} expected\n${sites.join("\n")}`);
+  }
+  for (const text of ['globalThis["fet" + "ch"]("a");', 'eval("fe" + "tch(1)");', 'new WebSocket("wss://a");']) {
+    assert.equal(outboundCalls([{ path: "x.ts", text }]).hidden.length, 1, `not flagged as hidden: ${text}`);
+  }
 });
 
 test("0.4 · 7 — canary: a reworded promise and a vanished backing are both caught", () => {
