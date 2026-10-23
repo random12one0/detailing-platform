@@ -31604,7 +31604,8 @@ decisions, not build jobs.
   - The $104 / $1-off / nearest-$5 case gives a promo discount of $1 and shows any rounding as its own line (credential-free pricing test)
   - `node scripts/discount-label.mjs` passes
 
-- [ ] **97.32 — "Today" is taken from the UTC date in three places (C-L4).**
+- [x] **97.32 — "Today" is taken from the UTC date in three places (C-L4).**
+  DONE 2026-10-23 (Claude lane): the reschedule picker, Mark done and the maintenance reminder sweep now take "today" from the business's own timezone (`businessToday` / `dateStrIn`), and the Maintenance screen's states and the Business badge counts judge the same day. Proof: `tests/business-day-97-32.test.mjs` freezes the clock at 6 PM Pacific (UTC already the 20th) and runs each spot's real "today" line from source: 4/4 on this fix, 1 pass / 3 fail on the unfixed code (2026-10-20, 2026-10-20, lower bound 2026-10-20). Mark done is NOT moved to an edge function: the write is the owner's own row, already limited by the table's member policies, with no secret and no server-side figure, so the named defect (the wrong date) is the whole fix; moving it would add a deploy for no access gain. send-owner-reminders now differs from what is deployed; publishing it is Andrew's.
   `app/src/book/ManageBookingPage.jsx:268` (after 5 PM Pacific the reschedule picker starts tomorrow), `app/src/screens/more/Maintenance.jsx:100` (Mark done records tomorrow's date in the evening, and writes from the browser), `send-owner-reminders/index.ts:384` (maintenance window lower bound). `core.js:1166` already has `businessToday(tz)`.
   Acceptance criteria:
   - All three use the business's own date; a test with a clock set to 6 PM Pacific gets today's date in each

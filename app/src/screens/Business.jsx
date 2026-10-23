@@ -57,6 +57,7 @@ import BookingLink from "../components/BookingLink.jsx";
 import PagePreview from "../components/PagePreview.jsx";
 import { STEPS, setupProgress } from "../lib/setup.js";
 import { stateOf } from "../lib/maintenance.js";
+import { businessToday } from "../book/core.js";
 import { whereFrom } from "../lib/moneyAdvanced.js";
 import { brandVarsFor } from "../lib/theme.js";
 import { time12 } from "../lib/format.js";
@@ -227,6 +228,9 @@ export default function Business({ onSetup, initial = null }) {
     // dash rather than asserting zero — a wrong "0 people" reads as a real
     // answer and sent a session looking for a missing owner that was always
     // there.
+    // 97.32 - judged against the business's own date, never UTC's: in the
+    // evening a deadline due today is due, not missed.
+    const at = new Date(`${businessToday(business.timezone)}T00:00:00Z`);
     setCounts({
       hours: describeHours(h.data),
       hoursRows: h.data ?? [],
@@ -246,8 +250,8 @@ export default function Business({ onSetup, initial = null }) {
         ? whereFrom({ campaigns: cp.data, visits: cv.data }).linkPeople : null,
       // Counted through the SAME function the screen and the reminder use, so
       // three places can never disagree about whether one is missed.
-      deadlinesSoon: (md.data ?? []).filter((d) => ["due", "missed"].includes(stateOf(d))).length,
-      deadlinesMissed: (md.data ?? []).filter((d) => stateOf(d) === "missed").length,
+      deadlinesSoon: (md.data ?? []).filter((d) => ["due", "missed"].includes(stateOf(d, at))).length,
+      deadlinesMissed: (md.data ?? []).filter((d) => stateOf(d, at) === "missed").length,
       deadlines: (md.data ?? []).length,
     });
   }, [business.id]);

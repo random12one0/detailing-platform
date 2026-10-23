@@ -25,6 +25,7 @@ import { CalendarClock, Check, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { nextDue, saySoon, stateOf } from "../../lib/maintenance.js";
+import { businessToday } from "../../book/core.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -48,6 +49,10 @@ export default function Maintenance() {
   const [form, setForm] = useState(BLANK);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // 97.32 - the row states, sort and words judge the BUSINESS's today, the same
+  // day Mark done stamps; UTC is already tomorrow in a Pacific evening.
+  const bizToday = businessToday(business.timezone);
+  const at = new Date(`${bizToday}T00:00:00Z`);
 
   const load = useCallback(async () => {
     const [{ data: ds, error: e1 }, { data: cs }] = await Promise.all([
@@ -65,11 +70,11 @@ export default function Maintenance() {
   const sorted = useMemo(() => {
     const list = [...(rows ?? [])];
     list.sort((a, b) => {
-      const d = ORDER[stateOf(a)] - ORDER[stateOf(b)];
+      const d = ORDER[stateOf(a, at)] - ORDER[stateOf(b, at)];
       return d !== 0 ? d : String(a.due_on).localeCompare(String(b.due_on));
     });
     return list;
-  }, [rows]);
+  }, [rows, bizToday]);
 
   const add = async () => {
     setError("");
@@ -97,7 +102,7 @@ export default function Maintenance() {
   const markDone = async (d) => {
     setBusy(true);
     setError("");
-    const today = new Date().toISOString().slice(0, 10);
+    const today = businessToday(business.timezone); // 97.32 - never UTC's date
     const next = nextDue(d, today);
     const { error: e } = await supabase.from("maintenance_deadlines").update({
       last_done_on: today,
@@ -176,7 +181,7 @@ export default function Maintenance() {
             `.row-item` was built for. Looked at, not reasoned about. */}
         <div className={`rows${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
           {sorted.map((d) => {
-            const state = stateOf(d);
+            const state = stateOf(d, at);
             return (
               <div className="row-item" key={d.id} style={{ cursor: "default", opacity: state === "cancelled" ? 0.5 : 1 }}>
                 <span className="ico"><CalendarClock size={19} strokeWidth={2} /></span>
@@ -195,7 +200,7 @@ export default function Maintenance() {
                       row exists to carry. The clipped end is now the car,
                       which the label above usually implies anyway. */}
                   <span className="sub">
-                    {saySoon(d, new Date(), t, appIntlLocale())}
+                    {saySoon(d, at, t, appIntlLocale())}
                     {" · "}{d.customers?.name ?? t("a customer")}
                     {d.vehicle ? ` · ${d.vehicle}` : ""}
                   </span>

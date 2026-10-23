@@ -203,7 +203,7 @@ console.log("\n6. the detailer's own words");
   // there is slicing the whole file and the first `sendTenantEmail` in it
   // belongs to a different reminder. **Third time this exact shape has been
   // caught tonight**, and every time by baselining rather than by reading.
-  const block = sweep.slice(sweep.indexOf("const stage = stageDue(d);"));
+  const block = sweep.slice(sweep.indexOf("const due = stageDue(d, "));
   // ROADMAP 0.7 ADDED A SECOND STAMP, on purpose: a no-address SKIP spends the
   // stage once it is RECORDED, or a 15-minute cron logs 96 skips a day. So the
   // send path is measured from the template call, and the skip path's stamp

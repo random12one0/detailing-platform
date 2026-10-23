@@ -19,6 +19,7 @@ import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
 import { money, phone, time12 } from "../lib/format.js";
 import { adjustmentLabel } from "./adjustmentLabel.js";
+import { businessToday } from "./core.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
@@ -265,8 +266,9 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
     setBusy(true);
     setError("");
     try {
-      const today = new Date().toISOString().slice(0, 10);
-      const end = new Date(Date.now() + 45 * 86400_000).toISOString().slice(0, 10);
+      // 97.32 - the business's today, not UTC's (after 5 PM Pacific UTC is tomorrow).
+      const today = businessToday(receiptBusiness?.timezone ?? business?.timezone);
+      const end = new Date(Date.parse(`${today}T00:00:00Z`) + 45 * 86400_000).toISOString().slice(0, 10);
       const r = await api.availableSlots(slug, {
         start_date: today, end_date: end, duration_minutes: durationMinutes,
         // ITEM F — THE ONE CALL IN THE PRODUCT THAT MUST NOT COUNT THIS

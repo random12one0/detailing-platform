@@ -452,16 +452,24 @@ Deno.serve(async (req) => {
         .select("id, business_id, customer_id, label, vehicle, due_on, repeat_months, last_done_on, reminded_stage, cancelled_at")
         .is("cancelled_at", null)
         .lte("due_on", horizon)
-        .gte("due_on", new Date().toISOString().slice(0, 10));
+        // 97.32 - a day before UTC's date: no business is further behind UTC
+        // than that, so a deadline due on the business's own today is fetched.
+        // Each row is then judged against its business's date below.
+        .gte("due_on", new Date(Date.now() - 86_400_000).toISOString().slice(0, 10));
       for (const d of deadlines ?? []) {
-        const stage = stageDue(d);
-        if (stage === null) continue;
         // ROADMAP 97.4 — the same claim as the bookings above, on the stage
         // counter: it moves only from the value THIS sweep read, so of two
         // overlapping sweeps one moves it and the other gets nothing back.
         let claimed = false;
+        let stage = 0; // set once the business's date is known (97.32); the catch reads it
         try {
           const business = await biz(d.business_id);
+          // 97.32 - the business's own date: at 6 PM Pacific UTC is already
+          // tomorrow, and a deadline due today would read as missed.
+          const today = dateStrIn(business.timezone);
+          const due = stageDue(d, new Date(`${today}T00:00:00Z`));
+          if (due === null) continue;
+          stage = due;
           const settings = await getSettings(business.id);
           // **ROADMAP 3.4 FINDING A — ITS OWN SWITCH, AND IT DEFAULTS OFF.**
           //
