@@ -95,7 +95,7 @@ function handlerFor(profile, pricing) {
     whenContextFor: pricing.whenContextFor, resolveVehicles: pricing.resolveVehicles, resolveTravel: pricing.resolveTravel,
     localDateTimeToInstant: tz.localDateTimeToInstant, weekdayOf: tz.weekdayOf,
     withinLimits: async () => true, ipOf: () => "fixture", LIMITS: { publicCeiling: {} },
-    cachedGrid: async () => null, jobAddress: () => null, periodAt: () => null, pointFor: async () => null,
+    cachedGrid: async () => null, jobAddress: () => null, periodAt: () => null, cachedPoint: async () => null,
   };
   const src = ts("supabase/functions/calculate-booking/index.ts")
     .replace(/^import\s+(?:"[^"\n]+"|[\s\S]*?\sfrom\s+"[^"\n]+")\s*;\s*$/gm, "");

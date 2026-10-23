@@ -47,7 +47,26 @@ export const addressKey = (s: unknown) =>
 export type Point = { lat: number; lon: number };
 
 /**
+ * A point for an address from the permanent cache ONLY — never a provider call.
+ *
+ * `undefined` means nobody has ever resolved this address; `null` means it was
+ * asked and there is no such place. ROADMAP 100.3: the public quote endpoint
+ * reads this and nothing else, because `pointFor` below spends a Geoapify
+ * credit on a miss that address-suggest's per-IP and per-day limits never see.
+ */
+export async function cachedPoint(address: unknown): Promise<Point | null | undefined> {
+  const key = addressKey(address);
+  if (!key) return null;
+  const { data: hit } = await supabase
+    .from("address_points").select("lat, lon, found").eq("key", key).maybeSingle();
+  if (!hit) return undefined;
+  return hit.found ? { lat: Number(hit.lat), lon: Number(hit.lon) } : null;
+}
+
+/**
  * A point for an address, from the permanent cache or from Geoapify once.
+ * Spends credit outside address-suggest's limits, so only for callers that are
+ * not open to the public (the `refresh-weather` sweep).
  *
  * `null` is returned for "no such place" AND for "could not ask", but only the
  * first is written down — a throttle or an outage that got remembered would be
@@ -65,9 +84,8 @@ export async function pointFor(
   const key = addressKey(address);
   if (!key) return null;
 
-  const { data: hit } = await supabase
-    .from("address_points").select("lat, lon, found").eq("key", key).maybeSingle();
-  if (hit) return hit.found ? { lat: Number(hit.lat), lon: Number(hit.lon) } : null;
+  const held = await cachedPoint(address);
+  if (held !== undefined) return held;
 
   if (spent) spent.calls += 1;
   const r = await suggest(String(address));

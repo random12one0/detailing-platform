@@ -17,7 +17,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
-import { cachedGrid, jobAddress, periodAt, pointFor } from "../_shared/weatherCache.ts";
+import { cachedGrid, cachedPoint, jobAddress, periodAt } from "../_shared/weatherCache.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, whenContextFor,
@@ -116,10 +116,13 @@ Deno.serve(async (req) => {
     // here — a later session reaching for it has to notice this paragraph.
     //
     // **AND IT NEVER CALLS A PROVIDER.** `cachedGrid` reads and does not fetch;
-    // `pointFor` answers from `address_points` and only geocodes an address
-    // nobody has ever resolved — and a customer who picked their address from
-    // this flow's own autocomplete has already put it there. A miss returns
-    // nothing at all, which every screen renders as silence. A public endpoint
+    // `cachedPoint` reads `address_points` and does not geocode. A miss returns
+    // nothing at all, which every screen renders as silence. (ROADMAP 100.3:
+    // this used `pointFor`, which geocoded every unseen address — and the page
+    // re-quotes on each keystroke of an address edit — spending the shared
+    // Geoapify day outside address-suggest's per-IP and per-day limits.
+    // address-suggest does NOT write `address_points`, so a first-time address
+    // gets no weather line here until the sweep has resolved it.) A public endpoint
     // that could reach the National Weather Service on demand would be a new
     // metered surface open to the world; this is the same shared cache the
     // detailer's own screens read.
@@ -191,7 +194,7 @@ async function confirmWeather(
     );
     if (!address) return null;
 
-    const point = await pointFor(address);
+    const point = await cachedPoint(address);
     if (!point) return null;
     const grid = await cachedGrid(point.lat, point.lon);
     if (!grid) return null;
