@@ -170,6 +170,7 @@ export default function Billing() {
   const stripeRef = useRef(null);         // { stripe, elements }
 
   const load = useCallback(async () => {
+    setError("");
     try {
       setData(await api.billingSummary(business.id));
     } catch (e) {
@@ -318,7 +319,27 @@ export default function Billing() {
     setPaying(false);
   }
 
-  if (error && !data) return <div className="card"><div className="error-box">{error}</div></div>;
+  // ROADMAP 101.4 — A FAILED FIRST READ SAYS SO IN PLAIN WORDS AND OFFERS A WAY
+  // OUT. It printed only the server's text ("Failed to fetch") with no button,
+  // so the only retry was leaving and coming back. The server's text stays as
+  // small detail for whoever they ring. `load` clears the error first, so the
+  // retry shows "Checking…" again rather than a box that never moves.
+  if (error && !data) {
+    return (
+      <div className="card">
+        <div className="error-box" role="alert">
+          <TriangleAlert aria-hidden="true" />
+          <div>
+            <div>{t("We could not load your subscription.")}</div>
+            <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{error}</div>
+          </div>
+        </div>
+        <div className="btnrow" style={{ marginTop: "var(--sp-3)" }}>
+          <button className="btn" type="button" onClick={load}>{t("Try again")}</button>
+        </div>
+      </div>
+    );
+  }
   // ONE LINE RATHER THAN NOTHING, AND RATHER THAN A CONCLUSION. This screen's
   // whole content comes from an edge function, and a cold one took five
   // seconds to answer the first time it was opened after a deploy — five

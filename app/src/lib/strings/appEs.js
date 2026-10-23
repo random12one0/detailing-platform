@@ -1208,6 +1208,12 @@ export const appEs = {
 
   // Promo codes and the site sale.
   "Code added.": "Código agregado.",
+  // ROADMAP 101.3 - plain-words results on Promo codes.
+  "You already have a code called {code}.": "Ya tienes un código llamado {code}.",
+  "Could not deactivate {code}. Try again.": "No se pudo desactivar {code}. Inténtalo otra vez.",
+  "Could not activate {code}. Try again.": "No se pudo activar {code}. Inténtalo otra vez.",
+  "Could not load your promo codes.": "No se pudieron cargar tus códigos de descuento.",
+  "No codes yet.": "Todavía no hay códigos.",
   "Sale settings saved.": "Ajustes del descuento guardados.",
   "Comes off every booking automatically. No code for the customer to enter.":
     "Se descuenta de cada cita automáticamente. El cliente no escribe ningún código.",
@@ -1513,6 +1519,7 @@ export const appEs = {
   "Check your booked jobs": "Revisa tus trabajos agendados",
   "Checking your link…": "Revisando tu enlace…",
   "Checking your subscription…": "Revisando tu suscripción…",
+  "We could not load your subscription.": "No pudimos cargar tu suscripción.",
   "Choose a customer…": "Escoge un cliente…",
   "Choose a password": "Escoge una contraseña",
   "Choose a plan…": "Escoge un plan…",
