@@ -31736,7 +31736,7 @@ decisions, not build jobs.
   - Keyboard selection of an open day still works (`node scripts/keyboard-walk.mjs` passes)
 
 - [x] **97.47 — Focus is not moved to the new step when the booking step changes (P-10).**
-  Done 2026-10-23 (Claude lane): each booking step change now moves focus to the new step heading (h2 tabIndex=-1, focus with preventScroll after go(), not on first load); scripts/booking-step-focus.mjs passes 14/14 at 390/1440 and fails 12/14 on unfixed code (focus stayed on Continue/Back); keyboard-walk.mjs passes; shots in .manager-shots/97.47/.
+  Done 2026-10-23 (Claude lane): each booking step change now moves focus to the new step heading (h2 tabIndex=-1, focus with preventScroll after go(), not on first load); scripts/booking-step-focus.mjs passes 14/14 at 390/1440 and fails 14/14 on unfixed code (focus stayed on Continue/Back); keyboard-walk.mjs passes; shots in .manager-shots/97.47/.
   It only scrolls (`BookingPage.jsx:497`). Move focus to the new step's heading on each change, without a visible jump.
   Acceptance criteria:
   - After each step change, `document.activeElement` is that step's heading (browser check across all steps)
