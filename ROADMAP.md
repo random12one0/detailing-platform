@@ -29452,7 +29452,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.24 — Three ticked items each name a gap only a person with the browser can close, and all three are under ten minutes
 
-- [x] **Assembled 2026-09-25 from the completed ticked-item audit
+- [ ] **Assembled 2026-09-25 from the completed ticked-item audit
   (`docs/ticked-without-proof-2026-09-25.md`). One entry rather than three,
   because it is one sitting — but each of the three carries its own pass
   condition and can be struck through independently, so a half-done sitting
@@ -29575,7 +29575,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Parts 1 and 2 already pass above; part 3 stays a session job — build the accessible-name check first, then run
   all three. Recorded by supervision 2026-10-13; box still `[ ]` until *Done when* holds all three.
 
-  **RECORDED 2026-10-24 — part 3 PASSES against its own *Passes when*; part 1 re-run and PASSES again; part 2 stands on its 2026-10-10 receipt. Box ticked.**
+  **RECORDED 2026-10-24 — part 3 PASSES against its own *Passes when*; part 1 re-run and PASSES again; part 2 NOT re-run. Box UNTICKED 2026-10-24 by review.**
   (The 2026-10-23 attempt built the check but could not reach either screen; its branch failed to merge over one receipt. Its work was carried
   over unchanged except as written here.)
 
@@ -29607,6 +29607,13 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   Console clean at all eight. `--break=overflow` **14 failed**, as before. Seen in the pictures: at 320 the last plan card ends clear of the bar;
   at 1440 step 7 sits in the centered 632 column. **Fixed on the way:** that script wiped `.manager-shots/14.24` on every run, so a clean run
   destroyed the sabotage run's pictures its receipt names; a sabotage now writes to `.manager-shots/14.24-sabotage-<break>`.
+
+  **UNTICKED 2026-10-24 — the review was right.** Andrew decided 2026-10-13 to *run all three checks now* (R6), and part 2 was not run:
+  its last pass is 2026-10-10 at `04806f46`, and `Today.jsx` has changed in 6 commits since (`git log --oneline 04806f46..HEAD -- app/src/screens/Today.jsx`,
+  7 with `officeToday.js`). Parts 1 and 3 stand as saved work, but both were read on the belt's stand-in backend — fed prices and times, a
+  placeholder owner sign-in, and its own job rows — so each also wants one run on the seeded demo business.
+  LIVE RUN NEEDED: set -a; . ./.env; set +a; node scripts/late-flag-two-jobs.mjs — proves on today's code that, with open jobs on Today, only the one whose time has passed reads "Late", and that the staged rows are deleted afterwards.
+  LIVE RUN NEEDED: set -a; . ./.env; set +a; node scripts/accessible-names.mjs (no --fixture) against the seeded demo business — proves the date step and the pinned bar's names with real prices, real open times and a real demo job; then node scripts/booking-steps-6-7.mjs (no --fixture) for part 1 the same way.
 
   **Part 2 — NOT re-run, and why.** `scripts/late-flag-two-jobs.mjs` writes three rows and refuses any database that is not
   `kguqylyzgyzfktkfnhjb`; this copy has neither that address nor its key, and that guard was left alone. Its 2026-10-10 pass (16 of 16 at
