@@ -31891,6 +31891,8 @@ decisions, not build jobs.
   - The cancellation fee rule in BUSINESS-RULES.md can be charged against it in test mode, with the customer told in advance
 
 - [ ] **97.52 — Prospects cannot try the dashboard before buying (P-9).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.
+  The work is safe on branch `belt/97.52-20261024134312930`. Answer "merge it" to keep it, or say what to change.
   The only "try it" is the demo booking page; the product tours were removed (`App.jsx:47-51`).
   NEEDS ANDREW: which one. Option A, a public read-only demo dashboard on a copy of the seeded tenant, reset nightly (more work, and must never be the `demo-detail` login itself, whose back-office access is deliberate). Option B, a 90-second phone screen recording on `/`. Recommendation: B now, A after launch.
   Acceptance criteria:
