@@ -31659,10 +31659,15 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   Browser: `BASE=<this copy> node scripts/preview-switch.mjs` (rewritten: it signs in as the demo owner INSIDE a preview
   tab against the belt's local demo backend and refuses any other; the switch's answers are stubbed by name), 33 runs:
   allowed unlock at 390/768/1440, and refused unlock, offline unlock, refused relock, offline relock, relock-audit-failed,
-  legacy 404 and legacy 400 "Unknown action", each in English AND Spanish at 392 and 1440, plus a double tap. The receipt
-  numbers are in `receipts/preview-switch.json`. `--break=refusal-as-404` (the original defect: a refusal flips the bar
-  anyway) went red, 18 failures, including "a refused/offline unlock never shows WORKING" at both widths;
-  `--break=drop-es` (the Spanish keys go missing) went red too.
+  legacy 404 and legacy 400 "Unknown action", each in English AND Spanish at 392 and 1440, plus a double tap: 35 of 35
+  runs, 236 assertions (floor 175), 0 failed, console clean, at `a923b486` (`receipts/preview-switch.json`; screenshots
+  looked at, outside the repo). `--break=refusal-as-404` (the original defect: a refusal flips the bar anyway) red, 20
+  failures from the sabotage, including "a refused/offline unlock never shows WORKING" at both widths in both languages,
+  plus 1 sign-in timeout in an untouched scenario (`receipts/preview-switch.sabotage.json`: so that proof can flake on
+  its 30-second wait); `--break=drop-es` (the Spanish keys go missing) red, 17 of 155, untracked run. Edge 22 of 22 / 93
+  and SQL 68 of 68 / 94 receipts re-taken at the same commit. Gates: composition, design-contrast, landing-pricing,
+  route-contract 4/0; no-credentials, citable, migration-versions 9/0; spanish, translations 2/0; label-guard pass;
+  decisions-index clean. NOT run: `deployed-inventory.mjs` (needs credentials; nothing was deployed).
   AMENDMENT PROPOSED: R1 — "one migration owns `20261013010000`" → "exactly one unlock migration exists, and no two files
   share a version" — the unlock migration is `20261024230000_support_sessions_unlock.sql`, because a new migration must
   sort after everything already applied live (`20261017190000`) and after main's latest; a file dated 2026-10-13 would sit
