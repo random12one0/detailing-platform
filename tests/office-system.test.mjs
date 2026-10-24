@@ -5,6 +5,7 @@
 //   BREAK=seeded node --test tests/office-system.test.mjs   (§ 1 must go red)
 //   BREAK=empty  node --test tests/office-system.test.mjs   (§ 2 must go red)
 //   BREAK=badge  node --test tests/office-system.test.mjs   (§ 3 must go red)
+//   BREAK=missing node --test tests/office-system.test.mjs  (§ 7 must go red)
 //
 // BREAK is an env var, not a flag (docs/gotchas.md 104). Each break rewrites the
 // module's source in memory and asserts the rewrite LANDED (gotchas 102).
@@ -22,6 +23,7 @@ const swap = (text, from, to) => {
 let src = readFileSync(new URL("../app/src/lib/officeSystem.js", import.meta.url), "utf8");
 if (BREAK === "seeded") src = swap(src, ' || h?.detail?.seeded === true) return "never"', ') return "never"');
 if (BREAK === "empty") src = swap(src, "if (beats.length === 0) out.push(", "if (false) out.push(");
+if (BREAK === "missing") src = swap(src, "if (!beats.some((h) => h.job === job)) out.push(", "if (false) out.push(");
 if (BREAK === "badge") src = swap(src, 'checks.filter((c) => c.state === "bad").length', 'checks.filter((c) => c.state !== "ok").length');
 const M = await import("data:text/javascript;base64," + Buffer.from(src).toString("base64"));
 
@@ -31,6 +33,8 @@ const GB = 1024 ** 3;
 const healthy = () => ({
   heartbeats: [
     { job: "send-owner-reminders", ran_at: min(3), stale_after_seconds: 900, detail: {} },
+    { job: "accrue-plan-visits", ran_at: min(60), stale_after_seconds: 129600, detail: {} },
+    { job: "photo-reconcile", ran_at: min(60), stale_after_seconds: 90000, detail: {} },
     { job: "restore-drill", ran_at: min(60 * 24 * 5), detail: { tables: 51, accounts: 30 } },
   ],
   watch: { outside: true },
@@ -41,6 +45,7 @@ const by = (cs, key) => cs.find((c) => c.key === key);
 
 test("1. a seeded heartbeat (watching started, never reported) is NEVER, not ok", () => {
   const s = healthy();
+  s.heartbeats = s.heartbeats.filter((h) => h.job !== "accrue-plan-visits");
   s.heartbeats.push({ job: "accrue-plan-visits", ran_at: min(1), stale_after_seconds: 86400, detail: { seeded: true } });
   const c = by(M.checksOf(s, NOW), "job:accrue-plan-visits");
   assert.equal(c.state, "never");
@@ -92,10 +97,21 @@ test("5. email and storage thresholds", () => {
 
 test("6. an old restore test is a warning; ago() reads in words", () => {
   const s = healthy();
-  s.heartbeats[1].ran_at = min(60 * 24 * 120);
+  s.heartbeats.find((h) => h.job === "restore-drill").ran_at = min(60 * 24 * 120);
   assert.equal(by(M.checksOf(s, NOW), "restore").state, "warn");
   assert.equal(M.ago(min(0), NOW), "just now");
   assert.equal(M.ago(min(14), NOW), "14 min ago");
   assert.equal(M.ago(min(180), NOW), "3 hours ago");
   assert.equal(M.ago(min(60 * 24 * 3), NOW), "3 days ago");
+});
+
+test("7. a named job with NO ROW is drawn as never-reported, the stop watch-jobs cannot see", () => {
+  const s = healthy();
+  s.heartbeats = s.heartbeats.filter((h) => h.job !== "photo-reconcile");
+  const cs = M.checksOf(s, NOW);
+  const c = by(cs, "job:photo-reconcile");
+  assert.equal(c?.state, "never", "a missing job row must still be drawn");
+  assert.equal(c.name, "Photo clean-up");
+  assert.ok(M.loudOf(cs).some((x) => x.key === "job:photo-reconcile"));
+  assert.equal(by(M.checksOf(healthy(), NOW), "job:photo-reconcile").state, "ok", "and a reporting one is ok");
 });

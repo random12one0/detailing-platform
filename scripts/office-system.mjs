@@ -12,7 +12,7 @@
 // nothing working is, and the badge equals the broken count. Then `list` is
 // answered through page.route() (nothing written) three ways: TROUBLE (a stopped
 // job, a never-reported job, no outside watcher, email near its limit): the badge
-// is 1, not 4, the stopped job is first and "2 of 8 working"; EMPTY (no job has
+// is 1, not 4, the stopped job is first and "3 of 9 working"; EMPTY (no job has
 // ever reported): a loud "Scheduled jobs" line, never an all-clear; QUIET (all
 // fine): only the two unwired checks are loud, and there is no badge.
 //
@@ -131,6 +131,7 @@ const TROUBLE = (j) => ({
   heartbeats: [
     { job: "send-owner-reminders", ran_at: ago(40), stale_after_seconds: 900, detail: {} },
     { job: "accrue-plan-visits", ran_at: ago(1), stale_after_seconds: 86400, detail: { seeded: true } },
+    { job: "photo-reconcile", ran_at: ago(60), stale_after_seconds: 90000, detail: {} },
     { job: "restore-drill", ran_at: ago(60 * 24 * 4), detail: { tables: 51, accounts: 30 } },
   ],
   watch: { outside: false },
@@ -142,6 +143,8 @@ const QUIET = (j) => ({
   ...TROUBLE(j),
   heartbeats: [
     { job: "send-owner-reminders", ran_at: ago(3), stale_after_seconds: 900, detail: {} },
+    { job: "accrue-plan-visits", ran_at: ago(60), stale_after_seconds: 129600, detail: {} },
+    { job: "photo-reconcile", ran_at: ago(60), stale_after_seconds: 90000, detail: {} },
     { job: "restore-drill", ran_at: ago(60 * 24 * 4), detail: { tables: 51, accounts: 30 } },
   ],
   watch: { outside: true },
@@ -183,7 +186,7 @@ try {
     let list = null;
     page.on("response", async (res) => {
       if (!res.url().includes("/functions/v1/platform-admin") || res.request().method() !== "POST") return;
-      try { const j = await res.json(); if (j?.rows) list = j; } catch { /* not one we read */ }
+      try { const j = await res.json(); if (j?.heartbeats) list = j; } catch { /* not one we read */ }
     });
     if (!signedIn) {
       await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded" });
@@ -199,10 +202,16 @@ try {
     await openSystem(page);
     check(where, "System is the fourth place", (await page.locator(".bo-nav").nth(3).innerText()).replace(/\d+/g, "").trim() === "System"
       && (await page.locator("h1.bo-place").getAttribute("aria-label")) === "System");
-    const jobs = (list?.heartbeats ?? []).filter((h) => h.job !== "restore-drill").length;
+    // The page can paint before res.json() above resolves, which left `list` null and the count at one job (2026-10-24).
+    for (let i = 0; i < 100 && !list?.heartbeats; i++) await page.waitForTimeout(100);
+    if (!list) check(where, "the live list answer was captured", false, "no platform-admin list response seen");
+    // Every NAMED job is drawn even with no row (officeSystem.js JOB_LABELS), so the count is reported ∪ named.
+    const reported = (list?.heartbeats ?? []).filter((h) => h.job !== "restore-drill").map((h) => h.job);
+    const NAMED = ["send-owner-reminders", "accrue-plan-visits", "photo-reconcile"];
+    const jobs = new Set([...reported, ...NAMED]).size + (reported.length ? 0 : 1);
     liveBeats = jobs;
     const n = await page.locator(".bo-checks li").count();
-    check(where, `one check per scheduled job plus six (${Math.max(jobs, 1) + 6})`, n === Math.max(jobs, 1) + 6, `drew ${n}`);
+    check(where, `one check per scheduled or named job plus six (${jobs + 6})`, n === jobs + 6, `drew ${n}: ${(await texts(page, ".bo-checks li")).join(",")}`);
     const okN = await page.locator(".bo-checks li.ok").count();
     await page.waitForFunction((want) => new RegExp(`^${want} of`).test(document.querySelector("[data-testid=working]")?.innerText.trim()), okN, { timeout: 5000 }).catch(() => {});
     check(where, `the big figure is ${okN} of ${n} working`, (await page.locator("[data-testid=working]").innerText()).replace(/\s+/g, " ").trim() === `${okN} of ${n} working`);
@@ -234,7 +243,7 @@ try {
     const nav = page.locator(".bo-nav").nth(3);
     check(where, "trouble: the System badge is 1 (broken only), not 6", (await nav.locator(".cnt").innerText()).trim() === "1");
     await page.waitForFunction(() => /^2 of/.test(document.querySelector("[data-testid=working]")?.innerText.trim()), null, { timeout: 5000 }).catch(() => {});
-    check(where, "trouble: 2 of 8 working", (await page.locator("[data-testid=working]").innerText()).replace(/\s+/g, " ").trim() === "2 of 8 working");
+    check(where, "trouble: 3 of 9 working", (await page.locator("[data-testid=working]").innerText()).replace(/\s+/g, " ").trim() === "3 of 9 working");
     check(where, "trouble: the stopped job says how late it is and when it last ran",
       /Has not finished in 40 min\. It runs every 15 min/.test(await page.locator('.bo-loud li[data-check="job:send-owner-reminders"]').innerText())
       && /checked 40 min ago/.test(await page.locator('.bo-loud li[data-check="job:send-owner-reminders"] time').innerText()));

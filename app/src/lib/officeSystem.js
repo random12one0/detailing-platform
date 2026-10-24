@@ -15,6 +15,7 @@
 const JOB_LABELS = {
   "send-owner-reminders": "Reminder sweep",
   "accrue-plan-visits": "Plan-visit count",
+  "photo-reconcile": "Photo clean-up",
 };
 // The restore drill rides in job_heartbeats but is not a scheduled job (6.1).
 export const RESTORE_JOB = "restore-drill";
@@ -68,6 +69,11 @@ export function checksOf(state, now = Date.now()) {
   }
   // No job at all is not good news: a dropped table or a revoked grant looks like this.
   if (beats.length === 0) out.push({ key: "job:none", name: "Scheduled jobs", state: "never", at: null, says: "No job has reported at all" });
+  // A named job with NO ROW is the one stop watch-jobs cannot see (it compares rows), so the
+  // named list draws it here, as the old screen's did (FOUND.md, the watchdog's blind spot).
+  for (const job of Object.keys(JOB_LABELS)) {
+    if (!beats.some((h) => h.job === job)) out.push({ key: `job:${job}`, name: JOB_LABELS[job], state: "never", at: null, says: "Has no record at all. It may never have run" });
+  }
 
   out.push(state?.watch?.outside
     ? { key: "watch", name: "Outside watcher", state: "ok", at: read, says: "Would notice if every job stopped" }
