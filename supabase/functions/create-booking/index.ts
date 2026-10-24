@@ -24,7 +24,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { langOf } from "../_shared/i18n.ts";
-import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessBySlug, getSettings, requireMember, supportSession } from "../_shared/tenant.ts";
+import { SUPPORT_READ_ONLY } from "../_shared/supportSession.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
   resolvePromo, resolveServices, resolveTravel, resolveVehicles, sizeAdjustmentFor,
@@ -115,6 +116,15 @@ Deno.serve(async (req) => {
     // Admin caller? Verified against business_users for THIS business; a
     // stray JWT from some other business's staff gets no admin powers here.
     const member = await requireMember(req, business.id);
+    // ROADMAP 4.3c (R3): a locked or expired support session is not an anonymous
+    // customer. requireMember answers null for both, and without this the request
+    // falls into the public branch below and mints a REAL booking - with real
+    // emails and a held slot - on support credentials. Callers with no session
+    // still book as public; an unlocked preview passed above as a member.
+    if (!member) {
+      const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
+      if (token && await supportSession(token)) return json({ error: SUPPORT_READ_ONLY }, 403);
+    }
 
     // --- ROADMAP 2.21: THE SPAM FILTER -------------------------------------
     //

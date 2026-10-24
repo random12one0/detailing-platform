@@ -35,11 +35,15 @@ export const bookingTransport = createBookingTransport({ supabaseUrl: SUPABASE_U
 // finalising a payment, sending a campaign and answering a request are
 // exactly the accidents the owner asked not to be able to have.
 const PREVIEW_READS = new Set(["get-booking-receipt"]);
+// ROADMAP 4.3c (a): the preview bar's own switch has to work while Looking -
+// it is how Looking ends. The server honours it only for a preview it opened.
+const PREVIEW_SWITCH = new Set(["support_unlock", "support_lock"]);
 
 async function callFn(name, body) {
   if (!PREVIEW_READS.has(name)
     && !(name === "platform-billing" && body?.action === "summary")
-    && !(name === "photo-door" && body?.action === "urls")) guardWrite();
+    && !(name === "photo-door" && body?.action === "urls")
+    && !(name === "platform-admin" && PREVIEW_SWITCH.has(body?.action))) guardWrite();
   const { data: sessionData } = await supabase.auth.getSession();
   const jwt = sessionData?.session?.access_token;
   return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);
@@ -101,6 +105,22 @@ export const api = {
   // browser gets to make.
   respondToBooking: (businessId, bookingId, action, extra = {}) =>
     callFn("respond-to-booking", { business_id: businessId, booking_id: bookingId, action, ...extra }),
+  // ROADMAP 4.3c (a) - "Let me make changes" / "Back to looking" in a preview
+  // tab. The server lifts or restores its own read-only lock for this session.
+  // A legacy server that does not know these actions answers 404 (or 400 with
+  // "Unknown action"): the bar then still switches locally, exactly as the
+  // button always did, so a half-published release never turns the working
+  // control into a refusal. The current server never answers these actions
+  // 404 - every one of its refusals is 403 or 500 - so a 404 always means
+  // legacy here, and a current-server refusal is never mistaken for one.
+  setPreviewUnlocked: async (on) => {
+    try {
+      return await callFn("platform-admin", { action: on ? "support_unlock" : "support_lock" });
+    } catch (e) {
+      if (e?.status === 404 || (e?.status === 400 && /unknown action/i.test(e?.body?.error || ""))) return { legacy: true };
+      throw e;
+    }
+  },
   // Reads / utilities.
   availableSlots: (businessSlug, payload) => bookingTransport.availableSlots(businessSlug, payload),
   // ROADMAP 4.2 — a printed link, and whether it brought anybody. Public and

@@ -36,7 +36,9 @@ import { createBusinessRow } from "../_shared/newBusiness.ts";
 import { dateStrIn, localToDate } from "../_shared/tz.ts";
 import { stampBuildStart } from "../_shared/buildStartStamp.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
-import { businessById, getSettings, supportSession } from "../_shared/tenant.ts";
+import { applyPreviewSwitch, type SwitchMarker } from "../_shared/previewSwitch.ts";
+import { businessById, getSettings, markedPreview } from "../_shared/tenant.ts";
+import { sessionIdOf } from "../_shared/supportSession.ts";
 import { buildBrand, recipientLang, sendTenantEmail } from "../_shared/email.ts";
 import { buildStartedEmail, inviteEmail } from "../_shared/emailTemplates.ts";
 // ROADMAP 0.4 — the build-start notice is the platform speaking, not the
@@ -69,8 +71,9 @@ async function requireAdmin(req: Request): Promise<Admin | null> {
   const user = data?.user;
   if (error || !user) return null;
   // ROADMAP 4.3c: a support session opened on the demo business is the demo
-  // login, which IS a platform admin. A support session is never an admin session.
-  if (await supportSession(token)) return null;
+  // login, which IS a platform admin - and an UNLOCKED preview writes, so the read-only
+  // check alone would let it through. A preview is never an admin session, locked or not.
+  if (await markedPreview(token)) return null;
   const { data: row } = await supabase
     .from("platform_admins").select("user_id").eq("user_id", user.id).maybeSingle();
   if (!row) return null;
@@ -99,6 +102,37 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
+    // ROADMAP 4.3c (a) - THE PREVIEW TAB'S OWN "LET ME MAKE CHANGES" AND "BACK TO
+    // LOOKING". Asked BEFORE the admin gate, with the preview tab's own token: the tab
+    // deliberately holds no back-office login, and the gate refuses every preview. What
+    // authorises the switch is the marker - only a session this function opened and
+    // marked can be switched, and only that one session. Decided in
+    // _shared/previewSwitch.ts so tests run the real thing.
+    if (body.action === "support_unlock" || body.action === "support_lock") {
+      const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
+      const { data: u } = token ? await supabase.auth.getUser(token) : { data: null };
+      const result = await applyPreviewSwitch({
+        lookup: (sid) => supabase.from("support_sessions").select("*").eq("session_id", sid).maybeSingle() as Promise<{ data: SwitchMarker | null; error: { code?: string; message?: string } | null }>,
+        getOpener: async (adminId) => {
+          const { data: row } = await supabase.from("platform_admins").select("user_id").eq("user_id", adminId).maybeSingle();
+          if (!row) return null;
+          const { data: who, error: whoErr } = await supabase.auth.admin.getUserById(adminId);
+          if (whoErr || !who?.user) return null;
+          return { email: who.user.email ?? "" };
+        },
+        getBusinessName: async (bid) => (await businessById(bid))?.name ?? null,
+        audit: (by, action, biz, detail) => logIt(by, action, biz, detail),
+        setUnlocked: async (sid, unlocked) => {
+          const { error } = await supabase.from("support_sessions")
+            .update({ unlocked_at: unlocked ? new Date().toISOString() : null }).eq("session_id", sid);
+          if (error) console.error("platform-admin: preview lock not switched:", error.message);
+          return { error };
+        },
+        now: () => Date.now(),
+      }, body.action, u?.user ? sessionIdOf(token) : null, u?.user?.email ?? "");
+      return json(result.body, result.status);
+    }
+
     const admin = await requireAdmin(req);
     // THE SAME ANSWER FOR "NOT SIGNED IN" AND "NOT AN ADMIN". A 403 that
     // distinguishes them tells a curious detailer that this endpoint exists

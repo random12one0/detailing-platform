@@ -63,7 +63,10 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const member = await requireMember(req, body.business_id ?? null, { allowSupport: true }); // 4.3c: renders, sends and stores nothing
+    // ROADMAP 4.3c (R3): no `{ allowSupport: true }` here. This function SENDS real
+    // email through sendTenantEmail below (billed against the business), so a locked
+    // support session is refused like any non-member. Ordinary owners pass as before.
+    const member = await requireMember(req, body.business_id ?? null);
     if (!member) return json({ error: "Unauthorized" }, 401);
 
     const { data: business } = await supabase

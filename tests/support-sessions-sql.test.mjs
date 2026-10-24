@@ -1,9 +1,11 @@
 // ROADMAP 4.3c — THE SUPPORT-SESSION MIGRATION, RUN ON A REAL POSTGRES THAT IS NOT OURS.
 //
+//
 //   PGLITE_DIR=<folder holding @electric-sql/pglite> PGLITE_REQUIRED=1 node --test tests/support-sessions-sql.test.mjs
 //   BREAK=permissive PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage: the rule is ORed, not ANDed
 //   BREAK=no-marker  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage: the marker is never consulted
 //   BREAK=no-expiry  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage (97.15): the deadline is never compared
+//   BREAK=unlock-ignored PGLITE_DIR=… node tests/support-sessions-sql.test.mjs # sabotage (4.3c (a)): unlock no longer lifts the write ban
 //   BREAK=no-auth-check PGLITE_DIR=… node tests/support-sessions-sql.test.mjs # sabotage (97.15): a view ended at Auth still reads
 //   BREAK=no-reaper  PGLITE_DIR=… node tests/support-sessions-sql.test.mjs   # sabotage (97.15): the minute job ends nothing
 //
@@ -14,6 +16,11 @@
 //
 // ROADMAP 97.15 adds 20261017180000_support_sessions_expire.sql on top: a marker past its
 // `expires_at` (30 minutes) is refused READS as well, and is still refused every write.
+// ROADMAP 4.3c (R1) adds 20261024230000_support_sessions_unlock.sql on top of that: the
+// preview's own button lifts the write ban for exactly that session (audit-first on the
+// server), while an unlocked marker past its deadline stays refused everywhere.
+// 4.3e: the lifetime stays 97.15's 30 minutes (live since 2026-10-23). The two-hour default
+// the held 4.3c build added is NOT ported: that choice is Andrew's open 4.3c question.
 //
 // Same pattern as tests/action-log-sql.test.mjs: PGlite (Postgres in WebAssembly, in-process, no
 // network, no account), because no DDL touches the live database. BREAK is an env var, not a flag:
@@ -25,8 +32,9 @@
 // the support session is the owner's own identity. Writes run under `SET ROLE authenticated`, which
 // is not a superuser and not the tables' owner, so row-level security genuinely applies.
 //
-// WHAT IT PROVES: the database layer (Data API tables, storage.objects, the two definer functions)
-// refuses a listed session and lets the same user's other session through. WHAT IT DOES NOT: that
+// WHAT IT PROVES: the database layer (Data API tables, storage.objects, the definer functions)
+// refuses a listed session, lifts the ban for a session the preview unlocked, still refuses it
+// past its deadline, and lets the same user's other session through. WHAT IT DOES NOT: that
 // Supabase puts `session_id` in a real token (4.3a's fixture measured that), that platform-admin
 // writes the row (tests/support-sessions-edge.test.mjs), or anything about the live database.
 //
@@ -51,17 +59,25 @@ const sabotage = (sql, b) =>
 const EXPIRE = "20261017180000_support_sessions_expire.sql";
 const sabotageExpire = (sql, b) =>
   b === "permissive" ? sql.replaceAll("as restrictive", "as permissive")
-  : b === "no-expiry" ? sql.replace("and expires_at <= now()", "and false")
+  : (b === "no-expiry" || b === "expiry-ignored") ? sql.replace("and expires_at <= now()", "and false")
   : sql;
 const SQL = sabotage(readFileSync(path.join(DIR, MIGRATION), "utf8"), BREAK);
 const SQL2 = sabotageExpire(readFileSync(path.join(DIR, EXPIRE), "utf8"), BREAK);
 const ENDS = "20261017190000_support_sessions_end_at_auth.sql";
 const sabotageEnds = (sql, b) =>
-  b === "no-expiry" ? sql.replace("(m.expires_at <= now()", "(false")
+  (b === "no-expiry" || b === "expiry-ignored") ? sql.replace("(m.expires_at <= now()", "(false")
   : b === "no-auth-check" ? sql.replace("or not exists (select 1 from auth.sessions s where s.id = m.session_id)", "or false")
   : b === "no-reaper" ? sql.replace("and m.expires_at <= now();", "and false;")
   : sql;
 const SQL3 = sabotageEnds(readFileSync(path.join(DIR, ENDS), "utf8"), BREAK);
+const UNLOCK = "20261024230000_support_sessions_unlock.sql";
+const EXPIRY_IGNORED = (b) => b === "no-expiry" || b === "expiry-ignored";
+const sabotageUnlock = (sql, b) =>
+  b === "no-marker" ? sql.replace("where session_id = nullif(auth.jwt() ->> 'session_id', '')::uuid", "where false") :
+  b === "unlock-ignored" ? sql.replace("and (unlocked_at is null or expires_at <= now())", "and true")
+  : EXPIRY_IGNORED(b) ? sql.replaceAll("expires_at <= now()", "false")
+  : sql;
+const SQL4 = sabotageUnlock(readFileSync(path.join(DIR, UNLOCK), "utf8"), BREAK);
 
 let PGlite = null;
 if (process.env.PGLITE_DIR) {
@@ -78,6 +94,16 @@ const OWN_SID = "33333333-3333-3333-3333-333333333333";     // the owner's ordin
 const SUPPORT_SID = "44444444-4444-4444-4444-444444444444"; // the same user, opened by support
 const EXPIRED_SID = "77777777-7777-7777-7777-777777777777"; // opened by support 31 minutes ago (97.15)
 const CLOSED_SID = "88888888-8888-8888-8888-888888888888";  // inside its 30 minutes, but Close signed it out at Auth
+const UNLOCKED_SID = "99999999-9999-4999-8999-999999999999"; // lifted by the preview's own button, deadline not passed (4.3c (a))
+const EXPIRED_UNLOCKED_SID = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa"; // lifted, but past its deadline: still banned
+const USER2 = "33333333-3333-3333-3333-333333333333"; // a second account, same business: never listed anywhere
+const OWN2_SID = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"; // the second account's own ordinary session
+const BLIVE_SID = "c1000000-0000-4000-8000-000000000001"; // F3: locked marker, a minute BEFORE its end
+const BAT_SID = "c1000000-0000-4000-8000-000000000002"; // F3: locked marker, EXACTLY at its end
+const BAFTER_SID = "c1000000-0000-4000-8000-000000000003"; // F3: locked marker, a minute AFTER its end
+const ULIVE_SID = "c1000000-0000-4000-8000-000000000004"; // F3: unlocked marker, a minute BEFORE its end
+const UAT_SID = "c1000000-0000-4000-8000-000000000005"; // F3: unlocked marker, EXACTLY at its end
+const UAFTER_SID = "c1000000-0000-4000-8000-000000000006"; // F3: unlocked marker, a minute AFTER its end
 
 // Stand-ins for the tables the real schema has, each with the kind of PERMISSIVE policy the real
 // ones carry — the rule under test has to win against an existing "members may write" policy.
@@ -114,30 +140,34 @@ alter table storage.objects enable row level security;
 create policy media_write on storage.objects for all to authenticated using (true) with check (true);
 
 insert into public.business_users values ('${USER}', '${BIZ}', null);
+insert into public.business_users values ('${USER2}', '${BIZ}', null);
 insert into public.widgets (business_id, name) values ('${BIZ}', 'seeded');
 insert into storage.objects (bucket_id, name) values ('business-media', 'seeded.png');
 insert into public.plans values ('55555555-5555-5555-5555-555555555555', 'week', 1, 1);
 insert into public.plan_members values ('66666666-6666-6666-6666-666666666666', '${BIZ}', '55555555-5555-5555-5555-555555555555', 'active', current_date - 14);
 `;
 
-async function fresh(sql, sql2, sql3 = SQL3) {
+async function fresh(sql, sql2, sql3 = SQL3, sql4 = SQL4) {
   const db = new PGlite();
   await db.exec(FIXTURE);
   await db.exec(sql);
   await db.exec(sql2);
   await db.exec(sql3);
+  await db.exec(sql4);
   // Live at Auth: the owner's own login, the live support view, the expired one. NOT the closed one.
-  await db.exec(`insert into auth.sessions values ('${OWN_SID}', '${USER}'), ('${SUPPORT_SID}', '${USER}'), ('${EXPIRED_SID}', '${USER}')`);
+  await db.exec(`insert into auth.sessions values ('${OWN_SID}', '${USER}'), ('${SUPPORT_SID}', '${USER}'), ('${EXPIRED_SID}', '${USER}'), ('${UNLOCKED_SID}', '${USER}'), ('${EXPIRED_UNLOCKED_SID}', '${USER}'), ('${OWN2_SID}', '${USER2}')`);
   await db.exec(`insert into public.support_sessions (session_id, user_id, business_id) values ('${CLOSED_SID}', '${USER}', '${BIZ}')`);
   await db.exec(`insert into public.support_sessions (session_id, user_id, business_id) values ('${SUPPORT_SID}', '${USER}', '${BIZ}')`);
-  // 97.15: back-dated, as the item asks — opened 31 minutes ago, so its 30 minutes ran out 1 minute ago.
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, unlocked_at) values ('${UNLOCKED_SID}', '${USER}', '${BIZ}', now())`);
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, created_at, expires_at, unlocked_at) values ('${EXPIRED_UNLOCKED_SID}', '${USER}', '${BIZ}', now() - interval '91 minutes', now() - interval '61 minutes', now() - interval '61 minutes')`);
+  // 97.15: back-dated, as the item asks - opened 31 minutes ago, so its 30 minutes ran out 1 minute ago.
   await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, created_at, expires_at) values ('${EXPIRED_SID}', '${USER}', '${BIZ}', now() - interval '31 minutes', now() - interval '1 minute')`);
   return db;
 }
-const claims = (sid) => JSON.stringify({ sub: USER, role: "authenticated", session_id: sid });
-/** Run `stmt` as the signed-in user in session `sid`. Returns { rows, affected } or { error }. */
-async function as(db, sid, stmt) {
-  await db.exec(`reset role; select set_config('request.jwt.claims', '${claims(sid)}', false); set role authenticated;`);
+const claims = (sid, user = USER) => JSON.stringify({ sub: user, role: "authenticated", session_id: sid });
+/** Run `stmt` as user `user` in session `sid`. F3: the caller names the account, so the second account's proof runs as that account - before, it silently ran as the first user. */
+async function as(db, sid, stmt, user = USER) {
+  await db.exec(`reset role; select set_config('request.jwt.claims', '${claims(sid, user)}', false); set role authenticated;`);
   try {
     const r = await db.query(stmt);
     return { rows: r.rows, affected: r.affectedRows ?? 0 };
@@ -176,6 +206,7 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
   // 1. Applies cleanly, and twice is harmless (a re-run must not duplicate or drop a rule).
   const db = await fresh(SQL, SQL2);
   await db.exec(SQL);
+  await db.exec(SQL4);
   await db.exec(SQL2);
   await db.exec(SQL3);
   const rlsTables = (await db.query(`select count(*)::int n from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname in ('public','storage') and c.relkind = 'r' and c.relrowsecurity`)).rows[0].n;
@@ -203,7 +234,7 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
     table.push({ session: "support", path: label, result: why || "ALLOWED" });
     check(`support session refused: ${label}`, !!why, JSON.stringify(r));
   }
-  const after = (await db.query("select (select count(*)::int from public.widgets) w, (select count(*)::int from storage.objects) o, (select string_agg(name, ',') from public.widgets) names, (select lang from public.business_users) lang, (select count(*)::int from public.plan_visits) v")).rows[0];
+  const after = (await db.query("select (select count(*)::int from public.widgets) w, (select count(*)::int from storage.objects) o, (select string_agg(name, ',') from public.widgets) names, (select lang from public.business_users where user_id = '11111111-1111-1111-1111-111111111111') lang, (select count(*)::int from public.plan_visits) v")).rows[0];
   check("nothing the support session tried actually changed", after.w === 1 && after.o === 1 && after.names === "seeded" && after.lang === null && after.v === 0, JSON.stringify(after));
 
   // 4. The marker is out of the support session's reach.
@@ -238,16 +269,107 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
   const liveAgain = await as(db, SUPPORT_SID, "select name from public.widgets");
   check("97.15: the LIVE support session still reads (the rule keys on the deadline, not on being a support session)", liveAgain.rows?.length === 1, JSON.stringify(liveAgain));
 
+  // 4e. ROADMAP 4.3c (a) - the preview's own button lifted the lock: this session writes.
+  const unlockedRead = await as(db, UNLOCKED_SID, "select name from public.widgets");
+  check("an unlocked support session still reads", unlockedRead.rows?.length === 1, JSON.stringify(unlockedRead));
+  let unlockedAllowed = 0;
+  for (const [label, stmt] of WRITES) {
+    const r = await as(db, UNLOCKED_SID, stmt); r.stmt = stmt;
+    const ok = !r.error && (/^select/i.test(stmt) || r.affected > 0);
+    if (ok) unlockedAllowed++;
+    table.push({ session: "support, unlocked", path: label, result: ok ? "allowed" : `REFUSED: ${r.error || "0 rows"}` });
+    check(`unlocked support session allowed: ${label}`, ok, JSON.stringify(r));
+  }
+  const unlockedLanded = (await db.query("select (select count(*)::int from public.widgets) w, (select count(*)::int from public.plan_visits) v")).rows[0];
+  check("the unlocked session's writes landed (its delete emptied widgets, its accrue added visits)", unlockedLanded.w === 0 && unlockedLanded.v > 0, JSON.stringify(unlockedLanded));
+  // The unlocked session deleted every row above; reseed one of each so the refusal
+  // checks below measure the lock, not an empty table.
+  await db.exec(`insert into public.widgets (business_id, name) values ('${BIZ}', 'seeded')`);
+  await db.exec(`insert into storage.objects (bucket_id, name) values ('business-media', 'seeded.png')`);
+  // The unlocked accrue above already took today's grant (one per member per day), so
+  // clear the table: the owner's accrue below must prove itself by adding rows.
+  await db.exec("delete from public.plan_visits");
+
+  // 4f. Back to looking: the lock restored, the same writes refused again.
+  await db.exec(`update public.support_sessions set unlocked_at = null where session_id = '${UNLOCKED_SID}'`);
+  let relockRefused = 0;
+  for (const [label, stmt] of WRITES) {
+    const r = await as(db, UNLOCKED_SID, stmt); r.stmt = stmt;
+    const why = refusedBy(r);
+    if (why) relockRefused++;
+    table.push({ session: "support, relocked", path: label, result: why || "ALLOWED" });
+    check(`relocked support session refused: ${label}`, !!why, JSON.stringify(r));
+  }
+
+  // 4g. Lifted but past its deadline: expiry keeps precedence, reads and writes refused.
+  let expiredUnlockedRefused = 0;
+  for (const [label, stmt] of [["table read", "select name from public.widgets"], ["storage read", "select name from storage.objects"]]) {
+    const r = await as(db, EXPIRED_UNLOCKED_SID, stmt);
+    const ok = !r.error && r.rows.length === 0;
+    if (ok) expiredUnlockedRefused++;
+    table.push({ session: "support, unlocked but expired", path: label, result: ok ? "refused: 0 rows visible" : `ALLOWED: ${JSON.stringify(r)}` });
+    check(`expired unlocked session refused: ${label}`, ok, JSON.stringify(r));
+  }
+  for (const [label, stmt] of WRITES) {
+    const r = await as(db, EXPIRED_UNLOCKED_SID, stmt); r.stmt = stmt;
+    const why = refusedBy(r);
+    if (why) expiredUnlockedRefused++;
+    table.push({ session: "support, unlocked but expired", path: label, result: why || "ALLOWED" });
+    check(`expired unlocked session refused: ${label}`, !!why, JSON.stringify(r));
+  }
+
+  // 4h. F3: the deadline boundary with the clock frozen. Everything runs
+  // inside one transaction, and inside a transaction now() never advances, so "exactly at"
+  // is exactly equal rather than a race. Locked and unlocked markers, each a minute before
+  // the end, exactly at it, and a minute after: only the before-the-end unlocked marker
+  // writes; the edge suite pins the same instants against a stubbed Date.now.
+  await db.exec("begin;");
+  await db.exec(`insert into auth.sessions values
+    ('${BLIVE_SID}', '${USER}'), ('${BAT_SID}', '${USER}'), ('${BAFTER_SID}', '${USER}'),
+    ('${ULIVE_SID}', '${USER}'), ('${UAT_SID}', '${USER}'), ('${UAFTER_SID}', '${USER}')`);
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, expires_at) values
+    ('${BLIVE_SID}', '${USER}', '${BIZ}', now() + interval '1 minute'),
+    ('${BAT_SID}', '${USER}', '${BIZ}', now()),
+    ('${BAFTER_SID}', '${USER}', '${BIZ}', now() - interval '1 minute')`);
+  await db.exec(`insert into public.support_sessions (session_id, user_id, business_id, unlocked_at, expires_at) values
+    ('${ULIVE_SID}', '${USER}', '${BIZ}', now(), now() + interval '1 minute'),
+    ('${UAT_SID}', '${USER}', '${BIZ}', now(), now()),
+    ('${UAFTER_SID}', '${USER}', '${BIZ}', now(), now() - interval '1 minute')`);
+  let boundary = 0;
+  const ownW = await as(db, OWN_SID, "select name from public.widgets");
+  check("the owner's own read inside the frozen transaction sees the seeded row", !ownW.error && ownW.rows.length === 1, JSON.stringify(ownW));
+  for (const [label, sid, expectSupport, expectLive] of [
+    ["locked, a minute before the end", BLIVE_SID, true, true],
+    ["locked, exactly at the end", BAT_SID, true, false],
+    ["locked, a minute after the end", BAFTER_SID, true, false],
+    ["unlocked, a minute before the end", ULIVE_SID, false, true],
+    ["unlocked, exactly at the end", UAT_SID, true, false],
+    ["unlocked, a minute after the end", UAFTER_SID, true, false],
+  ]) {
+    const s = await as(db, sid, "select public.is_support_session() s");
+    const w = await as(db, sid, "select name from public.widgets");
+    const flagOk = !s.error && s.rows[0]?.s === expectSupport;
+    const rowsOk = !w.error && w.rows.length === (expectLive ? ownW.rows.length : 0);
+    if (flagOk && rowsOk) boundary++;
+    table.push({ session: `deadline boundary: ${label}`, path: "is_support_session + table read", result: flagOk && rowsOk ? "as expected" : `WRONG: ${JSON.stringify({ s, w })}` });
+    check(`deadline boundary ${label}: support=${expectSupport}`, flagOk, JSON.stringify(s));
+    check(`deadline boundary ${label}: reads ${expectLive ? "what the owner reads" : "nothing"}`, rowsOk, JSON.stringify(w));
+  }
+  await db.exec("commit;");
   // 4d. Review fix 4 — the minute job ends the expired view at Auth, and only it.
   const denied = await as(db, SUPPORT_SID, "select public.end_expired_support_sessions()");
   check("97.15: a signed-in caller cannot run the minute job", /permission denied/.test(denied.error || ""), JSON.stringify(denied));
   const reaped = (await db.query("select public.end_expired_support_sessions() n")).rows[0].n;
   const left = (await db.query("select array_agg(id::text order by id) ids from auth.sessions")).rows[0].ids;
-  check("97.15: the minute job ends exactly the expired view's Auth session", reaped === 1 && !left.includes(EXPIRED_SID) && left.includes(SUPPORT_SID) && left.includes(OWN_SID), JSON.stringify({ reaped, left }));
+  check("97.15 + 4.3c (a): the minute job ends exactly the expired views' Auth sessions, locked or unlocked", reaped === 6 && !left.includes(EXPIRED_SID) && !left.includes(EXPIRED_UNLOCKED_SID) && !left.includes(BAT_SID) && !left.includes(BAFTER_SID) && !left.includes(UAT_SID) && !left.includes(UAFTER_SID) && left.includes(BLIVE_SID) && left.includes(ULIVE_SID) && left.includes(SUPPORT_SID) && left.includes(OWN_SID) && left.includes(UNLOCKED_SID), JSON.stringify({ reaped, left }));
   const ownAfterReap = await as(db, OWN_SID, "select name from public.widgets");
   check("97.15: the owner's own login still reads after the minute job", ownAfterReap.rows?.length === 1, JSON.stringify(ownAfterReap));
 
   // 5. The SAME USER in their own ordinary session: every write goes through.
+  // Reset what the unlocked session changed, so the owner's own writes below are
+  // proved by what they change: language from null to es, visits above the count.
+  await db.exec("update public.business_users set lang = null");
+  const visitsBefore = (await db.query("select count(*)::int v from public.plan_visits")).rows[0].v;
   let allowed = 0;
   for (const [label, stmt] of WRITES) {
     const r = await as(db, OWN_SID, stmt);
@@ -256,8 +378,23 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
     table.push({ session: "owner's own", path: label, result: ok ? "allowed" : `REFUSED: ${r.error || "0 rows"}` });
     check(`owner's own session allowed: ${label}`, ok, JSON.stringify(r));
   }
-  const own = (await db.query("select (select lang from public.business_users) lang, (select count(*)::int from public.plan_visits) v")).rows[0];
-  check("owner's writes landed (language set, visits accrued)", own.lang === "es" && own.v > 0, JSON.stringify(own));
+  const own = (await db.query("select (select lang from public.business_users where user_id = '11111111-1111-1111-1111-111111111111') lang, (select count(*)::int from public.plan_visits) v")).rows[0];
+  check("owner's writes landed (language null to es, visits above the earlier count)", own.lang === "es" && own.v > visitsBefore, JSON.stringify({ ...own, visitsBefore }));
+
+  // 5b. R2/R5: the second account's ordinary session is unaffected by the first
+  // account's locked, unlocked, relocked and expired previews above. Every write path
+  // must go through; the accrue path only has to be unrefused (today's grant was
+  // already taken, and grants are one per member per day by unique index).
+  let allowed2 = 0;
+  for (const [label, stmt] of WRITES) {
+    const r = await as(db, OWN2_SID, stmt, USER2); r.stmt = stmt;
+    const ok = label === "definer accrue_plan_visits" ? !r.error : (!r.error && (/^select/i.test(stmt) || r.affected > 0));
+    if (ok) allowed2++;
+    table.push({ session: "second account's own", path: label, result: ok ? "allowed" : `REFUSED: ${r.error || "0 rows"}` });
+    check(`second account's own session allowed: ${label}`, ok, JSON.stringify(r));
+  }
+  const own2lang = (await db.query(`select lang from public.business_users where user_id = '${USER2}'`)).rows[0]?.lang;
+  check("second account's writes landed (its own language row reads es)", own2lang === "es", JSON.stringify({ own2lang }));
 
   // 6. No token at all (cron, a migration) is not a support session.
   await db.exec("select set_config('request.jwt.claims', '', false)");
@@ -279,18 +416,18 @@ test("4.3c · support sessions are read-only at the database, the owner's own se
     check_id: "support-sessions-sql",
     started_at,
     status: failures.length ? "fail" : "pass",
-    expected_targets: WRITES.length * 3 + 4,
-    discovered_targets: WRITES.length * 3 + 4,
-    attempted_targets: WRITES.length * 3 + 4,
-    completed_targets: refused + allowed + expiredRefused,
+    expected_targets: WRITES.length * 7 + 6 + 6,
+    discovered_targets: WRITES.length * 7 + 6 + 6,
+    attempted_targets: WRITES.length * 7 + 6 + 6,
+    completed_targets: refused + allowed + expiredRefused + unlockedAllowed + relockRefused + expiredUnlockedRefused + allowed2 + boundary,
     skipped_targets: 0,
     assertions_executed: assertions,
-    min_assertions: 2 + 2 + 1 + WRITES.length + 1 + 3 + 2 + WRITES.length + 2 + 1 + 3 + WRITES.length + 1 + 1 + 1,
+    min_assertions: 2 + 2 + 1 + WRITES.length + 1 + 3 + 2 + WRITES.length + 2 + 1 + 3 + WRITES.length + 1 + 1 + 1 + 1 + WRITES.length + 1 + WRITES.length + 2 + WRITES.length + WRITES.length + 12 + 2,
     failures,
     assertion_floor: "structural: one assertion per fixed write path per session plus fixed setup checks, so the count cannot vary between runs",
     artifacts: [ART],
     canary: { id: "restrictive-made-permissive", observed_failure: canaryCaught },
-    dimensions: { break: BREAK || undefined, migration: MIGRATION, expire_migration: EXPIRE, ends_migration: ENDS, refused_for_expired: expiredRefused, rls_tables_in_fixture: rlsTables, write_paths: WRITES.length, refused_for_support: refused, allowed_for_owner: allowed },
+    dimensions: { break: BREAK || undefined, migration: MIGRATION, expire_migration: EXPIRE, ends_migration: ENDS, unlock_migration: UNLOCK, refused_for_expired: expiredRefused, rls_tables_in_fixture: rlsTables, write_paths: WRITES.length, refused_for_support: refused, allowed_for_owner: allowed, allowed_for_unlocked: unlockedAllowed, refused_for_relocked: relockRefused, refused_for_unlocked_expired: expiredUnlockedRefused, allowed_for_second_account: allowed2 },
   });
   assert.deepEqual(failures, []);
 });

@@ -17,14 +17,17 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { leavePreview, setPreviewEnds, setPreviewMode } from "../lib/preview.js";
+import { t } from "../lib/appI18n.js";
 
 // ROADMAP 97.15: the server hands over NO refresh token, so the session dies with its access
 // token. supabase-js will not hold a session without one, so it holds this; refreshing it fails
 // and signs the tab out, which is the right ending anyway.
 const NO_REFRESH = "none";
 const ENDED = {
-  expired: "Their dashboard closed after 30 minutes. Open it again from the back office if you need more time.",
-  closed: "You have left their dashboard.",
+  // Functions, not strings: t() must run at render time, when the dashboard
+  // locale is known, not once when this module loads.
+  expired: () => t("Their dashboard closed after 30 minutes. Open it again from the back office if you need more time."),
+  closed: () => t("You have left their dashboard."),
 };
 
 export default function PreviewEntry() {
@@ -120,7 +123,7 @@ export default function PreviewEntry() {
         <p style={{ margin: 0 }}>
           {error === "nothing"
             ? "This page is opened from the back office, not by typing the address."
-            : ENDED[error] || error || "Opening their dashboard…"}
+            : ENDED[error]?.() || error || "Opening their dashboard…"}
         </p>
         {error && (
           // A REAL NAVIGATION, NOT A ROUTER PUSH. `isPreviewTab` is read once

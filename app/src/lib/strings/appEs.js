@@ -60,6 +60,8 @@ export const appEs = {
   "Allowed once per device. Your browser will ask you first.": "Se permite una vez por dispositivo. Tu navegador te preguntará primero.",
   "Ask whoever invited you to send a new link.":
     "Pídele a quien te invitó que te envíe un enlace nuevo.",
+  "Back to looking": "Volver a mirar",
+  "Back to looking, but this press was not recorded.": "Volver a mirar, pero este cambio no quedó registrado.",
   "Blocked for this site": "Bloqueado para este sitio",
   "Choose a file": "Elegir un archivo",
   "Contact email": "Correo de contacto",
@@ -72,7 +74,9 @@ export const appEs = {
     "Recibe un aviso en tu teléfono cuando entre una cita. Funciona aunque el panel esté cerrado.",
   "Go to sign in": "Ir a iniciar sesión",
   "How customers reach you": "Cómo te contactan los clientes",
+  "Let me make changes": "Quiero hacer cambios",
   "Logo and cover photo": "Logo y foto de portada",
+  "Looking at {who}. Nothing here can be changed.": "Viendo {who}. Aquí no se puede cambiar nada.",
   // ROADMAP 4.2, 2026-09-13 — the blurb leads with the answer now, and the
   // discount moved down beside its own field. The old sentence is gone.
   "Each link counts how many people opened it and how many of them booked. Make one for every place you advertise, then post that link instead of your normal booking link.":
@@ -94,12 +98,17 @@ export const appEs = {
   "Off for this device": "Apagado en este dispositivo",
   "On for this device": "Encendido en este dispositivo",
   "Only you see these": "Solo tú ves esto",
+  "Open until {when}.": "Abierto hasta {when}.",
   "Pick one color. It is used on your booking page and in this dashboard. Most detailers use the color already on their van or their cards.":
     "Elige un color. Se usa en tu página de reservas y en este panel. La mayoría usa el color que ya está en su camioneta o en sus tarjetas.",
   "Printed at the bottom of marketing email you send. The law asks for it.": "Se imprime al pie del correo de marketing que envías. La ley lo exige.",
   "Service area": "Zona de servicio",
   "Shown on your site.": "Se muestra en tu sitio.",
+  "That change did not go through. Nothing was changed.": "Ese cambio no se aplicó. No se cambió nada.",
+  "Could not reach the server. Nothing was changed.": "No se pudo conectar con el servidor. No se cambió nada.",
   "That is not your current password.": "Esa no es tu contraseña actual.",
+  "their dashboard": "su panel",
+  "Their dashboard closed after 30 minutes. Open it again from the back office if you need more time.": "Su panel se cerró después de 30 minutos. Vuelve a abrirlo desde la oficina si necesitas más tiempo.",
   "The questions customers ask you most often. Answer them here and you get fewer texts asking the same thing.":
     "Las preguntas que más te hacen los clientes. Respóndelas aquí y recibirás menos mensajes preguntando lo mismo.",
   "The services you add here show on your booking page at the price you set. Add-ons are extras a customer can add to a service.":
@@ -226,6 +235,7 @@ export const appEs = {
   "Both are in Fahrenheit, and both are about the person doing the work rather than the car.":
     "Ambos están en Fahrenheit y ambos tratan de la persona que hace el trabajo, no del carro.",
   "Warn when it is hotter than": "Avisar cuando haga más calor que",
+  "WORKING in {who}. Anything you change is theirs.": "TRABAJANDO en {who}. Todo lo que cambies será de ellos.",
   "Warn when it is hot": "Avisar cuando haga calor",
   "Hot above": "Calor por encima de",
   "Warn when it is colder than": "Avisar cuando haga más frío que",
@@ -2685,6 +2695,7 @@ export const appEs = {
   // ROADMAP 4.2, 2026-09-13. The one-line door became a block of real figures;
   // "Where your money comes from" and its sentence went with it.
   "Booking sources": "De dónde vienen las reservas",
+  "You have left their dashboard.": "Saliste de su panel.",
   "You have no links yet. Make one for each place you advertise and this shows which of them brings in work.":
     "Todavía no tienes enlaces. Crea uno para cada lugar donde te anuncies y aquí verás cuál te trae trabajo.",
   "None of your links were opened in this period.":

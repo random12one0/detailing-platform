@@ -9,7 +9,7 @@
 
 import { supabase } from "./db.ts";
 import { readFailed, retryRead } from "./retryRead.ts";
-import { isSupportSession, supportAdmits, supportSessionState } from "./supportSession.ts";
+import { isMarkedPreview, isSupportSession, supportAdmits, supportSessionState } from "./supportSession.ts";
 
 export interface Business {
   id: string;
@@ -283,6 +283,10 @@ export function cleanPermissions(input: unknown): Permission[] {
 // and a failed read counts as a support session — every detailer's every save refused.
 const markerOf = (sid: string) => supabase.from("support_sessions").select("*").eq("session_id", sid).maybeSingle();
 export const supportSession = (token: string) => isSupportSession(token, markerOf);
+/** ROADMAP 4.3c (a): a preview platform-admin opened, locked or unlocked. create-business
+ * and platform-admin's admin gate refuse it either way - an unlocked preview writes, but
+ * it must still never create a business or act as a platform admin. */
+export const markedPreview = (token: string) => isMarkedPreview(token, markerOf);
 
 
 // Verifies the request's JWT and returns the caller's membership in the
@@ -293,8 +297,10 @@ export const supportSession = (token: string) => isSupportSession(token, markerO
 // `{ allowSupport: true }`. Null is every caller's existing refusal, so all of
 // them fail closed without being edited; only functions that change none of
 // the business's records opt in. Where null means "treat as the public"
-// (create-booking, track-visit), a support session reaches exactly as far as
-// anyone on the internet and no further.
+// caller decides: create-booking refuses a locked support session itself
+// (4.3c R3) instead of minting a public booking on support credentials, while
+// track-visit stays public by design (a header check, no requireMember) and a
+// support session there reaches exactly as far as anyone on the internet.
 export async function requireMember(
   req: Request,
   businessId?: string | null,
