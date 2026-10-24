@@ -37,13 +37,19 @@ import { createRequire } from "node:module";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
-import { advance, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, watchConsole } from "./lib/bookingWalk.mjs";
+import { advance, countQuotes, feedBookingFixture, pickDay, quoted, settle, stepNow, toCalendar, watchConsole } from "./lib/bookingWalk.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
-const ART = join(REPO, ".manager-shots", "14.24");
+// --fixture: answer calculate-booking and available-slots with fixed bodies, for a
+// backend that holds no prices or times (lib/bookingWalk.mjs feedBookingFixture).
+const FIXTURE = process.argv.slice(2).includes("--fixture");
 const BREAK = (process.argv.slice(2).find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
+// A sabotage keeps its own pictures: this run wipes ART first, so a shared folder
+// would leave the sabotage receipt naming the clean run's screenshots.
+const SHOTS = BREAK ? `.manager-shots/14.24-sabotage-${BREAK}` : ".manager-shots/14.24";
+const ART = join(REPO, SHOTS);
 
 const SIZES = [{ w: 320, h: 700 }, { w: 392, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
 const STEPS = [6, 7];
@@ -125,6 +131,7 @@ async function run() {
       console.log(`\n== ${w}x${h}`);
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
       const page = await ctx.newPage();
+      if (FIXTURE) await feedBookingFixture(page);
       countQuotes(page);
       const widthFrom = noise.length;
       watchConsole(page, String(w), noise);
@@ -139,7 +146,7 @@ async function run() {
         await settle(page);
         const file = join(ART, "step5-calendar-768.png");
         await block.screenshot({ path: file, animations: "disabled" });
-        artifacts.push(".manager-shots/14.24/step5-calendar-768.png");
+        artifacts.push(`${SHOTS}/step5-calendar-768.png`);
         const cal = await page.evaluate(() => {
           const b = document.querySelector(".bk-cal-block").getBoundingClientRect();
           const cells = [...document.querySelectorAll(".bk-cal .cell")].map((c) => c.getBoundingClientRect());
@@ -168,7 +175,7 @@ async function run() {
           let r = await page.evaluate(READ, COLUMN);
           const file = `step${step}-${w}.png`;
           await page.screenshot({ path: join(ART, file), fullPage: true, animations: "disabled" });
-          artifacts.push(`.manager-shots/14.24/${file}`);
+          artifacts.push(`${SHOTS}/${file}`);
           // The full-page shot stretches a FIXED bar into the middle of the page; the bottom shot is what a person sees.
           await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
           await page.waitForTimeout(150);
@@ -176,7 +183,7 @@ async function run() {
           r = await sabotageNow(page, w, step, r);
           const bottom = `step${step}-${w}-bottom.png`;
           await page.screenshot({ path: join(ART, bottom), animations: "disabled" });
-          artifacts.push(`.manager-shots/14.24/${bottom}`);
+          artifacts.push(`${SHOTS}/${bottom}`);
           ok(at.n === step && at.of === OF, `${w}/step${step}/reached`, `label reads Step ${at.n} of ${at.of}`);
           ok(overflowOk(r), `${w}/step${step}/no-overflow`, `document ${r.docW}px, furthest right edge ${r.worst}px, viewport ${r.vw}px`);
           ok(clearOk(r), `${w}/step${step}/clear`, `scrolled ${r.scrolled}px to the bottom: last block ends at ${r.lastBottom}px, fixed bar starts at ${r.barTop}px`);
@@ -226,7 +233,7 @@ async function run() {
     assertions_executed: assertions, min_assertions: EXPECTED_ASSERTIONS,
     assertion_floor: "8 readings x 5 + 4 plan-pitch + 1 calendar + 3 canaries = 48, asserted as an EQUALITY (docs/gotchas.md 98).",
     failures, warnings: [], artifacts,
-    dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), steps: STEPS, business: "demo-detail", item: "14.24-1", break: BREAK },
+    dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), steps: STEPS, business: "demo-detail", item: "14.24-1", break: BREAK, fixture: FIXTURE },
     canary: { id: canaries[0].name, observed_failure: canaries.every((c) => c.flagged) },
     canaries, unjudgeable, sabotage, observed,
   });

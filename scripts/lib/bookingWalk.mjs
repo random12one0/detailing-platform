@@ -281,6 +281,41 @@ export async function frame(page, { dir, file, rects, blankCss, artifacts, prefi
  * The two React Router v7 future-flag warnings are known and logged in
  * FOUND.md; they are dropped by NAME so that anything else still lands.
  */
+// FOR A BACKEND THAT HOLDS NO PRICES OR TIMES — the belt's per-copy demo backend
+// answers calculate-booking and available-slots with {}, so no walk can pass step 1.
+// A check's --fixture answers those two calls in the shape the real functions
+// return; everything else on the page is still the real product. Every weekday from tomorrow is open at
+// three times; the quote is one hour at $65, the shape calculate-booking sends.
+export async function feedBookingFixture(page) {
+  await page.route(/\/functions\/v1\/calculate-booking/, (route) => route.fulfill({
+    status: 200, contentType: "application/json",
+    body: JSON.stringify({ success: true, weather: null, quote: {
+      base_price: 65, vehicle_size_fee: 0, add_ons_total: 0, travel_fee: 0, travel_zone: null,
+      adjustments: [], subtotal_before_discounts: 65, site_discount: 0, site_discount_percent: 0,
+      site_discount_label: null, subtotal: 65, promo_code: null, promo_discount: 0, total: 65,
+      plan_id: null, plan_name: null, total_duration: 60, buffer_minutes: 0, vehicle_count: 1,
+      per_vehicle: null, single_vehicle_duration: 60,
+    } }),
+  }));
+  await page.route(/\/functions\/v1\/available-slots/, async (route) => {
+    let body = {};
+    try { body = JSON.parse(route.request().postData() || "{}"); } catch { /* empty ask */ }
+    const days = {};
+    const today = new Date().toISOString().slice(0, 10);
+    const start = body.start_date || body.booking_date || today;
+    const end = body.end_date || start;
+    for (let d = new Date(start + "T12:00:00Z"); d.toISOString().slice(0, 10) <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      const open = key > today && d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
+      days[key] = {
+        open, slots: open ? ["09:00", "10:00", "13:00"] : [], dropoff_slots: [], dropoff_only: false,
+        mobile_slots: [], mobile_only: false, hours: open ? { open: "09:00", close: "17:00" } : null,
+      };
+    }
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, days }) });
+  });
+}
+
 export function watchConsole(page, label, sink) {
   page.on("console", (msg) => {
     if (msg.type() !== "error" && msg.type() !== "warning") return;

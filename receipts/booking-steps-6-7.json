@@ -1,9 +1,9 @@
 {
-  "git_sha": "7c856cb54394f723324a44c515ba183caff7b589",
-  "git_sha_started": "7c856cb54394f723324a44c515ba183caff7b589",
+  "git_sha": "16fd3401725083648bab9481671205506abe5954",
+  "git_sha_started": "16fd3401725083648bab9481671205506abe5954",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T23:13:50.611Z",
+  "finished_at": "2026-10-24T18:12:50.968Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -38,10 +38,11 @@
     ],
     "business": "demo-detail",
     "item": "14.24-1",
-    "break": null
+    "break": null,
+    "fixture": true
   },
   "check_id": "booking-steps-6-7",
-  "started_at": "2026-10-10T23:12:16.476Z",
+  "started_at": "2026-10-24T18:11:43.332Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
@@ -92,9 +93,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           288,
-          157
+          303
         ],
         [
           "bk-refusal bk-muted",
@@ -175,9 +176,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           360,
-          157
+          284
         ],
         [
           "bk-refusal bk-muted",
@@ -258,9 +259,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           600,
-          73
+          140
         ],
         [
           "bk-refusal bk-muted",
@@ -341,9 +342,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           600,
-          73
+          140
         ],
         [
           "bk-refusal bk-muted",
