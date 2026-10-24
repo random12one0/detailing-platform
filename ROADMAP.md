@@ -31669,6 +31669,14 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   and SQL 68 of 68 / 94 receipts re-taken at the same commit. Gates: composition, design-contrast, landing-pricing,
   route-contract 4/0; no-credentials, citable, migration-versions 9/0; spanish, translations 2/0; label-guard pass;
   decisions-index clean. NOT run: `deployed-inventory.mjs` (needs credentials; nothing was deployed).
+  **Review fixes 2026-10-24 (`507936cc`), all three findings real:** (1) carrying 4.3c R3 into `create-booking` broke the
+  shared `scripts/lib/bookingConsentFixture.mjs` (no request headers, no `supportSession` stand-in), turning seven
+  booking suites red, money guards among them; the fixture now supplies both, and create-booking-phone 4/0,
+  day-rule-refusal, duplicate-answer, plan-one-car-split, price-shown-equals-charged, promo-one-use-group and
+  split-day-surcharge 1/0 each, with `PRICE_BREAK=no-guard` still red; no product line or suite loosened. (2) the
+  photo-door `urls` clause in `api.js` is last again, so `tests/photo-door.test.mjs` 6/0. (3) the back office's
+  account history names `support_unlock` / `support_lock` in plain words (b7d1015e's wording). Re-run at `507936cc`:
+  preview-switch 35 of 35 runs, 236 assertions; edge 4/0; SQL 2/0.
   AMENDMENT PROPOSED: R1 — "one migration owns `20261013010000`" → "exactly one unlock migration exists, and no two files
   share a version" — the unlock migration is `20261024230000_support_sessions_unlock.sql`, because a new migration must
   sort after everything already applied live (`20261017190000`) and after main's latest; a file dated 2026-10-13 would sit
