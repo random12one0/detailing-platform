@@ -1,9 +1,9 @@
 {
-  "git_sha": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
-  "git_sha_started": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
+  "git_sha": "12b93957ae9553569fcd1ad2f452200b29945f33",
+  "git_sha_started": "12b93957ae9553569fcd1ad2f452200b29945f33",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T16:45:02.873Z",
+  "finished_at": "2026-10-24T17:33:08.770Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -14,18 +14,16 @@
     "scenes": "open, none, cancel"
   },
   "check_id": "checkin-card",
-  "started_at": "2026-10-24T16:44:36.489Z",
+  "started_at": "2026-10-24T17:32:47.282Z",
   "status": "pass",
   "expected_targets": 12,
   "discovered_targets": 12,
   "attempted_targets": 12,
   "completed_targets": 12,
   "skipped_targets": 0,
-  "assertions_executed": 68,
+  "assertions_executed": 52,
   "min_assertions": 36,
-  "unjudgeable": [
-    "the job record's 'Customer confirmed the vehicle check-in' line: needs the demo owner's login, which this script never loads"
-  ],
+  "unjudgeable": [],
   "canary": {
     "id": "a page with no check-in card must read as card-absent",
     "observed_failure": true,
