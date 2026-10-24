@@ -61,6 +61,9 @@ full worked detail in `docs/planning/email-copy-and-rules-draft-2026-10-12.md` Â
   office, and any account he switches on there with "Put live without payment". Test and demo
   accounts are created directly, not through signup, so they are unaffected. (Exemption is never
   by email address: anyone can type a fake test address.)
+- Only a self-serve signup is marked as waiting for payment. An account Andrew suspends in the back
+  office is not marked, so its owner keeps their dashboard and records, the same as a detailer
+  whose card failed.
 
 ## Still to decide (do not assume an answer)
 

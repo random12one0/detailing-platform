@@ -1,4 +1,4 @@
-awaiting-payment-gate 2026-10-24T20:23:47.648Z break=none base=http://127.0.0.1:5180
+awaiting-payment-gate 2026-10-24T20:34:29.562Z break=none base=http://127.0.0.1:5180
 ok   unpaid @320 · the situation was fed (business + subscription rows rewritten)
 ok   unpaid @320 · the waiting screen is shown
 ok   unpaid @320 · it says "Finish payment to go live"
@@ -75,5 +75,25 @@ ok   suspended @1440 · no waiting screen
 ok   suspended @1440 · the tabs are there
 ok   suspended @1440 · New booking is there
 ok   suspended @1440 · console has no errors
+ok   handmade @320 · the situation was fed (business + subscription rows rewritten)
+ok   handmade @320 · no waiting screen
+ok   handmade @320 · the tabs are there
+ok   handmade @320 · New booking is there
+ok   handmade @320 · console has no errors
+ok   handmade @390 · the situation was fed (business + subscription rows rewritten)
+ok   handmade @390 · no waiting screen
+ok   handmade @390 · the tabs are there
+ok   handmade @390 · New booking is there
+ok   handmade @390 · console has no errors
+ok   handmade @768 · the situation was fed (business + subscription rows rewritten)
+ok   handmade @768 · no waiting screen
+ok   handmade @768 · the tabs are there
+ok   handmade @768 · New booking is there
+ok   handmade @768 · console has no errors
+ok   handmade @1440 · the situation was fed (business + subscription rows rewritten)
+ok   handmade @1440 · no waiting screen
+ok   handmade @1440 · the tabs are there
+ok   handmade @1440 · New booking is there
+ok   handmade @1440 · console has no errors
 canary @390 · fed 2, waiting screen 0, tabs 5 -> caught
-76 passed, 0 failed
+96 passed, 0 failed

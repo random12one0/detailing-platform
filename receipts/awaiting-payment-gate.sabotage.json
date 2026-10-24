@@ -1,9 +1,9 @@
 {
-  "git_sha": "b015714eb47e3b575ed6fa372539463102337ba3",
-  "git_sha_started": "b015714eb47e3b575ed6fa372539463102337ba3",
+  "git_sha": "3a6c7f8217fd674387b5d33a2927012c4ee253d4",
+  "git_sha_started": "3a6c7f8217fd674387b5d33a2927012c4ee253d4",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T20:23:21.513Z",
+  "finished_at": "2026-10-24T20:33:53.964Z",
   "failures": [
     "unpaid @320 · the waiting screen is shown — found 0",
     "unpaid @320 · it says \"Finish payment to go live\" — \"\"",
@@ -48,7 +48,7 @@
   ],
   "dimensions": {
     "roadmap": "97.37",
-    "break": "paid",
+    "break": "unmarked",
     "base": "http://127.0.0.1:5180",
     "widths": [
       "320x700",
@@ -58,19 +58,19 @@
     ]
   },
   "check_id": "awaiting-payment-gate",
-  "started_at": "2026-10-24T20:22:56.674Z",
+  "started_at": "2026-10-24T20:33:24.677Z",
   "status": "fail",
-  "expected_targets": 12,
-  "discovered_targets": 12,
-  "attempted_targets": 12,
-  "completed_targets": 12,
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
   "skipped_targets": 0,
-  "assertions_executed": 76,
-  "min_assertions": 76,
-  "assertion_floor": "unpaid 10, paid 4, suspended 5 per width; every check() unconditional.",
+  "assertions_executed": 96,
+  "min_assertions": 96,
+  "assertion_floor": "unpaid 10, paid 4, suspended 5, handmade 5 per width; every check() unconditional.",
   "canary": {
-    "id": "paid-unpaid",
+    "id": "unmarked-signup",
     "observed_failure": true,
-    "what": "every run: the never-paid case handed an active subscription draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=paid does the same to the counted unpaid case, which must go red"
+    "what": "every run: the never-paid case without the server's mark draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=unmarked does the same to the counted unpaid case, which must go red"
   }
 }
