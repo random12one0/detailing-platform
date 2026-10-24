@@ -31858,7 +31858,8 @@ decisions, not build jobs.
   - The screen links to the kickoff booking and the intake form, and states the delivery time, in English and Spanish
   - Checked at 390 first, then 1440, console clean
 
-- [ ] **97.39 — A new business starts with an empty service list (P-2).**
+- [x] **97.39 — A new business starts with an empty service list (P-2).**
+  DONE 2026-10-24: the Services setup step (and the same screen in the dashboard) shows a card, only while the business has no services, with Exterior detail $120, Interior detail $150 and Full detail $250, each price in the existing MoneyField. "Add these 3" inserts exactly the three rows at the prices on screen (names in the detailer's language, Spanish keys added); "Skip" inserts nothing; a blank or zero price disables Add and says why. `newBusiness.ts` is left alone on purpose: starters are offered, never created behind the detailer's back. Checked with `node scripts/starter-services.mjs` (receipts/starter-services.json: 13/13 scenarios, 163 assertions, canary caught) at 320, 390, 768 and 1440, English and Spanish, console clean; the list is answered empty in the browser and every write swallowed, so rows landing in the real database are UNJUDGEABLE here. Sabotage, each run red before the clean run: ignoring the edited price (8 failures) and Skip also adding (4 failures). Card is 44px+ hit area at every width; screenshots in belt shots 97.39/png. Size surcharges on the starters are $0 until the detailer sets them in the menu table. Live after the next publish.
   `supabase/functions/_shared/newBusiness.ts:41-47` creates no services. Offer starter services at first setup (an exterior, an interior, a full detail) with editable prices, which the detailer can accept, change or skip.
   Acceptance criteria:
   - The setup step offers the three starters; accepting creates them with the shown prices, skipping creates none

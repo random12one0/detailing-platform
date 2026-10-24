@@ -273,11 +273,11 @@ export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedL
 
 // Money. The currency sits INSIDE the field so the number is what you type,
 // and the numeric keypad opens on a phone.
-export function MoneyField({ value, onChange, placeholder = "0" }) {
+export function MoneyField({ value, onChange, placeholder = "0", id }) {
   return (
     <div className="money-field">
       <span aria-hidden="true">$</span>
-      <input type="number" inputMode="decimal" min={0} step="1" placeholder={placeholder}
+      <input id={id} type="number" inputMode="decimal" min={0} step="1" placeholder={placeholder}
         value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
     </div>
   );

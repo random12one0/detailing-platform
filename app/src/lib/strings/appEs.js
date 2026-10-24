@@ -3385,4 +3385,11 @@ export const appEs = {
   "New link ready. Paste it into your calendar app where the old one was.":
     "Nuevo enlace listo. Pégalo en tu app de calendario donde estaba el anterior.",
   "Create calendar link": "Crear enlace de calendario",
+  "Exterior detail": "Detallado exterior",
+  "Interior detail": "Detallado interior",
+  "Start with three services": "Empieza con tres servicios",
+  "Set the prices you charge. Nothing is added until you press the button.":
+    "Pon los precios que cobras. No se agrega nada hasta que presiones el botón.",
+  "Enter a price above $0 for each service.": "Escribe un precio mayor que $0 para cada servicio.",
+  "Add these 3": "Agregar estos 3",
 };
