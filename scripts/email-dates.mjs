@@ -36,8 +36,8 @@ try {
   if (BREAK && BREAK !== "missing") {
     scratch = mkdtempSync(path.join(tmpdir(), "dp-email-dates-"));
     cpSync(path.join(REPO, "supabase/functions/_shared"), path.join(scratch, "supabase/functions/_shared"), { recursive: true });
-    mkdirSync(path.join(scratch, "scripts"));
-    for (const file of ["render-emails.mjs", "receipt.mjs"]) cpSync(path.join(REPO, "scripts", file), path.join(scratch, "scripts", file));
+    mkdirSync(path.join(scratch, "scripts/lib"), { recursive: true });
+    for (const file of ["render-emails.mjs", "receipt.mjs", "lib/outDir.mjs"]) cpSync(path.join(REPO, "scripts", file), path.join(scratch, "scripts", file));
     const kitFile = path.join(scratch, "supabase/functions/_shared/emailKit.ts");
     const before = readFileSync(kitFile, "utf8");
     let after = before;
