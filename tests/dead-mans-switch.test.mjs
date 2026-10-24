@@ -65,7 +65,14 @@ const UNDOC = strip(read("supabase/migrations/20260913010000_watchdog_never_lose
   .replace(/'[^']*'/g, "''");
 const FN = read("supabase/functions/watch-jobs/index.ts");
 const FNC = strip(FN);
-const ADMIN = read("app/src/admin/AdminPage.jsx");
+// THE OLD BACK OFFICE WAS DELETED 2026-10-12 (99.3b-i, 002639c3). The rebuilt one (app/src/admin/office) draws no
+// job heartbeats at all, so the screen checks below have no subject. They print NOT RUN by name rather than pass on
+// an empty string or crash the whole suite before its live half runs (found 2026-10-24 running 97.3's live check).
+let ADMIN = "";
+try { ADMIN = read("app/src/admin/AdminPage.jsx"); } catch { ADMIN = ""; }
+const SCREEN = ADMIN.length > 0;
+const notRun = (name) => console.log(`  NOT RUN  ${name} — the old back-office screen is gone and the new one shows no job heartbeats`);
+const screenCheck = (name, cond, detail) => (SCREEN ? check(name, cond, detail) : notRun(name));
 
 // THE SUBJECT COUNT. The checks that follow are NEGATIVES, and a negative
 // over an EMPTY file is true. Measured 2026-09-13 by truncating every
@@ -73,7 +80,7 @@ const ADMIN = read("app/src/admin/AdminPage.jsx");
 // green over nothing. Asserting the bytes is what stops a read that
 // silently returned an empty string from reading as a clean bill.
 check("0 · the three sources were actually read",
-  MIG.length > 1000 && FN.length > 2000 && ADMIN.length > 2000,
+  MIG.length > 1000 && FN.length > 2000 && (!SCREEN || ADMIN.length > 2000),
   `mig ${MIG.length}B, fn ${FN.length}B, admin ${ADMIN.length}B`);
 
 const ADMINC = strip(ADMIN);
@@ -147,9 +154,9 @@ console.log("1. what the code has to keep being true of");
   // THE WINDOW HAS ONE COPY, AND THE SCREEN IS THE ONE THAT USED TO HOLD IT.
   // `45 * 60_000` and `36 * 3_600_000` were in `AdminPage.jsx`; a threshold in
   // two places is how a screen says a job is fine while the alarm rings.
-  check("1e · the back office no longer carries its own staleness windows",
+  screenCheck("1e · the back office no longer carries its own staleness windows",
     !/45 \* 60_?000/.test(ADMINC) && !/36 \* 3_?600_?000/.test(ADMINC));
-  check("1e-ii · it reads the row's own window instead",
+  screenCheck("1e-ii · it reads the row's own window instead",
     /stale_after_seconds/.test(ADMINC));
   check("1e-iii · and the server sends it",
     /stale_after_seconds/.test(PA) && /job_heartbeats/.test(PA));
@@ -220,12 +227,12 @@ console.log("3. a monitor that is off must say so");
   // what the comment promised: the boolean and its idle/ok state, not the
   // words on the row.
   const pipes = ADMIN.slice(ADMIN.indexOf("function TabPipes"));
-  check("3b · the back office prints it when it is not set up",
+  screenCheck("3b · the back office prints it when it is not set up",
     /state\?\.watch\?\.outside \? "set up" : "none"/.test(pipes));
   // NOT RED. A permanently red line is one somebody stops reading in a week,
   // and this one is true every day until he spends ten minutes on it. `pa-idle`
   // rather than `pa-bad` is exactly that distinction, in the class name.
-  check("3b-ii · as an idle line rather than a permanent alarm",
+  screenCheck("3b-ii · as an idle line rather than a permanent alarm",
     /state\?\.watch\?\.outside \? "pa-ok" : "pa-idle"/.test(pipes)
     && !/watch\?\.outside \? "pa-ok" : "pa-bad"/.test(pipes));
   // A JOB WITH NO ROW IS THE ONE CASE NEITHER HALF CAN SEE. `watch-jobs`
@@ -237,7 +244,7 @@ console.log("3. a monitor that is off must say so");
   // recorded rather than asserted red, because the screen is lane B's: a
   // check that fails every run about somebody else's file is a check people
   // learn to skip, which is the same disease as the alarm this suite guards.
-  check("3c · the screen draws every heartbeat row the server sends",
+  screenCheck("3c · the screen draws every heartbeat row the server sends",
     /\(state\?\.heartbeats \?\? \[\]\)\.map/.test(pipes));
   console.log("  NOT GUARDED  a job whose heartbeat ROW is missing is invisible —"
     + " the named list that used to draw it as stale went with the old screen."
