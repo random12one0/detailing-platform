@@ -31650,6 +31650,7 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   **The held edge test could not run** (why that branch was held): a quote inside its loader template, a stale
   per-test staging line (`T4`), and stand-ins missing exports main's `create-business` and `platform-admin` now import.
   All three fixed in the test only; no production file was edited to make it pass.
+  Lint-style guard, kept on purpose: the fourth test in `tests/support-sessions-edge.test.mjs` (`classify` over each function's source, line ~762) reads source text because its job is DISCOVERY (every user-authenticating function, including next month's, must ask the support question), which no running test can do; the other three tests run the real handlers and shared modules.
   **Proof, all local, no credentials.** `node tests/support-sessions-edge.test.mjs`: 4 of 4 tests, 93 assertions, 22 of
   22 functions classified; all 13 `BREAK=` sabotages red on real assertions, each with its landed marker
   (fail-open 2, no-gate 11, unmarked 1, no-expiry 4, refresh 1, no-signout 1, expired-switch 5, no-audit-unlock 6,
