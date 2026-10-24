@@ -94,6 +94,9 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
     buildBrand: async () => ({}), siteFor: async () => 'https://detailingplatform.com', receiptUrl: (base,id) => base + '/booking/' + id,
     timeStrIn: () => '10:00', customerConfirmationEmail: () => ({ subject:'Confirmation',html:'stub',text:'stub' }),
     sendTenantEmail: async message => { sends.push(message); }, saveBookingSmsConsent: helper, dayRuleRefusal,
+    // ROADMAP 4.3c R3 (via 4.3e): a non-member caller is asked whether it is a support session.
+    // The fixture books as the public, with no token, so the question never reaches this stand-in.
+    supportSession: async () => false, SUPPORT_READ_ONLY: "This is a read-only support view.",
     ...deps,
   };
   let src = readFileSync('supabase/functions/create-booking/index.ts','utf8');
@@ -109,7 +112,7 @@ export function bookingFixture({ consentBreak = '', existing = null, member = nu
   new Function(...names, stripTypeScriptTypes(src))(...names.map(k => dependencies[k]));
   if (!handler) throw Error('create-booking handler did not load');
   return { rows, db, operations, sends, errors, helperErrors, helper, failWrites(value) { failedWrite = value; }, save: (...args) => helper(db,...args),
-    async book(payload) { return handler({ method:'POST',json:async () => payload }); },
+    async book(payload) { return handler({ method:'POST',headers:new Headers(),json:async () => payload }); },
   };
 }
 

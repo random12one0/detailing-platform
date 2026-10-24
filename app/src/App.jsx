@@ -19,6 +19,7 @@ import { time12 } from "./lib/format.js";
 import { impersonation } from "./lib/impersonation.js";
 import { isPreviewTab, previewEndsAt, previewMode, previewWho, setPreviewMode } from "./lib/preview.js";
 import { planChoice } from "./lib/planChoice.js";
+import { api } from "./lib/api.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
 // booking page's. See `lib/appI18n.js` for why they are two keys.
 import { t } from "./lib/appI18n.js";
@@ -220,6 +221,8 @@ export default function App() {
   // hidden — he asked for that explicitly — the writes simply refuse until
   // he flips the switch, so a stray click cannot finalise somebody's payment.
   const [mode, setMode] = useState(previewMode());
+  const [switching, setSwitching] = useState(false);
+  const [switchErr, setSwitchErr] = useState("");
   // ROADMAP 97.15: A VIEW ENDS ITSELF AT ITS DEADLINE (30 minutes, the server's), signing its
   // session out so the token stops working, and says so instead of going quietly blank.
   const endsAt = isPreviewTab ? previewEndsAt() : 0;
@@ -418,14 +421,34 @@ export default function App() {
         <div className="impbar" role="status">
           <span>
             {mode === "look"
-              ? `Looking at ${previewWho() || "their dashboard"}. Nothing here can be changed.`
-              : `WORKING in ${previewWho() || "their dashboard"}. Anything you change is theirs.`}
-            {endsLabel && ` Open until ${endsLabel}.`}
+              ? t("Looking at {who}. Nothing here can be changed.", { who: previewWho() || t("their dashboard") })
+              : t("WORKING in {who}. Anything you change is theirs.", { who: previewWho() || t("their dashboard") })}
+            {endsLabel && ` ${t("Open until {when}.", { when: endsLabel })}`}
           </span>
-          <button type="button" onClick={() => {
+          {/* ROADMAP 4.3c (a): THE SERVER HOLDS THE LOCK TOO, so the switch
+              asks it first and the bar only changes once it has agreed.
+              Flipping the words alone would promise changes every save then
+              refuses, or say Looking over a session the server lets write. */}
+          {switchErr && <span role="alert">{switchErr}</span>}
+          <button type="button" disabled={switching} onClick={async () => {
             const next = mode === "look" ? "work" : "look";
-            setPreviewMode(next); setMode(next);
-          }}>{mode === "look" ? "Let me make changes" : "Back to looking"}</button>
+            setSwitching(true); setSwitchErr("");
+            try {
+              await api.setPreviewUnlocked(next === "work");
+              setPreviewMode(next); setMode(next);
+            } catch (e) {
+              // A relock whose audit row failed to land still locked the server:
+              // flip to looking to match it, while showing that the press was
+              // never recorded. Every other failure leaves the mode untouched.
+              // No status means the request never reached a server (offline).
+              if (e?.body?.locked) { setPreviewMode("look"); setMode("look"); }
+              setSwitchErr(t(e?.body?.locked
+                ? "Back to looking, but this press was not recorded."
+                : !e?.status
+                  ? "Could not reach the server. Nothing was changed."
+                  : "That change did not go through. Nothing was changed."));
+            } finally { setSwitching(false); }
+          }}>{mode === "look" ? t("Let me make changes") : t("Back to looking")}</button>
           {/* ROADMAP 97.15: Close ends the session first, so its token stops
               working, then closes the tab (a tab the back office opened always
               closes; the replace is for one that somehow will not). */}
@@ -433,7 +456,7 @@ export default function App() {
             await endPreview();
             window.close();
             window.location.replace("/preview#ended=closed");
-          }}>Close</button>
+          }}>{t("Close")}</button>
         </div>
       )}
       {!isPreviewTab && imp && (

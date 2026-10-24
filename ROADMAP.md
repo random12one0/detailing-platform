@@ -14639,8 +14639,10 @@ requested.
   Neither branch translates its new client sentences (4.3e's finding).
   Recommendation: keep 101138 as the base, port (i) and (ii) into it, add the Spanish, and retire 095529 and the
   4.3 branch's (a). That is 4.3e's job, retargeted there in this same edit.
-  Waits on: 4.3e (combine the held builds onto `belt/4.3c-20261013101138`). 4.3e's session removes this line and
-  the two belt hold lines above once its combined branch is the one held for Andrew.
+  4.3e 2026-10-24: the combination is built on main's current tree (unlock migration `20261024230000`, 30-minute
+  lifetime kept, both 8b8f033d rules, Spanish), adopted from `belt/4.3c-20261023174426862` with its edge test repaired;
+  see 4.3e. The two belt hold lines above name branches that work replaced: do not merge them. The two-hour question in the
+  NEEDS ANDREW lines below still stands.
   **ANDREW CORRECTED THE DESIGN 2026-10-10:** the existing detail-page preview is
   already read-only and deliberately has an explicit control to unlock changes when
   he chooses. Do not invent a second Working button or a “support staff” workflow.
@@ -31632,6 +31634,58 @@ explicitly warns against — git history is the archive. Revisit at step 7.
     scratch copy, see the run name it, remove it.
 
 - [ ] **4.3e — Finish the held preview-unlock branch without English fallback.**
+  **BUILT 2026-10-24 (belt 4.3e), NOT TICKED: one requirement needs Andrew's approval of an amendment, below. Nothing published, deployed, pushed or written to any database.**
+  **The base moved, so the base changed.** Since this entry was written, main gained 97.15's 30-minute end
+  (`20261017180000`, `20261017190000`, applied live 2026-10-23), which replaces 101138's two-hour (b). A later 4.3c run
+  had already rebuilt 101138's `unlocked_at` / `support_unlock` / `support_lock` design on top of 97.15 and ported both
+  of 8b8f033d's rules: `belt/4.3c-20261023174426862`. That is the work adopted here (commit `a444cb5f`), not `b7d1015e`,
+  whose migrations predate and conflict with what is live. Ported: `api.setPreviewUnlocked` lets a 404 or a 400
+  "Unknown action" through as the old local switch; `create-business` refuses ANY marked preview (`markedPreview`), locked
+  or unlocked; Spanish keys for every new banner and refusal sentence, and Close now goes through `t()`. Added: offline
+  gets its own sentence ("Could not reach the server. Nothing was changed.", with Spanish). **Not ported: that build's
+  two-hour default** (`20261023130000` and its client copy): the lifetime stays 30 minutes, the live value, and the
+  two-hour question stays with 4.3c's NEEDS ANDREW line. Also carried, because the adopted tests cover them: 4.3c's two R3
+  fixes (`preview-emails` no longer serves a support session and so sends no mail on one; `create-booking` refuses a
+  locked support session instead of booking it as the public).
+  **The held edge test could not run** (why that branch was held): a quote inside its loader template, a stale
+  per-test staging line (`T4`), and stand-ins missing exports main's `create-business` and `platform-admin` now import.
+  All three fixed in the test only; no production file was edited to make it pass.
+  Lint-style guard, kept on purpose: the fourth test in `tests/support-sessions-edge.test.mjs` (`classify` over each function's source, line ~762) reads source text because its job is DISCOVERY (every user-authenticating function, including next month's, must ask the support question), which no running test can do; the other three tests run the real handlers and shared modules.
+  **Proof, all local, no credentials.** `node tests/support-sessions-edge.test.mjs`: 4 of 4 tests, 93 assertions, 22 of
+  22 functions classified; all 13 `BREAK=` sabotages red on real assertions, each with its landed marker
+  (fail-open 2, no-gate 11, unmarked 1, no-expiry 4, refresh 1, no-signout 1, expired-switch 5, no-audit-unlock 6,
+  no-audit-lock 4, no-create-refusal 6, unmarked-admin 6, preview-support 3, booking-fallback 4 failures).
+  `PGLITE_DIR=.belt-tools PGLITE_REQUIRED=1 node --test tests/support-sessions-sql.test.mjs`: 2 of 2; all 7 sabotages red
+  (permissive 31, no-marker 37, no-expiry 17, expiry-ignored 17, unlock-ignored 12, no-auth-check 2, no-reaper 1).
+  Browser: `BASE=<this copy> node scripts/preview-switch.mjs` (rewritten: it signs in as the demo owner INSIDE a preview
+  tab against the belt's local demo backend and refuses any other; the switch's answers are stubbed by name), 33 runs:
+  allowed unlock at 390/768/1440, and refused unlock, offline unlock, refused relock, offline relock, relock-audit-failed,
+  legacy 404 and legacy 400 "Unknown action", each in English AND Spanish at 392 and 1440, plus a double tap: 35 of 35
+  runs, 236 assertions (floor 175), 0 failed, console clean, at `a923b486` (`receipts/preview-switch.json`; screenshots
+  looked at, outside the repo). `--break=refusal-as-404` (the original defect: a refusal flips the bar anyway) red, 20
+  failures from the sabotage, including "a refused/offline unlock never shows WORKING" at both widths in both languages,
+  plus 1 sign-in timeout in an untouched scenario (`receipts/preview-switch.sabotage.json`: so that proof can flake on
+  its 30-second wait); `--break=drop-es` (the Spanish keys go missing) red, 17 of 155, untracked run. Edge 22 of 22 / 93
+  and SQL 68 of 68 / 94 receipts re-taken at the same commit. Gates: composition, design-contrast, landing-pricing,
+  route-contract 4/0; no-credentials, citable, migration-versions 9/0; spanish, translations 2/0; label-guard pass;
+  decisions-index clean. NOT run: `deployed-inventory.mjs` (needs credentials; nothing was deployed).
+  **Review fixes 2026-10-24 (`507936cc`), all three findings real:** (1) carrying 4.3c R3 into `create-booking` broke the
+  shared `scripts/lib/bookingConsentFixture.mjs` (no request headers, no `supportSession` stand-in), turning seven
+  booking suites red, money guards among them; the fixture now supplies both, and create-booking-phone 4/0,
+  day-rule-refusal, duplicate-answer, plan-one-car-split, price-shown-equals-charged, promo-one-use-group and
+  split-day-surcharge 1/0 each, with `PRICE_BREAK=no-guard` still red; no product line or suite loosened. (2) the
+  photo-door `urls` clause in `api.js` is last again, so `tests/photo-door.test.mjs` 6/0. (3) the back office's
+  account history names `support_unlock` / `support_lock` in plain words (b7d1015e's wording). Re-run at `507936cc`:
+  preview-switch 35 of 35 runs, 236 assertions; edge 4/0; SQL 2/0.
+  AMENDMENT PROPOSED: R1 — "one migration owns `20261013010000`" → "exactly one unlock migration exists, and no two files
+  share a version" — the unlock migration is `20261024230000_support_sessions_unlock.sql`, because a new migration must
+  sort after everything already applied live (`20261017190000`) and after main's latest; a file dated 2026-10-13 would sit
+  before the live 97.15 files it is written against.
+  AMENDMENT PROPOSED: R1 — "4.3c's (b) checks" → "97.15's deadline checks" — (b)'s two-hour end was superseded on main by
+  97.15's 30 minutes; its checks (`no-expiry`, `expiry-ignored`, `expired-switch`, boundary at the deadline) pass and
+  their sabotages are caught at 30 minutes.
+  NEEDS ANDREW: approve the two amendments above (my recommendation: yes; the alternative is a migration dated before
+  files already live, which the version checks refuse), then this box can be ticked as built; publishing stays 4.3d's.
   **RETARGETED 2026-10-13 by 4.3c's third run: there are TWO held builds of this switch, and they conflict in 13
   files under one migration timestamp.** Use `belt/4.3c-20261013101138` (`b7d1015e`) as the base, not
   `8b8f033d`. It also carries 4.3c (b), the two-hour end, and (c), and its tests reproduce (56/0 edge, 36/0 SQL,

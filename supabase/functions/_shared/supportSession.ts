@@ -28,9 +28,15 @@ export type MarkerLookup = (sessionId: string) => Promise<{ data: unknown; error
 export type SupportState = "none" | "live" | "expired";
 
 /**
- * ROADMAP 97.15: none, live, or past its `expires_at` (30 minutes after platform-admin opened it).
- * A failed read is "live" — refused everywhere except the read-only functions, as before. A row
- * with no `expires_at` (the column's migration not yet applied) is "live" too: no deadline is known.
+ * ROADMAP 97.15 + 4.3c (a): none, live, or past its `expires_at` (30 minutes after
+ * platform-admin opened it). A failed read is "live" - refused everywhere except the
+ * read-only functions, as before. A row with no `expires_at` (the column's migration not
+ * yet applied) is "live" too: no deadline is known. A row the preview's own button
+ * unlocked (`unlocked_at` set, deadline not passed) is "none": for this session the lock
+ * is lifted, so requireMember treats it like the owner's ordinary session. A row without
+ * the `unlocked_at` field at all (the unlock migration not yet applied) counts as locked.
+ * Expiry keeps precedence: an unlocked marker past its deadline is "expired", refused
+ * everywhere, never writable again.
  */
 export async function supportSessionState(token: string, lookup: MarkerLookup): Promise<SupportState> {
   const sid = sessionIdOf(token);
@@ -39,7 +45,10 @@ export async function supportSessionState(token: string, lookup: MarkerLookup): 
   if (error) return error.code === "42P01" || error.code === "PGRST205" ? "none" : "live";
   if (!data) return "none";
   const ends = Date.parse((data as { expires_at?: string }).expires_at ?? "");
-  return Number.isFinite(ends) && ends <= Date.now() ? "expired" : "live";
+  const past = Number.isFinite(ends) && ends <= Date.now() ? true : false;
+  if (past) return "expired";
+  if ((data as { unlocked_at?: string | null }).unlocked_at) return "none";
+  return "live";
 }
 
 /** May a request in this state pass requireMember? An expired support session passes nowhere. */
@@ -64,7 +73,7 @@ export async function isSupportSession(token: string, lookup: MarkerLookup): Pro
 export type SupportViewDeps = {
   /** Exchange the sign-in link for a session (platform-admin: verifyOtp on a fresh anon client). */
   exchange: () => Promise<{ session: { access_token: string; refresh_token?: string; user: { id: string } } | null; error: unknown }>;
-  /** Write the marker; answers with its deadline (the column's 30-minute default). */
+  /** Write the marker; answers with its deadline (the column's 30-minute default, 97.15). */
   mark: (row: { session_id: string; user_id: string }) => Promise<{ expires_at?: string | null; error: unknown }>;
   /** End a session that must not be handed over. */
   end: (accessToken: string) => Promise<unknown>;
@@ -87,6 +96,21 @@ export async function openSupportView(deps: SupportViewDeps, as: string): Promis
     return null;
   }
   return { access_token: session.access_token, expires_at, as };
+}
+
+/**
+ * ROADMAP 4.3c (a): is this token's session a preview platform-admin opened, locked or
+ * not, expired or not. create-business and platform-admin's own admin gate use this, not
+ * isSupportSession: an UNLOCKED preview is no longer read-only, but it must still never
+ * create a business or act as a platform admin. Fails closed like isSupportSession, with
+ * the same one exception (the marker table not existing yet means no preview exists).
+ */
+export async function isMarkedPreview(token: string, lookup: MarkerLookup): Promise<boolean> {
+  const sid = sessionIdOf(token);
+  if (!sid) return false;
+  const { data, error } = await lookup(sid);
+  if (error) return !(error.code === "42P01" || error.code === "PGRST205");
+  return !!data;
 }
 
 export const SUPPORT_READ_ONLY = "This is a read-only support view, so nothing can be changed here.";
