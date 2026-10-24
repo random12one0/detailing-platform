@@ -654,7 +654,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                     ? t("Existing marks recorded before the job: {count}.", { count: damageCount })
                     : t("No existing marks were recorded on your car before the job.")}
                 </p>
-                <label className="bk-row" style={{ marginTop: 10, gap: 10, alignItems: "flex-start" }}>
+                <label className="bk-row" style={{ marginTop: 10, gap: 10, alignItems: "center", minHeight: 44 }}>
                   <input type="checkbox" checked={ticked} disabled={busy}
                     onChange={(e) => setTicked(e.target.checked)} />
                   <span>{t("I have reviewed this check-in with {business}.", { business: business.name })}</span>
