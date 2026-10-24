@@ -7,11 +7,15 @@
 // WHAT IT TOUCHES: ONE booking on the demo tenant (`demo-detail`) of this platform's own database
 // (kguqylyzgyzfktkfnhjb, fake accounts only). It ticks that booking through the PUBLIC function exactly as a
 // customer's phone would (anon key, booking id only), reads it back through the PUBLIC receipt, and then puts
-// `damage_ack_at` back to NULL. It sends no email and spends nothing. It refuses to run against any other project.
+// `damage_ack_at` and `damage_ack_photo_count` back to NULL. If that booking has no damage photo, it adds ONE
+// `job_photos` row (kind 'damage', a path under `97-55-live/` with no file behind it) so there is a check-in to
+// confirm, and deletes that row at the end. It sends no email and spends nothing. It refuses any other project.
 //
 // WHAT IT ASKS, IN ORDER:
 //   column     the migration is applied: the receipt answers 200 (not "Booking not found") and carries damage_ack_at: null
-//   tick       the first press answers success with a time, and the receipt then carries that same time
+//   nothing    if the booking has no damage photo yet, a press is refused with 409 and the booking stays unticked
+//   tick       the first press answers success with a time and the damage photo count it covered (saved on the
+//              row), and the receipt then carries that same time
 //   duplicate  the second press answers `duplicate: true` with the FIRST time, which did not move
 //   refusal    a cancelled booking (if the demo tenant has one) is refused with 409 and stays unticked
 //   unknown    a booking id that does not exist is refused with 404
@@ -57,6 +61,7 @@ const ID = live.body?.[0]?.id;
 if (!ID) { console.error("the demo tenant has no live booking to tick - nothing ran"); process.exit(2); }
 
 let touched = false;
+let addedPhoto = null;
 try {
   console.log(`booking ${ID}`);
   const before = await fn("get-booking-receipt", { id: ID }); reached++;
@@ -64,8 +69,19 @@ try {
   check("column: the receipt carries damage_ack_at, and it is null", before.body?.booking && "damage_ack_at" in before.body.booking && before.body.booking.damage_ack_at === null, JSON.stringify(before.body?.booking?.damage_ack_at));
   if (before.status === 200 && before.body.booking.damage_ack_at === null) {
     touched = true;
+    if (Number(before.body.booking.damage_photo_count) === 0) {
+      const early = await fn("acknowledge-checkin", { booking_id: ID }); reached++;
+      const still = await svc(`/rest/v1/bookings?select=damage_ack_at&id=eq.${ID}`);
+      check("nothing: with no damage photo recorded the press is refused with 409", early.status === 409, `status ${early.status}`);
+      check("nothing: and the booking stays unticked", still.body?.[0]?.damage_ack_at === null, JSON.stringify(still.body));
+      const added = await svc("/rest/v1/job_photos", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ business_id: BIZ, booking_id: ID, kind: "damage", path: `97-55-live/${crypto.randomUUID()}.jpg`, bytes: 1 }) });
+      addedPhoto = added.body?.[0]?.id ?? null;
+      check("fixture: one damage photo row added so there is a check-in to confirm", added.status < 300 && !!addedPhoto, `status ${added.status} ${JSON.stringify(added.body).slice(0, 120)}`);
+    }
+    const photos = await svc(`/rest/v1/job_photos?select=id&booking_id=eq.${ID}&kind=eq.damage`);
     const first = await fn("acknowledge-checkin", { booking_id: ID }); reached++;
     check("tick: the first press succeeds with a time", first.status === 200 && first.body.success === true && !!first.body.damage_ack_at && first.body.duplicate !== true, JSON.stringify(first));
+    check("tick: and saves the damage photo count it covered", first.body.damage_ack_photo_count === photos.body?.length, `${first.body.damage_ack_photo_count} vs ${photos.body?.length}`);
     const read = await fn("get-booking-receipt", { id: ID });
     check("tick: the receipt then carries that same time", read.body?.booking?.damage_ack_at === first.body.damage_ack_at, `${read.body?.booking?.damage_ack_at} vs ${first.body.damage_ack_at}`);
     const second = await fn("acknowledge-checkin", { booking_id: ID }); reached++;
@@ -86,8 +102,12 @@ try {
   check("unknown: a booking id that does not exist is refused with 404", unknown.status === 404, `status ${unknown.status}`);
 } finally {
   if (touched) {
-    const undo = await svc(`/rest/v1/bookings?id=eq.${ID}`, { method: "PATCH", body: JSON.stringify({ damage_ack_at: null }), headers: { Prefer: "return=minimal" } });
+    const undo = await svc(`/rest/v1/bookings?id=eq.${ID}`, { method: "PATCH", body: JSON.stringify({ damage_ack_at: null, damage_ack_photo_count: null }), headers: { Prefer: "return=minimal" } });
     check("cleanup: the demo booking is back to unticked", undo.status < 300, `status ${undo.status}`);
+    if (addedPhoto) {
+      const gone = await svc(`/rest/v1/job_photos?id=eq.${addedPhoto}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+      check("cleanup: the fixture damage photo row is deleted", gone.status < 300, `status ${gone.status}`);
+    }
   }
 }
 

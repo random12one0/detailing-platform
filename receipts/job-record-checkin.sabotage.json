@@ -1,47 +1,56 @@
 {
-  "git_sha": "afb4465b670855a6d3442365f13a8d205c39d1a8",
-  "git_sha_started": "afb4465b670855a6d3442365f13a8d205c39d1a8",
+  "git_sha": "e0cf8d8f4b121578f3096805696c819a7f434222",
+  "git_sha_started": "e0cf8d8f4b121578f3096805696c819a7f434222",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T17:00:12.374Z",
+  "finished_at": "2026-10-24T17:32:08.675Z",
   "failures": [
-    "ticked@320: ticked job reads \"The customer has not confirmed the vehicle check-in yet.\"",
-    "ticked@320: the ticked job also says it is not confirmed",
-    "ticked@390: ticked job reads \"The customer has not confirmed the vehicle check-in yet.\"",
-    "ticked@390: the ticked job also says it is not confirmed",
-    "ticked@768: ticked job reads \"The customer has not confirmed the vehicle check-in yet.\"",
-    "ticked@768: the ticked job also says it is not confirmed",
-    "ticked@1440: ticked job reads \"The customer has not confirmed the vehicle check-in yet.\"",
-    "ticked@1440: the ticked job also says it is not confirmed"
+    "ticked@320: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@320: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@320: the photo taken after the tick is not flagged as added after",
+    "ticked@390: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@390: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@390: the photo taken after the tick is not flagged as added after",
+    "ticked@768: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@768: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@768: the photo taken after the tick is not flagged as added after",
+    "ticked@1440: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@1440: ticked job reads \"Customer confirmed the vehicle check-in Oct 24, 9:31 AM.\" (must name the 2 photos the tick covered)",
+    "later@1440: the photo taken after the tick is not flagged as added after"
   ],
   "warnings": [
     "ticked@320: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
+    "later@320: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "unticked@320: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "ticked@390: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
+    "later@390: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "unticked@390: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "ticked@768: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
+    "later@768: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "unticked@768: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
     "ticked@1440: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
-    "unticked@1440: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`"
+    "later@1440: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
+    "unticked@1440: 2 console message(s): warning ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_st | warning ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath`",
+    "the production modules were rewritten 24 time(s)"
   ],
   "artifacts": [
-    ".manager-shots/97.55/"
+    ".manager-shots/97.55/break-uncounted/"
   ],
   "dimensions": {
     "widths": "320, 390, 768, 1440",
-    "scenes": "ticked, unticked",
-    "break": "drop"
+    "scenes": "ticked, later, unticked",
+    "break": "uncounted"
   },
   "check_id": "job-record-checkin",
-  "started_at": "2026-10-24T16:56:40.610Z",
+  "started_at": "2026-10-24T17:31:55.011Z",
   "status": "fail",
-  "expected_targets": 8,
-  "discovered_targets": 8,
-  "attempted_targets": 8,
-  "completed_targets": 8,
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
   "skipped_targets": 0,
-  "assertions_executed": 56,
-  "min_assertions": 32,
+  "assertions_executed": 108,
+  "min_assertions": 48,
   "canary": {
     "id": "the ticked detector must not read the not-confirmed sentence as ticked",
     "observed_failure": true,

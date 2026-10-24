@@ -2,6 +2,8 @@
 //
 //   node scripts/checkin-card.mjs                 # dev server, no credentials, writes nothing to any database
 //   node scripts/checkin-card.mjs --break=unsaved # the server "forgets" the tick: must go red
+//   node scripts/checkin-card.mjs --break=offer-early # the page is served the OLD rule (tick offered before
+//                                                    # any damage photo is recorded): the none scene must go red
 //   BASE_URL=http://127.0.0.1:5180 node scripts/checkin-card.mjs
 //
 // EVERY ANSWER IS FAKED IN THE PAGE with page.route(): `get-booking-receipt` and
@@ -10,14 +12,14 @@
 //   open    - live booking, 2 damage photos, not yet ticked. The Confirm button must
 //             be disabled until the box is ticked, then press once and send exactly one
 //             request naming this booking, then the card must read "Confirmed <time>".
-//   none    - live booking, 0 damage photos: says no marks were recorded.
+//   none    - live booking, 0 damage photos: NO check-in card. Nothing has been recorded, so there is
+//             nothing to confirm (finish review 2026-10-24: the card used to offer the tick here).
 //   cancel  - cancelled booking: NO check-in card at all (nothing is arriving).
 // Each also asks: no sideways scroll, the box and button are 44px tall or taller
 // (hit area), console clean. Screenshots land in .manager-shots/97.55/.
 //
-// The job record's "Customer confirmed ..." line needs the demo owner's login (a
-// credential this script never loads); it is covered by tests/damage-checkin.test.mjs
-// for the rule and is NOT browser-checked here - the receipt names that as UNJUDGEABLE.
+// The job record's "Customer confirmed ..." line is not looked at here; scripts/job-record-checkin.mjs
+// mounts the real job record and looks at it.
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -27,7 +29,12 @@ const REPO = process.cwd();
 const { chromium } = createRequire(import.meta.url)(join(REPO, "app/node_modules/playwright/index.js"));
 const BASE = process.env.BASE_URL || "http://localhost:5173";
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) ?? "").slice(8);
-const OUT = join(REPO, ".manager-shots/97.55");
+if (BREAK && !["unsaved", "offer-early"].includes(BREAK)) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
+// --break=offer-early rewrites the PRODUCTION rule as the browser loads it, back to the defect the review found.
+const RULE = ["return Number(booking.damage_photo_count ?? 0) > 0;", "return true;"];
+let ruleRewrites = 0;
+const SHOTS = `.manager-shots/97.55${BREAK ? `/break-${BREAK}` : ""}`; // a sabotage run never overwrites the clean shots
+const OUT = join(REPO, SHOTS);
 mkdirSync(OUT, { recursive: true });
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*", "content-type": "application/json" };
 const future = (d) => new Date(Date.now() + d * 864e5).toISOString();
@@ -79,17 +86,28 @@ for (const [w, h] of WIDTHS) {
       if (BREAK !== "unsaved") ackAt = new Date().toISOString();
       return r.fulfill({ status: 200, headers: CORS, body: JSON.stringify({ success: true, damage_ack_at: ackAt }) });
     });
+    if (BREAK === "offer-early") {
+      await page.route("**/src/lib/checkin.js*", async (r) => {
+        const res = await r.fetch();
+        const src = await res.text();
+        // The patch must land, or a red here proves nothing (docs/gotchas.md 102).
+        if (src.split(RULE[0]).length !== 2) { console.error("--break=offer-early did not land"); process.exit(2); }
+        ruleRewrites++;
+        return r.fulfill({ response: res, body: src.replace(RULE[0], RULE[1]) });
+      });
+    }
     await page.goto(`${BASE}/booking/${ID}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".bk-card", { timeout: 20000 });
     await page.waitForTimeout(600);
     const card = cardOf(page);
 
-    if (scene === "cancel") {
-      ok(await card.count() === 0, scene, w, "a cancelled booking still offers the check-in card");
+    if (scene === "cancel" || scene === "none") {
+      ok(await card.count() === 0, scene, w, scene === "cancel" ? "a cancelled booking still offers the check-in card" : "a booking with no damage photo recorded offers the check-in before anything was checked in");
+      await page.screenshot({ path: join(OUT, `${scene}-${w}.png`), fullPage: true });
     } else {
       if (ok(await card.count() === 1, scene, w, "the Vehicle check-in card is missing")) {
         const text = await card.innerText();
-        ok(scene === "open" ? /recorded before the job: 2/i.test(text) : /No existing marks/i.test(text), scene, w, `wrong marks sentence: ${text.slice(0, 80)}`);
+        ok(/recorded before the job: 2/i.test(text), scene, w, `wrong marks sentence: ${text.slice(0, 80)}`);
         const btn = card.getByRole("button", { name: "Confirm check-in" });
         const box = card.locator("input[type=checkbox]");
         ok(await btn.isDisabled(), scene, w, "Confirm is enabled before the box is ticked");
@@ -97,7 +115,7 @@ for (const [w, h] of WIDTHS) {
         ok(bb && bb.height >= 44, scene, w, `Confirm is ${bb?.height}px tall, under 44`);
         const lb = await card.locator("label").boundingBox();
         ok(lb && lb.height >= 44, scene, w, `the tick row is ${lb?.height}px tall, under 44`);
-        if (scene === "open") {
+        {
           await page.screenshot({ path: join(OUT, `open-${w}.png`), fullPage: true });
           await box.check();
           ok(await btn.isEnabled(), scene, w, "Confirm stays disabled after ticking");
@@ -107,8 +125,6 @@ for (const [w, h] of WIDTHS) {
           const after = await cardOf(page).innerText();
           ok(/Confirmed .+\. Thank you\./.test(after) && await cardOf(page).locator("input[type=checkbox]").count() === 0, scene, w, `no Confirmed line after the press: ${after.slice(0, 100)}`);
           await page.screenshot({ path: join(OUT, `confirmed-${w}.png`), fullPage: true });
-        } else {
-          await page.screenshot({ path: join(OUT, `${scene}-${w}.png`), fullPage: true });
         }
       }
     }
@@ -131,8 +147,9 @@ const { path } = writeReceipt({
   check_id: "checkin-card", started_at, status: failures.length === 0 ? "pass" : "fail",
   expected_targets: EXPECTED, discovered_targets: done.length, attempted_targets: done.length, completed_targets: done.length, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: EXPECTED * 3, failures,
-  artifacts: [".manager-shots/97.55/"], warnings: [],
-  unjudgeable: ["the job record's 'Customer confirmed the vehicle check-in' line: needs the demo owner's login, which this script never loads"],
+  artifacts: [`${SHOTS}/`],
+  unjudgeable: [],
+  warnings: BREAK === "offer-early" ? [`the production rule was rewritten in ${ruleRewrites} page load(s)`] : [],
   dimensions: { widths: "320, 390, 768, 1440", scenes: SCENES.join(", "), ...(BREAK ? { break: BREAK } : {}) },
   canary: { id: "a page with no check-in card must read as card-absent", observed_failure: canarySeen, caught_by: ["cardOf().count() === 0"], findings: [canarySeen ? "absent on a card-less page, as required" : "detector sees a card where there is none"] },
 });
