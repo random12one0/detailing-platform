@@ -1,9 +1,9 @@
 {
-  "git_sha": "16fd3401725083648bab9481671205506abe5954",
-  "git_sha_started": "16fd3401725083648bab9481671205506abe5954",
+  "git_sha": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
+  "git_sha_started": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T18:11:43.178Z",
+  "finished_at": "2026-10-24T18:21:12.705Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -27,14 +27,14 @@
     "chrome": "playwright default"
   },
   "check_id": "accessible-names",
-  "started_at": "2026-10-24T18:11:08.846Z",
+  "started_at": "2026-10-24T18:20:37.760Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 96,
+  "assertions_executed": 98,
   "min_assertions": 52,
   "assertion_floor": "2 widths x (13 date + 10 job) + 6 rule guards/canaries = 52; per-control name verdicts run above it, and verdicts-present (6 date, 4 job) is the tripwire on that variable part.",
   "canary": {
@@ -52,6 +52,10 @@
     },
     {
       "name": "name-misses-visible",
+      "flagged": true
+    },
+    {
+      "name": "digit-inside-another-number",
       "flagged": true
     }
   ],

@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
-  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
+  "git_sha_started": "d0ad9a69747d7282c1ec55e5501873a34302f64d",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T18:01:05.315Z",
+  "finished_at": "2026-10-24T18:19:54.530Z",
   "failures": [
     "1440/date/name: div.cell. text=\"\" — role (no role), name \"\": empty-name",
     "1440/date/verdicts-all-pass: a recorded verdict fails (see name= lines above)",
@@ -33,14 +33,14 @@
     "chrome": "playwright default"
   },
   "check_id": "accessible-names-strip-date",
-  "started_at": "2026-10-24T18:00:31.213Z",
+  "started_at": "2026-10-24T18:19:17.884Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
   "attempted_targets": 4,
   "completed_targets": 4,
   "skipped_targets": 0,
-  "assertions_executed": 96,
+  "assertions_executed": 98,
   "min_assertions": 52,
   "assertion_floor": "2 widths x (13 date + 10 job) + 6 rule guards/canaries = 52; per-control name verdicts run above it, and verdicts-present (6 date, 4 job) is the tripwire on that variable part.",
   "canary": {
@@ -58,6 +58,10 @@
     },
     {
       "name": "name-misses-visible",
+      "flagged": true
+    },
+    {
+      "name": "digit-inside-another-number",
       "flagged": true
     }
   ],
