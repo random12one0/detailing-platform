@@ -1,9 +1,9 @@
 {
-  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
-  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha": "16fd3401725083648bab9481671205506abe5954",
+  "git_sha_started": "16fd3401725083648bab9481671205506abe5954",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T18:04:00.202Z",
+  "finished_at": "2026-10-24T18:12:50.968Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -42,7 +42,7 @@
     "fixture": true
   },
   "check_id": "booking-steps-6-7",
-  "started_at": "2026-10-24T18:02:54.511Z",
+  "started_at": "2026-10-24T18:11:43.332Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
