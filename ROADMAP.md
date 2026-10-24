@@ -32013,9 +32013,29 @@ decisions, not build jobs.
 
 - [ ] **97.56 — No gift cards (P-15).**
   Square sells them and they are a holiday revenue line for detailers.
-  NEEDS ANDREW: wanted at all, and how sold (through the detailer's Stripe, as a promo-code-like balance)? It touches money and expiry law. Recommendation: not before launch.
+  ASKED (answered below, marker retired): wanted at all, and how sold (through the detailer's Stripe, as a promo-code-like balance)? It touches money and expiry law. Recommendation: not before launch.
+  ANDREW DECIDED 2026-10-15 15:11 (Control Room note, read back from the belt's notes file 2026-10-24): "Add gift cards after launch, sold through Stripe." So: YES, wanted; AFTER launch, not before; sold through the detailer's own connected Stripe account, the same way `pay-booking` charges today (`stripeAccount` on the Checkout call, `supabase/functions/pay-booking/index.ts:134`). Cut into the six numbered slices 97.56a–97.56f below. **Nothing is built before launch**, and no slice starts until 97.56a's questions are answered.
   Acceptance criteria:
-  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts
+  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts — answered (yes, after launch, through Stripe) and cut into 97.56a–97.56f.
+  Checked 2026-10-24: his note read back from the belt's notes file; slice file references read in this checkout (`pay-booking/index.ts`, `stripe-webhook/index.ts:201`, `promo_codes` in `20260827000200_tenant_data.sql:69`); no code, migration or screen touched.
+
+- [ ] **97.56a — Gift cards, AFTER launch: Andrew's rules before any build (from 97.56, Andrew 2026-10-15).**
+  Post-launch, not before. Ask Andrew when this is picked up (not now; launch comes first), with a recommendation for each: (1) expiry — recommend NO expiry, because US federal law (the CARD Act) bars expiry under five years and several states, California among them, ban expiry outright, so "never expires" is the one rule that is legal everywhere; (2) amounts — fixed choices ($50/$100/$150) or any amount within a range; (3) refunds — can a bought card be refunded while unused, and who decides (recommend: detailer can refund an unused card in full, never a part-used one); (4) cash back — some states (California under $10) require cash back of a small leftover balance on request; recommend the detailer handles that by hand and the product only records it; (5) can a card pay a deposit, the final bill, or both. Write his answers here, then 97.56b–f build to them. Until this is answered, no slice below starts.
+
+- [ ] **97.56b — Gift cards: the balance record (from 97.56; waits on 97.56a).**
+  A new table holding each card: business, a code the customer types, starting amount, remaining balance, buyer and recipient email, created and (per 97.56a) no expiry. Every spend or refund is a row in a separate ledger table so a balance is always the sum of its history, never an edited number. Owner-only read and write under RLS, no browser writes (consequential writes go through edge functions). Proved on a local copy (PGlite), never applied by a session; applying is Andrew's.
+
+- [ ] **97.56c — Gift cards: buying one on the detailer's page (from 97.56; waits on 97.56b).**
+  A "Gift card" entry on the public booking page opens Stripe Checkout on the detailer's connected account (reuse `_shared/connect.ts`'s `checkoutSession`, as `pay-booking` does). The card is created ONLY when `stripe-webhook` (`index.ts:201`, `checkout.session.completed`) confirms payment, never when Checkout opens, so an abandoned checkout leaves no card. Refused when the detailer has no connected Stripe account. Phones first: designed at 390px.
+
+- [ ] **97.56d — Gift cards: emailing the card (from 97.56; waits on 97.56c).**
+  On payment, email the recipient (and a receipt to the buyer) with the code, the amount and the business's name. Email only, per the messaging rule ("receipts... by email only"); wording approved by Andrew like every customer email, with its Spanish version for customers.
+
+- [ ] **97.56e — Gift cards: spending one at booking or on the bill (from 97.56; waits on 97.56b and 97.56a's answer (5)).**
+  A gift-card code box beside the promo-code box (`validate-promo-code` is the model, but a gift card is a BALANCE, not a discount: it lowers what Stripe charges and writes a ledger row, and a part-used card keeps its remainder). The balance is taken in the same server step that records the booking or payment, so two tabs cannot spend the same $50 twice. Must-work: full, partial and leftover spends. Must-refuse: unknown code, empty card, another business's card.
+
+- [ ] **97.56f — Gift cards: the detailer's view (from 97.56; waits on 97.56b).**
+  A back-office list of cards sold: code, amount, balance left, buyer, and each spend with its booking. Owner can refund or void per 97.56a's rule; voiding never deletes the record. Gift card money that is sold but not yet spent is shown separately from earned income, because it is owed service, not revenue.
 
 - [x] **97.57 — The app icon is SVG only, with no PNG or apple-touch-icon (P-15).**
   DONE 2026-10-23 (Claude session, from Muse branch belt/97.57-20261019143524644, verified): icon-192.png, icon-512.png and a 180px apple-touch-icon.png (the favicon mark rasterized) are in app/public, listed in manifest.webmanifest and app/index.html; a production build serves all three as 200 image/png. tests/app-icons.test.mjs fails 3/3 on the old tree, passes after. Dropped Muse's 366-line SVG rasterizer script.
