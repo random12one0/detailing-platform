@@ -3356,6 +3356,9 @@ export const appEs = {
   "Delete {what} from your expenses?": "¿Eliminar {what} de tus gastos?",
   "Yes, delete it": "Sí, eliminarlo",
   "The expense was not deleted.": "El gasto no se eliminó.",
+  // ROADMAP 97.55 - the check-in line on the job record.
+  "Customer confirmed the vehicle check-in {when}.": "El cliente confirmó el registro del vehículo {when}.",
+  "The customer has not confirmed the vehicle check-in yet.": "El cliente aún no ha confirmado el registro del vehículo.",
   "That receipt is still sending. Give it a minute and check again.":
     "Ese recibo todavía se está enviando. Dale un minuto y vuelve a revisar.",
   // ROADMAP 101.7: leaving a settings screen with unsaved changes asks in place,

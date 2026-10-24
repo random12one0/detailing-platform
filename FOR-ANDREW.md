@@ -123,6 +123,14 @@ those old pieces back into the new back office, which would be separate work.
 (Written by the 98.4 job on its unmerged branch; supervision 2026-10-19 brought
 it here so it reaches you while the rest of that work is finished.)
 
+## DECIDE · Does the vehicle check-in wording need a lawyer? (ROADMAP 97.55)
+
+The timed tick box you said yes to on 2026-10-15 is built and checked: the customer ticks a box on their receipt link, the moment is saved, and the job shows when they did. The words on screen are plain acknowledgment only ("I have reviewed this check-in", "Confirmed ... Thank you") - no waiver, no legal promise. What is still open is the item's second question, which has no recorded answer from you: does that wording need a lawyer's review before launch?
+
+**Recommendation: if the words stay exactly this plain acknowledgment, no lawyer is needed; answer "plain wording approved".** If you want the tick to also work as a damage waiver (the customer accepting the recorded marks as pre-existing), that is a new legal decision and needs a lawyer first - answer that way and it becomes its own job.
+
+
+
 ## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
 
 Your nightly database copy leaves out the settings that say who may read and

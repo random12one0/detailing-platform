@@ -113,7 +113,7 @@ const PUBLIC_FUNCTIONS = {
   // So it is reachable by a stranger, every call writes a visit row, and it
   // took the same ceiling as the other three. The false header is corrected
   // in the function itself.
-  tonight: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit"],
+  tonight: ["cancel-booking", "reschedule-booking", "accept-quote", "track-visit", "acknowledge-checkin"],
   // **ROADMAP 14.13, 2026-09-23.** Named in this file's own header as
   // deliberately out of scope, then fixed — so it becomes a declared
   // target rather than staying a warning nobody opens. It is NOT part of
@@ -129,7 +129,7 @@ const ALL = [...PUBLIC_FUNCTIONS.already, ...PUBLIC_FUNCTIONS.today, ...PUBLIC_F
   ...PUBLIC_FUNCTIONS.inviteLanding, ...PUBLIC_FUNCTIONS.knownOpen];
 // DECLARED, NOT COUNTED — the same reason every other receipted check here
 // writes the number down instead of trusting `ALL.length` to stay right.
-const EXPECTED_COUNT = 16;
+const EXPECTED_COUNT = 17;
 
 const HAS_CALL = /await\s+withinLimits\s*\(\s*[a-zA-Z_]+\s*,\s*\[\s*\{[^}]*\.\.\.\s*LIMITS\.\w+/s;
 

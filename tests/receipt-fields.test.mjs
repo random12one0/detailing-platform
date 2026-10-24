@@ -93,12 +93,18 @@ const ALLOWED = [
   "quoted_amount",
   "quoted_note",
   "quoted_at",
+  // ROADMAP 97.55 - the customer's timed tick, drawn by the receipt page's
+  // Vehicle check-in card. Same position as the endpoint's BOOKING_COLUMNS.
+  "damage_ack_at",
   "services",
   "add_ons",
   "vehicles",
   "booking_date",
   "start_time",
   "end_time",
+  // ROADMAP 97.55 - how many damage photos the tick covers, drawn by the
+  // same card. Same position as the endpoint's DERIVED.
+  "damage_photo_count",
 ];
 
 /**
@@ -115,19 +121,19 @@ const ALLOWED = [
  * was given a reason.
  *
  * **The composition, declared rather than counted from a run:** the public
- * reply is `BOOKING_COLUMNS` (26 columns of the booking row, each one named on
+ * reply is `BOOKING_COLUMNS` (27 columns of the booking row, each one named on
  * purpose) + `EMBEDDED` (3 joined lists: services, add-ons, vehicles) +
- * `DERIVED` (3 the server computes in the business's timezone: booking_date,
- * start_time, end_time). **26 + 3 + 3 = 32.**
+ * `DERIVED` (4 the server computes for the reply: booking_date,
+ * start_time, end_time, damage_photo_count). **27 + 3 + 4 = 34.**
  *
- * A thirty-third field therefore cannot arrive quietly. It has to be added to
+ * A thirty-fifth field therefore cannot arrive quietly. It has to be added to
  * the endpoint, added here in the same position, rendered by
  * `ManageBookingPage.jsx` so § 2 passes, and **counted into the three sizes
  * below** — four places, in two languages, across two directories. That
  * friction is deliberate and it is what `SERVER_ONLY_COLUMNS` exists beside.
  */
-const EXPECTED_PUBLIC_FIELDS = 32;
-const EXPECTED_SHAPE = { BOOKING_COLUMNS: 26, EMBEDDED: 3, DERIVED: 3 };
+const EXPECTED_PUBLIC_FIELDS = 34;
+const EXPECTED_SHAPE = { BOOKING_COLUMNS: 27, EMBEDDED: 3, DERIVED: 4 };
 
 /** The comparator every verdict in § 3 and the canary both go through. */
 const offenders = (bookingKeys) => bookingKeys.filter((k) => !ALLOWED.includes(k));

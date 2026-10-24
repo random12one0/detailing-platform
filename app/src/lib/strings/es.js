@@ -551,4 +551,11 @@ export const es = {
   "plan rate": "precio del plan",
   "included": "incluido",
   "{ord} vehicle": "{ord} vehículo",
+  // ROADMAP 97.55 - the Vehicle check-in card on the receipt link.
+  "Vehicle check-in": "Registro del vehículo",
+  "Existing marks recorded before the job: {count}.": "Marcas existentes registradas antes del trabajo: {count}.",
+  "No existing marks were recorded on your car before the job.": "No se registraron marcas existentes en tu carro antes del trabajo.",
+  "I have reviewed this check-in with {business}.": "Revisé este registro con {business}.",
+  "Confirm check-in": "Confirmar registro",
+  "Confirmed {when}. Thank you.": "Confirmado {when}. Gracias.",
 };
