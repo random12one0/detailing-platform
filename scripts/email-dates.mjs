@@ -59,7 +59,7 @@ try {
   }
   browser = await chromium.launch({ headless: true });
   for (const lang of ["en", "es"]) {
-    const out = path.join(REPO, "email-preview", `99-2-${lang}${BREAK ? `-${BREAK}` : ""}`);
+    const out = path.join(REPO, "artifacts", "email-preview", `99-2-${lang}${BREAK ? `-${BREAK}` : ""}`);
     const render = spawnSync(process.execPath, [path.join(sourceRoot, "scripts/render-emails.mjs"), `--lang=${lang}`, `--out=${out}`], { cwd: REPO, encoding: "utf8" });
     if (render.status !== 0) throw new Error(`Rendering ${lang} failed: ${render.stderr}`);
     const logFile = `receipts/email-dates${BREAK ? `.${BREAK}.sabotage` : ""}.${lang}.txt`;

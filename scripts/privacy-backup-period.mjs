@@ -7,7 +7,7 @@
 // the normal path and ?lite=1. At each: the "How long" row holds the 30-day and
 // 3-month sentence, its text is painted (opacity 1, read where the reader is
 // standing — docs/gotchas.md 103), nothing scrolls sideways, and the console is
-// silent. A PNG per target goes to --shots (default .tmp-97.28/png).
+// silent. A PNG per target goes to --shots (default artifacts/97.28/png).
 //
 // EXECUTION PROOF, not log prose. --break=old-words serves legal.js WITHOUT
 // the new sentence to every target — the original defect — and every target
@@ -29,11 +29,12 @@
 import { chromium } from "../app/node_modules/playwright/index.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs";
 
 const opt = (k, d) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=").slice(1).join("=") || d;
 const BASE = opt("base", process.env.BASE_URL || "http://127.0.0.1:5180");
 const BREAK = opt("break", "");
-const SHOTS = opt("shots", ".tmp-97.28/png");
+const SHOTS = outDir(opt("shots", "97.28/png"));
 if (BREAK && BREAK !== "old-words") { console.error(`unknown --break=${BREAK}`); process.exit(2); }
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();

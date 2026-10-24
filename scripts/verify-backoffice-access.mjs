@@ -25,6 +25,7 @@ import { createRequire } from "node:module";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { outDir } from "./lib/outDir.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..");
@@ -36,7 +37,7 @@ if (!m) { console.error("Could not find OWNER credentials in seed-demo.mjs"); pr
 const [, email, password] = m; // held only in memory, never logged
 
 const stamp = new Date().toISOString().slice(0, 10);
-const OUT = join(ROOT, `receipts/screenshots/backoffice-access-${stamp}`);
+const OUT = join(ROOT, outDir(`backoffice-access-${stamp}`)); // ROADMAP 97.63: under artifacts/, not the receipts folder
 mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();
