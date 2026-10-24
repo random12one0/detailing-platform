@@ -8,5 +8,11 @@
 // that already starts with `artifacts/`, is used as given.
 import path from "node:path";
 
+//
+// Also passed through unchanged: an empty value (scripts use `if (SHOTS)` to mean
+// "no pictures this run"), and `.manager-shots/…`, the reviewer hand-off folder
+// docs/how-we-run.md names — ROADMAP 3.4's own instructions type that path.
 export const outDir = (name) =>
-  path.isAbsolute(name) || /^artifacts[\/]/.test(name) ? name : path.posix.join("artifacts", name);
+  !name || path.isAbsolute(name) || /^(\.\/)?(artifacts|\.manager-shots)[\/]/.test(name)
+    ? name
+    : path.posix.join("artifacts", name);

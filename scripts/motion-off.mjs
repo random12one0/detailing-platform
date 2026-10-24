@@ -52,13 +52,14 @@
 
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE || "http://localhost:5173";
 const arg = (k, d) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").slice(k.length + 3) || d;
 const WIDTHS = arg("widths", "320,392,768,1440,1920").split(",").map(Number);
 const PAGES = [["home", ""], ["pricing", "pricing"]].filter(([n]) => !arg("only") || arg("only") === n);
-const SHOTS = arg("shots", "");
+const SHOTS = outDir(arg("shots", ""));
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });
 
 // What motion-on shows and motion-off deliberately does not. Selector → why.

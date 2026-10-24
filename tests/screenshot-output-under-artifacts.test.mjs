@@ -22,6 +22,7 @@ if (process.env.BREAK === "bare") {
   sources["__sabotage.mjs"] = 'const OUT = process.env.OUT || "shots-sabotage";';
   sources["__sabotage-shots.mjs"] = 'const SHOTS = opt("shots", ".tmp-sabotage/png");';
   sources["__sabotage-receipts.mjs"] = "const OUT = join(ROOT, `receipts/screenshots/x`);";
+  sources["__sabotage-typed.mjs"] = 'const SHOTS = arg("shots", "");';
 }
 
 // A default output folder, written the ways these scripts write one: `OUT=` /
@@ -35,6 +36,31 @@ test("outDir puts a relative name under artifacts/ and leaves the rest alone", (
   assert.equal(outDir("shots-2.4"), "artifacts/shots-2.4");
   assert.equal(outDir("artifacts/x"), "artifacts/x");
   assert.equal(outDir("C:/elsewhere/x"), "C:/elsewhere/x");
+  // Review fix: the reviewer hand-off folder and "no pictures" stay as typed.
+  assert.equal(outDir(".manager-shots/3.4/html-en"), ".manager-shots/3.4/html-en");
+  assert.equal(outDir("./.manager-shots/x"), "./.manager-shots/x");
+  assert.equal(outDir(""), "");
+  assert.equal(outDir(undefined), undefined);
+});
+
+// Review fix: a TYPED `--shots=shots-2.7` made a root folder just as a default did,
+// and the default-only scan above could not see it. Every line that reads a typed
+// --shots / --out must go through outDir. The one exception is a ready-made check
+// jobs are told not to edit, declared by EQUALITY (docs/gotchas.md 98).
+const TYPED = /(?:(?:arg|argOf|opt)\("(?:shots|out)"|startsWith\("--(?:shots|out)=")/;
+test("every typed --shots / --out goes through outDir", () => {
+  const reads = [];
+  const bare = [];
+  for (const [f, s] of Object.entries(sources)) {
+    for (const line of s.split(/\r?\n/)) {
+      if (/^\s*(\/\/|\*)/.test(line) || !TYPED.test(line)) continue;
+      reads.push(f);
+      if (!line.includes("outDir(")) bare.push(f);
+    }
+  }
+  // Discovery floor: 16 such reads on 2026-10-24 (counted by this test). Fewer means the pattern broke.
+  assert.ok(reads.length >= 16, `found only ${reads.length} typed reads: ${reads.join(", ")}`);
+  assert.deepEqual([...new Set(bare)].sort(), ["sweep-booking-steps.mjs"]);
 });
 
 test("every script's default output goes through outDir", () => {
