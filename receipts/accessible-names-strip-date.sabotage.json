@@ -1,9 +1,9 @@
 {
-  "git_sha": "0ab29530e3e8e643253ed21f1a644fd019f21516",
-  "git_sha_started": "0ab29530e3e8e643253ed21f1a644fd019f21516",
+  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T17:52:34.394Z",
+  "finished_at": "2026-10-24T18:01:05.315Z",
   "failures": [
     "1440/date/name: div.cell. text=\"\" — role (no role), name \"\": empty-name",
     "1440/date/verdicts-all-pass: a recorded verdict fails (see name= lines above)",
@@ -12,14 +12,14 @@
   ],
   "warnings": [],
   "artifacts": [
-    ".manager-shots/14.24-sabotage-strip-date/date-1440.png",
-    ".manager-shots/14.24-sabotage-strip-date/date-1440.trace.json",
-    ".manager-shots/14.24-sabotage-strip-date/date-392.png",
-    ".manager-shots/14.24-sabotage-strip-date/date-392.trace.json",
-    ".manager-shots/14.24-sabotage-strip-date/job-1440.png",
-    ".manager-shots/14.24-sabotage-strip-date/job-1440.trace.json",
-    ".manager-shots/14.24-sabotage-strip-date/job-392.png",
-    ".manager-shots/14.24-sabotage-strip-date/job-392.trace.json"
+    ".manager-shots/14.24-names-sabotage-strip-date/date-1440.png",
+    ".manager-shots/14.24-names-sabotage-strip-date/date-1440.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-date/date-392.png",
+    ".manager-shots/14.24-names-sabotage-strip-date/date-392.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-date/job-1440.png",
+    ".manager-shots/14.24-names-sabotage-strip-date/job-1440.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-date/job-392.png",
+    ".manager-shots/14.24-names-sabotage-strip-date/job-392.trace.json"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -33,7 +33,7 @@
     "chrome": "playwright default"
   },
   "check_id": "accessible-names-strip-date",
-  "started_at": "2026-10-24T17:51:59.726Z",
+  "started_at": "2026-10-24T18:00:31.213Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,

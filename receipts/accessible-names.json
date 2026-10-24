@@ -1,20 +1,20 @@
 {
-  "git_sha": "0ab29530e3e8e643253ed21f1a644fd019f21516",
-  "git_sha_started": "0ab29530e3e8e643253ed21f1a644fd019f21516",
+  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T17:53:48.483Z",
+  "finished_at": "2026-10-24T18:04:33.789Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
-    ".manager-shots/14.24/date-1440.png",
-    ".manager-shots/14.24/date-1440.trace.json",
-    ".manager-shots/14.24/date-392.png",
-    ".manager-shots/14.24/date-392.trace.json",
-    ".manager-shots/14.24/job-1440.png",
-    ".manager-shots/14.24/job-1440.trace.json",
-    ".manager-shots/14.24/job-392.png",
-    ".manager-shots/14.24/job-392.trace.json"
+    ".manager-shots/14.24-names/date-1440.png",
+    ".manager-shots/14.24-names/date-1440.trace.json",
+    ".manager-shots/14.24-names/date-392.png",
+    ".manager-shots/14.24-names/date-392.trace.json",
+    ".manager-shots/14.24-names/job-1440.png",
+    ".manager-shots/14.24-names/job-1440.trace.json",
+    ".manager-shots/14.24-names/job-392.png",
+    ".manager-shots/14.24-names/job-392.trace.json"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -27,7 +27,7 @@
     "chrome": "playwright default"
   },
   "check_id": "accessible-names",
-  "started_at": "2026-10-24T17:53:16.000Z",
+  "started_at": "2026-10-24T18:04:00.423Z",
   "status": "pass",
   "expected_targets": 4,
   "discovered_targets": 4,

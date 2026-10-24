@@ -1,33 +1,44 @@
 {
-  "git_sha": "fba7b403a0fe13bac408c2c4ffa359f50819170a",
-  "git_sha_started": "fba7b403a0fe13bac408c2c4ffa359f50819170a",
+  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-10T23:12:11.169Z",
+  "finished_at": "2026-10-24T18:02:49.018Z",
   "failures": [
-    "320/step6/clear: scrolled 828px to the bottom: last block ends at 673.7px, fixed bar starts at 627px",
-    "320/step7/clear: scrolled 86px to the bottom: last block ends at 673.7px, fixed bar starts at 616.4px",
-    "392/step6/clear: scrolled 647px to the bottom: last block ends at 817.5px, fixed bar starts at 771px"
+    "320/step6/no-overflow: document 2016px, furthest right edge 2016px, viewport 320px",
+    "320/step6/clear: scrolled 1047px to the bottom: last block ends at 630.7px, fixed bar starts at 627px",
+    "320/step7/no-overflow: document 2016px, furthest right edge 2016px, viewport 320px",
+    "320/step7/clear: scrolled 199px to the bottom: last block ends at 620.7px, fixed bar starts at 616.4px",
+    "392/step6/no-overflow: document 2016px, furthest right edge 2016px, viewport 392px",
+    "392/step6/clear: scrolled 846px to the bottom: last block ends at 775px, fixed bar starts at 771px",
+    "392/step7/no-overflow: document 2016px, furthest right edge 2016px, viewport 392px",
+    "392/step7/clear: scrolled 7px to the bottom: last block ends at 775.5px, fixed bar starts at 771px",
+    "768/step6/no-overflow: document 2084px, furthest right edge 2084px, viewport 768px",
+    "768/step6/clear: scrolled 160px to the bottom: last block ends at 955.4px, fixed bar starts at 951px",
+    "768/step7/no-overflow: document 2084px, furthest right edge 2084px, viewport 768px",
+    "1440/step6/no-overflow: document 2420px, furthest right edge 2420px, viewport 1440px",
+    "1440/step6/clear: scrolled 331px to the bottom: last block ends at 826.8px, fixed bar starts at 823.2px",
+    "1440/step7/no-overflow: document 2420px, furthest right edge 2420px, viewport 1440px"
   ],
   "warnings": [],
   "artifacts": [
-    ".manager-shots/14.24/step6-320.png",
-    ".manager-shots/14.24/step6-320-bottom.png",
-    ".manager-shots/14.24/step7-320.png",
-    ".manager-shots/14.24/step7-320-bottom.png",
-    ".manager-shots/14.24/step6-392.png",
-    ".manager-shots/14.24/step6-392-bottom.png",
-    ".manager-shots/14.24/step7-392.png",
-    ".manager-shots/14.24/step7-392-bottom.png",
-    ".manager-shots/14.24/step5-calendar-768.png",
-    ".manager-shots/14.24/step6-768.png",
-    ".manager-shots/14.24/step6-768-bottom.png",
-    ".manager-shots/14.24/step7-768.png",
-    ".manager-shots/14.24/step7-768-bottom.png",
-    ".manager-shots/14.24/step6-1440.png",
-    ".manager-shots/14.24/step6-1440-bottom.png",
-    ".manager-shots/14.24/step7-1440.png",
-    ".manager-shots/14.24/step7-1440-bottom.png"
+    ".manager-shots/14.24-sabotage-overflow/step6-320.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-320-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-320.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-320-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-392.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-392-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-392.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-392-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step5-calendar-768.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-768.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-768-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-768.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-768-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-1440.png",
+    ".manager-shots/14.24-sabotage-overflow/step6-1440-bottom.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-1440.png",
+    ".manager-shots/14.24-sabotage-overflow/step7-1440-bottom.png"
   ],
   "dimensions": {
     "sizes": [
@@ -42,10 +53,11 @@
     ],
     "business": "demo-detail",
     "item": "14.24-1",
-    "break": "cover"
+    "break": "overflow",
+    "fixture": true
   },
   "check_id": "booking-steps-6-7",
-  "started_at": "2026-10-10T23:10:50.791Z",
+  "started_at": "2026-10-24T18:01:40.678Z",
   "status": "fail",
   "expected_targets": 9,
   "discovered_targets": 9,
@@ -80,26 +92,66 @@
     {
       "width": 320,
       "step": 6,
-      "break": "cover",
+      "break": "overflow",
       "landed": true,
-      "docW": 320,
+      "docW": 2016,
       "wrapW": 320
     },
     {
       "width": 320,
       "step": 7,
-      "break": "cover",
+      "break": "overflow",
       "landed": true,
-      "docW": 320,
+      "docW": 2016,
       "wrapW": 320
     },
     {
       "width": 392,
       "step": 6,
-      "break": "cover",
+      "break": "overflow",
       "landed": true,
-      "docW": 392,
+      "docW": 2016,
       "wrapW": 392
+    },
+    {
+      "width": 392,
+      "step": 7,
+      "break": "overflow",
+      "landed": true,
+      "docW": 2016,
+      "wrapW": 392
+    },
+    {
+      "width": 768,
+      "step": 6,
+      "break": "overflow",
+      "landed": true,
+      "docW": 2084,
+      "wrapW": 632
+    },
+    {
+      "width": 768,
+      "step": 7,
+      "break": "overflow",
+      "landed": true,
+      "docW": 2084,
+      "wrapW": 632
+    },
+    {
+      "width": 1440,
+      "step": 6,
+      "break": "overflow",
+      "landed": true,
+      "docW": 2420,
+      "wrapW": 632
+    },
+    {
+      "width": 1440,
+      "step": 7,
+      "break": "overflow",
+      "landed": true,
+      "docW": 2420,
+      "wrapW": 632
     }
   ],
   "observed": [
@@ -107,8 +159,8 @@
       "width": 320,
       "step": 6,
       "wrapW": 320,
-      "docW": 320,
-      "worst": 304,
+      "docW": 2016,
+      "worst": 2016,
       "blocks": [
         [
           "bk-step-head",
@@ -121,9 +173,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           288,
-          157
+          303
         ],
         [
           "bk-refusal bk-muted",
@@ -139,6 +191,11 @@
           "bk-planpitch",
           288,
           842
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -146,9 +203,14 @@
       "width": 320,
       "step": 7,
       "wrapW": 320,
-      "docW": 320,
-      "worst": 304,
+      "docW": 2016,
+      "worst": 2016,
       "blocks": [
+        [
+          "div",
+          2000,
+          4
+        ],
         [
           "bk-step-head",
           288,
@@ -183,6 +245,11 @@
           "bk-muted",
           288,
           57
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -190,8 +257,8 @@
       "width": 392,
       "step": 6,
       "wrapW": 392,
-      "docW": 392,
-      "worst": 376,
+      "docW": 2016,
+      "worst": 2016,
       "blocks": [
         [
           "bk-step-head",
@@ -204,9 +271,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           360,
-          157
+          284
         ],
         [
           "bk-refusal bk-muted",
@@ -222,6 +289,11 @@
           "bk-planpitch",
           360,
           823
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -229,9 +301,14 @@
       "width": 392,
       "step": 7,
       "wrapW": 392,
-      "docW": 392,
-      "worst": 376,
+      "docW": 2016,
+      "worst": 2016,
       "blocks": [
+        [
+          "div",
+          2000,
+          4
+        ],
         [
           "bk-step-head",
           360,
@@ -266,6 +343,11 @@
           "bk-muted",
           360,
           38
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -273,8 +355,8 @@
       "width": 768,
       "step": 6,
       "wrapW": 632,
-      "docW": 768,
-      "worst": 684,
+      "docW": 2084,
+      "worst": 2084,
       "blocks": [
         [
           "bk-step-head",
@@ -287,9 +369,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           600,
-          73
+          140
         ],
         [
           "bk-refusal bk-muted",
@@ -305,6 +387,11 @@
           "bk-planpitch",
           600,
           462
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -312,9 +399,14 @@
       "width": 768,
       "step": 7,
       "wrapW": 632,
-      "docW": 768,
-      "worst": 684,
+      "docW": 2084,
+      "worst": 2084,
       "blocks": [
+        [
+          "div",
+          2000,
+          4
+        ],
         [
           "bk-step-head",
           600,
@@ -349,6 +441,11 @@
           "bk-muted",
           600,
           38
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -356,8 +453,8 @@
       "width": 1440,
       "step": 6,
       "wrapW": 632,
-      "docW": 1440,
-      "worst": 1424,
+      "docW": 2420,
+      "worst": 2420,
       "blocks": [
         [
           "bk-step-head",
@@ -370,9 +467,9 @@
           73
         ],
         [
-          "bk-grid2",
+          "bk-grid2 bk-contact",
           600,
-          73
+          140
         ],
         [
           "bk-refusal bk-muted",
@@ -388,6 +485,11 @@
           "bk-planpitch",
           600,
           472
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     },
@@ -395,9 +497,14 @@
       "width": 1440,
       "step": 7,
       "wrapW": 632,
-      "docW": 1440,
-      "worst": 1424,
+      "docW": 2420,
+      "worst": 2420,
       "blocks": [
+        [
+          "div",
+          2000,
+          4
+        ],
         [
           "bk-step-head",
           600,
@@ -432,6 +539,11 @@
           "bk-muted",
           600,
           38
+        ],
+        [
+          "div",
+          2000,
+          4
         ]
       ]
     }

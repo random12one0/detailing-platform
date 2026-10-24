@@ -1,9 +1,9 @@
 {
-  "git_sha": "0ab29530e3e8e643253ed21f1a644fd019f21516",
-  "git_sha_started": "0ab29530e3e8e643253ed21f1a644fd019f21516",
+  "git_sha": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
+  "git_sha_started": "1a30fee86d5d4827fe33fadd3187ed74ce243d00",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T17:53:08.800Z",
+  "finished_at": "2026-10-24T18:01:40.521Z",
   "failures": [
     "1440/job/name: button.btn.sm text=\"\" — role (no role), name \"\": empty-name",
     "1440/job/coverage-bar-text: no bar-text control was tabbed to",
@@ -14,14 +14,14 @@
   ],
   "warnings": [],
   "artifacts": [
-    ".manager-shots/14.24-sabotage-strip-bar/date-1440.png",
-    ".manager-shots/14.24-sabotage-strip-bar/date-1440.trace.json",
-    ".manager-shots/14.24-sabotage-strip-bar/date-392.png",
-    ".manager-shots/14.24-sabotage-strip-bar/date-392.trace.json",
-    ".manager-shots/14.24-sabotage-strip-bar/job-1440.png",
-    ".manager-shots/14.24-sabotage-strip-bar/job-1440.trace.json",
-    ".manager-shots/14.24-sabotage-strip-bar/job-392.png",
-    ".manager-shots/14.24-sabotage-strip-bar/job-392.trace.json"
+    ".manager-shots/14.24-names-sabotage-strip-bar/date-1440.png",
+    ".manager-shots/14.24-names-sabotage-strip-bar/date-1440.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-bar/date-392.png",
+    ".manager-shots/14.24-names-sabotage-strip-bar/date-392.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-bar/job-1440.png",
+    ".manager-shots/14.24-names-sabotage-strip-bar/job-1440.trace.json",
+    ".manager-shots/14.24-names-sabotage-strip-bar/job-392.png",
+    ".manager-shots/14.24-names-sabotage-strip-bar/job-392.trace.json"
   ],
   "dimensions": {
     "base": "http://127.0.0.1:5180",
@@ -35,7 +35,7 @@
     "chrome": "playwright default"
   },
   "check_id": "accessible-names-strip-bar",
-  "started_at": "2026-10-24T17:52:34.745Z",
+  "started_at": "2026-10-24T18:01:05.532Z",
   "status": "fail",
   "expected_targets": 4,
   "discovered_targets": 4,
