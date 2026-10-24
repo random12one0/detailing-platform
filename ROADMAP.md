@@ -31619,6 +31619,10 @@ explicitly warns against — git history is the archive. Revisit at step 7.
 
 
 
+- [ ] **98.17 — The release sheet is red again: 99.2's entry names three programs its declaration does not.**
+  Found by the 97.56a job 2026-10-24 on a branch cut from `276d5000`. `node scripts/release-sheet.mjs` (credential-free) prints three `FAIL — ROADMAP.md:30967 "99.2 …" names program <name> but its declaration does not`, for `send-invoice`, `invite-user` and `send-owner-reminders`; the committed `receipts/release-sheet.json` reads `pass` at `49a612ce`, so something written into 99.2's entry after that commit is the cause. Not the same red as 98.12 (that one is 98.3's line). Either 99.2's declaration in `scripts/release-sheet.mjs` gains those programs, if they really ship with its wording, or the entry's wording stops reading as a publish line; which is true has to be read out of 99.2's entry. The run regenerates `docs/release-sheet.md`; the 97.56a job restored it and its receipt from `HEAD` rather than commit a red sheet outside its item.
+  Done when: `node scripts/release-sheet.mjs` prints no FAIL about 99.2, and its receipt is committed at the fixing commit.
+
 - [ ] **98.12 — The release sheet is red on main: 98.3's publish line is not registered.**
   Found by the supervisor 2026-10-18 at `70168125`. `node scripts/release-sheet.mjs` (credential-free) prints
   `FAIL — ROADMAP.md:31263 "98.3 …" has a release line and is neither declared nor excluded`. 98.3 wrote
@@ -32089,6 +32093,9 @@ decisions, not build jobs.
 
 - [ ] **97.56a — Gift cards, AFTER launch: Andrew's rules before any build (from 97.56, Andrew 2026-10-15).**
   Post-launch, not before. Ask Andrew when this is picked up (not now; launch comes first), with a recommendation for each: (1) expiry — recommend NO expiry, because US federal law (the CARD Act) bars expiry under five years and several states, California among them, ban expiry outright, so "never expires" is the one rule that is legal everywhere; (2) amounts — fixed choices ($50/$100/$150) or any amount within a range; (3) refunds — can a bought card be refunded while unused, and who decides (recommend: detailer can refund an unused card in full, never a part-used one); (4) cash back — some states (California under $10) require cash back of a small leftover balance on request; recommend the detailer handles that by hand and the product only records it; (5) can a card pay a deposit, the final bill, or both. Write his answers here, then 97.56b–f build to them. Until this is answered, no slice below starts.
+  Done when (proposed by the 2026-10-24 job; Andrew may change it): each of the five questions has his answer written under this entry in his own words with its date, and every slice of 97.56b–97.56f that depends on an answer names which one it builds to. A question he leaves open keeps this entry open; nothing in it is ticked on a session's guess.
+  Asked 2026-10-24: the five questions, each with its recommendation, are the DECIDE row "Gift cards: five rules before anything is built (ROADMAP 97.56a)" in `FOR-ANDREW.md`. No code, migration or screen touched.
+  NEEDS ANDREW: the five gift card rules above (expiry, amounts, refunds, cash back for small leftovers, deposit or final bill or both) are his business and legal choices, and 97.56b–97.56f cannot start until they are written here.
 
 - [ ] **97.56b — Gift cards: the balance record (from 97.56; waits on 97.56a).**
   A new table holding each card: business, a code the customer types, starting amount, remaining balance, buyer and recipient email, created and (per 97.56a) no expiry. Every spend or refund is a row in a separate ledger table so a balance is always the sum of its history, never an edited number. Owner-only read and write under RLS, no browser writes (consequential writes go through edge functions). Proved on a local copy (PGlite), never applied by a session; applying is Andrew's.

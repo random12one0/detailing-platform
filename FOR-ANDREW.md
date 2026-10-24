@@ -504,6 +504,27 @@ named workers with their own hours as the next step. Answering now means the wor
 
 ---
 
+## DECIDE · Gift cards: five rules before anything is built (ROADMAP 97.56a)
+
+You said to add gift cards after launch, paid for through the detailer's own Stripe. Nothing is built yet, and nothing
+will be until you answer these five. One line each is enough.
+
+1. **Do cards ever expire?** My recommendation: never. US law bars expiry in under five years, and some states,
+   California among them, ban it outright. "Never expires" is legal everywhere.
+2. **What amounts can a customer buy?** Fixed choices ($50, $100, $150) or any amount between a low and a high. My
+   recommendation: fixed choices the detailer can edit. They are quicker on a phone and simpler to explain.
+3. **Can a bought card be refunded?** My recommendation: the detailer can refund a card that has never been used, in
+   full. A card that has been partly spent can never be refunded.
+4. **Cash back for a small leftover.** Some states make the business pay out a small remaining balance in cash if the
+   customer asks (California: under $10). My recommendation: the detailer pays it by hand, and the product only records
+   that it was paid and sets the card to zero.
+5. **What can a card pay for?** The deposit, the final bill, or both. My recommendation: both.
+
+These are my reading of the rules, not legal advice. Have them checked before the build if you are unsure. Answering now
+means the work can start the day you launch.
+
+---
+
 ## AT RELEASE · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
 
 The booking page's bottom bar is proven clear of every choice on every screen size a computer can pretend to be. What no computer can pretend is the iPhone keyboard, and that is the one question left. Four booking steps have a text box: vehicle, address, name/phone/email/notes, and the promo code. On each, tap the box, type three letters, and look: can you still see what you are typing and the button you need next? Does the bar sit behind the keyboard, or ride up over the box?
