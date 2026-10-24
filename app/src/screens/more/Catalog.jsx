@@ -23,7 +23,7 @@ import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { duration, money } from "../../lib/format.js";
 import Sheet from "../../components/Sheet.jsx";
-import { Segmented, Setting, Switch } from "../../components/controls.jsx";
+import { MoneyField, Segmented, Setting, Switch } from "../../components/controls.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
@@ -51,6 +51,17 @@ const sizeText = (z, field) => (isPlatformSizeText(z, field) ? t(z[field]) : z[f
 // overflowing, so a longer list is supported — it just stops being boxes.
 // Keep this number and StepVehicle's in step; they are the same measurement.
 const SIZE_CARD_CEILING = 4;
+
+// ROADMAP 97.39 (P-2) — what a business with no services is offered. NAMES AND
+// PRICES ARE STARTING POINTS the detailer edits before saving; nothing is
+// written until they press Add. The name is saved in the detailer's own
+// language (what they read is what a customer sees), the way a service they
+// typed by hand would be.
+const STARTERS = [
+  { key: "exterior", name: "Exterior detail", price: "120", minutes: 120 },
+  { key: "interior", name: "Interior detail", price: "150", minutes: 150 },
+  { key: "full", name: "Full detail", price: "250", minutes: 240 },
+];
 
 const EMPTY_SVC = {
   name: "", description: "", features: "", price: "", price_is_from: false,
@@ -249,6 +260,32 @@ export default function Catalog() {
     const { error } = await q;
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) setEditing(null);
+    load();
+  };
+
+  // ROADMAP 97.39 — accept the three starters at the prices on screen. Same
+  // row shape `saveService` writes for a blank form (first size +$0, the rest
+  // +$0 until the detailer sets them), so a starter opens in the editor like
+  // any service they made.
+  const [starterPrices, setStarterPrices] = useState(() => Object.fromEntries(STARTERS.map((x) => [x.key, x.price])));
+  const [starterSkipped, setStarterSkipped] = useState(false);
+  const [starterBusy, setStarterBusy] = useState(false);
+  const starterOk = STARTERS.every((x) => Number(starterPrices[x.key]) > 0);
+  const addStarters = async () => {
+    if (starterBusy || !starterOk) return;
+    setStarterBusy(true);
+    const adjustments = Object.fromEntries(sizes.map((z) => [z.key, { price: 0, duration_minutes: 0 }]));
+    const { error } = await supabase.from("services").insert(STARTERS.map((x, i) => ({
+      business_id: business.id,
+      name: t(x.name),
+      price: Number(starterPrices[x.key]),
+      duration_minutes: x.minutes,
+      is_active: true,
+      sort_order: i,
+      vehicle_size_adjustments: adjustments,
+    })));
+    setStarterBusy(false);
+    setMsg(error ? { ok: false, text: error.message } : null);
     load();
   };
 
@@ -534,7 +571,32 @@ export default function Catalog() {
         ))}
       </div>
 
-      {loaded && services.length === 0 && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
+      {loaded && services.length === 0 && !starterSkipped && (
+        <div className="card starter" data-testid="starter-services">
+          <div className="tight">
+            <h3>{t("Start with three services")}</h3>
+            <p className="quiet">{t("Set the prices you charge. Nothing is added until you press the button.")}</p>
+          </div>
+          {STARTERS.map((x) => (
+            <div className="row between" key={x.key}>
+              <label htmlFor={`starter-${x.key}`} style={{ minWidth: 0 }}>
+                <strong>{t(x.name)}</strong>
+                <span className="muted"> · {duration(x.minutes, getAppLocale())}</span>
+              </label>
+              <MoneyField value={starterPrices[x.key]} id={`starter-${x.key}`}
+                onChange={(v) => setStarterPrices((p) => ({ ...p, [x.key]: v }))} />
+            </div>
+          ))}
+          {!starterOk && <p className="muted">{t("Enter a price above $0 for each service.")}</p>}
+          <div className="row wrap" style={{ gap: 6 }}>
+            <button className="btn primary" disabled={starterBusy || !starterOk} onClick={addStarters}>
+              {starterBusy ? t("Saving…") : t("Add these 3")}
+            </button>
+            <button className="btn" disabled={starterBusy} onClick={() => setStarterSkipped(true)}>{t("Skip")}</button>
+          </div>
+        </div>
+      )}
+      {loaded && services.length === 0 && starterSkipped && <p className="muted">{t("No services yet. Customers can't book until you add one.")}</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
         <h3>{t("Add-ons")}</h3>
