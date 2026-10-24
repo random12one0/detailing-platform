@@ -54,6 +54,11 @@ const PUBLIC_FUNCTIONS = new Set([
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet
   "booking-ics",          // customers add their own booking to a calendar from email
+  // ROADMAP 97.53 - the per-business subscription feed. Public at the gateway
+  // because Google's and Apple's fetchers hold no session; the unguessable
+  // per-business token inside the URL is the credential, checked first thing
+  // by the function itself.
+  "calendar-feed",
   // Roadmap 2.14 step 3 — the customer's own plan page and the email-in /
   // link-out lookup behind it. Same access model again: the membership UUID
   // is the credential, and a plan member has no session and never will.

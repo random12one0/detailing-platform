@@ -110,6 +110,7 @@ const M = {
   invites: "20261010020000_action_log_invites.sql",
   expire: "20261017180000_support_sessions_expire.sql",
   endAtAuth: "20261017190000_support_sessions_end_at_auth.sql",
+  feed: "20261024150000_calendar_feed_token.sql",
 };
 // The support-session lock (4.3c): every program carrying either file reads the
 // `support_sessions` table, so each goes after the database change that makes it.
@@ -278,6 +279,12 @@ Object.assign(DECLARED, {
     migrations: [M.support, M.expire, M.endAtAuth], hold: { "platform-admin": HOLD_ADMIN },
     before: [[M.support, M.expire], [M.expire, M.endAtAuth]], bundleBefore: [[M.endAtAuth, LOCK]],
     rule: "Its three support-session database changes in order, and ONLY THEN every program carrying the lock, or \"view as\" refuses to open.",
+  },
+  "97.53": {
+    migrations: [M.feed], functions: ["calendar-feed"], website: true,
+    before: [[M.feed, "calendar-feed"], [M.feed, "website"]],
+    rule: "The database change first: the feed program and the Notifications screen both read the new column, and without it the screen offers only Create calendar link and the feed refuses every link.",
+    after: ["Subscribe for real: Google Calendar, From URL (or Apple Calendar, New Calendar Subscription), paste the link from Notifications, Your calendar. Reset it once and check the old link stops updating."],
   },
   "4.1d": {
     migrations: [M.invites], functions: ["invite-user"], before: [[M.invites, "invite-user"]],

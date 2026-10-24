@@ -3365,4 +3365,18 @@ export const appEs = {
   "Leave without saving": "Salir sin guardar",
   "Yes, disconnect": "Sí, desconectar",
   "Remove {name}? Customers stop seeing it once you save.": "¿Quitar {name}? Tus clientes dejan de verlo cuando guardes.",
+  // ROADMAP 97.53 - the private calendar feed.
+  "Your calendar": "Tu calendario",
+  "Your upcoming jobs, live in Apple Calendar or Google Calendar. This link is private like a password: anyone holding it sees your customers' names and numbers.":
+    "Tus próximas citas, en vivo en Apple Calendar o Google Calendar. Este enlace es privado como una contraseña: quien lo tenga ve los nombres y números de tus clientes.",
+  "Calendar link": "Enlace de calendario",
+  "In your app, choose to subscribe to a calendar from a URL, then paste this in.":
+    "En tu app de calendario, elige suscribirte a un calendario desde una URL y pega esto ahí.",
+  "Reset link": "Restablecer enlace",
+  "Reset the calendar link? Your app stops updating until you paste in the new one.":
+    "¿Restablecer el enlace del calendario? Tu app de calendario deja de actualizarse hasta que pegues el nuevo.",
+  "Reset it": "Restablecerlo",
+  "New link ready. Paste it into your calendar app where the old one was.":
+    "Nuevo enlace listo. Pégalo en tu app de calendario donde estaba el anterior.",
+  "Create calendar link": "Crear enlace de calendario",
 };

@@ -53,6 +53,14 @@ async function callFn(name, body) {
 export const icsUrl = (bookingId, audience = "customer") =>
   `${SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=${audience}&apikey=${ANON_KEY}`;
 
+// ROADMAP 97.53 - THE SUBSCRIBABLE FEED IS A PLAIN LINK, like the customer's
+// .ics: the caller is Google's or Apple's fetcher, which holds no session, so
+// the unguessable token in business_settings is the credential and the apikey
+// is the gateway's. Resetting the token (Notifications) kills every copy of
+// this URL out in the world.
+export const calendarFeedUrl = (slug, token) =>
+  `${SUPABASE_URL}/functions/v1/calendar-feed?business=${encodeURIComponent(slug || "")}&token=${encodeURIComponent(token || "")}&apikey=${ANON_KEY}`;
+
 // ROADMAP 14.2 — THE OWNER'S COPY CANNOT BE A LINK ANY MORE. It carries the
 // customer's name, phone and note, so the server now requires the owner's
 // session for it, and an `<a href>` cannot send an Authorization header —

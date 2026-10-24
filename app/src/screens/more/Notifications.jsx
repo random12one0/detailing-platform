@@ -9,10 +9,12 @@
 // The customer reminder timing lives in Booking rules, next to the
 // cancellation window it interacts with, rather than in two places.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mail, MailWarning, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
-import { api } from "../../lib/api.js";
+import { api, calendarFeedUrl } from "../../lib/api.js";
+import { feedTokenSaved } from "../../lib/calendarFeed.js";
+import ConfirmTap from "../../components/ConfirmTap.jsx";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Folded, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 // The folded row states the hour the way the control inside it does.
@@ -86,6 +88,63 @@ export default function Notifications() {
   const [newEmail, setNewEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  // ROADMAP 97.53 - the private calendar feed. The token lives on the
+  // settings row, so there is nothing to load: it arrives with the rest of
+  // settings. Staff without the settings permission never reach this screen
+  // at all (the gear menu gates the row), so a missing token only ever means
+  // a missing row - and the Create control below writes it. That is the 14.2
+  // shape: the key stays behind the same gate as the settings around it.
+  // The token just written is shown straight away: it is the confirmed
+  // result, so the screen must not wait for the reload - and if the reload
+  // fails, the right key is still on display. Scoped to the business it was
+  // written for, so switching business never wears another's.
+  const [madeToken, setMadeToken] = useState(null);
+  const [madeFor, setMadeFor] = useState(null);
+  const feedToken = (madeFor === business.id && madeToken)
+    || settings?.calendar_feed_token || null;
+  const feedUrl = feedToken ? calendarFeedUrl(business.slug, feedToken) : "";
+  const [copied, setCopied] = useState(false);
+  const [feedBusy, setFeedBusy] = useState(false);
+  const [feedMsg, setFeedMsg] = useState(null);
+  const feedInput = useRef(null);
+  const copyFeed = async () => {
+    if (!feedUrl) return;
+    try {
+      await navigator.clipboard.writeText(feedUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      feedInput.current?.focus();
+      feedInput.current?.select();
+    }
+  };
+  // A reset is an upsert, not an update: a business whose settings row was
+  // never written still gets its first token this way, through the same
+  // settings-permission policies every other save on this screen uses.
+  const resetFeed = async () => {
+    setFeedBusy(true);
+    setFeedMsg(null);
+    try {
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      const token = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+      // An upsert that matched nothing answers 200 with zero rows rather
+      // than an error, so the saved row is read back and a miss is reported
+      // as a failure, never as success.
+      const { data, error } = await supabase.from("business_settings").upsert(
+        { business_id: business.id, calendar_feed_token: token },
+        { onConflict: "business_id" }).select("calendar_feed_token");
+      const saved = feedTokenSaved(data, error);
+      if (!saved) throw new Error(t("Could not change that."));
+      setMadeToken(saved);
+      setMadeFor(business.id);
+      await reload();
+      setFeedMsg({ ok: true, text: t("New link ready. Paste it into your calendar app where the old one was.") });
+    } catch (e) {
+      setFeedMsg({ ok: false, text: e.message || t("Could not change that.") });
+    }
+    setFeedBusy(false);
+  };
   // ROADMAP 4.2 — "what does my customer actually get?"
   const [previewing, setPreviewing] = useState(false);
   const [preview, setPreview] = useState(null);   // {ok, text}
@@ -286,6 +345,45 @@ export default function Notifications() {
           <Switch key={k} label={t(label)} help={help ? t(help) : undefined}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
+      </Group>
+
+      {/* ROADMAP 97.53 - the private feed Apple Calendar and Google Calendar can
+          subscribe to. One tap to copy, one asked-twice tap to reset: a reset
+          stops every calendar holding the old link on its next poll, which is
+          why the question says so before it happens. No settings-row gate
+          here: with no row there is no token, and the Create branch below is
+          exactly what writes the first one. */}
+      <Group title={t("Your calendar")}
+        blurb={t("Your upcoming jobs, live in Apple Calendar or Google Calendar. This link is private like a password: anyone holding it sees your customers' names and numbers.")}>
+        {feedToken ? (
+          <Setting label={t("Calendar link")} stacked
+            help={t("In your app, choose to subscribe to a calendar from a URL, then paste this in.")}>
+            <div className="tight">
+              <input type="text" readOnly value={feedUrl} ref={feedInput}
+                onFocus={(e) => e.target.select()} aria-label={t("Calendar link")}
+                style={{ width: "100%" }} />
+              <div className="row wrap" style={{ gap: 8 }}>
+                <button className="btn sm inline" onClick={copyFeed}>
+                  {copied ? t("Copied") : t("Copy")}
+                </button>
+                <ConfirmTap label={t("Reset link")}
+                  question={t("Reset the calendar link? Your app stops updating until you paste in the new one.")}
+                  confirmLabel={t("Reset it")} onConfirm={resetFeed}
+                  className="btn sm inline" confirmClassName="btn sm inline primary"
+                  disabled={feedBusy} />
+              </div>
+              {feedMsg && <div className={feedMsg.ok ? "ok-box" : "error-box"}>{feedMsg.text}</div>}
+            </div>
+          </Setting>
+        ) : (
+          <Setting label={t("Calendar link")} stacked
+            help={t("In your app, choose to subscribe to a calendar from a URL, then paste this in.")}>
+            <button className="btn sm inline" disabled={feedBusy} onClick={resetFeed}>
+              {feedBusy ? t("Saving…") : t("Create calendar link")}
+            </button>
+            {feedMsg && <div className={feedMsg.ok ? "ok-box" : "error-box"}>{feedMsg.text}</div>}
+          </Setting>
+        )}
       </Group>
 
       <Group title={t("Where your alerts go")}>
