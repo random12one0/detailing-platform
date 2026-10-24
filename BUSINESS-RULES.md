@@ -47,6 +47,21 @@ full worked detail in `docs/planning/email-copy-and-rules-draft-2026-10-12.md` �
   records. If the platform hosts their premium main website, it is replaced with a neutral
   "unavailable" page (not deleted, and the billing problem is never shown publicly).
 
+## Signup — decided 2026-10-15 (roadmap 97.37), built 2026-10-24
+
+- **Sign-up stays open, but nothing works until the account has paid.** Andrew's words: *"Keep
+  sign-up open: anyone can create an account. But a new account must NOT get a working booking
+  page, customer bookings or any real access until they have paid. Signing up should only create
+  the account and the setup screens ... with my own and test/demo accounts exempt, and until
+  payments work, new accounts simply wait at a 'finish payment to go live' screen."*
+- A self-serve signup's booking page is off and refuses bookings until its first successful
+  payment, which switches it on by itself. Until then the owner sees "Finish payment to go live",
+  with only the setup screens, settings and payment open.
+- Exempt: every account that existed before this rule, every account Andrew creates in the back
+  office, and any account he switches on there with "Put live without payment". Test and demo
+  accounts are created directly, not through signup, so they are unaffected. (Exemption is never
+  by email address: anyone can type a fake test address.)
+
 ## Still to decide (do not assume an answer)
 
 From the same Planning conversation; each needs Andrew:
@@ -56,7 +71,7 @@ From the same Planning conversation; each needs Andrew:
 4. Fees — notice window, flat or percentage, when waived; which address changes need review?
 5. Plans — minimum counted per visit or per car; the early-exit formula; what happens to visits already booked.
 6. Billing lockdown — exact 14-day deadline; does billing continue while locked?
-7. Signup — no live booking page before the first successful payment?
+7. ~~Signup — no live booking page before the first successful payment?~~ DECIDED 2026-10-15, see "Signup" above.
 8. Promo email title — "Ready for a clean car?"
 
 ## Rules from your words (sorted automatically)

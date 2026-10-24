@@ -228,6 +228,13 @@ const DECLARED = {
     waitsOn: { "stripe-webhook": ["97.10", "97.11", "97.69"] },
     rule: "The payment webhook goes out with 97.10, 97.11 and 97.69 in it. Skipping the Stripe setting breaks nothing; the refund line just stays until it is on.",
   },
+  "97.37": {
+    website: true, functions: ["stripe-webhook", "create-business"],
+    before: [["stripe-webhook", "create-business"], ["website", "create-business"]],
+    waitsOn: { "stripe-webhook": ["97.10", "97.11", "97.69"] },
+    rule: "The payment webhook and the website before `create-business`: the other way round, a signup that pays stays dark, and a new account lands on a full dashboard that cannot take bookings.",
+    after: ["Optional: make a throwaway account at /app, check it lands on \"Finish payment to go live\" and its booking page is not found, then remove it from the back office."],
+  },
   "99.2a": {
     bundles: "_shared/emailKit.ts", migrations: [M.sign],
     before: [["website", "create-booking"]], conflict: true,
