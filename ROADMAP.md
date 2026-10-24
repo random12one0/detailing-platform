@@ -31977,11 +31977,15 @@ decisions, not build jobs.
   Left alone, already red on main: `tests/ics-audience.test.mjs` § 1 still expects `requireMember(req, booking.business_id)` while `booking-ics` passes `{ allowSupport: true }` since 4.3c, so its matcher is stale. Not edited here, because it grades this area and a test change needs its own review.
   AWAITS PUBLISH (built and proved; no decision asked of Andrew): apply `20261024150000_calendar_feed_token.sql` first, then publish `calendar-feed` and the app (release sheet, 97.53). After that a session fetches the live link with the right, a wrong and a reset token, and subscribes Google Calendar and Apple Calendar; that run ticks the box.
 
-- [ ] **97.54 — Team scheduling stops at roles: no per-worker jobs or availability (P-13).**
+- [x] **97.54 — Team scheduling stops at roles: no per-worker jobs or availability (P-13).**
   Assignment and per-worker availability were deferred on purpose (`supabase/migrations/20260827003000_staff_roles.sql`, header); buffer time is one flat number (`available-slots/index.ts:297,388-390`). A two-van operator cannot book both vans at 9 AM.
-  NEEDS ANDREW: is per-worker scheduling needed before launch, and for how many workers? It is a large feature (several jobs). Recommendation: after launch, unless a pilot detailer runs two vans.
+  ANDREW DECIDED 2026-10-15 (Control Room note): launch first, add per-van scheduling afterward. So the answer to "needed before launch?" is NO, and nothing is cut into slices or built now. Per-worker jobs and availability are tracked as 97.54p below; until it ships, a two-van operator cannot book both vans at 9 AM.
   Acceptance criteria:
-  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts
+  - His answer is written here; if yes, this entry is cut into numbered slices before any build starts — answered above (no, after launch), so no slicing.
+  Checked 2026-10-24: his note read back from the belt's notes file; no code, migration or screen touched.
+
+- [ ] **97.54p — Per-worker scheduling, AFTER launch (from 97.54, Andrew 2026-10-15).**
+  Post-launch, not before. Assign a job to a worker, give each worker their own availability, and make available slots count workers instead of one flat buffer (`available-slots/index.ts:297,388-390`), so two vans can both take 9 AM. How many workers is still unasked; ask Andrew when this is picked up, then cut it into numbered slices before any build.
 
 - [ ] **97.55 — No pre-job vehicle check-in or customer sign-off (P-14).**
   **Held for a builder, not for Andrew (belt 2026-10-24).** The finish review still found problems; they are work, not a question. Continue branch `belt/97.55-20261024163931377`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
