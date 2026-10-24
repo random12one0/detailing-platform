@@ -21,7 +21,7 @@ const CAPTURE = process.argv.includes("--capture");
 if (BREAK && !["hours", "year", "minutes", "missing", "wrap"].includes(BREAK)) throw new Error("Unknown break");
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/99.2";
 const WIDTHS = [[390, 844], [1440, 900], [768, 1024], [392, 844], [320, 844]];
-const EXPECTED_EMAILS = 34; // deliberate declaration, not the directory's own size
+const EXPECTED_EMAILS = 35; // deliberate declaration, not the directory's own size (34 until render-emails gained a 35th)
 const EXPECTED_TARGETS = 2 + EXPECTED_EMAILS * 2;
 const failures = [], artifacts = [], observations = [];
 let assertions = 0, discovered = 2, attempted = 2, completed = 2;
