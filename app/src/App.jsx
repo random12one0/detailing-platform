@@ -371,6 +371,16 @@ export default function App() {
   // Three rail buttons was what the OLD rule produced for staff; it is now
   // what an unticked membership produces, and a detailer can hand back
   // either tab by ticking. What is left when both go is behind the gear.
+  // ROADMAP 97.37 — A SIGNUP THAT HAS NEVER PAID WAITS HERE. Andrew,
+  // 2026-10-15: *"Signing up should only create the account and the setup
+  // screens ... new accounts simply wait at a 'finish payment to go live'
+  // screen."* `create-business` makes the business `paused` and the first
+  // payment opens it. NEVER PAID is the owner's subscription row missing or
+  // `incomplete`: a detailer suspended for a failed card has a real row and
+  // keeps the dashboard, as billing promised. The setup form and the gear
+  // (Billing is in it) stay open; the tabs and New booking do not.
+  const awaitingPay = role === "owner" && business.status === "paused"
+    && (!subscription || subscription.status === "incomplete");
   const TAB_NEEDS = { money: "money", business: "settings" };
   const visibleTabs = TABS.filter((x) => !TAB_NEEDS[x.key] || can(TAB_NEEDS[x.key]));
   const activeTab = visibleTabs.find((x) => x.key === tab) ?? visibleTabs[0];
@@ -444,10 +454,12 @@ export default function App() {
             on one phone: the lit tab, this, and the screen's own masthead.
             docs/dashboard-phone-pass-2026-08-31.md §2d. */}
         <div className="row" style={{ gap: 4 }}>
-          <button className="btn icon ghost" aria-label={t("New booking")} data-tour="new"
-            onClick={() => setCreating(true)}>
-            <Plus strokeWidth={2} />
-          </button>
+          {!awaitingPay && (
+            <button className="btn icon ghost" aria-label={t("New booking")} data-tour="new"
+              onClick={() => setCreating(true)}>
+              <Plus strokeWidth={2} />
+            </button>
+          )}
           {/* The plumbing. It is pressed to go in and pressed again to come
               back out, which is why it is aria-pressed rather than a link. */}
           {/* data-tour — the whole-dashboard tour's last block presses this
@@ -501,6 +513,22 @@ export default function App() {
                 onClose={() => setGear(false)}
               />
             )
+            : awaitingPay
+            ? (
+              <section className="awaitpay group">
+                <h1 className="title">{t("Finish payment to go live")}</h1>
+                <p className="body">{t("Your account is made. Your booking page, customer bookings and the rest of your dashboard switch on after your first payment.")}</p>
+                <p className="quiet">{t("You can finish setting up while you wait. Nothing you enter is lost.")}</p>
+                <div className="awaitpay-acts">
+                  <button type="button" className="btn primary" onClick={() => { setGearScreen("billing"); setGear(true); }}>
+                    {t("Go to payment")}
+                  </button>
+                  <button type="button" className="btn" onClick={() => { setSetupAt(0); setFirstRun("setup"); }}>
+                    {t("Finish setting up")}
+                  </button>
+                </div>
+              </section>
+            )
             : (
               <Active refreshKey={rev} holdLeave={leave} onSetup={(at = 0) => { setSetupAt(at); setFirstRun("setup"); }} intent={intent}
                 // Only `Business` reads it; the other tabs ignore a prop they
@@ -529,8 +557,8 @@ export default function App() {
           without this the page's own words were legible through it. An
           element rather than a pseudo because it has to span the full width
           with `left: 0; right: 0`, and the bar does not. */}
-      <div className="tabscrim" aria-hidden="true" />
-      <nav className="tabbar">
+      {!awaitingPay && <div className="tabscrim" aria-hidden="true" />}
+      {!awaitingPay && <nav className="tabbar">
         {visibleTabs.map((x) => (
           /* A TAB IS ONLY LIT WHEN IT IS WHAT YOU ARE LOOKING AT. With the
              gear open the main area is the gear, so no tab is current — a lit
@@ -557,7 +585,7 @@ export default function App() {
             {t(x.label)}
           </button>
         ))}
-      </nav>
+      </nav>}
       {creating && (
         <NewBookingModal onClose={() => setCreating(false)}
           onCreated={() => { setCreating(false); setRev((r) => r + 1); }} />
