@@ -14,6 +14,14 @@
 //   - its name does not contain the control's own visible words.
 // An icon-only control (the month arrows) has no visible words, so the third
 // rule is vacuous for it and its aria-label passes on the first two alone.
+//
+// "Contains" is WORD for word, not letter for letter: a day cell showing "3"
+// that announces "Monday, October 13" fails, and so does "1" announced as
+// "October 10" (review 2026-10-24; the first version used a substring match and
+// passed both). A time stays one word ("9:05"), so "9" never matches "9:05".
+// ONE allowance, and the check prints it rather than folding it in: a visible
+// word of two or three LETTERS (a language code, EN / ES) may match the start of
+// a name word ("English", "Español"). Numbers and longer words match whole.
 
 const normalize = (s) =>
   String(s ?? "")
@@ -21,22 +29,25 @@ const normalize = (s) =>
     .replace(/[\s_]+/g, " ")
     .trim();
 
-const wordsOf = (s) => normalize(s).split(" ").filter(Boolean);
+const wordsOf = (s) => normalize(s).split(/[^\p{L}\p{N}:]+/u).filter(Boolean);
+const isAbbrev = (w) => /^\p{L}{2,3}$/u.test(w);
 
 /**
  * @param {string} name the browser-computed accessible name
  * @param {string} visible the control's own visible words ("" when icon-only)
- * @returns {{ ok: true } | { ok: false, reason: string }}
+ * @returns {{ ok: true, abbreviations?: string[] } | { ok: false, reason: string }}
  */
 export function controlNameVerdict(name, visible) {
-  const n = normalize(name);
-  if (!n) return { ok: false, reason: "empty-name" };
-  if (wordsOf(n).every((w) => w === "button")) return { ok: false, reason: "button-only" };
-  const vw = wordsOf(visible);
-  if (vw.length && !vw.every((w) => n.includes(w))) {
+  const nw = wordsOf(name);
+  if (!nw.length) return { ok: false, reason: "empty-name" };
+  if (nw.every((w) => w === "button")) return { ok: false, reason: "button-only" };
+  const abbreviations = [];
+  for (const w of wordsOf(visible)) {
+    if (nw.includes(w)) continue;
+    if (isAbbrev(w) && nw.some((x) => x.startsWith(w))) { abbreviations.push(w); continue; }
     return { ok: false, reason: "name-misses-visible" };
   }
-  return { ok: true };
+  return abbreviations.length ? { ok: true, abbreviations } : { ok: true };
 }
 
 /** True when the verdict passes; the shape the check and the suite share. */

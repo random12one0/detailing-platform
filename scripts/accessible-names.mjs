@@ -29,7 +29,7 @@
 //   disabled-names   the past-month arrow is disabled (out of the tab order), so its
 //                    name is read directly instead of skipped as "not focused"
 //   console          no error, no warning, no http 4xx/5xx while the screen stood
-// plus once: three verdict canaries (handed defects the rule must refuse).
+// plus once: four verdict canaries (handed defects the rule must refuse).
 //
 // --fixture, FOR A BACKEND THAT HOLDS NO PRICES OR TIMES (the belt's per-copy
 // demo backend answers calculate-booking and available-slots with {}): the
@@ -189,7 +189,8 @@ function checkControls(reading, controls, must) {
     const v = controlNameVerdict(c.name, c.text);
     ok(v.ok, `${reading}/name`,
       v.ok
-        ? `${c.role} ${JSON.stringify(c.name)} matches ${JSON.stringify(c.text.slice(0, 30))} (${c.desc})`
+        ? `${c.role} ${JSON.stringify(c.name)} matches ${JSON.stringify(c.text.slice(0, 30))} (${c.desc})` +
+          (v.abbreviations ? ` — by abbreviation: "${v.abbreviations.join('", "')}" starts a word of the name` : "")
         : `${c.desc} — role ${c.role}, name ${JSON.stringify(c.name)}: ${v.reason}`);
     verdicts.push({ desc: c.desc, ok: v.ok });
   }
@@ -421,18 +422,20 @@ async function run() {
     await browser.close();
   }
 
-  // The verdict canaries run through the same rule the readings use. The three
+  // The verdict canaries run through the same rule the readings use. The four
   // handed defects are the receipt's canary: the rule must refuse every one.
-  const mustPass = [["15", "15"], ["Previous month", ""], ["Text", "Text"]];
+  const mustPass = [["15", "15"], ["Previous month", ""], ["Text", "Text"], ["Monday, October 26", "26"]];
   for (const [name, visible] of mustPass) {
     ok(controlNameOk(name, visible), "guard/verdict-must-pass",
       `name ${JSON.stringify(name)} vs visible ${JSON.stringify(visible)} must pass`);
   }
-  const handed = [["", "15", "empty-name"], ["button", "Continue", "button-only"], ["10:00 AM", "Choose this", "name-misses-visible"]];
-  for (const [name, visible, id] of handed) {
+  const handed = [["", "15", "empty-name"], ["button", "Continue", "button-only"], ["10:00 AM", "Choose this", "name-misses-visible"],
+    // A day cell showing 3 that announces the 13th: the first, substring rule passed it.
+    ["Monday, October 13", "3", "name-misses-visible", "digit-inside-another-number"]];
+  for (const [name, visible, id, label = id] of handed) {
     const v = controlNameVerdict(name, visible);
     const flagged = !v.ok && v.reason === id;
-    canaries.push({ name: id, flagged });
+    canaries.push({ name: label, flagged });
     ok(flagged, "canary/verdict",
       `handed defect ${id} (name ${JSON.stringify(name)} vs ${JSON.stringify(visible)}) must be refused, got ${v.ok ? "pass" : v.reason}`);
   }

@@ -49,6 +49,21 @@ test("a name that misses the visible words is refused", () => {
   assert.equal(controlNameOk("9 AM", "9:05 AM"), false); // the minutes matter
 });
 
+test("words match whole, so a digit inside another number is refused", () => {
+  // The first rule was a substring match and passed both of these (review 2026-10-24).
+  assert.deepEqual(controlNameVerdict("Monday, October 13", "3"), { ok: false, reason: "name-misses-visible" });
+  assert.equal(controlNameOk("October 10", "1"), false);
+  assert.equal(controlNameOk("Monday, October 26", "26"), true); // punctuation is not part of a word
+  assert.equal(controlNameOk("Texts", "Text"), false); // four letters is not an abbreviation
+});
+
+test("a two- or three-letter code matches the start of a word, and says so", () => {
+  assert.deepEqual(controlNameVerdict("English", "EN"), { ok: true, abbreviations: ["en"] });
+  assert.deepEqual(controlNameVerdict("Español", "ES"), { ok: true, abbreviations: ["es"] });
+  assert.deepEqual(controlNameVerdict("Text", "Text"), { ok: true }); // a whole-word match carries no flag
+  assert.equal(controlNameOk("Deutsch", "EN"), false);
+});
+
 test("a stripped control — the sabotage shape — fails as empty", () => {
   // --break=strip-date empties a day cell's text and aria-label; --break=strip-bar
   // empties the Text button. The victim the check must name is found by exactly
