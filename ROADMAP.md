@@ -31799,6 +31799,8 @@ decisions, not build jobs.
   - Checked at 390 and 1440, English and Spanish
 
 - [ ] **97.40 — Detailers cannot bring their existing customers in (P-3).**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found the suite setup changed since baseline r1 (command, files pattern, Node or environment); it needs a reviewed new baseline.
+  The work is safe on branch `belt/97.40-20261024123430006`. Answer "merge it" to keep it, or say what to change.
   There is an export (`app/src/lib/customer-export.js`, `Clients.jsx:432`) but no import anywhere in `app/src` or `supabase/functions`. Build a CSV import through an edge function: name, phone, email, address, vehicle, notes; a preview before saving; duplicate matching on phone or email; and an undo for the whole batch. If this cannot finish in one job, cut it into numbered slices in this entry (preview first).
   Acceptance criteria:
   - A sample CSV with 20 rows, 2 duplicates and 1 bad row shows a preview naming each, and saving creates 17 customers
