@@ -474,12 +474,13 @@ Your jobs can now live in Apple Calendar or Google Calendar: on Notifications th
 
 ## DECIDE · Where new test pictures are saved (ROADMAP 97.63)
 
-You said keep everything, so nothing was deleted. New test pictures and email previews now go into one tucked-away
-folder instead of making new folders at the top of the project. Two exceptions remain. The first is the folder of
-pictures handed to the reviewer, which the working rules name. The second is one ready-made check that jobs are told
-not to touch. Please answer two things. Is it fine for the reviewer pictures to keep their own separate folder? And may
-a job edit that one check so its pictures move as well? My recommendation is yes to both. Either way, nothing gets
-deleted and the top of the project stops growing.
+You said keep everything, so nothing was deleted. New test pictures and email previews from 22 scripts now go into one
+tucked-away folder instead of making new folders at the top of the project. Three exceptions remain. The first is the
+folder of pictures handed to the reviewer, which the working rules name. The other two are ready-made checks that jobs
+are told not to touch. One of them saves its pictures in its own tucked-away folder. The other can still add a new
+folder at the top of the project, but only when someone asks it for pictures. Please answer two things. Is it fine for
+the reviewer pictures to keep their own separate folder? And may a job edit those two checks so their pictures move
+as well? My recommendation is yes to both. Until the second yes, the top of the project can still grow a little.
 
 ---
 
