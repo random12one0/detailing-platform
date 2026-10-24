@@ -1,0 +1,69 @@
+{
+  "git_sha": "a923b4865e3acc20168458b5c50f6f5d2dab73d6",
+  "git_sha_started": "a923b4865e3acc20168458b5c50f6f5d2dab73d6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T22:50:40.870Z",
+  "failures": [
+    "[refused-unlock-en-392x844] a refused/offline unlock never shows WORKING WORKING in Coastline. Anything you change is theirs. Open until 4:13 PM.Back to lookingClose",
+    "[refused-unlock-en-392x844] it says why, in this language WORKING in Coastline. Anything you change is theirs. Open until 4:13 PM.Back to lookingClose",
+    "[refused-unlock-en-392x844] the refused press persists nothing",
+    "[refused-unlock-en-1440x900] a refused/offline unlock never shows WORKING WORKING in Coastline. Anything you change is theirs. Open until 4:13 PM.Back to lookingClose",
+    "[refused-unlock-en-1440x900] it says why, in this language WORKING in Coastline. Anything you change is theirs. Open until 4:13 PM.Back to lookingClose",
+    "[refused-unlock-en-1440x900] the refused press persists nothing",
+    "[refused-unlock-es-392x844] a refused/offline unlock never shows WORKING TRABAJANDO en Coastline. Todo lo que cambies será de ellos. Abierto hasta 4:13 PM.Volver a mirarCerrar",
+    "[refused-unlock-es-392x844] it says why, in this language TRABAJANDO en Coastline. Todo lo que cambies será de ellos. Abierto hasta 4:13 PM.Volver a mirarCerrar",
+    "[refused-unlock-es-392x844] the refused press persists nothing",
+    "[refused-unlock-es-1440x900] a refused/offline unlock never shows WORKING TRABAJANDO en Coastline. Todo lo que cambies será de ellos. Abierto hasta 4:13 PM.Volver a mirarCerrar",
+    "[refused-unlock-es-1440x900] it says why, in this language TRABAJANDO en Coastline. Todo lo que cambies será de ellos. Abierto hasta 4:13 PM.Volver a mirarCerrar",
+    "[refused-unlock-es-1440x900] the refused press persists nothing",
+    "[refused-relock-en-392x844] a refused/offline relock stays on Working (the server still has it unlocked) Looking at Coastline. Nothing here can be changed. Open until 4:14 PM.Let me make changesClose",
+    "[refused-relock-en-392x844] it says why, in this language Looking at Coastline. Nothing here can be changed. Open until 4:14 PM.Let me make changesClose",
+    "[refused-relock-en-1440x900] a refused/offline relock stays on Working (the server still has it unlocked) Looking at Coastline. Nothing here can be changed. Open until 4:14 PM.Let me make changesClose",
+    "[refused-relock-en-1440x900] it says why, in this language Looking at Coastline. Nothing here can be changed. Open until 4:14 PM.Let me make changesClose",
+    "[refused-relock-es-392x844] a refused/offline relock stays on Working (the server still has it unlocked) Viendo Coastline. Aquí no se puede cambiar nada. Abierto hasta 4:14 PM.Quiero hacer cambiosCerrar",
+    "[refused-relock-es-392x844] it says why, in this language Viendo Coastline. Aquí no se puede cambiar nada. Abierto hasta 4:14 PM.Quiero hacer cambiosCerrar",
+    "[refused-relock-es-1440x900] a refused/offline relock stays on Working (the server still has it unlocked) Viendo Coastline. Aquí no se puede cambiar nada. Abierto hasta 4:14 PM.Quiero hacer cambiosCerrar",
+    "[refused-relock-es-1440x900] it says why, in this language Viendo Coastline. Aquí no se puede cambiar nada. Abierto hasta 4:14 PM.Quiero hacer cambiosCerrar",
+    "[offline-relock-es-1440x900] scenario ran without an automation error locator.waitFor: Timeout 30000ms exceeded."
+  ],
+  "warnings": [],
+  "artifacts": [
+    "out/preview-switch/sabotage"
+  ],
+  "dimensions": {
+    "break": "refusal-as-404",
+    "base": "http://127.0.0.1:5180",
+    "runs": 35,
+    "languages": [
+      "en",
+      "es"
+    ],
+    "scenarios": [
+      "allowed-unlock",
+      "refused-unlock",
+      "offline-unlock",
+      "refused-relock",
+      "offline-relock",
+      "relock-audit-failed",
+      "legacy-404",
+      "legacy-400-unknown-action",
+      "double-press"
+    ]
+  },
+  "check_id": "preview-switch",
+  "started_at": "2026-10-24T22:48:37.041Z",
+  "status": "fail",
+  "expected_targets": 35,
+  "discovered_targets": 35,
+  "attempted_targets": 35,
+  "completed_targets": 34,
+  "skipped_targets": 0,
+  "assertions_executed": 231,
+  "min_assertions": 175,
+  "assertion_floor": "structural floor: every run asks at least the starting bar, Close, its state checks (two or more), the geometry and the console",
+  "canary": {
+    "id": "allowed-unlock-shows-working",
+    "observed_failure": true
+  }
+}

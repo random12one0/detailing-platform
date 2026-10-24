@@ -1,0 +1,46 @@
+{
+  "git_sha": "a923b4865e3acc20168458b5c50f6f5d2dab73d6",
+  "git_sha_started": "a923b4865e3acc20168458b5c50f6f5d2dab73d6",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T22:48:19.729Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "C:/Users/rando/Downloads/claude/belt/shots/4.3e/png"
+  ],
+  "dimensions": {
+    "base": "http://127.0.0.1:5180",
+    "runs": 35,
+    "languages": [
+      "en",
+      "es"
+    ],
+    "scenarios": [
+      "allowed-unlock",
+      "refused-unlock",
+      "offline-unlock",
+      "refused-relock",
+      "offline-relock",
+      "relock-audit-failed",
+      "legacy-404",
+      "legacy-400-unknown-action",
+      "double-press"
+    ]
+  },
+  "check_id": "preview-switch",
+  "started_at": "2026-10-24T22:46:38.312Z",
+  "status": "pass",
+  "expected_targets": 35,
+  "discovered_targets": 35,
+  "attempted_targets": 35,
+  "completed_targets": 35,
+  "skipped_targets": 0,
+  "assertions_executed": 236,
+  "min_assertions": 175,
+  "assertion_floor": "structural floor: every run asks at least the starting bar, Close, its state checks (two or more), the geometry and the console",
+  "canary": {
+    "id": "allowed-unlock-shows-working",
+    "observed_failure": true
+  }
+}
