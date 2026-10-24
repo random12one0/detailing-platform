@@ -1,0 +1,37 @@
+{
+  "git_sha": "12b93957ae9553569fcd1ad2f452200b29945f33",
+  "git_sha_started": "12b93957ae9553569fcd1ad2f452200b29945f33",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T17:33:08.770Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/97.55/"
+  ],
+  "dimensions": {
+    "widths": "320, 390, 768, 1440",
+    "scenes": "open, none, cancel"
+  },
+  "check_id": "checkin-card",
+  "started_at": "2026-10-24T17:32:47.282Z",
+  "status": "pass",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 52,
+  "min_assertions": 36,
+  "unjudgeable": [],
+  "canary": {
+    "id": "a page with no check-in card must read as card-absent",
+    "observed_failure": true,
+    "caught_by": [
+      "cardOf().count() === 0"
+    ],
+    "findings": [
+      "absent on a card-less page, as required"
+    ]
+  }
+}

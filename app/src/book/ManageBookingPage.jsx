@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, Check, CreditCard, Phone, X } from "lucide-react";
 import { api, icsUrl, slotsForType } from "../lib/api.js";
+import { canAcknowledge, hasAcked } from "../lib/checkin.js";
 import { money, phone, time12 } from "../lib/format.js";
 import { adjustmentLabel } from "./adjustmentLabel.js";
 import { businessToday } from "./core.js";
@@ -120,6 +121,8 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   // here, so it asks first — inline, naming the appointment, which a native
   // confirm() cannot do.
   const [confirmCancel, setConfirmCancel] = useState(false);
+  // ROADMAP 97.55 - the timed tick on the Vehicle check-in box.
+  const [ticked, setTicked] = useState(false);
   // ROADMAP 2.20 STAGE 3 — PAYING BY CARD.
   //
   // `?paid=1` IS STRIPE'S `success_url` COMING BACK, and it is the only thing
@@ -304,6 +307,34 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   // Saying YES. Saying no is the ordinary Cancel below — a customer who won't
   // pay the quoted price is cancelling, and the slot has to go back either
   // way, so there is no second decline button competing with it.
+  // ROADMAP 97.55 - WHAT THE CHECK-IN CARD DRAWS. Both names come off the
+  // public receipt: the tick's time and how many damage photos it covers.
+  const ackAt = booking.damage_ack_at;
+  const damageCount = Number(booking.damage_photo_count ?? 0);
+  const acked = hasAcked(booking);
+  const offerCheckin = canAcknowledge(booking);
+  const ackWhen = ackAt
+    ? new Date(ackAt).toLocaleString(loc, {
+      weekday: "short", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit",
+    })
+    : "";
+
+  // Saying YES to the check-in. The server stamps the time; this reloads so
+  // the card shows the confirmed line with the time it just stored.
+  const confirmCheckin = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await api.acknowledgeCheckin(booking.id);
+      setTicked(false);
+      onChanged();
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
   const acceptQuote = async () => {
     setBusy(true);
     setError("");
@@ -606,6 +637,38 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
 
             EACH ROW IS A LINK to that booking's own page, because moving or
             cancelling one car is the whole reason they are separate. */}
+        {/* ROADMAP 97.55 - THE VEHICLE CHECK-IN. The detailer photographs
+            any existing marks before the job; the customer ticks this box
+            and the tick is saved with its time. Plain acknowledgment, no
+            waiver, so there is no legal wording here. NOTHING IS DRAWN
+            until the detailer has recorded at least one damage photo: before
+            that there is no check-in to confirm (finish review 2026-10-24). */}
+        {(acked || offerCheckin) && (
+          <div className="bk-card" style={{ marginTop: 14 }}>
+            <div className="bk-step-label">{t("Vehicle check-in")}</div>
+            {acked ? (
+              <p className="bk-body" style={{ marginTop: 6 }}>
+                {t("Confirmed {when}. Thank you.", { when: ackWhen })}
+              </p>
+            ) : (
+              <>
+                <p className="bk-body" style={{ marginTop: 6 }}>
+                  {t("Existing marks recorded before the job: {count}.", { count: damageCount })}
+                </p>
+                <label className="bk-row" style={{ marginTop: 10, gap: 10, alignItems: "center", minHeight: 44 }}>
+                  <input type="checkbox" checked={ticked} disabled={busy}
+                    onChange={(e) => setTicked(e.target.checked)} />
+                  <span>{t("I have reviewed this check-in with {business}.", { business: business.name })}</span>
+                </label>
+                <button className="bk-btn primary" style={{ marginTop: 12 }}
+                  disabled={busy || !ticked} onClick={confirmCheckin}>
+                  {busy ? t("Saving…") : t("Confirm check-in")}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         {group.length > 0 && (
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">

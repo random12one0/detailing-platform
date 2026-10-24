@@ -39,6 +39,7 @@ import { Segmented } from "./controls.jsx";
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
 import { getAppLocale, t } from "../lib/appI18n.js";
+import { hasAcked } from "../lib/checkin.js";
 import JobWeather from "./JobWeather.jsx";
 import { useJobWeather } from "../hooks/useJobWeather.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
@@ -1207,6 +1208,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 order a job is read in: what it costs, what it looked like,
                 what was said about it. `docs/detailer-dashboard-audit-
                 2026-09-06.md` §3.1. */}
+            {/* ROADMAP 97.55 - WHEN THE CUSTOMER TICKED THE CHECK-IN BOX.
+                The time comes off the row the receipt link wrote; unacked
+                reads as not yet, which is a different fact from never asked.
+                The count is what the tick COVERED, saved with it, so a damage
+                photo added afterwards is never read as confirmed. */}
+            <h3 className="section-title">{t("Vehicle check-in")}</h3>
+            {hasAcked(booking) ? (
+              <p className="muted">{t("Customer confirmed the vehicle check-in {when}.", {
+                when: new Date(booking.damage_ack_at).toLocaleString(getAppLocale(), {
+                  month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+                }),
+              })} {t("Damage photos they confirmed: {count}.", { count: booking.damage_ack_photo_count ?? 0 })}</p>
+            ) : (
+              <p className="muted">{t("The customer has not confirmed the vehicle check-in yet.")}</p>
+            )}
             <JobPhotos booking={booking} />
 
             {(booking.customer_notes || booking.admin_notes) && (

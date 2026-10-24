@@ -1,0 +1,45 @@
+{
+  "git_sha": "e0cf8d8f4b121578f3096805696c819a7f434222",
+  "git_sha_started": "e0cf8d8f4b121578f3096805696c819a7f434222",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T17:31:54.383Z",
+  "failures": [
+    "none@320: a booking with no damage photo recorded offers the check-in before anything was checked in",
+    "none@390: a booking with no damage photo recorded offers the check-in before anything was checked in",
+    "none@768: a booking with no damage photo recorded offers the check-in before anything was checked in",
+    "none@1440: a booking with no damage photo recorded offers the check-in before anything was checked in"
+  ],
+  "warnings": [
+    "the production rule was rewritten in 12 page load(s)"
+  ],
+  "artifacts": [
+    ".manager-shots/97.55/break-offer-early/"
+  ],
+  "dimensions": {
+    "widths": "320, 390, 768, 1440",
+    "scenes": "open, none, cancel",
+    "break": "offer-early"
+  },
+  "check_id": "checkin-card",
+  "started_at": "2026-10-24T17:31:32.470Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 52,
+  "min_assertions": 36,
+  "unjudgeable": [],
+  "canary": {
+    "id": "a page with no check-in card must read as card-absent",
+    "observed_failure": true,
+    "caught_by": [
+      "cardOf().count() === 0"
+    ],
+    "findings": [
+      "absent on a card-less page, as required"
+    ]
+  }
+}

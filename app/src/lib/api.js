@@ -320,6 +320,10 @@ export const api = {
   // whether a card can be taken at all at the moment of the press, because a
   // link in an inbox outlives every switch on the settings screen.
   payBooking: (bookingId) => callFn("pay-booking", { booking_id: bookingId }),
+  // ROADMAP 97.55 - the customer ticking the Vehicle check-in box on their
+  // receipt link. Public like the other receipt calls: the booking UUID is
+  // the credential and no session is needed.
+  acknowledgeCheckin: (bookingId) => callFn("acknowledge-checkin", { booking_id: bookingId }),
 };
 
 // The times on a day that THIS service type can actually have.

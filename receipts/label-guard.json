@@ -1,9 +1,9 @@
 {
-  "git_sha": "ec2ef23005a70353511d634f85495b0b08352a96",
-  "git_sha_started": "ec2ef23005a70353511d634f85495b0b08352a96",
+  "git_sha": "f81ff1ed07a4bd21fd1a62cdf0413708a1260c33",
+  "git_sha_started": "f81ff1ed07a4bd21fd1a62cdf0413708a1260c33",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-24T16:02:01.984Z",
+  "finished_at": "2026-10-24T17:34:19.469Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -23,14 +23,14 @@
     "sources": "app/src + scripts/seed-demo.mjs"
   },
   "check_id": "label-guard",
-  "started_at": "2026-10-24T16:02:01.610Z",
+  "started_at": "2026-10-24T17:34:19.090Z",
   "status": "pass",
-  "expected_targets": 127,
-  "discovered_targets": 127,
-  "attempted_targets": 127,
-  "completed_targets": 127,
+  "expected_targets": 128,
+  "discovered_targets": 128,
+  "attempted_targets": 128,
+  "completed_targets": 128,
   "skipped_targets": 0,
-  "assertions_executed": 127,
+  "assertions_executed": 128,
   "min_assertions": 30,
   "canary": {
     "id": "a declared label that no product could contain",

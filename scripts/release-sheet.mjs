@@ -111,6 +111,7 @@ const M = {
   expire: "20261017180000_support_sessions_expire.sql",
   endAtAuth: "20261017190000_support_sessions_end_at_auth.sql",
   feed: "20261024150000_calendar_feed_token.sql",
+  damageAck: "20261024160000_damage_ack.sql",
 };
 // The support-session lock (4.3c): every program carrying either file reads the
 // `support_sessions` table, so each goes after the database change that makes it.
@@ -285,6 +286,12 @@ Object.assign(DECLARED, {
     before: [[M.feed, "calendar-feed"], [M.feed, "website"]],
     rule: "The database change first: the feed program and the Notifications screen both read the new column, and without it the screen offers only Create calendar link and the feed refuses every link.",
     after: ["Subscribe for real: Google Calendar, From URL (or Apple Calendar, New Calendar Subscription), paste the link from Notifications, Your calendar. Reset it once and check the old link stops updating."],
+  },
+  "97.55": {
+    migrations: [M.damageAck], functions: ["acknowledge-checkin", "get-booking-receipt"], website: true,
+    before: [[M.damageAck, "get-booking-receipt"], [M.damageAck, "acknowledge-checkin"], [M.damageAck, "website"]],
+    rule: "The database change first, and it is not optional: `get-booking-receipt` now reads the new `damage_ack_at` column in its main booking read, so published before the change it fails and EVERY customer's receipt link says Booking not found. The check-in program and the website card need it too.",
+    after: ["A session with the keys runs `node scripts/checkin-live.mjs`: it ticks one demo booking through the public function, reads it back, and puts it back."],
   },
   "4.1d": {
     migrations: [M.invites], functions: ["invite-user"], before: [[M.invites, "invite-user"]],

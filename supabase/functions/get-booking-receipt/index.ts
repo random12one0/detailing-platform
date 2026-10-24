@@ -59,6 +59,11 @@ const BOOKING_COLUMNS = [
   "quoted_amount",
   "quoted_note",
   "quoted_at",
+  // ROADMAP 97.55 - named here ON PURPOSE. The manage page draws the
+  // Vehicle check-in card from it, and the card cannot say ticked or
+  // unticked without the column. It is the customer's own tick on their
+  // own booking: nothing here is private from them.
+  "damage_ack_at",
 ];
 
 // READ, AND NEVER SENT. `business_id` and `booking_group_id` find the sibling
@@ -69,8 +74,8 @@ const SERVER_ONLY_COLUMNS = ["business_id", "booking_group_id", "payment_status"
 
 const EMBEDDED = ["services", "add_ons", "vehicles"];
 
-// Derived from the business's timezone in the reply below, never stored.
-const DERIVED = ["booking_date", "start_time", "end_time"];
+// Computed for the reply below, never stored: dates from the business's timezone, the photo count from job_photos.
+const DERIVED = ["booking_date", "start_time", "end_time", "damage_photo_count"];
 
 /**
  * EVERY KEY THE PUBLIC RECEIPT MAY CARRY. `tests/receipt-fields.test.mjs`
@@ -177,6 +182,15 @@ Deno.serve(async (req) => {
     // can sit open on a phone for a day, and into an email that lives in an
     // inbox for ever. This one decides whether to DRAW the button; that one
     // decides whether it works.
+    // ROADMAP 97.55 - HOW MANY DAMAGE PHOTOS THE CHECK-IN CARD COUNTS.
+    // The files stay private (signed URLs for the detailer only); the
+    // receipt carries the number so the customer's tick names what it covers.
+    const { count: damageCount } = await supabase
+      .from("job_photos")
+      .select("id", { count: "exact", head: true })
+      .eq("booking_id", booking.id)
+      .eq("kind", "damage");
+
     let card = { ready: false, amountCents: 0 };
     if (business) {
       const { data: conn } = await supabase
@@ -215,6 +229,7 @@ Deno.serve(async (req) => {
         booking_date: dateStrIn(tz, new Date(booking.start_at)),
         start_time: timeStrIn(tz, new Date(booking.start_at)),
         end_time: timeStrIn(tz, new Date(booking.end_at)),
+        damage_photo_count: damageCount ?? 0,
       },
       business: business
         ? {

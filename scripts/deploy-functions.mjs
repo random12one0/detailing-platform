@@ -42,6 +42,11 @@ const PUBLIC_FUNCTIONS = new Set([
   // email. Same access model as the two above: the booking UUID is the
   // credential, and there is no session on that page.
   "accept-quote",
+  // ROADMAP 97.55 - the customer ticking the vehicle check-in box on their
+  // receipt link. Same access model as the three above: the booking UUID is
+  // the credential, there is no session on that page, and it takes the same
+  // per-IP ceiling.
+  "acknowledge-checkin",
   // ROADMAP 97.3 — THE FOUR SCHEDULED JOBS BELOW are public at the gateway only
   // because pg_cron has no session. Each now refuses any call without the
   // `x-cron-secret` header (`_shared/cronAuth.ts`), so public here no longer
