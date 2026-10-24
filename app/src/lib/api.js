@@ -42,8 +42,8 @@ const PREVIEW_SWITCH = new Set(["support_unlock", "support_lock"]);
 async function callFn(name, body) {
   if (!PREVIEW_READS.has(name)
     && !(name === "platform-billing" && body?.action === "summary")
-    && !(name === "photo-door" && body?.action === "urls")
-    && !(name === "platform-admin" && PREVIEW_SWITCH.has(body?.action))) guardWrite();
+    && !(name === "platform-admin" && PREVIEW_SWITCH.has(body?.action))
+    && !(name === "photo-door" && body?.action === "urls")) guardWrite();
   const { data: sessionData } = await supabase.auth.getSession();
   const jwt = sessionData?.session?.access_token;
   return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);

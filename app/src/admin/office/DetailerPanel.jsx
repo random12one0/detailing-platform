@@ -24,6 +24,7 @@ const EVENT_WORDS = {
   prices: "You changed their prices", promo_new: "You added a promo code", promo_off: "You turned a promo code off",
   resend_invite: "You sent an owner invite", site: "You set their website address", build_start: "You told them work started",
   tier: "You changed their plan",
+  support_unlock: "You switched on changes in their dashboard", support_lock: "You switched changes back off",
 };
 
 const ago = (iso) => {
