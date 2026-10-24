@@ -281,6 +281,9 @@ async function subscriptionChanged(sub: Obj): Promise<void> {
   // defaulting it to `suspended` takes a paying detailer's site down because
   // Stripe shipped a feature we do not use. Neither is a guess worth making.
   const mapped = ourStatus(sub.status);
+  // ROADMAP 97.37 — read before the write: `incomplete` is "never paid".
+  const { data: before } = await supabase.from("platform_subscriptions")
+    .select("status").eq("business_id", businessId).maybeSingle();
   const patch: Obj = {
     current_period_end: stamp(sub.current_period_end),
     cancel_at_period_end: sub.cancel_at_period_end === true,
@@ -313,6 +316,10 @@ async function subscriptionChanged(sub: Obj): Promise<void> {
   await supabase.from("platform_subscriptions").update(patch).eq("business_id", businessId);
 
   if (mapped === "suspended") await suspend(businessId, null, 0);
+  // The first payment through our own form arrives here or as `invoice.paid`,
+  // never as `checkout.session.completed`, so a never-paid signup is opened
+  // by whichever lands first. `setSuspension` only touches a `paused` row.
+  if (mapped === "active" && before?.status === "incomplete") await setSuspension(businessId, false);
   // A CANCELLED SUBSCRIPTION IS NOT A SUSPENSION AND MUST NOT LOOK LIKE ONE.
   // Somebody who cancelled deliberately, at the end of a period they paid for,
   // gets their page turned off by roadmap 4.4's admin screen or by the churn
@@ -380,7 +387,13 @@ async function invoicePaid(invoice: Obj): Promise<void> {
   // ONLY UN-PAUSE WHAT WE PAUSED. A business an admin churned, or one paused
   // for any other reason roadmap 4.4 invents, must not be quietly reopened by
   // an invoice being paid.
-  if (sub.suspended_at) await setSuspension(businessId, false);
+  // ROADMAP 97.37 — AND A FIRST PAYMENT OPENS AN ACCOUNT THAT HAS NEVER PAID.
+  // Signup creates the business `paused` with the row `incomplete`, and
+  // `suspended_at` is null there, so without this a detailer who paid stayed
+  // dark for good. `incomplete` is read BEFORE the update above, so it is
+  // still "never paid"; `subscriptionChanged` does the same, for whichever of
+  // the two events Stripe delivers first.
+  if (sub.suspended_at || sub.status === "incomplete") await setSuspension(businessId, false);
 }
 
 async function invoiceFailed(invoice: Obj): Promise<void> {

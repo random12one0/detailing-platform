@@ -62,6 +62,14 @@ Deno.serve(async (req) => {
       contact_phone: body.contact_phone,
       dropoff_address: body.dropoff_address,
       service_area: body.service_area,
+      // ROADMAP 97.37 — Andrew, 2026-10-15: *"a new account must NOT get a
+      // working booking page, customer bookings or any real access until they
+      // have paid."* PAUSED is billing's own off switch: `businessBySlug` and
+      // `get_public_business_profile` accept only `active`, so the booking
+      // page, `available-slots` and `create-booking` all refuse it, and
+      // `stripe-webhook` opens it on the first payment. Never taken from the
+      // body: a signup cannot choose to be live.
+      status: "paused",
     });
     if (made.error || !made.business) return json({ error: made.error }, made.status ?? 400);
     const business = made.business;

@@ -30,6 +30,10 @@ export interface NewBusinessInput {
   contact_phone?: string | null;
   dropoff_address?: string | null;
   service_area?: string | null;
+  // ROADMAP 97.37 — signup passes "paused": a self-serve account has no live
+  // booking page until its first payment. Left out, the column's default
+  // ('active') applies, which is what the back office's hand-made accounts get.
+  status?: "active" | "paused";
 }
 
 export interface NewBusinessResult {
@@ -93,6 +97,7 @@ export async function createBusinessRow(db: Db, input: NewBusinessInput): Promis
       contact_phone: input.contact_phone?.trim() || null,
       dropoff_address: input.dropoff_address?.trim() || null,
       service_area: input.service_area?.trim() || null,
+      ...(input.status ? { status: input.status } : {}),
     })
     .select()
     .single();
