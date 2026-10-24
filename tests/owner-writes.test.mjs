@@ -152,7 +152,6 @@ const CASES = [
   ["gallery_images", { kind: "single", image_url: "https://example.test/a.jpg", caption: "Before" }, { caption: "After" }, "is_active"],
   ["testimonials", { author: "Sam", quote: "Great work", rating: 5 }, { rating: 4 }, "is_active"],
   ["message_templates", { key: "owner_test_tpl", label: "Owner test", body: "See you {{date}}" }, { label: "Owner test 2" }, "delete"],
-  ["customers", { name: "Walk-in Wendy", phone: "555-0100" }, { email: "wendy@owner.test" }, "delete"],
 ];
 
 for (const [table, row, patch, retire] of CASES) {
@@ -192,6 +191,30 @@ const exercised = new Set();
   check("business_domains: owner can DELETE (97.13 keeps removal direct)", removed,
     `${del.status} ${JSON.stringify(del.data).slice(0, 160)}`);
   if (removed) exercised.add("business_domains");
+}
+
+// ROADMAP 97.14 — customers is SERVER-WRITTEN: an owner's session may not insert, update or delete a customer row
+// directly (staff logins used to do it whatever their permissions); the one write left is the Notes box, through
+// rpc set_customer_notes. The row is made under the service role, the owner's direct writes must all be refused,
+// and the rpc must still save a note. Moved out of CASES 2026-10-24, where it still expected an INSERT to succeed.
+{
+  const c = (await svc.post("/rest/v1/customers", [{ business_id: biz.id, name: "Walk-in Wendy", phone: "555-0100" }])).data?.[0];
+  const ins = await as("POST", "/rest/v1/customers", { business_id: biz.id, name: "Direct Dan", phone: "555-0101" });
+  check("customers: owner's direct INSERT is refused (97.14)", ins.status === 401 || ins.status === 403,
+    `${ins.status} ${JSON.stringify(ins.data).slice(0, 160)}`);
+  const upd = c ? await as("PATCH", `/rest/v1/customers?id=eq.${c.id}`, { email: "wendy@owner.test" }) : { status: 0 };
+  check("customers: owner's direct UPDATE is refused (97.14)", upd.status === 401 || upd.status === 403,
+    `${upd.status} ${JSON.stringify(upd.data).slice(0, 160)}`);
+  const del = c ? await as("DELETE", `/rest/v1/customers?id=eq.${c.id}`) : { status: 0 };
+  check("customers: owner's direct DELETE is refused (97.14)", del.status === 401 || del.status === 403,
+    `${del.status} ${JSON.stringify(del.data).slice(0, 160)}`);
+  const note = c ? await as("POST", "/rest/v1/rpc/set_customer_notes",
+    { p_business_id: biz.id, p_customer_id: c.id, p_notes: "Prefers mornings" }) : { status: 0 };
+  const saved = c ? (await svc.get(`/rest/v1/customers?id=eq.${c.id}&select=notes`)).data?.[0]?.notes : null;
+  check("customers: the Notes box still saves through set_customer_notes", note.status < 300 && saved === "Prefers mornings",
+    `${note.status} notes=${JSON.stringify(saved)}`);
+  if (c && ins.status >= 400 && upd.status >= 400 && del.status >= 400 && saved === "Prefers mornings") exercised.add("customers");
+  if (c) await svc.del(`/rest/v1/customers?id=eq.${c.id}`);
 }
 
 // business_hours is keyed (business_id, weekday) and has no id column: the
