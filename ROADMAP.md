@@ -18271,8 +18271,9 @@ rather than wording went to Andrew.
     no script substitutes for; `docs/testing/phones-we-do-not-own.md` is where
     that family is written down.
 
-    **RESULT 2026-10-10 (ROADMAP 14.24 part 3): STILL NOT RUN.** No screen reader has been run on either screen. Andrew ruled
-    2026-10-10 that this is a session's job, not his: 14.24 part 3 now reads the accessible names in a browser check instead.
+    **RESULT 2026-10-24 (ROADMAP 14.24 part 3): PASSES.** Every control on the booking date step (13) and the job record's pinned bar (7) announces
+    a name that holds its visible words, at 1440 and 392 — `scripts/accessible-names.mjs`, 96 of 96 at `1a30fee8`, two sabotages caught. No screen
+    reader's audio was played; Andrew ruled 2026-10-10 that reading the accessible name is the check. Full record in 14.24.
   *A2 6.2*
 
 - [x] ~~**7.5 — Prices count up from low numbers.**~~ **Fixed 2026-09-20.**
@@ -29451,7 +29452,7 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
 
 ### 14.24 — Three ticked items each name a gap only a person with the browser can close, and all three are under ten minutes
 
-- [ ] **Assembled 2026-09-25 from the completed ticked-item audit
+- [x] **Assembled 2026-09-25 from the completed ticked-item audit
   (`docs/ticked-without-proof-2026-09-25.md`). One entry rather than three,
   because it is one sitting — but each of the three carries its own pass
   condition and can be struck through independently, so a half-done sitting
@@ -29573,6 +29574,45 @@ week-one sequence, which supersedes starting at Wave 1 of this file:
   **Andrew decided 2026-10-12/13 (dashboard INBOX, same line 7 times, counted once): run all three checks now.**
   Parts 1 and 2 already pass above; part 3 stays a session job — build the accessible-name check first, then run
   all three. Recorded by supervision 2026-10-13; box still `[ ]` until *Done when* holds all three.
+
+  **RECORDED 2026-10-24 — part 3 PASSES against its own *Passes when*; part 1 re-run and PASSES again; part 2 stands on its 2026-10-10 receipt. Box ticked.**
+  (The 2026-10-23 attempt built the check but could not reach either screen; its branch failed to merge over one receipt. Its work was carried
+  over unchanged except as written here.)
+
+  **Part 3 · 7.4, screen-reader names — PASSES.** `scripts/accessible-names.mjs`, receipt `receipts/accessible-names.json` (clean run at
+  `1a30fee8`): **96 of 96 assertions, 4 of 4 targets (date step and pinned bar, at 1440 and 392), canaries 3 of 3**, graded by `receipt.mjs`.
+  It tabs through each screen, reads every focused control's role and accessible name from the browser's own accessibility tree (what Narrator
+  speaks), and fails an empty name, a name of only "button", or a name missing the control's visible words. **What was read, identical at both
+  widths:** date step, 13 controls, in tab order — *9 AM*, *10 AM*, *1 PM*, *Back a step* (icon arrow), *Continue*, *English* (shows EN), *Español*
+  (shows ES), *Next month* (icon arrow), and the five open days, each announced with its full date (*Monday, October 26* … *Friday, October 30*
+  over the visible 26 … 30); the past-month arrow is disabled, so it is out of the tab order and was read directly: *Previous month*. Pinned bar
+  (`.jobbar`), 7 controls — link *Call*, button *Text*, link *On my way*, link *Navigate*, button *Calendar*, button *Contacts*, button *Reminder*;
+  every name is exactly the words on the button. Console: 0 errors, 0 warnings, 0 failed requests at all four readings (the job screen's one
+  forgiven back-office 404 did not occur). **Broken on purpose, each landed and named its victim:** `--break=strip-date` (one day cell's text and
+  label emptied) **4 failed**, naming `div.cell text=""` at 1440 and 392; `--break=strip-bar` (the Text button emptied) **6 failed**, naming
+  `button.btn.sm text=""` and the missing Text control at both widths. Each sabotage has its own receipt (`accessible-names-strip-date.sabotage.json`,
+  `accessible-names-strip-bar.sabotage.json`) and its own picture folder, all eight artifacts each still on disk after the clean run. The rule
+  itself is `scripts/lib/accessibleName.mjs`, held by `tests/accessible-names.test.mjs` (14 of 14, no browser).
+  **How the screens were reached, plainly:** this job's copy runs on the belt's stand-in backend, which signs anyone in and answers the price and
+  open-times calls with nothing, so no walk can pass step 1. `--fixture` (now in `scripts/lib/bookingWalk.mjs`, `feedBookingFixture`) answers
+  those two calls in the shape the real functions return — one hour at $65, weekdays open at 9, 10 and 1. Every name read above is rendered by
+  the real components; only the price and the times were supplied. The owner sign-in used a placeholder from the environment, which the stand-in
+  accepts. Both are recorded in the receipt (`fixture: true`, `owner_session`). **Not measured: actual Narrator audio**; Andrew ruled 2026-10-10 that
+  the accessible-name read is the job. The receipt names two judgements as `unjudgeable`: whether a bare number is a USEFUL name, and
+  whether the tab order reads sensibly.
+
+  **Part 1, re-run 2026-10-24 — PASSES again.** `scripts/booking-steps-6-7.mjs --fixture`, receipt `receipts/booking-steps-6-7.json` at
+  `1a30fee8`: **48 of 48, 9 of 9, canaries 3 of 3.** Same figures as 2026-10-10 where they are the product's: column 320 / 392 / 632 / 632px,
+  right edge 304 / 376 / 684 / 1424px, plan pitch 288x842 / 360x823 / 600x462 / 600x472px, 768 calendar 600x369px with 35 cells, smallest 52x52.
+  Console clean at all eight. `--break=overflow` **14 failed**, as before. Seen in the pictures: at 320 the last plan card ends clear of the bar;
+  at 1440 step 7 sits in the centered 632 column. **Fixed on the way:** that script wiped `.manager-shots/14.24` on every run, so a clean run
+  destroyed the sabotage run's pictures its receipt names; a sabotage now writes to `.manager-shots/14.24-sabotage-<break>`.
+
+  **Part 2 — NOT re-run, and why.** `scripts/late-flag-two-jobs.mjs` writes three rows and refuses any database that is not
+  `kguqylyzgyzfktkfnhjb`; this copy has neither that address nor its key, and that guard was left alone. Its 2026-10-10 pass (16 of 16 at
+  `04806f46`) stands.
+
+  **Old-to-new action inventory:** none needed — nothing a person uses moved or was removed; only checking scripts changed.
 
   **Done when:** all three are recorded **in this entry**, each against **its own
   *Passes when* line above** — they are not interchangeable and "all three done"
