@@ -1,12 +1,12 @@
 {
-  "git_sha": "5841441023bd4c98a40f3771dc07fecce26087e7",
-  "git_sha_started": "5841441023bd4c98a40f3771dc07fecce26087e7",
+  "git_sha": "7f7789b3474267811afd9c843dbc6f4143b9a23f",
+  "git_sha_started": "7f7789b3474267811afd9c843dbc6f4143b9a23f",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-18T06:46:55.156Z",
+  "finished_at": "2026-10-24T07:18:32.746Z",
   "failures": [],
   "warnings": [
-    "Throwaway local Postgres built by replaying all 135 files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.",
+    "Throwaway local Postgres built by replaying all 139 files in supabase/migrations/; Supabase's own auth, storage, vault, cron and net schemas, its roles and its default grants are stand-ins, and the pg_cron / pg_net extension lines are skipped.",
     "Does not run the edge functions (no Deno here, and they are not deployed) or touch the live database; applying the migration is Andrew's."
   ],
   "artifacts": [
@@ -15,11 +15,11 @@
   "dimensions": {
     "item": "97.18",
     "postgres": "17.8",
-    "migrations_replayed": 135,
+    "migrations_replayed": 139,
     "r4_ms": 5
   },
   "check_id": "booking-day-lock",
-  "started_at": "2026-10-18T06:45:55.811Z",
+  "started_at": "2026-10-24T07:17:36.358Z",
   "status": "pass",
   "expected_targets": 10,
   "discovered_targets": 10,
@@ -36,8 +36,8 @@
   "observed": {
     "real-schema": {
       "id": "real-schema",
-      "migrations_replayed": 135,
-      "migrations_in_folder": 135,
+      "migrations_replayed": 139,
+      "migrations_in_folder": 139,
       "bookings_columns": 63,
       "bookings_triggers": "bookings_link_plan,bookings_updated_at,reset_reminder_markers_on_edit",
       "execute": {
@@ -63,7 +63,7 @@
       "a_exit": 0,
       "b_exit": 3,
       "b_error": "ERROR:  booking_day_full",
-      "b_waited_ms": 1830,
+      "b_waited_ms": 1905,
       "bookings_on_cap_2_day": 2
     },
     "race-buffer": {
@@ -71,7 +71,7 @@
       "a_exit": 0,
       "b_exit": 3,
       "b_error": "ERROR:  booking_too_close",
-      "b_waited_ms": 1957,
+      "b_waited_ms": 1736,
       "saved": 1
     },
     "race-move-cap": {
@@ -79,7 +79,7 @@
       "a_exit": 0,
       "b_exit": 3,
       "b_error": "ERROR:  booking_day_full",
-      "b_waited_ms": 1892,
+      "b_waited_ms": 1864,
       "bookings_on_cap_2_day": 2
     },
     "ordinary-and-exemptions": {
@@ -116,12 +116,12 @@
     "speed": {
       "id": "speed",
       "n_each": 300,
-      "plain_median_ms": 1.393,
-      "plain_p95_ms": 27.792,
-      "checked_median_ms": 1.957,
-      "checked_p95_ms": 29.255,
-      "extra_median_ms": 0.564,
-      "extra_p95_ms": 1.463
+      "plain_median_ms": 0.804,
+      "plain_p95_ms": 1.361,
+      "checked_median_ms": 1.073,
+      "checked_p95_ms": 1.821,
+      "extra_median_ms": 0.269,
+      "extra_p95_ms": 0.46
     }
   }
 }
