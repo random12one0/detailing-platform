@@ -153,6 +153,19 @@ for (const scenario of SCENARIOS) {
     }
   }
 }
+// THE CANARY, IN EVERY RUN: the never-paid case handed an active subscription,
+// which draws the full dashboard (the original defect). The same question the
+// unpaid case asks, "is the waiting screen shown?", must answer NO here.
+FEED.canary = { status: "paused", sub: { status: "active" } };
+let canaryCaught = false;
+{
+  const { ctx, page, fed } = await open("canary", 390, 844);
+  const gate = await page.locator(".awaitpay").count();
+  const tabs = await page.locator(".tabbar button:visible").count();
+  canaryCaught = fed() >= 2 && gate === 0 && tabs >= 3;
+  transcript.push(`canary @390 · fed ${fed()}, waiting screen ${gate}, tabs ${tabs} -> ${canaryCaught ? "caught" : "NOT caught"}`);
+  await ctx.close();
+}
 await browser.close();
 
 const expected = SCENARIOS.length * SIZES.length;
@@ -169,7 +182,7 @@ writeReceipt({
   expected_targets: expected, discovered_targets: expected, attempted_targets: expected, completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: SIZES.length * 19,
   assertion_floor: "unpaid 10, paid 4, suspended 5 per width; every check() unconditional.",
-  canary: { id: "paid-unpaid", observed_failure: BREAK ? failed > 0 : null, what: "--break=paid feeds the never-paid case an active subscription: a fresh signup with the full dashboard, the original defect" },
+  canary: { id: "paid-unpaid", observed_failure: canaryCaught, what: "every run: the never-paid case handed an active subscription draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=paid does the same to the counted unpaid case, which must go red" },
   failures, artifacts: [txt, SHOTS],
   dimensions: { roadmap: "97.37", break: BREAK || null, base: BASE, widths: SIZES.map(([w, h]) => `${w}x${h}`) },
   warnings: ["UNJUDGEABLE: what the Billing screen draws after Go to payment. The belt's sandbox answers platform-billing with {} and Billing throws on it, on the unmodified demo account too; the check proves the press opens Billing and asks for its figures, not the figures.", "The business and subscription rows are rewritten in the browser; the server half (signup creating a paused business, the first payment opening it) runs only after Andrew deploys create-business and stripe-webhook."],
