@@ -32101,18 +32101,23 @@ decisions, not build jobs.
 
 - [ ] **97.56b — Gift cards: the balance record (from 97.56; waits on 97.56a).**
   A new table holding each card: business, a code the customer types, starting amount, remaining balance, buyer and recipient email, created and (per 97.56a) no expiry. Every spend or refund is a row in a separate ledger table so a balance is always the sum of its history, never an edited number. Owner-only read and write under RLS, no browser writes (consequential writes go through edge functions). Proved on a local copy (PGlite), never applied by a session; applying is Andrew's.
+  Waits on: 97.56a. How the wait ends: Andrew's five gift card answers are written under 97.56a and it is ticked. Found by the 97.56b job 2026-10-24: the slice was dispatched because its dependency was written only in the title (lowercase "waits on"), which the belt does not read as a block. Nothing built: the table's shape depends on his answers (1) expiry column or none, (3) refund of an unused card, (4) cash back of a leftover and (5) deposit or bill as ledger row kinds, and his 2026-10-15 ruling is gift cards after launch. A migration left unapplied on purpose would also sit in the drift check and be applied with the next batch.
 
 - [ ] **97.56c — Gift cards: buying one on the detailer's page (from 97.56; waits on 97.56b).**
   A "Gift card" entry on the public booking page opens Stripe Checkout on the detailer's connected account (reuse `_shared/connect.ts`'s `checkoutSession`, as `pay-booking` does). The card is created ONLY when `stripe-webhook` (`index.ts:201`, `checkout.session.completed`) confirms payment, never when Checkout opens, so an abandoned checkout leaves no card. Refused when the detailer has no connected Stripe account. Phones first: designed at 390px.
+  Waits on: 97.56b. How the wait ends: 97.56b is ticked.
 
 - [ ] **97.56d — Gift cards: emailing the card (from 97.56; waits on 97.56c).**
   On payment, email the recipient (and a receipt to the buyer) with the code, the amount and the business's name. Email only, per the messaging rule ("receipts... by email only"); wording approved by Andrew like every customer email, with its Spanish version for customers.
+  Waits on: 97.56c. How the wait ends: 97.56c is ticked.
 
 - [ ] **97.56e — Gift cards: spending one at booking or on the bill (from 97.56; waits on 97.56b and 97.56a's answer (5)).**
   A gift-card code box beside the promo-code box (`validate-promo-code` is the model, but a gift card is a BALANCE, not a discount: it lowers what Stripe charges and writes a ledger row, and a part-used card keeps its remainder). The balance is taken in the same server step that records the booking or payment, so two tabs cannot spend the same $50 twice. Must-work: full, partial and leftover spends. Must-refuse: unknown code, empty card, another business's card.
+  Waits on: 97.56a, 97.56b. How the wait ends: both are ticked.
 
 - [ ] **97.56f — Gift cards: the detailer's view (from 97.56; waits on 97.56b).**
   A back-office list of cards sold: code, amount, balance left, buyer, and each spend with its booking. Owner can refund or void per 97.56a's rule; voiding never deletes the record. Gift card money that is sold but not yet spent is shown separately from earned income, because it is owed service, not revenue.
+  Waits on: 97.56b. How the wait ends: 97.56b is ticked.
 
 - [x] **97.57 — The app icon is SVG only, with no PNG or apple-touch-icon (P-15).**
   DONE 2026-10-23 (Claude session, from Muse branch belt/97.57-20261019143524644, verified): icon-192.png, icon-512.png and a 180px apple-touch-icon.png (the favicon mark rasterized) are in app/public, listed in manifest.webmanifest and app/index.html; a production build serves all three as 200 image/png. tests/app-icons.test.mjs fails 3/3 on the old tree, passes after. Dropped Muse's 366-line SVG rasterizer script.
