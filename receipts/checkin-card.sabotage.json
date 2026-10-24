@@ -1,0 +1,45 @@
+{
+  "git_sha": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
+  "git_sha_started": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T16:44:32.756Z",
+  "failures": [
+    "open@320: no Confirmed line after the press: VEHICLE CHECK-IN\n\nExisting marks recorded before the job: 2.\n\nI have reviewed this check-in with Coa",
+    "open@390: no Confirmed line after the press: VEHICLE CHECK-IN\n\nExisting marks recorded before the job: 2.\n\nI have reviewed this check-in with Coa",
+    "open@768: no Confirmed line after the press: VEHICLE CHECK-IN\n\nExisting marks recorded before the job: 2.\n\nI have reviewed this check-in with Coa",
+    "open@1440: no Confirmed line after the press: VEHICLE CHECK-IN\n\nExisting marks recorded before the job: 2.\n\nI have reviewed this check-in with Coa"
+  ],
+  "warnings": [],
+  "artifacts": [
+    ".manager-shots/97.55/"
+  ],
+  "dimensions": {
+    "widths": "320, 390, 768, 1440",
+    "scenes": "open, none, cancel",
+    "break": "unsaved"
+  },
+  "check_id": "checkin-card",
+  "started_at": "2026-10-24T16:44:06.214Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 68,
+  "min_assertions": 36,
+  "unjudgeable": [
+    "the job record's 'Customer confirmed the vehicle check-in' line: needs the demo owner's login, which this script never loads"
+  ],
+  "canary": {
+    "id": "a page with no check-in card must read as card-absent",
+    "observed_failure": true,
+    "caught_by": [
+      "cardOf().count() === 0"
+    ],
+    "findings": [
+      "absent on a card-less page, as required"
+    ]
+  }
+}

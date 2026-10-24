@@ -1,13 +1,13 @@
 {
-  "git_sha": "db03134693af892ecc537e8071c0aa82fafec221",
-  "git_sha_started": "db03134693af892ecc537e8071c0aa82fafec221",
+  "git_sha": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
+  "git_sha_started": "532e4c86a0bdfe13cfa2413ee0464d4ccde34cd5",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-06T23:25:25.702Z",
+  "finished_at": "2026-10-24T16:45:03.706Z",
   "failures": [],
   "warnings": [
     "READS SOURCE ONLY — never calls a deployed function, so it cannot observe a live 429; it can only confirm the source calls withinLimits with a real LIMITS config, the same mechanism the working examples use. Applying nothing, deploying nothing.",
-    "NONE of the 16 declared public endpoints is known-open. Every one reads as protected in source. This is a result, not an empty default: anything genuinely unprotected would be listed here by name.",
+    "NONE of the 17 declared public endpoints is known-open. Every one reads as protected in source. This is a result, not an empty default: anything genuinely unprotected would be listed here by name.",
     "accept-invite (team-invite acceptance) is public — it is in deploy-functions.mjs's PUBLIC_FUNCTIONS set, so it deploys with verify_jwt=false, because an invitee has no session yet. ROADMAP 14.13, 2026-09-23: it now carries the same LIMITS.publicCeiling guard and is a declared target of this check. Its token is 192 bits of randomness (encode(gen_random_bytes(24),'hex')), so it was never guessable — THIS WAS A COST ITEM, NOT A SECURITY HOLE, and should not be read as one later."
   ],
   "artifacts": [
@@ -91,6 +91,11 @@
         "protected": true
       },
       {
+        "name": "acknowledge-checkin",
+        "found": true,
+        "protected": true
+      },
+      {
         "name": "accept-invite",
         "found": true,
         "protected": true
@@ -108,7 +113,8 @@
         "cancel-booking",
         "reschedule-booking",
         "accept-quote",
-        "track-visit"
+        "track-visit",
+        "acknowledge-checkin"
       ],
       "14.13": [
         "accept-invite"
@@ -126,14 +132,14 @@
     "limit_used": "LIMITS.publicCeiling (per-caller IP, 600/hour) — the same blunt ceiling every other read-only public endpoint uses; per-address, not per-business or global, checked against _shared/rateLimit.ts before reuse because a per-business limit would never fire for a caller with no business context yet."
   },
   "check_id": "rate-limit-coverage",
-  "started_at": "2026-10-06T23:25:25.604Z",
+  "started_at": "2026-10-24T16:45:03.594Z",
   "status": "pass",
-  "expected_targets": 16,
-  "discovered_targets": 16,
-  "attempted_targets": 16,
-  "completed_targets": 16,
+  "expected_targets": 17,
+  "discovered_targets": 17,
+  "attempted_targets": 17,
+  "completed_targets": 17,
   "skipped_targets": 0,
-  "assertions_executed": 21,
+  "assertions_executed": 22,
   "min_assertions": 19,
   "canary": {
     "id": "a real protected function's withinLimits call stripped in memory must be reported NOT PROTECTED",
