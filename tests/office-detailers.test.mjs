@@ -25,6 +25,12 @@ if (BREAK === "phone") {
   text = text.replace('const reach = c.phone ? "Text them" : c.email ? "Email them" : null;', 'const reach = "Text them";');
   assert.notEqual(text, before, "BREAK=phone did not land: the sabotaged line was not found");
 }
+if (BREAK === "no-row") {
+  // ROADMAP 97.37 review finding 2: "never paid" read as "paused with no subscription row".
+  const before = text;
+  text = text.replace('r?.status === "paused" && r?.awaiting_first_payment === true;', 'r?.status === "paused" && !r?.subscription;');
+  assert.notEqual(text, before, "BREAK=no-row did not land: the sabotaged line was not found");
+}
 // Sibling imports resolve against the real folder; only this module is swapped.
 const base = new URL("../app/src/lib/", import.meta.url).href;
 text = text.replace(/from "\.\/([\w]+\.js)"/g, (_, f) => `from "${base}${f}"`);
@@ -144,10 +150,28 @@ test("10. default order: needs-you first, dearest first, real before test", () =
   assert.deepEqual(M.sortRows(rows).map((r) => r.id), ["dear", "cheap", "fine", "test"]);
 });
 
-// ROADMAP 97.37 — a signup created paused that has never paid is "Waiting for
-// payment", not "Suspended"; a paused account whose card failed is still suspended.
-test("a never-paid signup waits for payment; a failed card is still a suspension", () => {
-  assert.equal(M.statusOf({ status: "paused", subscription: null }).key, "unpaid");
-  assert.equal(M.statusOf({ status: "paused", subscription: { status: "incomplete" } }).label, "Waiting for payment");
-  assert.equal(M.statusOf({ status: "paused", subscription: { status: "suspended", suspended_at: "2026-10-01" } }).key, "suspended");
+// ROADMAP 97.37 — A SIGNUP THAT HAS NEVER PAID IS NOT A SUSPENSION, AND A
+// SUSPENDED HAND-MADE ACCOUNT IS NOT A SIGNUP. Review finding 1: the pill said
+// "Waiting for payment" beside an alert saying "Suspended" and a -40 for it.
+// Finding 2: "paused with no subscription row" also matched an account Andrew
+// made by hand and then suspended. The mark the server writes is the test.
+test("97.37 · a never-paid signup reads 'Waiting for payment' everywhere; a suspended account stays suspended", () => {
+  const signup = row({ status: "paused", awaiting_first_payment: true, subscription: null, bookings_total: 0, days_since_booking: null, jobs_month: 0 });
+  assert.equal(M.statusOf(signup).key, "unpaid");
+  assert.equal(M.statusOf(signup).label, "Waiting for payment");
+  assert.equal(M.issueOf(signup).kicker, "Waiting for payment");
+  assert.equal(M.issueOf(signup).act, "Put live without payment");
+  const hp = M.healthOf(signup).parts.map((x) => x.text);
+  assert.ok(!hp.includes("Suspended"), "health must not say Suspended: " + hp.join(" | "));
+  assert.ok(hp.includes("Has not made a first payment yet"), hp.join(" | "));
+  assert.ok(!hp.includes("Has never taken a booking"), "it cannot take one yet: " + hp.join(" | "));
+  // Finding 2's account: made by hand (no mark, no subscription row), then suspended.
+  const handMade = row({ status: "paused", awaiting_first_payment: false, subscription: null });
+  assert.equal(M.statusOf(handMade).key, "suspended");
+  assert.equal(M.issueOf(handMade).kicker, "Suspended");
+  assert.ok(M.healthOf(handMade).parts.some((x) => x.text === "Suspended"));
+  // An older row the list has not been given the field for is not a signup either.
+  assert.equal(M.statusOf(row({ status: "paused", subscription: null })).key, "suspended");
+  // A failed card is still a suspension, whatever the mark says.
+  assert.equal(M.statusOf(row({ status: "paused", awaiting_first_payment: true, subscription: { status: "suspended", suspended_at: "2026-10-01" } })).key, "unpaid", "the mark wins: a signup cannot have been suspended for a card it never paid with");
 });

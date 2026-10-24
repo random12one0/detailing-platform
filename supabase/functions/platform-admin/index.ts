@@ -230,7 +230,7 @@ Deno.serve(async (req) => {
       // and building it now would be guessing at a shape nothing has measured.
       const [biz, subs, book, users] = await Promise.all([
         supabase.from("businesses")
-          .select("id, slug, name, status, plan_tier, is_demo, contact_email, contact_phone, created_at, admin_notes_platform, site_url, site_updated_at")
+          .select("id, slug, name, status, plan_tier, is_demo, contact_email, contact_phone, created_at, admin_notes_platform, site_url, site_updated_at, awaiting_first_payment")
           .order("created_at", { ascending: false }),
         supabase.from("platform_subscriptions")
           .select("business_id, status, recurring_cents, bill_interval, current_period_end, suspended_at, cancel_at_period_end"),
@@ -412,6 +412,8 @@ Deno.serve(async (req) => {
           slug: b.slug,
           name: b.name,
           status: b.status,
+          // ROADMAP 97.37 — a signup that has never paid, not a suspension.
+          awaiting_first_payment: b.awaiting_first_payment === true,
           plan_tier: b.plan_tier,
           // WHETHER THIS IS A REAL DETAILER — testing loop F-014, 2026-09-06.
           // The column has existed since roadmap 6.2 (it is what keeps the
@@ -953,7 +955,11 @@ Deno.serve(async (req) => {
 
     if (action === "suspend" || action === "restore") {
       const status = action === "suspend" ? "paused" : "active";
-      const { error } = await supabase.from("businesses").update({ status }).eq("id", id);
+      // ROADMAP 97.37 — restoring is also "Put live without payment" for a
+      // signup that never paid, so it clears that mark; suspending never sets
+      // it, which is what keeps a suspended account's dashboard.
+      const { error } = await supabase.from("businesses")
+        .update(action === "restore" ? { status, awaiting_first_payment: false } : { status }).eq("id", id);
       if (error) throw error;
       // SUSPENSION IS `businesses.status = 'paused'` AND NOTHING ELSE, which
       // 2.20 stage 2 already built and proved: `businessBySlug` and

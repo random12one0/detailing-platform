@@ -269,7 +269,11 @@ async function completed(session: Obj): Promise<void> {
     ...cardFrom(asObj(sub.default_payment_method)),
   }).eq("business_id", businessId);
 
-  if (ourStatus(sub.status) === "active") await setSuspension(businessId, false);
+  if (ourStatus(sub.status) === "active") {
+    // First, while the business is still `paused`, or the mark never clears.
+    await openFirstPayment(businessId);
+    await setSuspension(businessId, false);
+  }
 }
 
 async function subscriptionChanged(sub: Obj): Promise<void> {
@@ -281,9 +285,6 @@ async function subscriptionChanged(sub: Obj): Promise<void> {
   // defaulting it to `suspended` takes a paying detailer's site down because
   // Stripe shipped a feature we do not use. Neither is a guess worth making.
   const mapped = ourStatus(sub.status);
-  // ROADMAP 97.37 — read before the write: `incomplete` is "never paid".
-  const { data: before } = await supabase.from("platform_subscriptions")
-    .select("status").eq("business_id", businessId).maybeSingle();
   const patch: Obj = {
     current_period_end: stamp(sub.current_period_end),
     cancel_at_period_end: sub.cancel_at_period_end === true,
@@ -316,10 +317,10 @@ async function subscriptionChanged(sub: Obj): Promise<void> {
   await supabase.from("platform_subscriptions").update(patch).eq("business_id", businessId);
 
   if (mapped === "suspended") await suspend(businessId, null, 0);
-  // The first payment through our own form arrives here or as `invoice.paid`,
-  // never as `checkout.session.completed`, so a never-paid signup is opened
-  // by whichever lands first. `setSuspension` only touches a `paused` row.
-  if (mapped === "active" && before?.status === "incomplete") await setSuspension(businessId, false);
+  // ROADMAP 97.37 — the first payment through our own form arrives here or as
+  // `invoice.paid`, never as `checkout.session.completed`, so a never-paid
+  // signup is opened by whichever lands first.
+  if (mapped === "active") await openFirstPayment(businessId);
   // A CANCELLED SUBSCRIPTION IS NOT A SUSPENSION AND MUST NOT LOOK LIKE ONE.
   // Somebody who cancelled deliberately, at the end of a period they paid for,
   // gets their page turned off by roadmap 4.4's admin screen or by the churn
@@ -387,13 +388,11 @@ async function invoicePaid(invoice: Obj): Promise<void> {
   // ONLY UN-PAUSE WHAT WE PAUSED. A business an admin churned, or one paused
   // for any other reason roadmap 4.4 invents, must not be quietly reopened by
   // an invoice being paid.
-  // ROADMAP 97.37 — AND A FIRST PAYMENT OPENS AN ACCOUNT THAT HAS NEVER PAID.
-  // Signup creates the business `paused` with the row `incomplete`, and
+  // ROADMAP 97.37 — AND A FIRST PAYMENT OPENS A SIGNUP THAT HAS NEVER PAID.
   // `suspended_at` is null there, so without this a detailer who paid stayed
-  // dark for good. `incomplete` is read BEFORE the update above, so it is
-  // still "never paid"; `subscriptionChanged` does the same, for whichever of
-  // the two events Stripe delivers first.
-  if (sub.suspended_at || sub.status === "incomplete") await setSuspension(businessId, false);
+  // dark for good. Before the line below, while the row is still `paused`.
+  await openFirstPayment(businessId);
+  if (sub.suspended_at) await setSuspension(businessId, false);
 }
 
 async function invoiceFailed(invoice: Obj): Promise<void> {
@@ -511,6 +510,23 @@ async function setSuspension(businessId: string, off: boolean): Promise<void> {
     .update({ status: off ? "paused" : "active" })
     .eq("id", businessId)
     .eq("status", off ? "active" : "paused");
+}
+
+/**
+ * ROADMAP 97.37 — A SELF-SERVE SIGNUP'S FIRST PAYMENT SWITCHES IT ON.
+ *
+ * Only a business `create-business` marked `awaiting_first_payment` and that
+ * is still `paused`: the condition is in the UPDATE, so two events racing
+ * cannot disagree, and an account the back office suspended (unmarked) is
+ * never reopened by a card. Idempotent: a second call matches no row.
+ */
+async function openFirstPayment(businessId: string): Promise<void> {
+  await supabase
+    .from("businesses")
+    .update({ status: "active", awaiting_first_payment: false })
+    .eq("id", businessId)
+    .eq("status", "paused")
+    .eq("awaiting_first_payment", true);
 }
 
 /** The email. Best-effort, exactly like every other send in this product. */

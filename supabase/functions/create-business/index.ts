@@ -67,9 +67,11 @@ Deno.serve(async (req) => {
       // have paid."* PAUSED is billing's own off switch: `businessBySlug` and
       // `get_public_business_profile` accept only `active`, so the booking
       // page, `available-slots` and `create-booking` all refuse it, and
-      // `stripe-webhook` opens it on the first payment. Never taken from the
-      // body: a signup cannot choose to be live.
-      status: "paused",
+      // `stripe-webhook` opens it on the first payment. The MARK
+      // (`awaiting_first_payment`) is what tells a never-paid signup from an
+      // account the back office suspended, which keeps its dashboard. Never
+      // taken from the body: a signup cannot choose to be live.
+      awaitingFirstPayment: true,
     });
     if (made.error || !made.business) return json({ error: made.error }, made.status ?? 400);
     const business = made.business;

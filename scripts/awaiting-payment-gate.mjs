@@ -13,9 +13,16 @@
 //   suspended  status paused, subscription suspended -> the normal dashboard
 //              (a detailer whose card failed keeps their records; only a
 //              never-paid account waits)
+//   handmade   status paused, NO mark, NO subscription row -> the normal
+//              dashboard: an account Andrew made by hand and then suspended.
+//              Review finding 2: the first version read "no subscription row"
+//              as "never paid" and put this owner on the waiting screen.
+// "Never paid" is the server's mark, `awaiting_first_payment`, fed true only
+// in the unpaid case.
 //
-// --break=paid feeds the UNPAID case an active subscription, which is the
-// original defect's picture (a fresh signup with a full dashboard). It must go red.
+// --break=unmarked feeds the UNPAID case without the mark, which is the
+// original defect's picture (a fresh signup with a full dashboard). It must go
+// red. The same case runs as the canary inside every run.
 //
 // Needs the dev server (BASE_URL) and DEMO_OWNER_PW (`set -a; . ./.env; set +a`).
 import { createRequire } from "node:module";
@@ -30,12 +37,12 @@ const { chromium } = require("playwright");
 const started_at = new Date().toISOString();
 const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=").slice(1).join("=");
 const BREAK = arg("break");
-if (BREAK && BREAK !== "paid") { console.error(`Unknown --break=${BREAK}. Known: paid.`); process.exit(2); }
+if (BREAK && BREAK !== "unmarked") { console.error(`Unknown --break=${BREAK}. Known: unmarked.`); process.exit(2); }
 const SHOTS = outDir(arg("shots") || "97.37/png");
 mkdirSync(SHOTS, { recursive: true });
 const BASE = (process.env.BASE_URL || "http://localhost:5173").replace(/\/$/, "");
 const SIZES = [[320, 700], [390, 844], [768, 1024], [1440, 900]];
-const SCENARIOS = ["unpaid", "paid", "suspended"];
+const SCENARIOS = ["unpaid", "paid", "suspended", "handmade"];
 
 let passed = 0, assertions = 0, completed = 0;
 const failures = [], transcript = [];
@@ -65,9 +72,10 @@ let state;
 
 // What each situation feeds the two rows. `sub` null = no row at all.
 const FEED = {
-  unpaid: { status: "paused", sub: BREAK === "paid" ? { status: "active" } : null },
+  unpaid: { status: "paused", mark: BREAK !== "unmarked", sub: null },
   paid: null,
-  suspended: { status: "paused", sub: { status: "suspended" } },
+  suspended: { status: "paused", mark: false, sub: { status: "suspended" } },
+  handmade: { status: "paused", mark: false, sub: null },
 };
 
 async function open(scenario, w, h) {
@@ -83,7 +91,8 @@ async function open(scenario, w, h) {
       if (route.request().method() !== "GET" || !/select=\*/.test(route.request().url())) return route.fallback();
       const res = await route.fetch();
       let body = await res.json();
-      body = Array.isArray(body) ? body.map((b) => ({ ...b, status: feed.status })) : { ...body, status: feed.status };
+      const as = (b) => ({ ...b, status: feed.status, awaiting_first_payment: feed.mark });
+      body = Array.isArray(body) ? body.map(as) : as(body);
       fed++;
       return route.fulfill({ response: res, json: body });
     });
@@ -153,10 +162,10 @@ for (const scenario of SCENARIOS) {
     }
   }
 }
-// THE CANARY, IN EVERY RUN: the never-paid case handed an active subscription,
+// THE CANARY, IN EVERY RUN: the never-paid case without the server's mark,
 // which draws the full dashboard (the original defect). The same question the
 // unpaid case asks, "is the waiting screen shown?", must answer NO here.
-FEED.canary = { status: "paused", sub: { status: "active" } };
+FEED.canary = { status: "paused", mark: false, sub: null };
 let canaryCaught = false;
 {
   const { ctx, page, fed } = await open("canary", 390, 844);
@@ -180,9 +189,9 @@ writeFileSync(txt, [`awaiting-payment-gate ${new Date().toISOString()} break=${B
 writeReceipt({
   check_id: "awaiting-payment-gate", started_at, status: failed ? "fail" : "pass",
   expected_targets: expected, discovered_targets: expected, attempted_targets: expected, completed_targets: completed, skipped_targets: 0,
-  assertions_executed: assertions, min_assertions: SIZES.length * 19,
-  assertion_floor: "unpaid 10, paid 4, suspended 5 per width; every check() unconditional.",
-  canary: { id: "paid-unpaid", observed_failure: canaryCaught, what: "every run: the never-paid case handed an active subscription draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=paid does the same to the counted unpaid case, which must go red" },
+  assertions_executed: assertions, min_assertions: SIZES.length * 24,
+  assertion_floor: "unpaid 10, paid 4, suspended 5, handmade 5 per width; every check() unconditional.",
+  canary: { id: "unmarked-signup", observed_failure: canaryCaught, what: "every run: the never-paid case without the server's mark draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=unmarked does the same to the counted unpaid case, which must go red" },
   failures, artifacts: [txt, SHOTS],
   dimensions: { roadmap: "97.37", break: BREAK || null, base: BASE, widths: SIZES.map(([w, h]) => `${w}x${h}`) },
   warnings: ["UNJUDGEABLE: what the Billing screen draws after Go to payment. The belt's sandbox answers platform-billing with {} and Billing throws on it, on the unmodified demo account too; the check proves the press opens Billing and asks for its figures, not the figures.", "The business and subscription rows are rewritten in the browser; the server half (signup creating a paused business, the first payment opening it) runs only after Andrew deploys create-business and stripe-webhook."],

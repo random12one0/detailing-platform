@@ -374,13 +374,15 @@ export default function App() {
   // ROADMAP 97.37 — A SIGNUP THAT HAS NEVER PAID WAITS HERE. Andrew,
   // 2026-10-15: *"Signing up should only create the account and the setup
   // screens ... new accounts simply wait at a 'finish payment to go live'
-  // screen."* `create-business` makes the business `paused` and the first
-  // payment opens it. NEVER PAID is the owner's subscription row missing or
-  // `incomplete`: a detailer suspended for a failed card has a real row and
-  // keeps the dashboard, as billing promised. The setup form and the gear
-  // (Billing is in it) stay open; the tabs and New booking do not.
+  // screen."* `create-business` makes the business `paused` AND marks it
+  // `awaiting_first_payment`; the first payment clears both. THE MARK, NOT A
+  // MISSING SUBSCRIPTION ROW: an account Andrew made by hand has no row either,
+  // and if he suspends it its owner keeps the dashboard and records, exactly
+  // like a detailer suspended for a failed card. Only the server writes the
+  // mark. The setup form and the gear (Billing is in it) stay open; the tabs
+  // and New booking do not.
   const awaitingPay = role === "owner" && business.status === "paused"
-    && (!subscription || subscription.status === "incomplete");
+    && business.awaiting_first_payment === true;
   const TAB_NEEDS = { money: "money", business: "settings" };
   const visibleTabs = TABS.filter((x) => !TAB_NEEDS[x.key] || can(TAB_NEEDS[x.key]));
   const activeTab = visibleTabs.find((x) => x.key === tab) ?? visibleTabs[0];
