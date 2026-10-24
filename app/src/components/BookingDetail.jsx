@@ -1211,6 +1211,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             {/* ROADMAP 97.55 - WHEN THE CUSTOMER TICKED THE CHECK-IN BOX.
                 The time comes off the row the receipt link wrote; unacked
                 reads as not yet, which is a different fact from never asked. */}
+            <h3 className="section-title">{t("Vehicle check-in")}</h3>
             {hasAcked(booking) ? (
               <p className="muted">{t("Customer confirmed the vehicle check-in {when}.", {
                 when: new Date(booking.damage_ack_at).toLocaleString(getAppLocale(), {
