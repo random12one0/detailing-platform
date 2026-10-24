@@ -39,6 +39,7 @@ import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
@@ -50,7 +51,7 @@ const OLDHOOK = BREAK === "old-webhook";
 const HIDE = BREAK === "hide-waived";
 const FREEZE_WAIVED = arg("freeze-waived");
 if (BREAK && BREAK !== "old-webhook" && !HIDE) { console.error(`unknown --break=${BREAK}`); process.exit(2); }
-const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.10/png";
+const SHOTS = outDir(arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.10/png");
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
 

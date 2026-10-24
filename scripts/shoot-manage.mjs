@@ -15,13 +15,14 @@
 //   node scripts/shoot-manage.mjs <id> --reschedule    # press "Change the time"
 //   node scripts/shoot-manage.mjs <id> --confirm       # press "Cancel this…"
 //
-// OUT=<dir> chooses where the PNGs go (default ./shots). TAG=<name> labels the
+// OUT=<dir> chooses where the PNGs go (default artifacts/shots; a relative OUT lands under artifacts/). TAG=<name> labels the
 // files. Prints every console error and warning seen at any width.
 import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 import { mkdirSync } from "node:fs";
+import { outDir } from "./lib/outDir.mjs";
 
-const OUT = process.env.OUT || "shots";
+const OUT = outDir(process.env.OUT || "shots");
 const TAG = process.env.TAG || "manage";
 const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");

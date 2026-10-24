@@ -41,6 +41,7 @@ import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { writeReceipt } from "./receipt.mjs";
 import { money } from "../app/src/lib/format.js";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
@@ -57,7 +58,7 @@ const REWRITES = BREAK ? {
   "accountant-export.js": ["paidWords(b),", '(b.payment_status === "paid" ? "Paid" : "Unpaid"),'],
 } : null;
 const BELT = "C:/Users/rando/Downloads/claude/belt/shots/97.87";
-const SHOTS = arg("shots") || `${BELT}/png`;
+const SHOTS = outDir(arg("shots") || `${BELT}/png`);
 mkdirSync(SHOTS, { recursive: true });
 const started_at = new Date().toISOString();
 

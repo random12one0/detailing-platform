@@ -31,6 +31,7 @@
 
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { outDir } from "./lib/outDir.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE || "http://localhost:5173";
@@ -47,7 +48,7 @@ if (!raw) {
 const cleaned = raw.replace(/^.*?Git[\\/]/, "").replace(/^\/+/, "");
 const PATH = `/${cleaned}`;
 const WIDTH = Number(argOf("width", "1440"));
-const OUT = argOf("out", "snapshots");
+const OUT = outDir(argOf("out", "snapshots"));
 
 mkdirSync(OUT, { recursive: true });
 

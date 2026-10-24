@@ -21,7 +21,7 @@ const CAPTURE = process.argv.includes("--capture");
 if (BREAK && !["hours", "year", "minutes", "missing", "wrap"].includes(BREAK)) throw new Error("Unknown break");
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/99.2";
 const WIDTHS = [[390, 844], [1440, 900], [768, 1024], [392, 844], [320, 844]];
-const EXPECTED_EMAILS = 34; // deliberate declaration, not the directory's own size
+const EXPECTED_EMAILS = 35; // deliberate declaration, not the directory's own size (34 until render-emails gained a 35th)
 const EXPECTED_TARGETS = 2 + EXPECTED_EMAILS * 2;
 const failures = [], artifacts = [], observations = [];
 let assertions = 0, discovered = 2, attempted = 2, completed = 2;
@@ -36,8 +36,8 @@ try {
   if (BREAK && BREAK !== "missing") {
     scratch = mkdtempSync(path.join(tmpdir(), "dp-email-dates-"));
     cpSync(path.join(REPO, "supabase/functions/_shared"), path.join(scratch, "supabase/functions/_shared"), { recursive: true });
-    mkdirSync(path.join(scratch, "scripts"));
-    for (const file of ["render-emails.mjs", "receipt.mjs"]) cpSync(path.join(REPO, "scripts", file), path.join(scratch, "scripts", file));
+    mkdirSync(path.join(scratch, "scripts/lib"), { recursive: true });
+    for (const file of ["render-emails.mjs", "receipt.mjs", "lib/outDir.mjs"]) cpSync(path.join(REPO, "scripts", file), path.join(scratch, "scripts", file));
     const kitFile = path.join(scratch, "supabase/functions/_shared/emailKit.ts");
     const before = readFileSync(kitFile, "utf8");
     let after = before;
@@ -59,7 +59,7 @@ try {
   }
   browser = await chromium.launch({ headless: true });
   for (const lang of ["en", "es"]) {
-    const out = path.join(REPO, "email-preview", `99-2-${lang}${BREAK ? `-${BREAK}` : ""}`);
+    const out = path.join(REPO, "artifacts", "email-preview", `99-2-${lang}${BREAK ? `-${BREAK}` : ""}`);
     const render = spawnSync(process.execPath, [path.join(sourceRoot, "scripts/render-emails.mjs"), `--lang=${lang}`, `--out=${out}`], { cwd: REPO, encoding: "utf8" });
     if (render.status !== 0) throw new Error(`Rendering ${lang} failed: ${render.stderr}`);
     const logFile = `receipts/email-dates${BREAK ? `.${BREAK}.sabotage` : ""}.${lang}.txt`;

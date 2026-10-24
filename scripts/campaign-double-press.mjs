@@ -25,13 +25,14 @@ import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const REPO = process.cwd();
 const { chromium } = createRequire(import.meta.url)(join(REPO, "app/node_modules/playwright/index.js"));
 const { demoOwner } = await import(`file:///${REPO.replace(/\\/g, "/")}/scripts/lib/demoOwner.mjs`);
 const BASE = (process.env.BASE_URL || "http://localhost:5173").replace(/\/$/, "");
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) ?? "").slice(8);
-const SHOTS = (process.argv.find((a) => a.startsWith("--shots=")) ?? "").slice(8);
+const SHOTS = outDir((process.argv.find((a) => a.startsWith("--shots=")) ?? "").slice(8));
 if (BREAK && BREAK !== "no-guard") throw new Error(`unknown --break=${BREAK}; known: no-guard`);
 const SIZES = [[1440, 900], [768, 1024], [390, 844], [320, 640]];
 const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*", "content-type": "application/json" };

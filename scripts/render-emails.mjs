@@ -15,7 +15,7 @@
 //   node scripts/render-emails.mjs --logo           # with a logo on the masthead
 //   node scripts/render-emails.mjs --out=some/dir   # keep two side by side
 //
-// Then open `email-preview/index.html`.
+// Then open `artifacts/email-preview/index.html` (ROADMAP 97.63: output lives under artifacts/).
 //
 // NO NEW DEPENDENCY, AND THAT IS THE POINT OF THE .ts IMPORTS. Node 24 strips
 // the types itself, so this reads the SAME files the edge functions run rather
@@ -56,6 +56,7 @@ import { T as translate } from "../supabase/functions/_shared/i18n.ts";
 // rather than a database read — see the module's header for why it is still a
 // `TenantBrand`.
 import { platformBrand } from "../supabase/functions/_shared/platformBrand.ts";
+import { outDir } from "./lib/outDir.mjs";
 
 const PLATFORM = "https://detailingplatform.com";
 
@@ -75,7 +76,7 @@ const ACCENT = arg("accent", "#38E08B");
 const LANG = arg("lang", "en");
 // ROADMAP 97.24 review: a Spanish run keeps its own folder and its own receipt,
 // so it no longer overwrites the English record, and the English one cannot hide it.
-const OUT = arg("out", LANG === "en" ? "email-preview" : `email-preview-${LANG}`);
+const OUT = outDir(arg("out", LANG === "en" ? "email-preview" : `email-preview-${LANG}`));
 
 /* ══ --long : EVERY TENANT-TYPED NAME AT THE CAP — ROADMAP 2.15a ══════════
    The names a detailer types for their business, their services and their

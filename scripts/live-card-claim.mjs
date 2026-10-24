@@ -22,6 +22,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const { chromium } = createRequire(path.join(ROOT, "app", "package.json"))("playwright");
@@ -29,7 +30,7 @@ const { chromium } = createRequire(path.join(ROOT, "app", "package.json"))("play
 const SITE = "https://detailingplatform.com";
 const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=").slice(1).join("=");
 const BREAK = arg("break");
-const SHOTS = arg("shots");
+const SHOTS = outDir(arg("shots"));
 if (BREAK && BREAK !== "old-wording") {
   console.error(`Unknown --break=${BREAK}. Nothing was measured.`);
   process.exit(1);

@@ -31,6 +31,7 @@ import {
   buttonBlock, fineBlock, headlineBlock, labBlock, proseBlock, ruleBlock, shell,
 } from "../supabase/functions/_shared/emailKit.ts";
 import { platformBrand } from "../supabase/functions/_shared/platformBrand.ts";
+import { outDir } from "./lib/outDir.mjs";
 
 const SITE = process.env.PLATFORM_URL || "https://detailingplatform.com";
 const brand = platformBrand(SITE);
@@ -105,7 +106,7 @@ for (const [k, r] of Object.entries(rendered)) {
   }
 }
 
-const OUT = process.env.OUT || "email-preview-auth";
+const OUT = outDir(process.env.OUT || "email-preview-auth");
 mkdirSync(OUT, { recursive: true });
 for (const [k, r] of Object.entries(rendered)) {
   writeFileSync(`${OUT}/${k}.html`, r.html);

@@ -28,10 +28,11 @@ import { createRequire } from "node:module";
 // this screen needs its own copy of the three questions the width sweep asks.
 import { measure } from "./geometry.mjs";
 import { dropAdmin, makeAdmin } from "./admin-account.mjs";
+import { outDir } from "./lib/outDir.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE || "http://localhost:5173";
-const OUT = process.env.OUT || "shots-admin";
+const OUT = outDir(process.env.OUT || "shots-admin");
 const LITE = process.argv.includes("--lite");
 const URL_ = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }

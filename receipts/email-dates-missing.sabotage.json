@@ -1,0 +1,46 @@
+{
+  "git_sha": "6e7eaee4e4bb5abfbd65eea97fa6eb6c52671090",
+  "git_sha_started": "6e7eaee4e4bb5abfbd65eea97fa6eb6c52671090",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T20:01:30.155Z",
+  "failures": [
+    "en discovered all previews: 34 of 35",
+    "es discovered all previews: 34 of 35"
+  ],
+  "warnings": [],
+  "artifacts": [
+    "receipts/email-dates.missing.sabotage.en.txt",
+    "receipts/email-dates.missing.sabotage.es.txt"
+  ],
+  "dimensions": {
+    "break": "missing",
+    "capture": false,
+    "languages": [
+      "en",
+      "es"
+    ],
+    "widths": [
+      390,
+      1440,
+      768,
+      392,
+      320
+    ],
+    "scope": "Local email formatting only; no live send, consent, channel routing, or relative dates."
+  },
+  "check_id": "email-dates-missing",
+  "started_at": "2026-10-24T20:00:26.320Z",
+  "status": "fail",
+  "expected_targets": 72,
+  "discovered_targets": 70,
+  "attempted_targets": 70,
+  "completed_targets": 70,
+  "skipped_targets": 0,
+  "assertions_executed": 1806,
+  "min_assertions": 1700,
+  "canary": {
+    "id": "old whole-hour and ISO dates",
+    "observed_failure": true
+  }
+}

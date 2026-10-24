@@ -1,9 +1,9 @@
 {
-  "git_sha": "89ced53d7f852dc303eee30f4a599647252b133e",
-  "git_sha_started": "89ced53d7f852dc303eee30f4a599647252b133e",
+  "git_sha": "6e7eaee4e4bb5abfbd65eea97fa6eb6c52671090",
+  "git_sha_started": "6e7eaee4e4bb5abfbd65eea97fa6eb6c52671090",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T01:32:16.690Z",
+  "finished_at": "2026-10-24T20:02:45.362Z",
   "failures": [],
   "warnings": [],
   "artifacts": [
@@ -27,14 +27,14 @@
     "scope": "Local email formatting only; no live send, consent, channel routing, or relative dates."
   },
   "check_id": "email-dates",
-  "started_at": "2026-10-12T01:31:08.449Z",
+  "started_at": "2026-10-24T20:01:34.423Z",
   "status": "pass",
-  "expected_targets": 70,
-  "discovered_targets": 70,
-  "attempted_targets": 70,
-  "completed_targets": 70,
+  "expected_targets": 72,
+  "discovered_targets": 72,
+  "attempted_targets": 72,
+  "completed_targets": 72,
   "skipped_targets": 0,
-  "assertions_executed": 1806,
+  "assertions_executed": 1858,
   "min_assertions": 1700,
   "canary": {
     "id": "old whole-hour and ISO dates",

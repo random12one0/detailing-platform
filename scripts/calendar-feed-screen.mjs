@@ -19,11 +19,12 @@
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = process.env.BASE || process.env.BASE_URL || "http://localhost:5173";
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || "";
-const SHOTS = (process.argv.find((a) => a.startsWith("--shots=")) || "").split("=")[1] || "";
+const SHOTS = outDir((process.argv.find((a) => a.startsWith("--shots=")) || "").split("=")[1] || "");
 const SIZES = [{ w: 390, h: 844 }, { w: 320, h: 740 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
 const PER_WIDTH = 9;
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });

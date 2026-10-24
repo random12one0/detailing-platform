@@ -25,6 +25,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "../app/node_modules/playwright/index.mjs";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (n, d) => {
@@ -32,7 +33,7 @@ const arg = (n, d) => {
   return hit ? hit.slice(n.length + 3) : d;
 };
 const BREAK = arg("break", "");
-const SHOTS = arg("shots", "");
+const SHOTS = outDir(arg("shots", ""));
 const OUT_DIR = resolve(REPO, "..", "belt", "shots", "99.6");
 const OUT = BREAK ? join(mkdtempSync(join(tmpdir(), "email-sheet-")), "emails.html") : join(OUT_DIR, "emails.html");
 

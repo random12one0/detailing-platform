@@ -1,4 +1,4 @@
-  ok    all 17 exported templates are rendered below
+  ok    all 18 exported templates are rendered below
   Customer · booking confirmed
     Tu cita quedó reservada para el 17 de septiembre a las 10 AM
   Customer · request received
@@ -21,6 +21,8 @@
     Nuevo horario: el 17 de septiembre a las 10 AM
   Customer · cancelled
     Tu cita para el 17 de septiembre está cancelada
+  Customer · back on (un-cancelled)
+    De nuevo en pie: el 17 de septiembre a las 10 AM
   Customer · thank-you and review request
     Gracias de parte de Ridgeline Auto Detail
   Owner · new booking
@@ -69,10 +71,10 @@
     Ridgeline Auto Detail se acaba de registrar
 
 canary  a body containing NaN / Invalid Date / undefined -> caught by 3 of 4 rot pattern(s), so a rotten template is something this run can detect
-spanish 18 customer email(s) checked for an English date; detector fires on an English date and not on a Spanish one
+spanish 19 customer email(s) checked for an English date; detector fires on an English date and not on a Spanish one
 spanish 16 detailer / staff / platform email(s) checked the same way
 spanish 2 email(s) name a seeded size in Spanish; detector fires on an English seeded size and not on Spanish or a renamed one
-spanish 189 English template sentence(s) searched for; detector fires on "Typed by hand. The address lookup found no match for it." and not on its Spanish
+spanish 193 English template sentence(s) searched for; detector fires on "Typed by hand. The address lookup found no match for it." and not on its Spanish
 
-34 emails -> C:\Users\rando\Downloads\claude\detailing-platform\email-preview\99-2-es/index.html  (accent #38E08B)
-Receipt C:\Users\rando\Downloads\claude\detailing-platform\receipts\render-emails.json
+35 emails -> C:\belt-jobs\belt_97.63-20261024195450977\artifacts\email-preview\99-2-es/index.html  (accent #38E08B)
+Receipt C:\belt-jobs\belt_97.63-20261024195450977\receipts\render-emails-es.json

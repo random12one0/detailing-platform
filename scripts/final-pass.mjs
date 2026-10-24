@@ -27,6 +27,7 @@
 import { readFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { sink } from "../tests/_mail.mjs";  // fixture recipients never cost real mail
+import { outDir } from "./lib/outDir.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 for (const line of readFileSync(new URL("../.env", import.meta.url), "utf8").split(/\r?\n/)) {
@@ -39,7 +40,7 @@ for (const line of readFileSync(new URL("../.env", import.meta.url), "utf8").spl
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BASE = process.env.BASE || "http://localhost:5173";
-const OUT = process.env.OUT || "shots-final";
+const OUT = outDir(process.env.OUT || "shots-final");
 const KEEP = process.argv.includes("--keep");
 if (!URL_ || !SERVICE) { console.error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing"); process.exit(1); }
 

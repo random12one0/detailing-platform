@@ -21,7 +21,7 @@
 //   node scripts/shoot-dashboard.mjs --url docs/tenant-sites/a-shop.html
 //     (a local .html file: no dev server and no login — roadmap 3.1)
 //
-// OUT=<dir> chooses where the PNGs go (default ./shots). Prints every console
+// OUT=<dir> chooses where the PNGs go (default artifacts/shots; a relative OUT lands under artifacts/). Prints every console
 // error and warning seen at any width, which is the half that matters.
 // playwright is a devDependency of app/, which is the only npm project here.
 import { createRequire } from "node:module";
@@ -35,8 +35,9 @@ const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playw
 const changedSince = watchSource();
 import { mkdirSync } from "node:fs";
 import { demoOwner } from "./lib/demoOwner.mjs";
+import { outDir } from "./lib/outDir.mjs";
 
-const OUT = process.env.OUT || "shots";
+const OUT = outDir(process.env.OUT || "shots");
 const BASE = process.env.BASE || "http://localhost:5173";
 const LITE = process.argv.includes("--lite");
 const WIDTHS = [[1920, 1080], [1440, 900], [768, 1024], [392, 844]];

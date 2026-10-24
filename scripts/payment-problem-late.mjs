@@ -81,6 +81,7 @@ import { createRequire } from "node:module";
 import { demoOwner } from "./lib/demoOwner.mjs";
 import { settleProblem } from "../supabase/functions/_shared/connect.ts";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs"; // ROADMAP 97.63: a relative --shots lands under artifacts/
 
 const require = createRequire(new URL("../app/package.json", import.meta.url));
 const { chromium } = require("playwright");
@@ -103,7 +104,7 @@ const REWRITE = {
 }[BREAK];
 const NOW = arg("now") || process.env.BELT_FROZEN_NOW || "2026-10-17T06:30:00.000Z";
 const TZ = arg("tz") || "Asia/Tokyo";
-const SHOTS = arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.11/png";
+const SHOTS = outDir(arg("shots") || "C:/Users/rando/Downloads/claude/belt/shots/97.11/png");
 const FREEZE_REFUND = arg("freeze-refund");
 const FREEZE_LEFT = arg("freeze-left");
 mkdirSync(SHOTS, { recursive: true });

@@ -15,19 +15,20 @@
 //   node scripts/accept-quote-page.mjs                    BASE_URL or http://localhost:5173
 //   node scripts/accept-quote-page.mjs --break=old-server the handler as it was before 97.16
 //                                                         (git 9a7f5cb9): MUST be red on every stale case
-//   --shots=<dir>  where the PNGs go (default .tmp-97.16/png)   --freeze=before|after  write the review copy
+//   --shots=<dir>  where the PNGs go (default artifacts/97.16/png)   --freeze=before|after  write the review copy
 
 import { registerHooks } from "node:module";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs";
 
 const started_at = new Date().toISOString();
 const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=").slice(1).join("=");
 const BREAK = arg("break");
 if (BREAK && BREAK !== "old-server") { console.error(`Unknown --break=${BREAK}. Known: old-server.`); process.exit(2); }
-const SHOTS = arg("shots") || ".tmp-97.16/png";
+const SHOTS = outDir(arg("shots") || "97.16/png");
 const FREEZE = arg("freeze");
 const BASE = (process.env.BASE_URL || "http://localhost:5173").replace(/\/$/, "");
 const PRE_FIX = "9a7f5cb9";
