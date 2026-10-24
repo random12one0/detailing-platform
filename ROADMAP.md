@@ -5026,6 +5026,8 @@ Smallest wave, highest embarrassment cost, all of it confirmed in source.
   *A2 1.4*
 
 - [ ] **1.3 — Test accounts appear in production lists and counts.**
+  NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/mail-sink.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/mail-sink.test.mjs :: tests/mail-sink.test.mjs.
+  The work is safe on branch `belt/1.3-20261024233606965`. Answer "merge it" to keep it, or say what to change.
   **ANDREW DECIDED 2026-10-09: KEEP THEM AS THEY ARE FOR NOW.** There are no
   real accounts and he still needs the demos. The built flag/filter remains the
   launch path, not a task for him today; revisit it when the product is nearly
