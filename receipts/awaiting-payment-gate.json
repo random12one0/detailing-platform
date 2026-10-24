@@ -1,0 +1,43 @@
+{
+  "git_sha": "3a6c7f8217fd674387b5d33a2927012c4ee253d4",
+  "git_sha_started": "3a6c7f8217fd674387b5d33a2927012c4ee253d4",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T20:34:29.794Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE: what the Billing screen draws after Go to payment. The belt's sandbox answers platform-billing with {} and Billing throws on it, on the unmodified demo account too; the check proves the press opens Billing and asks for its figures, not the figures.",
+    "The business and subscription rows are rewritten in the browser; the server half (signup creating a paused business, the first payment opening it) runs only after Andrew deploys create-business and stripe-webhook."
+  ],
+  "artifacts": [
+    "receipts/awaiting-payment-gate.txt",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.37/png"
+  ],
+  "dimensions": {
+    "roadmap": "97.37",
+    "break": null,
+    "base": "http://127.0.0.1:5180",
+    "widths": [
+      "320x700",
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "check_id": "awaiting-payment-gate",
+  "started_at": "2026-10-24T20:33:59.735Z",
+  "status": "pass",
+  "expected_targets": 16,
+  "discovered_targets": 16,
+  "attempted_targets": 16,
+  "completed_targets": 16,
+  "skipped_targets": 0,
+  "assertions_executed": 96,
+  "min_assertions": 96,
+  "assertion_floor": "unpaid 10, paid 4, suspended 5, handmade 5 per width; every check() unconditional.",
+  "canary": {
+    "id": "unmarked-signup",
+    "observed_failure": true,
+    "what": "every run: the never-paid case without the server's mark draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=unmarked does the same to the counted unpaid case, which must go red"
+  }
+}

@@ -112,6 +112,7 @@ const M = {
   endAtAuth: "20261017190000_support_sessions_end_at_auth.sql",
   feed: "20261024150000_calendar_feed_token.sql",
   damageAck: "20261024160000_damage_ack.sql",
+  awaitingPay: "20261024210000_awaiting_first_payment.sql",
 };
 // The support-session lock (4.3c): every program carrying either file reads the
 // `support_sessions` table, so each goes after the database change that makes it.
@@ -227,6 +228,14 @@ const DECLARED = {
     before: [["stripe-refund-event", "stripe-webhook"]],
     waitsOn: { "stripe-webhook": ["97.10", "97.11", "97.69"] },
     rule: "The payment webhook goes out with 97.10, 97.11 and 97.69 in it. Skipping the Stripe setting breaks nothing; the refund line just stays until it is on.",
+  },
+  "97.37": {
+    website: true, migrations: [M.awaitingPay], functions: ["stripe-webhook", "create-business", "platform-admin"],
+    before: [[M.awaitingPay, "create-business"], [M.awaitingPay, "stripe-webhook"], [M.awaitingPay, "platform-admin"], ["stripe-webhook", "create-business"], ["website", "create-business"]],
+    hold: { "platform-admin": HOLD_ADMIN },
+    waitsOn: { "stripe-webhook": ["97.10", "97.11", "97.69"] },
+    rule: "The database change first: `create-business` writes the new column and the back office list reads it, so either one ahead of it breaks signup or the list. Then the payment webhook and the website before `create-business`: the other way round, a signup that pays stays dark, and a new account lands on a full dashboard that cannot take bookings. The back office's \"Waiting for payment\" and \"Put live without payment\" ride with `platform-admin`, which is held; until it goes, a waiting signup shows as Suspended there and \"Reopen account\" puts it live (its mark stays set, which is harmless: the dashboard only waits while the account is also switched off).",
+    after: ["Optional: make a throwaway account at /app, check it lands on \"Finish payment to go live\" and its booking page is not found, then remove it from the back office."],
   },
   "99.2a": {
     bundles: "_shared/emailKit.ts", migrations: [M.sign],

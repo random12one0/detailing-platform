@@ -30,6 +30,11 @@ export interface NewBusinessInput {
   contact_phone?: string | null;
   dropoff_address?: string | null;
   service_area?: string | null;
+  // ROADMAP 97.37 — signup passes true: a self-serve account is created
+  // `paused` AND marked as never paid, so it has no live booking page until its
+  // first payment. Left out, the business is `active` and unmarked, which is
+  // what the back office's hand-made accounts get.
+  awaitingFirstPayment?: boolean;
 }
 
 export interface NewBusinessResult {
@@ -93,6 +98,7 @@ export async function createBusinessRow(db: Db, input: NewBusinessInput): Promis
       contact_phone: input.contact_phone?.trim() || null,
       dropoff_address: input.dropoff_address?.trim() || null,
       service_area: input.service_area?.trim() || null,
+      ...(input.awaitingFirstPayment ? { status: "paused", awaiting_first_payment: true } : {}),
     })
     .select()
     .single();

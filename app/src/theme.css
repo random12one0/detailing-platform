@@ -6119,3 +6119,13 @@ html:not(.lite) .intake .samp-live.samp-move .samp-row { animation: none; }
   .sched-print .sched-table { break-inside: auto; }
   .sched-print .sched-note { color: #4a4a4a; font-size: 9pt; }
 }
+
+/* ROADMAP 97.37 — the "Finish payment to go live" screen a never-paid signup
+   waits on. The setup form's column, so the two screens it moves between sit
+   in the same place; the buttons stack on a phone and sit side by side from
+   the tablet up. */
+.awaitpay { max-width: 560px; margin-inline: auto; width: 100%; padding-top: var(--sp-5); }
+.awaitpay .body { margin: 0; }
+.awaitpay .quiet { margin: 0; }
+.awaitpay-acts { display: flex; flex-direction: column; gap: var(--sp-3); }
+@media (min-width: 640px) { .awaitpay-acts { flex-direction: row; } }

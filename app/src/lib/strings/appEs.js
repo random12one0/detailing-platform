@@ -170,6 +170,13 @@ export const appEs = {
   "Clients": "Clientes",
   "Business": "Negocio",
   "New booking": "Nueva cita",
+  // ROADMAP 97.37 — the screen a signup that has never paid waits on.
+  "Finish payment to go live": "Completa el pago para activar tu cuenta",
+  "Your account is made. Your booking page, customer bookings and the rest of your dashboard switch on after your first payment.":
+    "Tu cuenta ya está creada. Tu página de reservas, las citas de clientes y el resto de tu panel se activan después de tu primer pago.",
+  "You can finish setting up while you wait. Nothing you enter is lost.":
+    "Puedes terminar la configuración mientras tanto. No se pierde nada de lo que escribas.",
+  "Go to payment": "Ir al pago",
   "Leave": "Salir",
   "Platform view · signed in as {who}. Anything you change is theirs.":
     "Vista de plataforma · sesión iniciada como {who}. Todo lo que cambies es de ellos.",

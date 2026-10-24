@@ -41,8 +41,19 @@ export function contactOf(r) {
 // quiet beats still-setting-up. `setup` means "has not got going": setup under
 // the floor AND no booking yet, so a working detailer who skipped a step is not
 // called a beginner.
+// ROADMAP 97.37 — A SIGNUP THAT HAS NEVER PAID IS NOT A SUSPENSION. It is
+// created paused AND marked by the server (`awaiting_first_payment`); an
+// account Andrew suspends is paused and unmarked, and stays "Suspended". One
+// test, read by the pill, the health score and the alert, so the three cannot
+// say different things about the same row.
+export const waitingForPayment = (r) => r?.status === "paused" && r?.awaiting_first_payment === true;
+const suspendedRow = (r) => !waitingForPayment(r) && (r.status === "paused" || !!r.subscription?.suspended_at);
+
 export function statusOf(r) {
-  if (r.status === "paused" || r.subscription?.suspended_at) return { key: "suspended", label: "Suspended", color: "mute" };
+  if (waitingForPayment(r)) {
+    return { key: "unpaid", label: "Waiting for payment", color: "cool" };
+  }
+  if (suspendedRow(r)) return { key: "suspended", label: "Suspended", color: "mute" };
   if (r.subscription?.status === "past_due") return { key: "late", label: "Payment failed", color: "bad" };
   if (setupOf(r).count < SETUP_FLOOR && (r.bookings_total ?? 0) === 0) return { key: "setup", label: "Setting up", color: "cool" };
   if ((r.bookings_total ?? 0) > 0 && (r.days_since_booking ?? 0) >= QUIET_DAYS) return { key: "quiet", label: "Gone quiet", color: "warn" };
@@ -62,20 +73,22 @@ export function healthOf(r) {
   const jobs = r.jobs_month ?? 0;
   const bookings = r.bookings_total ?? 0;
   const days = r.days_since_booking;
-  const suspended = r.status === "paused" || !!r.subscription?.suspended_at;
+  const suspended = suspendedRow(r);
+  const waiting = waitingForPayment(r);
 
   if (jobs > 0) add(Math.min(30, jobs * 3), `${jobs} ${jobs === 1 ? "job" : "jobs"} finished this month`);
-  else if (bookings > 0 && !suspended) add(-20, "No jobs finished this month");
+  else if (bookings > 0 && !suspended && !waiting) add(-20, "No jobs finished this month");
 
   // Setup moves the score by up to 15 either way: half done is neutral.
   add(Math.round((sp.count / sp.total - 0.5) * 30), `Setup ${sp.count} of ${sp.total}`);
 
   if (suspended) add(-40, "Suspended");
+  else if (waiting) add(-10, "Has not made a first payment yet");
   else if (r.subscription?.status === "past_due") add(-25, "Card was declined");
   else if (r.subscription?.cancel_at_period_end) add(-15, "Cancels at the end of the term");
   else if (r.subscription?.status === "active" && r.subscription?.bill_interval === "year") add(10, "Paid for the whole year");
 
-  if (!suspended) {
+  if (!suspended && !waiting) {
     if (bookings === 0) add(-15, "Has never taken a booking");
     else if (days !== null && days !== undefined && days >= QUIET_DAYS) add(-25, `No booking in ${days} days`);
   }
@@ -112,7 +125,10 @@ export function monthlyCents(r) {
 export function issueOf(r) {
   const c = contactOf(r);
   const reach = c.phone ? "Text them" : c.email ? "Email them" : null;
-  if (r.status === "paused" || r.subscription?.suspended_at) {
+  if (waitingForPayment(r)) {
+    return { kicker: "Waiting for payment", color: "cool", text: "Their booking page switches on after their first payment.", act: "Put live without payment", kind: "restore", costCents: null, needsYou: false };
+  }
+  if (suspendedRow(r)) {
     return { kicker: "Suspended", color: "mute", text: "Their booking page is offline.", act: "Reopen", kind: "restore", costCents: null, needsYou: false };
   }
   if (r.is_demo) return null;
