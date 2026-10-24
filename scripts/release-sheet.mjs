@@ -238,7 +238,7 @@ const DECLARED = {
     after: ["Optional: make a throwaway account at /app, check it lands on \"Finish payment to go live\" and its booking page is not found, then remove it from the back office."],
   },
   "99.2a": {
-    bundles: "_shared/emailKit.ts", migrations: [M.sign],
+    functions: ["send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", migrations: [M.sign],
     before: [["website", "create-booking"]], conflict: true,
     rule: "Publishing the website alone does not update emails; the programs do. Its database change only matters for the \"Sign emails with the business name\" switch; until it is in, turning that one switch on fails and everything else saves.",
     after: ["Have a session check a real booking confirmation's subject, body and plain-text copy."],
@@ -273,7 +273,7 @@ Object.assign(DECLARED, {
     rule: "The page first or both together, never the program alone: the new `accept-quote` refuses any Accept that does not say which quote it showed, and the page online now says none, so alone it refuses every customer's Accept.",
   },
   "99.2": {
-    functions: ["create-booking"], bundles: "_shared/emailKit.ts", website: true, before: [["website", "create-booking"]], conflict: true,
+    functions: ["create-booking", "send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", website: true, before: [["website", "create-booking"]], conflict: true,
     rule: "Its email wording goes out with every program carrying the shared email kit (with 99.2a). Its line says `create-booking` before the website; 97.64 says the reverse. Settled at the top of this sheet: website first, `create-booking` straight after.",
   },
   "97.10": {
