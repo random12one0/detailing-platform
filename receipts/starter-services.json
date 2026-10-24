@@ -1,0 +1,50 @@
+{
+  "git_sha": "20451f636bf211e2d7c189c6b0a4c9a7fdcb6974",
+  "git_sha_started": "20451f636bf211e2d7c189c6b0a4c9a7fdcb6974",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T18:42:26.542Z",
+  "failures": [],
+  "warnings": [
+    "UNJUDGEABLE: the services list is answered in the browser and every write is swallowed; the payload is proved, rows landing in a real database are not (nothing may be written to the shared tenant)."
+  ],
+  "artifacts": [
+    "artifacts/starter-services/390-en-offer.png",
+    "artifacts/starter-services/390-en-after.png",
+    "artifacts/starter-services/390-es-offer.png",
+    "artifacts/starter-services/390-es-after.png",
+    "artifacts/starter-services/1440-en-offer.png",
+    "artifacts/starter-services/1440-en-after.png",
+    "artifacts/starter-services/1440-es-offer.png",
+    "artifacts/starter-services/1440-es-after.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ],
+    "langs": [
+      "en",
+      "es"
+    ],
+    "break": null
+  },
+  "check_id": "starter-services",
+  "started_at": "2026-10-24T18:40:44.925Z",
+  "status": "pass",
+  "expected_targets": 13,
+  "discovered_targets": 13,
+  "attempted_targets": 13,
+  "completed_targets": 13,
+  "skipped_targets": 0,
+  "assertions_executed": 163,
+  "min_assertions": 100,
+  "assertion_floor": "16 offer scenarios x 20 + 4 skip scenarios x 5 + 3 for the already-has-services half; 100 is the floor.",
+  "canary": {
+    "id": "services-present-no-card",
+    "observed_failure": true,
+    "problems": []
+  }
+}
