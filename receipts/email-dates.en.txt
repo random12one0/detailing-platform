@@ -1,4 +1,4 @@
-  ok    all 17 exported templates are rendered below
+  ok    all 18 exported templates are rendered below
   Customer · booking confirmed
     You're booked for September 17 at 10 AM
   Customer · request received
@@ -21,6 +21,8 @@
     New time: September 17 at 10 AM
   Customer · cancelled
     Your September 17 appointment is cancelled
+  Customer · back on (un-cancelled)
+    Back on: September 17 at 10 AM
   Customer · thank-you and review request
     Thanks from Ridgeline Auto Detail
   Owner · new booking
@@ -70,5 +72,5 @@
 
 canary  a body containing NaN / Invalid Date / undefined -> caught by 3 of 4 rot pattern(s), so a rotten template is something this run can detect
 
-34 emails -> C:\Users\rando\Downloads\claude\detailing-platform\email-preview\99-2-en/index.html  (accent #38E08B)
-Receipt C:\Users\rando\Downloads\claude\detailing-platform\receipts\render-emails.json
+35 emails -> C:\belt-jobs\belt_97.63-20261024195450977\artifacts\email-preview\99-2-en/index.html  (accent #38E08B)
+Receipt C:\belt-jobs\belt_97.63-20261024195450977\receipts\render-emails.json

@@ -1,0 +1,76 @@
+  ok    all 18 exported templates are rendered below
+  Customer · booking confirmed
+    You're booked for September 17 at 10 AM
+  Customer · request received
+    Got your request for September 17 at 10 AM
+  Customer · appointment reminder
+    Reminder: your appointment Thursday, September 17
+  Customer · quote offered
+    Your price is ready: $395
+  Customer · request accepted
+    Confirmed: September 17 at 10 AM
+  Customer · request declined
+    About your request for September 17
+  Customer · receipt (paid)
+    Your receipt from Ridgeline Auto Detail: $360
+  Customer · invoice (unpaid)
+    Invoice from Ridgeline Auto Detail: $360 due
+  Customer · invoice (unpaid, card accepted)
+    Invoice from Ridgeline Auto Detail: $360 due
+  Customer · rescheduled
+    New time: September 17 at 10 AM
+  Customer · cancelled
+    Your September 17 appointment is cancelled
+  Customer · back on (un-cancelled)
+    Back on: September 17 at 10 AM
+  Customer · thank-you and review request
+    Thanks from Ridgeline Auto Detail
+  Owner · new booking
+    New booking: Dana Ortiz, September 17 at 10 AM ($345)
+  Owner · new request waiting
+    Dana Ortiz wants September 17 at 10 AM
+  Owner · new booking, address typed by hand
+    New booking: Dana Ortiz, September 17 at 10 AM ($345)
+  Owner · new booking, address picked from the lookup
+    New booking: Dana Ortiz, September 17 at 10 AM ($345)
+  Owner · new booking, three cars
+    New booking: Dana Ortiz, September 17 at 10 AM ($839)
+  Customer · confirmed, three cars
+    You're booked for September 17 at 10 AM
+  Owner · a booking moved
+    Dana Ortiz moved to September 17 at 10 AM
+  Owner · a booking cancelled
+    Dana Ortiz cancelled September 17 at 10 AM
+  Owner · a PAID booking cancelled
+    Dana Ortiz cancelled September 17 at 10 AM
+  Owner · nobody answered a request
+    Still waiting: Dana asked 19 hours ago
+  Staff · team invite
+    You've been added to Ridgeline Auto Detail
+  Customer · booking confirmed, on a plan
+    You're booked for September 17 at 10 AM
+  Customer · your plan link
+    Your plan with Ridgeline Auto Detail
+  Customer · maintenance due (60 days)
+    Your car's about due, Dana
+  Customer · maintenance due (tomorrow)
+    Your car's about due, Dana
+  Owner · a plan ended
+    Dana Ortiz left your Bi-weekly maintenance plan
+  Customer · the detailer reaching out
+    Time to get it looking right again?
+  Detailer · a payment did not go through
+    Your card didn't go through
+  Detailer · the booking page is offline
+    Ridgeline Auto Detail's booking page is offline
+  Detailer · work has started on their website
+    We've started building your site
+  Detailer · work has started, no fee on file
+    We've started building your site
+  Owner · somebody signed up
+    Ridgeline Auto Detail just signed up
+
+canary  a body containing NaN / Invalid Date / undefined -> caught by 3 of 4 rot pattern(s), so a rotten template is something this run can detect
+
+35 emails -> C:\belt-jobs\belt_97.63-20261024195450977\artifacts\email-preview\99-2-en-missing/index.html  (accent #38E08B)
+Receipt C:\belt-jobs\belt_97.63-20261024195450977\receipts\render-emails.json
