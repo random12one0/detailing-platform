@@ -20828,7 +20828,7 @@ the dashboard or back office at phone width at all.
   any borrowed mid-range Android**. Neither is a build, neither costs money and
   neither needs a publish.
 
-  **NEEDS ANDREW: the walk itself.** Only a person holding a real iPhone and a real Android can answer the 18 steps of § 5 of `docs/testing/phones-we-do-not-own.md`; no session here can. Nothing buildable is left. His row is in FOR-ANDREW.md ("Twenty minutes on your iPhone with the keyboard up"). Recorded 2026-10-24; box stays `[ ]` and no per-step answers exist yet.
+  **NEEDS ANDREW: the walk itself.** Only a person holding a real iPhone and a real Android can answer the 18 steps of § 5 of `docs/testing/phones-we-do-not-own.md`; no session here can. Nothing buildable is left. His row is in FOR-ANDREW.md ("Twenty minutes on your iPhone with the keyboard up"); it was corrected 2026-10-24 because it had asked for only steps 4, 5, 7 and 8, iPhone only, and said that closed 8.2. Those four steps close 2.15 only; 8.2 needs all 18 on the iPhone and all 18 on a named Android (R1, R2). Recorded 2026-10-24; box stays `[ ]` and no per-step answers exist yet.
 
 - [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
