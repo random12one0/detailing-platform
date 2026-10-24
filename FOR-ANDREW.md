@@ -123,13 +123,11 @@ those old pieces back into the new back office, which would be separate work.
 (Written by the 98.4 job on its unmerged branch; supervision 2026-10-19 brought
 it here so it reaches you while the rest of that work is finished.)
 
-## DECIDE · Does the vehicle check-in wording need a lawyer? (ROADMAP 97.55)
+## DO, AT YOUR NEXT RELEASE · Customers confirm the car's condition from their receipt link (ROADMAP 97.55)
 
-The timed tick box you said yes to on 2026-10-15 is built and checked: the customer ticks a box on their receipt link, the moment is saved, and the job shows when they did. The words on screen are plain acknowledgment only ("I have reviewed this check-in", "Confirmed ... Thank you") - no waiver, no legal promise. What is still open is the item's second question, which has no recorded answer from you: does that wording need a lawyer's review before launch?
+You said yes on 2026-10-15 to a timed tick box, and with no lawyer wait: it is built. The customer's receipt link now has a Vehicle check-in card that says how many existing marks were photographed, a tick box and a Confirm button. The time is saved the first time they press, a second press never moves it, and a cancelled booking does not get the card. The job record shows "Customer confirmed the vehicle check-in <time>" or "The customer has not confirmed the vehicle check-in yet." The words are plain acknowledgment only: no waiver, no signature. Nothing is waiting on you except publishing.
 
-**Recommendation: if the words stay exactly this plain acknowledgment, no lawyer is needed; answer "plain wording approved".** If you want the tick to also work as a damage waiver (the customer accepting the recorded marks as pre-existing), that is a new legal decision and needs a lawyer first - answer that way and it becomes its own job.
-
-
+**At your next release, in this order, because the order matters:** (1) apply the new database file `supabase/migrations/20261024160000_damage_ack.sql` (one new empty column); (2) only then publish `get-booking-receipt` and `acknowledge-checkin`, and the app. **If the receipt program goes live before the database file, every customer's receipt link says "Booking not found"**, because that program now reads the new column. Afterwards a session with the keys runs `node scripts/checkin-live.mjs`, which ticks one demo booking through the public function, reads it back, and puts it back.
 
 ## DO · Keep the security settings in your nightly backups (ROADMAP 97.25)
 
