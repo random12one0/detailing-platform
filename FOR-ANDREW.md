@@ -493,6 +493,17 @@ second short web address just for texts.
 
 ---
 
+## DECIDE · Two vans at 9 AM (ROADMAP 97.54p)
+
+Right now a business can only have one job at any moment, so a detailer with two vans cannot book both at 9 AM. You
+said to fix that after launch, so nothing is being built yet. When it is built, one question decides how it is cut up:
+is "I have 2 vans, take up to 2 jobs at once" enough to start with, or does every van need its own named worker with
+their own hours, and each job assigned to one of them? And roughly how big a team should it handle? My recommendation:
+start with the simple version (the detailer types how many vans they run, one-van businesses see no change), then add
+named workers with their own hours as the next step. Answering now means the work is ready to start the day you launch.
+
+---
+
 ## AT RELEASE · Twenty minutes on your iPhone with the keyboard up (ROADMAP 2.15 and 8.2)
 
 The booking page's bottom bar is proven clear of every choice on every screen size a computer can pretend to be. What no computer can pretend is the iPhone keyboard, and that is the one question left. Four booking steps have a text box: vehicle, address, name/phone/email/notes, and the promo code. On each, tap the box, type three letters, and look: can you still see what you are typing and the button you need next? Does the bar sit behind the keyboard, or ride up over the box?
