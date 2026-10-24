@@ -1210,14 +1210,16 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 2026-09-06.md` §3.1. */}
             {/* ROADMAP 97.55 - WHEN THE CUSTOMER TICKED THE CHECK-IN BOX.
                 The time comes off the row the receipt link wrote; unacked
-                reads as not yet, which is a different fact from never asked. */}
+                reads as not yet, which is a different fact from never asked.
+                The count is what the tick COVERED, saved with it, so a damage
+                photo added afterwards is never read as confirmed. */}
             <h3 className="section-title">{t("Vehicle check-in")}</h3>
             {hasAcked(booking) ? (
               <p className="muted">{t("Customer confirmed the vehicle check-in {when}.", {
                 when: new Date(booking.damage_ack_at).toLocaleString(getAppLocale(), {
                   month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
                 }),
-              })}</p>
+              })} {t("Damage photos they confirmed: {count}.", { count: booking.damage_ack_photo_count ?? 0 })}</p>
             ) : (
               <p className="muted">{t("The customer has not confirmed the vehicle check-in yet.")}</p>
             )}

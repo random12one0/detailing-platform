@@ -312,6 +312,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
   const ackAt = booking.damage_ack_at;
   const damageCount = Number(booking.damage_photo_count ?? 0);
   const acked = hasAcked(booking);
+  const offerCheckin = canAcknowledge(booking);
   const ackWhen = ackAt
     ? new Date(ackAt).toLocaleString(loc, {
       weekday: "short", month: "short", day: "numeric",
@@ -639,8 +640,10 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
         {/* ROADMAP 97.55 - THE VEHICLE CHECK-IN. The detailer photographs
             any existing marks before the job; the customer ticks this box
             and the tick is saved with its time. Plain acknowledgment, no
-            waiver, so there is no legal wording here. */}
-        {(acked || !isCancelled) && (
+            waiver, so there is no legal wording here. NOTHING IS DRAWN
+            until the detailer has recorded at least one damage photo: before
+            that there is no check-in to confirm (finish review 2026-10-24). */}
+        {(acked || offerCheckin) && (
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">{t("Vehicle check-in")}</div>
             {acked ? (
@@ -650,9 +653,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
             ) : (
               <>
                 <p className="bk-body" style={{ marginTop: 6 }}>
-                  {damageCount > 0
-                    ? t("Existing marks recorded before the job: {count}.", { count: damageCount })
-                    : t("No existing marks were recorded on your car before the job.")}
+                  {t("Existing marks recorded before the job: {count}.", { count: damageCount })}
                 </p>
                 <label className="bk-row" style={{ marginTop: 10, gap: 10, alignItems: "center", minHeight: 44 }}>
                   <input type="checkbox" checked={ticked} disabled={busy}
@@ -660,7 +661,7 @@ function ManageInner({ booking, receiptBusiness, group = [], card = null, onChan
                   <span>{t("I have reviewed this check-in with {business}.", { business: business.name })}</span>
                 </label>
                 <button className="bk-btn primary" style={{ marginTop: 12 }}
-                  disabled={busy || !ticked || !canAcknowledge(booking)} onClick={confirmCheckin}>
+                  disabled={busy || !ticked} onClick={confirmCheckin}>
                   {busy ? t("Saving…") : t("Confirm check-in")}
                 </button>
               </>

@@ -5,7 +5,10 @@
 // (Node strips the types), with each `_shared` import answered by a fake through a resolve hook, the same
 // arrangement as `tests/day-rule-refusal.test.mjs`. No network, no credentials, no database.
 //
-//   live, unticked   200, stored time is "now", exactly one row written
+//   live, unticked   200, stored time is "now", exactly one row written, and the damage photo count it
+//                    covered (2) saved with it
+//   nothing recorded live and unticked but NO damage photo yet: 409, nothing written (finish review
+//                    2026-10-24: a tick before the check-in is recorded confirms nothing)
 //   ticked already   200 `duplicate: true` with the FIRST time; nothing written
 //   cancelled        409, nothing written
 //   unknown booking  404, nothing written
@@ -18,6 +21,7 @@
 // SABOTAGE - an env var, never a flag (docs/gotchas.md 104), made in memory as the handler is loaded and
 // required to land (docs/gotchas.md 102):
 //   BREAK=no-cancel-check  the cancelled refusal removed         -> the cancelled case goes red
+//   BREAK=no-photo-check   the nothing-recorded refusal removed  -> the nothing-recorded case goes red
 //   BREAK=no-only-if-empty the `.is("damage_ack_at", null)` fence on the write removed
 //                                                                -> the two-presses case goes red
 //   BREAK=moves-time       the already-ticked early answer AND the fence both removed (either alone is
@@ -32,9 +36,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const BREAK = process.env.BREAK || "";
 const HANDLER = fileURLToPath(new URL("../supabase/functions/acknowledge-checkin/index.ts", import.meta.url));
-const FENCE = ['      .is("damage_ack_at", null)\n      .select("damage_ack_at")', '      .select("damage_ack_at")'];
+const FENCE = ['      .is("damage_ack_at", null)\n      .select("damage_ack_at, damage_ack_photo_count")', '      .select("damage_ack_at, damage_ack_photo_count")'];
 const SABOTAGE = {
   "no-cancel-check": [['if (booking.status === "cancelled") {', "if (false) {"]],
+  "no-photo-check": [["if (!count) {", "if (false) {"]],
   "no-only-if-empty": [FENCE],
   // The early answer and the fence are two guards on one fact: either alone still keeps the first time, so only both gone moves it.
   "moves-time": [["if (booking.damage_ack_at) {", "if (false) {"], FENCE],
@@ -72,15 +77,27 @@ const FIRST = "2026-10-20T08:00:00.000Z";
 let loads = 0;
 
 // A bookings table of one row that honours `.eq` and `.is(col, null)` exactly as PostgREST does, and
-// counts writes. `raceFirst` ticks the row after the handler's read and before its write.
-function world({ row, withinLimits = true, raceFirst = false }) {
+// counts writes. `raceFirst` ticks the row after the handler's read and before its write. `photos` is how
+// many damage photos the job has: a `job_photos` count query (awaited directly, PostgREST's head+count
+// shape) answers it, filtered on the same booking id and kind the handler must name.
+function world({ row, withinLimits = true, raceFirst = false, photos = 2 }) {
   const rows = row ? [{ id: ID, deleted_at: null, ...row }] : [];
   const writes = [];
   let reads = 0;
   const supabase = {
-    from() {
+    from(table) {
       const filters = [];
       let patch = null;
+      if (table === "job_photos") {
+        const want = { booking_id: ID, kind: "damage" };
+        const seen = {};
+        const c = {
+          select() { return c; },
+          eq(col, v) { seen[col] = v; return c; },
+          then(res) { const hit = Object.entries(want).every(([k, v]) => seen[k] === v); return Promise.resolve({ count: hit ? photos : 0, error: null }).then(res); },
+        };
+        return c;
+      }
       const q = {
         select() { return q; },
         update(p) { patch = p; return q; },
@@ -131,6 +148,18 @@ test("a live unticked booking is ticked: 200, a fresh time, one write", async ()
   assert.ok(Date.parse(r.data.damage_ack_at) >= before - 1000, "the stored time is now");
   assert.equal(w.writes.length, 1);
   assert.equal(w.rows[0].damage_ack_at, r.data.damage_ack_at);
+  assert.equal(w.rows[0].damage_ack_photo_count, 2, "the tick must save how many damage photos it covered");
+  assert.equal(r.data.damage_ack_photo_count, 2);
+});
+
+test("a live booking with no damage photo recorded yet is refused with 409 and nothing is written", async () => {
+  const w = world({ row: { status: "confirmed", damage_ack_at: null }, photos: 0 });
+  const r = await call(w, { booking_id: ID });
+  scenarios++;
+  assert.equal(r.status, 409);
+  assert.match(r.data.error, /nothing has been recorded/i);
+  assert.equal(w.writes.length, 0);
+  assert.equal(w.rows[0].damage_ack_at, null);
 });
 
 test("an already-ticked booking answers duplicate with the FIRST time and writes nothing", async () => {
@@ -199,5 +228,5 @@ test("two presses at once: the loser answers duplicate with the winner's time an
 });
 
 test("every scenario ran (a run that reached fewer proves only what it reached)", () => {
-  assert.equal(scenarios, 8);
+  assert.equal(scenarios, 9);
 });

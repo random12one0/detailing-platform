@@ -114,6 +114,11 @@ export default function JobPhotos({ booking }) {
         ) : (
           KINDS.map(([kind, word]) => {
             const mine = photos.filter((p) => p.kind === kind);
+            // ROADMAP 97.55 - damage photos taken after the customer ticked
+            // the check-in are not part of what they confirmed; say so here,
+            // beside the photos themselves.
+            const later = kind === "damage" && booking.damage_ack_at
+              ? mine.filter((p) => Date.parse(p.created_at) > Date.parse(booking.damage_ack_at)).length : 0;
             return (
               <div key={kind} className="tight">
                 <div className="photo-head">
@@ -123,6 +128,9 @@ export default function JobPhotos({ booking }) {
                     <Camera size={16} strokeWidth={2} /> {t("Add")}
                   </button>
                 </div>
+                {later > 0 && (
+                  <p className="quiet">{t("Added after the customer confirmed the check-in: {count}.", { count: later })}</p>
+                )}
                 {mine.length > 0 && (
                   <div className="photo-strip">
                     {mine.map((p) => (

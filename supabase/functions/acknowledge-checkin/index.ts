@@ -8,6 +8,11 @@
 // moving it, the same shape as `accept-quote`'s already-accepted answer.
 //
 // Cancelled bookings are refused: there is no job arriving to check in.
+// So is a booking with NO damage photo yet: the check-in is the detailer
+// recording the car's existing marks, and until one is recorded there is
+// nothing to acknowledge (finish review 2026-10-24). The tick saves HOW MANY
+// damage photos it covered in `damage_ack_photo_count`, so a photo added
+// afterwards is never read as something the customer confirmed.
 // Nothing is emailed; the detailer sees the time on the job record.
 //
 // Input: { booking_id }
@@ -50,14 +55,24 @@ Deno.serve(async (req) => {
       return json({ error: "This booking is cancelled, so there is nothing to check in." }, 409);
     }
 
+    const { count, error: countError } = await supabase
+      .from("job_photos")
+      .select("id", { count: "exact", head: true })
+      .eq("booking_id", booking.id)
+      .eq("kind", "damage");
+    if (countError) throw countError;
+    if (!count) {
+      return json({ error: "Nothing has been recorded for this check-in yet." }, 409);
+    }
+
     const { data: acked, error } = await supabase
       .from("bookings")
-      .update({ damage_ack_at: new Date().toISOString() })
+      .update({ damage_ack_at: new Date().toISOString(), damage_ack_photo_count: count })
       .eq("id", booking.id)
       // Only from the unticked state the read above saw: two presses at
       // once land one timestamp, and only that one answers as new.
       .is("damage_ack_at", null)
-      .select("damage_ack_at")
+      .select("damage_ack_at, damage_ack_photo_count")
       .maybeSingle();
     if (error) throw error;
     if (!acked) {
@@ -68,7 +83,7 @@ Deno.serve(async (req) => {
         .maybeSingle();
       return json({ success: true, duplicate: true, damage_ack_at: reread?.damage_ack_at ?? null });
     }
-    return json({ success: true, damage_ack_at: acked.damage_ack_at });
+    return json({ success: true, damage_ack_at: acked.damage_ack_at, damage_ack_photo_count: acked.damage_ack_photo_count });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);
   }
