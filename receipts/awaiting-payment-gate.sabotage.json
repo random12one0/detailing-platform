@@ -1,0 +1,76 @@
+{
+  "git_sha": "b015714eb47e3b575ed6fa372539463102337ba3",
+  "git_sha_started": "b015714eb47e3b575ed6fa372539463102337ba3",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-24T20:23:21.513Z",
+  "failures": [
+    "unpaid @320 · the waiting screen is shown — found 0",
+    "unpaid @320 · it says \"Finish payment to go live\" — \"\"",
+    "unpaid @320 · no tab is reachable — 5 tabs",
+    "unpaid @320 · no New booking button — 1",
+    "unpaid @320 · nothing runs off the side — null",
+    "unpaid @320 · \"Go to payment\" and \"Finish setting up\" are there",
+    "unpaid @320 · both are 44px tall and on screen without scrolling",
+    "unpaid @320 · \"Go to payment\" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on",
+    "unpaid @390 · the waiting screen is shown — found 0",
+    "unpaid @390 · it says \"Finish payment to go live\" — \"\"",
+    "unpaid @390 · no tab is reachable — 5 tabs",
+    "unpaid @390 · no New booking button — 1",
+    "unpaid @390 · nothing runs off the side — null",
+    "unpaid @390 · \"Go to payment\" and \"Finish setting up\" are there",
+    "unpaid @390 · both are 44px tall and on screen without scrolling",
+    "unpaid @390 · \"Go to payment\" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on",
+    "unpaid @768 · the waiting screen is shown — found 0",
+    "unpaid @768 · it says \"Finish payment to go live\" — \"\"",
+    "unpaid @768 · no tab is reachable — 5 tabs",
+    "unpaid @768 · no New booking button — 1",
+    "unpaid @768 · nothing runs off the side — null",
+    "unpaid @768 · \"Go to payment\" and \"Finish setting up\" are there",
+    "unpaid @768 · both are 44px tall and on screen without scrolling",
+    "unpaid @768 · \"Go to payment\" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on",
+    "unpaid @1440 · the waiting screen is shown — found 0",
+    "unpaid @1440 · it says \"Finish payment to go live\" — \"\"",
+    "unpaid @1440 · no tab is reachable — 5 tabs",
+    "unpaid @1440 · no New booking button — 1",
+    "unpaid @1440 · nothing runs off the side — null",
+    "unpaid @1440 · \"Go to payment\" and \"Finish setting up\" are there",
+    "unpaid @1440 · both are 44px tall and on screen without scrolling",
+    "unpaid @1440 · \"Go to payment\" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on"
+  ],
+  "warnings": [
+    "UNJUDGEABLE: what the Billing screen draws after Go to payment. The belt's sandbox answers platform-billing with {} and Billing throws on it, on the unmodified demo account too; the check proves the press opens Billing and asks for its figures, not the figures.",
+    "The business and subscription rows are rewritten in the browser; the server half (signup creating a paused business, the first payment opening it) runs only after Andrew deploys create-business and stripe-webhook."
+  ],
+  "artifacts": [
+    "receipts/awaiting-payment-gate.sabotage.txt",
+    "C:/Users/rando/Downloads/claude/belt/shots/97.37/png"
+  ],
+  "dimensions": {
+    "roadmap": "97.37",
+    "break": "paid",
+    "base": "http://127.0.0.1:5180",
+    "widths": [
+      "320x700",
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "check_id": "awaiting-payment-gate",
+  "started_at": "2026-10-24T20:22:56.674Z",
+  "status": "fail",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 76,
+  "min_assertions": 76,
+  "assertion_floor": "unpaid 10, paid 4, suspended 5 per width; every check() unconditional.",
+  "canary": {
+    "id": "paid-unpaid",
+    "observed_failure": true,
+    "what": "every run: the never-paid case handed an active subscription draws the full dashboard (the original defect) and the waiting-screen question must answer no. --break=paid does the same to the counted unpaid case, which must go red"
+  }
+}

@@ -1,0 +1,111 @@
+awaiting-payment-gate 2026-10-24T20:23:21.445Z break=paid base=http://127.0.0.1:5180
+ok   unpaid @320 · the situation was fed (business + subscription rows rewritten)
+FAIL unpaid @320 · the waiting screen is shown — found 0
+FAIL unpaid @320 · it says "Finish payment to go live" — ""
+FAIL unpaid @320 · no tab is reachable — 5 tabs
+FAIL unpaid @320 · no New booking button — 1
+FAIL unpaid @320 · nothing runs off the side — null
+FAIL unpaid @320 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @320 · both are 44px tall and on screen without scrolling
+FAIL unpaid @320 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+ok   unpaid @320 · console has no errors
+ok   unpaid @390 · the situation was fed (business + subscription rows rewritten)
+FAIL unpaid @390 · the waiting screen is shown — found 0
+FAIL unpaid @390 · it says "Finish payment to go live" — ""
+FAIL unpaid @390 · no tab is reachable — 5 tabs
+FAIL unpaid @390 · no New booking button — 1
+FAIL unpaid @390 · nothing runs off the side — null
+FAIL unpaid @390 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @390 · both are 44px tall and on screen without scrolling
+FAIL unpaid @390 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+ok   unpaid @390 · console has no errors
+ok   unpaid @768 · the situation was fed (business + subscription rows rewritten)
+FAIL unpaid @768 · the waiting screen is shown — found 0
+FAIL unpaid @768 · it says "Finish payment to go live" — ""
+FAIL unpaid @768 · no tab is reachable — 5 tabs
+FAIL unpaid @768 · no New booking button — 1
+FAIL unpaid @768 · nothing runs off the side — null
+FAIL unpaid @768 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @768 · both are 44px tall and on screen without scrolling
+FAIL unpaid @768 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+ok   unpaid @768 · console has no errors
+ok   unpaid @1440 · the situation was fed (business + subscription rows rewritten)
+FAIL unpaid @1440 · the waiting screen is shown — found 0
+FAIL unpaid @1440 · it says "Finish payment to go live" — ""
+FAIL unpaid @1440 · no tab is reachable — 5 tabs
+FAIL unpaid @1440 · no New booking button — 1
+FAIL unpaid @1440 · nothing runs off the side — null
+FAIL unpaid @1440 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @1440 · both are 44px tall and on screen without scrolling
+FAIL unpaid @1440 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+ok   unpaid @1440 · console has no errors
+ok   paid @320 · no waiting screen
+ok   paid @320 · the tabs are there
+ok   paid @320 · New booking is there
+ok   paid @320 · console has no errors
+ok   paid @390 · no waiting screen
+ok   paid @390 · the tabs are there
+ok   paid @390 · New booking is there
+ok   paid @390 · console has no errors
+ok   paid @768 · no waiting screen
+ok   paid @768 · the tabs are there
+ok   paid @768 · New booking is there
+ok   paid @768 · console has no errors
+ok   paid @1440 · no waiting screen
+ok   paid @1440 · the tabs are there
+ok   paid @1440 · New booking is there
+ok   paid @1440 · console has no errors
+ok   suspended @320 · the situation was fed (business + subscription rows rewritten)
+ok   suspended @320 · no waiting screen
+ok   suspended @320 · the tabs are there
+ok   suspended @320 · New booking is there
+ok   suspended @320 · console has no errors
+ok   suspended @390 · the situation was fed (business + subscription rows rewritten)
+ok   suspended @390 · no waiting screen
+ok   suspended @390 · the tabs are there
+ok   suspended @390 · New booking is there
+ok   suspended @390 · console has no errors
+ok   suspended @768 · the situation was fed (business + subscription rows rewritten)
+ok   suspended @768 · no waiting screen
+ok   suspended @768 · the tabs are there
+ok   suspended @768 · New booking is there
+ok   suspended @768 · console has no errors
+ok   suspended @1440 · the situation was fed (business + subscription rows rewritten)
+ok   suspended @1440 · no waiting screen
+ok   suspended @1440 · the tabs are there
+ok   suspended @1440 · New booking is there
+ok   suspended @1440 · console has no errors
+canary @390 · fed 2, waiting screen 0, tabs 5 -> caught
+44 passed, 32 failed
+FAIL unpaid @320 · the waiting screen is shown — found 0
+FAIL unpaid @320 · it says "Finish payment to go live" — ""
+FAIL unpaid @320 · no tab is reachable — 5 tabs
+FAIL unpaid @320 · no New booking button — 1
+FAIL unpaid @320 · nothing runs off the side — null
+FAIL unpaid @320 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @320 · both are 44px tall and on screen without scrolling
+FAIL unpaid @320 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+FAIL unpaid @390 · the waiting screen is shown — found 0
+FAIL unpaid @390 · it says "Finish payment to go live" — ""
+FAIL unpaid @390 · no tab is reachable — 5 tabs
+FAIL unpaid @390 · no New booking button — 1
+FAIL unpaid @390 · nothing runs off the side — null
+FAIL unpaid @390 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @390 · both are 44px tall and on screen without scrolling
+FAIL unpaid @390 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+FAIL unpaid @768 · the waiting screen is shown — found 0
+FAIL unpaid @768 · it says "Finish payment to go live" — ""
+FAIL unpaid @768 · no tab is reachable — 5 tabs
+FAIL unpaid @768 · no New booking button — 1
+FAIL unpaid @768 · nothing runs off the side — null
+FAIL unpaid @768 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @768 · both are 44px tall and on screen without scrolling
+FAIL unpaid @768 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
+FAIL unpaid @1440 · the waiting screen is shown — found 0
+FAIL unpaid @1440 · it says "Finish payment to go live" — ""
+FAIL unpaid @1440 · no tab is reachable — 5 tabs
+FAIL unpaid @1440 · no New booking button — 1
+FAIL unpaid @1440 · nothing runs off the side — null
+FAIL unpaid @1440 · "Go to payment" and "Finish setting up" are there
+FAIL unpaid @1440 · both are 44px tall and on screen without scrolling
+FAIL unpaid @1440 · "Go to payment" opens Billing (it asks the billing server for its figures) — no waiting screen to press it on
