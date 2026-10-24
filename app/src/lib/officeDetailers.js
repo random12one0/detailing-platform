@@ -42,6 +42,11 @@ export function contactOf(r) {
 // the floor AND no booking yet, so a working detailer who skipped a step is not
 // called a beginner.
 export function statusOf(r) {
+  // ROADMAP 97.37 — a self-serve signup is created paused and waits for its
+  // first payment; that is not a suspension and must not read as one.
+  if (r.status === "paused" && !r.subscription?.suspended_at && (!r.subscription || r.subscription.status === "incomplete")) {
+    return { key: "unpaid", label: "Waiting for payment", color: "cool" };
+  }
   if (r.status === "paused" || r.subscription?.suspended_at) return { key: "suspended", label: "Suspended", color: "mute" };
   if (r.subscription?.status === "past_due") return { key: "late", label: "Payment failed", color: "bad" };
   if (setupOf(r).count < SETUP_FLOOR && (r.bookings_total ?? 0) === 0) return { key: "setup", label: "Setting up", color: "cool" };

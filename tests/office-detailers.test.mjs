@@ -143,3 +143,11 @@ test("10. default order: needs-you first, dearest first, real before test", () =
   ];
   assert.deepEqual(M.sortRows(rows).map((r) => r.id), ["dear", "cheap", "fine", "test"]);
 });
+
+// ROADMAP 97.37 — a signup created paused that has never paid is "Waiting for
+// payment", not "Suspended"; a paused account whose card failed is still suspended.
+test("a never-paid signup waits for payment; a failed card is still a suspension", () => {
+  assert.equal(M.statusOf({ status: "paused", subscription: null }).key, "unpaid");
+  assert.equal(M.statusOf({ status: "paused", subscription: { status: "incomplete" } }).label, "Waiting for payment");
+  assert.equal(M.statusOf({ status: "paused", subscription: { status: "suspended", suspended_at: "2026-10-01" } }).key, "suspended");
+});

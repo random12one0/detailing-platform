@@ -138,7 +138,9 @@ export default function DetailerPanel({ row, detail, ctx }) {
   const weeks = detail && !detail.error ? weeklyBookings(detail.bookings) : null;
   const paid = detail && !detail.error ? paidToUs(detail.invoices) : null;
   const tone = TONE[st.color];
-  const suspended = st.key === "suspended";
+  // ROADMAP 97.37 — a signup waiting for its first payment is off the same
+  // way, and the same button is how Andrew puts his own or a pilot account live.
+  const suspended = st.key === "suspended" || st.key === "unpaid";
 
   const act = async (action) => {
     setBusy(action); setErr("");
@@ -282,7 +284,7 @@ export default function DetailerPanel({ row, detail, ctx }) {
           <section className="bo-psec bo-pfoot">
             {err && <p className="bo-err" role="alert">{err}</p>}
             {suspended
-              ? <button type="button" className="bo-btn go" disabled={busy === "restore"} onClick={() => act("restore")}>Reopen account</button>
+              ? <button type="button" className="bo-btn go" disabled={busy === "restore"} onClick={() => act("restore")}>{st.key === "unpaid" ? "Put live without payment" : "Reopen account"}</button>
               : sure
                 ? (
                   <div className="bo-sure">
