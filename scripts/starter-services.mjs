@@ -47,6 +47,7 @@ const DEFAULTS = [120, 150, 250];
 const EDITED = 95;
 
 const failures = [], consoleBad = [];
+let canaryCards = null;   // card count on an EMPTY list: the "no card" assertion must be false there
 let assertions = 0, targets = 0;
 const check = (id, name, cond, detail) => {
   assertions++;
@@ -145,6 +146,7 @@ async function run() {
       const shown = await card.count();
       if (!check(id, "card is offered on an empty list", shown === 1, `cards=${shown}`)) { await shot(page, `${size.w}-${lang}-MISSING`); await ctx.close(); continue; }
       const g = await geometry(page);
+      if (canaryCards === null) canaryCards = shown;
       check(id, "title is in the right language", (await card.innerText()).includes(T.title), `text=${(await card.innerText()).slice(0, 80)}`);
       check(id, "three rows, named", g.rows.length === 3 && T.names.every((n, i) => g.rows[i].text.startsWith(n)), JSON.stringify(g.rows.map((r) => r.text)));
       check(id, "default prices shown", JSON.stringify(g.inputs) === JSON.stringify(DEFAULTS.map(String)), JSON.stringify(g.inputs));
@@ -228,9 +230,9 @@ async function run() {
     warnings: [
       "UNJUDGEABLE: the services list is answered in the browser and every write is swallowed; the payload is proved, rows landing in a real database are not (nothing may be written to the shared tenant).",
     ],
-    artifacts: [],
+    artifacts: SIZES.filter((s) => s.w === 390 || s.w === 1440).flatMap((s) => LANGS.flatMap((l) => [`offer`, `after`].map((k) => `artifacts/starter-services/${s.w}-${l}-${k}.png`))),
     dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), langs: LANGS, break: BREAK },
-    canary: { id: "services-present-no-card", observed_failure: false, problems: [] },
+    canary: { id: "services-present-no-card", observed_failure: canaryCards === 1, problems: canaryCards === 1 ? [] : [`the no-card assertion was not false on an empty list (cards=${canaryCards})`] },
   });
   console.log(`${problems.length ? "FAIL" : "PASS"} - ${assertions} assertions, ${targets}/${expected} scenarios, ${problems.length} problems`);
   problems.forEach((p) => console.log("  - " + p));
