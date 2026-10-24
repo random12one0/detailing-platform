@@ -96,6 +96,15 @@ const ALLOWED = {
     "anon+auth: RLS helper, used inside policies. Returns false for a non-owner.",
 
   // --- deliberate, with the grant written in its own migration.
+  set_customer_notes:
+    "auth: GRANTED in 20261017030000 (97.14). The Notes box's only write once browsers lost direct customer writes; "
+    + "checks the caller's membership and the customer's business, and refuses a support session (20261017130000).",
+  is_support_session:
+    "auth: RLS helper (4.3c, 20261010030000). Every read-only rule asks it; answers only about the CALLER's own session.",
+  support_session_expired:
+    "auth: RLS helper (97.15, 20261017190000). Answers whether the CALLER's own support view is past its deadline.",
+  set_my_lang:
+    "auth: the caller sets their OWN language (20261010030000); refuses a support session, writes nothing else.",
   accrue_plan_visits:
     "auth: GRANTED EXPLICITLY in 20260904002000_plans.sql. Idempotent (on conflict do "
     + "nothing) and bounded by current_date, so firing it early only grants what was "
