@@ -58,6 +58,7 @@ import {
 } from "./lib/accessibleName.mjs";
 import {
   countQuotes,
+  feedBookingFixture,
   pickDay,
   settle,
   stepNow,
@@ -199,41 +200,9 @@ function checkControls(reading, controls, must) {
   return verdicts;
 }
 
-// The two answers --fixture supplies. Every weekday from tomorrow is open at
-// three times; the quote is one hour at $65, the shape calculate-booking sends.
-async function feedFixture(page) {
-  await page.route(/\/functions\/v1\/calculate-booking/, (route) => route.fulfill({
-    status: 200, contentType: "application/json",
-    body: JSON.stringify({ success: true, weather: null, quote: {
-      base_price: 65, vehicle_size_fee: 0, add_ons_total: 0, travel_fee: 0, travel_zone: null,
-      adjustments: [], subtotal_before_discounts: 65, site_discount: 0, site_discount_percent: 0,
-      site_discount_label: null, subtotal: 65, promo_code: null, promo_discount: 0, total: 65,
-      plan_id: null, plan_name: null, total_duration: 60, buffer_minutes: 0, vehicle_count: 1,
-      per_vehicle: null, single_vehicle_duration: 60,
-    } }),
-  }));
-  await page.route(/\/functions\/v1\/available-slots/, async (route) => {
-    let body = {};
-    try { body = JSON.parse(route.request().postData() || "{}"); } catch { /* empty ask */ }
-    const days = {};
-    const today = new Date().toISOString().slice(0, 10);
-    const start = body.start_date || body.booking_date || today;
-    const end = body.end_date || start;
-    for (let d = new Date(start + "T12:00:00Z"); d.toISOString().slice(0, 10) <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-      const key = d.toISOString().slice(0, 10);
-      const open = key > today && d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
-      days[key] = {
-        open, slots: open ? ["09:00", "10:00", "13:00"] : [], dropoff_slots: [], dropoff_only: false,
-        mobile_slots: [], mobile_only: false, hours: open ? { open: "09:00", close: "17:00" } : null,
-      };
-    }
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, days }) });
-  });
-}
-
 async function dateReading(ctx, w, h) {
   const page = await ctx.newPage();
-  if (FIXTURE) await feedFixture(page);
+  if (FIXTURE) await feedBookingFixture(page);
   countQuotes(page); // toCalendar's advance waits on quote answers, not on time
   const noise = [];
   watchConsole(page, String(w), noise);
@@ -426,13 +395,13 @@ async function jobReading(browser, w, h) {
   await ctx.close().catch(() => {});
 }
 
-let ART = ".manager-shots/14.24";
+let ART = ".manager-shots/14.24-names";
 
 async function run() {
-  mkdirSync(join(REPO, ".manager-shots", "14.24"), { recursive: true });
   // Sabotage artifacts live apart from clean ones: a clean rerun must never
   // overwrite a sabotage run's screenshots and traces (docs/gotchas.md 125).
-  ART = BREAK ? `.manager-shots/14.24-sabotage-${BREAK}` : ".manager-shots/14.24";
+  // Its own folder: booking-steps-6-7.mjs (14.24 part 1) wipes .manager-shots/14.24 on every run.
+  ART = BREAK ? `.manager-shots/14.24-names-sabotage-${BREAK}` : ".manager-shots/14.24-names";
   mkdirSync(join(REPO, ART), { recursive: true });
   const launchOpts = process.env.CHROME_EXE
     ? { executablePath: process.env.CHROME_EXE, args: ["--no-sandbox"] }

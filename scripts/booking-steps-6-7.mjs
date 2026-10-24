@@ -37,12 +37,15 @@ import { createRequire } from "node:module";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
-import { advance, countQuotes, pickDay, quoted, settle, stepNow, toCalendar, watchConsole } from "./lib/bookingWalk.mjs";
+import { advance, countQuotes, feedBookingFixture, pickDay, quoted, settle, stepNow, toCalendar, watchConsole } from "./lib/bookingWalk.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
 const ART = join(REPO, ".manager-shots", "14.24");
+// --fixture: answer calculate-booking and available-slots with fixed bodies, for a
+// backend that holds no prices or times (lib/bookingWalk.mjs feedBookingFixture).
+const FIXTURE = process.argv.slice(2).includes("--fixture");
 const BREAK = (process.argv.slice(2).find((a) => a.startsWith("--break=")) || "").split("=")[1] || null;
 
 const SIZES = [{ w: 320, h: 700 }, { w: 392, h: 844 }, { w: 768, h: 1024 }, { w: 1440, h: 900 }];
@@ -125,6 +128,7 @@ async function run() {
       console.log(`\n== ${w}x${h}`);
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
       const page = await ctx.newPage();
+      if (FIXTURE) await feedBookingFixture(page);
       countQuotes(page);
       const widthFrom = noise.length;
       watchConsole(page, String(w), noise);
@@ -226,7 +230,7 @@ async function run() {
     assertions_executed: assertions, min_assertions: EXPECTED_ASSERTIONS,
     assertion_floor: "8 readings x 5 + 4 plan-pitch + 1 calendar + 3 canaries = 48, asserted as an EQUALITY (docs/gotchas.md 98).",
     failures, warnings: [], artifacts,
-    dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), steps: STEPS, business: "demo-detail", item: "14.24-1", break: BREAK },
+    dimensions: { sizes: SIZES.map((s) => `${s.w}x${s.h}`), steps: STEPS, business: "demo-detail", item: "14.24-1", break: BREAK, fixture: FIXTURE },
     canary: { id: canaries[0].name, observed_failure: canaries.every((c) => c.flagged) },
     canaries, unjudgeable, sabotage, observed,
   });
