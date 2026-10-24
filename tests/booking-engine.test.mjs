@@ -671,8 +671,11 @@ console.log("test 16: a service carries its own availability");
   });
   const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-555-0904`);
   // A Tuesday and a Thursday, both far enough out to be free.
-  const onDow = (dow) => { const d = new Date(); d.setDate(d.getDate() + 26); while (d.getDay() !== dow) d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); };
-  const tue = onDow(2), thu = onDow(4);
+  const onDow = (dow) => { const d = new Date(); d.setDate(d.getDate() + 26); while (d.getDay() !== dow) d.setDate(d.getDate() + 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  // thu is the Thursday OF THE SAME WEEK as tue. Two independent onDow calls put Thursday before Tuesday whenever
+  // day 26 landed on a Wednesday or Thursday, so available-slots got a backwards range and answered 400 (2026-10-24).
+  const tue = onDow(2);
+  const thu = (() => { const [y, m, d] = tue.split("-").map(Number); const t = new Date(y, m - 1, d + 2); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; })();
 
   const mob = await book("mobile", tue); await clear();
   check("a drop-off-only service refuses mobile -> 409", mob.status === 409, `${mob.status} ${JSON.stringify(mob.data)}`);
@@ -723,7 +726,7 @@ console.log("test 17: travel and time-based surcharges reach the price");
   const price = (extra) => fn("calculate-booking", {
     business_slug: "engine-a", service_ids: [serviceA.id], add_ons: [], vehicle_size: "small", ...extra,
   });
-  const onDow = (dow) => { const d = new Date(); d.setDate(d.getDate() + 26); while (d.getDay() !== dow) d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); };
+  const onDow = (dow) => { const d = new Date(); d.setDate(d.getDate() + 26); while (d.getDay() !== dow) d.setDate(d.getDate() + 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
   await setPricing({ travel_fee: 25, travel_zones: [], price_rules: [], price_rounding_nearest: 0 });
   const base = (await price({ service_type: "dropoff" })).data?.quote;
@@ -915,7 +918,7 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
       && /const sameBooking[\s\S]{0,700}?\.eq\("customer_phone", String\(body\.customer_phone\)\.trim\(\)\)/.test(cb),
     "same business, same instant, same phone, not cancelled");
   check("18a-ii · and asks the same question BEFORE the slot gate, so a retry after a lost answer is not refused",
-    /sameBooking\(business\.id, asked\.toISOString\(\), body\)[\s\S]{0,400}?const check = await validateSlot\(/.test(cb));
+    /sameBooking\(business\.id, asked\.toISOString\(\), body\)[\s\S]{0,900}?const check = await validateSlot\(/.test(cb));
   check("18b · and returns it as a booking rather than a conflict",
     /if \(mine\) \{[\s\S]{0,400}?return json\(duplicateAnswer\(mine, body\)\)/.test(cb));
   // The retry must be INDISTINGUISHABLE from the first press — same key, so
@@ -982,7 +985,9 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
   // whatever migrations have added since. Naming them here would be a second
   // copy of the schema, and the copy nobody maintains is the one that rots.
   const base = biz
-    ? (await svc.get(`/rest/v1/bookings?business_id=eq.${biz.id}&select=*&limit=1`)).data?.[0]
+    // A LIVE row only: bookings_no_overlap skips deleted, cancelled and bulk rows, so a clone of one of those
+    // inherits the exemption and the overlap lands (19b-d went red 2026-10-24 on a soft-deleted first row).
+    ? (await svc.get(`/rest/v1/bookings?business_id=eq.${biz.id}&deleted_at=is.null&status=neq.cancelled&bulk_vehicle_count=is.null&select=*&limit=1`)).data?.[0]
     : null;
   if (!base) {
     check("19 · a demo booking to clone", false, "run scripts/seed-demo.mjs — NOT MEASURED");
