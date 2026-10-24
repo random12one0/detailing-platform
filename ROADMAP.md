@@ -20828,6 +20828,8 @@ the dashboard or back office at phone width at all.
   any borrowed mid-range Android**. Neither is a build, neither costs money and
   neither needs a publish.
 
+  **NEEDS ANDREW: the walk itself.** Only a person holding a real iPhone and a real Android can answer the 18 steps of § 5 of `docs/testing/phones-we-do-not-own.md`; no session here can. Nothing buildable is left. His row is in FOR-ANDREW.md ("Twenty minutes on your iPhone with the keyboard up"). Recorded 2026-10-24; box stays `[ ]` and no per-step answers exist yet.
+
 - [x] **8.3 — DONE 2026-09-24. Small grey text is unreadable outdoors.**
   Both audits, everywhere: body copy, letter-spaced all-caps micro-labels,
   progress text, tab labels, service details, warnings, "then $40/month $60",
