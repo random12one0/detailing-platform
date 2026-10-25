@@ -24677,6 +24677,54 @@ the dashboard or back office at phone width at all.
   throwaway platform admin created and dropped for the probe; `platform_admins`
   verified back to its two declared rows afterwards.*
 
+  ***RE-CHECKED 2026-10-24 (belt job, high effort). (d) HOLDS IN THE SOURCE; ITS
+  PROOF HAD QUIETLY LOST ONE OF ITS THREE SABOTAGES, NOW RE-ARMED.***
+  The gate is still in `platform-admin/index.ts` above the per-business guard, now
+  nine names (`impersonate` joined it). § 15 of `tests/platform-admin.test.mjs`
+  printed **`15e · an action handled below but left out of the set — THE SABOTAGE
+  DID NOT APPLY`** on every run since the set was re-wrapped onto two lines: its
+  scripted edit replaced a one-line spelling that no longer existed
+  (`docs/gotchas.md` 102). Both set sabotages now edit inside the set's own text,
+  whatever the wrapping (commit `aad3b2b5`). Measured with `PA_MUT` on scratch
+  copies: gate removed → 15a-15e all red; `impersonate` dropped from the set →
+  15b red naming it; the old one-line wrapping → 7 of 7 green. Whole suite at that
+  commit: **137 passed, 47 failed, 7 skipped**; the 47 are 99.3b-ii's listed
+  part-2 reds (the old back-office screen was deleted in 99.3b-i), none in § 15.
+
+  **THE SCREEN MOVED.** `AdminPage.jsx` no longer exists. The list this entry is
+  about is now the new office's **System** place, `Email we sent`
+  (`app/src/admin/office/places/system/Mail.jsx`), which still asks
+  `{action:"email_list", limit:100}`. Every action name the office sends through
+  its `call()` (11 of them) has a branch in the function's source, checked by grep
+  2026-10-24.
+
+  **(a)-(c), WHAT IS KNOWN AND HOW OLD IT IS.** (a) is NOT met:
+  `receipts/deployed-inventory.json` (2026-10-23T20:01Z, `7f7789b3`) still names
+  `platform-admin`, 11 files differ, **but `_shared/emailList.js` is no longer
+  among them**, so the deployed bundle now carries the action. (b) was met live on
+  2026-10-12: `receipts/office-mail-live.json` (`a9b5d255`) recorded **200 with
+  100 rows** at 392 and 1440. The live half of (d) was met 2026-10-10:
+  `receipts/platform-admin-actions-live.json` (`bcd52916`) recorded an unknown
+  action answered **400 `{"error":"Unknown action"}`**. Neither was re-taken
+  today: this job's copy has no `.env`, and a credentialed run needs the
+  manager's say-so. (c) at 768x1024, 390x844 and 320 has never been taken.
+  `scripts/office-mail-live.mjs` now takes `--sizes=` (default 392/1440
+  unchanged) and `--break=old-bundle`, which serves the 2026-10-07 reply
+  `400 "business_id is required"` to the Mail section and must go red at every
+  width (commit `0d8c1236`). **Neither the new sizes nor the sabotage has been run;
+  that is said, not implied.**
+
+  LIVE RUN NEEDED: `node scripts/office-mail-live.mjs --break=old-bundle --sizes=1440x900,768x1024,390x844,392x844,320x700` then `node scripts/office-mail-live.mjs --sizes=1440x900,768x1024,390x844,392x844,320x700` — the first must fail at all 5 widths and write `receipts/office-mail-live.sabotage.json`; the second proves (b) and (c), a live 200 list drawn with only the planned 400 in the console, at 5 of 5 widths.
+
+  Waits on: 4.3c/4.3e. `platform-admin` is held on `scripts/release-sheet.mjs`
+  (`HOLD_ADMIN`), and 9.18 is declared there beside 0.4 and 0.4g; whoever lifts
+  that hold removes this line.
+
+  AWAITS PUBLISH (built and proved; no decision asked of Andrew): (d) is built
+  and its check bites; (a) is the `platform-admin` publish, then
+  `node scripts/deployed-inventory.mjs` must stop naming it, and the LIVE RUN
+  above closes (b) and (c). Box left `[ ]`.
+
 - [x] **9.19 — The fade at the bottom of every dashboard screen is 40px taller
   than the gap left for it, so the last line of content is always under it.**
   Found by DP Cowork during 9.4, 2026-10-07. **FIXED 2026-10-10 — see the paragraph below; the original text follows it unedited.**
