@@ -1,0 +1,42 @@
+{
+  "signedIn": true,
+  "pages": [
+    "/app",
+    "/admin"
+  ],
+  "sizes": [
+    "320x700"
+  ],
+  "flows": [
+    {
+      "name": "back office Sign out is on screen and signs out (99.3 step 8)",
+      "page": "/admin",
+      "steps": [
+        {
+          "expectVisible": ".bo-rail"
+        },
+        {
+          "expectVisible": "button:has-text(\"Sign out\") >> visible=true"
+        },
+        {
+          "click": "button:has-text(\"Sign out\") >> visible=true"
+        },
+        {
+          "expectVisible": ".bo-door"
+        }
+      ]
+    },
+    {
+      "name": "the temporary /admin/office address is the product's own 404",
+      "page": "/admin/office",
+      "steps": [
+        {
+          "expectText": "That page does not exist."
+        },
+        {
+          "expectHidden": ".bo-rail"
+        }
+      ]
+    }
+  ]
+}

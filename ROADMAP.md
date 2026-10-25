@@ -31632,6 +31632,23 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       `.pa-tab`; also part of b-v.
       AMENDMENT PROPOSED (unchanged from attempt 1): R13 — retire `admin-preconditions.mjs` only; keep
       `admin-furniture-clearance.mjs`, which 9.11e (`13262063`) retargeted at the new office.
+      **BELT TEST-READ ANSWERED, 2026-10-24.** This item's product change is step 8 only (`OfficePage.jsx`,
+      `office.css`: Sign out on screen at phone width, and pressing it signs out). The three re-homed tests do not
+      test step 8; they crashed on main because they read `AdminPage.jsx`, which 99.3b-i deleted, so their fix IS
+      in the test, and passing on main's product code is correct:
+      `node --test tests/admin-insight.test.mjs passed with your 10 product change(s) put back to main` — and its
+      10g is a lint-style guard on purpose (its subject is the absence of a raw `bookability(` call in the office
+      source; 10a-10f run `bookability` itself).
+      `node --test tests/admin-preconditions.test.mjs passed with your 10 product change(s) put back to main` — it
+      imports and RUNS `contactOf`/`issueOf`/`sortRows` from `lib/officeDetailers.js` with must-work and
+      must-refuse rows.
+      `node --test tests/growth-lines.test.mjs passed with your 10 product change(s) put back to main` — § 6 imports
+      and RUNS `issueOf` on one account stuck on each question; removing the no-website reason reddened it (7/1).
+      **Step 8 itself is proved by `belt-checks/request.json`**, played with the belt's own `parseRequest` and
+      `runStep` as the demo owner on this copy's demo back end: flow "back office Sign out is on screen and signs
+      out" **PASS at 390x844, 1440x900 and 320x700** on this code, and **FAIL at all three on main's two files**
+      (390 and 320: no visible Sign out; 1440: pressed, but the door never comes back). The `/admin/office` flow
+      ("That page does not exist.", no rail) passes on both, as it should: it proves R3, not the fix.
     - [ ] 99.3b-v — re-point the seven refusing scripts above (and sweep-tap-targets' `.pa-tab` canary) at the new
       office's places, then remove each refusal. LIVE RUN NEEDED: they sign in with `scripts/admin-account.mjs`,
       which needs the `.env` credentials a belt job copy does not have, so each must be run once from the main copy
