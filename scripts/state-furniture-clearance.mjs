@@ -27,7 +27,10 @@
 // theme.css was written for on the job record. Before the fix, of 22 controls
 // on Today at 320/390/768/1440/1920: `.topbar` took rows from 16/16/14/7/3,
 // `.impbar` from 16/16/14/4/3 — `node scripts/state-furniture-clearance.mjs
-// --break=nofix` at af5fc32f, receipts/state-furniture-clearance.sabotage.json.
+// --break=nofix`, identical at af5fc32f and f7e8317d; the committed
+// receipts/state-furniture-clearance.sabotage.json is the f7e8317d run. Same
+// run, the preview page's strip: 4/4/3/2/0 of 11 controls (1920 cannot fail —
+// the page is too short to scroll a control under it).
 //
 // ACCOUNT. The demo owner, signed in with `DEMO_OWNER_PW` (`scripts/lib/
 // demoOwner.mjs`). The red strip is drawn from a note in localStorage

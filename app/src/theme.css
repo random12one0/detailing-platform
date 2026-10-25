@@ -1205,7 +1205,7 @@ html:has(.tabbar) {
    header is sticky at `top: 0`, so a control focused from BELOW (Shift+Tab,
    or any focus on something above the viewport) was parked flush under it:
    on Today 16/16/14/7/3 of 22 controls lost rows at 320/390/768/1440/1920
-   (`state-furniture-clearance.mjs --break=nofix` at af5fc32f).
+   (`state-furniture-clearance.mjs --break=nofix`, identical at af5fc32f and f7e8317d).
    `keyboard-walk.mjs` walks forwards and could never see it. The platform
    view strip takes the stick from the header while it is up and wraps to
    100px at phone widths (more in Spanish), so it gets a literal with room,
