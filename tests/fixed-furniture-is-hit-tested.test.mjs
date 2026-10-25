@@ -117,6 +117,12 @@ const HIT_TESTERS = [
   // `marketing-furniture-clearance.mjs` is the same pattern pointed there.
   // Credential-free: the marketing surface is signed-out, so no account.
   "scripts/marketing-furniture-clearance.mjs",
+  // ADDED 2026-10-24 (ROADMAP 9.11e, last slice). The two pieces of furniture
+  // only drawn in a STATE: `.impbar` (the platform view strip, entered with
+  // the localStorage note `lib/impersonation.js` reads) and the website
+  // brief's `.livesite` preview at /website/preview. Both focused from above
+  // AND below, which is what found the dashboard reserving nothing at the top.
+  "scripts/state-furniture-clearance.mjs",
 ];
 
 // Comments are blanked rather than removed, so a reported line number is the
@@ -209,12 +215,14 @@ export function coveredBy(sel, texts) {
 // needs, because `scripts/` is frozen for this session and 9.11e's entry
 // carries the same list in words.
 // --------------------------------------------------------------------------
-const NO_HIT_TEST = [
-  ".impbar",
-  ".intake:has(> .livesite) > .livesite",
-  ".bo-rail",
-  ".bo-panel",
-];
+const NO_HIT_TEST = [];
+// 4 -> 0 on 2026-10-24 (ROADMAP 9.11e, last slice): `.impbar` and the
+// `.livesite` preview came off with `scripts/state-furniture-clearance.mjs`;
+// `.bo-rail` and `.bo-panel` had been named by
+// `scripts/admin-furniture-clearance.mjs` since its retarget (13262063) and
+// this list was never moved with it, so §3 sat red. That script needs real
+// credentials and its receipt still describes the OLD screen — the text
+// coverage here is honest, the re-run is owed (ROADMAP 99.10 item 6).
 // 6 -> 4 on 2026-10-12 (ROADMAP 9.11e, walk-attendance slice): `.topbar` and
 // `.split > .col-2` came off in the same edit as the attendance probe in
 // `scripts/keyboard-walk.mjs`, which names both and records per screen which
