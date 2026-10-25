@@ -13,10 +13,11 @@
 //   node scripts/release-sheet.mjs --break=fn-before-page # create-booking and create-business before the website: names 99.2, 99.2a and 97.37
 //   node scripts/release-sheet.mjs --break=lock-one    # 4.3b's lock declared as update-booking only: names 4.3b and verify-domain
 //   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b
+//   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
 //
-// The last three (and drop-line, unhold) only bite while the server check names the programs they
+// lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
-// nothing new, so re-run all ten after every fresh deployed-inventory receipt (98.18, 2026-10-24).
+// nothing new, so re-run all eleven after every fresh deployed-inventory receipt (98.18, 2026-10-24).
 //
 // It READS. Credential-free: it never asks the database or the server anything
 // itself. Its inputs are the receipts `migration-drift.mjs` and
@@ -48,8 +49,8 @@
 // Part 3: programs, `update-booking` first and alone, then one pass,
 // then `platform-billing` alone. Held programs are listed once, never as a step. Part 4: the website.
 // Part 5: the programs a rule sends AFTER the website (`create-booking`, 99.2 and
-// 99.2a, the rule 97.64 set; `create-business`, 97.37), then the payment webhook
-// last and alone (0.6b). 97.16's `accept-quote` rule went with the 2026-10-23
+// 99.2a, the rule 97.64 set), then the payment webhook alone (0.6b), then any program a
+// rule sends after it (`create-business`, 97.37: see SETTLED). 97.16's `accept-quote` rule went with the 2026-10-23
 // release, so `accept-quote` now goes in the ordinary pass. The
 // push check (.githooks/pre-push) refuses the website while any program is not
 // this checkout, so the website step names exactly what it will report and says
@@ -75,7 +76,7 @@ import { join } from "node:path";
 import { writeReceipt, REPO } from "./receipt.mjs";
 
 const started_at = new Date().toISOString();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last"];
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").slice("--break=".length);
 if (BREAK && !BREAKS.includes(BREAK)) {
   console.error(`Unknown --break=${BREAK}. Known: ${BREAKS.join(", ")}.`);
@@ -145,7 +146,7 @@ const DECLARED = {
     hold: { "platform-admin": HOLD_ADMIN, "google-business": HOLD_GOOGLE },
     before: [[M.body, "send-email"], [M.payProblem, "stripe-webhook"]],
     manual: [{ id: "two-reads", part: 0, text: "Two reads, nothing changes: in the platform's folder, `git status --porcelain supabase/functions` must print nothing (if it prints a file, a session is changing the programs right now; stop). And no browser check may be running on the practice business while you publish." }],
-    rule: "`update-booking` first and alone; the one-column change before `send-email`; `platform-billing` alone; the payment webhook last and alone, with its database change before it. `platform-admin` and `google-business` are held back.",
+    rule: "`update-booking` first and alone; the one-column change before `send-email`; `platform-billing` alone; the payment webhook last and alone, with its database change before it. `platform-admin` and `google-business` are held back. When 97.37's `create-business` goes in the same release, it follows the payment webhook: settled at the top of this sheet.",
     after: ["The server check should now name ONLY the held programs. Anything else it names did not publish: tell a session its name."],
   },
   "4.3b": {
@@ -272,6 +273,12 @@ const DECLARED = {
 // (STRONG below) is a failure, so a rule cannot be waved through as "no order".
 // ---------------------------------------------------------------------------
 const CONFLICT = "**Two of your notes disagree, and this sheet settles it.** The 99.2f note (in \"Use the shorter email dates and times\", and ROADMAP 99.2) says publish `create-booking` before the website. ROADMAP 97.64 says the website first, then `create-booking`. **This sheet does the website first and `create-booking` straight after it, in the same sitting.** Why: the other way round, a customer whose first press was lost and who presses Book again from the old page gets no link to their booking (97.64). Website first, the only cost is that a text-consent tick made in those few minutes is not saved by the old program, and no texts are sent yet anyway (99.2f).";
+// 0.6b sends the payment webhook last and alone; 97.37 sends it before `create-business`, which a rule
+// also sends after the website. Both cannot hold (98.19, 2026-10-24). 0.6b's reason is isolation: "it
+// touches money, so if anything goes wrong there is only one thing it can have been". So the webhook
+// stays ALONE and `create-business` follows it as the very last step. Held by verify(): said out loud
+// whenever the clash exists, the webhook followed only by programs a rule sends after it, each after it.
+const SETTLED = "**Two of your rules pull against each other, and this sheet settles it.** Your launch notes (0.6b) say the payment webhook goes last and alone. ROADMAP 97.37 says the payment webhook goes before `create-business`, and `create-business` also has to wait for the website. **This sheet publishes the payment webhook alone, then `create-business` as the very last step.** Why: 0.6b's reason for last and alone is that if anything goes wrong with money there is only one thing it can have been, and the webhook still goes out by itself. The other way round, a detailer who signs up and pays in the minutes between the two would pay and still not go live (97.37).";
 Object.assign(DECLARED, {
   "99.2": {
     functions: ["create-booking", "send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", website: true, before: [["website", "create-booking"]], conflict: true,
@@ -507,6 +514,9 @@ const lasts = publish.filter((f) => order.last.has(f));
 // Programs a rule puts AFTER the website (97.16, 97.64): published straight after it, same sitting.
 const afterSite = BREAK === "fn-before-page" ? [] : publish.filter((f) => allBefore.some(([a, b]) => a === "website" && b === f) && !preFns.has(f));
 const pass = publish.filter((f) => !preFns.has(f) && !order.first.has(f) && !order.alone.has(f) && !order.last.has(f) && !afterSite.includes(f));
+// A program a rule sends after a last-and-alone one (97.37's `create-business` after the webhook) goes after it (98.19).
+const afterLast = BREAK === "webhook-last" ? [] : afterSite.filter((f) => allBefore.some(([a, b]) => lasts.includes(a) && b === f));
+const afterSiteFirst = afterSite.filter((f) => !afterLast.includes(f));
 // A program that must precede a database change goes just before the EARLIEST one it
 // must precede, so every database change it needs (4.3b's lock) is already in.
 const preAt = new Map();
@@ -531,7 +541,7 @@ const push = (key, text, subs = []) => { n++; stepNo.set(key, n); out.push(`${n}
 const plan = [
   ...part0().map((s) => s.id),
   ...[...manual.values()].filter((s) => s.part === 1).map((s) => s.id),
-  ...part3, ...firsts, ...pass, ...alones, "website", ...afterSite, ...lasts,
+  ...part3, ...firsts, ...pass, ...alones, "website", ...afterSiteFirst, ...lasts, ...afterLast,
 ];
 plan.forEach((k, i) => stepNo.set(k, i + 1));
 const label = (x) => (x === "website" ? "the website" : manual.has(x) ? `step ${stepNo.get(x)}` : `${x} (step ${stepNo.get(x)})`);
@@ -551,6 +561,9 @@ out.push(`This is one list for your next release, built from the release notes i
 out.push(`**When to start.** ${part0().filter((x) => x.must).map((x) => `Step ${stepNo.get(x.id)}`).join(", ")} must already be done before you begin; if it is not, do not start. Steps 1 to ${firstMigStep - 1} change nothing anybody sees, so you can stop anywhere in them. **Once you start step ${firstMigStep}, go through to the end of the sheet in the same sitting:** 97.14's two database changes and the website must go out together, or the Notes box stops saving${afterSite.length ? `, and ${afterSite.join(" and ")} must follow the website within minutes` : ""}.`, "");
 out.push(`**The website step will be refused at first, and that is expected.** Your push first checks the server, and it stops while any program is out of date. At that moment ${pushNames.length} always are: the ${heldHere.length} held back, and the ${afterSite.length + lasts.length} that go straight after the website. When it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`, as your launch notes (0.6b) say.`, "");
 if (conflicts.length) out.push(plain(CONFLICT), "");
+// Said whenever the clash exists, so the sabotage that drops the settled order is held to the paragraph.
+const clash = lasts.some((l) => afterSite.some((f) => allBefore.some(([a, b]) => a === l && b === f)));
+if (clash) out.push(plain(SETTLED), "");
 out.push("Nothing here has been done for you. No session applies, publishes or pushes. Each step ends with the ROADMAP items it is for; your notes for each stay in your list as the detail.", "");
 
 out.push("## Part 0 — before you start", "");
@@ -593,8 +606,9 @@ out.push("## Part 4 — the website", "");
 push("website", `**Publish the website** (a push to main).${pushNames.length ? ` The push check will stop and name ${pushNames.join(", ")}${onlyIf.size ? ` (and ${[...onlyIf.keys()].join(", ")} if you skipped it)` : ""}; when it names only those, push with \`SHIP_WITH_DRIFT=1 git push\`.` : ""} Then wait until Netlify shows this deploy as Published (a few minutes) and go straight on.${tags(need.website)}`);
 out.push("");
 out.push("## Part 5 — straight after the website, same sitting", "");
-if (afterSite.length) { out.push("**These go after the website, never before it:**", ""); for (const f of afterSite) push(f, fnLine(f, "Publish ")); out.push(""); }
-if (lasts.length) { out.push("**Last, alone, nothing else running:**", ""); for (const f of lasts) push(f, fnLine(f, "Publish, last and alone, ")); out.push(""); }
+if (afterSiteFirst.length) { out.push("**These go after the website, never before it:**", ""); for (const f of afterSiteFirst) push(f, fnLine(f, "Publish ")); out.push(""); }
+if (lasts.length) { out.push(afterLast.length ? "**Then alone, nothing else running; check it before the next step:**" : "**Last, alone, nothing else running:**", ""); for (const f of lasts) push(f, fnLine(f, afterLast.length ? "Publish, alone, " : "Publish, last and alone, ")); out.push(""); }
+if (afterLast.length) { out.push("**Last of all, after the payment webhook:**", ""); for (const f of afterLast) push(f, fnLine(f, "Publish, last, ")); out.push(""); }
 out.push("## Held back on purpose — do NOT publish these this time", "");
 for (const f of heldHere) out.push(`- \`${f}\` — ${held.get(f).reason}${tags(held.get(f).ids)}`);
 out.push("");
@@ -630,6 +644,14 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
   const lineOf = (needle) => stepLines.findIndex((l) => l.includes(needle));
   const count = (needle) => text.split(needle).length - 1;
   const isHeld = (f) => heldLines.some((l) => l.startsWith(`- \`${f}\``));
+  // "Last" means no program after it except ones a rule sends after it (98.19: 97.37's `create-business`).
+  const lastOk = (f) => {
+    const i = lineOf("`" + f + "`");
+    return i >= 0 && /alone/.test(stepLines[i]) && stepLines.slice(i + 1).every((l) => {
+      const g = (/`([a-z][a-z0-9-]+)`/.exec(l) || [])[1];
+      return Object.values(decl).some((d) => (d.before || []).some(([a, b]) => a === f && b === g));
+    });
+  };
   const positions = [];
   for (const f of migs) {
     const c = count(`\`${f}\``);
@@ -652,8 +674,7 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
     for (const f of Object.keys(d.hold || {})) if (fns.includes(f) && !isHeld(f)) bad.push(`${name} holds ${f} back, and the sheet publishes it`);
     for (const m of row.body.matchAll(/`([a-z-]+)`(?: first,)? alone/g)) if (fns.includes(m[1]) && !isHeld(m[1]) && !/alone/.test(stepLines[lineOf("`" + m[1] + "`")] || "")) bad.push(`${name} sends ${m[1]} alone, and the sheet does not`);
     if (/payment webhook,? last and alone/i.test(row.body) && fns.includes("stripe-webhook") && !isHeld("stripe-webhook")) {
-      const i = lineOf("`stripe-webhook`");
-      if (i !== stepLines.length - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name} sends the payment webhook last and alone, and the sheet does not (step ${i + 1})`);
+      if (!lastOk("stripe-webhook")) bad.push(`${name} sends the payment webhook last and alone, and the sheet does not (step ${lineOf("`stripe-webhook`") + 1})`);
     }
     const nodes = [...(d.migrations || []), ...(d.functions === "all" ? [] : d.functions || []).filter((f) => fns.includes(f) && !isHeld(f)), ...(d.website ? ["website"] : []), ...(d.manual || []).map((s) => s.id)];
     if (!nodes.length && !Object.keys(d.hold || {}).length && !(d.after || []).length && d.functions !== "all") bad.push(`${name} declares nothing to do`);
@@ -669,7 +690,7 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
       if (st !== "ticked" && st !== "awaits this publish" && !isHeld(f)) bad.push(`${name}: ${f} waits on ${i}, which is ${st}, and the sheet publishes it anyway (step ${lineOf("`" + f + "`") + 1})`);
     }
     for (const f of d.first || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (!/alone/.test(stepLines[i] || "") || stepLines.some((l, j) => j < i && /^\d+\. Publish /.test(l) && !l.includes("between the database changes"))) bad.push(`${name}: ${f} is not the first program, alone`); }
-    for (const f of d.last || []) if (!isHeld(f) && fns.includes(f)) { const i = lineOf("`" + f + "`"); if (i !== stepLines.length - 1 || !/alone/.test(stepLines[i] || "")) bad.push(`${name}: ${f} is not the last program, alone`); }
+    for (const f of d.last || []) if (!isHeld(f) && fns.includes(f) && !lastOk(f)) bad.push(`${name}: ${f} is not the last program, alone`);
   }
   // After the website: only programs a rule sends after it, then the last-and-alone one.
   const afterRule = new Set(Object.values(decl).flatMap((d) => (d.before || []).filter(([a]) => a === "website").map(([, b]) => b)));
@@ -682,6 +703,20 @@ function verify(text, { migs, fns, rowList, decl, extraRows = [] }) {
   // A settled disagreement is said out loud, naming both sides.
   const conflictKeys = rowList.filter((r) => decl[r.key]?.conflict).map((r) => r.key);
   if (conflictKeys.length && !(/Two of your notes disagree/.test(text) && /99\.2f/.test(text) && /97\.64/.test(text))) bad.push(`${conflictKeys.join(", ")} disagree about the order, and the sheet does not say so or how it is settled`);
+  // A last-and-alone program that another rule sends ahead of a program (0.6b against 97.37) is a clash:
+  // the sheet says so, naming both, and its steps do what it says.
+  for (const f of new Set(Object.values(decl).flatMap((d) => d.last || []))) {
+    if (isHeld(f) || !fns.includes(f)) continue;
+    const owners = Object.entries(decl).filter(([, d]) => (d.last || []).includes(f)).map(([k]) => k);
+    for (const [k, d] of Object.entries(decl)) for (const [a, b] of d.before || []) {
+      if (a !== f || isHeld(b) || !fns.includes(b)) continue;
+      const keys = [...owners, k].join(" and ");
+      const fi = lineOf("`" + f + "`"), bi = lineOf("`" + b + "`");
+      if (!(/Two of your rules pull against each other/.test(text) && [...owners, k].every((o) => text.includes(`(${o})`) || text.includes(`ROADMAP ${o} `))))
+        bad.push(`${keys} disagree about the order (${f} last, and ${f} before ${b}), and the sheet does not say so or how it is settled`);
+      else if (!(bi > fi && lastOk(f))) bad.push(`${keys}: the sheet says it settles their clash by publishing ${f} alone and then ${b} last, and its steps do not (${f} is step ${fi + 1}, ${b} is step ${bi + 1})`);
+    }
+  }
   const heldNames = heldLines.map((l) => (/^- `([a-z-]+)`/.exec(l) || [])[1]).filter(Boolean);
   if (heldNames.length && !(stepLines[websiteAt] || "").includes("SHIP_WITH_DRIFT=1")) bad.push("programs are held back, and the website step does not say how to push past the check that refuses it");
   for (const f of heldNames) if (!(stepLines[websiteAt] || "").includes(f)) bad.push(`the website step does not warn that the push check will name held program ${f}`);
@@ -744,6 +779,7 @@ const { path: receiptPath } = writeReceipt({
     roadmap_rules_declared: readRows.filter((r) => r.file).map((r) => r.key),
     roadmap_excluded: roadmapRows.filter((r) => !DECLARED[r.key]).map((r) => r.key),
     after_the_website: afterSite,
+    after_the_last_program: afterLast,
     at_your_next_release_rows: thirteen.map((r) => r.key),
     steps: n,
   },
