@@ -34,6 +34,7 @@ async function open(size,lang='en',existing=false) {
   const req=route.request(),url=new URL(req.url());
   if (url.origin===BASE) {
    if (url.pathname==='/sw.js') return route.fulfill({contentType:'text/javascript',body:'// Inert supervision worker: every request stays inside the browser fixture.'});
+   if (url.pathname==='/preview') return route.fulfill({contentType:'text/html',body:'<!doctype html><title>Supervision handoff boundary</title><p>Preview tab counted; authentication inside it is outside this UI proof.</p>'});
    const target = broken==='starters' && url.pathname==='/src/screens/more/Catalog.jsx' || ['restore','owner'].includes(broken) && url.pathname==='/src/admin/office/DetailerPanel.jsx' || broken==='bookability' && url.pathname==='/src/lib/officeDetailers.js';
    if (!target) return route.continue();
    const res=await route.fetch(); const source=await res.text();
@@ -48,6 +49,7 @@ async function open(size,lang='en',existing=false) {
    if (body.action==='whoami') return route.fulfill({json:{email:user.email}});
    if (body.action==='list') return route.fulfill({json:{rows,totals:{}}});
    if (body.action==='get') return route.fulfill({json:{bookings:[],invoices:[],events:[],members:body.business_id==='ownerless'?[]:[{email:'owner@example.com',role:'owner'}]}});
+   if (body.action==='impersonate') return route.fulfill({json:{access_token:'fake-preview',expires_at:new Date(Date.now()+3600e3).toISOString()}});
    return route.fulfill({json:{}});
   }
   if (url.pathname.startsWith('/rest/v1/')) {
@@ -63,7 +65,8 @@ async function open(size,lang='en',existing=false) {
  page.on('console',m=>{if(['warning','error'].includes(m.type()))consoles.push(`${size}/${lang}: ${m.type()}: ${m.text()}`);});
  page.on('pageerror',e=>consoles.push(`${size}/${lang}: ${e.message}`));
  page.on('response',r=>{if(r.status()>=400)consoles.push(`${size}/${lang}: HTTP ${r.status()} ${new URL(r.url()).pathname}`);});
- return {ctx,page,sent};
+ const popups=[];ctx.on('page',p=>popups.push(p));
+ return {ctx,page,sent,popups};
 }
 async function shot(page,name) {await settle(page);const p=`${dir}/${name}.png`;await page.screenshot({path:p});artifacts.push(p);}
 try {
@@ -84,7 +87,7 @@ try {
    const skip=await open(size,lang);await skip.page.goto(`${BASE}/app?settings=catalog`);await skip.page.waitForSelector('[data-testid="starter-services"]');await skip.page.locator('[data-testid="starter-services"] button').last().click();check(id,'Skip adds no services',!skip.sent.some(x=>x.table==='services') && await skip.page.locator('[data-testid="starter-services"]').count()===0);await skip.ctx.close();
    completed++;
   }
-  const {ctx,page,sent}=await open(size);await page.goto(`${BASE}/admin#detailers`);await page.waitForSelector('.bo-row');await settle(page);
+  const {ctx,page,sent,popups}=await open(size);await page.goto(`${BASE}/admin#detailers`);await page.waitForSelector('.bo-row');await settle(page);
   for(const [name,reason] of [['No Services','No active services'],['No Open Days','No open days']]) {const r=page.locator('.bo-row',{hasText:name});check(`99.14/${size}`,`${name} flagged`,(await r.textContent()).includes("Can't take bookings"));await r.click();await page.waitForSelector('.bo-panel');await settle(page);check(`99.14/${size}`,`${name} explains missing piece`,(await page.locator('.bo-panel').innerText()).includes(reason));await shot(page,`bookability-${name.replaceAll(' ','-')}-${size}`);await page.keyboard.press('Escape');await page.waitForSelector('.bo-panel',{state:'detached'});}
   check(`99.14/${size}`,'healthy account is not called unbookable',!(await page.locator('.bo-row',{hasText:'Healthy Detail'}).innerText()).includes("Can't take bookings"));
   await shot(page,`office-list-${size}`);
@@ -103,6 +106,14 @@ try {
   const look=page.getByRole('button',{name:'Look at their dashboard',exact:true});
   check(`99.16/${size}`,'ownerless Look disabled',await look.isDisabled());check(`99.16/${size}`,'reason written',await page.locator('.bo-nolook').count()===1);
   await look.scrollIntoViewIfNeeded();await look.click({force:true,timeout:1500}).catch(()=>{});check(`99.16/${size}`,'forced press sends no impersonate',!sent.some(x=>x.action==='impersonate'));await shot(page,`ownerless-${size}`);
+  await page.keyboard.press('Escape');await page.waitForSelector('.bo-panel',{state:'detached'});
+  await page.locator('.bo-row',{hasText:'Healthy Detail'}).click();await page.waitForSelector('.bo-panel');await settle(page);
+  const enabledLook=page.getByRole('button',{name:'Look at their dashboard',exact:true});
+  check(`99.16/${size}`,'owner present permits Look without false reason',await enabledLook.isEnabled() && await page.locator('.bo-nolook').count()===0);
+  const beforeLook=sent.filter(x=>x.action==='impersonate').length,beforeTabs=popups.length;
+  await enabledLook.scrollIntoViewIfNeeded();await shot(page,`owner-present-${size}`);await enabledLook.click();await settle(page);
+  check(`99.16/${size}`,'owner present sends one scoped impersonate and opens one tab',sent.filter(x=>x.action==='impersonate').length===beforeLook+1 && sent.at(-1)?.business_id==='healthy' && popups.length===beforeTabs+1);
+  for(const tab of popups)await tab.close().catch(()=>{});
   findings.push({size,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)});
   await ctx.close();completed++;
  }
