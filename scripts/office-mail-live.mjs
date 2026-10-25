@@ -1,6 +1,7 @@
 // 9.12a 6c: the new list against the actual deployed action. Demo owner login
 // only, programmatically from .env; credentials and mail content never logged.
 // No row creation, no email sends, no business changes. Auth creates a session.
+//   BASE=<dev server, e.g. http://localhost:5173>; the default is http://127.0.0.1:5182
 //   node scripts/office-mail-live.mjs                          392 and 1440 (the declared pair)
 //   node scripts/office-mail-live.mjs --sizes=1440x900,768x1024,390x844,320x700
 //   node scripts/office-mail-live.mjs --break=old-bundle       # sabotage, ROADMAP 9.18
@@ -8,6 +9,8 @@
 // unpublished bundle gave on 2026-10-07, 400 "business_id is required", so the
 // real-success questions must go red at every width. A sabotage run writes the
 // .sabotage receipt (receipt.mjs), never this check's clean one.
+// The canary (a drawn subject altered in the page) runs at the FIRST size given,
+// so every --sizes= list carries it; it used to run only at 392.
 import '../tests/_env.mjs';
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -41,7 +44,7 @@ try {
       check(w,'live email_list answers 200 with a nonempty list',wire?.status===200&&Array.isArray(wire.body?.rows)&&wire.body.rows.length>0);
       const drawn=()=>sec.locator('[data-mail-id]').evaluateAll(es=>es.map(e=>[e.dataset.mailId,e.querySelector('.bo-mail-subject').textContent]));
       check(w,'new view shows every real row in server order',Array.isArray(wire?.body?.rows)&&matches(wire.body.rows,await drawn()));
-      if(w===392&&wire?.body?.rows?.length){await sec.locator('.bo-mail-subject').first().evaluate(e=>e.textContent='Canary changed subject');canary.observed_failure=!matches(wire.body.rows,await drawn());}
+      if(w===sizes[0][0]&&wire?.body?.rows?.length){await sec.locator('.bo-mail-subject').first().evaluate(e=>e.textContent='Canary changed subject');canary.observed_failure=!matches(wire.body.rows,await drawn());}
       await page.unroute('**/functions/v1/platform-admin');await page.route('**/functions/v1/platform-admin',r=>r.request().postDataJSON().action==='email_list'?r.fulfill({status:400,json:{error:'This read was refused for the browser check.'}}):r.continue());
       await sec.getByRole('button',{name:'Problems',exact:true}).click();await page.waitForSelector('.bo-mail [data-mail-state=failed]');
       check(w,'planned refused read shows its sentence',await sec.getByRole('alert').textContent().then(t=>t.includes('This read was refused for the browser check.')));
