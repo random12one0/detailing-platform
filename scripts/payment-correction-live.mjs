@@ -117,8 +117,45 @@ const auditNames = (rows, from, to) => rows.filter((r) => r.before?.payment_stat
 
 // ---- the browser ---------------------------------------------------------------
 const browser = await chromium.launch();
+
+// THIS COPY'S DEV SERVER MAY POINT AT A LOCAL STAND-IN BACKEND (the belt starts one on a
+// 127.0.0.1 port, seeded with its own rows and answering every edge function with {}).
+// A correction pressed there proves nothing about the audit table, so every request to a
+// local backend is forwarded to the live project with the live anon key: this checkout's
+// screen, the real update-booking, the real database. CORS headers are rewritten for the
+// local origin because the browser, not the server, enforces them.
+const LIVE = URL_.replace(/\/$/, "");
+const appPort = new URL(BASE).port;
+const isLocalBackend = (u) => ["127.0.0.1", "localhost", "[::1]"].includes(u.hostname) && u.port !== appPort
+  && /^\/(rest|auth|functions|storage)\/v1\//.test(u.pathname);
+async function viaLive(ctx) {
+  let localAnon = null;
+  await ctx.route(isLocalBackend, async (route) => {
+    const req = route.request();
+    const origin = req.headers().origin || BASE;
+    const h = { ...req.headers() };
+    if (h.apikey && h.apikey !== ANON) localAnon = h.apikey;
+    h.apikey = ANON;
+    if (!h.authorization || (localAnon && h.authorization === `Bearer ${localAnon}`)) h.authorization = `Bearer ${ANON}`;
+    delete h.host; delete h.origin; delete h.referer;
+    const url = LIVE + new URL(req.url()).pathname + new URL(req.url()).search;
+    const cors = { "access-control-allow-origin": origin, "access-control-allow-headers": "*", "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS", "access-control-allow-credentials": "true" };
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: cors });
+    // A context closed mid-request disposes the fetch; that is the run moving on, not a finding.
+    try {
+      // --break=refinalize: the obvious build, a correction that also stamps finalized_at.
+      let postData;
+      if (BREAK === "refinalize" && req.method() === "POST" && url.includes("/functions/v1/update-booking")) {
+        postData = JSON.stringify({ ...JSON.parse(req.postData() || "{}"), finalized_at: new Date().toISOString() });
+      }
+      const resp = await route.fetch({ url, headers: h, ...(postData ? { postData } : {}) });
+      return await route.fulfill({ response: resp, headers: { ...resp.headers(), ...cors } });
+    } catch { return route.abort().catch(() => {}); }
+  });
+}
 const signIn = async () => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await viaLive(ctx);
   const page = await ctx.newPage();
   await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
@@ -136,6 +173,7 @@ const state = await signIn();
 
 async function open(size, lang, id, label) {
   const ctx = await browser.newContext({ viewport: { width: size[0], height: size[1] }, storageState: state });
+  await viaLive(ctx);
   await ctx.addInitScript((l) => localStorage.setItem("dp.lang.app", l), lang);
   const page = await ctx.newPage();
   const noise = [];
@@ -239,14 +277,11 @@ if (target && untouched && foreign) {
     attempted++;
     const tag = `press ${p.from}->${p.to} ${p.size[0]} ${p.lang}`;
     const before = await snap(target.id);
-    const since = new Date(Date.now() - 2000).toISOString();
+    // The window starts at the newest row ALREADY there, read from the database, never from this
+    // machine's clock: the first run counted the previous press's row because two clocks disagree.
+    const prior = await rowsSince(target.id, "1970-01-01T00:00:00Z");
+    const since = prior.length ? prior[prior.length - 1].created_at : "1970-01-01T00:00:00Z";
     const { ctx, page, noise } = await open(p.size, p.lang, target.id, tag);
-    if (BREAK === "refinalize") {
-      await page.route("**/functions/v1/update-booking", (route) => {
-        const body = JSON.parse(route.request().postData() || "{}");
-        route.continue({ postData: JSON.stringify({ ...body, finalized_at: new Date().toISOString() }) });
-      });
-    }
     try {
       const sec = section(page, p.lang);
       await sec.locator("summary").click();
@@ -277,7 +312,8 @@ if (target && untouched && foreign) {
       observed.push(`${tag}: pill "${pill}"; finalized_at ${after.finalized_at === before.finalized_at ? "unchanged" : "MOVED"}; action_log ${JSON.stringify(rows.map((r) => [r.action, r.before, r.after, r.actor_role]))}`);
       consoleNoise.push(...realNoise(noise));
       completed++;
-    } finally { await ctx.close(); }
+    } catch (e) { failures.push(`${tag}: threw ${String(e.message).split("\n")[0]}`); }
+    finally { await ctx.close(); }
   }
   const end = await snap(target.id);
   if (BREAK === "refinalize" && end.finalized_at !== original.finalized_at) {
