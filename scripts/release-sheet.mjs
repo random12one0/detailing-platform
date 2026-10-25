@@ -15,7 +15,7 @@
 //   node scripts/release-sheet.mjs --break=lock-order  # verify-domain back ahead of every database change: names 4.3b
 //   node scripts/release-sheet.mjs --break=webhook-last # the payment webhook back after create-business: names 0.6b and 97.37
 //
-// The last three (and drop-line, unhold) only bite while the server check names the programs they
+// lock-one, lock-order, fn-before-page and webhook-last (and drop-line, unhold) only bite while the server check names the programs they
 // move. On a receipt naming none (the stale one 98.18 met) fn-before-page and lock-order printed
 // nothing new, so re-run all eleven after every fresh deployed-inventory receipt (98.18, 2026-10-24).
 //
