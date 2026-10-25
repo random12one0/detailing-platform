@@ -113,6 +113,7 @@ const M = {
   feed: "20261024150000_calendar_feed_token.sql",
   damageAck: "20261024160000_damage_ack.sql",
   awaitingPay: "20261024210000_awaiting_first_payment.sql",
+  unlock: "20261024230000_support_sessions_unlock.sql",
 };
 // The support-session lock (4.3c): every program carrying either file reads the
 // `support_sessions` table, so each goes after the database change that makes it.
@@ -120,7 +121,7 @@ const M = {
 // the first version named only `update-booking` and put `verify-domain` ahead of it.
 const LOCK = ["_shared/tenant.ts", "_shared/supportSession.ts"];
 const SCHEDULED = ["send-owner-reminders", "refresh-weather", "watch-jobs", "photo-reconcile"];
-const HOLD_ADMIN = "Held on purpose until 4.3c is finished (4.3e is combining two versions of its button fix). Published now, the \"Let me make changes\" button promises edits that every save refuses.";
+const HOLD_ADMIN = "Held on purpose until 4.3c is finished: 4.3e combined its two button fixes on 2026-10-24 and waits for your \"approve the 4.3e amendments\". When it goes, the unlock database change must already be in, or the button answers \"did not go through\".";
 const HOLD_GOOGLE = "Never published; waits for Google's approval (0.15). Until it goes up, the Google Business screen wrongly tells an owner \"Only the owner can connect Google.\"";
 
 const DECLARED = {
@@ -140,9 +141,9 @@ const DECLARED = {
     after: ["The server check should now name ONLY the held programs. Anything else it names did not publish: tell a session its name."],
   },
   "4.3b": {
-    hold: { "platform-admin": HOLD_ADMIN },
-    bundleBefore: [[M.support, LOCK]],
-    rule: "The support-session database change goes before EVERY program that carries its lock (the shared tenant and support-session files), `verify-domain` included. `platform-admin` waits for 4.3e (your list says not to answer the 4.3c questions yet).",
+    migrations: [M.unlock], hold: { "platform-admin": HOLD_ADMIN },
+    before: [[M.unlock, "create-business"]], bundleBefore: [[M.unlock, LOCK]],
+    rule: "The unlock database change goes before `create-business` and EVERY program that carries the lock (the shared tenant and support-session files); the three support-session changes before it are already applied. Applied on its own it changes nothing. `platform-admin` stays held until 4.3c is finished.",
   },
   "97.3": {
     migrations: [M.cron], functions: SCHEDULED,
@@ -264,31 +265,9 @@ const DECLARED = {
 // ---------------------------------------------------------------------------
 const CONFLICT = "**Two of your notes disagree, and this sheet settles it.** The 99.2f note (in \"Use the shorter email dates and times\", and ROADMAP 99.2) says publish `create-booking` before the website. ROADMAP 97.64 says the website first, then `create-booking`. **This sheet does the website first and `create-booking` straight after it, in the same sitting.** Why: the other way round, a customer whose first press was lost and who presses Book again from the old page gets no link to their booking (97.64). Website first, the only cost is that a text-consent tick made in those few minutes is not saved by the old program, and no texts are sent yet anyway (99.2f).";
 Object.assign(DECLARED, {
-  "97.64": {
-    functions: ["create-booking"], website: true, before: [["website", "create-booking"]], conflict: true,
-    rule: "The website first, then `create-booking` straight after, in the same sitting. In that order nothing breaks, because the old program ignores the page's new retry code.",
-  },
-  "97.16": {
-    functions: ["accept-quote"], website: true, before: [["website", "accept-quote"]],
-    rule: "The page first or both together, never the program alone: the new `accept-quote` refuses any Accept that does not say which quote it showed, and the page online now says none, so alone it refuses every customer's Accept.",
-  },
   "99.2": {
     functions: ["create-booking", "send-invoice", "invite-user", "send-owner-reminders"], bundles: "_shared/emailKit.ts", website: true, before: [["website", "create-booking"]], conflict: true,
     rule: "Its email wording goes out with every program carrying the shared email kit (with 99.2a). Its line says `create-booking` before the website; 97.64 says the reverse. Settled at the top of this sheet: website first, `create-booking` straight after.",
-  },
-  "97.10": {
-    migrations: [M.payProblem], functions: ["stripe-webhook"], before: [[M.payProblem, "stripe-webhook"]],
-    rule: "Its database change before the payment webhook, or a mismatched payment's write fails and Stripe retries.",
-  },
-  "97.11": {
-    migrations: [M.payProblem], functions: ["stripe-webhook", "pay-booking"],
-    before: [[M.payProblem, "stripe-webhook"], [M.payProblem, "pay-booking"]],
-    rule: "Both programs after 97.10's database change.",
-  },
-  "97.15": {
-    migrations: [M.support, M.expire, M.endAtAuth], hold: { "platform-admin": HOLD_ADMIN },
-    before: [[M.support, M.expire], [M.expire, M.endAtAuth]], bundleBefore: [[M.endAtAuth, LOCK]],
-    rule: "Its three support-session database changes in order, and ONLY THEN every program carrying the lock, or \"view as\" refuses to open.",
   },
   "97.53": {
     migrations: [M.feed], functions: ["calendar-feed"], website: true,
@@ -302,24 +281,13 @@ Object.assign(DECLARED, {
     rule: "The database change first, and it is not optional: `get-booking-receipt` now reads the new `damage_ack_at` column in its main booking read, so published before the change it fails and EVERY customer's receipt link says Booking not found. The check-in program and the website card need it too.",
     after: ["A session with the keys runs `node scripts/checkin-live.mjs`: it ticks one demo booking through the public function, reads it back, and puts it back."],
   },
-  "4.1d": {
-    migrations: [M.invites], functions: ["invite-user"], before: [[M.invites, "invite-user"]],
-    rule: "Its database change before `invite-user`, which writes the invite rows the change allows.",
-  },
 });
+// 98.18, 2026-10-24: 97.64, 97.16, 97.10, 97.11 and 4.1d (declared) and 97.1, 97.2, 97.4, 97.5,
+// 97.6, 97.9, 97.69, 97.17, 97.20a, 97.22, 97.24 and 9.1c (excluded) were removed: each was ticked
+// after its live check passed (7f7789b3, 40ee9d97). 97.15 is still open but its three support-session
+// files are applied (4.3e's FOR-ANDREW note), so its rule moved to 4.3b's unlock file.
 const ROADMAP_NO_ORDER = {
-  "97.1": "programs and the website, any order; its date (before 2026-11-01) is a deadline, not an order",
-  "97.2": "`create-booking` and the website; the order between them is 97.64's",
-  "97.4": "one program, no order",
-  "97.5": "one program, no order",
-  "97.6": "the website and two programs, no order",
   "97.8": "says either can go first",
-  "97.9": "one program, no order",
-  "97.69": "the payment webhook; carried by 97.68's wait",
-  "97.17": "says any order",
-  "97.20a": "one database change, no program",
-  "97.22": "one database change, no program",
-  "97.24": "two programs, no order",
   "97.25": "the backups repository, not this release",
   "97.90": "checks to run after the publish",
   "0.11c": "the website publish 0.11cc's step carries",
@@ -328,15 +296,15 @@ const ROADMAP_NO_ORDER = {
   "9.18": "`platform-admin`, held back on this sheet",
   "0.6c": "runs 0.6b's order, which this sheet keeps",
   "1.3": "live: the database check sees its one column and does not name the file, so it is already applied",
-  "9.1c": "the website, no order",
 };
 const STRONG = [/\bFIRST\b/, /\b(?:site|page|program|function|migration) first\b|\bbefore (?:publishing|deploying|the (?:app|site|website|page|webhook|program|function)s?)\b|in (?:that|this) order|\bonly then\b|never the function alone|\bafter \d+\.\d+[a-z]*'s\b/i];
-if (BREAK === "lock-one") for (const d of Object.values(DECLARED)) { delete d.bundleBefore; if (d.hold?.["platform-admin"] && d.rule?.includes("support-session")) d.before = [...(d.before || []), [M.support, "update-booking"]]; }
+if (BREAK === "lock-one") for (const d of Object.values(DECLARED)) { delete d.bundleBefore; if (d.hold?.["platform-admin"] && d.rule?.includes("support-session")) d.before = [...(d.before || []), [M.unlock, "update-booking"]]; }
 
 // Rows that match the release wording and carry no step, each with its reason.
 // A new release row that is in neither table turns the check red by name.
 const EXCLUDED = {
   "97.91": "this sheet's own pointer row",
+  "97.28": "a two-minute edit in the private backups repository, not part of this release (like 97.25)",
   "Publish and apply — the one ordered list": "says DONE 2026-10-10, steps 1 to 9, nothing left",
   "Waiting on you — nothing breaks while these wait": "a 1,400-line group of older rows; NOT READ by this sheet, said on the sheet",
 };
@@ -436,7 +404,9 @@ const roadmapRows = [];
     if (body.length) roadmapRows.push({ file: "ROADMAP.md", key: m[1], id: m[1], title: m[2].replace(/\.$/, "").replace(/\s*\([^()]*\)$/, ""), line: i + 1, body: body.join("\n") });
   });
 }
-if (roadmapRows.length < 20) failures.push(`only ${roadmapRows.length} open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-18 floor is 20).`);
+// Floor 20 on 2026-10-18; 15 since 98.18 (2026-10-24): the 2026-10-23 release ticked twelve items, leaving 17, and
+// an independent line count agreed. A floor, never an equality: more release lines is not a fault.
+if (roadmapRows.length < 15) failures.push(`only ${roadmapRows.length} open ROADMAP item(s) with a release line were found; the parser has stopped matching (the 2026-10-24 floor is 15).`);
 const readRows = [...rows, ...roadmapRows.filter((r) => DECLARED[r.key])];
 const itemOfFile = (file) => {
   const subj = git("log", "--diff-filter=A", "--format=%s", "--", `supabase/migrations/${file}`).split("\n").pop() || "";
