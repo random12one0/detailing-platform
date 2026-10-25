@@ -11,6 +11,11 @@
 //               wraps, and it takes the stick from `.topbar`.
 //   .livesite   the website brief's live preview (`SiteIntake.jsx`), sticky
 //               in the second column at 1000px and wider.
+//   .impbar     AGAIN, on `/website/preview`: `SiteIntake.jsx` draws its red
+//   (preview)   "Preview" strip with the same class, sticky at top: 0, but
+//               inside `.intake`, so neither `html:has(.app-shell > …)` rule
+//               reaches it. Added 2026-10-25 after the finish review found the
+//               first version asked this page only about `.livesite`.
 //
 // The plain `.topbar` is measured beside `.impbar` because it is the same
 // question with the same answer: both are sticky over the top of a document
@@ -35,10 +40,11 @@
 // hit area — box plus its own `::after` overhang, read off the element — is
 // taken by that furniture where the browser puts it when focused).
 //
-// CANARIES, both on by default: the top reserve removed on the red-strip
+// CANARIES, all three on by default: the top reserve removed on the red-strip
 // surface at 390 must lose rows to `.impbar`; the preview pinned over the form
-// at 1440 must lose rows to `.livesite`. `--break=nofix` removes the reserve on
-// every dashboard surface and must go red at every width — the original
+// at 1440 must lose rows to `.livesite`; the reserve removed on the preview
+// page at 390 must lose rows to its `.impbar`. `--break=nofix` removes the
+// reserve on every dashboard and preview-strip surface and must go red at every width — the original
 // defect, reproduced on purpose. Its receipt lands in
 // `receipts/state-furniture-clearance.sabotage.json`.
 import { createRequire } from "node:module";
@@ -155,7 +161,7 @@ async function dashboard(browser, size, { imp, css, label }) {
   } finally { await ctx.close(); }
 }
 
-async function intake(browser, size, { css, label }) {
+async function intake(browser, size, { css, label, furniture = ".livesite" }) {
   const ctx = await browser.newContext({ viewport: { width: size.w, height: size.h }, deviceScaleFactor: 1 });
   try {
     const page = await ctx.newPage();
@@ -180,7 +186,12 @@ async function intake(browser, size, { css, label }) {
     }
     await settle(page, 1200);
     if (css) await page.addStyleTag({ content: css });
-    const m = await page.evaluate(MEASURE, { scope: ".intake", furniture: ".livesite", ctrl: CTRL, skip: ".livesite" });
+    const m = await page.evaluate(MEASURE, { scope: ".intake", furniture: `.intake > ${furniture}`, ctrl: CTRL, skip: furniture });
+    // Same last frame as the dashboard: the topmost control focused from below.
+    await page.evaluate(({ ctrl, skip }) => {
+      const el = [...document.querySelectorAll(`.intake ${ctrl}`)].find((c) => !c.closest(skip) && !c.disabled);
+      el?.scrollIntoView({ block: "start" }); el?.focus?.();
+    }, { ctrl: CTRL, skip: furniture });
     const file = `${label.replace(/[^\w.-]+/g, "-")}.png`;
     await page.screenshot({ path: ART + file });
     artifacts.push(`artifacts/${ART.split(/[\\/]artifacts[\\/]/)[1]}${file}`);
@@ -203,11 +214,13 @@ const PLAN = [
   ...SIZES.map((s) => ({ size: s, kind: "topbar" })),
   ...SIZES.map((s) => ({ size: s, kind: "impbar" })),
   ...SIZES.map((s) => ({ size: s, kind: "livesite" })),
+  ...SIZES.map((s) => ({ size: s, kind: "preview-impbar" })),
 ];
-const EXPECTED = PLAN.length + 2;
-const MIN_ASSERTIONS = (PLAN.length + 2) * 3;
+const PREVIEW = { livesite: ".livesite", "preview-impbar": ".impbar" };
+const EXPECTED = PLAN.length + 3;
+const MIN_ASSERTIONS = (PLAN.length + 3) * 3;
 let discovered = 0, completed = 0;
-const canary = { id: "reserve-removed+preview-pinned", observed_failure: false, problems: [] };
+const canary = { id: "reserve-removed+preview-pinned+preview-strip-unreserved", observed_failure: false, problems: [] };
 
 rmSync(ART, { recursive: true, force: true });
 mkdirSync(ART, { recursive: true });
@@ -218,8 +231,8 @@ try {
     console.log(`  ${label}`);
     discovered++;
     const css = BREAK === "nofix" && p.kind !== "livesite" ? NO_RESERVE : null;
-    const m = p.kind === "livesite"
-      ? await intake(browser, p.size, { css, label })
+    const m = PREVIEW[p.kind]
+      ? await intake(browser, p.size, { css, label, furniture: PREVIEW[p.kind] })
       : await dashboard(browser, p.size, { imp: p.kind === "impbar", css, label });
     // The preview is only sticky at 1000px and wider; below that it is an
     // ordinary block in the flow, and "present" asks only that it is there.
@@ -232,6 +245,7 @@ try {
   for (const [label, run] of [
     ["canary impbar 390 no reserve", () => dashboard(browser, SIZES[1], { imp: true, css: NO_RESERVE, label: "canary-impbar" })],
     ["canary livesite 1440 pinned over the form", () => intake(browser, SIZES[3], { css: PIN_PREVIEW, label: "canary-livesite" })],
+    ["canary preview impbar 390 no reserve", () => intake(browser, SIZES[1], { css: NO_RESERVE, label: "canary-preview-impbar", furniture: ".impbar" })],
   ]) {
     console.log(`  ${label} — it MUST fail`);
     discovered++;
@@ -244,7 +258,7 @@ try {
     console.log(`    ${caught ? "caught" : "MISSED"} ${(probs[0] || "").slice(0, 110)}`);
     completed++;
   }
-  canary.observed_failure = bite.length === 2 && bite.every(Boolean);
+  canary.observed_failure = bite.length === 3 && bite.every(Boolean);
 } finally {
   await browser.close();
 }
@@ -260,7 +274,7 @@ const { path } = writeReceipt({
   expected_targets: EXPECTED, discovered_targets: discovered, attempted_targets: discovered,
   completed_targets: completed, skipped_targets: 0,
   assertions_executed: assertions, min_assertions: MIN_ASSERTIONS,
-  assertion_floor: "5 widths x 3 surfaces (topbar, impbar, livesite) x 3 questions + 2 canaries x 3. "
+  assertion_floor: "5 widths x 4 surfaces (topbar, impbar, livesite, preview impbar) x 3 questions + 3 canaries x 3. "
     + "Fixed by SIZES and PLAN, never by what the run finds.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
@@ -271,7 +285,7 @@ const { path } = writeReceipt({
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
   ],
   dimensions: {
-    sizes: SIZES.map((s) => `${s.w}x${s.h}`), furniture: [".topbar", ".impbar", ".livesite"],
+    sizes: SIZES.map((s) => `${s.w}x${s.h}`), furniture: [".topbar", ".impbar", ".livesite", ".intake > .impbar"],
     observed, break: BREAK || null,
   },
   canary,

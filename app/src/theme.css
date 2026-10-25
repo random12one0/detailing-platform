@@ -1214,11 +1214,16 @@ html:has(.tabbar) {
    draw an `.app-shell` with no header. The header reserve is twice the
    overhang because the header renders a fraction over `--topbar-h` and the
    first version lost one row at 320/390/768. `scripts/state-furniture-clearance.mjs`
-   is the check; `--break=nofix` puts the fault back. */
+   is the check; `--break=nofix` puts the fault back.
+   **`/website/preview` draws the same strip INSIDE `.intake` (SiteIntake.jsx),
+   so `.app-shell >` missed it** — «Back» and «Close» parked under it, 37-56
+   rows lost at 320/390/768/1440 (2026-10-25, the 9.11e finish review). It takes
+   the same reserve; it wraps too, 56px at 320. */
 html:has(.app-shell > .topbar) {
   scroll-padding-top: calc(var(--topbar-h) + 2 * var(--hit-overhang));
 }
-html:has(.app-shell > .impbar) {
+html:has(.app-shell > .impbar),
+html:has(.intake > .impbar) {
   scroll-padding-top: calc(8rem + var(--hit-overhang));
 }
 
