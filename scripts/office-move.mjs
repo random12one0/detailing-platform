@@ -5,6 +5,8 @@
 //   node scripts/office-move.mjs --lite          (the ?lite=1 reduced-motion path)
 //   node scripts/office-move.mjs --break=old-screen  (sabotage: the old screen's
 //       marker is served at /admin again — the defect this slice fixes)
+//   node scripts/office-move.mjs --break=no-signout  (sabotage: the phone header's
+//       name + Sign out hidden again — the 99.3 step-8 defect; red under 860px)
 //   node scripts/office-move.mjs --freeze=after  (Andrew's frozen After copy)
 //
 // WRITES NOTHING ANYWHERE. Unsigned contexts never sign in (the wrong-password
@@ -21,6 +23,10 @@
 //      account on it (.bo-me), no door, no .pa-top.
 //   C. /admin/office draws the product's own 404 (main.nf) — never a forward —
 //      with no rail, no door and no .pa-top.
+//   D. (99.3b-iv) a signed-in NON-admin, whose `whoami` the server answers with
+//      the bare 404 it gives every non-admin, sees the product's own "Page not
+//      found" at /admin: no rail, no door, no "not an admin" sentence.
+//      B also asks for the Sign out button beside the visitor's name.
 // THE CANARY injects an overlapping copy of the door's Sign in button and
 // requires the same overlap probe to name it.
 
@@ -36,12 +42,19 @@ const arg = (k) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").spl
 const BREAK = arg("break");
 const FREEZE = arg("freeze");
 const LITE = process.argv.includes("--lite");
-if (BREAK && BREAK !== "old-screen") { console.error(`unknown --break=${BREAK}; the only one is old-screen`); process.exit(2); }
+if (BREAK && !["old-screen", "no-signout"].includes(BREAK)) { console.error(`unknown --break=${BREAK}; old-screen or no-signout`); process.exit(2); }
 const BASE = process.env.BASE || "http://localhost:5173";
-const SIZES = [{ w: 1440, h: 900 }, { w: 392, h: 844 }, { w: 320, h: 700 }];
+// 768x1024 and 390x844 added 2026-10-24 (ROADMAP 99.3b-iv: the belt's three sizes plus the entry's own).
+const SIZES = [{ w: 1440, h: 900 }, { w: 768, h: 1024 }, { w: 392, h: 844 }, { w: 390, h: 844 }, { w: 320, h: 700 }];
 const ART = "artifacts/office-move";
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/9.12a";
-const REF = "kguqylyzgyzfktkfnhjb";
+// supabase-js keeps its session under `sb-<first label of the API host>-auth-token`.
+// Read the host the served app was built against (a belt job copy points at a
+// local demo backend, so the project ref alone signs in nobody); the ref is the
+// fallback for a build that does not expose its env module.
+const apiHost = await fetch(`${BASE}/src/lib/supabase.js`).then((r) => r.text())
+  .then((t) => new URL(JSON.parse(`"${(t.match(/"VITE_SUPABASE_URL":\s*"([^"]+)"/) || [])[1]}"`)).hostname).catch(() => null);
+const REF = apiHost ? apiHost.split(".")[0] : "kguqylyzgyzfktkfnhjb";
 
 let assertions = 0;
 const failures = [];
@@ -118,14 +131,22 @@ async function openAnon(size) {
   return { ctx, page };
 }
 
-async function openSigned(size) {
+async function openSigned(size, { admin = true } = {}) {
   const ctx = await browser.newContext({ viewport: { width: size.w, height: size.h } });
   await oldScreenBreak(ctx);
-  await ctx.addInitScript(([k, v]) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } }, [`sb-${REF}-auth-token`, JSON.stringify(SESSION)]);
+  await ctx.addInitScript(([k, v]) => { try { if (!sessionStorage.getItem("om-seeded")) { localStorage.setItem(k, v); sessionStorage.setItem("om-seeded", "1"); } } catch { /* ignore */ } /* once per tab: a reload after Sign out must stay signed out */ }, [`sb-${REF}-auth-token`, JSON.stringify(SESSION)]);
+  if (BREAK === "no-signout") {
+    await ctx.addInitScript(() => {
+      const s = () => { const st = document.createElement("style"); st.textContent = ".bo-me-top{display:none!important}"; document.head.appendChild(st); };
+      if (document.head) s(); else document.addEventListener("DOMContentLoaded", s);
+    });
+  }
   const page = await ctx.newPage();
   await page.route("**/auth/v1/user**", (r) => r.fulfill({ json: user }));
+  await page.route("**/auth/v1/logout**", (r) => r.fulfill({ status: 204, body: "" }));
   await page.route("**/functions/v1/platform-admin", async (route) => {
     const body = JSON.parse(route.request().postData() || "{}");
+    if (!admin) return route.fulfill({ status: 404, json: { error: "Not found" } });
     if (body.action === "whoami") return route.fulfill({ json: { email: user.email } });
     if (body.action === "list") return route.fulfill({ json: { rows: [], totals: {} } });
     if (body.action === "get") return route.fulfill({ json: { bookings: [], invoices: [], events: [] } });
@@ -133,7 +154,7 @@ async function openSigned(size) {
   });
   watchConsole(page, `${size.w}`, consoleNoise);
   await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector(".bo-rail", { timeout: 60000 });
+  await page.waitForSelector(admin ? ".bo-rail" : "main.nf", { state: "attached", timeout: 60000 });
   await settle(page, 1200);
   return { ctx, page };
 }
@@ -221,7 +242,21 @@ try {
         const me = (await page.locator(".bo-me").innerText().catch(() => "")) || "";
         check(where, "signed in: the rail carries the visitor's own account",
           me.includes("Andrew"), me.replace(/\n/g, " ").slice(0, 80));
+        const out = page.locator(".bo-me button, .bo-me-top button", { hasText: "Sign out" }).filter({ visible: true });
+        const outN = await out.count().catch(() => 0);
+        check(where, "signed in: a Sign out button sits beside the name", outN === 1, `${outN} visible`);
         await page.screenshot({ path: `${ART}/rail-${size.w}.png` }); artifacts.push(`${ART}/rail-${size.w}.png`);
+        // TAPPABLE, not just visible: a tap at its centre lands on it (hit test,
+        // gotchas 100), and pressing it really signs out — the door comes back.
+        const hit = outN === 1 && await out.first().evaluate((b) => {
+          const r = b.getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          return !!e && (e === b || b.contains(e));
+        }).catch(() => false);
+        check(where, "signed in: a tap on Sign out lands on it", hit);
+        if (outN === 1) await out.first().click().catch(() => {});
+        await page.waitForSelector(".bo-door", { timeout: 15000 }).catch(() => {});
+        check(where, "signed in: pressing Sign out signs out (the door is back)",
+          outN === 1 && await page.locator(".bo-door").isVisible().catch(() => false));
 
         await page.goto(`${BASE}/admin/office${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
         await page.waitForSelector("main.nf", { state: "attached", timeout: 30000 }).catch(() => {});
@@ -238,6 +273,19 @@ try {
         check(where, "console silent apart from the asked-for refusal",
           other.length === 0, `${planned.length} planned; ${other.join(" | ").slice(0, 300)}`);
         observed[where] = { ...(observed[where] || {}), calls: "whoami+list via route" };
+        await ctx.close();
+      }
+
+      // ── D. SIGNED IN, NOT AN ADMIN: THE PRODUCT'S OWN 404 ──
+      {
+        const { ctx, page } = await openSigned(size, { admin: false });
+        check(where, "non-admin: /admin draws the product's own 404", (await page.locator("main.nf").count()) > 0);
+        const body = (await page.locator("body").innerText().catch(() => "")) || "";
+        check(where, "non-admin: the page says the products own not-found sentence", body.includes("That page does not exist."), body.slice(0, 80));
+        const left = (await page.locator(".bo-rail").count()) + (await page.locator(".bo-door").count()) + (await page.locator(".pa-top").count());
+        check(where, "non-admin: no rail, no door, no old markup, never 'not an admin'",
+          left === 0 && !/not an admin|admins only|no access/i.test(body), `${left} leftover`);
+        await page.screenshot({ path: `${ART}/nonadmin-${size.w}.png` }); artifacts.push(`${ART}/nonadmin-${size.w}.png`);
         completed++;
         await ctx.close();
       }
@@ -262,8 +310,8 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: SIZES.length * 16,
-  assertion_floor: "3 widths x 16 questions (door 6, refusal 3, rail 4, dead address 2, console 1), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  min_assertions: SIZES.length * 22,
+  assertion_floor: "5 widths x 22 questions (door 6, refusal 3, rail 7, dead address 2, console 1, non-admin 3), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
   failures,
   artifacts,
   canary,

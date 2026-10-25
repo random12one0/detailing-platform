@@ -145,6 +145,7 @@
 .bo-place .ch { display: inline-block; transform: translateY(105%) rotate(6deg); opacity: 0; animation: boChIn .7s var(--spring) forwards; }
 @keyframes boChIn { to { transform: none; opacity: 1; } }
 .bo-find-top { display: none; }
+.bo-me-top { display: none; }
 .bo-place-in { animation: boPlaceIn .6s var(--e-out) backwards; }
 @keyframes boPlaceIn { from { opacity: 0; transform: translateY(14px); } }
 .bo-error { padding: 18px 20px; border-radius: 16px; background: linear-gradient(120deg, rgba(226,112,95,.16), rgba(226,112,95,.04)); box-shadow: inset 0 0 0 1px rgba(226,112,95,.3); max-width: 560px; }
@@ -599,6 +600,10 @@
   .bo-navpill::before { left: 30%; right: 30%; top: auto; bottom: -1px; width: auto; height: 3px; }
   .bo-main { padding: 22px 16px 120px; }
   .bo-top { min-height: 0; margin-bottom: 26px; flex-direction: column; align-items: flex-start; }
+  .bo-me-top { display: flex; align-items: center; gap: 14px; min-height: 44px; margin: -6px 0 -6px; padding-right: 56px; font-size: 13px; }
+  .bo-me-top b { font-weight: 600; }
+  .bo-me-top button { min-height: 44px; color: var(--fog); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+  .bo-me-top button:hover { color: var(--bone); }
   .bo-find-top { display: grid; place-items: center; position: absolute; right: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--line-2); background: rgba(11,13,14,.6); }
   .bo-ghost { font-size: 34vw; top: .1em; }
   .bo-panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; height: 92dvh; border-radius: 26px 26px 0 0; animation-name: boSheetIn; }

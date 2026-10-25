@@ -73,6 +73,12 @@ export default function OfficePage() {
     return () => { live = false; };
   }, [load]);
 
+  // The session check above runs once, on arrival, so signing out must reload
+  // like signing in does — otherwise the office stays drawn over no session and
+  // the button looks dead (found by 99.3's office-move press test, 2026-10-24).
+  // 98.4's held branch adds an auth listener for the same; the two agree.
+  const signOut = async () => { await signOutEverything().catch(() => {}); window.location.reload(); };
+
   const signIn = async (e) => {
     e.preventDefault();
     setDoorErr("");
@@ -210,13 +216,19 @@ export default function OfficePage() {
           </button>
           <div className="bo-me">
             <span className="bo-av" style={{ "--c": "#38E08B" }}>{(email[0] ?? "A").toUpperCase()}</span>
-            <div><b>{nameOf(email)}</b><button type="button" onClick={signOutEverything}>Sign out</button></div>
+            <div><b>{nameOf(email)}</b><button type="button" onClick={signOut}>Sign out</button></div>
           </div>
         </nav>
 
         <main className="bo-main">
           <header className="bo-top">
             <div className="bo-ghost" aria-hidden="true">{place.label}</div>
+            {/* The rail's name + Sign out is hidden under 860px (the rail is the dock
+                there), so the phone gets its own at the top. ROADMAP 99.3 step 8. */}
+            <div className="bo-me-top">
+              <b>{nameOf(email)}</b>
+              <button type="button" onClick={signOut}>Sign out</button>
+            </div>
             <div>
               <div className="bo-date"><span>{TODAY()}</span><span className="live"><i />Live</span></div>
               <h1 className="bo-place" key={place.key} aria-label={place.label}>
