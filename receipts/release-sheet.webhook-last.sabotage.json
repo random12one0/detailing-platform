@@ -1,9 +1,9 @@
 {
-  "git_sha": "d1cd5aabad248582861c2607a6a44bb7766167dc",
-  "git_sha_started": "d1cd5aabad248582861c2607a6a44bb7766167dc",
+  "git_sha": "ebd77ceea5d709daf044092aa226b99f87869f01",
+  "git_sha_started": "ebd77ceea5d709daf044092aa226b99f87869f01",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T01:36:57.685Z",
+  "finished_at": "2026-10-25T01:41:01.241Z",
   "failures": [
     "STALE: receipts/migration-drift.json was taken at db8c6c0c and supabase/migrations has changed since (8 file(s)). Re-run migration-drift.mjs (read-only, needs credentials) and then this.",
     "STALE: receipts/deployed-inventory.json was taken at 7f7789b3 and supabase/functions has changed since (13 file(s)). Re-run deployed-inventory.mjs (read-only, needs credentials) and then this.",
@@ -38,13 +38,13 @@
     "ROADMAP.md:30104 \"14.39 — Reclaim a receipt upload that never reaches finish\": its rule \"20261013131000_receipt_attempts_late_put.sql before photo-reconcile\" does not hold on the sheet (photo-reconcile missing)",
     "ROADMAP.md:31066 \"99.2 — Can we work? Can we work on the text and emails kind of plan out so I’m gonna use that lik\": its rule \"website before create-booking\" does not hold on the sheet (create-booking missing)",
     "ROADMAP.md:31657 \"98.2 — Repair the receipt deployed-inventory.json says fail check\" is not covered by any step",
-    "ROADMAP.md:32023 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before create-business\" does not hold on the sheet (create-business missing)",
-    "ROADMAP.md:32023 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
-    "ROADMAP.md:32023 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"stripe-webhook before create-business\" does not hold on the sheet (stripe-webhook missing)",
-    "ROADMAP.md:32023 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"website before create-business\" does not hold on the sheet (create-business missing)",
-    "ROADMAP.md:32163 \"97.53 — Calendar sync is one file per booking; there is no feed to subscribe to\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
-    "ROADMAP.md:32187 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
-    "ROADMAP.md:32187 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)"
+    "ROADMAP.md:32027 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before create-business\" does not hold on the sheet (create-business missing)",
+    "ROADMAP.md:32027 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"20261024210000_awaiting_first_payment.sql before stripe-webhook\" does not hold on the sheet (stripe-webhook missing)",
+    "ROADMAP.md:32027 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"stripe-webhook before create-business\" does not hold on the sheet (stripe-webhook missing)",
+    "ROADMAP.md:32027 \"97.37 — Open self-serve signup gives strangers a free, working booking page with no payment\": its rule \"website before create-business\" does not hold on the sheet (create-business missing)",
+    "ROADMAP.md:32167 \"97.53 — Calendar sync is one file per booking; there is no feed to subscribe to\": its rule \"20261024150000_calendar_feed_token.sql before calendar-feed\" does not hold on the sheet (calendar-feed missing)",
+    "ROADMAP.md:32191 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before get-booking-receipt\" does not hold on the sheet (get-booking-receipt missing)",
+    "ROADMAP.md:32191 \"97.55 — No pre-job vehicle check-in or customer sign-off\": its rule \"20261024160000_damage_ack.sql before acknowledge-checkin\" does not hold on the sheet (acknowledge-checkin missing)"
   ],
   "warnings": [
     "run with --break=webhook-last; this receipt is a sabotage, not a result",
@@ -58,7 +58,7 @@
   ],
   "dimensions": {
     "break": "webhook-last",
-    "head": "d1cd5aabad248582861c2607a6a44bb7766167dc",
+    "head": "ebd77ceea5d709daf044092aa226b99f87869f01",
     "drift_receipt_sha": "db8c6c0ca20f5abaf218bbb411a182e897694e65",
     "inventory_receipt_sha": "7f7789b3474267811afd9c843dbc6f4143b9a23f",
     "migrations_from_drift": [
@@ -168,7 +168,7 @@
     "steps": 38
   },
   "check_id": "release-sheet.webhook-last",
-  "started_at": "2026-10-25T01:36:55.797Z",
+  "started_at": "2026-10-25T01:40:59.395Z",
   "status": "fail",
   "expected_targets": 65,
   "discovered_targets": 27,
