@@ -15,9 +15,9 @@
 //
 // WHAT IT WRITES — said before it writes, CLAUDE.md's rule for this database.
 // Project kguqylyzgyzfktkfnhjb only (it refuses any other host). On ONE finalized
-// `demo-detail` booking it presses Paid -> Part paid and then Part paid -> Paid
+// `demo-detail` booking it presses Paid -> Waived -> Unpaid -> Part paid -> Paid
 // through the real screen, so the row ends as it started and `action_log` gains
-// two rows (append-only by design; that is what is being proved). Every other
+// four rows, one per state (append-only by design; that is what is being proved). Every other
 // question it asks is read-only. Under --break=refinalize the browser adds
 // `finalized_at` to the request, which is the obvious build the entry warns about,
 // and the run then puts the original `finalized_at` back with the service role.
@@ -31,7 +31,8 @@
 //     each its own topmost element by hit test; "Leave it" writes nothing;
 //     console clean.
 //   * 2 x refusal 1: a never-finalized job's page offers no control (EN, ES).
-//   * 2 presses: after each, the DB row moved, `finalized_at`, `final_amount`,
+//   * 4 presses, one INTO each of the four states (R2: "any of the four values and
+//     back again"; Waived is the sharp one): after each, the DB row moved, `finalized_at`, `final_amount`,
 //     `payment_notes` and the line items did not, and exactly one new
 //     `action_log` row names the before and the after.
 //   * 1 x refusal 3: another tenant's booking through `update-booking` with this
@@ -197,7 +198,13 @@ const topmost = (loc) => loc.evaluate((el) => {
 
 let discovered = 0, attempted = 0, completed = 0;
 const FRAMES = SIZES.length * LANGS.length;
-const expected = FRAMES + 2 + 2 + 1;
+const PRESSES = [
+  { size: [390, 844], lang: "en", from: "paid", to: "waived", danger: true },
+  { size: [392, 844], lang: "es", from: "waived", to: "pending", danger: false },
+  { size: [768, 1024], lang: "en", from: "pending", to: "partial", danger: false },
+  { size: [1440, 900], lang: "es", from: "partial", to: "paid", danger: true },
+];
+const expected = FRAMES + 2 + PRESSES.length + 1;
 
 if (target && untouched && foreign) {
   // ---- frames: read-only -----------------------------------------------------
@@ -270,8 +277,7 @@ if (target && untouched && foreign) {
   }
 
   // ---- the two presses -------------------------------------------------------------
-  const presses = [{ size: [390, 844], lang: "en", from: "paid", to: "partial", danger: false },
-    { size: [1440, 900], lang: "es", from: "partial", to: "paid", danger: true }];
+  const presses = PRESSES;
   const original = await snap(target.id);
   for (const p of presses) {
     attempted++;
@@ -308,7 +314,7 @@ if (target && untouched && foreign) {
       const rows = await rowsSince(target.id, since);
       check(rows.length === 1, `${tag}: ${rows.length} action_log rows, want exactly 1`);
       check(auditNames(rows, p.from, p.to), `${tag}: no action_log row naming ${p.from} -> ${p.to}`);
-      check(rows[0]?.action === "payment.set" && rows[0]?.actor_role === "owner", `${tag}: row action/role ${rows[0]?.action}/${rows[0]?.actor_role}`);
+      check(rows[0]?.action === (p.to === "waived" ? "payment.waive" : "payment.set") && rows[0]?.actor_role === "owner", `${tag}: row action/role ${rows[0]?.action}/${rows[0]?.actor_role}`);
       observed.push(`${tag}: pill "${pill}"; finalized_at ${after.finalized_at === before.finalized_at ? "unchanged" : "MOVED"}; action_log ${JSON.stringify(rows.map((r) => [r.action, r.before, r.after, r.actor_role]))}`);
       consoleNoise.push(...realNoise(noise));
       completed++;
@@ -370,12 +376,12 @@ const { path } = writeReceipt({
   completed_targets: completed,
   skipped_targets: 0,
   assertions_executed: assertions,
-  min_assertions: FRAMES * 12 + 2 * 2 + 2 * 13 + 3,
+  min_assertions: FRAMES * 12 + 2 * 2 + PRESSES.length * 13 + 3,
   assertion_floor: "12 per frame x 14 frames, 2 per never-finalized refusal, 13 per press, 3 for the other tenant. Fixed by the lists, never by what the run finds.",
   failures: [...failures, ...consoleNoise.map((c) => `console: ${c}`)],
   artifacts,
   warnings: [
-    "WRITES: one demo-detail booking Paid -> Part paid -> Paid through the screen, ending as it started; action_log gains two append-only rows per run.",
+    "WRITES: one demo-detail booking Paid -> Waived -> Unpaid -> Part paid -> Paid through the screen, ending as it started; action_log gains four append-only rows per run.",
     ...(BREAK ? [`run with --break=${BREAK}; this receipt is a sabotage, not a result`] : []),
   ],
   dimensions: { base: BASE, sizes: SIZES.map((s) => s.join("x")), langs: LANGS, target: target?.id, observed, break: BREAK || undefined },
