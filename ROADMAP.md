@@ -10709,6 +10709,7 @@ the wrong service, and never book a job we cannot reach.
   `node --env-file=.env scripts/admin-furniture-clearance.mjs` (and its
   `--break=rect`) on the new back office; whoever closes that ticks this box.
   Found and filed, not fixed: the strip's own «Leave» button is 32px tall (9.27).
+  **The meta-test is a source-text guard by design** (a lint over the stylesheets and the hit-testing scripts; the browser half is `state-furniture-clearance.mjs`). Its § 4 asserted `true` until 2026-10-24; it now asserts the Done-when per row (a declared hit-tester or a declared reason), and goes red by name under `FURNITURE_BREAK=new-furniture` (`.sabotage-strip`) and `=uncover` (`.bk-bar`); 6 passed 0 failed clean.
 
 - [ ] **9.27 — The platform view strip's «Leave» and «Close» buttons are 32px tall, under the 44px rule.**
   Found 2026-10-24 by 9.11e, not fixed there. `.impbar button { min-height: 32px }` in `app/src/theme.css` with no `::after` to grow the target; the 390x844 screenshot in `belt/shots/9.11e/png/after-390x844-impbar.png` shows «Leave» at about that height. Read from the CSS and the picture, not hit-measured. Admin-only state, so low reach.

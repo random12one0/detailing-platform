@@ -366,7 +366,16 @@ test("4 — REPORT: every screen with fixed furniture, and the check that hit-te
   console.log(`     Of those ${uncovered.length}, ${unvisited.length} are on screens NO hit-testing check `
     + `visits at all: ${unvisited.map((r) => r.sel).join(", ")}`);
   console.log("     Coverage here means A CHECK EXISTS THAT WOULD ASK — never that it asked today.");
-  assert.ok(true);
+  // THE DONE-WHEN ITSELF, per row: a named hit-test from the declared list, or
+  // a declared gap with a stated reach. A row that is neither is exactly the
+  // fault 9.11e exists to stop.
+  for (const row of SELECTORS) {
+    assert.ok(row.checks.length > 0 || (NO_HIT_TEST.includes(row.sel) && REACH[row.screen?.reach]),
+      `${row.sel} (${row.at.join(", ")}) has neither a hit-test nor a declared reason`);
+    for (const c of row.checks) {
+      assert.ok(HIT_TESTERS.includes(`scripts/${c}`), `${row.sel} is credited to ${c}, which is not a declared hit-tester`);
+    }
+  }
 });
 
 test("5 — the canary bites, through the same two functions the run used", () => {
