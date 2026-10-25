@@ -146,7 +146,7 @@ const DECLARED = {
     hold: { "platform-admin": HOLD_ADMIN, "google-business": HOLD_GOOGLE },
     before: [[M.body, "send-email"], [M.payProblem, "stripe-webhook"]],
     manual: [{ id: "two-reads", part: 0, text: "Two reads, nothing changes: in the platform's folder, `git status --porcelain supabase/functions` must print nothing (if it prints a file, a session is changing the programs right now; stop). And no browser check may be running on the practice business while you publish." }],
-    rule: "`update-booking` first and alone; the one-column change before `send-email`; `platform-billing` alone; the payment webhook last and alone, with its database change before it. `platform-admin` and `google-business` are held back.",
+    rule: "`update-booking` first and alone; the one-column change before `send-email`; `platform-billing` alone; the payment webhook last and alone, with its database change before it. `platform-admin` and `google-business` are held back. When 97.37's `create-business` goes in the same release, it follows the payment webhook: settled at the top of this sheet.",
     after: ["The server check should now name ONLY the held programs. Anything else it names did not publish: tell a session its name."],
   },
   "4.3b": {
