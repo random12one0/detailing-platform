@@ -188,6 +188,7 @@ const { path: rp } = writeReceipt({
   skipped_targets: 0,
   assertions_executed: assertions,
   min_assertions: 15,
+  assertion_floor: "structural: 2 switches x (5 marker comparisons + 1 verdict) + 3 canaries; the count is fixed by the candidate list, and a missing build or fetch throws or reads unjudgeable rather than running fewer",
   failures: [...failures, ...unjudgeable].map((r) => r.rule + ": " + r.says),
   warnings: [],
   artifacts: [txt],
