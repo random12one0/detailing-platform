@@ -1,19 +1,21 @@
 {
-  "git_sha": "7ed8a91bf75c6fd527c9c630ff80d4d66a884ce3",
-  "git_sha_started": "7ed8a91bf75c6fd527c9c630ff80d4d66a884ce3",
+  "git_sha": "4729ecf6b716670ace945d12a403a643cd693646",
+  "git_sha_started": "4729ecf6b716670ace945d12a403a643cd693646",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T03:56:28.690Z",
+  "finished_at": "2026-10-25T04:07:08.308Z",
   "failures": [
     "390x844 price: the bar's $65 is heard heard []",
     "390x844 promo: the refusal and the acceptance are both heard refusal heard=false; after SUMMER10 heard []",
-    "390x844 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingBooking confirmedYou’re bookedWe’ve \"",
+    "390x844 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingRequest receivedWe’re holding your t\"",
     "768x1024 price: the bar's $65 is heard heard []",
     "768x1024 promo: the refusal and the acceptance are both heard refusal heard=false; after SUMMER10 heard []",
-    "768x1024 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingBooking confirmedYou’re bookedWe’ve \"",
+    "768x1024 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingRequest receivedWe’re holding your t\"",
     "1440x900 price: the bar's $65 is heard heard []",
     "1440x900 promo: the refusal and the acceptance are both heard refusal heard=false; after SUMMER10 heard []",
-    "1440x900 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingBooking confirmedYou’re bookedWe’ve \""
+    "1440x900 booked: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingRequest receivedWe’re holding your t\"",
+    "fixture 390 pending: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingRequest receivedWe’re holding your t\"",
+    "fixture 390 confirmed: focus lands on the confirmation heading focus is on BODY \"Coastline Auto DetailingBooking confirmedYou’re bookedWe’ve \""
   ],
   "warnings": [
     "Says what a screen reader is HANDED. Whether a listener understands it is 8.5b's person-with-ears half."
@@ -37,14 +39,14 @@
     "break": "strip"
   },
   "check_id": "booking-announces",
-  "started_at": "2026-10-25T03:55:01.977Z",
+  "started_at": "2026-10-25T04:05:40.796Z",
   "status": "fail",
   "expected_targets": 9,
   "discovered_targets": 9,
   "attempted_targets": 9,
   "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 10,
+  "assertions_executed": 12,
   "min_assertions": 10,
   "assertion_floor": "three moments per width plus one console check; a width whose walk dies early asks fewer and drops below it",
   "canary": {

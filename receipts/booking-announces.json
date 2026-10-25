@@ -1,9 +1,9 @@
 {
-  "git_sha": "7ed8a91bf75c6fd527c9c630ff80d4d66a884ce3",
-  "git_sha_started": "7ed8a91bf75c6fd527c9c630ff80d4d66a884ce3",
+  "git_sha": "4729ecf6b716670ace945d12a403a643cd693646",
+  "git_sha_started": "4729ecf6b716670ace945d12a403a643cd693646",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T03:57:19.700Z",
+  "finished_at": "2026-10-25T04:08:01.475Z",
   "failures": [],
   "warnings": [
     "Says what a screen reader is HANDED. Whether a listener understands it is 8.5b's person-with-ears half."
@@ -26,14 +26,14 @@
     ]
   },
   "check_id": "booking-announces",
-  "started_at": "2026-10-25T03:56:29.288Z",
+  "started_at": "2026-10-25T04:07:09.093Z",
   "status": "pass",
   "expected_targets": 9,
   "discovered_targets": 9,
   "attempted_targets": 9,
   "completed_targets": 9,
   "skipped_targets": 0,
-  "assertions_executed": 10,
+  "assertions_executed": 12,
   "min_assertions": 10,
   "assertion_floor": "three moments per width plus one console check; a width whose walk dies early asks fewer and drops below it",
   "canary": {

@@ -21427,6 +21427,19 @@ the dashboard or back office at phone width at all.
     moved. **Not re-run here:** `screenreader-structure.mjs` (hard-wired to
     `:5173` and needs credentials this copy lacks); the change adds live
     regions and a `tabIndex` and touches no heading or landmark.
+    LIVE RUN NEEDED: `node scripts/screenreader-structure.mjs` (dev server on :5173 + seed + demo-owner credentials) — proves landmarks and heading order on all 11 screens are still clean after the booking-page and confirmation changes.
+  * **Review fixes, 2026-10-24 (`4729ecf6`).** (1) `tests/skip-census.test.mjs`
+    went red because `booking-announces.mjs` writes `skipped_targets` as an
+    expression and was unclassified; it is now in `COMPUTED` (no allowlist, so
+    a positive skip fails its receipt) — `node --test tests/skip-census.test.mjs`
+    pass 5 / fail 0. (2) The walk's fake booking reply always said
+    "confirmed" while the demo is in request mode, so "We're holding your
+    time" was never walked; the reply now follows the button the page drew
+    (all three widths: "Request this time" → pending), and the dev-only
+    fixture page asks BOTH branches' heading at 390. Re-taken at `4729ecf6`:
+    `receipts/booking-announces.json` **PASS, 9 of 9 moments, 12 assertions,
+    canary 3/3**; `BREAK=strip` → `receipts/booking-announces.sabotage.json`
+    **FAIL, 11 named failures** (the 9 moments plus both fixture branches).
   * **What "heard" means and does not:** what a screen reader is HANDED. Real
     voice output was not listened to by anybody this run.
 
