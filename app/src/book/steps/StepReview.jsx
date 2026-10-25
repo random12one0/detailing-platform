@@ -375,12 +375,17 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             {promoState.checking ? t("Checking") : t("Apply")}
           </button>
         </div>
-        {promoState.error && <div className="bk-error" style={{ marginBottom: 0, marginTop: 8 }}>{promoState.error}</div>}
-        {promoState.applied && (
-          <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-accent-text)" }}>
-            {t("{code} applied.", { code: promoState.applied })}
-          </p>
-        )}
+        {/* ROADMAP 8.5b — the answer to a code is said, not only shown. The
+            region is always rendered (empty until there is an answer) because a
+            live region that arrives with its own text is not reliably read. */}
+        <div aria-live="polite" data-promo-answer="">
+          {promoState.error && <div className="bk-error" style={{ marginBottom: 0, marginTop: 8 }}>{promoState.error}</div>}
+          {promoState.applied && (
+            <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-accent-text)" }}>
+              {t("{code} applied.", { code: promoState.applied })}
+            </p>
+          )}
+        </div>
       </div>
     </>
   );

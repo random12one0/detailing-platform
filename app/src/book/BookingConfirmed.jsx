@@ -1,6 +1,7 @@
 // Confirmation screen — shown straight after booking, and the same
 // information the confirmation email carries.
 
+import { useEffect, useRef } from "react";
 import { intlLocale, t } from "../lib/i18n.js";
 import { useLocale } from "../hooks/useLocale.js";
 import { Check, Clock } from "lucide-react";
@@ -16,6 +17,8 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
   // because those are two reads that can disagree. What does NOT change: the
   // time is held either way, so nothing about the appointment card moves.
   const isRequest = booking.status === "pending";
+  const said = useRef(null);
+  useEffect(() => { said.current?.focus(); }, []);
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(intlLocale(), {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -53,7 +56,13 @@ export default function BookingConfirmed({ booking, form, notBooked }) {
               ? <Clock size={30} strokeWidth={2.5} />
               : <Check size={30} strokeWidth={2.5} />}
           </div>
-          <h1>{isRequest ? t("We’re holding your time") : t("You’re booked")}</h1>
+          {/* ROADMAP 8.5b — THE BOOKING GOING THROUGH IS SAID. This whole screen
+              replaces the form, and a screen arriving with its own live region
+              is not reliably read, so focus moves here and the heading is
+              spoken — the ConfirmTap pattern. No ring: it is not a control. */}
+          <h1 ref={said} tabIndex={-1} style={{ outline: "none" }}>
+            {isRequest ? t("We’re holding your time") : t("You’re booked")}
+          </h1>
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {isRequest
               ? t("Nobody else can take it while we look at your request. We’ll email {email} as soon as it’s accepted.",

@@ -3926,6 +3926,12 @@ on, which is a row on Andrew's list.
 **RECOMMENDATION: do 1, 2 and 4 together as one small item, and leave 3 where
 it is**, riding on the stays-open decision rather than being fixed twice.
 
+**DONE 2026-10-24 for 1, 2 and 4, as recommended** — ROADMAP 8.5, commit
+`43de5f7c`, proved by `scripts/booking-announces.mjs` (PASS 9 of 9 moments at
+390/768/1440, sabotage red). **3 is now ROADMAP 8.5f**: the record does stay
+open now, but its notice is inserted already carrying `role="status"`, which
+a screen reader may not read.
+
 ---
 
 ## THE SETUP NOTICE'S TASK LINKS ARE 19px TALL WITH A 25px PITCH — measured 2026-09-20, NOT FIXED

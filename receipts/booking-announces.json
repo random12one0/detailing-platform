@@ -1,0 +1,49 @@
+{
+  "git_sha": "4729ecf6b716670ace945d12a403a643cd693646",
+  "git_sha_started": "4729ecf6b716670ace945d12a403a643cd693646",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T04:08:01.475Z",
+  "failures": [],
+  "warnings": [
+    "Says what a screen reader is HANDED. Whether a listener understands it is 8.5b's person-with-ears half."
+  ],
+  "artifacts": [
+    "scripts/booking-announces.mjs",
+    "artifacts/booking-announces/390-review.png",
+    "artifacts/booking-announces/390-confirmed.png",
+    "artifacts/booking-announces/768-review.png",
+    "artifacts/booking-announces/768-confirmed.png",
+    "artifacts/booking-announces/1440-review.png",
+    "artifacts/booking-announces/1440-confirmed.png"
+  ],
+  "dimensions": {
+    "measures": "price change heard, promo answer heard, confirmation heading focused",
+    "widths": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "check_id": "booking-announces",
+  "started_at": "2026-10-25T04:07:09.093Z",
+  "status": "pass",
+  "expected_targets": 9,
+  "discovered_targets": 9,
+  "attempted_targets": 9,
+  "completed_targets": 9,
+  "skipped_targets": 0,
+  "assertions_executed": 12,
+  "min_assertions": 10,
+  "assertion_floor": "three moments per width plus one console check; a width whose walk dies early asks fewer and drops below it",
+  "canary": {
+    "id": "a plain div's text change must not be heard; an existing polite region's must",
+    "observed_failure": true,
+    "caught_by": [
+      "heard detector"
+    ],
+    "findings": [
+      "3/3"
+    ]
+  }
+}
