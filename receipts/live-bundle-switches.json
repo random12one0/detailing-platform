@@ -1,0 +1,66 @@
+{
+  "git_sha": "9d6dc5b218cba125689ef74f360088870fe01df9",
+  "git_sha_started": "9d6dc5b218cba125689ef74f360088870fe01df9",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T00:21:01.348Z",
+  "failures": [],
+  "warnings": [],
+  "artifacts": [
+    "receipts/live-bundle-switches.txt"
+  ],
+  "dimensions": {
+    "live_asset": "assets/index-BjgdzFnP.js",
+    "live_bytes": 1402004,
+    "live_chars": 1398754,
+    "builds": {
+      "on": {
+        "business-media": 3,
+        "expense-receipts": 0,
+        "action:\"start\"": 3,
+        "createSignedUrls": 1,
+        "expense_id": 3
+      },
+      "receipts-off": {
+        "business-media": 3,
+        "expense-receipts": 1,
+        "action:\"start\"": 2,
+        "createSignedUrls": 2,
+        "expense_id": 0
+      },
+      "media-off": {
+        "business-media": 5,
+        "expense-receipts": 0,
+        "action:\"start\"": 2,
+        "createSignedUrls": 1,
+        "expense_id": 3
+      },
+      "both-off": {
+        "business-media": 5,
+        "expense-receipts": 1,
+        "action:\"start\"": 1,
+        "createSignedUrls": 2,
+        "expense_id": 0
+      }
+    },
+    "break": null
+  },
+  "check_id": "live-bundle-switches",
+  "started_at": "2026-10-25T00:20:37.601Z",
+  "status": "pass",
+  "expected_targets": 2,
+  "discovered_targets": 2,
+  "attempted_targets": 2,
+  "completed_targets": 2,
+  "skipped_targets": 0,
+  "assertions_executed": 15,
+  "min_assertions": 15,
+  "assertion_floor": "structural: 2 switches x (5 marker comparisons + 1 verdict) + 3 canaries; the count is fixed by the candidate list, and a missing build or fetch throws or reads unjudgeable rather than running fewer",
+  "canary": {
+    "id": "off-builds-judged-off",
+    "observed_failure": true,
+    "receipts": true,
+    "media": true,
+    "stale_not_on": true
+  }
+}
