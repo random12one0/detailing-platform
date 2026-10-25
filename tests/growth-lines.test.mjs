@@ -154,10 +154,10 @@ test("5 · THE DECISION STANDS: a name can be on two lines, each question asked 
 // growth lines: who needs Andrew is Today's "Needs you" and Detailers' list,
 // both decided by lib/officeDetailers.js `issueOf`. So § 6 no longer reads
 // headlines off a screen; it RUNS issueOf on one account stuck on each of the
-// five questions and requires the office to name it. Four of five reach him.
-// "open" (a customer who tries to book gets nowhere) does NOT, and that is a
-// real loss, filed as ROADMAP 99.14 and held below as a named todo rather than
-// dropped: it turns into an ordinary pass the day the office flags it.
+// five questions and requires the office to name it. "open" (a customer who
+// tries to book gets nowhere) had no home in the office until ROADMAP 99.14
+// gave issueOf the bookability reason; 6b holds it, and fails on the office
+// code before that fix.
 const stuckOn = {
   setup: row({ setup_inputs: { counts: { services: 0, hoursRows: [] }, branding: {}, settings: {}, business: { contact_phone: "555" } } }),
   open: row({ setup_inputs: withCounts({ services: 0 }) }),
@@ -184,9 +184,13 @@ test("6 · the office keeps no second copy of the questions, and names who is st
   }
 });
 
-test("6b · the office names an account a customer cannot book", { todo: "ROADMAP 99.14 — the office's issueOf never asks bookability" }, () => {
+test("6b · the office names an account a customer cannot book (ROADMAP 99.14)", () => {
   assert.deepEqual(namesOn([stuckOn.open], "open"), ["Healthy Detail"]);
   assert.equal(issueOf(stuckOn.open)?.needsYou, true, "the office names an account stuck on \"open\"");
+  assert.equal(issueOf(stuckOn.open).kicker, "Can't take bookings");
+  assert.match(issueOf(stuckOn.open).text, /^No active services\. A customer who tries to book gets nowhere\. Ring them/, issueOf(stuckOn.open).text);
+  // Control: "open days not read" (a row that did not say) is not a fault.
+  assert.equal(issueOf(row({ setup_inputs: withCounts({ hoursRows: undefined }) })), null);
 });
 
 // ---------------------------------------------------------------- sabotage

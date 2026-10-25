@@ -14,7 +14,7 @@
 // pins the parts that are this file's own.
 
 import { phoneOf, reasonsFor, actionFor, QUIET_DAYS, SETUP_FLOOR } from "./attention.js";
-import { billingState, daysSince } from "./adminInsight.js";
+import { billingState, bookability, daysSince } from "./adminInsight.js";
 import { setupProgress } from "./setup.js";
 
 export const setupOf = (r) => setupProgress(r.setup_inputs);
@@ -104,9 +104,18 @@ export function healthOf(r) {
 // the line never says "ring" over an account with no phone. `act` is the button
 // label, and it is null when there is nobody to reach: a button that cannot go
 // anywhere is not offered (see `contactOf`).
+// The ONE place the office asks `bookability`, handing in the two fields the
+// list row carries outside `setup_inputs` (admin-insight 10a-10h).
+export const bookabilityOf = (r) => bookability({
+  counts: r?.setup_inputs?.counts,
+  business: { status: r?.status },
+  settings: { booking_mode: r?.booking_mode },
+});
+
 const KICKERS = [
   [/payment failed/, "Payment failed", "bad"],
   [/canceling/, "Leaving", "bad"],
+  [/cannot take a booking/, "Can't take bookings", "bad"],
   [/never taken a booking/, "Never booked", "warn"],
   [/no booking in/, "Gone quiet", "warn"],
   [/setup stopped at/, "Stuck in setup", "warn"],
@@ -132,12 +141,19 @@ export function issueOf(r) {
     return { kicker: "Suspended", color: "mute", text: "Their booking page is offline.", act: "Reopen", kind: "restore", costCents: null, needsYou: false };
   }
   if (r.is_demo) return null;
-  const why = reasonsFor(r);
+  // ROADMAP 99.14: the old screen's "open" line, "the most expensive thing on the
+  // page", had no home here. "open days not read" is not a fault (the row did not
+  // say), and a suspension is answered above, so neither is counted.
+  const blocked = bookabilityOf(r).reasons.filter((x) => x !== "open days not read" && x !== "suspended");
+  const why = [...(blocked.length ? [`cannot take a booking: ${blocked.join(", ")}`] : []), ...reasonsFor(r)];
   if (!why.length) return null;
   const [, kicker, color] = KICKERS.find(([re]) => why.some((w) => re.test(w))) ?? [0, "Needs a look", "warn"];
+  const advice = actionFor(why, { phone: c.phone, email: c.email });
+  // What is missing goes beside the advice, as the old line put it beside the name.
+  const missing = kicker === "Can't take bookings" ? `${blocked.join(" and ").replace(/^./, (s) => s.toUpperCase())}. ` : "";
   return {
     kicker, color,
-    text: actionFor(why, { phone: c.phone, email: c.email }),
+    text: missing + advice,
     act: reach,
     kind: c.phone ? "sms" : c.email ? "mail" : null,
     costCents: monthlyCents(r),

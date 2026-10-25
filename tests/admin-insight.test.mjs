@@ -341,8 +341,13 @@ console.log("\n10. what the screen feeds bookability");
   // "no raw call" over nothing at all.
   check("10g-0 · the office source was found", files.length >= 20 && whole.includes("export default function OfficePage"),
     `read ${files.length} files`);
-  check("10g · no raw bookability() call anywhere in the back office", raw.length === 0,
-    `found ${raw.length} — a call site must hand in status and booking_mode (10a-10f)`);
+  // 2026-10-24 (ROADMAP 99.14): the office asks bookability again, so the old
+  // screen's pair is back as it was: exactly one raw call, inside the helper.
+  check("10g · exactly one raw bookability() call in the whole back office", raw.length === 1,
+    `found ${raw.length} — every call site must go through bookabilityOf(row)`);
+  check("10h · and the helper names both fields the object was missing",
+    /const bookabilityOf[\s\S]{0,260}status[\s\S]{0,120}booking_mode/.test(page),
+    "bookabilityOf must read status and booking_mode off the row");
 }
 
 // ─── THE SUITE'S OWN EXIT CODE ────────────────────────────────────────────
