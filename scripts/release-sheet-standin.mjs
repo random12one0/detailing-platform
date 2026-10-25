@@ -1,4 +1,4 @@
-// WHAT-IF RUN OF THE RELEASE SHEET'S TEN SABOTAGES, credential-free. ROADMAP 98.18, 2026-10-24.
+// WHAT-IF RUN OF THE RELEASE SHEET'S ELEVEN SABOTAGES, credential-free. ROADMAP 98.18, 2026-10-24.
 //
 //   node scripts/release-sheet-standin.mjs
 //   node scripts/release-sheet-standin.mjs --break=empty   # stand-in names NO programs (the stale case): must exit 1
@@ -12,12 +12,12 @@
 // published), runs the sheet clean and with each switch, and prints the FAIL lines each switch adds.
 //
 // IT IS NOT A MEASUREMENT of the server, and nothing it writes is kept: it refuses to start unless
-// the 23 files it and the sheet write (the inventory receipt, the sheet, its receipt, and the ten
+// the 25 files it and the sheet write (the inventory receipt, the sheet, its receipt, and the eleven
 // sabotage pairs) are clean, and puts back exactly those from HEAD when it ends, so another session's
 // edit anywhere else in receipts/ is left alone. A `finally` does not run on a kill (docs/gotchas.md
 // 90), so the stand-in receipt carries `dimensions.standin` and release-sheet.mjs refuses it by name;
 // this run exits 1 if the clean sheet does not print that refusal. The real proof is the keyed run
-// (migration-drift, deployed-inventory, then the sheet and its ten switches).
+// (migration-drift, deployed-inventory, then the sheet and its eleven switches).
 
 import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -25,7 +25,7 @@ import { join, dirname, normalize } from "node:path";
 import { REPO } from "./receipt.mjs";
 
 const git = (...a) => execFileSync("git", a, { cwd: REPO, encoding: "utf8" }).trim();
-const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order"];
+const BREAKS = ["drop-step", "drop-line", "unhold", "open-wait", "no-cron", "no-order", "no-escape", "fn-before-page", "lock-one", "lock-order", "webhook-last"];
 const OUT = ["receipts/deployed-inventory.json", "docs/release-sheet.md", "receipts/release-sheet.json",
   ...BREAKS.flatMap((b) => ["json", "md"].map((e) => `receipts/release-sheet.${b}.sabotage.${e}`))];
 const dirty = git("status", "--porcelain", "--", ...OUT);
