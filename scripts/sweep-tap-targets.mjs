@@ -426,10 +426,10 @@ for (const width of WIDTHS) {
       // ONE REAL FRAME FOR THE RECEIPT: a viewport frame (ROADMAP 9.11d), the first screen measured.
       if (!dashShotTaken) {
         dashShotTaken = true;
-        const shotDir = fileURLToPath(new URL("../receipts/screenshots/sweep-tap-targets-dashboard/", import.meta.url));
+        const shotDir = fileURLToPath(new URL("../artifacts/sweep-tap-targets-dashboard/", import.meta.url));
         mkdirSync(shotDir, { recursive: true });
         await page.screenshot({ path: join(shotDir, `${key}-${width}-${lang}.png`) });
-        dashArtifacts.push(`receipts/screenshots/sweep-tap-targets-dashboard/${key}-${width}-${lang}.png`);
+        dashArtifacts.push(`artifacts/sweep-tap-targets-dashboard/${key}-${width}-${lang}.png`);
       }
     }
 
@@ -744,10 +744,10 @@ if (ONLY && !"admin".includes(ONLY.toLowerCase())) {
               // decoration.
               if (!adminShotTaken) {
                 adminShotTaken = true;
-                const shotDir = fileURLToPath(new URL("../receipts/screenshots/sweep-tap-targets-admin/", import.meta.url));
+                const shotDir = fileURLToPath(new URL("../artifacts/sweep-tap-targets-admin/", import.meta.url));
                 mkdirSync(shotDir, { recursive: true });
                 await page.screenshot({ path: join(shotDir, "detailer-drawer-open.png") });
-                adminArtifacts.push("receipts/screenshots/sweep-tap-targets-admin/detailer-drawer-open.png");
+                adminArtifacts.push("artifacts/sweep-tap-targets-admin/detailer-drawer-open.png");
               }
               await page.keyboard.press("Escape");
               await settle(page, 800);

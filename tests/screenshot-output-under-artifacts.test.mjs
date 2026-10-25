@@ -45,8 +45,9 @@ test("outDir puts a relative name under artifacts/ and leaves the rest alone", (
 
 // Review fix: a TYPED `--shots=shots-2.7` made a root folder just as a default did,
 // and the default-only scan above could not see it. Every line that reads a typed
-// --shots / --out must go through outDir. The one exception is a ready-made check
-// jobs are told not to edit, declared by EQUALITY (docs/gotchas.md 98).
+// --shots / --out must go through outDir. sweep-booking-steps.mjs was the declared
+// exception until the 2026-10-25 ruling made it builder work; the list is now empty,
+// still an EQUALITY (docs/gotchas.md 98), so a new bare read reddens.
 const TYPED = /(?:(?:arg|argOf|opt)\("(?:shots|out)"|startsWith\("--(?:shots|out)=")/;
 test("every typed --shots / --out goes through outDir", () => {
   const reads = [];
@@ -60,7 +61,7 @@ test("every typed --shots / --out goes through outDir", () => {
   }
   // Discovery floor: 16 such reads on 2026-10-24 (counted by this test). Fewer means the pattern broke.
   assert.ok(reads.length >= 16, `found only ${reads.length} typed reads: ${reads.join(", ")}`);
-  assert.deepEqual([...new Set(bare)].sort(), ["sweep-booking-steps.mjs"]);
+  assert.deepEqual([...new Set(bare)].sort(), []);
 });
 
 test("every script's default output goes through outDir", () => {
@@ -83,11 +84,11 @@ test("email-dates writes its previews under artifacts/", () => {
   assert.match(sources["email-dates.mjs"], /path\.join\(REPO, "artifacts", "email-preview"/);
 });
 
-// receipts/screenshots/ was another ignored destination. The one writer left is the
-// ready-made tap-target sweep, which jobs are told not to edit. Declared with an
-// EQUALITY (docs/gotchas.md 98), so a new writer reddens instead of slipping in.
-test("only the declared script still writes screenshots under receipts/", () => {
+// receipts/screenshots/ was another ignored destination. Its last writer, the tap-target
+// sweep, moved to artifacts/ on 2026-10-25. Declared with an EQUALITY (docs/gotchas.md
+// 98), so a new writer reddens instead of slipping in.
+test("no script writes screenshots under receipts/", () => {
   const code = (s) => s.replace(/^\s*\/\/.*$/gm, "");
   const writers = Object.entries(sources).filter(([, s]) => code(s).includes("receipts/screenshots/")).map(([f]) => f).sort();
-  assert.deepEqual(writers, ["sweep-tap-targets.mjs"]);
+  assert.deepEqual(writers, []);
 });
