@@ -15987,36 +15987,39 @@ requested.
   were 37 wide, and the `::after` is vertical only). `node scripts/sweep-tap-targets.mjs --only admin` with the row gap alone
   left 2 findings; with both, clean. `receipts/sweep-tap-targets.json` grades PASS, 60 of 60 screens at `b5ccac8`, canary 5 of 5,
   in the full default run too. The `.btn.sm` 38px-icon exception was not touched.
-- [x] **4.7 — Once a job is finalized, a recorded payment can never be changed
+- [ ] **4.7 — Once a job is finalized, a recorded payment can never be changed
   back.** A detailer finishes a job, says how it was paid — paid, part paid, not
   yet, or waived — and presses Finalize. **From that moment the choice is
   permanent as far as this product is concerned.** Picking the wrong one is one
   tap. There is no tap that undoes it.
-  **DONE 2026-10-24 (belt 4.7) — the last clause, proved live.** The audit table is
-  applied and `update-booking` is published (the 2026-10-18 `migration-drift` receipt
-  does not list `action_log` as absent; the 2026-10-23 `deployed-inventory` receipt at
-  `7f7789b3` names only `platform-admin`). `node scripts/payment-correction-live.mjs`
-  pressed one correction through this checkout's own screen against project
-  `kguqylyzgyzfktkfnhjb` and read the rows back: **Paid → Part paid at 390 English and
-  Part paid → Paid at 1440 Spanish, each writing exactly one `action_log` row**
-  (`payment.set`, owner, `{payment_status: paid}` → `{payment_status: partial}` and back),
-  with `finalized_at`, `final_amount`, `status`, `payment_notes` and the line items
-  unchanged and the booking ending as it started. The three refusals were pressed: no
-  control on a never-finalized job (EN and ES), no answer button while the pick has not
-  moved (all 14 frames), and another tenant's booking answering **404** with its row
-  unchanged. 14 frames, 1920/1440/768/392/390/360/320 × EN/ES: control and four choices
-  present, Waived's and Paid's answers `.btn.danger`, Unpaid's and Part paid's not, both
-  confirm answers 46px tall and topmost by hit test, console clean in all 14. Receipt
-  `receipts/payment-correction-live.json`: **19 of 19 targets, 228 assertions, 0 failed,
-  canary caught** (the same audit-row question aimed at an untouched booking must fail).
-  Sabotage `--break=refinalize` adds `finalized_at` to the request, which is this entry's
-  own named way to fail, and went red on exactly that (*"finalized_at MOVED … (a second
-  Finalize)"*) in `receipts/payment-correction-live.sabotage.json`; the run put the
-  original `finalized_at` back. **Not re-taken:** the hand contrast figure (6.23:1 over 44
-  readings) is from 2026-10-07, and this job changed no product code. This copy's dev server
-  talks to a local stand-in backend, so the script forwards its requests to the live
-  project; that is said in the script's header. Nothing was moved or removed, so there
-  is no old-to-new control inventory to give.
+  LIVE RUN NEEDED: `node scripts/payment-correction-live.mjs` (dev server plus `.env` credentials), then `node scripts/payment-correction-live.mjs --break=refinalize` — one correction pressed through the real screen writes exactly one `action_log` row naming before and after, `finalized_at` and the line items don't move, the three refusals hold, and the break run goes red
+
+  **BUILT AND RUN 2026-10-24 (belt 4.7); UNTICKED ON REVIEW, because the belt cannot
+  re-take a live-database run and these receipts are the builder's.** The audit table is
+  applied and `update-booking` is published (the 2026-10-18 `migration-drift` receipt does
+  not list `action_log` as absent; the 2026-10-23 `deployed-inventory` receipt at `7f7789b3`
+  names only `platform-admin`). `scripts/payment-correction-live.mjs` at `acd3e714`, against
+  project `kguqylyzgyzfktkfnhjb`, pressed **one correction INTO each of the four states**
+  through this checkout's screen — Paid → Waived (390 EN), Waived → Unpaid (392 ES), Unpaid →
+  Part paid (768 EN), Part paid → Paid (1440 ES) — and each wrote exactly one `action_log`
+  row naming its before and after (`payment.waive` for the waive, `payment.set` for the
+  other three, actor `owner`), with `finalized_at`, `final_amount`, `status`,
+  `payment_notes` and the line items unchanged and the booking ending as it started.
+  Refusals pressed: no control on a never-finalized job (EN, ES); no answer button while the
+  pick has not moved (all 14 frames); another tenant's booking answers **404**, row
+  unchanged. 14 frames, 1920/1440/768/392/390/360/320 × EN/ES: control and four choices,
+  Waived/Paid `.btn.danger` and Unpaid/Part paid not, both confirm answers 46px and topmost
+  by hit test, console clean. `receipts/payment-correction-live.json` at `acd3e714`: **21 of
+  21 targets, 252 assertions, 0 failed, canary caught.**
+  `receipts/payment-correction-live.sabotage.json` at the same `acd3e714`: `--break=refinalize`
+  red with **4 failures, all four `finalized_at MOVED … (a second Finalize)`** and nothing
+  else; the run put the original `finalized_at` back. **The earlier sabotage receipt (stamped
+  `0eb5dc55`) was taken by an uncommitted version and carried a clock-window failure; both
+  receipts were re-taken at the committed script, so that one is superseded.** Not re-taken:
+  the 6.23:1 hand contrast figure is from 2026-10-07; no product code changed. This copy's dev
+  server talks to a local stand-in backend, so the script forwards those requests to the live
+  project (said in its header). Nothing was moved or removed, so there is no old-to-new
+  control inventory to give.
 
   **What happens today**, read at `2c0308a` on 2026-10-07.
   `FinalizeModal.jsx:100-105` writes `payment_status` and stamps `finalized_at`

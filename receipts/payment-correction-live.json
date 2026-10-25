@@ -1,12 +1,12 @@
 {
-  "git_sha": "2dc3b542837be78285c9eabfaf340837ad830d2a",
-  "git_sha_started": "2dc3b542837be78285c9eabfaf340837ad830d2a",
+  "git_sha": "acd3e714077fa779898e716f57d351fe05822547",
+  "git_sha_started": "acd3e714077fa779898e716f57d351fe05822547",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T03:18:53.862Z",
+  "finished_at": "2026-10-25T03:28:24.185Z",
   "failures": [],
   "warnings": [
-    "WRITES: one demo-detail booking Paid -> Part paid -> Paid through the screen, ending as it started; action_log gains two append-only rows per run."
+    "WRITES: one demo-detail booking Paid -> Waived -> Unpaid -> Part paid -> Paid through the screen, ending as it started; action_log gains four append-only rows per run."
   ],
   "artifacts": [
     "artifacts/payment-correction-live/1920x1080-en.png",
@@ -57,21 +57,23 @@
       "320x640 es: control + 4 choices; answers 284x46 / 284x46, topmost true; console clean",
       "never-finalized 390 en: record open true; correction control absent",
       "never-finalized 390 es: record open true; correction control absent",
-      "press paid->partial 390 en: pill \"Part paid\"; finalized_at unchanged; action_log [[\"payment.set\",{\"payment_status\":\"paid\"},{\"payment_status\":\"partial\"},\"owner\"]]",
+      "press paid->waived 390 en: pill \"Waived\"; finalized_at unchanged; action_log [[\"payment.waive\",{\"payment_status\":\"paid\"},{\"payment_status\":\"waived\"},\"owner\"]]",
+      "press waived->pending 392 es: pill \"Sin pagar\"; finalized_at unchanged; action_log [[\"payment.set\",{\"payment_status\":\"waived\"},{\"payment_status\":\"pending\"},\"owner\"]]",
+      "press pending->partial 768 en: pill \"Part paid\"; finalized_at unchanged; action_log [[\"payment.set\",{\"payment_status\":\"pending\"},{\"payment_status\":\"partial\"},\"owner\"]]",
       "press partial->paid 1440 es: pill \"Pagado\"; finalized_at unchanged; action_log [[\"payment.set\",{\"payment_status\":\"partial\"},{\"payment_status\":\"paid\"},\"owner\"]]",
       "cross-tenant: answered 404; other tenant's row unchanged"
     ]
   },
   "check_id": "payment-correction-live",
-  "started_at": "2026-10-25T03:16:59.155Z",
+  "started_at": "2026-10-25T03:26:25.508Z",
   "status": "pass",
-  "expected_targets": 19,
-  "discovered_targets": 19,
-  "attempted_targets": 19,
-  "completed_targets": 19,
+  "expected_targets": 21,
+  "discovered_targets": 21,
+  "attempted_targets": 21,
+  "completed_targets": 21,
   "skipped_targets": 0,
-  "assertions_executed": 228,
-  "min_assertions": 201,
+  "assertions_executed": 252,
+  "min_assertions": 227,
   "assertion_floor": "12 per frame x 14 frames, 2 per never-finalized refusal, 13 per press, 3 for the other tenant. Fixed by the lists, never by what the run finds.",
   "canary": {
     "id": "audit-row-for-an-untouched-booking",
