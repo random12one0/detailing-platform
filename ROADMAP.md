@@ -10264,6 +10264,21 @@ the wrong service, and never book a job we cannot reach.
   **Held for a builder, not for Andrew (belt 2026-10-25).** The finish review still found problems; they are work, not a question. Continue branch `belt/9.11e-20261025015206869`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. `scripts/state-furniture-clearance.mjs`: on `/website/preview`, `SiteIntake.jsx:1054` draws a red "Preview" strip (`.impbar`, sticky at the top). Neither new `html:has(.app-shell > …)` rule applies on that page, because the strip sits inside `.app-main`. But `intake()` only counts rows lost to `.livesite`. The run's own canary shows «Back» and «Close» parked at top 0 on that page, which is under that strip. So "`.livesite` IS CLEAN, and that is an answer" holds for the preview box only. The screen's other sticky strip was never asked about, while the meta-test now reports 12 of 12 hit-tested by name match alone. The script should also measure `.impbar` on that surface, or the gap should be recorded with a reason.
   - 2. `ROADMAP.md` (the new 9.11e table): it says the clean run was "at `af5fc32f`", but `receipts/state-furniture-clearance.json` records `git_sha` `bfcce0c8`. The figure's stated revision does not match its receipt, which this repo's figure rule (`docs/gotchas.md` 94) requires.
+  **BOTH FINDINGS FIXED 2026-10-25 (finish, try 2).** (1) Real, and it was a product fault, not only a gap
+  in the check: on `/website/preview` the red strip hid «Back» and «Close» completely when focused from
+  below — 4/4/3/2/0 of 11 controls lost rows at 320/390/768/1440/1920 (37-56 rows each; 1920 cannot fail,
+  the page is too short to scroll a control under it). `html:has(.intake > .impbar)` now takes the same
+  top reserve as the dashboard's strip (`app/src/theme.css`), and `state-furniture-clearance.mjs` measures
+  that strip as a fourth surface at all five widths, with a third canary (reserve removed on the preview at
+  390, caught). The sticky `.livesite` was also asked whether the strip covers it when the page is scrolled
+  to the bottom at 1440/1920: it rests at 39.5px, the strip ends at 36.5px, 0 rows of «Your site so far»
+  lost (one-off probe, not kept). (2) Every figure now names the revision its receipt records: clean
+  `f4e15cf0`, sabotage `f7e8317d` — see the table below.
+  The earlier edit to `tests/fixed-furniture-is-hit-tested.test.mjs` (the belt's hold reason) was
+  re-read on this pass: it adds the new check to `HIT_TESTERS`, empties `NO_HIT_TEST` only for selectors
+  a hit-tester now names, and turns § 4 from `assert.ok(true)` into a per-row Done-when assertion — a
+  stricter test, not a looser one. Its three sabotages re-ran red by name at `d61f1cc5`
+  (`new-furniture` 3/3, `uncover` 4/2, `FURNITURE_CANARY=off` 5/1); clean 6 passed 0 failed.
   Split out of 9.11d, 2026-10-06. `bk-bar-clearance.mjs`'s pattern (a hit-test against every fixed element) is asked on the
   booking page. The dashboard shell's rail and tab bar, the back office and the job record's pinned bar are fixed furniture on
   other screens, and which checks already ask the question (`pinned-bar.mjs`, `tabbar-clearance.mjs`, `keyboard-walk.mjs`) has
@@ -10648,6 +10663,81 @@ the wrong service, and never book a job we cannot reach.
   was re-seeded for the run, no other writes. The box stays open: 4 of the 12
   remain (`.impbar`, the intake preview, `.bo-rail`, `.bo-panel`), each needing
   its own instrument or state.
+
+  ---
+
+  **THE LAST FOUR HAVE A HIT-TEST, AND THE DASHBOARD ARRIVED RED — 2026-10-24.**
+  `scripts/state-furniture-clearance.mjs` (new, credential-free apart from the
+  demo owner's sign-in) walks into the two STATES nothing else walks into: the
+  platform view strip `.impbar` (entered with the localStorage note
+  `lib/impersonation.js` reads — no platform admin, no preview session, no
+  database write) and the website brief's sticky `.livesite` preview at
+  `/website/preview`. It measures the plain `.topbar` beside `.impbar`, at
+  320x844, 390x844, 768x1024, 1440x900 and 1920x1080, and **focuses every
+  control from above AND from below** — `keyboard-walk.mjs` only walks
+  forwards, so the browser always parked the next control at the bottom and a
+  header at the top could never be caught.
+
+  **THE FINDING, measured before any file changed:** the dashboard reserved
+  nothing at the top. Focused from below (Shift+Tab), «Hide», «Vehicle types»,
+  «Navigate», «Quote»… came to rest flush under the header — `.topbar` (63px)
+  took rows from **16/16/14/7/3 of 22** controls on Today at 320/390/768/1440/1920;
+  `.impbar` (100px at 320/390 where it wraps, 49px wider) from 16/16/14/4/3 of 22.
+  Re-take: `node scripts/state-furniture-clearance.mjs --break=nofix` — identical at `af5fc32f` and
+  `f7e8317d`; the committed `receipts/state-furniture-clearance.sabotage.json` is the `f7e8317d` run.
+  **The fix, `app/src/theme.css`:** `html:has(.app-shell > .topbar)
+  { scroll-padding-top: calc(var(--topbar-h) + 2 * var(--hit-overhang)) }` and
+  `html:has(.app-shell > .impbar) { scroll-padding-top: calc(8rem +
+  var(--hit-overhang)) }` — the bottom tab bar's mechanism, mirrored. The first
+  version used one overhang and lost one row at 320/390/768 (the header renders
+  a fraction over `--topbar-h`); doubled. `.app-shell >` keeps it off the job
+  record and the preview routes (they draw `.app-shell` with no header).
+  `.cal-cell`'s `scroll-margin-top` was the header's height plus `--sp-3`; the
+  two add, so it is now `--sp-3` minus the same two overhangs — the selected
+  week rests where it did (by arithmetic, not re-measured on the calendar).
+  `node scripts/var-scope-guard.mjs`: 29 root-level reads, all resolving.
+
+  **`.livesite` IS CLEAN, and that is an answer:** 10 controls, 0 rows lost at
+  all five widths; it is sticky only at 1000px+ and sits in its own column.
+  **But that answer covered the preview box only** — the same page's red "Preview" strip was never asked
+  until the finish review, and it was red; fixed 2026-10-25, see the top of this entry.
+
+  | run | result |
+  |---|---|
+  | clean, at `f4e15cf0` (the receipt's `git_sha`) | **PASS — 23/23 targets, 69 assertions, 0 failures, all three canaries caught**; `receipts/state-furniture-clearance.json`, graded valid. *(This row said "at `af5fc32f`, 17/17, 51 assertions" while the receipt recorded `bfcce0c8`; corrected, and the run now has the preview strip's 5 surfaces and third canary)* |
+  | `--break=nofix` (the reserve removed everywhere), at `f7e8317d` | **FAIL, 14 failures**: all 10 dashboard surfaces and the preview strip at 320/390/768/1440; `receipts/state-furniture-clearance.sabotage.json`, screenshots in their own folder |
+  | canary: reserve removed, red strip, 390 | caught — «Hide» loses 46 rows |
+  | canary: preview pinned over the form, 1440 | caught — «Back» loses 46 rows |
+  | canary: reserve removed, preview page's strip, 390 | caught — «Back» loses 47 rows, «Close» 56 |
+
+  Re-take: `BASE=<dev server> DEMO_OWNER_PW=<from .env> node scripts/state-furniture-clearance.mjs`
+  (run here against the belt's seeded demo back end on :5180).
+  Screenshots before/after: `belt/shots/9.11e/png/` (outside the repo).
+
+  **META-TEST 4 → 0**, `node --test tests/fixed-furniture-is-hit-tested.test.mjs`
+  **6 passed 0 failed, 12 of 12 hit-tested**; its three sabotages re-ran red by
+  name in the same edit. `.bo-rail`/`.bo-panel` came off too: the office check
+  has named them since its retarget (`13262063`) and the list was never moved,
+  so § 3 had been red on main.
+
+  **NOT TICKED, AND WHY.** Every screen with furniture now has a check — the
+  first clause and the second are met as text. But the office check
+  (`admin-furniture-clearance.mjs`) needs real credentials this copy does not
+  have, and its committed receipt still describes the OLD `.pa-*` screen, so
+  R7 (*0 failures with the canary caught*) has never been re-taken on the new
+  back office; ROADMAP 99.10 item 6 also names two grading faults in it (43px
+  accepted but reach judged only at 44; `mine()` ignores `.bo-panel`).
+  LIVE RUN NEEDED: `node --env-file=.env scripts/admin-furniture-clearance.mjs` on the new back office — proves R7: 0 failures across 5 widths x (4 places + 1 open panel), `.bo-rail` and `.bo-panel` taking no rows from any control, with the dock-reserve canary caught.
+  LIVE RUN NEEDED: `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect` — proves the check measures the hit area, not the box: it must go red on `legal` for the `.bo-thead` buttons (16px top overhang), into its own sabotage receipt.
+  Waits on: ROADMAP 99.10 item 6 — fix those two lines and re-run
+  `node --env-file=.env scripts/admin-furniture-clearance.mjs` (and its
+  `--break=rect`) on the new back office; whoever closes that ticks this box.
+  Found and filed, not fixed: the strip's own «Leave» button is 32px tall (9.27).
+  **The meta-test is a source-text guard by design** (a lint over the stylesheets and the hit-testing scripts; the browser half is `state-furniture-clearance.mjs`). Its § 4 asserted `true` until 2026-10-24; it now asserts the Done-when per row (a declared hit-tester or a declared reason), and goes red by name under `FURNITURE_BREAK=new-furniture` (`.sabotage-strip`) and `=uncover` (`.bk-bar`); 6 passed 0 failed clean.
+
+- [ ] **9.27 — The platform view strip's «Leave» and «Close» buttons are 32px tall, under the 44px rule.**
+  Found 2026-10-24 by 9.11e, not fixed there. `.impbar button { min-height: 32px }` in `app/src/theme.css` with no `::after` to grow the target; the 390x844 screenshot in `belt/shots/9.11e/png/after-390x844-impbar.png` shows «Leave» at about that height. Read from the CSS and the picture, not hit-measured. Admin-only state, so low reach.
+  **Done when:** both buttons press as 44px (box or `::after`), measured with `elementFromPoint` at 320 and 1440 with the strip up (enter it the way `scripts/state-furniture-clearance.mjs` does).
 
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
