@@ -1,9 +1,9 @@
 {
-  "git_sha": "af5fc32f5cff72a3fc30e745c80cdf81c32be6f1",
-  "git_sha_started": "af5fc32f5cff72a3fc30e745c80cdf81c32be6f1",
+  "git_sha": "bfcce0c8cb8eee7d5c96d59a8d66bb05f58a98ce",
+  "git_sha_started": "bfcce0c8cb8eee7d5c96d59a8d66bb05f58a98ce",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T02:08:30.539Z",
+  "finished_at": "2026-10-25T02:18:17.119Z",
   "failures": [],
   "warnings": [
     "Each control is focused from above AND from below; the worse of the two is graded. Only rows taken by the named furniture count — the bottom tab bar is tabbar-clearance.mjs's question.",
@@ -61,7 +61,7 @@
     "break": null
   },
   "check_id": "state-furniture-clearance",
-  "started_at": "2026-10-25T02:07:32.074Z",
+  "started_at": "2026-10-25T02:17:19.076Z",
   "status": "pass",
   "expected_targets": 17,
   "discovered_targets": 17,
