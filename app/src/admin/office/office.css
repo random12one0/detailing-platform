@@ -317,6 +317,7 @@
 .bo-phone { font-family: var(--f-num); font-size: 12px; color: var(--fog); margin-top: 10px; }
 .bo-nophone { font-size: 12.5px; color: var(--fog); margin-top: 10px; display: flex; gap: 8px; align-items: center; }
 .bo-nophone i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--bo-warn); }
+.bo-nolook { margin-top: 10px; }
 .bo-log { list-style: none; position: relative; padding-left: 20px; }
 .bo-log::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 1px; background: linear-gradient(180deg, var(--line-2), transparent); }
 .bo-log li { position: relative; padding: 0 0 14px; font-size: 13px; color: var(--bone-2); }

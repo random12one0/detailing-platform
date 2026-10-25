@@ -54,7 +54,7 @@ function historyOf(row, detail) {
 // The export is HANDED OVER, NEVER DRAWN: it is every customer and price of one
 // business, and `/terms` promises it on request. The invite link is shown only
 // when the email failed; on screen every time, it ends up in a screenshot.
-function Account({ row }) {
+function Account({ row, ownerless }) {
   const [busy, setBusy] = useState("");
   const [err, setErr] = useState("");
   const [inviting, setInviting] = useState(false);
@@ -82,7 +82,7 @@ function Account({ row }) {
   return (
     <section className="bo-psec bo-account">
       <div className="bo-label">Their account</div>
-      {!row.owner_email && <p className="bo-dim">Nobody has accepted the owner invite yet.</p>}
+      {ownerless && <p className="bo-dim">Nobody has accepted the owner invite yet.</p>}
       <div className="bo-contact">
         <button type="button" className="bo-btn ghost" disabled={busy === "export"} onClick={download}>
           {busy === "export" ? "Gathering it up…" : "Download everything they own"}
@@ -142,6 +142,12 @@ export default function DetailerPanel({ row, detail, ctx }) {
   // ROADMAP 97.37 — a signup waiting for its first payment is off the same
   // way, and the same button is how Andrew puts his own or a pilot account live.
   const suspended = st.key === "suspended" || st.key === "unpaid";
+  // **`row.owner_email` IS NOT "THEY HAVE AN OWNER ACCOUNT".** The server fills it from the contact
+  // address when there is no owner, so a business with a typed contact address read as having one and
+  // the button that needs one was on, right up to the server's refusal (ROADMAP 99.16). `detail.members`
+  // is the account list itself. **`null` is a third answer:** the detail arrives a moment after the
+  // panel opens and may not arrive at all, and "not read yet" must not be written as "no owner".
+  const hasOwner = detail?.members ? detail.members.some((m) => m.role === "owner") : null;
 
   const act = async (action) => {
     setBusy(action); setErr("");
@@ -263,14 +269,15 @@ export default function DetailerPanel({ row, detail, ctx }) {
               {c.mail && <a className="bo-btn ghost" href={c.mail}>Email</a>}
               {row.site_url && <a className="bo-btn ghost" href={row.site_url} target="_blank" rel="noreferrer">Their site ↗</a>}
               <a className="bo-btn ghost" href={`/book/${row.slug}`} target="_blank" rel="noreferrer">Booking page ↗</a>
-              <button type="button" className="bo-btn ghost" disabled={busy === "impersonate"} onClick={look}>Look at their dashboard</button>
+              <button type="button" className="bo-btn ghost" disabled={hasOwner === false || busy === "impersonate"} onClick={look}>Look at their dashboard</button>
             </div>
+            {hasOwner === false && <p className="bo-dim bo-nolook">Nobody has accepted the owner invite yet, so there is no dashboard to look at. Send an owner invite under Their account.</p>}
             {c.phone
               ? <div className="bo-phone">{c.phone}</div>
               : <div className="bo-nophone"><i />No phone number on file, so there is no Text or Call button.</div>}
           </section>
 
-          <Account key={row.id} row={row} />
+          <Account key={row.id} row={row} ownerless={hasOwner === false} />
 
           <section className="bo-psec">
             <div className="bo-label">What happened</div>
@@ -285,7 +292,18 @@ export default function DetailerPanel({ row, detail, ctx }) {
           <section className="bo-psec bo-pfoot">
             {err && <p className="bo-err" role="alert">{err}</p>}
             {suspended
-              ? <button type="button" className="bo-btn go" disabled={busy === "restore"} onClick={() => act("restore")}>{st.key === "unpaid" ? "Put live without payment" : "Reopen account"}</button>
+              ? sure
+                ? (
+                  // The old screen asked "Let X back in?" before reopening; one press must not put a page live.
+                  <div className="bo-sure">
+                    <p>{st.key === "unpaid"
+                      ? `Put ${row.name} live without payment? Their booking page starts taking bookings.`
+                      : `Let ${row.name} back in? Their booking page starts taking bookings again.`}</p>
+                    <button type="button" className="bo-btn go" disabled={busy === "restore"} onClick={() => act("restore")}>{st.key === "unpaid" ? "Yes, put them live" : "Yes, let them back in"}</button>
+                    <button type="button" className="bo-btn ghost" onClick={() => setSure(false)}>Not yet</button>
+                  </div>
+                )
+                : <button type="button" className="bo-btn go" onClick={() => setSure(true)}>{st.key === "unpaid" ? "Put live without payment" : "Reopen account"}</button>
               : sure
                 ? (
                   <div className="bo-sure">
