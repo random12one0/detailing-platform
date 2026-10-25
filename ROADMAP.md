@@ -10646,6 +10646,74 @@ the wrong service, and never book a job we cannot reach.
   remain (`.impbar`, the intake preview, `.bo-rail`, `.bo-panel`), each needing
   its own instrument or state.
 
+  ---
+
+  **THE LAST FOUR HAVE A HIT-TEST, AND THE DASHBOARD ARRIVED RED — 2026-10-24.**
+  `scripts/state-furniture-clearance.mjs` (new, credential-free apart from the
+  demo owner's sign-in) walks into the two STATES nothing else walks into: the
+  platform view strip `.impbar` (entered with the localStorage note
+  `lib/impersonation.js` reads — no platform admin, no preview session, no
+  database write) and the website brief's sticky `.livesite` preview at
+  `/website/preview`. It measures the plain `.topbar` beside `.impbar`, at
+  320x844, 390x844, 768x1024, 1440x900 and 1920x1080, and **focuses every
+  control from above AND from below** — `keyboard-walk.mjs` only walks
+  forwards, so the browser always parked the next control at the bottom and a
+  header at the top could never be caught.
+
+  **THE FINDING, measured before any file changed:** the dashboard reserved
+  nothing at the top. Focused from below (Shift+Tab), «Hide», «Vehicle types»,
+  «Navigate», «Quote»… came to rest flush under the header — `.topbar` (63px)
+  took rows from **16 of 22** controls on Today at 320/390, 14 at 768, 7 at 1440,
+  3 at 1920; `.impbar` (100px at 320/390 where it wraps, 49px wider) from 16 of
+  22 at 320/390. Run `--break=nofix` to see it again.
+  **The fix, `app/src/theme.css`:** `html:has(.app-shell > .topbar)
+  { scroll-padding-top: calc(var(--topbar-h) + 2 * var(--hit-overhang)) }` and
+  `html:has(.app-shell > .impbar) { scroll-padding-top: calc(8rem +
+  var(--hit-overhang)) }` — the bottom tab bar's mechanism, mirrored. The first
+  version used one overhang and lost one row at 320/390/768 (the header renders
+  a fraction over `--topbar-h`); doubled. `.app-shell >` keeps it off the job
+  record and the preview routes (they draw `.app-shell` with no header).
+  `.cal-cell`'s `scroll-margin-top` was the header's height plus `--sp-3`; the
+  two add, so it is now `--sp-3` minus the same two overhangs — the selected
+  week rests where it did (by arithmetic, not re-measured on the calendar).
+  `node scripts/var-scope-guard.mjs`: 29 root-level reads, all resolving.
+
+  **`.livesite` IS CLEAN, and that is an answer:** 10 controls, 0 rows lost at
+  all five widths; it is sticky only at 1000px+ and sits in its own column.
+
+  | run | result |
+  |---|---|
+  | clean, at `af5fc32f` | **PASS — 17/17 targets, 51 assertions, 0 failures, both canaries caught**; `receipts/state-furniture-clearance.json`, graded valid |
+  | `--break=nofix` (the reserve removed everywhere) | **FAIL, 10 failures**, one per dashboard surface; `receipts/state-furniture-clearance.sabotage.json`, screenshots in their own folder |
+  | canary: reserve removed, red strip, 390 | caught — «Hide» loses 46 rows |
+  | canary: preview pinned over the form, 1440 | caught — «Back» loses 46 rows |
+
+  Re-take: `BASE=<dev server> DEMO_OWNER_PW=<from .env> node scripts/state-furniture-clearance.mjs`
+  (run here against the belt's seeded demo back end on :5180).
+  Screenshots before/after: `belt/shots/9.11e/png/` (outside the repo).
+
+  **META-TEST 4 → 0**, `node --test tests/fixed-furniture-is-hit-tested.test.mjs`
+  **6 passed 0 failed, 12 of 12 hit-tested**; its three sabotages re-ran red by
+  name in the same edit. `.bo-rail`/`.bo-panel` came off too: the office check
+  has named them since its retarget (`13262063`) and the list was never moved,
+  so § 3 had been red on main.
+
+  **NOT TICKED, AND WHY.** Every screen with furniture now has a check — the
+  first clause and the second are met as text. But the office check
+  (`admin-furniture-clearance.mjs`) needs real credentials this copy does not
+  have, and its committed receipt still describes the OLD `.pa-*` screen, so
+  R7 (*0 failures with the canary caught*) has never been re-taken on the new
+  back office; ROADMAP 99.10 item 6 also names two grading faults in it (43px
+  accepted but reach judged only at 44; `mine()` ignores `.bo-panel`).
+  Waits on: ROADMAP 99.10 item 6 — fix those two lines and re-run
+  `node --env-file=.env scripts/admin-furniture-clearance.mjs` (and its
+  `--break=rect`) on the new back office; whoever closes that ticks this box.
+  Found and filed, not fixed: the strip's own «Leave» button is 32px tall (9.27).
+
+- [ ] **9.27 — The platform view strip's «Leave» and «Close» buttons are 32px tall, under the 44px rule.**
+  Found 2026-10-24 by 9.11e, not fixed there. `.impbar button { min-height: 32px }` in `app/src/theme.css` with no `::after` to grow the target; the 390x844 screenshot in `belt/shots/9.11e/png/after-390x844-impbar.png` shows «Leave» at about that height. Read from the CSS and the picture, not hit-measured. Admin-only state, so low reach.
+  **Done when:** both buttons press as 44px (box or `::after`), measured with `elementFromPoint` at 320 and 1440 with the strip up (enter it the way `scripts/state-furniture-clearance.mjs` does).
+
 - [x] **9.11b — `sweep-widths.mjs` reported a verdict over a third of its own coverage.**
   Spawned from 9.11 on 2026-10-02 by closing its first clause. **9.11's first
   clause is done**: the receipt no longer reads `"fail"` over an ANCESTOR of the

@@ -1,0 +1,94 @@
+{
+  "git_sha": "af5fc32f5cff72a3fc30e745c80cdf81c32be6f1",
+  "git_sha_started": "af5fc32f5cff72a3fc30e745c80cdf81c32be6f1",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T02:07:24.099Z",
+  "failures": [
+    "320x844 topbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
+    "390x844 topbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
+    "768x1024 topbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 11 more of 22",
+    "1440x900 topbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 4 more of 22",
+    "1920x1080 topbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 15 row(s) focused from below (top 48)",
+    "320x844 impbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
+    "390x844 impbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
+    "768x1024 impbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 11 more of 22",
+    "1440x900 impbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 1 more of 22",
+    "1920x1080 impbar: reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 1 row(s) focused from below (top 48)"
+  ],
+  "warnings": [
+    "Each control is focused from above AND from below; the worse of the two is graded. Only rows taken by the named furniture count — the bottom tab bar is tabbar-clearance.mjs's question.",
+    "Enters the red-strip state with a localStorage note, never a platform admin or a preview session.",
+    "run with --break=nofix; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/state-furniture-clearance-nofix\\320x844-topbar.png",
+    "artifacts/state-furniture-clearance-nofix\\390x844-topbar.png",
+    "artifacts/state-furniture-clearance-nofix\\768x1024-topbar.png",
+    "artifacts/state-furniture-clearance-nofix\\1440x900-topbar.png",
+    "artifacts/state-furniture-clearance-nofix\\1920x1080-topbar.png",
+    "artifacts/state-furniture-clearance-nofix\\320x844-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\390x844-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\768x1024-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\1440x900-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\1920x1080-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\320x844-livesite.png",
+    "artifacts/state-furniture-clearance-nofix\\390x844-livesite.png",
+    "artifacts/state-furniture-clearance-nofix\\768x1024-livesite.png",
+    "artifacts/state-furniture-clearance-nofix\\1440x900-livesite.png",
+    "artifacts/state-furniture-clearance-nofix\\1920x1080-livesite.png",
+    "artifacts/state-furniture-clearance-nofix\\canary-impbar.png",
+    "artifacts/state-furniture-clearance-nofix\\canary-livesite.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "320x844",
+      "390x844",
+      "768x1024",
+      "1440x900",
+      "1920x1080"
+    ],
+    "furniture": [
+      ".topbar",
+      ".impbar",
+      ".livesite"
+    ],
+    "observed": [
+      "320x844 topbar: 22 controls, furniture sticky 63px, top reserve 0px, worst loss 63 row(s)",
+      "390x844 topbar: 22 controls, furniture sticky 63px, top reserve 0px, worst loss 63 row(s)",
+      "768x1024 topbar: 22 controls, furniture sticky 63px, top reserve 0px, worst loss 62 row(s)",
+      "1440x900 topbar: 22 controls, furniture sticky 63px, top reserve 0px, worst loss 46 row(s)",
+      "1920x1080 topbar: 22 controls, furniture sticky 63px, top reserve 0px, worst loss 46 row(s)",
+      "320x844 impbar: 22 controls, furniture sticky 100px, top reserve 0px, worst loss 72 row(s)",
+      "390x844 impbar: 22 controls, furniture sticky 100px, top reserve 0px, worst loss 72 row(s)",
+      "768x1024 impbar: 22 controls, furniture sticky 49px, top reserve 0px, worst loss 48 row(s)",
+      "1440x900 impbar: 22 controls, furniture sticky 49px, top reserve 0px, worst loss 46 row(s)",
+      "1920x1080 impbar: 22 controls, furniture sticky 49px, top reserve 0px, worst loss 46 row(s)",
+      "320x844 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
+      "390x844 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
+      "768x1024 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
+      "1440x900 livesite: 10 controls, furniture sticky 342px, top reserve auto, worst loss 0 row(s)",
+      "1920x1080 livesite: 10 controls, furniture sticky 342px, top reserve auto, worst loss 0 row(s)"
+    ],
+    "break": "nofix"
+  },
+  "check_id": "state-furniture-clearance",
+  "started_at": "2026-10-25T02:06:26.775Z",
+  "status": "fail",
+  "expected_targets": 17,
+  "discovered_targets": 17,
+  "attempted_targets": 17,
+  "completed_targets": 17,
+  "skipped_targets": 0,
+  "assertions_executed": 51,
+  "min_assertions": 51,
+  "assertion_floor": "5 widths x 3 surfaces (topbar, impbar, livesite) x 3 questions + 2 canaries x 3. Fixed by SIZES and PLAN, never by what the run finds.",
+  "canary": {
+    "id": "reserve-removed+preview-pinned",
+    "observed_failure": true,
+    "problems": [
+      "canary impbar 390 no reserve: caught reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
+      "canary livesite 1440 pinned over the form: caught reachable «Back» loses 46 row(s) focused from below (top 0); «Close» loses 65 row(s) focused from below (top 0); «The name as it should ap» loses 46 row(s) focused from below (top 207)"
+    ]
+  }
+}
