@@ -138,10 +138,15 @@ for (const [w, h] of WIDTHS) {
       ? route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, valid: true }) })
       : route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "Invalid or expired promo code" }) });
   });
+  // The reply's status follows the button the page drew, as the server's would:
+  // "Request this time" holds the time (pending, "We're holding your time"),
+  // "Confirm booking" books it ("You're booked"). The demo is in request mode,
+  // so a fixed "confirmed" never walked the heading most customers here see.
+  let requestMode = false;
   await page.route(/\/functions\/v1\/create-booking/, (route) => {
     const p = route.request().postDataJSON() || {};
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, booking: {
-      id: "00000000-0000-4000-8000-000000000085", status: "confirmed", booking_date: p.booking_date || "2026-11-03",
+      id: "00000000-0000-4000-8000-000000000085", status: requestMode ? "pending" : "confirmed", booking_date: p.booking_date || "2026-11-03",
       start_time: p.start_time || "09:00", end_time: "10:00", total_price: 85, receipt_url: null } }) });
   });
 
@@ -235,8 +240,11 @@ for (const [w, h] of WIDTHS) {
 
     // 3 BOOKED
     await page.evaluate(() => { window.__focus = []; });
+    requestMode = /request/i.test(await cont.innerText());
+    const want = requestMode ? /holding/i : /booked/i;
+    console.log(`  submit button "${(await cont.innerText()).trim()}" -> reply ${requestMode ? "pending" : "confirmed"}`);
     await cont.click();
-    await page.locator("h1", { hasText: /booked|holding/i }).waitFor({ timeout: 10000 });
+    await page.locator("h1", { hasText: want }).waitFor({ timeout: 10000 });
     await settle(page, 1200);
     const f = await page.evaluate(() => ({
       active: document.activeElement && document.activeElement.tagName,
@@ -244,12 +252,34 @@ for (const [w, h] of WIDTHS) {
       history: window.__focus,
     }));
     check(`${label} booked: focus lands on the confirmation heading`,
-      f.active === "H1" && /booked|holding/i.test(f.text), `focus is on ${f.active} "${f.text.slice(0, 60)}"`);
+      f.active === "H1" && want.test(f.text), `focus is on ${f.active} "${f.text.slice(0, 60)}"`);
     completed++;
     await page.screenshot({ path: `${SHOTS}/${w}-confirmed${tag}.png` });
     artifacts.push(`${SHOTS}/${w}-confirmed${tag}.png`);
   } catch (e) {
     check(`${label} walk`, false, String(e.message).split("\n")[0]);
+  }
+  await ctx.close();
+}
+
+// BOTH CONFIRMATION BRANCHES. The walk above reaches whichever one the demo's
+// mode produces; the dev-only fixture page (ROADMAP 8.5b, ships nowhere) mounts
+// the real screen in each, so the other branch's heading is asked too.
+for (const status of ["pending", "confirmed"]) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+  if (BREAK === "strip") await ctx.addInitScript(STRIP);
+  const page = await ctx.newPage();
+  watchConsole(page, `fixture-${status}`, consoleSink);
+  const want = status === "pending" ? /holding/i : /booked/i;
+  try {
+    await page.goto(`${BASE}/fixture-confirmed.html${status === "confirmed" ? "?status=confirmed" : ""}`);
+    await page.locator("h1", { hasText: want }).waitFor({ timeout: 15000 });
+    await settle(page, 1200);
+    const f = await page.evaluate(() => ({ tag: document.activeElement?.tagName, text: (document.activeElement?.textContent || "").trim() }));
+    check(`fixture 390 ${status}: focus lands on the confirmation heading`, f.tag === "H1" && want.test(f.text),
+      `focus is on ${f.tag} "${f.text.slice(0, 60)}"`);
+  } catch (e) {
+    check(`fixture 390 ${status}`, false, String(e.message).split("\n")[0]);
   }
   await ctx.close();
 }
