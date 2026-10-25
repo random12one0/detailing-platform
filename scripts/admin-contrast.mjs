@@ -47,6 +47,15 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 
+// REFUSES BY NAME — ROADMAP 99.3b-v (2026-10-24). This script signs in through the
+// OLD back office (`form button.pa-btn`, `.pa-tab`, `.pa-*` rows), deleted by 99.3b-i.
+// Its subject still exists, in the new office's every place: Today, Detailers, Money, System.
+// Re-pointing it needs a live run with credentials, so until that is done it stops
+// here: otherwise it waits 25 seconds for a tab that no longer exists and reads as a
+// broken product.
+console.error("REFUSED: admin-contrast.mjs targets the deleted old back office (.pa-*). Re-point it at the new office's every place: Today, Detailers, Money, System first — ROADMAP 99.3b-v.");
+process.exit(2);
+
 const BASE = process.env.BASE || "http://localhost:5173";
 // A TEST ACCOUNT, BY ITS ADDRESS AND BY THE NOTE `makeAdmin` writes on its row.
 const ADMIN_EMAIL = "admin-contrast-test@detailplatform.com";  // mail-sink: a login; autoconfirm is on and no custom SMTP, so no mail
