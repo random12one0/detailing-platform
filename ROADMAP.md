@@ -21397,6 +21397,63 @@ the dashboard or back office at phone width at all.
   | **8.5d** large text and spacing | **CLOSED**, one gap stated beside the tick | nothing |
   | **8.5b** screen reader | **OPEN.** Structural half **measured and clean across all 11 public and dashboard screens**, including the confirmation screen that is not a route. Nothing here is unworked | **A person, with a screen reader on, answering whether a booking can be finished by listening.** One row in `FOR-ANDREW.md`, thirty seconds. No instrument can close it |
 
+  **UPDATE 2026-10-24 — 8.5b IS NO LONGER WAITING ON EARS; IT WAITS ON ONE
+  SIGNED-IN PIECE OF WORK, 8.5f. Read this before the table above, which is
+  stale on its last column.**
+  * **The person-with-a-screen-reader half is DONE, and had been for a
+    month.** `FOR-ANDREW.md` § "Two things only you can do, away from the
+    computer — BOTH DONE, 2026-09-24": Andrew ran a screen reader over the
+    booking page, tried to book by listening, and reported nothing wrong.
+    This entry was never told. No `NEEDS ANDREW` belongs here.
+  * **"Anything that changes without a page load is announced" — the booking
+    path's three moments are now built and proved** (FOUND.md proposal items
+    1, 2 and 4, done as it recommended). Product commit `43de5f7c`:
+    the bar's total is a polite, atomic live region (`BookingPage.jsx`); the
+    promo answer sits in an always-present polite region (`StepReview.jsx`);
+    the confirmation screen moves focus to its heading (`BookingConfirmed.jsx`,
+    the `ConfirmTap` pattern, `outline: none` because it is not a control).
+    No new words, so no Spanish keys.
+  * **Proof:** `BASE=http://127.0.0.1:5180 node scripts/booking-announces.mjs`
+    walks the real page step 1 → confirmation at 390x844, 768x1024 and
+    1440x900 with the four edge functions answered in the browser (nothing
+    written). Receipt `receipts/booking-announces.json` at `7ed8a91b`: **PASS,
+    9 of 9 moments, 10 assertions, canary 3/3** (a plain div's change must not
+    be heard; an existing polite region's must), console clean at every width
+    apart from the designed promo 404. **Pre-fix run on `8d28a880`: 9 of 9
+    moments silent.** `BREAK=strip` (the pre-fix markup rebuilt in the page)
+    → `receipts/booking-announces.sabotage.json`, **FAIL with 9 named
+    failures**. Screenshots `artifacts/booking-announces/{390,768,1440}-
+    {review,confirmed}.png` looked at: no ring on the focused heading, nothing
+    moved. **Not re-run here:** `screenreader-structure.mjs` (hard-wired to
+    `:5173` and needs credentials this copy lacks); the change adds live
+    regions and a `tabIndex` and touches no heading or landmark.
+  * **What "heard" means and does not:** what a screen reader is HANDED. Real
+    voice output was not listened to by anybody this run.
+
+  - [ ] **8.5f — the dashboard's status notice is inserted already carrying
+    `role="status"`, so a screen reader may never say it.** FOUND.md
+    proposal item 3. The record now stays open on a status change
+    (`BookingDetail.jsx` `STATUS_NOTICE`, "Marked as completed."), so the
+    sentence exists — but `BookingDetail.jsx:676` renders
+    `{notice && <div className="ok-box" role="status">…}`, a live region that
+    arrives with its own text, the case `booking-announces.mjs` counts as
+    NOT heard. **The fix:** keep the visible box without a role and add an
+    always-rendered, visually-hidden, absolutely positioned
+    `<span role="status">{notice}</span>` in `.jobbar` (absolute, so the
+    bar's flex `gap: 8px` does not grow by an empty row). Leave
+    `error && role="alert"` beside it alone: an inserted alert is the shape
+    the booking refusal line already relies on, and the heard-detector counts
+    it as heard.
+    *Why not done in this job:* proving it needs a signed-in walk of a job
+    record (demo owner credentials, `update-booking` answered in the browser),
+    and this belt copy has no `.env`. *Done when:* the same heard-detector,
+    pointed at a job record, hears "Marked as completed." at 390/768/1440 with
+    its canary caught and a `BREAK` that restores line 676 going red.
+
+  **The item stays open because 8.5f does.** Nothing in it waits on Andrew.
+  *The original lines below are kept as written and SUPERSEDED by the update
+  above — the ears were checked 2026-09-24:*
+
   **The item stays open because 8.5b does**, and 8.5b is waiting on ears
   rather than on work.
   Never checked.
