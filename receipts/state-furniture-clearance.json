@@ -1,9 +1,9 @@
 {
-  "git_sha": "bfcce0c8cb8eee7d5c96d59a8d66bb05f58a98ce",
-  "git_sha_started": "bfcce0c8cb8eee7d5c96d59a8d66bb05f58a98ce",
+  "git_sha": "f7e8317d1b9863d87ae0a72b1085716597d90e27",
+  "git_sha_started": "f7e8317d1b9863d87ae0a72b1085716597d90e27",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-25T02:18:17.119Z",
+  "finished_at": "2026-10-25T02:39:38.076Z",
   "failures": [],
   "warnings": [
     "Each control is focused from above AND from below; the worse of the two is graded. Only rows taken by the named furniture count — the bottom tab bar is tabbar-clearance.mjs's question.",
@@ -25,8 +25,14 @@
     "artifacts/state-furniture-clearance\\768x1024-livesite.png",
     "artifacts/state-furniture-clearance\\1440x900-livesite.png",
     "artifacts/state-furniture-clearance\\1920x1080-livesite.png",
+    "artifacts/state-furniture-clearance\\320x844-preview-impbar.png",
+    "artifacts/state-furniture-clearance\\390x844-preview-impbar.png",
+    "artifacts/state-furniture-clearance\\768x1024-preview-impbar.png",
+    "artifacts/state-furniture-clearance\\1440x900-preview-impbar.png",
+    "artifacts/state-furniture-clearance\\1920x1080-preview-impbar.png",
     "artifacts/state-furniture-clearance\\canary-impbar.png",
-    "artifacts/state-furniture-clearance\\canary-livesite.png"
+    "artifacts/state-furniture-clearance\\canary-livesite.png",
+    "artifacts/state-furniture-clearance\\canary-preview-impbar.png"
   ],
   "dimensions": {
     "sizes": [
@@ -39,7 +45,8 @@
     "furniture": [
       ".topbar",
       ".impbar",
-      ".livesite"
+      ".livesite",
+      ".intake > .impbar"
     ],
     "observed": [
       "320x844 topbar: 22 controls, furniture sticky 63px, top reserve 71px, worst loss 0 row(s)",
@@ -52,31 +59,37 @@
       "768x1024 impbar: 22 controls, furniture sticky 49px, top reserve 132px, worst loss 0 row(s)",
       "1440x900 impbar: 22 controls, furniture sticky 49px, top reserve 132px, worst loss 0 row(s)",
       "1920x1080 impbar: 22 controls, furniture sticky 49px, top reserve 132px, worst loss 0 row(s)",
-      "320x844 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
-      "390x844 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
-      "768x1024 livesite: 10 controls, furniture static 288px, top reserve auto, worst loss 0 row(s)",
-      "1440x900 livesite: 10 controls, furniture sticky 342px, top reserve auto, worst loss 0 row(s)",
-      "1920x1080 livesite: 10 controls, furniture sticky 342px, top reserve auto, worst loss 0 row(s)"
+      "320x844 livesite: 10 controls, furniture static 288px, top reserve 132px, worst loss 0 row(s)",
+      "390x844 livesite: 10 controls, furniture static 288px, top reserve 132px, worst loss 0 row(s)",
+      "768x1024 livesite: 10 controls, furniture static 288px, top reserve 132px, worst loss 0 row(s)",
+      "1440x900 livesite: 10 controls, furniture sticky 342px, top reserve 132px, worst loss 0 row(s)",
+      "1920x1080 livesite: 10 controls, furniture sticky 342px, top reserve 132px, worst loss 0 row(s)",
+      "320x844 preview-impbar: 11 controls, furniture sticky 56px, top reserve 132px, worst loss 0 row(s)",
+      "390x844 preview-impbar: 11 controls, furniture sticky 56px, top reserve 132px, worst loss 0 row(s)",
+      "768x1024 preview-impbar: 11 controls, furniture sticky 37px, top reserve 132px, worst loss 0 row(s)",
+      "1440x900 preview-impbar: 11 controls, furniture sticky 37px, top reserve 132px, worst loss 0 row(s)",
+      "1920x1080 preview-impbar: 11 controls, furniture sticky 37px, top reserve 132px, worst loss 0 row(s)"
     ],
     "break": null
   },
   "check_id": "state-furniture-clearance",
-  "started_at": "2026-10-25T02:17:19.076Z",
+  "started_at": "2026-10-25T02:38:09.122Z",
   "status": "pass",
-  "expected_targets": 17,
-  "discovered_targets": 17,
-  "attempted_targets": 17,
-  "completed_targets": 17,
+  "expected_targets": 23,
+  "discovered_targets": 23,
+  "attempted_targets": 23,
+  "completed_targets": 23,
   "skipped_targets": 0,
-  "assertions_executed": 51,
-  "min_assertions": 51,
-  "assertion_floor": "5 widths x 3 surfaces (topbar, impbar, livesite) x 3 questions + 2 canaries x 3. Fixed by SIZES and PLAN, never by what the run finds.",
+  "assertions_executed": 69,
+  "min_assertions": 69,
+  "assertion_floor": "5 widths x 4 surfaces (topbar, impbar, livesite, preview impbar) x 3 questions + 3 canaries x 3. Fixed by SIZES and PLAN, never by what the run finds.",
   "canary": {
-    "id": "reserve-removed+preview-pinned",
+    "id": "reserve-removed+preview-pinned+preview-strip-unreserved",
     "observed_failure": true,
     "problems": [
       "canary impbar 390 no reserve: caught reachable «Hide» loses 46 row(s) focused from below (top 0); «Vehicle types» loses 46 row(s) focused from below (top 0); «and 2 more» loses 46 row(s) focused from below (top 0) … and 13 more of 22",
-      "canary livesite 1440 pinned over the form: caught reachable «Back» loses 46 row(s) focused from below (top 0); «Close» loses 65 row(s) focused from below (top 0); «The name as it should ap» loses 46 row(s) focused from below (top 207)"
+      "canary livesite 1440 pinned over the form: caught reachable «Back» loses 46 row(s) focused from below (top 83); «Close» loses 65 row(s) focused from below (top 88); «The name as it should ap» loses 46 row(s) focused from below (top 207)",
+      "canary preview impbar 390 no reserve: caught reachable «Back» loses 47 row(s) focused from below (top 0); «Close» loses 56 row(s) focused from below (top 0); «Your site so far» loses 47 row(s) focused from below (top 0) … and 1 more of 11"
     ]
   }
 }
