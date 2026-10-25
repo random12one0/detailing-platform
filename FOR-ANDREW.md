@@ -486,15 +486,9 @@ Your jobs can now live in Apple Calendar or Google Calendar: on Notifications th
 
 ---
 
-## DECIDE · Where new test pictures are saved (ROADMAP 97.63)
+## ANSWERED · Keep existing test pictures (ROADMAP 97.63)
 
-You said keep everything, so nothing was deleted. New test pictures and email previews from 22 scripts now go into one
-tucked-away folder instead of making new folders at the top of the project. Three exceptions remain. The first is the
-folder of pictures handed to the reviewer, which the working rules name. The other two are ready-made checks that jobs
-are told not to touch. One of them saves its pictures in its own tucked-away folder. The other can still add a new
-folder at the top of the project, but only when someone asks it for pictures. Please answer two things. Is it fine for
-the reviewer pictures to keep their own separate folder? And may a job edit those two checks so their pictures move
-as well? My recommendation is yes to both. Until the second yes, the top of the project can still grow a little.
+You already chose to keep everything. Nothing was deleted and there is no new decision to make. Future check output goes under `artifacts/`; reviewer pictures keep the folder the working rules require. The remaining two check writers are builder work, recorded in ROADMAP.md.
 
 ---
 
@@ -582,6 +576,8 @@ The screen is there: Business, then **Google Business**. You can connect and dis
 **Recommendation:** leave it unpublished until 0.15 is through, so detailers are not shown a Connect button that cannot do anything yet.
 
 ## ANSWERED · Reconcile the email reviews already done (ROADMAP 3.4 and 3.4g)
+
+**Sending approved October 23 at 18:33, recorded by supervision October 25:** you authorized the test batch to ramdom12one0@gmail.com. No more permission is needed. A credentialed operator must still record delivery; this pass sent nothing. The older recommendation to drop sending below is superseded.
 
 **Clarified October 19, recorded October 21:** you reviewed many English
 recommendations in Planning and believe you approved them. Sessions must reconcile

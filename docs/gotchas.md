@@ -5648,3 +5648,23 @@ are separate under `.manager-shots/supervision-2026-10-21-held/`. Preserve the
 ordinary assertion under sabotage: confirm the edit executed, then require the
 same disclosure-presence assertion to fail. A self-check of the injection is
 separate from the product verdict.
+
+## 138. A historical citation can become an open dependency, and an answered question can keep blocking dispatch
+
+Supervision 2026-10-25, pre-supervision tree `4c9b8555`. The belt repeatedly
+reported nothing workable. ROADMAP 97.63 still carried a deletion question after
+Andrew had said to keep everything. Its example of a reviewer output path also
+said “ROADMAP 3.4's own instruction”; `referencedIds()` made that historical
+citation an actual dependency on the open email review. Appending an answer did
+not remove either cause: `analyse()` reads the complete entry.
+
+Reproduce with `node scripts/supervision-2026-10-25-queue.mjs`. It runs the
+installed belt's real parser on the roadmap at `4c9b8555` and on the working copy.
+Before: 97.63 has an owner blocker and dependency 3.4. After retiring the obsolete
+ask and naming the path example without a dependency-shaped citation: ready,
+no blocker and no dependency. 3.4g also becomes ready on its recorded send
+permission; 97.55 correctly keeps its publication and live-proof holds.
+
+Retire settled dispatch markers in place. Preserve the answer and evidence, and
+keep blockers the answer did not resolve. Do not weaken the dependency parser
+globally to repair one historical example.

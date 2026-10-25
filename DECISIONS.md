@@ -365,6 +365,7 @@ were made more than once.
 - **Supervision 2026-10-21 evening** — one landed sale fix retained; a disconnected helper is capacity, not a merge decision; backup proof remains open on two reproduced checker faults.
 - **Supervision 2026-10-22 — executable proof placement and retained closures** — verified merged retention and the earlier sale fix; clarify the test execution boundary after 98.4 was refused, preserving its safety assertions.
 - **Roadmap 97.61 — founding prices stay inline; the lookup-key module is deleted** — Andrew 2026-10-23: delete, as recommended. Supersedes the 2026-09-14 lookup-key plan, which was never wired in. Existing subscribers keep their price because Stripe does; the founding figures are pinned by `tests/landing-pricing.test.mjs` test 12.
+- **Supervision 2026-10-25 — settled answers must leave the active queue** — record the authorized email inbox; keep all old pictures; retire resolved owner asks and held-branch instructions instead of appending contradictory status.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -19305,3 +19306,12 @@ That module carried a 2026-09-14 plan to price subscriptions from Stripe lookup 
 **What stops a careless edit to the founding offer.** `tests/landing-pricing.test.mjs` test 12 pins the figures themselves — $499 setup, $40 a month, $400 a year, $50 month to month — in both `pricing.js` (what /pricing prints) and `PRICES` (what billing charges), and goes red if the deleted module or any reference to it returns under `supabase/functions` or `scripts`. Test 6 still pins the ladder's rules; test 12 is the deliberate exception that pins numbers. Each of the four checks was broken on purpose and went red (founding monthly 45 in `PRICES`, setup 599 in `pricing.js`, the file restored, an import added to `platform-billing/index.ts`).
 
 No edge function's deployed code changes: the deleted file was in no function's bundle.
+
+
+## Supervision 2026-10-25 — settled answers must leave the active queue
+
+Andrew’s three inbox messages are instructions, not questions for him to answer again. The October 23 email-test approval is recorded on ROADMAP 3.4 and 3.4g and the matching owner row. No mail was sent here: this supervisor may not handle the required credentials. The suite-baseline hold is separate and remains a gate; permission to send does not authorize bypassing it.
+
+97.55’s try-2 work is already merged; its obsolete instruction to resume the earlier held branch was misleading. Its release order and live proof remain explicit. 97.63 keeps every existing artifact, including inspiration pictures. The existing reviewer-folder rule stands, and relocating the two remaining check writers is ordinary builder work under this supervisor’s authorization. No further deletion or folder-policy decision is requested.
+
+The belt matches blocking phrases across the complete entry. Marking an old ask “superseded” while leaving the active phrase intact still blocks dispatch. Change only the brief: tell workers to retire settled blocker lines in place, preserving the decision and evidence without leaving a live dispatch marker in historical text. No picker, model, gate, cadence or risky-stop rule changes are justified by these observations.

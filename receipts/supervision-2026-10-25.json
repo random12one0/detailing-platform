@@ -1,0 +1,328 @@
+{
+  "git_sha": "4a13e3c34f53f04e55ed14b359548c2af983165c",
+  "git_sha_started": "4a13e3c34f53f04e55ed14b359548c2af983165c",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T13:40:17.748Z",
+  "failures": [],
+  "warnings": [
+    "UI and captured request payloads only. All remote requests answered in the browser; no credentials, live rows, email, paid services, schema changes or publishing. Preview tab handoff is counted; authentication inside it is outside this proof."
+  ],
+  "artifacts": [
+    ".manager-shots/supervision-2026-10-25/clean/starters-1440-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-1440-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-1440-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-1440-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-1440-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-1440-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/office-list-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/ownerless-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/owner-present-1440.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-768-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-768-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-768-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-768-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-768-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-768-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/office-list-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/ownerless-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/owner-present-768.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-390-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-390-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-390-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-390-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-390-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-390-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/office-list-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/ownerless-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/owner-present-390.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-392-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-392-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-392-en.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-392-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-refused-392-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/starters-added-392-es.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/office-list-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/ownerless-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/owner-present-392.png",
+    ".manager-shots/supervision-2026-10-25/clean/result.json",
+    ".manager-shots/supervision-2026-10-25/starters/result.json",
+    ".manager-shots/supervision-2026-10-25/bookability/result.json",
+    ".manager-shots/supervision-2026-10-25/restore/result.json",
+    ".manager-shots/supervision-2026-10-25/owner/result.json"
+  ],
+  "dimensions": {
+    "items": [
+      "97.39",
+      "99.14",
+      "99.16"
+    ],
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "392x844"
+    ],
+    "runs": {
+      "clean": {
+        "git_sha": "4a13e3c34f53f04e55ed14b359548c2af983165c",
+        "command": "node scripts/supervision-2026-10-25.mjs",
+        "scope": "Browser UI and captured payloads only. All remote requests intercepted; no credentials, server writes or email.",
+        "completed": 12,
+        "assertions": 139,
+        "failures": [],
+        "consoles": [],
+        "findings": [
+          {
+            "size": 1440,
+            "overflow": false
+          },
+          {
+            "size": 768,
+            "overflow": false
+          },
+          {
+            "size": 390,
+            "overflow": false
+          },
+          {
+            "size": 392,
+            "overflow": false
+          }
+        ],
+        "injections": [],
+        "artifacts": [
+          ".manager-shots/supervision-2026-10-25/clean/starters-1440-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-1440-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-1440-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-1440-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-1440-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-1440-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/office-list-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/ownerless-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/owner-present-1440.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-768-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-768-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-768-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-768-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-768-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-768-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/office-list-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/ownerless-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/owner-present-768.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-390-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-390-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-390-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-390-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-390-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-390-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/office-list-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/ownerless-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/owner-present-390.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-392-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-392-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-392-en.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-392-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-refused-392-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/starters-added-392-es.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Services-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/bookability-No-Open-Days-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/office-list-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Kestrel-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/restore-question-Larch-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/ownerless-392.png",
+          ".manager-shots/supervision-2026-10-25/clean/owner-present-392.png"
+        ]
+      },
+      "starters": {
+        "git_sha": "4c9b85558e8c9beb4fb4e12bb5a083341cee932e",
+        "command": "node scripts/supervision-2026-10-25.mjs --break=starters",
+        "scope": "Browser UI and captured payloads only. All remote requests intercepted; no credentials, server writes or email.",
+        "completed": 2,
+        "assertions": 28,
+        "failures": [
+          "97.39/392/en: one request with three edited prices: [{\"table\":\"services\",\"body\":[{\"business_id\":\"supervision\",\"name\":\"Exterior detail\",\"price\":120,\"duration_minutes\":120,\"is_active\":true,\"sort_order\":0,\"vehicle_size_adjustments\":{\"small\":{\"price\":0,\"duration_minutes\":0},\"medium\":{\"price\":0,\"duration_minutes\":0},\"large\":{\"price\":0,\"duration_minutes\":0}}},{\"business_id\":\"supervision\",\"name\":\"Interior detail\",\"price\":150,\"duration_minutes\":150,\"is_active\":true,\"sort_order\":1,\"vehicle_size_adjustments\":{\"small\":{\"price\":0,\"duration_minutes\":0},\"medium\":{\"price\":0,\"duration_minutes\":0},\"large\":{\"price\":0,\"duration_minutes\":0}}},{\"business_id\":\"supervision\",\"name\":\"Full detail\",\"price\":250,\"duration_minutes\":240,\"is_active\":true,\"sort_order\":2,\"vehicle_size_adjustments\":{\"small\":{\"price\":0,\"duration_minutes\":0},\"medium\":{\"price\":0,\"duration_minutes\":0},\"large\":{\"price\":0,\"duration_minutes\":0}}}]}]"
+        ],
+        "consoles": [],
+        "findings": [
+          {
+            "size": 392,
+            "overflow": false
+          }
+        ],
+        "injections": [
+          "/src/screens/more/Catalog.jsx",
+          "/src/screens/more/Catalog.jsx",
+          "/src/screens/more/Catalog.jsx",
+          "/src/screens/more/Catalog.jsx"
+        ],
+        "artifacts": [
+          ".manager-shots/supervision-2026-10-25/starters/starters-392-en.png",
+          ".manager-shots/supervision-2026-10-25/starters/starters-refused-392-en.png",
+          ".manager-shots/supervision-2026-10-25/starters/starters-added-392-en.png",
+          ".manager-shots/supervision-2026-10-25/starters/bookability-No-Services-392.png",
+          ".manager-shots/supervision-2026-10-25/starters/bookability-No-Open-Days-392.png",
+          ".manager-shots/supervision-2026-10-25/starters/office-list-392.png",
+          ".manager-shots/supervision-2026-10-25/starters/restore-question-Kestrel-392.png",
+          ".manager-shots/supervision-2026-10-25/starters/restore-question-Larch-392.png",
+          ".manager-shots/supervision-2026-10-25/starters/ownerless-392.png"
+        ]
+      },
+      "bookability": {
+        "git_sha": "4c9b85558e8c9beb4fb4e12bb5a083341cee932e",
+        "command": "node scripts/supervision-2026-10-25.mjs --break=bookability",
+        "scope": "Browser UI and captured payloads only. All remote requests intercepted; no credentials, server writes or email.",
+        "completed": 2,
+        "assertions": 28,
+        "failures": [
+          "99.14/392: No Services flagged: ",
+          "99.14/392: No Services explains missing piece: ",
+          "99.14/392: No Open Days flagged: ",
+          "99.14/392: No Open Days explains missing piece: "
+        ],
+        "consoles": [],
+        "findings": [
+          {
+            "size": 392,
+            "overflow": false
+          }
+        ],
+        "injections": [
+          "/src/lib/officeDetailers.js",
+          "/src/lib/officeDetailers.js",
+          "/src/lib/officeDetailers.js",
+          "/src/lib/officeDetailers.js"
+        ],
+        "artifacts": [
+          ".manager-shots/supervision-2026-10-25/bookability/starters-392-en.png",
+          ".manager-shots/supervision-2026-10-25/bookability/starters-refused-392-en.png",
+          ".manager-shots/supervision-2026-10-25/bookability/starters-added-392-en.png",
+          ".manager-shots/supervision-2026-10-25/bookability/bookability-No-Services-392.png",
+          ".manager-shots/supervision-2026-10-25/bookability/bookability-No-Open-Days-392.png",
+          ".manager-shots/supervision-2026-10-25/bookability/office-list-392.png",
+          ".manager-shots/supervision-2026-10-25/bookability/restore-question-Kestrel-392.png",
+          ".manager-shots/supervision-2026-10-25/bookability/restore-question-Larch-392.png",
+          ".manager-shots/supervision-2026-10-25/bookability/ownerless-392.png"
+        ]
+      },
+      "restore": {
+        "git_sha": "4c9b85558e8c9beb4fb4e12bb5a083341cee932e",
+        "command": "node scripts/supervision-2026-10-25.mjs --break=restore",
+        "scope": "Browser UI and captured payloads only. All remote requests intercepted; no credentials, server writes or email.",
+        "completed": 2,
+        "assertions": 24,
+        "failures": [
+          "99.16/392/Kestrel Auto Spa: first press makes no restore call: ",
+          "99.16/392/Kestrel Auto Spa: question names business: ",
+          "99.16/392/Larch Mobile Spa: first press makes no restore call: ",
+          "99.16/392/Larch Mobile Spa: question names business: "
+        ],
+        "consoles": [],
+        "findings": [
+          {
+            "size": 392,
+            "overflow": false
+          }
+        ],
+        "injections": [
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx"
+        ],
+        "artifacts": [
+          ".manager-shots/supervision-2026-10-25/restore/starters-392-en.png",
+          ".manager-shots/supervision-2026-10-25/restore/starters-refused-392-en.png",
+          ".manager-shots/supervision-2026-10-25/restore/starters-added-392-en.png",
+          ".manager-shots/supervision-2026-10-25/restore/bookability-No-Services-392.png",
+          ".manager-shots/supervision-2026-10-25/restore/bookability-No-Open-Days-392.png",
+          ".manager-shots/supervision-2026-10-25/restore/office-list-392.png",
+          ".manager-shots/supervision-2026-10-25/restore/restore-question-Kestrel-392.png",
+          ".manager-shots/supervision-2026-10-25/restore/restore-question-Larch-392.png",
+          ".manager-shots/supervision-2026-10-25/restore/ownerless-392.png"
+        ]
+      },
+      "owner": {
+        "git_sha": "4a13e3c34f53f04e55ed14b359548c2af983165c",
+        "command": "node scripts/supervision-2026-10-25.mjs --break=owner",
+        "scope": "Browser UI and captured payloads only. All remote requests intercepted; no credentials, server writes or email.",
+        "completed": 2,
+        "assertions": 30,
+        "failures": [
+          "99.16/392: ownerless Look disabled: ",
+          "99.16/392: reason written: ",
+          "99.16/392: forced press sends no impersonate: "
+        ],
+        "consoles": [],
+        "findings": [
+          {
+            "size": 392,
+            "overflow": false
+          }
+        ],
+        "injections": [
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx",
+          "/src/admin/office/DetailerPanel.jsx"
+        ],
+        "artifacts": [
+          ".manager-shots/supervision-2026-10-25/owner/starters-392-en.png",
+          ".manager-shots/supervision-2026-10-25/owner/starters-refused-392-en.png",
+          ".manager-shots/supervision-2026-10-25/owner/starters-added-392-en.png",
+          ".manager-shots/supervision-2026-10-25/owner/bookability-No-Services-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/bookability-No-Open-Days-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/office-list-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/restore-question-Kestrel-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/restore-question-Larch-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/ownerless-392.png",
+          ".manager-shots/supervision-2026-10-25/owner/owner-present-392.png"
+        ]
+      }
+    }
+  },
+  "check_id": "supervision-2026-10-25",
+  "started_at": "2026-10-25T13:40:17.677Z",
+  "status": "pass",
+  "expected_targets": 12,
+  "discovered_targets": 12,
+  "attempted_targets": 12,
+  "completed_targets": 12,
+  "skipped_targets": 0,
+  "assertions_executed": 139,
+  "min_assertions": 139,
+  "assertion_floor": "Fixed by this independent browser walk: 12 primary width/language scenes plus the existing-service control and run-level checks execute 139 assertions. The nested clean run carries its source revision.",
+  "canary": {
+    "id": "four mutations of served production modules",
+    "observed_failure": true,
+    "detail": "Edited price, missing booking warning, first-press Restore and ownerless dashboard access each cause the ordinary named assertion to fail."
+  }
+}
