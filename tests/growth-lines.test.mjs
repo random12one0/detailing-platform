@@ -4,7 +4,8 @@
 //
 // Credential-free, no browser, no database. Runs app/src/lib/growthLines.js and
 // the `bookability()` in app/src/lib/adminInsight.js, and reads
-// app/src/admin/AdminPage.jsx as text for the one thing only the screen can say.
+// runs the back office's issueOf (lib/officeDetailers.js) for § 6; the
+// AdminPage.jsx that drew the five lines was deleted by ROADMAP 99.3b-i.
 //
 // ANDREW'S RULING, 2026-10-06: keep the five questions, fix the three faults
 // inside them, do not build the stages (docs/9-2c-stages-proposal-2026-10-06.md).
@@ -19,7 +20,7 @@
 // BREAK IT ON PURPOSE: § 7 rebuilds the two modules with ONE fix put back at a
 // time and asserts the matching check then reports the fault.
 
-import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -29,12 +30,13 @@ import assert from "node:assert/strict";
 import { STUCK, growthLines, signedUpNote } from "../app/src/lib/growthLines.js";
 import { bookability } from "../app/src/lib/adminInsight.js";
 import { SETUP_FLOOR } from "../app/src/lib/attention.js";
+import { issueOf } from "../app/src/lib/officeDetailers.js";
 
 const NOW = new Date("2026-10-06T12:00:00Z");
 const daysAgo = (n) => new Date(NOW.getTime() - n * 86_400_000).toISOString();
 
-// What the screen hands growthLines: the same shape `bookabilityOf` in
-// AdminPage.jsx builds (§ 6 reads the screen to confirm it still does).
+// What the old screen handed growthLines (the `bookabilityOf` the deleted
+// AdminPage.jsx built; 99.3b-i).
 const bookabilityOf = (r) => bookability({
   counts: r?.setup_inputs?.counts,
   business: { status: r?.status },
@@ -147,14 +149,48 @@ test("5 · THE DECISION STANDS: a name can be on two lines, each question asked 
   assert.deepEqual(STUCK.map((s) => s[0]), ["setup", "open", "first", "quiet", "site"]);
 });
 
-test("6 · the screen: no second copy of the questions, headlines for every key, notes drawn, bookabilityOf handed in", () => {
-  const page = readFileSync("app/src/admin/AdminPage.jsx", "utf8").replace(/\r\n/g, "\n")
-    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  assert.ok(!/const STUCK\b/.test(page), "the questions live in lib/growthLines.js and nowhere else");
-  assert.match(page, /growthLines\(live, \{ bookabilityOf, now: new Date\(\) \}\)/);
-  for (const [key] of STUCK) assert.match(page, new RegExp(`\\b${key}: \\(n\\) =>`), `a headline for "${key}"`);
-  assert.match(page, /f\.note \? `\$\{f\.name\} \(\$\{f\.note\}\)` : f\.name/, "the note is drawn beside the name");
-  assert.match(page, /const bookabilityOf[\s\S]{0,260}status[\s\S]{0,120}booking_mode/, "the helper still names both fields it reads");
+// RE-HOMED 2026-10-24 (ROADMAP 99.3b-ii). The screen § 6 read, AdminPage.jsx,
+// was deleted by 99.3b-i, and the new back office (approved mockup) draws no
+// growth lines: who needs Andrew is Today's "Needs you" and Detailers' list,
+// both decided by lib/officeDetailers.js `issueOf`. So § 6 no longer reads
+// headlines off a screen; it RUNS issueOf on one account stuck on each of the
+// five questions and requires the office to name it. "open" (a customer who
+// tries to book gets nowhere) had no home in the office until ROADMAP 99.14
+// gave issueOf the bookability reason; 6b holds it, and fails on the office
+// code before that fix.
+const stuckOn = {
+  setup: row({ setup_inputs: { counts: { services: 0, hoursRows: [] }, branding: {}, settings: {}, business: { contact_phone: "555" } } }),
+  open: row({ setup_inputs: withCounts({ services: 0 }) }),
+  first: row({ bookings_total: 0, days_since_booking: null }),
+  quiet: row({ days_since_booking: 60 }),
+  site: row({ site_url: null }),
+};
+
+test("6 · the office keeps no second copy of the questions, and names who is stuck", () => {
+  const files = [
+    ...readdirSync("app/src/admin/office", { recursive: true }).filter((p) => /\.jsx?$/.test(p)).map((p) => path.join("app/src/admin/office", String(p))),
+    ...readdirSync("app/src/lib").filter((p) => /^office.*\.js$/.test(p)).map((p) => path.join("app/src/lib", p)),
+  ];
+  const page = files.map((f) => readFileSync(f, "utf8")).join("\n").replace(/\r\n/g, "\n");
+  assert.ok(files.length >= 20 && page.includes("export default function OfficePage"), `office source found (${files.length} files)`);
+  const code = page.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.ok(!/const STUCK\b/.test(code), "the questions live in lib/growthLines.js and nowhere else");
+  // Control: a healthy account is on no line and the office leaves it alone.
+  assert.deepEqual(growthLines([row()], ctx), []);
+  assert.equal(issueOf(row()), null, "a healthy account needs nobody");
+  for (const key of ["setup", "first", "quiet", "site"]) {
+    assert.ok(namesOn([stuckOn[key]], key).length === 1, `the fixture for "${key}" is on its own line`);
+    assert.equal(issueOf(stuckOn[key])?.needsYou, true, `the office names an account stuck on "${key}"`);
+  }
+});
+
+test("6b · the office names an account a customer cannot book (ROADMAP 99.14)", () => {
+  assert.deepEqual(namesOn([stuckOn.open], "open"), ["Healthy Detail"]);
+  assert.equal(issueOf(stuckOn.open)?.needsYou, true, "the office names an account stuck on \"open\"");
+  assert.equal(issueOf(stuckOn.open).kicker, "Can't take bookings");
+  assert.match(issueOf(stuckOn.open).text, /^No active services\. A customer who tries to book gets nowhere\. Ring them/, issueOf(stuckOn.open).text);
+  // Control: "open days not read" (a row that did not say) is not a fault.
+  assert.equal(issueOf(row({ setup_inputs: withCounts({ hoursRows: undefined }) })), null);
 });
 
 // ---------------------------------------------------------------- sabotage

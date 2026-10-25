@@ -1,9 +1,9 @@
 {
-  "git_sha": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
-  "git_sha_started": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
+  "git_sha": "1bee5eb09e76a0b7d81899305a6b6903607db343",
+  "git_sha_started": "1bee5eb09e76a0b7d81899305a6b6903607db343",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T17:49:05.231Z",
+  "finished_at": "2026-10-25T05:14:17.876Z",
   "failures": [],
   "warnings": [
     "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
@@ -14,19 +14,34 @@
     "artifacts/office-move/door-refused-1440.png",
     "artifacts/office-move/rail-1440.png",
     "artifacts/office-move/dead-1440.png",
+    "artifacts/office-move/nonadmin-1440.png",
+    "artifacts/office-move/door-768.png",
+    "artifacts/office-move/door-refused-768.png",
+    "artifacts/office-move/rail-768.png",
+    "artifacts/office-move/dead-768.png",
+    "artifacts/office-move/nonadmin-768.png",
     "artifacts/office-move/door-392.png",
     "artifacts/office-move/door-refused-392.png",
     "artifacts/office-move/rail-392.png",
     "artifacts/office-move/dead-392.png",
+    "artifacts/office-move/nonadmin-392.png",
+    "artifacts/office-move/door-390.png",
+    "artifacts/office-move/door-refused-390.png",
+    "artifacts/office-move/rail-390.png",
+    "artifacts/office-move/dead-390.png",
+    "artifacts/office-move/nonadmin-390.png",
     "artifacts/office-move/door-320.png",
     "artifacts/office-move/door-refused-320.png",
     "artifacts/office-move/rail-320.png",
-    "artifacts/office-move/dead-320.png"
+    "artifacts/office-move/dead-320.png",
+    "artifacts/office-move/nonadmin-320.png"
   ],
   "dimensions": {
     "sizes": [
       "1440x900",
+      "768x1024",
       "392x844",
+      "390x844",
       "320x700"
     ],
     "lite": false,
@@ -35,7 +50,15 @@
         "anonConsole": 2,
         "calls": "whoami+list via route"
       },
+      "390": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
       "392": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "768": {
         "anonConsole": 2,
         "calls": "whoami+list via route"
       },
@@ -46,16 +69,16 @@
     }
   },
   "check_id": "office-move",
-  "started_at": "2026-10-12T17:48:48.260Z",
+  "started_at": "2026-10-25T05:13:39.340Z",
   "status": "pass",
-  "expected_targets": 3,
-  "discovered_targets": 3,
-  "attempted_targets": 3,
-  "completed_targets": 3,
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
   "skipped_targets": 0,
-  "assertions_executed": 48,
-  "min_assertions": 48,
-  "assertion_floor": "3 widths x 16 questions (door 6, refusal 3, rail 4, dead address 2, console 1), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  "assertions_executed": 110,
+  "min_assertions": 110,
+  "assertion_floor": "5 widths x 22 questions (door 6, refusal 3, rail 7, dead address 2, console 1, non-admin 3), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
   "canary": {
     "id": "injected-overlapping-door-button",
     "observed_failure": true,

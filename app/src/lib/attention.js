@@ -103,6 +103,11 @@ const WHAT_TO_DO = [
   [/canceling/,
     "They have asked to stop at the end of the term. Ring them and ask what went wrong.",
     "They have asked to stop at the end of the term. Email them and ask what went wrong."],
+  // ROADMAP 99.14: only the back office's issueOf gives this reason (from
+  // bookability); reasonsFor never does, so needsALook is unchanged.
+  [/cannot take a booking/,
+    "A customer who tries to book gets nowhere. Ring them and fix it together.",
+    "A customer who tries to book gets nowhere. Email them and offer to fix it together."],
   [/never taken a booking/,
     "They signed up and never got going. Ring them and walk them through setup.",
     "They signed up and never got going. Email them and offer to walk them through setup."],

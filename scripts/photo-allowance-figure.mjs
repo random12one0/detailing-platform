@@ -38,6 +38,15 @@ import { watchConsole } from "./lib/bookingWalk.mjs";
 import { mb } from "../app/src/lib/photo-rules.js";
 import "../tests/_env.mjs";
 
+// REFUSES BY NAME — ROADMAP 99.3b-v (2026-10-24). This script signs in through the
+// OLD back office (`form button.pa-btn`, `.pa-tab`, `.pa-*` rows), deleted by 99.3b-i.
+// Its subject still exists, in the new office's System (the photo storage gauge).
+// Re-pointing it needs a live run with credentials, so until that is done it stops
+// here: otherwise it waits 25 seconds for a tab that no longer exists and reads as a
+// broken product.
+console.error("REFUSED: photo-allowance-figure.mjs targets the deleted old back office (.pa-*). Re-point it at the new office's System (the photo storage gauge) first — ROADMAP 99.3b-v.");
+process.exit(2);
+
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 const started_at = new Date().toISOString();
 const BREAK = (process.argv.find((a) => a.startsWith("--break=")) || "").split("=")[1] || process.env.BREAK || "";

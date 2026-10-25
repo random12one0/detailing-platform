@@ -1,19 +1,30 @@
 {
-  "git_sha": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
-  "git_sha_started": "201546cc7ddf42213b7483ba4c80e02aec0a9383",
+  "git_sha": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
+  "git_sha_started": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
   "head_moved": false,
   "environment": "local",
-  "finished_at": "2026-10-12T17:49:38.808Z",
+  "finished_at": "2026-10-25T04:51:41.537Z",
   "failures": [
     "1440: unsigned: no old five-tab markup (.pa-top) is served",
     "1440: signed in: no old five-tab markup (.pa-top) is served",
     "1440: dead address: no rail, no door, no old markup there 1 leftover",
+    "1440: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "768: unsigned: no old five-tab markup (.pa-top) is served",
+    "768: signed in: no old five-tab markup (.pa-top) is served",
+    "768: dead address: no rail, no door, no old markup there 1 leftover",
+    "768: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
     "392: unsigned: no old five-tab markup (.pa-top) is served",
     "392: signed in: no old five-tab markup (.pa-top) is served",
     "392: dead address: no rail, no door, no old markup there 1 leftover",
+    "392: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "390: unsigned: no old five-tab markup (.pa-top) is served",
+    "390: signed in: no old five-tab markup (.pa-top) is served",
+    "390: dead address: no rail, no door, no old markup there 1 leftover",
+    "390: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
     "320: unsigned: no old five-tab markup (.pa-top) is served",
     "320: signed in: no old five-tab markup (.pa-top) is served",
-    "320: dead address: no rail, no door, no old markup there 1 leftover"
+    "320: dead address: no rail, no door, no old markup there 1 leftover",
+    "320: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover"
   ],
   "warnings": [
     "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
@@ -25,19 +36,34 @@
     "artifacts/office-move/door-refused-1440.png",
     "artifacts/office-move/rail-1440.png",
     "artifacts/office-move/dead-1440.png",
+    "artifacts/office-move/nonadmin-1440.png",
+    "artifacts/office-move/door-768.png",
+    "artifacts/office-move/door-refused-768.png",
+    "artifacts/office-move/rail-768.png",
+    "artifacts/office-move/dead-768.png",
+    "artifacts/office-move/nonadmin-768.png",
     "artifacts/office-move/door-392.png",
     "artifacts/office-move/door-refused-392.png",
     "artifacts/office-move/rail-392.png",
     "artifacts/office-move/dead-392.png",
+    "artifacts/office-move/nonadmin-392.png",
+    "artifacts/office-move/door-390.png",
+    "artifacts/office-move/door-refused-390.png",
+    "artifacts/office-move/rail-390.png",
+    "artifacts/office-move/dead-390.png",
+    "artifacts/office-move/nonadmin-390.png",
     "artifacts/office-move/door-320.png",
     "artifacts/office-move/door-refused-320.png",
     "artifacts/office-move/rail-320.png",
-    "artifacts/office-move/dead-320.png"
+    "artifacts/office-move/dead-320.png",
+    "artifacts/office-move/nonadmin-320.png"
   ],
   "dimensions": {
     "sizes": [
       "1440x900",
+      "768x1024",
       "392x844",
+      "390x844",
       "320x700"
     ],
     "lite": false,
@@ -47,7 +73,15 @@
         "anonConsole": 2,
         "calls": "whoami+list via route"
       },
+      "390": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
       "392": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "768": {
         "anonConsole": 2,
         "calls": "whoami+list via route"
       },
@@ -58,16 +92,16 @@
     }
   },
   "check_id": "office-move",
-  "started_at": "2026-10-12T17:49:22.598Z",
+  "started_at": "2026-10-25T04:51:00.602Z",
   "status": "fail",
-  "expected_targets": 3,
-  "discovered_targets": 3,
-  "attempted_targets": 3,
-  "completed_targets": 3,
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
   "skipped_targets": 0,
-  "assertions_executed": 48,
-  "min_assertions": 48,
-  "assertion_floor": "3 widths x 16 questions (door 6, refusal 3, rail 4, dead address 2, console 1), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  "assertions_executed": 110,
+  "min_assertions": 110,
+  "assertion_floor": "5 widths x 22 questions (door 6, refusal 3, rail 7, dead address 2, console 1, non-admin 3), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
   "canary": {
     "id": "injected-overlapping-door-button",
     "observed_failure": true,

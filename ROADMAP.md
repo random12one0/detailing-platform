@@ -31606,6 +31606,77 @@ explicitly warns against — git history is the archive. Revisit at step 7.
       the other four scripts; full caller re-grep at that revision.
     - [ ] 99.3b-iv — FULL browser proof (money tag): owner `/admin`, staff `/admin` 404, `/admin/office` 404, gear both roles
       with console read at 1440 + 392, sabotage receipts, freeze before/after + `belt/shots/99.3/where.json`, Andrew look.
+      **ATTEMPT 2, 2026-10-24 (belt try 2, started from main; the held branch `belt/99.3-20261025041116240` kept).**
+      Kept from the held attempt: step 8 (`OfficePage.jsx`/`office.css`: name + Sign out at the top under 860px, and
+      Sign out now reloads into the door — it used to end the session and leave the office drawn) and
+      `scripts/office-move.mjs`. Receipts at `3cfcc530`: `node scripts/office-move.mjs` **PASS 5 of 5 widths**
+      (1440, 768, 392, 390, 320), 110 assertions, 0 failed, canary caught; `--lite` the same; `--break=old-screen`
+      **20 failed**, `--break=no-signout` **12 failed**, each in its own receipt
+      (`receipts/office-move.sabotage-old-screen.json`, `...-no-signout.json`) with its own ignored artifacts folder.
+      The browser half uses a made-up session answered by page.route(), so it proves the screens, not the server.
+      NOT done this time, on purpose: `scripts/admin-preconditions.mjs` is NOT deleted (deleting it made its receipts
+      unreadable and is why the belt dropped attempt 1); its retirement stays R13, awaiting Andrew's answer to the
+      amendment below. Tests re-homed (`cab7ea7e`), each run alone: admin-insight 1/0, admin-preconditions 9/0,
+      growth-lines **8 passed, 0 failed, 1 todo** (SUPERSEDED the same day: the todo was hiding a lost behavior, so 99.14
+      was built instead; now 9/0, see the review answer below) — § 6 now RUNS the office's `issueOf` on one account stuck on each
+      of the five old questions instead of reading the deleted screen; four are named, "cannot take a booking" is
+      NOT (filed as **ROADMAP 99.14**, held as a named todo, never dropped); removing the no-website reason turned
+      it red (7/1). platform-billing: section 19's re-pin passes, and the file now RUNS to the end for the first
+      time since 99.3b-i — **343 passed, 1 failed**; the one red is an email subject check unrelated to this item
+      that the crash had hidden, filed as **ROADMAP 99.15**.
+      **CORRECTION to attempt 1's sentence "the other scripts in the triage list name `AdminPage` only in history
+      comments": that was wrong.** Seven scripts still signed in through the deleted screen (`form button.pa-btn`,
+      `.pa-tab`, `.pa-*` rows): `email-list-admin`, `health-line-honest`, `admin-contrast`, `shoot-admin`,
+      `restore-date-visible`, `photo-allowance-figure`, `live-setup-counts`. Each now refuses by name with exit 2
+      (`ba6c270f`) rather than timing out as a product fault. They are NOT re-pointed, so R7 is NOT met.
+      `scripts/sweep-tap-targets.mjs` (a ready-made check this job may not edit) still carries an admin canary on
+      `.pa-tab`; also part of b-v.
+      AMENDMENT PROPOSED (unchanged from attempt 1): R13 — retire `admin-preconditions.mjs` only; keep
+      `admin-furniture-clearance.mjs`, which 9.11e (`13262063`) retargeted at the new office.
+      **BELT TEST-READ ANSWERED, 2026-10-24.** This item's product change is step 8 only (`OfficePage.jsx`,
+      `office.css`: Sign out on screen at phone width, and pressing it signs out). The three re-homed tests do not
+      test step 8; they crashed on main because they read `AdminPage.jsx`, which 99.3b-i deleted, so their fix IS
+      in the test, and passing on main's product code is correct:
+      `node --test tests/admin-insight.test.mjs passed with your 10 product change(s) put back to main` — and its
+      10g is a lint-style guard on purpose (its subject is the absence of a raw `bookability(` call in the office
+      source; 10a-10f run `bookability` itself).
+      `node --test tests/admin-preconditions.test.mjs passed with your 10 product change(s) put back to main` — it
+      imports and RUNS `contactOf`/`issueOf`/`sortRows` from `lib/officeDetailers.js` with must-work and
+      must-refuse rows.
+      `node --test tests/growth-lines.test.mjs passed with your 10 product change(s) put back to main` — § 6 imports
+      and RUNS `issueOf` on one account stuck on each question; removing the no-website reason reddened it (7/1).
+      **Step 8 itself is proved by `belt-checks/request.json`**, played with the belt's own `parseRequest` and
+      `runStep` as the demo owner on this copy's demo back end: flow "back office Sign out is on screen and signs
+      out" **PASS at 390x844, 1440x900 and 320x700** on this code, and **FAIL at all three on main's two files**
+      (390 and 320: no visible Sign out; 1440: pressed, but the door never comes back). The `/admin/office` flow
+      ("That page does not exist.", no rail) passes on both, as it should: it proves R3, not the fix.
+      **SEPARATE REVIEW ANSWERED, 2026-10-24.** (1) `admin-contrast.mjs`'s refusal had been placed ABOVE
+      `--drop-leftover`, so the one command that removes a leftover throwaway platform admin refused too: moved below it
+      (`e650d7e0`); `node --test tests/admin-contrast-teardown.test.mjs` **8 passed, 0 failed**, and **6/2** (subtests 1
+      and 2 red) with the refusal back above it. The other six scripts have no cleanup switch, so their refusal blocks
+      nothing. (2) The growth-lines todo is gone because ROADMAP 99.14 is BUILT (`1bee5eb0`): see that item. (3) The
+      live-run lines below now carry one command per script. (4) The old-to-new action inventory is
+      `docs/99-3-old-to-new-inventory.md` (written from both screens' source at `52ccb399`, two rows moved at
+      `1bee5eb0`; no browser): **85 old controls — 38 MOVED, 31 CHANGED, 16 MISSING** (15 separate items; one appears
+      on two tabs). The old screen sent 14 `platform-admin` actions and the office sends 13: `build_start` ("Tell
+      them work has started") has no sender. The 15 missing items need Andrew's approved removal or a rebuild, item by
+      item; FOR-ANDREW.md row "Fifteen old back-office pieces" asks it. Two CHANGED rows look like lost safeguards and
+      are filed as ROADMAP 99.16.
+      `belt-checks/request.json` flows re-played after 99.14 are unaffected (no change to OfficePage/office.css);
+      `node scripts/office-move.mjs` re-run at `1bee5eb0`: **PASS 5 of 5 widths, 110/0**, `--lite` the same
+      (sabotage receipts stay at `3cfcc530`, where both breaks were caught: 20 and 12 red).
+    - [ ] 99.3b-v — re-point the seven refusing scripts above (and sweep-tap-targets' `.pa-tab` canary) at the new
+      office's places, then remove each refusal. Each signs in with `scripts/admin-account.mjs`, which needs the
+      `.env` credentials a belt job copy does not have, so each is run once from the main copy, dev server up, AFTER
+      its re-point (today every one of them exits 2 with "REFUSED: ... ROADMAP 99.3b-v"):
+      LIVE RUN NEEDED: `node --env-file=.env scripts/email-list-admin.mjs` — System's mail list tells arrived, on its way and bounced apart, and a failed read never looks like an empty list.
+      LIVE RUN NEEDED: `node --env-file=.env scripts/health-line-honest.mjs` — System's health line tells "checked recently, all fine" from "nobody has heard anything" without color, at every width.
+      LIVE RUN NEEDED: `node --env-file=.env scripts/admin-contrast.mjs` — the office's text keeps its contrast over its own gradient ground; its throwaway admin is dropped on every exit (`--drop-leftover` already works and is held by `tests/admin-contrast-teardown.test.mjs`, 8/0).
+      LIVE RUN NEEDED: `node --env-file=.env scripts/shoot-admin.mjs` and `--lite` — screenshots of every office place at the design widths, for the human look.
+      LIVE RUN NEEDED: `node --env-file=.env scripts/restore-date-visible.mjs` and `--break=strip` — the last proved restore date is shown on System, and the screen refuses to print one it was not given.
+      LIVE RUN NEEDED: `node --env-file=.env scripts/photo-allowance-figure.mjs` and `--break=drift` — the photo allowance System prints is the database's figure, and no page promises unlimited photos.
+      LIVE RUN NEEDED: `node --env-file=.env scripts/live-setup-counts.mjs` and `--break=count` — a detailer's setup count on the Detailers row and side sheet matches the dashboard's, and a signed-out visitor gets no rows.
+      Plus `node scripts/sweep-tap-targets.mjs` once its admin canary names an office control instead of `.pa-tab`.
   **Recheck validation at `3cf8c68e` (documentation only):**
   `node --test tests/composition.test.mjs tests/design-contrast.test.mjs tests/landing-pricing.test.mjs tests/route-contract.test.mjs tests/no-credentials-in-tracked-text.test.mjs tests/every-open-item-is-citable.test.mjs`
   passed. `CITABLE_CANARY=1` caught the planted unnumbered item; the credential scan's direct `--break=md-only` run
@@ -31686,6 +31757,41 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   HELD, ALREADY RULED (Andrew decided 2026-10-13, ruling two lines down; nothing to ask him): the belt held this job's work instead of merging it — Review, merge and re-test stopped: The previous attempt's branch belt/99.9-20261013130814 could not be merged onto current main. Starting from main; its work remains on that branch. Commits left out: eda741a5 99.9 ticked: handler-level test added, sabotage caught; bc2c526a 99.9 handler-level phone test: real create-booking handler refuses 4 short phones with 400, books 2 full ones..
   The work is safe on branch `belt/99.9-20261013130814`. The next attempt resumes from it and follows the ruling below.
   ANDREW RULED 2026-10-13 (control room; supervision 2026-10-15 wrote it here): finish the live booking check, then merge it. Resume from branch `belt/99.9-20261013130814`; the handler-level test the UNTICKED note below asks for is the missing piece.
+
+- [x] **99.14 — The new back office never says a detailer's booking page cannot take a booking.**
+  **DONE 2026-10-24 by 99.3's review answer (`1bee5eb0`).** `issueOf` (lib/officeDetailers.js) now asks
+  `bookability` through one helper, `bookabilityOf(r)`, that hands in `status` and `booking_mode`; a blocked page gets
+  the kicker "Can't take bookings" and its missing piece before the advice ("No active services. A customer who tries
+  to book gets nowhere. Ring them and fix it together.", or the email version with no phone). "open days not read" and a
+  suspension are not counted. **Proved:** `node --test tests/growth-lines.test.mjs` 9/0 (6b: the account is named, the
+  label and sentence, and a row whose open days were not read stays clear) and `node tests/admin-insight.test.mjs`
+  66/0 (10g exactly one raw call, 10h the helper names both fields); **on main's two product files 6b, 10g and 10h are
+  red** (8/1 and 64/2). admin-preconditions 9/0, office-detailers 11/0, office-today 6/0, attention 1/0 unchanged.
+  Browser, signed in as the demo owner with ONE fed list row (page.route, no database write; the demo back end lists
+  no detailers): the row shows "Can't take bookings" with the sentence on Today's "Needs you" and Detailers' "Main
+  issue" at 390x844 and 1440x900, console silent at both; screenshots looked at. Found by 99.3
+  attempt 2 (2026-10-24) re-homing `tests/growth-lines.test.mjs` § 6. The old screen's line for this read *"A customer
+  who tries to book gets nowhere ... This is the most expensive thing on the page."* The new office decides "Needs
+  you" with `issueOf` in `app/src/lib/officeDetailers.js`, which reads `reasonsFor` in `lib/attention.js`, and
+  neither asks `bookability()`: an active account with no services is named by nothing. Measured by running both
+  on the same row: the old `growthLines` puts it on "open", `issueOf` returns null. Fix: give `issueOf` the
+  bookability reason (with the missing piece beside the name, as the old line did) and a kicker; the todo
+  `6b` in growth-lines then passes and its `todo` flag comes off. No decision needed: 9.2's five questions are
+  Andrew's ruling of 2026-10-06 and the new office was meant to keep them.
+
+- [ ] **99.16 — Two safeguards the old back office had and the new one dropped (found by 99.3's inventory).**
+  `docs/99-3-old-to-new-inventory.md` rows "Restore" and "Look at their dashboard". (a) The old Restore asked "Let X
+  back in?" before reopening a suspended account; `office/DetailerPanel.jsx:146-151` sends `restore` on one press.
+  (b) The old "Look at their dashboard" was switched off when nobody had accepted the owner invite
+  (`detail.members`); the office's `look()` (`DetailerPanel.jsx:155-173`) offers it always. Read from source only,
+  not yet seen in a browser. Fix both the way the old screen did (a question before Restore; the button off, with
+  the reason, when there is no owner), unless Andrew's answer on the inventory row says otherwise.
+
+- [ ] **99.15 — `tests/platform-billing.test.mjs` check "the business is named in the subject, not in the
+  furniture" is red.** Hidden until 2026-10-24: the file crashed reading the deleted `AdminPage.jsx` before it
+  got there, and 99.3 attempt 2's re-pin let it run to the end (343 passed, 1 failed). The failing subject is
+  *"Ridgeline Auto Detail's booking page is offline"* against a rule that the late-payment subject END with the
+  business name. Not caused by 99.3. Find whether the email wording or the check moved, and fix the one that is wrong.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
   NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.

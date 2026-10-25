@@ -1,0 +1,102 @@
+{
+  "git_sha": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
+  "git_sha_started": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T04:50:41.037Z",
+  "failures": [
+    "768: signed in: a Sign out button sits beside the name 0 visible",
+    "768: signed in: a tap on Sign out lands on it",
+    "768: signed in: pressing Sign out signs out (the door is back)",
+    "392: signed in: a Sign out button sits beside the name 0 visible",
+    "392: signed in: a tap on Sign out lands on it",
+    "392: signed in: pressing Sign out signs out (the door is back)",
+    "390: signed in: a Sign out button sits beside the name 0 visible",
+    "390: signed in: a tap on Sign out lands on it",
+    "390: signed in: pressing Sign out signs out (the door is back)",
+    "320: signed in: a Sign out button sits beside the name 0 visible",
+    "320: signed in: a tap on Sign out lands on it",
+    "320: signed in: pressing Sign out signs out (the door is back)"
+  ],
+  "warnings": [
+    "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that.",
+    "run with --break=no-signout; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-move-sabotage-no-signout/door-1440.png",
+    "artifacts/office-move-sabotage-no-signout/door-refused-1440.png",
+    "artifacts/office-move-sabotage-no-signout/rail-1440.png",
+    "artifacts/office-move-sabotage-no-signout/dead-1440.png",
+    "artifacts/office-move-sabotage-no-signout/nonadmin-1440.png",
+    "artifacts/office-move-sabotage-no-signout/door-768.png",
+    "artifacts/office-move-sabotage-no-signout/door-refused-768.png",
+    "artifacts/office-move-sabotage-no-signout/rail-768.png",
+    "artifacts/office-move-sabotage-no-signout/dead-768.png",
+    "artifacts/office-move-sabotage-no-signout/nonadmin-768.png",
+    "artifacts/office-move-sabotage-no-signout/door-392.png",
+    "artifacts/office-move-sabotage-no-signout/door-refused-392.png",
+    "artifacts/office-move-sabotage-no-signout/rail-392.png",
+    "artifacts/office-move-sabotage-no-signout/dead-392.png",
+    "artifacts/office-move-sabotage-no-signout/nonadmin-392.png",
+    "artifacts/office-move-sabotage-no-signout/door-390.png",
+    "artifacts/office-move-sabotage-no-signout/door-refused-390.png",
+    "artifacts/office-move-sabotage-no-signout/rail-390.png",
+    "artifacts/office-move-sabotage-no-signout/dead-390.png",
+    "artifacts/office-move-sabotage-no-signout/nonadmin-390.png",
+    "artifacts/office-move-sabotage-no-signout/door-320.png",
+    "artifacts/office-move-sabotage-no-signout/door-refused-320.png",
+    "artifacts/office-move-sabotage-no-signout/rail-320.png",
+    "artifacts/office-move-sabotage-no-signout/dead-320.png",
+    "artifacts/office-move-sabotage-no-signout/nonadmin-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "390x844",
+      "320x700"
+    ],
+    "lite": false,
+    "break": "no-signout",
+    "observed": {
+      "320": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "390": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "392": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "768": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "1440": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      }
+    }
+  },
+  "check_id": "office-move",
+  "started_at": "2026-10-25T04:48:53.096Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 110,
+  "min_assertions": 110,
+  "assertion_floor": "5 widths x 22 questions (door 6, refusal 3, rail 7, dead address 2, console 1, non-admin 3), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  "canary": {
+    "id": "injected-overlapping-door-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}

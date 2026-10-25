@@ -71,6 +71,15 @@ import { join } from "node:path";
 import { REPO, writeReceipt } from "./receipt.mjs";
 import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 
+// REFUSES BY NAME — ROADMAP 99.3b-v (2026-10-24). This script signs in through the
+// OLD back office (`form button.pa-btn`, `.pa-tab`, `.pa-*` rows), deleted by 99.3b-i.
+// Its subject still exists, in the new office's System (the mail list, office/places/system/Mail.jsx).
+// Re-pointing it needs a live run with credentials, so until that is done it stops
+// here: otherwise it waits 25 seconds for a tab that no longer exists and reads as a
+// broken product.
+console.error("REFUSED: email-list-admin.mjs targets the deleted old back office (.pa-*). Re-point it at the new office's System (the mail list, office/places/system/Mail.jsx) first — ROADMAP 99.3b-v.");
+process.exit(2);
+
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE_URL || process.env.BASE || "http://localhost:5173";

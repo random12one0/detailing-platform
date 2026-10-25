@@ -1280,7 +1280,10 @@ console.log("\n19. the owner's own prices");
     admin.includes("const parsed = pricesFrom(body.prices, SENTINEL);"));
   check("and clearing it back to the files is a real button",
     admin.includes("let value: PriceTable | null = null;")
-      && read("app/src/admin/AdminPage.jsx").includes('action: "prices", prices: null'));
+      // Re-homed 2026-10-24 (99.3b-ii): AdminPage.jsx is deleted; the editor is
+      // the office's Money place, whose "Yes, go back" sends null through the same call.
+      && read("app/src/admin/office/places/money/Prices.jsx").includes("onClick={() => send(null)}")
+      && read("app/src/admin/office/places/money/Prices.jsx").includes('call({ action: "prices", prices })'));
   check("the whole table is written into the audit, not a flag",
     admin.includes('await logIt(admin, "prices", null, { to: value });'));
 }
