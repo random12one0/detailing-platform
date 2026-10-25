@@ -27,7 +27,7 @@
 //
 //   node scripts/sweep-booking-steps.mjs              # the four verification sizes
 //   node scripts/sweep-booking-steps.mjs 1440x900     # any list of WxH
-//   node scripts/sweep-booking-steps.mjs --shots=shots-2.7   # and save PNGs
+//   node scripts/sweep-booking-steps.mjs --shots=shots-2.7   # and save PNGs (to artifacts/shots-2.7)
 //   node scripts/sweep-booking-steps.mjs --lite              # the ?lite=1 path
 //
 // EXITS NON-ZERO while any step overflows, so it is the definition of done
@@ -45,6 +45,7 @@ import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 // working, and it would be the copy that rots.
 import { TAP_PROBE, EXCEPTIONS, FLOOR, CAP } from "./lib/tapProbe.mjs";
 import { writeReceipt } from "./receipt.mjs";
+import { outDir } from "./lib/outDir.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 // ROADMAP 97.49 — AN AXE PASS RIDES THIS WALK, for the same reason the tap
 // floor does: these steps are only reachable by this walk. axe-core is an app
@@ -144,7 +145,8 @@ const SIZES = (args.length ? args : ["1920x1080", "1440x900", "768x1024", "392x8
 const W16_SERVICES = 5;
 const BASE = process.env.BASE || "http://localhost:5173";
 const SLUG = "demo-detail";
-const SHOTS = process.argv.find((a) => a.startsWith("--shots="))?.slice(8) ?? "";
+// A typed relative folder lands under artifacts/ (ROADMAP 97.63), not the repo root.
+const SHOTS = outDir(process.argv.find((a) => a.startsWith("--shots="))?.slice(8) ?? "");
 // CLAUDE.md § Design: every width is checked in the normal path AND ?lite=1.
 const LITE = process.argv.includes("--lite");
 
