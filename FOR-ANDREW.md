@@ -2259,7 +2259,7 @@ still knows them.
   top of `docs/recovery.md`.
 
 
-- [ ] **SWITCH · Publish six booking functions, so a press repeated on a bad
+- [x] **SWITCH · Publish six booking functions, so a press repeated on a bad
   connection does not send a customer two emails or refuse their own booking
   (ROADMAP 6.4).** Added 2026-10-06.
 
@@ -2281,6 +2281,9 @@ still knows them.
   the live site now and turn green once these are published.
 
   **Nothing to decide.**
+
+  **DONE — found 2026-10-24.** The server check of 2026-10-23 shows all six (and `send-invoice`) are live.
+  Nothing for you to do here. What is left is a session with the keys running the two live checks ROADMAP 6.4 names.
 
 
 - [ ] **NEEDS ANDREW · Put the Stripe TEST secret key into `.env`, so the

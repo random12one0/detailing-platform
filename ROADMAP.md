@@ -17538,6 +17538,33 @@ going to earn anyway.”* A 409 resolves **when it resolves**; the exhausted one
   key)` is correct for the two-press race the build note describes.
 
 
+  ***THE PUBLISH AND THE TABLE ARE NO LONGER WHAT 6.4 WAITS ON — read 2026-10-24 (belt job, at `528f020c`). WHAT IT WAITS ON NOW
+  IS TWO LIVE RUNS, AND NEITHER THIS JOB NOR THE BELT HOLDS THE KEYS TO RUN THEM. The box stays `[ ]`.***
+  **Read off the committed receipts, not re-run (this copy has no `.env`):** `receipts/deployed-inventory.json` (taken 2026-10-23 at
+  `7f7789b3`) names only `platform-admin` as differing and `google-business` as never deployed, so all seven programs this entry waits on —
+  `create-booking`, `update-booking`, `cancel-booking`, `reschedule-booking`, `respond-to-booking`, `accept-quote` and `send-invoice` — were
+  running that checkout. `receipts/migration-drift.json` (2026-10-18, `db8c6c0c`), which compares tables by existence, names neither
+  `send_invoice_attempts` nor `20261006062000_send_invoice_attempts.sql`, and `FOR-ANDREW.md`'s "Publish and apply — the one ordered list"
+  (step 2) says it was applied 2026-10-10. **Since `7f7789b3`, `create-booking/index.ts` has changed by 12 lines in this checkout**; a
+  deployed run tests what is live, which is the point of it.
+  **Built: `scripts/send-invoice-live.mjs` (`528f020c`)**, the live press this entry asked DP Cowork for. Throwaway `is_demo` business,
+  four finalized jobs, customer addresses on the `fixture.test` sink (no provider call, no allowance spent), this checkout's screen at
+  1440x900, 768x1024 and 390x844 with the two address-reading modules rewritten to the live project and signed (docs/gotchas.md 113).
+  Per width: a double tap leaves **2** `email_sends` rows (invoice + thank-you), every request carries one key, the live table holds one
+  `sent` row for it, no answer says `idempotent: false`, "Receipt + thank-you sent." with no error box; then one "Email it again" leaves
+  **2 more** with a new key; console read. Refusals from node: a malformed key is a 400 and sends nothing; another business's booking is a
+  404 and sends nothing. Canary: the same +2 assertion on a booking nobody pressed. **`--break=no-key`** strips the key in the browser
+  (the entry's own red proof): the double tap must read 4 rows and an empty table. Teardown deletes the business and reads it back gone.
+  **Checked here, without keys:** `node --check` clean; with no credentials it throws *"NOTHING WAS MEASURED"*, exits 1 and writes no
+  receipt; an unknown `--break=` is refused. `node --test tests/send-invoice-key.test.mjs` 6 pass / 0 fail; `tests/send-invoice-key-sql.test.mjs`
+  skipped all 6 (no `PGLITE_DIR` here, as its header says).
+  **`update-booking`'s `add_ons` clause re-checked at `5fc34aa2`:** the six `updateBooking` calls in `app/src` (BookingDetail ×3,
+  FinalizeModal, Money, Today) send no `add_ons`, so nothing doubles and no index is needed yet.
+  LIVE RUN NEEDED: `RETRY_TARGET=deployed node tests/retry-safety.test.mjs`, then `RETRY_TARGET=deployed node tests/retry-safety.test.mjs --break=no-client-id` — (b) and (c) on the LIVE programs, read off the rows: one booking from a repeated submit, one email per status change pressed twice at once, Finalize lines 2 not 6, ten bulk jobs one row each; the break run must read 3b red (6 lines).
+  LIVE RUN NEEDED: `node scripts/send-invoice-live.mjs`, then `node scripts/send-invoice-live.mjs --break=no-key`, graded with `node scripts/receipt.mjs receipts/send-invoice-live.json` and `receipts/send-invoice-live.sabotage.json` — a double tap of "Email the receipt" on the live `send-invoice` sends one invoice and one thank-you at 1440, 768 and 390, a deliberate send again sends one more of each, the two refusals hold, and the keyless break reads two and two.
+  **When both are green, 6.4 can be ticked**: (a) and (d) are built and measured above, (b) and (c) would then be proved live on the rows,
+  and `send-invoice`'s repeat is the last duplicate action this entry names.
+
 - [x] **6.4a — Today is readable offline only while the screen that loaded it
   stays open. Reload it, or leave and come back, and it is blank.**
   Found 2026-10-06 by DP Cowork while building 6.4(a); said in that commit
