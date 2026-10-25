@@ -44,7 +44,7 @@ const LITE = process.argv.includes("--lite");
 if (BREAK && !["one-press", "always-on"].includes(BREAK)) { console.error(`unknown --break=${BREAK}; one-press or always-on`); process.exit(2); }
 const BASE = process.env.BASE_URL || process.env.BASE || "http://localhost:5173";
 const SIZES = [{ w: 1440, h: 900 }, { w: 768, h: 1024 }, { w: 390, h: 844 }, { w: 320, h: 700 }];
-const ART = "artifacts/office-restore-look";
+const ART = `artifacts/office-restore-look${BREAK ? `-${BREAK}` : ""}`;   // a sabotage keeps its own screenshots; a clean run must not overwrite them
 const SHOTS = "C:/Users/rando/Downloads/claude/belt/shots/99.16";
 const PNGS = `${SHOTS}/png`;
 // supabase-js keeps its session under `sb-<first label of the API host>-auth-token`; read the host the served app was built against.
@@ -163,6 +163,8 @@ const openPanel = async (page, name) => {
   await page.waitForSelector(".bo-panel", { timeout: 10000 });
   await settle(page, 900);
 };
+// A press that finds nothing to press is a failed question, not a crash that hides the other widths.
+const press = (loc) => loc.click({ timeout: 3000 }).catch(() => false);
 const footer = (page) => page.locator(".bo-pfoot");
 const lookBtn = (page) => page.locator(".bo-panel button", { hasText: "Look at their dashboard" });
 const reason = (page) => page.locator(".bo-panel .bo-nolook");
@@ -211,7 +213,7 @@ try {
       await openPanel(page, KESTREL);
       const reopen = footer(page).locator("button", { hasText: "Reopen account" });
       check(where, "A1 a suspended account offers Reopen account", (await reopen.count()) === 1);
-      await reopen.click();
+      await press(reopen);
       await settle(page, 500);
       const q = (await footer(page).locator(".bo-sure p").first().textContent({ timeout: 3000 }).catch(() => "")) || "";
       check(where, "A2 the first press sends nothing", count(sent, "restore") === 0, `restore sent ${count(sent, "restore")}`);
@@ -224,11 +226,11 @@ try {
       let p = await probe(page, ".bo-pfoot button");
       check(where, "A5 the question: no overlap, no sideways overflow, nothing cut, 44px hit area", p.overlaps.length === 0 && !p.overflowX && p.cut.length === 0 && p.thin.length === 0, [...p.overlaps, ...p.cut, ...p.thin].join(" | "));
       await shot("restore-asks");
-      await no.click();
+      await press(no);
       check(where, "A6 Not yet puts the button back and sends nothing",
         (await reopen.count()) === 1 && (await footer(page).locator(".bo-sure").count()) === 0 && count(sent, "restore") === 0);
-      await reopen.click();
-      await yes.click();
+      await press(reopen);
+      await press(yes);
       await settle(page, 600);
       check(where, "A7 the answer sends exactly one restore for THIS business",
         count(sent, "restore") === 1 && count(sent, "restore", "acct-3") === 1, JSON.stringify(sent.filter((b) => b.action === "restore")));
@@ -237,11 +239,11 @@ try {
       await openPanel(page, LARCH);
       const live = footer(page).locator("button", { hasText: "Put live without payment" });
       check(where, "A8 a signup that never paid offers Put live without payment", (await live.count()) === 1);
-      await live.click();
+      await press(live);
       await settle(page, 500);
       const q2 = (await footer(page).locator(".bo-sure p").first().textContent({ timeout: 3000 }).catch(() => "")) || "";
       check(where, "A9 it asks first, naming the business, and sends nothing", q2.includes(LARCH) && count(sent, "restore", "acct-4") === 0, JSON.stringify(q2));
-      await footer(page).locator("button", { hasText: "Not yet" }).click();
+      await press(footer(page).locator("button", { hasText: "Not yet" }));
       check(where, "A10 Not yet sends nothing", count(sent, "restore", "acct-4") === 0);
 
       // ── B. LOOK AT THEIR DASHBOARD — no owner ──
@@ -275,7 +277,7 @@ try {
       await openPanel(page, JUNIPER);
       const jb = lookBtn(page);
       check(where, "B6 an owner exists: the button is on and no reason is written", (await jb.isEnabled().catch(() => false)) && (await reason(page).count()) === 0);
-      await jb.click();
+      await press(jb);
       await page.waitForTimeout(800);
       check(where, "B7 one press sends one impersonate for THIS business and opens one tab",
         count(sent, "impersonate") === 1 && count(sent, "impersonate", "acct-2") === 1 && popups.length === 1, `sent ${count(sent, "impersonate")}, tabs ${popups.length}`);
@@ -307,7 +309,7 @@ if (FREEZE) process.exit(failures.length ? 1 : 0);
 const QUESTIONS = 19;
 const status = failures.length === 0 && canary.observed_failure && completed === SIZES.length ? "pass" : "fail";
 const { path } = writeReceipt({
-  check_id: `office-restore-look${LITE ? "-lite" : ""}`,
+  check_id: `office-restore-look${LITE ? "-lite" : ""}${BREAK ? `-${BREAK}` : ""}`,   // one receipt per sabotage
   started_at,
   status,
   expected_targets: SIZES.length,

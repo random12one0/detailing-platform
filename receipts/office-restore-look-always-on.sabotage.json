@@ -1,0 +1,136 @@
+{
+  "git_sha": "31e281c2458ce8952e29c4fee3cd632d3b4421bf",
+  "git_sha_started": "31e281c2458ce8952e29c4fee3cd632d3b4421bf",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T05:47:12.357Z",
+  "failures": [
+    "1440: B1 no owner (contact email filled in): the button is off",
+    "1440: B2 the reason is written beside it \"\"",
+    "1440: B3 a forced press sends no impersonate and opens no tab sent 1, tabs 1",
+    "1440: B4 the Their account note says the same thing",
+    "1440: B7 one press sends one impersonate for THIS business and opens one tab sent 2, tabs 2",
+    "768: B1 no owner (contact email filled in): the button is off",
+    "768: B2 the reason is written beside it \"\"",
+    "768: B3 a forced press sends no impersonate and opens no tab sent 1, tabs 1",
+    "768: B4 the Their account note says the same thing",
+    "768: B7 one press sends one impersonate for THIS business and opens one tab sent 2, tabs 2",
+    "390: B1 no owner (contact email filled in): the button is off",
+    "390: B2 the reason is written beside it \"\"",
+    "390: B3 a forced press sends no impersonate and opens no tab sent 1, tabs 1",
+    "390: B4 the Their account note says the same thing",
+    "390: B7 one press sends one impersonate for THIS business and opens one tab sent 2, tabs 2",
+    "320: B1 no owner (contact email filled in): the button is off",
+    "320: B2 the reason is written beside it \"\"",
+    "320: B3 a forced press sends no impersonate and opens no tab sent 1, tabs 1",
+    "320: B4 the Their account note says the same thing",
+    "320: B7 one press sends one impersonate for THIS business and opens one tab sent 2, tabs 2"
+  ],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers for five made-up detailers. Asks what the screen sends and shows, not what the server does.",
+    "The tab 'Look at their dashboard' opens is counted, not read: what the preview tab does with the token is scripts/support-view-ends.mjs, which needs credentials and a live run.",
+    "run with --break=always-on; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-restore-look-always-on/restore-asks-1440.png",
+    "artifacts/office-restore-look-always-on/look-off-1440.png",
+    "artifacts/office-restore-look-always-on/restore-asks-768.png",
+    "artifacts/office-restore-look-always-on/look-off-768.png",
+    "artifacts/office-restore-look-always-on/restore-asks-390.png",
+    "artifacts/office-restore-look-always-on/look-off-390.png",
+    "artifacts/office-restore-look-always-on/restore-asks-320.png",
+    "artifacts/office-restore-look-always-on/look-off-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "lite": false,
+    "break": "always-on",
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate",
+          "impersonate"
+        ]
+      },
+      "390": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate",
+          "impersonate"
+        ]
+      },
+      "768": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate",
+          "impersonate"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate",
+          "impersonate"
+        ]
+      }
+    }
+  },
+  "check_id": "office-restore-look-always-on",
+  "started_at": "2026-10-25T05:41:57.224Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 76,
+  "min_assertions": 76,
+  "assertion_floor": "4 widths x 19 questions (restore 10, look 8, console 1), fixed by the code.",
+  "canary": {
+    "id": "injected-overlapping-look-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}
