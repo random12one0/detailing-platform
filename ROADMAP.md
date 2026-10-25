@@ -10663,9 +10663,10 @@ the wrong service, and never book a job we cannot reach.
   **THE FINDING, measured before any file changed:** the dashboard reserved
   nothing at the top. Focused from below (Shift+Tab), «Hide», «Vehicle types»,
   «Navigate», «Quote»… came to rest flush under the header — `.topbar` (63px)
-  took rows from **16 of 22** controls on Today at 320/390, 14 at 768, 7 at 1440,
-  3 at 1920; `.impbar` (100px at 320/390 where it wraps, 49px wider) from 16 of
-  22 at 320/390. Run `--break=nofix` to see it again.
+  took rows from **16/16/14/7/3 of 22** controls on Today at 320/390/768/1440/1920;
+  `.impbar` (100px at 320/390 where it wraps, 49px wider) from 16/16/14/4/3 of 22.
+  Re-take: `node scripts/state-furniture-clearance.mjs --break=nofix` at `af5fc32f`
+  (`receipts/state-furniture-clearance.sabotage.json`).
   **The fix, `app/src/theme.css`:** `html:has(.app-shell > .topbar)
   { scroll-padding-top: calc(var(--topbar-h) + 2 * var(--hit-overhang)) }` and
   `html:has(.app-shell > .impbar) { scroll-padding-top: calc(8rem +
@@ -10705,6 +10706,8 @@ the wrong service, and never book a job we cannot reach.
   R7 (*0 failures with the canary caught*) has never been re-taken on the new
   back office; ROADMAP 99.10 item 6 also names two grading faults in it (43px
   accepted but reach judged only at 44; `mine()` ignores `.bo-panel`).
+  LIVE RUN NEEDED: `node --env-file=.env scripts/admin-furniture-clearance.mjs` on the new back office — proves R7: 0 failures across 5 widths x (4 places + 1 open panel), `.bo-rail` and `.bo-panel` taking no rows from any control, with the dock-reserve canary caught.
+  LIVE RUN NEEDED: `node --env-file=.env scripts/admin-furniture-clearance.mjs --break=rect` — proves the check measures the hit area, not the box: it must go red on `legal` for the `.bo-thead` buttons (16px top overhang), into its own sabotage receipt.
   Waits on: ROADMAP 99.10 item 6 — fix those two lines and re-run
   `node --env-file=.env scripts/admin-furniture-clearance.mjs` (and its
   `--break=rect`) on the new back office; whoever closes that ticks this box.

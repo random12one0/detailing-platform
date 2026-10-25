@@ -19,9 +19,10 @@
 // screen and a header at the top can never be caught. Going BACKWARDS
 // (Shift+Tab, or any focus on a control above the viewport) parks it at the
 // TOP, flush under the header — the fault `.jobbar ~ *`'s scroll-margin-top in
-// theme.css was written for on the job record. Measured 2026-10-24 before the
-// fix: `.topbar` took rows from 15 of 23 controls at 320/392/768 and 6 of 23
-// at 1440/1920; `.impbar` from 16 of 23 at 320/392.
+// theme.css was written for on the job record. Before the fix, of 22 controls
+// on Today at 320/390/768/1440/1920: `.topbar` took rows from 16/16/14/7/3,
+// `.impbar` from 16/16/14/4/3 — `node scripts/state-furniture-clearance.mjs
+// --break=nofix` at af5fc32f, receipts/state-furniture-clearance.sabotage.json.
 //
 // ACCOUNT. The demo owner, signed in with `DEMO_OWNER_PW` (`scripts/lib/
 // demoOwner.mjs`). The red strip is drawn from a note in localStorage
