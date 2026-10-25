@@ -123,6 +123,20 @@ those old pieces back into the new back office, which would be separate work.
 (Written by the 98.4 job on its unmerged branch; supervision 2026-10-19 brought
 it here so it reaches you while the rest of that work is finished.)
 
+## DECIDE · Fifteen old back-office pieces have no place in the new one (ROADMAP 99.3)
+
+When the new back office replaced the old screen, most things moved across, but fifteen did not.
+The full list, with where each one used to be, is in `docs/99-3-old-to-new-inventory.md`. The ones
+you are most likely to miss: how many customers are waiting for a detailer to answer, the founding
+spots left, the money that passed through your detailers this month, a detailer's all-time earnings,
+whether their website address is verified, the promo codes list, and the button that emails a detailer
+"work has started" on their website (your terms promise that email, and nothing can send it now).
+
+**Recommendation: say "bring back the work-has-started email and the customers-waiting count; drop the
+rest".** The email is a promise in your terms, and the waiting count tells you a detailer is ignoring
+customers. The rest were extra numbers the approved design left out on purpose. Anything you name
+comes back as its own small job. Anything you drop is recorded as removed on purpose.
+
 ## DO, AT YOUR NEXT RELEASE · Customers confirm the car's condition from their receipt link (ROADMAP 97.55)
 
 You said yes on 2026-10-15 to a timed tick box, and with no lawyer wait: it is built. The customer's receipt link now has a Vehicle check-in card that says how many existing marks were photographed, a tick box and a Confirm button. The card only appears once you have taken at least one damage photo on the job, so nobody confirms a check-in that has not happened. The time is saved the first time they press, a second press never moves it, and a cancelled booking does not get the card. The job record shows "Customer confirmed the vehicle check-in <time>" with how many damage photos they confirmed, flags any damage photo taken after they confirmed, or says "The customer has not confirmed the vehicle check-in yet." The words are plain acknowledgment only: no waiver, no signature. Nothing is waiting on you except publishing.
