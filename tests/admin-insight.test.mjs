@@ -18,7 +18,7 @@
 import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, paidFor, trend, workload,
 } from "../app/src/lib/adminInsight.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -316,15 +316,33 @@ console.log("\n10. what the screen feeds bookability");
   // these go red on working code; the fix then is to update the name here,
   // not to delete the check. Comments are stripped first for the reason
   // section 9 records: this file's own prose names the forbidden call.
-  const page = readFileSync(new URL("../app/src/admin/AdminPage.jsx", import.meta.url), "utf8")
+  //
+  // **RE-HOMED 2026-10-24 (ROADMAP 99.3b-ii).** AdminPage.jsx, the screen these
+  // read, was deleted by 99.3b-i. The new back office (`admin/office/` and the
+  // `lib/office*.js` it computes from) asks `bookability` NOWHERE: it judges a
+  // detailer by `statusOf`/`issueOf`, which read `status` off the row itself.
+  // So 10g now holds that the whole office has NO raw `bookability(` call, and
+  // 10h (the helper naming both fields) retires with the helper, which the new
+  // office never had. A future call reddens 10g and must come back through a
+  // helper that hands in `status` and `booking_mode`, as 10a-10f require.
+  const officeDir = new URL("../app/src/admin/office/", import.meta.url);
+  const libDir = new URL("../app/src/lib/", import.meta.url);
+  const files = [
+    ...readdirSync(officeDir, { recursive: true }).filter((p) => /\.jsx?$/.test(p))
+      .map((p) => new URL(String(p).split("\\").join("/"), officeDir)),
+    ...readdirSync(libDir).filter((p) => /^office.*\.js$/.test(p)).map((p) => new URL(p, libDir)),
+  ];
+  const whole = files.map((u) => readFileSync(u, "utf8")).join("\n");
+  const page = whole
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/^\s*\/\/.*$/gm, "");
   const raw = page.match(/\bbookability\(/g) ?? [];
-  check("10g · exactly one raw bookability() call in the whole screen", raw.length === 1,
-    `found ${raw.length} — every call site must go through bookabilityOf(row)`);
-  check("10h · and the helper names both fields the object was missing",
-    /const bookabilityOf[\s\S]{0,260}status[\s\S]{0,120}booking_mode/.test(page),
-    "bookabilityOf must read status and booking_mode off the row");
+  // Discovery floor: a path that stopped resolving would otherwise read as
+  // "no raw call" over nothing at all.
+  check("10g-0 · the office source was found", files.length >= 20 && whole.includes("export default function OfficePage"),
+    `read ${files.length} files`);
+  check("10g · no raw bookability() call anywhere in the back office", raw.length === 0,
+    `found ${raw.length} — a call site must hand in status and booking_mode (10a-10f)`);
 }
 
 // ─── THE SUITE'S OWN EXIT CODE ────────────────────────────────────────────
