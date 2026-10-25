@@ -331,6 +331,8 @@ function loadReceipt(name, watched) {
   const sab = r.dimensions?.break || r.dimensions?.sabotage || r.dimensions?.broken_on_purpose
     || (r.warnings || []).some((w) => /sabotage, not a result/.test(w));
   if (sab) failures.push(`receipts/${name}.json is a SABOTAGE run, not a result; re-run ${name}.mjs clean.`);
+  // release-sheet-standin.mjs marks its made-up inventory, so one a killed run left behind is refused, not read (98.18).
+  if (r.dimensions?.standin) failures.push(`receipts/${name}.json is a STAND-IN written by release-sheet-standin.mjs, not a measurement of the server; put it back with \`git checkout HEAD -- receipts/${name}.json\` and re-run ${name}.mjs.`);
   if (r.canary && r.canary.observed_failure !== true) failures.push(`receipts/${name}.json did not catch its own canary, so its findings prove nothing.`);
   let moved = "";
   try { moved = git("diff", "--name-only", r.git_sha, "HEAD", "--", watched); } catch { moved = `(cannot compare: ${r.git_sha} is not in this repository)`; }
