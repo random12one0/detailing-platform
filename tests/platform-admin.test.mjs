@@ -1634,6 +1634,14 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
   // is aimed at production code and no other lane's tree is touched. Each one
   // is asserted to have CHANGED the source before its verdict is believed —
   // docs/gotchas.md 95, a canary that stops biting while still passing.
+  //
+  // The two set sabotages edit INSIDE the set's own text, whatever its line
+  // wrapping. The first version replaced a one-line spelling of the list; when
+  // the list was re-wrapped onto two lines that edit matched nothing and the
+  // middle sabotage printed DID NOT APPLY on every run since (docs/gotchas.md
+  // 102). An absent set leaves `fn` unchanged, which still reads DID NOT APPLY.
+  const setText = /const BUSINESS_ACTIONS = new Set\(\[[\s\S]*?\]\);/.exec(fn)?.[0] ?? "";
+  const inSet = (edit) => (setText ? fn.replace(setText, edit(setText)) : fn);
   const sabotage = (name, broken, verdict) => {
     check(`15e · ${name}`, broken !== fn && verdict(gateOf(broken)),
       broken === fn ? "THE SABOTAGE DID NOT APPLY — this check proved nothing" : "the sabotaged source still passed");
@@ -1642,10 +1650,10 @@ console.log("\n15. an unknown action says so (ROADMAP 9.18 d)");
     fn.replace('if (!BUSINESS_ACTIONS.has(action)) return json({ error: "Unknown action" }, 400);', ""),
     (b) => b === null);
   sabotage("an action handled below but left out of the set is seen",
-    fn.replace('"resend_invite", "impersonate",', '"resend_invite",'),
+    inSet((s) => s.replace(/"impersonate",?\s*/, "")),
     (b) => b !== null && !b.below.every((a) => b.names.includes(a)));
   sabotage("a name in the set that nothing handles is seen",
-    fn.replace('"note", "suspend"', '"refund_everything", "note", "suspend"'),
+    inSet((s) => s.replace("new Set([", 'new Set(["refund_everything", ')),
     (b) => b !== null && !b.names.every((a) => b.below.includes(a)));
 }
 
