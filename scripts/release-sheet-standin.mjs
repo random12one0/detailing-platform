@@ -49,7 +49,7 @@ const run = (b) => {
 let silent = 0;
 try {
   writeFileSync(join(REPO, "receipts/deployed-inventory.json"), JSON.stringify({ ...real, git_sha: git("rev-parse", "HEAD"), dimensions: { ...real.dimensions, differing: EMPTY ? [] : Object.keys(causes).sort(), not_deployed: EMPTY ? [] : ["google-business"], causes: EMPTY ? {} : causes } }, null, 2));
-  console.log(`STAND-IN${EMPTY ? " (--break=empty: names no programs)" : ""}: ${changed.size} function file(s) changed since ${real.git_sha.slice(0, 8)}; ${Object.keys(causes).length} program(s) treated as out of date.`);
+  console.log(`STAND-IN${EMPTY ? " (--break=empty: names no programs)" : ""}: ${changed.size} function file(s) changed since ${real.git_sha.slice(0, 8)}; ${EMPTY ? 0 : Object.keys(causes).length} program(s) treated as out of date.`);
   const clean = run();
   console.log(`\nclean: ${clean.size} FAIL`);
   for (const f of [...clean].sort()) console.log("  " + f);
