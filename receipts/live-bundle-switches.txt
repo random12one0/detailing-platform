@@ -1,0 +1,10 @@
+live bundle: assets/index-BjgdzFnP.js 1402004 bytes (1398754 characters)
+build on: {"business-media":3,"expense-receipts":0,"action:\"start\"":3,"createSignedUrls":1,"expense_id":3}
+build receipts-off: {"business-media":3,"expense-receipts":1,"action:\"start\"":2,"createSignedUrls":2,"expense_id":0}
+build media-off: {"business-media":5,"expense-receipts":0,"action:\"start\"":2,"createSignedUrls":1,"expense_id":3}
+build both-off: {"business-media":5,"expense-receipts":1,"action:\"start\"":1,"createSignedUrls":2,"expense_id":0}
+live:          {"business-media":3,"expense-receipts":0,"action:\"start\"":3,"createSignedUrls":1,"expense_id":3}
+PASS        receipts-live: RECEIPTS_VIA_DOOR is ON in the published website (matches build on on all 5 markers)
+PASS        media-live: MEDIA_VIA_DOOR is ON in the published website (matches build on on all 5 markers)
+canary (each off build judged off; the 2026-10-17 off bundle never on): receipts true, media true, stale true
+2 rules, 0 failed, 0 unjudgeable, 15 assertions

@@ -2613,6 +2613,42 @@ and how the wait ends.
   **Held for a builder, not for Andrew (belt 2026-10-25).** The finish review still found problems; they are work, not a question. Continue branch `belt/0.11c-20261024235256223`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
   - 1. `scripts/live-bundle-switches.mjs`, `judgeSwitch`: the media switch is judged on one marker, the `business-media` count (3 means on, 5 means off at this revision). That count moves with unrelated code. The 2026-10-17 entry recorded the live bundle at `business-media` 3 when MEDIA_VIA_DOOR was measured OFF, and today the "on" build also reads 3. So this check would print `PASS media-live: MEDIA_VIA_DOOR is ON` over the old switched-off bundle `index-CT8xjH8F.js`. Today's conclusion still holds, but only because the live counts match the switched-on build on all five markers, and the script does not require that. It should call "on" only when the live bundle matches the switched-on build on every candidate marker, or on a combination no off-build shares. Its sabotages only feed it off-builds of the *current* checkout, which is why they missed this.
   - 2. `ROADMAP.md`, 0.11c 2026-10-24 block: it states "MEDIA_VIA_DOOR … ON" on the strength of the script's media verdict. Once finding 1 is fixed, the evidence line should say what actually supports it: all five counts match the both-on build, including `action:"start"` 3 against 2 for each off build. The single-marker verdict alone does not.
+  **BOTH FINDINGS FIXED, 2026-10-25 (commits `dcf02cd9`, `9d6dc5b2`; credential-free, nothing published or deployed).**
+  Finding 1 was real and reproduced before the fix: the old judge, fed the recorded 2026-10-17 OFF counts, printed
+  `PASS media-live: MEDIA_VIA_DOOR is ON`. `scripts/live-bundle-switches.mjs` now builds all four switch combinations
+  and gives a switch a build's state only when the live bundle matches that build on ALL five markers; no match, or a
+  match with two builds that disagree on the switch, is UNJUDGEABLE. New `--break=stale-off` replays the 10-17 counts and
+  reddens `media-live` (and `receipts-live`) by name as UNJUDGEABLE (`receipts/live-bundle-switches.sabotage-stale-off.txt`);
+  the canary judges those counts on every run, and a judge relaxed back to the one marker reddened the canary
+  (`stale false`, exit 1). `--break=media-off` and `--break=receipts-off` still redden exactly their own rule. Finding 2:
+  the evidence line below now says what supports the verdict.
+  ***RE-MEASURED 2026-10-24/25 — THE WEBSITE PUBLISH HAS HAPPENED: BOTH SWITCHES ARE NOW ON THE PUBLISHED WEBSITE. Credential-free:
+  one public read of the website and four local builds; nothing deployed, applied, published or pushed. The box stays `[ ]`.***
+  The published bundle is `assets/index-BjgdzFnP.js` (1,402,004 bytes downloaded, 1,398,754 characters; it was
+  `index-CT8xjH8F.js` on 2026-10-17). **`node scripts/live-bundle-switches.mjs` at `9d6dc5b2`: 2 of 2 switches judged ON,
+  15 assertions, 0 failed, 0 unjudgeable, canary caught; `node scripts/receipt.mjs` grades it PASS.**
+  **What supports "both ON": the live bundle matches the both-on build on all five counts and no other build on any
+  combination.** Live `business-media` 3 / `expense-receipts` 0 / `action:"start"` 3 / `createSignedUrls` 1 /
+  `expense_id` 3, identical to the both-on build; receipts-off 3/1/2/2/0; media-off 5/0/2/1/3; both-off 5/1/1/2/0.
+  Among them, `action:"start"` reads 3 live and in the both-on build, against 2 in each single-off build and 1 in
+  both-off. `business-media` 3 alone does NOT prove media ON: the receipts-off build and the 2026-10-17 OFF bundle
+  (3/1/1/2/0) read 3 too.
+  *Corrected 2026-10-25 after review: the first version of this block rested the media verdict on `business-media` alone.*
+  **R5's "same release" half is NOT met, and now cannot be as written.** The allowance went from 1 to 10 GB on
+  2026-10-10 (Andrew's completion note; not re-measured, which needs the key), and the switches reached the published
+  website on 2026-10-23 (the release notes on other items here: "the website pushed at `094c9b3e`"). Two different
+  releases. R5's first half (the app never shipped before photo-door) stands as measured on 2026-10-17. Rewording R5 is
+  Andrew's (AMENDMENT PROPOSED in this sitting's report).
+  **What is still not met, and why the box stays open:** (1) Andrew's 2026-10-13 ruling (98.5) that the 17-file photo and
+  Spanish run pass with NO skips before the website goes out. The website went out first; the run with Spanish section 7
+  executing has still never happened, because it needs the database key and belt job copies have none (this copy has no
+  `.env`, checked 2026-10-25). It is 0.11cc's `NEEDS ANDREW` and stays there. (2) The post-publish
+  `node scripts/photo-release-order.mjs` re-run, which reads the database and Management API, so it too needs the key.
+  **No browser screenshots:** this sitting changed no screen; the subject is a published file, not a page.
+  LIVE RUN NEEDED: `set -a; . ./.env; set +a; PGLITE_DIR=C:/Users/rando/AppData/Local/Temp/pglite PGLITE_REQUIRED=1 node --test --test-reporter=spec tests/photo-*.test.mjs tests/job-photos.test.mjs tests/forget-photos.test.mjs tests/spanish.test.mjs` (main checkout, bash; the 17 files of 98.5: 14 `photo-*` plus three) — proves Andrew's 2026-10-13 no-skip gate: all 17 files pass with Spanish section 7 EXECUTING, which writes one demo booking's language on kguqylyzgyzfktkfnhjb only; node's own `skipped 0` does not count that section, so read its printed line.
+  LIVE RUN NEEDED: `set -a; . ./.env; set +a; node scripts/photo-release-order.mjs` (main checkout, read-only) — proves the completed release state on the live system: door live with JWT on, delete-customer carrying its R2 markers, the photo-reconcile cron entry, `photo_total_gb` 10 and the door markers in the published bundle, with `bucket-cors` UNJUDGEABLE by name; `node scripts/receipt.mjs` must grade it PASS.
+  Waits on: 0.11cc. How the wait ends: a session with the key, in the main checkout, runs both LIVE RUN NEEDED lines
+  clean, then ticks 0.11cc; this item additionally needs Andrew's ruling on R5.
   ***RE-MEASURED 2026-10-17 — THE SERVER HALF OF THE RELEASE HAS HAPPENED (AT ITS 2026-10-10 VERSIONS); BOTH APP SWITCHES ARE NOT YET ON THE
   PUBLISHED WEBSITE. Read-only: nothing deployed, applied, published or pushed; no DDL; no secret value touched. The box
   stays `[ ]`.***
@@ -3024,6 +3060,12 @@ and how the wait ends.
   so. The steps are `FOR-ANDREW.md` 9c, 9d and 9e, in that order, with step 9a2 before 9c.
 
 - [ ] **0.11cc — Install cron and apply coordinated allowance release**
+  **2026-10-25, credential-free: the website publish has happened.** `node scripts/live-bundle-switches.mjs` at `9d6dc5b2`
+  judges `RECEIPTS_VIA_DOOR` and `MEDIA_VIA_DOOR` both ON in the published bundle `assets/index-BjgdzFnP.js`: it matches
+  the both-on build on all five markers and no other build (2 of 2, 15 assertions, canary caught, graded PASS; three
+  sabotages caught by name). Detail under 0.11c. The website went out BEFORE the no-skip run below, so that run is now a
+  check after the fact, not a gate; it is still owed under 98.5, and so is the post-publish `photo-release-order.mjs`
+  re-run. Both need the database key; this copy has none. The exact commands are the two LIVE RUN NEEDED lines under 0.11c.
   NEEDS ANDREW: the one step left before your publish is a single test run that needs the database's full-access
   key, and belt job copies are deliberately given no keys (this copy has no `.env`; checked 2026-10-18). Clear it
   by saying yes to one session running 98.5's 17-file command in the MAIN checkout with `.env` loaded, so
