@@ -242,6 +242,10 @@ try {
     check(`${w} suspend · the drawer's own history shows "You suspended them"`, shown, `history card read: ${JSON.stringify((hist || "").slice(0, 200))}`);
     const t1 = new Date().toISOString();
     await drawer.getByRole("button", { name: "Reopen account", exact: true }).click({ timeout: 15000 });
+    // ROADMAP 99.16 — the old screen asked "Let X back in?" and the office now does again: the first press writes nothing.
+    const rq99 = (await drawer.locator(".bo-sure p").first().textContent({ timeout: 5000 }).catch(() => "")) || "";
+    check(`${w} suspend · Reopen asks first, naming the business, and writes nothing`, rq99.includes(`Let ${NAME} back in?`) && (await one(`businesses?id=eq.${biz.id}&select=status`)).status === "paused", JSON.stringify(rq99));
+    await drawer.getByRole("button", { name: "Yes, let them back in", exact: true }).click({ timeout: 15000 });
     check(`${w} suspend · reversed from the same drawer (Reopen account)`, !!(await until(async () => (await one(`businesses?id=eq.${biz.id}&select=status`)).status === "active")));
     const rP = auditProblems(await adminRow("restore", t1), { actor: admin.id, field: "status", from: "paused", after: "active" });
     check(`${w} suspend · the restore leaves its own row, paused -> active`, rP.length === 0, rP.join("; "));

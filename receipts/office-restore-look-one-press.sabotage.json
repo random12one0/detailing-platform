@@ -1,0 +1,164 @@
+{
+  "git_sha": "31e281c2458ce8952e29c4fee3cd632d3b4421bf",
+  "git_sha_started": "31e281c2458ce8952e29c4fee3cd632d3b4421bf",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T05:41:56.571Z",
+  "failures": [
+    "1440: A2 the first press sends nothing restore sent 1",
+    "1440: A3 it asks, naming the business \"\"",
+    "1440: A4 the question has a Yes and a Not yet",
+    "1440: A6 Not yet puts the button back and sends nothing",
+    "1440: A7 the answer sends exactly one restore for THIS business [{\"action\":\"restore\",\"business_id\":\"acct-3\"},{\"action\":\"restore\",\"business_id\":\"acct-3\"}]",
+    "1440: A9 it asks first, naming the business, and sends nothing \"\"",
+    "1440: A10 Not yet sends nothing",
+    "768: A2 the first press sends nothing restore sent 1",
+    "768: A3 it asks, naming the business \"\"",
+    "768: A4 the question has a Yes and a Not yet",
+    "768: A6 Not yet puts the button back and sends nothing",
+    "768: A7 the answer sends exactly one restore for THIS business [{\"action\":\"restore\",\"business_id\":\"acct-3\"},{\"action\":\"restore\",\"business_id\":\"acct-3\"}]",
+    "768: A9 it asks first, naming the business, and sends nothing \"\"",
+    "768: A10 Not yet sends nothing",
+    "390: A2 the first press sends nothing restore sent 1",
+    "390: A3 it asks, naming the business \"\"",
+    "390: A4 the question has a Yes and a Not yet",
+    "390: A6 Not yet puts the button back and sends nothing",
+    "390: A7 the answer sends exactly one restore for THIS business [{\"action\":\"restore\",\"business_id\":\"acct-3\"},{\"action\":\"restore\",\"business_id\":\"acct-3\"}]",
+    "390: A9 it asks first, naming the business, and sends nothing \"\"",
+    "390: A10 Not yet sends nothing",
+    "320: A2 the first press sends nothing restore sent 1",
+    "320: A3 it asks, naming the business \"\"",
+    "320: A4 the question has a Yes and a Not yet",
+    "320: A6 Not yet puts the button back and sends nothing",
+    "320: A7 the answer sends exactly one restore for THIS business [{\"action\":\"restore\",\"business_id\":\"acct-3\"},{\"action\":\"restore\",\"business_id\":\"acct-3\"}]",
+    "320: A9 it asks first, naming the business, and sends nothing \"\"",
+    "320: A10 Not yet sends nothing"
+  ],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers for five made-up detailers. Asks what the screen sends and shows, not what the server does.",
+    "The tab 'Look at their dashboard' opens is counted, not read: what the preview tab does with the token is scripts/support-view-ends.mjs, which needs credentials and a live run.",
+    "run with --break=one-press; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-restore-look-one-press/restore-asks-1440.png",
+    "artifacts/office-restore-look-one-press/look-off-1440.png",
+    "artifacts/office-restore-look-one-press/restore-asks-768.png",
+    "artifacts/office-restore-look-one-press/look-off-768.png",
+    "artifacts/office-restore-look-one-press/restore-asks-390.png",
+    "artifacts/office-restore-look-one-press/look-off-390.png",
+    "artifacts/office-restore-look-one-press/restore-asks-320.png",
+    "artifacts/office-restore-look-one-press/look-off-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "lite": false,
+    "break": "one-press",
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "390": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "768": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      }
+    }
+  },
+  "check_id": "office-restore-look-one-press",
+  "started_at": "2026-10-25T05:39:55.584Z",
+  "status": "fail",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 76,
+  "min_assertions": 76,
+  "assertion_floor": "4 widths x 19 questions (restore 10, look 8, console 1), fixed by the code.",
+  "canary": {
+    "id": "injected-overlapping-look-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}

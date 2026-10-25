@@ -1,0 +1,109 @@
+{
+  "git_sha": "16a6a1584af618e8a623d79d13499fcbcb16b9e8",
+  "git_sha_started": "16a6a1584af618e8a623d79d13499fcbcb16b9e8",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T05:48:14.326Z",
+  "failures": [],
+  "warnings": [
+    "Writes nothing: a made-up session and page.route() answers for five made-up detailers. Asks what the screen sends and shows, not what the server does.",
+    "The tab 'Look at their dashboard' opens is counted, not read: what the preview tab does with the token is scripts/support-view-ends.mjs, which needs credentials and a live run."
+  ],
+  "artifacts": [
+    "artifacts/office-restore-look/restore-asks-1440.png",
+    "artifacts/office-restore-look/look-off-1440.png",
+    "artifacts/office-restore-look/restore-asks-768.png",
+    "artifacts/office-restore-look/look-off-768.png",
+    "artifacts/office-restore-look/restore-asks-390.png",
+    "artifacts/office-restore-look/look-off-390.png",
+    "artifacts/office-restore-look/restore-asks-320.png",
+    "artifacts/office-restore-look/look-off-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "390x844",
+      "320x700"
+    ],
+    "lite": false,
+    "observed": {
+      "320": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "390": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "768": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      },
+      "1440": {
+        "calls": [
+          "whoami",
+          "list",
+          "get",
+          "get",
+          "get",
+          "get",
+          "get",
+          "restore",
+          "list",
+          "get",
+          "impersonate"
+        ]
+      }
+    }
+  },
+  "check_id": "office-restore-look",
+  "started_at": "2026-10-25T05:47:21.136Z",
+  "status": "pass",
+  "expected_targets": 4,
+  "discovered_targets": 4,
+  "attempted_targets": 4,
+  "completed_targets": 4,
+  "skipped_targets": 0,
+  "assertions_executed": 76,
+  "min_assertions": 76,
+  "assertion_floor": "4 widths x 19 questions (restore 10, look 8, console 1), fixed by the code.",
+  "canary": {
+    "id": "injected-overlapping-look-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}

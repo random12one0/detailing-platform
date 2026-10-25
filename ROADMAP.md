@@ -31779,13 +31779,34 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   `6b` in growth-lines then passes and its `todo` flag comes off. No decision needed: 9.2's five questions are
   Andrew's ruling of 2026-10-06 and the new office was meant to keep them.
 
-- [ ] **99.16 — Two safeguards the old back office had and the new one dropped (found by 99.3's inventory).**
+- [x] **99.16 — Two safeguards the old back office had and the new one dropped (found by 99.3's inventory).**
   `docs/99-3-old-to-new-inventory.md` rows "Restore" and "Look at their dashboard". (a) The old Restore asked "Let X
   back in?" before reopening a suspended account; `office/DetailerPanel.jsx:146-151` sends `restore` on one press.
   (b) The old "Look at their dashboard" was switched off when nobody had accepted the owner invite
   (`detail.members`); the office's `look()` (`DetailerPanel.jsx:155-173`) offers it always. Read from source only,
   not yet seen in a browser. Fix both the way the old screen did (a question before Restore; the button off, with
   the reason, when there is no owner), unless Andrew's answer on the inventory row says otherwise.
+  **Done when** (written 2026-10-24, before changing anything): (1) pressing Reopen account, or Put live without payment,
+  on a suspended or never-paid account sends NOTHING and asks a question naming the business; "Not yet" sends nothing; the
+  answer sends exactly one `restore` for that business. (2) "Look at their dashboard" is off, with the reason written beside
+  it, when the account's member list holds no owner, even if a contact email is typed in; a forced press sends no
+  `impersonate` and opens no tab; with an owner it is on and one press sends one; when the member list could not be read
+  it stays on and claims nothing. (3) Both hold at 1440, 768, 390 and 320, with no overlap, no sideways overflow, 44px hit
+  areas and a silent console.
+  **DONE 2026-10-24 (build 31e281c2).** Fixed both the way the old screen did, in `office/DetailerPanel.jsx`: the footer asks
+  "Let X back in?" (or "Put X live without payment?") with "Yes, let them back in" / "Not yet"; `hasOwner` is read from
+  `detail.members` (null = not read yet = left on) and drives the button, the reason line under "Get in touch", and the
+  "Their account" note, which had the same fault (it read `row.owner_email`, which the server fills from the contact address;
+  inventory row 17, fixed in this job rather than filed). No answer from Andrew on the inventory rows said otherwise.
+  **How checked:** `node scripts/office-restore-look.mjs` (no credentials; made-up session and answers, nothing written):
+  4 of 4 widths, 76 assertions, 0 failed, canary caught, also `--lite` 76/0; graded by `node scripts/receipt.mjs`.
+  `--break=one-press` (the original defect) goes red on 28 questions naming A2, A3, A4, A6, A7, A9, A10;
+  `--break=always-on` goes red on 20 naming B1, B2, B3, B4, B7; each has its own `.sabotage.json` receipt and screenshot folder.
+  Against the pre-fix code the same script failed A2, A3, A4 at 1440 (restore sent on the first press). I opened the 390, 320
+  and 1440 screenshots and looked. **Not run (credentials, live database; a session may not run them unasked):**
+  `scripts/suspend-delete-waive.mjs` (its Reopen step now presses the answer too, plus one added question per width) and
+  `scripts/support-view-ends.mjs` (unchanged; its throwaway business has an owner, so the button stays on). Before/After
+  copies are in the belt's shots/99.16.
 
 - [ ] **99.15 — `tests/platform-billing.test.mjs` check "the business is named in the subject, not in the
   furniture" is red.** Hidden until 2026-10-24: the file crashed reading the deleted `AdminPage.jsx` before it
