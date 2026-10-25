@@ -31808,11 +31808,12 @@ explicitly warns against — git history is the archive. Revisit at step 7.
   `scripts/support-view-ends.mjs` (unchanged; its throwaway business has an owner, so the button stays on). Before/After
   copies are in the belt's shots/99.16.
 
-- [ ] **99.15 — `tests/platform-billing.test.mjs` check "the business is named in the subject, not in the
+- [x] **99.15 — `tests/platform-billing.test.mjs` check "the business is named in the subject, not in the
   furniture" is red.** Hidden until 2026-10-24: the file crashed reading the deleted `AdminPage.jsx` before it
   got there, and 99.3 attempt 2's re-pin let it run to the end (343 passed, 1 failed). The failing subject is
   *"Ridgeline Auto Detail's booking page is offline"* against a rule that the late-payment subject END with the
   business name. Not caused by 99.3. Find whether the email wording or the check moved, and fix the one that is wrong.
+  **Done when:** the file runs to the end with 0 failed, and the late-payment email's subject is whatever Andrew approved. **Done 2026-10-24:** the CHECK was stale, not the email. 99.2e put Andrew's approved subject "Your card didn't go through" on the late-payment email (no business name); the check still demanded one. Re-pinned to: offline subject leads with the business, late subject names none, late body names it. `node --test tests/platform-billing.test.mjs` pass 1 / fail 0 (was fail 1). No screen changed.
 
 - [ ] **99.10 — Clean up what the Muse trial left behind (code review 2026-10-12).**
   NEEDS ANDREW: the belt held this job's work instead of merging it — the full test suite found tests/sweep-methods-are-pinned.test.mjs: 1 failing, the baseline had 0; 1 new failing test(s): tests/sweep-methods-are-pinned.test.mjs :: the two sweep methods are pinned, not described > 3b · every numbered open item is named by a commit, except the declared ones.

@@ -780,7 +780,10 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   check("the platform's own name is the brand on the email",
     brand.brandName === PLATFORM_NAME, brand.brandName);
   check("the business is named in the subject, not in the furniture",
-    down.subject.startsWith(B) && late.subject.endsWith(B), down.subject);
+    down.subject.startsWith(B) && !late.subject.includes(B) && late.html.includes(B), down.subject);
+  // 99.15: the approved wording (99.2e) moved the late-payment subject to
+  // "Your card didn't go through", which names no business. The offline subject
+  // still leads with it, and the failed email names it in the body.
   // IT GOES TO THE OWNER'S OWN ADDRESS, never the booking-notification list —
   // a detailer may well have pointed that at a shared inbox or a staff member,
   // and a declined card is not their team's business.
