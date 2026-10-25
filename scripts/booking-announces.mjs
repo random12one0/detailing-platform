@@ -285,6 +285,7 @@ const { path } = writeReceipt({
   skipped_targets: EXPECTED - completed,
   assertions_executed: assertions,
   min_assertions: EXPECTED + 1,
+  assertion_floor: "three moments per width plus one console check; a width whose walk dies early asks fewer and drops below it",
   failures: [...failures, ...(allCanaries ? [] : ["the heard/not-heard canary failed - every line beside it is void"])],
   artifacts,
   warnings: ["Says what a screen reader is HANDED. Whether a listener understands it is 8.5b's person-with-ears half."],
