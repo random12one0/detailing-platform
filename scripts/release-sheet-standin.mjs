@@ -2,7 +2,7 @@
 //
 //   node scripts/release-sheet-standin.mjs
 //   node scripts/release-sheet-standin.mjs --break=empty   # stand-in names NO programs (the stale case): must exit 1
-//                                                         # naming fn-before-page and lock-order as silent
+//                                                         # naming no-escape, fn-before-page and lock-order as silent
 //
 // Most of release-sheet.mjs's --break= switches only bite while the server check names the
 // programs they move. With a stale deployed-inventory receipt that names none, fn-before-page and
