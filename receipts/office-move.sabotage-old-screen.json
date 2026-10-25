@@ -1,0 +1,110 @@
+{
+  "git_sha": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
+  "git_sha_started": "3cfcc530a1351d86c62f304d82dbe9c6e0c67560",
+  "head_moved": false,
+  "environment": "local",
+  "finished_at": "2026-10-25T04:51:41.537Z",
+  "failures": [
+    "1440: unsigned: no old five-tab markup (.pa-top) is served",
+    "1440: signed in: no old five-tab markup (.pa-top) is served",
+    "1440: dead address: no rail, no door, no old markup there 1 leftover",
+    "1440: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "768: unsigned: no old five-tab markup (.pa-top) is served",
+    "768: signed in: no old five-tab markup (.pa-top) is served",
+    "768: dead address: no rail, no door, no old markup there 1 leftover",
+    "768: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "392: unsigned: no old five-tab markup (.pa-top) is served",
+    "392: signed in: no old five-tab markup (.pa-top) is served",
+    "392: dead address: no rail, no door, no old markup there 1 leftover",
+    "392: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "390: unsigned: no old five-tab markup (.pa-top) is served",
+    "390: signed in: no old five-tab markup (.pa-top) is served",
+    "390: dead address: no rail, no door, no old markup there 1 leftover",
+    "390: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover",
+    "320: unsigned: no old five-tab markup (.pa-top) is served",
+    "320: signed in: no old five-tab markup (.pa-top) is served",
+    "320: dead address: no rail, no door, no old markup there 1 leftover",
+    "320: non-admin: no rail, no door, no old markup, never 'not an admin' 1 leftover"
+  ],
+  "warnings": [
+    "Writes nothing: unsigned contexts never sign in (the refusal is answered locally); signed-in contexts use a made-up session and page.route() answers. Asks what the screen draws, not what the server does.",
+    "The look itself is not judged here; the screenshots and the frozen copies in belt/shots/9.12a are the evidence for that.",
+    "run with --break=old-screen; this receipt is a sabotage, not a result"
+  ],
+  "artifacts": [
+    "artifacts/office-move-sabotage-old-screen/door-1440.png",
+    "artifacts/office-move-sabotage-old-screen/door-refused-1440.png",
+    "artifacts/office-move-sabotage-old-screen/rail-1440.png",
+    "artifacts/office-move-sabotage-old-screen/dead-1440.png",
+    "artifacts/office-move-sabotage-old-screen/nonadmin-1440.png",
+    "artifacts/office-move-sabotage-old-screen/door-768.png",
+    "artifacts/office-move-sabotage-old-screen/door-refused-768.png",
+    "artifacts/office-move-sabotage-old-screen/rail-768.png",
+    "artifacts/office-move-sabotage-old-screen/dead-768.png",
+    "artifacts/office-move-sabotage-old-screen/nonadmin-768.png",
+    "artifacts/office-move-sabotage-old-screen/door-392.png",
+    "artifacts/office-move-sabotage-old-screen/door-refused-392.png",
+    "artifacts/office-move-sabotage-old-screen/rail-392.png",
+    "artifacts/office-move-sabotage-old-screen/dead-392.png",
+    "artifacts/office-move-sabotage-old-screen/nonadmin-392.png",
+    "artifacts/office-move-sabotage-old-screen/door-390.png",
+    "artifacts/office-move-sabotage-old-screen/door-refused-390.png",
+    "artifacts/office-move-sabotage-old-screen/rail-390.png",
+    "artifacts/office-move-sabotage-old-screen/dead-390.png",
+    "artifacts/office-move-sabotage-old-screen/nonadmin-390.png",
+    "artifacts/office-move-sabotage-old-screen/door-320.png",
+    "artifacts/office-move-sabotage-old-screen/door-refused-320.png",
+    "artifacts/office-move-sabotage-old-screen/rail-320.png",
+    "artifacts/office-move-sabotage-old-screen/dead-320.png",
+    "artifacts/office-move-sabotage-old-screen/nonadmin-320.png"
+  ],
+  "dimensions": {
+    "sizes": [
+      "1440x900",
+      "768x1024",
+      "392x844",
+      "390x844",
+      "320x700"
+    ],
+    "lite": false,
+    "break": "old-screen",
+    "observed": {
+      "320": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "390": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "392": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "768": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      },
+      "1440": {
+        "anonConsole": 2,
+        "calls": "whoami+list via route"
+      }
+    }
+  },
+  "check_id": "office-move",
+  "started_at": "2026-10-25T04:51:00.602Z",
+  "status": "fail",
+  "expected_targets": 5,
+  "discovered_targets": 5,
+  "attempted_targets": 5,
+  "completed_targets": 5,
+  "skipped_targets": 0,
+  "assertions_executed": 110,
+  "min_assertions": 110,
+  "assertion_floor": "5 widths x 22 questions (door 6, refusal 3, rail 7, dead address 2, console 1, non-admin 3), fixed by the code; a missing door or rail reddens its own question and its dependants are counted only when it exists, so a moved-back marker drops the count below the floor.",
+  "canary": {
+    "id": "injected-overlapping-door-button",
+    "observed_failure": true,
+    "detail": "overlaps seen with one injected: 1"
+  }
+}
