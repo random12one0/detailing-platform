@@ -10261,6 +10261,9 @@ the wrong service, and never book a job we cannot reach.
   furniture on it, is not built and is 9.11e.**
 
 - [ ] **9.11e — Screens with fixed furniture are not all hit-tested by the checks that measure them.**
+  **Held for a builder, not for Andrew (belt 2026-10-25).** The finish review still found problems; they are work, not a question. Continue branch `belt/9.11e-20261025015206869`: fix each finding that is real, re-run the item's proof, and say in this entry why any finding is wrong.
+  - 1. `scripts/state-furniture-clearance.mjs`: on `/website/preview`, `SiteIntake.jsx:1054` draws a red "Preview" strip (`.impbar`, sticky at the top). Neither new `html:has(.app-shell > …)` rule applies on that page, because the strip sits inside `.app-main`. But `intake()` only counts rows lost to `.livesite`. The run's own canary shows «Back» and «Close» parked at top 0 on that page, which is under that strip. So "`.livesite` IS CLEAN, and that is an answer" holds for the preview box only. The screen's other sticky strip was never asked about, while the meta-test now reports 12 of 12 hit-tested by name match alone. The script should also measure `.impbar` on that surface, or the gap should be recorded with a reason.
+  - 2. `ROADMAP.md` (the new 9.11e table): it says the clean run was "at `af5fc32f`", but `receipts/state-furniture-clearance.json` records `git_sha` `bfcce0c8`. The figure's stated revision does not match its receipt, which this repo's figure rule (`docs/gotchas.md` 94) requires.
   Split out of 9.11d, 2026-10-06. `bk-bar-clearance.mjs`'s pattern (a hit-test against every fixed element) is asked on the
   booking page. The dashboard shell's rail and tab bar, the back office and the job record's pinned bar are fixed furniture on
   other screens, and which checks already ask the question (`pinned-bar.mjs`, `tabbar-clearance.mjs`, `keyboard-walk.mjs`) has
