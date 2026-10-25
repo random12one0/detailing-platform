@@ -1201,6 +1201,26 @@ html:has(.tabbar) {
   scroll-padding-bottom: calc(var(--tabclear) + var(--hit-overhang));
 }
 
+/* **AND THE TOP, WHICH NOTHING RESERVED — ROADMAP 9.11e, 2026-10-24.** The
+   header is sticky at `top: 0`, so a control focused from BELOW (Shift+Tab,
+   or any focus on something above the viewport) was parked flush under it:
+   measured 15 of 22 controls on Today losing rows at 320/390/768, 6 at 1440.
+   `keyboard-walk.mjs` walks forwards and could never see it. The platform
+   view strip takes the stick from the header while it is up and wraps to
+   100px at phone widths (more in Spanish), so it gets a literal with room,
+   the `.jobbar ~ *` precedent: overshooting only scrolls a little further.
+   `.app-shell >` keeps both off the job record and the preview routes, which
+   draw an `.app-shell` with no header. The header reserve is twice the
+   overhang because the header renders a fraction over `--topbar-h` and the
+   first version lost one row at 320/390/768. `scripts/state-furniture-clearance.mjs`
+   is the check; `--break=nofix` puts the fault back. */
+html:has(.app-shell > .topbar) {
+  scroll-padding-top: calc(var(--topbar-h) + 2 * var(--hit-overhang));
+}
+html:has(.app-shell > .impbar) {
+  scroll-padding-top: calc(8rem + var(--hit-overhang));
+}
+
 /* **AND THE SAME SENTENCE FOR A SCROLLER INSIDE THE PAGE, BECAUSE THE RULE
    ABOVE CANNOT REACH ONE — 2026-09-23, the item 2.32 spawned.** The rule above
    is on `html`, so it governs the DOCUMENT scroller and nothing else. At 1440
@@ -2825,8 +2845,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    .chip.active's note: a state with no hover reads as disabled. */
 .cal-cell.selected:hover { border-color: var(--accent); background: var(--accent-quiet); }
 /* The phone scrolls the selected week up under the masthead when a day opens
-   (step 4b §5a), so the cell owes the sticky top bar its own height. */
-.cal-cell { scroll-margin-top: calc(var(--topbar-h) + var(--sp-3)); }
+   (step 4b §5a), so the cell owes the sticky top bar its own height — which
+   `html:has(.app-shell > .topbar)`'s scroll-padding-top now reserves (9.11e).
+   The two add, so the cell keeps only the rest: the same resting place. */
+.cal-cell { scroll-margin-top: calc(var(--sp-3) - 2 * var(--hit-overhang)); }
 
 /* ------------------------------------------------- THE DAY, UNDER THE GRID
    ONE CONTAINER AT EVERY WIDTH, which is step 4b §5a's ruling and the reason
