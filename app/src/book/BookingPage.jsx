@@ -1068,7 +1068,11 @@ function BookingFlow({ notFound = null }) {
               <ArrowLeft size={20} strokeWidth={2} />
             </button>
           )}
-          <div className="total">
+          {/* ROADMAP 8.5b — THE PRICE IS SAID WHEN IT MOVES. This block is always
+              in the page, so a polite live region here reads the new figure to
+              somebody listening the moment the quote changes; atomic, so they
+              hear "Estimated total $95", not a bare number. */}
+          <div className="total" aria-live="polite" aria-atomic="true">
             {quote ? (
               <>
                 {/* W17 — the estimated TIME rides on the eyebrow, not beside
